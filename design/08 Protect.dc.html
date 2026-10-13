@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">08 · Protect</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Passwords and permissions, redaction that really removes content and proves it, removing hidden information, and a plain-language security report.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">8.1 · Password protection</h2>
+<dc-import name="FmBoard" bid="a8-1" num="8.1" title="Protect — Open password, permissions, encryption" note="The strength meter judges length and variety, in words. Permissions are optional and need their own password; accessibility access for screen readers is always allowed. AES-256 is the default; AES-128 is offered for old readers. Ferman says plainly that a lost password can’t be recovered." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="password" save="saved" tabs="{{ tabsMaas }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ th1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="width:794px;height:1123px;flex:none;background:#FFFFFF;box-shadow:var(--shadow-page);position:relative"><span class="fm-thumb__lines" style="inset:8% 12% 40%"></span></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" icon="lock" title="Protect “Maaş bordrosu Eylül 2026.pdf”" actions="{{ actProtect }}" hint-size="680px,700px">
+<div style="display:grid;gap:16px">
+<div style="display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="Password to open" default-value="Bordro-Eylül-2026" hint-size="100%,52px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ 0.82 }}" tone="success" label="Strong · 17 characters, mixed" hint-size="100%,24px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="Repeat password" default-value="Bordro-Eylül-2026" hint-size="100%,52px"></x-import></div>
+<div style="display:grid;gap:10px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken)"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Restrict what people can do after opening" description="Needs a second password to change the restrictions." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" size="sm" label="Permissions password" default-value="İK-yetki-2026!" hint-size="100%,48px"></x-import>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Printing" default-value="high" options="{{ printOpts }}" hint-size="100%,48px"></x-import><span></span><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Copy text and images" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Edit pages and text" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Add comments" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Fill in forms and sign" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Insert, delete and rotate pages" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Screen readers" default-checked="{{ true }}" disabled="{{ true }}" hint-size="100%,20px"></x-import></div></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;align-items:end"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Encryption" default-value="aes256" options="{{ encOpts }}" hint-size="100%,48px"></x-import><span style="display:flex;gap:8px;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="info" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>Ferman can’t recover a forgotten password. Keep it somewhere safe.</span></div>
+</div></x-import></div>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">8.2 · Redaction</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a8-2" num="8.2a" title="Redact — Mark text, areas and patterns; review" note="Patterns find Turkish ID numbers (checksum-validated), IBANs, phone numbers and e-mail addresses; search terms add exact words. Marks are red hatching until applied, so nothing is removed by accident. Drag on the page to mark an area. The review list is the source of truth: uncheck to keep." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="findRedact" redactions="{{ 4 }}" save="unsaved" tabs="{{ tabsEkstre }}" pages="{{ 2 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="ekstre" tab="pages" current="{{ 1 }}" thumbs="{{ thRed }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocEkstre" redact="pending" hint-size="794px,1123px"><div aria-hidden="true" style="position:absolute;left:226px;top:211px;width:262px;height:20px;background:var(--redact-pending-bg);outline:1.5px solid var(--redact-pending);background-image:repeating-linear-gradient(135deg,rgba(180,35,24,.35) 0 1px,transparent 1px 6px)"></div></dc-import></main>
+<aside aria-label="Find and redact" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="eye-off" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Find and redact</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Patterns" collapsible="{{ false }}" hint-size="100%,170px"><sc-for list="{{ patterns }}" as="p" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="{{ p.label }}" default-checked="{{ p.on }}" hint-size="180px,20px"></x-import><span style="flex:1"></span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ p.count }}</span></div></sc-for></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Search terms" collapsible="{{ false }}" hint-size="100%,90px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="Add a word or phrase" aria-label="Add a search term" hint-size="100%,26px"></x-import><div style="display:flex;gap:6px;flex-wrap:wrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" hint-size="80px,18px">Maaş ödemesi · 1</x-import></div></x-import>
+<div style="padding:10px 12px 4px;font:var(--type-label);color:var(--text-tertiary)">REVIEW · 4 MARKED</div>
+<div style="display:grid;gap:2px;padding:0 6px">
+<sc-for list="{{ review }}" as="r" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px;min-height:34px;padding:2px 6px;border-radius:var(--radius-sm);background:{{ r.bg }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="{{ r.text }}" default-checked="{{ r.on }}" hint-size="16px,16px"></x-import><span style="display:grid;flex:1;min-width:0"><span lang="tr" style="font:var(--type-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.text }}</span><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ r.meta }}</span></span></div></sc-for>
+</div>
+<div style="margin-top:auto;padding:12px;border-top:1px solid var(--border-subtle);display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" icon="eye-off" full-width="{{ true }}" hint-size="100%,30px">Apply 4 redactions…</x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">Nothing is removed until you apply.</span></div>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a8-2b" num="8.2b" title="Redact — Confirm" note="The title is the question, the description is the consequence. Saving as a new file is on by default so the original stays intact. Hidden information is removed in the same step, because a redacted file that still carries the author’s name isn’t redacted." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="findRedact" redactions="{{ 4 }}" save="unsaved" tabs="{{ tabsEkstre }}" pages="{{ 2 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="ekstre" tab="pages" current="{{ 1 }}" thumbs="{{ thRed }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocEkstre" redact="pending" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="eye-off" title="Apply 4 redactions?" description="The marked text and the area are removed from the file for good, including from copy, search and hidden layers. You can’t undo this after saving." actions="{{ actApply }}" hint-size="540px,330px">
+<div style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Save as a new file" description="“Hesap ekstresi Eylül 2026 — karartılmış.pdf”. The original stays as it is." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Also remove hidden information" description="Metadata, comments, attachments and earlier versions (8.3)." default-checked="{{ true }}" hint-size="100%,40px"></x-import></div>
+</x-import></div>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a8-2c" num="8.2c" title="Redact — Applied and verified" note="After applying, Ferman re-reads the saved file and checks that the removed content is really gone: no text under the boxes, no matches in search, no image pixels, no earlier versions. The result is stated as fact, with each check listed." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="findRedact" save="saved" saved-at="14:50" tabs="{{ tabsRedacted }}" pages="{{ 2 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="ekstre" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="success" icon="shield-check" title="Redaction verified: no hidden text remains." actions="{{ actVerified }}" hint-size="100%,44px">4 redactions applied and saved as a new file.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocEkstre" redact="applied" hint-size="794px,1123px"><div aria-hidden="true" style="position:absolute;left:226px;top:211px;width:262px;height:20px;background:#000000"></div></dc-import></div></main>
+<aside aria-label="Verification" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Verification</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" icon="check" hint-size="70px,18px">Passed</x-import></div>
+<div style="display:grid;gap:12px;padding:12px">
+<sc-for list="{{ verify }}" as="v" hint-placeholder-count="6"><div style="display:flex;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px"><span style="font:var(--type-body)">{{ v.t }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ v.d }}</span></span></div></sc-for>
+</div>
+<div style="margin-top:auto;padding:12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-output" hint-size="160px,26px">Save verification report…</x-import></div>
+</aside>
+</dc-import>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">8.3 – 8.4 · Hidden information and security report</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a8-3" num="8.3" title="Protect — Remove hidden information" note="Every category says what Ferman found in this file, not what might exist. Categories with nothing found are shown as clean and can’t be ticked. Bookmarks are kept by default because they help readers." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="hidden" save="saved" tabs="{{ tabsKira }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" annot="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<aside aria-label="Remove hidden information" style="width:340px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="eraser" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Remove hidden information</span></div>
+<div style="display:grid;padding:6px 8px">
+<sc-for list="{{ hidden }}" as="x" hint-placeholder-count="9"><div style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:8px;padding:9px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="{{ x.t }}" default-checked="{{ x.on }}" disabled="{{ x.none }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px"><span style="display:flex;gap:8px;align-items:center;font:var(--type-body-strong);color:{{ x.c }}">{{ x.t }}<span style="font:var(--type-caption);color:var(--text-tertiary);font-weight:400">{{ x.n }}</span></span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ x.d }}</span></span></div></sc-for>
+</div>
+<div style="margin-top:auto;padding:12px;border-top:1px solid var(--border-subtle);display:flex;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="70px,30px">Cancel</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="eraser" hint-size="150px,30px">Remove 7 items…</x-import></div>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a8-4" num="8.4" title="Protect — Security report" note="One sentence per finding, ordered by what matters most, each with the action that addresses it. JavaScript is never run; Ferman says it blocked it. External links list their destinations before anyone clicks them." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="protect" tool="report" save="saved" tabs="{{ tabsKira }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<aside aria-label="Security report" style="width:360px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="shield-check" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Security report</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="refresh-cw" label="Check again" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="display:grid;gap:8px;padding:10px">
+<sc-for list="{{ report }}" as="r" hint-placeholder-count="7"><div style="display:grid;grid-template-columns:20px minmax(0,1fr);gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ r.border }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ r.icon }}" size="{{ 16 }}" color="{{ r.color }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:4px"><span style="font:var(--type-body-strong)">{{ r.t }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ r.d }}</span><sc-if value="{{ r.hasAct }}"><span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="{{ r.aicon }}" hint-size="140px,26px">{{ r.act }}</x-import></span></sc-if></span></div></sc-for>
+</div>
+</aside>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const rep = (st, t, d, act, aicon) => ({ t, d, act, aicon, hasAct: !!act, icon: { ok: 'circle-check', info: 'info', warn: 'triangle-alert', block: 'shield-check' }[st], color: { ok: 'var(--success-solid)', info: 'var(--icon-secondary)', warn: 'var(--warning-solid)', block: 'var(--success-solid)' }[st], border: st === 'warn' ? 'var(--warning-border)' : 'var(--border-subtle)' });
+    return {
+      tabsMaas: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Maaş bordrosu Eylül 2026.pdf', active: true }],
+      tabsEkstre: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf', active: true, unsaved: true }],
+      tabsRedacted: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Hesap ekstresi Eylül 2026 — karartılmış.pdf', active: true, icon: 'shield-check' }],
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true }],
+      th1: [{}], thRed: [{ warn: true }, {}],
+      printOpts: [{ value: 'high', label: 'Allowed, high quality' }, { value: 'low', label: 'Low quality only' }, { value: 'none', label: 'Not allowed' }],
+      encOpts: [{ value: 'aes256', label: 'AES-256 (recommended)' }, { value: 'aes128', label: 'AES-128 · for older PDF apps' }],
+      actProtect: btns(['Cancel'], ['Protect and save as…', { variant: 'primary' }]),
+      patterns: [{ label: 'T.C. Kimlik No', count: '1', on: true }, { label: 'IBAN', count: '1', on: true }, { label: 'Phone numbers', count: '1', on: true }, { label: 'E-mail addresses', count: '0', on: true }, { label: 'Card numbers', count: '0', on: false }],
+      review: [
+        { text: '41239876516', meta: 'T.C. Kimlik No · page 1', on: true, bg: 'transparent' },
+        { text: 'TR33 0006 1005 1978 6457 8413 26', meta: 'IBAN · page 1', on: true, bg: 'transparent' },
+        { text: 'Area · 69 × 5 mm', meta: 'Drawn by you · page 1', on: true, bg: 'var(--surface-selected)' },
+        { text: '0544 902 15 38', meta: 'Phone · page 1', on: true, bg: 'transparent' },
+        { text: 'Maaş ödemesi — Yılmaz Mimarlık A.Ş.', meta: 'Search term · page 1 · not marked', on: false, bg: 'transparent' }
+      ],
+      actApply: btns(['Cancel'], ['Apply 4 redactions', { variant: 'danger', icon: 'eye-off' }]),
+      actVerified: btns(['Show in Finder', { size: 'sm' }]),
+      verify: [
+        { t: 'Text under the boxes removed', d: 'No characters remain inside the 4 areas.' },
+        { t: 'Search finds nothing', d: '“41239876516”, the IBAN and the phone number: 0 matches.' },
+        { t: 'Image pixels removed', d: 'No images were under the boxes.' },
+        { t: 'Earlier versions removed', d: 'The file was rewritten without its 2 earlier saves.' },
+        { t: 'Hidden information removed', d: 'Author, producer and 4 XMP fields cleared.' },
+        { t: 'Original kept', d: '“Hesap ekstresi Eylül 2026.pdf” is unchanged.' }
+      ],
+      hidden: [
+        { t: 'Document properties', n: '6 fields', d: 'Author “Mert Kaya”, producer “LibreOffice 24.8”, title and 3 XMP fields.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Comments and markup', n: '9', d: 'Notes, highlights, a stamp and their replies.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Hidden layer', n: '1', d: '“Filigran — TASLAK”, switched off but still in the file.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Attached files', n: '3', d: 'Ek-1 Demirbaş listesi.xlsx, Tapu fotokopisi.jpg, Kimlik fotokopisi.pdf.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'JavaScript', n: '1', d: 'A script that runs when the file opens. Ferman never runs it.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Hidden text', n: '2 places', d: 'White text on white background on page 2.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Earlier versions', n: '2 saves', d: 'Content from before the last 2 saves is still inside the file.', on: true, none: false, c: 'var(--text-primary)' },
+        { t: 'Content outside the page', n: 'None found', d: 'Nothing cropped or beyond the page edges.', on: false, none: true, c: 'var(--text-tertiary)' },
+        { t: 'Bookmarks', n: '11', d: 'Kept: they help readers move through the contract.', on: false, none: false, c: 'var(--text-primary)' }
+      ],
+      report: [
+        rep('block', 'JavaScript blocked', '1 script runs when this file is opened. Ferman never runs scripts; other apps might.', 'Remove script', 'eraser'),
+        rep('warn', 'Not encrypted', 'Anyone with the file can open it. It contains two T.C. Kimlik numbers and an IBAN.', 'Add a password…', 'lock'),
+        rep('info', '4 external links', 'Two e-mail addresses (ornekposta.com.tr) and two links to pages in this file.', 'Show links', 'link'),
+        rep('info', '3 attached files', 'An Excel sheet, a JPEG and a PDF. Ferman doesn’t open attachments by itself.', 'Show attachments', 'paperclip'),
+        rep('ok', '2 valid signatures', 'Mert Kaya (e-imza) and Ayşe Yılmaz. Nothing changed after signing.', 'Signature panel', 'badge-check'),
+        rep('ok', 'No usage restrictions', 'Printing, copying and editing are allowed.', '', ''),
+        rep('warn', 'Author name visible', 'Document properties name “Mert Kaya”.', 'Remove hidden information…', 'eraser')
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

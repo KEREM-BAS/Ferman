@@ -1,0 +1,46 @@
+/* Ferman typography. One UI family (IBM Plex Sans) with Plex Sans Arabic as
+   the Arabic fallback, Plex Mono for shortcuts and raw values, Plex Serif for
+   the wordmark and long-form brand moments only. Desktop UI base is 13px. */
+
+:root {
+  --font-ui: 'IBM Plex Sans', 'IBM Plex Sans Arabic', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-arabic: 'IBM Plex Sans Arabic', 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, Consolas, monospace;
+  --font-brand: 'IBM Plex Serif', Georgia, 'Times New Roman', serif;
+  --font-doc-sample: 'IBM Plex Serif', Georgia, serif; /* stand-in for PDF content in mocks only */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+
+  /* Size / line-height pairs */
+  --text-2xs: 10px;  --leading-2xs: 12px;   /* status-bar counters, thumbnail page numbers */
+  --text-xs: 11px;   --leading-xs: 14px;    /* section labels, badges, shortcut hints */
+  --text-sm: 12px;   --leading-sm: 16px;    /* secondary text, tooltips, captions */
+  --text-md: 13px;   --leading-md: 18px;    /* default UI text, buttons, inputs */
+  --text-lg: 14px;   --leading-lg: 20px;    /* dialog body, readable prose */
+  --text-xl: 16px;   --leading-xl: 22px;    /* panel titles, palette input */
+  --text-2xl: 20px;  --leading-2xl: 26px;   /* dialog titles */
+  --text-3xl: 28px;  --leading-3xl: 34px;   /* empty-state headline */
+  --text-4xl: 40px;  --leading-4xl: 46px;   /* onboarding / brand */
+
+  --tracking-tight: -0.01em;
+  --tracking-normal: 0;
+  --tracking-label: 0.02em;   /* small caps-like section labels */
+
+  /* Numerals: page numbers, zoom, measurements, counters always tabular */
+  --numeric-tabular: tabular-nums; /* @kind font */
+  --features-ui: 'kern' 1, 'liga' 1; /* @kind font */
+
+  /* Semantic roles */
+  --type-body: var(--weight-regular) var(--text-md)/var(--leading-md) var(--font-ui);
+  --type-body-strong: var(--weight-medium) var(--text-md)/var(--leading-md) var(--font-ui);
+  --type-label: var(--weight-medium) var(--text-xs)/var(--leading-xs) var(--font-ui);
+  --type-caption: var(--weight-regular) var(--text-sm)/var(--leading-sm) var(--font-ui);
+  --type-prose: var(--weight-regular) var(--text-lg)/var(--leading-lg) var(--font-ui);
+  --type-panel-title: var(--weight-semibold) var(--text-md)/var(--leading-md) var(--font-ui);
+  --type-dialog-title: var(--weight-semibold) var(--text-xl)/var(--leading-xl) var(--font-ui);
+  --type-headline: var(--weight-semibold) var(--text-3xl)/var(--leading-3xl) var(--font-ui);
+  --type-mono: var(--weight-regular) var(--text-sm)/var(--leading-sm) var(--font-mono);
+  --type-wordmark: var(--weight-semibold) var(--text-xl)/1 var(--font-brand);
+}

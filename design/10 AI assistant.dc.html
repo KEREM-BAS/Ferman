@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">10 · AI assistant</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Optional and off by default. It runs on this computer with a downloaded model, or with an API key you bring. Every answer cites the pages it comes from.</p>
+</header>
+<section style="display:grid;gap:28px">
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a10-1" num="10.1" title="Assistant — Summary, clause explanation, draft reply" note="Answers come in the language of the question and cite pages; a citation jumps to the passage and outlines it. Quick actions cover summary, explaining a clause, drafting a reply and listing dates and amounts. The panel says where the model runs and that answers can be wrong." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsKira }}" ai="open" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import><div aria-hidden="true" style="position:absolute;left:88px;top:676px;width:618px;height:104px;outline:2px solid var(--accent);outline-offset:0;border-radius:2px;background:rgba(58,96,198,.05)"></div><span style="position:absolute;left:88px;top:652px;padding:2px 6px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:var(--weight-medium) var(--text-2xs)/1.4 var(--font-ui)">Cited · answer 1</span></div></main>
+<aside aria-label="Assistant" style="width:360px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="sparkles" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Assistant</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" icon="cpu" hint-size="110px,18px">On this Mac</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="More: clear chat, settings" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="display:flex;gap:6px;flex-wrap:wrap;padding:10px 12px;border-bottom:1px solid var(--border-subtle)"><sc-for list="{{ quick }}" as="q" hint-placeholder-count="4"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="{{ q.icon }}" hint-size="100px,26px">{{ q.label }}</x-import></sc-for></div>
+<div style="flex:1;overflow:hidden;display:grid;align-content:start;gap:12px;padding:12px">
+<div lang="tr" style="justify-self:end;max-width:270px;padding:8px 12px;border-radius:var(--radius-md);background:var(--accent-subtle);font:var(--type-body)">Sözleşmeyi kısaca özetler misin?</div>
+<div lang="tr" style="display:grid;gap:8px;font:var(--type-body)"><sc-for list="{{ summary }}" as="s" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:8px minmax(0,1fr);gap:8px"><span style="width:4px;height:4px;margin-top:8px;border-radius:50%;background:var(--text-tertiary)"></span><span>{{ s.t }} <span style="display:inline-flex;align-items:center;height:18px;padding:0 5px;border-radius:2px;background:{{ s.bg }};color:var(--text-accent);font:500 11px/1 var(--font-ui);vertical-align:1px">{{ s.cite }}</span></span></div></sc-for></div>
+<div lang="tr" style="justify-self:end;max-width:270px;padding:8px 12px;border-radius:var(--radius-md);background:var(--accent-subtle);font:var(--type-body)">Mert Bey’e ödeme günü için kısa bir cevap taslağı yazar mısın?</div>
+<div style="display:grid;gap:8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><span style="font:var(--type-label);color:var(--text-tertiary)">DRAFT REPLY</span><span lang="tr" style="font:var(--type-body)">Mert Bey merhaba, sözleşmenin 4. maddesinde ödeme günü her ayın 5’i olarak yazıyor. Maaşım ayın 7’sinde yattığı için bu tarihi ayın 10’u olarak değiştirebilir miyiz? Teşekkürler, Ayşe Yılmaz</span><div style="display:flex;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="copy" hint-size="70px,26px">Copy</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="message-square" hint-size="140px,26px">Add as comment</x-import></div></div>
+</div>
+<div style="display:grid;gap:6px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><div style="display:flex;gap:6px"><div style="flex:1"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" placeholder="Ask about this document" aria-label="Ask about this document" hint-size="100%,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="send" label="Send" variant="primary" size="sm" shortcut="{{ kEnter }}" hint-size="26px,26px"></x-import></div><span style="font:var(--type-caption);color:var(--text-tertiary)">Uses only this document. Answers can be wrong: check the cited pages.</span></div>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a10-2" num="10.2a" title="Assistant — Setup" note="Two ways, each with its trade-off stated: a local model (download size, memory, works offline, nothing leaves the device) or your own API key (faster, but the questions and the passages they need go to that provider). The key is stored in the system keychain. Nothing is downloaded or sent until you choose." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsKira }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" icon="sparkles" title="Set up the assistant" description="The assistant can summarize, answer questions with page citations and draft replies. Choose where it runs." actions="{{ actSetup }}" hint-size="720px,620px">
+<div style="display:grid;gap:14px">
+<div role="radiogroup" aria-label="Where it runs" style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+<div role="radio" aria-checked="true" style="display:grid;gap:8px;align-content:start;padding:14px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:0 0 0 2px var(--accent)"><span style="display:flex;gap:8px;align-items:center;font:600 14px/20px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="cpu" size="{{ 18 }}" color="var(--text-accent)" hint-size="18px,18px"></x-import>Runs on this computer</span><span style="font:var(--type-caption);color:var(--text-secondary)">Download a 4,1 GB open model once. Works offline. Documents and questions never leave this Mac.</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">Needs 8 GB of memory · this Mac has 16 GB · 38 GB free</span></div>
+<div role="radio" aria-checked="false" style="display:grid;gap:8px;align-content:start;padding:14px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:0 0 0 1px var(--border-default)"><span style="display:flex;gap:8px;align-items:center;font:600 14px/20px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="key-round" size="{{ 18 }}" color="var(--icon-secondary)" hint-size="18px,18px"></x-import>Use your own API key</span><span style="font:var(--type-caption);color:var(--text-secondary)">Faster on older computers. Your questions and the passages they need are sent to the provider you choose, under your account.</span><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Provider" default-value="compat" options="{{ providers }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" type="password" placeholder="API key" aria-label="API key" disabled="{{ true }}" hint-size="100%,26px"></x-import></div>
+</div>
+<div style="display:grid;gap:6px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken)"><span style="font:var(--type-body-strong)">What Ferman sends</span><span style="font:var(--type-caption);color:var(--text-secondary)">Local model: nothing, ever. Own key: only your question and the parts of the open document needed to answer it, to that provider and nowhere else. Ferman never sends usage data, and the key is stored in the macOS keychain.</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="download" title="Downloading the model" detail="1,2 of 4,1 GB · about 6 minutes left" value="{{ 0.29 }}" on-cancel="{{ noop }}" hint-size="100%,86px"></x-import>
+</div></x-import></div>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a10-2b" num="10.2b" title="Assistant — Off (default)" note="Until it’s set up, the assistant button opens this explanation instead of a chat. Turning it off again removes the panel and, if chosen, deletes the downloaded model." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsKira }}" ai="open" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<aside aria-label="Assistant" style="width:360px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="sparkles" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Assistant</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" hint-size="40px,18px">Off</x-import></div>
+<div style="display:grid;gap:14px;padding:24px 20px;justify-items:start"><span style="width:44px;height:44px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="sparkles" size="{{ 22 }}" hint-size="22px,22px"></x-import></span><span style="font:var(--type-dialog-title)">The assistant is off</span><span style="font:var(--type-body);color:var(--text-secondary)">It can summarize this contract, answer questions with page citations and draft replies. Ferman never turns it on by itself.</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="sparkles" hint-size="140px,30px">Set up…</x-import><a href="#" style="font:var(--type-caption)">What the assistant can and can’t do</a></div>
+</aside>
+</dc-import>
+</dc-import>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }],
+      quick: [{ icon: 'list', label: 'Summarize' }, { icon: 'info', label: 'Explain a clause' }, { icon: 'reply', label: 'Draft a reply' }, { icon: 'calendar', label: 'Dates and amounts' }],
+      summary: [
+        { t: 'Mert Kaya, Moda Cad. No: 18 D: 5’teki konutu Ayşe Yılmaz’a 1 yıllığına kiralıyor; süre 01.11.2026’da başlıyor.', cite: 's. 1', bg: 'var(--accent-subtle)' },
+        { t: 'Aylık kira 18.500 TL, her ayın 5’ine kadar ödeniyor; yıllık artış TÜFE ortalaması kadar.', cite: 's. 1', bg: 'var(--accent-subtle)' },
+        { t: 'Depozito 37.000 TL; hasarsız teslimde 15 gün içinde iade ediliyor.', cite: 's. 1', bg: 'var(--surface-selected-strong)' },
+        { t: 'Evcil hayvana izin var; alt kiralama yazılı izin olmadan yasak.', cite: 's. 2', bg: 'var(--accent-subtle)' }
+      ],
+      kEnter: ['↵'],
+      providers: [{ value: 'compat', label: 'OpenAI-compatible endpoint' }, { value: 'anthropic', label: 'Anthropic' }, { value: 'other', label: 'Other…' }],
+      actSetup: btns(['Not now'], ['Download 4,1 GB', { variant: 'primary', icon: 'download' }]),
+      noop: () => {}
+    };
+  }
+}
+</script>
+</body>
+</html>

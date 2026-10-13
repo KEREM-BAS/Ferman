@@ -1,0 +1,24 @@
+/* Ferman empty states: DropZone */
+
+.fm-drop {
+  display: grid; justify-items: center; align-content: center; gap: 16px; min-height: 380px; padding: 48px 32px;
+  border: 1.5px dashed var(--border-strong); border-radius: var(--radius-xl); background: transparent; text-align: center;
+  transition: background-color var(--dur-base) var(--ease-out), border-color var(--dur-base) var(--ease-out);
+}
+.fm-drop--over { border-style: solid; border-color: var(--accent); background: var(--accent-subtle); }
+.fm-drop--error { border-color: var(--danger-border); }
+.fm-drop__icon { display: grid; place-items: center; width: 56px; height: 56px; border-radius: var(--radius-xl); background: var(--surface-raised); box-shadow: 0 0 0 1px var(--border-subtle), var(--shadow-sm); color: var(--icon-secondary); }
+.fm-drop--over .fm-drop__icon { color: var(--text-accent); }
+.fm-drop--error .fm-drop__icon { color: var(--danger); }
+.fm-drop__text { display: grid; gap: 6px; max-width: 420px; }
+.fm-drop__title { margin: 0; font: var(--weight-semibold) var(--text-2xl)/var(--leading-2xl) var(--font-ui); color: var(--text-primary); letter-spacing: var(--tracking-tight); }
+.fm-drop__sub { margin: 0; font: var(--type-prose); color: var(--text-secondary); text-wrap: pretty; }
+.fm-drop__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; }
+.fm-drop__foot { display: flex; align-items: center; gap: 6px; font: var(--type-caption); color: var(--text-tertiary); }
+.fm-drop__recent { width: 100%; max-width: 440px; display: grid; gap: 2px; margin-top: 8px; text-align: start; }
+.fm-drop__recent-title { font: var(--type-label); color: var(--text-tertiary); padding: 0 8px 4px; letter-spacing: var(--tracking-label); }
+.fm-drop__file { display: flex; align-items: center; gap: 10px; height: 36px; padding: 0 8px; border: 0; border-radius: var(--radius-sm); background: transparent; cursor: pointer; color: var(--text-primary); text-align: start; }
+.fm-drop__file:hover { background: var(--surface-hover); }
+.fm-drop__file:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.fm-drop__file-name { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font: var(--type-body); }
+.fm-drop__file-meta { font: var(--type-caption); color: var(--text-tertiary); font-variant-numeric: tabular-nums; white-space: nowrap; }

@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:100px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">13b · Mobile — sign, scan, organize, protect, share</h1>
+<p style="margin:0;max-width:1000px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Task flows on iPhone 16 and Pixel, then settings and system states. Starts in <a href="13a%20Mobile%20core.dc.html">13a</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.8 · Fill &amp; Sign</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-8" num="13.8a" title="Fill — Field by field, keyboard toolbar" platform="ios" note="The page zooms to the active field and keeps it above the keyboard. The toolbar on the keyboard moves between fields (‹ ›), says where you are and how many required fields are left, and Done closes the keyboard. Each field gets the right keyboard: numbers for T.C. Kimlik No, e-mail for E-posta." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Adres değişikliği" back="Back" actions="{{ fillActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-30px;margin-inline-start:-40px"><dc-import name="DocForm" filled="partial" focus="ad" extra="{{ typing }}" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:4px;height:46px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)"><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 24 }}" label="Previous field" hint-size="24px,24px"></x-import></span><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 24 }}" label="Next field" hint-size="24px,24px"></x-import></span><span role="status" style="flex:1;display:grid;text-align:center"><span style="font:500 13px/16px var(--font-ui)">Field 3 of 20 · Adı</span><span style="font:400 12px/15px var(--font-ui);color:var(--danger)">13 required left</span></span><span style="padding:0 10px;color:var(--text-accent);font:600 17px/1 var(--font-ui)">Done</span></div>
+<dc-import name="FmKeyboard" platform="ios" layout="tr" caps="{{ true }}" suggestions="{{ suggName }}" hint-size="100%,300px"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-8b" num="13.8b" title="Fill — Field by field" platform="ios" theme="dark" note="Dark theme; field tints stay as on paper." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Adres değişikliği" back="Back" actions="{{ fillActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-30px;margin-inline-start:-40px"><dc-import name="DocForm" filled="partial" focus="ad" extra="{{ typing }}" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:4px;height:46px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)"><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 24 }}" label="Previous field" hint-size="24px,24px"></x-import></span><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 24 }}" label="Next field" hint-size="24px,24px"></x-import></span><span role="status" style="flex:1;display:grid;text-align:center"><span style="font:500 13px/16px var(--font-ui)">Field 3 of 20 · Adı</span><span style="font:400 12px/15px var(--font-ui);color:var(--danger)">13 required left</span></span><span style="padding:0 10px;color:var(--text-accent);font:600 17px/1 var(--font-ui)">Done</span></div>
+<dc-import name="FmKeyboard" platform="ios" layout="tr" caps="{{ true }}" dark="{{ true }}" suggestions="{{ suggName }}" hint-size="100%,300px"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-8c" num="13.8c" title="Fill — Date and dropdown pickers" platform="android" note="Date fields open the Material date picker in the field’s format; dropdowns open a bottom sheet list with search when there are more than 8 options (81 provinces here)." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Adres değişikliği" nav="arrow" actions="{{ fillActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-250px;margin-inline-start:-140px"><dc-import name="DocForm" filled="more" focus="il" hint-size="794px,1123px"></dc-import></div></div>
+<div style="position:absolute;inset:0;z-index:4;background:var(--surface-scrim)"></div>
+<div role="dialog" aria-label="İl" style="position:absolute;left:0;right:0;bottom:0;z-index:5;height:560px;padding-top:10px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);display:flex;flex-direction:column">
+<span style="display:block;width:32px;height:4px;margin:0 auto 12px;border-radius:2px;background:var(--border-strong)"></span>
+<div style="padding:0 20px 10px;display:grid;gap:10px"><span style="font:400 22px/28px var(--font-ui)">İl</span><div style="display:flex;align-items:center;gap:10px;height:48px;padding:0 14px;border-radius:var(--radius-lg);background:var(--surface-sunken);font:400 16px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="search" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import><span lang="tr">ist</span><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,18px"></x-import></div></div>
+<sc-for list="{{ iller }}" as="i" hint-placeholder-count="5"><div role="option" aria-selected="{{ i.sel }}" lang="tr" style="display:flex;align-items:center;gap:16px;min-height:56px;padding:0 24px;font:400 16px/1 var(--font-ui);background:{{ i.bg }}"><span style="flex:1">{{ i.n }}</span><sc-if value="{{ i.on }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 22 }}" color="var(--text-accent)" hint-size="22px,22px"></x-import></sc-if></div></sc-for>
+<span style="padding:12px 24px;font:400 13px/18px var(--font-ui);color:var(--text-tertiary)">“ist” matches İstanbul: Turkish-aware search.</span>
+</div>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-8d" num="13.8d" title="Sign — Full-screen landscape capture" platform="ios" w="{{ 876 }}" h="{{ 417 }}" meta="iPhone 16 · Light · landscape" note="Rotating the phone gives the full width to the signature. The baseline and × mark sit where the signature will land. Clear, undo, ink colour and “Save for next time” (on this device only)." hint-size="876px,560px">
+<dc-import name="FmPhone" platform="ios" landscape="{{ true }}" bars="none" tab="none" hint-size="876px,417px">
+<div style="flex:1;display:flex;flex-direction:column;padding:16px 56px 22px;background:var(--surface-panel)">
+<div style="display:flex;align-items:center;gap:12px"><span style="color:var(--text-accent);font:400 17px/1 var(--font-ui)">Cancel</span><span style="flex:1;text-align:center;font:600 17px/1 var(--font-ui)">Sign · Ayşe Yılmaz</span><span style="color:var(--text-accent);font:600 17px/1 var(--font-ui)">Done</span></div>
+<div style="flex:1;margin:14px 0;position:relative;border-radius:var(--radius-lg);background:#FFFFFF;box-shadow:inset 0 0 0 1px var(--border-default)"><svg aria-label="Your signature" width="100%" height="100%" viewBox="0 0 700 220" preserveAspectRatio="xMidYMid meet" style="position:absolute;inset:0"><path d="M70 150 C 90 70, 130 60, 120 130 S 160 160, 190 110 C 210 80, 230 150, 250 120 S 290 90, 300 130 C 320 160, 340 90, 380 110 S 430 140, 460 100 C 480 80, 500 130, 540 120 S 600 100, 630 112" fill="none" stroke="#1A3170" stroke-width="4" stroke-linecap="round" stroke-linejoin="round"></path><path d="M150 170 C 300 160, 450 168, 600 158" fill="none" stroke="#1A3170" stroke-width="3" stroke-linecap="round"></path></svg><span style="position:absolute;left:32px;right:32px;bottom:44px;border-bottom:1.5px solid var(--paper-300)"></span><span style="position:absolute;left:30px;bottom:50px;font:400 22px/1 var(--font-ui);color:var(--paper-500)">×</span></div>
+<div style="display:flex;align-items:center;gap:14px"><span style="display:flex;gap:10px"><span style="width:30px;height:30px;border-radius:50%;background:#1A3170;box-shadow:0 0 0 2px var(--surface-panel),0 0 0 4px var(--accent)"></span><span style="width:30px;height:30px;border-radius:50%;background:#1F1D1A"></span></span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Save for next time" checked="{{ true }}" hint-size="190px,24px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" icon="undo-2" hint-size="80px,44px">Undo</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="70px,44px">Clear</x-import></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-8e" num="13.8e" title="Sign — Saved signature placed" platform="android" note="Saved signatures appear in a sheet; tapping one drops it into the field. Drag to move, corner handles to resize with proportions kept, two fingers to rotate. All required fields filled: Finish becomes the primary action." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Adres değişikliği" nav="arrow" actions="{{ finishA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-470px;margin-inline-start:-140px"><dc-import name="DocForm" filled="all" hint-size="794px,1123px"><div style="position:absolute;left:216px;top:700px;width:246px;height:62px;outline:2px solid var(--accent);display:grid;place-items:center;background:#FFFFFF"><span style="font:500 34px/1 var(--font-hand-1);color:#1A3170">Ayşe Yılmaz</span><span style="position:absolute;top:-11px;left:-11px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 3px var(--accent)"></span><span style="position:absolute;top:-11px;right:-11px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 3px var(--accent)"></span><span style="position:absolute;bottom:-11px;left:-11px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 3px var(--accent)"></span><span style="position:absolute;bottom:-11px;right:-11px;width:22px;height:22px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 3px var(--accent)"></span></div></dc-import></div></div>
+<div style="flex:none;padding:12px 16px 30px;background:var(--surface-raised);border-top:1px solid var(--border-subtle);display:grid;gap:10px"><span style="font:500 14px/1 var(--font-ui);color:var(--text-secondary)">Saved on this phone</span><div style="display:flex;gap:10px"><sc-for list="{{ savedSigs }}" as="s" hint-placeholder-count="3"><span style="flex:1;height:64px;display:grid;place-items:center;border-radius:var(--radius-md);background:#FFFFFF;box-shadow:{{ s.ring }};font:{{ s.font }};color:#1A3170">{{ s.t }}</span></sc-for><span style="width:64px;height:64px;display:grid;place-items:center;border-radius:var(--radius-md);border:1.5px dashed var(--border-strong);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="plus" size="{{ 24 }}" label="New signature" hint-size="24px,24px"></x-import></span></div></div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-8f" num="13.8f" title="e-imza — Use your token on desktop, or NFC" platform="ios" note="USB smart-card tokens don’t work with phones. Ferman says so and offers the two real options: send the document to Ferman on a computer, or sign with the NFC chip of the new Turkish ID card where the provider supports it." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="e-imza" back="Back" tab="none" hint-size="417px,876px">
+<div style="flex:1;display:grid;align-content:start;gap:16px;padding:20px 16px">
+<div style="display:flex;gap:12px;padding:14px;border-radius:var(--radius-lg);background:var(--surface-raised);border:1px solid var(--border-subtle)"><span style="width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="usb" size="{{ 22 }}" hint-size="22px,22px"></x-import></span><span style="display:grid;gap:4px"><span style="font:600 16px/21px var(--font-ui)">Your token works on a computer</span><span style="font:400 14px/20px var(--font-ui);color:var(--text-secondary)">USB e-imza tokens and card readers can’t connect to an iPhone. Open this document in Ferman on your Mac or PC to sign it there.</span><span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" icon="send" hint-size="200px,44px">Send to my computer…</x-import></span></span></div>
+<div style="display:flex;gap:12px;padding:14px;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:0 0 0 2px var(--accent)"><span style="width:40px;height:40px;flex:none;display:grid;place-items:center;border-radius:var(--radius-md);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="nfc" size="{{ 22 }}" hint-size="22px,22px"></x-import></span><span style="display:grid;gap:4px"><span style="font:600 16px/21px var(--font-ui)">Sign with your ID card (NFC)</span><span style="font:400 14px/20px var(--font-ui);color:var(--text-secondary)">If your T.C. Kimlik Kartı has an e-imza certificate, hold it to the top of the iPhone and enter its PIN.</span></span></div>
+<div style="display:grid;justify-items:center;gap:12px;padding:20px 0"><div style="position:relative;width:200px;height:126px;border-radius:10px;background:var(--surface-sunken);box-shadow:inset 0 0 0 1px var(--border-default)"><span style="position:absolute;top:18px;left:18px;width:34px;height:26px;border-radius:4px;background:var(--amber-200)"></span><span style="position:absolute;right:16px;top:16px;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="nfc" size="{{ 28 }}" hint-size="28px,28px"></x-import></span><span style="position:absolute;left:18px;bottom:20px;right:60px;height:6px;border-radius:2px;background:var(--border-strong)"></span><span style="position:absolute;left:18px;bottom:34px;right:90px;height:6px;border-radius:2px;background:var(--border-default)"></span></div><span role="status" style="display:flex;gap:8px;align-items:center;font:500 15px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 16 }}" hint-size="16px,16px"></x-import>Hold your card to the iPhone…</span></div>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.9 · Scan to PDF</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-9" num="13.9a" title="Scan — Edge detection, auto-capture" platform="ios" theme="dark" note="The edges are traced live; when the page is steady, Ferman captures it on its own (a ring fills around the shutter). The count shows pages in this batch. Flash, Auto on/off and import from photos sit at the top." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" bars="status" tab="none" dark-screen="{{ true }}" hint-size="417px,876px">
+<div style="flex:1;display:flex;flex-direction:column;background:#000000;color:#FFFFFF">
+<div style="display:flex;justify-content:space-between;align-items:center;padding:6px 20px;font:500 15px/1 var(--font-ui)"><span>Cancel</span><span style="display:flex;gap:18px"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="zap" size="{{ 22 }}" label="Flash" hint-size="22px,22px"></x-import><span style="padding:4px 8px;border-radius:4px;background:rgba(255,255,255,.18)">Auto</span></span></div>
+<div style="flex:1;position:relative;margin:10px 0;background:#3A3530;overflow:hidden"><div style="position:absolute;left:52px;top:80px;width:290px;height:400px;transform:perspective(700px) rotateX(10deg) rotateZ(-4deg);background:#EFEBE1;box-shadow:0 12px 30px rgba(0,0,0,.5)"><span class="fm-thumb__lines" style="inset:10% 12% 16%"></span><span style="position:absolute;inset:-4px;outline:3px solid var(--ink-400);background:rgba(58,96,198,.14)"></span></div><span role="status" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);padding:8px 12px;border-radius:var(--radius-md);background:rgba(0,0,0,.6);font:500 14px/1 var(--font-ui);white-space:nowrap">Hold still · capturing</span></div>
+<div style="height:150px;display:grid;grid-template-columns:1fr auto 1fr;align-items:center;padding:0 28px 28px"><span style="position:relative;width:48px;height:64px;background:#EFEBE1;border-radius:3px"><span class="fm-thumb__lines"></span><span style="position:absolute;top:-8px;right:-8px;min-width:22px;height:22px;display:grid;place-items:center;border-radius:6px;background:var(--ink-500);font:600 12px/1 var(--font-ui)">3</span></span><span style="width:76px;height:76px;border-radius:50%;box-shadow:inset 0 0 0 4px #FFFFFF;display:grid;place-items:center;position:relative"><span style="width:60px;height:60px;border-radius:50%;background:#FFFFFF"></span><svg aria-hidden="true" width="76" height="76" viewBox="0 0 76 76" style="position:absolute;inset:0"><circle cx="38" cy="38" r="36" fill="none" stroke="var(--ink-400)" stroke-width="4" stroke-dasharray="226" stroke-dashoffset="90" transform="rotate(-90 38 38)" stroke-linecap="round"></circle></svg></span><span style="justify-self:end;font:600 17px/1 var(--font-ui)">Done</span></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-9b" num="13.9b" title="Scan — Review: crop, rotate, filter, reorder" platform="android" note="Pages in the batch are a row of thumbnails you can drag to reorder. The current page shows its corner handles; filters are B&amp;W, Greyscale and Colour, with Auto picking for text. Text recognition in Turkish is on, and Save makes one PDF." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="3 pages" nav="close" actions="{{ scanActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0;background:var(--surface-canvas)">
+<div style="flex:1;display:grid;place-items:center;position:relative"><div style="position:relative;width:270px;height:370px;background:#F7F5F0;box-shadow:var(--shadow-page);filter:grayscale(1) contrast(1.4)"><span class="fm-thumb__lines" style="inset:9% 11% 14%"></span></div><span aria-hidden="true" style="position:absolute;width:290px;height:390px;outline:2px solid var(--accent)"></span></div>
+<div style="display:flex;gap:10px;justify-content:center;padding:10px 0"><sc-for list="{{ scanThumbs }}" as="s" hint-placeholder-count="4"><span style="position:relative;width:52px;height:70px;background:#F7F5F0;box-shadow:{{ s.ring }}"><span class="fm-thumb__lines"></span><span style="position:absolute;bottom:-18px;left:0;right:0;text-align:center;font:500 11px/1 var(--font-ui);color:var(--text-secondary)">{{ s.n }}</span></span></sc-for><span style="width:52px;height:70px;display:grid;place-items:center;border:1.5px dashed var(--border-strong);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="plus" size="{{ 22 }}" label="Add page" hint-size="22px,22px"></x-import></span></div>
+<div style="display:grid;gap:12px;padding:20px 16px 30px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<div style="display:flex;justify-content:space-around"><sc-for list="{{ scanTools }}" as="t" hint-placeholder-count="4"><span style="display:grid;justify-items:center;gap:4px;min-width:56px;color:var(--icon-primary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import><span style="font:500 12px/1 var(--font-ui)">{{ t.label }}</span></span></sc-for></div>
+<div style="display:flex;gap:8px"><sc-for list="{{ filters }}" as="f" hint-placeholder-count="4"><span style="flex:1;height:40px;display:grid;place-items:center;border-radius:var(--radius-md);background:{{ f.bg }};color:{{ f.c }};box-shadow:{{ f.ring }};font:500 13px/1 var(--font-ui)">{{ f.label }}</span></sc-for></div>
+<div style="display:flex;align-items:center;gap:10px;font:400 15px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="scan-text" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import><span style="flex:1">Recognize text · Türkçe</span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" aria-label="Recognize text" checked="{{ true }}" hint-size="44px,24px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,48px">Save PDF · 3 pages</x-import>
+</div>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.10 – 13.14 · Organize, convert, protect, share, assistant</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-10" num="13.10" title="Organize — Page grid" platform="android" note="Long-press to start selecting, then drag to reorder (the insertion bar shows where). The action bar names the count: rotate, delete, extract; the overflow holds insert, combine and split." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="2 selected" nav="close" actions="{{ orgActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0;background:var(--surface-canvas)">
+<div style="flex:1;display:grid;grid-template-columns:repeat(3,1fr);gap:22px 14px;padding:18px 16px;align-content:start;position:relative">
+<sc-for list="{{ orgPages }}" as="g" hint-placeholder-count="9"><div style="display:grid;gap:6px;justify-items:center"><span style="position:relative;width:104px;height:147px;background:#FFFFFF;box-shadow:{{ g.ring }};opacity:{{ g.op }}"><span class="fm-thumb__lines" style="inset:12% 14% 16%"></span><sc-if value="{{ g.sel }}"><span style="position:absolute;top:6px;right:6px;width:24px;height:24px;display:grid;place-items:center;border-radius:50%;background:var(--accent);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 14 }}" stroke-width="{{ 2.6 }}" hint-size="14px,14px"></x-import></span></sc-if></span><span style="font:500 13px/1 var(--font-ui);color:var(--text-secondary)">{{ g.label }}</span></div></sc-for>
+<span aria-hidden="true" style="position:absolute;left:142px;top:206px;width:3px;height:150px;border-radius:2px;background:var(--accent)"></span>
+</div>
+<div style="height:72px;flex:none;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;padding-bottom:14px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)"><sc-for list="{{ orgBar }}" as="a" hint-placeholder-count="4"><span style="display:grid;justify-items:center;gap:4px;color:{{ a.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import><span style="font:500 12px/1 var(--font-ui)">{{ a.label }}</span></span></sc-for></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-11" num="13.11" title="Convert — Target, progress, share" platform="ios" note="Pick a target; conversion runs on the phone and keeps going if you leave the app (a notification says when it’s done). The result names what changed and goes straight to the share sheet." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Convert" back="Back" tab="none" hint-size="417px,876px">
+<div style="flex:1;display:grid;align-content:start;gap:16px;padding:16px">
+<div style="display:flex;gap:12px;align-items:center"><span style="position:relative;width:36px;height:50px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span><span style="display:grid"><span lang="tr" style="font:500 16px/21px var(--font-ui)">Kira sözleşmesi.pdf</span><span style="font:400 13px/18px var(--font-ui);color:var(--text-tertiary)">3 pages · 284 KB</span></span></div>
+<div role="radiogroup" aria-label="Convert to" style="display:grid;border-radius:var(--radius-lg);background:var(--surface-raised);border:1px solid var(--border-subtle);overflow:hidden"><sc-for list="{{ targets }}" as="t" hint-placeholder-count="6"><div role="radio" aria-checked="{{ t.checked }}" style="display:flex;align-items:center;gap:14px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 22 }}" color="var(--icon-secondary)" hint-size="22px,22px"></x-import><span style="flex:1;display:grid"><span style="font:400 16px/21px var(--font-ui)">{{ t.label }}</span><span style="font:400 13px/17px var(--font-ui);color:var(--text-tertiary)">{{ t.sub }}</span></span><sc-if value="{{ t.on }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 22 }}" color="var(--text-accent)" hint-size="22px,22px"></x-import></sc-if></div></sc-for></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="file-type" title="Converting to Word" detail="Page 2 of 3" value="{{ 0.66 }}" on-cancel="{{ noop }}" hint-size="100%,96px"></x-import>
+<div role="status" style="display:grid;gap:8px;padding:14px;border-radius:var(--radius-lg);background:var(--success-bg);border:1px solid var(--success-border)"><span style="display:flex;gap:8px;align-items:center;font:600 15px/20px var(--font-ui);color:var(--success)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 18 }}" hint-size="18px,18px"></x-import>Kira sözleşmesi.docx</span><span style="font:400 14px/19px var(--font-ui)">Kept text, tables and comments. Signatures became pictures.</span><div style="display:flex;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" variant="primary" icon="share-2" hint-size="110px,44px">Share</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" hint-size="110px,44px">Open</x-import></div></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-12" num="13.12" title="Protect — Redaction with finger and patterns" platform="android" note="Drag a finger over text to mark it; patterns find T.C. Kimlik No (checksum-checked), IBAN and phone numbers. Marks stay as red hatching until applied; applying saves a new file and verifies that nothing remains." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Redact" nav="close" actions="{{ redActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-60px;margin-inline-start:-110px"><dc-import name="DocEkstre" redact="pending" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:grid;gap:12px;padding:14px 16px 30px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<span style="font:500 14px/1 var(--font-ui);color:var(--text-secondary)">Find and mark</span>
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ patterns }}" as="p" hint-placeholder-count="4"><span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:var(--radius-md);background:{{ p.bg }};box-shadow:{{ p.ring }};font:500 14px/1 var(--font-ui);color:{{ p.c }}"><sc-if value="{{ p.on }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" hint-size="16px,16px"></x-import></sc-if>{{ p.label }}</span></sc-for></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" size="lg" icon="eye-off" full-width="{{ true }}" hint-size="100%,48px">Apply 3 redactions…</x-import>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-13" num="13.13" title="Share — Export options and share sheet" platform="ios" note="Before the system share sheet, Ferman asks only what matters: format, compression (with real sizes), and whether to keep comments. “Open in Ferman” from Mail or Files lands here as a new tab in the reader." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Kira sözleşmesi" back="Home" tab="none" hint-size="417px,876px">
+<dc-import name="FmMReader" hint-size="100%,100%">
+<div style="position:absolute;inset:0;z-index:4;background:var(--surface-scrim)"></div>
+<div role="dialog" aria-label="Share" style="position:absolute;left:0;right:0;bottom:0;z-index:5;padding:8px 16px 34px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);display:grid;gap:14px">
+<span style="display:block;width:36px;height:5px;margin:0 auto;border-radius:3px;background:var(--border-strong)"></span>
+<span style="font:600 17px/22px var(--font-ui);text-align:center">Share “Kira sözleşmesi”</span>
+<div style="display:grid;gap:6px"><span style="font:500 13px/1 var(--font-ui);color:var(--text-tertiary)">FORMAT</span><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Format" value="pdf" options="{{ shareFmt }}" hint-size="100%,44px"></x-import></div>
+<div style="display:grid;gap:6px"><span style="font:500 13px/1 var(--font-ui);color:var(--text-tertiary)">SIZE</span><div role="radiogroup" aria-label="Size" style="display:grid;border-radius:var(--radius-lg);border:1px solid var(--border-subtle);overflow:hidden"><sc-for list="{{ shareSizes }}" as="s" hint-placeholder-count="3"><div role="radio" aria-checked="{{ s.checked }}" style="display:flex;align-items:center;min-height:48px;padding:0 14px;border-bottom:1px solid var(--border-subtle);font:400 16px/1 var(--font-ui)"><span style="flex:1">{{ s.label }}</span><span style="color:var(--text-secondary);font-variant-numeric:tabular-nums;margin-inline-end:10px">{{ s.size }}</span><sc-if value="{{ s.on }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 20 }}" color="var(--text-accent)" hint-size="20px,20px"></x-import></sc-if></div></sc-for></div></div>
+<div style="display:flex;align-items:center;font:400 16px/1 var(--font-ui)"><span style="flex:1">Include comments (9)</span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" aria-label="Include comments" checked="{{ true }}" hint-size="51px,31px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" icon="share-2" full-width="{{ true }}" hint-size="100%,50px">Share…</x-import>
+</div>
+</dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-14" num="13.14" title="Assistant sheet" platform="android" note="Off until set up. On a phone the local model is smaller (1,8 GB) and the sheet says what that means; using your own key states where questions go. Answers cite pages, and tapping a citation scrolls the page into view." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Kira sözleşmesi" nav="arrow" actions="{{ aiActA }}" tab="none" hint-size="436px,939px">
+<dc-import name="FmMReader" hint-size="100%,100%">
+<div role="dialog" aria-label="Assistant" style="position:absolute;left:0;right:0;bottom:0;z-index:5;height:560px;padding-top:10px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);box-shadow:var(--shadow-dialog);display:flex;flex-direction:column">
+<span style="display:block;width:32px;height:4px;margin:0 auto 12px;border-radius:2px;background:var(--border-strong)"></span>
+<div style="display:flex;align-items:center;gap:10px;padding:0 20px 12px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="sparkles" size="{{ 22 }}" color="var(--icon-secondary)" hint-size="22px,22px"></x-import><span style="flex:1;font:400 22px/28px var(--font-ui)">Assistant</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" icon="cpu" hint-size="110px,20px">On this phone</x-import></div>
+<div style="flex:1;display:grid;align-content:start;gap:12px;padding:14px 20px;overflow:hidden">
+<div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ aiQuick }}" as="q" hint-placeholder-count="3"><span style="height:36px;display:inline-flex;align-items:center;padding:0 12px;border-radius:var(--radius-md);border:1px solid var(--border-default);font:500 14px/1 var(--font-ui)">{{ q }}</span></sc-for></div>
+<div lang="tr" style="justify-self:end;max-width:280px;padding:10px 14px;border-radius:var(--radius-lg);background:var(--accent-subtle);font:400 16px/22px var(--font-ui)">Depozito ne zaman iade ediliyor?</div>
+<div lang="tr" style="font:400 16px/23px var(--font-ui)">Taşınmaz hasarsız teslim edilirse 15 gün içinde iade ediliyor. Tutar 37.000 TL, yani iki aylık kira. <span style="display:inline-flex;align-items:center;height:22px;padding:0 6px;border-radius:2px;background:var(--accent-subtle);color:var(--text-accent);font:500 13px/1 var(--font-ui)">s. 1 · Madde 5</span></div>
+<span style="font:400 13px/18px var(--font-ui);color:var(--text-tertiary)">Uses only this document. Answers can be wrong: check the cited page.</span>
+</div>
+<div style="display:flex;gap:8px;align-items:center;padding:10px 16px 30px;border-top:1px solid var(--border-subtle)"><span style="flex:1;height:48px;display:flex;align-items:center;padding:0 16px;border-radius:var(--radius-lg);background:var(--surface-sunken);font:400 16px/1 var(--font-ui);color:var(--text-tertiary)">Ask about this document</span><span style="width:48px;height:48px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--accent);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="send" size="{{ 20 }}" label="Send" hint-size="20px,20px"></x-import></span></div>
+</div>
+</dc-import>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.15 · Settings</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-15" num="13.15a" title="Settings" platform="ios" note="Grouped list in iOS style. Language and region, theme, fonts, signatures, OCR languages, assistant, privacy, about and licence. The privacy row states the fact instead of hiding it behind a link." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Settings" large="{{ true }}" tab="settings" content-bg="var(--surface-sunken)" hint-size="417px,876px">
+<div style="flex:1;overflow:hidden;display:grid;align-content:start;gap:22px;padding:6px 16px">
+<sc-for list="{{ setGroups }}" as="g" hint-placeholder-count="4"><div style="display:grid;gap:6px"><sc-if value="{{ g.hasTitle }}"><span style="padding:0 16px;font:400 13px/1 var(--font-ui);color:var(--text-tertiary)">{{ g.title }}</span></sc-if><div style="border-radius:var(--radius-lg);background:var(--surface-raised);overflow:hidden"><sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;min-height:48px;padding:0 14px;border-bottom:{{ r.sep }}"><span style="width:30px;height:30px;flex:none;display:grid;place-items:center;border-radius:7px;background:var(--accent);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ r.icon }}" size="{{ 18 }}" stroke-width="{{ 2 }}" hint-size="18px,18px"></x-import></span><span style="flex:1;font:400 16px/1 var(--font-ui)">{{ r.label }}</span><span style="font:400 16px/1 var(--font-ui);color:var(--text-tertiary)">{{ r.value }}</span><span data-fm-flip="" style="color:var(--text-tertiary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-right" size="{{ 18 }}" hint-size="18px,18px"></x-import></span></div></sc-for></div></div></sc-for>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-15b" num="13.15b" title="Settings — Language and region" platform="android" theme="dark" note="Material list in dark theme. App language switches live (Android 13 per-app language); region formats preview the decimal comma and date." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Language and region" nav="arrow" tab="settings" hint-size="436px,939px">
+<div style="flex:1;overflow:hidden">
+<sc-for list="{{ langRows }}" as="r" hint-placeholder-count="7"><sc-if value="{{ r.head }}"><div style="padding:18px 20px 6px;font:500 14px/1 var(--font-ui);color:var(--text-accent)">{{ r.label }}</div></sc-if><sc-if value="{{ r.item }}"><div style="display:flex;align-items:center;gap:16px;min-height:72px;padding:0 20px"><span style="flex:1;display:grid;gap:3px"><span style="font:400 16px/22px var(--font-ui)">{{ r.label }}</span><span style="font:400 14px/19px var(--font-ui);color:var(--text-secondary)">{{ r.value }}</span></span><sc-if value="{{ r.sw }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" aria-label="{{ r.label }}" checked="{{ true }}" hint-size="52px,32px"></x-import></sc-if></div></sc-if></sc-for>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.16 · States</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-16" num="13.16a" title="Loading a large file, offline" platform="ios" note="The first page shows immediately; the rest load while you read. Offline is stated once, with what still works (everything except updates and online certificate checks)." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="İmar planı raporu" back="Home" tab="none" offline="{{ true }}" hint-size="417px,876px">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<div role="status" style="display:flex;gap:10px;align-items:center;padding:10px 16px;background:var(--surface-sunken);border-bottom:1px solid var(--border-subtle);font:400 14px/19px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="wifi-off" size="{{ 18 }}" color="var(--icon-secondary)" hint-size="18px,18px"></x-import><span style="flex:1">You’re offline. Everything works except updates and certificate checks.</span></div>
+<div style="flex:1;display:grid;justify-content:center;align-content:start;gap:12px;padding-top:12px;background:var(--surface-canvas)"><div style="width:360px;height:250px;background:#FFFFFF;box-shadow:var(--shadow-page);position:relative"><span class="fm-thumb__lines" style="inset:10% 12% 20%"></span></div><div style="width:360px;height:250px;background:#FFFFFF;box-shadow:var(--shadow-page);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 22 }}" label="Loading page 2" hint-size="22px,22px"></x-import></div></div>
+<div style="padding:12px 16px 34px;background:var(--surface-panel);border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="file-text" title="Opening 2,400 pages" detail="Page 840 · about 30 seconds left" value="{{ 0.35 }}" on-cancel="{{ noop }}" hint-size="100%,96px"></x-import></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-16b" num="13.16b" title="Large file, password, repaired" platform="android" note="Three states that interrupt opening, each as a clear card: a 180 MB file with an honest note about memory, a password field, and a repaired file with what was fixed." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Opening files" nav="arrow" tab="none" hint-size="436px,939px">
+<div style="flex:1;display:grid;align-content:start;gap:14px;padding:12px 16px;background:var(--surface-sunken)">
+<div style="display:grid;gap:10px;padding:16px;border-radius:var(--radius-lg);background:var(--surface-raised)"><span style="display:flex;gap:10px;align-items:center;font:500 17px/22px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 22 }}" color="var(--warning)" hint-size="22px,22px"></x-import>This file is 180 MB</span><span style="font:400 15px/21px var(--font-ui);color:var(--text-secondary)">It may be slow on this phone and use about 600 MB of memory while open. Editing works one page at a time.</span><div style="display:flex;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" hint-size="100px,48px">Open</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" size="lg" hint-size="140px,48px">Compress first</x-import></div></div>
+<div style="display:grid;gap:10px;padding:16px;border-radius:var(--radius-lg);background:var(--surface-raised)"><span style="display:flex;gap:10px;align-items:center;font:500 17px/22px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 22 }}" color="var(--icon-secondary)" hint-size="22px,22px"></x-import>Maaş bordrosu Eylül 2026.pdf</span><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="Password" default-value="eylul2026" error="That password didn’t work. On a Turkish keyboard ı and i are different keys." hint-size="100%,96px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" hint-size="100px,48px">Open</x-import></div>
+<div style="display:grid;gap:8px;padding:16px;border-radius:var(--radius-lg);background:var(--info-bg, var(--accent-subtle));border:1px solid var(--accent-border)"><span style="display:flex;gap:10px;align-items:center;font:500 17px/22px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="wrench" size="{{ 22 }}" color="var(--text-accent)" hint-size="22px,22px"></x-import>Ferman repaired this file</span><span style="font:400 15px/21px var(--font-ui);color:var(--text-secondary)">The page index was broken and has been rebuilt. All 3 pages are there. The original is unchanged until you save.</span></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-16c" num="13.16c" title="Out of storage, background task notification" platform="android" theme="dark" note="Out of storage says how much is needed and where the edits are kept. Long tasks continue in the background with a system notification that shows progress and opens the result." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Ferman" nav="none" tab="home" hint-size="436px,939px">
+<dc-import name="FmMHome" platform="android" hint-size="100%,100%"></dc-import>
+<div style="position:absolute;top:44px;left:10px;right:10px;z-index:6;display:grid;gap:8px;padding:14px 16px;border-radius:var(--radius-xl);background:var(--soot-200, var(--surface-raised));box-shadow:var(--shadow-popover)"><span style="display:flex;gap:8px;align-items:center;font:400 13px/1 var(--font-ui);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="scan-text" size="{{ 16 }}" hint-size="16px,16px"></x-import>Ferman · now</span><span style="font:500 15px/20px var(--font-ui)">Recognizing text · page 14 of 64</span><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ 0.22 }}" hint-size="100%,6px"></x-import><span style="display:flex;gap:18px;font:500 14px/1 var(--font-ui);color:var(--text-accent)"><span>Pause</span><span>Cancel</span></span></div>
+<div style="position:absolute;inset:0;z-index:4;background:var(--surface-scrim)"></div>
+<div role="alertdialog" aria-label="Not enough storage" style="position:absolute;left:24px;right:24px;top:320px;z-index:5;display:grid;gap:14px;padding:24px;border-radius:var(--radius-xl);background:var(--surface-raised);box-shadow:var(--shadow-dialog)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="hard-drive" size="{{ 24 }}" color="var(--danger)" hint-size="24px,24px"></x-import><span style="font:400 22px/28px var(--font-ui)">Not enough storage</span><span style="font:400 15px/21px var(--font-ui);color:var(--text-secondary)">Saving needs 48 MB and the phone has 12 MB free. Your edits are kept in Ferman until you free some space.</span><div style="display:flex;justify-content:flex-end;gap:18px;font:500 14px/1 var(--font-ui);color:var(--text-accent)"><span>Later</span><span>Open storage settings</span></div></div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const chk = (label, on, sub, icon) => ({ label, sub, icon, on: !!on, checked: on ? 'true' : 'false' });
+    return {
+      fillActIos: [{ icon: 'signature', label: 'Sign' }, { text: 'Finish', bold: true }],
+      fillActA: [{ icon: 'signature', label: 'Sign' }, { text: 'Finish' }],
+      finishA: [{ icon: 'undo-2', label: 'Undo' }, { text: 'Finish' }],
+      typing: { ad: 'AYŞ' },
+      suggName: ['AYŞE', 'AYŞEGÜL', 'AYŞEN'],
+      iller: [['İstanbul', 1], ['Isparta', 0], ['Kastamonu', 0], ['Kırıkkale', 0]].map((i) => ({ n: i[0], on: !!i[1], sel: i[1] ? 'true' : 'false', bg: i[1] ? 'var(--accent-subtle)' : 'transparent' })),
+      savedSigs: [{ t: 'Ayşe Yılmaz', font: '500 24px/1 var(--font-hand-1)', ring: '0 0 0 2px var(--accent)' }, { t: 'AY', font: '500 24px/1 var(--font-hand-3)', ring: '0 0 0 1px var(--border-default)' }],
+      scanActA: [{ icon: 'trash-2', label: 'Delete page' }],
+      scanThumbs: [1, 2, 3].map((n) => ({ n: String(n), ring: n === 2 ? '0 0 0 2px var(--accent)' : '0 0 0 1px var(--border-default)' })),
+      scanTools: [['crop', 'Crop'], ['rotate-cw', 'Rotate'], ['refresh-cw', 'Retake'], ['arrow-left-right', 'Reorder']].map((t) => ({ icon: t[0], label: t[1] })),
+      filters: [['Auto', 0], ['B&W', 1], ['Greyscale', 0], ['Colour', 0]].map((f) => ({ label: f[0], bg: f[1] ? 'var(--accent-subtle)' : 'var(--surface-sunken)', c: f[1] ? 'var(--text-accent)' : 'var(--text-primary)', ring: f[1] ? '0 0 0 1.5px var(--accent)' : 'none' })),
+      orgActA: [{ icon: 'ellipsis', label: 'More: insert, combine, split' }],
+      orgPages: [1, 2, 3, 4, 5, 6, 7, 8, 9].map((n) => ({ label: String(n), sel: n === 4 || n === 5, ring: (n === 4 || n === 5) ? '0 0 0 2.5px var(--accent)' : '0 0 0 1px var(--border-default)', op: '1' })),
+      orgBar: [['rotate-cw', 'Rotate'], ['file-output', 'Extract'], ['copy', 'Duplicate'], ['trash-2', 'Delete']].map((a, i) => ({ icon: a[0], label: a[1], c: i === 3 ? 'var(--danger)' : 'var(--icon-primary)' })),
+      targets: [chk('Word', 1, 'Editable text, tables, comments', 'file-type'), chk('Excel', 0, 'Each table on its own sheet', 'file-spreadsheet'), chk('PowerPoint', 0, 'One slide per page', 'presentation'), chk('Images', 0, 'JPEG or PNG per page', 'file-image'), chk('Text', 0, 'Plain text in reading order', 'file-text')],
+      noop: () => {},
+      redActA: [{ icon: 'undo-2', label: 'Undo' }],
+      patterns: [['T.C. Kimlik No · 1', 1], ['IBAN · 1', 1], ['Phone · 1', 1], ['E-mail · 0', 0]].map((p) => ({ label: p[0], on: !!p[1], bg: p[1] ? 'var(--accent-subtle)' : 'transparent', ring: p[1] ? 'none' : 'inset 0 0 0 1px var(--border-default)', c: p[1] ? 'var(--text-accent)' : 'var(--text-secondary)' })),
+      shareFmt: [{ value: 'pdf', label: 'PDF' }, { value: 'pdfa', label: 'PDF/A' }, { value: 'img', label: 'Images' }],
+      shareSizes: [['Original', '284 KB', 0], ['Smaller', '≈ 120 KB', 1], ['Smallest', '≈ 60 KB', 0]].map((s) => ({ label: s[0], size: s[1], on: !!s[2], checked: s[2] ? 'true' : 'false' })),
+      aiActA: [{ icon: 'sparkles', label: 'Assistant' }],
+      aiQuick: ['Summarize', 'Dates and amounts', 'Draft a reply'],
+      setGroups: [
+        { hasTitle: false, rows: [['languages', 'Language and region', 'English'], ['contrast', 'Theme', 'System'], ['type', 'Fonts', '86']] },
+        { hasTitle: true, title: 'DOCUMENTS', rows: [['signature', 'Signatures', '2 saved'], ['scan-text', 'Text recognition', '3 languages'], ['sparkles', 'Assistant', 'Off']] },
+        { hasTitle: true, title: 'PRIVACY', rows: [['eye-off', 'Privacy', 'No data collected'], ['info', 'About and licence', '1.4.2']] }
+      ].map((g) => ({ hasTitle: g.hasTitle, title: g.title, rows: g.rows.map((r, i, a) => ({ icon: r[0], label: r[1], value: r[2], sep: i < a.length - 1 ? '1px solid var(--border-subtle)' : 'none' })) })),
+      langRows: [{ head: true, label: 'App' }, { item: true, label: 'App language', value: 'English · switches right away' }, { head: true, label: 'Documents' }, { item: true, label: 'Document languages', value: 'Türkçe, English · for OCR and spell-check' }, { head: true, label: 'Region' }, { item: true, label: 'Formats', value: 'Türkiye · 13.10.2026 · 18.500,50 · 10,5 pt' }, { item: true, label: 'Paper size', value: 'A4' }, { item: true, label: 'Units', value: 'Millimetres' }, { item: true, label: 'Use the phone’s settings', value: 'Follow Android region settings', sw: true }]
+    };
+  }
+}
+</script>
+</body>
+</html>

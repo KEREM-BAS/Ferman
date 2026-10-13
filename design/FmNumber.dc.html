@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div class="fm-field" style="width:{{ w }}">
+<sc-if value="{{ hasLabel }}"><span class="fm-field__label">{{ label }}</span></sc-if>
+<div class="fm-input fm-stepper fm-input--sm" style="border-color:{{ border }}">
+<span class="fm-input__control" role="spinbutton" aria-label="{{ aria }}" aria-valuenow="{{ raw }}" tabindex="0" style="flex:1;min-width:0;font:var(--type-body);font-variant-numeric:tabular-nums;white-space:nowrap;overflow:hidden">{{ text }}</span>
+<sc-if value="{{ hasUnit }}"><span class="fm-input__suffix">{{ unit }}</span></sc-if>
+<span class="fm-stepper__arrows"><span class="fm-stepper__arrow" aria-hidden="true"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 11 }}" stroke-width="{{ 2 }}" hint-size="11px,11px"></x-import></span><span class="fm-stepper__arrow" aria-hidden="true"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 11 }}" stroke-width="{{ 2 }}" hint-size="11px,11px"></x-import></span></span>
+</div>
+<sc-if value="{{ hasError }}"><span class="fm-field__error">{{ error }}</span></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:120,&quot;height&quot;:56},&quot;value&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:10.5,&quot;tsType&quot;:&quot;number&quot;},&quot;precision&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;unit&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;pt&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;label&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;width&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:84,&quot;tsType&quot;:&quot;number&quot;},&quot;error&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const v = p.value === undefined ? 0 : Number(p.value);
+    const locale = { tr: 'tr-TR', de: 'de-DE', ar: 'ar', ja: 'ja-JP', en: 'en-US' }[p.lang || 'en'] || 'en-US';
+    const prec = p.precision === undefined ? 0 : p.precision;
+    const text = new Intl.NumberFormat(locale, { minimumFractionDigits: prec, maximumFractionDigits: prec, useGrouping: true }).format(v);
+    return {
+      text, raw: v, w: (p.width || 84) + 'px', hasLabel: !!p.label, label: p.label, hasUnit: !!p.unit, unit: p.unit,
+      aria: p.aria || p.label || 'Value', hasError: !!p.error, error: p.error, border: p.error ? 'var(--danger)' : undefined
+    };
+  }
+}
+</script>
+</body>
+</html>

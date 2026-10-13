@@ -1,0 +1,47 @@
+/* Ferman editing layer: TextEditBox, PageMark, SearchReplaceBar.
+   Marks on the page use page-tuned colors: the page is white in both themes. */
+
+/* TextEditBox */
+.fm-editbox { position: relative; display: block; padding: 3px 4px; margin: -4px -5px; border-radius: 1px; cursor: text; color: var(--paper-900); }
+.fm-editbox--idle:hover, .fm-editbox--hover { outline: 1px dashed var(--edit-box-hover); outline-offset: 0; }
+.fm-editbox--selected, .fm-editbox--editing { outline: var(--border-width-strong) solid var(--edit-box); outline-offset: 0; }
+.fm-editbox--editing { background: rgba(58, 96, 198, 0.03); }
+.fm-editbox__handle { position: absolute; width: 7px; height: 7px; background: var(--edit-handle-fill); border: 1px solid var(--edit-box); border-radius: 1px; }
+.fm-editbox__handle[data-h="nw"] { top: -4px; left: -4px; cursor: nwse-resize; }
+.fm-editbox__handle[data-h="n"] { top: -4px; left: calc(50% - 3.5px); cursor: ns-resize; }
+.fm-editbox__handle[data-h="ne"] { top: -4px; right: -4px; cursor: nesw-resize; }
+.fm-editbox__handle[data-h="e"] { top: calc(50% - 3.5px); right: -4px; cursor: ew-resize; }
+.fm-editbox__handle[data-h="se"] { bottom: -4px; right: -4px; cursor: nwse-resize; }
+.fm-editbox__handle[data-h="s"] { bottom: -4px; left: calc(50% - 3.5px); cursor: ns-resize; }
+.fm-editbox__handle[data-h="sw"] { bottom: -4px; left: -4px; cursor: nesw-resize; }
+.fm-editbox__handle[data-h="w"] { top: calc(50% - 3.5px); left: -4px; cursor: ew-resize; }
+.fm-editbox__meta {
+  position: absolute; bottom: calc(100% + 1px); inset-inline-start: -1.5px; display: inline-flex; align-items: center; gap: 4px;
+  height: 18px; padding: 0 6px; border-radius: 2px 2px 0 0; background: var(--edit-box); color: #FFFFFF;
+  font: var(--weight-medium) var(--text-2xs)/1 var(--font-ui); font-variant-numeric: tabular-nums; white-space: nowrap; letter-spacing: 0.01em;
+}
+.fm-editbox__meta--warning { background: var(--amber-500); color: var(--paper-950); }
+.fm-caret { display: inline-block; width: 1.5px; height: 1.15em; margin: 0 -0.75px; vertical-align: -0.2em; background: var(--edit-caret); animation: fm-caret 1.05s steps(1) infinite; }
+
+/* PageMark — editing states over page text */
+.fm-mark { border-radius: 1px; color: inherit; background: transparent; padding: 0; box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+.fm-mark--selection { background: var(--edit-selection); }
+.fm-mark--edited { background: var(--edit-changed-bg); box-shadow: inset 0 -1.5px 0 var(--edit-changed); }
+.fm-mark--missing-glyph { background: var(--glyph-missing-bg); text-decoration: underline wavy var(--glyph-missing); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+.fm-mark--search { background: var(--search-match); }
+.fm-mark--search-current { background: var(--search-current); box-shadow: 0 0 0 1px var(--search-current-border); }
+.fm-mark--redact-pending { color: inherit; background: repeating-linear-gradient(-45deg, var(--redact-pending-bg) 0 4px, rgba(180, 35, 24, 0.22) 4px 6px); box-shadow: 0 0 0 1px var(--redact-pending); }
+.fm-mark--redact-applied { background: var(--redact-applied); color: transparent; user-select: none; }
+
+/* SearchReplaceBar */
+.fm-search { display: grid; gap: 6px; width: 440px; max-width: 100%; padding: 6px; background: var(--surface-raised); border-radius: var(--radius-lg); box-shadow: var(--shadow-popover); }
+.fm-search__row { display: flex; align-items: center; gap: 4px; }
+.fm-search__row .fm-input { flex: 1; }
+.fm-search__opt { display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; padding: 0; border: 0; border-radius: 3px; background: transparent; color: var(--icon-secondary); cursor: pointer; }
+.fm-search__opt:hover { background: var(--surface-hover); color: var(--text-primary); }
+.fm-search__opt:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.fm-search__opt[aria-pressed="true"] { background: var(--accent-subtle); color: var(--text-accent); }
+.fm-search__count { min-width: 64px; text-align: center; font: var(--type-caption); font-variant-numeric: tabular-nums; color: var(--text-secondary); white-space: nowrap; }
+.fm-search__count--none { color: var(--danger); }
+.fm-search__notice { display: flex; gap: 6px; align-items: flex-start; padding: 6px 8px; border-radius: var(--radius-sm); background: var(--warning-bg); color: var(--warning); font: var(--type-caption); }
+.fm-search__notice svg { flex: none; margin-top: 1px; color: var(--warning-solid); }

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div style="flex:1;min-height:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:grid;justify-content:center;align-content:start;gap:10px;padding-top:{{ padTop }}">
+<div style="zoom:{{ z }};filter:{{ pageFilter }}"><dc-import name="DocKira" page="{{ 1 }}" mode="{{ mode }}" sel="{{ sel }}" sel-state="{{ selState }}" edited="{{ edited }}" search="{{ search }}" glyph="{{ glyph }}" annot="{{ annot }}" meta-place="below" hint-size="794px,1123px"></dc-import></div>
+<div style="zoom:{{ z }};filter:{{ pageFilter }}"><dc-import name="DocKira" page="{{ 2 }}" mode="view" hint-size="794px,1123px"></dc-import></div>
+{{ children }}
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:393,&quot;height&quot;:700},&quot;zoom&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:0.46,&quot;tsType&quot;:&quot;number&quot;},&quot;night&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;mode&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;view&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;sel&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;edited&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;search&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;annot&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    return {
+      z: p.zoom || 0.46, padTop: (p.padTop === undefined ? 12 : p.padTop) + 'px',
+      pageFilter: p.night ? 'invert(0.9) hue-rotate(180deg)' : 'none',
+      mode: p.mode || 'view', sel: p.sel || '', selState: p.selState || 'selected', edited: !!p.edited, search: !!p.search, glyph: !!p.glyph, annot: !!p.annot
+    };
+  }
+}
+</script>
+</body>
+</html>

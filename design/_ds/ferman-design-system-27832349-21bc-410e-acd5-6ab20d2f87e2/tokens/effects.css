@@ -1,0 +1,62 @@
+/* Ferman radii, borders, elevation, focus and motion. Corners are small and
+   precise; shadows are soft and used only for things that float above the
+   document. Motion is short ease-out, never bouncy. */
+
+:root {
+  --radius-xs: 2px;     /* selection handles, checkbox inner, color chips */
+  --radius-sm: 4px;     /* buttons, inputs, toolbar items */
+  --radius-md: 6px;     /* menus, thumbnails, cards, toasts */
+  --radius-lg: 8px;     /* dialogs, command palette, floating bars */
+  --radius-xl: 12px;    /* drop zone, onboarding surfaces */
+  --radius-full: 999px; /* status dots, switch track */
+
+  --border-width: 1px;
+  --border-width-strong: 1.5px;  /* active text-edit frame */
+
+  /* Elevation (light) */
+  --shadow-page: 0 0 0 1px var(--page-border), 0 1px 2px rgba(20, 19, 17, 0.06), 0 6px 20px -8px rgba(20, 19, 17, 0.16);
+  --shadow-sm: 0 1px 2px rgba(20, 19, 17, 0.08);
+  --shadow-popover: 0 0 0 1px rgba(20, 19, 17, 0.08), 0 4px 12px rgba(20, 19, 17, 0.08), 0 12px 28px -6px rgba(20, 19, 17, 0.14);
+  --shadow-dialog: 0 0 0 1px rgba(20, 19, 17, 0.08), 0 8px 24px rgba(20, 19, 17, 0.10), 0 24px 56px -12px rgba(20, 19, 17, 0.24);
+  --shadow-drag: 0 2px 6px rgba(20, 19, 17, 0.12), 0 14px 32px -8px rgba(20, 19, 17, 0.28);
+
+  /* Focus — 2px ink ring with a 2px gap in the surface color */
+  --focus-ring: 0 0 0 2px var(--surface-raised), 0 0 0 4px var(--border-focus);
+  --focus-ring-inset: inset 0 0 0 2px var(--border-focus);
+  --focus-outline: 2px solid var(--border-focus);
+  --focus-offset: 2px;
+
+  /* Motion */
+  --dur-instant: 60ms; /* @kind other */
+  --dur-fast: 120ms; /* @kind other */
+  --dur-base: 180ms; /* @kind other */
+  --dur-slow: 260ms; /* @kind other */
+  --ease-out: cubic-bezier(0.2, 0, 0, 1); /* @kind other */
+  --ease-in-out: cubic-bezier(0.4, 0, 0.2, 1); /* @kind other */
+  --ease-exit: cubic-bezier(0.4, 0, 1, 1); /* @kind other */
+
+  --z-canvas: 0; /* @kind other */
+  --z-edit: 10; /* @kind other */
+  --z-sticky: 20; /* @kind other */
+  --z-popover: 100; /* @kind other */
+  --z-dialog: 200; /* @kind other */
+  --z-toast: 300; /* @kind other */
+  --z-tooltip: 400; /* @kind other */
+}
+
+[data-theme="dark"] {
+  --shadow-page: 0 0 0 1px var(--page-border), 0 2px 4px rgba(0, 0, 0, 0.4), 0 10px 28px -8px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-popover: 0 0 0 1px rgba(255, 255, 255, 0.07), 0 4px 12px rgba(0, 0, 0, 0.36), 0 12px 28px -6px rgba(0, 0, 0, 0.5);
+  --shadow-dialog: 0 0 0 1px rgba(255, 255, 255, 0.08), 0 8px 24px rgba(0, 0, 0, 0.4), 0 24px 56px -12px rgba(0, 0, 0, 0.6);
+  --shadow-drag: 0 2px 6px rgba(0, 0, 0, 0.4), 0 14px 32px -8px rgba(0, 0, 0, 0.7);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    --dur-instant: 0ms; /* @kind other */
+    --dur-fast: 0ms; /* @kind other */
+    --dur-base: 0ms; /* @kind other */
+    --dur-slow: 0ms; /* @kind other */
+  }
+}

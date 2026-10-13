@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">05b · Fill &amp; Sign — digital signatures and forms</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Certificate signatures, Turkish qualified e-signature (e-imza) with a smart card, signature validation in plain language, and form authoring. Certificate and timestamp provider names are placeholders.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.5 · Certificate signatures</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-5" num="5.5a" title="Sign — Choose a certificate" note="Ferman lists certificates from smart cards, the macOS keychain (Windows certificate store) and files. Unusable certificates stay visible with the reason, so people aren’t left guessing why theirs is missing." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="cert" save="saved" tabs="{{ tabsKira }}" page="{{ 3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 3 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 3 }}" mode="sign" tenant-name="AYŞE YILMAZ" tenant-date="13.10.2026" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="md" icon="badge-check" title="Sign with a certificate" description="Choose the certificate to sign “Kira sözleşmesi.pdf”." actions="{{ actCont }}" footer-start="{{ addCert }}" hint-size="560px,420px">
+<div role="radiogroup" aria-label="Certificates" style="display:grid;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">
+<sc-for list="{{ certs }}" as="c" hint-placeholder-count="3"><div role="radio" aria-checked="{{ c.checked }}" aria-disabled="{{ c.disabled }}" style="display:flex;gap:12px;align-items:flex-start;padding:12px 14px;border-bottom:1px solid var(--border-subtle);background:{{ c.bg }};opacity:{{ c.op }}"><span style="width:16px;height:16px;margin-top:2px;flex:none;border-radius:50%;box-shadow:inset 0 0 0 {{ c.ringW }} {{ c.ringC }};background:var(--surface-raised)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ c.icon }}" size="{{ 18 }}" color="var(--icon-secondary)" hint-size="18px,18px"></x-import><span style="display:grid;gap:3px;flex:1;min-width:0"><span style="display:flex;gap:8px;align-items:center;font:var(--type-body-strong)">{{ c.name }}<sc-if value="{{ c.hasBadge }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ c.tone }}" hint-size="80px,18px">{{ c.badge }}</x-import></sc-if></span><span style="font:var(--type-caption);color:{{ c.subColor }}">{{ c.sub }}</span></span></div></sc-for>
+</div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-5b" num="5.5b" title="Sign — Reason, location, appearance, timestamp" kind="panel" w="{{ 760 }}" h="{{ 900 }}" meta="Dialog · light" note="The appearance text follows the document’s language (Turkish), not the app’s. A timestamp proves when the document was signed; without one, Ferman says the time comes from this computer. Signing always saves a new file." hint-size="760px,1020px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Sign as Ayşe Yılmaz" actions="{{ actSignSave }}" hint-size="640px,760px">
+<div style="display:grid;gap:14px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:12px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" label="Reason" default-value="approve" options="{{ reasons }}" hint-size="100%,52px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" label="Location" default-value="İstanbul, Türkiye" hint-size="100%,52px"></x-import></div>
+<div style="display:grid;gap:6px"><span class="fm-field__label">Appearance</span><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Appearance" value="hand" options="{{ looks }}" hint-size="100%,26px"></x-import>
+<div lang="tr" style="display:grid;grid-template-columns:1fr 1.3fr;gap:14px;align-items:center;padding:14px 16px;background:#FFFFFF;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--border-default);color:#1F1D1A"><span style="font:500 34px/1 var(--font-hand-1);color:#1A3170">Ayşe Yılmaz</span><span style="font:400 11px/1.5 var(--font-ui);color:#3A3733;font-variant-numeric:tabular-nums">Dijital olarak imzalayan: Ayşe Yılmaz<br>Tarih: 13.10.2026 14:41:07 +03:00<br>Neden: Bu belgeyi onaylıyorum<br>Konum: İstanbul, Türkiye</span></div></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Select" label="Timestamp server" default-value="tsa" options="{{ tsas }}" hint-size="100%,52px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Add revocation data for long-term validation" description="Keeps the signature verifiable after the certificate expires (PAdES-B-LT)." default-checked="{{ true }}" hint-size="100%,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Lock the document after signing" description="Nobody can fill in fields or add signatures afterwards." hint-size="100%,40px"></x-import>
+</div></x-import></div>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a5-5c" num="5.5c" title="Sign — Signed document" note="After signing, a green bar states who signed, when, and that nothing has changed since. The appearance on the page is part of the signed revision. The Signatures panel gives the details in plain language (5.7)." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="cert" save="saved" saved-at="14:41" tabs="{{ tabsSigned }}" page="{{ 3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 3 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="success" icon="badge-check" title="Signed and valid." actions="{{ actSigPanel }}" hint-size="100%,44px">Ayşe Yılmaz signed on 13.10.2026 at 14:41. The document hasn’t changed since.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocKira" page="{{ 3 }}" mode="view" tenant-name="AYŞE YILMAZ" tenant-date="13.10.2026" hint-size="794px,1123px"><div lang="tr" style="position:absolute;left:419px;top:340px;width:250px;height:80px;box-sizing:border-box;display:grid;grid-template-columns:1fr 1.25fr;gap:8px;align-items:center;padding:6px 8px;background:#FFFFFF;color:#1F1D1A"><span style="font:500 26px/1 var(--font-hand-1);color:#1A3170">Ayşe Yılmaz</span><span style="font:400 7.5px/1.45 var(--font-ui);color:#3A3733;font-variant-numeric:tabular-nums">Dijital olarak imzalayan: Ayşe Yılmaz<br>Tarih: 13.10.2026 14:41:07 +03:00<br>Neden: Bu belgeyi onaylıyorum<br>Konum: İstanbul, Türkiye</span></div></dc-import></div></main>
+<aside aria-label="Signatures" style="width:320px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Signatures</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" dot="{{ true }}" hint-size="60px,18px">2 valid</x-import></div>
+<div style="display:grid;gap:8px;padding:10px"><dc-import name="FmSigCard" state="valid" hint-size="100%,380px"></dc-import><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="badge-check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import><span style="display:grid;flex:1"><span style="font:var(--type-body-strong)">Mert Kaya</span><span style="font:var(--type-caption);color:var(--text-secondary)">Valid · e-imza · 13.10.2026 11:04</span></span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-right" size="{{ 16 }}" flip-rtl="{{ true }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import></div></div>
+</aside>
+</dc-import>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.6 · e-imza with a smart card or USB token</h2>
+<dc-import name="FmBoard" bid="a5-6" num="5.6a" title="e-imza — Card detected, ready to sign" note="Ferman finds the reader and the card on its own and says what it found. The panel walks through the three steps; the signature goes into the field you clicked (dashed ink outline). Ferman talks to the card through its PKCS#11 driver; the PIN goes only to the card." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="eimza" save="saved" tabs="{{ tabsKira }}" page="{{ 3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 3 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 3 }}" mode="sign" tenant-name="AYŞE YILMAZ" tenant-date="13.10.2026" hint-size="794px,1123px"><div aria-hidden="true" style="position:absolute;left:417px;top:336px;width:250px;height:88px;outline:2px dashed var(--accent);outline-offset:0;border-radius:2px;background:rgba(58,96,198,.06)"></div></dc-import></main>
+<aside aria-label="e-imza" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="usb" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">e-imza</span></div>
+<div style="padding:12px;display:grid;gap:12px;border-bottom:1px solid var(--border-subtle)">
+<div role="status" style="display:flex;gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:var(--success-bg);border:1px solid var(--success-border)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 18 }}" color="var(--success)" hint-size="18px,18px"></x-import><span style="display:grid;gap:2px"><span style="font:600 13px/18px var(--font-ui);color:var(--success)">Card ready</span><span style="font:var(--type-caption);color:var(--text-primary)">ACS ACR39U-N1 · Ayşe Yılmaz (NES)</span><span style="font:var(--type-caption);color:var(--text-secondary)">TÜRKSERT ESHS · valid until 21.03.2028</span></span></div>
+<ol style="margin:0;padding:0;list-style:none;display:grid;gap:10px">
+<li style="display:flex;gap:10px;font:var(--type-body)"><span style="width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:4px;background:var(--success-bg);color:var(--success)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 12 }}" stroke-width="{{ 2.5 }}" hint-size="12px,12px"></x-import></span><span style="display:grid"><span>Choose where it goes</span><span style="font:var(--type-caption);color:var(--text-secondary)">Kiracı · İmza, page 3</span></span></li>
+<li style="display:flex;gap:10px;font:var(--type-body)"><span style="width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:4px;background:var(--accent);color:#FFFFFF;font:600 11px/1 var(--font-ui)">2</span><span style="display:grid"><span>Enter your PIN</span><span style="font:var(--type-caption);color:var(--text-secondary)">On the next step, or on the reader’s keypad</span></span></li>
+<li style="display:flex;gap:10px;font:var(--type-body);color:var(--text-secondary)"><span style="width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);font:600 11px/1 var(--font-ui)">3</span><span>Ferman adds a timestamp and saves a signed copy</span></li>
+</ol></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Options" collapsible="{{ false }}" hint-size="100%,170px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Signature format" default-value="lt" options="{{ formats }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Timestamp server" default-value="tsa" options="{{ tsas }}" hint-size="100%,48px"></x-import></x-import>
+<div style="flex:1"></div><div style="padding:12px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="usb" full-width="{{ true }}" hint-size="100%,30px">Sign with e-imza…</x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">Keep the card in the reader until signing finishes.</span></div>
+</aside>
+</dc-import>
+</dc-import>
+<div style="display:flex;gap:40px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-6b" num="5.6b" title="e-imza — PIN" kind="panel" w="{{ 600 }}" h="{{ 480 }}" meta="Dialog · light" note="Masked, typed by you, never stored. The remaining tries come from the card." hint-size="600px,620px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="key-round" title="Enter your e-imza PIN" description="Ferman sends the PIN only to the card in ACS ACR39U-N1. It isn’t saved anywhere." actions="{{ actPin }}" hint-size="500px,330px"><div style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="PIN" default-value="482915" autofocus="{{ true }}" hint-size="100%,52px"></x-import><span style="display:flex;gap:8px;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="info" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>3 tries left. After 3 wrong PINs the card locks and you’ll need the PUK from your certificate provider.</span></div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-6c" num="5.6c" title="e-imza — Signing" kind="panel" w="{{ 600 }}" h="{{ 480 }}" meta="Dialog · light" note="Each step is listed with its result; the running step is announced. Cancel works until the card has signed." hint-size="600px,620px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" title="Signing with e-imza" actions="{{ actCancel }}" hint-size="500px,340px"><div role="status" aria-live="polite" style="display:grid;gap:10px"><sc-for list="{{ signSteps }}" as="s" hint-placeholder-count="5"><div style="display:flex;gap:10px;align-items:center;font:var(--type-body);color:{{ s.color }}"><sc-if value="{{ s.run }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 16 }}" hint-size="16px,16px"></x-import></sc-if><sc-if value="{{ s.still }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ s.icon }}" size="{{ 16 }}" color="{{ s.iconColor }}" hint-size="16px,16px"></x-import></sc-if><span style="flex:1">{{ s.label }}</span><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ s.meta }}</span></div></sc-for><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ 0.55 }}" hint-size="100%,6px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary)">Don’t remove the card until signing finishes.</span></div></x-import></div>
+</dc-import>
+</div>
+<div style="display:flex;gap:40px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-6d" num="5.6d" title="e-imza — Signed" kind="panel" w="{{ 600 }}" h="{{ 480 }}" meta="Dialog · light" note="States the legal fact once, plainly, and where the file went." hint-size="600px,620px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="badge-check" title="Signed with e-imza" description="“Kira sözleşmesi — imzalı.pdf” was saved next to the original. It carries a qualified electronic signature with a timestamp, which under Turkish Law No. 5070 has the same legal effect as a handwritten signature." actions="{{ actDone }}" hint-size="500px,360px"><div style="display:grid;grid-template-columns:96px minmax(0,1fr);gap:6px 10px;font:var(--type-caption);font-variant-numeric:tabular-nums"><span style="color:var(--text-secondary)">Signer</span><span>Ayşe Yılmaz · NES</span><span style="color:var(--text-secondary)">Signed on</span><span>13.10.2026 14:41:07 · TÜRKSERT timestamp</span><span style="color:var(--text-secondary)">Format</span><span>PAdES-B-LT</span></div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-6e" num="5.6e" title="e-imza — No card found" kind="panel" w="{{ 600 }}" h="{{ 480 }}" meta="Dialog · light" note="Ferman keeps looking while this is open and moves on by itself when a card appears. Every check says what it found." hint-size="600px,620px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="usb" title="No e-imza card found" description="Ferman checks for a card reader every 2 seconds." actions="{{ actCancel }}" footer-start="{{ helpLink }}" hint-size="500px,380px"><div style="display:grid;gap:12px"><div style="display:flex;gap:10px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-x" size="{{ 16 }}" color="var(--danger)" hint-size="16px,16px"></x-import><span style="display:grid"><span>Plug in the card reader</span><span style="font:var(--type-caption);color:var(--text-secondary)">No reader is connected to this Mac.</span></span></div><div style="display:flex;gap:10px;font:var(--type-body);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle" size="{{ 16 }}" color="var(--icon-disabled)" hint-size="16px,16px"></x-import><span>Insert the card, chip first</span></div><div style="display:flex;gap:10px;font:var(--type-body);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle" size="{{ 16 }}" color="var(--icon-disabled)" hint-size="16px,16px"></x-import><span style="display:grid;gap:6px"><span>Install the reader’s driver</span><span style="font:var(--type-caption)">Any PKCS#11 driver works. If Ferman can’t find it, choose the driver file.</span><span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="folder-open" hint-size="140px,26px">Choose driver file…</x-import></span></span></div><div style="display:flex;gap:8px;align-items:center;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 12 }}" hint-size="12px,12px"></x-import>Looking for a reader…</div></div></x-import></div>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.7 · Signature validation</h2>
+<dc-import name="FmBoard" bid="a5-7" num="5.7a" title="Validation — Document changed after signing" note="Opening a signed file checks every signature. A change after signing is a warning bar, not a silent detail. “Show signed version” opens the revision that was signed; Compare (9.2) lists exactly what changed." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsChanged }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="warning" icon="file-pen-line" title="Changed after signing." actions="{{ actChanged }}" hint-size="100%,44px">1 of 2 signatures covers an earlier version. Page 1 was changed later.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div></main>
+<aside aria-label="Signatures" style="width:320px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Signatures</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="warning" dot="{{ true }}" hint-size="80px,18px">1 warning</x-import></div>
+<div style="display:grid;gap:8px;padding:10px"><dc-import name="FmSigCard" state="modified" hint-size="100%,400px"></dc-import><div style="display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="badge-check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import><span style="display:grid;flex:1"><span style="font:var(--type-body-strong)">Mert Kaya</span><span style="font:var(--type-caption);color:var(--text-secondary)">Valid · covers revision 1</span></span></div></div>
+</aside>
+</dc-import>
+</dc-import>
+<div style="display:flex;gap:32px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-7b" num="5.7b" title="Valid" kind="panel" w="{{ 340 }}" h="{{ 470 }}" meta="Panel card" hint-size="340px,520px"><div style="padding:10px;background:var(--surface-panel);height:100%;box-sizing:border-box"><dc-import name="FmSigCard" state="valid" hint-size="100%,400px"></dc-import></div></dc-import>
+<dc-import name="FmBoard" bid="a5-7c" num="5.7c" title="Valid with warnings" kind="panel" w="{{ 340 }}" h="{{ 470 }}" meta="Panel card" hint-size="340px,520px"><div style="padding:10px;background:var(--surface-panel);height:100%;box-sizing:border-box"><dc-import name="FmSigCard" state="warn" hint-size="100%,420px"></dc-import></div></dc-import>
+<dc-import name="FmBoard" bid="a5-7d" num="5.7d" title="Invalid" kind="panel" w="{{ 340 }}" h="{{ 470 }}" meta="Panel card" hint-size="340px,520px"><div style="padding:10px;background:var(--surface-panel);height:100%;box-sizing:border-box"><dc-import name="FmSigCard" state="invalid" hint-size="100%,400px"></dc-import></div></dc-import>
+<dc-import name="FmBoard" bid="a5-7e" num="5.7e" title="Modified after signing" kind="panel" w="{{ 340 }}" h="{{ 470 }}" meta="Panel card" hint-size="340px,520px"><div style="padding:10px;background:var(--surface-panel);height:100%;box-sizing:border-box"><dc-import name="FmSigCard" state="modified" hint-size="100%,400px"></dc-import></div></dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.8 · Form authoring</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-8" num="5.8a" title="Prepare form — Draw fields, field properties" note="Prepare form shows every field with its name. Pick a field type from the palette and drag on the page; the new field takes the label next to it as its tooltip. Properties cover name, tooltip, required, format with range, calculation and visibility. Names must be unique; Ferman says so inline." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="prepare" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbForm }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-180px"><dc-import name="DocForm" filled="none" author="{{ true }}" selected="hane" hint-size="794px,1123px"></dc-import></div>
+<div role="toolbar" aria-label="Field types" aria-orientation="vertical" style="position:absolute;top:16px;inset-inline-start:16px;display:grid;gap:2px;padding:4px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover)"><sc-for list="{{ fieldTypes }}" as="t" hint-placeholder-count="7"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="{{ t.icon }}" label="{{ t.label }}" active="{{ t.active }}" hint-size="30px,30px"></x-import></sc-for></div></main>
+<aside aria-label="Field properties" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Text field</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Delete field" size="xs" hint-size="22px,22px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Field" collapsible="{{ false }}" hint-size="100%,190px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="Name" default-value="hane_kisi_sayisi" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="Tooltip" default-value="Bu adreste yaşayan kişi sayısı" hint="Read by screen readers." hint-size="100%,64px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Required" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Format" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Format" default-value="number" options="{{ fmts }}" hint-size="100%,26px"></x-import><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px"><dc-import name="FmNumber" label="Min" value="{{ 1 }}" width="{{ 72 }}" hint-size="72px,44px"></dc-import><dc-import name="FmNumber" label="Max" value="{{ 20 }}" width="{{ 72 }}" hint-size="72px,44px"></dc-import><dc-import name="FmNumber" label="Decimals" value="{{ 0 }}" width="{{ 72 }}" hint-size="72px,44px"></dc-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="Error message" default-value="1 ile 20 arasında bir sayı girin." hint-size="100%,48px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Calculation" collapsible="{{ false }}" hint-size="100%,80px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Calculation" value="none" options="{{ calcs }}" hint-size="100%,26px"></x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">Sum, product, average, min or max of other number fields.</span></x-import>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-8b" num="5.8b" title="Prepare form — Fields found on a flat form" note="On a flat PDF, Ferman finds lines, boxes and comb boxes and proposes fields named from the nearby label (in Turkish here). Uncertain matches are amber and listed for review. Nothing changes until “Create 11 fields”." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="prepare" save="saved" tabs="{{ tabsFlat }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ thumbFlat }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="scan" title="Ferman found 11 fields on this page." actions="{{ actCreate }}" hint-size="100%,44px">2 need a look. Review them, then create the form.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden">
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:72px 80px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 13.5px/1.5 var(--font-doc-sample)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #1F1D1A;padding-bottom:10px"><span style="font:600 16px/1.2 var(--font-doc-sample)">Boğaziçi Bankası A.Ş.</span><span style="font:600 14px/1.2 var(--font-ui);letter-spacing:.08em">OTOMATİK ÖDEME TALİMATI</span></div>
+<p style="margin:22px 0 26px;text-align:justify">Aşağıda bilgileri yer alan fatura ve aidatlarımın, belirttiğim hesabımdan talimat başlangıç tarihinden itibaren otomatik olarak ödenmesini rica ederim.</p>
+<div style="display:grid;grid-template-columns:170px minmax(0,1fr);row-gap:30px;align-items:end">
+<sc-for list="{{ detected }}" as="d" hint-placeholder-count="7"><span>{{ d.label }}</span><span style="position:relative;height:{{ d.h }};width:{{ d.w }};border-bottom:{{ d.line }}"><span style="position:absolute;inset:-3px -3px -2px;outline:1.5px dashed {{ d.c }};background:{{ d.bg }};border-radius:2px"></span><span style="position:absolute;bottom:calc(100% + 4px);left:-3px;padding:1px 5px;border-radius:2px;background:{{ d.c }};color:{{ d.fg }};font:500 10px/1.4 var(--font-mono);white-space:nowrap">{{ d.name }}</span></span></sc-for>
+</div>
+</div></div></main>
+<aside aria-label="Detected fields" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Detected fields</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" hint-size="24px,18px">11</x-import></div>
+<div style="display:grid;padding:6px">
+<sc-for list="{{ detList }}" as="d" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:8px;min-height:30px;padding:2px 8px;border-radius:var(--radius-sm);font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="{{ d.name }}" default-checked="{{ true }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ d.icon }}" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import><span style="flex:1;min-width:0;font:var(--type-mono);font-size:12px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ d.name }}</span><sc-if value="{{ d.unsure }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 14 }}" color="var(--warning-solid)" label="Needs a look" hint-size="14px,14px"></x-import></sc-if></div></sc-for>
+</div>
+<div style="margin-top:auto;padding:10px 12px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">“Diğer” has a line after it; Ferman guessed a text field. The signature line became a signature field.</div>
+</aside>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const cert = (icon, name, badge, tone, sub, sel, dis) => ({ icon, name, hasBadge: !!badge, badge, tone, sub, checked: sel ? 'true' : 'false', disabled: dis ? 'true' : undefined, bg: sel ? 'var(--surface-selected)' : 'transparent', op: dis ? '0.6' : '1', ringW: sel ? '5px' : '1.5px', ringC: sel ? 'var(--accent)' : 'var(--border-strong)', subColor: dis ? 'var(--danger)' : 'var(--text-secondary)' });
+    const step = (state, label, meta) => ({ label, meta, run: state === 'run', still: state !== 'run', icon: state === 'done' ? 'circle-check' : 'circle', iconColor: state === 'done' ? 'var(--success-solid)' : 'var(--icon-disabled)', color: state === 'wait' ? 'var(--text-secondary)' : 'var(--text-primary)' });
+    const det = (label, name, w, hgt, unsure, line) => ({ label, name, w, h: hgt || '22px', c: unsure ? 'var(--amber-500)' : 'var(--accent)', fg: unsure ? 'var(--paper-950)' : '#FFFFFF', bg: unsure ? 'rgba(217,138,11,.08)' : 'rgba(58,96,198,.06)', line: line === false ? 'none' : '1px solid #1F1D1A' });
+    return {
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'Adres değişikliği formu.pdf' }],
+      tabsSigned: [{ name: 'Kira sözleşmesi — imzalı.pdf', active: true, icon: 'badge-check' }, { name: 'Adres değişikliği formu.pdf' }],
+      tabsChanged: [{ name: 'Kira sözleşmesi — imzalı (2).pdf', active: true, icon: 'file-pen-line' }],
+      tabsForm: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Adres değişikliği formu.pdf', active: true, unsaved: true }],
+      tabsFlat: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Otomatik ödeme talimatı.pdf', active: true }],
+      thumbForm: [{ fields: true }], thumbFlat: [{}],
+      certs: [
+        cert('usb', 'Ayşe Yılmaz', 'NES · e-imza', 'accent', 'TÜRKSERT ESHS · valid until 21.03.2028 · smart card in ACS ACR39U-N1', true),
+        cert('key-round', 'Ayşe Yılmaz — Yılmaz Mimarlık A.Ş.', '', 'neutral', 'Kurumsal SM · valid until 02.01.2027 · macOS keychain', false),
+        cert('mail', 'ayse.yilmaz@ornekposta.com.tr', 'Expired', 'danger', 'S/MIME certificate · expired on 30.09.2026, can’t sign', false, true)
+      ],
+      actCont: btns(['Cancel'], ['Continue', { variant: 'primary' }]),
+      addCert: h(Btn, { variant: 'ghost', size: 'sm', icon: 'plus' }, 'Add certificate file…'),
+      reasons: [{ value: 'approve', label: 'I approve this document' }, { value: 'author', label: 'I am the author' }, { value: 'review', label: 'I have reviewed this document' }, { value: 'custom', label: 'Other…' }],
+      looks: [{ value: 'hand', label: 'Handwriting and details' }, { value: 'name', label: 'Name and details' }, { value: 'details', label: 'Details only' }],
+      tsas: [{ value: 'tsa', label: 'TÜRKSERT Zaman Damgası (your provider)' }, { value: 'free', label: 'freetsa.org' }, { value: 'none', label: 'None — use this computer’s clock' }, { value: 'add', label: 'Add a server…' }],
+      actSignSave: btns(['Cancel'], ['Sign and save as…', { variant: 'primary' }]),
+      actSigPanel: btns(['Signature details', { size: 'sm' }]),
+      formats: [{ value: 'lt', label: 'PAdES-B-LT (recommended)' }, { value: 'b', label: 'PAdES-B-B (basic)' }, { value: 'lta', label: 'PAdES-B-LTA (archive)' }],
+      actPin: btns(['Cancel'], ['Sign', { variant: 'primary' }]),
+      actCancel: btns(['Cancel']),
+      signSteps: [step('done', 'Reading the certificate from the card', '0,4 s'), step('done', 'Checking the certificate status', 'Good · OCSP'), step('run', 'Signing on the card', ''), step('wait', 'Adding the timestamp', ''), step('wait', 'Saving “Kira sözleşmesi — imzalı.pdf”', '')],
+      actDone: btns(['Show in Finder'], ['Open signed copy', { variant: 'primary' }]),
+      helpLink: h('a', { href: '#', style: { font: 'var(--type-caption)' } }, 'Which reader and driver do I have?'),
+      actChanged: btns(['Compare', { size: 'sm', variant: 'ghost' }], ['Show signed version', { size: 'sm' }]),
+      fieldTypes: [['text-cursor-input', 'Text field', true], ['square-check', 'Check box'], ['circle-dot', 'Radio buttons'], ['chevron-down', 'Dropdown'], ['calendar', 'Date'], ['signature', 'Signature field'], ['mouse-pointer-2', 'Button']].map((t) => ({ icon: t[0], label: t[1], active: !!t[2] })),
+      fmts: [{ value: 'number', label: 'Number' }, { value: 'none', label: 'Any text' }, { value: 'date', label: 'Date' }, { value: 'tc', label: 'T.C. Kimlik No (11 digits)' }, { value: 'iban', label: 'IBAN (TR)' }, { value: 'phone', label: 'Phone number' }, { value: 'email', label: 'E-mail' }],
+      calcs: [{ value: 'none', label: 'None' }, { value: 'sum', label: 'Sum' }, { value: 'custom', label: 'Custom' }],
+      actCreate: btns(['Review one by one', { size: 'sm', variant: 'ghost' }], ['Create 11 fields', { size: 'sm', variant: 'primary' }]),
+      detected: [det('Adı Soyadı', 'adi_soyadi', '100%'), det('T.C. Kimlik No', 'tc_kimlik_no · comb 11', '264px', '26px', false, false), det('IBAN', 'iban', '100%'), det('Kurum', 'kurum · 4 check boxes', '330px', '16px', false, false), det('Abone No', 'abone_no', '260px'), det('Başlangıç tarihi', 'baslangic_tarihi · date', '160px', '22px', true), det('İmza', 'imza · signature', '220px', '40px')],
+      detList: [['text-cursor-input', 'adi_soyadi'], ['text-cursor-input', 'tc_kimlik_no'], ['text-cursor-input', 'iban'], ['square-check', 'kurum_igdas'], ['square-check', 'kurum_iski'], ['square-check', 'kurum_telekom'], ['square-check', 'kurum_diger'], ['text-cursor-input', 'kurum_diger_aciklama', true], ['text-cursor-input', 'abone_no'], ['calendar', 'baslangic_tarihi', true], ['signature', 'imza']].map((d) => ({ icon: d[0], name: d[1], unsure: !!d[2] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

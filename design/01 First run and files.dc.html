@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">01 · First run, start and file handling</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Desktop, 1440 × 900. Language and onboarding, the start screen in light, dark and Windows, and every state a file can arrive in: large, locked, damaged, many at once, unsaved, restored.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">1.1 – 1.3 · First launch</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-1" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.1</span><span style="font:600 26px/1.2 var(--font-ui)">First run — Language picker</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" bare="{{ true }}" mode="" status="{{ false }}" hint-size="100%,100%">
+<div style="flex:1;display:grid;place-items:center;background:var(--surface-panel)">
+<div style="width:760px;display:grid;gap:20px;padding:36px 40px 28px;background:var(--surface-raised);border-radius:var(--radius-xl);box-shadow:var(--shadow-dialog)">
+<div style="display:grid;gap:8px"><span style="font:var(--type-wordmark);font-size:24px">Ferman</span><h3 style="margin:0;font:var(--type-headline)">Choose a language</h3><p style="margin:0;font:var(--type-prose);color:var(--text-secondary)">English is selected because it’s your system language. You can change it any time in Settings › Language and region.</p></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TextField" icon="search" placeholder="Search languages · Dil ara · Sprache suchen · ابحث عن لغة" aria-label="Search languages" hint-size="100%,30px"></x-import>
+<div role="radiogroup" aria-label="App language" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-auto-flow:column;grid-template-rows:repeat(11,auto);gap:2px 12px">
+<sc-for list="{{ langs }}" as="l" hint-placeholder-count="21"><div role="radio" aria-checked="{{ l.checked }}" lang="{{ l.code }}" style="display:flex;align-items:center;gap:10px;height:36px;padding-inline:10px;border-radius:var(--radius-sm);background:{{ l.bg }};box-shadow:{{ l.ring }}" style-hover="background:var(--surface-hover)"><span style="width:16px;flex:none;color:var(--text-accent)"><sc-if value="{{ l.sel }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" stroke-width="{{ 2 }}" hint-size="16px,16px"></x-import></sc-if></span><span dir="{{ l.dir }}" style="font:500 14px/20px var(--font-ui);color:{{ l.color }}">{{ l.native }}</span><span lang="en" style="flex:1;text-align:end;font:var(--type-caption);color:var(--text-tertiary)">{{ l.en }}</span></div></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:12px;padding-top:8px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="languages" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary)">Missing your language? <a href="#">Help translate Ferman</a></span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" hint-size="120px,36px">Continue</x-import></div>
+</div></div>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Native names in their own script and direction, English name beside them. Keyboard focus (ring on Türkçe) moves with ↑ ↓; typing filters in any script; Enter continues. Choosing a language switches the interface live, before Continue.</p></div>
+
+<div id="a1-3" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.3</span><span style="font:600 26px/1.2 var(--font-ui)">First run — Default PDF app</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmStart" platform="mac" empty="{{ true }}" tabs="{{ noTabs }}" hint-size="100%,100%"><div style="position:absolute;inset:0;z-index:30;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="file-text" title="Open PDFs with Ferman?" description="Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change." actions="{{ actDefault }}" footer-start="{{ dontAsk }}" hint-size="520px,240px"><div style="display:flex;align-items:center;gap:12px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken);font:var(--type-body)"><span style="color:var(--text-secondary)">Opens PDFs now:</span><b style="font-weight:500">Preview</b><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-right" size="{{ 16 }}" flip-rtl="{{ true }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><b style="font-weight:600">Ferman</b></div></x-import></div></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Asked once, after onboarding. “Not now” keeps it in Settings › General. On Windows the button opens Settings › Default apps, because Windows doesn’t let apps change this themselves.</p></div>
+</div>
+
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-2a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.2a</span><span style="font:600 26px/1.2 var(--font-ui)">Welcome 1 of 3 — Edit any PDF like a document</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" bare="{{ true }}" mode="" status="{{ false }}" hint-size="100%,100%">
+<div style="flex:1;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div style="flex:1;display:grid;grid-template-columns:minmax(0,440px) minmax(0,560px);gap:80px;align-items:center;justify-content:center;padding:0 80px">
+<div style="display:grid;gap:18px"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">1 of 3</span><h3 style="margin:0;font:var(--weight-semibold) var(--text-4xl)/var(--leading-4xl) var(--font-ui);letter-spacing:-0.01em">Edit any PDF like a document</h3><p style="margin:0;font:400 17px/1.6 var(--font-ui);color:var(--text-secondary)">Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.</p><p style="margin:0;font:400 17px/1.6 var(--font-ui);color:var(--text-secondary)">When a font is missing a character, Ferman tells you which one and what it will use instead.</p></div>
+<div dir="ltr" lang="tr" style="padding:44px 48px 52px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 15px/1.6 var(--font-doc-sample)"><div style="font:600 15.5px/1.5 var(--font-doc-sample);margin-bottom:8px">Madde 4 — Kira Bedeli ve Ödeme</div><div style="position:relative"><span aria-hidden="true" style="position:absolute;left:-14px;top:2px;height:22px;width:2px;background:var(--edit-mark)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" meta="IBM Plex Serif · 10.5 pt" data-meta-placement="below" hint-size="100%,72px"><div style="text-align:justify">Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,16px"></x-import>’yi her ayın beşinci gününe kadar kiraya verenin aşağıdaki hesabına ödemekle yükümlüdür.</div></x-import></div><div style="margin-top:34px;color:#57534C">IBAN: TR12 0006 4000 0011 2345 6789 01</div></div>
+</div>
+<div style="height:72px;flex:none;display:flex;align-items:center;gap:12px;padding-inline:32px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="60px,30px">Skip</x-import><div style="flex:1;display:flex;justify-content:center;gap:8px" aria-label="Step 1 of 3"><span style="width:20px;height:6px;border-radius:3px;background:var(--accent)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span></div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" icon-end="arrow-right" hint-size="100px,36px">Next</x-import></div>
+</div></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The specimen is a live editing frame, not an illustration. Skip goes straight to the start screen; Esc does the same. Steps are announced as “Step 1 of 3”.</p></div>
+
+<div id="a1-2b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.2b</span><span style="font:600 26px/1.2 var(--font-ui)">Welcome 2 of 3 — Everything stays on your device</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" bare="{{ true }}" mode="" status="{{ false }}" hint-size="100%,100%">
+<div style="flex:1;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div style="flex:1;display:grid;grid-template-columns:minmax(0,440px) minmax(0,520px);gap:80px;align-items:center;justify-content:center;padding:0 80px">
+<div style="display:grid;gap:18px"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">2 of 3</span><h3 style="margin:0;font:var(--weight-semibold) var(--text-4xl)/var(--leading-4xl) var(--font-ui);letter-spacing:-0.01em">Everything stays on your device</h3><p style="margin:0;font:400 17px/1.6 var(--font-ui);color:var(--text-secondary)">Ferman opens, edits, signs and recognizes text on this computer. There’s no account to create and nothing to upload.</p></div>
+<div style="display:grid;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden">
+<sc-for list="{{ privacy }}" as="r" hint-placeholder-count="5"><div style="display:flex;gap:14px;align-items:flex-start;padding:16px 18px;border-bottom:1px solid var(--border-subtle)"><span style="flex:none;width:32px;height:32px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--surface-sunken);color:var(--icon-primary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ r.icon }}" size="{{ 18 }}" hint-size="18px,18px"></x-import></span><span style="display:grid;gap:2px"><span style="font:600 14px/20px var(--font-ui)">{{ r.title }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ r.body }}</span></span></div></sc-for>
+</div>
+</div>
+<div style="height:72px;flex:none;display:flex;align-items:center;gap:12px;padding-inline:32px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="60px,30px">Skip</x-import><div style="flex:1;display:flex;justify-content:center;gap:8px" aria-label="Step 2 of 3"><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span><span style="width:20px;height:6px;border-radius:3px;background:var(--accent)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span></div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" hint-size="80px,36px">Back</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" icon-end="arrow-right" hint-size="100px,36px">Next</x-import></div>
+</div></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Privacy stated as facts, each one verifiable in Settings › Privacy. No badges, no superlatives.</p></div>
+
+<div id="a1-2c" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.2c</span><span style="font:600 26px/1.2 var(--font-ui)">Welcome 3 of 3 — Free forever, nothing locked</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" bare="{{ true }}" mode="" status="{{ false }}" hint-size="100%,100%">
+<div style="flex:1;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div style="flex:1;display:grid;grid-template-columns:minmax(0,440px) minmax(0,540px);gap:80px;align-items:center;justify-content:center;padding:0 80px">
+<div style="display:grid;gap:18px"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">3 of 3</span><h3 style="margin:0;font:var(--weight-semibold) var(--text-4xl)/var(--leading-4xl) var(--font-ui);letter-spacing:-0.01em">Free forever, nothing locked</h3><p style="margin:0;font:400 17px/1.6 var(--font-ui);color:var(--text-secondary)">Every feature is included, with no trial, no subscription and no paid tier. Ferman is open source, so anyone can read, check and improve the code.</p><p style="margin:0;font:400 15px/1.6 var(--font-ui);color:var(--text-tertiary)">Licence: GPL-3.0-or-later · <a href="#">Source code</a> · <a href="#">Support the project</a></p></div>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:10px">
+<sc-for list="{{ features }}" as="f" hint-placeholder-count="10"><div style="display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md);font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ f.icon }}" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="flex:1">{{ f.label }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" stroke-width="{{ 2 }}" color="var(--success-solid)" label="Included" hint-size="16px,16px"></x-import></div></sc-for>
+</div>
+</div>
+<div style="height:72px;flex:none;display:flex;align-items:center;gap:12px;padding-inline:32px;border-top:1px solid var(--border-subtle)"><span style="width:60px"></span><div style="flex:1;display:flex;justify-content:center;gap:8px" aria-label="Step 3 of 3"><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span><span style="width:20px;height:6px;border-radius:3px;background:var(--accent)"></span></div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" hint-size="80px,36px">Back</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" hint-size="150px,36px">Start using Ferman</x-import></div>
+</div></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Licence shown as a proposal for review. The last step drops “Skip” because the next action ends onboarding anyway.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">1.4 – 1.6 · Start screen</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-4" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.4a</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Recent documents, grid</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="mac" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Home is a tab: the wordmark tab on the left, open documents beside it. File names keep their own script and direction (Arabic, Japanese). Quick tools ask for a file, then open straight into the tool.</p></div>
+<div id="a1-4b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.4b</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Recent documents, grid</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Dark</span></div>
+<div class="fm-root" data-theme="dark" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 24px 60px -12px rgba(0,0,0,.6)"><dc-import name="FmStart" platform="mac" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Page previews stay paper-white in dark theme.</p></div>
+<div id="a1-4c" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.4c</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Recent documents, list</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Windows 11 · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="win" view="list" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">List view: sortable columns, the same badges. Shortcuts read Ctrl+O and Ctrl+N.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-5" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.5</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Empty state</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="mac" empty="{{ true }}" tabs="{{ noTabs }}" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">No recents and no pins: the drop zone takes their place. The actions and quick tools stay so nothing moves when the first file arrives.</p></div>
+<div id="a1-6" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.6</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Files dragged over the window</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="mac" drag-over="{{ true }}" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Two drop targets; the one under the pointer gets the accent ring. Non-PDF files say how they will be handled before you let go. Dropping onto an open document’s page grid inserts pages instead (6.1).</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">1.7 – 1.9 · Opening files</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-7" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.7</span><span style="font:600 26px/1.2 var(--font-ui)">Opening a large file</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsLarge }}" page="{{ 1 }}" pages="{{ 2400 }}" zoom="{{ 100 }}" task="{{ taskOpen }}" sidebar="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:grid;justify-content:center;align-content:start;gap:24px;padding-top:24px">
+<div dir="ltr" lang="tr" style="width:794px;height:1123px;padding:88px 96px;box-sizing:border-box;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 14px/1.5 var(--font-doc-sample)"><div style="text-align:center;font:600 12px/1.4 var(--font-doc-sample);letter-spacing:.08em;color:#57534C">T.C. KADIKÖY BELEDİYESİ · İMAR VE ŞEHİRCİLİK MÜDÜRLÜĞÜ</div><div style="margin:18px 0 6px;text-align:center;font:600 21px/1.4 var(--font-doc-sample)">1/1000 Ölçekli Uygulama İmar Planı</div><div style="text-align:center;font:400 15px/1.4 var(--font-doc-sample);margin-bottom:36px">Plan Açıklama Raporu · Cilt 1 – 6</div><p style="margin:0 0 10px;text-align:justify">Bu rapor, Kadıköy ilçesi Caferağa, Rasimpaşa ve Osmanağa mahallelerini kapsayan uygulama imar planı değişikliğinin gerekçelerini, planlama kararlarını ve yapılaşma koşullarını açıklar.</p><p style="margin:0 0 10px;text-align:justify">Planlama alanı yaklaşık 214 hektardır. Raporun ekinde 1.842 parselin yapılaşma tablosu, ulaşım etütleri ve jeolojik inceleme sonuçları yer almaktadır.</p></div>
+<div style="width:794px;height:400px;background:#FFFFFF;box-shadow:var(--shadow-page);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 20 }}" label="Rendering page 2" hint-size="20px,20px"></x-import></div>
+<div style="position:absolute;bottom:24px;inset-inline-end:24px;width:360px"><x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="file-text" title="Opening “İmar planı açıklama raporu.pdf”" detail="Page 840 of 2,400 · about 20 seconds left" value="{{ 0.35 }}" on-cancel="{{ noop }}" hint-size="360px,96px"></x-import></div>
+<div style="position:absolute;top:16px;inset-inline-start:50%;transform:translateX(-50%);width:640px"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="info" icon="info" hint-size="640px,44px">You can read while Ferman finishes. Search, thumbnails and editing turn on when all 2,400 pages are indexed.</x-import></div>
+</main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The tab shows a spinner, the first page renders immediately. Progress card: page count, honest estimate after a few seconds, Cancel (Esc) closes the tab. Status bar mirrors the task so it stays visible when the card is dismissed.</p></div>
+<div id="a1-8" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.8a</span><span style="font:600 26px/1.2 var(--font-ui)">Password-protected PDF — Unlock</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="" status="{{ false }}" tabs="{{ tabsLocked }}" hint-size="100%,100%">
+<main style="flex:1;display:grid;place-items:center;background:var(--surface-canvas)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="lock" title="This PDF is password-protected" description="Enter the password for “Maaş bordrosu Eylül 2026.pdf”. Ferman forgets it when you close the file." actions="{{ actUnlock }}" hint-size="520px,260px"><div style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="Password" autofocus="{{ true }}" hint-size="100%,52px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Show password" hint-size="140px,20px"></x-import></div></x-import></main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Document-modal: only this tab is blocked; other tabs and Home stay usable. The tab carries a lock icon. Screen readers: dialog named by its title, field labelled “Password”.</p></div>
+<div id="a1-8b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.8b</span><span style="font:600 26px/1.2 var(--font-ui)">Password-protected PDF — Wrong password</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="" status="{{ false }}" tabs="{{ tabsLocked }}" hint-size="100%,100%">
+<main style="flex:1;display:grid;place-items:center;background:var(--surface-canvas)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="lock" title="This PDF is password-protected" description="Enter the password for “Maaş bordrosu Eylül 2026.pdf”. Ferman forgets it when you close the file." actions="{{ actUnlock }}" hint-size="520px,290px"><div style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" type="password" label="Password" default-value="eylul2026" error="That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys." hint-size="100%,90px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Show password" hint-size="140px,20px"></x-import></div></x-import></main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The field keeps the attempt selected so typing replaces it. No lockout: the file is on your own device. The error is announced (aria-invalid + described-by).</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-9" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.9a</span><span style="font:600 26px/1.2 var(--font-ui)">Damaged PDF — Repaired</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="unsaved" tabs="{{ tabsRepaired }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" thumbs="{{ thumbsPlain }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="wrench" title="Ferman repaired this file." actions="{{ actRepair }}" hint-size="100%,44px">2 problems were fixed in this copy. The original stays as it was until you save.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div>
+<div role="dialog" aria-label="Repair details" style="position:absolute;top:50px;inset-inline-end:16px;width:420px;padding:14px 16px;display:grid;gap:12px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover)"><span style="font:var(--type-panel-title)">What Ferman repaired</span>
+<div style="display:flex;gap:10px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px"><span>The cross-reference table was broken</span><span style="font:var(--type-caption);color:var(--text-secondary)">Rebuilt from the 48 objects found in the file. All 3 pages are present.</span></span></div>
+<div style="display:flex;gap:10px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px"><span>Page 3 pointed to a font that isn’t in the file</span><span style="font:var(--type-caption);color:var(--text-secondary)">“TimesNewRomanPSMT” isn’t embedded. Ferman is showing IBM Plex Serif instead.</span></span></div>
+<div style="display:flex;gap:8px;padding-top:4px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="copy" hint-size="140px,26px">Copy details</x-import></div></div>
+</main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Repairs are listed in plain words. The document counts as changed (Save enabled) because saving writes the repaired structure.</p></div>
+<div id="a1-9b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.9b</span><span style="font:600 26px/1.2 var(--font-ui)">Damaged PDF — Can’t be opened</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="" status="{{ false }}" tabs="{{ tabsBroken }}" hint-size="100%,100%">
+<main style="flex:1;display:grid;place-items:center;background:var(--surface-canvas)"><div style="width:560px;display:grid;justify-items:center;gap:14px;text-align:center"><span style="width:56px;height:56px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--danger-bg);color:var(--danger);border:1px solid var(--danger-border)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-x" size="{{ 28 }}" hint-size="28px,28px"></x-import></span><h3 style="margin:0;font:var(--type-dialog-title);font-size:20px">Ferman can’t open “Tarama_0042.pdf”</h3><p style="margin:0;font:var(--type-prose);color:var(--text-secondary)">The file stops after 18 KB and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.</p><div style="display:flex;gap:8px;margin-top:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="folder-open" hint-size="160px,30px">Open another file…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" hint-size="130px,30px">Show in Finder</x-import></div><div style="width:100%;margin-top:10px;padding:10px 12px;text-align:start;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle);font:var(--type-mono);color:var(--text-secondary)">Expected about 2.4 MB, found 18 KB · last complete object 12 0 obj · no trailer</div><a href="#" style="font:var(--type-caption)">Copy technical details</a></div></main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">What happened, the likely cause, the way out. Technical details are available but secondary; no error codes in the sentence.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">1.10 – 1.12 · Tabs, saving and recovery</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-10" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.10a</span><span style="font:600 26px/1.2 var(--font-ui)">Many documents — tab overflow</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsMany }}" tabs-more="{{ 4 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;top:36px;inset-inline-end:150px;z-index:40;width:300px"><x-import component-from-global-scope="FermanDesignSystem_278323.Menu" items="{{ overflowMenu }}" label="More open documents" hint-size="300px,260px"></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Tabs shrink to 112 px, then the rest move into “+4”. Hidden tabs with unsaved changes carry the dot here too. ⌃Tab cycles through all ten in order, ⌘1…⌘9 jump. Names never truncate in the menu.</p></div>
+<div id="a1-10b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.10b</span><span style="font:600 26px/1.2 var(--font-ui)">Close with unsaved changes</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsThree }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="save" title="Save changes to “Kira sözleşmesi.pdf”?" description="If you don’t save, your 3 edits from this session will be lost." actions="{{ actClose }}" footer-start="{{ dontSave }}" hint-size="520px,200px"></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">macOS order: “Don’t save” at the start, Cancel then Save at the end; Save is the default (Enter), Esc cancels, ⌘D is “Don’t save”. Windows shows Save, Don’t save, Cancel from the left.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a1-11" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.11</span><span style="font:600 26px/1.2 var(--font-ui)">Save as — formats and options</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsThree }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="md" title="Save as" actions="{{ actSaveAs }}" hint-size="520px,560px">
+<div style="display:grid;gap:14px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 180px;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" label="File name" default-value="Kira sözleşmesi — son hâli.pdf" hint-size="100%,52px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" label="Where" icon="folder" default-value="ev" options="{{ whereOptions }}" hint-size="180px,52px"></x-import></div>
+<div role="radiogroup" aria-label="Format" style="display:grid;gap:10px;padding:12px;border-radius:var(--radius-md);background:var(--surface-sunken)">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="fmt" value="pdf" label="PDF" description="Standard PDF. Keeps text editable in Ferman and other editors." default-checked="{{ true }}" hint-size="100%,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="fmt" value="pdfa" label="PDF/A-2b, for archiving" description="Embeds every font and removes encryption, JavaScript and external links. Ferman validates the result." hint-size="100%,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="fmt" value="web" label="Optimized for web" description="The first page opens before the whole file downloads. Images are compressed to 150 ppi." hint-size="100%,40px"></x-import>
+</div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Save as a copy" description="“Kira sözleşmesi.pdf” stays open and unchanged; the copy is saved alongside it." hint-size="100%,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Include comments and markup" default-checked="{{ true }}" hint-size="100%,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Remove edit history from the file" description="Ferman keeps version history next to the file, not inside it, unless you turn this off in Settings." default-checked="{{ true }}" hint-size="100%,40px"></x-import>
+</div></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">⇧⌘S. Each format says what it changes. “Save a copy” is a checkbox here and also its own command (⌥⌘S).</p></div>
+<div id="a1-12" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">1.12</span><span style="font:600 26px/1.2 var(--font-ui)">Crash recovery — restored documents</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmStart" platform="mac" hint-size="100%,100%"><div style="position:absolute;inset:0;z-index:30;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="md" icon="history" title="Ferman restored 2 documents" description="Ferman closed unexpectedly at 13:58. These documents had unsaved changes, and Ferman had kept a copy of each on this device." actions="{{ actRestore }}" footer-start="{{ crashLog }}" hint-size="520px,320px">
+<div style="display:grid;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">
+<div style="display:flex;align-items:center;gap:12px;padding:12px 14px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="Restore Kira sözleşmesi.pdf" default-checked="{{ true }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px;flex:1"><span style="font:var(--type-body-strong)">Kira sözleşmesi.pdf</span><span style="font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">6 edits · last change 13:57 · ~/Belgeler/Ev</span></span></div>
+<div style="display:flex;align-items:center;gap:12px;padding:12px 14px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="Restore e-Arşiv fatura 4187.pdf" default-checked="{{ true }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:2px;flex:1"><span style="font:var(--type-body-strong)">e-Arşiv fatura 4187.pdf</span><span style="font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">2 comments · last change 13:52 · ~/İndirilenler</span></span></div>
+</div>
+<span style="font:var(--type-caption);color:var(--text-tertiary)">Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.</span>
+</x-import></div></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Shown on the next launch, over the start screen. Discarded copies are deleted. The crash log is copied to the clipboard only if you ask; Ferman doesn’t send reports.</p></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const NS = () => window.FermanDesignSystem_278323;
+const Btn = (p) => h(NS().Button, p);
+const Chk = (p) => h(NS().Checkbox, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+const LANGS = [
+  ['English', 'System language', 'en'], ['Türkçe', 'Turkish', 'tr'], ['Deutsch', 'German', 'de'], ['Français', 'French', 'fr'], ['Español', 'Spanish', 'es'], ['Português (Brasil)', 'Portuguese, Brazil', 'pt-BR'], ['Italiano', 'Italian', 'it'], ['Nederlands', 'Dutch', 'nl'], ['Polski', 'Polish', 'pl'], ['Русский', 'Russian', 'ru'], ['Українська', 'Ukrainian', 'uk'],
+  ['العربية', 'Arabic', 'ar', 'rtl'], ['فارسی', 'Persian', 'fa', 'rtl'], ['עברית', 'Hebrew', 'he', 'rtl'], ['हिन्दी', 'Hindi', 'hi'], ['日本語', 'Japanese', 'ja'], ['한국어', 'Korean', 'ko'], ['简体中文', 'Chinese, Simplified', 'zh-Hans'], ['繁體中文', 'Chinese, Traditional', 'zh-Hant'], ['Bahasa Indonesia', 'Indonesian', 'id'], ['Tiếng Việt', 'Vietnamese', 'vi']
+];
+class Component extends DCLogic {
+  renderVals() {
+    const langs = LANGS.map((l, i) => ({ native: l[0], en: l[1], code: l[2], dir: l[3] || 'ltr', sel: i === 0, checked: i === 0 ? 'true' : 'false', bg: i === 0 ? 'var(--surface-selected)' : 'transparent', color: i === 0 ? 'var(--text-accent)' : 'var(--text-primary)', ring: i === 1 ? 'var(--focus-ring-inset)' : 'none' }));
+    return {
+      langs, noop: () => {}, noTabs: [],
+      privacy: [
+        { icon: 'hard-drive', title: 'Files stay on this device', body: 'Ferman reads and writes files where they are. Nothing is uploaded.' },
+        { icon: 'wifi-off', title: 'Works offline', body: 'Editing, OCR, signing and conversion need no connection.' },
+        { icon: 'user', title: 'No account', body: 'There’s nothing to sign up for and nothing to sign in to.' },
+        { icon: 'eye-off', title: 'No telemetry', body: 'Ferman doesn’t collect usage data or crash reports.' },
+        { icon: 'globe', title: 'One optional check for updates', body: 'Once a day, sending only the version number. You can turn it off.' }
+      ],
+      features: [
+        { icon: 'file-pen-line', label: 'Edit text and images' }, { icon: 'scan-text', label: 'Text recognition (OCR)' }, { icon: 'signature', label: 'Fill and sign forms' }, { icon: 'usb', label: 'e-imza and digital signatures' },
+        { icon: 'eye-off', label: 'Redaction' }, { icon: 'refresh-cw', label: 'Convert to and from Office' }, { icon: 'git-compare', label: 'Compare documents' }, { icon: 'workflow', label: 'Batch actions' },
+        { icon: 'accessibility', label: 'Accessibility checker' }, { icon: 'languages', label: '21 interface languages' }
+      ],
+      actDefault: btns(['Not now'], ['Use Ferman for PDFs', { variant: 'primary' }]),
+      dontAsk: h(Chk, { label: 'Don’t ask again' }),
+      tabsLarge: [{ name: 'İmar planı açıklama raporu.pdf', active: true, loading: true }],
+      taskOpen: { title: 'Opening', detail: 'Page 840 of 2,400', value: 0.35 },
+      tabsLocked: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Maaş bordrosu Eylül 2026.pdf', active: true, icon: 'lock' }],
+      actUnlock: btns(['Cancel'], ['Open', { variant: 'primary' }]),
+      tabsRepaired: [{ name: 'Kira sözleşmesi (eski).pdf', active: true, unsaved: true, icon: 'wrench' }],
+      thumbsPlain: [{}, {}, {}],
+      actRepair: btns(['Details', { size: 'sm', variant: 'ghost' }], ['Save repaired copy…', { size: 'sm' }]),
+      tabsBroken: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Tarama_0042.pdf', active: true, icon: 'file-x' }],
+      tabsMany: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf', unsaved: true }, { name: 'Adres değişikliği formu.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf' }, { name: 'Zeynep Arslan — Özgeçmiş.pdf' }],
+      overflowMenu: [
+        { heading: '4 more documents' },
+        { id: 'nda', label: 'Mutual NDA — Northwind.pdf', icon: 'file-text', shortcut: ['⌘', '7'] },
+        { id: 'miet', label: 'Mietvertrag Berlin.pdf · unsaved', icon: 'file-pen-line', shortcut: ['⌘', '8'] },
+        { id: 'ar', label: 'التقرير السنوي 2025.pdf', icon: 'file-text', shortcut: ['⌘', '9'] },
+        { id: 'ja', label: '見積書_2026-10.pdf', icon: 'file-text' },
+        { separator: true },
+        { id: 'all', label: 'Show all open documents', icon: 'layout-grid', shortcut: ['⇧', '⌘', '\\'] },
+        { id: 'others', label: 'Close other documents…', icon: 'x' }
+      ],
+      tabsThree: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      actClose: btns(['Cancel'], ['Save', { variant: 'primary' }]),
+      dontSave: h(Btn, { variant: 'ghost' }, 'Don’t save'),
+      whereOptions: [{ value: 'ev', label: 'Belgeler › Ev' }, { value: 'desk', label: 'Masaüstü' }, { value: 'other', label: 'Other location…' }],
+      actSaveAs: btns(['Cancel'], ['Save', { variant: 'primary' }]),
+      actRestore: btns(['Discard'], ['Open 2 documents', { variant: 'primary' }]),
+      crashLog: h(Btn, { variant: 'ghost', size: 'sm', icon: 'copy' }, 'Copy crash log')
+    };
+  }
+}
+</script>
+</body>
+</html>

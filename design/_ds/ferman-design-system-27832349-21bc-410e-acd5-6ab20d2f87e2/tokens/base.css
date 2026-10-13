@@ -1,0 +1,33 @@
+/* Minimal base: font, color, numerals and RTL helpers. Scoped to .fm-root so
+   consumers opt in (put class="fm-root" on <body> or the app container). */
+
+.fm-root {
+  font: var(--type-body);
+  font-feature-settings: var(--features-ui);
+  color: var(--text-primary);
+  background: var(--surface-panel);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+.fm-root *, .fm-root *::before, .fm-root *::after { box-sizing: border-box; }
+.fm-root :focus-visible { outline: var(--focus-outline); outline-offset: var(--focus-offset); }
+/* Text inputs show focus on their container (border + ring) instead of an outline */
+.fm-root .fm-input__control:focus-visible, .fm-root .fm-palette__field:focus-visible, .fm-root .fm-sigpad__typed:focus-visible, .fm-root .fm-pff__input:focus-visible, .fm-root [contenteditable]:focus-visible { outline: none; }
+.fm-root ::selection { background: var(--edit-selection); }
+
+.fm-num { font-variant-numeric: tabular-nums; }
+.fm-mono { font-family: var(--font-mono); }
+
+/* Directional icons flip under RTL */
+[dir="rtl"] [data-flip-rtl] { transform: scaleX(-1); }
+
+.fm-root a, a.fm-link { color: var(--text-link); text-decoration: underline; text-decoration-thickness: 1px; text-underline-offset: 2px; }
+.fm-root a:hover, a.fm-link:hover { color: var(--accent-hover); }
+
+.fm-visually-hidden { position: absolute !important; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@keyframes fm-spin { to { transform: rotate(360deg); } }
+@keyframes fm-fade-in { from { opacity: 0; } to { opacity: 1; } }
+@keyframes fm-rise-in { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
+@keyframes fm-indeterminate { 0% { inset-inline-start: -40%; } 100% { inset-inline-start: 100%; } }
+@keyframes fm-caret { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }

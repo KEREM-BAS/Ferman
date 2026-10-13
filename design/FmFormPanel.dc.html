@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<aside aria-label="Form" style="width:var(--panel-w);height:100%;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle);min-height:0">
+<div style="display:flex;align-items:center;gap:8px;height:40px;flex:none;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Form</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="More: clear form, export data, reset" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="padding:12px;display:grid;gap:8px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ progress }}" label="{{ progLabel }}" show-value="{{ false }}" hint-size="100%,24px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary)">{{ summary }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Highlight fields" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Show tab order" checked="{{ order }}" hint-size="100%,20px"></x-import></div>
+<div style="flex:1;overflow:hidden;display:grid;align-content:start;padding:4px 6px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="12">
+<sc-if value="{{ r.head }}"><div style="padding:10px 6px 4px;font:var(--type-label);color:var(--text-tertiary)">{{ r.label }}</div></sc-if>
+<sc-if value="{{ r.item }}"><div aria-current="{{ r.cur }}" style="display:flex;align-items:center;gap:8px;height:28px;padding:0 8px;border-radius:var(--radius-sm);background:{{ r.bg }};font:var(--type-body);color:{{ r.color }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ r.icon }}" size="{{ 14 }}" color="{{ r.iconColor }}" hint-size="14px,14px"></x-import><span lang="tr" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.label }}</span><sc-if value="{{ r.req }}"><span style="font:var(--type-caption);color:var(--danger)">Required</span></sc-if></div></sc-if>
+</sc-for>
+</div>
+<div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="90px,26px">Clear form…</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" icon="check" hint-size="70px,26px">Finish</x-import></div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:264,&quot;height&quot;:760},&quot;filled&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;partial&quot;,&quot;more&quot;,&quot;all&quot;],&quot;default&quot;:&quot;partial&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;current&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ad&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;order&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;errorField&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;signed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const SEC = [['Kişisel bilgiler', [['tc', 'T.C. Kimlik No', 1], ['dogum', 'Doğum tarihi', 1], ['ad', 'Adı', 1], ['soyad', 'Soyadı', 1], ['cins', 'Cinsiyeti', 1], ['medeni', 'Medeni hâli', 0], ['tel', 'Telefon', 0], ['eposta', 'E-posta', 0]]], ['Yeni adres', [['il', 'İl', 1], ['ilce', 'İlçe', 1], ['mahalle', 'Mahalle', 1], ['sokak', 'Cadde / Sokak', 1], ['dis', 'Dış kapı no', 1], ['ic', 'İç kapı no', 0], ['tasinma', 'Taşınma tarihi', 1], ['hane', 'Hanede yaşayan kişi sayısı', 1]]], ['Beyan ve imza', [['beyan1', 'Doğruluk beyanı', 1], ['beyan2', 'Kurumlara bildirim', 0], ['tarih', 'Tarih', 1], ['imza', 'İmza', 1]]]];
+const DONE = { partial: ['tc', 'dogum'], more: ['tc', 'dogum', 'ad', 'soyad', 'cins', 'medeni', 'tel', 'eposta', 'il', 'ilce', 'mahalle', 'sokak', 'dis', 'ic'], all: 'all' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lvl = DONE[p.filled || 'partial'] || [];
+    const cur = p.current || 'ad';
+    const rows = [];
+    let reqLeft = 0, reqTotal = 0, n = 0, curIdx = 0;
+    SEC.forEach((s) => {
+      rows.push({ head: true, label: s[0].toUpperCase() === s[0] ? s[0] : s[0] });
+      s[1].forEach((f) => {
+        n += 1;
+        const done = lvl === 'all' ? (f[0] !== 'imza' || p.signed) : lvl.indexOf(f[0]) >= 0;
+        const isErr = p.errorField === f[0];
+        if (f[2]) { reqTotal += 1; if (!done || isErr) reqLeft += 1; }
+        const isCur = f[0] === cur;
+        if (isCur) curIdx = n;
+        rows.push({ item: true, label: f[1], cur: isCur ? 'true' : undefined, bg: isCur ? 'var(--surface-selected)' : 'transparent', color: isCur ? 'var(--text-accent)' : 'var(--text-primary)', icon: isErr ? 'circle-alert' : done ? 'circle-check' : isCur ? 'text-cursor-input' : 'circle', iconColor: isErr ? 'var(--danger)' : done ? 'var(--success-solid)' : isCur ? 'var(--accent)' : 'var(--icon-disabled)', req: !!f[2] && !done && !isCur });
+      });
+    });
+    return {
+      rows, order: !!p.order, progress: (reqTotal - reqLeft) / reqTotal,
+      progLabel: (reqTotal - reqLeft) + ' of ' + reqTotal + ' required fields',
+      summary: n + ' fields · ' + (reqLeft ? reqLeft + ' required left' : 'All required fields are filled') + ' · field ' + curIdx + ' of ' + n
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<aside aria-label="{{ t.title }}" style="width:var(--panel-w);height:100%;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle);min-height:0">
+<div style="display:flex;align-items:center;gap:8px;height:40px;flex:none;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">{{ t.title }}</span><sc-if value="{{ edited }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">{{ t.edited }}</x-import></sc-if><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-ccw" label="{{ t.reset }}" size="xs" hint-size="22px,22px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="{{ t.more }}" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="flex:1;overflow:hidden">
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="{{ t.text }}" hint-size="100%,190px">
+<sc-if value="{{ glyph }}"><div data-fm-glyph-warning=""><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="{{ font }}" fonts="{{ fonts }}" open="{{ fontOpen }}" hint-size="100%,26px"></x-import></div></sc-if>
+<sc-if value="{{ noGlyph }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="{{ font }}" fonts="{{ fonts }}" open="{{ fontOpen }}" hint-size="100%,26px"></x-import></sc-if>
+<div style="display:flex;gap:8px"><dc-import name="FmNumber" value="{{ size }}" precision="{{ 1 }}" unit="pt" lang="{{ lang }}" width="{{ 92 }}" aria="{{ t.size }}" hint-size="92px,26px"></dc-import><div style="flex:1;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.ColorPicker" value="{{ color }}" document-colors="{{ docColors }}" open="{{ colorOpen }}" hint-size="100%,26px"></x-import></div></div>
+<div style="display:flex;justify-content:space-between;gap:8px"><div style="display:flex;gap:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="bold" label="{{ t.bold }}" size="sm" shortcut="{{ k.b }}" active="{{ bold }}" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="italic" label="{{ t.italic }}" size="sm" shortcut="{{ k.i }}" active="{{ false }}" disabled="{{ noItalic }}" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="underline" label="{{ t.underline }}" size="sm" shortcut="{{ k.u }}" active="{{ false }}" hint-size="26px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="{{ t.align }}" value="{{ align }}" options="{{ alignOptions }}" hint-size="120px,26px"></x-import></div>
+<sc-if value="{{ glyph }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="warning" title="{{ t.glyphTitle }}" hint-size="100%,96px">{{ t.glyph }}</x-import><div style="display:flex;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="110px,26px">{{ t.glyphAction }}</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="80px,26px">{{ t.glyphKeep }}</x-import></div></sc-if>
+<sc-if value="{{ overflow }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="warning" title="Text doesn’t fit" hint-size="100%,80px">The edited paragraph needs 1 more line than its frame. Choose how Ferman should handle it.</x-import><div style="display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" icon="arrow-up-down" full-width="{{ true }}" hint-size="100%,26px">Extend block by 1 line</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="minimize-2" full-width="{{ true }}" hint-size="100%,26px">Tighten spacing slightly (−0.6%)</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="triangle-alert" full-width="{{ true }}" hint-size="100%,26px">Keep and warn</x-import></div></sc-if>
+</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="{{ t.spacing }}" hint-size="100%,130px">
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px"><dc-import name="FmNumber" label="{{ t.charSp }}" value="{{ 0 }}" precision="{{ 1 }}" unit="%" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="{{ t.lineSp }}" value="{{ 1.5 }}" precision="{{ 2 }}" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="{{ t.before }}" value="{{ 0 }}" unit="pt" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="{{ t.after }}" value="{{ 6 }}" unit="pt" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import></div>
+</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="{{ t.position }}" default-open="{{ posOpen }}" hint-size="100%,36px">
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px"><dc-import name="FmNumber" label="X" value="{{ 25.4 }}" precision="{{ 1 }}" unit="mm" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="Y" value="{{ 118.6 }}" precision="{{ 1 }}" unit="mm" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="{{ t.w }}" value="{{ 159.2 }}" precision="{{ 1 }}" unit="mm" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="{{ t.h }}" value="{{ 15.1 }}" precision="{{ 1 }}" unit="mm" lang="{{ lang }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import></div>
+</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="{{ t.lang }}" hint-size="100%,110px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" icon="languages" default-value="{{ blockLang }}" options="{{ langOptions }}" aria-label="{{ t.lang }}" hint-size="100%,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="{{ t.spell }}" checked="{{ true }}" hint-size="100%,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="{{ t.hyph }}" checked="{{ hyph }}" hint-size="100%,20px"></x-import>
+</x-import>
+<div style="padding:10px 12px;font:var(--type-caption);color:var(--text-tertiary)">{{ t.hint }}</div>
+</div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:264,&quot;height&quot;:760},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;glyph&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;overflow&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;edited&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;font&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;size&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:10.5,&quot;tsType&quot;:&quot;number&quot;},&quot;blockLang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;tr&quot;,&quot;en&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;tr&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;fontOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;posOpen&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mac&quot;,&quot;win&quot;],&quot;default&quot;:&quot;mac&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const EP = {
+  en: { title: 'Text block', edited: 'Edited', text: 'Text', size: 'Size', bold: 'Bold', italic: 'Italic', underline: 'Underline', align: 'Alignment', al: ['Align left', 'Center', 'Align right', 'Justify'], spacing: 'Spacing', charSp: 'Character', lineSp: 'Line', before: 'Before', after: 'After', position: 'Position and size', w: 'Width', h: 'Height', lang: 'Language', spell: 'Check spelling', hyph: 'Hyphenate', glyphTitle: 'Missing character', glyph: 'This font has no ‘ğ’. Ferman will use a similar font for this character.', glyphAction: 'Choose a font…', glyphKeep: 'Keep as is', reset: 'Reset text style', more: 'More', hint: 'Text reflows inside the frame. Drag a handle to resize it.', langs: ['Turkish', 'English', 'German', 'Arabic', 'Japanese'] },
+  tr: { title: 'Metin bloğu', edited: 'Düzenlendi', text: 'Metin', size: 'Boyut', bold: 'Kalın', italic: 'İtalik', underline: 'Altı çizili', align: 'Hizalama', al: ['Sola hizala', 'Ortala', 'Sağa hizala', 'İki yana yasla'], spacing: 'Aralık', charSp: 'Karakter', lineSp: 'Satır', before: 'Önce', after: 'Sonra', position: 'Konum ve boyut', w: 'Genişlik', h: 'Yükseklik', lang: 'Dil', spell: 'Yazım denetimi', hyph: 'Tireleme', glyphTitle: 'Eksik karakter', glyph: 'Bu yazı tipinde ‘ğ’ yok. Ferman bu karakter için benzer bir yazı tipi kullanacak.', glyphAction: 'Yazı tipi seç…', glyphKeep: 'Böyle kalsın', reset: 'Metin stilini sıfırla', more: 'Diğer', hint: 'Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin.', langs: ['Türkçe', 'İngilizce', 'Almanca', 'Arapça', 'Japonca'] },
+  de: { title: 'Textblock', edited: 'Bearbeitet', text: 'Text', size: 'Größe', bold: 'Fett', italic: 'Kursiv', underline: 'Unterstrichen', align: 'Ausrichtung', al: ['Linksbündig', 'Zentriert', 'Rechtsbündig', 'Blocksatz'], spacing: 'Abstände', charSp: 'Zeichen', lineSp: 'Zeile', before: 'Davor', after: 'Danach', position: 'Position und Größe', w: 'Breite', h: 'Höhe', lang: 'Sprache', spell: 'Rechtschreibung prüfen', hyph: 'Silbentrennung', glyphTitle: 'Fehlendes Zeichen', glyph: 'Diese Schrift enthält kein ‘ğ’. Ferman verwendet für dieses Zeichen eine ähnliche Schrift.', glyphAction: 'Schrift auswählen…', glyphKeep: 'Beibehalten', reset: 'Textstil zurücksetzen', more: 'Mehr', hint: 'Der Text fließt innerhalb des Rahmens neu. Ziehen Sie an einem Griff, um die Größe zu ändern.', langs: ['Türkisch', 'Englisch', 'Deutsch', 'Arabisch', 'Japanisch'] },
+  ar: { title: 'كتلة نص', edited: 'معدّل', text: 'النص', size: 'الحجم', bold: 'غامق', italic: 'مائل', underline: 'تسطير', align: 'المحاذاة', al: ['محاذاة لليسار', 'توسيط', 'محاذاة لليمين', 'ضبط'], spacing: 'التباعد', charSp: 'الأحرف', lineSp: 'الأسطر', before: 'قبل', after: 'بعد', position: 'الموضع والحجم', w: 'العرض', h: 'الارتفاع', lang: 'اللغة', spell: 'التدقيق الإملائي', hyph: 'الوصل بشرطة', glyphTitle: 'حرف مفقود', glyph: 'لا يحتوي هذا الخط على الحرف ‘ğ’. سيستخدم Ferman خطًا مشابهًا لهذا الحرف.', glyphAction: 'اختيار خط…', glyphKeep: 'إبقاء كما هو', reset: 'إعادة تعيين نمط النص', more: 'المزيد', hint: 'يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم.', langs: ['التركية', 'الإنجليزية', 'الألمانية', 'العربية', 'اليابانية'] },
+  ja: { title: 'テキストブロック', edited: '編集済み', text: 'テキスト', size: 'サイズ', bold: '太字', italic: '斜体', underline: '下線', align: '配置', al: ['左揃え', '中央揃え', '右揃え', '両端揃え'], spacing: '間隔', charSp: '文字', lineSp: '行', before: '段落前', after: '段落後', position: '位置とサイズ', w: '幅', h: '高さ', lang: '言語', spell: 'スペルチェック', hyph: 'ハイフネーション', glyphTitle: '文字がありません', glyph: 'このフォントには「ğ」がありません。Ferman はこの文字に類似のフォントを使用します。', glyphAction: 'フォントを選択…', glyphKeep: 'このままにする', reset: 'テキストスタイルをリセット', more: 'その他', hint: 'テキストは枠内で再配置されます。ハンドルをドラッグするとサイズを変更できます。', langs: ['トルコ語', '英語', 'ドイツ語', 'アラビア語', '日本語'] }
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lang = EP[p.lang] ? p.lang : 'en';
+    const t = EP[lang];
+    const win = p.platform === 'win';
+    const glyph = !!p.glyph;
+    const font = p.font || (glyph ? 'Garamond Premier Pro' : 'IBM Plex Serif');
+    const fonts = [
+      { name: 'IBM Plex Serif', family: 'var(--font-doc-sample)', group: 'document' },
+      { name: 'Garamond Premier Pro', family: "'EB Garamond', serif", group: 'document' },
+      { name: 'IBM Plex Sans', family: 'var(--font-ui)', group: 'system' },
+      { name: 'EB Garamond', family: "'EB Garamond', serif", group: 'system' },
+      { name: 'Georgia', family: 'Georgia, serif', group: 'system' }
+    ];
+    const codes = ['tr', 'en', 'de', 'ar', 'ja'];
+    return {
+      t, lang, glyph, noGlyph: !glyph, font, fonts, fontOpen: !!p.fontOpen, colorOpen: !!p.colorOpen,
+      size: p.size || (glyph ? 11.5 : 10.5), color: p.color || '#1F1D1A', docColors: ['#1F1D1A', '#57534C', '#2A4DAF'],
+      edited: p.edited !== false, bold: !!p.bold, noItalic: false, align: p.align || 'justify',
+      alignOptions: [{ value: 'left', icon: 'align-left', title: t.al[0] }, { value: 'center', icon: 'align-center', title: t.al[1] }, { value: 'right', icon: 'align-right', title: t.al[2] }, { value: 'justify', icon: 'align-justify', title: t.al[3] }],
+      k: { b: win ? ['Ctrl', 'B'] : ['⌘', 'B'], i: win ? ['Ctrl', 'I'] : ['⌘', 'I'], u: win ? ['Ctrl', 'U'] : ['⌘', 'U'] },
+      overflow: !!p.overflow, posOpen: p.posOpen !== false, hyph: p.hyph !== false,
+      blockLang: p.spell || p.blockLang || 'tr', langOptions: codes.map((c, i) => ({ value: c, label: t.langs[i] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

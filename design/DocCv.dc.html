@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:80px 88px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 13.5px/1.55 var(--font-doc-sample)">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 132px;gap:32px;align-items:start"><div><div style="font:600 30px/1.2 var(--font-doc-sample)">Zeynep Arslan</div><div style="font:400 16px/1.4 var(--font-doc-sample);color:#57534C;margin-top:4px">Kıdemli Muhasebe Uzmanı</div><div style="margin-top:14px;font-size:12.5px;color:#8A857C">Karşıyaka, İzmir · zeynep.arslan@ornekposta.com.tr · 0533 274 81 90</div></div>
+<div style="position:relative;width:132px;height:166px;background:#DAD5CC;display:grid;place-items:center;color:#8A857C;outline:{{ imgOutline }};outline-offset:3px"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="user" size="{{ 48 }}" stroke-width="{{ 1 }}" hint-size="48px,48px"></x-import></div></div>
+<div style="margin:34px 0 8px;font:600 13px/1 var(--font-ui);letter-spacing:.1em;color:#57534C">DENEYİM</div>
+<div style="font-weight:600">Ege Lojistik A.Ş. — Kıdemli Muhasebe Uzmanı</div><div style="font-size:12.5px;color:#57534C;margin-bottom:6px">Mart 2021 – Günümüz · İzmir</div>
+<ul style="margin:0 0 14px;padding-left:18px"><li>Aylık KDV, muhtasar ve geçici vergi beyannamelerinin hazırlanması</li><li>e-Fatura ve e-Defter geçişinin yürütülmesi; 4 kişilik ekibin koordinasyonu</li></ul>
+<div style="font-weight:600">Kordon Gıda San. ve Tic. Ltd. Şti. — Muhasebe Uzmanı</div><div style="font-size:12.5px;color:#57534C;margin-bottom:6px">Eylül 2018 – Şubat 2021 · İzmir</div>
+<ul style="margin:0 0 14px;padding-left:18px"><li>Cari hesap mutabakatları ve banka ekstresi kontrolleri</li><li>Maliyet muhasebesi ve aylık bütçe raporları</li></ul>
+<div style="margin:24px 0 8px;font:600 13px/1 var(--font-ui);letter-spacing:.1em;color:#57534C">EĞİTİM</div>
+<div style="font-weight:600">Dokuz Eylül Üniversitesi — İşletme (Lisans)</div><div style="font-size:12.5px;color:#57534C">2014 – 2018</div>
+<div style="margin:24px 0 8px;font:600 13px/1 var(--font-ui);letter-spacing:.1em;color:#57534C">DİLLER</div>
+<div>Türkçe (anadil) · İngilizce (C1) · Almanca (B1)</div>
+<sc-if value="{{ order }}"><sc-for list="{{ badges }}" as="b" hint-placeholder-count="10"><span aria-hidden="true" style="position:absolute;left:{{ b.x }};top:{{ b.y }};min-width:22px;height:22px;padding:0 5px;box-sizing:border-box;display:grid;place-items:center;border-radius:4px;background:{{ b.bg }};color:#FFFFFF;font:600 12px/1 var(--font-ui);box-shadow:0 0 0 2px #FFFFFF">{{ b.n }}</span></sc-for></sc-if>
+<sc-if value="{{ issues }}"><sc-for list="{{ marks }}" as="m" hint-placeholder-count="3"><span aria-hidden="true" style="position:absolute;left:{{ m.x }};top:{{ m.y }};width:22px;height:22px;display:grid;place-items:center;border-radius:4px;background:{{ m.bg }};color:#FFFFFF;box-shadow:0 0 0 2px #FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ m.icon }}" size="{{ 12 }}" stroke-width="{{ 2.4 }}" hint-size="12px,12px"></x-import></span></sc-for></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:794,&quot;height&quot;:1123},&quot;order&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;issues&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;imgSel&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const pos = [[56, 84], [56, 120], [56, 150], [700, 80], [56, 226], [56, 252], [56, 330], [56, 354], [56, 436], [56, 520]];
+    return {
+      order: !!p.order, issues: !!p.issues, imgOutline: p.imgSel ? '2px solid var(--accent)' : 'none',
+      badges: pos.map((xy, i) => ({ n: String(i === 3 ? 4 : i + 1), x: xy[0] + 'px', y: xy[1] + 'px', bg: i === 3 ? 'var(--amber-600, #B26E00)' : 'var(--accent)' })),
+      marks: [{ x: '700px', y: '232px', icon: 'image', bg: 'var(--red-600)' }, { x: '56px', y: '150px', icon: 'contrast', bg: 'var(--amber-600, #B26E00)' }, { x: '56px', y: '436px', icon: 'list', bg: 'var(--red-600)' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

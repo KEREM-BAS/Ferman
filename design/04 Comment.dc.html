@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">04 · Comment mode</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Markup, notes, shapes, stamps and measurement; threads with replies and mentions; summaries; hiding and flattening. Comments are standard PDF annotations, so they open in any PDF reader.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">4.1 · Annotation tools</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a4-1" num="4.1a" title="Comment — Toolbar, shapes menu, markup on the page" note="Every tool has a single-key shortcut shown in its tooltip. Shapes and Measure open a menu; the last choice becomes the button’s default. The selected rectangle shows handles and a floating style bar (colour, stroke, opacity). Markup colours come from the annotation palette and never change with theme." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="shapes" annot-color="red" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;margin-top:-330px">
+<dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import>
+<svg aria-hidden="true" width="240" height="56" viewBox="0 0 240 56" style="position:absolute;left:80px;top:384px;overflow:visible"><path d="M18 30 C 14 10, 120 2, 200 8 C 238 12, 236 44, 190 50 C 130 56, 30 54, 14 38 C 8 30, 20 22, 34 20" fill="none" stroke="#2A4DAF" stroke-width="2.2" stroke-linecap="round"></path></svg>
+<div style="position:absolute;left:86px;top:700px;width:622px;height:80px;border:2px solid var(--annot-red);border-radius:2px;box-shadow:0 0 0 1px var(--accent)"></div>
+<span style="position:absolute;left:82px;top:696px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:393px;top:696px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:704px;top:696px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:82px;top:736px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:704px;top:736px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:82px;top:776px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:393px;top:776px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;left:704px;top:776px;width:8px;height:8px;background:#FFFFFF;border:1.5px solid var(--accent)"></span>
+<div style="position:absolute;left:250px;top:646px;z-index:3"><x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" variant="floating" label="Rectangle style" hint-size="300px,40px"><x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="square" label="Colour" show-label="{{ false }}" swatch="#D93A2B" has-menu="{{ true }}" hint-size="40px,26px"></x-import><div style="width:76px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="2" options="{{ strokeOptions }}" aria-label="Stroke width" hint-size="76px,26px"></x-import></div><div style="width:72px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="100" options="{{ opacityOptions }}" aria-label="Opacity" hint-size="72px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="message-square" label="Open comment" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Delete" shortcut="{{ kDel }}" size="sm" hint-size="26px,26px"></x-import></x-import></div>
+<div style="position:absolute;left:559px;top:782px;width:2px;height:116px;background:var(--annot-red)"></div><span style="position:absolute;left:554px;top:780px;width:0;height:0;border-left:6px solid transparent;border-right:6px solid transparent;border-bottom:10px solid var(--annot-red)"></span>
+<div lang="tr" style="position:absolute;left:400px;top:898px;width:300px;padding:8px 10px;background:#FFFFFF;border:2px solid var(--annot-red);border-radius:2px;font:400 12.5px/1.45 var(--font-ui);color:#1F1D1A">TBK m. 342: depozito üç aylık kira bedelini aşamaz. 37.000 TL uygun.</div>
+<div style="position:absolute;left:120px;top:924px"><x-import component-from-global-scope="FermanDesignSystem_278323.Stamp" label="Onaylandı" lang="tr" tone="seal" meta="13.10.2026 · Av. D. Aksoy" rotation="{{ -6 }}" hint-size="190px,60px"></x-import></div>
+</div></main>
+<dc-import name="FmComments" expand="{{ 3 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;top:120px;left:648px;z-index:40;width:220px"><x-import component-from-global-scope="FermanDesignSystem_278323.Menu" items="{{ shapesMenu }}" label="Shapes" hint-size="220px,230px"></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a4-1d" num="4.1b" title="Comment — Note open on the page" theme="dark" note="Dark theme: chrome turns soot, the page and its marks stay as printed. Clicking a note pin opens it on the page; replies typed here appear in the panel thread too. Esc closes the note and returns focus to its pin." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="note" annot-color="yellow" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;margin-top:-330px">
+<dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import>
+<svg aria-hidden="true" width="240" height="56" viewBox="0 0 240 56" style="position:absolute;left:80px;top:384px;overflow:visible"><path d="M18 30 C 14 10, 120 2, 200 8 C 238 12, 236 44, 190 50 C 130 56, 30 54, 14 38 C 8 30, 20 22, 34 20" fill="none" stroke="#2A4DAF" stroke-width="2.2" stroke-linecap="round"></path></svg>
+<div style="position:absolute;left:86px;top:700px;width:622px;height:80px;border:2px solid var(--annot-red);border-radius:2px"></div>
+<div style="position:absolute;left:440px;top:536px;z-index:3"><x-import component-from-global-scope="FermanDesignSystem_278323.StickyNote" author="Mert Kaya" time="09:58" text="{{ noteText }}" replies="{{ noteReplies }}" hint-size="256px,220px"></x-import></div>
+</div></main>
+<dc-import name="FmComments" expand="{{ 2 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a4-1c" num="4.1c" title="Comment — Distance and area on a floor plan" note="Measure (M) offers distance, perimeter and area. Points snap to line ends and corners; labels use the calibrated scale (9.7) and the region’s decimal comma. Measurements are annotations, so they can be hidden, exported as CSV or flattened." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="measure" save="unsaved" tabs="{{ tabsPlan }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ thumbPlan }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-60px"><dc-import name="DocPlan" measure="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<aside aria-label="Measurements" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Measurements</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="download" label="Export as CSV…" size="xs" hint-size="22px,22px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Tool" collapsible="{{ false }}" hint-size="100%,120px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Measure" value="area" options="{{ measureKinds }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Snap to lines and corners" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Scale" collapsible="{{ false }}" hint-size="100%,130px"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="ruler" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="flex:1;font-variant-numeric:tabular-nums">1:75 · 1 mm = 7,5 cm</span></div><span style="font:var(--type-caption);color:var(--text-secondary)">Calibrated from the 12,00 m dimension line.</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="ruler" hint-size="110px,26px">Recalibrate…</x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="On this page" collapsible="{{ false }}" hint-size="100%,140px">
+<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:var(--radius-sm);background:var(--surface-selected);font:var(--type-body)"><span style="width:10px;height:10px;border-radius:2px;background:rgba(58,96,198,.25);box-shadow:0 0 0 1.5px var(--annot-blue-ink)"></span><span style="flex:1">Area · Yatak odası</span><span style="font-variant-numeric:tabular-nums">25,65 m²</span></div>
+<div style="display:flex;align-items:center;gap:8px;padding:6px 8px;font:var(--type-body)"><span style="width:10px;height:2px;background:var(--annot-red)"></span><span style="flex:1">Distance · Salon</span><span style="font-variant-numeric:tabular-nums">6,88 m</span></div>
+</x-import>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a4-2" num="4.2" title="Comment — Thread with replies, mention, filters" note="Filters by status, person and type; sorts by page, date or author. The selected thread is outlined in ink and its mark is selected on the page. Typing @ suggests people who already commented in this file. Resolve hides a thread from Open; Reopen brings it back. Each card is announced as “Ayşe Yılmaz, highlight on page 1, 2 replies”." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="select" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;margin-top:-330px">
+<dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import>
+<div style="position:absolute;left:330px;top:536px;width:198px;height:24px;box-shadow:0 0 0 1.5px var(--accent);border-radius:2px;pointer-events:none"></div>
+<div style="position:absolute;left:86px;top:700px;width:622px;height:80px;border:2px solid var(--annot-red);border-radius:2px"></div>
+</div></main>
+<dc-import name="FmComments" expand="{{ 1 }}" compose="{{ true }}" mention="{{ true }}" filters="{{ true }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">4.3 – 4.5 · Stamps, summaries, hiding and flattening</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a4-3" num="4.3a" title="Comment — Stamp library" note="Standard, Turkish and dynamic stamps (the dynamic ones fill in your name and today’s date in the document’s date format). Turkish stamps set lang=&quot;tr&quot;, so capitals are ONAYLANDI and GİZLİ. Click a stamp, then click the page; ⌥-drag sets its size." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="stamp" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmComments" expand="{{ 0 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+<div role="dialog" aria-label="Stamps" style="position:absolute;top:120px;left:700px;z-index:40;width:440px;display:grid;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover)">
+<div style="padding:12px 12px 8px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="Search stamps" aria-label="Search stamps" hint-size="100%,26px"></x-import></div>
+<sc-for list="{{ stampGroups }}" as="g" hint-placeholder-count="4"><div style="display:grid;gap:8px;padding:10px 14px 14px;border-top:1px solid var(--border-subtle)"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">{{ g.title }}</span><div style="display:flex;flex-wrap:wrap;gap:10px 12px;align-items:center"><sc-for list="{{ g.items }}" as="s" hint-placeholder-count="4"><div style="padding:6px;border-radius:var(--radius-sm);background:{{ s.bg }};box-shadow:{{ s.ring }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Stamp" label="{{ s.label }}" lang="{{ s.lang }}" tone="{{ s.tone }}" meta="{{ s.meta }}" rotation="{{ 0 }}" size="{{ 12 }}" hint-size="100px,34px"></x-import></div></sc-for></div></div></sc-for>
+<div style="display:flex;gap:8px;padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="plus" hint-size="120px,26px">Create stamp…</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="folder-open" hint-size="120px,26px">Import…</x-import></div>
+</div>
+</dc-import>
+<dc-import name="FmBoard" bid="a4-3b" num="4.3b" title="Comment — Create a custom stamp" note="Text, an optional second line with name, date and time, colour and border. The preview uses the stamp’s language for capitals. Custom stamps are saved on this device and can be exported to share with colleagues." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="stamp" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmComments" expand="{{ 0 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Create stamp" actions="{{ actStamp }}" hint-size="640px,470px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 250px;gap:20px">
+<div style="display:grid;gap:12px;align-content:start">
+<x-import component-from-global-scope="FermanDesignSystem_278323.TextField" label="Text" default-value="İncelendi" hint-size="100%,52px"></x-import>
+<div style="display:grid;gap:8px"><span class="fm-field__label">Second line</span><div style="display:flex;gap:16px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="My name" default-checked="{{ true }}" hint-size="90px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Date" default-checked="{{ true }}" hint-size="70px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Time" hint-size="70px,20px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" aria-label="Name on the stamp" default-value="Av. Deniz Aksoy" hint-size="100%,26px"></x-import></div>
+<div style="display:grid;gap:6px"><span class="fm-field__label">Colour</span><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Colour" value="ink" options="{{ stampTones }}" hint-size="100%,26px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Language for capitals" default-value="tr" options="{{ capLangs }}" hint-size="100%,48px"></x-import>
+</div>
+<div style="display:grid;gap:8px;align-content:start"><span class="fm-field__label">Preview</span><div style="height:170px;display:grid;place-items:center;background:#FFFFFF;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--border-default)"><x-import component-from-global-scope="FermanDesignSystem_278323.Stamp" label="İncelendi" lang="tr" tone="ink" meta="Av. Deniz Aksoy · 13.10.2026" rotation="{{ -4 }}" hint-size="200px,60px"></x-import></div><span style="font:var(--type-caption);color:var(--text-tertiary)">Saved to My stamps on this device.</span></div>
+</div></x-import></div>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a4-4" num="4.4" title="Comment — Export a comment summary" note="PDF summaries come in three layouts; CSV lists one comment per row (page, type, author, date, text, replies, status) for spreadsheets. The preview updates with every option. Paper size follows the region (A4 here)." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="select" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmComments" expand="{{ 0 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Export comment summary" actions="{{ actSummary }}" hint-size="760px,600px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) 260px;gap:22px">
+<div style="display:grid;gap:14px;align-content:start">
+<div style="display:grid;gap:6px"><span class="fm-field__label">Format</span><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Format" value="pdf" options="{{ fmtOptions }}" hint-size="160px,26px"></x-import></div>
+<div role="radiogroup" aria-label="Layout" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+<sc-for list="{{ layouts }}" as="l" hint-placeholder-count="3"><div role="radio" aria-checked="{{ l.checked }}" style="display:grid;gap:8px;padding:10px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:{{ l.ring }}"><div style="height:76px;display:grid;grid-template-columns:{{ l.cols }};gap:4px;padding:6px;background:var(--surface-sunken);border-radius:var(--radius-sm)"><span style="position:relative;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default);display:{{ l.showPage }}"><span class="fm-thumb__lines" style="inset:14% 14% 20%"></span></span><span style="display:grid;gap:4px;align-content:start;padding:2px"><span style="height:5px;border-radius:1px;background:var(--border-strong)"></span><span style="height:5px;width:70%;border-radius:1px;background:var(--border-default)"></span><span style="height:5px;border-radius:1px;background:var(--border-strong)"></span><span style="height:5px;width:60%;border-radius:1px;background:var(--border-default)"></span></span></div><span style="font:var(--type-body-strong)">{{ l.label }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ l.sub }}</span></div></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px 16px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Open comments (7)" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Replies" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Resolved comments (2)" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Pages without comments" hint-size="100%,20px"></x-import></div>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Sort by" default-value="page" options="{{ sortBy }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Paper" default-value="a4" options="{{ paper }}" hint-size="100%,48px"></x-import></div>
+</div>
+<div style="display:grid;gap:8px;align-content:start"><span class="fm-field__label">Preview · page 1 of 2</span><div lang="tr" style="height:350px;padding:14px 14px;display:grid;grid-template-columns:96px minmax(0,1fr);gap:10px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 8px/1.35 var(--font-ui);color:#1F1D1A;align-content:start"><div style="position:relative;height:136px;box-shadow:0 0 0 1px #DEDAD2"><span class="fm-thumb__lines" style="inset:10% 12% 18%"></span><span style="position:absolute;top:50px;left:30px;width:12px;height:12px;display:grid;place-items:center;border-radius:2px;background:var(--annot-yellow);font:600 7px/1 var(--font-ui)">1</span><span style="position:absolute;top:46px;right:4px;width:12px;height:12px;display:grid;place-items:center;border-radius:2px;background:var(--annot-yellow);font:600 7px/1 var(--font-ui)">2</span><span style="position:absolute;top:74px;left:8px;width:12px;height:12px;display:grid;place-items:center;border-radius:2px;background:#F6C9C3;font:600 7px/1 var(--font-ui)">3</span></div><div style="display:grid;gap:7px;align-content:start"><div style="font:600 9px/1.3 var(--font-ui)">Kira sözleşmesi.pdf · Sayfa 1</div><div><b>1 · Ayşe Yılmaz</b> · 13.10.2026 10:12<br>Ödeme günü beşi yerine onu olabilir mi?<br><span style="color:#57534C">↳ Mert Kaya: Olur, 10’u yazalım.</span></div><div><b>2 · Mert Kaya</b> · 09:58<br>Artış oranı TÜFE’ye bağlı kalsın.</div><div><b>3 · Av. Deniz Aksoy</b> · 11:20<br>TBK m. 342: depozito üç aylık kira bedelini aşamaz.</div></div></div></div>
+</div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a4-5" num="4.5a" title="Comment — All comments hidden" note="“Show comments” (⇧⌘H) hides every mark on the page without deleting anything; a notice at the top of the canvas says how many are hidden. Printing follows this switch unless Print › Comments says otherwise." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="select" show-annots="{{ false }}" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" hint-size="794px,1123px"></dc-import></div>
+<div role="status" style="position:absolute;top:12px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:10px;padding:6px 6px 6px 12px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover);font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="eye-off" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import>9 comments hidden<x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="110px,26px">Show comments</x-import></div></main>
+<dc-import name="FmComments" expand="{{ 0 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a4-5b" num="4.5b" title="Comment — Flatten comments" note="Flattening draws the marks into the page content. The dialog names the consequence, offers to flatten only resolved comments, and keeps a commented copy by default. Undo works until the file is saved." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="comment" tool="select" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmComments" expand="{{ 0 }}" hint-size="300px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="layers" title="Flatten 9 comments into the pages?" description="They become part of the page. Nobody will be able to edit, reply to, hide or remove them, in Ferman or any other app. Form fields and signatures aren’t affected." actions="{{ actFlatten }}" hint-size="520px,330px">
+<div style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="fl" value="all" label="All 9 comments" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="fl" value="resolved" label="Only the 2 resolved comments" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Keep a copy with comments" description="Saved as “Kira sözleşmesi — yorumlu.pdf” next to the original." default-checked="{{ true }}" hint-size="100%,40px"></x-import></div>
+</x-import></div>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const S = (label, tone, lang, meta, sel) => ({ label, tone, lang: lang || 'en', meta, bg: sel ? 'var(--surface-selected)' : 'transparent', ring: sel ? '0 0 0 1.5px var(--accent)' : 'none' });
+    return {
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabsPlan: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kat planı — Daire 5.pdf', active: true, unsaved: true }],
+      thumbPlan: [{ comments: true }],
+      kDel: ['⌫'],
+      strokeOptions: [{ value: '1', label: '1 pt' }, { value: '2', label: '2 pt' }, { value: '4', label: '4 pt' }],
+      opacityOptions: [{ value: '100', label: '100%' }, { value: '60', label: '60%' }, { value: '30', label: '30%' }],
+      shapesMenu: [{ id: 'rect', label: 'Rectangle', icon: 'square', shortcut: ['R'], checked: true }, { id: 'ellipse', label: 'Ellipse', icon: 'ellipse', shortcut: ['E'] }, { id: 'arrow', label: 'Arrow', icon: 'arrow-up-right', shortcut: ['A'] }, { id: 'line', label: 'Line', icon: 'slash', shortcut: ['L'] }, { id: 'polygon', label: 'Polygon', icon: 'pentagon', shortcut: ['G'] }, { separator: true }, { id: 'keep', label: 'Keep tool selected', icon: 'pin' }],
+      noteText: 'Artış oranı TÜFE’ye bağlı kalsın, sabit oran istemiyorum.',
+      noteReplies: [{ author: 'Ayşe Yılmaz', time: '10:05', text: 'Katılıyorum.' }],
+      measureKinds: [{ value: 'distance', icon: 'ruler', title: 'Distance' }, { value: 'perimeter', icon: 'pentagon', title: 'Perimeter' }, { value: 'area', icon: 'square-dashed', title: 'Area' }],
+      stampGroups: [
+        { title: 'STANDARD', items: [S('Approved', 'green'), S('Draft', 'neutral'), S('Confidential', 'seal'), S('Final', 'ink'), S('Not approved', 'seal')] },
+        { title: 'TÜRKÇE', items: [S('Onaylandı', 'seal', 'tr', undefined, true), S('Taslak', 'neutral', 'tr'), S('Gizli', 'seal', 'tr'), S('Aslı gibidir', 'ink', 'tr'), S('Alındı', 'green', 'tr')] },
+        { title: 'WITH NAME AND DATE', items: [S('Approved', 'green', 'en', 'Av. Deniz Aksoy · 13.10.2026'), S('Alındı', 'ink', 'tr', '13.10.2026 14:36')] },
+        { title: 'MY STAMPS', items: [S('İncelendi', 'ink', 'tr', 'Av. Deniz Aksoy')] }
+      ],
+      stampTones: [{ value: 'seal', label: 'Seal' }, { value: 'ink', label: 'Ink' }, { value: 'green', label: 'Green' }, { value: 'neutral', label: 'Grey' }],
+      capLangs: [{ value: 'tr', label: 'Turkish (İNCELENDİ)' }, { value: 'en', label: 'English' }, { value: 'de', label: 'German' }],
+      actStamp: btns(['Cancel'], ['Save stamp', { variant: 'primary' }]),
+      fmtOptions: [{ value: 'pdf', label: 'PDF' }, { value: 'csv', label: 'CSV' }],
+      layouts: [
+        { label: 'Page and comments', sub: 'Numbered markers beside each page', cols: '1fr 1fr', showPage: 'block', checked: 'true', ring: '0 0 0 2px var(--accent)' },
+        { label: 'Comments only', sub: 'A list, grouped by page', cols: '1fr', showPage: 'none', checked: 'false', ring: '0 0 0 1px var(--border-default)' },
+        { label: 'Page, then list', sub: 'Full page followed by its comments', cols: '1fr', showPage: 'block', checked: 'false', ring: '0 0 0 1px var(--border-default)' }
+      ],
+      sortBy: [{ value: 'page', label: 'Page order' }, { value: 'date', label: 'Date' }, { value: 'author', label: 'Author' }],
+      paper: [{ value: 'a4', label: 'A4' }, { value: 'letter', label: 'Letter' }],
+      actSummary: btns(['Cancel'], ['Export summary…', { variant: 'primary' }]),
+      actFlatten: btns(['Cancel'], ['Flatten 9 comments', { variant: 'primary' }])
+    };
+  }
+}
+</script>
+</body>
+</html>

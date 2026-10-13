@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">02 · View mode</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Page layouts, zoom, every sidebar tab, search with Turkish-aware matching, presentation and reading modes, read aloud, document properties, split view and dark reading mode.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">2.1 · Page layouts</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-1a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.1a</span><span style="font:600 26px/1.2 var(--font-ui)">View — Single page, fit page</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" layout="single" fit="page" zoom="{{ 66 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:grid;place-items:center"><div style="zoom:0.655"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">One page at a time; ← → and Page Up/Down turn pages. Fit page (⌘0) is selected in the Fit control and the zoom field reads 66%.</p></div>
+<div id="a2-1b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.1b</span><span style="font:600 26px/1.2 var(--font-ui)">View — Continuous scroll</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" layout="scroll" page="{{ 2 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 2 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:grid;justify-content:center;align-content:start;gap:24px"><div style="margin-top:-760px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div><dc-import name="DocKira" page="{{ 2 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Pages flow with a 24 px gap. “Page 2 of 3” follows the page that fills most of the view; the thumbnail selection follows too.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-1c" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.1c</span><span style="font:600 26px/1.2 var(--font-ui)">View — Two-page spread</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" layout="two" fit="page" zoom="{{ 55 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;align-items:flex-start;gap:12px;padding-top:40px"><div style="zoom:0.55"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div><div style="zoom:0.55"><dc-import name="DocKira" page="{{ 2 }}" mode="view" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Pages 1 and 2 side by side. In right-to-left documents the spread starts from the right.</p></div>
+<div id="a2-1d" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.1d</span><span style="font:600 26px/1.2 var(--font-ui)">View — Book mode with cover page</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsTez }}" layout="book" fit="page" zoom="{{ 55 }}" pages="{{ 64 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="tez" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:grid;grid-template-columns:437px 437px;justify-content:center;column-gap:12px;row-gap:24px;padding-top:40px;align-content:start">
+<span></span>
+<div lang="tr" style="width:437px;height:618px;box-sizing:border-box;padding:56px 44px;background:#FFFFFF;box-shadow:var(--shadow-page);display:grid;grid-template-rows:auto 1fr auto;text-align:center;color:#1F1D1A;font-family:var(--font-doc-sample);text-transform:uppercase"><div style="font:600 10px/1.7 var(--font-doc-sample);letter-spacing:.06em">T.C.<br>Kuzey Ege Üniversitesi<br>Sosyal Bilimler Enstitüsü<br>Şehir ve Bölge Planlama Anabilim Dalı</div><div style="display:grid;align-content:center;gap:18px"><div style="font:600 17px/1.45 var(--font-doc-sample);letter-spacing:.03em">Kentsel dönüşüm sürecinde kiracı hakları: İstanbul örneği</div><div style="font:500 11px/1.4 var(--font-doc-sample);letter-spacing:.12em">Yüksek lisans tezi</div><div style="font:600 12px/1.4 var(--font-doc-sample)">Elif Şahin</div></div><div style="font:400 10px/1.7 var(--font-doc-sample)"><span style="text-transform:none">Danışman: Doç. Dr. Oğuz Çelik</span><br>İzmir, 2026</div></div>
+<div style="width:437px;height:618px;background:#FFFFFF;box-shadow:var(--shadow-page);position:relative"><span class="fm-thumb__lines" style="inset:12% 12% 18%"></span></div>
+<div style="width:437px;height:618px;background:#FFFFFF;box-shadow:var(--shadow-page);position:relative"><span class="fm-thumb__lines" style="inset:12% 12% 18%"></span></div>
+</main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The cover stands alone on the right, then ii–iii form the first spread, like a printed book. Turkish capitals on the cover use dotted İ (KİRACI, EGE ÜNİVERSİTESİ) because the page language is Turkish.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">2.2 – 2.3 · Zoom and the sidebar</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-2" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.2</span><span style="font:600 26px/1.2 var(--font-ui)">View — Zoom menu and marquee zoom</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" tool="marquee" save="saved" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;margin-top:-280px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import><div style="position:absolute;top:556px;left:84px;width:420px;height:66px;border:1.5px dashed var(--accent);background:rgba(58,96,198,.08);border-radius:1px"></div><span style="position:absolute;top:628px;left:470px;color:#1F1D1A"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="zoom-in" size="{{ 20 }}" stroke-width="{{ 2 }}" hint-size="20px,20px"></x-import></span><span style="position:absolute;top:630px;left:496px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--surface-inverse);color:var(--text-inverse);font:var(--type-caption);white-space:nowrap">Release to zoom to 180%</span></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;top:118px;left:330px;z-index:40;width:230px"><x-import component-from-global-scope="FermanDesignSystem_278323.Menu" items="{{ zoomMenu }}" label="Zoom" hint-size="230px,400px"></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The zoom field opens presets and the three fits with their shortcuts; typing a number works too. Marquee zoom (Z): drag a rectangle, the label states the zoom you’ll get; ⌥-click zooms out. Pinch and ⌘-scroll zoom around the pointer.</p></div>
+<div id="a2-3a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.3a</span><span style="font:600 26px/1.2 var(--font-ui)">Sidebar — Outline: nested bookmarks, renaming</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="unsaved" tabs="{{ tabsTezU }}" page="{{ 27 }}" pages="{{ 64 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="tez" tab="outline" current="{{ 4 }}" outline-edit="{{ 8 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div lang="tr" style="width:794px;height:1123px;flex:none;box-sizing:border-box;padding:96px 100px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 14px/1.7 var(--font-doc-sample)"><div style="text-align:center;font:600 16px/1.5 var(--font-doc-sample);letter-spacing:.06em;margin-bottom:24px">3. BULGULAR</div><p style="margin:0 0 14px;text-align:justify">Araştırma kapsamında Kadıköy, Kartal ve Esenler ilçelerinde dönüşüm sürecindeki 214 binada oturan 386 kiracı hanesiyle görüşülmüştür. Görüşmelerin yüzde 61’i tahliye bildiriminden sonraki ilk üç ay içinde yapılmıştır.</p><p style="margin:0 0 14px;text-align:justify">Hanelerin yüzde 47’si aynı mahallede kiralık konut bulamadığını, yüzde 29’u ise çocuklarının okulunu değiştirmek zorunda kaldığını belirtmiştir. Bu bulgular Bölüm 4’te kira artışlarıyla birlikte tartışılmaktadır.</p><div style="font:600 14.5px/1.5 var(--font-doc-sample);margin:22px 0 8px">3.1 Tahliye süreleri</div><p style="margin:0;text-align:justify">Kiracılara tanınan ortalama süre 47 gündür; bu süre, yasal bildirim süresinin altında kalan 19 örnekte daha da kısalmıştır.</p></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Renaming “3. BULGULAR” in place (F2 or double-click); Enter saves, Esc cancels. ⌘B adds a bookmark at the current view; drag to nest or reorder; → and ← expand and collapse for keyboard users. The current section is tinted.</p></div>
+</div>
+<div style="display:grid;gap:14px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.3b–f</span><span style="font:600 26px/1.2 var(--font-ui)">Sidebar — All six tabs at 1:1</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Pages · Outline · Attachments · Layers · Signatures · Search results</span></div>
+<div style="display:flex;gap:28px;align-items:flex-start">
+<div id="a2-3p" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3o" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="outline" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3b" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="attachments" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3c" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="layers" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3d" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="signatures" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3e" class="fm-root" data-theme="light" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);display:flex"><dc-import name="FmSidebar" doc="kira" tab="search" current="{{ 1 }}" hint-size="216px,752px"></dc-import></div>
+<div id="a2-3x" class="fm-root" data-theme="dark" lang="en" style="position:relative;width:216px;height:752px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.4);display:flex"><dc-import name="FmSidebar" doc="kira" tab="outline" current="{{ 1 }}" outline-edit="{{ 3 }}" hint-size="216px,752px"></dc-import></div>
+</div>
+<p style="margin:0;max-width:1700px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The tab strip is an icon segmented control with tooltips (names stay readable in any language without truncation). Attachments never run from inside Ferman; layers note the print behaviour; signatures state validity in a sentence. Last panel: outline rename in dark theme.</p>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">2.4 · Search</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-4a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.4a</span><span style="font:600 26px/1.2 var(--font-ui)">Search — Find bar with options</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" search="{{ true }}" hint-size="794px,1123px"></dc-import>
+<div style="position:absolute;top:12px;inset-inline-end:16px;display:grid;gap:6px;justify-items:end"><x-import component-from-global-scope="FermanDesignSystem_278323.SearchReplaceBar" query="kira" current="{{ 1 }}" total="{{ 7 }}" hint-size="440px,44px"></x-import>
+<div role="group" aria-label="Search options" style="width:440px;display:grid;gap:10px;padding:12px 14px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover)"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">MATCH</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Match case" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Whole words" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Regular expression" hint-size="100%,20px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Ignore accents and dotted/dotless i" description="“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default for Turkish documents." default-checked="{{ true }}" hint-size="100%,40px"></x-import><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label);margin-top:4px">LOOK IN</span><div style="display:flex;gap:14px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Page text" default-checked="{{ true }}" hint-size="90px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Comments" default-checked="{{ true }}" hint-size="90px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Form fields" hint-size="90px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Bookmarks" hint-size="90px,20px"></x-import></div></div>
+</div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">⌘F. The counter is a live region (“1 of 7”). ↵ and ⇧↵ step through matches; the current one is orange, the rest yellow. “kira” matched “KİRA” in the title because Turkish case folding maps i ↔ İ and ı ↔ I.</p></div>
+<div id="a2-4b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.4b</span><span style="font:600 26px/1.2 var(--font-ui)">Search — All results, grouped by page</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="search" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" search="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">“Show all” in the find bar (⌥↵) moves results into the sidebar: grouped by page with counts, each snippet in the document font, the current one tinted. ↑ ↓ move through results and the page follows.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">2.5 – 2.6 · Presentation, reading mode and read aloud</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-5a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.5a</span><span style="font:600 26px/1.2 var(--font-ui)">Presentation mode, full screen</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS</span></div>
+<div class="fm-root" data-theme="dark" lang="en" style="position:relative;width:1440px;height:900px;overflow:hidden;background:#000000;display:grid;place-items:center">
+<div style="zoom:0.78"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div>
+<div style="position:absolute;bottom:28px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:4px;padding:6px 8px;border-radius:var(--radius-lg);background:var(--soot-100);box-shadow:var(--shadow-popover);color:var(--text-primary);font:var(--type-body)"><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-left" label="Previous page" shortcut="{{ kLeft }}" hint-size="30px,30px"></x-import></span><span style="padding-inline:8px;font-variant-numeric:tabular-nums">1 / 3</span><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-right" label="Next page" shortcut="{{ kRight }}" hint-size="30px,30px"></x-import></span><span style="width:1px;height:20px;background:var(--border-default);margin-inline:6px"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="pen-tool" label="Draw on the slide (not saved)" hint-size="30px,30px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="minimize-2" label="Exit presentation" shortcut="{{ kEsc }}" hint-size="30px,30px"></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">⌘L. Black surround, one page fitted. The control bar appears on mouse move and fades after 2 seconds; Space and arrows advance, Esc exits. A second display shows the next page and notes.</p></div>
+<div id="a2-5b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.5b</span><span style="font:600 26px/1.2 var(--font-ui)">Reading mode, chrome hidden</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" bare="{{ true }}" mode="" status="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:32px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import>
+<div style="position:absolute;top:14px;left:50%;transform:translateX(-50%)"><x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" variant="floating" label="Reading" hint-size="420px,40px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="minimize-2" hint-size="150px,26px">Exit reading mode</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary);padding-inline:6px;font-variant-numeric:tabular-nums">Page 1 of 3</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="zoom-out" label="Zoom out" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="zoom-in" label="Zoom in" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="moon" label="Dim the page" size="sm" hint-size="26px,26px"></x-import></x-import></div>
+</main></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">⌘. hides tabs, tool rows, sidebar and panel. The small bar appears when the pointer reaches the top edge and hides while you scroll. Keyboard users get it with F6.</p></div>
+<div id="a2-6" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.6</span><span style="font:600 26px/1.2 var(--font-ui)">Read aloud</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" tool="read" save="saved" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-200px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" slot="p4" hint-size="794px,1123px"><div style="margin:0 0 8px;text-align:justify"><span style="background:rgba(58,96,198,.14);box-shadow:inset 0 -2px 0 var(--ink-500);border-radius:1px">Kiracı, aylık kira bedeli olan 18.500 TL’yi her ayın beşinci gününe kadar kiraya verenin aşağıdaki hesabına ödemekle yükümlüdür.</span></div></dc-import></div>
+<div style="position:absolute;bottom:20px;left:50%;transform:translateX(-50%)"><x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" variant="floating" label="Read aloud" hint-size="560px,40px"><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="skip-back" label="Previous sentence" shortcut="{{ kUp }}" size="sm" hint-size="26px,26px"></x-import></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="pause" label="Pause" shortcut="{{ kSpace }}" variant="primary" size="sm" hint-size="26px,26px"></x-import><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="skip-forward" label="Next sentence" shortcut="{{ kDown }}" size="sm" hint-size="26px,26px"></x-import></span><x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary);padding-inline:4px;font-variant-numeric:tabular-nums;white-space:nowrap">Sentence 9 of 31</span><div style="width:82px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="1" options="{{ speeds }}" aria-label="Speed" hint-size="82px,26px"></x-import></div><div style="width:150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="yelda" options="{{ voices }}" aria-label="Voice" hint-size="150px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Stop reading" size="sm" hint-size="26px,26px"></x-import></x-import></div>
+</main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Uses the system’s voices, on device. The voice follows each block’s language (a Turkish voice here); the sentence being read is underlined in ink and the page scrolls with it. Space pauses, ↑ ↓ move by sentence.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">2.7 – 2.9 · Properties, split view, dark reading</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-7" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.7</span><span style="font:600 26px/1.2 var(--font-ui)">Document properties</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Kira sözleşmesi.pdf — Properties" actions="{{ actClose }}" hint-size="640px,700px">
+<div style="display:grid;gap:16px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Section" value="summary" options="{{ propTabs }}" hint-size="320px,26px"></x-import>
+<div style="display:grid;grid-template-columns:120px minmax(0,1fr) 120px minmax(0,1fr);gap:8px 14px;font:var(--type-body);font-variant-numeric:tabular-nums"><span style="color:var(--text-secondary)">Title</span><span>Konut Kira Sözleşmesi</span><span style="color:var(--text-secondary)">PDF version</span><span>1.7 (Acrobat 8.x)</span><span style="color:var(--text-secondary)">Author</span><span>Mert Kaya</span><span style="color:var(--text-secondary)">Page size</span><span>A4 · 210 × 297 mm</span><span style="color:var(--text-secondary)">Subject</span><span>Moda Cad. No: 18 D: 5</span><span style="color:var(--text-secondary)">Pages</span><span>3</span><span style="color:var(--text-secondary)">Keywords</span><span>kira, sözleşme, 2026</span><span style="color:var(--text-secondary)">File size</span><span>284 KB</span><span style="color:var(--text-secondary)">Created</span><span>11 Oct 2026, 10:12</span><span style="color:var(--text-secondary)">Tagged PDF</span><span>Yes</span><span style="color:var(--text-secondary)">Modified</span><span>13 Oct 2026, 14:32</span><span style="color:var(--text-secondary)">Fast web view</span><span>No</span><span style="color:var(--text-secondary)">Made with</span><span>LibreOffice 24.8</span><span style="color:var(--text-secondary)">Security</span><span>No password · 1 signature</span></div>
+<div style="display:grid;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden"><div style="display:grid;grid-template-columns:minmax(0,1fr) 110px 120px;gap:12px;padding:8px 12px;background:var(--surface-sunken);font:var(--type-label);color:var(--text-tertiary)"><span>FONT</span><span>TYPE</span><span>STATUS</span></div>
+<sc-for list="{{ fontRows }}" as="f" hint-placeholder-count="4"><div style="display:grid;grid-template-columns:minmax(0,1fr) 110px 120px;gap:12px;align-items:center;padding:8px 12px;border-top:1px solid var(--border-subtle);font:var(--type-body)"><span style="display:grid"><span>{{ f.name }}</span><sc-if value="{{ f.hasNote }}"><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ f.note }}</span></sc-if></span><span style="color:var(--text-secondary)">{{ f.type }}</span><span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" icon="{{ f.icon }}" hint-size="100px,18px">{{ f.status }}</x-import></span></div></sc-for>
+</div>
+</div></x-import></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">⌘D. Metadata is editable in place. Fonts list embedded, subset and missing, and for missing fonts names what Ferman shows instead. Security and Advanced hold encryption details, permissions, XMP and output intents.</p></div>
+<div id="a2-8a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.8a</span><span style="font:600 26px/1.2 var(--font-ui)">Split view — same document, two places</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" tool="split" save="saved" tabs="{{ tabsSaved }}" panel="{{ false }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 7px minmax(0,1fr);background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;min-width:0;overflow:hidden;box-shadow:inset 0 0 0 2px var(--accent)"><div style="height:30px;flex:none;display:flex;align-items:center;gap:8px;padding-inline:10px 4px;background:var(--surface-panel);border-bottom:1px solid var(--border-subtle);font:var(--type-caption)"><b style="font-weight:500">Page 1</b><span style="color:var(--text-tertiary)">· 72%</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close this pane" size="xs" hint-size="22px,22px"></x-import></div><div style="flex:1;display:flex;justify-content:center;padding-top:16px;overflow:hidden"><div style="zoom:0.72"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div></div>
+<div role="separator" aria-orientation="vertical" aria-label="Resize panes" style="background:var(--surface-panel);border-inline:1px solid var(--border-subtle);display:grid;place-items:center;color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="grip-vertical" size="{{ 12 }}" hint-size="12px,12px"></x-import></div>
+<div style="display:flex;flex-direction:column;min-width:0;overflow:hidden"><div style="height:30px;flex:none;display:flex;align-items:center;gap:8px;padding-inline:10px 4px;background:var(--surface-panel);border-bottom:1px solid var(--border-subtle);font:var(--type-caption)"><b style="font-weight:500">Page 3</b><span style="color:var(--text-tertiary)">· 72%</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close this pane" size="xs" hint-size="22px,22px"></x-import></div><div style="flex:1;display:flex;justify-content:center;padding-top:16px;overflow:hidden"><div style="zoom:0.72"><dc-import name="DocKira" page="{{ 3 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div></div>
+</main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Read the terms while checking the signatures. Each pane scrolls and zooms on its own; the active pane has the ink outline and drives the status bar. F6 moves focus between panes.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a2-8b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.8b</span><span style="font:600 26px/1.2 var(--font-ui)">Split view — two documents</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="view" tool="split" save="saved" tabs="{{ tabsSplit }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 7px minmax(0,1fr);background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;min-width:0;overflow:hidden"><div style="height:34px;flex:none;display:flex;align-items:center;gap:8px;padding-inline:8px 4px;background:var(--surface-panel);border-bottom:1px solid var(--border-subtle)"><div style="width:240px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" icon="file-text" default-value="kira" options="{{ docPick }}" aria-label="Left document" hint-size="240px,26px"></x-import></div><span style="font:var(--type-caption);color:var(--text-tertiary)">Page 1 · 80%</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Scroll together" hint-size="130px,20px"></x-import></div><div style="flex:1;display:flex;justify-content:center;padding-top:16px;overflow:hidden"><div style="zoom:0.8;margin-top:-300px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div></div>
+<div role="separator" aria-orientation="vertical" aria-label="Resize panes" style="background:var(--surface-panel);border-inline:1px solid var(--border-subtle);display:grid;place-items:center;color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="grip-vertical" size="{{ 12 }}" hint-size="12px,12px"></x-import></div>
+<div style="display:flex;flex-direction:column;min-width:0;overflow:hidden;box-shadow:inset 0 0 0 2px var(--accent)"><div style="height:34px;flex:none;display:flex;align-items:center;gap:8px;padding-inline:8px 4px;background:var(--surface-panel);border-bottom:1px solid var(--border-subtle)"><div style="width:240px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" icon="file-text" default-value="ekstre" options="{{ docPick }}" aria-label="Right document" hint-size="240px,26px"></x-import></div><span style="font:var(--type-caption);color:var(--text-tertiary)">Page 1 · 80%</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close this pane" size="xs" hint-size="22px,22px"></x-import></div><div style="flex:1;display:flex;justify-content:center;padding-top:16px;overflow:hidden"><div style="zoom:0.8"><dc-import name="DocEkstre" highlight-rent="{{ true }}" hint-size="794px,1123px"></dc-import></div></div></div>
+</main>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Drag a tab onto the canvas edge, or choose “Split with…”. Each pane has a document picker; both stay open as tabs. Here the 18.500 TL rent on the contract is checked against the September statement.</p></div>
+<div id="a2-9" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">2.9</span><span style="font:600 26px/1.2 var(--font-ui)">Dark reading mode — inverted page</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Dark</span></div>
+<div class="fm-root" data-theme="dark" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 24px 60px -12px rgba(0,0,0,.6)">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabsSaved }}" dark-reading="{{ true }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;filter:invert(0.9) hue-rotate(180deg)"><dc-import name="DocKira" page="{{ 1 }}" mode="view" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Off by default; the page is paper-white in dark theme unless you turn this on. Text and backgrounds invert with hue kept, so highlights stay recognisable; photos and signatures are re-inverted to their real colours. Never applied when printing or saving.</p></div>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+class Component extends DCLogic {
+  renderVals() {
+    const F = [['IBM Plex Serif', 'TrueType', 'Embedded', 'neutral', 'check', ''], ['IBM Plex Serif SemiBold', 'TrueType', 'Embedded', 'neutral', 'check', ''], ['Garamond Premier Pro', 'OpenType CFF', 'Subset', 'warning', 'triangle-alert', 'Only the characters already used. Typing ‘ğ’ needs a substitute.'], ['Helvetica', 'Type 1', 'Not embedded', 'warning', 'triangle-alert', 'Ferman is showing IBM Plex Sans instead.']];
+    return {
+      tabsSaved: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabsTez: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true }],
+      tabsTezU: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true, unsaved: true }],
+      tabsSplit: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'Hesap ekstresi Eylül 2026.pdf', active: false }],
+      zoomMenu: [{ id: 'fw', label: 'Fit width', icon: 'arrow-left-right', shortcut: ['⌘', '2'] }, { id: 'fp', label: 'Fit page', icon: 'maximize', shortcut: ['⌘', '0'] }, { id: 'as', label: 'Actual size', icon: 'scan', shortcut: ['⌘', '1'] }, { separator: true }, { id: '50', label: '50%' }, { id: '75', label: '75%' }, { id: '100', label: '100%', checked: true }, { id: '125', label: '125%' }, { id: '150', label: '150%' }, { id: '200', label: '200%' }, { id: '400', label: '400%' }, { separator: true }, { id: 'mq', label: 'Marquee zoom', icon: 'square-dashed', shortcut: ['Z'] }],
+      kLeft: ['←'], kRight: ['→'], kEsc: ['Esc'], kUp: ['↑'], kDown: ['↓'], kSpace: ['Space'],
+      speeds: [{ value: '0.75', label: '0.75×' }, { value: '1', label: '1×' }, { value: '1.25', label: '1.25×' }, { value: '1.5', label: '1.5×' }],
+      voices: [{ value: 'yelda', label: 'Yelda · Türkçe' }, { value: 'auto', label: 'Match each block’s language' }],
+      propTabs: [{ value: 'summary', label: 'Summary' }, { value: 'security', label: 'Security' }, { value: 'advanced', label: 'Advanced' }],
+      fontRows: F.map((f) => ({ name: f[0], type: f[1], status: f[2], tone: f[3], icon: f[4], hasNote: !!f[5], note: f[5] })),
+      actClose: h(Btn, { variant: 'primary' }, 'Done'),
+      docPick: [{ value: 'kira', label: 'Kira sözleşmesi.pdf' }, { value: 'ekstre', label: 'Hesap ekstresi Eylül 2026.pdf' }, { value: 'fatura', label: 'e-Arşiv fatura 4187.pdf' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

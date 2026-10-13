@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<aside aria-label="Comments" style="width:300px;height:100%;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle);min-height:0;position:relative">
+<div style="display:flex;align-items:center;gap:8px;height:40px;flex:none;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">Comments</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" hint-size="24px,18px">{{ total }}</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="list-filter" label="Filter and sort" size="xs" active="{{ filters }}" hint-size="22px,22px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="More: export summary, flatten, hide all" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="padding:8px 10px;display:grid;gap:6px;border-bottom:1px solid var(--border-subtle)">
+<x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Status" value="{{ filter }}" options="{{ statusOptions }}" hint-size="100%,26px"></x-import>
+<sc-if value="{{ filters }}"><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="{{ author }}" options="{{ authorOptions }}" aria-label="Author" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="all" options="{{ typeOptions }}" aria-label="Type" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="page" options="{{ sortOptions }}" aria-label="Sort" hint-size="100%,26px"></x-import></div></sc-if>
+</div>
+<div style="flex:1;overflow:hidden;display:grid;align-content:start;gap:6px;padding:6px 8px 12px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="7">
+<sc-if value="{{ r.head }}"><div style="display:flex;justify-content:space-between;padding:6px 4px 0;font:var(--type-label);color:var(--text-tertiary)"><span>{{ r.label }}</span><span style="font-variant-numeric:tabular-nums">{{ r.count }}</span></div></sc-if>
+<sc-if value="{{ r.card }}"><div role="article" aria-label="{{ r.aria }}" style="display:grid;gap:6px;padding:9px 10px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ r.border }};box-shadow:{{ r.ring }};opacity:{{ r.op }}">
+<div style="display:flex;align-items:center;gap:8px"><span aria-hidden="true" style="width:20px;height:20px;flex:none;display:grid;place-items:center;border-radius:4px;background:{{ r.chip }};color:#1F1D1A"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ r.icon }}" size="{{ 12 }}" stroke-width="{{ 2 }}" color="{{ r.iconColor }}" hint-size="12px,12px"></x-import></span><span style="font:var(--type-body-strong);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.author }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ r.time }}</span><sc-if value="{{ r.resolved }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-check" size="{{ 14 }}" color="var(--success-solid)" label="Resolved" hint-size="14px,14px"></x-import></sc-if></div>
+<div lang="tr" style="font:400 12px/16px var(--font-doc-sample);color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">“{{ r.quote }}”</div>
+<sc-if value="{{ r.hasText }}"><div lang="tr" style="font:var(--type-body);color:var(--text-primary)">{{ r.text }}</div></sc-if>
+<sc-if value="{{ r.showReplies }}"><div style="display:grid;gap:8px;padding:8px 0 0 10px;border-top:1px solid var(--border-subtle)"><sc-for list="{{ r.replies }}" as="re" hint-placeholder-count="2"><div style="display:grid;gap:2px"><span style="display:flex;gap:8px;font:var(--type-caption)"><b style="font-weight:600;color:var(--text-primary)">{{ re.author }}</b><span style="color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ re.time }}</span></span><span lang="tr" style="font:var(--type-body)"><sc-if value="{{ re.hasMention }}"><span style="color:var(--text-accent);font-weight:500">{{ re.mention }}</span> </sc-if>{{ re.text }}</span></div></sc-for></div></sc-if>
+<sc-if value="{{ r.collapsedReplies }}"><span style="font:var(--type-caption);color:var(--text-accent)">{{ r.replyCount }}</span></sc-if>
+<sc-if value="{{ r.compose }}"><div style="position:relative;display:grid;gap:6px"><div class="fm-input fm-input--sm" style="border-color:var(--border-focus);box-shadow:0 0 0 1px var(--border-focus)"><span class="fm-input__control" lang="tr" style="display:flex;align-items:center;font:var(--type-body)">Teşekkürler <span style="color:var(--text-accent);font-weight:500;margin-inline-start:4px">@Av</span><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,14px"></x-import></span></div>
+<sc-if value="{{ mention }}"><div role="listbox" aria-label="Mention someone" style="position:absolute;top:30px;inset-inline-start:40px;z-index:5;width:220px;padding:4px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover)"><div style="padding:4px 8px;font:var(--type-label);color:var(--text-tertiary)">People in this document</div><div role="option" aria-selected="true" style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;border-radius:var(--radius-sm);background:var(--surface-selected-strong);font:var(--type-body)"><span style="width:20px;height:20px;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);font:600 10px/1 var(--font-ui)">DA</span>Av. Deniz Aksoy</div><div role="option" aria-selected="false" style="display:flex;align-items:center;gap:8px;height:30px;padding:0 8px;font:var(--type-body);color:var(--text-secondary)"><span style="width:20px;height:20px;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);font:600 10px/1 var(--font-ui)">AY</span>Ayşe Yılmaz</div></div></sc-if>
+<div style="display:flex;gap:6px;justify-content:flex-end"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="check" hint-size="80px,26px">Resolve</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" hint-size="60px,26px">Reply</x-import></div></div></sc-if>
+<sc-if value="{{ r.resolved }}"><div style="display:flex;align-items:center;gap:8px;font:var(--type-caption);color:var(--text-tertiary)"><span style="flex:1">{{ r.resolvedBy }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="rotate-ccw" hint-size="70px,26px">Reopen</x-import></div></sc-if>
+</div></sc-if>
+</sc-for>
+</div>
+<div style="padding:8px 12px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">Comments are saved in the PDF. Mentions travel with the file; Ferman doesn’t send notifications.</div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:300,&quot;height&quot;:760},&quot;filter&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;open&quot;,&quot;resolved&quot;,&quot;all&quot;],&quot;default&quot;:&quot;open&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;expand&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;compose&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;mention&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;filters&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;author&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;all&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const T = {
+  1: ['highlight', 'yellow', 'Ayşe Yılmaz', '10:12', 'her ayın beşinci gününe kadar', 'Ödeme günü beşi yerine onu olabilir mi? Maaşım ayın yedisinde yatıyor.', [['Mert Kaya', '10:40', '', 'Olur, 10’u yazalım.'], ['Av. Deniz Aksoy', '11:02', '@Mert Kaya', 'maddeyi buna göre güncelliyorum.']], 1],
+  2: ['sticky-note', 'yellow', 'Mert Kaya', '09:58', 'Madde 4 — Kira Bedeli ve Ödeme', 'Artış oranı TÜFE’ye bağlı kalsın, sabit oran istemiyorum.', [], 1],
+  3: ['square', 'red', 'Av. Deniz Aksoy', '11:20', 'Madde 5 — Depozito', 'TBK m. 342: depozito üç aylık kira bedelini aşamaz. 37.000 TL uygun.', [], 1],
+  4: ['pen-tool', 'blue', 'Mert Kaya', '11:31', 'Madde 3 — Kira Süresi', '', [], 1],
+  5: ['underline', 'green', 'Ayşe Yılmaz', 'Yesterday', 'TR12 0006 4000 0011 2345 6789 01', 'IBAN’ı bankadan teyit ettim.', [], 1, 'Resolved by Mert Kaya · 11:06'],
+  6: ['stamp', 'seal', 'Av. Deniz Aksoy', '11:45', 'Stamp · ONAYLANDI', '', [], 1],
+  8: ['strikethrough', 'red', 'Av. Deniz Aksoy', '11:50', 've kullandırılamaz', 'Gereksiz tekrar, silinebilir.', [], 2],
+  7: ['sticky-note', 'yellow', 'Ayşe Yılmaz', 'Yesterday', 'Madde 8 — Özel Şartlar', 'Evcil hayvan maddesi aynen kalsın lütfen.', [['Mert Kaya', 'Yesterday', '', 'Tamam.']], 2, 'Resolved by Ayşe Yılmaz · yesterday'],
+  9: ['type', 'neutral', 'Mert Kaya', '12:05', 'Kiracı · İmza', 'Teslim tutanağı imzadan önce eklensin.', [], 3]
+};
+const CHIP = { yellow: 'var(--annot-yellow)', red: 'rgba(217,58,43,.16)', blue: 'var(--annot-blue)', green: 'var(--annot-green)', seal: 'var(--seal-100)', neutral: 'var(--surface-sunken)' };
+const ICOL = { red: 'var(--annot-red)', seal: 'var(--seal-500)' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const filter = p.filter || 'open';
+    const expand = p.expand === undefined ? 1 : p.expand;
+    const order = [1, 2, 3, 4, 5, 6, 8, 7, 9];
+    const rows = [];
+    let lastPage = 0;
+    const counts = { 1: 6, 2: 2, 3: 1 };
+    order.forEach((id) => {
+      const t = T[id];
+      const resolved = !!t[8];
+      if (filter === 'open' && resolved) return;
+      if (filter === 'resolved' && !resolved) return;
+      if (t[7] !== lastPage) { lastPage = t[7]; rows.push({ head: true, label: 'Page ' + t[7], count: String(counts[t[7]]) }); }
+      const isExp = id === expand;
+      const replies = t[6].map((r) => ({ author: r[0], time: r[1], hasMention: !!r[2], mention: r[2], text: r[3] }));
+      rows.push({
+        card: true, icon: t[0], chip: CHIP[t[1]], iconColor: ICOL[t[1]] || '#1F1D1A', author: t[2], time: t[3], quote: t[4], hasText: !!t[5], text: t[5] || '',
+        replies, showReplies: isExp && replies.length > 0, collapsedReplies: !isExp && replies.length > 0, replyCount: replies.length + (replies.length === 1 ? ' reply' : ' replies'),
+        compose: isExp && !!p.compose, resolved, resolvedBy: t[8] || '',
+        border: isExp ? 'var(--accent)' : 'var(--border-subtle)', ring: isExp ? '0 0 0 1px var(--accent)' : 'none', op: resolved ? '0.78' : '1',
+        aria: t[2] + ', ' + t[0].replace('-', ' ') + ' on page ' + t[7] + (resolved ? ', resolved' : '') + (replies.length ? ', ' + replies.length + ' replies' : '')
+      });
+    });
+    return {
+      rows, filter, filters: !!p.filters, mention: !!p.mention, total: '9', author: p.author || 'all',
+      statusOptions: [{ value: 'open', label: 'Open 7' }, { value: 'resolved', label: 'Resolved 2' }, { value: 'all', label: 'All 9' }],
+      authorOptions: [{ value: 'all', label: 'All people' }, { value: 'ay', label: 'Ayşe Yılmaz' }, { value: 'mk', label: 'Mert Kaya' }, { value: 'da', label: 'Av. Deniz Aksoy' }],
+      typeOptions: [{ value: 'all', label: 'All types' }, { value: 'notes', label: 'Notes' }, { value: 'markup', label: 'Text markup' }, { value: 'draw', label: 'Drawings' }, { value: 'stamps', label: 'Stamps' }],
+      sortOptions: [{ value: 'page', label: 'Page order' }, { value: 'new', label: 'Newest' }, { value: 'author', label: 'Author' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

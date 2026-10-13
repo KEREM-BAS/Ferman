@@ -1,0 +1,186 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">03 · Edit mode — text</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">The core of Ferman: click into any paragraph and edit it like a document. Hover, caret, selection and reflow; the text-block panel; missing glyphs and font substitution; overflow; vertical Japanese. Continued in <a href="03b%20Edit%20content.dc.html">03b · Edit mode — content</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.1 · Edit text in place</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-1a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.1a</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Hover reveals an editable block</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" hover="{{ hoverP3 }}" edited="{{ true }}" hint-size="794px,1123px"></dc-import><div style="position:absolute;top:446px;left:404px;color:#1F1D1A;pointer-events:none"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="text-cursor" size="{{ 20 }}" stroke-width="{{ 2 }}" hint-size="20px,20px"></x-import></div><div style="position:absolute;top:470px;left:418px;padding:4px 8px;border-radius:var(--radius-sm);background:var(--surface-inverse);color:var(--text-inverse);font:var(--type-caption);white-space:nowrap">Click to edit · Madde 3</div></div></main>
+<dc-import name="FmDocPanel" kind="edit" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Only the block under the pointer shows its dashed frame, so the page stays readable; holding ⌥ reveals every block. The pointer becomes an I-beam over editable text and an arrow over images and fields. Keyboard: Tab walks blocks in reading order, each announced as “Text block, Madde 3, paragraph”.</p></div>
+<div id="a3-1b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.1b</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Caret in a paragraph, typing reflows the block</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" slot="p4" hint-size="794px,1123px"><div style="margin:0 0 8px;position:relative"><span aria-hidden="true" style="position:absolute;inset-inline-start:calc(-1 * var(--edit-mark-bar-gap) - var(--edit-mark-bar-w));top:1px;height:41px;width:var(--edit-mark-bar-w);border-radius:1px;background:var(--edit-mark)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" meta="IBM Plex Serif · 10.5 pt" data-meta-placement="margin" hint-size="100%,42px"><div style="text-align:justify">Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL’yi (on dokuz bin beş yüz TL)</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,16px"></x-import> her ayın beşinci gününe kadar kiraya verenin aşağıdaki hesabına ödemekle yükümlüdür.</div></x-import></div></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">One click selected the block, a second placed the caret. The inserted words reflow both lines inside the frame with the original justification and font. The margin bar spans both changed lines. Screen readers: the block is a multi-line textbox; the caret position and edits are announced like in a word processor.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-1c" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.1c</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Selecting words inside a block</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" slot="p4" hint-size="794px,1123px"><div style="margin:0 0 8px;position:relative"><span aria-hidden="true" style="position:absolute;inset-inline-start:calc(-1 * var(--edit-mark-bar-gap) - var(--edit-mark-bar-w));top:1px;height:20px;width:var(--edit-mark-bar-w);border-radius:1px;background:var(--edit-mark)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" meta="IBM Plex Serif · 10.5 pt" data-meta-placement="margin" hint-size="100%,42px"><div style="text-align:justify">Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL</x-import>’yi <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="selection" hint-size="180px,20px">her ayın beşinci gününe kadar</x-import> kiraya verenin aşağıdaki hesabına ödemekle yükümlüdür.</div></x-import><div style="position:absolute;top:-50px;left:250px;z-index:5"><x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" variant="floating" label="Format selection" hint-size="330px,40px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="bold" label="Bold" shortcut="{{ kB }}" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="italic" label="Italic" shortcut="{{ kI }}" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="underline" label="Underline" shortcut="{{ kU }}" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="baseline" label="Text color" show-label="{{ false }}" swatch="#1F1D1A" has-menu="{{ true }}" hint-size="40px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="link" label="Add link" shortcut="{{ kK }}" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="highlighter" label="Highlight (adds a comment)" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="message-square" label="Comment on selection" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="replace" label="Find and replace these words" size="sm" hint-size="26px,26px"></x-import></x-import></div></div></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Drag, double-click (word) or triple-click (sentence) inside an editing block. Selection is ink at 26%, never yellow. The floating bar acts on the selection only; the panel switches its fields to the selection’s values. Esc closes the bar, then leaves editing.</p></div>
+<div id="a3-1d" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.1d</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Main editor</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Dark</span></div>
+<div class="fm-root" data-theme="dark" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.5),0 24px 60px -12px rgba(0,0,0,.6)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The page stays paper-white; editing marks keep their page-tuned colours. Chrome uses the soot neutrals and ink 500 as accent.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.2 – 3.4 · Text-block panel, fonts and overflow</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-2" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.2</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Selected text block, all properties</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" color-open="{{ true }}" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Text: family, size, colour (document colours first), bold, italic, underline, alignment. Spacing: character, line, before, after. Position and size in the region’s unit. Language per block drives spell-check and hyphenation. Every field is labelled; steppers take ↑ ↓ and ⇧↑ for ×10.</p></div>
+<div id="a3-3a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.3a</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Missing glyph</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p6" glyph="{{ true }}" edited="{{ true }}" meta-text="Garamond Premier Pro · 11.5 pt" meta-place="below" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmEditPanel" glyph="{{ true }}" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The block uses a subset font without ‘ğ’. The typed ‘ğ’ gets the amber wavy underline, the frame tab turns amber (label flips below, nothing above is free), the font field shows only the icon, the callout says it once. The thumbnail on page 1 carries the warning badge.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-3b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.3b</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Font substitution picker</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p6" glyph="{{ true }}" edited="{{ true }}" meta-text="Garamond Premier Pro · 11.5 pt" meta-place="below" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmEditPanel" glyph="{{ true }}" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div role="dialog" aria-label="Choose a font for this block" style="position:absolute;top:172px;inset-inline-end:276px;z-index:40;width:460px;display:grid;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover)">
+<div style="display:flex;align-items:center;gap:8px;padding:12px 12px 10px 16px"><span style="font:var(--type-panel-title);flex:1">Choose a font for this block</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="display:grid;gap:8px;padding:0 16px 10px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Replace" value="block" options="{{ replaceScope }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="Search fonts" aria-label="Search fonts" hint-size="100%,26px"></x-import></div>
+<sc-for list="{{ subFonts }}" as="g" hint-placeholder-count="3">
+<div style="padding:8px 16px 4px;font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label);border-top:1px solid var(--border-subtle)">{{ g.title }}</div>
+<sc-for list="{{ g.items }}" as="f" hint-placeholder-count="2"><div role="option" aria-selected="{{ f.cur }}" style="display:grid;gap:4px;padding:8px 16px 10px;background:{{ f.bg }};box-shadow:{{ f.ring }}"><div style="display:flex;align-items:center;gap:8px"><span style="width:14px;flex:none;color:var(--text-accent)"><sc-if value="{{ f.isCur }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 14 }}" stroke-width="{{ 2 }}" hint-size="14px,14px"></x-import></sc-if></span><span style="font:var(--type-body-strong);flex:1">{{ f.name }}</span><sc-if value="{{ f.hasTag }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="accent" hint-size="90px,18px">{{ f.tag }}</x-import></sc-if><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" icon="{{ f.icon }}" hint-size="90px,18px">{{ f.cover }}</x-import></div><div dir="ltr" lang="tr" style="padding-inline-start:22px;font-size:16px;line-height:1.4;font-family:{{ f.family }};color:#1F1D1A">Ortak alan kuralları de<span style="font-family:{{ f.gfam }};text-decoration:{{ f.gdec }}">ğ</span>iştirilemez. Ğ ğ İ ı Ş ş</div></div></sc-for>
+</sc-for>
+<div style="display:flex;align-items:center;gap:8px;padding:12px 16px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Also use it for 3 other blocks in this font" hint-size="230px,20px"></x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="64px,26px">Cancel</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" hint-size="120px,26px">Use EB Garamond</x-import></div>
+</div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Three groups: embedded in the document, installed on this computer, similar open-licence fonts that ship with Ferman (no download). Each row previews the block’s own sentence plus the Turkish test string, and states coverage. “Closest match” compares metrics so line breaks move as little as possible. Scope: only the missing characters, or the whole block.</p></div>
+<div id="a3-4" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.4</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Text no longer fits</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" thumbs="{{ thumbsWarn }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" slot="p4" hint-size="794px,1123px"><div style="margin:0 0 8px;position:relative"><span aria-hidden="true" style="position:absolute;inset-inline-start:calc(-1 * var(--edit-mark-bar-gap) - var(--edit-mark-bar-w));top:1px;height:41px;width:var(--edit-mark-bar-w);border-radius:1px;background:var(--edit-mark)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" meta="IBM Plex Serif · 10.5 pt" data-meta-placement="margin" hint-size="100%,42px"><div style="height:42px;overflow:hidden;text-align:justify;-webkit-mask-image:linear-gradient(to bottom,#000 60%,rgba(0,0,0,.35));mask-image:linear-gradient(to bottom,#000 60%,rgba(0,0,0,.35))">Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL’yi (on dokuz bin beş yüz Türk lirası) her ayın beşinci iş gününe kadar, banka masrafları kendisine ait olmak üzere,</x-import> kiraya verenin aşağıdaki hesabına ödemekle yükümlüdür.<x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,16px"></x-import></div><span style="position:absolute;left:0;right:0;bottom:-1.5px;height:0;border-bottom:1.5px dashed var(--overflow-mark)"></span></x-import><span role="status" style="position:absolute;bottom:-2px;inset-inline-start:calc(100% + 10px);display:inline-flex;align-items:center;gap:4px;height:18px;padding:0 6px;border-radius:2px;background:var(--amber-500);color:var(--paper-950);font:var(--weight-medium) var(--text-2xs)/1 var(--font-ui);white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import>+1 line hidden</span></div></dc-import></main>
+<dc-import name="FmEditPanel" overflow="{{ true }}" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The frame keeps its size and the third line fades out under an amber dashed edge; “+1 line hidden” sits in the margin, never over the IBAN line. The panel offers three ways out. “Keep and warn” leaves a warning badge on the page and in Review edits (3.12) so it can’t be forgotten.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.15 · Vertical Japanese text</h2>
+<div id="a3-15" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.15</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Vertical text (縦書き) in a Japanese letter</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsJa }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ thumbsJa }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px">
+<div dir="ltr" lang="ja" style="width:794px;height:1123px;flex:none;box-sizing:border-box;padding:96px 88px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;display:flex;flex-direction:row-reverse;gap:28px;font-family:var(--font-doc-cjk);font-synthesis:none">
+<div style="writing-mode:vertical-rl;font-size:20px;font-weight:600;letter-spacing:.12em;line-height:1.6">賃貸借契約更新のご案内</div>
+<div style="writing-mode:vertical-rl;font-size:15px;line-height:1.9;letter-spacing:.06em;height:600px;color:#57534C">二〇二六年十月十三日</div>
+<div style="writing-mode:vertical-rl;font-size:15px;line-height:1.9;letter-spacing:.06em;height:600px">アイシェ・ユルマズ様</div>
+<div style="position:relative;writing-mode:vertical-rl;height:620px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" meta="Noto Serif JP · 10.5 pt · 縦" hint-size="250px,620px"><div style="writing-mode:vertical-rl;font-size:15px;line-height:1.95;letter-spacing:.06em;height:610px;text-align:justify">拝啓　秋冷の候、ますますご清祥のこととお喜び申し上げます。さて、現在ご契約いただいております賃貸借契約は、<x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="20px,120px">二〇二六年十一月三十日</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="16px,2px"></x-import>をもって期間満了となります。つきましては、契約更新の手続きについて下記のとおりご案内申し上げます。更新後の月額賃料は<span style="text-combine-upright:all">19</span>万五千円です。</div></x-import></div>
+<div style="writing-mode:vertical-rl;font-size:15px;line-height:1.9;letter-spacing:.06em;height:600px;align-self:flex-end">敬具</div>
+<div style="writing-mode:vertical-rl;font-size:15px;line-height:1.9;letter-spacing:.06em;height:600px;align-self:flex-end;color:#57534C">株式会社モダ不動産　管理部</div>
+</div>
+</main>
+<aside aria-label="Text block" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">Text block</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">Edited</x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Text" hint-size="100%,200px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="Noto Serif JP" fonts="{{ jaFonts }}" hint-size="100%,26px"></x-import>
+<div style="display:flex;gap:8px"><dc-import name="FmNumber" value="{{ 10.5 }}" precision="{{ 1 }}" unit="pt" width="{{ 92 }}" hint-size="92px,26px"></dc-import><div style="flex:1;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.ColorPicker" value="#1F1D1A" hint-size="100%,26px"></x-import></div></div>
+<div style="display:flex;justify-content:space-between;gap:8px"><div style="display:flex;gap:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="bold" label="Bold isn’t available: this font has no bold weight" size="sm" disabled="{{ true }}" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="italic" label="Japanese text has no italic" size="sm" disabled="{{ true }}" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="underline" label="Side line" size="sm" hint-size="26px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Text direction" value="vertical" options="{{ dirOptions }}" hint-size="80px,26px"></x-import></div>
+<span style="font:var(--type-caption);color:var(--text-tertiary)">Ferman never fakes bold or italic. To emphasize, pick a font with a bold weight or use 傍点 (emphasis dots).</span>
+</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Vertical layout" hint-size="100%,150px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Upright Latin and numbers (縦中横)" checked="{{ true }}" hint-size="100%,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Vertical punctuation forms" checked="{{ true }}" hint-size="100%,20px"></x-import>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px"><dc-import name="FmNumber" label="Line" value="{{ 1.95 }}" precision="{{ 2 }}" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="Character" value="{{ 6 }}" unit="%" width="{{ 112 }}" hint-size="112px,44px"></dc-import></div>
+</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Language" hint-size="100%,80px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" icon="languages" default-value="ja" options="{{ jaLang }}" aria-label="Language" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Line-breaking rules (禁則処理)" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+</aside>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Columns run right to left; the caret is horizontal and moves down the column. “19” sits upright inside the column. Line breaks follow kinsoku rules so punctuation never starts a column. Bold and italic are disabled with a tooltip that says why.</p></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    const fam = { eb: "'EB Garamond', serif", plex: 'var(--font-doc-sample)', georgia: 'Georgia, serif', corm: "'Cormorant Garamond', serif", crim: "'Crimson Pro', serif" };
+    const row = (name, family, cover, ok, extra) => Object.assign({ name, family, gfam: family, gdec: 'none', cover, tone: ok ? 'success' : 'warning', icon: ok ? 'check' : 'triangle-alert', hasTag: false, tag: '', isCur: false, cur: 'false', bg: 'transparent', ring: 'none' }, extra || {});
+    return {
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      hoverP3: ['p3'],
+      kB: ['⌘', 'B'], kI: ['⌘', 'I'], kU: ['⌘', 'U'], kK: ['⌘', 'K'],
+      thumbsWarn: [{ edited: true, comments: true, warn: true }, {}, { fields: true, signed: true }],
+      replaceScope: [{ value: 'missing', label: 'Missing characters only' }, { value: 'block', label: 'Whole block' }],
+      subFonts: [
+        { title: 'EMBEDDED IN THIS DOCUMENT', items: [
+          row('Garamond Premier Pro', fam.eb, 'No ‘ğ’ ‘Ğ’', false, { gfam: fam.georgia, gdec: 'underline wavy #D98A0B', isCur: true, cur: 'true', hasTag: true, tag: 'Current' }),
+          row('IBM Plex Serif', fam.plex, 'Full Turkish', true)
+        ] },
+        { title: 'INSTALLED ON THIS COMPUTER', items: [
+          row('EB Garamond', fam.eb, 'Full Turkish', true, { hasTag: true, tag: 'Closest match', bg: 'var(--surface-selected)', ring: 'inset 2px 0 0 var(--accent)' }),
+          row('Georgia', fam.georgia, 'Full Turkish', true)
+        ] },
+        { title: 'SIMILAR FONTS INCLUDED WITH FERMAN', items: [
+          row('Cormorant Garamond', fam.corm, 'Full Turkish', true),
+          row('Crimson Pro', fam.crim, 'Full Turkish', true)
+        ] }
+      ],
+      tabsJa: [{ name: 'Kira sözleşmesi.pdf' }, { name: '賃貸借契約更新のご案内.pdf', active: true, unsaved: true }],
+      thumbsJa: [{ edited: true }],
+      jaFonts: [{ name: 'Noto Serif JP', family: 'var(--font-doc-cjk)', group: 'document' }, { name: 'IBM Plex Sans JP', family: "'IBM Plex Sans JP'", group: 'system' }, { name: 'Hiragino Mincho ProN', family: "'Hiragino Mincho ProN', serif", group: 'system' }],
+      dirOptions: [{ value: 'horizontal', icon: 'align-left', title: 'Horizontal' }, { value: 'vertical', icon: 'columns-2', title: 'Vertical, right to left' }],
+      jaLang: [{ value: 'ja', label: 'Japanese' }, { value: 'tr', label: 'Turkish' }, { value: 'en', label: 'English' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

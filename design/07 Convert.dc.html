@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">07 · Convert</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Converting from and to PDF, batch queues, honest fidelity reports, scanning, and text recognition in several languages at once. Everything runs on this device.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">7.1 – 7.3 · Conversion</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a7-1" num="7.1" title="Convert — Hub" note="Two directions, one screen. Each target says what survives the conversion, so the choice is informed. Dropping files on a card converts them straight away with that card’s last options." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="none" save="saved" tabs="{{ tabsKira }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-panel);padding:32px 48px;display:grid;gap:28px;align-content:start">
+<sc-for list="{{ hub }}" as="g" hint-placeholder-count="2"><div style="display:grid;gap:12px"><div style="display:flex;align-items:baseline;gap:10px"><span style="font:var(--type-headline)">{{ g.title }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ g.sub }}</span></div><div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:14px"><sc-for list="{{ g.items }}" as="c" hint-placeholder-count="4"><div style="display:grid;gap:8px;align-content:start;padding:16px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle);box-shadow:{{ c.ring }}" style-hover="border-color:var(--border-strong)"><div style="display:flex;align-items:center;gap:10px"><span style="width:32px;height:32px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ c.icon }}" size="{{ 18 }}" hint-size="18px,18px"></x-import></span><span style="font:600 14px/20px var(--font-ui);flex:1">{{ c.label }}</span><span style="font:var(--type-mono);font-size:11px;color:var(--text-tertiary)">{{ c.ext }}</span></div><span style="font:var(--type-caption);color:var(--text-secondary)">{{ c.keeps }}</span></div></sc-for></div></div></sc-for>
+<div style="display:flex;align-items:center;gap:8px;font:var(--type-caption);color:var(--text-tertiary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="hard-drive" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>Conversions run on this device. Files aren’t uploaded.</div>
+</main>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a7-2" num="7.2" title="Convert — Options and batch queue" note="Options apply to the whole batch and can be changed per file. The queue shows each file’s state with its reason: done, converting with a page count, waiting, needs a password (unlock inline), failed with the way out. Closing the window keeps the queue running in the background task drawer." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="word" save="saved" tabs="{{ tabsKira }}" sidebar="{{ false }}" panel="{{ false }}" task="{{ taskConv }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:360px minmax(0,1fr);background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-end:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:44px;padding-inline:16px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-type" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title)">PDF to Word</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Layout" collapsible="{{ false }}" hint-size="100%,140px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="lay" value="flow" label="Flowing text" description="Paragraphs, headings and tables you can edit in Word. Best for contracts and reports." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="lay" value="exact" label="Exact layout" description="Every block in its own frame. Looks identical, harder to edit." hint-size="100%,40px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Content" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Recognize text on scanned pages" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Keep comments as Word comments" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Keep headers and footers" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Images" default-value="keep" options="{{ imgOpts }}" hint-size="100%,48px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Save to" collapsible="{{ false }}" hint-size="100%,80px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Save to" icon="folder" default-value="same" options="{{ saveTo }}" hint-size="100%,26px"></x-import></x-import>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="display:flex;align-items:center;gap:8px;height:44px;padding-inline:16px 12px;border-bottom:1px solid var(--border-subtle);background:var(--surface-panel)"><span style="font:var(--type-panel-title);flex:1">Queue · 5 files</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="plus" hint-size="100px,26px">Add files…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="pause" hint-size="80px,26px">Pause</x-import></div>
+<div style="display:grid;gap:8px;padding:14px 16px">
+<sc-for list="{{ queue }}" as="q" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:22px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ q.border }}"><sc-if value="{{ q.run }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 16 }}" hint-size="16px,16px"></x-import></sc-if><sc-if value="{{ q.still }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ q.icon }}" size="{{ 18 }}" color="{{ q.iconColor }}" hint-size="18px,18px"></x-import></sc-if><span style="display:grid;gap:4px;min-width:0"><span style="display:flex;gap:8px;align-items:baseline;min-width:0"><span lang="tr" style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ q.name }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);white-space:nowrap">{{ q.pages }}</span></span><span style="font:var(--type-caption);color:{{ q.stateColor }}">{{ q.state }}</span><sc-if value="{{ q.run }}"><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ q.value }}" hint-size="100%,6px"></x-import></sc-if></span><sc-if value="{{ q.hasAction }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="{{ q.av }}" icon="{{ q.aicon }}" hint-size="100px,26px">{{ q.action }}</x-import></sc-if></div></sc-for>
+</div>
+<div style="margin-top:auto;display:flex;gap:10px;align-items:center;padding:12px 16px;border-top:1px solid var(--border-subtle);background:var(--surface-panel)"><span style="flex:1;font:var(--type-caption);color:var(--text-secondary)">1 done · 1 converting · 1 waiting · 2 need attention</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="110px,26px">Show results</x-import></div>
+</div>
+</main>
+</dc-import>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a7-3" num="7.3" title="Convert — Result and fidelity report" note="The report says what was kept and what changed, in the reader’s terms (fonts, signatures, layout), with the page for each change. It never calls a conversion perfect." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="word" save="saved" tabs="{{ tabsKira }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" icon="file-type" title="Converted to Word, with 2 changes" description="“Kira sözleşmesi.docx” was saved next to the original. 3 pages, 41 KB." actions="{{ actOpen }}" footer-start="{{ finder }}" hint-size="640px,520px">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+<div style="display:grid;gap:8px;align-content:start"><span class="fm-field__label">Kept</span><sc-for list="{{ kept }}" as="k" hint-placeholder-count="6"><span style="display:flex;gap:8px;align-items:center;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 14 }}" stroke-width="{{ 2 }}" color="var(--success-solid)" hint-size="14px,14px"></x-import>{{ k }}</span></sc-for></div>
+<div style="display:grid;gap:10px;align-content:start"><span class="fm-field__label">Changed</span><sc-for list="{{ changed }}" as="c" hint-placeholder-count="2"><div style="display:grid;gap:3px;padding:10px 12px;border-radius:var(--radius-md);background:var(--warning-bg);border:1px solid var(--warning-border)"><span style="display:flex;gap:8px;align-items:center;font:var(--type-body-strong);color:var(--warning)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 14 }}" hint-size="14px,14px"></x-import>{{ c.title }}</span><span style="font:var(--type-caption);color:var(--text-primary)">{{ c.text }}</span><a href="#" style="font:var(--type-caption)">{{ c.link }}</a></div></sc-for></div>
+</div></x-import></div>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">7.4 – 7.5 · Scan and recognize text</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a7-4" num="7.4" title="Scan to PDF — Scanner or phone camera" note="Ferman finds the paper’s edges and corrects perspective; corner handles fix the detection by hand. Pages collect in the strip below and can be reordered, rotated or rescanned. A phone on the same Wi-Fi can be the camera: scan the code with Ferman Mobile." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="scan" save="saved" tabs="{{ tabsScan }}" no-pages="{{ true }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:300px minmax(0,1fr) 264px;background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-end:1px solid var(--border-subtle)">
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Source" collapsible="{{ false }}" hint-size="100%,170px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Source" value="scanner" options="{{ sources }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Scanner" icon="printer" default-value="canon" options="{{ scanners }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Both sides" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Scan" collapsible="{{ false }}" hint-size="100%,140px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Resolution" default-value="300" options="{{ dpis }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Paper" default-value="auto" options="{{ papers }}" hint-size="100%,48px"></x-import></div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="After scanning" collapsible="{{ false }}" hint-size="100%,120px"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Recognize text · Turkish" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Remove blank pages" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+<div style="margin-top:auto;padding:12px;display:grid;gap:8px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="scan" full-width="{{ true }}" hint-size="100%,30px">Scan next page</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="save" full-width="{{ true }}" hint-size="100%,30px">Save 4 pages as PDF…</x-import></div>
+</div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="flex:1;display:grid;place-items:center;background:#2B2926;position:relative">
+<div style="position:relative;width:420px;height:560px;transform:perspective(900px) rotateX(6deg) rotateZ(-3deg);background:#F2EEE4;box-shadow:0 18px 40px rgba(0,0,0,.45)"><span class="fm-thumb__lines" style="inset:9% 11% 14%"></span><div aria-hidden="true" style="position:absolute;inset:-6px;outline:2px solid var(--ink-400)"><span style="position:absolute;top:-8px;left:-8px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;border:2px solid var(--ink-500)"></span><span style="position:absolute;top:-8px;right:-8px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;border:2px solid var(--ink-500)"></span><span style="position:absolute;bottom:-8px;left:-8px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;border:2px solid var(--ink-500)"></span><span style="position:absolute;bottom:-8px;right:-8px;width:16px;height:16px;border-radius:50%;background:#FFFFFF;border:2px solid var(--ink-500)"></span></div></div>
+<span role="status" style="position:absolute;top:16px;left:50%;transform:translateX(-50%);padding:6px 12px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:var(--shadow-popover);font:var(--type-caption);color:var(--text-primary)">Edges found · perspective corrected · page 4</span>
+</div>
+<div style="height:150px;flex:none;display:flex;gap:14px;align-items:center;padding:0 20px;background:var(--surface-panel);border-top:1px solid var(--border-subtle)">
+<sc-for list="{{ strip }}" as="s" hint-placeholder-count="4"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ s.n }}" width="{{ 72 }}" selected="{{ s.sel }}" hint-size="80px,125px"><span class="fm-thumb__lines" style="inset:12% 14% 16%"></span></x-import></sc-for>
+<div style="width:72px;height:102px;display:grid;place-items:center;border:1.5px dashed var(--border-strong);border-radius:var(--radius-sm);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="plus" size="{{ 20 }}" label="Scan another page" hint-size="20px,20px"></x-import></div>
+</div>
+</div>
+<div style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Page 4" collapsible="{{ false }}" hint-size="100%,220px"><span class="fm-field__label">Look</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><sc-for list="{{ looks }}" as="l" hint-placeholder-count="4"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="{{ l.v }}" hint-size="100%,26px">{{ l.label }}</x-import></sc-for></div><div style="display:flex;gap:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-ccw" label="Rotate left" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-cw" label="Rotate right" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="crop" label="Adjust corners" size="sm" active="{{ true }}" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="refresh-cw" label="Rescan this page" size="sm" hint-size="26px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Delete page" size="sm" hint-size="26px,26px"></x-import></div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Use your phone" collapsible="{{ false }}" hint-size="100%,190px"><div style="display:flex;gap:12px;align-items:center"><span aria-hidden="true" style="width:84px;height:84px;flex:none;display:grid;grid-template-columns:repeat(7,1fr);gap:2px;padding:6px;background:#FFFFFF;border-radius:var(--radius-sm);box-shadow:inset 0 0 0 1px var(--border-default)"><sc-for list="{{ qr }}" as="c" hint-placeholder-count="49"><span style="background:{{ c }}"></span></sc-for></span><span style="font:var(--type-caption);color:var(--text-secondary)">Scan with Ferman Mobile on the same Wi-Fi. Photos go straight to this Mac, not through a server.</span></div></x-import>
+</div>
+</main>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a7-5" num="7.5a" title="OCR — Languages, packs and output" note="Several languages at once; Turkish is preselected because Ferman detected it. Packs show size and state: installed, downloading with progress, or available. Searchable keeps the scan and adds invisible text; editable replaces the image with real text in matching fonts." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="ocr" save="saved" tabs="{{ tabsScan2 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="scan" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="width:794px;height:1123px;flex:none;background:#F2EEE4;box-shadow:var(--shadow-page);position:relative"><span class="fm-thumb__lines" style="inset:9% 12% 14%"></span></div></main>
+<aside aria-label="Recognize text" style="width:340px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="scan-text" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Recognize text</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Languages in this document" collapsible="{{ false }}" hint-size="100%,330px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="Search 21 languages" aria-label="Search languages" hint-size="100%,26px"></x-import>
+<div style="display:grid;gap:2px">
+<sc-for list="{{ packs }}" as="p" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:8px;align-items:center;min-height:36px;padding:2px 6px;border-radius:var(--radius-sm);background:{{ p.bg }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" aria-label="{{ p.name }}" default-checked="{{ p.on }}" disabled="{{ p.off }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:1px;min-width:0"><span style="display:flex;gap:6px;align-items:center;font:var(--type-body)"><span lang="{{ p.code }}">{{ p.native }}</span><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ p.name }}</span></span><sc-if value="{{ p.dl }}"><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ 0.45 }}" hint-size="100%,4px"></x-import></sc-if></span><sc-if value="{{ p.isBadge }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ p.tone }}" hint-size="70px,18px">{{ p.state }}</x-import></sc-if><sc-if value="{{ p.isBtn }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="download" hint-size="80px,26px">{{ p.state }}</x-import></sc-if></div></sc-for>
+</div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Result" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="out" value="search" label="Searchable" description="Keeps the scan exactly; adds invisible text for search and copy." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="out" value="edit" label="Editable" description="Real text in matching fonts, editable in Edit mode." hint-size="100%,40px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Pages" collapsible="{{ false }}" hint-size="100%,70px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Pages" default-value="img" options="{{ ocrPages }}" hint-size="100%,26px"></x-import></x-import>
+<div style="margin-top:auto;padding:12px;border-top:1px solid var(--border-subtle);display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="scan-text" full-width="{{ true }}" hint-size="100%,30px">Recognize text on 3 pages</x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">About 12 seconds on this Mac.</span></div>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a7-5b" num="7.5b" title="OCR — Running, then words to check" note="Progress counts pages and estimates time after a few seconds. When done, words Ferman read with low confidence get an amber tint on the page and a list in the panel with the likeliest readings; Enter accepts, Tab skips. The page is searchable before the review is finished." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="convert" tool="ocr" save="unsaved" tabs="{{ tabsScan2u }}" task="{{ taskOcr }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="scan" tab="pages" current="{{ 1 }}" thumbs="{{ thumbsOcr }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px">
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:92px 100px;background:#F2EEE4;box-shadow:var(--shadow-page);color:#2B2925;font:400 14.5px/1.55 'Crimson Pro',serif">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#4A463F"><span>Kaya Gayrimenkul Yönetimi</span><span>Kadıköy, 06.10.2026</span></div>
+<div style="margin:40px 0 18px;font:600 18px/1.4 'Crimson Pro',serif">Konu: Kira artış bildirimi</div>
+<p style="margin:0 0 12px">Sayın Ayşe Yılmaz,</p>
+<p style="margin:0 0 12px;text-align:justify">01.11.2026 tarihinden itibaren geçerli olmak üzere, Moda Caddesi No: 18 Daire: 5 adresindeki konutun aylık kira bedeli, sözleşmenin 4. maddesi uyarınca <span style="background:var(--ocr-low-bg);box-shadow:inset 0 -2px 0 var(--ocr-low);outline:1.5px solid var(--accent);outline-offset:1px">19.5OO TL</span> olarak belirlenmiştir.</p>
+<p style="margin:0 0 12px;text-align:justify">Yeni bedel, bir önceki yılın on iki aylık <span style="background:var(--ocr-low-bg);box-shadow:inset 0 -2px 0 var(--ocr-low)">TUFE</span> ortalaması esas alınarak hesaplanmıştır. Ödemelerin her ayın beşinci gününe kadar aynı hesaba yapılmasını rica ederiz.</p>
+<p style="margin:0 0 40px"><span style="background:var(--ocr-low-bg);box-shadow:inset 0 -2px 0 var(--ocr-low)">Saygılanmızla</span>,</p>
+<p style="margin:0">Mert <span style="background:var(--ocr-low-bg);box-shadow:inset 0 -2px 0 var(--ocr-low)">Kava</span></p>
+</div>
+<div style="position:absolute;bottom:20px;inset-inline-end:20px;width:340px"><x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="scan-text" title="Recognizing text" detail="Page 2 of 3 · about 6 seconds left" value="{{ 0.5 }}" on-cancel="{{ noop }}" hint-size="340px,90px"></x-import></div>
+</main>
+<aside aria-label="Words to check" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Words to check · page 1</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="warning" hint-size="24px,18px">4</x-import></div>
+<div style="display:grid;gap:8px;padding:10px">
+<sc-for list="{{ checks }}" as="c" hint-placeholder-count="4"><div style="display:grid;gap:8px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ c.border }}"><div style="display:flex;gap:8px;align-items:baseline"><span lang="tr" style="font:var(--type-mono);font-size:13px;color:var(--text-primary)">{{ c.read }}</span><span style="flex:1"></span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ c.conf }}</span></div><div style="display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ c.opts }}" as="o" hint-placeholder-count="2"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="{{ o.v }}" hint-size="90px,26px">{{ o.t }}</x-import></sc-for></div></div></sc-for>
+</div>
+<div style="margin-top:auto;display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="90px,26px">Skip all</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="120px,26px">Accept all 4</x-import></div>
+</aside>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const card = (icon, label, ext, keeps, sel) => ({ icon, label, ext, keeps, ring: sel ? '0 0 0 2px var(--accent)' : 'none' });
+    const q = (st, name, pages, state, extra) => Object.assign({ name, pages, state, run: st === 'run', still: st !== 'run', icon: { done: 'circle-check', wait: 'clock', lock: 'lock', fail: 'circle-alert' }[st] || 'circle', iconColor: { done: 'var(--success-solid)', lock: 'var(--warning-solid)', fail: 'var(--danger)' }[st] || 'var(--icon-secondary)', stateColor: st === 'fail' ? 'var(--danger)' : st === 'lock' ? 'var(--warning)' : 'var(--text-secondary)', border: st === 'fail' ? 'var(--danger-border)' : st === 'lock' ? 'var(--warning-border)' : 'var(--border-subtle)', hasAction: false, value: 0 }, extra || {});
+    const pack = (native, name, code, st, on) => ({ native, name, code, on: !!on, off: st === 'avail' || st === 'dl', dl: st === 'dl', isBadge: st !== 'avail', isBtn: st === 'avail', state: { det: 'Detected', inst: 'Installed', dl: '45%', avail: '18 MB' }[st] || st, tone: st === 'det' ? 'accent' : 'neutral', bg: on ? 'var(--surface-selected)' : 'transparent' });
+    return {
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf' }],
+      tabsScan: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Scan · 4 pages', active: true, icon: 'scan' }],
+      tabsScan2: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kira artış bildirimi (tarama).pdf', active: true }],
+      tabsScan2u: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kira artış bildirimi (tarama).pdf', active: true, unsaved: true }],
+      hub: [
+        { title: 'From this PDF', sub: 'Kira sözleşmesi.pdf · 3 pages', items: [card('file-type', 'Word', '.docx', 'Paragraphs, headings, tables, images, comments.', true), card('file-spreadsheet', 'Excel', '.xlsx', 'Each detected table on its own sheet, numbers as numbers.'), card('presentation', 'PowerPoint', '.pptx', 'One slide per page, text kept editable.'), card('file-image', 'Image', '.png .jpg', 'One image per page at the resolution you choose.'), card('code', 'HTML', '.html', 'A web page with real text and links.'), card('file-text', 'Plain text', '.txt', 'Text only, in reading order.'), card('hash', 'Markdown', '.md', 'Headings, lists, links and tables.')] },
+        { title: 'To PDF', sub: 'From files on this device', items: [card('file-type', 'Word', '.docx .odt', 'Fonts embedded, links and bookmarks kept.'), card('file-spreadsheet', 'Excel', '.xlsx .ods', 'Each sheet fitted to the page width you choose.'), card('presentation', 'PowerPoint', '.pptx .odp', 'Slides, with notes if you want them.'), card('file-image', 'Images', '.jpg .png .heic', 'One image per page, optional text recognition.'), card('globe', 'Web page', '.html', 'Printed as it looks, with working links.'), card('scan', 'Scanner or camera', '', 'Edges found and straightened (7.4).')] }
+      ],
+      taskConv: { title: 'Converting', detail: '2 of 5 files', value: 0.36 },
+      imgOpts: [{ value: 'keep', label: 'Keep original quality' }, { value: '150', label: 'Compress to 150 ppi' }],
+      saveTo: [{ value: 'same', label: 'Next to each original' }, { value: 'choose', label: 'Choose a folder…' }],
+      queue: [
+        q('done', 'Kira sözleşmesi.pdf', '3 pages', 'Done · Kira sözleşmesi.docx · 2 changes', { hasAction: true, action: 'Report', av: 'ghost', aicon: 'list-checks' }),
+        q('run', 'Yüksek lisans tezi — Elif Şahin.pdf', '64 pages', 'Converting page 21 of 64 · about 40 seconds left', { value: 0.33 }),
+        q('wait', 'e-Arşiv fatura 4187.pdf', '1 page', 'Waiting'),
+        q('lock', 'Maaş bordrosu Eylül 2026.pdf', '1 page', 'Needs its password to convert', { hasAction: true, action: 'Unlock…', av: 'secondary', aicon: 'lock-open' }),
+        q('fail', 'Tarama_0042.pdf', '', 'Couldn’t convert: the file is cut off after 18 KB. Get the file again.', { hasAction: true, action: 'Remove', av: 'ghost', aicon: 'x' })
+      ],
+      actOpen: btns(['Done'], ['Open in Word', { variant: 'primary', icon: 'external-link' }]),
+      finder: h(Btn, { variant: 'ghost', size: 'sm' }, 'Show in Finder'),
+      kept: ['Text, in IBM Plex Serif', 'Headings and article numbers', '1 table (IBAN block)', 'Comments (9) as Word comments', 'Header and footer', 'Links (4)'],
+      changed: [{ title: 'Font substituted · page 1', text: 'Garamond Premier Pro isn’t installed on this computer. Madde 6 uses EB Garamond in Word.', link: 'Show on page 1' }, { title: 'Signatures became images · page 3', text: 'Word can’t hold PDF signatures. They appear as pictures and are no longer valid signatures.', link: 'Show on page 3' }],
+      sources: [{ value: 'scanner', label: 'Scanner' }, { value: 'phone', label: 'Phone' }, { value: 'camera', label: 'Camera' }],
+      scanners: [{ value: 'canon', label: 'Canon imageFORMULA · Wi-Fi' }, { value: 'other', label: 'Search again' }],
+      dpis: [{ value: '200', label: '200 dpi' }, { value: '300', label: '300 dpi' }, { value: '600', label: '600 dpi' }],
+      papers: [{ value: 'auto', label: 'Detect' }, { value: 'a4', label: 'A4' }],
+      strip: [1, 2, 3, 4].map((n) => ({ n, sel: n === 4 })),
+      looks: [{ label: 'Auto', v: 'primary' }, { label: 'Black & white', v: 'secondary' }, { label: 'Greyscale', v: 'secondary' }, { label: 'Colour', v: 'secondary' }],
+      qr: Array.from({ length: 49 }, (_, i) => ((i * 7 + (i % 5) * 3 + (i % 3)) % 4 < 2 || [0, 1, 2, 7, 9, 14, 15, 16, 4, 5, 6, 11, 13, 18, 19, 20, 28, 29, 30, 35, 37, 42, 43, 44].indexOf(i) >= 0) ? '#1F1D1A' : '#FFFFFF'),
+      packs: [pack('Türkçe', 'Turkish', 'tr', 'det', true), pack('English', 'English', 'en', 'inst', true), pack('Deutsch', 'German', 'de', 'inst'), pack('العربية', 'Arabic', 'ar', 'dl'), pack('日本語', 'Japanese', 'ja', 'avail'), pack('Русский', 'Russian', 'ru', 'avail')],
+      ocrPages: [{ value: 'img', label: 'Pages without text (3)' }, { value: 'all', label: 'All pages' }, { value: 'range', label: 'Page range…' }],
+      taskOcr: { title: 'Recognizing text', detail: 'Page 2 of 3', value: 0.5 },
+      thumbsOcr: [{ warn: true }, {}, {}],
+      noop: () => {},
+      checks: [
+        { read: '19.5OO TL', conf: '58% sure', border: 'var(--accent)', opts: [{ t: '19.500 TL', v: 'primary' }, { t: 'Edit…', v: 'ghost' }] },
+        { read: 'TUFE', conf: '64% sure', border: 'var(--border-subtle)', opts: [{ t: 'TÜFE', v: 'secondary' }, { t: 'Keep', v: 'ghost' }] },
+        { read: 'Saygılanmızla', conf: '61% sure', border: 'var(--border-subtle)', opts: [{ t: 'Saygılarımızla', v: 'secondary' }, { t: 'Keep', v: 'ghost' }] },
+        { read: 'Kava', conf: '70% sure', border: 'var(--border-subtle)', opts: [{ t: 'Kaya', v: 'secondary' }, { t: 'Keep', v: 'ghost' }] }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:100px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">13a · Mobile — start, files, reading, editing</h1>
+<p style="margin:0;max-width:1000px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">iPhone 16 (393 × 852) with iOS conventions: navigation bar, tab bar, sheets. Pixel (412 × 915) with Material conventions: top app bar, navigation bar, bottom sheets, FAB. Same Ferman tokens under touch density: every target is at least 44 pt / 48 dp. Tasks continue in <a href="13b%20Mobile%20tasks.dc.html">13b</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.1 · Onboarding, language, permissions</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-1" num="13.1a" title="Onboarding 1 of 3" platform="ios" note="Same three messages as desktop. Swipe or Next; Skip is always there. The specimen is a real editing frame." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" bars="status" tab="none" hint-size="417px,876px">
+<div style="flex:1;display:flex;flex-direction:column;padding:12px 24px 44px">
+<div style="display:flex;justify-content:flex-end"><span style="height:44px;display:grid;place-items:center;color:var(--text-accent);font:400 17px/1 var(--font-ui)">Skip</span></div>
+<div style="flex:1;display:grid;align-content:center;gap:28px">
+<div dir="ltr" lang="tr" style="padding:22px 20px 26px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 13px/1.6 var(--font-doc-sample)"><div style="font:600 13.5px/1.5 var(--font-doc-sample);margin-bottom:6px">Madde 4 — Kira Bedeli</div><div style="position:relative"><span style="position:absolute;left:-10px;top:2px;height:20px;width:2px;background:var(--edit-mark)"></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="editing" hint-size="100%,60px"><div>Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="60px,18px">19.500 TL</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,14px"></x-import>’yi her ayın beşinci gününe kadar öder.</div></x-import></div></div>
+<div style="display:grid;gap:12px"><span style="font:700 30px/36px var(--font-ui);letter-spacing:-0.01em">Edit any PDF like a document</span><span style="font:400 17px/24px var(--font-ui);color:var(--text-secondary)">Tap any text and type. Ferman keeps the font, size and spacing.</span></div>
+</div>
+<div style="display:grid;gap:18px;justify-items:center"><div style="display:flex;gap:8px" aria-label="Step 1 of 3"><span style="width:20px;height:6px;border-radius:3px;background:var(--accent)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span><span style="width:6px;height:6px;border-radius:3px;background:var(--border-strong)"></span></div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,50px">Next</x-import></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-1b" num="13.1b" title="Language" platform="android" note="System language preselected, search across scripts, native names in their own direction." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Choose a language" nav="none" tab="none" hint-size="436px,939px">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<div style="padding:4px 16px 12px"><div style="display:flex;align-items:center;gap:10px;height:52px;padding:0 16px;border-radius:var(--radius-lg);background:var(--surface-sunken);color:var(--text-tertiary);font:400 16px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="search" size="{{ 20 }}" hint-size="20px,20px"></x-import>Search · Ara · Suchen · بحث</div></div>
+<div role="radiogroup" aria-label="App language" style="flex:1;overflow:hidden">
+<sc-for list="{{ langs }}" as="l" hint-placeholder-count="12"><div role="radio" aria-checked="{{ l.checked }}" lang="{{ l.code }}" style="display:flex;align-items:center;gap:16px;min-height:56px;padding:0 20px;background:{{ l.bg }}"><span style="width:20px;height:20px;flex:none;border-radius:50%;box-shadow:inset 0 0 0 {{ l.rw }} {{ l.rc }}"></span><span dir="{{ l.dir }}" style="flex:1;font:400 16px/22px var(--font-ui)">{{ l.native }}</span><span lang="en" style="font:400 13px/1 var(--font-ui);color:var(--text-tertiary)">{{ l.en }}</span></div></sc-for>
+</div>
+<div style="padding:12px 16px 30px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,48px">Continue</x-import></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-1c" num="13.1c" title="Permission — Camera" platform="ios" note="Asked only when first needed (here: tapping Scan), with Ferman’s own explanation before the system prompt. Files and notifications follow the same pattern; declining keeps everything else working." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Scan" tab="scan" hint-size="417px,876px">
+<div style="flex:1;display:grid;align-content:center;justify-items:center;gap:14px;padding:24px 28px;text-align:center">
+<span style="width:64px;height:64px;display:grid;place-items:center;border-radius:var(--radius-xl);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="camera" size="{{ 30 }}" hint-size="30px,30px"></x-import></span>
+<span style="font:600 22px/28px var(--font-ui)">Ferman needs the camera to scan</span>
+<span style="font:400 16px/23px var(--font-ui);color:var(--text-secondary)">Photos are turned into a PDF on this iPhone. They aren’t uploaded or kept in your photo library unless you ask.</span>
+<div style="display:grid;gap:10px;width:100%;margin-top:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" full-width="{{ true }}" hint-size="100%,50px">Allow camera</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" size="lg" full-width="{{ true }}" hint-size="100%,50px">Choose photos instead</x-import></div>
+<span style="font:400 13px/18px var(--font-ui);color:var(--text-tertiary)">You can change this later in iOS Settings › Ferman.</span>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.2 · Home</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-2" num="13.2a" title="Home" platform="ios" note="Search, eight quick tools, pinned and recent files, and the places to open from. Each tool asks for a file, then opens straight into that tool." hint-size="417px,1000px"><dc-import name="FmPhone" platform="ios" title="Ferman" large="{{ true }}" actions="{{ homeActIos }}" tab="home" hint-size="417px,876px"><dc-import name="FmMHome" platform="ios" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a13-2b" num="13.2b" title="Home" platform="ios" theme="dark" hint-size="417px,1000px" note="Dark theme; page thumbnails stay white."><dc-import name="FmPhone" platform="ios" title="Ferman" large="{{ true }}" actions="{{ homeActIos }}" tab="home" hint-size="417px,876px"><dc-import name="FmMHome" platform="ios" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a13-2c" num="13.2c" title="Home" platform="android" note="Material: top app bar, navigation bar, and a FAB for the most common action (Open). Downloads is the first source on Android." hint-size="436px,1060px"><dc-import name="FmPhone" platform="android" title="Ferman" nav="none" actions="{{ homeActA }}" tab="home" fab="plus" fab-label="Open a file" hint-size="436px,939px"><dc-import name="FmMHome" platform="android" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a13-2d" num="13.2d" title="Home" platform="android" theme="dark" hint-size="436px,1060px" note="Dark theme on Android."><dc-import name="FmPhone" platform="android" title="Ferman" nav="none" actions="{{ homeActA }}" tab="home" fab="plus" fab-label="Open a file" hint-size="436px,939px"><dc-import name="FmMHome" platform="android" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a13-2e" num="13.2e" title="Home — Empty" platform="android" note="No recent files: two clear first actions; tools stay in place so nothing moves later." hint-size="436px,1060px"><dc-import name="FmPhone" platform="android" title="Ferman" nav="none" actions="{{ homeActA }}" tab="home" hint-size="436px,939px"><dc-import name="FmMHome" platform="android" empty="{{ true }}" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.3 · Files</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-3" num="13.3a" title="Files — Folders, sort, multi-select" platform="ios" note="Select mode shows checkmarks and an action bar for the selection (share, combine, compress, move, delete). Sort and filter sit under the search field." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="3 selected" lead="Select all" actions="{{ doneAct }}" tab="files" hint-size="417px,876px">
+<div style="flex:1;display:flex;flex-direction:column;min-height:0">
+<div style="display:flex;gap:8px;padding:8px 16px;border-bottom:1px solid var(--border-subtle)"><span style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface-sunken);font:500 14px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-down-wide-narrow" size="{{ 16 }}" hint-size="16px,16px"></x-import>Last opened</span><span style="display:inline-flex;align-items:center;gap:6px;height:34px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface-sunken);font:500 14px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="funnel" size="{{ 16 }}" hint-size="16px,16px"></x-import>PDFs</span></div>
+<div style="flex:1;overflow:hidden">
+<sc-for list="{{ files }}" as="f" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:12px;min-height:60px;padding:0 16px;border-bottom:1px solid var(--border-subtle);background:{{ f.bg }}"><span style="width:24px;height:24px;flex:none;display:grid;place-items:center;border-radius:50%;background:{{ f.ckBg }};box-shadow:{{ f.ckRing }};color:#FFFFFF"><sc-if value="{{ f.sel }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 14 }}" stroke-width="{{ 2.6 }}" hint-size="14px,14px"></x-import></sc-if></span><sc-if value="{{ f.folder }}"><span style="width:32px;height:32px;flex:none;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="folder" size="{{ 28 }}" hint-size="28px,28px"></x-import></span></sc-if><sc-if value="{{ f.file }}"><span style="position:relative;flex:none;width:32px;height:44px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span></sc-if><span style="display:grid;gap:2px;flex:1;min-width:0"><span lang="tr" style="font:500 15px/20px var(--font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><span style="font:400 13px/16px var(--font-ui);color:var(--text-tertiary)">{{ f.meta }}</span></span></div></sc-for>
+</div>
+<div style="height:56px;flex:none;display:grid;grid-template-columns:repeat(5,1fr);align-items:center;border-top:1px solid var(--border-subtle);background:var(--surface-panel)"><sc-for list="{{ selActs }}" as="a" hint-placeholder-count="5"><span style="display:grid;justify-items:center;gap:3px;color:{{ a.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import><span style="font:500 10.5px/1 var(--font-ui)">{{ a.label }}</span></span></sc-for></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-3b" num="13.3b" title="Files — Details sheet" platform="android" note="Long-press or the ⋮ button opens a bottom sheet: thumbnail, facts in plain words, and the actions for that file. Drag down or tap outside to close." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Belgeler" nav="arrow" actions="{{ filesActA }}" tab="files" hint-size="436px,939px">
+<div style="flex:1;overflow:hidden"><sc-for list="{{ filesPlain }}" as="f" hint-placeholder-count="8"><div style="display:flex;align-items:center;gap:16px;min-height:64px;padding:0 16px"><span style="position:relative;flex:none;width:32px;height:44px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span><span style="display:grid;gap:2px;flex:1;min-width:0"><span lang="tr" style="font:400 16px/22px var(--font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><span style="font:400 14px/18px var(--font-ui);color:var(--text-secondary)">{{ f.meta }}</span></span></div></sc-for></div>
+<div style="position:absolute;inset:0;z-index:4;background:var(--surface-scrim)"></div>
+<div role="dialog" aria-label="Kira sözleşmesi.pdf" style="position:absolute;left:0;right:0;bottom:0;z-index:5;padding:10px 0 34px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);box-shadow:var(--shadow-dialog)">
+<span style="display:block;width:32px;height:4px;margin:0 auto 14px;border-radius:2px;background:var(--border-strong)"></span>
+<div style="display:flex;gap:14px;align-items:center;padding:0 20px 14px;border-bottom:1px solid var(--border-subtle)"><span style="position:relative;flex:none;width:48px;height:66px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default),var(--shadow-sm)"><span class="fm-thumb__lines"></span></span><span style="display:grid;gap:3px"><span lang="tr" style="font:500 17px/22px var(--font-ui)">Kira sözleşmesi.pdf</span><span style="font:400 13px/18px var(--font-ui);color:var(--text-secondary)">3 pages · 284 KB · A4 · edited today</span><span style="display:flex;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" icon="badge-check" hint-size="70px,18px">Signed</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="neutral" hint-size="80px,18px">9 comments</x-import></span></span></div>
+<sc-for list="{{ sheetActs }}" as="a" hint-placeholder-count="7"><div style="display:flex;align-items:center;gap:20px;min-height:52px;padding:0 24px;font:400 16px/1 var(--font-ui);color:{{ a.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import>{{ a.label }}</div></sc-for>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.4 · Reader</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-4" num="13.4a" title="Reader — Continuous scroll, thumbnail strip" platform="ios" note="Tap the page to hide or show the bars. Pinch zooms around your fingers; double-tap fits a column. The strip scrubs pages; Page 1 of 3 updates as you scroll. Swipe left and right in single-page mode." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Kira sözleşmesi" back="Home" actions="{{ readActIos }}" tab="none" hint-size="417px,876px">
+<dc-import name="FmMReader" hint-size="100%,100%"><div style="position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--surface-panel);border-top:1px solid var(--border-subtle);padding:8px 12px 34px;display:grid;gap:8px"><div style="display:flex;gap:8px;justify-content:center"><sc-for list="{{ strip }}" as="s" hint-placeholder-count="3"><span style="position:relative;width:40px;height:56px;background:#FFFFFF;box-shadow:{{ s.ring }}"><span class="fm-thumb__lines"></span></span></sc-for></div><div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="list-tree" size="{{ 24 }}" label="Outline" hint-size="24px,24px"></x-import><span style="font:500 13px/1 var(--font-ui);color:var(--text-secondary);font-variant-numeric:tabular-nums">Page 1 of 3</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="volume-2" size="{{ 24 }}" label="Read aloud" hint-size="24px,24px"></x-import></div></div></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-4b" num="13.4b" title="Reader" platform="ios" theme="dark" note="Dark theme: page stays white." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Kira sözleşmesi" back="Home" actions="{{ readActIos }}" tab="none" hint-size="417px,876px">
+<dc-import name="FmMReader" hint-size="100%,100%"><div style="position:absolute;left:0;right:0;bottom:0;z-index:3;background:var(--surface-panel);border-top:1px solid var(--border-subtle);padding:8px 12px 34px;display:grid;gap:8px"><div style="display:flex;gap:8px;justify-content:center"><sc-for list="{{ strip }}" as="s" hint-placeholder-count="3"><span style="position:relative;width:40px;height:56px;background:#FFFFFF;box-shadow:{{ s.ring }}"><span class="fm-thumb__lines"></span></span></sc-for></div><div style="display:flex;justify-content:space-between;align-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="list-tree" size="{{ 24 }}" label="Outline" hint-size="24px,24px"></x-import><span style="font:500 13px/1 var(--font-ui);color:var(--text-secondary);font-variant-numeric:tabular-nums">Page 1 of 3</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="volume-2" size="{{ 24 }}" label="Read aloud" hint-size="24px,24px"></x-import></div></div></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-4c" num="13.4c" title="Reader — Search results sheet" platform="android" note="Matches are highlighted on the page; the half-height sheet groups them by page. Turkish case folding: “kira” finds KİRA. The sheet expands to full height by dragging." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="kira" nav="arrow" actions="{{ searchActA }}" tab="none" hint-size="436px,939px">
+<dc-import name="FmMReader" search="{{ true }}" hint-size="100%,100%">
+<div role="dialog" aria-label="Search results" style="position:absolute;left:0;right:0;bottom:0;z-index:5;height:390px;padding-top:10px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);box-shadow:var(--shadow-dialog);display:flex;flex-direction:column">
+<span style="display:block;width:32px;height:4px;margin:0 auto 10px;border-radius:2px;background:var(--border-strong)"></span>
+<div style="display:flex;align-items:center;padding:0 20px 8px"><span role="status" style="flex:1;font:500 16px/1 var(--font-ui)">7 matches on 2 pages</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 24 }}" label="Previous" hint-size="24px,24px"></x-import><span style="width:20px"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 24 }}" label="Next" hint-size="24px,24px"></x-import></div>
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="6"><sc-if value="{{ r.head }}"><div style="padding:10px 20px 4px;font:500 13px/1 var(--font-ui);color:var(--text-tertiary)">{{ r.label }}</div></sc-if><sc-if value="{{ r.item }}"><div lang="tr" style="min-height:44px;display:flex;align-items:center;padding:0 20px;font:400 15px/20px var(--font-doc-sample);color:var(--text-secondary);background:{{ r.bg }}"><span>{{ r.pre }}<mark style="background:var(--search-match);color:var(--paper-900)">{{ r.hit }}</mark>{{ r.post }}</span></div></sc-if></sc-for>
+</div>
+</dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-4d" num="13.4d" title="Reader — Night mode and read aloud" platform="android" theme="dark" note="Night mode inverts the page for dark rooms (never applied to sharing or printing). Read aloud uses the phone’s voices; the current sentence is underlined and the page follows." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Kira sözleşmesi" nav="arrow" actions="{{ readActA }}" tab="none" hint-size="436px,939px">
+<dc-import name="FmMReader" night="{{ true }}" hint-size="100%,100%">
+<div style="position:absolute;left:12px;right:12px;bottom:28px;z-index:4;display:grid;gap:10px;padding:12px 14px;border-radius:var(--radius-xl);background:var(--surface-raised);box-shadow:var(--shadow-popover)"><div style="display:flex;align-items:center;gap:10px"><span style="flex:1;display:grid"><span style="font:500 15px/20px var(--font-ui)">Reading Madde 4</span><span style="font:400 13px/18px var(--font-ui);color:var(--text-secondary)">Sentence 9 of 31 · Yelda, Türkçe</span></span><span style="font:500 14px/1 var(--font-ui);color:var(--text-accent)">1×</span></div><div style="display:flex;justify-content:space-around;align-items:center"><span style="width:48px;height:48px;display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="skip-back" size="{{ 24 }}" label="Previous sentence" hint-size="24px,24px"></x-import></span><span style="width:56px;height:56px;display:grid;place-items:center;border-radius:var(--radius-xl);background:var(--accent);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="pause" size="{{ 26 }}" label="Pause" hint-size="26px,26px"></x-import></span><span style="width:48px;height:48px;display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="skip-forward" size="{{ 24 }}" label="Next sentence" hint-size="24px,24px"></x-import></span><span style="width:48px;height:48px;display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="x" size="{{ 24 }}" label="Stop" hint-size="24px,24px"></x-import></span></div></div>
+</dc-import>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.5 – 13.6 · Edit text and add content</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-5" num="13.5a" title="Edit — Keyboard open, floating format bar" platform="ios" note="Tap a block to select, tap again for the caret. The page zooms to the block’s column so 10.5 pt text is readable, and scrolls it above the keyboard. The format bar sits on the keyboard: font, size, colour, B/I/U, alignment. Undo and redo stay in the navigation bar." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Editing" lead="Cancel" actions="{{ editActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.62;margin-top:-640px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" sel-state="editing" edited="{{ true }}" meta-place="below" meta-text="IBM Plex Serif · 10,5 pt" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:2px;height:48px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<span style="display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 10px;border-radius:var(--radius-md);background:var(--surface-sunken);font:500 14px/1 var(--font-ui)">Plex Serif<x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 14 }}" hint-size="14px,14px"></x-import></span>
+<span style="height:36px;display:grid;place-items:center;padding:0 8px;font:500 14px/1 var(--font-ui);font-variant-numeric:tabular-nums">10,5</span>
+<span style="width:28px;height:28px;display:grid;place-items:center"><span style="width:22px;height:22px;border-radius:4px;background:#1F1D1A;box-shadow:0 0 0 2px var(--surface-raised),0 0 0 3px var(--border-default)"></span></span>
+<span style="width:1px;height:24px;background:var(--border-subtle);margin:0 4px"></span>
+<sc-for list="{{ fmtBtns }}" as="b" hint-placeholder-count="5"><span title="{{ b.label }}" style="width:40px;height:44px;display:grid;place-items:center;border-radius:var(--radius-sm);background:{{ b.bg }};color:{{ b.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ b.icon }}" size="{{ 20 }}" hint-size="20px,20px"></x-import></span></sc-for>
+</div>
+<dc-import name="FmKeyboard" platform="ios" layout="tr" suggestions="{{ sugg }}" hint-size="100%,300px"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-5b" num="13.5b" title="Edit — Keyboard open" platform="ios" theme="dark" note="Dark theme; the page and its edit marks keep their printed colours." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Editing" lead="Cancel" actions="{{ editActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.62;margin-top:-640px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" sel-state="editing" edited="{{ true }}" meta-place="below" meta-text="IBM Plex Serif · 10,5 pt" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:2px;height:48px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<span style="display:inline-flex;align-items:center;gap:4px;height:36px;padding:0 10px;border-radius:var(--radius-md);background:var(--surface-sunken);font:500 14px/1 var(--font-ui)">Plex Serif<x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 14 }}" hint-size="14px,14px"></x-import></span>
+<span style="height:36px;display:grid;place-items:center;padding:0 8px;font:500 14px/1 var(--font-ui);font-variant-numeric:tabular-nums">10,5</span>
+<span style="width:28px;height:28px;display:grid;place-items:center"><span style="width:22px;height:22px;border-radius:4px;background:#1F1D1A;box-shadow:0 0 0 2px var(--surface-raised),0 0 0 3px var(--border-default)"></span></span>
+<span style="width:1px;height:24px;background:var(--border-subtle);margin:0 4px"></span>
+<sc-for list="{{ fmtBtns }}" as="b" hint-placeholder-count="5"><span title="{{ b.label }}" style="width:40px;height:44px;display:grid;place-items:center;border-radius:var(--radius-sm);background:{{ b.bg }};color:{{ b.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ b.icon }}" size="{{ 20 }}" hint-size="20px,20px"></x-import></span></sc-for>
+</div>
+<dc-import name="FmKeyboard" platform="ios" layout="tr" dark="{{ true }}" suggestions="{{ sugg }}" hint-size="100%,300px"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-5c" num="13.5c" title="Edit — Missing glyph and overflow" platform="android" note="One compact banner per problem, above the keyboard and never over the text. Missing glyph names the character; overflow offers the same three choices as desktop as large buttons." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Editing" nav="close" actions="{{ editActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.66;margin-top:-1000px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p6" sel-state="editing" glyph="{{ true }}" edited="{{ true }}" meta-place="below" meta-text="Garamond Premier Pro · 11,5 pt" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:grid;gap:8px;padding:10px 12px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<div role="status" style="display:flex;gap:10px;align-items:center;padding:8px 12px;border-radius:var(--radius-md);background:var(--warning-bg);border:1px solid var(--warning-border)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 18 }}" color="var(--warning)" hint-size="18px,18px"></x-import><span style="flex:1;font:400 14px/19px var(--font-ui)">No ‘ğ’ in this font. Ferman uses a similar one for it.</span><span style="font:500 14px/1 var(--font-ui);color:var(--text-accent)">Change</span></div>
+<div role="status" style="display:grid;gap:8px;padding:8px 12px;border-radius:var(--radius-md);background:var(--warning-bg);border:1px solid var(--warning-border)"><span style="display:flex;gap:10px;align-items:center;font:400 14px/19px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-up-down" size="{{ 18 }}" color="var(--warning)" hint-size="18px,18px"></x-import>Text no longer fits: 1 line hidden.</span><div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" hint-size="100%,44px">Extend</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="100%,44px">Tighten</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="100%,44px">Keep</x-import></div></div>
+</div>
+<dc-import name="FmKeyboard" platform="android" layout="tr" hint-size="100%,290px"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-6" num="13.6" title="Add — Image, text, link; touch handles" platform="ios" note="The + menu adds text, an image from the camera or photos, a link or a signature. Placed items get large touch handles (44 pt hit area around each 12 pt dot) and a rotate handle; two fingers rotate and resize too. The floating bar offers Replace, Crop, Alt text and Delete." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Edit" back="Back" actions="{{ addActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:12px">
+<div style="flex:none;zoom:0.46"><dc-import name="DocCv" hint-size="794px,1123px"></dc-import></div>
+<div style="position:absolute;top:44px;left:281px;width:72px;height:90px;outline:2px solid var(--accent)"><span style="position:absolute;inset:0;background:#DAD5CC;display:grid;place-items:center;color:#8A857C"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="user" size="{{ 28 }}" stroke-width="{{ 1 }}" hint-size="28px,28px"></x-import></span><span style="position:absolute;top:-7px;left:-7px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px var(--accent)"></span><span style="position:absolute;top:-7px;right:-7px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px var(--accent)"></span><span style="position:absolute;bottom:-7px;left:-7px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px var(--accent)"></span><span style="position:absolute;bottom:-7px;right:-7px;width:14px;height:14px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px var(--accent)"></span><span style="position:absolute;bottom:-30px;left:calc(50% - 1px);width:2px;height:22px;background:var(--accent)"></span><span style="position:absolute;bottom:-40px;left:calc(50% - 8px);width:16px;height:16px;border-radius:50%;background:#FFFFFF;box-shadow:0 0 0 2px var(--accent)"></span></div>
+<div style="position:absolute;top:172px;right:12px;display:flex;gap:0;padding:4px;border-radius:var(--radius-lg);background:var(--surface-inverse);color:var(--text-inverse);box-shadow:var(--shadow-popover)"><sc-for list="{{ imgBar }}" as="b" hint-placeholder-count="4"><span style="height:40px;padding:0 10px;display:grid;place-items:center;font:500 14px/1 var(--font-ui)">{{ b }}</span></sc-for></div>
+<div role="menu" aria-label="Add" style="position:absolute;right:12px;bottom:28px;width:250px;padding:6px;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:var(--shadow-popover)"><sc-for list="{{ addMenu }}" as="m" hint-placeholder-count="6"><div role="menuitem" style="display:flex;align-items:center;gap:14px;min-height:46px;padding:0 12px;border-bottom:{{ m.sep }};font:400 16px/1 var(--font-ui)"><span style="flex:1">{{ m.label }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ m.icon }}" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import></div></sc-for></div>
+</div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">13.7 · Annotate</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a13-7" num="13.7a" title="Annotate — Pen, highlight, shapes, palm rejection" platform="android" note="Finger drags highlight text; the pen draws. With a stylus, “Draw only with stylus” lets the palm and finger scroll. The tool palette is a bottom bar with colour and width; long-press a tool for its options." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" title="Kira sözleşmesi" nav="arrow" actions="{{ annActA }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-300px;position:relative"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import><svg aria-hidden="true" width="300" height="80" viewBox="0 0 300 80" style="position:absolute;left:380px;top:540px;overflow:visible"><path d="M10 50 C 40 10, 90 70, 130 30 S 210 10, 280 46" fill="none" stroke="#2A4DAF" stroke-width="4" stroke-linecap="round"></path></svg></div></div>
+<div style="flex:none;display:grid;gap:10px;padding:10px 12px 30px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)">
+<div style="display:flex;justify-content:space-between"><sc-for list="{{ annTools }}" as="t" hint-placeholder-count="7"><span title="{{ t.label }}" style="width:48px;height:48px;display:grid;place-items:center;border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import></span></sc-for></div>
+<div style="display:flex;align-items:center;gap:10px"><sc-for list="{{ swatches }}" as="s" hint-placeholder-count="6"><span style="width:30px;height:30px;border-radius:50%;background:{{ s.c }};box-shadow:{{ s.ring }}"></span></sc-for><span style="flex:1"></span><span style="font:500 13px/1 var(--font-ui);color:var(--text-secondary)">2 pt</span></div>
+<div style="display:flex;align-items:center;gap:10px;font:400 14px/1 var(--font-ui)"><span style="flex:1">Draw only with stylus</span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" aria-label="Draw only with stylus" checked="{{ true }}" hint-size="44px,24px"></x-import></div>
+</div>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a13-7b" num="13.7b" title="Annotate — Comment thread sheet" platform="ios" note="Tapping a mark opens its thread in a sheet at medium height; the page stays visible above with the mark outlined. Reply, mention, resolve. Stamps and notes use the same sheet." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" title="Kira sözleşmesi" back="Home" actions="{{ readActIos }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div style="flex:none;zoom:0.6;margin-top:-600px"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div>
+<div role="dialog" aria-label="Comment" style="position:absolute;left:0;right:0;bottom:0;z-index:5;height:440px;padding-top:8px;border-radius:var(--sheet-radius) var(--sheet-radius) 0 0;background:var(--surface-raised);box-shadow:var(--shadow-dialog);display:flex;flex-direction:column">
+<span style="display:block;width:36px;height:5px;margin:0 auto 10px;border-radius:3px;background:var(--border-strong)"></span>
+<div style="display:flex;align-items:center;gap:10px;padding:0 16px 10px;border-bottom:1px solid var(--border-subtle)"><span style="width:28px;height:28px;display:grid;place-items:center;border-radius:6px;background:var(--annot-yellow)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="highlighter" size="{{ 16 }}" color="#1F1D1A" hint-size="16px,16px"></x-import></span><span style="flex:1;font:600 17px/22px var(--font-ui)">Highlight · page 1</span><span style="font:400 17px/1 var(--font-ui);color:var(--text-accent)">Resolve</span></div>
+<div style="flex:1;display:grid;align-content:start;gap:14px;padding:14px 16px;overflow:hidden">
+<div lang="tr" style="font:400 14px/20px var(--font-doc-sample);color:var(--text-secondary)">“her ayın beşinci gününe kadar”</div>
+<sc-for list="{{ thread }}" as="m" hint-placeholder-count="3"><div style="display:grid;gap:3px"><span style="display:flex;gap:8px;font:400 13px/1 var(--font-ui)"><b style="font-weight:600;color:var(--text-primary)">{{ m.a }}</b><span style="color:var(--text-tertiary)">{{ m.t }}</span></span><span lang="tr" style="font:400 16px/22px var(--font-ui)"><sc-if value="{{ m.hasM }}"><span style="color:var(--text-accent);font-weight:500">{{ m.m }} </span></sc-if>{{ m.x }}</span></div></sc-for>
+</div>
+<div style="display:flex;gap:8px;align-items:center;padding:10px 12px 34px;border-top:1px solid var(--border-subtle)"><span style="flex:1;height:40px;display:flex;align-items:center;padding:0 14px;border-radius:var(--radius-lg);background:var(--surface-sunken);font:400 16px/1 var(--font-ui);color:var(--text-tertiary)">Reply</span><span style="width:40px;height:40px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--accent);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="send" size="{{ 18 }}" label="Send" hint-size="18px,18px"></x-import></span></div>
+</div></div>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const LANGS = [['English', 'System language', 'en'], ['Türkçe', 'Turkish', 'tr'], ['Deutsch', 'German', 'de'], ['Français', 'French', 'fr'], ['Español', 'Spanish', 'es'], ['Português (Brasil)', 'Portuguese', 'pt-BR'], ['Русский', 'Russian', 'ru'], ['العربية', 'Arabic', 'ar', 'rtl'], ['فارسی', 'Persian', 'fa', 'rtl'], ['עברית', 'Hebrew', 'he', 'rtl'], ['हिन्दी', 'Hindi', 'hi'], ['日本語', 'Japanese', 'ja']];
+class Component extends DCLogic {
+  renderVals() {
+    const F = [['Ev', '6 files', 1], ['Banka', '14 files', 1], ['Kira sözleşmesi.pdf', '3 pages · 284 KB', 0, 1], ['e-Arşiv fatura 4187.pdf', '1 page · 92 KB', 0, 1], ['Hesap ekstresi Eylül 2026.pdf', '2 pages · 140 KB', 0, 1], ['Adres değişikliği formu.pdf', '2 pages · 210 KB', 0], ['Yüksek lisans tezi — Elif Şahin.pdf', '64 pages · 8,4 MB', 0], ['Zeynep Arslan — Özgeçmiş.pdf', '1 page · 120 KB', 0]];
+    return {
+      langs: LANGS.map((l, i) => ({ native: l[0], en: l[1], code: l[2], dir: l[3] || 'ltr', checked: i === 0 ? 'true' : 'false', bg: i === 0 ? 'var(--accent-subtle)' : 'transparent', rw: i === 0 ? '6px' : '2px', rc: i === 0 ? 'var(--accent)' : 'var(--border-strong)' })),
+      homeActIos: [{ icon: 'plus', label: 'Open a file' }],
+      homeActA: [{ icon: 'search', label: 'Search' }, { icon: 'ellipsis', label: 'More' }],
+      doneAct: [{ text: 'Done', bold: true }],
+      files: F.map((f) => ({ name: f[0], meta: f[1], folder: !!f[2], file: !f[2], sel: !!f[3], bg: f[3] ? 'var(--surface-selected)' : 'transparent', ckBg: f[3] ? 'var(--accent)' : 'transparent', ckRing: f[3] ? 'none' : 'inset 0 0 0 1.5px var(--border-strong)' })),
+      selActs: [['share-2', 'Share', 'var(--text-accent)'], ['merge', 'Combine', 'var(--text-accent)'], ['minimize-2', 'Compress', 'var(--text-accent)'], ['folder', 'Move', 'var(--text-accent)'], ['trash-2', 'Delete', 'var(--danger)']].map((a) => ({ icon: a[0], label: a[1], c: a[2] })),
+      filesActA: [{ icon: 'search', label: 'Search' }, { icon: 'arrow-down-wide-narrow', label: 'Sort' }],
+      filesPlain: F.filter((f) => !f[2]).map((f) => ({ name: f[0], meta: f[1] })),
+      sheetActs: [['share-2', 'Share'], ['pin', 'Pin to Home'], ['file-pen-line', 'Rename'], ['copy', 'Duplicate'], ['minimize-2', 'Compress'], ['info', 'Document properties'], ['trash-2', 'Delete']].map((a, i) => ({ icon: a[0], label: a[1], c: i === 6 ? 'var(--danger)' : 'var(--text-primary)' })),
+      readActIos: [{ icon: 'search', label: 'Search' }, { icon: 'ellipsis', label: 'More' }],
+      readActA: [{ icon: 'moon', label: 'Night mode' }, { icon: 'ellipsis', label: 'More' }],
+      searchActA: [{ icon: 'x', label: 'Clear search' }],
+      strip: [1, 2, 3].map((n) => ({ ring: n === 1 ? '0 0 0 2px var(--accent)' : '0 0 0 1px var(--border-default)' })),
+      results: [{ head: true, label: 'PAGE 1 · 5' }, { item: true, pre: 'KONUT ', hit: 'KİRA', post: ' SÖZLEŞMESİ', bg: 'var(--surface-selected)' }, { item: true, pre: 'Madde 4 — ', hit: 'Kira', post: ' Bedeli', bg: 'transparent' }, { item: true, pre: '…aylık ', hit: 'kira', post: ' bedeli olan…', bg: 'transparent' }, { head: true, label: 'PAGE 2 · 2' }, { item: true, pre: '…', hit: 'kira', post: ' süresinin bitiminde…', bg: 'transparent' }],
+      editActIos: [{ icon: 'undo-2', label: 'Undo' }, { text: 'Done', bold: true }],
+      editActA: [{ icon: 'undo-2', label: 'Undo' }, { icon: 'redo-2', label: 'Redo' }, { text: 'Done' }],
+      addActIos: [{ icon: 'undo-2', label: 'Undo' }, { icon: 'plus', label: 'Add' }],
+      fmtBtns: [['bold', 'Bold'], ['italic', 'Italic'], ['underline', 'Underline'], ['align-justify', 'Alignment', true]].map((b) => ({ icon: b[0], label: b[1], bg: b[2] ? 'var(--accent-subtle)' : 'transparent', c: b[2] ? 'var(--text-accent)' : 'var(--icon-primary)' })),
+      sugg: ['TL’yi', 'TL’dir', 'TL’ye'],
+      imgBar: ['Replace', 'Crop', 'Alt text', 'Delete'],
+      addMenu: [['Text', 'type'], ['Take photo', 'camera'], ['Choose photo', 'image'], ['Link', 'link'], ['Signature', 'signature'], ['Date', 'calendar']].map((m, i, a) => ({ label: m[0], icon: m[1], sep: i < a.length - 1 ? '1px solid var(--border-subtle)' : 'none' })),
+      annActA: [{ icon: 'undo-2', label: 'Undo' }, { icon: 'message-square', label: 'Comments' }],
+      annTools: [['mouse-pointer-2', 'Select'], ['highlighter', 'Highlight'], ['pen-tool', 'Pen', true], ['sticky-note', 'Note'], ['shapes', 'Shapes'], ['stamp', 'Stamp'], ['eraser', 'Eraser']].map((t) => ({ icon: t[0], label: t[1], bg: t[2] ? 'var(--accent-subtle)' : 'transparent', c: t[2] ? 'var(--text-accent)' : 'var(--icon-primary)' })),
+      swatches: ['#2A4DAF', '#1F1D1A', '#D93A2B', 'var(--annot-yellow)', 'var(--annot-green)', 'var(--annot-pink)'].map((c, i) => ({ c, ring: i === 0 ? '0 0 0 2px var(--surface-raised),0 0 0 4px var(--accent)' : 'inset 0 0 0 1px rgba(0,0,0,.12)' })),
+      thread: [{ a: 'Ayşe Yılmaz', t: '10:12', x: 'Ödeme günü beşi yerine onu olabilir mi?', hasM: false }, { a: 'Mert Kaya', t: '10:40', x: 'Olur, 10’u yazalım.', hasM: false }, { a: 'Av. Deniz Aksoy', t: '11:02', m: '@Mert Kaya', x: 'maddeyi buna göre güncelliyorum.', hasM: true }]
+    };
+  }
+}
+</script>
+</body>
+</html>

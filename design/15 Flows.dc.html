@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF;text-decoration:none}a:hover{color:#213E8E;text-decoration:underline}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:96px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">15 · Key journeys</h1>
+<p style="margin:0;max-width:1000px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Four journeys from start to finish. Each step links to its artboard; the row under it shows where the journey can branch and how Ferman brings people back.</p>
+</header>
+<sc-for list="{{ flows }}" as="f" hint-placeholder-count="4">
+<section id="{{ f.id }}" style="display:grid;gap:20px">
+<div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">{{ f.tag }}</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">{{ f.title }}</h2><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">{{ f.meta }}</span></div>
+<div style="display:flex;align-items:stretch">
+<sc-for list="{{ f.steps }}" as="s" hint-placeholder-count="7"><div style="display:flex;align-items:center"><div style="width:220px;display:grid;gap:8px;align-content:start;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface-raised);border:1px solid {{ s.border }};box-shadow:var(--shadow-sm)"><div style="display:flex;align-items:center;gap:8px"><span style="width:26px;height:26px;display:grid;place-items:center;border-radius:6px;background:{{ s.numBg }};color:{{ s.numFg }};font:600 13px/1 var(--font-ui)">{{ s.n }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ s.icon }}" size="{{ 18 }}" color="var(--icon-secondary)" hint-size="18px,18px"></x-import><span style="flex:1"></span><a href="{{ s.href }}" style="font:500 12px/1 var(--font-mono)">{{ s.ref }}</a></div><span style="font:600 15px/20px var(--font-ui)">{{ s.title }}</span><span style="font:400 13px/18px var(--font-ui);color:var(--text-secondary)">{{ s.body }}</span></div><sc-if value="{{ s.arrow }}"><span aria-hidden="true" style="width:36px;display:flex;align-items:center;justify-content:center;color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-right" size="{{ 20 }}" hint-size="20px,20px"></x-import></span></sc-if></div></sc-for>
+</div>
+<div style="display:flex;gap:14px;flex-wrap:wrap;max-width:2000px">
+<sc-for list="{{ f.branches }}" as="b" hint-placeholder-count="3"><div style="display:flex;gap:10px;align-items:flex-start;width:420px;padding:12px 14px;border-radius:var(--radius-md);background:{{ b.bg }};border:1px solid {{ b.border }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ b.icon }}" size="{{ 16 }}" color="{{ b.c }}" hint-size="16px,16px"></x-import><span style="display:grid;gap:3px"><span style="font:600 14px/19px var(--font-ui)">{{ b.when }}</span><span style="font:400 13px/18px var(--font-ui);color:var(--text-secondary)">{{ b.then }} <a href="{{ b.href }}" style="font:500 12px/1 var(--font-mono)">{{ b.ref }}</a></span></span></div></sc-for>
+</div>
+</section>
+</sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const FILES = { '00': '00 Fixes', '01': '01 First run and files', '02': '02 View', '03a': '03a Edit text', '03b': '03b Edit content', '03c': '03c Edit review and translate', '05a': '05a Fill', '05b': '05b Sign', '07': '07 Convert', '08': '08 Protect', '11b': '11b App', '13a': '13a Mobile core', '13b': '13b Mobile tasks' };
+const href = (file, id) => encodeURI(FILES[file] + '.dc.html') + '#' + id;
+const step = (n, icon, title, body, file, id, ref, kind) => ({ n: String(n), icon, title, body, href: href(file, id), ref, numBg: kind === 'end' ? 'var(--success-bg)' : 'var(--accent)', numFg: kind === 'end' ? 'var(--success)' : '#FFFFFF', border: kind === 'end' ? 'var(--success-border)' : 'var(--border-subtle)' });
+const br = (tone, when, then, file, id, ref) => ({ when, then, href: href(file, id), ref, icon: tone === 'warn' ? 'triangle-alert' : tone === 'err' ? 'circle-alert' : 'git-compare', c: tone === 'warn' ? 'var(--warning-solid)' : tone === 'err' ? 'var(--danger)' : 'var(--icon-secondary)', bg: tone === 'warn' ? 'var(--warning-bg)' : tone === 'err' ? 'var(--danger-bg)' : 'var(--surface-raised)', border: tone === 'warn' ? 'var(--warning-border)' : tone === 'err' ? 'var(--danger-border)' : 'var(--border-subtle)' });
+const finish = (arr) => arr.map((s, i) => Object.assign(s, { arrow: i < arr.length - 1 }));
+class Component extends DCLogic {
+  renderVals() {
+    return { flows: [
+      { id: 'fa', tag: 'A', title: 'Open a PDF and fix a typo', meta: 'Desktop · about 20 seconds', steps: finish([
+        step(1, 'folder-open', 'Open the file', 'Double-click in Finder, drop on the window, or ⌘O from Start.', '01', 'a1-4', '1.4'),
+        step(2, 'mouse-pointer-2', 'Point at the text', 'Edit mode; the paragraph under the pointer shows its frame.', '03a', 'a3-1a', '3.1a'),
+        step(3, 'text-cursor', 'Click twice and type', 'First click selects the block, second places the caret. Text reflows inside the frame.', '03a', 'a3-1b', '3.1b'),
+        step(4, 'list-checks', 'Check what changed', 'Dotted underline and margin bar mark the edit; Review edits lists it.', '03c', 'a3-12', '3.12'),
+        step(5, 'save', 'Save', 'Status bar: Unsaved changes → Saved on this device · 14:32.', '00', 'f4b', 'Fix 4', 'end')
+      ]), branches: [
+        br('warn', 'The font has no ‘ğ’', 'Ferman uses a similar font for that character, says so once, and offers to choose another.', '03a', 'a3-3a', '3.3a'),
+        br('warn', 'The text no longer fits', 'Extend the block, tighten spacing slightly, or keep it and get a warning.', '03a', 'a3-4', '3.4'),
+        br('info', 'The page is a scan', 'Ferman offers text recognition first, then editing.', '03c', 'a3-11', '3.11'),
+        br('err', 'The file is password-protected', 'Unlock dialog; wrong passwords explain Turkish keyboard pitfalls.', '01', 'a1-8b', '1.8b')
+      ] },
+      { id: 'fb', tag: 'B', title: 'Fill and e-sign a form', meta: 'Desktop · e-Devlet form with e-imza', steps: finish([
+        step(1, 'text-cursor-input', 'Fields are found', 'Banner says it’s a form; 20 fields, 15 required, tab order shown.', '05a', 'a5-1', '5.1a'),
+        step(2, 'keyboard', 'Tab through fields', '“Field 3 of 20”, required count drops as you go; dates use a picker.', '05a', 'a5-2', '5.2a'),
+        step(3, 'usb', 'Choose e-imza', 'Card reader found; the field to sign is outlined.', '05b', 'a5-6', '5.6a'),
+        step(4, 'key-round', 'Enter the PIN', 'Masked, sent only to the card; tries left are shown.', '05b', 'a5-6b', '5.6b'),
+        step(5, 'loader-circle', 'Signing', 'Certificate check, card signs, timestamp added, signed copy saved.', '05b', 'a5-6c', '5.6c'),
+        step(6, 'badge-check', 'Signed and valid', 'Green bar; the signature panel explains it in plain words.', '05b', 'a5-5c', '5.5c', 'end')
+      ]), branches: [
+        br('err', 'A number is out of range', 'The field explains what to enter; Finish stays unavailable until fixed.', '05a', 'a5-2', '5.2a'),
+        br('err', 'No card found', 'Checklist of what Ferman looked for; it continues by itself when the card appears.', '05b', 'a5-6e', '5.6e'),
+        br('warn', 'The document changes later', 'The signature panel shows “Changed after signing” with a compare.', '05b', 'a5-7', '5.7a')
+      ] },
+      { id: 'fc', tag: 'C', title: 'Redact and send', meta: 'Desktop · bank statement', steps: finish([
+        step(1, 'file-search', 'Find and redact', 'Patterns find T.C. Kimlik No, IBAN, phone and e-mail.', '08', 'a8-2', '8.2a'),
+        step(2, 'list-checks', 'Review the marks', 'Red hatching only; uncheck anything to keep.', '08', 'a8-2', '8.2a'),
+        step(3, 'eye-off', 'Apply', 'The dialog names the consequence and saves a new file by default.', '08', 'a8-2b', '8.2b'),
+        step(4, 'shield-check', 'Verified', 'Ferman re-reads the saved file and lists each check it passed.', '08', 'a8-2c', '8.2c'),
+        step(5, 'share-2', 'Send', 'Share the “karartılmış” copy from the tab or Finder.', '11b', 'a11-6', '11.6', 'end')
+      ]), branches: [
+        br('info', 'Hidden information', 'Author names, comments and old versions are removed in the same step.', '08', 'a8-3', '8.3'),
+        br('warn', 'The file is signed', 'Redacting invalidates signatures; Ferman says so before applying.', '08', 'a8-4', '8.4'),
+        br('err', 'Disk full while saving', 'Edits stay in the recovery copy; save somewhere else.', '11b', 'a11-7', '11.7a')
+      ] },
+      { id: 'fd', tag: 'D', title: 'Scan a paper contract, recognize, sign, share', meta: 'Mobile · iPhone and Pixel', steps: finish([
+        step(1, 'scan', 'Scan', 'Camera permission is explained first; edges are found and captured automatically.', '13b', 'a13-9', '13.9a'),
+        step(2, 'crop', 'Review pages', 'Crop, rotate, B&W filter, reorder the batch.', '13b', 'a13-9b', '13.9b'),
+        step(3, 'scan-text', 'Recognize text', 'Turkish is on; the PDF becomes searchable.', '13b', 'a13-9b', '13.9b'),
+        step(4, 'signature', 'Sign', 'Landscape capture or a saved signature, placed with touch handles.', '13b', 'a13-8d', '13.8d'),
+        step(5, 'share-2', 'Share', 'Choose size and format, then the system share sheet.', '13b', 'a13-13', '13.13', 'end')
+      ]), branches: [
+        br('info', 'Camera not allowed', 'Choose photos instead; everything else keeps working.', '13a', 'a13-1c', '13.1c'),
+        br('warn', 'Needs a qualified e-signature', 'Use the ID card over NFC, or send it to Ferman on a computer.', '13b', 'a13-8f', '13.8f'),
+        br('err', 'Phone storage full', 'Ferman keeps the scan and says how much space it needs.', '13b', 'a13-16c', '13.16c')
+      ] }
+    ] };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+/* Ferman panels: PanelSection */
+
+.fm-panelsection { border-top: 1px solid var(--border-subtle); }
+.fm-panelsection:first-child { border-top: 0; }
+.fm-panelsection__head { display: flex; align-items: center; gap: 4px; min-height: 36px; padding: 0 8px 0 12px; }
+.fm-panelsection__toggle {
+  flex: 1; display: flex; align-items: center; gap: 6px; min-width: 0; height: 28px; padding: 0; margin-inline-start: -4px; padding-inline-start: 4px;
+  border: 0; border-radius: var(--radius-sm); background: transparent; color: var(--text-primary); cursor: pointer; text-align: start;
+  font: var(--type-panel-title);
+}
+.fm-panelsection__toggle:focus-visible { outline: none; box-shadow: var(--focus-ring-inset); }
+.fm-panelsection__toggle svg { color: var(--icon-secondary); transition: transform var(--dur-fast) var(--ease-out); }
+.fm-panelsection__toggle[aria-expanded="false"] svg { transform: rotate(-90deg); }
+[dir="rtl"] .fm-panelsection__toggle[aria-expanded="false"] svg { transform: rotate(90deg); }
+.fm-panelsection__title { font: var(--type-panel-title); color: var(--text-primary); flex: 1; }
+.fm-panelsection__actions { display: flex; align-items: center; gap: 2px; }
+.fm-panelsection__body { display: grid; gap: 10px; padding: 0 12px 14px; }

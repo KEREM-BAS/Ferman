@@ -1,0 +1,59 @@
+/* Ferman spacing, sizing and layout. 4px base with 2px and 6px half-steps
+   for dense desktop chrome. Control heights switch with density. */
+
+:root {
+  --space-0: 0;
+  --space-px: 1px;
+  --space-0-5: 2px;
+  --space-1: 4px;
+  --space-1-5: 6px;
+  --space-2: 8px;
+  --space-2-5: 10px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+  --space-16: 64px;
+
+  /* Controls — desktop (default, compact) */
+  --control-h-xs: 22px;   /* inline chips, stepper arrows */
+  --control-h-sm: 26px;   /* toolbar buttons, panel inputs */
+  --control-h-md: 30px;   /* default buttons, fields */
+  --control-h-lg: 36px;   /* dialog primary actions, palette rows */
+  --control-pad-x: 10px;
+  --icon-sm: 14px;
+  --icon-md: 16px;
+  --icon-lg: 20px;
+  --hit-min: 24px;        /* smallest clickable target on desktop */
+
+  /* App layout */
+  --titlebar-h: 38px;
+  --modebar-h: 40px;
+  --toolbar-h: 44px;
+  --statusbar-h: 26px;
+  --sidebar-w: 216px;
+  --panel-w: 264px;
+  --thumb-w: 112px;
+  --dialog-w-sm: 400px;
+  --dialog-w-md: 520px;
+  --palette-w: 600px;
+}
+
+/* Touch density — tablets and the mobile app. Every target ≥ 44px. */
+[data-density="touch"] {
+  --control-h-xs: 32px;
+  --control-h-sm: 44px;
+  --control-h-md: 44px;
+  --control-h-lg: 48px;
+  --control-pad-x: 14px;
+  --icon-md: 20px;
+  --icon-lg: 24px;
+  --hit-min: 44px;
+  --toolbar-h: 56px;
+  --modebar-h: 48px;
+  --titlebar-h: 56px;
+  --statusbar-h: 40px;
+}

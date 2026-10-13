@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">11a · Settings</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Every settings pane, on macOS and Windows. App-level screens continue in <a href="11b%20App.dc.html">11b</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">11.1 · Settings</h2>
+<div style="display:flex;gap:64px;align-items:flex-start;flex-wrap:wrap;max-width:3100px">
+<dc-import name="FmBoard" bid="a11-1" num="11.1a" title="Settings — General" note="Settings open in their own window (⌘,). Search filters every pane. Changes apply immediately; there is no Save button." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="general" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1w" num="11.1b" title="Settings — General" platform="win" note="Windows: caption buttons on the right, Ctrl shortcuts; “Default apps” opens Windows Settings because apps can’t change it themselves." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="general" platform="win" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1b" num="11.1c" title="Settings — Language and region" note="The app language switches live. Document languages drive OCR, spell-check and hyphenation; region formats drive dates, numbers (decimal comma), paper size, units and the first day of the week, each previewed." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="language" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1c" num="11.1d" title="Settings — Editing" note="Edit marking, what happens when a font lacks a character, the font for new text, reflow, version history and recovery copies." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="editing" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1d" num="11.1e" title="Settings — Fonts" note="Installed fonts with a Turkish test string and script coverage chips, filterable to fonts that cover Turkish. Coverage is read from the font files, not guessed from names." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="fonts" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1e" num="11.1f" title="Settings — Signatures and certificates" note="Saved signatures, certificates with their state, the e-imza card driver and the timestamp server in one place." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="signatures" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1f" num="11.1g" title="Settings — Text recognition" note="Language packs with sizes, installed or downloadable, and what to do when a document has scanned pages." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="ocr" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1g" num="11.1h" title="Settings — AI assistant" note="On, with the local model. Deleting the model frees its 4,1 GB." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="ai" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1h" num="11.1i" title="Settings — Privacy" note="The no-telemetry statement as fact, then every network use listed with its own switch, plus a log of actual connections." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="privacy" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1i" num="11.1j" title="Settings — Updates" hint-size="1440px,1020px" note="The daily check can be turned off; the channel can be Stable or Beta."><dc-import name="FmSettings" pane="updates" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1j" num="11.1k" title="Settings — Keyboard shortcuts" note="Search by name or by pressing keys. Recording a shortcut that’s taken says which command has it and asks before reassigning. Presets match Acrobat or Preview for people switching." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="shortcuts" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a11-1k" num="11.1l" title="Settings — Advanced" note="Rendering, cache, developer inspector, settings import and export, logs, and a reset that spares signatures and certificates." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="advanced" hint-size="100%,100%"></dc-import></dc-import>
+</div>
+</section>
+
+
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const r = (c, k) => ({ c, k });
+    return {
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabs3s: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabsXfa: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Vize başvuru formu.pdf', active: true, icon: 'file-x' }],
+      thWarn: [{ warn: true }],
+      palette: [
+        { label: 'Commands', items: [{ id: 'sig', label: 'Add signature', icon: 'signature', keywords: 'imza imzala sign', shortcut: ['⌥', '⌘', 'S'] }, { id: 'eimza', label: 'Sign with e-imza…', icon: 'usb', keywords: 'imza token' }, { id: 'val', label: 'Show signatures panel', icon: 'badge-check', keywords: 'imza doğrula', hint: 'Fill & Sign' }] },
+        { label: 'Pages', items: [{ id: 'p3', label: 'Page 3 · İmzalar', icon: 'file-text', keywords: 'imza' }] },
+        { label: 'Recent files', items: [{ id: 'f1', label: 'Kira sözleşmesi — imzalı.pdf', icon: 'file-text', hint: '~/Belgeler/Ev' }] },
+        { label: 'Settings', items: [{ id: 's1', label: 'Signatures and certificates', icon: 'settings', keywords: 'imza sertifika', hint: 'Settings' }] }
+      ],
+      sheet: [
+        { title: 'GENERAL', rows: [r('Command palette', ['⌘', 'K']), r('Open', ['⌘', 'O']), r('Save', ['⌘', 'S']), r('Save as', ['⇧', '⌘', 'S']), r('Settings', ['⌘', ','])] },
+        { title: 'NAVIGATE', rows: [r('Next page', ['→']), r('Go to page', ['⌘', 'G']), r('Find', ['⌘', 'F']), r('Fit page', ['⌘', '0']), r('Reading mode', ['⌘', '.'])] },
+        { title: 'EDIT', rows: [r('Edit text', ['T']), r('Add text', ['⇧', 'T']), r('Add image', ['I']), r('Find and replace', ['⌥', '⌘', 'F']), r('Show all blocks', ['⌥'])] },
+        { title: 'COMMENT', rows: [r('Highlight', ['H']), r('Note', ['N']), r('Shapes', ['R']), r('Measure', ['M']), r('Show comments', ['⇧', '⌘', 'H'])] },
+        { title: 'FILL & SIGN', rows: [r('Next field', ['Tab']), r('Previous field', ['⇧', 'Tab']), r('Add signature', ['⌥', '⌘', 'S']), r('Today’s date', ['⇧', 'D'])] },
+        { title: 'ORGANIZE', rows: [r('Rotate right', ['⌘', ']']), r('Rotate left', ['⌘', '[']), r('Duplicate', ['⌘', 'D']), r('Extract', ['⌥', '⌘', 'E']), r('Delete pages', ['⌫'])] },
+        { title: 'PROTECT', rows: [r('Redact', ['R']), r('Find and redact', ['⇧', '⌘', 'R'])] },
+        { title: 'WINDOW', rows: [r('Next document', ['⌃', 'Tab']), r('Sidebar', ['⌥', '⌘', 'S']), r('Panel', ['⌥', '⌘', 'P']), r('Close document', ['⌘', 'W'])] }
+      ],
+      actUpdate: btns(['What’s new', { size: 'sm', variant: 'ghost' }], ['Restart now', { size: 'sm' }]),
+      actNew: btns(['Close', { variant: 'primary' }]),
+      notesLink: h('a', { href: '#', style: { font: 'var(--type-caption)' } }, 'Full release notes'),
+      news: [
+        { icon: 'languages', t: 'Translate in place', d: 'Edit › Translate keeps the layout, including Arabic and Hebrew. (3.13)' },
+        { icon: 'usb', t: 'e-imza on Windows with any PKCS#11 card', d: 'Fill & Sign › e-imza finds more card readers on its own.' },
+        { icon: 'scan-text', t: 'Words to check after OCR', d: 'Low-confidence words are listed with suggestions.' },
+        { icon: 'git-compare', t: 'Overlay compare', d: 'Tools › Compare › Overlay shows changes in red and blue.' },
+        { icon: 'wrench', t: 'Fixed', d: 'Thumbnails no longer flicker in two-page view; ğ and ş export correctly to Word.' }
+      ],
+      toasts: [
+        { tone: 'success', title: 'Saved', msg: 'Saved on this device · 14:32' },
+        { tone: 'neutral', title: '3 pages deleted', msg: 'Pages 4–6', action: { label: 'Undo', onClick: () => {} } },
+        { tone: 'warning', title: 'Font substituted', msg: 'Madde 6 uses EB Garamond for ‘ğ’.', action: { label: 'Review', onClick: () => {} } },
+        { tone: 'danger', title: 'Couldn’t save', msg: 'The disk is full. Free some space or save somewhere else.', action: { label: 'Save as…', onClick: () => {} } }
+      ],
+      taskMain: { title: 'Recognizing text', detail: 'Page 14 of 64', value: 0.22 },
+      noop: () => {},
+      showAct: { label: 'Show', onClick: () => {} },
+      actDisk: btns(['Try again'], ['Save somewhere else…', { variant: 'primary' }]),
+      actChanged: btns(['Compare', { size: 'sm', variant: 'ghost' }], ['Keep mine', { size: 'sm' }], ['Reload', { size: 'sm' }]),
+      actXfa: btns(['Show in Finder', { size: 'sm' }])
+    };
+  }
+}
+</script>
+</body>
+</html>

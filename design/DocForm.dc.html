@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:56px 64px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 12px/1.45 var(--font-doc-sample);zoom:{{ zoom }}">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:20px;padding-bottom:14px;border-bottom:2px solid #1F1D1A"><div style="display:grid;gap:4px"><span style="font:600 11px/1 var(--font-ui);letter-spacing:.12em;color:#57534C">T.C.</span><span style="font:600 19px/1.25 var(--font-doc-sample);letter-spacing:.02em">YERLEŞİM YERİ ADRESİ BEYAN FORMU</span><span style="color:#57534C">Adres Kayıt Sistemi · Form AKS-1 · Lütfen büyük harfle ve okunaklı doldurunuz.</span></div><div style="display:grid;gap:2px;text-align:right;font:400 11px/1.4 var(--font-ui);color:#57534C;font-variant-numeric:tabular-nums"><span>Başvuru No</span><span style="font:600 13px/1.3 var(--font-mono);color:#1F1D1A">2026-0047812</span></div></div>
+<sc-for list="{{ sections }}" as="s" hint-placeholder-count="3">
+<div style="margin-top:18px;padding:5px 8px;background:#EFECE6;font:600 11px/1.3 var(--font-ui);letter-spacing:.08em">{{ s.title }}</div>
+<div style="display:grid;gap:14px;padding:12px 2px 0">
+<sc-for list="{{ s.rows }}" as="row" hint-placeholder-count="3"><div style="display:flex;gap:22px;align-items:flex-end;flex-wrap:wrap">
+<sc-for list="{{ row }}" as="f" hint-placeholder-count="2"><div style="position:relative;display:flex;flex-direction:column;gap:3px">
+<sc-if value="{{ f.isField }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="{{ f.type }}" label="{{ f.label }}" value="{{ f.value }}" state="{{ f.state }}" required="{{ f.req }}" error="{{ f.error }}" width="{{ f.width }}" options="{{ f.options }}" placeholder="{{ f.ph }}" signed-as="{{ f.signedAs }}" hint-size="160px,40px"></x-import></sc-if>
+<sc-if value="{{ f.isRadio }}"><span style="font:400 11px/14px var(--font-ui);color:#57534C">{{ f.label }}<span style="color:var(--form-field-required)"> *</span></span><span style="display:flex;gap:16px;align-items:center;height:22px"><span style="display:inline-flex;gap:6px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Kadın" checked="{{ f.checked }}" hint-size="16px,16px"></x-import>Kadın</span><span style="display:inline-flex;gap:6px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Erkek" hint-size="16px,16px"></x-import>Erkek</span></span></sc-if>
+<sc-if value="{{ f.isCheck }}"><span style="display:flex;gap:8px;align-items:center;max-width:560px"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="{{ f.label }}" checked="{{ f.checked }}" required="{{ f.req }}" hint-size="16px,16px"></x-import><span>{{ f.label }}</span></span></sc-if>
+<sc-if value="{{ order }}"><span aria-hidden="true" style="position:absolute;top:-4px;left:-22px;min-width:16px;height:16px;padding:0 3px;display:grid;place-items:center;border-radius:2px;background:{{ f.orderBg }};color:#FFFFFF;font:600 10px/1 var(--font-ui);font-variant-numeric:tabular-nums">{{ f.order }}</span></sc-if>
+<sc-if value="{{ author }}"><span style="position:absolute;bottom:calc(100% - 12px);left:0;padding:1px 5px;border-radius:2px;background:{{ f.chipBg }};color:{{ f.chipFg }};font:500 10px/1.4 var(--font-mono);white-space:nowrap">{{ f.name }}</span><span aria-hidden="true" style="position:absolute;inset:{{ f.inset }};outline:1.5px dashed {{ f.chipBg }};outline-offset:2px;border-radius:2px;pointer-events:none"></span></sc-if>
+</div></sc-for>
+</div></sc-for>
+</div>
+</sc-for>
+<div style="position:absolute;bottom:40px;left:64px;right:64px;display:flex;justify-content:space-between;font:400 10.5px/1.4 var(--font-ui);color:#8A857C"><span>Bu form e-Devlet Kapısı üzerinden doğrulanabilir · Doğrulama kodu AKS-7F3K-91QD</span><span>1 / 1</span></div>
+<sc-if value="{{ datePicker }}"><div role="dialog" aria-label="Choose a date" lang="en" style="position:absolute;left:64px;top:{{ pickerTop }};z-index:5;width:260px;padding:10px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover);font:var(--type-body);color:var(--text-primary)">
+<div style="display:flex;align-items:center;gap:4px;padding:0 0 8px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-left" label="Previous month" size="sm" hint-size="26px,26px"></x-import><span style="flex:1;text-align:center;font:var(--type-body-strong)">November 2026</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-right" label="Next month" size="sm" hint-size="26px,26px"></x-import></div>
+<div role="grid" style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-variant-numeric:tabular-nums"><sc-for list="{{ weekdays }}" as="w" hint-placeholder-count="7"><span style="font:var(--type-label);color:var(--text-tertiary);padding:4px 0">{{ w }}</span></sc-for><sc-for list="{{ days }}" as="d" hint-placeholder-count="42"><span role="gridcell" aria-selected="{{ d.sel }}" style="height:30px;display:grid;place-items:center;border-radius:var(--radius-sm);background:{{ d.bg }};color:{{ d.fg }};font-weight:{{ d.fw }}">{{ d.n }}</span></sc-for></div>
+<div style="display:flex;align-items:center;gap:8px;padding-top:8px;margin-top:6px;border-top:1px solid var(--border-subtle)"><span style="flex:1;font:var(--type-caption);color:var(--text-tertiary)">Format DD.MM.YYYY · from the form</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="60px,26px">Today</x-import></div>
+</div></sc-if>
+{{ children }}
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:794,&quot;height&quot;:1123},&quot;filled&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;partial&quot;,&quot;more&quot;,&quot;all&quot;],&quot;default&quot;:&quot;partial&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;focus&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;ad&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;order&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;author&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;selected&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;errorField&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;datePicker&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;signed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;zoom&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+const F = [
+  ['1. KİŞİSEL BİLGİLER', [
+    [['tc', 'text', 'T.C. Kimlik No', 200, '41239876516', 1, 'tc_kimlik_no'], ['dogum', 'date', 'Doğum tarihi', 130, '14.03.1994', 1, 'dogum_tarihi', 'GG.AA.YYYY']],
+    [['ad', 'text', 'Adı', 250, 'AYŞE', 1, 'adi'], ['soyad', 'text', 'Soyadı', 250, 'YILMAZ', 1, 'soyadi']],
+    [['cins', 'radio-group', 'Cinsiyeti', 0, true, 1, 'cinsiyet'], ['medeni', 'dropdown', 'Medeni hâli', 170, 'Bekâr', 0, 'medeni_hal', 'Seçiniz']],
+    [['tel', 'text', 'Telefon', 180, '0544 902 15 38', 0, 'telefon'], ['eposta', 'text', 'E-posta', 290, 'ayse.yilmaz@ornekposta.com.tr', 0, 'eposta']]
+  ]],
+  ['2. YENİ ADRES BİLGİLERİ', [
+    [['il', 'dropdown', 'İl', 160, 'İSTANBUL', 1, 'il', 'Seçiniz'], ['ilce', 'dropdown', 'İlçe', 160, 'KADIKÖY', 1, 'ilce', 'Seçiniz'], ['mahalle', 'text', 'Mahalle', 230, 'CAFERAĞA', 1, 'mahalle']],
+    [['sokak', 'text', 'Cadde / Sokak', 330, 'MODA CADDESİ', 1, 'cadde_sokak'], ['dis', 'text', 'Dış kapı no', 90, '18', 1, 'dis_kapi_no'], ['ic', 'text', 'İç kapı no', 90, '5', 0, 'ic_kapi_no']],
+    [['tasinma', 'date', 'Taşınma tarihi', 130, '01.11.2026', 1, 'tasinma_tarihi', 'GG.AA.YYYY'], ['hane', 'text', 'Hanede yaşayan kişi sayısı', 120, '1', 1, 'hane_kisi_sayisi']]
+  ]],
+  ['3. BEYAN VE İMZA', [
+    [['beyan1', 'checkbox', 'Yukarıdaki bilgilerin doğru olduğunu beyan ederim.', 0, true, 1, 'beyan_dogruluk']],
+    [['beyan2', 'checkbox', 'Adres değişikliğimin bağlı olduğum kurumlara bildirilmesini kabul ediyorum.', 0, true, 0, 'beyan_kurum']],
+    [['tarih', 'date', 'Tarih', 130, '13.10.2026', 1, 'beyan_tarihi', 'GG.AA.YYYY'], ['imza', 'signature', 'İmza', 240, 'Ayşe Yılmaz', 1, 'imza']]
+  ]]
+];
+const LEVELS = { none: [], partial: ['tc', 'dogum'], more: ['tc', 'dogum', 'ad', 'soyad', 'cins', 'medeni', 'tel', 'eposta', 'il', 'ilce', 'mahalle', 'sokak', 'dis', 'ic'], all: 'all' };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lvl = LEVELS[p.filled || 'none'];
+    const has = (id) => lvl === 'all' ? id !== 'imza' || p.signed : lvl.indexOf(id) >= 0;
+    let n = 0;
+    const sections = F.map((s) => ({ title: s[0], rows: s[1].map((row) => row.map((f) => {
+      n += 1;
+      const [id, type, label, width, val, req, name, ph] = f;
+      const filled = has(id) || (p.extra && p.extra[id] !== undefined);
+      const isErr = p.errorField === id;
+      const isFocus = p.focus === id;
+      const sel = p.selected === id;
+      const v = p.extra && p.extra[id] !== undefined ? p.extra[id] : (filled ? val : '');
+      return {
+        id, type, label, width, req: !!req, name, ph: ph || '',
+        isField: type !== 'radio-group' && type !== 'checkbox', isRadio: type === 'radio-group', isCheck: type === 'checkbox',
+        value: type === 'signature' ? undefined : (isErr ? (p.errorValue || '0') : v), signedAs: type === 'signature' && filled ? val : undefined,
+        checked: filled && (type === 'radio-group' || type === 'checkbox'),
+        state: isErr ? 'error' : (isFocus ? 'focus' : undefined), error: isErr ? (p.errorText || 'Enter a number from 1 to 20.') : undefined,
+        options: type === 'dropdown' ? [val, 'Seçiniz'] : [],
+        order: String(n), orderBg: isFocus ? 'var(--accent)' : (req ? 'var(--ink-700)' : 'var(--paper-600)'),
+        chipBg: sel ? 'var(--accent)' : 'var(--ink-300)', chipFg: sel ? '#FFFFFF' : 'var(--ink-900)',
+        inset: type === 'checkbox' || type === 'radio-group' ? '0' : '17px 0 0 0'
+      };
+    })) }));
+    const weekdays = ['Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa', 'Su'];
+    const days = [];
+    for (let i = 26; i <= 31; i++) days.push({ n: String(i), out: true });
+    for (let i = 1; i <= 30; i++) days.push({ n: String(i) });
+    for (let i = 1; i <= 6; i++) days.push({ n: String(i), out: true });
+    return {
+      sections, order: !!p.order, author: !!p.author, zoom: p.zoom || 1,
+      datePicker: !!p.datePicker, pickerTop: (p.pickerTop || 548) + 'px', weekdays,
+      days: days.map((d) => ({ n: d.n, sel: !d.out && d.n === '1' ? 'true' : 'false', bg: !d.out && d.n === '1' ? 'var(--accent)' : 'transparent', fg: !d.out && d.n === '1' ? 'var(--text-on-accent, #FFFFFF)' : (d.out ? 'var(--text-disabled)' : 'var(--text-primary)'), fw: !d.out && d.n === '1' ? '600' : '400' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

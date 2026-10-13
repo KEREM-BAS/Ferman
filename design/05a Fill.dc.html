@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">05a · Fill &amp; Sign — filling forms</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Detected form fields, tab order and field navigation; every field type and state; simple signatures typed, drawn or from an image; and filling PDFs that have no fields at all. Digital and e-imza signatures continue in <a href="05b%20Sign.dc.html">05b</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.1 – 5.2 · Fields</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-1" num="5.1a" title="Fill — Detected fields, tab order, field navigation" note="Ferman finds the 20 fields, tints them and shows the tab order on request. The tool row says where you are (Field 3 of 20) and how many required fields are left; Tab and ⇧Tab move between fields, Enter on the last one opens Finish. The panel lists every field with its status; required fields are announced as required." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="fill" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" field-nav="{{ nav3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbForm }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="text-cursor-input" title="This PDF is a fillable form." actions="{{ actFormBar }}" hint-size="100%,44px">20 fields, 15 required. Tab moves to the next field.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocForm" filled="partial" focus="ad" order="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmFormPanel" filled="partial" current="ad" order="{{ true }}" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-1d" num="5.1b" title="Fill — Same form" theme="dark" note="Dark theme. Field tints are tuned for white paper and stay the same; only the chrome changes." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="fill" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" field-nav="{{ nav3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbForm }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocForm" filled="partial" focus="ad" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmFormPanel" filled="partial" current="ad" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-2" num="5.2a" title="Fill — Date picker and a number that fails validation" note="Date fields open a picker in the field’s own format (DD.MM.YYYY), Monday-first for the Turkish region; typing digits works too. The number field checks its range when you leave it: the message says what to enter, the field and its panel row turn red, and the required count includes it until it’s fixed." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="fill" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" field-nav="{{ nav15 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbFormWarn }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-180px"><dc-import name="DocForm" filled="more" focus="tasinma" error-field="hane" date-picker="{{ true }}" picker-top="{{ 606 }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmFormPanel" filled="more" current="tasinma" error-field="hane" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-2b" num="5.2b" title="Fill — Field types and states" kind="panel" w="{{ 1180 }}" h="{{ 620 }}" meta="On the page · light and dark" note="Fields are drawn on the page, so the same colours apply in both themes. Hover strengthens the border, focus adds the ink ring, filled fields keep a faint tint so you can see what’s done, errors add a message under the field, read-only fields become a dotted line. Required fields carry a red asterisk and aria-required." hint-size="1180px,740px">
+<div style="height:100%;padding:24px 28px;box-sizing:border-box;display:grid;grid-template-columns:120px repeat(6,minmax(0,1fr));gap:18px 16px;align-content:start;background:#FFFFFF;font:var(--type-body);color:#1F1D1A">
+<span></span><span style="font:var(--type-label);color:#8A857C">EMPTY</span><span style="font:var(--type-label);color:#8A857C">HOVER</span><span style="font:var(--type-label);color:#8A857C">FOCUS</span><span style="font:var(--type-label);color:#8A857C">FILLED</span><span style="font:var(--type-label);color:#8A857C">ERROR</span><span style="font:var(--type-label);color:#8A857C">READ-ONLY</span>
+<span style="font:var(--type-body-strong)">Text</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Adı" required="{{ true }}" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<div data-fm-force="hover"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Adı" required="{{ true }}" width="{{ 140 }}" hint-size="140px,40px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Adı" required="{{ true }}" state="focus" value="AYŞ" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Adı" required="{{ true }}" value="AYŞE" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="T.C. Kimlik No" required="{{ true }}" value="4123987651" error="Enter all 11 digits." width="{{ 140 }}" hint-size="140px,56px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Başvuru No" state="readonly" value="2026-0047812" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<span style="font:var(--type-body-strong)">Date</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" placeholder="GG.AA.YYYY" width="{{ 120 }}" hint-size="120px,40px"></x-import>
+<div data-fm-force="hover"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" placeholder="GG.AA.YYYY" width="{{ 120 }}" hint-size="120px,40px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" state="focus" value="13.10" width="{{ 120 }}" hint-size="120px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" value="13.10.2026" width="{{ 120 }}" hint-size="120px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" value="31.02.2026" error="February has 28 days in 2026." width="{{ 120 }}" hint-size="120px,56px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="date" label="Tarih" state="readonly" value="13.10.2026" width="{{ 120 }}" hint-size="120px,40px"></x-import>
+<span style="font:var(--type-body-strong)">Dropdown</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" placeholder="Seçiniz" options="{{ ilOptions }}" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<div data-fm-force="hover"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" placeholder="Seçiniz" options="{{ ilOptions }}" width="{{ 140 }}" hint-size="140px,40px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" state="focus" placeholder="Seçiniz" options="{{ ilOptions }}" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" value="İSTANBUL" options="{{ ilOptions }}" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" required="{{ true }}" placeholder="Seçiniz" options="{{ ilOptions }}" error="Choose a province." width="{{ 140 }}" hint-size="140px,56px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="dropdown" label="İl" state="readonly" value="İSTANBUL" options="{{ ilOptions }}" width="{{ 140 }}" hint-size="140px,40px"></x-import>
+<span style="font:var(--type-body-strong)">Number</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" width="{{ 100 }}" hint-size="100px,40px"></x-import>
+<div data-fm-force="hover"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" width="{{ 100 }}" hint-size="100px,40px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" state="focus" value="3" width="{{ 100 }}" hint-size="100px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" value="3" width="{{ 100 }}" hint-size="100px,40px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" value="0" error="Enter a number from 1 to 20." width="{{ 150 }}" hint-size="150px,56px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" label="Kişi sayısı" state="readonly" value="3" width="{{ 100 }}" hint-size="100px,40px"></x-import>
+<span style="font:var(--type-body-strong)">Checkbox · radio</span>
+<span style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Kadın" hint-size="16px,16px"></x-import></span>
+<span data-fm-force="hover" style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Kadın" hint-size="16px,16px"></x-import></span>
+<span style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" state="focus" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Kadın" state="focus" hint-size="16px,16px"></x-import></span>
+<span style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" checked="{{ true }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="radio" label="Kadın" checked="{{ true }}" hint-size="16px,16px"></x-import></span>
+<span style="display:grid;gap:4px"><span style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" state="error" required="{{ true }}" hint-size="16px,16px"></x-import></span><span style="font:400 11px/14px var(--font-ui);color:var(--red-600)">Required to submit.</span></span>
+<span style="display:flex;gap:14px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="checkbox" label="Beyan" state="readonly" checked="{{ true }}" hint-size="16px,16px"></x-import></span>
+<span style="font:var(--type-body-strong)">Signature</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" required="{{ true }}" width="{{ 150 }}" hint-size="150px,60px"></x-import>
+<div data-fm-force="hover"><x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" required="{{ true }}" width="{{ 150 }}" hint-size="150px,60px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" state="focus" required="{{ true }}" width="{{ 150 }}" hint-size="150px,60px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" signed-as="Ayşe Yılmaz" width="{{ 150 }}" hint-size="150px,60px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" required="{{ true }}" error="Sign before finishing." width="{{ 150 }}" hint-size="150px,76px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PdfFormField" type="signature" label="İmza" state="readonly" signed-as="M. Kaya" width="{{ 150 }}" hint-size="150px,60px"></x-import>
+</div>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.3 · Simple signatures</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a5-3" num="5.3a" title="Sign — Type your signature" note="Type, Draw or Image. Typed signatures offer three handwriting styles; styles that can’t draw every letter of the name (ş, ğ, ı here) are hidden. The same dialog creates initials. Saved signatures stay on this device only." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="sign" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" field-nav="{{ nav20 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbForm }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-300px"><dc-import name="DocForm" filled="all" focus="imza" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmFormPanel" filled="all" current="imza" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" title="Add signature" actions="{{ actSig }}" footer-start="{{ sigFoot }}" hint-size="560px,560px">
+<div style="display:grid;gap:14px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Create" value="sig" options="{{ sigKind }}" hint-size="200px,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.SignaturePad" mode="type" name="Ayşe Yılmaz" ink="#1A3170" hint-size="100%,230px"></x-import>
+<div role="radiogroup" aria-label="Handwriting style" style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px"><sc-for list="{{ hands }}" as="s" hint-placeholder-count="3"><div role="radio" aria-checked="{{ s.checked }}" style="height:56px;display:grid;place-items:center;border-radius:var(--radius-md);background:#FFFFFF;box-shadow:{{ s.ring }};color:#1A3170;font:{{ s.font }}">Ayşe Yılmaz</div></sc-for></div>
+</div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-3b" num="5.3b" title="Sign — Draw" kind="panel" w="{{ 680 }}" h="{{ 640 }}" meta="Dialog · light" note="Mouse, trackpad, pen or finger. Strokes are smoothed but keep their speed variation. Clear starts again; ⌘Z removes the last stroke." hint-size="680px,760px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" title="Add signature" actions="{{ actSig }}" footer-start="{{ sigFoot }}" hint-size="560px,500px"><div style="display:grid;gap:14px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Create" value="sig" options="{{ sigKind }}" hint-size="200px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.SignaturePad" mode="draw" ink="#1A3170" initial-strokes="{{ strokes }}" hint-size="100%,230px"></x-import></div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a5-3c" num="5.3c" title="Sign — From an image" kind="panel" w="{{ 680 }}" h="{{ 640 }}" meta="Dialog · light" note="A photo or scan of a signature on paper. Ferman removes the background and crops to the ink; nothing is uploaded." hint-size="680px,760px">
+<div style="height:100%;display:grid;place-items:center;background:var(--surface-scrim)"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" title="Add signature" actions="{{ actSig }}" footer-start="{{ sigFoot }}" hint-size="560px,500px"><div style="display:grid;gap:14px"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Create" value="sig" options="{{ sigKind }}" hint-size="200px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.SignaturePad" mode="image" ink="#1A3170" hint-size="100%,230px"></x-import></div></x-import></div>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a5-3d" num="5.3d" title="Sign — Place, resize and rotate; saved signatures" note="The Sign menu lists saved signatures and initials with real previews. A placed signature snaps into the signature field; corner handles resize it (proportions kept), the round handle rotates in 15° steps with ⇧. Arrow keys nudge by 1 pt, ⇧ arrows by 10 pt. The panel row turns green and the required count drops to zero." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="sign" save="unsaved" tabs="{{ tabsForm }}" pages="{{ 1 }}" field-nav="{{ navDone }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="form" tab="pages" current="{{ 1 }}" thumbs="{{ thumbFormSig }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-300px"><dc-import name="DocForm" filled="all" hint-size="794px,1123px">
+<div style="position:absolute;left:216px;top:700px;width:246px;height:62px;outline:1.5px solid var(--accent);outline-offset:0;display:grid;place-items:center;transform:rotate(-2deg);background:#FFFFFF"><span style="font:500 34px/1 var(--font-hand-1);color:#1A3170">Ayşe Yılmaz</span><span style="position:absolute;top:-5px;left:-5px;width:9px;height:9px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;top:-5px;right:-5px;width:9px;height:9px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;bottom:-5px;left:-5px;width:9px;height:9px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;bottom:-5px;right:-5px;width:9px;height:9px;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span style="position:absolute;top:-26px;left:calc(50% - 0.75px);width:1.5px;height:21px;background:var(--accent)"></span><span style="position:absolute;top:-34px;left:calc(50% - 6px);width:12px;height:12px;border-radius:50%;background:#FFFFFF;border:1.5px solid var(--accent)"></span><span lang="en" style="position:absolute;top:calc(100% + 8px);left:0;padding:2px 6px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:var(--weight-medium) var(--text-2xs)/1.4 var(--font-ui);white-space:nowrap;transform:rotate(2deg)">62 × 16 mm · −2°</span></div>
+</dc-import></div></main>
+<dc-import name="FmFormPanel" filled="all" signed="{{ true }}" current="imza" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div role="menu" aria-label="Saved signatures" style="position:absolute;top:120px;left:392px;z-index:40;width:280px;padding:4px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover);font:var(--type-body)">
+<div style="padding:6px 8px 4px;font:var(--type-label);color:var(--text-tertiary)">SIGNATURES</div>
+<div role="menuitem" style="display:flex;align-items:center;gap:10px;height:48px;padding:0 8px;border-radius:var(--radius-sm);background:var(--surface-selected-strong)"><span style="flex:1;font:500 26px/1 var(--font-hand-1);color:#1A3170">Ayşe Yılmaz</span><x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ kSig }}" tone="plain" hint-size="40px,16px"></x-import></div>
+<div role="menuitem" style="display:flex;align-items:center;gap:10px;height:48px;padding:0 8px;border-radius:var(--radius-sm)"><span style="flex:1;font:400 19px/1 var(--font-hand-2);color:#1A3170">A. Yılmaz</span><span style="font:var(--type-caption);color:var(--text-tertiary)">Drawn</span></div>
+<div style="padding:6px 8px 4px;font:var(--type-label);color:var(--text-tertiary);border-top:1px solid var(--border-subtle);margin-top:4px">INITIALS</div>
+<div role="menuitem" style="display:flex;align-items:center;gap:10px;height:40px;padding:0 8px;border-radius:var(--radius-sm)"><span style="flex:1;font:500 26px/1 var(--font-hand-3);color:#1A3170">AY</span></div>
+<div style="height:1px;background:var(--border-subtle);margin:4px 0"></div>
+<div role="menuitem" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:var(--radius-sm)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="plus" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import>Add signature…</div>
+<div role="menuitem" style="display:flex;align-items:center;gap:10px;height:30px;padding:0 8px;border-radius:var(--radius-sm)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="settings" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import>Manage saved signatures…</div>
+</div>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">5.4 · Fill anything</h2>
+<dc-import name="FmBoard" bid="a5-4" num="5.4" title="Fill — A PDF without form fields" note="Ferman detects lines and boxes on a flat page. Clicking a line places text on its baseline; clicking a box adds a check. Comb boxes (T.C. Kimlik No) get one digit per box automatically. Added items are ordinary text and marks, editable until saved; “Find fields” turns the page into a real form (5.8)." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="sign" tool="addText" save="unsaved" tabs="{{ tabsFlat }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ thumbFlat }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="text-cursor-input" title="This PDF has no form fields." actions="{{ actFind }}" hint-size="100%,44px">Click a line or box to type, or let Ferman find the fields.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden">
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:72px 80px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 13.5px/1.5 var(--font-doc-sample)">
+<div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1.5px solid #1F1D1A;padding-bottom:10px"><span style="font:600 16px/1.2 var(--font-doc-sample)">Boğaziçi Bankası A.Ş.</span><span style="font:600 14px/1.2 var(--font-ui);letter-spacing:.08em">OTOMATİK ÖDEME TALİMATI</span></div>
+<p style="margin:22px 0 26px;text-align:justify">Aşağıda bilgileri yer alan fatura ve aidatlarımın, belirttiğim hesabımdan talimat başlangıç tarihinden itibaren otomatik olarak ödenmesini rica ederim.</p>
+<div style="display:grid;grid-template-columns:170px minmax(0,1fr);row-gap:30px;align-items:end">
+<span>Adı Soyadı</span><span style="position:relative;border-bottom:1px solid #1F1D1A;height:22px"><span style="position:absolute;left:4px;bottom:3px;font:400 13px/1 var(--font-ui)">AYŞE YILMAZ</span></span>
+<span>T.C. Kimlik No</span><span style="display:flex;gap:0"><sc-for list="{{ tcBoxes }}" as="d" hint-placeholder-count="11"><span style="width:24px;height:26px;display:grid;place-items:center;border:1px solid #1F1D1A;margin-left:-1px;font:400 13px/1 var(--font-ui)">{{ d }}</span></sc-for></span>
+<span>IBAN</span><span style="position:relative;border-bottom:1px solid #1F1D1A;height:22px"><span style="position:absolute;left:4px;bottom:3px;font:400 13px/1 var(--font-ui);font-variant-numeric:tabular-nums">TR33 0006 1005 1978 6457 8413 26</span></span>
+<span>Kurum</span><span style="display:flex;gap:22px;align-items:center"><span style="display:inline-flex;gap:6px;align-items:center"><span style="position:relative;width:14px;height:14px;border:1px solid #1F1D1A"><span style="position:absolute;inset:-4px -3px;display:grid;place-items:center;color:#1F1D1A"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" stroke-width="{{ 2.6 }}" hint-size="16px,16px"></x-import></span></span>İGDAŞ</span><span style="display:inline-flex;gap:6px;align-items:center"><span style="width:14px;height:14px;border:1px solid #1F1D1A"></span>İSKİ</span><span style="display:inline-flex;gap:6px;align-items:center"><span style="width:14px;height:14px;border:1px solid #1F1D1A"></span>Türk Telekom</span><span style="display:inline-flex;gap:6px;align-items:center"><span style="width:14px;height:14px;border:1px solid #1F1D1A"></span>Diğer</span></span>
+<span>Abone No</span><span style="position:relative;border-bottom:1px solid #1F1D1A;height:22px;width:260px"><span style="position:absolute;left:0;bottom:1px;outline:1.5px solid var(--edit-box);outline-offset:2px;padding:0 3px;font:400 13px/1 var(--font-ui);display:inline-flex;align-items:center;white-space:nowrap">1043 8826<x-import component-from-global-scope="FermanDesignSystem_278323.TextCaret" hint-size="2px,14px"></x-import></span>
+<span lang="en" style="position:absolute;left:96px;top:-10px;display:flex;align-items:center;gap:2px;padding:3px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="minus" label="Smaller text" size="xs" hint-size="22px,22px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary);padding:0 4px;font-variant-numeric:tabular-nums">10 pt</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="Larger text" size="xs" hint-size="22px,22px"></x-import><span style="width:1px;height:16px;background:var(--border-subtle);margin:0 3px"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="type" label="Font" size="xs" hint-size="22px,22px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Delete" size="xs" hint-size="22px,22px"></x-import></span></span>
+<span>Başlangıç tarihi</span><span style="position:relative;border-bottom:1px solid #1F1D1A;height:22px;width:160px"><span style="position:absolute;left:4px;bottom:3px;font:400 13px/1 var(--font-ui);font-variant-numeric:tabular-nums">01.11.2026</span></span>
+<span>İmza</span><span style="border-bottom:1px solid #1F1D1A;height:40px;width:220px"></span>
+</div>
+<p style="margin:44px 0 0;font-size:11.5px;color:#57534C">Talimat, yazılı olarak iptal edilene kadar geçerlidir. Hesapta yeterli bakiye bulunmaması hâlinde ödeme yapılmaz.</p>
+</div></div></main>
+<aside aria-label="Fill anything" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Fill anything</span></div>
+<div style="display:grid;padding:6px">
+<sc-for list="{{ fillTools }}" as="t" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:10px;height:32px;padding:0 8px;border-radius:var(--radius-sm);background:{{ t.bg }};color:{{ t.color }};font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 16 }}" hint-size="16px,16px"></x-import><span style="flex:1">{{ t.label }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ t.keys }}" tone="plain" hint-size="30px,16px"></x-import></div></sc-for>
+</div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Options" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Snap to lines and boxes" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="One character per comb box" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Ink" default-value="black" options="{{ inkOptions }}" hint-size="100%,48px"></x-import></x-import>
+</aside>
+</dc-import>
+</dc-import>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const NS = () => window.FermanDesignSystem_278323;
+const Btn = (p) => h(NS().Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+function sigStrokes() {
+  const s1 = [];
+  for (let t = 0; t <= 30; t += 0.3) {
+    const x = 36 + t * 9.4 + 13 * Math.cos(t * 1.85);
+    const y = 92 - (t < 6 ? 30 : 17) * Math.sin(t * 1.85) - (t < 3 ? t * 6 : 18) + (t > 22 ? (t - 22) * 2.2 : 0);
+    s1.push([Math.round(x * 10) / 10, Math.round(y * 10) / 10]);
+  }
+  const s2 = [];
+  for (let u = 0; u <= 1.0001; u += 0.05) s2.push([Math.round((40 + u * 300) * 10) / 10, Math.round((122 - 10 * Math.sin(u * Math.PI) + u * 4) * 10) / 10]);
+  return [s1, s2, [[196, 54], [206, 46], [214, 44]]];
+}
+class Component extends DCLogic {
+  renderVals() {
+    const tools = [['text-cursor-input', 'Text', ['T']], ['check', 'Check', ['K']], ['x', 'Cross', ['X']], ['circle-dot', 'Dot', ['D']], ['calendar', 'Today’s date', ['⇧', 'D']], ['signature', 'Signature', ['S']]];
+    return {
+      tabsForm: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Adres değişikliği formu.pdf', active: true, unsaved: true }],
+      tabsFlat: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Otomatik ödeme talimatı.pdf', active: true, unsaved: true }],
+      thumbForm: [{ fields: true }], thumbFormWarn: [{ fields: true, warn: true }], thumbFormSig: [{ fields: true, signed: true, edited: true }], thumbFlat: [{ edited: true }],
+      nav3: { label: 'Field 3 of 20', required: '13 required left' },
+      nav15: { label: 'Field 15 of 20', required: '6 required left' },
+      nav20: { label: 'Field 20 of 20', required: '1 required left' },
+      navDone: { label: 'Field 20 of 20', required: 'All required filled' },
+      actFormBar: btns(['Hide', { size: 'sm', variant: 'ghost' }], ['Show tab order', { size: 'sm' }]),
+      ilOptions: ['İSTANBUL', 'ANKARA', 'İZMİR'],
+      sigKind: [{ value: 'sig', label: 'Signature' }, { value: 'init', label: 'Initials' }],
+      hands: [
+        { font: '500 26px/1 var(--font-hand-1)', checked: 'true', ring: '0 0 0 2px var(--accent)' },
+        { font: '400 17px/1 var(--font-hand-2)', checked: 'false', ring: '0 0 0 1px var(--border-default)' },
+        { font: '500 24px/1 var(--font-hand-3)', checked: 'false', ring: '0 0 0 1px var(--border-default)' }
+      ],
+      strokes: sigStrokes(),
+      actSig: btns(['Cancel'], ['Add signature', { variant: 'primary' }]),
+      sigFoot: h('span', { style: { font: 'var(--type-caption)', color: 'var(--text-tertiary)' } }, 'Saved only on this device.'),
+      kSig: ['⌥', 'S'],
+      tcBoxes: '41239876516'.split(''),
+      actFind: btns(['Find fields', { size: 'sm', icon: 'scan' }]),
+      fillTools: tools.map((t, i) => ({ icon: t[0], label: t[1], keys: t[2], bg: i === 0 ? 'var(--surface-selected)' : 'transparent', color: i === 0 ? 'var(--text-accent)' : 'var(--text-primary)' })),
+      inkOptions: [{ value: 'black', label: 'Black' }, { value: 'blue', label: 'Blue (#1A3170)' }]
+    };
+  }
+}
+</script>
+</body>
+</html>

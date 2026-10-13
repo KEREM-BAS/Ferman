@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div style="width:{{ ow }};height:{{ oh }};box-sizing:border-box;padding:12px;border-radius:{{ outerR }};background:#151412;box-shadow:0 0 0 1px #3A3733,0 30px 60px -20px rgba(20,19,17,.45)">
+<div style="position:relative;width:100%;height:100%;overflow:hidden;border-radius:{{ innerR }};background:{{ screenBg }};color:var(--text-primary);display:flex;flex-direction:column;font:400 15px/20px var(--font-ui)">
+<sc-if value="{{ showStatus }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="height:{{ statusH }};flex:none;display:flex;align-items:{{ statusAlign }};justify-content:space-between;padding:{{ statusPad }};font:600 15px/1 var(--font-ui);color:{{ statusColor }};font-variant-numeric:tabular-nums;background:{{ barBg }};position:relative;z-index:2">
+<span dir="ltr">{{ clock }}</span>
+<sc-if value="{{ isIos }}" hint-placeholder-val="{{ true }}"><span style="position:absolute;top:11px;left:50%;transform:translateX(-50%);width:124px;height:36px;border-radius:20px;background:#000000"></span></sc-if>
+<span dir="ltr" style="display:flex;gap:6px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ netIcon }}" size="{{ 16 }}" stroke-width="{{ 2.2 }}" hint-size="16px,16px"></x-import><span style="position:relative;width:24px;height:12px;border-radius:3px;box-shadow:inset 0 0 0 1.5px currentColor"><span style="position:absolute;inset:2.5px;inset-inline-end:{{ batt }};border-radius:1.5px;background:currentColor"></span></span></span>
+</div></sc-if>
+<sc-if value="{{ showTop }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ isIos }}" hint-placeholder-val="{{ true }}"><div style="flex:none;background:{{ barBg }};border-bottom:{{ topBorder }};position:relative;z-index:2"><div style="height:44px;display:grid;grid-template-columns:minmax(0,1fr) auto minmax(0,1fr);align-items:center;padding:0 8px">
+<span style="display:flex;align-items:center;min-width:0"><sc-if value="{{ hasBack }}"><span data-fm-flip="" style="display:inline-flex;align-items:center;gap:2px;height:44px;padding-inline-end:6px;color:var(--text-accent);font:400 17px/1 var(--font-ui);white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-left" size="{{ 26 }}" stroke-width="{{ 2.2 }}" hint-size="26px,26px"></x-import>{{ back }}</span></sc-if><sc-if value="{{ hasLead }}"><span style="color:var(--text-accent);font:400 17px/1 var(--font-ui);padding-inline-start:8px">{{ lead }}</span></sc-if></span>
+<span style="font:600 17px/22px var(--font-ui);text-align:center;max-width:200px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap" dir="auto">{{ inlineTitle }}</span>
+<span style="display:flex;justify-content:flex-end;align-items:center;gap:2px"><sc-for list="{{ actions }}" as="a" hint-placeholder-count="2"><sc-if value="{{ a.isText }}"><span style="padding:0 8px;color:var(--text-accent);font:{{ a.font }}">{{ a.text }}</span></sc-if><sc-if value="{{ a.isIcon }}"><span title="{{ a.label }}" style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 22 }}" stroke-width="{{ 1.8 }}" label="{{ a.label }}" hint-size="22px,22px"></x-import></span></sc-if></sc-for></span>
+</div><sc-if value="{{ large }}"><div dir="auto" style="padding:2px 16px 10px;font:700 32px/40px var(--font-ui);letter-spacing:-0.01em;text-align:start">{{ title }}</div></sc-if></div></sc-if>
+<sc-if value="{{ isAndroid }}"><div style="height:64px;flex:none;display:flex;align-items:center;gap:4px;padding:0 4px;background:{{ barBg }};border-bottom:{{ topBorder }};position:relative;z-index:2"><sc-if value="{{ hasNav }}"><span data-fm-flip="" title="{{ navLabel }}" style="width:48px;height:48px;display:grid;place-items:center;color:var(--icon-primary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ navIcon }}" size="{{ 24 }}" stroke-width="{{ 1.8 }}" hint-size="24px,24px"></x-import></span></sc-if><span dir="auto" style="flex:1;min-width:0;padding-inline-start:{{ titlePad }};font:400 22px/28px var(--font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ title }}</span><sc-for list="{{ actions }}" as="a" hint-placeholder-count="2"><sc-if value="{{ a.isText }}"><span style="padding:0 12px;color:var(--text-accent);font:500 14px/1 var(--font-ui)">{{ a.text }}</span></sc-if><sc-if value="{{ a.isIcon }}"><span title="{{ a.label }}" style="width:48px;height:48px;display:grid;place-items:center;color:var(--icon-primary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 24 }}" stroke-width="{{ 1.8 }}" label="{{ a.label }}" hint-size="24px,24px"></x-import></span></sc-if></sc-for></div></sc-if>
+</sc-if>
+<div style="flex:1;min-height:0;overflow:hidden;display:flex;flex-direction:column;background:{{ contentBg }}">{{ children }}</div>
+<sc-if value="{{ showTabs }}" hint-placeholder-val="{{ true }}">
+<sc-if value="{{ isIos }}" hint-placeholder-val="{{ true }}"><nav aria-label="{{ tabsLabel }}" style="height:83px;flex:none;box-sizing:border-box;padding-top:6px;display:grid;grid-template-columns:repeat(4,1fr);align-items:start;background:{{ barBg }};border-top:1px solid var(--border-subtle);position:relative;z-index:2"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><span aria-current="{{ t.cur }}" style="display:grid;justify-items:center;gap:3px;height:49px;align-content:center;color:{{ t.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 25 }}" stroke-width="{{ t.sw }}" hint-size="25px,25px"></x-import><span style="font:500 10.5px/1 var(--font-ui)">{{ t.label }}</span></span></sc-for></nav></sc-if>
+<sc-if value="{{ isAndroid }}"><nav aria-label="{{ tabsLabel }}" style="height:80px;flex:none;display:grid;grid-template-columns:repeat(4,1fr);align-items:center;background:{{ navBg }};position:relative;z-index:2"><sc-for list="{{ tabs }}" as="t" hint-placeholder-count="4"><span aria-current="{{ t.cur }}" style="display:grid;justify-items:center;gap:4px;color:{{ t.c }}"><span style="width:56px;height:32px;display:grid;place-items:center;border-radius:8px;background:{{ t.ind }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 24 }}" stroke-width="{{ t.sw }}" hint-size="24px,24px"></x-import></span><span style="font:{{ t.font }}">{{ t.label }}</span></span></sc-for></nav></sc-if>
+</sc-if>
+<sc-if value="{{ hasFab }}"><span title="{{ fabLabel }}" style="position:absolute;inset-inline-end:16px;bottom:{{ fabBottom }};z-index:3;width:56px;height:56px;display:grid;place-items:center;border-radius:var(--radius-xl);background:var(--accent);color:#FFFFFF;box-shadow:var(--shadow-popover)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ fab }}" size="{{ 24 }}" stroke-width="{{ 2 }}" label="{{ fabLabel }}" hint-size="24px,24px"></x-import></span></sc-if>
+{{ overlay }}
+<sc-if value="{{ isIos }}" hint-placeholder-val="{{ true }}"><span aria-hidden="true" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:134px;height:5px;border-radius:3px;background:{{ homeInd }};z-index:9"></span></sc-if>
+<sc-if value="{{ isAndroid }}"><span aria-hidden="true" style="position:absolute;bottom:6px;left:50%;transform:translateX(-50%);width:108px;height:4px;border-radius:2px;background:{{ homeInd }};z-index:9"></span></sc-if>
+</div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:417,&quot;height&quot;:876},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ios&quot;,&quot;android&quot;],&quot;default&quot;:&quot;ios&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Ferman&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;large&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:true,&quot;tsType&quot;:&quot;boolean&quot;},&quot;back&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;home&quot;,&quot;files&quot;,&quot;scan&quot;,&quot;settings&quot;,&quot;none&quot;],&quot;default&quot;:&quot;home&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;bars&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;full&quot;,&quot;top&quot;,&quot;status&quot;,&quot;none&quot;],&quot;default&quot;:&quot;full&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;ar&quot;,&quot;de&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;fab&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;actions&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;array&quot;},&quot;overlay&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+const TABS = {
+  en: ['Home', 'Files', 'Scan', 'Settings'], tr: ['Ana sayfa', 'Dosyalar', 'Tara', 'Ayarlar'], ar: ['الرئيسية', 'الملفات', 'مسح', 'الإعدادات'], de: ['Start', 'Dateien', 'Scannen', 'Einstellungen']
+};
+const TAB_IDS = ['home', 'files', 'scan', 'settings'];
+const TAB_ICONS = ['house', 'folder', 'scan', 'settings'];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const ios = (p.platform || 'ios') === 'ios';
+    const bars = p.bars || 'full';
+    const lang = TABS[p.lang] ? p.lang : 'en';
+    const dark = !!p.darkScreen;
+    const tab = p.tab === undefined ? 'home' : p.tab;
+    const ar = lang === 'ar';
+    const dg = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+    const acts = (p.actions || []).map((a) => typeof a === 'string' ? { isText: true, isIcon: false, text: a, font: '400 17px/1 var(--font-ui)' } : { isText: !!a.text, isIcon: !a.text, text: a.text, icon: a.icon, label: a.label, font: a.bold ? '600 17px/1 var(--font-ui)' : '400 17px/1 var(--font-ui)' });
+    const tabs = TAB_IDS.map((id, i) => {
+      const on = id === tab;
+      return { label: TABS[lang][i], icon: TAB_ICONS[i], cur: on ? 'page' : undefined, c: on ? 'var(--text-accent)' : 'var(--text-secondary)', sw: on ? 2.1 : 1.6, ind: on ? 'var(--accent-subtle)' : 'transparent', font: on ? '600 12px/1 var(--font-ui)' : '500 12px/1 var(--font-ui)' };
+    });
+    const showTabs = bars === 'full' && tab !== 'none';
+    return {
+      isIos: ios, isAndroid: !ios,
+      ow: p.landscape ? (ios ? '876px' : '939px') : (ios ? '417px' : '436px'), oh: p.landscape ? (ios ? '417px' : '436px') : (ios ? '876px' : '939px'), outerR: ios ? '66px' : '48px', innerR: ios ? '55px' : '38px',
+      screenBg: dark ? '#000000' : 'var(--surface-panel)',
+      contentBg: p.contentBg || (dark ? '#000000' : 'var(--surface-panel)'),
+      barBg: dark ? 'transparent' : (p.barBg || 'var(--surface-panel)'),
+      navBg: p.barBg || 'var(--surface-raised)',
+      statusColor: dark ? '#FFFFFF' : 'var(--text-primary)', homeInd: dark ? '#FFFFFF' : 'var(--text-primary)',
+      showStatus: bars !== 'none', showTop: bars === 'full' || bars === 'top',
+      statusH: ios ? '54px' : '36px', statusAlign: ios ? 'center' : 'center', statusPad: ios ? '6px 34px 0 46px' : '0 20px 0 24px',
+      clock: dg(p.clock || (ios ? '9:41' : '14:32')), netIcon: p.offline ? 'wifi-off' : 'wifi', batt: p.lowBatt ? '16px' : '5px',
+      hasBack: !!p.back, back: p.back, hasLead: !!p.lead, lead: p.lead,
+      title: p.title || '', inlineTitle: p.large ? '' : (p.title || ''), large: ios && !!p.large,
+      hasNav: !ios && p.nav !== 'none', navIcon: p.nav === 'menu' ? 'menu' : (p.nav === 'close' ? 'x' : 'arrow-left'), navLabel: p.nav === 'menu' ? 'Menu' : 'Back', titlePad: p.nav === 'none' ? '16px' : '4px',
+      topBorder: p.flatTop ? 'none' : '1px solid var(--border-subtle)',
+      actions: acts, tabs, showTabs, tabsLabel: 'Sections',
+      hasFab: !ios && !!p.fab, fab: p.fab, fabLabel: p.fabLabel || 'New', fabBottom: showTabs ? '96px' : '28px',
+      overlay: p.overlay
+    };
+  }
+}
+</script>
+</body>
+</html>

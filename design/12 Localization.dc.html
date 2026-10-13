@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">12 · Localization validation</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">The same editor state in Turkish, German, Arabic and Japanese, and the start screen in Arabic and German. The shell is built with logical properties, so Arabic mirrors the chrome while the PDF page keeps its own direction.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">Rules applied everywhere</h2>
+<div style="display:flex;gap:32px;align-items:flex-start;flex-wrap:wrap">
+<div style="width:760px;display:grid;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-lg);overflow:hidden">
+<div style="display:grid;grid-template-columns:120px 150px 130px 70px 70px minmax(0,1fr);gap:12px;padding:10px 16px;background:var(--surface-sunken);font:var(--type-label);color:var(--text-tertiary)"><span>LOCALE</span><span>DATE · TIME</span><span>NUMBER</span><span>PAPER</span><span>UNITS</span><span>FONT SIZE</span></div>
+<sc-for list="{{ formats }}" as="f" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:120px 150px 130px 70px 70px minmax(0,1fr);gap:12px;align-items:center;padding:10px 16px;border-top:1px solid var(--border-subtle);font:var(--type-body);font-variant-numeric:tabular-nums"><span style="font:var(--type-body-strong)">{{ f.loc }}</span><span lang="{{ f.code }}">{{ f.date }}</span><span lang="{{ f.code }}">{{ f.num }}</span><span>{{ f.paper }}</span><span>{{ f.units }}</span><span lang="{{ f.code }}">{{ f.size }}</span></div></sc-for>
+</div>
+<div style="width:420px;display:grid;gap:14px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-lg)">
+<span style="font:var(--type-panel-title)">Turkish capitals</span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><div style="display:grid;gap:4px;padding:12px;border-radius:var(--radius-md);background:var(--success-bg);border:1px solid var(--success-border)"><span style="font:var(--type-caption);color:var(--success)">lang="tr"</span><span lang="tr" style="font:600 22px/1.2 var(--font-ui);text-transform:uppercase">imzala · kiracı</span></div><div style="display:grid;gap:4px;padding:12px;border-radius:var(--radius-md);background:var(--danger-bg);border:1px solid var(--danger-border)"><span style="font:var(--type-caption);color:var(--danger)">Wrong: English rules</span><span lang="en" style="font:600 22px/1.2 var(--font-ui);text-transform:uppercase">imzala · kiracı</span></div></div>
+<span style="font:var(--type-caption);color:var(--text-secondary)">Every element that uppercases text carries the language of its text, so i → İ and ı → I. Search folds case the same way.</span>
+<span style="font:var(--type-panel-title);margin-top:6px">Long labels</span>
+<span style="font:var(--type-caption);color:var(--text-secondary)">Layouts take +40%. Buttons, menu items and panel labels wrap to a second line; tool-row labels hide behind their icon (tooltip keeps the full text) only when the row runs out of space, starting from the right; tabs and file names truncate with the full name in a tooltip.</span>
+</div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">12.1 · Main editor, Edit mode, same document state</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a12-1tr" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.1a</span><span style="font:600 26px/1.2 var(--font-ui)">Editor — Türkçe</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="tr" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" lang="tr" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" lang="tr" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · 10,5 pt" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" lang="tr" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Decimal comma (10,5 pt; 25,4 mm), “Sayfa 1 / 3”. “Organize” becomes “Sayfalar” so it can’t be confused with Düzenle (Edit).</p></div>
+<div id="a12-1de" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.1b</span><span style="font:600 26px/1.2 var(--font-ui)">Editor — Deutsch</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Windows 11 · Light</span></div>
+<div class="fm-root" data-theme="light" lang="de" style="position:relative;width:1440px;height:900px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="win" mode="edit" lang="de" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" lang="de" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · 10,5 pt" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" lang="de" platform="win" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">The longest set of labels. The mode bar fits all eight modes; panel labels such as “Rechtschreibung prüfen” wrap rather than truncate; the status bar reads “Nicht gespeicherte Änderungen”.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a12-1ar" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.1c</span><span style="font:600 26px/1.2 var(--font-ui)">Editor — العربية, full right-to-left</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="ar" dir="rtl" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" lang="ar" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" lang="ar" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · ١٠٫٥ pt" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" lang="ar" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Window controls, tabs, sidebar and panel mirror; undo and redo arrows flip; Arabic-Indic digits in the chrome. The Turkish page is not mirrored and its marks (margin bar, frame label) stay on the page’s own start side.</p></div>
+<div id="a12-1ja" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.1d</span><span style="font:600 26px/1.2 var(--font-ui)">Editor — 日本語</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="ja" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" lang="ja" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" lang="ja" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · 10.5 pt" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" lang="ja" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">IBM Plex Sans JP with 20 px leading at 13 px; no synthesized bold or italic anywhere in the chrome. Japanese labels are shorter, so nothing truncates.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">12.2 · Start screen in Arabic and German</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a12-2a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.2a</span><span style="font:600 26px/1.2 var(--font-ui)">Start — العربية</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="ar" dir="rtl" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="mac" lang="ar" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Grid flows right to left. File names keep their own direction (Turkish names read left to right inside the Arabic UI, isolated with dir="auto"); paths stay left to right.</p></div>
+<div id="a12-2b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">12.2b</span><span style="font:600 26px/1.2 var(--font-ui)">Start — Deutsch</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Windows 11 · Light</span></div>
+<div class="fm-root" data-theme="light" lang="de" style="position:relative;width:1440px;height:900px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px -12px rgba(20,19,17,.35)"><dc-import name="FmStart" platform="win" lang="de" hint-size="100%,100%"></dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Action descriptions wrap to two lines; dates switch to 12.10.2026. Settings in Arabic and German follow with the Settings section (11).</p></div>
+</div>
+</section>
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">12.2 · Settings in Arabic and German</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a12-2c" num="12.2c" title="Settings — العربية, right to left" dir="rtl" lang="ar" note="The pane list moves to the right, labels and descriptions read right to left, and the example values keep their own direction (dates and numbers isolated). Region formats still follow Türkiye because that is the chosen region." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="language" lang="ar" hint-size="100%,100%"></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a12-2d" num="12.2d" title="Settings — Deutsch" platform="win" lang="de" note="German labels are the longest; “Signaturen und Zertifikate” and “Texterkennung (OCR)” fit the 240 px list and wrap rather than truncate when they don’t." hint-size="1440px,1020px"><dc-import name="FmSettings" pane="language" lang="de" platform="win" hint-size="100%,100%"></dc-import></dc-import>
+</div>
+</section>
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">12.3 · Mobile viewer and Fill &amp; Sign in Arabic and Turkish</h2>
+<div style="display:flex;gap:48px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a12-3" num="12.3a" title="Home — العربية" platform="ios" lang="ar" dir="rtl" note="Tab bar, navigation and toolbar mirror; Arabic-Indic digits in the chrome. The Turkish page and its fields keep their own left-to-right layout." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" lang="ar" title="Ferman" large="{{ true }}" tab="home" hint-size="417px,876px"><dc-import name="FmMHome" platform="ios" lang="ar" hint-size="100%,100%"></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a12-3b" num="12.3b" title="Reader — العربية" platform="ios" lang="ar" dir="rtl" note="The reader chrome mirrors: previous page is on the right. Swiping still follows the document’s own direction (this page is Turkish, left to right)." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" lang="ar" title="Kira sözleşmesi" back="رجوع" tab="none" hint-size="417px,876px"><dc-import name="FmMReader" hint-size="100%,100%"><div style="position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px 34px;background:var(--surface-panel);border-top:1px solid var(--border-subtle)"><span data-fm-flip="" style="color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-left" size="{{ 26 }}" label="السابق" hint-size="26px,26px"></x-import></span><span style="font:500 15px/1 var(--font-ui);font-variant-numeric:tabular-nums">الصفحة ١ من ٣</span><span data-fm-flip="" style="color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-right" size="{{ 26 }}" label="التالي" hint-size="26px,26px"></x-import></span></div></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a12-3c" num="12.3c" title="Fill — العربية" platform="android" lang="ar" dir="rtl" note="Tab bar, navigation and toolbar mirror; Arabic-Indic digits in the chrome. The Turkish page and its fields keep their own left-to-right layout." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" lang="ar" title="تغيير العنوان" nav="arrow" actions="{{ actAr }}" tab="none" hint-size="436px,939px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div dir="ltr" style="flex:none;zoom:0.6;margin-top:-30px"><dc-import name="DocForm" filled="partial" focus="ad" extra="{{ typing }}" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:4px;height:48px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)"><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 24 }}" label="السابق" hint-size="24px,24px"></x-import></span><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 24 }}" label="التالي" hint-size="24px,24px"></x-import></span><span role="status" style="flex:1;display:grid;text-align:center"><span style="font:500 13px/16px var(--font-ui)">الحقل ٣ من ٢٠ · Adı</span><span style="font:400 12px/15px var(--font-ui);color:var(--danger)">بقي ١٣ حقلًا مطلوبًا</span></span><span style="padding:0 10px;color:var(--text-accent);font:600 16px/1 var(--font-ui)">تم</span></div>
+<dc-import name="FmKeyboard" platform="android" layout="ar" caps="{{ true }}" ret="رجوع" space="مسافة" hint-size="100%,300px"></dc-import>
+</dc-import></dc-import>
+<dc-import name="FmBoard" bid="a12-3d" num="12.3d" title="Reader — Türkçe" platform="android" lang="tr" dir="ltr" note="Turkish labels, decimal comma and 13.10.2026 dates. The Turkish keyboard shows ğ ü ş ı ö ç; capitals follow Turkish rules (AYŞE, İSTANBUL)." hint-size="436px,1060px">
+<dc-import name="FmPhone" platform="android" lang="tr" title="Kira sözleşmesi" nav="arrow" tab="none" hint-size="436px,939px"><dc-import name="FmMReader" hint-size="100%,100%"><div style="position:absolute;left:0;right:0;bottom:0;z-index:3;display:flex;align-items:center;justify-content:space-between;gap:10px;padding:12px 20px 34px;background:var(--surface-panel);border-top:1px solid var(--border-subtle)"><span data-fm-flip="" style="color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-left" size="{{ 26 }}" label="Önceki" hint-size="26px,26px"></x-import></span><span style="font:500 15px/1 var(--font-ui);font-variant-numeric:tabular-nums">Sayfa 1 / 3</span><span data-fm-flip="" style="color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-right" size="{{ 26 }}" label="Sonraki" hint-size="26px,26px"></x-import></span></div></dc-import></dc-import></dc-import>
+<dc-import name="FmBoard" bid="a12-3e" num="12.3e" title="Fill — Türkçe" platform="ios" lang="tr" dir="ltr" note="Turkish labels, decimal comma and 13.10.2026 dates. The Turkish keyboard shows ğ ü ş ı ö ç; capitals follow Turkish rules (AYŞE, İSTANBUL)." hint-size="417px,1000px">
+<dc-import name="FmPhone" platform="ios" lang="tr" title="Adres değişikliği" back="Geri" actions="{{ actTr }}" tab="none" hint-size="417px,876px">
+<div style="flex:1;min-height:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center"><div dir="ltr" style="flex:none;zoom:0.6;margin-top:-30px"><dc-import name="DocForm" filled="partial" focus="ad" extra="{{ typing }}" hint-size="794px,1123px"></dc-import></div></div>
+<div style="flex:none;display:flex;align-items:center;gap:4px;height:48px;padding:0 6px;background:var(--surface-raised);border-top:1px solid var(--border-subtle)"><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-up" size="{{ 24 }}" label="Önceki" hint-size="24px,24px"></x-import></span><span style="width:44px;height:44px;display:grid;place-items:center;color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 24 }}" label="Sonraki" hint-size="24px,24px"></x-import></span><span role="status" style="flex:1;display:grid;text-align:center"><span style="font:500 13px/16px var(--font-ui)">Alan 3 / 20 · Adı</span><span style="font:400 12px/15px var(--font-ui);color:var(--danger)">13 zorunlu alan kaldı</span></span><span style="padding:0 10px;color:var(--text-accent);font:600 16px/1 var(--font-ui)">Bitti</span></div>
+<dc-import name="FmKeyboard" platform="ios" layout="tr" caps="{{ true }}" ret="git" space="boşluk" hint-size="100%,300px"></dc-import>
+</dc-import></dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      typing: { ad: 'AYŞ' },
+      actAr: [{ text: 'إنهاء', bold: true }],
+      actTr: [{ text: 'Bitir', bold: true }],
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      formats: [
+        { loc: 'English (US)', code: 'en', date: '10/13/2026 · 2:32 PM', num: '18,500.50', paper: 'Letter', units: 'in', size: '10.5 pt' },
+        { loc: 'Türkçe', code: 'tr', date: '13.10.2026 · 14:32', num: '18.500,50', paper: 'A4', units: 'mm', size: '10,5 pt' },
+        { loc: 'Deutsch', code: 'de', date: '13.10.2026 · 14:32', num: '18.500,50', paper: 'A4', units: 'mm', size: '10,5 pt' },
+        { loc: 'العربية', code: 'ar', date: '١٣‏/١٠‏/٢٠٢٦ · ١٤:٣٢', num: '١٨٬٥٠٠٫٥٠', paper: 'A4', units: 'mm', size: '١٠٫٥ pt' },
+        { loc: '日本語', code: 'ja', date: '2026/10/13 · 14:32', num: '18,500.50', paper: 'A4', units: 'mm', size: '10.5 pt' },
+        { loc: 'English (UK)', code: 'en', date: '13/10/2026 · 14:32', num: '18,500.50', paper: 'A4', units: 'mm', size: '10.5 pt' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

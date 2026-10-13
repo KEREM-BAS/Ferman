@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:120px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">00 · Fixes to the current editor kit</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Six problems found in the editor kit, fixed in the design system before any other screen was drawn. Each fix lives in <code style="font:var(--type-mono);font-size:16px">ds-additions/fm-additions.css</code> as a token or a patch to an existing component, so every artboard in this project already uses the corrected version.</p>
+</header>
+
+<section id="f1" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 1</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">The text-frame label never covers content</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">The font · size tab sat on top of the line above the selected block. It now attaches outside the frame and picks the first free side: above, then below, then the page margin.</p></div>
+<div style="display:flex;gap:40px;flex-wrap:wrap;align-items:flex-start">
+<div style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="danger" hint-size="56px,18px">Before</x-import><span style="font:500 17px/1.3 var(--font-ui)">Label covers the IBAN line</span></div><div style="width:700px;height:236px;overflow:hidden;position:relative;border-radius:8px;background:var(--surface-canvas);box-shadow:0 0 0 1px var(--border-subtle)"><div style="position:absolute;top:-466px;left:-40px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4b" meta-place="above" meta-text="IBM Plex Serif · 10.5 pt" hint-size="794px,1123px"></dc-import></div></div></div>
+<div style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" hint-size="48px,18px">After</x-import><span style="font:500 17px/1.3 var(--font-ui)">No room above, so it flips below</span></div><div style="width:700px;height:236px;overflow:hidden;position:relative;border-radius:8px;background:var(--surface-canvas);box-shadow:0 0 0 1px var(--border-subtle)"><div style="position:absolute;top:-466px;left:-40px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4b" meta-place="below" meta-text="IBM Plex Serif · 10.5 pt" hint-size="794px,1123px"></dc-import></div></div></div>
+<div style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" hint-size="48px,18px">After</x-import><span style="font:500 17px/1.3 var(--font-ui)">Heading above, IBAN below, so it moves into the margin</span></div><div style="width:700px;height:236px;overflow:hidden;position:relative;border-radius:8px;background:var(--surface-canvas);box-shadow:0 0 0 1px var(--border-subtle)"><div style="position:absolute;top:-466px;left:40px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · 10.5 pt" hint-size="794px,1123px"></dc-import></div></div></div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,360px));gap:32px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">1 · Above.</b> Default when the 20 px above the frame are empty (label 18 px + 2 px gap). Starts at the frame’s start edge; in right-to-left documents it starts at the right.</p>
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">2 · Below.</b> Used when text, an image, a mark or the page edge is directly above. The tab shape flips so its flat edge touches the frame.</p>
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">3 · Margin.</b> When neither side is free, the label sits beside the first line, outside the text column. It can extend past the page edge; it never overlaps text, handles or other marks.</p>
+</div>
+<p style="margin:0;font:var(--type-mono);font-size:15px;color:var(--text-tertiary)">TextEditBox · new attribute data-meta-placement = above | below | margin · token --editbox-meta-h: 18px · placement is recalculated while the frame is dragged or resized.</p>
+</section>
+
+<section id="f2" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 2</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">The missing-glyph warning appears once</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">The same sentence was shown under the font field and again in the callout. Now the font field carries only a small amber icon; the sentence and the way out live in the warning callout.</p></div>
+<div style="display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+<div style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="danger" hint-size="56px,18px">Before</x-import><span style="font:500 17px/1.3 var(--font-ui)">Same warning twice</span></div>
+<div style="width:264px;background:var(--surface-panel);border-radius:8px;box-shadow:0 0 0 1px var(--border-subtle);overflow:hidden"><div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">Text block</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Text" collapsible="{{ false }}" hint-size="100%,260px"><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="Garamond Premier Pro" fonts="{{ fonts }}" warning="This font has no ‘ğ’. Ferman will use a similar font for this character." hint-size="100%,60px"></x-import><div style="display:flex;gap:8px"><dc-import name="FmNumber" value="{{ 11.5 }}" precision="{{ 1 }}" unit="pt" width="{{ 92 }}" hint-size="92px,26px"></dc-import><div style="flex:1;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.ColorPicker" value="#1F1D1A" hint-size="100%,26px"></x-import></div></div><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="warning" hint-size="100%,70px">This font has no ‘ğ’. Ferman will use a similar font for this character.</x-import></x-import></div></div>
+<div style="display:grid;gap:12px"><div style="display:flex;gap:10px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="success" hint-size="48px,18px">After</x-import><span style="font:500 17px/1.3 var(--font-ui)">Icon in the field, message once</span></div>
+<div style="width:264px;background:var(--surface-panel);border-radius:8px;box-shadow:0 0 0 1px var(--border-subtle);overflow:hidden"><div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">Text block</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">Edited</x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Text" collapsible="{{ false }}" hint-size="100%,260px"><div data-fm-glyph-warning="" title="Missing ‘ğ’. Details below."><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="Garamond Premier Pro" fonts="{{ fonts }}" hint-size="100%,26px"></x-import></div><div style="display:flex;gap:8px"><dc-import name="FmNumber" value="{{ 11.5 }}" precision="{{ 1 }}" unit="pt" width="{{ 92 }}" hint-size="92px,26px"></dc-import><div style="flex:1;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.ColorPicker" value="#1F1D1A" hint-size="100%,26px"></x-import></div></div><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="warning" title="Missing character" hint-size="100%,96px">This font has no ‘ğ’. Ferman will use a similar font for this character.</x-import><div style="display:flex;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="110px,26px">Choose a font…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="80px,26px">Keep as is</x-import></div></x-import></div></div>
+<div style="max-width:520px;display:grid;gap:14px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary);padding-top:40px">
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">Font field.</b> Amber border and a 14 px triangle before the name. Tooltip: “Missing ‘ğ’. Details below.” Screen readers hear “Font, Garamond Premier Pro, warning: missing character”.</p>
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">Callout.</b> The only place with the sentence. Names the exact character and what Ferman does, then offers “Choose a font…” (opens the substitution picker, 3.3) or “Keep as is”.</p>
+<p style="margin:0"><b style="color:var(--text-primary);font-weight:600">On the page.</b> The glyph keeps its amber wavy underline and the frame tab turns amber.</p>
+<p style="margin:0;font:var(--type-mono);font-size:15px;color:var(--text-tertiary)">FontPicker · new state [data-fm-glyph-warning] · the `warning` prop is reserved for fonts that are not installed.</p>
+</div>
+</div>
+</section>
+
+<section id="f3" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 3</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">Edited text and highlights look different</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">Edit marking used a tinted fill, too close to a highlight annotation. Edited text now gets a subtle dotted underline and a bar in the left margin, both in the accent ink. Highlights keep the translucent marker colours. Edit marking never uses yellow.</p></div>
+<div style="display:flex;gap:32px;flex-wrap:wrap;align-items:flex-start">
+<div style="display:grid;gap:12px;width:420px"><span style="font:500 17px/1.3 var(--font-ui)">Edited text · Ferman’s own marking</span><div dir="ltr" lang="tr" style="position:relative;padding:28px 32px 28px 44px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 15px/1.6 var(--font-doc-sample);color:#1F1D1A;text-align:justify"><span aria-hidden="true" style="position:absolute;left:30px;top:28px;height:24px;width:2px;border-radius:1px;background:var(--edit-mark)"></span>Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL</x-import>’yi her ayın beşinci gününe kadar kiraya verenin hesabına öder.</div><span style="font:400 15px/1.5 var(--font-ui);color:var(--text-secondary)">Dotted 1.5 px underline + 2 px margin bar, --edit-mark (ink 600, 7:1 on white). Only on the lines that changed. Shown while “Mark edited text” is on; never saved into the PDF or printed.</span></div>
+<div style="display:grid;gap:12px;width:420px"><span style="font:500 17px/1.3 var(--font-ui)">Highlight · an annotation in the file</span><div dir="ltr" lang="tr" style="padding:28px 32px 28px 44px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 15px/1.6 var(--font-doc-sample);color:#1F1D1A;text-align:justify">Kiracı, aylık kira bedeli olan 18.500 TL’yi <x-import component-from-global-scope="FermanDesignSystem_278323.Highlight" color="yellow" hint-size="180px,20px">her ayın beşinci gününe kadar</x-import> kiraya verenin hesabına öder.</div><span style="font:400 15px/1.5 var(--font-ui);color:var(--text-secondary)">Translucent marker colour multiplied onto the text (--annot-yellow, green, blue, pink, orange). Saved in the PDF, listed in Comments, printed by default.</span></div>
+<div style="display:grid;gap:12px;width:420px"><span style="font:500 17px/1.3 var(--font-ui)">Both on the same line</span><div dir="ltr" lang="tr" style="position:relative;padding:28px 32px 28px 44px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 15px/1.6 var(--font-doc-sample);color:#1F1D1A;text-align:justify"><span aria-hidden="true" style="position:absolute;left:30px;top:28px;height:24px;width:2px;border-radius:1px;background:var(--edit-mark)"></span>Kiracı, aylık kira bedeli olan <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL</x-import>’yi <x-import component-from-global-scope="FermanDesignSystem_278323.Highlight" color="yellow" hint-size="180px,20px">her ayın beşinci gününe kadar</x-import> kiraya verenin hesabına öder.</div><span style="font:400 15px/1.5 var(--font-ui);color:var(--text-secondary)">The two never compete: one is a line, the other a fill. A highlighted edit shows the fill under the dotted line.</span></div>
+</div>
+</section>
+
+<section id="f4" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 4</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">Save state is always honest</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">With unsaved edits the Save button is enabled, the tab shows a dot and the status bar says “Unsaved changes”. After saving the button is disabled, the dot goes away and the status bar says “Saved on this device · 14:32”.</p></div>
+<div style="display:flex;gap:64px;flex-wrap:wrap;align-items:flex-start">
+<div id="f4a" style="display:grid;gap:14px"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">F4a</span><span style="font:600 26px/1.2 var(--font-ui)">Main editor — unsaved changes</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsUnsaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Save is primary and enabled (⌘S). Tab: dot replaces the close button; screen readers hear “Kira sözleşmesi.pdf, unsaved changes”. Status bar item is a polite live region.</p></div>
+<div id="f4b" style="display:grid;gap:14px"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">F4b</span><span style="font:600 26px/1.2 var(--font-ui)">Main editor — saved</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="saved" saved-at="14:32" tabs="{{ tabsSaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Save is disabled with the tooltip “No changes to save”. Edit marks stay until the document is closed, so you can still review what changed in this session.</p></div>
+<div style="display:grid;gap:14px;width:460px"><span style="font:600 22px/1.2 var(--font-ui)">All save states</span>
+<div style="display:grid;gap:0;background:var(--surface-panel);border-radius:8px;box-shadow:0 0 0 1px var(--border-subtle);overflow:hidden">
+<div style="display:grid;grid-template-columns:120px 90px minmax(0,1fr);align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-body-strong)">Unsaved</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="sm" icon="save" hint-size="70px,26px">Save</x-import><span style="display:inline-flex;align-items:center;gap:6px;font:var(--type-caption)"><span style="width:7px;height:7px;border-radius:50%;background:var(--warning-solid)"></span>Unsaved changes</span></div>
+<div style="display:grid;grid-template-columns:120px 90px minmax(0,1fr);align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-body-strong)">Saving</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="sm" loading="{{ true }}" hint-size="70px,26px">Save</x-import><span style="display:inline-flex;align-items:center;gap:6px;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 12 }}" hint-size="12px,12px"></x-import>Saving…</span></div>
+<div style="display:grid;grid-template-columns:120px 90px minmax(0,1fr);align-items:center;gap:12px;padding:14px 16px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-body-strong)">Saved</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="sm" icon="save" disabled="{{ true }}" hint-size="70px,26px">Save</x-import><span style="display:inline-flex;align-items:center;gap:6px;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="hard-drive" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>Saved on this device · 14:32</span></div>
+<div style="display:grid;grid-template-columns:120px 90px minmax(0,1fr);align-items:center;gap:12px;padding:14px 16px"><span style="font:var(--type-body-strong)">Couldn’t save</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="sm" icon="save" hint-size="70px,26px">Save</x-import><span style="display:inline-flex;align-items:center;gap:6px;font:var(--type-caption);color:var(--danger)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-alert" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>Couldn’t save</span></div>
+</div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toast" tone="danger" title="Couldn’t save" message="The disk is full. Free some space or save somewhere else." action="{{ saveAsAction }}" hint-size="360px,72px"></x-import>
+</div>
+</div>
+</section>
+
+<section id="f5" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 5</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">Thumbnail badges have a legend</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">One unexplained corner dot became five defined badges, stacked at the thumbnail’s top-end corner in a fixed order. The info button in the Pages header opens the legend; each badge has a tooltip.</p></div>
+<div style="display:flex;gap:56px;align-items:flex-start;flex-wrap:wrap">
+<div class="fm-root" style="position:relative;width:420px;height:640px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle);background:var(--surface-canvas);display:flex"><dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" legend="{{ true }}" hint-size="216px,640px"></dc-import></div>
+<div style="display:grid;gap:18px;justify-items:start">
+<span style="font:500 17px/1.3 var(--font-ui)">Tooltip on a badge</span>
+<div style="position:relative;padding:24px 160px 24px 24px;background:var(--surface-panel);border-radius:8px;box-shadow:0 0 0 1px var(--border-subtle)"><div style="position:relative;width:208px;height:294px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default),var(--shadow-sm);border-radius:1px"><span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 20%"></span><span style="position:absolute;top:8px;inset-inline-end:8px;display:grid;gap:6px;justify-items:center;width:32px"><span style="width:16px;height:16px;margin-block:4px;border-radius:50%;background:var(--edit-changed);box-shadow:0 0 0 4px #FFFFFF"></span><span style="width:32px;height:32px;display:grid;place-items:center;border-radius:4px;background:#FFFFFF;box-shadow:0 0 0 2px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="message-square" size="{{ 20 }}" hint-size="20px,20px"></x-import></span><x-import component-from-global-scope="FermanDesignSystem_278323.Tooltip" content="1 warning · Madde 6 uses a font without ‘ğ’" side="right" open="{{ true }}" hint-size="32px,32px"><span tabindex="0" style="width:32px;height:32px;display:grid;place-items:center;border-radius:4px;background:var(--amber-50);box-shadow:0 0 0 2px var(--amber-200),var(--focus-ring);color:var(--amber-700)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 20 }}" hint-size="20px,20px"></x-import></span></x-import></span></div></div>
+<span style="font:400 15px/1.5 var(--font-ui);color:var(--text-secondary);max-width:520px">Shown at 2× for legibility. Badges are 16 px chips (8 px dot for Edited) with 10 px icons at 2 px stroke. Order is fixed: edited, comments, form fields, signature, warnings. Badges are focusable inside the thumbnail with the arrow keys and announce their tooltip.</span>
+</div>
+<div style="display:grid;gap:10px;width:420px;font:400 15px/1.5 var(--font-ui);color:var(--text-secondary)">
+<span style="font:500 17px/1.3 var(--font-ui);color:var(--text-primary)">Rules</span>
+<p style="margin:0">Edited: accent dot (--edit-changed, now ink 600). Comments, form fields and signature: neutral chips on white. Warnings: the only coloured chip, amber triangle on amber tint.</p>
+<p style="margin:0">Badges sit on the page preview because the page is white in every theme, so the chip colours never change with theme.</p>
+<p style="margin:0">The page text lines step aside (inline-end inset 24%) so badges never cover the preview.</p>
+</div>
+</div>
+</section>
+
+<section id="f6" style="display:grid;gap:28px">
+<div style="display:grid;gap:8px"><span style="font:600 15px/1 var(--font-mono);color:var(--text-tertiary)">FIX 6</span><h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">Windows window chrome</h2><p style="margin:0;max-width:1100px;font:400 17px/1.55 var(--font-ui);color:var(--text-secondary)">Same layout and components; the platform layer changes. Caption buttons (minimize, maximize, close) sit flush at the top-right, 46 px wide, close turns red on hover. No traffic lights, 8 px window corners, shortcuts use Ctrl, Alt and Shift.</p></div>
+<div style="display:grid;gap:10px">
+<span style="font:500 17px/1.3 var(--font-ui)">Title bar and mode bar · macOS</span>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:79px;overflow:hidden;border-radius:10px 10px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.12)"><dc-import name="FmWindow" platform="mac" mode="edit" status="{{ false }}" tabs="{{ tabsUnsaved }}" hint-size="100%,79px"></dc-import></div>
+<span style="font:500 17px/1.3 var(--font-ui);margin-top:14px">Title bar and mode bar · Windows</span>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:79px;overflow:hidden;border-radius:8px 8px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.18)"><dc-import name="FmWindow" platform="win" mode="edit" status="{{ false }}" tabs="{{ tabsUnsaved }}" hint-size="100%,79px"></dc-import></div>
+</div>
+<div id="f6a" style="display:grid;gap:14px"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">F6a</span><span style="font:600 26px/1.2 var(--font-ui)">Main editor</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Windows 11 · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.2),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="win" mode="edit" save="unsaved" tabs="{{ tabsUnsaved }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" platform="win" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" platform="win" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Tooltips and menus read Ctrl+K, Ctrl+Z, Ctrl+Y, Ctrl+H. Dialog buttons follow Windows order (primary first, then secondary, then Cancel). Snap layouts appear on hover over maximize; the title bar area between tabs and search drags the window.</p></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      tabsUnsaved: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabsSaved: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      fonts: [
+        { name: 'IBM Plex Serif', family: 'var(--font-doc-sample)', group: 'document' },
+        { name: 'Garamond Premier Pro', family: "'EB Garamond', serif", group: 'document' },
+        { name: 'EB Garamond', family: "'EB Garamond', serif", group: 'system' }
+      ],
+      saveAsAction: { label: 'Save as…', onClick: () => {} }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div style="position:absolute;inset:0;display:flex;flex-direction:column;min-height:0;overflow:hidden;background:var(--surface-panel);color:var(--text-primary);font:var(--type-body)">
+<header style="height:var(--titlebar-h);flex:none;display:flex;align-items:stretch;background:var(--surface-sunken);border-bottom:1px solid var(--border-subtle);position:relative">
+<sc-if value="{{ isMac }}" hint-placeholder-val="{{ true }}"><div aria-hidden="true" style="flex:none;display:flex;align-items:center;gap:8px;padding-inline:14px 12px"><span style="width:12px;height:12px;border-radius:50%;background:#FF5F57;box-shadow:inset 0 0 0 0.5px rgba(0,0,0,.25)"></span><span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E;box-shadow:inset 0 0 0 0.5px rgba(0,0,0,.25)"></span><span style="width:12px;height:12px;border-radius:50%;background:#28C840;box-shadow:inset 0 0 0 0.5px rgba(0,0,0,.25)"></span></div></sc-if>
+<sc-if value="{{ isWin }}"><div style="flex:none;width:8px"></div></sc-if>
+<sc-if value="{{ bare }}"><div style="flex:1"></div></sc-if><sc-if value="{{ notBare }}" hint-placeholder-val="{{ true }}"><div style="flex:none;display:flex;align-items:center;padding-inline-end:4px"><sc-if value="{{ homeActive }}"><div style="display:flex;align-items:center;gap:8px;height:30px;padding-inline:8px 12px;margin-top:8px;align-self:flex-end;background:var(--surface-panel);border:1px solid var(--border-subtle);border-bottom:0;border-radius:8px 8px 0 0;margin-bottom:-1px;position:relative;z-index:1"><span style="font:var(--type-wordmark);font-size:15px;color:var(--text-primary)">Ferman</span></div></sc-if><sc-if value="{{ homeIdle }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="house" label="{{ t.home }}" size="sm" hint-size="26px,26px"></x-import></sc-if></div>
+<div role="tablist" aria-label="{{ t.docs }}" style="flex:1 1 auto;min-width:0;display:flex;align-items:flex-end;gap:2px;padding-top:6px">
+<sc-for list="{{ tabList }}" as="tab" hint-placeholder-count="1">
+<sc-if value="{{ tab.active }}"><div role="tab" aria-selected="true" title="{{ tab.name }}" style="flex:0 1 var(--doctab-w);min-width:var(--doctab-w-min);height:32px;display:flex;align-items:center;gap:6px;padding-inline:10px 4px;background:var(--surface-panel);border:1px solid var(--border-subtle);border-bottom:0;border-radius:8px 8px 0 0;margin-bottom:-1px;position:relative;z-index:1"><sc-if value="{{ tab.loading }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 12 }}" label="Opening" hint-size="14px,14px"></x-import></sc-if><sc-if value="{{ tab.ready }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ tab.icon }}" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import></sc-if><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:var(--type-body-strong);text-align:start" dir="auto">{{ tab.name }}</span><sc-if value="{{ tab.unsaved }}"><span title="{{ t.unsaved }}" style="width:22px;height:22px;flex:none;display:grid;place-items:center"><span style="width:7px;height:7px;border-radius:50%;background:var(--icon-primary)"></span></span></sc-if><sc-if value="{{ tab.clean }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="{{ t.closeDoc }}" size="xs" shortcut="{{ k.close }}" hint-size="22px,22px"></x-import></sc-if></div></sc-if>
+<sc-if value="{{ tab.idle }}"><div role="tab" aria-selected="false" title="{{ tab.name }}" style="flex:0 1 var(--doctab-w);min-width:var(--doctab-w-min);height:32px;display:flex;align-items:center;padding-bottom:4px"><div style="flex:1;min-width:0;height:28px;display:flex;align-items:center;gap:6px;padding-inline:10px 4px;border-radius:6px;color:var(--text-secondary)" style-hover="background:var(--surface-hover)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start" dir="auto">{{ tab.name }}</span><sc-if value="{{ tab.unsaved }}"><span title="{{ t.unsaved }}" style="width:22px;height:22px;flex:none;display:grid;place-items:center"><span style="width:7px;height:7px;border-radius:50%;background:var(--icon-secondary)"></span></span></sc-if><sc-if value="{{ tab.clean }}"><span style="width:22px;flex:none"></span></sc-if></div></div></sc-if>
+</sc-for>
+<sc-if value="{{ hasOverflow }}"><div style="flex:none;height:32px;display:flex;align-items:center;padding-bottom:4px;padding-inline-start:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" size="sm" icon-end="chevron-down" hint-size="64px,26px">{{ overflowLabel }}</x-import></div></sc-if>
+<div style="flex:none;height:32px;display:flex;align-items:center;padding-bottom:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="{{ t.open }}" size="sm" shortcut="{{ k.open }}" hint-size="26px,26px"></x-import></div>
+</div>
+<div style="flex:none;display:flex;align-items:center;gap:2px;padding-inline:8px 6px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" size="sm" icon="search" hint-size="110px,26px"><span style="display:inline-flex;gap:8px;align-items:center">{{ t.search }}<x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ k.palette }}" tone="plain" hint-size="30px,14px"></x-import></span></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="settings" label="{{ t.settings }}" size="sm" shortcut="{{ k.settings }}" hint-size="26px,26px"></x-import>
+</div></sc-if>
+<sc-if value="{{ isWin }}"><div style="flex:none;display:flex;align-items:stretch;margin-inline-start:4px"><div title="{{ t.minimize }}" style="width:var(--win-caption-w);display:grid;place-items:center;color:var(--icon-primary)" style-hover="background:var(--surface-hover)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="minus" size="{{ 16 }}" stroke-width="{{ 1 }}" hint-size="16px,16px"></x-import></div><div title="{{ t.maximize }}" style="width:var(--win-caption-w);display:grid;place-items:center;color:var(--icon-primary)" style-hover="background:var(--surface-hover)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="square" size="{{ 13 }}" stroke-width="{{ 1.2 }}" hint-size="13px,13px"></x-import></div><div title="{{ t.closeWin }}" style="width:var(--win-caption-w);display:grid;place-items:center;color:var(--icon-primary)" style-hover="background:var(--win-close-hover);color:#FFFFFF"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="x" size="{{ 16 }}" stroke-width="{{ 1 }}" hint-size="16px,16px"></x-import></div></div></sc-if>
+</header>
+<sc-if value="{{ hasMode }}" hint-placeholder-val="{{ true }}">
+<div style="height:var(--modebar-h);flex:none;display:flex;align-items:center;gap:8px;padding-inline:8px 10px;border-bottom:1px solid var(--border-subtle);background:var(--surface-panel)">
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="panel-left" label="{{ t.sidebar }}" size="sm" active="{{ sidebarOpen }}" shortcut="{{ k.sidebar }}" hint-size="26px,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ModeTabs" value="{{ mode }}" modes="{{ modes }}" label="{{ t.modeLabel }}" hint-size="640px,30px"></x-import>
+<div style="flex:1"></div>
+<sc-if value="{{ aiOn }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="sparkles" label="{{ t.ai }}" size="sm" active="{{ aiPanel }}" hint-size="26px,26px"></x-import></sc-if>
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="panel-right" label="{{ t.panel }}" size="sm" active="{{ panelOpen }}" shortcut="{{ k.panel }}" hint-size="26px,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="sm" icon="save" disabled="{{ saveDisabled }}" loading="{{ saving }}" title="{{ saveTip }}" hint-size="70px,26px">{{ t.save }}</x-import>
+</div>
+</sc-if>
+<sc-if value="{{ hasTools }}" hint-placeholder-val="{{ true }}">
+<div style="flex:none;border-bottom:1px solid var(--border-subtle);background:var(--surface-panel)">
+<sc-if value="{{ m.view }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="View tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="mouse-pointer-2" label="Select" active="{{ a.select }}" shortcut="{{ k.v }}" hint-size="80px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="hand" label="Hand" active="{{ a.hand }}" shortcut="{{ k.h }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="square-dashed" label="Marquee zoom" active="{{ a.marquee }}" shortcut="{{ k.z }}" hint-size="120px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="zoom-out" label="Zoom out" shortcut="{{ k.zoomOut }}" hint-size="30px,30px"></x-import>
+<div style="width:92px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="{{ zoomValue }}" options="{{ zoomOptions }}" aria-label="Zoom" hint-size="92px,26px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="zoom-in" label="Zoom in" shortcut="{{ k.zoomIn }}" hint-size="30px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Fit" value="{{ fit }}" options="{{ fitOptions }}" hint-size="96px,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Page layout" value="{{ layout }}" options="{{ layoutOptions }}" hint-size="124px,26px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="columns-2" label="Split view" active="{{ a.split }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="volume-2" label="Read aloud" active="{{ a.read }}" hint-size="100px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="presentation" label="Present" shortcut="{{ k.present }}" hint-size="84px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSpacer" hint-size="1px,1px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dark reading mode" checked="{{ darkReading }}" hint-size="150px,20px"></x-import>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.edit }}" hint-placeholder-val="{{ true }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="{{ t.editTools }}" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="text-cursor" label="{{ t.editText }}" active="{{ a.editText }}" shortcut="{{ k.t }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="type" label="{{ t.addText }}" active="{{ a.addText }}" shortcut="{{ k.shiftT }}" hint-size="90px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="image" label="{{ t.addImage }}" active="{{ a.addImage }}" shortcut="{{ k.i }}" hint-size="100px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="link" label="{{ t.link }}" active="{{ a.link }}" shortcut="{{ k.l }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="replace" label="{{ t.findReplace }}" active="{{ a.replace }}" shortcut="{{ k.replace }}" hint-size="120px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="droplet" label="{{ t.pageMarks }}" active="{{ a.marks }}" has-menu="{{ true }}" hint-size="120px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="undo-2" label="{{ t.undo }}" shortcut="{{ k.undo }}" hint-size="30px,30px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="redo-2" label="{{ t.redo }}" shortcut="{{ k.redo }}" disabled="{{ true }}" hint-size="30px,30px"></x-import></span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="history" label="{{ t.history }}" active="{{ a.history }}" hint-size="30px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSpacer" hint-size="1px,1px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="{{ t.markEdited }}" checked="{{ markEdited }}" hint-size="150px,20px"></x-import>
+<div style="width:8px"></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" size="sm" icon="list-checks" hint-size="120px,26px"><span style="display:inline-flex;gap:6px;align-items:center">{{ t.review }}<x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" hint-size="20px,16px">{{ editCount }}</x-import></span></x-import>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.comment }}">
+<div style="display:flex;align-items:center"><div style="flex:1;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.AnnotationTools" tool="{{ annotTool }}" color="{{ annotColor }}" tools="{{ annotTools }}" show-labels="{{ true }}" hint-size="100%,44px"></x-import></div><div style="flex:none;display:flex;align-items:center;gap:6px;padding-inline:8px 10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Show comments" checked="{{ showAnnots }}" hint-size="140px,20px"></x-import></div></div>
+</sc-if>
+<sc-if value="{{ m.sign }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="Fill and sign tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="text-cursor-input" label="Fill fields" active="{{ a.fill }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="type" label="Add text" active="{{ a.addText }}" hint-size="90px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="square-check" label="Checkmark" active="{{ a.check }}" hint-size="100px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="calendar" label="Date" active="{{ a.date }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="signature" label="Sign" active="{{ a.sign }}" has-menu="{{ true }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="pen-line" label="Initials" active="{{ a.initials }}" hint-size="80px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="badge-check" label="Digital signature" active="{{ a.cert }}" hint-size="130px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="usb" label="e-imza" active="{{ a.eimza }}" hint-size="76px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="square-pen" label="Prepare form" active="{{ a.prepare }}" hint-size="110px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSpacer" hint-size="1px,1px"></x-import>
+<sc-if value="{{ hasFieldNav }}"><div style="display:flex;align-items:center;gap:4px;font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums"><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-left" label="Previous field" shortcut="{{ k.shiftTab }}" size="sm" hint-size="26px,26px"></x-import></span><span style="font:var(--type-body-strong);color:var(--text-primary)">{{ fieldNav.label }}</span><span data-fm-flip="" style="display:contents"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-right" label="Next field" shortcut="{{ k.tab }}" size="sm" hint-size="26px,26px"></x-import></span><div style="width:6px"></div><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="danger" hint-size="110px,18px">{{ fieldNav.required }}</x-import></div></sc-if>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.organize }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="Organize tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-plus-2" label="Insert" has-menu="{{ true }}" hint-size="80px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="rotate-ccw" label="Rotate left" show-label="{{ false }}" shortcut="{{ k.rotL }}" hint-size="30px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="rotate-cw" label="Rotate right" show-label="{{ false }}" shortcut="{{ k.rotR }}" hint-size="30px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="copy" label="Duplicate" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-output" label="Extract" hint-size="80px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="replace" label="Replace" hint-size="84px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="trash-2" label="Delete" shortcut="{{ k.del }}" hint-size="76px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="split" label="Split" active="{{ a.split }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="merge" label="Combine files" active="{{ a.combine }}" hint-size="116px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="crop" label="Crop" active="{{ a.crop }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="hash" label="Page labels" active="{{ a.labels }}" hint-size="104px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSpacer" hint-size="1px,1px"></x-import>
+<span style="font:var(--type-caption);color:var(--text-tertiary);padding-inline:8px">{{ organizeHint }}</span>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.convert }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="Convert tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-type" label="Word" active="{{ a.word }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-spreadsheet" label="Excel" active="{{ a.excel }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="presentation" label="PowerPoint" active="{{ a.ppt }}" hint-size="100px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-image" label="Image" active="{{ a.img }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="code" label="HTML" active="{{ a.html }}" hint-size="70px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-text" label="Text" active="{{ a.txt }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="hash" label="Markdown" active="{{ a.md }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-input" label="Create PDF" active="{{ a.create }}" hint-size="100px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="scan" label="Scan" active="{{ a.scan }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="scan-text" label="Recognize text (OCR)" active="{{ a.ocr }}" hint-size="170px,30px"></x-import>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.protect }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="Protect tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="eye-off" label="Redact" active="{{ a.redact }}" shortcut="{{ k.r }}" hint-size="80px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-search" label="Find &amp; redact" active="{{ a.findRedact }}" hint-size="120px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="key-round" label="Password" active="{{ a.password }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="eraser" label="Remove hidden information" active="{{ a.hidden }}" hint-size="200px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="shield-check" label="Security report" active="{{ a.report }}" hint-size="130px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSpacer" hint-size="1px,1px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="danger" icon="eye-off" disabled="{{ noRedactions }}" hint-size="170px,26px">{{ applyLabel }}</x-import>
+</x-import>
+</sc-if>
+<sc-if value="{{ m.tools }}">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Toolbar" label="Tools" hint-size="100%,44px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="minimize-2" label="Compress" active="{{ a.compress }}" hint-size="96px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="git-compare" label="Compare" active="{{ a.compare }}" hint-size="90px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="accessibility" label="Accessibility" active="{{ a.a11y }}" hint-size="110px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="file-check-2" label="PDF/A &amp; preflight" active="{{ a.pdfa }}" hint-size="140px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="workflow" label="Batch actions" active="{{ a.batch }}" hint-size="116px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="printer" label="Print" active="{{ a.print }}" shortcut="{{ k.print }}" hint-size="64px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="ruler" label="Measure" active="{{ a.measure }}" hint-size="86px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="history" label="Version history" active="{{ a.versions }}" hint-size="130px,30px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolbarSeparator" hint-size="13px,20px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.ToolButton" icon="sparkles" label="AI assistant" active="{{ a.ai }}" hint-size="110px,30px"></x-import>
+</x-import>
+</sc-if>
+</div>
+</sc-if>
+<div style="flex:1;display:flex;min-height:0;position:relative">{{ children }}</div>
+<sc-if value="{{ hasStatus }}" hint-placeholder-val="{{ true }}">
+<footer style="height:var(--statusbar-h);flex:none;display:flex;align-items:center;gap:12px;padding-inline:8px 12px;background:var(--surface-panel);border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">
+<sc-if value="{{ hasPages }}" hint-placeholder-val="{{ true }}"><div style="display:flex;align-items:center;gap:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-up" label="{{ t.prev }}" size="xs" hint-size="22px,22px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-down" label="{{ t.next }}" size="xs" hint-size="22px,22px"></x-import><span style="padding-inline:4px;white-space:nowrap">{{ pageText }}</span></div><div style="display:flex;align-items:center;gap:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="minus" label="{{ t.zoomOut }}" size="xs" hint-size="22px,22px"></x-import><span style="min-width:40px;text-align:center">{{ zoomText }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="{{ t.zoomIn }}" size="xs" hint-size="22px,22px"></x-import></div></sc-if>
+<sc-if value="{{ hasStatusLang }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="languages" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>{{ statusLang }}</span></sc-if>
+<span style="flex:1"></span>
+<sc-if value="{{ hasTask }}"><x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" variant="inline" title="{{ task.title }}" detail="{{ task.detail }}" value="{{ task.value }}" hint-size="260px,20px"></x-import></sc-if>
+<sc-if value="{{ s.unsaved }}" hint-placeholder-val="{{ true }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--text-primary)"><span style="width:7px;height:7px;border-radius:50%;background:var(--warning-solid)"></span>{{ t.unsaved }}</span></sc-if>
+<sc-if value="{{ s.saved }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="hard-drive" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>{{ savedText }}</span></sc-if>
+<sc-if value="{{ s.saving }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 12 }}" hint-size="12px,12px"></x-import>{{ t.saving }}</span></sc-if>
+<sc-if value="{{ s.error }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap;color:var(--danger)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="circle-alert" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>{{ t.saveError }}</span></sc-if>
+<sc-if value="{{ s.readonly }}"><span style="display:inline-flex;align-items:center;gap:6px;white-space:nowrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>{{ t.readonly }}</span></sc-if>
+</footer>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mac&quot;,&quot;win&quot;],&quot;default&quot;:&quot;mac&quot;,&quot;tsType&quot;:&quot;'mac'|'win'&quot;},&quot;mode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;view&quot;,&quot;edit&quot;,&quot;comment&quot;,&quot;sign&quot;,&quot;organize&quot;,&quot;convert&quot;,&quot;protect&quot;,&quot;tools&quot;],&quot;default&quot;:&quot;edit&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;save&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;unsaved&quot;,&quot;saved&quot;,&quot;saving&quot;,&quot;error&quot;,&quot;readonly&quot;],&quot;default&quot;:&quot;unsaved&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;tool&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;page&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;pages&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:3,&quot;tsType&quot;:&quot;number&quot;},&quot;zoom&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:100,&quot;tsType&quot;:&quot;number&quot;},&quot;home&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;tabs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;{name:string,active?:boolean,unsaved?:boolean}[]&quot;},&quot;tabsMore&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;tsType&quot;:&quot;number&quot;},&quot;task&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;{title:string,detail?:string,value?:number}&quot;},&quot;fieldNav&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;{label:string,required:string}&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+const FM_S = {
+  en: { modes: ['View', 'Edit', 'Comment', 'Fill & Sign', 'Organize', 'Convert', 'Protect', 'Tools'], modeLabel: 'Mode', docs: 'Open documents', home: 'Home', open: 'Open file', closeDoc: 'Close document', search: 'Search', settings: 'Settings', minimize: 'Minimize', maximize: 'Maximize', closeWin: 'Close', sidebar: 'Show or hide sidebar', panel: 'Show or hide panel', ai: 'AI assistant', save: 'Save', saveTipOff: 'No changes to save', editTools: 'Edit tools', editText: 'Edit text', addText: 'Add text', addImage: 'Add image', link: 'Link', findReplace: 'Find & replace', pageMarks: 'Page marks', undo: 'Undo', redo: 'Redo', history: 'Edit history', markEdited: 'Mark edited text', review: 'Review edits', prev: 'Previous page', next: 'Next page', zoomIn: 'Zoom in', zoomOut: 'Zoom out', unsaved: 'Unsaved changes', saved: 'Saved on this device · {t}', saving: 'Saving…', saveError: 'Couldn’t save', readonly: 'Read-only', page: 'Page {p} of {n}', more: '{n} more' },
+  tr: { modes: ['Görüntüle', 'Düzenle', 'Yorum', 'Doldur ve İmzala', 'Sayfalar', 'Dönüştür', 'Koru', 'Araçlar'], modeLabel: 'Mod', docs: 'Açık belgeler', home: 'Ana sayfa', open: 'Dosya aç', closeDoc: 'Belgeyi kapat', search: 'Ara', settings: 'Ayarlar', minimize: 'Simge durumuna küçült', maximize: 'Ekranı kapla', closeWin: 'Kapat', sidebar: 'Kenar çubuğunu göster veya gizle', panel: 'Paneli göster veya gizle', ai: 'Yapay zekâ yardımcısı', save: 'Kaydet', saveTipOff: 'Kaydedilecek değişiklik yok', editTools: 'Düzenleme araçları', editText: 'Metni düzenle', addText: 'Metin ekle', addImage: 'Görsel ekle', link: 'Bağlantı', findReplace: 'Bul ve değiştir', pageMarks: 'Sayfa işaretleri', undo: 'Geri al', redo: 'Yinele', history: 'Düzenleme geçmişi', markEdited: 'Düzenlenen metni işaretle', review: 'Düzenlemeleri incele', prev: 'Önceki sayfa', next: 'Sonraki sayfa', zoomIn: 'Yakınlaştır', zoomOut: 'Uzaklaştır', unsaved: 'Kaydedilmemiş değişiklikler', saved: 'Bu cihaza kaydedildi · {t}', saving: 'Kaydediliyor…', saveError: 'Kaydedilemedi', readonly: 'Salt okunur', page: 'Sayfa {p} / {n}', more: '{n} belge daha' },
+  de: { modes: ['Ansicht', 'Bearbeiten', 'Kommentieren', 'Ausfüllen & Signieren', 'Organisieren', 'Konvertieren', 'Schützen', 'Werkzeuge'], modeLabel: 'Modus', docs: 'Geöffnete Dokumente', home: 'Start', open: 'Datei öffnen', closeDoc: 'Dokument schließen', search: 'Suchen', settings: 'Einstellungen', minimize: 'Minimieren', maximize: 'Maximieren', closeWin: 'Schließen', sidebar: 'Seitenleiste ein- oder ausblenden', panel: 'Bereich ein- oder ausblenden', ai: 'KI-Assistent', save: 'Speichern', saveTipOff: 'Keine Änderungen zu speichern', editTools: 'Bearbeitungswerkzeuge', editText: 'Text bearbeiten', addText: 'Text hinzufügen', addImage: 'Bild hinzufügen', link: 'Link', findReplace: 'Suchen & ersetzen', pageMarks: 'Seitenmarkierungen', undo: 'Rückgängig', redo: 'Wiederholen', history: 'Bearbeitungsverlauf', markEdited: 'Bearbeiteten Text markieren', review: 'Änderungen prüfen', prev: 'Vorherige Seite', next: 'Nächste Seite', zoomIn: 'Vergrößern', zoomOut: 'Verkleinern', unsaved: 'Nicht gespeicherte Änderungen', saved: 'Auf diesem Gerät gespeichert · {t}', saving: 'Wird gespeichert…', saveError: 'Speichern fehlgeschlagen', readonly: 'Schreibgeschützt', page: 'Seite {p} von {n}', more: '{n} weitere' },
+  ar: { modes: ['عرض', 'تحرير', 'تعليق', 'تعبئة وتوقيع', 'تنظيم', 'تحويل', 'حماية', 'أدوات'], modeLabel: 'الوضع', docs: 'المستندات المفتوحة', home: 'الرئيسية', open: 'فتح ملف', closeDoc: 'إغلاق المستند', search: 'بحث', settings: 'الإعدادات', minimize: 'تصغير', maximize: 'تكبير', closeWin: 'إغلاق', sidebar: 'إظهار الشريط الجانبي أو إخفاؤه', panel: 'إظهار اللوحة أو إخفاؤها', ai: 'المساعد الذكي', save: 'حفظ', saveTipOff: 'لا توجد تغييرات للحفظ', editTools: 'أدوات التحرير', editText: 'تحرير النص', addText: 'إضافة نص', addImage: 'إضافة صورة', link: 'رابط', findReplace: 'بحث واستبدال', pageMarks: 'علامات الصفحة', undo: 'تراجع', redo: 'إعادة', history: 'سجل التحرير', markEdited: 'تمييز النص المعدّل', review: 'مراجعة التعديلات', prev: 'الصفحة السابقة', next: 'الصفحة التالية', zoomIn: 'تكبير', zoomOut: 'تصغير', unsaved: 'تغييرات غير محفوظة', saved: 'حُفظ على هذا الجهاز · {t}', saving: 'جارٍ الحفظ…', saveError: 'تعذّر الحفظ', readonly: 'للقراءة فقط', page: 'الصفحة {p} من {n}', more: '{n} أخرى' },
+  ja: { modes: ['表示', '編集', 'コメント', '入力と署名', 'ページ整理', '変換', '保護', 'ツール'], modeLabel: 'モード', docs: '開いている書類', home: 'ホーム', open: 'ファイルを開く', closeDoc: '書類を閉じる', search: '検索', settings: '設定', minimize: '最小化', maximize: '最大化', closeWin: '閉じる', sidebar: 'サイドバーの表示/非表示', panel: 'パネルの表示/非表示', ai: 'AI アシスタント', save: '保存', saveTipOff: '保存する変更はありません', editTools: '編集ツール', editText: 'テキストを編集', addText: 'テキストを追加', addImage: '画像を追加', link: 'リンク', findReplace: '検索と置換', pageMarks: 'ページマーク', undo: '取り消す', redo: 'やり直す', history: '編集履歴', markEdited: '編集箇所を表示', review: '編集を確認', prev: '前のページ', next: '次のページ', zoomIn: '拡大', zoomOut: '縮小', unsaved: '未保存の変更', saved: 'このデバイスに保存済み · {t}', saving: '保存中…', saveError: '保存できませんでした', readonly: '読み取り専用', page: '{p} / {n} ページ', more: '他 {n} 件' }
+};
+const MODE_IDS = ['view', 'edit', 'comment', 'sign', 'organize', 'convert', 'protect', 'tools'];
+const MODE_ICONS = ['book-open', 'file-pen-line', 'message-square', 'signature', 'layout-grid', 'refresh-cw', 'shield', 'wrench'];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lang = FM_S[p.lang] ? p.lang : 'en';
+    const t = FM_S[lang];
+    const win = p.platform === 'win';
+    const ar = lang === 'ar';
+    const digits = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+    const K = (mac, w) => win ? w : mac;
+    const k = {
+      palette: K(['⌘', 'K'], ['Ctrl', 'K']), settings: K(['⌘', ','], ['Ctrl', ',']), open: K(['⌘', 'O'], ['Ctrl', 'O']), close: K(['⌘', 'W'], ['Ctrl', 'W']),
+      sidebar: K(['⌥', '⌘', 'S'], ['Ctrl', 'Alt', 'S']), panel: K(['⌥', '⌘', 'P'], ['Ctrl', 'Alt', 'P']), undo: K(['⌘', 'Z'], ['Ctrl', 'Z']), redo: K(['⇧', '⌘', 'Z'], ['Ctrl', 'Y']),
+      replace: K(['⌥', '⌘', 'F'], ['Ctrl', 'H']), zoomIn: K(['⌘', '+'], ['Ctrl', '+']), zoomOut: K(['⌘', '−'], ['Ctrl', '−']), present: K(['⌘', 'L'], ['Ctrl', 'L']), print: K(['⌘', 'P'], ['Ctrl', 'P']),
+      rotL: K(['⌘', '['], ['Ctrl', '[']), rotR: K(['⌘', ']'], ['Ctrl', ']']), del: ['⌫'], t: ['T'], shiftT: ['⇧', 'T'], i: ['I'], l: ['L'], v: ['V'], h: ['H'], z: ['Z'], r: ['R'], tab: ['Tab'], shiftTab: ['⇧', 'Tab']
+    };
+    const mode = p.mode === undefined ? 'edit' : p.mode;
+    const m = {}; MODE_IDS.forEach((id) => { m[id] = mode === id; });
+    const modes = MODE_IDS.map((id, i) => ({ id, label: t.modes[i], icon: MODE_ICONS[i] }));
+    const tool = p.tool || ({ view: 'select', edit: 'editText', sign: 'fill', protect: 'redact' }[mode]);
+    const a = {}; if (tool) a[tool] = true;
+    const tabs = p.tabs || (p.home ? [{ name: 'Kira sözleşmesi.pdf' }, { name: 'e-Arşiv fatura 4187.pdf' }] : [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: p.save === 'unsaved' || p.save === undefined }]);
+    const tabList = tabs.map((x) => ({ name: x.name, active: !!x.active && !p.home, idle: !x.active || !!p.home, unsaved: !!x.unsaved, clean: !x.unsaved, loading: !!x.loading, ready: !x.loading, icon: x.icon || 'file-text' }));
+    const save = p.save || 'unsaved';
+    const s = { unsaved: save === 'unsaved', saved: save === 'saved', saving: save === 'saving', error: save === 'error', readonly: save === 'readonly' };
+    const pages = p.pages || 3, page = p.page || 1, zoom = p.zoom || 100;
+    const zooms = ['50', '75', '100', '125', '150', '200', '400'];
+    const zoomOptions = zooms.map((z) => ({ value: z, label: z + '%' })).concat(zooms.indexOf(String(zoom)) < 0 ? [{ value: String(zoom), label: zoom + '%' }] : []).concat([{ value: 'fit-width', label: 'Fit width' }, { value: 'fit-page', label: 'Fit page' }]);
+    const reds = p.redactions || 0;
+    return {
+      t, k, m, a, mode, modes,
+      isMac: !win && p.platform !== 'tab', isWin: win, bare: !!p.bare, notBare: !p.bare,
+      homeActive: !!p.home, homeIdle: !p.home,
+      tabList, hasOverflow: !!p.tabsMore, overflowLabel: '+' + (p.tabsMore || 0),
+      hasMode: mode !== '' && mode !== 'none' && !p.home, hasTools: mode !== '' && mode !== 'none' && !p.home && p.toolRow !== 'none',
+      sidebarOpen: p.sidebar !== false, panelOpen: p.panel !== false, aiOn: !!p.ai, aiPanel: p.ai === 'open',
+      saveDisabled: save !== 'unsaved', saving: save === 'saving', saveTip: save === 'unsaved' ? undefined : t.saveTipOff,
+      zoomValue: String(p.fitValue || zoom), zoomOptions,
+      fit: p.fit || '', fitOptions: [{ value: 'width', icon: 'arrow-left-right', title: 'Fit width' }, { value: 'page', icon: 'maximize', title: 'Fit page' }, { value: 'actual', icon: 'scan', title: 'Actual size' }],
+      layout: p.layout || 'scroll', layoutOptions: [{ value: 'single', icon: 'file-text', title: 'Single page' }, { value: 'scroll', icon: 'arrow-up-down', title: 'Continuous scroll' }, { value: 'two', icon: 'columns-2', title: 'Two-page spread' }, { value: 'book', icon: 'book-open', title: 'Book (cover page alone)' }],
+      darkReading: !!p.darkReading, markEdited: p.markEdited !== false, editCount: digits(p.editCount || 3),
+      annotTool: p.tool || 'highlight', annotColor: p.annotColor || 'yellow', showAnnots: p.showAnnots !== false,
+      annotTools: [
+        { id: 'select', icon: 'mouse-pointer-2', label: 'Select', key: 'V' }, { id: 'highlight', icon: 'highlighter', label: 'Highlight', key: 'H', colored: true }, { id: 'underline', icon: 'underline', label: 'Underline', key: 'U', colored: true }, { id: 'strikethrough', icon: 'strikethrough', label: 'Strikethrough', key: 'S', colored: true },
+        { id: 'note', icon: 'sticky-note', label: 'Note', key: 'N', colored: true }, { id: 'text', icon: 'type', label: 'Text', key: 'X' }, { id: 'callout', icon: 'message-square', label: 'Callout', key: 'C' }, { id: 'pen', icon: 'pen-tool', label: 'Draw', key: 'P', colored: true },
+        { id: 'shapes', icon: 'shapes', label: 'Shapes', key: 'R', menu: true, colored: true }, { id: 'stamp', icon: 'stamp', label: 'Stamp', menu: true }, { id: 'measure', icon: 'ruler', label: 'Measure', key: 'M', menu: true }
+      ],
+      hasFieldNav: !!p.fieldNav, fieldNav: p.fieldNav || {},
+      organizeHint: p.organizeHint || 'Drag pages to reorder. Right-click for more.',
+      noRedactions: !reds, applyLabel: reds ? 'Apply redactions (' + reds + ')' : 'Apply redactions',
+      hasStatus: p.status !== false, hasPages: p.noPages !== true,
+      pageText: digits(t.page.replace('{p}', page).replace('{n}', pages)), zoomText: digits(zoom) + (ar ? '٪' : '%'),
+      hasStatusLang: !!p.statusLang, statusLang: p.statusLang,
+      hasTask: !!p.task, task: p.task || {},
+      s, savedText: digits(t.saved.replace('{t}', p.savedAt || '14:32'))
+    };
+  }
+}
+</script>
+</body>
+</html>

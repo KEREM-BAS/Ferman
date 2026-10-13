@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<aside aria-label="{{ t.sidebar }}" style="width:var(--sidebar-w);height:100%;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-end:1px solid var(--border-subtle);min-height:0;position:relative">
+<div style="padding:8px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="{{ t.sidebar }}" value="{{ tab }}" options="{{ tabOptions }}" hint-size="100%,26px"></x-import></div>
+<div style="height:34px;flex:none;display:flex;align-items:center;gap:6px;padding-inline:12px 6px"><span style="font:var(--type-panel-title)">{{ title }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ count }}</span><span style="flex:1"></span>
+<sc-if value="{{ tabs.pages }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="info" label="{{ t.legend }}" size="xs" active="{{ legend }}" hint-size="22px,22px"></x-import></sc-if>
+<sc-if value="{{ tabs.outline }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="Add bookmark" size="xs" shortcut="{{ kBookmark }}" hint-size="22px,22px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="More" size="xs" hint-size="22px,22px"></x-import></sc-if>
+<sc-if value="{{ tabs.attachments }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="Attach a file" size="xs" hint-size="22px,22px"></x-import></sc-if>
+</div>
+<sc-if value="{{ tabs.pages }}" hint-placeholder-val="{{ true }}">
+<div role="listbox" aria-label="{{ t.pages }}" style="flex:1;overflow:hidden;display:grid;justify-content:center;align-content:start;gap:6px;padding:4px 0 12px">
+<sc-for list="{{ thumbs }}" as="th" hint-placeholder-count="3">
+<x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ th.n }}" label="{{ th.label }}" width="{{ 104 }}" selected="{{ th.sel }}" aria-label="{{ th.aria }}" aspect="{{ th.aspect }}" hint-size="120px,175px">
+<span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 24%"></span>
+<span style="position:absolute;top:4px;inset-inline-end:4px;display:grid;gap:3px;justify-items:center;width:16px">
+<sc-if value="{{ th.edited }}"><span title="Edited since opened" style="width:8px;height:8px;margin-block:2px;border-radius:50%;background:var(--edit-changed);box-shadow:0 0 0 2px var(--page-bg)"></span></sc-if>
+<sc-if value="{{ th.comments }}"><span title="Has comments" style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="message-square" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span></sc-if>
+<sc-if value="{{ th.fields }}"><span title="Has form fields" style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="text-cursor-input" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span></sc-if>
+<sc-if value="{{ th.signed }}"><span title="Has a signature" style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="signature" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span></sc-if>
+<sc-if value="{{ th.warn }}"><span title="Has warnings" style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:var(--amber-50);box-shadow:0 0 0 1px var(--amber-200);color:var(--amber-700)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span></sc-if>
+</span>
+</x-import>
+</sc-for>
+</div>
+<sc-if value="{{ legend }}">
+<div role="dialog" aria-label="{{ t.legend }}" style="position:absolute;top:84px;inset-inline-start:10px;width:236px;z-index:5;padding:10px 12px 12px;background:var(--surface-raised);border-radius:var(--radius-md);box-shadow:var(--shadow-popover);display:grid;gap:9px">
+<div style="font:var(--type-panel-title)">Page badges</div>
+<div style="display:grid;grid-template-columns:16px minmax(0,1fr);gap:8px 10px;align-items:center;font:var(--type-caption);color:var(--text-secondary)">
+<span style="width:8px;height:8px;justify-self:center;border-radius:50%;background:var(--edit-changed)"></span><span><b style="font-weight:500;color:var(--text-primary)">Edited</b> · changed since you opened it</span>
+<span style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="message-square" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span><span><b style="font-weight:500;color:var(--text-primary)">Comments</b> · notes or markup on the page</span>
+<span style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="text-cursor-input" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span><span><b style="font-weight:500;color:var(--text-primary)">Form fields</b> · fields you can fill in</span>
+<span style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:#FFFFFF;box-shadow:0 0 0 1px var(--paper-200);color:var(--paper-800)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="signature" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span><span><b style="font-weight:500;color:var(--text-primary)">Signature</b> · signed or has a signature field</span>
+<span style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:var(--amber-50);box-shadow:0 0 0 1px var(--amber-200);color:var(--amber-700)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="triangle-alert" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span><span><b style="font-weight:500;color:var(--text-primary)">Warnings</b> · missing glyphs, overflow, broken links</span>
+</div>
+<div style="font:var(--type-caption);color:var(--text-tertiary);border-top:1px solid var(--border-subtle);padding-top:8px">Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 comments, 1 warning”.</div>
+</div>
+</sc-if>
+</sc-if>
+<sc-if value="{{ tabs.outline }}">
+<nav aria-label="Outline" style="flex:1;overflow:hidden;padding:2px 6px;display:grid;align-content:start;gap:1px">
+<sc-for list="{{ outline }}" as="o" hint-placeholder-count="8">
+<sc-if value="{{ o.editing }}"><div style="padding-inline-start:{{ o.indent }};padding-block:2px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" default-value="{{ o.label }}" aria-label="Bookmark name" hint-size="100%,26px"></x-import></div></sc-if>
+<sc-if value="{{ o.view }}"><div aria-current="{{ o.cur }}" style="display:flex;align-items:center;gap:6px;height:28px;padding-inline:{{ o.indent }} 8px;border-radius:var(--radius-sm);background:{{ o.bg }};color:{{ o.color }};font:var(--type-body)"><sc-if value="{{ o.parent }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="chevron-down" size="{{ 12 }}" stroke-width="{{ 2 }}" color="var(--icon-secondary)" hint-size="12px,12px"></x-import></sc-if><sc-if value="{{ o.leaf }}"><span style="width:12px;flex:none"></span></sc-if><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ o.label }}</span><span style="color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ o.page }}</span></div></sc-if>
+</sc-for>
+</nav>
+</sc-if>
+<sc-if value="{{ tabs.attachments }}">
+<div style="flex:1;overflow:hidden;padding:2px 8px;display:grid;align-content:start;gap:6px">
+<sc-for list="{{ attachments }}" as="f" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;padding:8px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ f.icon }}" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><div style="flex:1;min-width:0;display:grid"><span style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ f.meta }}</span></div><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="download" label="Save attachment as…" size="xs" hint-size="22px,22px"></x-import></div>
+</sc-for>
+<div style="font:var(--type-caption);color:var(--text-tertiary);padding:4px 2px">Attachments open in their own app. Ferman doesn’t run embedded files.</div>
+</div>
+</sc-if>
+<sc-if value="{{ tabs.layers }}">
+<div style="flex:1;overflow:hidden;padding:2px 6px;display:grid;align-content:start;gap:1px">
+<sc-for list="{{ layers }}" as="l" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:6px;height:30px;padding-inline:4px 8px;border-radius:var(--radius-sm);font:var(--type-body);color:{{ l.color }}"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="{{ l.icon }}" label="{{ l.tip }}" size="xs" hint-size="22px,22px"></x-import><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ l.name }}</span><sc-if value="{{ l.locked }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 12 }}" stroke-width="{{ 2 }}" color="var(--icon-secondary)" hint-size="12px,12px"></x-import></sc-if></div>
+</sc-for>
+<div style="font:var(--type-caption);color:var(--text-tertiary);padding:8px 6px">Hidden layers still print unless you turn off “Print hidden layers” in Print.</div>
+</div>
+</sc-if>
+<sc-if value="{{ tabs.signatures }}">
+<div style="flex:1;overflow:hidden;padding:2px 8px;display:grid;align-content:start;gap:8px">
+<sc-for list="{{ sigs }}" as="g" hint-placeholder-count="2">
+<div style="display:grid;gap:4px;padding:10px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><div style="display:flex;align-items:center;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ g.icon }}" size="{{ 16 }}" color="{{ g.iconColor }}" hint-size="16px,16px"></x-import><span style="flex:1;font:var(--type-body-strong)">{{ g.name }}</span></div><span style="font:var(--type-caption);color:var(--text-secondary)">{{ g.status }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ g.meta }}</span></div>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ tabs.search }}">
+<div style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0">
+<div style="padding:0 8px 8px;display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" default-value="{{ query }}" aria-label="Search in document" hint-size="100%,26px"></x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ searchSummary }}</span></div>
+<div style="flex:1;overflow:hidden;padding:0 6px;display:grid;align-content:start;gap:2px">
+<sc-for list="{{ results }}" as="r" hint-placeholder-count="6">
+<sc-if value="{{ r.head }}"><div style="display:flex;justify-content:space-between;padding:8px 6px 2px;font:var(--type-label);color:var(--text-tertiary)"><span>{{ r.label }}</span><span style="font-variant-numeric:tabular-nums">{{ r.count }}</span></div></sc-if>
+<sc-if value="{{ r.item }}"><div style="padding:6px 8px;border-radius:var(--radius-sm);font:400 12px/17px var(--font-doc-sample);color:var(--text-secondary);background:{{ r.bg }}">{{ r.pre }}<mark style="background:var(--search-match);color:var(--paper-900);border-radius:1px">{{ r.hit }}</mark>{{ r.post }}</div></sc-if>
+</sc-for>
+</div>
+</div>
+</sc-if>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:216,&quot;height&quot;:760},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pages&quot;,&quot;outline&quot;,&quot;attachments&quot;,&quot;layers&quot;,&quot;signatures&quot;,&quot;search&quot;],&quot;default&quot;:&quot;pages&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;doc&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kira&quot;,&quot;fatura&quot;,&quot;ekstre&quot;,&quot;form&quot;,&quot;tez&quot;,&quot;cv&quot;,&quot;nda&quot;,&quot;scan&quot;],&quot;default&quot;:&quot;kira&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;current&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;legend&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;outlineEdit&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:-1,&quot;tsType&quot;:&quot;number&quot;},&quot;thumbs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;query&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;kira&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const SB = {
+  en: { sidebar: 'Sidebar', pages: 'Pages', outline: 'Outline', attachments: 'Attachments', layers: 'Layers', signatures: 'Signatures', search: 'Search results', legend: 'What the page badges mean', page: 'Page' },
+  tr: { sidebar: 'Kenar çubuğu', pages: 'Sayfalar', outline: 'Yer işaretleri', attachments: 'Ekler', layers: 'Katmanlar', signatures: 'İmzalar', search: 'Arama sonuçları', legend: 'Sayfa rozetlerinin anlamı', page: 'Sayfa' },
+  de: { sidebar: 'Seitenleiste', pages: 'Seiten', outline: 'Lesezeichen', attachments: 'Anhänge', layers: 'Ebenen', signatures: 'Signaturen', search: 'Suchergebnisse', legend: 'Bedeutung der Seitensymbole', page: 'Seite' },
+  ar: { sidebar: 'الشريط الجانبي', pages: 'الصفحات', outline: 'الإشارات المرجعية', attachments: 'المرفقات', layers: 'الطبقات', signatures: 'التوقيعات', search: 'نتائج البحث', legend: 'معنى شارات الصفحات', page: 'الصفحة' },
+  ja: { sidebar: 'サイドバー', pages: 'ページ', outline: 'しおり', attachments: '添付ファイル', layers: 'レイヤー', signatures: '署名', search: '検索結果', legend: 'ページバッジの意味', page: 'ページ' }
+};
+const DOCS = {
+  kira: [{ edited: true, comments: true, warn: true }, {}, { fields: true, signed: true }],
+  fatura: [{ edited: true }],
+  ekstre: [{}, {}],
+  form: [{ fields: true }, { fields: true, signed: true }],
+  tez: [{ label: 'i' }, { label: 'ii' }, { label: 'iii' }, { label: '1', comments: true }, { label: '2', edited: true }],
+  cv: [{}],
+  nda: [{ comments: true }, { comments: true }, {}, { signed: true }],
+  scan: [{ warn: true }, {}, {}]
+};
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lang = SB[p.lang] ? p.lang : 'en';
+    const t = SB[lang];
+    const ar = lang === 'ar';
+    const dg = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+    const tab = p.tab || 'pages';
+    const tabs = { pages: tab === 'pages', outline: tab === 'outline', attachments: tab === 'attachments', layers: tab === 'layers', signatures: tab === 'signatures', search: tab === 'search' };
+    const doc = p.doc || 'kira';
+    const cur = p.current || 1;
+    const src = p.thumbs || DOCS[doc] || DOCS.kira;
+    const totals = { kira: 3, fatura: 1, ekstre: 2, form: 2, tez: 64, cv: 1, nda: 4, scan: 3 };
+    const thumbs = src.map((x, i) => {
+      const n = i + 1;
+      const bits = [x.edited && 'edited', x.comments && '2 comments', x.fields && 'has form fields', x.signed && 'has a signature', x.warn && '1 warning'].filter(Boolean);
+      return { n, label: x.label ? x.label : (ar ? dg(n) : undefined), sel: n === cur, edited: !!x.edited, comments: !!x.comments, fields: !!x.fields, signed: !!x.signed, warn: !!x.warn, aspect: x.aspect || 1.4142, aria: t.page + ' ' + (x.label || n) + (bits.length ? ', ' + bits.join(', ') : '') };
+    });
+    const outlineSrc = doc === 'tez' ? [
+      ['ÖZET', 'iv', 0], ['ABSTRACT', 'v', 0], ['1. GİRİŞ', '1', 0, 1], ['1.1 Araştırmanın amacı', '2', 1], ['1.2 Yöntem ve veri', '4', 1], ['2. KENTSEL DÖNÜŞÜM VE KİRACILIK', '9', 0, 1], ['2.1 Yasal çerçeve', '9', 1], ['2.2 İstanbul’da kira artışları', '14', 1, 0, 1], ['3. BULGULAR', '27', 0], ['4. SONUÇ', '51', 0], ['KAYNAKÇA', '58', 0]
+    ] : [
+      ['Madde 1 — Taraflar', '1', 0], ['Madde 2 — Kiralanan taşınmaz', '1', 0], ['Madde 3 — Kira süresi', '1', 0], ['Madde 4 — Kira bedeli ve ödeme', '1', 0, 1, 1], ['4.1 Yıllık artış', '1', 1], ['4.2 Gecikme', '1', 1], ['Madde 5 — Depozito', '1', 0], ['Madde 6 — Kullanım ve bakım', '1', 0], ['Madde 7 — Tahliye', '2', 0], ['Madde 8 — Özel şartlar', '2', 0], ['İmzalar', '3', 0]
+    ];
+    const outline = outlineSrc.map((o, i) => {
+      const curRow = !!o[4];
+      return { label: o[0], page: o[1], indent: (8 + o[2] * 18) + 'px', parent: !!o[3], leaf: !o[3], cur: curRow ? 'true' : undefined, bg: curRow ? 'var(--surface-selected)' : 'transparent', color: curRow ? 'var(--text-accent)' : 'var(--text-primary)', editing: p.outlineEdit === i, view: p.outlineEdit !== i };
+    });
+    const attachments = [
+      { icon: 'file-spreadsheet', name: 'Ek-1 Demirbaş listesi.xlsx', meta: '18 KB · 12.10.2026' },
+      { icon: 'file-image', name: 'Tapu fotokopisi.jpg', meta: '1,2 MB · 12.10.2026' },
+      { icon: 'file-text', name: 'Kimlik fotokopisi.pdf', meta: '340 KB · 11.10.2026' }
+    ];
+    const layers = [
+      { name: 'Metin', icon: 'eye', tip: 'Hide layer', color: 'var(--text-primary)' },
+      { name: 'İmzalar', icon: 'eye', tip: 'Hide layer', color: 'var(--text-primary)', locked: true },
+      { name: 'Filigran — TASLAK', icon: 'eye-off', tip: 'Show layer', color: 'var(--text-tertiary)' },
+      { name: 'Ölçü notları', icon: 'eye', tip: 'Hide layer', color: 'var(--text-primary)' }
+    ];
+    const sigs = [
+      { icon: 'badge-check', iconColor: 'var(--success-solid)', name: 'Mert Kaya', status: 'Valid. The document hasn’t changed since it was signed.', meta: 'e-imza · 13.10.2026 11:04' },
+      { icon: 'signature', iconColor: 'var(--icon-secondary)', name: 'Kiracı · İmza', status: 'Empty signature field', meta: 'Page 3' }
+    ];
+    const query = p.query || 'kira';
+    const results = [
+      { head: true, label: t.page + ' 1', count: '5' },
+      { item: true, pre: 'KONUT ', hit: 'KİRA', post: ' SÖZLEŞMESİ', bg: 'var(--surface-selected)' },
+      { item: true, pre: 'Madde 4 — ', hit: 'Kira', post: ' Bedeli ve Ödeme', bg: 'transparent' },
+      { item: true, pre: '…aylık ', hit: 'kira', post: ' bedeli olan 18.500 TL’yi…', bg: 'transparent' },
+      { item: true, pre: '…iki aylık ', hit: 'kira', post: ' bedeli tutarında…', bg: 'transparent' },
+      { item: true, pre: 'Ferman ', hit: 'kira', post: 'yı… (“Kiracı” is a whole-word miss)', bg: 'transparent' },
+      { head: true, label: t.page + ' 2', count: '2' },
+      { item: true, pre: '…', hit: 'kira', post: ' süresinin bitiminden önce…', bg: 'transparent' },
+      { item: true, pre: '…yeni ', hit: 'kira', post: ' döneminde uygulanacak…', bg: 'transparent' }
+    ];
+    const titles = { pages: t.pages, outline: t.outline, attachments: t.attachments, layers: t.layers, signatures: t.signatures, search: t.search };
+    const counts = { pages: dg(totals[doc] || src.length), outline: '', attachments: '3', layers: '4', signatures: '2', search: '7' };
+    return {
+      t, tab, tabs, title: titles[tab], count: counts[tab], legend: !!p.legend, kBookmark: p.platform === 'win' ? ['Ctrl', 'B'] : ['⌘', 'B'],
+      tabOptions: [
+        { value: 'pages', icon: 'files', title: t.pages }, { value: 'outline', icon: 'list-tree', title: t.outline }, { value: 'attachments', icon: 'paperclip', title: t.attachments },
+        { value: 'layers', icon: 'layers', title: t.layers }, { value: 'signatures', icon: 'signature', title: t.signatures }, { value: 'search', icon: 'search', title: t.search }
+      ],
+      thumbs, outline, attachments, layers, sigs, query, results,
+      searchSummary: '7 matches on 2 pages · Turkish-aware: “kira” also finds “KİRA”'
+    };
+  }
+}
+</script>
+</body>
+</html>

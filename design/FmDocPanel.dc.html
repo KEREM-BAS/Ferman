@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<aside aria-label="{{ title }}" style="width:var(--panel-w);height:100%;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle);min-height:0">
+<div style="display:flex;align-items:center;gap:8px;height:40px;flex:none;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">{{ title }}</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="ellipsis" label="More" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="flex:1;overflow:hidden">
+<sc-if value="{{ isEdit }}" hint-placeholder-val="{{ true }}"><div style="padding:12px;display:grid;gap:10px;border-bottom:1px solid var(--border-subtle)"><div style="display:flex;gap:10px;align-items:flex-start;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="mouse-pointer-2" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span>Click any text to select its block. Click again to place the caret.</span></div><div style="display:flex;gap:10px;align-items:flex-start;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="keyboard" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span>Tab moves between blocks; Enter starts editing. Hold <x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ altKey }}" hint-size="20px,18px"></x-import> to show every block.</span></div></div>
+<div style="padding:12px;display:flex;align-items:center;gap:8px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">3 edits</x-import><span style="font:var(--type-caption);color:var(--text-secondary);flex:1">in this session</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="64px,26px">Review</x-import></div></sc-if>
+<sc-if value="{{ isView }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="File" collapsible="{{ false }}" hint-size="100%,180px"><div style="display:grid;grid-template-columns:84px minmax(0,1fr);gap:6px 8px;font:var(--type-caption);font-variant-numeric:tabular-nums"><span style="color:var(--text-secondary)">Pages</span><span>3</span><span style="color:var(--text-secondary)">Page size</span><span>A4 · 210 × 297 mm</span><span style="color:var(--text-secondary)">File size</span><span>284 KB</span><span style="color:var(--text-secondary)">PDF version</span><span>1.7</span><span style="color:var(--text-secondary)">Location</span><span style="word-break:break-all">~/Belgeler/Ev/Kira sözleşmesi.pdf</span><span style="color:var(--text-secondary)">Modified</span><span>13 Oct 2026, 14:32</span></div></x-import></sc-if>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Fonts in this document" hint-size="100%,150px">
+<sc-for list="{{ fonts }}" as="f" hint-placeholder-count="3"><div style="display:grid;gap:2px"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="type" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" hint-size="64px,18px">{{ f.status }}</x-import></div><sc-if value="{{ f.hasNote }}"><span style="font:var(--type-caption);color:var(--text-tertiary);padding-inline-start:22px">{{ f.note }}</span></sc-if></div></sc-for>
+</x-import>
+<sc-if value="{{ isView }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Security" hint-size="100%,90px"><div style="display:grid;gap:6px;font:var(--type-caption)"><span style="display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock-open" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>No password</span><span style="display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="badge-check" size="{{ 14 }}" color="var(--success-solid)" hint-size="14px,14px"></x-import>1 valid signature, page 3</span></div></x-import></sc-if>
+</div>
+</aside>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:264,&quot;height&quot;:700},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;view&quot;,&quot;edit&quot;],&quot;default&quot;:&quot;view&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mac&quot;,&quot;win&quot;],&quot;default&quot;:&quot;mac&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const kind = p.kind || 'view';
+    return {
+      isEdit: kind === 'edit', isView: kind === 'view', title: kind === 'edit' ? 'Edit' : 'Document',
+      altKey: p.platform === 'win' ? ['Alt'] : ['⌥'],
+      fonts: [
+        { name: 'IBM Plex Serif', status: 'Embedded', tone: 'neutral', hasNote: false },
+        { name: 'IBM Plex Serif SemiBold', status: 'Embedded', tone: 'neutral', hasNote: false },
+        { name: 'Garamond Premier Pro', status: 'Partial', tone: 'warning', hasNote: true, note: 'Subset: only characters already in the file. No ‘ğ’, ‘Ğ’.' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

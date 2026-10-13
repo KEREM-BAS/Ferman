@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:64px 64px;background:#FFFFFF;box-shadow:var(--shadow-page);filter:var(--page-filter);color:#1F1D1A;font:400 12px/1.5 var(--font-ui);zoom:{{ zoom }}">
+<div style="display:flex;justify-content:space-between;align-items:flex-start"><div><div style="font:600 17px/1.2 var(--font-doc-sample)">Boğaziçi Bankası A.Ş.</div><div style="color:#57534C">Kadıköy Şubesi · Şube kodu 0418</div></div><div style="text-align:right"><div style="font:600 16px/1.2 var(--font-ui);letter-spacing:.08em">HESAP EKSTRESİ</div><div style="color:#57534C;font-variant-numeric:tabular-nums">01.09.2026 – 30.09.2026</div></div></div>
+<div style="margin:22px 0;display:grid;grid-template-columns:150px minmax(0,1fr);gap:3px 12px;padding:12px 14px;border:1px solid #DEDAD2;border-radius:2px;font-variant-numeric:tabular-nums">
+<span style="color:#57534C">Müşteri</span><span style="font-weight:600">Ayşe Yılmaz</span>
+<span style="color:#57534C">T.C. Kimlik No</span><span><sc-if value="{{ rP }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-pending" hint-size="90px,18px">41239876516</x-import></sc-if><sc-if value="{{ rA }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-applied" hint-size="90px,18px">41239876516</x-import></sc-if><sc-if value="{{ rN }}">41239876516</sc-if></span>
+<span style="color:#57534C">IBAN</span><span><sc-if value="{{ rP }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-pending" hint-size="240px,18px">TR33 0006 1005 1978 6457 8413 26</x-import></sc-if><sc-if value="{{ rA }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-applied" hint-size="240px,18px">TR33 0006 1005 1978 6457 8413 26</x-import></sc-if><sc-if value="{{ rN }}">TR33 0006 1005 1978 6457 8413 26</sc-if></span>
+<span style="color:#57534C">Adres</span><span>Bağdat Cad. No: 241/7, Maltepe, İstanbul</span>
+<span style="color:#57534C">Telefon</span><span><sc-if value="{{ rP }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-pending" hint-size="100px,18px">0544 902 15 38</x-import></sc-if><sc-if value="{{ rA }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="redact-applied" hint-size="100px,18px">0544 902 15 38</x-import></sc-if><sc-if value="{{ rN }}">0544 902 15 38</sc-if></span>
+</div>
+<div style="display:grid;grid-template-columns:84px minmax(0,1fr) 110px 110px;font-variant-numeric:tabular-nums">
+<span style="padding:6px 4px;font-weight:600;border-bottom:1.5px solid #1F1D1A">Tarih</span><span style="padding:6px 4px;font-weight:600;border-bottom:1.5px solid #1F1D1A">Açıklama</span><span style="padding:6px 4px;font-weight:600;border-bottom:1.5px solid #1F1D1A;text-align:right">Tutar (TL)</span><span style="padding:6px 4px;font-weight:600;border-bottom:1.5px solid #1F1D1A;text-align:right">Bakiye (TL)</span>
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="8"><span style="padding:6px 4px;border-bottom:1px solid #E6E2DB">{{ r.d }}</span><span style="padding:6px 4px;border-bottom:1px solid #E6E2DB;background:{{ r.hl }}">{{ r.t }}</span><span style="padding:6px 4px;border-bottom:1px solid #E6E2DB;text-align:right;color:{{ r.c }};background:{{ r.hl }}">{{ r.a }}</span><span style="padding:6px 4px;border-bottom:1px solid #E6E2DB;text-align:right">{{ r.b }}</span></sc-for>
+</div>
+<div style="margin-top:16px;margin-left:auto;width:300px;display:grid;grid-template-columns:1fr auto;gap:4px 16px;font-variant-numeric:tabular-nums"><span>Toplam giriş</span><span style="text-align:right">70.900,00</span><span>Toplam çıkış</span><span style="text-align:right">30.427,85</span><span style="font-weight:600;padding-top:4px;border-top:1.5px solid #1F1D1A">Kapanış bakiyesi</span><span style="text-align:right;font-weight:600;padding-top:4px;border-top:1.5px solid #1F1D1A">52.902,30</span></div>
+<div style="position:absolute;bottom:40px;left:64px;right:64px;display:flex;justify-content:space-between;font-size:10.5px;color:#8A857C"><span>Bu belge elektronik ortamda oluşturulmuştur.</span><span>1 / 2</span></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:794,&quot;height&quot;:1123},&quot;redact&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;none&quot;,&quot;pending&quot;,&quot;applied&quot;],&quot;default&quot;:&quot;none&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;zoom&quot;:{&quot;editor&quot;:&quot;float&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;highlightRent&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const r = p.redact || 'none';
+    const R = [
+      ['01.09.2026', 'Devreden bakiye', '', '12.430,15'], ['01.09.2026', 'Maaş ödemesi — Yılmaz Mimarlık A.Ş.', '+68.400,00', '80.830,15'], ['03.09.2026', 'Kira ödemesi — Mert Kaya (FAST)', '−18.500,00', '62.330,15'],
+      ['05.09.2026', 'Doğalgaz faturası — İGDAŞ', '−1.240,35', '61.089,80'], ['09.09.2026', 'Market alışverişi — Moda', '−842,60', '60.247,20'], ['14.09.2026', 'Kredi kartı ödemesi', '−9.315,00', '50.932,20'],
+      ['21.09.2026', 'Gelen EFT — Can Öztürk', '+2.500,00', '53.432,20'], ['28.09.2026', 'İnternet faturası', '−529,90', '52.902,30']
+    ];
+    return {
+      zoom: p.zoom || 1, rP: r === 'pending', rA: r === 'applied', rN: r === 'none',
+      rows: R.map((x, i) => ({ d: x[0], t: x[1], a: x[2], b: x[3], c: x[2].indexOf('+') === 0 ? '#1E7A46' : '#1F1D1A', hl: p.highlightRent && i === 2 ? 'rgba(255,224,102,.55)' : 'transparent' }))
+    };
+  }
+}
+</script>
+</body>
+</html>

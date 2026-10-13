@@ -1,0 +1,198 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">03c · Edit mode — scans, review, translation, languages</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">What happens when a page is only an image, how every edit can be reviewed and reverted, in-place translation that keeps the layout (including a change of writing direction), and documents that mix languages.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.11 – 3.12 · Scanned pages and edit review</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-11" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.11</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Scanned page: run OCR to edit</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="saved" tabs="{{ tabsScan }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="scan" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column">
+<x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="scan-text" title="This page is an image." actions="{{ actOcr }}" hint-size="100%,44px">Run text recognition to edit or search it. Ferman detected Turkish.</x-import>
+<div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:92px 100px;background:#F2EEE4;box-shadow:var(--shadow-page);color:#2B2925;font:400 14.5px/1.55 'Crimson Pro',serif;cursor:not-allowed">
+<div style="transform:rotate(-0.6deg);filter:blur(0.35px) contrast(1.08);transform-origin:top left">
+<div style="display:flex;justify-content:space-between;font-size:12.5px;color:#4A463F"><span>Kaya Gayrimenkul Yönetimi</span><span>Kadıköy, 06.10.2026</span></div>
+<div style="margin:40px 0 18px;font:600 18px/1.4 'Crimson Pro',serif">Konu: Kira artış bildirimi</div>
+<p style="margin:0 0 12px">Sayın Ayşe Yılmaz,</p>
+<p style="margin:0 0 12px;text-align:justify">01.11.2026 tarihinden itibaren geçerli olmak üzere, Moda Caddesi No: 18 Daire: 5 adresindeki konutun aylık kira bedeli, sözleşmenin 4. maddesi uyarınca 19.500 TL olarak belirlenmiştir.</p>
+<p style="margin:0 0 12px;text-align:justify">Yeni bedel, bir önceki yılın on iki aylık TÜFE ortalaması esas alınarak hesaplanmıştır. Ödemelerin her ayın beşinci gününe kadar aynı hesaba yapılmasını rica ederiz.</p>
+<p style="margin:0 0 40px">Saygılarımızla,</p>
+<p style="margin:0">Mert Kaya</p>
+</div>
+<div style="position:absolute;top:500px;left:420px;opacity:.85;transform:rotate(-8deg)"><x-import component-from-global-scope="FermanDesignSystem_278323.Stamp" label="aslı gibidir" lang="tr" tone="ink" meta="06.10.2026" rotation="{{ 0 }}" hint-size="160px,60px"></x-import></div>
+<div style="position:absolute;top:356px;left:300px;display:flex;align-items:center;gap:6px;padding:5px 9px;border-radius:var(--radius-sm);background:var(--surface-inverse);color:var(--text-inverse);font:var(--type-caption);white-space:nowrap" lang="en"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="image" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>No text on this page yet · Recognize text to edit</div>
+</div></div></main>
+<aside aria-label="Scanned page" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Page 1 is an image</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Recognize text" collapsible="{{ false }}" hint-size="100%,300px">
+<span style="font:var(--type-caption);color:var(--text-secondary)">Languages on this page</span>
+<div style="display:flex;gap:6px;flex-wrap:wrap"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="accent" icon="check" hint-size="80px,18px">Turkish · detected</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="plus" hint-size="100px,26px">Add language</x-import></div>
+<div role="radiogroup" aria-label="Result" style="display:grid;gap:10px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="ocrout" value="edit" label="Editable text" description="Replaces the image with real text in a matching font. Best for changing the letter." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="ocrout" value="search" label="Searchable image" description="Keeps the scan exactly as it is and adds invisible text for search and copy." hint-size="100%,40px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Pages" default-value="this" options="{{ ocrPages }}" hint-size="100%,48px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="scan-text" full-width="{{ true }}" hint-size="100%,30px">Recognize text</x-import>
+<span style="font:var(--type-caption);color:var(--text-tertiary)">Runs on this device · about 4 seconds per page.</span>
+</x-import>
+</aside>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">In Edit mode the pointer over a scan says what is missing instead of silently doing nothing. The thumbnail carries the warning badge. OCR options and progress continue in 7.5.</p></div>
+<div id="a3-12" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.12</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Review all edits</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" edit-count="{{ 5 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<aside aria-label="Review edits" style="width:320px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">Review edits</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" hint-size="24px,18px">5</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close review" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="padding:8px 10px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Show" value="all" options="{{ reviewFilter }}" hint-size="100%,26px"></x-import></div>
+<div style="flex:1;overflow:hidden;display:grid;align-content:start;gap:6px;padding:8px">
+<sc-for list="{{ edits }}" as="e" hint-placeholder-count="5"><div style="display:grid;gap:6px;padding:10px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ e.border }}"><div style="display:flex;align-items:center;gap:8px;font:var(--type-caption);color:var(--text-tertiary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ e.icon }}" size="{{ 14 }}" color="{{ e.iconColor }}" hint-size="14px,14px"></x-import><span style="flex:1">{{ e.where }}</span><span style="font-variant-numeric:tabular-nums">{{ e.time }}</span></div><div lang="tr" style="font:400 12.5px/1.45 var(--font-doc-sample);color:var(--text-primary)"><sc-if value="{{ e.hasFrom }}"><span style="text-decoration:line-through;color:var(--danger)">{{ e.from }}</span> → </sc-if><span style="background:{{ e.toBg }}">{{ e.to }}</span></div><div style="display:flex;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="arrow-right" hint-size="64px,26px">Go to</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="rotate-ccw" hint-size="70px,26px">Revert</x-import></div></div></sc-for>
+</div>
+<div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="rotate-ccw" hint-size="90px,26px">Revert all…</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-output" hint-size="120px,26px">Export list…</x-import></div>
+</aside>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Opened from “Review edits” in the tool row. Every change is a row with where, when, before and after; Go to selects it on the page, Revert undoes just that change. Kept warnings (an overflow) are listed with the edits so they can’t be forgotten before sending.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.13 · In-place translation</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-13a" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.13a</span><span style="font:600 26px/1.2 var(--font-ui)">Translate — Turkish → Arabic, side by side</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="saved" tabs="{{ tabs3saved }}" sidebar="{{ false }}" zoom="{{ 62 }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:grid;grid-template-columns:auto auto;justify-content:center;gap:28px;padding-top:16px;align-content:start">
+<div style="display:grid;gap:8px;justify-items:start"><span style="font:var(--type-label);color:var(--text-secondary)">ORIGINAL · TÜRKÇE</span><div style="zoom:0.62"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div>
+<div style="display:grid;gap:8px;justify-items:start"><span style="font:var(--type-label);color:var(--text-accent)">PREVIEW · العربية · RIGHT TO LEFT</span><div style="zoom:0.62"><div dir="rtl" lang="ar" style="position:relative;width:794px;height:1123px;box-sizing:border-box;padding:88px 96px 96px;background:#FFFFFF;box-shadow:var(--shadow-page),0 0 0 2px var(--accent-border);color:#1F1D1A;font:400 15px/1.75 'Noto Naskh Arabic',var(--font-arabic)">
+<div style="text-align:center;font:600 24px/1.5 'Noto Naskh Arabic',serif;margin:0 0 4px;background:var(--translated-mark)">عقد إيجار سكني</div>
+<div style="text-align:center;font-size:12.5px;color:#57534C;margin:0 0 26px">رقم العقد: <bdi dir="ltr">2026/0412</bdi> · تاريخ التحرير: <bdi dir="ltr">13.10.2026</bdi></div>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">المادة 1 — الطرفان</div>
+<p style="margin:0 0 8px;text-align:justify;background:var(--translated-mark)">المؤجِّر: مرت كايا (رقم الهوية التركية: <bdi dir="ltr">35712648950</bdi>)، شارع مودا رقم 18، قاضي كوي، إسطنبول. المستأجِرة: عائشة يلماز (رقم الهوية التركية: <bdi dir="ltr">41239876516</bdi>)، شارع بغداد رقم 241/7، مالتبه، إسطنبول.</p>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">المادة 2 — العقار المؤجَّر</div>
+<p style="margin:0 0 8px;text-align:justify;background:var(--translated-mark)">العقار المؤجَّر مسكن من ثلاث غرف وصالة في إسطنبول، قاضي كوي، حي جعفر آغا، شارع مودا رقم 18، الشقة 5. وقد سُلِّم العقار غير مفروش.</p>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">المادة 3 — مدة الإيجار</div>
+<p style="margin:0 0 8px;text-align:justify;background:var(--translated-mark)">تبدأ مدة الإيجار في <bdi dir="ltr">01.11.2026</bdi> ومدتها سنة واحدة، ويتجدد العقد سنةً أخرى بالشروط نفسها ما لم يُخطِر أحد الطرفين الآخرَ كتابيًا قبل انتهاء المدة بثلاثين يومًا على الأقل.</p>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">المادة 4 — بدل الإيجار والدفع</div>
+<p style="margin:0 0 8px;text-align:justify;background:var(--translated-mark)">تلتزم المستأجِرة بدفع بدل الإيجار الشهري البالغ <bdi dir="ltr">18.500</bdi> ليرة تركية حتى اليوم الخامس من كل شهر إلى حساب المؤجِّر المبيَّن أدناه.</p>
+<p style="margin:0 0 8px">رقم الحساب: <bdi dir="ltr" style="font-family:var(--font-doc-sample)">IBAN: TR12 0006 4000 0011 2345 6789 01</bdi> · المستفيد: مرت كايا</p>
+<div style="position:absolute;bottom:44px;left:0;right:0;text-align:center;font:400 12px/1 var(--font-doc-sample);color:#8A857C">1 / 3</div>
+</div></div></div>
+</main>
+<aside aria-label="Translate" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="languages" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Translate</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Languages" collapsible="{{ false }}" hint-size="100%,150px"><div style="display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:6px;align-items:end"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="From" default-value="tr" options="{{ fromLang }}" hint-size="100%,48px"></x-import><span style="padding-bottom:5px;color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-right" size="{{ 16 }}" flip-rtl="{{ true }}" hint-size="16px,16px"></x-import></span><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="To" default-value="ar" options="{{ toLang }}" hint-size="100%,48px"></x-import></div><span style="display:flex;gap:6px;align-items:center;font:var(--type-caption);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="cpu" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>On this device · Turkish → Arabic model, 61 MB</span></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Layout" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Right-to-left paragraphs and alignment" checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Keep numbers, IBANs and ID numbers as written" checked="{{ true }}" hint-size="100%,20px"></x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">IBM Plex Serif has no Arabic letters. Ferman uses Noto Naskh Arabic for the translated text.</span></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Pages" collapsible="{{ false }}" hint-size="100%,150px"><sc-for list="{{ trPages }}" as="g" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ g.icon }}" size="{{ 16 }}" color="{{ g.color }}" hint-size="16px,16px"></x-import><span style="flex:1">{{ g.label }}</span><sc-if value="{{ g.act }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="70px,26px">Accept</x-import></sc-if><sc-if value="{{ g.done }}"><span style="font:var(--type-caption);color:var(--success)">Accepted</span></sc-if></div></sc-for></x-import>
+<div style="flex:1"></div><div style="display:grid;gap:8px;padding:12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="file-output" full-width="{{ true }}" hint-size="100%,30px">Save translation as new PDF…</x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">The original Turkish file isn’t changed.</span></div>
+</aside>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Blocks keep their positions; inside each block the writing direction flips to right-to-left and alignment mirrors. Numbers and the IBAN stay left-to-right, isolated so they don’t scramble the sentence. Translated blocks carry a faint ink tint in the preview only.</p></div>
+<div id="a3-13b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.13b</span><span style="font:600 26px/1.2 var(--font-ui)">Translate — English → German, longer text</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="saved" tabs="{{ tabsNda }}" sidebar="{{ false }}" pages="{{ 4 }}" zoom="{{ 62 }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:grid;grid-template-columns:auto auto;justify-content:center;gap:28px;padding-top:16px;align-content:start">
+<div style="display:grid;gap:8px;justify-items:start"><span style="font:var(--type-label);color:var(--text-secondary)">ORIGINAL · ENGLISH</span><div style="zoom:0.62"><div dir="ltr" lang="en" style="width:794px;height:1123px;box-sizing:border-box;padding:88px 96px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 14px/1.5 var(--font-doc-sample)">
+<div style="text-align:center;font:600 19px/1.4 var(--font-doc-sample);letter-spacing:.05em;margin-bottom:26px">MUTUAL NON-DISCLOSURE AGREEMENT</div>
+<p style="margin:0 0 14px;text-align:justify">This Agreement is made on 2 October 2026 between Northwind Analytics Ltd., 14 Harbour Street, Leeds, and Kaya Mimarlık A.Ş., Moda Cad. No: 18, Kadıköy, İstanbul (each a “Party”).</p>
+<div style="font-weight:600;margin:18px 0 4px">1. Purpose</div><p style="margin:0 0 8px;text-align:justify">The Parties wish to explore a joint bid for the restoration of the Haydarpaşa ferry terminal and will share confidential information for that purpose only.</p>
+<div style="font-weight:600;margin:18px 0 4px">2. Confidential Information</div><p style="margin:0 0 8px;text-align:justify">“Confidential Information” means any information disclosed by one Party to the other, in any form, that is marked as confidential or would reasonably be understood to be confidential.</p>
+<div style="font-weight:600;margin:18px 0 4px">3. Obligations</div><p style="margin:0 0 8px;text-align:justify">The receiving Party shall keep Confidential Information secret, use it only for the Purpose and disclose it only to employees and advisers who need to know it.</p>
+</div></div></div>
+<div style="display:grid;gap:8px;justify-items:start"><span style="font:var(--type-label);color:var(--text-accent)">PREVIEW · DEUTSCH</span><div style="zoom:0.62"><div dir="ltr" lang="de" style="width:794px;height:1123px;box-sizing:border-box;padding:88px 96px;background:#FFFFFF;box-shadow:var(--shadow-page),0 0 0 2px var(--accent-border);color:#1F1D1A;font:400 14px/1.5 var(--font-doc-sample);hyphens:auto">
+<div style="text-align:center;font:600 19px/1.4 var(--font-doc-sample);letter-spacing:.05em;margin-bottom:26px;background:var(--translated-mark)">GEGENSEITIGE GEHEIMHALTUNGSVEREINBARUNG</div>
+<p style="margin:0 0 14px;text-align:justify;background:var(--translated-mark)">Diese Vereinbarung wird am 2. Oktober 2026 zwischen der Northwind Analytics Ltd., 14 Harbour Street, Leeds, und der Kaya Mimarlık A.Ş., Moda Cad. No: 18, Kadıköy, İstanbul (jeweils eine „Partei“) geschlossen.</p>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">1. Zweck</div>
+<div style="position:relative;margin:0 0 8px"><div style="height:63px;overflow:hidden;text-align:justify;background:var(--translated-mark);box-shadow:0 1.5px 0 var(--overflow-mark)">Die Parteien beabsichtigen, ein gemeinsames Angebot für die Restaurierung des Fährterminals Haydarpaşa zu prüfen, und tauschen vertrauliche Informationen ausschließlich zu diesem Zweck aus, sofern nichts anderes schriftlich vereinbart wurde.</div><span style="position:absolute;bottom:-2px;left:calc(100% + 10px);display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 7px;border-radius:2px;background:var(--amber-500);color:var(--paper-950);font:500 12px/1 var(--font-ui);white-space:nowrap" lang="en">+1 line</span></div>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">2. Vertrauliche Informationen</div>
+<div style="position:relative;margin:0 0 8px"><div style="height:63px;overflow:hidden;text-align:justify;background:var(--translated-mark);box-shadow:0 1.5px 0 var(--overflow-mark)">„Vertrauliche Informationen“ sind alle Informationen, die eine Partei der anderen in beliebiger Form offenlegt und die als vertraulich gekennzeichnet sind oder bei vernünftiger Betrachtung als vertraulich anzusehen sind.</div><span style="position:absolute;bottom:-2px;left:calc(100% + 10px);display:inline-flex;align-items:center;gap:4px;height:22px;padding:0 7px;border-radius:2px;background:var(--amber-500);color:var(--paper-950);font:500 12px/1 var(--font-ui);white-space:nowrap" lang="en">+1 line</span></div>
+<div style="font-weight:600;margin:18px 0 4px;background:var(--translated-mark)">3. Pflichten</div><p style="margin:0 0 8px;text-align:justify;background:var(--translated-mark)">Die empfangende Partei hält vertrauliche Informationen geheim, verwendet sie nur für den Zweck und gibt sie nur an Mitarbeitende und Berater weiter, die sie kennen müssen.</p>
+</div></div></div>
+</main>
+<aside aria-label="Translate" style="width:300px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="languages" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span style="font:var(--type-panel-title);flex:1">Translate</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Languages" collapsible="{{ false }}" hint-size="100%,120px"><div style="display:grid;grid-template-columns:minmax(0,1fr) 20px minmax(0,1fr);gap:6px;align-items:end"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="From" default-value="en" options="{{ fromLang }}" hint-size="100%,48px"></x-import><span style="padding-bottom:5px;color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-right" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="To" default-value="de" options="{{ toLang }}" hint-size="100%,48px"></x-import></div></x-import>
+<div style="padding:12px;display:grid;gap:8px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" tone="warning" title="2 blocks don’t fit" hint-size="100%,100px">The German text is 24% longer. Ferman reflowed 9 blocks; sections 1 and 2 each need one more line.</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" icon="arrow-up-down" full-width="{{ true }}" hint-size="100%,26px">Let blocks grow into free space</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="minimize-2" full-width="{{ true }}" hint-size="100%,26px">Shrink these 2 blocks (10 → 9.5 pt)</x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" full-width="{{ true }}" hint-size="100%,26px">Review one by one</x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Pages" collapsible="{{ false }}" hint-size="100%,150px"><sc-for list="{{ ndaPages }}" as="g" hint-placeholder-count="4"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ g.icon }}" size="{{ 16 }}" color="{{ g.color }}" hint-size="16px,16px"></x-import><span style="flex:1">{{ g.label }}</span></div></sc-for></x-import>
+</aside>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Expansion is handled by reflow first, with German hyphenation. What still doesn’t fit is marked on the page (+1 line) and resolved with the same three choices as manual edits (3.4), applied to just those blocks.</p></div>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">3.14 · Mixed-language document</h2>
+<div id="a3-14" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.14</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Turkish thesis with an English quote, language per block</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabsTez }}" page="{{ 18 }}" pages="{{ 64 }}" status-lang="English (United Kingdom) · spelling" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="tez" tab="outline" current="{{ 4 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px">
+<div dir="ltr" lang="tr" style="position:relative;width:794px;height:1123px;flex:none;box-sizing:border-box;padding:96px 100px;background:#FFFFFF;box-shadow:var(--shadow-page);color:#1F1D1A;font:400 14px/1.7 var(--font-doc-sample)">
+<div style="display:flex;justify-content:space-between;font-size:11px;color:#8A857C;border-bottom:1px solid #E6E2DB;padding-bottom:6px;margin-bottom:34px"><span>Kentsel Dönüşüm Sürecinde Kiracı Hakları</span><span>14</span></div>
+<div style="font:600 15px/1.5 var(--font-doc-sample);margin-bottom:10px">2.2 İstanbul’da kira artışları</div>
+<div style="position:relative"><span lang="en" style="position:absolute;left:-58px;top:4px;padding:1px 5px;border-radius:2px;background:var(--surface-sunken);color:var(--text-secondary);font:500 10px/1.4 var(--font-ui);box-shadow:0 0 0 1px var(--border-default)">TR</span><p style="margin:0 0 14px;text-align:justify">2022–2024 döneminde İstanbul’da konut kiraları resmî enflasyonun belirgin biçimde üzerinde arttı. Kentsel dönüşüm kapsamındaki binalarda oturan kiracıların önemli bir bölümü, tahliye bildirimini aldıktan sonra aynı mahallede kiralık konut bulamadı. Bu durum, <span style="text-decoration:underline wavy #D93A2B;text-decoration-thickness:1px;text-underline-offset:3px">kiracınnın</span> barınma hakkı ile mülkiyet hakkı arasındaki dengeyi yeniden tartışmaya açtı.</p></div>
+<div style="position:relative;margin:0 0 14px 32px"><span lang="en" style="position:absolute;left:-90px;top:4px;padding:1px 5px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 10px/1.4 var(--font-ui)">EN</span><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="selected" meta="IBM Plex Serif Italic · 10 pt · English" data-meta-placement="below" hint-size="100%,80px"><div lang="en" style="font:italic 400 13px/1.65 var(--font-doc-sample);text-align:justify">“Security of tenure is not a privilege granted to tenants; it is the condition under which a city remains a place where people can plan their lives.” (Hartley, 2019, s. 42)</div></x-import></div>
+<div style="position:relative"><span lang="en" style="position:absolute;left:-58px;top:4px;padding:1px 5px;border-radius:2px;background:var(--surface-sunken);color:var(--text-secondary);font:500 10px/1.4 var(--font-ui);box-shadow:0 0 0 1px var(--border-default)">TR</span><p style="margin:24px 0 14px;text-align:justify">Hartley’nin bu tespiti, Türk Borçlar Kanunu’nun 347. maddesinde düzenlenen bildirim süreleriyle birlikte değerlendirildiğinde, dönüşüm projelerinde kiracılara tanınan sürelerin yetersiz kaldığı görülmektedir.¹</p></div>
+<div style="position:absolute;bottom:80px;left:100px;right:100px;border-top:1px solid #E6E2DB;padding-top:6px;font-size:11px;color:#57534C">¹ Hartley, J. (2019). Tenure and the City. Leeds: Harbour Press.</div>
+</div></main>
+<dc-import name="FmEditPanel" spell="en" font="IBM Plex Serif Italic" size="{{ 10 }}" edited="{{ false }}" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Each block has its own language, detected on open and shown as margin tags when “Show block languages” is on (View menu). The English quote is spell-checked and hyphenated as English; the Turkish paragraph flags “kiracınnın” with Turkish rules. Screen readers switch voice per block (lang attribute written into the PDF tags).</p></div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i, size: 'sm' }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const E = [
+      ['type', 'var(--edit-mark)', 'Page 1 · Madde 4 · text', '14:02', '18.500 TL', '19.500 TL', 'var(--accent)'],
+      ['type', 'var(--edit-mark)', 'Page 1 · Madde 4 · text', '14:04', '', '(on dokuz bin beş yüz TL)', 'var(--border-subtle)'],
+      ['type', 'var(--icon-secondary)', 'Page 1 · Madde 6 · font', '14:10', 'Garamond Premier Pro', 'EB Garamond (whole block)', 'var(--border-subtle)'],
+      ['plus', 'var(--icon-secondary)', 'Page 1 · new text box', '14:21', '', 'Not: Ek-3 aidat tablosu…', 'var(--border-subtle)'],
+      ['triangle-alert', 'var(--warning-solid)', 'Page 1 · Madde 4 · kept warning', '14:24', '', '1 line hidden — overflow kept', 'var(--warning-border)']
+    ];
+    return {
+      tabsScan: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kira artış bildirimi (tarama).pdf', active: true }],
+      actOcr: btns(['Not now', { variant: 'ghost' }], ['Recognize text…', { variant: 'primary', icon: 'scan-text' }]),
+      ocrPages: [{ value: 'this', label: 'This page' }, { value: 'all', label: 'All 3 scanned pages' }],
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabs3saved: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      reviewFilter: [{ value: 'all', label: 'All' }, { value: 'text', label: 'Text' }, { value: 'fonts', label: 'Fonts' }, { value: 'warn', label: 'Warnings' }],
+      edits: E.map((e) => ({ icon: e[0], iconColor: e[1], where: e[2], time: e[3], hasFrom: !!e[4], from: e[4], to: e[5], toBg: e[0] === 'triangle-alert' ? 'var(--glyph-missing-bg)' : 'var(--diff-added)', border: e[6] })),
+      fromLang: [{ value: 'tr', label: 'Turkish' }, { value: 'en', label: 'English' }, { value: 'auto', label: 'Detect' }],
+      toLang: [{ value: 'ar', label: 'Arabic' }, { value: 'de', label: 'German' }, { value: 'en', label: 'English' }],
+      trPages: [{ icon: 'circle-check', color: 'var(--success-solid)', label: 'Page 1', act: false, done: true }, { icon: 'circle', color: 'var(--icon-disabled)', label: 'Page 2', act: true, done: false }, { icon: 'circle', color: 'var(--icon-disabled)', label: 'Page 3 · signatures kept', act: true, done: false }],
+      tabsNda: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Mutual NDA — Northwind.pdf', active: true }],
+      ndaPages: [{ icon: 'triangle-alert', color: 'var(--warning-solid)', label: 'Page 1 · 2 blocks need room' }, { icon: 'circle-check', color: 'var(--success-solid)', label: 'Page 2 · fits' }, { icon: 'circle-check', color: 'var(--success-solid)', label: 'Page 3 · fits' }, { icon: 'circle-check', color: 'var(--success-solid)', label: 'Page 4 · fits' }],
+      tabsTez: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true, unsaved: true }]
+    };
+  }
+}
+</script>
+</body>
+</html>

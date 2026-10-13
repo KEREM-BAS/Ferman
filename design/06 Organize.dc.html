@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">06 · Organize</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">The page grid with selection, drag reorder and every page command; split, combine, crop and page size; page labels. Every change can be undone until the file is saved.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">6.1 · Page grid</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a6-1" num="6.1a" title="Organize — Multi-select and page commands" note="Click selects, ⇧-click selects a range, ⌘-click adds a page. The context menu and the panel act on the whole selection and name the count. Arrow keys move focus between pages; Space toggles selection; ⌘A selects all. Each thumbnail is announced as “Page 5 of 64, selected”." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" save="unsaved" tabs="{{ tabsTez }}" page="{{ 5 }}" pages="{{ 64 }}" zoom="{{ 100 }}" sidebar="{{ false }}" organize-hint="3 of 64 pages selected" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas)"><div role="listbox" aria-multiselectable="true" aria-label="Pages" style="display:grid;grid-template-columns:repeat(6,150px);gap:20px 28px;justify-content:center;padding:28px 24px">
+<sc-for list="{{ grid }}" as="g" hint-placeholder-count="12"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ g.n }}" label="{{ g.label }}" width="{{ 132 }}" selected="{{ g.sel }}" state="{{ g.state }}" aria-label="{{ g.aria }}" hint-size="150px,215px"><span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 14%"></span></x-import></sc-for>
+</div>
+<div style="position:absolute;top:280px;left:600px;z-index:5;width:250px"><x-import component-from-global-scope="FermanDesignSystem_278323.Menu" items="{{ pageMenu }}" label="3 pages" hint-size="250px,360px"></x-import></div>
+</main>
+<aside aria-label="Selection" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">3 pages selected</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Pages" collapsible="{{ false }}" hint-size="100%,110px"><div style="display:grid;grid-template-columns:84px minmax(0,1fr);gap:6px 8px;font:var(--type-caption);font-variant-numeric:tabular-nums"><span style="color:var(--text-secondary)">Pages</span><span>4, 5, 6 (labels 1–3)</span><span style="color:var(--text-secondary)">Size</span><span>A4 · 210 × 297 mm</span><span style="color:var(--text-secondary)">Rotation</span><span>0°</span></div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Commands" collapsible="{{ false }}" hint-size="100%,170px"><div style="display:grid;grid-template-columns:1fr 1fr;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="rotate-ccw" hint-size="100%,26px">Rotate left</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="rotate-cw" hint-size="100%,26px">Rotate right</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="copy" hint-size="100%,26px">Duplicate</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-output" hint-size="100%,26px">Extract…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="replace" hint-size="100%,26px">Replace…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="trash-2" hint-size="100%,26px">Delete</x-import></div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Insert after page 6" collapsible="{{ false }}" hint-size="100%,140px"><div style="display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-plus-2" full-width="{{ true }}" hint-size="100%,26px">Blank page</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="folder-open" full-width="{{ true }}" hint-size="100%,26px">Pages from a file…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="scan" full-width="{{ true }}" hint-size="100%,26px">From scanner or camera…</x-import></div></x-import>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a6-1b" num="6.1b" title="Organize — Dragging 3 pages, insertion marker" note="The selection lifts as one stack with a count; the empty slots show where the pages came from; an ink bar with a dot marks where they’ll land. Dragging to the window edge scrolls. Esc cancels the drag. Keyboard: ⌥⌘↑ / ⌥⌘↓ move the selection. A toast offers Undo after the drop." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" save="unsaved" tabs="{{ tabsTez }}" page="{{ 5 }}" pages="{{ 64 }}" sidebar="{{ false }}" organize-hint="Moving 3 pages" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas)"><div role="listbox" aria-label="Pages" style="display:grid;grid-template-columns:repeat(6,150px);gap:20px 28px;justify-content:center;padding:28px 24px">
+<sc-for list="{{ gridDrag }}" as="g" hint-placeholder-count="12"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ g.n }}" label="{{ g.label }}" width="{{ 132 }}" selected="{{ g.sel }}" state="{{ g.state }}" aria-label="{{ g.aria }}" hint-size="150px,215px"><span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 14%"></span></x-import></sc-for>
+</div>
+<div aria-hidden="true" style="position:absolute;top:268px;left:283px;width:3px;height:200px;border-radius:2px;background:var(--accent)"><span style="position:absolute;top:-6px;left:-4.5px;width:12px;height:12px;border-radius:50%;background:var(--accent)"></span></div>
+<div aria-hidden="true" style="position:absolute;top:300px;left:310px;transform:rotate(-3deg)"><div style="position:relative;width:132px;height:187px"><span style="position:absolute;inset:0;transform:translate(8px,8px);background:#FFFFFF;box-shadow:var(--shadow-sm)"></span><span style="position:absolute;inset:0;transform:translate(4px,4px);background:#FFFFFF;box-shadow:var(--shadow-sm)"></span><span style="position:absolute;inset:0;background:#FFFFFF;box-shadow:var(--shadow-drag)"><span class="fm-thumb__lines" style="inset:13% 14% 16% 12%"></span></span><span style="position:absolute;top:-10px;right:-10px;min-width:24px;height:24px;padding:0 6px;display:grid;place-items:center;border-radius:4px;background:var(--accent);color:#FFFFFF;font:600 12px/1 var(--font-ui)">3</span></div></div>
+<div role="status" style="position:absolute;bottom:20px;inset-inline-end:20px;padding:8px 12px;border-radius:var(--radius-md);background:var(--surface-inverse);color:var(--text-inverse);font:var(--type-caption)">Drop to move pages 4–6 before page 3</div>
+</main>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">6.2 – 6.3 · Split and combine</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a6-2" num="6.2" title="Organize — Split with result preview" note="Four ways to split: every N pages, by top-level bookmarks, by file size, or at blank separator pages (for batches scanned in one go). The preview lists every file Ferman will write, with its pages and size, before anything happens." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" tool="split" save="saved" tabs="{{ tabsTez }}" pages="{{ 64 }}" sidebar="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas)"><div style="display:grid;grid-template-columns:repeat(6,150px);gap:20px 28px;justify-content:center;padding:28px 24px"><sc-for list="{{ gridPlain }}" as="g" hint-placeholder-count="12"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ g.n }}" label="{{ g.label }}" width="{{ 132 }}" hint-size="150px,215px"><span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 14%"></span></x-import></sc-for></div></main>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Split “Yüksek lisans tezi — Elif Şahin.pdf”" actions="{{ actSplit }}" hint-size="720px,640px">
+<div style="display:grid;grid-template-columns:260px minmax(0,1fr);gap:20px">
+<div role="radiogroup" aria-label="Split by" style="display:grid;gap:12px;align-content:start"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sp" value="n" label="Every few pages" description="A new file every N pages." hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sp" value="bm" label="At top-level bookmarks" description="One file per chapter. 6 bookmarks found." default-checked="{{ true }}" hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sp" value="size" label="By file size" description="Files no larger than a size you choose, for e-mail limits." hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sp" value="blank" label="At blank pages" description="Blank separator pages are removed." hint-size="100%,40px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="File names" default-value="{document} — {bookmark}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Save to" icon="folder" default-value="same" options="{{ saveTo }}" hint-size="100%,48px"></x-import></div>
+<div style="display:grid;gap:8px;align-content:start"><span class="fm-field__label">6 files</span><div style="display:grid;border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden"><sc-for list="{{ splits }}" as="f" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:10px;padding:8px 12px;border-bottom:1px solid var(--border-subtle);font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span lang="tr" style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><span style="font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums;white-space:nowrap">{{ f.meta }}</span></div></sc-for></div></div>
+</div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a6-3" num="6.3" title="Organize — Combine files" note="Drag files to reorder (the lifted row shows where it will go), choose page ranges per file, and see the combined result as you go. Word, Excel and image files are converted on the way in, and say so. Each file can become a bookmark." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" tool="combine" save="saved" tabs="{{ tabsCombine }}" no-pages="{{ true }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:560px minmax(0,1fr);background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;min-height:0;background:var(--surface-panel);border-inline-end:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:44px;padding-inline:16px 10px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">5 files · 9 pages</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="plus" hint-size="100px,26px">Add files…</x-import></div>
+<div style="position:relative;display:grid;gap:8px;padding:12px">
+<sc-for list="{{ combine }}" as="c" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:20px 22px minmax(0,1fr) 120px 26px;gap:10px;align-items:center;padding:10px 10px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle);opacity:{{ c.op }};box-shadow:{{ c.shadow }};transform:{{ c.tf }}"><span style="color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="grip-vertical" size="{{ 16 }}" label="Drag to reorder" hint-size="16px,16px"></x-import></span><span style="width:22px;height:22px;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);font:600 11px/1 var(--font-ui);font-variant-numeric:tabular-nums">{{ c.n }}</span><span style="display:grid;gap:2px;min-width:0"><span lang="tr" style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ c.name }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ c.meta }}</span></span><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" aria-label="Pages to include" default-value="{{ c.range }}" hint-size="120px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Remove file" size="sm" hint-size="26px,26px"></x-import></div></sc-for>
+<div aria-hidden="true" style="position:absolute;left:12px;right:12px;top:139px;height:3px;border-radius:2px;background:var(--accent)"></div>
+</div>
+<div style="margin-top:auto;display:grid;gap:10px;padding:14px 16px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="New file" default-value="Kira dosyası — tam.pdf" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Add a bookmark for each file" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Keep form fields and signatures" description="Signatures from the original files will show as no longer covering the whole document." default-checked="{{ true }}" hint-size="100%,40px"></x-import><div style="display:flex;align-items:center;gap:10px"><span style="flex:1;font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">About 3,4 MB</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="merge" hint-size="140px,30px">Combine 5 files</x-import></div></div>
+</div>
+<div style="overflow:hidden;padding:24px"><span style="display:block;margin-bottom:14px;font:var(--type-label);color:var(--text-tertiary)">RESULT · 9 PAGES</span><div style="display:grid;grid-template-columns:repeat(4,128px);gap:18px 22px"><sc-for list="{{ combPages }}" as="p" hint-placeholder-count="9"><div style="display:grid;gap:6px;justify-items:center"><span style="position:relative;width:110px;height:156px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default),var(--shadow-sm)"><span class="fm-thumb__lines" style="inset:13% 14% 16% 12%"></span><span style="position:absolute;top:4px;left:4px;width:18px;height:18px;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);box-shadow:0 0 0 1px var(--border-default);font:600 10px/1 var(--font-ui);color:var(--text-primary)">{{ p.f }}</span></span><span style="font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">{{ p.n }}</span></div></sc-for></div></div>
+</main>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">6.4 – 6.5 · Crop, page size and labels</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a6-4" num="6.4" title="Organize — Crop and page size" note="Drag the handles or type margins in the region’s unit. “Remove white margins” finds the content box. Cropping hides what’s outside; the hidden content is removed only if you choose so when saving. Page size can change independently, with the content scaled or centred." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" tool="crop" save="unsaved" tabs="{{ tabsKira }}" zoom="{{ 70 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="position:relative;flex:none;zoom:0.7"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import><div aria-hidden="true" style="position:absolute;inset:0;box-shadow:inset 0 0 0 0 transparent;pointer-events:none"><div style="position:absolute;left:56px;top:46px;right:56px;bottom:68px;outline:2px solid var(--accent);box-shadow:0 0 0 2000px rgba(20,19,17,.42)"><span style="position:absolute;top:-7px;left:-7px;width:14px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;top:-7px;right:-7px;width:14px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;bottom:-7px;left:-7px;width:14px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;bottom:-7px;right:-7px;width:14px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;top:-7px;left:calc(50% - 14px);width:28px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;bottom:-7px;left:calc(50% - 14px);width:28px;height:14px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;left:-7px;top:calc(50% - 14px);width:14px;height:28px;background:#FFFFFF;border:2px solid var(--accent)"></span><span style="position:absolute;right:-7px;top:calc(50% - 14px);width:14px;height:28px;background:#FFFFFF;border:2px solid var(--accent)"></span><span lang="en" style="position:absolute;bottom:-40px;left:0;padding:4px 8px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 14px/1.3 var(--font-ui);font-variant-numeric:tabular-nums">180 × 270 mm</span></div></div></div></main>
+<aside aria-label="Crop" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Crop and page size</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Margins" collapsible="{{ false }}" hint-size="100%,160px"><div style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 10px"><dc-import name="FmNumber" label="Top" value="{{ 12 }}" unit="mm" lang="tr" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="Bottom" value="{{ 15 }}" unit="mm" lang="tr" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="Left" value="{{ 15 }}" unit="mm" lang="tr" width="{{ 112 }}" hint-size="112px,44px"></dc-import><dc-import name="FmNumber" label="Right" value="{{ 15 }}" unit="mm" lang="tr" width="{{ 112 }}" hint-size="112px,44px"></dc-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="scan" full-width="{{ true }}" hint-size="100%,26px">Remove white margins</x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Page size" collapsible="{{ false }}" hint-size="100%,120px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Page size" default-value="keep" options="{{ sizes }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Content" value="center" options="{{ fitModes }}" hint-size="100%,26px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Apply to" collapsible="{{ false }}" hint-size="100%,150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="ap" value="this" label="This page" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="ap" value="all" label="All 3 pages" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="ap" value="range" label="Pages" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Which pages" default-value="all" options="{{ parity }}" hint-size="100%,26px"></x-import></x-import>
+<div style="margin-top:auto;display:flex;gap:8px;padding:12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="70px,30px">Cancel</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" hint-size="110px,30px">Crop 3 pages</x-import></div>
+</aside>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a6-5" num="6.5" title="Organize — Page labels and numbering" note="Labels make the status bar, Go to page and printing use the document’s own numbers: “ii” for the abstract, “27” for the start of chapter 3. Ranges are listed in order; the preview row shows the first labels of each range. Labels can also be stamped on the pages as visible numbers." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="organize" tool="labels" save="unsaved" tabs="{{ tabsTez }}" pages="{{ 64 }}" sidebar="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas)"><div style="display:grid;grid-template-columns:repeat(6,150px);gap:20px 28px;justify-content:center;padding:28px 24px"><sc-for list="{{ gridLabels }}" as="g" hint-placeholder-count="12"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ g.n }}" label="{{ g.label }}" width="{{ 132 }}" hint-size="150px,215px"><span class="fm-thumb__lines" style="inset-block:13% 16%;inset-inline:12% 14%"></span></x-import></sc-for></div></main>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Page labels" description="Choose how pages are numbered in Ferman, in other PDF apps and when printing." actions="{{ actLabels }}" hint-size="720px,520px">
+<div style="display:grid;gap:10px">
+<div style="display:grid;grid-template-columns:120px 1fr 110px 90px 26px;gap:10px;padding:0 4px;font:var(--type-label);color:var(--text-tertiary)"><span>PAGES</span><span>STYLE</span><span>PREFIX</span><span>START AT</span><span></span></div>
+<sc-for list="{{ labelRanges }}" as="r" hint-placeholder-count="3"><div style="display:grid;grid-template-columns:120px 1fr 110px 90px 26px;gap:10px;align-items:center;padding:8px 4px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" aria-label="Pages" default-value="{{ r.pages }}" hint-size="120px,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Style" default-value="{{ r.style }}" options="{{ styles }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" aria-label="Prefix" default-value="{{ r.prefix }}" placeholder="None" hint-size="110px,26px"></x-import><dc-import name="FmNumber" aria="Start at" value="{{ r.start }}" width="{{ 90 }}" hint-size="90px,26px"></dc-import><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Remove range" size="sm" hint-size="26px,26px"></x-import></div></sc-for>
+<div><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="plus" hint-size="100px,26px">Add range</x-import></div>
+<div style="display:flex;gap:8px;align-items:center;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-sunken);font:var(--type-caption);color:var(--text-secondary)"><span>Preview</span><span style="font:var(--type-mono);color:var(--text-primary)">i ii iii … ix · 1 2 3 … 55 · Ek-1 Ek-2</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Also print the numbers on the pages" description="Adds them as a footer (3.8b). Pages that already show a number are skipped." hint-size="100%,40px"></x-import>
+</div></x-import></div>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+const ROMAN = ['i', 'ii', 'iii', 'iv', 'v', 'vi', 'vii', 'viii', 'ix'];
+const lab = (n) => n <= 9 ? ROMAN[n - 1] : String(n - 9);
+class Component extends DCLogic {
+  renderVals() {
+    const base = Array.from({ length: 12 }, (_, i) => i + 1);
+    const mk = (n, sel, state) => ({ n, label: lab(n), sel: !!sel, state, aria: 'Page ' + n + ' of 64' + (sel ? ', selected' : '') });
+    return {
+      tabsTez: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true, unsaved: true }],
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }],
+      tabsCombine: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Combine files', active: true, icon: 'merge' }],
+      grid: base.map((n) => mk(n, n >= 4 && n <= 6)),
+      gridDrag: base.map((n) => mk(n, false, n >= 4 && n <= 6 ? 'placeholder' : undefined)),
+      gridPlain: base.map((n) => mk(n)),
+      gridLabels: base.map((n) => mk(n)),
+      pageMenu: [{ heading: '3 pages' }, { id: 'rl', label: 'Rotate left', icon: 'rotate-ccw', shortcut: ['⌘', '['] }, { id: 'rr', label: 'Rotate right', icon: 'rotate-cw', shortcut: ['⌘', ']'] }, { id: 'dup', label: 'Duplicate', icon: 'copy', shortcut: ['⌘', 'D'] }, { id: 'ex', label: 'Extract as new PDF…', icon: 'file-output', shortcut: ['⌥', '⌘', 'E'] }, { separator: true }, { id: 'ib', label: 'Insert blank page after', icon: 'file-plus-2' }, { id: 'if', label: 'Insert pages from file…', icon: 'folder-open' }, { id: 'rp', label: 'Replace with pages from file…', icon: 'replace' }, { separator: true }, { id: 'del', label: 'Delete 3 pages', icon: 'trash-2', shortcut: ['⌫'] }],
+      actSplit: btns(['Cancel'], ['Split into 6 files', { variant: 'primary' }]),
+      saveTo: [{ value: 'same', label: 'Same folder as the original' }, { value: 'choose', label: 'Choose a folder…' }],
+      splits: [['Yüksek lisans tezi — Özet ve içindekiler.pdf', 'i–ix · 9 pages · 0,4 MB'], ['Yüksek lisans tezi — 1. Giriş.pdf', '1–8 · 8 pages · 0,6 MB'], ['Yüksek lisans tezi — 2. Kentsel dönüşüm ve kiracılık.pdf', '9–26 · 18 pages · 1,9 MB'], ['Yüksek lisans tezi — 3. Bulgular.pdf', '27–50 · 24 pages · 3,2 MB'], ['Yüksek lisans tezi — 4. Sonuç.pdf', '51–57 · 7 pages · 0,4 MB'], ['Yüksek lisans tezi — Kaynakça.pdf', '58–64 · 7 pages · 0,3 MB']].map((s) => ({ name: s[0], meta: s[1] })),
+      combine: [
+        { n: '1', name: 'Kira sözleşmesi.pdf', meta: 'PDF · 3 pages', range: 'All', op: '1', shadow: 'none', tf: 'none' },
+        { n: '2', name: 'Ek-1 Demirbaş listesi.xlsx', meta: 'Excel · converted to 1 page', range: 'All', op: '1', shadow: 'none', tf: 'none' },
+        { n: '3', name: 'Kimlik fotokopisi.pdf', meta: 'PDF · 2 pages', range: '1', op: '1', shadow: 'var(--shadow-drag)', tf: 'translate(16px,-6px) rotate(-1deg)' },
+        { n: '4', name: 'Tapu fotokopisi.jpg', meta: 'Image · converted to 1 page', range: 'All', op: '1', shadow: 'none', tf: 'none' },
+        { n: '5', name: 'Hesap ekstresi Eylül 2026.pdf', meta: 'PDF · 2 pages', range: '1–2', op: '1', shadow: 'none', tf: 'none' }
+      ],
+      combPages: [['1', '1'], ['1', '2'], ['1', '3'], ['2', '4'], ['3', '5'], ['4', '6'], ['5', '7'], ['5', '8']].map((p) => ({ f: p[0], n: p[1] })),
+      sizes: [{ value: 'keep', label: 'Keep current size (A4)' }, { value: 'a4', label: 'A4 · 210 × 297 mm' }, { value: 'letter', label: 'Letter · 216 × 279 mm' }, { value: 'custom', label: 'Custom…' }],
+      fitModes: [{ value: 'center', label: 'Centre' }, { value: 'scale', label: 'Scale to fit' }],
+      parity: [{ value: 'all', label: 'All pages in range' }, { value: 'odd', label: 'Odd pages' }, { value: 'even', label: 'Even pages' }],
+      labelRanges: [{ pages: '1–9', style: 'roman', prefix: '', start: 1 }, { pages: '10–64', style: 'arabic', prefix: '', start: 1 }, { pages: '65–66', style: 'arabic', prefix: 'Ek-', start: 1 }],
+      styles: [{ value: 'roman', label: 'i, ii, iii' }, { value: 'Roman', label: 'I, II, III' }, { value: 'arabic', label: '1, 2, 3' }, { value: 'alpha', label: 'a, b, c' }, { value: 'none', label: 'Prefix only' }],
+      actLabels: btns(['Cancel'], ['Apply labels', { variant: 'primary' }])
+    };
+  }
+}
+</script>
+</body>
+</html>

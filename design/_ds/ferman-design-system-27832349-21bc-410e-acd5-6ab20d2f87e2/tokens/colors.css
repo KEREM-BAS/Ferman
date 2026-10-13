@@ -1,0 +1,228 @@
+/* Ferman color tokens.
+   Base ramps first, then semantic aliases. Light is the default on :root;
+   dark lives on [data-theme="dark"]. The PDF page itself never inherits theme
+   colors — it stays paper-white unless the user opts into dimming. */
+
+:root {
+  /* Ink — the single accent (Lacivert, iron-gall ink blue) */
+  --ink-50: #EEF2FC;
+  --ink-100: #DCE4F8;
+  --ink-200: #B8C8F0;
+  --ink-300: #8BA4E4;
+  --ink-400: #5D7FD6;
+  --ink-500: #3A60C6;
+  --ink-600: #2A4DAF;
+  --ink-700: #213E8E;
+  --ink-800: #1A3170;
+  --ink-900: #142553;
+
+  /* Seal — vermilion of a wax/ink seal. Brand moments and stamps only, never UI chrome */
+  --seal-100: #F8E3DF;
+  --seal-500: #B5372A;
+  --seal-600: #962C21;
+  --seal-300: #E0675A;
+
+  /* Paper — warm neutrals for light theme */
+  --paper-0: #FFFFFF;
+  --paper-25: #FCFBF9;
+  --paper-50: #F7F6F3;
+  --paper-100: #F0EEEA;
+  --paper-150: #E8E5DF;
+  --paper-200: #DEDAD2;
+  --paper-300: #C9C4BA;
+  --paper-400: #A39E94;
+  --paper-500: #8A857C;
+  --paper-600: #6F6A62;
+  --paper-700: #57534C;
+  --paper-800: #3A3732;
+  --paper-900: #1F1D1A;
+  --paper-950: #141311;
+
+  /* Soot — warm charcoals for dark theme */
+  --soot-0: #0E0E0D;
+  --soot-50: #161615;
+  --soot-100: #1D1C1B;
+  --soot-150: #252422;
+  --soot-200: #2E2D2A;
+  --soot-300: #3B3936;
+  --soot-400: #57544F;
+  --soot-500: #7A766F;
+  --soot-600: #9A958D;
+  --soot-700: #BDB8AF;
+  --soot-800: #E3DFD8;
+  --soot-900: #F2EFEA;
+
+  /* Status ramps */
+  --green-50: #E7F4EC;
+  --green-200: #A9D8BC;
+  --green-500: #2E9A5C;
+  --green-600: #1E7A46;
+  --green-300: #4CC07E;
+  --amber-50: #FDF3E1;
+  --amber-200: #F0CD8F;
+  --amber-500: #D98A0B;
+  --amber-700: #9A5B00;
+  --amber-300: #F0B04A;
+  --red-50: #FCEBE9;
+  --red-200: #F2B8B1;
+  --red-500: #D93A2B;
+  --red-600: #B42318;
+  --red-300: #F07A6E;
+
+  /* Annotation palette — document colors, identical in both themes */
+  --annot-yellow: #FFE066;
+  --annot-green: #A8E6A1;
+  --annot-blue: #A8D1FF;
+  --annot-pink: #FFB3C7;
+  --annot-orange: #FFC58A;
+  --annot-ink: #1F1D1A;
+  --annot-red: #D93A2B;
+  --annot-blue-ink: #2A4DAF;
+
+  /* ---------- Semantic aliases (light) ---------- */
+  --surface-canvas: var(--paper-150);      /* behind the PDF page */
+  --surface-panel: var(--paper-50);        /* toolbars, sidebars, properties */
+  --surface-raised: var(--paper-0);        /* menus, popovers, dialogs, inputs */
+  --surface-sunken: var(--paper-100);      /* segmented tracks, wells */
+  --surface-hover: rgba(31, 29, 26, 0.06);
+  --surface-pressed: rgba(31, 29, 26, 0.10);
+  --surface-selected: var(--ink-50);
+  --surface-selected-strong: var(--ink-100);
+  --surface-inverse: var(--paper-900);
+  --surface-scrim: rgba(20, 19, 17, 0.38);
+
+  --text-primary: var(--paper-900);
+  --text-secondary: var(--paper-700);
+  --text-tertiary: var(--paper-600);
+  --text-disabled: var(--paper-400);
+  --text-on-accent: #FFFFFF;
+  --text-inverse: var(--paper-25);
+  --text-accent: var(--ink-600);
+  --text-link: var(--ink-600);
+
+  --icon-primary: var(--paper-800);
+  --icon-secondary: var(--paper-600);
+  --icon-disabled: var(--paper-400);
+
+  --border-subtle: #E6E2DB;
+  --border-default: var(--paper-200);
+  --border-strong: var(--paper-300);
+  --border-focus: var(--ink-500);
+
+  --accent: var(--ink-600);
+  --accent-hover: var(--ink-700);
+  --accent-pressed: var(--ink-800);
+  --accent-subtle: var(--ink-50);
+  --accent-subtle-hover: var(--ink-100);
+  --accent-border: var(--ink-300);
+
+  --success: var(--green-600);
+  --success-solid: var(--green-500);
+  --success-bg: var(--green-50);
+  --success-border: var(--green-200);
+  --warning: var(--amber-700);
+  --warning-solid: var(--amber-500);
+  --warning-bg: var(--amber-50);
+  --warning-border: var(--amber-200);
+  --danger: var(--red-600);
+  --danger-solid: var(--red-600);
+  --danger-hover: #961C13;
+  --danger-bg: var(--red-50);
+  --danger-border: var(--red-200);
+  --info: var(--ink-600);
+  --info-bg: var(--ink-50);
+  --info-border: var(--ink-200);
+
+  /* Editing states — drawn on top of the PDF page, so tuned against white paper */
+  --edit-selection: rgba(58, 96, 198, 0.26);       /* selected text run */
+  --edit-box: var(--ink-500);                       /* active text-block frame */
+  --edit-box-hover: rgba(58, 96, 198, 0.45);        /* hover affordance on editable text */
+  --edit-handle-fill: #FFFFFF;
+  --edit-caret: var(--ink-700);
+  --edit-changed: #0F7F72;                          /* edited since open */
+  --edit-changed-bg: rgba(15, 127, 114, 0.10);
+  --glyph-missing: var(--amber-500);                /* substituted / missing glyph */
+  --glyph-missing-bg: rgba(217, 138, 11, 0.20);
+  --redact-pending: var(--red-600);                 /* marked, not yet applied */
+  --redact-pending-bg: rgba(180, 35, 24, 0.12);
+  --redact-applied: #000000;                        /* burned in — always true black */
+  --search-match: rgba(255, 216, 77, 0.55);
+  --search-current: rgba(255, 159, 28, 0.70);
+  --search-current-border: #C46A00;
+  --form-field-bg: rgba(58, 96, 198, 0.07);
+  --form-field-border: var(--ink-300);
+  --form-field-focus: var(--ink-500);
+  --form-field-required: var(--red-600);
+
+  /* The page */
+  --page-bg: #FFFFFF;
+  --page-filter: none; /* @kind other */
+  --page-border: rgba(20, 19, 17, 0.08);
+
+  color-scheme: light;
+}
+
+[data-theme="dark"] {
+  --surface-canvas: var(--soot-0);
+  --surface-panel: var(--soot-50);
+  --surface-raised: var(--soot-100);
+  --surface-sunken: #121211;
+  --surface-hover: rgba(242, 239, 234, 0.07);
+  --surface-pressed: rgba(242, 239, 234, 0.11);
+  --surface-selected: rgba(93, 127, 214, 0.18);
+  --surface-selected-strong: rgba(93, 127, 214, 0.28);
+  --surface-inverse: var(--soot-900);
+  --surface-scrim: rgba(0, 0, 0, 0.56);
+
+  --text-primary: var(--soot-900);
+  --text-secondary: var(--soot-700);
+  --text-tertiary: var(--soot-600);
+  --text-disabled: var(--soot-500);
+  --text-on-accent: #FFFFFF;
+  --text-inverse: var(--paper-900);
+  --text-accent: var(--ink-300);
+  --text-link: var(--ink-300);
+
+  --icon-primary: var(--soot-800);
+  --icon-secondary: var(--soot-600);
+  --icon-disabled: var(--soot-500);
+
+  --border-subtle: var(--soot-200);
+  --border-default: var(--soot-300);
+  --border-strong: var(--soot-400);
+  --border-focus: var(--ink-400);
+
+  --accent: var(--ink-500);
+  --accent-hover: #4A6DD0;
+  --accent-pressed: var(--ink-600);
+  --accent-subtle: rgba(93, 127, 214, 0.16);
+  --accent-subtle-hover: rgba(93, 127, 214, 0.24);
+  --accent-border: var(--ink-400);
+
+  --success: var(--green-300);
+  --success-solid: var(--green-500);
+  --success-bg: #13291C;
+  --success-border: #22503A;
+  --warning: var(--amber-300);
+  --warning-solid: var(--amber-500);
+  --warning-bg: #2E2212;
+  --warning-border: #5A4220;
+  --danger: var(--red-300);
+  --danger-solid: #C8352A;
+  --danger-hover: #D94A3E;
+  --danger-bg: #331816;
+  --danger-border: #632C27;
+  --info: var(--ink-300);
+  --info-bg: rgba(93, 127, 214, 0.14);
+  --info-border: rgba(93, 127, 214, 0.36);
+
+  /* Page stays paper-white; dimming is a per-user choice (see [data-page="dim"]) */
+  --page-border: rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* Optional reading comfort in dark theme: dim the page without inverting it */
+[data-page="dim"] {
+  --page-filter: brightness(0.86) contrast(1.04) sepia(0.06); /* @kind other */
+}

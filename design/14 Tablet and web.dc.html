@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">14 · Tablet and web</h1>
+<p style="margin:0;max-width:1000px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Tablets run the full desktop editor under touch density: the same shell, every target at least 44 pt, collapsible sidebars, a Pencil and stylus palette and hardware-keyboard shortcuts. The web app is the desktop editor in a browser tab, with honest notes where a feature needs the desktop app. The web address is a placeholder.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">14.1 · Tablet</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a14-1" num="14.1a" title="iPad Pro 13″ — Full editor, landscape" kind="bare" platform="ipad" w="{{ 1416 }}" h="{{ 1072 }}" meta="iPad Pro 13″ · 1376 × 1032 · Light" note="The desktop shell with touch density: 44 pt controls, wider tabs, the tool row scrolls if it runs out of room. Tap text to select, tap again for the caret; the panel slides over the page in portrait. The Pencil palette floats and can dock to any edge." hint-size="1416px,1200px">
+<div style="width:100%;height:100%;box-sizing:border-box;padding:20px;border-radius:44px;background:#151412;box-shadow:0 30px 60px -20px rgba(20,19,17,.45)"><div style="position:relative;width:100%;height:100%;overflow:hidden;border-radius:26px;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div aria-hidden="true" style="height:28px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font:600 14px/1 var(--font-ui);background:var(--surface-sunken)"><span>9:41 Mon 13 Oct</span><span style="display:flex;gap:6px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="wifi" size="{{ 15 }}" stroke-width="{{ 2.2 }}" hint-size="15px,15px"></x-import>84%</span></div>
+<div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" meta-text="IBM Plex Serif · 10,5 pt" hint-size="794px,1123px"></dc-import>
+<div role="toolbar" aria-label="Pencil" style="position:absolute;bottom:24px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:6px;padding:8px 10px;border-radius:var(--radius-xl);background:var(--surface-raised);box-shadow:var(--shadow-popover)"><sc-for list="{{ pencil }}" as="t" hint-placeholder-count="6"><span title="{{ t.label }}" style="width:48px;height:48px;display:grid;place-items:center;border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import></span></sc-for><span style="width:1px;height:28px;background:var(--border-subtle);margin:0 4px"></span><sc-for list="{{ inks }}" as="i" hint-placeholder-count="4"><span style="width:30px;height:30px;border-radius:50%;background:{{ i.c }};box-shadow:{{ i.ring }}"></span></sc-for><span style="width:1px;height:28px;background:var(--border-subtle);margin:0 4px"></span><span style="display:grid;font:500 12px/16px var(--font-ui);color:var(--text-secondary)"><span>Pencil only</span><span>Finger scrolls</span></span></div>
+</main>
+<dc-import name="FmEditPanel" lang="tr" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+<span aria-hidden="true" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:200px;height:5px;border-radius:3px;background:var(--text-primary)"></span>
+</div></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a14-1b" num="14.1b" title="iPad — Portrait, sidebars collapsed, annotating" kind="bare" platform="ipad" w="{{ 1072 }}" h="{{ 1416 }}" meta="iPad Pro 13″ · 1032 × 1376 · Dark" theme="dark" note="In portrait the sidebar and panel collapse to their toggle buttons and open as overlays. Scribble lets you handwrite into a text field with the Pencil; the squeeze gesture opens the tool palette at the tip." hint-size="1072px,1540px">
+<div style="width:100%;height:100%;box-sizing:border-box;padding:20px;border-radius:44px;background:#151412"><div style="position:relative;width:100%;height:100%;overflow:hidden;border-radius:26px;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div aria-hidden="true" style="height:28px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 24px;font:600 14px/1 var(--font-ui);background:var(--surface-sunken)"><span>9:41 Mon 13 Oct</span><span>84%</span></div>
+<div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="comment" tool="pen" annot-color="blue" save="unsaved" tabs="{{ tabs1 }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:28px"><div style="position:relative;flex:none;zoom:1.15"><dc-import name="DocKira" page="{{ 1 }}" mode="comment" annot="{{ true }}" hint-size="794px,1123px"></dc-import><svg aria-hidden="true" width="260" height="70" viewBox="0 0 260 70" style="position:absolute;left:470px;top:430px;overflow:visible"><path d="M8 40 C 30 6, 70 66, 110 30 S 190 6, 250 40" fill="none" stroke="#2A4DAF" stroke-width="2.4" stroke-linecap="round"></path></svg><svg aria-hidden="true" width="120" height="60" viewBox="0 0 120 60" style="position:absolute;left:600px;top:470px;overflow:visible"><path d="M10 10 L 60 50 L 110 10" fill="none" stroke="#2A4DAF" stroke-width="2.4" stroke-linecap="round"></path></svg></div>
+<div role="toolbar" aria-label="Pencil tools" style="position:absolute;top:240px;left:620px;display:grid;grid-template-columns:repeat(3,48px);gap:6px;padding:10px;border-radius:var(--radius-xl);background:var(--surface-raised);box-shadow:var(--shadow-popover)"><sc-for list="{{ pencil }}" as="t" hint-placeholder-count="6"><span title="{{ t.label }}" style="width:48px;height:48px;display:grid;place-items:center;border-radius:var(--radius-md);background:{{ t.bg }};color:{{ t.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ t.icon }}" size="{{ 22 }}" hint-size="22px,22px"></x-import></span></sc-for></div>
+</main>
+</dc-import></div>
+<span aria-hidden="true" style="position:absolute;bottom:8px;left:50%;transform:translateX(-50%);width:200px;height:5px;border-radius:3px;background:var(--text-primary)"></span>
+</div></div>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a14-1c" num="14.1c" title="iPad — Two documents in split view" kind="bare" platform="ipad" w="{{ 1416 }}" h="{{ 1072 }}" meta="iPad Pro 13″ · landscape · Light" note="Two Ferman windows side by side (iPadOS Split View), or two documents in one window. Drag text or a page from one to the other to copy it." hint-size="1416px,1200px">
+<div style="width:100%;height:100%;box-sizing:border-box;padding:20px;border-radius:44px;background:#151412"><div style="position:relative;width:100%;height:100%;overflow:hidden;border-radius:26px;display:grid;grid-template-columns:1fr 10px 1fr;background:#151412">
+<div style="position:relative;display:flex;flex-direction:column;border-radius:20px 0 0 20px;overflow:hidden"><div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="view" save="saved" tabs="{{ tabsL }}" sidebar="{{ false }}" panel="{{ false }}" tool-row="none" hint-size="100%,100%"><main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:20px"><div style="zoom:0.8"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></main></dc-import></div></div>
+<div style="display:grid;place-items:center"><span style="width:4px;height:60px;border-radius:2px;background:#8A857C"></span></div>
+<div style="position:relative;display:flex;flex-direction:column;border-radius:0 20px 20px 0;overflow:hidden"><div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="view" save="saved" tabs="{{ tabsR }}" sidebar="{{ false }}" panel="{{ false }}" tool-row="none" hint-size="100%,100%"><main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:20px"><div style="zoom:0.8"><dc-import name="DocEkstre" highlight-rent="{{ true }}" hint-size="794px,1123px"></dc-import></div></main></dc-import></div></div>
+</div></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a14-1d" num="14.1d" title="Android tablet — Hardware keyboard shortcuts" kind="bare" platform="atab" w="{{ 1320 }}" h="{{ 840 }}" meta="Android tablet · 1280 × 800 · Dark" theme="dark" note="With a keyboard attached, holding Ctrl shows the shortcuts for the current mode as an overlay (Android’s Keyboard Shortcuts Helper lists them too). The shell is the same as desktop; navigation bar at the bottom for the system." hint-size="1320px,960px">
+<div style="width:100%;height:100%;box-sizing:border-box;padding:20px;border-radius:32px;background:#151412"><div style="position:relative;width:100%;height:100%;overflow:hidden;border-radius:16px;display:flex;flex-direction:column;background:var(--surface-panel)">
+<div aria-hidden="true" style="height:26px;flex:none;display:flex;justify-content:space-between;align-items:center;padding:0 20px;font:500 13px/1 var(--font-ui);background:var(--surface-sunken)"><span>14:32</span><span style="display:flex;gap:6px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="wifi" size="{{ 14 }}" stroke-width="{{ 2.2 }}" hint-size="14px,14px"></x-import>72%</span></div>
+<div style="flex:1;position:relative"><dc-import name="FmWindow" platform="win" mode="organize" save="unsaved" tabs="{{ tabsTez }}" pages="{{ 64 }}" sidebar="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas)"><div style="display:grid;grid-template-columns:repeat(6,130px);gap:18px 22px;justify-content:center;padding:22px"><sc-for list="{{ grid }}" as="g" hint-placeholder-count="12"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ g.n }}" width="{{ 112 }}" selected="{{ g.sel }}" hint-size="130px,185px"><span class="fm-thumb__lines" style="inset:13% 14% 16%"></span></x-import></sc-for></div>
+<div role="dialog" aria-label="Keyboard shortcuts" style="position:absolute;inset:40px 120px auto;display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 24px;padding:20px 24px;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:var(--shadow-dialog)"><span style="grid-column:1/-1;font:var(--type-dialog-title)">Organize · shortcuts</span><sc-for list="{{ keys }}" as="k" hint-placeholder-count="9"><div style="display:flex;align-items:center;gap:10px;font:400 15px/1 var(--font-ui)"><span style="flex:1">{{ k.c }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ k.k }}" hint-size="70px,20px"></x-import></div></sc-for></div>
+</main>
+</dc-import></div>
+<div aria-hidden="true" style="height:30px;flex:none;display:grid;place-items:center;background:var(--surface-sunken)"><span style="width:120px;height:4px;border-radius:2px;background:var(--text-primary)"></span></div>
+</div></div>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">14.2 · Web app</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a14-2" num="14.2a" title="Web — Editor in a browser tab" platform="web" w="{{ 1440 }}" h="{{ 900 }}" note="The same editor, running in the browser with the engine compiled to WebAssembly. Files are opened from the device and stay in the browser’s memory; nothing is uploaded. Mode tabs use the underline style. Browser shortcuts win where they clash (⌘W closes the tab), so Ferman’s document close moves to ⌥⌘W." hint-size="1440px,1020px">
+<div style="height:100%;display:flex;flex-direction:column;background:#DEDBD5">
+<div aria-hidden="true" style="height:40px;flex:none;display:flex;align-items:flex-end;gap:8px;padding:0 12px 0 84px;position:relative"><span style="position:absolute;left:16px;top:14px;display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span><span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span><span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span></span><span style="width:240px;height:32px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:8px 8px 0 0;background:#F7F6F3;font:400 12px/1 var(--font-ui);color:#3A3733"><span style="font:var(--type-wordmark);font-size:13px">F</span>Kira sözleşmesi.pdf — Ferman</span></div>
+<div aria-hidden="true" style="height:40px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:#F7F6F3;border-bottom:1px solid #DEDAD2"><span style="display:flex;gap:4px;color:#57534C"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-left" size="{{ 16 }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="arrow-right" size="{{ 16 }}" hint-size="16px,16px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="refresh-cw" size="{{ 16 }}" hint-size="16px,16px"></x-import></span><span style="flex:1;height:28px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:14px;background:#ECEAE5;font:400 13px/1 var(--font-ui);color:#3A3733"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>app.ferman.org</span><span title="Install Ferman" style="color:#57534C"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="download" size="{{ 16 }}" hint-size="16px,16px"></x-import></span></div>
+<div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" sel="p4" edited="{{ true }}" meta-place="margin" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import></div>
+</div>
+</dc-import>
+<dc-import name="FmBoard" bid="a14-2b" num="14.2b" title="Web — Open from device" platform="web" w="{{ 1440 }}" h="{{ 900 }}" note="The web start screen is the drop zone: drop a file or choose one; recent files are remembered only by name in this browser and need to be chosen again (browsers don’t let sites reopen files on their own). The install prompt appears once, under the drop zone, and says what installing changes." hint-size="1440px,1020px">
+<div style="height:100%;display:flex;flex-direction:column;background:#DEDBD5">
+<div aria-hidden="true" style="height:40px;flex:none;display:flex;align-items:flex-end;gap:8px;padding:0 12px 0 84px;position:relative"><span style="position:absolute;left:16px;top:14px;display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span><span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span><span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span></span><span style="width:240px;height:32px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:8px 8px 0 0;background:#F7F6F3;font:400 12px/1 var(--font-ui);color:#3A3733"><span style="font:var(--type-wordmark);font-size:13px">F</span>Ferman</span></div>
+<div aria-hidden="true" style="height:40px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px;background:#F7F6F3;border-bottom:1px solid #DEDAD2"><span style="flex:1;height:28px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:14px;background:#ECEAE5;font:400 13px/1 var(--font-ui);color:#3A3733"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>app.ferman.org</span></div>
+<div style="flex:1;overflow:hidden;display:grid;place-items:center;background:var(--surface-panel)"><div style="width:860px;display:grid;gap:20px">
+<span style="font:var(--type-wordmark);font-size:30px">Ferman</span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.DropZone" title="Open a PDF from this device" subtitle="Drop it here or choose a file. It opens in this browser tab and isn’t uploaded anywhere." on-open="{{ noop }}" on-create="{{ noop }}" shortcut="{{ kO }}" footnote="Files stay on this device. Ferman runs entirely in your browser." min-height="{{ 320 }}" hint-size="100%,320px"></x-import>
+<div style="display:grid;gap:8px"><span style="font:var(--type-panel-title)">Opened recently in this browser</span><sc-for list="{{ webRecent }}" as="f" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;height:40px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span lang="tr" style="flex:1;font:var(--type-body-strong)">{{ f.n }}</span><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ f.w }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" hint-size="110px,26px">Choose again…</x-import></div></sc-for></div>
+<div style="display:flex;gap:14px;align-items:center;padding:14px 16px;border-radius:var(--radius-lg);background:var(--surface-raised);border:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="download" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import><span style="flex:1;display:grid;gap:2px"><span style="font:var(--type-body-strong)">Install Ferman as an app</span><span style="font:var(--type-caption);color:var(--text-secondary)">It opens in its own window, works offline and can open PDFs from your file manager. Same features as this tab.</span></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="70px,30px">Not now</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="download" hint-size="90px,30px">Install</x-import></div>
+</div></div>
+</div>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a14-2c" num="14.2c" title="Web — Feature that needs the desktop app" platform="web" w="{{ 1440 }}" h="{{ 900 }}" note="Browsers can’t talk to e-imza card readers or the system’s certificate store. Instead of a disabled button with no reason, the Sign menu says what works here (simple signatures, certificate files) and what needs Ferman for macOS or Windows, with a direct way to continue there." hint-size="1440px,1020px">
+<div style="height:100%;display:flex;flex-direction:column;background:#DEDBD5">
+<div aria-hidden="true" style="height:40px;flex:none;display:flex;align-items:center;gap:10px;padding:0 12px 0 84px;background:#F7F6F3;border-bottom:1px solid #DEDAD2;position:relative"><span style="position:absolute;left:16px;top:14px;display:flex;gap:8px"><span style="width:12px;height:12px;border-radius:50%;background:#FF5F57"></span><span style="width:12px;height:12px;border-radius:50%;background:#FEBC2E"></span><span style="width:12px;height:12px;border-radius:50%;background:#28C840"></span></span><span style="flex:1;height:28px;display:flex;align-items:center;gap:8px;padding:0 12px;border-radius:14px;background:#ECEAE5;font:400 13px/1 var(--font-ui);color:#3A3733"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import>app.ferman.org</span></div>
+<div style="flex:1;position:relative"><dc-import name="FmWindow" platform="tab" mode="sign" tool="eimza" save="saved" tabs="{{ tabs1s }}" page="{{ 3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 3 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 3 }}" mode="sign" tenant-name="AYŞE YILMAZ" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="usb" title="e-imza needs the desktop app" description="Browsers can’t reach smart-card readers or USB tokens, so qualified e-signatures work only in Ferman for macOS and Windows." actions="{{ actDesk }}" hint-size="560px,380px"><div style="display:grid;gap:10px"><span class="fm-field__label">Works in the browser</span><span style="display:flex;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import>Typed, drawn or image signatures</span><span style="display:flex;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="check" size="{{ 16 }}" color="var(--success-solid)" hint-size="16px,16px"></x-import>Digital signatures from a certificate file (.p12, .pfx)</span><span class="fm-field__label" style="margin-top:6px">Needs the desktop app</span><span style="display:flex;gap:8px;font:var(--type-body);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="monitor" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import>e-imza with a card or token · system certificate store · batch on folders</span></div></x-import></div>
+</div>
+</div>
+</dc-import>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabs1: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }],
+      tabs1s: [{ name: 'Kira sözleşmesi.pdf', active: true }],
+      tabsL: [{ name: 'Kira sözleşmesi.pdf', active: true }],
+      tabsR: [{ name: 'Hesap ekstresi Eylül 2026.pdf', active: true }],
+      tabsTez: [{ name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true, unsaved: true }],
+      pencil: [['mouse-pointer-2', 'Select'], ['pen-tool', 'Pen', true], ['highlighter', 'Highlighter'], ['eraser', 'Eraser'], ['shapes', 'Shapes'], ['type', 'Scribble into text']].map((t) => ({ icon: t[0], label: t[1], bg: t[2] ? 'var(--accent-subtle)' : 'transparent', c: t[2] ? 'var(--text-accent)' : 'var(--icon-primary)' })),
+      inks: ['#2A4DAF', '#1F1D1A', '#D93A2B', 'var(--annot-yellow)'].map((c, i) => ({ c, ring: i === 0 ? '0 0 0 2px var(--surface-raised),0 0 0 4px var(--accent)' : 'inset 0 0 0 1px rgba(0,0,0,.12)' })),
+      grid: Array.from({ length: 12 }, (_, i) => ({ n: i + 1, sel: i === 3 || i === 4 })),
+      keys: [['Select all', ['Ctrl', 'A']], ['Rotate right', ['Ctrl', ']']], ['Rotate left', ['Ctrl', '[']], ['Duplicate', ['Ctrl', 'D']], ['Extract', ['Ctrl', 'Alt', 'E']], ['Delete', ['Del']], ['Move up', ['Ctrl', 'Alt', '↑']], ['Insert from file', ['Ctrl', 'I']], ['Command palette', ['Ctrl', 'K']]].map((k) => ({ c: k[0], k: k[1] })),
+      noop: () => {}, kO: ['⌘', 'O'],
+      webRecent: [{ n: 'Kira sözleşmesi.pdf', w: 'Today 14:32' }, { n: 'e-Arşiv fatura 4187.pdf', w: 'Today 11:05' }, { n: 'Adres değişikliği formu.pdf', w: 'Oct 12' }],
+      actDesk: btns(['Use a simple signature'], ['Open in Ferman for desktop', { variant: 'primary', icon: 'external-link' }])
+    };
+  }
+}
+</script>
+</body>
+</html>

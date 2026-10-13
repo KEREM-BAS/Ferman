@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">09b · Tools — batch, print, measure, history</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Chained batch actions, printing with booklet, poster and production previews, scale calibration for measurements, and version history.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">9.5 · Batch actions</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a9-5" num="9.5a" title="Batch — Build an action from steps" note="Steps run top to bottom; each card summarises its settings, the selected one opens on the right. Saved actions live on this device and can be exported. Steps that would break signatures (compress, watermark) warn when the input is signed." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="batch" save="saved" tabs="{{ tabsBatch }}" no-pages="{{ true }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:240px minmax(0,1fr) 300px;background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-end:1px solid var(--border-subtle)"><div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Saved actions</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="plus" label="New action" size="xs" hint-size="22px,22px"></x-import></div><div style="display:grid;gap:1px;padding:6px"><sc-for list="{{ saved }}" as="s" hint-placeholder-count="4"><div style="display:grid;gap:1px;padding:8px 10px;border-radius:var(--radius-sm);background:{{ s.bg }}"><span lang="tr" style="font:var(--type-body-strong);color:{{ s.c }}">{{ s.name }}</span><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ s.meta }}</span></div></sc-for></div></div>
+<div style="display:flex;flex-direction:column;min-width:0">
+<div style="display:flex;align-items:center;gap:10px;height:52px;padding:0 20px;border-bottom:1px solid var(--border-subtle);background:var(--surface-panel)"><span lang="tr" style="font:var(--type-headline);flex:1">Arşive hazırla</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="folder-open" hint-size="140px,30px">Run on a folder…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="play" hint-size="130px,30px">Run on files…</x-import></div>
+<div style="display:grid;justify-items:center;gap:0;padding:28px 20px">
+<sc-for list="{{ steps }}" as="s" hint-placeholder-count="4"><div style="width:460px;display:grid;grid-template-columns:28px 32px minmax(0,1fr) 26px;gap:12px;align-items:center;padding:14px 16px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:{{ s.ring }}"><span style="width:24px;height:24px;display:grid;place-items:center;border-radius:4px;background:var(--surface-sunken);font:600 12px/1 var(--font-ui)">{{ s.n }}</span><span style="width:32px;height:32px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ s.icon }}" size="{{ 18 }}" hint-size="18px,18px"></x-import></span><span style="display:grid;gap:2px;min-width:0"><span style="font:var(--type-body-strong)">{{ s.t }}</span><span lang="tr" style="font:var(--type-caption);color:var(--text-secondary)">{{ s.d }}</span></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="grip-vertical" label="Drag to reorder" size="sm" hint-size="26px,26px"></x-import></div><sc-if value="{{ s.arrow }}"><span style="height:28px;width:2px;background:var(--border-strong)"></span></sc-if></sc-for>
+<span style="height:20px;width:2px;background:var(--border-default)"></span>
+<x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="plus" icon-end="chevron-down" hint-size="120px,30px">Add step</x-import>
+</div></div>
+<aside aria-label="Step settings" style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">3 · Add watermark</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="trash-2" label="Remove step" size="xs" hint-size="22px,22px"></x-import></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Watermark" collapsible="{{ false }}" hint-size="100%,220px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="Text" default-value="gizli" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="All capitals (GİZLİ)" checked="{{ true }}" hint-size="100%,20px"></x-import><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><dc-import name="FmNumber" label="Opacity" value="{{ 16 }}" unit="%" width="{{ 128 }}" hint-size="128px,44px"></dc-import><dc-import name="FmNumber" label="Rotation" value="{{ -45 }}" unit="°" width="{{ 128 }}" hint-size="128px,44px"></dc-import></div></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="If a file is signed" collapsible="{{ false }}" hint-size="100%,90px"><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sg" value="skip" label="Skip the file and report it" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Radio" name="sg" value="go" label="Continue; signatures will no longer be valid" hint-size="100%,20px"></x-import></x-import>
+</aside>
+</main>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a9-5b" num="9.5b" title="Batch — Running on a folder" note="Each file shows its progress through the steps. Problems don’t stop the batch: the file is skipped with its reason and listed at the end. The batch keeps running if the window closes, in the background task drawer (11.6)." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="batch" save="saved" tabs="{{ tabsBatch }}" no-pages="{{ true }}" sidebar="{{ false }}" panel="{{ false }}" task="{{ taskBatch }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:flex;flex-direction:column;background:var(--surface-canvas)">
+<div style="display:grid;gap:10px;padding:20px 28px;background:var(--surface-panel);border-bottom:1px solid var(--border-subtle)"><div style="display:flex;align-items:center;gap:10px"><span lang="tr" style="font:var(--type-headline);flex:1">Arşive hazırla · ~/Belgeler/2026 Ekim</span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="pause" hint-size="80px,30px">Pause</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="ghost" hint-size="70px,30px">Cancel</x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.ProgressBar" value="{{ 0.43 }}" size="md" label="18 of 42 files · about 3 minutes left" show-value="{{ true }}" hint-size="100%,28px"></x-import></div>
+<div style="display:grid;gap:6px;padding:16px 28px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) repeat(4,110px);gap:12px;padding:0 14px;font:var(--type-label);color:var(--text-tertiary)"><span>FILE</span><span>OCR</span><span>COMPRESS</span><span>WATERMARK</span><span>SAVE</span></div>
+<sc-for list="{{ runs }}" as="r" hint-placeholder-count="7"><div style="display:grid;grid-template-columns:minmax(0,1fr) repeat(4,110px);gap:12px;align-items:center;padding:10px 14px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid {{ r.border }}"><span style="display:grid;gap:2px;min-width:0"><span lang="tr" style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ r.name }}</span><span style="font:var(--type-caption);color:{{ r.nc }}">{{ r.note }}</span></span><sc-for list="{{ r.cells }}" as="c" hint-placeholder-count="4"><span style="display:inline-flex;gap:6px;align-items:center;font:var(--type-caption);color:{{ c.c }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ c.icon }}" size="{{ 14 }}" hint-size="14px,14px"></x-import>{{ c.t }}</span></sc-for></div></sc-for>
+</div>
+</main>
+</dc-import>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">9.6 · Print</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a9-6" num="9.6a" title="Print — Preview and options" note="The preview is the real output: comments, form fields and page marks appear only if included. Paper follows the region (A4). ⌘P. On macOS the system dialog is one click away for printer-specific features." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="print" save="saved" tabs="{{ tabsKira }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" annot="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="Print “Kira sözleşmesi.pdf”" actions="{{ actPrint }}" footer-start="{{ sysDialog }}" hint-size="860px,620px">
+<div style="display:grid;grid-template-columns:300px minmax(0,1fr);gap:24px;min-width:0;overflow:hidden">
+<div style="display:grid;gap:12px;align-content:start"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Printer" icon="printer" default-value="bro" options="{{ printers }}" hint-size="100%,48px"></x-import><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><dc-import name="FmNumber" label="Copies" value="{{ 2 }}" width="{{ 140 }}" hint-size="140px,44px"></dc-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" label="Pages" default-value="1–3" hint-size="100%,48px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Layout" value="pages" options="{{ layouts }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Both sides" default-value="long" options="{{ duplex }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Scale" default-value="fit" options="{{ scales }}" hint-size="100%,48px"></x-import><span class="fm-field__label">Include</span><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Comments and stamps (9)" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Form field contents" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Hidden layers" hint-size="100%,20px"></x-import></div>
+<div style="display:grid;gap:10px;justify-items:center;align-content:start;padding:14px;border-radius:var(--radius-md);background:var(--surface-sunken)"><div style="zoom:0.36"><dc-import name="DocKira" page="{{ 1 }}" mode="view" annot="{{ true }}" hint-size="794px,1123px"></dc-import></div><span style="display:flex;align-items:center;gap:6px;font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-left" label="Previous sheet" size="xs" hint-size="22px,22px"></x-import>Sheet 1 of 2 · A4 · both sides<x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-right" label="Next sheet" size="xs" hint-size="22px,22px"></x-import></span></div>
+</div></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a9-6d" num="9.6d" title="Print production — Separations and overprint" note="Output preview simulates the press profile. Each ink can be hidden; the pointer reads the coverage per ink; areas over the total-ink limit can be highlighted. Overprint preview shows how black text and spot colours will actually print." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="print" save="saved" tabs="{{ tabsTez }}" pages="{{ 64 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="tez" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div lang="tr" style="width:794px;height:1123px;flex:none;box-sizing:border-box;padding:110px 80px;background:#F7F4EC;box-shadow:var(--shadow-page);display:grid;grid-template-rows:auto 1fr auto;text-align:center;color:#1A2B5E;font-family:var(--font-doc-sample);text-transform:uppercase;position:relative"><div style="position:absolute;left:0;right:0;top:0;height:160px;background:#2B3F7A"></div><div style="position:relative;font:600 15px/1.8 var(--font-doc-sample);letter-spacing:.06em;color:#FFFFFF">T.C.<br>Kuzey Ege Üniversitesi</div><div style="display:grid;align-content:center;gap:24px"><div style="font:600 26px/1.45 var(--font-doc-sample)">Kentsel dönüşüm sürecinde kiracı hakları: İstanbul örneği</div><div style="font:600 18px/1.4 var(--font-doc-sample);text-transform:none">Elif Şahin</div></div><div style="font:400 15px/1.8 var(--font-doc-sample);text-transform:none">İzmir, 2026</div></div>
+<div style="position:absolute;left:640px;top:140px;display:grid;gap:2px;padding:8px 10px;border-radius:var(--radius-md);background:var(--surface-raised);box-shadow:var(--shadow-popover);font:var(--type-caption);font-variant-numeric:tabular-nums"><span style="font:var(--type-label);color:var(--text-tertiary)">AT POINTER</span><span>C 96% · M 78% · Y 12% · K 18%</span><span>PANTONE 2945 C · 0%</span><span style="font-weight:600">Total 204%</span></div></main>
+<aside aria-label="Output preview" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Output preview</span></div>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Simulate" collapsible="{{ false }}" hint-size="100%,100px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Profile" default-value="fogra" options="{{ profiles }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Overprint preview" checked="{{ true }}" hint-size="100%,20px"></x-import></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Separations" collapsible="{{ false }}" hint-size="100%,190px"><sc-for list="{{ inks }}" as="i" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="{{ i.eye }}" label="{{ i.tip }}" size="xs" hint-size="22px,22px"></x-import><span style="width:12px;height:12px;border-radius:2px;background:{{ i.sw }};box-shadow:inset 0 0 0 1px rgba(0,0,0,.15)"></span><span style="flex:1;color:{{ i.c }}">{{ i.name }}</span></div></sc-for></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Total ink coverage" collapsible="{{ false }}" hint-size="100%,100px"><span style="font:var(--type-caption);color:var(--text-secondary);font-variant-numeric:tabular-nums">Highest on this page: 287% · limit 300%</span><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Highlight areas over the limit" hint-size="100%,20px"></x-import></x-import>
+</aside>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:40px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a9-6b" num="9.6b" title="Print — Booklet" kind="panel" w="{{ 760 }}" h="{{ 540 }}" meta="Print dialog · Booklet" note="Pages are reordered so folded sheets read in order. Binding follows the document direction: right-to-left documents bind on the right." hint-size="760px,660px">
+<div style="height:100%;padding:24px;box-sizing:border-box;display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;background:var(--surface-raised)"><div style="display:grid;gap:12px;align-content:start"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Layout" value="booklet" options="{{ layouts }}" hint-size="100%,26px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Binding" default-value="left" options="{{ binding }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Sheets per booklet" default-value="all" options="{{ sigs }}" hint-size="100%,48px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Print both sides automatically" default-checked="{{ true }}" hint-size="100%,20px"></x-import></div><div style="display:grid;gap:10px;justify-items:center;align-content:center;padding:14px;border-radius:var(--radius-md);background:var(--surface-sunken)"><div style="display:flex;box-shadow:var(--shadow-page)"><div style="position:relative;width:180px;height:254px;background:#FFFFFF;border-right:1px dashed var(--border-strong)"><span class="fm-thumb__lines" style="inset:12% 14% 16%"></span><span style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font:var(--type-caption);color:#8A857C">4</span></div><div style="position:relative;width:180px;height:254px;background:#FFFFFF"><span class="fm-thumb__lines" style="inset:12% 14% 16%"></span><span style="position:absolute;bottom:8px;left:0;right:0;text-align:center;font:var(--type-caption);color:#8A857C">1</span></div></div><span style="font:var(--type-caption);color:var(--text-secondary)">Sheet 1, front · pages 4 and 1 · A4 folded to A5</span></div></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a9-6c" num="9.6c" title="Print — Poster tiling" kind="panel" w="{{ 760 }}" h="{{ 540 }}" meta="Print dialog · Poster" note="Large pages print across several sheets with overlap, cut marks and tile labels (A1, A2…) so they can be taped together." hint-size="760px,660px">
+<div style="height:100%;padding:24px;box-sizing:border-box;display:grid;grid-template-columns:240px minmax(0,1fr);gap:22px;background:var(--surface-raised)"><div style="display:grid;gap:12px;align-content:start"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Layout" value="poster" options="{{ layouts }}" hint-size="100%,26px"></x-import><dc-import name="FmNumber" label="Size" value="{{ 200 }}" unit="%" lang="tr" width="{{ 120 }}" hint-size="120px,44px"></dc-import><dc-import name="FmNumber" label="Overlap" value="{{ 10 }}" unit="mm" lang="tr" width="{{ 120 }}" hint-size="120px,44px"></dc-import><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Cut marks and tile labels" default-checked="{{ true }}" hint-size="100%,20px"></x-import><span style="font:var(--type-caption);color:var(--text-secondary)">4 sheets of A4 · 2 × 2</span></div><div style="display:grid;place-items:center;padding:14px;border-radius:var(--radius-md);background:var(--surface-sunken)"><div style="position:relative;width:300px;height:424px;box-shadow:var(--shadow-page);overflow:hidden;background:#FFFFFF"><div style="zoom:0.378"><dc-import name="DocPlan" hint-size="794px,1123px"></dc-import></div><span style="position:absolute;top:0;bottom:0;left:50%;border-left:1.5px dashed var(--accent)"></span><span style="position:absolute;left:0;right:0;top:50%;border-top:1.5px dashed var(--accent)"></span><span style="position:absolute;top:6px;left:6px;padding:1px 5px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 10px/1.4 var(--font-ui)">A1</span><span style="position:absolute;top:6px;left:calc(50% + 6px);padding:1px 5px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 10px/1.4 var(--font-ui)">A2</span><span style="position:absolute;top:calc(50% + 6px);left:6px;padding:1px 5px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 10px/1.4 var(--font-ui)">B1</span><span style="position:absolute;top:calc(50% + 6px);left:calc(50% + 6px);padding:1px 5px;border-radius:2px;background:var(--accent);color:#FFFFFF;font:500 10px/1.4 var(--font-ui)">B2</span></div></div></div>
+</dc-import>
+</div>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">9.7 – 9.8 · Calibration and version history</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a9-7" num="9.7" title="Measure — Calibrate the scale" note="Draw a line over a known length, type its real length, and Ferman works out the scale. If the drawing states a scale (1:75 in the title block), Ferman offers it first. The scale is saved in the PDF so measurements match in other apps that read it." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="measure" save="unsaved" tabs="{{ tabsPlan }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ th1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><div style="flex:none;margin-top:-40px"><dc-import name="DocPlan" calib="{{ true }}" hint-size="794px,1123px"></dc-import></div>
+<div role="dialog" aria-label="Set the scale" style="position:absolute;top:24px;inset-inline-end:24px;width:340px;display:grid;gap:12px;padding:16px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-dialog)"><span style="font:var(--type-dialog-title)">Set the scale</span><span style="font:var(--type-body);color:var(--text-secondary)">The line you drew is 158,7 mm on paper. How long is it in reality?</span><div style="display:flex;gap:8px;align-items:end"><dc-import name="FmNumber" label="Real length" value="{{ 12 }}" precision="{{ 2 }}" lang="tr" width="{{ 130 }}" hint-size="130px,44px"></dc-import><div style="width:110px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" aria-label="Unit" default-value="m" options="{{ units }}" hint-size="110px,26px"></x-import></div></div><div style="display:flex;justify-content:space-between;padding:8px 10px;border-radius:var(--radius-sm);background:var(--surface-sunken);font:var(--type-body);font-variant-numeric:tabular-nums"><span style="color:var(--text-secondary)">Scale</span><span>1:75,6</span></div><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="Round to 1:75, the scale in the title block" default-checked="{{ true }}" hint-size="100%,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" label="Use for" default-value="page" options="{{ useFor }}" hint-size="100%,48px"></x-import><div style="display:flex;gap:8px;justify-content:flex-end"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" hint-size="60px,26px">Cancel</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" hint-size="90px,26px">Use 1:75</x-import></div></div>
+</main>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a9-8" num="9.8" title="Version history — Timeline, restore, compare" note="Every save, signature and import becomes a version, kept for 30 days in a hidden folder next to the file (not inside it). Selecting one previews it read-only; Restore makes it the current state as a new version, so nothing is lost. Compare opens 9.2 with the two versions." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="tools" tool="versions" save="unsaved" tabs="{{ tabsKiraU }}" sidebar="{{ false }}" panel="{{ false }}" hint-size="100%,100%">
+<main style="flex:1;min-width:0;display:grid;grid-template-columns:minmax(0,1fr) 360px;background:var(--surface-canvas)">
+<div style="display:flex;flex-direction:column;min-width:0;overflow:hidden"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="history" title="Viewing the version from 11:04." actions="{{ actVer }}" hint-size="100%,44px">Read-only. Your current document is unchanged.</x-import><div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><div style="flex:none;margin-top:-330px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></div></div>
+<aside aria-label="Version history" style="display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Version history</span><span style="font:var(--type-caption);color:var(--text-tertiary)">7 versions</span></div>
+<ol role="listbox" aria-label="Versions" style="list-style:none;margin:0;padding:10px 10px 0;display:grid">
+<sc-for list="{{ versions }}" as="v" hint-placeholder-count="7"><li role="option" aria-selected="{{ v.sel }}" style="position:relative;display:grid;grid-template-columns:22px minmax(0,1fr);gap:10px;padding:10px 10px 12px;border-radius:var(--radius-md);background:{{ v.bg }}"><span style="position:relative;display:grid;justify-items:center"><span style="position:absolute;top:14px;bottom:-26px;width:2px;background:{{ v.line }}"></span><span style="position:relative;width:12px;height:12px;margin-top:3px;border-radius:50%;background:{{ v.dot }};box-shadow:0 0 0 3px var(--surface-panel)"></span></span><span style="display:grid;gap:3px;min-width:0"><span style="display:flex;gap:8px;align-items:baseline"><span style="font:var(--type-body-strong)">{{ v.t }}</span><span style="flex:1"></span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ v.time }}</span></span><span lang="tr" style="font:var(--type-caption);color:var(--text-secondary)">{{ v.d }}</span><sc-if value="{{ v.acts }}"><span style="display:flex;gap:6px;margin-top:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="rotate-ccw" hint-size="90px,26px">Restore…</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="git-compare" hint-size="150px,26px">Compare with current</x-import></span></sc-if></span></li></sc-for>
+</ol>
+<div style="margin-top:auto;padding:10px 12px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">Kept for 30 days next to “Kira sözleşmesi.pdf”. Change in Settings › Editing.</div>
+</aside>
+</main>
+</dc-import>
+</dc-import>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const cell = (st, t) => ({ t, icon: { ok: 'circle-check', run: 'loader-circle', wait: 'circle', skip: 'circle-x' }[st], c: { ok: 'var(--success)', run: 'var(--text-accent)', wait: 'var(--text-tertiary)', skip: 'var(--danger)' }[st] });
+    const run = (name, note, cells, bad) => ({ name, note, cells, nc: bad ? 'var(--danger)' : 'var(--text-tertiary)', border: bad ? 'var(--danger-border)' : 'var(--border-subtle)' });
+    const ver = (t, time, d, kind, sel, last) => ({ t, time, d, sel: sel ? 'true' : 'false', bg: sel ? 'var(--surface-selected)' : 'transparent', dot: kind === 'now' ? 'var(--warning-solid)' : kind === 'sign' ? 'var(--success-solid)' : sel ? 'var(--accent)' : 'var(--icon-secondary)', line: last ? 'transparent' : 'var(--border-default)', acts: !!sel });
+    return {
+      tabsBatch: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Batch actions', active: true, icon: 'workflow' }],
+      tabsKira: [{ name: 'Kira sözleşmesi.pdf', active: true }],
+      tabsKiraU: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }],
+      tabsTez: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Yüksek lisans tezi — Elif Şahin.pdf', active: true }],
+      tabsPlan: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kat planı — Daire 5.pdf', active: true, unsaved: true }],
+      th1: [{}],
+      saved: [{ name: 'Arşive hazırla', meta: '4 steps · last run today', bg: 'var(--surface-selected)', c: 'var(--text-accent)' }, { name: 'Faturaları birleştir', meta: '2 steps', bg: 'transparent', c: 'var(--text-primary)' }, { name: 'Taramaları metne çevir', meta: '3 steps', bg: 'transparent', c: 'var(--text-primary)' }, { name: 'Kişisel verileri karart', meta: '2 steps · redaction', bg: 'transparent', c: 'var(--text-primary)' }],
+      steps: [
+        { n: '1', icon: 'scan-text', t: 'Recognize text', d: 'Türkçe, English · only pages without text', ring: '0 0 0 1px var(--border-subtle)', arrow: true },
+        { n: '2', icon: 'minimize-2', t: 'Compress', d: 'Balanced · 150 ppi', ring: '0 0 0 1px var(--border-subtle)', arrow: true },
+        { n: '3', icon: 'droplet', t: 'Add watermark', d: 'GİZLİ · behind text · 16%', ring: '0 0 0 2px var(--accent)', arrow: true },
+        { n: '4', icon: 'folder', t: 'Save to folder', d: '~/Belgeler/Arşiv · “{ad} — arşiv.pdf” · originals kept', ring: '0 0 0 1px var(--border-subtle)', arrow: false }
+      ],
+      taskBatch: { title: 'Arşive hazırla', detail: '18 of 42 files', value: 0.43 },
+      runs: [
+        run('Kira sözleşmesi.pdf', 'Done · 2,1 MB → 0,9 MB', [cell('ok', 'Skipped · has text'), cell('ok', 'Done'), cell('ok', 'Done'), cell('ok', 'Saved')]),
+        run('e-Arşiv fatura 4187.pdf', 'Done', [cell('ok', 'Done'), cell('ok', 'Done'), cell('ok', 'Done'), cell('ok', 'Saved')]),
+        run('Kira artış bildirimi (tarama).pdf', 'Recognizing page 2 of 3', [cell('run', 'Page 2 of 3'), cell('wait', 'Waiting'), cell('wait', 'Waiting'), cell('wait', 'Waiting')]),
+        run('Maaş bordrosu Eylül 2026.pdf', 'Skipped: needs its password', [cell('skip', 'Locked'), cell('wait', '—'), cell('wait', '—'), cell('wait', '—')], true),
+        run('Kira sözleşmesi — imzalı.pdf', 'Skipped: signed, watermark would break the signatures', [cell('ok', 'Done'), cell('ok', 'Done'), cell('skip', 'Signed'), cell('wait', '—')], true),
+        run('Hesap ekstresi Eylül 2026.pdf', 'Waiting', [cell('wait', 'Waiting'), cell('wait', 'Waiting'), cell('wait', 'Waiting'), cell('wait', 'Waiting')]),
+        run('Adres değişikliği formu.pdf', 'Waiting', [cell('wait', 'Waiting'), cell('wait', 'Waiting'), cell('wait', 'Waiting'), cell('wait', 'Waiting')])
+      ],
+      actPrint: btns(['Cancel'], ['Print 2 copies', { variant: 'primary', icon: 'printer' }]),
+      sysDialog: h(Btn, { variant: 'ghost', size: 'sm' }, 'Use system dialog…'),
+      printers: [{ value: 'bro', label: 'Brother HL-L2350DW · office' }, { value: 'pdf', label: 'Save as PDF' }],
+      layouts: [{ value: 'pages', label: 'Pages' }, { value: 'booklet', label: 'Booklet' }, { value: 'poster', label: 'Poster' }],
+      duplex: [{ value: 'long', label: 'Long edge' }, { value: 'short', label: 'Short edge' }, { value: 'off', label: 'One side' }],
+      scales: [{ value: 'fit', label: 'Fit to printable area' }, { value: 'actual', label: 'Actual size (100%)' }, { value: 'custom', label: 'Custom…' }],
+      binding: [{ value: 'left', label: 'Left (this document)' }, { value: 'right', label: 'Right (right-to-left)' }],
+      sigs: [{ value: 'all', label: 'All in one booklet' }, { value: '4', label: '4 sheets (16 pages)' }],
+      profiles: [{ value: 'fogra', label: 'Coated FOGRA39 (ISO 12647-2)' }, { value: 'swop', label: 'U.S. Web Coated (SWOP)' }],
+      inks: [{ name: 'Cyan', sw: '#00A0E3', eye: 'eye', tip: 'Hide cyan', c: 'var(--text-primary)' }, { name: 'Magenta', sw: '#E6007E', eye: 'eye', tip: 'Hide magenta', c: 'var(--text-primary)' }, { name: 'Yellow', sw: '#FFED00', eye: 'eye', tip: 'Hide yellow', c: 'var(--text-primary)' }, { name: 'Black', sw: '#1D1D1B', eye: 'eye', tip: 'Hide black', c: 'var(--text-primary)' }, { name: 'PANTONE 2945 C · spot', sw: '#004C97', eye: 'eye-off', tip: 'Show spot ink', c: 'var(--text-tertiary)' }],
+      units: [{ value: 'm', label: 'm' }, { value: 'cm', label: 'cm' }, { value: 'mm', label: 'mm' }, { value: 'ft', label: 'ft' }],
+      useFor: [{ value: 'page', label: 'This page' }, { value: 'all', label: 'All pages' }],
+      actVer: btns(['Back to current', { size: 'sm', variant: 'ghost' }], ['Restore this version…', { size: 'sm' }]),
+      versions: [
+        ver('Now', 'unsaved', '2 edits since the last save', 'now'),
+        ver('Saved', '14:32', '3 edits · Madde 4, Madde 6, a text box'),
+        ver('Saved', '14:05', 'Font replaced in Madde 6'),
+        ver('Signed by Mert Kaya', '11:04', 'e-imza · page 3', 'sign', true),
+        ver('Comments added', '10:12', 'Ayşe Yılmaz · 4 comments, merged from her copy'),
+        ver('Opened', '11.10.2026', 'From “Kira sözleşmesi taslak.docx”, converted', '', false, true)
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

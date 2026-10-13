@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div style="flex:1;min-height:0;overflow:hidden;display:grid;align-content:start;gap:18px;padding:4px 16px 16px">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--text-tertiary);font:400 16px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="search" size="{{ 18 }}" hint-size="18px,18px"></x-import>{{ t.search }}</div>
+<div style="display:grid;grid-template-columns:repeat(4,1fr);gap:10px 8px">
+<sc-for list="{{ tools }}" as="q" hint-placeholder-count="8"><div style="display:grid;justify-items:center;gap:6px"><span style="width:56px;height:52px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--surface-raised);border:1px solid var(--border-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ q.icon }}" size="{{ 24 }}" hint-size="24px,24px"></x-import></span><span style="font:500 12px/14px var(--font-ui);text-align:center;color:var(--text-primary)">{{ q.label }}</span></div></sc-for>
+</div>
+<sc-if value="{{ notEmpty }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;gap:8px"><span style="font:600 17px/22px var(--font-ui)">{{ t.pinned }}</span><div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><sc-for list="{{ pinned }}" as="f" hint-placeholder-count="2"><div style="display:flex;gap:10px;align-items:center;padding:10px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><span style="position:relative;flex:none;width:30px;height:42px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span><span style="display:grid;gap:2px;min-width:0"><span dir="auto" style="font:500 14px/18px var(--font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ f.name }}</span><span style="font:400 12px/16px var(--font-ui);color:var(--text-tertiary)">{{ f.meta }}</span></span></div></sc-for></div></div>
+<div style="display:grid;gap:4px"><div style="display:flex;align-items:baseline"><span style="flex:1;font:600 17px/22px var(--font-ui)">{{ t.recent }}</span><span style="font:400 15px/1 var(--font-ui);color:var(--text-accent)">{{ t.all }}</span></div>
+<sc-for list="{{ recent }}" as="f" hint-placeholder-count="4"><div style="display:flex;gap:12px;align-items:center;min-height:60px;border-bottom:1px solid var(--border-subtle)"><span style="position:relative;flex:none;width:32px;height:44px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span><span style="display:grid;gap:2px;flex:1;min-width:0"><span dir="auto" style="font:500 15px/20px var(--font-ui);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ f.name }}</span><span style="font:400 13px/16px var(--font-ui);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ f.meta }}</span></span><sc-if value="{{ f.hasBadge }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" hint-size="60px,18px">{{ f.badge }}</x-import></sc-if><span style="color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="ellipsis" size="{{ 20 }}" label="{{ t.more }}" hint-size="20px,20px"></x-import></span></div></sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ empty }}"><div style="display:grid;justify-items:center;gap:10px;padding:28px 12px 8px;text-align:center"><span style="width:56px;height:56px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 28 }}" hint-size="28px,28px"></x-import></span><span style="font:600 19px/24px var(--font-ui)">{{ t.emptyTitle }}</span><span style="font:400 15px/21px var(--font-ui);color:var(--text-secondary)">{{ t.emptySub }}</span><div style="display:grid;gap:10px;width:100%;margin-top:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" size="lg" icon="folder-open" full-width="{{ true }}" hint-size="100%,48px">{{ t.open }}</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="lg" icon="scan" full-width="{{ true }}" hint-size="100%,48px">{{ t.scan }}</x-import></div></div></sc-if>
+<div style="display:grid;gap:8px"><span style="font:600 13px/16px var(--font-ui);color:var(--text-tertiary)">{{ t.import }}</span><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ sources }}" as="s" hint-placeholder-count="5"><span style="display:inline-flex;align-items:center;gap:6px;height:36px;padding:0 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-default);font:500 13px/1 var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ s.icon }}" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import>{{ s.label }}</span></sc-for></div></div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:393,&quot;height&quot;:640},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ios&quot;,&quot;android&quot;],&quot;default&quot;:&quot;ios&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;empty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;}}">
+const S = {
+  en: { search: 'Search documents', tools: ['Scan', 'Sign', 'Edit', 'Convert', 'Compress', 'Combine', 'Protect', 'OCR'], pinned: 'Pinned', recent: 'Recent', all: 'See all', more: 'More', import: 'OPEN FROM', emptyTitle: 'No documents yet', emptySub: 'Open a PDF from your phone or a cloud drive, or scan a paper document.', open: 'Open a file', scan: 'Scan a document', badge: { edited: 'Edited', form: 'Form', signed: 'Signed' }, pages: (n) => n + (n === 1 ? ' page' : ' pages'), when: ['Today 14:32', 'Today 11:05', 'Yesterday', 'Oct 12'] },
+  tr: { search: 'Belgelerde ara', tools: ['Tara', 'İmzala', 'Düzenle', 'Dönüştür', 'Sıkıştır', 'Birleştir', 'Koru', 'OCR'], pinned: 'Sabitlenenler', recent: 'Son açılanlar', all: 'Tümü', more: 'Diğer', import: 'ŞURADAN AÇ', emptyTitle: 'Henüz belge yok', emptySub: 'Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın.', open: 'Dosya aç', scan: 'Belge tara', badge: { edited: 'Düzenlendi', form: 'Form', signed: 'İmzalı' }, pages: (n) => n + ' sayfa', when: ['Bugün 14:32', 'Bugün 11:05', 'Dün', '12 Eki'] },
+  ar: { search: 'البحث في المستندات', tools: ['مسح', 'توقيع', 'تحرير', 'تحويل', 'ضغط', 'دمج', 'حماية', 'OCR'], pinned: 'المثبّتة', recent: 'الأخيرة', all: 'عرض الكل', more: 'المزيد', import: 'فتح من', emptyTitle: 'لا توجد مستندات بعد', emptySub: 'افتح ملف PDF من هاتفك أو من خدمة سحابية، أو امسح مستندًا ورقيًا.', open: 'فتح ملف', scan: 'مسح مستند', badge: { edited: 'معدّل', form: 'نموذج', signed: 'موقّع' }, pages: (n) => n + ' صفحة', when: ['اليوم 14:32', 'اليوم 11:05', 'أمس', '12 أكتوبر'] }
+};
+const ICONS = ['scan', 'signature', 'file-pen-line', 'refresh-cw', 'minimize-2', 'merge', 'shield', 'scan-text'];
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lang = S[p.lang] ? p.lang : 'en';
+    const t = S[lang];
+    const ar = lang === 'ar';
+    const dg = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+    const ios = (p.platform || 'ios') === 'ios';
+    const R = [['Kira sözleşmesi.pdf', 3, 0, 'edited'], ['e-Arşiv fatura 4187.pdf', 1, 1, ''], ['Adres değişikliği formu.pdf', 2, 2, 'form'], ['Mutual NDA — Northwind.pdf', 4, 3, 'signed']];
+    const tones = { edited: 'edited', form: 'accent', signed: 'success' };
+    return {
+      t, empty: !!p.empty, notEmpty: !p.empty,
+      tools: t.tools.map((l, i) => ({ label: l, icon: ICONS[i] })),
+      pinned: [{ name: 'Kira sözleşmesi.pdf', meta: dg(t.pages(3)) }, { name: 'Yüksek lisans tezi.pdf', meta: dg(t.pages(64)) }],
+      recent: R.map((r) => ({ name: r[0], meta: dg(t.when[r[2]] + ' · ' + t.pages(r[1])), hasBadge: !!r[3], badge: r[3] ? t.badge[r[3]] : '', tone: tones[r[3]] || 'neutral' })),
+      sources: (ios ? [['folder', 'Files'], ['cloud', 'iCloud Drive'], ['hard-drive', 'Google Drive'], ['cloud', 'OneDrive']] : [['download', ar ? 'التنزيلات' : (lang === 'tr' ? 'İndirilenler' : 'Downloads')], ['hard-drive', 'Google Drive'], ['cloud', 'OneDrive'], ['folder', ar ? 'الملفات' : (lang === 'tr' ? 'Dosyalar' : 'Files')]]).map((s) => ({ icon: s[0], label: s[1] }))
+    };
+  }
+}
+</script>
+</body>
+</html>

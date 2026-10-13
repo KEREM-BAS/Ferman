@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<dc-import name="FmWindow" platform="{{ platform }}" lang="{{ lang }}" home="{{ true }}" tabs="{{ tabs }}" status="{{ false }}" hint-size="100%,100%">
+<div style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-panel)">
+<div style="height:100%;overflow:hidden;padding:36px 64px 40px;display:grid;align-content:start;gap:28px;max-width:1312px;margin-inline:auto">
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+<sc-for list="{{ actions }}" as="a" hint-placeholder-count="4"><div style="display:flex;gap:14px;align-items:flex-start;padding:16px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md);box-shadow:var(--shadow-sm)" style-hover="border-color:var(--border-strong)"><span style="flex:none;width:36px;height:36px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ a.icon }}" size="{{ 20 }}" hint-size="20px,20px"></x-import></span><span style="display:grid;gap:3px;min-width:0"><span style="display:flex;gap:8px;align-items:center;font:600 14px/20px var(--font-ui)">{{ a.label }}<sc-if value="{{ a.kbd }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ a.keys }}" hint-size="40px,18px"></x-import></sc-if></span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ a.sub }}</span></span></div></sc-for>
+</div>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label);margin-inline-end:8px">{{ t.quick }}</span><sc-for list="{{ quick }}" as="q" hint-placeholder-count="6"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="{{ q.icon }}" hint-size="100px,26px">{{ q.label }}</x-import></sc-for></div>
+<sc-if value="{{ notEmpty }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;gap:14px;height:64px;padding-inline:20px;border:1.5px dashed var(--border-strong);border-radius:var(--radius-xl);color:var(--text-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="upload" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import><span style="display:grid;gap:2px"><span style="font:var(--type-body-strong);color:var(--text-primary)">{{ t.drop }}</span><span style="font:var(--type-caption)">{{ t.dropSub }}</span></span></div>
+<div style="display:grid;gap:10px"><span style="font:var(--type-panel-title)">{{ t.pinned }}</span><div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px"><sc-for list="{{ pinned }}" as="f" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-md);background:var(--surface-raised);border:1px solid var(--border-subtle)"><span style="position:relative;flex:none;width:26px;height:36px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default)"><span class="fm-thumb__lines"></span></span><span style="flex:1;min-width:0;display:grid;gap:2px"><span dir="auto" style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ f.name }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums">{{ f.meta }}</span></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="pin" label="{{ t.unpin }}" size="xs" active="{{ true }}" hint-size="22px,22px"></x-import></div></sc-for></div></div>
+<div style="display:grid;gap:12px">
+<div style="display:flex;align-items:center;gap:10px"><span style="font:var(--type-panel-title)">{{ t.recent }}</span><span style="flex:1"></span><div style="width:240px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="{{ t.searchRecent }}" aria-label="{{ t.searchRecent }}" hint-size="240px,26px"></x-import></div><div style="width:150px"><x-import component-from-global-scope="FermanDesignSystem_278323.Select" size="sm" default-value="opened" options="{{ sortOptions }}" aria-label="Sort" hint-size="150px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="{{ t.view }}" value="{{ view }}" options="{{ viewOptions }}" hint-size="60px,26px"></x-import></div>
+<sc-if value="{{ isGrid }}" hint-placeholder-val="{{ true }}"><div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:16px">
+<sc-for list="{{ recent }}" as="f" hint-placeholder-count="10"><div style="display:grid;gap:8px;padding:8px 8px 10px;border-radius:var(--radius-md)" style-hover="background:var(--surface-hover)"><div style="height:150px;display:grid;place-items:center;background:var(--surface-sunken);border-radius:var(--radius-sm);border:1px solid var(--border-subtle)"><span style="position:relative;width:93px;height:132px;background:#FFFFFF;box-shadow:0 0 0 1px var(--border-default),var(--shadow-sm)"><span class="fm-thumb__lines"></span></span></div><div style="display:grid;gap:2px;padding-inline:2px"><span dir="auto" title="{{ f.name }}" style="font:var(--type-body-strong);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ f.name }}</span><span style="font:var(--type-caption);color:var(--text-tertiary);font-variant-numeric:tabular-nums;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.meta }}</span><sc-if value="{{ f.hasBadge }}"><span style="display:flex;margin-top:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" icon="{{ f.badgeIcon }}" hint-size="70px,18px">{{ f.badge }}</x-import></span></sc-if></div></div></sc-for>
+</div></sc-if>
+<sc-if value="{{ isList }}"><div style="display:grid;border:1px solid var(--border-subtle);border-radius:var(--radius-md);background:var(--surface-raised);overflow:hidden">
+<div style="display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.6fr) 90px 150px 120px;gap:16px;padding:8px 16px;border-bottom:1px solid var(--border-subtle);font:var(--type-label);color:var(--text-tertiary)"><span>{{ t.name }}</span><span>{{ t.where }}</span><span>{{ t.pagesH }}</span><span>{{ t.opened }}</span><span></span></div>
+<sc-for list="{{ recent }}" as="f" hint-placeholder-count="10"><div style="display:grid;grid-template-columns:minmax(0,2.4fr) minmax(0,1.6fr) 90px 150px 120px;gap:16px;align-items:center;height:40px;padding:0 16px;border-bottom:1px solid var(--border-subtle);font:var(--type-body)" style-hover="background:var(--surface-hover)"><span style="display:flex;align-items:center;gap:10px;min-width:0"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="file-text" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span dir="auto" style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font:var(--type-body-strong);text-align:start">{{ f.name }}</span></span><span dir="ltr" style="color:var(--text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:start">{{ f.path }}</span><span style="color:var(--text-secondary);font-variant-numeric:tabular-nums">{{ f.pages }}</span><span style="color:var(--text-secondary);font-variant-numeric:tabular-nums">{{ f.when }}</span><span><sc-if value="{{ f.hasBadge }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" icon="{{ f.badgeIcon }}" hint-size="70px,18px">{{ f.badge }}</x-import></sc-if></span></div></sc-for>
+</div></sc-if>
+<div style="display:flex;gap:6px;align-items:center;font:var(--type-caption);color:var(--text-tertiary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="hard-drive" size="{{ 12 }}" stroke-width="{{ 2 }}" hint-size="12px,12px"></x-import><span>{{ t.footer }}</span><a href="#" style="color:var(--text-link)">{{ t.clear }}</a></div>
+</div>
+</sc-if>
+<sc-if value="{{ empty }}"><x-import component-from-global-scope="FermanDesignSystem_278323.DropZone" title="{{ t.emptyTitle }}" subtitle="{{ t.emptySub }}" on-open="{{ noop }}" on-create="{{ noop }}" shortcut="{{ openKeys }}" footnote="{{ t.emptyFoot }}" min-height="{{ 470 }}" hint-size="100%,470px"></x-import></sc-if>
+</div>
+<sc-if value="{{ dragOver }}">
+<div style="position:absolute;inset:0;z-index:20;padding:16px;background:var(--surface-panel)"><div style="height:100%;display:grid;place-items:center;align-content:center;gap:28px;border:2px dashed var(--accent);border-radius:var(--radius-xl);background:var(--accent-subtle)">
+<div style="display:grid;justify-items:center;gap:10px;text-align:center"><span style="width:56px;height:56px;display:grid;place-items:center;border-radius:var(--radius-lg);background:var(--surface-raised);color:var(--text-accent);box-shadow:var(--shadow-sm)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="upload" size="{{ 28 }}" hint-size="28px,28px"></x-import></span><span style="font:var(--type-headline)">{{ t.dropN }}</span><span style="font:var(--type-prose);color:var(--text-secondary)">{{ t.dropHow }}</span></div>
+<div style="display:grid;grid-template-columns:repeat(2,300px);gap:16px">
+<div style="display:grid;gap:8px;padding:18px;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:0 0 0 2px var(--accent),var(--shadow-popover)"><span style="display:flex;gap:10px;align-items:center;font:600 15px/20px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="files" size="{{ 20 }}" color="var(--text-accent)" hint-size="20px,20px"></x-import>{{ t.dropTabs }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ t.dropTabsSub }}</span></div>
+<div style="display:grid;gap:8px;padding:18px;border-radius:var(--radius-lg);background:var(--surface-raised);box-shadow:0 0 0 1px var(--border-default)"><span style="display:flex;gap:10px;align-items:center;font:600 15px/20px var(--font-ui)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="merge" size="{{ 20 }}" color="var(--icon-secondary)" hint-size="20px,20px"></x-import>{{ t.dropCombine }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ t.dropCombineSub }}</span></div>
+</div>
+<div style="display:grid;gap:6px;width:616px">
+<sc-for list="{{ dragged }}" as="d" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:10px;height:34px;padding:0 12px;border-radius:var(--radius-sm);background:var(--surface-raised);font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ d.icon }}" size="{{ 16 }}" color="var(--icon-secondary)" hint-size="16px,16px"></x-import><span dir="auto" style="flex:1;font:var(--type-body-strong);text-align:start">{{ d.name }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ d.note }}</span></div></sc-for>
+</div>
+</div></div>
+</sc-if>
+{{ children }}
+</div>
+</dc-import>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1440,&quot;height&quot;:900},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mac&quot;,&quot;win&quot;],&quot;default&quot;:&quot;mac&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;de&quot;,&quot;ar&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;view&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;grid&quot;,&quot;list&quot;],&quot;default&quot;:&quot;grid&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;empty&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;dragOver&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;tabs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+const ST = {
+  en: { open: 'Open file…', openSub: 'PDFs, or Word, Excel and images to convert', create: 'Create PDF', createSub: 'From a blank page, files or the clipboard', combine: 'Combine files', combineSub: 'Merge several files into one PDF', scan: 'Scan to PDF', scanSub: 'From a scanner or a phone camera', quick: 'Quick tools', tools: ['Compress', 'Convert', 'Sign', 'Recognize text (OCR)', 'Protect', 'Compare'], drop: 'Drop files anywhere in this window', dropSub: 'PDFs open in tabs. Other files are converted to PDF first.', pinned: 'Pinned', unpin: 'Unpin', recent: 'Recent', searchRecent: 'Search recent files', view: 'View', grid: 'Grid', list: 'List', sort: ['Last opened', 'Name', 'Location'], name: 'Name', where: 'Location', pagesH: 'Pages', opened: 'Last opened', footer: 'Recent files are listed only on this device.', clear: 'Clear list', emptyTitle: 'Drop a PDF here', emptySub: 'or open one from your computer. Word, Excel and image files are converted to PDF.', emptyFoot: 'Files stay on this device. Ferman never uploads them.', dropN: 'Drop to open 3 files', dropHow: 'Move over a choice, then let go.', dropTabs: 'Open in 3 tabs', dropTabsSub: 'Each file opens on its own. The Excel file and the image are converted to PDF first.', dropCombine: 'Combine into one PDF', dropCombineSub: 'Merged in the order shown. You can reorder before saving.', pages: (n) => n + (n === 1 ? ' page' : ' pages') },
+  de: { open: 'Datei öffnen…', openSub: 'PDFs oder Word-, Excel- und Bilddateien zum Konvertieren', create: 'PDF erstellen', createSub: 'Aus einer leeren Seite, Dateien oder der Zwischenablage', combine: 'Dateien zusammenführen', combineSub: 'Mehrere Dateien zu einer PDF verbinden', scan: 'In PDF scannen', scanSub: 'Mit einem Scanner oder einer Handykamera', quick: 'Schnellwerkzeuge', tools: ['Komprimieren', 'Konvertieren', 'Signieren', 'Text erkennen (OCR)', 'Schützen', 'Vergleichen'], drop: 'Dateien irgendwo in dieses Fenster ziehen', dropSub: 'PDFs öffnen sich in Tabs. Andere Dateien werden zuerst in PDF konvertiert.', pinned: 'Angeheftet', unpin: 'Lösen', recent: 'Zuletzt verwendet', searchRecent: 'Zuletzt verwendete Dateien durchsuchen', view: 'Ansicht', grid: 'Raster', list: 'Liste', sort: ['Zuletzt geöffnet', 'Name', 'Speicherort'], name: 'Name', where: 'Speicherort', pagesH: 'Seiten', opened: 'Zuletzt geöffnet', footer: 'Zuletzt verwendete Dateien werden nur auf diesem Gerät angezeigt.', clear: 'Liste leeren', emptyTitle: 'PDF hier ablegen', emptySub: 'oder eine Datei von Ihrem Computer öffnen.', emptyFoot: 'Dateien bleiben auf diesem Gerät.', dropN: '3 Dateien zum Öffnen ablegen', dropHow: 'Über eine Option ziehen und loslassen.', dropTabs: 'In 3 Tabs öffnen', dropTabsSub: 'Jede Datei öffnet sich einzeln.', dropCombine: 'Zu einer PDF zusammenführen', dropCombineSub: 'In der gezeigten Reihenfolge.', pages: (n) => n + (n === 1 ? ' Seite' : ' Seiten') },
+  ar: { open: 'فتح ملف…', openSub: 'ملفات PDF، أو ملفات Word وExcel والصور لتحويلها', create: 'إنشاء PDF', createSub: 'من صفحة فارغة أو ملفات أو الحافظة', combine: 'دمج الملفات', combineSub: 'دمج عدة ملفات في ملف PDF واحد', scan: 'مسح ضوئي إلى PDF', scanSub: 'من ماسح ضوئي أو كاميرا الهاتف', quick: 'أدوات سريعة', tools: ['ضغط', 'تحويل', 'توقيع', 'التعرّف على النص (OCR)', 'حماية', 'مقارنة'], drop: 'أفلت الملفات في أي مكان في هذه النافذة', dropSub: 'تُفتح ملفات PDF في علامات تبويب، وتُحوَّل الملفات الأخرى إلى PDF أولًا.', pinned: 'المثبّتة', unpin: 'إلغاء التثبيت', recent: 'الأخيرة', searchRecent: 'البحث في الملفات الأخيرة', view: 'العرض', grid: 'شبكة', list: 'قائمة', sort: ['آخر فتح', 'الاسم', 'الموقع'], name: 'الاسم', where: 'الموقع', pagesH: 'الصفحات', opened: 'آخر فتح', footer: 'تُعرض الملفات الأخيرة على هذا الجهاز فقط.', clear: 'مسح القائمة', emptyTitle: 'أفلت ملف PDF هنا', emptySub: 'أو افتح ملفًا من جهازك.', emptyFoot: 'تبقى الملفات على هذا الجهاز.', dropN: 'أفلت لفتح ٣ ملفات', dropHow: 'مرّر فوق أحد الخيارين ثم أفلت.', dropTabs: 'فتح في ٣ علامات تبويب', dropTabsSub: 'يُفتح كل ملف على حدة.', dropCombine: 'دمج في ملف PDF واحد', dropCombineSub: 'بالترتيب المعروض.', pages: (n) => n + ' صفحة' }
+};
+const FILES = [
+  ['Kira sözleşmesi.pdf', 3, ['Today 14:32', 'Heute 14:32', 'اليوم 14:32'], '~/Belgeler/Ev', 'edited'],
+  ['e-Arşiv fatura 4187.pdf', 1, ['Today 11:05', 'Heute 11:05', 'اليوم 11:05'], '~/İndirilenler', ''],
+  ['Hesap ekstresi Eylül 2026.pdf', 2, ['Yesterday 18:20', 'Gestern 18:20', 'أمس 18:20'], '~/Belgeler/Banka', ''],
+  ['Adres değişikliği formu.pdf', 2, ['Oct 12, 2026', '12.10.2026', '12‏/10‏/2026'], '~/Masaüstü', 'form'],
+  ['Yüksek lisans tezi — Elif Şahin.pdf', 64, ['Oct 10, 2026', '10.10.2026', '10‏/10‏/2026'], '~/Belgeler/Okul', ''],
+  ['Zeynep Arslan — Özgeçmiş.pdf', 1, ['Oct 8, 2026', '08.10.2026', '8‏/10‏/2026'], '~/İndirilenler', ''],
+  ['Mutual NDA — Northwind.pdf', 4, ['Oct 2, 2026', '02.10.2026', '2‏/10‏/2026'], '~/Documents/Work', 'signed'],
+  ['Mietvertrag Berlin.pdf', 6, ['Sep 28, 2026', '28.09.2026', '28‏/9‏/2026'], '~/Documents', ''],
+  ['التقرير السنوي 2025.pdf', 12, ['Sep 20, 2026', '20.09.2026', '20‏/9‏/2026'], '~/Documents', ''],
+  ['見積書_2026-10.pdf', 2, ['Sep 18, 2026', '18.09.2026', '18‏/9‏/2026'], '~/Documents', 'scanned']
+];
+const BADGES = { edited: ['edited', 'file-pen-line', ['Edited', 'Bearbeitet', 'معدّل']], form: ['accent', 'text-cursor-input', ['Form', 'Formular', 'نموذج']], signed: ['success', 'badge-check', ['Signed', 'Signiert', 'موقّع']], scanned: ['neutral', 'scan', ['Scanned', 'Gescannt', 'ممسوح ضوئيًا']] };
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const lang = ST[p.lang] ? p.lang : 'en';
+    const li = { en: 0, de: 1, ar: 2 }[lang];
+    const t = ST[lang];
+    const ar = lang === 'ar';
+    const dg = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
+    const win = p.platform === 'win';
+    const recent = FILES.map((f) => {
+      const b = BADGES[f[4]];
+      const when = dg(f[2][li]);
+      return { name: f[0], pages: dg(t.pages(f[1])), when, path: f[3], meta: when + ' · ' + dg(t.pages(f[1])), hasBadge: !!b, tone: b ? b[0] : 'neutral', badgeIcon: b ? b[1] : undefined, badge: b ? b[2][li] : '' };
+    });
+    const icons = ['minimize-2', 'refresh-cw', 'signature', 'scan-text', 'shield', 'git-compare'];
+    const view = p.view || 'grid';
+    return {
+      t, lang, platform: p.platform || 'mac', view, isGrid: view === 'grid', isList: view === 'list',
+      tabs: p.tabs || [{ name: 'Kira sözleşmesi.pdf' }, { name: 'e-Arşiv fatura 4187.pdf' }],
+      actions: [
+        { icon: 'folder-open', label: t.open, sub: t.openSub, kbd: true, keys: win ? ['Ctrl', 'O'] : ['⌘', 'O'] },
+        { icon: 'file-plus-2', label: t.create, sub: t.createSub, kbd: true, keys: win ? ['Ctrl', 'N'] : ['⌘', 'N'] },
+        { icon: 'merge', label: t.combine, sub: t.combineSub, kbd: false },
+        { icon: 'scan', label: t.scan, sub: t.scanSub, kbd: false }
+      ],
+      quick: t.tools.map((l, i) => ({ label: l, icon: icons[i] })),
+      pinned: [recent[0], recent[3], recent[4]].map((f) => ({ name: f.name, meta: f.path + ' · ' + f.pages })),
+      recent: p.recentCount ? recent.slice(0, p.recentCount) : recent,
+      sortOptions: [{ value: 'opened', label: t.sort[0] }, { value: 'name', label: t.sort[1] }, { value: 'where', label: t.sort[2] }],
+      viewOptions: [{ value: 'grid', icon: 'layout-grid', title: t.grid }, { value: 'list', icon: 'list', title: t.list }],
+      empty: !!p.empty, notEmpty: !p.empty, dragOver: !!p.dragOver,
+      openKeys: win ? ['Ctrl', 'O'] : ['⌘', 'O'], noop: () => {},
+      dragged: [
+        { icon: 'file-text', name: 'Kira sözleşmesi — imzalı.pdf', note: 'PDF · opens as is' },
+        { icon: 'file-spreadsheet', name: 'Ek-1 Demirbaş listesi.xlsx', note: 'Excel · converted to PDF' },
+        { icon: 'file-image', name: 'Tapu fotokopisi.jpg', note: 'Image · converted to PDF' }
+      ]
+    };
+  }
+}
+</script>
+</body>
+</html>

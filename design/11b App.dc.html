@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:110px;width:max-content">
+<header style="max-width:1200px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">11b · App-level</h1>
+<p style="margin:0;max-width:980px;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">The command palette, shortcuts, updates, About, toasts, the background task drawer, and the errors people actually meet. Settings are in <a href="11a%20Settings.dc.html">11a</a>.</p>
+</header>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">11.2 – 11.5 · Palette, shortcuts, updates, About</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a11-2" num="11.2" title="Command palette — Commands, pages, files, settings" note="⌘K. One field for commands, pages, recent files and settings; matching folds Turkish case, so “imza” finds İmzalar. ↑ ↓ move, ↵ runs, Esc closes. With no match, ↵ searches the document text instead." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:rgba(20,19,17,.18);display:grid;justify-items:center;align-content:start;padding-top:120px"><x-import component-from-global-scope="FermanDesignSystem_278323.CommandPalette" inline="{{ true }}" groups="{{ palette }}" default-query="imza" hint-size="600px,420px"></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a11-3" num="11.3" title="Keyboard shortcuts — Cheat sheet" note="⌘/ shows every shortcut for the current platform, grouped by mode, searchable. Shortcuts the user changed are marked. The sheet is a dialog, so screen readers get it as a list of command–key pairs." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><div role="dialog" aria-label="Keyboard shortcuts" style="width:1100px;display:grid;gap:16px;padding:20px 24px 24px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-dialog)">
+<div style="display:flex;align-items:center;gap:12px"><span style="font:var(--type-dialog-title);flex:1">Keyboard shortcuts</span><div style="width:260px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" placeholder="Search shortcuts" aria-label="Search shortcuts" hint-size="260px,26px"></x-import></div><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="Close" size="sm" hint-size="26px,26px"></x-import></div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:18px 24px">
+<sc-for list="{{ sheet }}" as="g" hint-placeholder-count="8"><div style="display:grid;gap:6px;align-content:start"><span style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">{{ g.title }}</span><sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:8px;min-height:24px;font:var(--type-body)"><span style="flex:1;min-width:0">{{ r.c }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Kbd" keys="{{ r.k }}" hint-size="50px,18px"></x-import></div></sc-for></div></sc-for>
+</div>
+<span style="font:var(--type-caption);color:var(--text-tertiary)">Change shortcuts in Settings › Keyboard shortcuts.</span>
+</div></div>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a11-4" num="11.4a" title="Update ready" note="A one-line bar, shown once per version, dismissible. It never interrupts editing or restarts without asking; unsaved documents are restored after the restart." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabs3s }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="info" icon="download" title="Ferman 1.5 is ready." actions="{{ actUpdate }}" hint-size="100%,44px">It installs the next time you quit, or now if you restart.</x-import><div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+<dc-import name="FmBoard" bid="a11-4b" num="11.4b" title="What’s new" note="Changes in plain words, grouped by what people do, each with where to find it. No marketing, no counts of ‘improvements’." hint-size="1440px,1020px">
+<dc-import name="FmStart" platform="mac" hint-size="100%,100%"><div style="position:absolute;inset:0;z-index:30;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" size="lg" title="What’s new in Ferman 1.5" actions="{{ actNew }}" footer-start="{{ notesLink }}" hint-size="640px,520px"><div style="display:grid;gap:14px"><sc-for list="{{ news }}" as="n" hint-placeholder-count="5"><div style="display:grid;grid-template-columns:32px minmax(0,1fr);gap:12px"><span style="width:32px;height:32px;display:grid;place-items:center;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ n.icon }}" size="{{ 18 }}" hint-size="18px,18px"></x-import></span><span style="display:grid;gap:2px"><span style="font:var(--type-body-strong)">{{ n.t }}</span><span style="font:var(--type-caption);color:var(--text-secondary)">{{ n.d }}</span></span></div></sc-for></div></x-import></div></dc-import>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a11-5" num="11.5" title="About Ferman" note="Version and build to copy for bug reports, the licence in one sentence, and the ways to take part: source code, translation, support. The wordmark is type only; no logo was supplied." hint-size="1440px,1020px">
+<dc-import name="FmStart" platform="mac" hint-size="100%,100%"><div style="position:absolute;inset:0;z-index:30;background:var(--surface-scrim);display:grid;place-items:center"><div role="dialog" aria-label="About Ferman" style="width:520px;display:grid;gap:18px;justify-items:center;text-align:center;padding:32px 32px 24px;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-dialog)">
+<span style="font:var(--type-wordmark);font-size:40px">Ferman</span>
+<span style="display:grid;gap:4px"><span style="font:var(--type-body-strong)">Version 1.4.2 · build 2026.10.08 (arm64)</span><span style="font:var(--type-caption);color:var(--text-secondary)">Free and open source under GPL-3.0-or-later. No accounts, no telemetry, nothing locked.</span></span>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="code" full-width="{{ true }}" hint-size="100%,30px">Source code</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="languages" full-width="{{ true }}" hint-size="100%,30px">Help translate Ferman</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="heart" full-width="{{ true }}" hint-size="100%,30px">Support the project</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" icon="file-text" full-width="{{ true }}" hint-size="100%,30px">Licences</x-import></div>
+<div style="display:grid;gap:4px;padding-top:12px;border-top:1px solid var(--border-subtle);width:100%;font:var(--type-caption);color:var(--text-secondary)"><span>Made by contributors in 31 countries. Translations by volunteers in 21 languages.</span><span>Type: IBM Plex (SIL OFL 1.1) · Icons: Lucide (ISC)</span></div>
+<div style="display:flex;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="copy" hint-size="140px,26px">Copy version info</x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="primary" hint-size="60px,26px">Close</x-import></div>
+</div></div></dc-import>
+</dc-import>
+</section>
+
+<section style="display:grid;gap:28px">
+<h2 style="margin:0;font:600 32px/1.2 var(--font-ui)">11.6 – 11.7 · Feedback and errors</h2>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a11-6" num="11.6a" title="Toasts" kind="panel" w="{{ 900 }}" h="{{ 420 }}" meta="Light and dark" note="Titles of four words or fewer, past-tense facts, one action at most. Errors stay until dismissed and are announced assertively; the rest leave after 6 seconds unless hovered or focused." hint-size="900px,540px">
+<div style="height:100%;display:grid;grid-template-columns:1fr 1fr"><div style="display:grid;gap:10px;align-content:center;justify-items:center;padding:20px;background:var(--surface-canvas)"><sc-for list="{{ toasts }}" as="t" hint-placeholder-count="4"><x-import component-from-global-scope="FermanDesignSystem_278323.Toast" tone="{{ t.tone }}" title="{{ t.title }}" message="{{ t.msg }}" action="{{ t.action }}" hint-size="380px,64px"></x-import></sc-for></div><div data-theme="dark" style="display:grid;gap:10px;align-content:center;justify-items:center;padding:20px;background:var(--surface-canvas)"><sc-for list="{{ toasts }}" as="t" hint-placeholder-count="4"><x-import component-from-global-scope="FermanDesignSystem_278323.Toast" tone="{{ t.tone }}" title="{{ t.title }}" message="{{ t.msg }}" action="{{ t.action }}" hint-size="380px,64px"></x-import></sc-for></div></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a11-6b" num="11.6b" title="Background task drawer" note="Opened from the status bar task. Long work keeps running when its document or dialog closes; each task can be paused or cancelled; finished tasks offer their result for an hour." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="saved" tabs="{{ tabs3s }}" task="{{ taskMain }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;position:relative;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="view" hint-size="794px,1123px"></dc-import>
+<div role="region" aria-label="Background tasks" style="position:absolute;bottom:8px;inset-inline-end:12px;width:400px;display:grid;background:var(--surface-raised);border-radius:var(--radius-lg);box-shadow:var(--shadow-popover)"><div style="display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Background tasks</span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="chevron-down" label="Close drawer" size="xs" hint-size="22px,22px"></x-import></div><div style="display:grid;gap:8px;padding:10px">
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="scan-text" title="Recognizing text · Yüksek lisans tezi" detail="Page 14 of 64 · about 2 minutes left" value="{{ 0.22 }}" on-cancel="{{ noop }}" on-pause="{{ noop }}" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="workflow" title="Arşive hazırla · 42 files" detail="Paused at file 18" value="{{ 0.43 }}" state="paused" on-cancel="{{ noop }}" on-resume="{{ noop }}" hint-size="100%,96px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="minimize-2" title="Compressed İmar planı açıklama raporu" detail="24,6 MB → 6,9 MB" state="done" primary-action="{{ showAct }}" hint-size="100%,70px"></x-import>
+<x-import component-from-global-scope="FermanDesignSystem_278323.TaskProgress" icon="refresh-cw" title="Couldn’t convert Tarama_0042.pdf" detail="The file is cut off after 18 KB." state="error" hint-size="100%,70px"></x-import>
+</div></div></main>
+<dc-import name="FmDocPanel" kind="view" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<dc-import name="FmBoard" bid="a11-7" num="11.7a" title="Error — Out of disk space" note="What happened, then the way out. The edits are not lost: Ferman says where the recovery copy is." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="error" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;justify-content:center;padding-top:24px"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+<div style="position:absolute;inset:0;z-index:40;background:var(--surface-scrim);display:grid;place-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="hard-drive" title="Couldn’t save “Kira sözleşmesi.pdf”" description="The disk is full: 12 MB free, the file needs about 300 KB plus room to write safely. Free some space or save somewhere else. Your edits are kept in Ferman’s recovery copy until then." actions="{{ actDisk }}" hint-size="540px,240px"></x-import></div>
+</dc-import>
+<dc-import name="FmBoard" bid="a11-7b" num="11.7b" title="Error — File changed on disk" note="Another app or a sync service changed the file while it was open with unsaved edits. Ferman doesn’t pick a winner: reload, keep yours (saving overwrites), or compare first." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="warning" icon="refresh-cw" title="“Kira sözleşmesi.pdf” changed on disk." actions="{{ actChanged }}" hint-size="100%,44px">It was modified at 14:41, probably by iCloud Drive. You have 3 unsaved edits.</x-import><div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><dc-import name="DocKira" page="{{ 1 }}" mode="edit" edited="{{ true }}" hint-size="794px,1123px"></dc-import></div></main>
+<dc-import name="FmEditPanel" hint-size="264px,100%"></dc-import>
+</dc-import>
+</dc-import>
+</div>
+<dc-import name="FmBoard" bid="a11-7c" num="11.7c" title="Unsupported — XFA form" note="Ferman shows what the file itself contains (the fallback page) and explains in plain words why the real form can’t appear and what to do instead. No error code, no blame." hint-size="1440px,1020px">
+<dc-import name="FmWindow" platform="mac" mode="view" save="readonly" tabs="{{ tabsXfa }}" pages="{{ 1 }}" hint-size="100%,100%">
+<dc-import name="FmSidebar" doc="cv" tab="pages" current="{{ 1 }}" thumbs="{{ thWarn }}" hint-size="216px,100%"></dc-import>
+<main style="flex:1;min-width:0;overflow:hidden;background:var(--surface-canvas);display:flex;flex-direction:column"><x-import component-from-global-scope="FermanDesignSystem_278323.Banner" variant="bar" tone="warning" icon="file-x" title="This is an XFA form, which Ferman can’t show." actions="{{ actXfa }}" hint-size="100%,44px">XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.</x-import><div style="flex:1;display:flex;justify-content:center;padding-top:24px;overflow:hidden"><div style="width:794px;height:1123px;flex:none;box-sizing:border-box;padding:120px 96px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 15px/1.6 Georgia,serif;color:#1F1D1A">Please wait…<br><br>If this message is not eventually replaced by the proper contents of the document, your PDF viewer may not be able to display this type of document.</div></div></main>
+<aside aria-label="About this file" style="width:var(--panel-w);flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-inline-start:1px solid var(--border-subtle)"><div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title);flex:1">Why this happens</span></div><div style="display:grid;gap:12px;padding:12px;font:var(--type-body)"><span style="color:var(--text-secondary)">The real form is stored as XFA data inside the PDF. Only Adobe’s apps draw it; Adobe has deprecated the format.</span><span style="font:var(--type-body-strong)">What you can do</span><span>1. Open it in Adobe Acrobat Reader and fill it there.</span><span>2. In Acrobat Reader, print it to PDF; Ferman can then open and sign the result.</span><span>3. Ask the sender for a standard PDF form.</span></div></aside>
+</dc-import>
+</dc-import>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const h = React.createElement;
+const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
+const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i }, b[1] || {}), b[0])));
+class Component extends DCLogic {
+  renderVals() {
+    const r = (c, k) => ({ c, k });
+    return {
+      tabs3: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabs3s: [{ name: 'Kira sözleşmesi.pdf', active: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf' }],
+      tabsXfa: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Vize başvuru formu.pdf', active: true, icon: 'file-x' }],
+      thWarn: [{ warn: true }],
+      palette: [
+        { label: 'Commands', items: [{ id: 'sig', label: 'Add signature', icon: 'signature', keywords: 'imza imzala sign', shortcut: ['⌥', '⌘', 'S'] }, { id: 'eimza', label: 'Sign with e-imza…', icon: 'usb', keywords: 'imza token' }, { id: 'val', label: 'Show signatures panel', icon: 'badge-check', keywords: 'imza doğrula', hint: 'Fill & Sign' }] },
+        { label: 'Pages', items: [{ id: 'p3', label: 'Page 3 · İmzalar', icon: 'file-text', keywords: 'imza' }] },
+        { label: 'Recent files', items: [{ id: 'f1', label: 'Kira sözleşmesi — imzalı.pdf', icon: 'file-text', hint: '~/Belgeler/Ev' }] },
+        { label: 'Settings', items: [{ id: 's1', label: 'Signatures and certificates', icon: 'settings', keywords: 'imza sertifika', hint: 'Settings' }] }
+      ],
+      sheet: [
+        { title: 'GENERAL', rows: [r('Command palette', ['⌘', 'K']), r('Open', ['⌘', 'O']), r('Save', ['⌘', 'S']), r('Save as', ['⇧', '⌘', 'S']), r('Settings', ['⌘', ','])] },
+        { title: 'NAVIGATE', rows: [r('Next page', ['→']), r('Go to page', ['⌘', 'G']), r('Find', ['⌘', 'F']), r('Fit page', ['⌘', '0']), r('Reading mode', ['⌘', '.'])] },
+        { title: 'EDIT', rows: [r('Edit text', ['T']), r('Add text', ['⇧', 'T']), r('Add image', ['I']), r('Find and replace', ['⌥', '⌘', 'F']), r('Show all blocks', ['⌥'])] },
+        { title: 'COMMENT', rows: [r('Highlight', ['H']), r('Note', ['N']), r('Shapes', ['R']), r('Measure', ['M']), r('Show comments', ['⇧', '⌘', 'H'])] },
+        { title: 'FILL & SIGN', rows: [r('Next field', ['Tab']), r('Previous field', ['⇧', 'Tab']), r('Add signature', ['⌥', '⌘', 'S']), r('Today’s date', ['⇧', 'D'])] },
+        { title: 'ORGANIZE', rows: [r('Rotate right', ['⌘', ']']), r('Rotate left', ['⌘', '[']), r('Duplicate', ['⌘', 'D']), r('Extract', ['⌥', '⌘', 'E']), r('Delete pages', ['⌫'])] },
+        { title: 'PROTECT', rows: [r('Redact', ['R']), r('Find and redact', ['⇧', '⌘', 'R'])] },
+        { title: 'WINDOW', rows: [r('Next document', ['⌃', 'Tab']), r('Sidebar', ['⌥', '⌘', 'S']), r('Panel', ['⌥', '⌘', 'P']), r('Close document', ['⌘', 'W'])] }
+      ],
+      actUpdate: btns(['What’s new', { size: 'sm', variant: 'ghost' }], ['Restart now', { size: 'sm' }]),
+      actNew: btns(['Close', { variant: 'primary' }]),
+      notesLink: h('a', { href: '#', style: { font: 'var(--type-caption)' } }, 'Full release notes'),
+      news: [
+        { icon: 'languages', t: 'Translate in place', d: 'Edit › Translate keeps the layout, including Arabic and Hebrew. (3.13)' },
+        { icon: 'usb', t: 'e-imza on Windows with any PKCS#11 card', d: 'Fill & Sign › e-imza finds more card readers on its own.' },
+        { icon: 'scan-text', t: 'Words to check after OCR', d: 'Low-confidence words are listed with suggestions.' },
+        { icon: 'git-compare', t: 'Overlay compare', d: 'Tools › Compare › Overlay shows changes in red and blue.' },
+        { icon: 'wrench', t: 'Fixed', d: 'Thumbnails no longer flicker in two-page view; ğ and ş export correctly to Word.' }
+      ],
+      toasts: [
+        { tone: 'success', title: 'Saved', msg: 'Saved on this device · 14:32' },
+        { tone: 'neutral', title: '3 pages deleted', msg: 'Pages 4–6', action: { label: 'Undo', onClick: () => {} } },
+        { tone: 'warning', title: 'Font substituted', msg: 'Madde 6 uses EB Garamond for ‘ğ’.', action: { label: 'Review', onClick: () => {} } },
+        { tone: 'danger', title: 'Couldn’t save', msg: 'The disk is full. Free some space or save somewhere else.', action: { label: 'Save as…', onClick: () => {} } }
+      ],
+      taskMain: { title: 'Recognizing text', detail: 'Page 14 of 64', value: 0.22 },
+      noop: () => {},
+      showAct: { label: 'Show', onClick: () => {} },
+      actDisk: btns(['Try again'], ['Save somewhere else…', { variant: 'primary' }]),
+      actChanged: btns(['Compare', { size: 'sm', variant: 'ghost' }], ['Keep mine', { size: 'sm' }], ['Reload', { size: 'sm' }]),
+      actXfa: btns(['Show in Finder', { size: 'sm' }])
+    };
+  }
+}
+</script>
+</body>
+</html>

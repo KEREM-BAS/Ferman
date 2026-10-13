@@ -1,0 +1,41 @@
+/* Ferman Fill & Sign: PdfFormField, SignaturePad.
+   Marks on the page use page-tuned colors: the page is white in both themes. */
+
+/* PdfFormField — on-page form fields */
+.fm-pff { position: relative; display: inline-flex; flex-direction: column; gap: 3px; vertical-align: middle; }
+.fm-pff__box {
+  position: relative; display: flex; align-items: center; gap: 4px; height: 22px; padding: 0 5px; min-width: 0;
+  background: var(--form-field-bg); border: 1px solid var(--form-field-border); border-radius: 2px;
+  font: 400 12px/1 var(--font-doc-sample); color: var(--paper-900); cursor: text;
+  transition: border-color var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) var(--ease-out);
+}
+.fm-pff__box:hover { border-color: var(--ink-400); }
+.fm-pff__input { flex: 1; min-width: 0; height: 100%; border: 0; outline: 0; padding: 0; background: transparent; font: inherit; color: inherit; }
+.fm-pff__input::placeholder { color: #8A857C; font-family: var(--font-ui); font-size: 11px; }
+.fm-pff--focus .fm-pff__box, .fm-pff__box:focus-within { border-color: var(--form-field-focus); box-shadow: 0 0 0 2px rgba(58, 96, 198, 0.22); background: #FFFFFF; }
+.fm-pff--filled .fm-pff__box { background: rgba(58, 96, 198, 0.04); border-color: rgba(58, 96, 198, 0.35); }
+.fm-pff--error .fm-pff__box { border-color: var(--red-600); box-shadow: 0 0 0 2px rgba(180, 35, 24, 0.16); background: rgba(180, 35, 24, 0.04); }
+.fm-pff--readonly .fm-pff__box { background: transparent; border-color: transparent; border-bottom: 1px dotted #A39E94; border-radius: 0; cursor: default; }
+.fm-pff__req { position: absolute; top: -7px; inset-inline-end: -5px; font: 600 12px/1 var(--font-ui); color: var(--form-field-required); }
+.fm-pff__msg { display: flex; align-items: center; gap: 4px; font: 400 11px/14px var(--font-ui); color: var(--red-600); }
+.fm-pff__box--check { width: 16px; height: 16px; padding: 0; justify-content: center; cursor: pointer; }
+.fm-pff__box--radio { width: 16px; height: 16px; padding: 0; justify-content: center; border-radius: 50%; cursor: pointer; }
+.fm-pff__dot { width: 8px; height: 8px; border-radius: 50%; background: var(--paper-900); }
+.fm-pff__box--signature { height: 44px; padding: 0 10px; border-style: dashed; border-width: 1.5px; cursor: pointer; font-family: var(--font-ui); font-size: 12px; color: var(--ink-600); gap: 6px; }
+.fm-pff__box--signature.is-signed { border-style: solid; border-width: 1px; font: italic 400 22px/1 var(--font-brand); color: #1A3170; }
+.fm-pff__box--multiline { height: auto; min-height: 54px; align-items: flex-start; padding: 5px; line-height: 16px; }
+.fm-pff__label { font: 500 10px/12px var(--font-ui); color: #6F6A62; }
+
+/* SignaturePad */
+.fm-sigpad { display: grid; gap: 12px; width: 100%; }
+.fm-sigpad__area { position: relative; height: 188px; overflow: hidden; background: var(--page-bg); border: 1px solid var(--border-default); border-radius: var(--radius-md); touch-action: none; cursor: crosshair; }
+.fm-sigpad__area:focus-visible { outline: none; box-shadow: var(--focus-ring); }
+.fm-sigpad__line { position: absolute; inset-inline: 28px; bottom: 48px; border-bottom: 1px solid #C9C4BA; pointer-events: none; }
+.fm-sigpad__x { position: absolute; inset-inline-start: 28px; bottom: 54px; font: 400 18px/1 var(--font-ui); color: #A39E94; pointer-events: none; }
+.fm-sigpad__hint { position: absolute; inset-inline: 0; bottom: 20px; text-align: center; font: var(--type-caption); color: #8A857C; pointer-events: none; }
+.fm-sigpad__svg { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
+.fm-sigpad__typed { position: absolute; inset-inline: 44px 28px; bottom: 52px; border: 0; outline: 0; background: transparent; font: italic 400 40px/1.1 var(--font-brand); }
+.fm-sigpad__typed::placeholder { color: #C9C4BA; }
+.fm-sigpad__image { position: absolute; inset: 12px; display: grid; place-items: center; align-content: center; gap: 8px; border: 1.5px dashed #C9C4BA; border-radius: var(--radius-sm); font: var(--type-caption); color: #6F6A62; text-align: center; cursor: default; }
+.fm-sigpad__bar { display: flex; align-items: center; gap: 8px; }
+.fm-sigpad__inks { display: flex; gap: 6px; }

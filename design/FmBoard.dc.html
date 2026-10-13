@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+</helmet>
+<div id="{{ bid }}" style="display:grid;gap:14px;align-content:start;justify-items:start">
+<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;max-width:{{ w }}"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">{{ num }}</span><span style="font:600 26px/1.2 var(--font-ui);color:var(--text-primary)">{{ title }}</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">{{ metaText }}</span></div>
+<div class="fm-root" data-fm-artboard="" data-theme="{{ theme }}" lang="{{ lang }}" dir="{{ dir }}" data-density="{{ density }}" style="position:relative;flex:none;width:{{ w }};height:{{ h }};border-radius:{{ radius }};overflow:{{ ov }};box-shadow:{{ shadow }};background:{{ bg }}">{{ children }}</div>
+<sc-if value="{{ hasNote }}"><p style="margin:0;max-width:{{ noteW }};font:400 16px/1.55 var(--font-ui);color:var(--text-secondary);text-wrap:pretty">{{ note }}</p></sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:1500,&quot;height&quot;:1000},&quot;bid&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;num&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;title&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;meta&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;platform&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;mac&quot;,&quot;win&quot;,&quot;web&quot;,&quot;ios&quot;,&quot;android&quot;,&quot;ipad&quot;,&quot;atab&quot;],&quot;default&quot;:&quot;mac&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;kind&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;window&quot;,&quot;panel&quot;,&quot;bare&quot;],&quot;default&quot;:&quot;window&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;dir&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ltr&quot;,&quot;rtl&quot;],&quot;default&quot;:&quot;ltr&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;w&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1440,&quot;tsType&quot;:&quot;number&quot;},&quot;h&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:900,&quot;tsType&quot;:&quot;number&quot;},&quot;note&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;noteW&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:0,&quot;tsType&quot;:&quot;number&quot;},&quot;children&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;ReactNode&quot;}}">
+class Component extends DCLogic {
+  renderVals() {
+    const p = this.props;
+    const plat = p.platform || 'mac';
+    const theme = p.theme || 'light';
+    const dark = theme === 'dark';
+    const kind = p.kind || (plat === 'ios' || plat === 'android' ? 'bare' : 'window');
+    const names = { mac: 'macOS', win: 'Windows 11', web: 'Web · Chrome', ios: 'iPhone 16', android: 'Pixel', ipad: 'iPad Pro 13″', atab: 'Android tablet' };
+    const metaText = p.meta || ((names[plat] || plat) + ' · ' + (dark ? 'Dark' : 'Light'));
+    const dims = { ios: [417, 876], android: [436, 939] };
+    const d = dims[plat] || [1440, 900];
+    const w = (p.w || d[0]) + 'px', h = (p.h || d[1]) + 'px';
+    const shadow = kind === 'window' ? (dark ? '0 0 0 1px rgba(0,0,0,.5),0 24px 60px -12px rgba(0,0,0,.6)' : '0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)') : kind === 'panel' ? '0 0 0 1px var(--border-subtle)' : 'none';
+    return {
+      bid: p.bid, num: p.num, title: p.title, metaText, theme, lang: p.lang || 'en', dir: p.dir || 'ltr', density: p.density || (kind === 'bare' ? 'touch' : undefined),
+      w, h, radius: kind === 'bare' ? '0' : (plat === 'win' ? '8px' : '10px'), ov: kind === 'bare' ? 'visible' : 'hidden', shadow,
+      bg: kind === 'panel' ? 'var(--surface-canvas)' : (kind === 'bare' ? 'transparent' : 'var(--surface-panel)'),
+      hasNote: !!p.note, note: p.note, noteW: p.noteW ? p.noteW + 'px' : w
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/styles.css">
+<link rel="stylesheet" href="ds-additions/fm-additions.css">
+<script src="ds-additions/fm-icons.js"></script>
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>html,body{margin:0;background:#E8E5DF}a{color:#2A4DAF}a:hover{color:#213E8E}</style>
+</helmet>
+<div class="fm-root" style="padding:72px 80px 160px;background:var(--paper-150);display:grid;gap:96px;width:max-content;max-width:1700px">
+<header style="max-width:1100px;display:grid;gap:16px">
+<a href="Index.dc.html" style="font:500 16px/1 var(--font-ui)">← Index</a>
+<h1 style="margin:0;font:600 48px/1.1 var(--font-ui);letter-spacing:-0.01em">Design system additions</h1>
+<p style="margin:0;font:400 19px/1.55 var(--font-ui);color:var(--text-secondary)">Everything this project added to the Ferman Design System before using it. Tokens and patches live in <code style="font:var(--type-mono);font-size:16px">ds-additions/fm-additions.css</code>, extra icons in <code style="font:var(--type-mono);font-size:16px">fm-icons.js</code>, new components as Fm* design components. Proposed for upstream review.</p>
+</header>
+
+<section style="display:grid;gap:24px">
+<h2 style="margin:0;font:600 30px/1.2 var(--font-ui)">Colour tokens</h2>
+<div style="display:grid;grid-template-columns:repeat(4,300px);gap:16px">
+<sc-for list="{{ colors }}" as="c" hint-placeholder-count="10"><div style="display:grid;grid-template-columns:56px minmax(0,1fr);gap:12px;align-items:center;padding:12px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><span style="width:56px;height:40px;border-radius:var(--radius-sm);background:#FFFFFF;box-shadow:inset 0 0 0 1px var(--border-default);display:grid;place-items:center"><span style="width:44px;height:28px;border-radius:2px;background:{{ c.css }}"></span></span><span style="display:grid;gap:2px;min-width:0"><code style="font:var(--type-mono);color:var(--text-primary)">{{ c.name }}</code><span style="font:var(--type-caption);color:var(--text-secondary)">{{ c.use }}</span></span></div></sc-for>
+</div>
+</section>
+
+<section style="display:grid;gap:24px">
+<h2 style="margin:0;font:600 30px/1.2 var(--font-ui)">Type additions</h2>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,640px));gap:16px">
+<div style="display:grid;gap:10px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">--font-ui (extended)</code><span style="font:400 20px/1.6 var(--font-ui)">Ferman · Türkçe · Deutsch · Русский · <span lang="ar">العربية</span> · <span lang="he">עברית</span> · <span lang="hi">हिन्दी</span> · <span lang="ja">日本語</span> · <span lang="ko">한국어</span> · <span lang="zh-Hans">简体中文</span></span><span style="font:var(--type-caption);color:var(--text-secondary)">IBM Plex Sans with Plex Arabic, Hebrew, Devanagari, JP and KR, then Noto Sans SC. CJK gets 20 px leading at 13 px and font-synthesis: none.</span></div>
+<div style="display:grid;gap:10px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">--font-hand-1 · 2 · 3</code><div style="display:flex;gap:28px;align-items:baseline;color:#1A3170"><span style="font:500 32px/1 var(--font-hand-1)">Ayşe Yılmaz</span><span style="font:400 24px/1 var(--font-hand-2)">Ayşe Yılmaz</span><span style="font:500 30px/1 var(--font-hand-3)">Ayşe Yılmaz</span></div><span style="font:var(--type-caption);color:var(--text-secondary)">Typed-signature styles (Caveat, Homemade Apple, Dancing Script, OFL). Each covers ş, ğ, ı, İ; styles without full coverage are hidden for the typed name.</span></div>
+</div>
+</section>
+
+<section style="display:grid;gap:24px">
+<h2 style="margin:0;font:600 30px/1.2 var(--font-ui)">Patched components</h2>
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,460px));gap:16px">
+<div style="display:grid;gap:12px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">TextEditBox · data-meta-placement</code>
+<div dir="ltr" lang="tr" style="display:grid;gap:30px;padding:30px 20px 30px 120px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 13px/1.5 var(--font-doc-sample);color:#1F1D1A"><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="selected" meta="above" hint-size="100%,20px"><span>Kira bedeli artırılır.</span></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="selected" meta="below" data-meta-placement="below" hint-size="100%,20px"><span>Kira bedeli artırılır.</span></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.TextEditBox" state="selected" meta="margin" data-meta-placement="margin" hint-size="100%,20px"><span>Kira bedeli artırılır.</span></x-import></div>
+<span style="font:var(--type-caption);color:var(--text-secondary)">Fix 1. First free side wins: above, below, margin.</span></div>
+<div style="display:grid;gap:12px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">PageMark edited · Badge edited</code>
+<div dir="ltr" lang="tr" style="position:relative;padding:24px 20px 24px 40px;background:#FFFFFF;box-shadow:var(--shadow-page);font:400 14px/1.6 var(--font-doc-sample);color:#1F1D1A"><span style="position:absolute;left:26px;top:24px;height:22px;width:2px;background:var(--edit-mark)"></span>Kira bedeli <x-import component-from-global-scope="FermanDesignSystem_278323.PageMark" kind="edited" hint-size="70px,20px">19.500 TL</x-import> olarak belirlenmiştir.</div>
+<div style="display:flex;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">Edited</x-import><span data-theme="dark" style="padding:4px;border-radius:4px;background:var(--surface-panel)"><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="edited" dot="{{ true }}" hint-size="64px,18px">Edited</x-import></span></div>
+<span style="font:var(--type-caption);color:var(--text-secondary)">Fix 3. Dotted ink underline + margin bar; badge moves from teal to accent.</span></div>
+<div style="display:grid;gap:12px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">FontPicker · [data-fm-glyph-warning]</code>
+<div style="display:grid;gap:10px;width:240px"><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="IBM Plex Serif" fonts="{{ fonts }}" hint-size="240px,26px"></x-import><div data-fm-glyph-warning=""><x-import component-from-global-scope="FermanDesignSystem_278323.FontPicker" value="Garamond Premier Pro" fonts="{{ fonts }}" hint-size="240px,26px"></x-import></div></div>
+<span style="font:var(--type-caption);color:var(--text-secondary)">Fix 2. Icon and amber border only; the sentence lives in the callout.</span></div>
+</div>
+</section>
+
+<section style="display:grid;gap:24px">
+<h2 style="margin:0;font:600 30px/1.2 var(--font-ui)">New components</h2>
+<div style="display:grid;grid-template-columns:repeat(2,minmax(0,780px));gap:16px">
+<div style="display:grid;gap:12px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">FmNumber · locale-aware stepper</code><div style="display:flex;gap:16px;align-items:end"><dc-import name="FmNumber" label="English" value="{{ 10.5 }}" precision="{{ 1 }}" unit="pt" lang="en" width="{{ 110 }}" hint-size="110px,44px"></dc-import><dc-import name="FmNumber" label="Türkçe" value="{{ 10.5 }}" precision="{{ 1 }}" unit="pt" lang="tr" width="{{ 110 }}" hint-size="110px,44px"></dc-import><dc-import name="FmNumber" label="Deutsch" value="{{ 1234.5 }}" precision="{{ 1 }}" unit="mm" lang="de" width="{{ 120 }}" hint-size="120px,44px"></dc-import><div dir="rtl" lang="ar"><dc-import name="FmNumber" label="العربية" value="{{ 10.5 }}" precision="{{ 1 }}" unit="pt" lang="ar" width="{{ 110 }}" hint-size="110px,44px"></dc-import></div><dc-import name="FmNumber" label="Error" value="{{ 0 }}" unit="pt" error="Enter 4–96 pt." width="{{ 110 }}" hint-size="110px,60px"></dc-import></div><span style="font:var(--type-caption);color:var(--text-secondary)">Same anatomy as NumberStepper; formats with Intl.NumberFormat for the app’s region and accepts either separator when typing.</span></div>
+<div style="display:grid;gap:12px;padding:18px 20px;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md)"><code style="font:var(--type-mono)">Thumbnail badges</code><div style="display:flex;gap:20px;align-items:flex-start"><sc-for list="{{ badgeDemo }}" as="b" hint-placeholder-count="5"><div style="display:grid;gap:6px;justify-items:center;font:var(--type-caption);color:var(--text-secondary)"><span style="width:16px;height:16px;display:grid;place-items:center;border-radius:2px;background:{{ b.bg }};box-shadow:0 0 0 1px {{ b.ring }};color:{{ b.fg }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ b.icon }}" size="{{ 10 }}" stroke-width="{{ 2 }}" hint-size="10px,10px"></x-import></span>{{ b.label }}</div></sc-for></div><span style="font:var(--type-caption);color:var(--text-secondary)">Fix 5. Edited stays an 8 px accent dot; the others are 16 px chips; only warnings are coloured.</span></div>
+</div>
+<div style="display:grid;gap:10px"><code style="font:var(--type-mono)">FmWindow · document tabs and window chrome</code>
+<div class="fm-root" data-theme="light" style="position:relative;width:1440px;height:79px;overflow:hidden;border-radius:10px 10px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.12)"><dc-import name="FmWindow" platform="mac" mode="edit" status="{{ false }}" tabs="{{ tabStates }}" tabs-more="{{ 3 }}" hint-size="100%,79px"></dc-import></div>
+<div class="fm-root" data-theme="dark" style="position:relative;width:1440px;height:79px;overflow:hidden;border-radius:8px 8px 0 0;box-shadow:0 0 0 1px rgba(0,0,0,.4)"><dc-import name="FmWindow" platform="win" mode="edit" status="{{ false }}" tabs="{{ tabStates }}" hint-size="100%,79px"></dc-import></div>
+<span style="font:var(--type-caption);color:var(--text-secondary);max-width:1100px">Tab states: active (attached to the mode bar), idle, unsaved (dot replaces close), loading (spinner), locked, repaired; overflow “+3”. Windows: 46 px caption buttons, close turns #C42B1C on hover. Also new: FmSidebar, FmEditPanel, FmDocPanel, FmStart, DocKira and DocEkstre sample pages.</span></div>
+</section>
+
+<section style="display:grid;gap:24px">
+<h2 style="margin:0;font:600 30px/1.2 var(--font-ui)">Interactive states</h2>
+<p style="margin:0;max-width:1000px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Every control in default, hover, focus (keyboard ring), active, disabled, loading and error. Hover, focus and active are forced here with the documentation harness [data-fm-force]; in the product they come from the pointer and keyboard.</p>
+<div style="display:grid;grid-template-columns:200px repeat(7,150px);gap:0;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:var(--radius-md);overflow:hidden">
+<span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">COMPONENT</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">DEFAULT</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">HOVER</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">FOCUS</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">ACTIVE</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">DISABLED</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">LOADING</span><span style="padding:10px 14px;font:var(--type-label);color:var(--text-tertiary);background:var(--surface-sunken)">ERROR</span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Button · primary</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="save" hint-size="80px,30px">Save</x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="save" hint-size="80px,30px">Save</x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="save" hint-size="80px,30px">Save</x-import></div>
+<div data-fm-force="active" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="save" hint-size="80px,30px">Save</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" icon="save" disabled="{{ true }}" hint-size="80px,30px">Save</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="primary" loading="{{ true }}" hint-size="80px,30px">Save</x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">Shown as toast</span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Button · secondary</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" hint-size="80px,30px">Cancel</x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" hint-size="80px,30px">Cancel</x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" hint-size="80px,30px">Cancel</x-import></div>
+<div data-fm-force="active" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" hint-size="80px,30px">Cancel</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" disabled="{{ true }}" hint-size="80px,30px">Cancel</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" loading="{{ true }}" hint-size="90px,30px">Exporting</x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle)"></span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Button · danger</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" hint-size="80px,30px">Apply</x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" hint-size="80px,30px">Apply</x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" hint-size="80px,30px">Apply</x-import></div>
+<div data-fm-force="active" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" hint-size="80px,30px">Apply</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" disabled="{{ true }}" hint-size="80px,30px">Apply</x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" variant="danger" loading="{{ true }}" hint-size="80px,30px">Apply</x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle)"></span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Icon button</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-cw" label="Rotate page" hint-size="30px,30px"></x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle);display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Tooltip" content="Rotate page" shortcut="{{ kRot }}" open="{{ true }}" side="bottom" hint-size="30px,30px"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-cw" label="Rotate page" tooltip="{{ false }}" hint-size="30px,30px"></x-import></x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="rotate-cw" label="Rotate page" hint-size="30px,30px"></x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="bold" label="Bold" active="{{ true }}" hint-size="30px,30px"></x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="redo-2" label="Redo" disabled="{{ true }}" hint-size="30px,30px"></x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Spinner" size="{{ 16 }}" hint-size="16px,16px"></x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle)"></span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Text field</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" placeholder="Page" hint-size="120px,26px"></x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" placeholder="Page" hint-size="120px,26px"></x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" default-value="12" hint-size="120px,26px"></x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">= focus</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" placeholder="Page" disabled="{{ true }}" hint-size="120px,26px"></x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle)"></span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" default-value="52" error="Enter 1–48." hint-size="120px,46px"></x-import></div>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Checkbox · Switch</span>
+<div style="padding:14px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="OCR" hint-size="80px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dim" hint-size="80px,20px"></x-import></div>
+<div data-fm-force="hover" style="padding:14px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="OCR" hint-size="80px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dim" hint-size="80px,20px"></x-import></div>
+<div data-fm-force="focus" style="padding:14px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="OCR" default-checked="{{ true }}" hint-size="80px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dim" default-checked="{{ true }}" hint-size="80px,20px"></x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="OCR" default-checked="{{ true }}" hint-size="80px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dim" default-checked="{{ true }}" hint-size="80px,20px"></x-import></div>
+<div style="padding:14px;border-top:1px solid var(--border-subtle);display:grid;gap:8px"><x-import component-from-global-scope="FermanDesignSystem_278323.Checkbox" label="OCR" disabled="{{ true }}" hint-size="80px,20px"></x-import><x-import component-from-global-scope="FermanDesignSystem_278323.Switch" label="Dim" disabled="{{ true }}" hint-size="80px,20px"></x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle)"></span><span style="padding:14px;border-top:1px solid var(--border-subtle)"></span>
+<span style="padding:14px;font:var(--type-body-strong);border-top:1px solid var(--border-subtle)">Page thumbnail</span>
+<div style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" hint-size="80px,110px"></x-import></div>
+<div data-fm-force="hover" style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" hint-size="80px,110px"></x-import></div>
+<div data-fm-force="focus" style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" hint-size="80px,110px"></x-import></div>
+<div style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" selected="{{ true }}" hint-size="80px,110px"></x-import></div>
+<div style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" state="placeholder" hint-size="80px,110px"></x-import></div>
+<div style="padding:10px 14px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.PageThumbnail" page="{{ 2 }}" width="{{ 64 }}" state="dragging" hint-size="80px,110px"></x-import></div>
+<span style="padding:14px;border-top:1px solid var(--border-subtle);font:var(--type-caption);color:var(--text-tertiary)">Warning badge</span>
+</div>
+</section>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      colors: [
+        { name: '--edit-mark', css: 'var(--edit-mark)', use: 'Edited text: dotted underline, margin bar' },
+        { name: '--edit-changed', css: 'var(--edit-changed)', use: 'Now ink 600 (was teal): edited dot, badge' },
+        { name: '--overflow-mark', css: 'var(--overflow-mark)', use: 'Text that no longer fits its frame' },
+        { name: '--ocr-low-bg', css: 'var(--ocr-low-bg)', use: 'Low-confidence OCR word' },
+        { name: '--diff-added', css: 'var(--diff-added)', use: 'Compare: added text' },
+        { name: '--diff-removed', css: 'var(--diff-removed)', use: 'Compare: removed text' },
+        { name: '--diff-changed', css: 'var(--diff-changed)', use: 'Compare: changed text' },
+        { name: '--translated-mark', css: 'var(--translated-mark)', use: 'Translated block, preview only' },
+        { name: '--win-close-hover', css: 'var(--win-close-hover)', use: 'Windows close button hover' },
+        { name: '--search-current', css: 'var(--search-current)', use: 'Existing, reused for replace preview' }
+      ],
+      fonts: [{ name: 'IBM Plex Serif', family: 'var(--font-doc-sample)', group: 'document' }, { name: 'Garamond Premier Pro', family: "'EB Garamond', serif", group: 'document' }],
+      badgeDemo: [
+        { icon: 'circle', label: 'Edited', bg: 'var(--edit-changed)', ring: 'transparent', fg: 'var(--edit-changed)' },
+        { icon: 'message-square', label: 'Comments', bg: '#FFFFFF', ring: 'var(--paper-200)', fg: 'var(--paper-800)' },
+        { icon: 'text-cursor-input', label: 'Form fields', bg: '#FFFFFF', ring: 'var(--paper-200)', fg: 'var(--paper-800)' },
+        { icon: 'signature', label: 'Signature', bg: '#FFFFFF', ring: 'var(--paper-200)', fg: 'var(--paper-800)' },
+        { icon: 'triangle-alert', label: 'Warnings', bg: 'var(--amber-50)', ring: 'var(--amber-200)', fg: 'var(--amber-700)' }
+      ],
+      tabStates: [{ name: 'Kira sözleşmesi.pdf', active: true, unsaved: true }, { name: 'e-Arşiv fatura 4187.pdf' }, { name: 'Hesap ekstresi Eylül 2026.pdf', unsaved: true }, { name: 'İmar planı açıklama raporu.pdf', loading: true }, { name: 'Maaş bordrosu Eylül 2026.pdf', icon: 'lock' }],
+      kRot: ['⌘', ']']
+    };
+  }
+}
+</script>
+</body>
+</html>
