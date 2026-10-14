@@ -41,6 +41,24 @@ design is re-exported ([Q11](QUESTIONS.md#q11)), regenerate them rather than edi
 - `G01` to `G60` are entries in [DESIGN_GAPS.md](DESIGN_GAPS.md), linked as `DESIGN_GAPS.md#g07`.
   `Q01` to `Q16` are entries in [QUESTIONS.md](QUESTIONS.md).
 
+**Printed labels.** The id is the board's HTML anchor. The canvas prints its own label above each
+board, and the board notes cite that label (for example "Review edits (3.12)"). For most boards the
+two match, but not for all of them, so look a board up by its id:
+
+- The fix boards print "FIX 1" to "FIX 6" (`f1` to `f6`) and "F4a", "F4b" and "F6a".
+- The seven sidebar tab cards (`a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3d`, `a2-3e`, `a2-3x`) print
+  no label of their own.
+- 40 boards have no variant letter in the id but print "a": `a1-4` is printed 1.4a, `a5-8` is 5.8a
+  and `a13-16` is 13.16a.
+- 17 boards print a different letter:
+
+| Ids | Printed | Boards |
+|---|---|---|
+| `a4-1d` | 4.1b | Comment — Note open on the page (dark). |
+| `a5-1d` | 5.1b | Fill — Same form (dark). |
+| `a11-1w`, then `a11-1b` to `a11-1k` | 11.1b, then 11.1c to 11.1l | Settings. The Windows board prints 11.1b, so every later letter is one step ahead of its id: `a11-1c` (Editing) is printed 11.1d and `a11-1h` (Privacy) 11.1i. |
+| `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja` | 12.1a to 12.1d | The editor in Turkish, German, Arabic and Japanese. |
+
 **Opening a board.** Open [`design/Index.dc.html`](../design/Index.dc.html) in a browser, or open a
 section file with the id as the fragment, for example `design/03a Edit text.dc.html#a3-3a`. The files
 load React and Babel from unpkg.com when they open, so they need a network connection until the M1
@@ -122,14 +140,20 @@ signed" steps link to boards that do not show those states.
 
 | Platform | Boards | Theme | Boards | UI language | Boards |
 |---|---|---|---|---|---|
-| macOS | 145 | Light | 204 | English | 209 |
+| macOS | 139 | Light | 204 | English | 210 |
 | Windows | 7 | Dark | 18 | Arabic (right to left) | 6 |
-| Linux | 0 | Light and dark | 1 | Turkish | 4 |
+| Linux | 0 | Light and dark | 1 | Turkish | 3 |
 | iOS | 23 | | | German | 3 |
 | Android | 20 | | | Japanese | 1 |
 | Tablet | 4 | | | Persian, Hebrew | 0 |
 | Web | 3 | | | | |
-| Spec sheet | 21 | | | | |
+| Spec sheet | 27 | | | | |
+
+A spec sheet is a component or panel drawn on its own, without a window. The 27 include the eight
+bare dialogs (`a5-3b`, `a5-3c`, `a5-5b`, `a5-6b`, `a5-6c`, `a5-6d`, `a5-6e`, `a9-4`), which the
+design labels "Dialog · light" and draws over a scrim with no window chrome. The tables call them
+"Dialog (spec sheet)". The UI language is the language of the chrome and the notes: `f3` is English,
+although its page specimens are Turkish text.
 
 Linux is not drawn at all ([G15](DESIGN_GAPS.md#g15)). Windows, dark, right-to-left and Turkish coverage is thin for the
 screens that M1 to M4 ship ([G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17), [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)).
@@ -194,7 +218,9 @@ proposals that wait for the owner ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md
 - basic system print (`a9-6`) → M4.
 
 Booklet (`a9-6b`), poster (`a9-6c`) and separations (`a9-6d`) go to P5, where the brief puts print
-production; [Q10](QUESTIONS.md#q10) asks the owner to confirm that too.
+production; [Q10](QUESTIONS.md#q10) asks the owner to confirm that too. Mobile night mode and read
+aloud (`a13-4d`) and iPad split view (`a14-1c`) go to P5 with the mobile and tablet apps;
+[Q10](QUESTIONS.md#q10) asks the owner to confirm.
 
 A few more drawn features are not named in the roadmap and take the nearest roadmap item. They are
 part of [Q10](QUESTIONS.md#q10) as well:
@@ -250,7 +276,7 @@ Source: `design/00 Fixes.dc.html` · 9 artboards. Six problems found in the edit
 |---|---|---|---|---|
 | `f1` | The text-frame label never covers content<br>Spec sheet · light · en | Placement of the font · size tab on a selected text frame: above, then below, then page margin<br>*States:* before: label above covering IBAN line; after: flipped below; after: in page margin (heading above, IBAN below) | **M3** | ferman-text, ferman-fonts, ui-only |
 | `f2` | The missing-glyph warning appears once<br>Spec sheet · light · en | Missing-glyph warning in Edit panel: amber icon in font field, single warning callout with way out<br>*States:* before: warning under font field and in banner (duplicate); after: amber-bordered font field + Banner 'Missing character' + actions; Edited badge in panel header | **M3** | ferman-fonts, ferman-text |
-| `f3` | Edited text and highlights look different<br>Spec sheet · light · tr | Edit marking (dotted underline + left margin bar, accent ink) vs highlight annotation (translucent marker)<br>*States:* edited text marking; highlight annotation (yellow); both on same line | **M3** — highlight annotation M4 | ferman-text, ferman-ops, ui-only |
+| `f3` | Edited text and highlights look different<br>Spec sheet · light · en | Edit marking (dotted underline + left margin bar, accent ink) vs highlight annotation (translucent marker)<br>*States:* edited text marking; highlight annotation (yellow); both on same line | **M3** — highlight annotation M4 | ferman-text, ferman-ops, ui-only |
 | `f4` | Save state is always honest<br>macOS · light · en | Save button / tab dot / status bar save states and save-failure toast<br>*States:* Unsaved (Save enabled, amber dot); Saving (button loading, spinner); Saved (Save disabled, 'Saved on this device · 14:32'); Couldn’t save (danger); error Toast with Save as… action | **M3** | ferman-core, platform, ui-only |
 | `f4a` | Main editor — unsaved changes<br>macOS · light · en | Main editor in Edit mode with unsaved edits; selected edited text block with label in margin<br>*States:* save=unsaved; tab dot on active tab; text block p4 selected + edited; meta label in margin | **M3** | ferman-core, ferman-text, ferman-render, ferman-fonts |
 | `f4b` | Main editor — saved<br>macOS · light · en | Main editor after save: Save disabled, no tab dot, status 'Saved on this device · 14:32'<br>*States:* save=saved; saved-at=14:32; edit marks retained; no selection | **M3** | ferman-core, ferman-text |
@@ -286,7 +312,7 @@ Source: `design/01 First run and files.dc.html` · 19 artboards. Desktop, 1440 �
 
 ### 02 · View mode
 
-Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every sidebar tab, search with Turkish-aware matching, presentation and reading modes, read aloud, document properties, split view and dark reading mode. All 22 artboards are macOS and lang=en. All are light except the dark sidebar panel (a2-3x), presentation (black surround) and dark reading (a2-9).
+Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every sidebar tab, search with Turkish-aware matching, presentation and reading modes, read aloud, document properties, split view and dark reading mode. All 22 artboards are lang=en: the seven sidebar tab cards (a2-3p to a2-3x) are 1:1 spec sheets and the other 15 are macOS. All are light except the dark sidebar panel (a2-3x), presentation (black surround) and dark reading (a2-9).
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
@@ -385,8 +411,8 @@ Source: `design/05a Fill.dc.html` · 9 artboards. Detected form fields, tab orde
 | `a5-2` | Fill — Date picker and a number that fails validation<br>macOS · light · en | Date field picker in the field's own format; number range check on blur; error shown in field, panel and thumbnail<br>*States:* date picker open (November 2026, Monday-first); number field error on 'hane'; thumbnail warning badge; field 15 of 20; 6 required left | **M4** | ferman-ops (forms: AFDate/AFNumber format, keystroke and validate actions), ferman-core, ui-only (picker) |
 | `a5-2b` | Fill — Field types and states<br>Spec sheet · light · en | PdfFormField matrix: text, date, dropdown, number, checkbox/radio, signature × empty/hover/focus/filled/error/read-only<br>*States:* empty; hover; focus; filled; error; read-only | **M4** | ferman-ops (forms: appearance streams per field type), ferman-fonts (field fonts, Turkish glyphs in values), ui-only |
 | `a5-3` | Sign — Type your signature<br>macOS · light · en | Add signature dialog in Type mode with handwriting styles filtered by glyph coverage; Signature/Initials switch<br>*States:* Type mode; name 'Ayşe Yılmaz'; handwriting style 1 selected; Signature (not Initials); field 20 of 20, 1 required left | **M4** | ferman-fonts (coverage check, shaping, subsetting of handwriting fonts), ferman-ops (signatures: simple stamp), platform (device-local signature storage), ui-only |
-| `a5-3b` | Sign — Draw<br>Spec sheet · light · en | Add signature dialog in Draw mode with smoothed strokes<br>*States:* Draw mode with strokes | **M4** | ui-only (stroke capture/smoothing), ferman-ops (vector appearance for signature) |
-| `a5-3c` | Sign — From an image<br>Spec sheet · light · en | Add signature from a photo or scan, with local background removal and crop to the ink<br>*States:* Image mode empty drop zone | **M4** | ferman-ops (image background removal/crop, image XObject with SMask), platform (file dialog, drag-and-drop) |
+| `a5-3b` | Sign — Draw<br>Dialog (spec sheet) · light · en | Add signature dialog in Draw mode with smoothed strokes<br>*States:* Draw mode with strokes | **M4** | ui-only (stroke capture/smoothing), ferman-ops (vector appearance for signature) |
+| `a5-3c` | Sign — From an image<br>Dialog (spec sheet) · light · en | Add signature from a photo or scan, with local background removal and crop to the ink<br>*States:* Image mode empty drop zone | **M4** | ferman-ops (image background removal/crop, image XObject with SMask), platform (file dialog, drag-and-drop) |
 | `a5-3d` | Sign — Place, resize and rotate; saved signatures<br>macOS · light · en | Sign menu of saved signatures/initials; placing a signature that snaps into the field; resize, rotate and nudge<br>*States:* Sign menu open; signature placed and selected with handles; size/angle label '62 × 16 mm · −2°'; All required filled; panel row green | **M4** | ferman-ops (signatures: place into widget/stamp, rotate, resize), ferman-render, platform (local signature storage), ui-only |
 | `a5-4` | Fill — A PDF without form fields<br>macOS · light · en | Fill anything: detect lines, boxes and comb boxes on a flat page and place text and marks; 'Find fields' turns it into a form (5.8)<br>*States:* no-fields banner; Text tool active; editing 'Abone No' with mini toolbar (10 pt); comb boxes filled; checkbox checked | **M4** | ferman-core (content-stream interpreter for line/box detection), ferman-text (baseline hit testing), ferman-ops (add text/marks), ferman-fonts (font for typed text, subsetting), ui-only |
 
@@ -397,13 +423,13 @@ Source: `design/05b Sign.dc.html` · 15 artboards. Certificate signatures, Turki
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
 | `a5-5` | Sign — Choose a certificate<br>macOS · light · en | Certificate picker for signing: lists smart-card, keychain and file certificates<br>*States:* NES smart-card cert selected; keychain corporate cert available; expired S/MIME cert disabled with reason | **P3** | ferman-ops (signatures), platform (keychain / Windows cert store, PKCS#11 token enumeration, file dialog) |
-| `a5-5b` | Sign — Reason, location, appearance, timestamp<br>macOS · light · en | Signature options: reason, location, appearance style, timestamp server, LTV, lock document<br>*States:* default: reason approve, handwriting appearance, TÜRKSERT TSA selected, LTV checked, lock unchecked | **P3** | ferman-ops (PAdES signing, appearance stream, TSA/OCSP client), ferman-fonts (handwriting font subset for appearance), ferman-core (incremental save) |
+| `a5-5b` | Sign — Reason, location, appearance, timestamp<br>Dialog (spec sheet) · light · en | Signature options: reason, location, appearance style, timestamp server, LTV, lock document<br>*States:* default: reason approve, handwriting appearance, TÜRKSERT TSA selected, LTV checked, lock unchecked | **P3** | ferman-ops (PAdES signing, appearance stream, TSA/OCSP client), ferman-fonts (handwriting font subset for appearance), ferman-core (incremental save) |
 | `a5-5c` | Sign — Signed document<br>macOS · light · en | Post-signing state: success bar, signature appearance on page, Signatures panel<br>*States:* signed and valid; 2 valid signatures (Ayşe Yılmaz expanded, Mert Kaya collapsed); saved at 14:41 | **P3** | ferman-ops (signature validation), ferman-core (revisions, incremental save preserving earlier signature), ferman-render |
 | `a5-6` | e-imza — Card detected, ready to sign<br>macOS · light · en | Turkish e-imza panel: reader/card detection, 3-step flow, format and TSA options<br>*States:* card ready; step 1 done (field chosen, dashed outline on page); step 2 current (PIN); step 3 pending | **P3** | platform (PKCS#11 driver loading, reader detection), ferman-ops (PAdES signing), ferman-core (incremental save) |
-| `a5-6b` | e-imza — PIN<br>macOS · light · en | PIN entry for the smart card<br>*States:* PIN typed (masked), 3 tries left | **P3** | platform (PKCS#11 login) |
-| `a5-6c` | e-imza — Signing<br>macOS · light · en | Signing progress with per-step results<br>*States:* 2 steps done; step 3 running (spinner); 2 waiting; progress 55% | **P3** | jobs (cancellable signing task with progress), platform (PKCS#11), ferman-ops (OCSP/TSA, PAdES), ferman-core (save) |
-| `a5-6d` | e-imza — Signed<br>macOS · light · en | e-imza success confirmation with legal statement and file location<br>*States:* success | **P3** | ferman-core (save as new file), platform (reveal in file manager) |
-| `a5-6e` | e-imza — No card found<br>macOS · light · en | No reader/card troubleshooting checklist with continuous polling<br>*States:* no reader connected; card/driver checks pending; polling (spinner) | **P3** | platform (reader polling, PKCS#11 module loading, file dialog) |
+| `a5-6b` | e-imza — PIN<br>Dialog (spec sheet) · light · en | PIN entry for the smart card<br>*States:* PIN typed (masked), 3 tries left | **P3** | platform (PKCS#11 login) |
+| `a5-6c` | e-imza — Signing<br>Dialog (spec sheet) · light · en | Signing progress with per-step results<br>*States:* 2 steps done; step 3 running (spinner); 2 waiting; progress 55% | **P3** | jobs (cancellable signing task with progress), platform (PKCS#11), ferman-ops (OCSP/TSA, PAdES), ferman-core (save) |
+| `a5-6d` | e-imza — Signed<br>Dialog (spec sheet) · light · en | e-imza success confirmation with legal statement and file location<br>*States:* success | **P3** | ferman-core (save as new file), platform (reveal in file manager) |
+| `a5-6e` | e-imza — No card found<br>Dialog (spec sheet) · light · en | No reader/card troubleshooting checklist with continuous polling<br>*States:* no reader connected; card/driver checks pending; polling (spinner) | **P3** | platform (reader polling, PKCS#11 module loading, file dialog) |
 | `a5-7` | Validation — Document changed after signing<br>macOS · light · en | Signature validation on open: warning bar for post-signing modification<br>*States:* changed after signing; 1 warning, 1 valid (covers revision 1) | **P3** | ferman-ops (signature validation), ferman-core (incremental revisions), ferman-text (compare) |
 | `a5-7b` | Valid<br>Spec sheet · light · en | Signature card — valid<br>*States:* valid | **P3** | ferman-ops (signature validation) |
 | `a5-7c` | Valid with warnings<br>Spec sheet · light · en | Signature card — valid with warnings (no timestamp, revocation unchecked offline)<br>*States:* warn | **P3** | ferman-ops (signature validation, OCSP/CRL) |
@@ -462,7 +488,7 @@ Source: `design/09a Tools.dc.html` · 7 artboards. Size estimates before compres
 | `a9-2b` | Compare — Overlay<br>macOS · light · en | Overlay compare: old in red, current in blue, multiply-blended; fade slider between versions<br>*States:* Overlay view selected; fade slider at 50%; legend Old only / Current only / Both | **P3** | ferman-render (tinted rendering, blend), ferman-text (diff list), ui-only (slider, legend) |
 | `a9-3` | Accessibility — Issues with fixes<br>macOS · light · en | PDF/UA checker listing problems and warnings with one-click or guided fixes<br>*States:* 3 problems · 2 warnings · 21 checks passed; document unsaved; page thumbnail with warn marker; auto-fixable issues have secondary buttons, judgement fixes ghost buttons | **P4** | ferman-ops (PDF/UA checks and fixes), ferman-core (structure tree, /Lang), ferman-text (list detection, reading order, language detection), ferman-render (issue markers, contrast sampling) |
 | `a9-3b` | Accessibility — Tag tree, reading order, alt text<br>macOS · light · en | Tag tree editor synced with reading-order numbers on page, alt text and decorative flag for a figure<br>*States:* Figure 'Vesikalık fotoğraf' selected in tree; reading order numbers overlaid, photo 4th in amber; alt text filled (Turkish); Decorative unchecked; document unsaved | **P4** | ferman-core (structure tree edit, alt text), ferman-text (reading order, hit testing), ferman-ops (tagging) |
-| `a9-4` | PDF/A — Convert and validate<br>macOS · light · en | PDF/A conversion result dialog: conformance level, list of automatic fixes, validation banner<br>*States:* success: Saved as PDF/A-2b; conformance 2b selected (1b, 2b, 2u, 3b, 4); 5 automatic fixes listed; success banner Valid PDF/A-2b | **P4** | ferman-ops (PDF/A convert and validator, flatten transparency), ferman-core (XMP, output intent, remove JS, attachments), ferman-fonts (embed/substitute fonts), jobs (convert+validate), platform (Show in Finder) |
+| `a9-4` | PDF/A — Convert and validate<br>Dialog (spec sheet) · light · en | PDF/A conversion result dialog: conformance level, list of automatic fixes, validation banner<br>*States:* success: Saved as PDF/A-2b; conformance 2b selected (1b, 2b, 2u, 3b, 4); 5 automatic fixes listed; success banner Valid PDF/A-2b | **P4** | ferman-ops (PDF/A convert and validator, flatten transparency), ferman-core (XMP, output intent, remove JS, attachments), ferman-fonts (embed/substitute fonts), jobs (convert+validate), platform (Show in Finder) |
 | `a9-4b` | Preflight — PDF/X-4 with fixups<br>macOS · light · en | Print preflight against PDF/X profiles with per-issue fixups selectable and run in batch<br>*States:* profile PDF/X-4 · FOGRA39; 2 errors · 2 warnings; 4 fixups checked; thumbnails with warn markers and roman page labels (ii, iii) | **P4** — CMYK/bleed fixups overlap P5 print production | ferman-ops (preflight checks, fixups), ferman-core (output intent/ICC, page boxes, page labels), ferman-fonts (embed matching font), ferman-render (colour conversion, thumbnails), jobs (fixups with progress) |
 
 ### 09b · Tools — batch, print, measure, history
@@ -665,9 +691,9 @@ Mapping to Flutter needs care with about 40 rgba overlays, multi-layer shadows w
 the two-layer and inset focus rings, cubic-bezier curves, the CSS `font` shorthand, `var()` chains
 resolved per theme, the `--page-filter` colour matrix, hatch patterns and kebab-case names that mix
 kinds (`--text-*`, `--icon-*`, `--border-*`). The generated notes at the end of the token reference
-cover each one. Two of their options are overruled by decisions in section 8: the app never fetches
-fonts at runtime (no `google_fonts` package, no Google Fonts import), and IBM Plex ships as IBM's
-static TTFs, not as a variable font. Class names in the notes, such as `FermanColors` or
+cover each one. One of their options is overruled by a decision in section 8: IBM Plex ships as
+IBM's static TTFs, not as a variable font. The app never fetches fonts at run time (no
+`google_fonts` package, no Google Fonts import). Class names in the notes, such as `FermanColors` or
 `FermanPageColors`, are suggestions; ADR 0012 fixes the final names.
 
 #### Token reference (generated)
@@ -1271,7 +1297,7 @@ Counts: Custom-property declarations, verified by parsing every block. colors.cs
 - cubic-bezier easing: --ease-out maps to Cubic(0.2, 0, 0, 1), --ease-in-out to Cubic(0.4, 0, 0.2, 1) (identical to Curves.fastOutSlowIn), and --ease-exit to Cubic(0.4, 0, 1, 1). Durations in ms map to Duration(milliseconds: n). The reduced-motion media block sets all four to 0.
 - Font shorthand --type-* ('weight size/line-height family-var'): expand nested var() first, then parse into TextStyle(fontWeight, fontSize, height: leading/size, fontFamily, fontFamilyFallback). CSS line-height distributes half-leading evenly, so set leadingDistribution: TextLeadingDistribution.even (or TextHeightBehavior) to match vertical centring. --type-wordmark uses unitless line-height '1', so height is 1.0. The CJK overrides use literal px leading (20/18/16px) instead of --leading-* vars.
 - Font-family stacks: CSS lists become fontFamily (first entry) plus fontFamilyFallback (the rest). Drop CSS generic and system keywords (system-ui, -apple-system, 'Segoe UI', sans-serif, serif, monospace, ui-monospace, cursive, 'SF Mono', Menlo, Consolas, Georgia, 'Times New Roman') or map them to platform defaults. Use the fm-additions --font-ui, which overrides typography.css (cascade order). Every family must be declared in pubspec.yaml with matching names.
-- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import (Plex JP/KR/Hebrew/Devanagari, Noto Sans SC, Noto Serif JP, EB Garamond, Cormorant Garamond, Crimson Pro, Noto Naskh Arabic, Caveat, Homemade Apple, Dancing Script) must be bundled or loaded through the google_fonts package. CJK fonts are large; consider deferred loading. No Plex Mono 600 face exists.
+- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import is never used and nothing is loaded at run time (no google_fonts package, no deferred download; [ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). Plex Hebrew and Devanagari, the handwriting faces and the similar-font candidates are bundled as unmodified files only if [Q08](QUESTIONS.md#q08) approves; CJK uses system fonts. No Plex Mono 600 face exists.
 - var() chains: semantic tokens point to ramps (1 level). Type roles point to weight/size/leading/font (1-2 levels). --sheet-radius points to --radius-xl. --focus-* point to --surface-raised/--border-focus and then to ramps (2 levels). --shadow-page points to --page-border. --edit-changed (additions) points to --ink-600. Resolve recursively with a cycle guard, AFTER merging each environment (light, dark = light + dark block, touch, cjk), so inherited chains pick up dark values. Emitting resolved constants is better than runtime lookups. Optionally keep the alias in a doc comment.
 - @kind annotations: the trailing '/* @kind other */' (on --page-filter in both blocks, --dur-* including the reduced-motion copies, --ease-*, --z-*) and '/* @kind font */' (on --numeric-tabular, --features-ui) are DS-tooling type hints. They are the only explicit typing. Every other token's type must be inferred from its value pattern (#hex/rgba means colour; Npx means dimension; Nms means duration; cubic-bezier means curve; quoted list means font stack; 'w s/l f' means font shorthand; plain integer means weight or z-index). Strip the @kind text from doc comments and use it as a classifier override.
 - Unit-less and odd values: --space-0: 0 and --tracking-normal: 0 (unitless zero); --weight-* 400/500/600 map to FontWeight.w400/w500/w600; --z-* are ints with no Flutter z-index (they inform Overlay/Stack ordering only); --radius-full: 999px means a pill (use StadiumBorder or BorderRadius.circular(999)); --border-width-strong: 1.5px is fractional; --tracking-tight -0.01em and --tracking-label 0.02em are em-relative, so letterSpacing = em * fontSize (for example 11px * 0.02 = 0.22) and must be computed per TextStyle; --line-height '1' is unitless in wordmark.
@@ -1293,12 +1319,17 @@ The manifest names 45 components, counting the data constants `ICON_PATHS`, `FER
 are not in the export ([G02](DESIGN_GAPS.md#g02)), so the props and states below come from the compiled bundle and the
 adherence lint config.
 
-**Naming.** The Flutter library in `app/lib/design/components` mirrors the design system one to one
-(brief §6). Each component keeps its DS name with the prefix `Fm`: `Button` becomes `FmButton`. Names
-that already start with `Fm` keep it, and data constants become enums or generated maps. Where the
-generated porting notes suggest `FermanMode`, `FermanInputDecorator` or `FermanNumberField`, read
-`FmMode`, `FmField` and `FmNumber`. [ADR 0011](adr/0011-flutter-state-navigation-components.md)
-covers the library.
+**Naming.** The Flutter library in `app/lib/design/components` mirrors the design system one to one,
+with the same names, variants and states (brief §6). Dart class names are the DS names: `Button`
+stays `Button` and `ModeTabs` stays `ModeTabs`
+([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Files that also import Material or
+the widgets library use an import prefix or `hide`, so names such as `Icon`, `Tooltip` or `Dialog`
+never clash. Only the `Fm*` building blocks keep their `Fm` names. Data constants become enums or
+generated data: `FERMAN_MODES` becomes the `FermanMode` enum, `ANNOTATION_TOOLS` the
+`AnnotationTool` enum and `ICON_PATHS` the generated `IconName` enum with its SVG assets. Additions
+that have no DS name take a plain name in the same style, such as `DocumentTab` or `SaveIndicator`.
+Where the generated porting notes suggest `FermanInputDecorator` or `FermanNumberField`, read `Field`
+and `FmNumber`.
 
 **First needed** is the earliest milestone whose boards use the component. The brief asks for the
 library before the screens, so M1 builds what the shell, Start and Settings need first;
@@ -1308,68 +1339,68 @@ library before the screens, so M1 builds what the shell, Start and Settings need
 
 | DS component | Group | Flutter widget | First needed | Notes |
 |---|---|---|---|---|
-| `Icon` | core | `FmIcon` | M1 | Draws the generated path data with the DS stroke width. `flipRtl` mirrors directional glyphs under RTL. |
-| `ICON_PATHS` | core (data) | `FmIcons` (generated) | M1 | All 229 glyphs: 145 from the bundle and 84 from `fm-icons.js`. |
-| `Button` | core | `FmButton` | M1 | Primary, secondary, ghost and danger; sm, md and lg; loading. |
-| `IconButton` | core | `FmIconButton` | M1 | Toggle and loading states. |
-| `Tooltip` | core | `FmTooltip` | M1 | Shows the shortcut with `FmKbd`. Also carries "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
-| `Kbd` | core | `FmKbd` | M1 | ⌘ and ⌥ on macOS; Ctrl and Alt on Windows and Linux. |
-| `Badge` | core | `FmBadge` | M1 | The `edited` tone is patched from teal to ink (DS additions). |
-| `TextField` | forms | `FmTextField` | M1 | Validators return bool and check null and empty values (brief §6). |
-| `Select` | forms | `FmSelect` | M1 |  |
-| `NumberStepper` | forms | `FmNumberStepper` | M3 | Screens use the locale-aware `FmNumber` built on it ("10,5 pt" in Turkish). |
-| `Checkbox` | forms | `FmCheckbox` | M2 |  |
-| `Radio` | forms | `FmRadio` | M1 |  |
-| `Switch` | forms | `FmSwitch` | M1 | Larger track at touch density. |
-| `ColorPicker` | forms | `FmColorPicker` | M3 |  |
-| `FontPicker` | forms | `FmFontPicker` | M3 | Adds the missing-glyph warning state (`f2`). |
-| `PanelSection` | panels | `FmPanelSection` | M1 | Right-panel structure in the shell. |
-| `ModeTabs` | navigation | `FmModeTabs` | M1 | Custom segmented control with `IndexedStack`; never `TabBarView` (brief §6). Eight modes. |
-| `FERMAN_MODES` | navigation (data) | `FmMode` (enum) | M1 | Eight values including `tools`, as drawn. The DS constant lists seven and is stale ([G09](DESIGN_GAPS.md#g09)). |
-| `SegmentedControl` | navigation | `FmSegmentedControl` | M1 | Sidebar tabs use it with `IndexedStack`. |
-| `Toolbar` | navigation | `FmToolbar` | M1 | One tool row per mode. |
-| `ToolbarSeparator` | navigation | `FmToolbarSeparator` | M1 |  |
-| `ToolbarSpacer` | navigation | `FmToolbarSpacer` | M1 |  |
-| `ToolbarGroup` | navigation | `FmToolbarGroup` | M1 |  |
-| `ToolButton` | navigation | `FmToolButton` | M1 | Needs the focus and disabled-with-reason states the design does not draw ([G10](DESIGN_GAPS.md#g10), [G22](DESIGN_GAPS.md#g22)). |
-| `PageThumbnail` | pages | `FmPageThumbnail` | M2 | Badge stack and legend (`f5`). |
-| `TextEditBox` | editing | `FmTextEditBox` | M3 | Frame label above, below or in the margin (`f1`). |
-| `TextCaret` | editing | `FmTextCaret` | M3 |  |
-| `PageMark` | editing | `FmPageMark` | M2 | Search kinds in M2; edited and missing-glyph kinds in M3; redaction kinds in P2. Page colours do not follow the theme. |
-| `SearchReplaceBar` | editing | `FmSearchReplaceBar` | M2 | Find in M2; replace in P2. |
-| `AnnotationTools` | annotations | `FmAnnotationTools` | M4 |  |
-| `ANNOTATION_TOOLS` | annotations (data) | `FmAnnotationTool` (enum) | M4 |  |
-| `Highlight` | annotations | `FmHighlight` | M4 | Highlights already in a PDF are drawn by the renderer from M2. |
-| `StickyNote` | annotations | `FmStickyNote` | M4 |  |
-| `Stamp` | annotations | `FmStamp` | M4 |  |
-| `PdfFormField` | fill-sign | `FmPdfFormField` | M4 |  |
-| `SignaturePad` | fill-sign | `FmSignaturePad` | M4 |  |
-| `Toast` | feedback | `FmToast` | M3 | The save-failure toast (`f4`); the toast stack follows in M4 (`a11-6`). |
-| `Banner` | feedback | `FmBanner` | M2 |  |
-| `ProgressBar` | feedback | `FmProgressBar` | M4 | Required-fields progress in the Form panel. |
-| `Spinner` | feedback | `FmSpinner` | M2 |  |
-| `TaskProgress` | feedback | `FmTaskProgress` | M2 | Inline variant in the status bar while a large file is indexed (`a1-7`). |
-| `DropZone` | empty | `FmDropZone` | M1 | Start empty state (`a1-5`). The DS has no general empty state ([G29](DESIGN_GAPS.md#g29)). |
-| `Dialog` | overlays | `FmDialog` | M2 | Custom popup; never a Material or Cupertino dialog (brief §6). OS file pickers are the proposed exception ([ADR 0018](adr/0018-native-file-pickers.md)). |
-| `Menu` | overlays | `FmMenu` | M2 |  |
-| `CommandPalette` | overlays | `FmCommandPalette` | M4 |  |
-| `Field (internal)` | internal | `FmField` | M1 | Shared label, hint, error and input box for every field. |
-| `Popover (internal)` | internal | `FmPopover` | M3 | Shell for the colour and font pickers. |
-| `Scrim (internal)` | internal | `FmScrim` | M2 | Behind dialogs and the command palette. |
+| `Icon` | core | `Icon` | M1 | Draws the glyph's SVG asset (the design's exact path data) at the DS stroke width of 1.5. `flipRtl` mirrors directional glyphs under RTL. |
+| `ICON_PATHS` | core (data) | `IconName` (generated enum) and SVG assets | M1 | All 229 glyphs: 145 from the bundle and 84 from `fm-icons.js`. |
+| `Button` | core | `Button` | M1 | Primary, secondary, ghost and danger; sm, md and lg; loading. |
+| `IconButton` | core | `IconButton` | M1 | Toggle and loading states. |
+| `Tooltip` | core | `Tooltip` | M1 | Shows the shortcut with `Kbd`. Also carries "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
+| `Kbd` | core | `Kbd` | M1 | ⌘ and ⌥ on macOS; Ctrl and Alt on Windows and Linux. |
+| `Badge` | core | `Badge` | M1 | The `edited` tone is patched from teal to ink (DS additions). |
+| `TextField` | forms | `TextField` | M1 | Validators return bool and check null and empty values (brief §6). |
+| `Select` | forms | `Select` | M1 |  |
+| `NumberStepper` | forms | `NumberStepper` | M3 | Screens use the locale-aware `FmNumber` built on it ("10,5 pt" in Turkish). |
+| `Checkbox` | forms | `Checkbox` | M2 |  |
+| `Radio` | forms | `Radio` | M1 |  |
+| `Switch` | forms | `Switch` | M1 | Larger track at touch density. |
+| `ColorPicker` | forms | `ColorPicker` | M3 |  |
+| `FontPicker` | forms | `FontPicker` | M3 | Adds the missing-glyph warning state (`f2`). |
+| `PanelSection` | panels | `PanelSection` | M1 | Right-panel structure in the shell. |
+| `ModeTabs` | navigation | `ModeTabs` | M1 | Custom segmented control with `IndexedStack`; never `TabBarView` (brief §6). Eight modes. |
+| `FERMAN_MODES` | navigation (data) | `FermanMode` (enum) | M1 | Eight values including `tools`, as drawn. The DS constant lists seven and is stale ([G09](DESIGN_GAPS.md#g09)). |
+| `SegmentedControl` | navigation | `SegmentedControl` | M1 | Sidebar tabs use it with `IndexedStack`. |
+| `Toolbar` | navigation | `Toolbar` | M1 | One tool row per mode. |
+| `ToolbarSeparator` | navigation | `ToolbarSeparator` | M1 |  |
+| `ToolbarSpacer` | navigation | `ToolbarSpacer` | M1 |  |
+| `ToolbarGroup` | navigation | `ToolbarGroup` | M1 |  |
+| `ToolButton` | navigation | `ToolButton` | M1 | Needs the focus and disabled-with-reason states the design does not draw ([G10](DESIGN_GAPS.md#g10), [G22](DESIGN_GAPS.md#g22)). |
+| `PageThumbnail` | pages | `PageThumbnail` | M2 | Badge stack and legend (`f5`). |
+| `TextEditBox` | editing | `TextEditBox` | M3 | Frame label above, below or in the margin (`f1`). |
+| `TextCaret` | editing | `TextCaret` | M3 |  |
+| `PageMark` | editing | `PageMark` | M2 | Search kinds in M2; edited and missing-glyph kinds in M3; redaction kinds in P2. Page colours do not follow the theme. |
+| `SearchReplaceBar` | editing | `SearchReplaceBar` | M2 | Find in M2; replace in P2. |
+| `AnnotationTools` | annotations | `AnnotationTools` | M4 |  |
+| `ANNOTATION_TOOLS` | annotations (data) | `AnnotationTool` (enum) | M4 |  |
+| `Highlight` | annotations | `Highlight` | M4 | Highlights already in a PDF are drawn by the renderer from M2. |
+| `StickyNote` | annotations | `StickyNote` | M4 |  |
+| `Stamp` | annotations | `Stamp` | M4 |  |
+| `PdfFormField` | fill-sign | `PdfFormField` | M4 |  |
+| `SignaturePad` | fill-sign | `SignaturePad` | M4 |  |
+| `Toast` | feedback | `Toast` | M3 | The save-failure toast (`f4`); the toast stack follows in M4 (`a11-6`). |
+| `Banner` | feedback | `Banner` | M2 |  |
+| `ProgressBar` | feedback | `ProgressBar` | M4 | Required-fields progress in the Form panel. |
+| `Spinner` | feedback | `Spinner` | M2 |  |
+| `TaskProgress` | feedback | `TaskProgress` | M2 | Inline variant in the status bar while a large file is indexed (`a1-7`). |
+| `DropZone` | empty | `DropZone` | M1 | Start empty state (`a1-5`). The DS has no general empty state ([G29](DESIGN_GAPS.md#g29)). |
+| `Dialog` | overlays | `Dialog` | M2 | Custom popup; never a Material or Cupertino dialog (brief §6). OS file pickers are the proposed exception ([ADR 0018](adr/0018-native-file-pickers.md)). |
+| `Menu` | overlays | `Menu` | M2 |  |
+| `CommandPalette` | overlays | `CommandPalette` | M4 |  |
+| `Field (internal)` | internal | `Field` | M1 | Shared label, hint, error and input box for every field. |
+| `Popover (internal)` | internal | `Popover` | M3 | Shell for the colour and font pickers. |
+| `Scrim (internal)` | internal | `Scrim` | M2 | Behind dialogs and the command palette. |
 
 #### Additions and gap fixes as widgets
 
 | Addition | Flutter widget | First needed | Notes |
 |---|---|---|---|
-| Document tabs (in `FmWindow`) | `FmDocumentTab` | M1 | Active, idle, unsaved, loading and overflow states. |
-| Window chrome | `FmWindowChrome` | M1 | macOS traffic lights and Windows caption buttons. A Linux variant is not drawn ([G15](DESIGN_GAPS.md#g15)). |
-| Status-bar save indicator | `FmSaveIndicator` | M3 | Unsaved, saving, saved, error and read-only (`f4`). The status bar itself is M1. |
-| Thumbnail badges and legend | part of `FmPageThumbnail` | M2 | Badges arrive with their features (`f5`). |
+| Document tabs (in `FmWindow`) | `DocumentTab` | M1 | Active, idle, unsaved, loading and overflow states. |
+| Window chrome | `WindowChrome` | M1 | macOS traffic lights and Windows caption buttons. A Linux variant is not drawn ([G15](DESIGN_GAPS.md#g15)). |
+| Status-bar save indicator | `SaveIndicator` | M3 | Unsaved, saving, saved, error and read-only (`f4`). The status bar itself is M1. |
+| Thumbnail badges and legend | part of `PageThumbnail` | M2 | Badges arrive with their features (`f5`). |
 | `FmNumber` | `FmNumber` | M3 | Locale-aware number field, formatted from the region setting. |
-| Date picker (inline in `DocForm`) | `FmDatePicker` | M4 | Custom popup, also on mobile, where a note asks for the Material picker ([G55](DESIGN_GAPS.md#g55)). |
-| Mention list and comment card (inline in `FmComments`) | `FmMentionList`, `FmCommentCard` | M4 | |
-| Disabled with reason (gap) | state of `FmToolButton`, `FmMenu` items and `FmSegmentedControl` | M1 | Tooltip "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
-| Empty state (gap) | `FmEmptyState` | M2 | Sidebar tabs, search and lists ([G29](DESIGN_GAPS.md#g29)). |
+| Date picker (inline in `DocForm`) | `DatePicker` | M4 | Custom popup, also on mobile, where a note asks for the Material picker ([G55](DESIGN_GAPS.md#g55)). |
+| Mention list and comment card (inline in `FmComments`) | `MentionList`, `CommentCard` | M4 | |
+| Disabled with reason (gap) | state of `ToolButton`, `Menu` items and `SegmentedControl` | M1 | Tooltip "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
+| Empty state (gap) | `EmptyState` | M2 | Sidebar tabs, search and lists ([G29](DESIGN_GAPS.md#g29)). |
 
 #### Building blocks in the app
 
@@ -1512,7 +1543,7 @@ These points come from [ADR 0013](adr/0013-fonts-and-icons.md).
   assets in `app/assets`, rendered with the DS stroke width of 1.5 (not Lucide's default of 2; 2 only
   for 12 px glyphs and badges), with round caps and joins and the colour taken from the theme. There
   is no icon font and no sprite sheet, as the DS asks ([G04](DESIGN_GAPS.md#g04)).
-- All 229 ship, including the 66 that no board uses yet.
+- All 229 ship, including the 58 that nothing in the design references yet.
 - The licence notices ship with them: Lucide's ISC licence, and Feather's MIT licence for the
   roughly 57 glyphs derived from Feather. Both appear in the third-party notices ([G08](DESIGN_GAPS.md#g08), [G14](DESIGN_GAPS.md#g14)).
 - A provenance table records every glyph that is not Lucide 0.460.0: `bell`, `grid-2x2` and `funnel`
@@ -1525,7 +1556,7 @@ These points come from [ADR 0013](adr/0013-fonts-and-icons.md).
 
 ### Icon reference (generated)
 
-229 distinct icon names, none duplicated. The first 145 in the list come from ICON_PATHS in /home/user/Ferman/design/_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js (components/core/Icon.jsx). I diffed all 145 against lucide-static 0.460.0 and every one matches exactly. The last 84 (starting at "paperclip") come from /home/user/Ferman/design/ds-additions/fm-icons.js, which merges them into ICON_PATHS. Index.dc.html line 129 says "Icon set (+64)", which is out of date: the file has 84. Where the 84 additions come from: 77 match lucide-static 0.460.0 exactly. bell, grid-2x2 and funnel match lucide-static 1.56.0, and funnel does not exist in 0.460.0. expand and paperclip match neither 0.460.0 nor 1.56.0. file-signature does not exist in 0.460.0 and uses an old drawing; in 1.56.0 it is only an alias of file-pen-line with different geometry. ellipse does not exist in 0.460.0 and is not Lucide's shape (it uses ry=7; Lucide 1.56.0 uses ry=6), so it was drawn by hand. Usage: artboards and DS components reference 163 of the 229 names. 66 are never used. The 22 unused names from ICON_PATHS are ban, case-sensitive, circle-help, clock, corner-down-left, ellipsis-vertical, file-lock-2, indent-increase, list-ordered, move, panel-left-close, pen, pencil, pilcrow, pointer, regex, scissors, share, spell-check, table-of-contents, text-select and whole-word. The 44 unused names from fm-icons.js are archive, arrow-down-to-line, arrow-up, at-sign, bell, braces, check-check, chevrons-left, chevrons-right, circle-dot, circle-plus, cloud, cloud-download, credit-card, expand, file-signature, folder-plus, gauge, git-commit-vertical, graduation-cap, grid-2x2, id-card, image-plus, landmark, maximize-2, mic, package, percent, phone, plug, receipt, scan-line, server, shield-alert, shield-x, sigma, sliders-horizontal, square-x, star, table, tablet, tag, triangle and users. About 57 of the 229 come from Feather, so the Feather MIT notice also applies to them. Examples: x, plus, check, chevrons, arrows, search, lock, circle-alert/triangle-alert, trash-2, type, zoom-in/out, server, smartphone, tablet, triangle, percent, at-sign, code.
+229 distinct icon names, none duplicated. The first 145 in the list come from ICON_PATHS in /home/user/Ferman/design/_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js (components/core/Icon.jsx). I diffed all 145 against lucide-static 0.460.0 and every one matches exactly. The last 84 (starting at "paperclip") come from /home/user/Ferman/design/ds-additions/fm-icons.js, which merges them into ICON_PATHS. Index.dc.html line 129 says "Icon set (+64)", which is out of date: the file has 84. Where the 84 additions come from: 77 match lucide-static 0.460.0 exactly. bell, grid-2x2 and funnel match lucide-static 1.56.0, and funnel does not exist in 0.460.0. expand and paperclip match neither 0.460.0 nor 1.56.0. file-signature does not exist in 0.460.0 and uses an old drawing; in 1.56.0 it is only an alias of file-pen-line with different geometry. ellipse does not exist in 0.460.0 and is not Lucide's shape (it uses ry=7; Lucide 1.56.0 uses ry=6), so it was drawn by hand. Usage, counting icon names passed through data arrays and component helpers as well as attributes: the artboards, the Fm* building blocks and the DS components reference 168 of the 229 names (for example, SearchReplaceBar draws case-sensitive, whole-word and regex through its option helper, and FmSigCard uses shield-alert and shield-x for its warn and invalid states). The unexported desktop kit in _ds_bundle.js adds bookmark, smartphone and sun, so 171 are referenced somewhere and 58 are not. The 18 unreferenced names from ICON_PATHS are ban, circle-help, corner-down-left, ellipsis-vertical, file-lock-2, indent-increase, list-ordered, move, panel-left-close, pen, pencil, pilcrow, pointer, scissors, share, spell-check, table-of-contents and text-select. The 40 unreferenced names from fm-icons.js are archive, arrow-down-to-line, arrow-up, at-sign, bell, braces, check-check, chevrons-left, chevrons-right, circle-plus, cloud-download, credit-card, expand, file-signature, folder-plus, gauge, git-commit-vertical, graduation-cap, grid-2x2, id-card, image-plus, landmark, maximize-2, mic, package, percent, phone, plug, receipt, scan-line, server, sigma, sliders-horizontal, square-x, star, table, tablet, tag, triangle and users. About 57 of the 229 come from Feather, so the Feather MIT notice also applies to them. Examples: x, plus, check, chevrons, arrows, search, lock, circle-alert/triangle-alert, trash-2, type, zoom-in/out, server, smartphone, tablet, triangle, percent, at-sign, code.
 
 All icon names (alphabetical):
 

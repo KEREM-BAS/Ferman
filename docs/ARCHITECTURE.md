@@ -166,7 +166,7 @@ Rules:
 #### ferman-api
 
 - **facade** (pure Rust, always built): `Engine`, `EngineConfig`, all handles and DTOs, `ApiError`, the document actors, the job manager and, from M5, the network gateway (section 10). ferman-cli and the integration tests call this module.
-- **frb** (feature `frb`, on in the app build): thin wrappers that expose facade functions to Dart, stream sinks for tiles and jobs, mirrors of DTOs. Nothing else lives here. FRB codegen scans only this module, so the generated surface stays small.
+- **frb** (feature `frb`, on in the app build): thin wrappers that expose facade functions to Dart, stream sinks for tiles and jobs, mirrors of DTOs. Nothing else lives here. FRB codegen scans only this module, so the generated surface stays small. The Rust glue that FRB generates sits beside it, behind the same feature. It is never edited by hand, and it is the only place in Ferman's own crates where unsafe code is allowed (section 8.1).
 - **Key dependencies:** every Ferman crate, flutter_rust_bridge `=2.13.0` (optional), thiserror, tracing. The FRB Rust crate, the Dart package and the codegen tool must have exactly the same version. A CI check compares the three.
 
 #### ferman-cli
@@ -749,7 +749,7 @@ Recovery/
 - On launch, a session directory whose lock file names no live process belongs to a crashed session. The UI shows a1-12: "Ferman restored 2 documents", each checked; "Open 2 documents" or "Discard". Restored documents open as unsaved; files on disk are unchanged.
 - A crash during step 6 of section 7.2 leaves either the old file or the new one, never a mix. A leftover temp file is deleted on the next save in that directory.
 - A panic in a document actor stops that document only (section 8.3). The UI offers to reopen it from the journal.
-- The crash log is written locally and copied only when the user presses "Copy crash log" (a1-12).
+- The crash log is written locally and copied only when the user presses "Copy crash log" (a1-12). The copy replaces paths and file names with placeholders (section 8.4).
 
 ### 7.8 When writing fails
 
@@ -770,7 +770,8 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 
 - Each crate has its own `thiserror` enum: `CoreError`, `FontError`, `TextError`, `RenderError`, `OpsError`. Variants carry context (object id, page, operator offset), never document text.
 - No `unwrap`, `expect`, `panic`, `todo` or `unimplemented` in library code. Clippy enforces this with `unwrap_used`, `expect_used`, `panic`, `todo` and `unimplemented` denied outside tests. Parser modules also deny `indexing_slicing` and use checked arithmetic, because untrusted input must not be able to trigger a panic or a silent overflow.
-- `forbid(unsafe_code)` at every crate root. pdfium-render is the unsafe layer. If ferman-render ever needs unsafe code (for example rendering into a caller-owned buffer), it is a documented, reviewed exception.
+- `forbid(unsafe_code)` at every crate root except ferman-api. ferman-api uses `deny(unsafe_code)` and allows unsafe code only on the FRB-generated module behind the `frb` feature. That glue needs `extern "C"` exports and `unsafe` blocks, it is never edited by hand, and an inner `allow` cannot override `forbid`, hence the exception. A CI check fails on any `allow(unsafe_code)` outside that module ([roadmap](ROADMAP.md), M1 steps 1 and 3).
+- pdfium-render is the other unsafe layer. Any further unsafe code (for example if ferman-render ever renders into a caller-owned buffer) is a documented, reviewed exception.
 - Public items are documented. `cargo fmt` and `clippy -D warnings` run in CI.
 
 ### 8.2 Mapping to ApiError
@@ -804,7 +805,9 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 ### 8.4 Logs
 
 - The engine logs with `tracing`, the app with a thin Dart logger, both to local rotating files in the app's log directory (Proposed: five files of 5 MB). "Show log files" (a11-1k) opens the folder.
-- Logs never contain document text, typed characters, passwords or rendered content. File paths may appear, because logs never leave the device.
+- Logs never contain document text, typed characters, passwords or rendered content. File paths may appear in the local log files, because they help explain open and save failures. Ferman never sends a log anywhere.
+- **Copy crash log (Proposed).** "Copy crash log" (a1-12) puts the log on the clipboard so the user can paste it into a report, often a public GitHub issue. Paths can hold client names and document titles. So the copied text replaces the home folder, folder names and file names with placeholders. The extension and file size stay, and one file keeps one placeholder, so the log still reads well (for example `<home>/<folder 1>/<file 1>.pdf, 2.4 MB`). The confirmation toast asks the user to check the text before sharing it. That toast is not drawn yet.
+- "Copy technical details" (a1-9b) carries structural facts only, as drawn ("Expected about 2.4 MB, found 18 KB · last complete object 12 0 obj · no trailer"). It never holds paths or document text.
 - No telemetry, no crash reporting service, no analytics. Nothing is uploaded, ever.
 
 ## 9. Security
