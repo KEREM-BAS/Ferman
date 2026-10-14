@@ -85,7 +85,8 @@ The design takes privacy seriously but does not match the brief everywhere:
   check in M5. Other crates that need the network (timestamping in P3, for example) receive a gateway
   handle; they never open connections themselves.
 - cargo-deny enforces this: HTTP client crates are allowed only when ferman-api depends on them directly
-  (`wrappers`), and a CI check of the dependency graph backs it up
+  (`wrappers`), and the proposed CI check of the dependency graph
+  ([ADR 0003](0003-crate-layout-and-api-boundary.md)) backs it up
   ([ADR 0016](0016-dependency-licence-policy.md)).
 - Every request names its purpose (update check, language pack, AI provider, timestamp). The gateway
   checks the user's switch for that purpose, refuses if it is off, and appends an entry to the local
@@ -95,8 +96,9 @@ The design takes privacy seriously but does not match the brief everywhere:
   settings, and identify themselves only as `Ferman/<version> (<os>; <arch>)`: the version and platform
   that a11-1h discloses, and nothing else. The platform part tells the update check which file to offer;
   the final form is settled with [Q15](../QUESTIONS.md#q15).
-- The Flutter app adds no networking packages. CI fails if `pubspec.lock` contains an HTTP client,
-  font downloader (such as google_fonts), analytics or crash-reporting package from a deny list.
+- The Flutter app adds no networking packages. **Proposed** ([ROADMAP.md](../ROADMAP.md), M1 step 2):
+  CI fails if `pubspec.lock` contains an HTTP client, font downloader (such as google_fonts), analytics
+  or crash-reporting package from a deny list.
 - Opening a link in the OS browser is the browser's network use, started by the user; it is not a
   Ferman connection.
 
@@ -125,8 +127,8 @@ the browser and never uploaded.
 
 ### Follow-up
 
-- M1: the CI checks for pub packages; Settings › Privacy skeleton with the four rows (disabled until each
-  feature exists, with "Available in a future version").
+- M1: the pub licence check and, if approved, the pubspec network deny list; Settings › Privacy skeleton
+  with the four rows (disabled until each feature exists, with "Available in a future version").
 - M4: full Privacy pane and activity log view.
 - M5: the gateway with the update check ([Q15](../QUESTIONS.md#q15)).
 - P3: timestamps and language packs through the gateway; the owner's answer to Q06 applied.
@@ -145,8 +147,9 @@ the browser and never uploaded.
 
 - [Brief](../BRIEF.md) §1, §3
 - [ARCHITECTURE.md](../ARCHITECTURE.md), sections 9.2 and 10
-- [ADR 0004](0004-lopdf-model-pdfium-renderer.md), [ADR 0010](0010-error-handling-no-panics.md),
-  [ADR 0013](0013-fonts-and-icons.md), [ADR 0016](0016-dependency-licence-policy.md)
+- [ADR 0003](0003-crate-layout-and-api-boundary.md), [ADR 0004](0004-lopdf-model-pdfium-renderer.md),
+  [ADR 0010](0010-error-handling-no-panics.md), [ADR 0013](0013-fonts-and-icons.md),
+  [ADR 0016](0016-dependency-licence-policy.md)
 - Artboards a1-2b, a7-4, a8-4, a10-2, a11-1g, a11-1h, a11-1i
 - [G07](../DESIGN_GAPS.md#g07), [G24](../DESIGN_GAPS.md#g24), [G51](../DESIGN_GAPS.md#g51),
   [G52](../DESIGN_GAPS.md#g52), [G53](../DESIGN_GAPS.md#g53), [G56](../DESIGN_GAPS.md#g56)

@@ -26,15 +26,17 @@ What the export contains, and why it cannot be used as is:
   Garamond, Crimson Pro, and the handwriting faces Caveat, Homemade Apple and Dancing Script. Traditional
   Chinese has no font at all ([G07](../DESIGN_GAPS.md#g07)). A local-first app cannot depend on this.
 - **Licence texts.** None ship in the export: no OFL, ISC, MIT or Apache-2.0 file
-  ([G08](../DESIGN_GAPS.md#g08)).
+  ([G08](../DESIGN_GAPS.md#g08)). The repository carries the OFL-1.1, ISC and MIT texts for the copies
+  already in `design/` in [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md); the app ships its own
+  licence files.
 - **Icons.** 229 glyphs, all unique: 145 in the bundle's `ICON_PATHS` (every one matches Lucide 0.460.0
   exactly) and 84 in `ds-additions/fm-icons.js`. Of the 84, 77 match Lucide 0.460.0; bell, grid-2x2 and
   funnel match Lucide 1.56.0; paperclip matches Lucide 0.469.0 and 0.500.0; expand matches Lucide
   0.500.0; file-signature matches Lucide 0.263.0 and 0.300.0 (an older drawing). Only ellipse, a plain
   SVG ellipse, matches no Lucide release ([G04](../DESIGN_GAPS.md#g04), [G60](../DESIGN_GAPS.md#g60)).
   So 228 of the 229 glyphs are Lucide's work. The design system draws icons at a 1.5 px stroke and
-  rules out an icon font ("No icon font, no sprite sheet"). The promised `assets/icons/*.svg` folder is
-  missing. About 57 of the glyphs derive from Feather (MIT).
+  rules out an icon font ("No icon font, no PNG icons, no sprite sheet."). The promised
+  `assets/icons/*.svg` folder is missing. About 57 of the glyphs derive from Feather (MIT).
 
 Licences verified on 2026-10-13 and 2026-10-14: IBM Plex is OFL-1.1, "Copyright © 2017 IBM Corp. with
 Reserved Font Name 'Plex'", for every family package. Lucide is ISC. The `LICENSE` files of Lucide

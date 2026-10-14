@@ -38,8 +38,8 @@ design is re-exported ([Q11](QUESTIONS.md#q11)), regenerate them rather than edi
   holds for 05a/05b, 09a/09b, 11a/11b and 13a/13b. Some suffixes name what varies: `a2-3p` is the
   Pages tab, `a11-1w` is Windows, `a12-1tr` is the Turkish UI.
 - `fa` to `fd` are the four flows in `15 Flows`.
-- `G01` to `G60` are entries in [DESIGN_GAPS.md](DESIGN_GAPS.md), linked as `DESIGN_GAPS.md#g07`.
-  `Q01` to `Q16` are entries in [QUESTIONS.md](QUESTIONS.md).
+- `G01` to `G61` are entries in [DESIGN_GAPS.md](DESIGN_GAPS.md), linked as `DESIGN_GAPS.md#g07`.
+  `Q01` to `Q17` are entries in [QUESTIONS.md](QUESTIONS.md).
 
 **Printed labels.** The id is the board's HTML anchor. The canvas prints its own label above each
 board, and the board notes cite that label (for example "Review edits (3.12)"). For most boards the
@@ -260,6 +260,9 @@ tooltip "Available in a future version" and an entry in [BACKLOG.md](BACKLOG.md)
   flow ([G36](DESIGN_GAPS.md#g36), [Q09](QUESTIONS.md#q09)).
 - **Formats.** Numbers, dates, paper sizes and units follow the region setting, never the UI language
   ([G34](DESIGN_GAPS.md#g34)).
+- **Search.** `a2-4a` draws "Ignore accents and dotted/dotless i" as on by default for Turkish
+  documents only. The app turns it on by default for every document, as brief §7 requires, and the
+  description ends "On by default." ([G61](DESIGN_GAPS.md#g61)).
 
 ## 5. Artboards
 
@@ -329,7 +332,7 @@ Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every side
 | `a2-3d` | Sidebar — Signatures tab (1:1)<br>Spec sheet · light · en | Signature list with validity sentence and empty signature field<br>*States:* valid e-imza signature; empty signature field (page 3) | **M3** — (detect and list signatures for the signed-document warning); validity statement needs P3 signature validation | ferman-core, ferman-ops |
 | `a2-3e` | Sidebar — Search results tab (1:1)<br>Spec sheet · light · en | Search results grouped by page with snippets<br>*States:* 7 matches on 2 pages; current result tinted; whole-word miss example | **M2** | ferman-text |
 | `a2-3x` | Sidebar — Outline rename, dark (1:1)<br>Spec sheet · dark · en | Outline inline rename in dark theme<br>*States:* outline-edit=3 (Madde 4 row as TextField); dark | **M2** — (outline, dark theme from M1); rename needs save, so M3 | ferman-core |
-| `a2-4a` | Search — Find bar with options<br>macOS · light · en | Find bar with match options and Turkish-aware accent/dotted-i folding<br>*States:* query 'kira', 1 of 7; matches highlighted (current orange, others yellow); Ignore accents on; Look in: Page text + Comments on | **M2** — find/replace bar's replace is P2 | ferman-text, ferman-core |
+| `a2-4a` | Search — Find bar with options<br>macOS · light · en | Find bar with match options and Turkish-aware accent/dotted-i folding<br>*States:* query 'kira', 1 of 7; matches highlighted (current orange, others yellow); Ignore accents on; Look in: Page text + Comments on | **M2** — find/replace bar's replace is P2; the accent option is on by default for every document ([G61](DESIGN_GAPS.md#g61)) | ferman-text, ferman-core |
 | `a2-4b` | Search — All results, grouped by page<br>macOS · light · en | Show all results in sidebar, grouped by page<br>*States:* sidebar tab=search; current result tinted; matches highlighted on page | **M2** | ferman-text |
 | `a2-5a` | Presentation mode, full screen<br>macOS · dark · en | Full-screen presentation with auto-hiding control bar<br>*States:* page 1 / 3; control bar visible | **P2** — proposed: viewer extras after phase 1 (presentation mode) | ferman-render, platform |
 | `a2-5b` | Reading mode, chrome hidden<br>macOS · light · en | Reading mode hides tabs, tool rows, sidebar, panel and status bar<br>*States:* bare window; floating reading toolbar visible | **P2** — proposed: viewer extras after phase 1 (reading mode) | ui-only, ferman-render |
@@ -681,7 +684,10 @@ The tokens describe six environments:
   turns off synthetic bold and italic.
 
 **The additions are not merged into the DS tokens.** `fm-additions.css` defines 31 tokens that are in
-neither the DS token files nor the manifest; 26 are used by artboards and the 5 mobile tokens are not.
+neither the DS token files nor the manifest; 22 are applied through `var()` by boards, building blocks
+or the bundle. Nine are never applied: `--editbox-meta-h`, `--thumb-badge` and `--doctab-h`, which only
+the Index and 00 Fixes name in prose, and 6 of the 7 mobile tokens; only `--sheet-radius` is used, in
+13a and 13b.
 It also overrides 3 DS tokens: `--edit-changed` and `--edit-changed-bg` change from teal to ink, and
 `--font-ui` gains the full script stack. A generator that read only `tokens/*.css` would get these
 values wrong, so it reads the additions last ([G05](DESIGN_GAPS.md#g05)). The additions' `--doctab-h` (28 px) also
@@ -1275,7 +1281,7 @@ Counts: Custom-property declarations, verified by parsing every block. colors.cs
 | Token | Light / default | Dark / override | Note |
 |---|---|---|---|
 | `--font-ui (extended)` | `IBM Plex Sans + Plex Arabic, Hebrew, Devanagari, JP, KR, then Noto Sans SC` |  | Covers Ferman/Turkish/German/Russian/Arabic/Hebrew/Hindi/Japanese/Korean/Simplified Chinese. CJK gets 20px leading at 1… |
-| `--font-hand-1 / --font-hand-2 / --font-hand-3` | `Caveat / Homemade Apple / Dancing Script (OFL)` |  | Typed-signature styles, demo colour #1A3170 (ink-800). Each covers ş, ğ, ı, İ; styles without full coverage are hidden… |
+| `--font-hand-1 / --font-hand-2 / --font-hand-3` | `Caveat / Homemade Apple / Dancing Script (OFL)` |  | The design's "(OFL)" label is wrong for Homemade Apple, which is Apache-2.0 ([G08](DESIGN_GAPS.md#g08)). Typed-signature styles, demo colour #1A3170 (ink-800). Each covers ş, ğ, ı, İ; styles without full coverage are hidden… |
 
 **Theming attributes**
 
@@ -1546,13 +1552,19 @@ These points come from [ADR 0013](adr/0013-fonts-and-icons.md).
 - All 229 ship, including the 58 that nothing in the design references yet.
 - The licence notices ship with them: Lucide's ISC licence, and Feather's MIT licence for the
   roughly 57 glyphs derived from Feather. Both appear in the third-party notices ([G08](DESIGN_GAPS.md#g08), [G14](DESIGN_GAPS.md#g14)).
-- A provenance table records every glyph that is not Lucide 0.460.0: `bell`, `grid-2x2` and `funnel`
-  come from Lucide 1.56.0; `expand`, `paperclip`, `file-signature` and `ellipse` match no Lucide
-  release and are recorded as Ferman design ([G60](DESIGN_GAPS.md#g60)).
+- A provenance table names, for each glyph, the Lucide release its geometry matches. 222 match
+  0.460.0; `bell`, `grid-2x2` and `funnel` match 1.56.0; `paperclip` matches 0.469.0 and 0.500.0;
+  `expand` matches 0.500.0; `file-signature` matches 0.263.0 and 0.300.0. Only `ellipse` matches no
+  Lucide release; it is recorded as Ferman design and stays pending until the re-export settles it
+  ([G60](DESIGN_GAPS.md#g60), [ADR 0013](adr/0013-fonts-and-icons.md)).
 - Directional icons carry a per-icon flag and mirror under right-to-left. The PDF canvas never
   mirrors (brief §6).
 - Where the generated notes below suggest taking glyphs from a Lucide release or replacing
   `file-signature` and `ellipse`, this decision applies instead: the design's own paths ship as drawn.
+
+The generated notes below compared the added icons only with Lucide 0.460.0 and 1.56.0. The M0
+review later found `paperclip`, `expand` and `file-signature` in other Lucide releases, as the
+provenance bullet above says.
 
 ### Icon reference (generated)
 
@@ -1782,15 +1794,15 @@ to 5 have no entries of these types yet; their boards are checked again when eac
 - [G05](DESIGN_GAPS.md#g05) Export gap. 31 tokens and 3 overrides live only in `fm-additions.css`. Affects: the token generator and every board with edit marks, document tabs or Windows chrome.
 - [G06](DESIGN_GAPS.md#g06) Export gap. The 23 font files are WOFF2 unicode-range subsets Flutter cannot bundle, with no Vietnamese and no Plex Sans italic. Affects: every board; `a1-1` lists "Tiếng Việt".
 - [G07](DESIGN_GAPS.md#g07) Export gap. 13 font families load from Google Fonts at runtime. Hebrew, Devanagari, CJK and handwriting fonts are not bundled, and Traditional Chinese has no font. Boards: `a1-1`, `a13-1b`, `a5-3`, `a12-1ja`, `a3-15`.
-- [G08](DESIGN_GAPS.md#g08) Export gap. No licence texts: OFL-1.1, Lucide ISC, Feather MIT, and Apache-2.0 for Homemade Apple. Boards: `a11-5`, whose credit line omits several families and Feather.
-- [G60](DESIGN_GAPS.md#g60) Export gap. Seven of the 84 added icons are not Lucide 0.460.0 (`bell`, `grid-2x2`, `funnel` from 1.56.0; `expand`, `paperclip`, `file-signature`, `ellipse` match no release), and the Index says "+64" where the file has 84. Affects: section 7.
+- [G08](DESIGN_GAPS.md#g08) Export gap. No licence texts: OFL-1.1, Lucide ISC, Feather MIT, and Apache-2.0 for Homemade Apple. Boards: `a11-5`, whose credit line omits several families and Feather. The repository carries the OFL-1.1, ISC and MIT texts for the material already in `design/` in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md); the app ships its own licence files in `app/assets`.
+- [G60](DESIGN_GAPS.md#g60) Export gap. Seven of the 84 added icons are not Lucide 0.460.0: `bell`, `grid-2x2` and `funnel` match 1.56.0, `paperclip` and `expand` match 0.500.0, `file-signature` matches 0.300.0, and only `ellipse` matches no release. The Index says "+64" where the file has 84. Affects: section 7.
 
 ### M1 Foundations
 
 - [G10](DESIGN_GAPS.md#g10) Missing state. No "Available in a future version" disabled state with a tooltip anywhere in the design. Boards: the `FmWindow` tool rows (Edit, Convert, Protect, Fill & Sign, Tools) and AI button, `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`.
 - [G15](DESIGN_GAPS.md#g15) Missing variant. No Linux artboard; the `platform` prop allows only `mac` and `win`. Needed at least: the Linux versions of `f6a`, `a1-4c`, `a1-10b` and `a11-1w`.
 - [G16](DESIGN_GAPS.md#g16) Missing variant. Windows is drawn only in `f6`, `f6a`, `a1-4c`, `a11-1w`, `a12-1de`, `a12-2b`, `a12-2d`. Missing: the dialogs (`a1-8`, `a1-8b`, `a1-10b`, `a1-11`, `a1-12`, `a11-7`), the tab overflow menu (`a1-10`), View, Comment, Fill and Organize modes, and most Settings panes (`a11-1e`, `a11-1g`, `a11-1j` hard-code macOS wording).
-- [G17](DESIGN_GAPS.md#g17) Missing variant. Dark is drawn only in `a1-4b`, `a2-3x`, `a2-5a`, `a2-9`, `a3-1d`, `a4-1d`, `a5-1d`, `a5-2b`, `a11-6`. Missing: onboarding (`a1-1` to `a1-3`), the dialogs (`a1-8` to `a1-12`), Settings (`a11-1` and its panes), `a3-3a`, `a3-3b`, `a3-4`, `a3-12`, Organize (`a6-1` to `a6-5`), `a11-2`, `a11-6b`, the errors (`a11-7`, `a11-7b`, `a11-7c`), a dark View-mode window (`a2-1a` to `a2-1d`) and the Dimmed page option.
+- [G17](DESIGN_GAPS.md#g17) Missing variant. Dark is drawn only in `a1-4b`, `a2-3x`, `a2-5a`, `a2-9`, `a3-1d`, `a4-1d`, `a5-1d`, `a11-6`; `a5-2b` states that on-page field colours are theme-invariant but is drawn in light only. Missing: onboarding (`a1-1` to `a1-3`), the dialogs (`a1-8` to `a1-12`), Settings (`a11-1` and its panes), `a3-3a`, `a3-3b`, `a3-4`, `a3-12`, Organize (`a6-1` to `a6-5`), `a11-2`, `a11-6b`, the errors (`a11-7`, `a11-7b`, `a11-7c`), a dark View-mode window (`a2-1a` to `a2-1d`) and the Dimmed page option.
 - [G18](DESIGN_GAPS.md#g18) Missing variant. Desktop right-to-left is drawn only in `a12-1ar`, `a12-2a`, `a12-2c`. Missing: the dialogs, `a1-10`, `a2-1c`, `a2-1d`, sidebar tabs other than Pages, `a2-4a`, `a3-3a`, `a3-4`, `a3-12`, `a11-2`, `a11-6`, `a11-6b`, Windows caption buttons in right to left, and any Persian or Hebrew screen.
 - [G19](DESIGN_GAPS.md#g19) Missing variant. Turkish UI is drawn only in `a12-1tr` (desktop) and `a12-3d`, `a12-3e` (mobile). `FmStart` and `FmSettings` have no `tr` option, no Turkish dialog exists, and no Turkish all-caps label such as "İMZALA" appears in the UI chrome.
 - [G20](DESIGN_GAPS.md#g20) Missing state. Language picker (`a1-1`, `a13-1b`): no translation status or fallback state, no filter state without results, no state after choosing a right-to-left language. `a1-2c` and `a11-5` claim 21 languages.
@@ -1832,6 +1844,6 @@ to 5 have no entries of these types yet; their boards are checked again when eac
 
 ### Conflicts and decisions
 
-The conflicts ([G09](DESIGN_GAPS.md#g09), [G11](DESIGN_GAPS.md#g11), [G12](DESIGN_GAPS.md#g12), [G13](DESIGN_GAPS.md#g13), [G24](DESIGN_GAPS.md#g24), [G34](DESIGN_GAPS.md#g34), [G41](DESIGN_GAPS.md#g41), [G44](DESIGN_GAPS.md#g44), [G51](DESIGN_GAPS.md#g51), [G54](DESIGN_GAPS.md#g54), [G55](DESIGN_GAPS.md#g55), [G56](DESIGN_GAPS.md#g56) and [G57](DESIGN_GAPS.md#g57)) and the ambiguities ([G23](DESIGN_GAPS.md#g23), [G26](DESIGN_GAPS.md#g26), [G32](DESIGN_GAPS.md#g32), [G33](DESIGN_GAPS.md#g33), [G36](DESIGN_GAPS.md#g36), [G52](DESIGN_GAPS.md#g52), [G58](DESIGN_GAPS.md#g58) and [G59](DESIGN_GAPS.md#g59)) are in
+The conflicts ([G09](DESIGN_GAPS.md#g09), [G11](DESIGN_GAPS.md#g11), [G12](DESIGN_GAPS.md#g12), [G13](DESIGN_GAPS.md#g13), [G24](DESIGN_GAPS.md#g24), [G34](DESIGN_GAPS.md#g34), [G41](DESIGN_GAPS.md#g41), [G44](DESIGN_GAPS.md#g44), [G51](DESIGN_GAPS.md#g51), [G54](DESIGN_GAPS.md#g54), [G55](DESIGN_GAPS.md#g55), [G56](DESIGN_GAPS.md#g56), [G57](DESIGN_GAPS.md#g57) and [G61](DESIGN_GAPS.md#g61)) and the ambiguities ([G23](DESIGN_GAPS.md#g23), [G26](DESIGN_GAPS.md#g26), [G32](DESIGN_GAPS.md#g32), [G33](DESIGN_GAPS.md#g33), [G36](DESIGN_GAPS.md#g36), [G52](DESIGN_GAPS.md#g52), [G58](DESIGN_GAPS.md#g58) and [G59](DESIGN_GAPS.md#g59)) are in
 [DESIGN_GAPS.md](DESIGN_GAPS.md), each with the decision taken. Questions for the owner are in
 [QUESTIONS.md](QUESTIONS.md).

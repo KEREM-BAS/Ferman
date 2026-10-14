@@ -42,8 +42,8 @@ Ferman is Apache-2.0 ([brief §1](BRIEF.md)). That narrows "GPL-compatible":
 So in practice: **permissive licences, plus MPL-2.0 for unmodified dependencies after the owner's review.**
 
 This reading of "GPL-compatible" (no GPL-3.0 code, no LGPL-only code) is ours; the brief does not spell
-it out. The owner is asked to confirm it in [QUESTIONS.md](QUESTIONS.md), in the same question as the
-first MPL-2.0 case, `dbus` (below). Until the owner answers, the stricter reading applies.
+it out. The owner is asked to confirm it in [Q17](QUESTIONS.md#q17), the same question as the first
+MPL-2.0 case, `dbus` (below). Until the owner answers, the stricter reading applies.
 
 **Allowed for code (Rust and Dart):** Apache-2.0, Apache-2.0 WITH LLVM-exception, MIT, MIT-0,
 BSD-2-Clause, BSD-3-Clause, ISC, Zlib, 0BSD, BSL-1.0, CC0-1.0, Unicode-3.0, Unicode-DFS-2016. An OR
@@ -54,11 +54,13 @@ expression is fine when one side is on this list. Examples: `MIT OR Apache-2.0 O
 
 - MPL-2.0 for an unmodified dependency, with a notice, once the owner approves that package. One case
   is pending owner approval: `dbus`, which desktop_drop depends on for every platform
-  ([section 3.11](#311-flutter-and-dart-packages)). None is approved yet.
-- NCSA for `libfuzzer-sys`, only in the separate `fuzz/` workspace, which never ships.
+  ([Q17](QUESTIONS.md#q17), [section 3.11](#311-flutter-and-dart-packages)). None is approved yet.
+- NCSA for `libfuzzer-sys`, only in the separate `fuzz/` workspace, which never ships. Pending
+  [Q17](QUESTIONS.md#q17); `fuzz/` is not created until then.
 - OFL-1.1 (and Apache-2.0 for Homemade Apple, if it ships) for font files only, never as a code licence.
 - Tools that run only in CI (for example the LGPL-3.0 Swatinem/rust-cache action). They are never
-  distributed, and their code is never vendored or copied.
+  distributed, and their code is never vendored or copied. Swatinem/rust-cache is pending
+  [Q17](QUESTIONS.md#q17); until then CI caches with actions/cache (MIT) or not at all.
 
 **Never:** AGPL (any version), GPL-2.0-only, GPL-2.0-or-later, GPL-3.0 (any), LGPL as a sole licence,
 EUPL, SSPL, BUSL, Elastic, Commons Clause, any non-commercial licence (CC-BY-NC, PolyForm
@@ -191,8 +193,8 @@ None of these ship. They never appear in the shipped dependency graph
 | proptest | Property tests for parser and edit invariants | 1.12.0 (2026-10-10) | MIT OR Apache-2.0 | ok | M1 | MSRV 1.88. |
 | insta | Snapshot tests: object trees, extracted text | 1.49.0 (2026-10-03) | Apache-2.0 | ok | M1 | Pulls similar (Apache-2.0) and console (MIT). MSRV 1.66. |
 | criterion | Benchmarks for render, text and save | 0.8.2 (2026-02-04) | Apache-2.0 OR MIT | ok | M2 | Now under the criterion-rs organisation. Pulls plotters (MIT), ciborium (Apache-2.0) and tinytemplate. MSRV 1.86. |
-| cargo-fuzz (tool) | Fuzz targets for every parser | 0.13.2 (2026-06-09) | MIT OR Apache-2.0 | ok | M2 | From the first parser in M2 ([brief §5](BRIEF.md)). Needs nightly. Linux and macOS are first-class; Windows needs MSVC ASan and has limits. Targets live in the separate `fuzz/` workspace. |
-| libfuzzer-sys | libFuzzer runtime for the fuzz targets | 0.4.13 (2026-06-04) | (MIT OR Apache-2.0) AND NCSA | ok | M2 | NCSA covers the vendored LLVM libFuzzer and is permissive. Allowed as a cargo-deny exception for this crate only, in `fuzz/` only. |
+| cargo-fuzz (tool) | Fuzz targets for every parser | 0.13.2 (2026-06-09) | MIT OR Apache-2.0 | ok | M2 | From the first parser in M2 ([brief §5](BRIEF.md)), once [Q17](QUESTIONS.md#q17) approves libfuzzer-sys. Needs nightly. Linux and macOS are first-class; Windows needs MSVC ASan and has limits. Targets live in the separate `fuzz/` workspace. |
+| libfuzzer-sys | libFuzzer runtime for the fuzz targets | 0.4.13 (2026-06-04) | (MIT OR Apache-2.0) AND NCSA | caution | M2 | NCSA covers the vendored LLVM libFuzzer and is permissive, but it is outside the allow-list, so it is **pending owner approval** ([Q17](QUESTIONS.md#q17)). If approved, it is a cargo-deny exception for this crate only, in `fuzz/` only. `fuzz/` is not created until then. |
 
 ### 3.11 Flutter and Dart packages
 
@@ -214,7 +216,7 @@ None of these ship. They never appear in the shipped dependency graph
 | shared_preferences | UI preferences, if chosen | 2.5.6 (2026-10-05) | BSD-3-Clause | ok | M1 | Only if M1 step 9 chooses it. The alternative is a settings file owned by the Rust core and shared with the CLI ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Use the `SharedPreferencesAsync` API. |
 | alchemist | Golden tests (dev) | 0.14.1 (2026-10-08) | MIT | ok | M1 | Publisher betterment.dev. Replaces golden_toolkit. Goldens load the real fonts ([brief §5](BRIEF.md)). |
 | mocktail | Mocks for tests (dev) | 1.0.5 (2026-04-10) | MIT | ok | M1 | |
-| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` is pending owner approval** ([brief §9](BRIEF.md), [QUESTIONS.md](QUESTIONS.md)), so desktop_drop is not added until the owner approves. If approved, the `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). If not, drag and drop needs another package or a platform channel. No iOS support. |
+| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` is pending owner approval** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is not added until the owner approves. If approved, the `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). If not, drag and drop needs another package or a platform channel. No iOS support. |
 | file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md) (Proposed, [Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
 
@@ -244,7 +246,8 @@ Every third-party action is pinned by full commit SHA, with the version in a com
 | dtolnay/rust-toolchain | Installs the Rust toolchain | no versioned releases (branch refs; the only tag is `v1`) | MIT | ok | M1 | Pin a commit SHA; the toolchain itself comes from `rust-toolchain.toml`. |
 | subosito/flutter-action | Installs Flutter | v2.23.0 | MIT | ok | M1 | `flutter-version: 3.47.7`. |
 | EmbarkStudios/cargo-deny-action | Runs cargo-deny | v2.1.1 | MIT OR Apache-2.0 | ok | M1 | |
-| Swatinem/rust-cache | Cargo build cache | v2.9.2 | LGPL-3.0 | caution | M1 | Runs only in CI and is never distributed with Ferman, so it creates no obligation. Never vendor or copy its code. |
+| Swatinem/rust-cache | Cargo build cache | v2.9.2 | LGPL-3.0 | caution | M1 | **Pending owner approval** ([Q17](QUESTIONS.md#q17)). Runs only in CI and is never distributed with Ferman, so it creates no obligation for users. Never vendor or copy its code. Until approved, CI caches with actions/cache or not at all. |
+| actions/cache | Cargo build cache while rust-cache waits for [Q17](QUESTIONS.md#q17) | version set in M1 | MIT | ok | M1 | Pinned by commit SHA like every action. Used only if Q17 does not approve rust-cache; CI may also run without a cache. |
 
 ### 3.14 Notable transitive dependencies
 
@@ -264,7 +267,7 @@ licence or maintenance detail worth knowing.
 | hayro-write | krilla (`pdf` feature) | Apache-2.0 OR MIT | |
 | ICU4X support crates (zerovec, yoke, tinystr, litemap, writeable, potential_utf) | icu_casemap, icu_collator | Unicode-3.0 | |
 | ravif, rav1e, exr, paste | `image` default features | BSD-2-Clause and others | Avoided by turning `image` default features off. `paste` is unmaintained (RUSTSEC-2024-0436). |
-| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Pending owner approval.** If approved, its notice and source location ship with every build that includes desktop_drop, and it is the only MPL-2.0 package. |
+| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Pending owner approval** ([Q17](QUESTIONS.md#q17)). If approved, its notice and source location ship with every build that includes desktop_drop, and it is the only MPL-2.0 package. |
 | screen_retriever (pub) | window_manager | MIT | |
 | vector_graphics (pub) | flutter_svg | BSD-3-Clause | |
 | xml, petitparser (pub) | flutter_svg | MIT | |
@@ -317,7 +320,7 @@ rustybuzz is not listed here. It stays the brief's shaper until the owner answer
 | custom_lint | pub | 0.8.1 | Apache-2.0 | Licence is fine, but it is stale: it pins analyzer ^8, which conflicts with riverpod_generator 4, and riverpod_lint 3 no longer uses it. | not in `pubspec.yaml`; review |
 | golden_toolkit | pub | 0.15.0 | BSD-3-Clause | Discontinued and unlisted; its SDK constraint is below Dart 3. alchemist replaces it. | review |
 | lucide_icons | pub | 0.257.0 | MIT | Stale (2023), Dart 2 SDK constraint. | review |
-| lucide_icons_flutter | pub | 3.1.25 | MIT | A single-maintainer repackaging as an icon font, with Lucide's default 2 px stroke. The design system says "No icon font, no sprite sheet" ([ADR 0013](adr/0013-fonts-and-icons.md)). | review |
+| lucide_icons_flutter | pub | 3.1.25 | MIT | A single-maintainer repackaging as an icon font, with Lucide's default 2 px stroke. The design system says "No icon font, no PNG icons, no sprite sheet." ([ADR 0013](adr/0013-fonts-and-icons.md)). | review |
 | google_fonts | pub | not checked | not checked | Fetches fonts at run time, a network use the brief does not allow ([ADR 0015](adr/0015-privacy-and-network.md)). | **Proposed** pub deny list in CI from M1 step 2 ([section 8](#8-dart-licence-check)) |
 | @ibm/plex npm packages | npm | 6.4.1 | OFL-1.1 | They hold only CSS, SCSS, WOFF and WOFF2 files (no TTF or OTF) and run an IBM telemetry script on install. Fonts come from IBM's GitHub releases instead. | review |
 
@@ -377,7 +380,8 @@ Fonts follow [ADR 0013](adr/0013-fonts-and-icons.md). The rules:
 - The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)). The design's runtime Google Fonts
   `@import` is never used by the app ([G07](DESIGN_GAPS.md#g07)).
 - Each family's `LICENSE.txt` ships next to its files in `app/assets/fonts/` and is registered with
-  `LicenseRegistry`. The texts are missing from the design export ([G08](DESIGN_GAPS.md#g08)).
+  `LicenseRegistry`. The texts are missing from the design export ([G08](DESIGN_GAPS.md#g08));
+  [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) carries them for the copies inside `design/`.
 - A download script with pinned SHA-256 values fetches the release zips in M1.
 - The licence opens with `Copyright © 2017 IBM Corp. with Reserved Font Name "Plex"`, followed by the
   full SIL Open Font License 1.1.
@@ -399,10 +403,10 @@ Fonts follow [ADR 0013](adr/0013-fonts-and-icons.md). The rules:
 | Item | Value |
 |---|---|
 | What ships | The design's exact path data for **229 icons**, written by `tools/icons` as SVG assets in `app/assets/icons/`, drawn at a 1.5 px stroke ([ADR 0013](adr/0013-fonts-and-icons.md)). |
-| Where they come from | 145 from `ICON_PATHS` in the design bundle (all match Lucide 0.460.0) and 84 from `ds-additions/fm-icons.js`: 77 match Lucide 0.460.0; bell, grid-2x2 and funnel match Lucide 1.56.0; expand, paperclip, file-signature and ellipse match no Lucide release ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)). |
-| Provenance | `app/assets/icons/PROVENANCE.md`, generated: "Lucide 0.460.0", "Lucide 1.56.0" or "Ferman design" per glyph. The four "Ferman design" glyphs are project work and stay marked pending until the design re-export settles them ([Q11](QUESTIONS.md#q11)). |
+| Where they come from | 145 from `ICON_PATHS` in the design bundle (all match Lucide 0.460.0) and 84 from `ds-additions/fm-icons.js`: 77 match Lucide 0.460.0; bell, grid-2x2 and funnel match Lucide 1.56.0; paperclip matches 0.469.0 and 0.500.0; expand matches 0.500.0; file-signature matches 0.263.0 and 0.300.0; only ellipse matches no Lucide release ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)). |
+| Provenance | `app/assets/icons/PROVENANCE.md`, generated: the Lucide release each glyph matches ("Lucide 0.460.0", "Lucide 1.56.0", "Lucide 0.500.0" or "Lucide 0.300.0"), or "Ferman design" for ellipse alone. That one glyph is project work and stays marked pending until the design re-export settles it ([Q11](QUESTIONS.md#q11)). |
 | Licences | Lucide: ISC. Icons derived from Feather: MIT (Cole Bemis). |
-| Ship with the app | Both Lucide licence files, checked on 2026-10-14: the 0.460.0 `LICENSE` (ISC; its copyright line names the Feather portions as MIT) and the 1.56.0 `LICENSE` (ISC, plus the list of Feather-derived icons and the full MIT text). |
+| Ship with the app | Both Lucide licence files, checked on 2026-10-14: the 0.460.0 `LICENSE` (ISC; its copyright line names the Feather portions as MIT; byte-identical to the files of 0.263.0, 0.300.0, 0.469.0 and 0.500.0, so one copy covers the glyphs from those releases) and the 1.56.0 `LICENSE` (ISC, plus the list of Feather-derived icons and the full MIT text). |
 | Not used | An icon font, lucide_icons_flutter, lucide_icons ([section 4](#4-rejected)). |
 
 ### 5.4 Other notices
@@ -411,7 +415,7 @@ Fonts follow [ADR 0013](adr/0013-fonts-and-icons.md). The rules:
 |---|---|---|---|
 | Ferman itself | Apache-2.0 | Shown as Apache-2.0. The design says GPL-3.0 in a1-2c and a11-5; the app does not copy that ([G13](DESIGN_GAPS.md#g13)). | M1 |
 | Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. | M1 |
-| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | **Pending owner approval.** If approved, its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
+| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | **Pending owner approval** ([Q17](QUESTIONS.md#q17)). If approved, its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
 | Rust crates | per crate | Generated by cargo-about. | M4 |
 | PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry`. | M1 to M4 |
 
@@ -475,6 +479,7 @@ allow = [
 # A licence joins this list only through an ADR the owner approves.
 exceptions = [
   # Reachable only from the separate fuzz/ workspace, which is checked with this file and never ships.
+  # Pending owner approval (Q17).
   { crate = "libfuzzer-sys", allow = ["NCSA"] },
   # Per crate, after the owner's review and an entry in DEPENDENCIES.md, for example:
   # { crate = "option-ext", allow = ["MPL-2.0"] },   # only if dirs or dirs-sys appears
@@ -534,8 +539,8 @@ Notes:
 
 Proposed — added in M1. cargo-deny does not see pub packages, so CI runs very_good_cli with the same
 allow-list. MPL-2.0 is not on it. The M1 graph has no MPL-2.0 package, so M1 runs the check without
-`--skip-packages`. If the owner approves `dbus` (pending, [section 3.11](#311-flutter-and-dart-packages)),
-`--skip-packages=dbus` is added in the same commit as desktop_drop in M2, so any other MPL-2.0 package
+`--skip-packages`. If the owner approves `dbus` (pending [Q17](QUESTIONS.md#q17),
+[section 3.11](#311-flutter-and-dart-packages)), `--skip-packages=dbus` is added in the same commit as desktop_drop in M2, so any other MPL-2.0 package
 still fails the check. The flags were checked against very_good_cli's documentation on 2026-10-14. The
 default dependency type is `direct-main` only, so the types are set explicitly.
 
@@ -566,8 +571,8 @@ an HTTP client, a font downloader such as google_fonts, or an analytics or crash
 | **Slow-moving crates and packages.** unicode-bidi (last release 2024-12), ttf-parser (2024-11), threadpool through flutter_rust_bridge (2020), freezed_annotation (2025-07), file_selector (2025-11), atomicwrites (2024). | Unfixed bugs; future unmaintained advisories. | Prefer maintained alternatives where they exist (ICU4X bidi data, read-fonts instead of ttf-parser); avoid atomicwrites and freezed; watch advisories. | M1 onwards |
 | **flutter_rust_bridge version lockstep.** The crate, the Dart package and the codegen must match exactly; 2.14 is in beta. | A mismatch fails at run time or generates wrong bindings. | Pin all three to 2.13.0; a CI check compares them; generated code is committed and regenerated in CI; all three move in one commit. | M1 |
 | **allo-isolate licence metadata.** Declared through a licence file, shown as "non-standard". | cargo-deny cannot classify it. | `[[licenses.clarify]]` with the file hash; a changed file fails the check, so every FRB upgrade re-checks it. | M1 |
-| **desktop_drop pulls MPL-2.0 `dbus` on every platform** (unconditional import; used only on Linux at run time). | A notice obligation in every desktop build; a licence outside the allow-list. | Pending owner approval: ask before desktop_drop lands ([brief §9](BRIEF.md)). If approved, ship its notice with the source location in every build that includes desktop_drop, and skip it by name in the pub check so no other MPL-2.0 package passes. If not, use another package or a platform channel. | M2 |
-| **Swatinem/rust-cache is LGPL-3.0.** | None for users: it runs only in CI and is never distributed. | Pin by SHA; never vendor or copy its code. | M1 |
+| **desktop_drop pulls MPL-2.0 `dbus` on every platform** (unconditional import; used only on Linux at run time). | A notice obligation in every desktop build; a licence outside the allow-list. | Pending owner approval ([Q17](QUESTIONS.md#q17)): ask before desktop_drop lands ([brief §9](BRIEF.md)). If approved, ship its notice with the source location in every build that includes desktop_drop, and skip it by name in the pub check so no other MPL-2.0 package passes. If not, use another package or a platform channel. | M2 |
+| **Swatinem/rust-cache is LGPL-3.0.** | None for users: it runs only in CI and is never distributed. | Pending [Q17](QUESTIONS.md#q17); until then actions/cache or no cache. If approved: pin by SHA; never vendor or copy its code. | M1 |
 | **Plex Reserved Font Name.** | Shipping a modified or subset Plex file under the "Plex" name would breach the licence. | Ship IBM's unmodified TTFs only ([section 5.2](#52-fonts)). | M1 |
 | **Minimum Rust version rises.** 1.88 for the core set, 1.92 with krilla, 1.94 with rten 0.27. | Builds fail on older toolchains. | The toolchain is pinned (1.99); `rust-version` is raised in the same commit as the crate that needs it. | M1 onwards |
 | **Lucide naming drift.** The design pinned Lucide 0.460.0; the current release is 1.56.0. | Icon names may differ between releases. | Ferman ships path data, not names; the provenance table records the source version of each glyph. | M1 |

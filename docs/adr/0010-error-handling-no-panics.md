@@ -43,7 +43,7 @@ Enforced in `[workspace.lints]` from M1:
 | `clippy::todo`, `clippy::unimplemented` | deny | all library crates |
 | `clippy::indexing_slicing` | deny | parser and decoder modules (lexer, xref, filters, CMaps, font parsing, interpreter); warn elsewhere where it is practical |
 | `clippy::arithmetic_side_effects` | deny | parser and decoder modules; sizes and offsets from files use checked arithmetic |
-| `unsafe_code` | forbid | every crate root; a reviewed, documented exception only if ferman-render ever needs it |
+| `unsafe_code` | forbid; deny in ferman-api | every crate root except ferman-api. ferman-api allows unsafe code only on the FRB-generated module behind the `frb` feature, because that glue needs `extern "C"` exports and `unsafe` blocks and an inner `allow` cannot override `forbid` ([ARCHITECTURE.md](../ARCHITECTURE.md) section 8.1). A CI check fails on any other `allow(unsafe_code)`. Any further exception, for example in ferman-render, is documented and reviewed |
 
 - Tests may unwrap: `clippy.toml` sets `allow-unwrap-in-tests` and `allow-expect-in-tests`.
 - Invariants that "cannot fail" are still expressed as errors (`Internal` with context), not panics.
@@ -92,9 +92,12 @@ pub struct ApiError {
 - The engine logs with `tracing`, the app with a thin Dart logger, both to local rotating files in the
   app's log directory.
 - Logs never contain document text, typed characters, passwords or rendered content. File paths may
-  appear, because logs never leave the device.
+  appear in the local log files, because they help explain open and save failures. Ferman never sends a
+  log anywhere.
 - Nothing is uploaded. "Copy crash log" (a1-12) and "Show log files" (a11-1k) are the only ways a log
   leaves Ferman, and both are the user's own action ([ADR 0015](0015-privacy-and-network.md)).
+  **Proposed:** the copied crash log replaces the home folder, folder names and file names with
+  placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md) section 8.4).
 
 ### Dart side
 

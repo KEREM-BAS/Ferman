@@ -30,7 +30,8 @@ The brief fixes the answer: "Rust engine + one Flutter UI, connected with flutte
 
 - **Engine:** Rust, in `crates/` (layout in [ADR 0003](0003-crate-layout-and-api-boundary.md)). Memory
   safety by default; `unsafe` only inside dependencies such as pdfium-render, or as a documented,
-  reviewed exception.
+  reviewed exception. The FRB-generated Rust glue in ferman-api is that exception
+  ([ADR 0010](0010-error-handling-no-panics.md); [ARCHITECTURE.md](../ARCHITECTURE.md) section 8.1).
 - **UI:** one Flutter app in `app/`, with `macos`, `windows`, `linux` and `web` targets from M1 and
   `ios` and `android` added in P5 ([brief §3](../BRIEF.md), [§7](../BRIEF.md)).
 - **Bridge:** flutter_rust_bridge (FRB) v2, pinned to **2.13.0** for all three parts, which must match
@@ -106,8 +107,8 @@ The brief fixes the answer: "Rust engine + one Flutter UI, connected with flutte
 
 - [Brief](../BRIEF.md) §1, §2, §3, §7
 - [ADR 0003](0003-crate-layout-and-api-boundary.md), [ADR 0004](0004-lopdf-model-pdfium-renderer.md),
-  [ADR 0009](0009-threading-and-jobs.md), [ADR 0016](0016-dependency-licence-policy.md),
-  [ADR 0017](0017-testing-and-ci.md)
-- [ARCHITECTURE.md](../ARCHITECTURE.md), section 3 (API boundary)
+  [ADR 0009](0009-threading-and-jobs.md), [ADR 0010](0010-error-handling-no-panics.md),
+  [ADR 0016](0016-dependency-licence-policy.md), [ADR 0017](0017-testing-and-ci.md)
+- [ARCHITECTURE.md](../ARCHITECTURE.md), sections 3 (API boundary) and 8.1 (unsafe code)
 - [DEPENDENCIES.md](../DEPENDENCIES.md) for versions and licences
 - [Q02](../QUESTIONS.md#q02), [Q03](../QUESTIONS.md#q03), [Q12](../QUESTIONS.md#q12)

@@ -94,7 +94,7 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 |---|---|---|---|---|---|
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete, pending owner approval | 0 | — |
 | M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Not started | 13 | M0 approval; [Q01](QUESTIONS.md#q01) and [Q03](QUESTIONS.md#q03) wanted (a marked placeholder and the proposal are allowed) |
-| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07) |
+| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q17](QUESTIONS.md#q17) (desktop_drop and `fuzz/`) |
 | M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q04](QUESTIONS.md#q04), [Q07](QUESTIONS.md#q07), [Q09](QUESTIONS.md#q09) |
 | M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3 |
 | M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q15](QUESTIONS.md#q15) |
@@ -225,11 +225,11 @@ without writing application code (brief §8).
 | docs/ROADMAP.md | this document |
 | [docs/PROGRESS.md](PROGRESS.md) | milestone checklist and session log |
 | [docs/DEPENDENCIES.md](DEPENDENCIES.md) | licence policy, planned dependencies per milestone with versions and licences, bundled assets, proposed `deny.toml` |
-| [docs/DESIGN_GAPS.md](DESIGN_GAPS.md) | 60 verified gaps and conflicts, G01 to G60, each with the option chosen |
-| [docs/QUESTIONS.md](QUESTIONS.md) | 16 questions for the owner, Q01 to Q16 |
+| [docs/DESIGN_GAPS.md](DESIGN_GAPS.md) | 61 verified gaps and conflicts, G01 to G61 (G61 from the review of the documents), each with the option chosen |
+| [docs/QUESTIONS.md](QUESTIONS.md) | 17 questions for the owner, Q01 to Q17 |
 | [docs/BACKLOG.md](BACKLOG.md) | entry format only; empty until M1 disables its first feature |
 | [CLAUDE.md](../CLAUDE.md), [.claude/rules/rust.md](../.claude/rules/rust.md), [.claude/rules/flutter.md](../.claude/rules/flutter.md) | session rules, repo map, definition of done; path-scoped Rust and Flutter rules |
-| [README.md](../README.md), [LICENSE](../LICENSE), [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md), [SECURITY.md](../SECURITY.md), `.gitignore` | community files; Apache-2.0 licence text |
+| [README.md](../README.md), [LICENSE](../LICENSE), [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md), [SECURITY.md](../SECURITY.md), [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), `.gitignore` | community files; Apache-2.0 licence text; licence texts for the third-party material inside `design/` |
 
 The brief asks for empty DESIGN_GAPS.md and QUESTIONS.md files. During planning the owner chose to
 fill them with the verified M0 findings instead. BACKLOG.md stays an empty template.
@@ -255,8 +255,12 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
   code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01 and Q03 are
   wanted before M1 step 2; until then a marked placeholder (Q01) and the proposal (Q03) are used.
   Both are final before M5; Q02 is needed before M5.
-- [ ] Proposed ADRs (0007, 0009, 0013 in part, 0018) are approved, changed or rejected, or carried
-  into M1 as open questions with the safest option in force.
+- [ ] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
+  0008, and the licence exceptions in [Q17](QUESTIONS.md#q17) are approved, changed or rejected, or
+  carried into M1 as open questions with the safest option in force.
+- [ ] The owner enables GitHub private vulnerability reporting, which [SECURITY.md](../SECURITY.md)
+  and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) rely on (see
+  [PROGRESS.md](PROGRESS.md#owner-actions)).
 
 ## 5. M1: foundations
 
@@ -264,7 +268,8 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 identifier and [Q03](QUESTIONS.md#q03) minimum OS versions are wanted before step 2 (until then a
 marked placeholder and the proposal are used; both are final before M5); [Q08](QUESTIONS.md#q08)
 before Hebrew and Devanagari fonts ship in step 5; [Q12](QUESTIONS.md#q12) before the Linux title
-bar in step 8; [Q14](QUESTIONS.md#q14) for the copyright line.
+bar in step 8; [Q17](QUESTIONS.md#q17) for the Swatinem/rust-cache CI action (until then
+actions/cache or no cache); [Q14](QUESTIONS.md#q14) for the copyright line.
 
 ### Goal
 
@@ -341,7 +346,7 @@ Versions and licences were verified on 2026-10-13; [DEPENDENCIES.md](DEPENDENCIE
 | Rust (dev) | proptest 1.12, insta 1.49 | MIT OR Apache-2.0; Apache-2.0 | property and snapshot tests |
 | Rust | argument parser for ferman-cli | to check | chosen and licence-checked in step 1 |
 | Rust | pdfium-render 0.9.4 | MIT OR Apache-2.0 | default features off; `pdfium_7881` and `thread_safe` on |
-| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881`, non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive; the `licences/` folder ships with the app |
+| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881`, non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
 | Dart | flutter_riverpod 3.4, riverpod_annotation 4, riverpod_generator 4, build_runner 2.16 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)) |
 | Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin; custom_lint is not used |
 | Dart | go_router 18, very_good_analysis 11 | BSD-3-Clause; MIT | navigation; lints |
@@ -351,7 +356,7 @@ Versions and licences were verified on 2026-10-13; [DEPENDENCIES.md](DEPENDENCIE
 | Dart | flutter_rust_bridge 2.13.0 | MIT | Dart side of the bridge |
 | Dart | shared_preferences 2.5 | BSD-3-Clause | only if step 9 chooses it for settings |
 | Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24 LTS, Playwright 1.64, cargo-deny 0.20, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0 | various permissive | never shipped |
-| CI | actions/checkout, dtolnay/rust-toolchain, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
+| CI | actions/checkout, dtolnay/rust-toolchain, subosito/flutter-action, EmbarkStudios/cargo-deny-action, and a Cargo cache: Swatinem/rust-cache only if [Q17](QUESTIONS.md#q17) approves its LGPL-3.0 licence, otherwise actions/cache (MIT) or none | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
 | Assets | IBM Plex TTFs | OFL-1.1 | unmodified files, Reserved Font Name "Plex" ([ADR 0013](adr/0013-fonts-and-icons.md)) |
 | Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for non-Lucide glyphs |
 | Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, the font families the export loads from Google Fonts | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0 | vendored for `tools/design-refs`; licences checked before vendoring; never in the app |
@@ -473,12 +478,13 @@ bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06
   ADR 0013 and the right locale per text style, checked by hand on R1, R2 and a Linux machine and
   recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms, [G07](DESIGN_GAPS.md#g07)).
 - [ ] Exactly 229 icons are generated; a test fails if the count or any path differs from the design
-  source. The provenance table names Lucide 0.460.0, Lucide 1.56.0 or "Ferman design" for each of
-  the 84 added glyphs ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)).
+  source. The provenance table names the matching Lucide release (0.460.0, 1.56.0, 0.500.0 or
+  0.300.0) for each of the 84 added glyphs, and "Ferman design" for ellipse alone
+  ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)).
 - [ ] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
   the icons the design flips.
-- [ ] The app never fetches fonts: CI fails if `pubspec.lock` contains google_fonts or another font
-  downloader.
+- [ ] **Proposed** (the step 2 network deny list): the app never fetches fonts; CI fails if
+  `pubspec.lock` contains google_fonts or another font downloader.
 - [ ] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
   ([G08](DESIGN_GAPS.md#g08)).
 
@@ -498,8 +504,9 @@ its licence; one PNG per board in `build/design-refs/` (gitignored).
 
 #### Step 7. Component library
 
-Deliverables: `app/lib/design/components/` with one widget per DS component (the 45 components plus
-the internal Field, Popover and Scrim) and the DS additions as widgets (FmNumber, document tabs,
+Deliverables: `app/lib/design/components/` with one widget per visual DS component (the 42 visual entries of the 45 in the
+manifest, plus the internal Field, Popover and Scrim; the data constants `ICON_PATHS`, `FERMAN_MODES` and
+`ANNOTATION_TOOLS` become the generated `IconName`, `FermanMode` and `AnnotationTool` enums) and the DS additions as widgets (FmNumber, document tabs,
 window chrome, thumbnail badges and legend, date-picker popover, mention list, status-bar save
 indicator); a component spec of props, variants and states taken from `_ds_bundle.js` and
 `_adherence.oxlintrc.json` ([G02](DESIGN_GAPS.md#g02)); a debug-only gallery route for review.
@@ -675,9 +682,15 @@ E1 to E8, plus:
   tile queue and the document actors are built on it. ADR 0009 is Proposed and has no question of its
   own; it is reviewed with M0. If it is not approved when M1 ends, only the brief's rule applies
   (nothing heavy on the UI thread), and M2 stops for the owner's decision before step 1.
-- [Q07](QUESTIONS.md#q07), native pickers. ADR 0018 is Proposed; until the owner answers, "Open
-  file…" stays disabled with a BACKLOG entry, and M2 opens files through drag and drop, recent files
-  and "Open with".
+- [Q07](QUESTIONS.md#q07), native pickers. ADR 0018 is Proposed. If the owner has not answered when
+  M2 starts, "Open file…" and ⌘O or Ctrl+O use the OS-native open picker as the safest option
+  ([brief §9](BRIEF.md)), as ADR 0018, Q07 and [G26](DESIGN_GAPS.md#g26) say, and the M2 summary
+  flags it for approval. Drag and drop, recent files and "Open with" work alongside it.
+- [Q17](QUESTIONS.md#q17), licence exceptions. desktop_drop (which pulls MPL-2.0 `dbus` on every
+  platform) and the `fuzz/` workspace (NCSA `libfuzzer-sys`) are added only after the owner approves
+  them. If Q17 is still open when M2 starts, drag and drop uses another permissively licensed package
+  or a platform channel, and the fuzz criterion waits for the answer with a BACKLOG entry, flagged in
+  the M2 summary.
 - [Q13](QUESTIONS.md#q13), document JavaScript policy. The non-V8 PDFium build already runs no
   scripts.
 
@@ -695,8 +708,9 @@ Turkish, and document properties, in several tabs at once.
 
 ### Deliverables
 
-- PDFium (fetched by `tools/pdfium` since M1) bundled in every desktop build with its `licences/`
-  folder; `ferman-render` with the full render thread, tile queue and caches.
+- PDFium (fetched by `tools/pdfium` since M1) bundled in every desktop build with its `licenses/`
+  folder and the packager's `LICENSE`; `ferman-render` with the full render thread, tile queue and
+  caches.
 - `ferman-core` open path: lopdf model, passwords, structure scan, repair, the two-parser check,
   resource limits; the first cargo-fuzz targets in `fuzz/`.
 - The read path of brief §4: content-stream lexer and interpreter for extraction, encodings,
@@ -747,8 +761,8 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   Damaged, Unsupported, ResourceLimit).
 - **Platform:** file associations and "Open with" on macOS; a file path on the command line on Windows
   and Linux (the Windows ProgID is registered by the installer in M5); forwarding a second launch to
-  the running instance; native open picker (only once ADR 0018 is approved); drag and drop;
-  default-app prompt.
+  the running instance; native open picker ([ADR 0018](adr/0018-native-file-pickers.md); the safest
+  option while [Q07](QUESTIONS.md#q07) is open); drag and drop; default-app prompt.
 
 ### New dependencies
 
@@ -761,8 +775,8 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 | Rust | unicode-normalization 0.1, unicode-segmentation 1.13, unicode-bidi 0.3 | MIT OR Apache-2.0 | search folding, word boundaries, logical order for right-to-left text |
 | Rust | icu_casemap 2.3, icu_collator 2.3 | Unicode-3.0 | Turkish-aware search folding; locale sorting of recent files; binary size checked |
 | Rust (dev) | criterion 0.8, tempfile 3.27 | Apache-2.0 OR MIT; MIT OR Apache-2.0 | benchmarks; test files |
-| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA allowed for that crate only |
-| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on Linux, listed in the notices |
+| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, pending [Q17](QUESTIONS.md#q17) |
+| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); added only if [Q17](QUESTIONS.md#q17) approves it, and its notice then ships in every build |
 
 ### Steps
 
@@ -819,8 +833,9 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 - [ ] Outline: nested bookmarks, expand and collapse, the current section tinted, click to navigate
   (`a2-3o`, `a2-3a`, `a2-3x`).
 - [ ] Attachments: list with name, size and date; "Save attachment as…" writes the embedded file to a
-  location the user picks through the native save picker (`a2-3b`); until ADR 0018 is approved it is
-  disabled with the future-version tooltip and listed in BACKLOG.md. Embedded files are never opened
+  location the user picks through the native save picker (`a2-3b`,
+  [ADR 0018](adr/0018-native-file-pickers.md)); if Q07 is still open, this follows the same brief §9
+  interim as the open picker and the M2 summary flags it. Embedded files are never opened
   automatically.
 - [ ] Layers (Proposed for M2): optional content groups listed with show and hide; hiding a layer
   re-renders without it (`a2-3c`).
@@ -834,9 +849,12 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   normalisation (100%), including `report-ar` in logical order and `letter-ja-vertical`.
 - [ ] Turkish folding: "kira" finds "KİRA" and "Kira" in `kira-tr`; "ılık" finds "ILIK"; "istanbul"
   finds "İSTANBUL" (`a2-4a`).
-- [ ] "Ignore accents and dotted/dotless i" (`a2-4a`) is on by default for Turkish documents, as
-  designed: "i" finds "İ", "ı" and "î"; "c" finds "ç"; "kira" finds "KİRA"; "sozlesme" finds
-  "sözleşme" and "muller" finds "Müller".
+- [ ] "Ignore accents and dotted/dotless i" (`a2-4a`) is on by default for every document, whatever
+  its language, and the last sentence of its description reads "On by default."
+  ([G61](DESIGN_GAPS.md#g61)). With it on, "i" finds "İ", "ı" and "î"; "c" finds "ç"; "kira" finds
+  "KİRA"; "sozlesme" finds "sözleşme".
+- [ ] With default settings, "muller" finds "Müller" in `mietvertrag-de` and "istanbul" finds
+  "İSTANBUL" in `kira-tr` ([G61](DESIGN_GAPS.md#g61)).
 - [ ] Arabic words in `report-ar` and German words with ß in `mietvertrag-de` are found.
 - [ ] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
   moves results to the sidebar grouped by page with snippets (`a2-4b`, `a2-3e`); no-results,
@@ -849,10 +867,10 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 
 #### Step 6. Files, tabs and properties
 
-- [ ] If [ADR 0018](adr/0018-native-file-pickers.md) is approved: "Open file…" and ⌘O or Ctrl+O
-  show the OS-native open picker, filtered to PDF ([G26](DESIGN_GAPS.md#g26)).
-- [ ] Otherwise: "Open file…" and ⌘O or Ctrl+O are disabled with the future-version tooltip and
-  listed in BACKLOG.md ([Q07](QUESTIONS.md#q07)).
+- [ ] "Open file…" and ⌘O or Ctrl+O show the OS-native open picker, filtered to PDF
+  ([G26](DESIGN_GAPS.md#g26), [ADR 0018](adr/0018-native-file-pickers.md)). If
+  [Q07](QUESTIONS.md#q07) is still open, this is the safest option (brief §9), and the M2 summary
+  flags it for approval.
 - [ ] Drag and drop onto the start screen and the tab strip opens each PDF in a tab (`a1-6`); a
   non-PDF file shows "Can't open yet" with the future-version tooltip ([G11](DESIGN_GAPS.md#g11),
   [G28](DESIGN_GAPS.md#g28)).
@@ -905,13 +923,14 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 [G30](DESIGN_GAPS.md#g30) tile loading and zoom states, [G31](DESIGN_GAPS.md#g31) unchecked
 signatures, [G32](DESIGN_GAPS.md#g32) right-to-left document order, [G33](DESIGN_GAPS.md#g33) layers
 (proposed for M2), [G34](DESIGN_GAPS.md#g34) locale formats, [G59](DESIGN_GAPS.md#g59) form page
-count.
+count, [G61](DESIGN_GAPS.md#g61) accent-insensitive search by default.
 
 ### Exit checks
 
 E1 to E8, plus:
 
-- [ ] The PDFium `licences/` folder is in the app bundle on all three systems and in the notices.
+- [ ] The PDFium `licenses/` folder and the packager's `LICENSE` are in the app bundle on all three
+  systems and in the notices.
 - [ ] Measured budgets are in PROGRESS.md; the CI calibration factor per runner is recorded
   ([ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets)).
 - [ ] If the single render thread misses a budget, the helper-process option is assessed and the
@@ -923,8 +942,8 @@ E1 to E8, plus:
 owner approves [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), the brief's rustybuzz stands,
 behind one internal trait so a switch touches one module); [Q09](QUESTIONS.md#q09) missing-glyph
 default; [Q08](QUESTIONS.md#q08) similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
-for the Save as location picker (until the owner approves ADR 0018, "Other location…" stays
-disabled, see step 8).
+for the Save as location picker (if it is still open, "Other location…" hands off to the OS-native
+save picker as the safest option, as ADR 0018 and G26 say, and the M3 summary flags it; see step 8).
 
 ### Goal
 
@@ -1110,15 +1129,16 @@ new text" is P2.
   read-only or permission denied, file locked by another app, rename failed, volume gone. Each leaves
   the original untouched, deletes the temp file, keeps the edits, and offers Save as
   ([G40](DESIGN_GAPS.md#g40)).
-- [ ] A file changed on disk since it was opened stops the save and shows Reload, Keep mine or Compare
-  first (`a11-7b`).
+- [ ] A file changed on disk since it was opened stops the save and shows the `a11-7b` choices
+  "Compare", "Keep mine" and "Reload".
 - [ ] Save states follow `f4`, `f4a` and `f4b`: Unsaved, Saving…, Saved ("Saved on this device ·
   14:32"), Couldn't save with Save still enabled for a retry ([G41](DESIGN_GAPS.md#g41)).
 - [ ] Save as (`a1-11`) collects the file name, location and options in a Ferman sheet; choosing a
-  drawn location in "Where" saves without a picker. If ADR 0018 is approved, "Other location…" hands
-  off to the OS-native save picker ([G26](DESIGN_GAPS.md#g26)); otherwise it is disabled with the
-  future-version tooltip and listed in BACKLOG.md ([Q07](QUESTIONS.md#q07)). PDF/A-2b and
-  web-optimised output stay disabled with the future-version tooltip.
+  drawn location in "Where" saves without a picker. "Other location…" hands off to the OS-native
+  save picker, and the sheet then shows the chosen folder ([G26](DESIGN_GAPS.md#g26),
+  [ADR 0018](adr/0018-native-file-pickers.md)); if [Q07](QUESTIONS.md#q07) is still open, this is
+  the safest option (brief §9) and the M3 summary flags it. The "PDF/A-2b, for archiving" and
+  "Optimized for web" formats stay disabled with the future-version tooltip.
 - [ ] "Optimize and clean" writes a full rewrite without earlier revisions or unreferenced objects and
   warns first on signed documents. Saving a repaired document (`a1-9`) always writes a full rewrite to
   a new file.
@@ -1395,8 +1415,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
 - [ ] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
   through every screen).
 - [ ] The licences screen lists every Rust crate (from cargo-about), every Dart package, the PDFium
-  `licences/` folder, every font and the icon notices; a test checks the count against
-  `cargo metadata` and `pubspec.lock`.
+  `licenses/` folder and the packager's MIT notice, every font and the icon notices; a test checks
+  the count against `cargo metadata` and `pubspec.lock`.
 - [ ] Print (Proposed): the OS print dialog opens with the document, and "Use system dialog…" is one
   click away.
 - [ ] Goldens for every M4 screen and every Settings pane in light and dark × en, tr and ar (S4).
@@ -1463,9 +1483,10 @@ manifests.
 
 4 boards.
 
-`a11-5` says "Free and open source under Apache-2.0", not GPL-3.0 ([G13](DESIGN_GAPS.md#g13)), names
-the copyright holder from [Q14](QUESTIONS.md#q14) (proposed: "The Ferman Authors"), and its
-"Licences" button opens the M4 notices screen.
+`a11-5` changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry,
+nothing locked." ([G13](DESIGN_GAPS.md#g13)); names the copyright holder from
+[Q14](QUESTIONS.md#q14) (proposed: "The Ferman Authors"), and its "Licences" button opens the M4
+notices screen.
 
 ### Engine capabilities and crates
 
@@ -1978,7 +1999,8 @@ risk first bites.
 | **IME and caret on a custom canvas**: CJK composition and dead keys break | M | M | `DeltaTextInputClient` from the first prototype; CJK and Turkish input in integration tests | M3 | [ARCHITECTURE.md §6.12](ARCHITECTURE.md#612-the-ui-side-of-editing) |
 | **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback; native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; ask for a re-export ([Q11](QUESTIONS.md#q11)) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
-| **Owner decisions pending**: Q01 to Q16 and the Proposed ADRs (0007, 0009, 0013 in part, 0018) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
+| **Owner decisions pending**: Q01 to Q17 and the Proposed ADRs (0007, 0009, 0013 in part, 0018) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
+| **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | M | M | ask before adding (brief §9); actions/cache or no cache meanwhile; desktop_drop and `fuzz/` added only after approval; if declined, another package or a platform channel for drag and drop | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
 | **OCR engine**: ocrs recognises Latin only and its model licence is unclear | H | M | decide [Q16](QUESTIONS.md#q16) before phase 3; Tesseract is the fallback | P3 | [Q16](QUESTIONS.md#q16) |
 | **Signature crates**: cms 0.3 is only a release candidate; rsa has an unpatched timing advisory | M | M | wait for cms 0.3.0 or pin the release candidate after review; sign through PKCS#11 or the OS keystore; rsa for verification only | P3 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Office conversion**: fidelity and the licences of any converter | H | M | an ADR before phase 3; fidelity report lists what was lost | P3 | — |

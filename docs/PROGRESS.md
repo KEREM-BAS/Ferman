@@ -17,11 +17,22 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 | Milestone | **M0, discovery and plan: documents complete, waiting for the owner's approval** |
 | Next | M1, foundations, once the owner approves M0. No application code is written before that (brief §8). |
 | Application code | none |
-| Open questions | 16 ([Q01](QUESTIONS.md#q01) to [Q16](QUESTIONS.md#q16)), including the three brief §8 requires: Q01 bundle identifier, Q02 code-signing publisher name, Q03 minimum OS versions |
-| Proposed ADRs | 0007, 0009, 0013 in part, 0018 (see [ADR status](#adr-status)) |
+| Open questions | 17 ([Q01](QUESTIONS.md#q01) to [Q17](QUESTIONS.md#q17)), including the three brief §8 requires: Q01 bundle identifier, Q02 code-signing publisher name, Q03 minimum OS versions |
+| Proposed ADRs | 0007, 0009, 0013 in part, 0018; also the proposed details in 0003, 0004, 0006 and 0008, and three licence exceptions in 0016 ([Q17](QUESTIONS.md#q17)) (see [ADR status](#adr-status)) |
 | Design gaps | 61 recorded: 45 Decided, 16 Needs owner, 0 Resolved |
 | Backlog | empty: nothing is disabled yet |
+| Owner actions | 2 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-14 |
+
+## Owner actions
+
+Things only the owner can do on GitHub. Each is ticked when done.
+
+- [ ] Enable private vulnerability reporting (in the repository's Settings, under Security in the
+  sidebar). [SECURITY.md](../SECURITY.md) and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) send
+  reports through the **Report a vulnerability** form, which GitHub leaves off until it is enabled.
+- [ ] Delete the old remote branch `claude/gracious-curie-uhjwhl` on GitHub. The M0 work now lives on
+  `m0-plan`; the session's git access was refused (HTTP 403) when it tried to delete the old branch.
 
 ## Milestone checklist
 
@@ -52,17 +63,17 @@ The seven items of brief §8:
   [ADRs 0001 to 0018](adr/README.md).
 - [x] 4. Planning and tracking files: [ROADMAP.md](ROADMAP.md), this file,
   [DEPENDENCIES.md](DEPENDENCIES.md), [DESIGN_GAPS.md](DESIGN_GAPS.md) (61 verified entries, filled at
-  the owner's request), [QUESTIONS.md](QUESTIONS.md) (16 questions, filled at the owner's request)
+  the owner's request), [QUESTIONS.md](QUESTIONS.md) (17 questions, filled at the owner's request)
   and [BACKLOG.md](BACKLOG.md) (empty template).
 - [x] 5. [CLAUDE.md](../CLAUDE.md) under 200 lines, with the path-scoped rules
   [.claude/rules/rust.md](../.claude/rules/rust.md) and
   [.claude/rules/flutter.md](../.claude/rules/flutter.md).
 - [x] 6. Community files: [README.md](../README.md), [LICENSE](../LICENSE) (Apache-2.0),
   [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md),
-  [SECURITY.md](../SECURITY.md) and [.gitignore](../.gitignore).
-- [ ] 7. Committed and pushed in Conventional Commits (see `git log`), and the summary and the
-  questions in [QUESTIONS.md](QUESTIONS.md) sent to the owner. Ticked only once the push and the
-  summary exist, together with the matching exit check in [ROADMAP.md](ROADMAP.md), section 4.
+  [SECURITY.md](../SECURITY.md), [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) (licence texts
+  for the third-party material inside `design/`) and [.gitignore](../.gitignore).
+- [x] 7. Committed and pushed to `m0-plan` in Conventional Commits (see `git log`), and the summary
+  and the questions in [QUESTIONS.md](QUESTIONS.md) sent to the owner on 2026-10-14.
 - [ ] The owner approves M0.
 
 ### M1 · Foundations
@@ -160,10 +171,11 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 
 **Questions and M1**
 
-[ROADMAP.md](ROADMAP.md) asks for Q01 and Q03 before M1 step 2. If they are not answered by then,
+[ROADMAP.md](ROADMAP.md) wants Q01 and Q03 before M1 step 2. If they are not answered by then,
 step 2 does not wait: it uses a marked placeholder for Q01 and the proposal for Q03, each with a
 BACKLOG entry, and both must be final before M5 (signing and release). Q02 is needed only for M5.
-Q04, Q05 and Q08 are needed during M1; until they are answered, M1 uses the defaults below.
+Q04, Q05, Q08 and the rust-cache part of Q17 are needed during M1; until they are answered, M1 uses
+the defaults below.
 
 | Question | Where M1 needs it | Until answered |
 |---|---|---|
@@ -176,6 +188,7 @@ Q04, Q05 and Q08 are needed during M1; until they are answered, M1 uses the defa
 | [Q11](QUESTIONS.md#q11) design re-export | step 7, component library | the `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` |
 | [Q12](QUESTIONS.md#q12) Linux chrome | step 8, title bar | system decorations with a BACKLOG entry |
 | [Q14](QUESTIONS.md#q14) copyright holder | app metadata, About | "The Ferman Authors" |
+| [Q17](QUESTIONS.md#q17) licence exceptions | step 1, CI cache | actions/cache (MIT) or no cache; desktop_drop and `fuzz/` wait for M2 and the answer |
 
 The design gaps to settle in M1 are listed in [ROADMAP.md](ROADMAP.md), section 5, under "Design
 gaps to settle in M1".
@@ -192,7 +205,10 @@ the ADRs that changed status here.
 | [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Proposed | the owner's M0 review |
 | [0013 fonts and icons](adr/0013-fonts-and-icons.md) | Accepted (brief) in part, Proposed in part | [Q08](QUESTIONS.md#q08) (Plex Sans Hebrew and Devanagari) |
 | [0018 native file pickers](adr/0018-native-file-pickers.md) | Proposed | [Q07](QUESTIONS.md#q07) |
-| All others, 0001 to 0017 | Accepted (brief) | — |
+| [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief), each with one Proposed detail | the owner's M0 review |
+| [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief), with one Proposed detail (`fsType`) | [Q09](QUESTIONS.md#q09) |
+| [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions and the reading of "GPL-compatible" pending | [Q17](QUESTIONS.md#q17) |
+| All others | Accepted (brief) | — |
 
 ## Measurements
 
@@ -210,3 +226,4 @@ Newest last. One row per session.
 | Date | Milestone | What happened | Commits |
 |---|---|---|---|
 | 2026-10-13 to 2026-10-14 | M0 | Read-only discovery of `design/`: all 223 boards inventoried (214 artboards and 9 fix boards), and 60 gaps and conflicts verified against the files; a 61st (G61, search defaults) came from the review of the documents against the brief. The brief saved verbatim as `docs/BRIEF.md`; the only change is that its repository-tree block is wrapped in a `text` code fence so it renders. Wrote the M0 documents: inventory, architecture, ADRs 0001 to 0018, roadmap, this file, dependencies, design gaps, questions, backlog, CLAUDE.md and the rules files, README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY and `.gitignore`. Removed the tracked `.DS_Store` and ignored it. `design/` unchanged; no application code. | see `git log` |
+| 2026-10-14 | M0 | Review pass over all M0 documents against the brief, the design and each other: 72 findings, all addressed. Main changes: the file-picker interim aligned with ADR 0018 everywhere; component names follow the design system, with `Fm` kept only for the `Fm*` building blocks; G61 (accent-insensitive search on by default for every document); Q17 (three licence exceptions and the reading of "GPL-compatible") and the sign-off sub-question in Q14; the PDFium licence files and the Lucide icon provenance re-checked against the upstream archives; [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) added with the OFL-1.1, ISC and MIT texts for the third-party material already in `design/`. At the owner's request the commits were rewritten without AI attribution and the branch was renamed to `m0-plan`. Deleting the old remote branch `claude/gracious-curie-uhjwhl` was refused by the session's git access (HTTP 403), so the owner deletes it on GitHub ([Owner actions](#owner-actions)). `design/` unchanged; no application code. | see `git log` |

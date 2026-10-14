@@ -15,7 +15,10 @@ the plan. [docs/PROGRESS.md](docs/PROGRESS.md) shows where the work stands.
 - **Edit text in place.** Click any text in any PDF and edit it like a Word document. Only the block
   you edit changes. The rest of the page stays exactly as it was.
 - **Free.** Nothing is locked behind a paywall.
-- **Private.** No account and no telemetry. Your documents never leave your device.
+- **Private.** No account and no telemetry. Your documents never leave your device. The one exception
+  is the optional AI assistant: if you turn it on with your own key for an online provider, only your
+  question and the parts of the open document needed to answer it go to that provider, and Ferman
+  says so before anything is sent. A local model sends nothing.
 - **Safe with your files.** Ferman saves through a temporary file and an atomic rename, and adds
   changes as an incremental update by default. A failed save never damages the original.
 - **Calm and fast.** Built for people who work with documents for hours: lawyers, accountants,
@@ -77,7 +80,7 @@ ferman/
 │                    questions, backlog
 ├── .claude/rules/   path-scoped working rules for the Rust and Flutter code
 ├── CLAUDE.md        working rules and commands for every coding session
-└── README.md  LICENSE  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
+└── README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 ```
 
 `design/` is the visual source of truth. Nobody edits it, and the app never ships or loads its HTML,
@@ -123,6 +126,7 @@ ferman/
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | How we treat each other |
 | [SECURITY.md](SECURITY.md) | How to report a vulnerability |
+| [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) | Licence texts for the third-party fonts and icons inside `design/` |
 
 ## Roadmap
 
@@ -164,9 +168,11 @@ Their licence texts will ship with the app and appear on its licences screen.
 [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) lists every dependency and asset with its licence.
 There is no app yet, so nothing is bundled yet.
 
-The design export in `design/` contains IBM Plex font subsets and icon path data that keep their own
-licences. Until the export carries them, the licence texts for this material are not in the
-repository; see [G08](docs/DESIGN_GAPS.md#g08) and [Q11](docs/QUESTIONS.md#q11).
+The design export in `design/` contains IBM Plex font subsets (SIL Open Font License 1.1) and icon
+path data from Lucide (ISC licence; icons derived from Feather are under the MIT licence). The export
+ships no licence files ([G08](docs/DESIGN_GAPS.md#g08)) and is never edited, so
+[THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) carries the full licence texts for this material.
+The app will ship its own licence files in `app/assets`.
 
 Copyright The Ferman Authors. The copyright holder's name is waiting for the maintainer's
 confirmation ([Q14](docs/QUESTIONS.md#q14)).

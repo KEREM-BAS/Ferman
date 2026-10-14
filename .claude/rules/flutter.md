@@ -16,7 +16,7 @@ These rules apply to the Flutter app, the token generator and the design-referen
 - Lints: very_good_analysis 11 plus riverpod_lint 3.1.9 as an analyzer plugin under `plugins:` in `analysis_options.yaml`. Do not add custom_lint.
 - Navigation: go_router 18. Modes, document tabs and sidebar tabs are state, not routes.
 - Goldens: alchemist. Do not use golden_toolkit (discontinued).
-- Desktop and assets: window_manager, desktop_drop, file_selector, flutter_svg. Localization: intl and flutter_localizations.
+- Desktop and assets: window_manager, desktop_drop (only once [Q17](../../docs/QUESTIONS.md#q17) approves its MPL-2.0 `dbus` dependency), file_selector, flutter_svg. Localization: intl and flutter_localizations.
 - flutter_rust_bridge 2.13.0, the same version as the Rust crate and the codegen.
 - No GetX in any form. No networking, font-downloading (google_fonts), analytics or crash-reporting packages.
 - Every new package goes into [DEPENDENCIES.md](../../docs/DEPENDENCIES.md) with its licence and passes `very_good packages check licenses`.
@@ -37,7 +37,7 @@ These rules apply to the Flutter app, the token generator and the design-referen
 
 - **State and navigation:** Riverpod with code generation; go_router.
 - **Design tokens:** `tools/tokens` reads the tokens in `design/` (`tokens/*.css` plus `ds-additions/fm-additions.css`, [G05](../../docs/DESIGN_GAPS.md#g05)) and generates `app/lib/design/tokens.g.dart`, exposed through a `ThemeExtension` ([ADR 0012](../../docs/adr/0012-design-token-pipeline.md)). Widgets read tokens only through that ThemeExtension. Never hardcode colours, sizes, radii or durations in widgets.
-- **Component library first:** before building screens, build the Ferman component library in `app/lib/design/components/`. It mirrors the design system 1:1: the same names, variants and states. Screens are built from it.
+- **Component library first:** before building screens, build the Ferman component library in `app/lib/design/components/`. It mirrors the design system 1:1: the same names, variants and states. Dart class names are the design-system names (`Button`, `IconButton`, …); only the `Fm*` building blocks such as `FmWindow` and `FmNumber` keep `Fm` ([ADR 0011](../../docs/adr/0011-flutter-state-navigation-components.md)). Screens are built from it.
 - **Dialogs and popups:** custom popup-style widgets from the design system. Never the default Material or Cupertino dialog implementations (`showDialog`, `AlertDialog`, `showCupertinoDialog`, `showModalBottomSheet`, `showDatePicker`, `SnackBar`, Material `Tooltip`, `PopupMenuButton`). No GetX.
 - **File pickers:** OS-native open, save and folder pickers through file_selector are the only proposed exception ([ADR 0018](../../docs/adr/0018-native-file-pickers.md), Proposed, [Q07](../../docs/QUESTIONS.md#q07)). Until the owner answers, M1 builds no picker and features that need one stay disabled with "Available in a future version". If M2 starts before an answer, the OS-native picker is used as the safest option ([brief §9](../../docs/BRIEF.md#9-how-to-work-in-every-later-session)) and flagged again in the M2 summary. All picker calls go through one `FilePickerService` with a fake for tests.
 - **Tabs:** never `TabBarView`. Mode tabs and sidebar tabs are custom segmented controls over an `IndexedStack`, which preserves their state. There are eight mode tabs: View, Edit, Comment, Fill & Sign, Organize, Convert, Protect, Tools ([G09](../../docs/DESIGN_GAPS.md#g09), [Q05](../../docs/QUESTIONS.md#q05)).

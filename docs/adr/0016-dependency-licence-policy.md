@@ -26,9 +26,11 @@ Enforce with cargo-deny and list every dependency with its licence in docs/DEPEN
   product, with a notice and an offer of their source.
 
 So in practice the rule is: **permissive licences, plus MPL-2.0 for unmodified dependencies after the
-owner's review**. The dependency check of 2026-10-13 found that the planned Rust graph (about 356 runtime
-crates) uses only MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Zlib and Unicode-3.0, or offers one
-of them inside an OR expression. Two anomalies: `allo-isolate` (from flutter_rust_bridge) declares its
+owner's review**. This reading of "GPL-compatible" is the project's, not the brief's wording;
+[Q17](../QUESTIONS.md#q17) asks the owner to confirm it, and until then this stricter reading applies.
+The dependency check of 2026-10-13 found that the planned Rust graph (about 356 runtime crates) uses
+only MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Zlib and Unicode-3.0, or offers one of them
+inside an OR expression. Two anomalies: `allo-isolate` (from flutter_rust_bridge) declares its
 licence as a file holding the Apache-2.0 text, and `libfuzzer-sys` adds NCSA for the vendored libFuzzer.
 On the Dart side, desktop_drop depends on `dbus` (MPL-2.0) on every platform: the import is
 unconditional, and it is used only on Linux at run time. Some crates are traps by name or by what they
@@ -39,7 +41,8 @@ libheif and FFmpeg bindings.
 Assets outside the package managers also carry licences: PDFium and its third-party code
 ([ADR 0004](0004-lopdf-model-pdfium-renderer.md)), IBM Plex (OFL-1.1), Lucide (ISC with the Feather MIT
 section) ([ADR 0013](0013-fonts-and-icons.md)), and possibly Homemade Apple (Apache-2.0). The design
-export ships none of their licence texts ([G08](../DESIGN_GAPS.md#g08)).
+export ships none of their licence texts ([G08](../DESIGN_GAPS.md#g08)); the repository carries them for
+the copies inside `design/` in [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICES.md).
 
 ## Decision
 
@@ -134,11 +137,11 @@ it is skipped by name and listed in DEPENDENCIES.md, so any other MPL package st
 
 ### Enforcement: assets
 
-PDFium (with its `LICENSE` and third-party licence folder), the IBM Plex families, the Lucide icons and
-any other bundled font are listed by hand in DEPENDENCIES.md and registered with Flutter's
-`LicenseRegistry`. From M4, cargo-about generates the Rust notices for the licences screen, and every
-release from M5 bundles its output; together they feed the third-party notices screen
-([G14](../DESIGN_GAPS.md#g14)).
+PDFium (the archive's `licenses/` folder, including `licenses/pdfium.txt`, and the packager's MIT
+`LICENSE`), the IBM Plex families, the Lucide icons and any other bundled font are listed by hand in
+DEPENDENCIES.md and registered with Flutter's `LicenseRegistry`. From M4, cargo-about generates the
+Rust notices for the licences screen, and every release from M5 bundles its output; together they feed
+the third-party notices screen ([G14](../DESIGN_GAPS.md#g14)).
 
 ### Process
 
@@ -168,7 +171,8 @@ release from M5 bundles its output; together they feed the third-party notices s
 - Some useful libraries are out of reach (MuPDF, poppler, Ghostscript, LGPL codecs). Ferman relies on
   PDFium and Rust crates instead.
 - The policy is stricter than a literal reading of "GPL-compatible". That is deliberate: it keeps the
-  brief's Apache-2.0 licence intact. The owner can relax it through an ADR.
+  brief's Apache-2.0 licence intact. The owner is asked to confirm it in Q17 and can relax it through
+  an ADR.
 - Licence checks need maintenance: clarify hashes, exceptions and the Dart skip list change with
   upgrades.
 

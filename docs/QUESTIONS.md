@@ -27,7 +27,7 @@ Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture
   [DESIGN_GAPS.md](DESIGN_GAPS.md) entries (from Needs owner to Decided or Resolved), and
   [ROADMAP.md](ROADMAP.md), [DEPENDENCIES.md](DEPENDENCIES.md) or [ARCHITECTURE.md](ARCHITECTURE.md)
   where they mention the question.
-- New questions get the next free id, Q17 onwards. Ids are never reused, so links stay valid.
+- New questions get the next free id, Q18 onwards. Ids are never reused, so links stay valid.
 
 ### Status values
 
@@ -74,9 +74,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q11](#q11) | Design re-export and fixes, or DESIGN_GAPS decisions as final | none blocked; M1 gains most | Open |
 | [Q12](#q12) | Linux packaging formats and window chrome | M1 step 8; M5 | Open |
 | [Q13](#q13) | Document JavaScript is never executed | M2 | Open |
-| [Q14](#q14) | Copyright holder "The Ferman Authors" | M1; final before M5 | Open |
+| [Q14](#q14) | Copyright holder "The Ferman Authors"; commit sign-off | M1; final before M5 | Open |
 | [Q15](#q15) | Update check: endpoint and payload | M5 | Open |
 | [Q16](#q16) | OCR engine | P3 | Open |
+| [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache, optional); M2 | Open |
 
 ## Questions
 
@@ -321,7 +322,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 
 ### Q09 · Missing-glyph default as designed
 
-- **Question:** Is the design's default for a character the font cannot draw the right one?
+- **Question:** Is the design's default for a character the font cannot draw the right one? And, as
+  a smaller detail proposed in ADR 0006: may Ferman stop reusing the glyphs of an embedded font whose
+  OS/2 `fsType` allows at most preview and print?
 - **Why it matters:** Brief §4: when an edit needs a glyph the embedded font lacks (for example ğ,
   ş or İ in a subset font), Ferman (1) uses the embedded glyph if present, (2) takes it from the
   same font if that font is installed, re-subsets and embeds it, and (3) otherwise offers similar
@@ -330,12 +333,18 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   once, the panel says so once and marks the character, and "Choose a font…" and "Keep as is" stay
   available. The other settings are "Ask each time" and "Keep the original font and mark the
   character". Ferman reads the default as compliant, because it is never silent, but "offer" could
-  also mean "ask first".
+  also mean "ask first". The OpenType specification expects documents with preview-and-print fonts
+  to be opened read-only. [ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md) proposes that
+  editing text set in such an embedded font does not reuse its glyphs (step 1); step 2 applies only
+  if the installed copy allows embedding; otherwise step 3 runs, with the reason shown. Text in other
+  fonts stays editable, and font programs without an OS/2 table are not restricted.
 - **Options:** (a) the design's default, "Use a similar font and say so"; (b) "Ask each time" as the
-  default; (c) "Keep the original font and mark the character" as the default.
-- **Proposal:** (a).
+  default; (c) "Keep the original font and mark the character" as the default. For the `fsType`
+  detail: (i) as proposed; (ii) reuse embedded glyphs whatever `fsType` says.
+- **Proposal:** (a), and the `fsType` detail as proposed (i).
 - **Meanwhile:** (a), with step 2 always tried first
-  ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)).
+  ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)). No text is edited before M3, so the
+  `fsType` detail has no effect until then.
 - **Needed by:** M3.
 - **Status:** Open
 - **Related:** [G36](DESIGN_GAPS.md#g36), [G37](DESIGN_GAPS.md#g37),
@@ -399,7 +408,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Meanwhile:** the DESIGN_GAPS decisions stand. The `Fm*` building blocks, `_ds_bundle.js` and
   `_adherence.oxlintrc.json` are the source for components. Ferman builds undrawn states from
   existing components and records them in goldens. A re-export replaces `design/` only through a
-  change you make or approve (brief §9).
+  change you make or approve (brief §9). The repository already carries the OFL-1.1 (IBM Plex), ISC
+  (Lucide) and MIT (Feather) texts for the third-party material inside `design/` in
+  [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), outside `design/`. The app ships its own
+  licence files in `app/assets` either way (brief §2).
 - **Needed by:** no milestone is blocked. M1 (component library and shell) gains most from an early
   answer.
 - **Status:** Open
@@ -460,20 +472,24 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 
 <a id="q14"></a>
 
-### Q14 · Copyright holder
+### Q14 · Copyright holder and commit sign-off
 
-- **Question:** Should the copyright line read "Copyright The Ferman Authors"?
+- **Question:** Should the copyright line read "Copyright The Ferman Authors"? And should every
+  commit carry a DCO 1.1 `Signed-off-by:` line, enforced by a CI check from M1?
 - **Why it matters:** The line appears in the About screen (a11-5), in the app's metadata (the
   macOS bundle and the Windows file properties), in installers and in notice files. With "The
   Ferman Authors", every contributor keeps the copyright in their own contribution and licenses it
   under Apache-2.0 (inbound equals outbound, no contributor licence agreement), and the git history
-  records who the authors are.
+  records who the authors are. The Developer Certificate of Origin lets each contributor certify
+  that they wrote a change or have the right to submit it under Apache-2.0.
+  [CONTRIBUTING.md](../CONTRIBUTING.md) proposes it; without a CI check it stays optional and uneven.
 - **Options:** (a) "The Ferman Authors"; (b) your legal name, with contributors credited; (c) a
-  future organisation.
-- **Proposal:** (a).
+  future organisation. Sign-off: (i) required from M1, with a CI check; (ii) welcome but not
+  required; (iii) not used.
+- **Proposal:** (a), and sign-off (i).
 - **Meanwhile:** "The Ferman Authors" in the documents. The LICENSE file is the unmodified
-  Apache-2.0 text and needs no name.
-- **Needed by:** M1 (app metadata and About); final before M5.
+  Apache-2.0 text and needs no name. Sign-off is welcome but not required, and CI does not check it.
+- **Needed by:** M1 (app metadata, About and the sign-off check); final before M5.
 - **Status:** Open
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
   [CONTRIBUTING.md](../CONTRIBUTING.md), [LICENSE](../LICENSE)
@@ -526,4 +542,44 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Status:** Open
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md), [DEPENDENCIES.md](DEPENDENCIES.md),
   [ROADMAP.md](ROADMAP.md), [G29](DESIGN_GAPS.md#g29), [G39](DESIGN_GAPS.md#g39)
+- **Answer:** none yet
+
+<a id="q17"></a>
+
+### Q17 · Approve three licence exceptions
+
+- **Question:** May Ferman use three dependencies whose licences are outside the allow-list, and do
+  you confirm the project's reading of "GPL-compatible"?
+  1. `dbus` 0.7.x (MPL-2.0), which desktop_drop 0.8.4 depends on for every platform, for drag and
+     drop in M2.
+  2. `libfuzzer-sys` (adds NCSA for the vendored LLVM libFuzzer), only in the separate `fuzz/`
+     workspace, which never ships, for the fuzz targets from M2.
+  3. The Swatinem/rust-cache GitHub Action (LGPL-3.0), only in CI and never distributed, from M1.
+  4. The reading: for an Apache-2.0 product, brief §3's "permissive or GPL-compatible" rules out GPL
+     code of any version and LGPL as a sole licence, and allows MPL-2.0 only per package after your
+     review.
+- **Why it matters:** Brief §9 says to ask before adding a dependency with an unusual licence, and
+  [ADR 0016](adr/0016-dependency-licence-policy.md) sends every MPL-2.0 case to you. desktop_drop
+  imports `dbus` unconditionally, so its code and notice are in the macOS and Windows builds too,
+  not only on Linux, and MPL-2.0 then requires a notice that names the licence and where the source
+  is available. NCSA is permissive but not on the allow-list. rust-cache never reaches users, but its
+  licence is LGPL-3.0. The reading decides which future dependencies are allowed: a literal reading
+  would allow GPL-3.0 code, which would put Ferman's binaries under GPL-3.0.
+- **Options:** approve or decline each part separately. `dbus`: (a) approve; (b) decline, and drag
+  and drop uses another permissively licensed package or a platform channel. `libfuzzer-sys`:
+  (a) approve; (b) decline, and the fuzz targets use a different harness, chosen and licence-checked
+  in M2. rust-cache: (a) approve; (b) decline, and CI caches with actions/cache (MIT) or not at all.
+  The reading: confirm it, or relax it through an ADR.
+- **Proposal:** approve all three as named exceptions (a cargo-deny exception for `libfuzzer-sys`, a
+  named skip in the pub licence check for `dbus`, rust-cache pinned by commit SHA), and confirm the
+  reading.
+- **Meanwhile:** the stricter reading applies. M1 CI caches with actions/cache (MIT) or not at all,
+  desktop_drop is not added, and the `fuzz/` workspace is not created
+  ([DEPENDENCIES.md](DEPENDENCIES.md#1-policy)).
+- **Needed by:** M2, which adds drag and drop and the first fuzz targets (brief §5 asks for
+  cargo-fuzz targets from the first parser). The rust-cache part is wanted in M1; CI works without
+  it.
+- **Status:** Open
+- **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
+  [ADR 0017](adr/0017-testing-and-ci.md), [DEPENDENCIES.md](DEPENDENCIES.md), [Q16](#q16)
 - **Answer:** none yet

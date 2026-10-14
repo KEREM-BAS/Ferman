@@ -34,11 +34,13 @@ Facts from the dependency check (2026-10-13):
 - **bblanchon/pdfium-binaries**: the newest tag is `chromium/8100`; the tag `chromium/7881` exists and
   matches pdfium-render 0.9.4. Builds are weekly, third-party, unsigned and shared-library only. There
   are plain and V8 (JavaScript) variants.
-- **PDFium's licence**: BSD-3-Clause AND Apache-2.0 (its LICENSE file holds both texts). The release
-  bundles third-party code with its own notices: FreeType (used under the FreeType Licence, not its
-  GPL-2.0 alternative), libjpeg-turbo (IJG, BSD-3-Clause, Zlib), OpenJPEG (BSD-2-Clause), Little CMS
-  (MIT), LibTIFF, libpng, zlib, AGG, abseil, ICU (Unicode-3.0), HarfBuzz and the LLVM runtime libraries.
-  No GPL or AGPL code is in the shipped library.
+- **PDFium's licence**: BSD-3-Clause AND Apache-2.0. In the bblanchon archive, PDFium's own text (both
+  licences) is `licenses/pdfium.txt`; the top-level `LICENSE` is the packager's MIT notice. The
+  `licenses/` folder of the `chromium/7881` archives (checked 2026-10-14) holds 15 files for PDFium and
+  its bundled code: abseil, AGG 2.3, fast_float, FreeType (used under the FreeType Licence, not its
+  GPL-2.0 alternative), ICU (Unicode-3.0), Little CMS (MIT), libjpeg-turbo (IJG and BSD-3-Clause, two
+  files), OpenJPEG (BSD-2-Clause), libpng, LibTIFF, LLVM libc, simdutf and zlib
+  ([DEPENDENCIES.md](../DEPENDENCIES.md), section 5.1). No GPL or AGPL code is in the shipped library.
 
 The design adds states that depend on this split: progressive open of a 2,400-page file (a1-7),
 password unlock (a1-8, a1-8b), automatic repair (a1-9), an unopenable file (a1-9b), an unsupported XFA
@@ -92,10 +94,12 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 
 ### Licences
 
-- The release's `LICENSE` file and its third-party licence folder ship with the app and appear in the
+- The archive's `licenses/` folder (15 files for `chromium/7881`, including PDFium's own
+  `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app unchanged and appear in the
   third-party notices screen ([G14](../DESIGN_GAPS.md#g14)). The FreeType credit line and the IJG
   statement are included as their licences require.
-- The packaging scripts of bblanchon/pdfium-binaries are MIT; they are tooling and do not ship.
+- The packager's MIT notice (Copyright Benoit Blanchon) ships because it is part of the redistributed
+  archive; the packaging scripts themselves are tooling and do not ship.
 - The policy and the cargo-deny bans that back this ADR are in
   [ADR 0016](0016-dependency-licence-policy.md).
 

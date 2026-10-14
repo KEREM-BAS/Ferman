@@ -24,7 +24,8 @@ Report privately through GitHub's private vulnerability reporting:
 1. Open this repository on GitHub.
 2. Select the **Security** tab.
 3. Select **Report a vulnerability**.
-4. Fill in the form and submit it. Only you and the maintainers can see the report.
+4. Fill in the form and submit it. Only you, the maintainers and anyone a maintainer adds to the
+   advisory can see the report.
 
 **Please do not open a public issue, discussion or pull request for a security problem**, and do not
 share details anywhere else until a fix is released. GitHub is the only reporting channel; the
@@ -59,8 +60,9 @@ In scope:
 - **File corruption on save**: anything that makes Ferman damage or lose a user's file, change bytes
   it should have kept in an incremental save, or leave a partly written file in place of the original.
 - **Privacy leaks**, such as unexpected network access: any connection that Settings → Privacy does
-  not list, or one made while its switch is off; document content leaving the device; passwords
-  written to logs or to disk.
+  not list, or one made while its switch is off; document content leaving the device, beyond what
+  the optional AI assistant sends to the provider you chose, as its setup says; passwords written to
+  logs or to disk.
 - **Signature validation flaws**: a changed document shown as validly signed, changes after signing
   that go undetected, or a missing warning before an edit invalidates a signature.
 - **Redaction and hidden-information removal**, once they exist: content that can still be recovered

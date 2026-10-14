@@ -146,7 +146,10 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
 
 - **Permissive licences only**, such as MIT, Apache-2.0, BSD, ISC and Zlib. The brief allows
   "permissive or GPL-compatible" licences; because Ferman is Apache-2.0, that rules out GPL code of any
-  version. MPL-2.0 is allowed only for an unmodified dependency, after review.
+  version. MPL-2.0 is allowed only for an unmodified dependency, after review. This reading of
+  "GPL-compatible" is the project's; the maintainer is asked to confirm it in
+  [Q17](docs/QUESTIONS.md#q17), together with the first MPL-2.0 case and two CI and fuzzing
+  exceptions.
 - **Never** AGPL, GPL, LGPL as the only licence, non-commercial licences, or code with no clear
   licence. **Never** MuPDF, Ghostscript, poppler or xpdf, including tools that call them. Tools that
   run only in CI and are never distributed are reviewed separately
@@ -159,7 +162,8 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
 - **cargo-deny** checks licences, bans, advisories and sources for Rust on every pull request. A
   licence check with very_good_cli does the same for Dart packages. Both run in CI from Milestone 1.
 - Bundled binaries, fonts and icons ship with their licence texts. Bundled fonts are the upstream
-  files, unmodified: never subset, rename or convert them.
+  files, unmodified: never subset, rename or convert the files we ship. Embedding a subset of a font
+  into a user's PDF is document embedding, which OFL-1.1 allows.
 
 ## Development setup (planned for Milestone 1)
 
@@ -280,7 +284,11 @@ Search the existing issues first. Then open an issue with:
 - your operating system and its version;
 - the interface language and region;
 - the steps to reproduce, what you expected and what happened;
-- screenshots, with any private content blurred.
+- screenshots, with any private content blurred;
+- a log, if it helps. "Copy crash log" replaces folder and file names with placeholders, but read the
+  text before you paste it. The log files themselves (opened with "Show log files" in Settings) can
+  contain file paths that name clients or documents, so remove them before you post: issues are
+  public.
 
 **About PDFs.** A minimal PDF that shows the problem helps a lot, but attach one **only if you are
 allowed to share it**. Issue attachments are public. **Never attach confidential documents**:

@@ -21,7 +21,7 @@ ferman/
 │   └── shots/             partial 924×540 JPEG previews from the design session (not a reference; compare against build/design-refs/)
 ├── docs/                  brief, architecture, ADRs, roadmap, progress, inventory, gaps, questions, backlog
 ├── .claude/rules/         path-scoped rules: rust.md, flutter.md
-├── CLAUDE.md  README.md  LICENSE  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
+├── CLAUDE.md  README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 │
 │  Planned (not created yet):
 ├── crates/                (M1) Rust workspace; all seven crates exist from M1
@@ -76,7 +76,7 @@ Toolchain targets: Rust stable 1.99 (pinned with `rust-toolchain.toml` in M1), F
 - The shell has eight mode tabs, as every artboard shows: View, Edit, Comment, Fill & Sign, Organize, Convert, Protect, Tools ([G09](docs/DESIGN_GAPS.md#g09), [Q05](docs/QUESTIONS.md#q05)).
 
 **Architecture**
-- The decisions in [brief §3](docs/BRIEF.md#3-architecture-fixed-decisions-change-only-through-an-adr-that-i-approve) are fixed. Change them only through an ADR the owner approves. A Proposed ADR is not in force until approved (0007 harfrust, 0009 threading, parts of 0013). [ADR 0018](docs/adr/0018-native-file-pickers.md) (native pickers) has its own interim rule: M1 builds no picker, and if M2 starts before the owner answers [Q07](docs/QUESTIONS.md#q07), the OS-native picker is used as the safest option and flagged again.
+- The decisions in [brief §3](docs/BRIEF.md#3-architecture-fixed-decisions-change-only-through-an-adr-that-i-approve) are fixed. Change them only through an ADR the owner approves. A Proposed ADR is not in force until approved (0007 harfrust, 0009 threading, parts of 0013). Nor are the details marked **Proposed:** inside Accepted (brief) ADRs. [ADR 0018](docs/adr/0018-native-file-pickers.md) (native pickers) has its own interim rule: M1 builds no picker, and if M2 starts before the owner answers [Q07](docs/QUESTIONS.md#q07), the OS-native picker is used as the safest option and flagged again.
 - The UI never touches PDF internals. It calls only `ferman-api`: open and close, page info, tile rendering, text blocks, edit transactions (begin/apply/commit/rollback, giving engine-level undo and redo) and jobs.
 - lopdf is the document model and source of truth. PDFium (pdfium-render with prebuilt bblanchon/pdfium-binaries bundled per platform) is a read-only rasteriser, used only inside `ferman-render`.
 - Rendering and heavy work never run on the UI thread. Tiles for deep zoom; thumbnail and glyph caches. Jobs (OCR, convert, compress, batch) are async, cancellable and stream progress.
@@ -92,6 +92,7 @@ Toolchain targets: Rust stable 1.99 (pinned with `rust-toolchain.toml` in M1), F
 
 **Dependencies**
 - Permissive licences only. The brief's "permissive or GPL-compatible", applied to an Apache-2.0 product, rules out GPL (any version), LGPL as a sole licence and AGPL. MPL-2.0 is allowed only per package after owner review. Never non-commercial; no MuPDF, no Ghostscript. Enforced with cargo-deny and the Dart licence check ([ADR 0016](docs/adr/0016-dependency-licence-policy.md)).
+- Three licence exceptions wait for the owner ([Q17](docs/QUESTIONS.md#q17)): MPL-2.0 `dbus` through desktop_drop, NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0 Swatinem/rust-cache in CI only. Until answered, CI caches with actions/cache (MIT) or not at all, and desktop_drop and `fuzz/` are not added.
 - Every dependency is listed with its licence in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md), updated in the same change.
 
 **Text editing** ([brief §4](docs/BRIEF.md#4-the-hardest-part-editing-existing-text-must-be-flawless))
@@ -136,7 +137,7 @@ Otherwise work autonomously. Put open questions in [docs/QUESTIONS.md](docs/QUES
 2. Plan the milestone in [docs/PROGRESS.md](docs/PROGRESS.md) from its acceptance criteria in [docs/ROADMAP.md](docs/ROADMAP.md).
 3. Implement and test in small steps. A new decision gets a Proposed ADR from [docs/adr/template.md](docs/adr/template.md).
 4. Update the docs as you go: PROGRESS, ARCHITECTURE and ADRs, DEPENDENCIES, DESIGN_GAPS, QUESTIONS, BACKLOG and the commands in this file.
-5. Commit in small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`) and push.
+5. Commit in small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`) and push. Commits carry no AI attribution: no `Co-Authored-By` or `Claude-Session` lines, and never an AI author. Author them as the owner: in a fresh clone, set the local `git config user.name` and `user.email` to the owner's identity from the earlier commits (`git log -1 --format='%an <%ae>' 7f3945b`). M0 work lives on the branch `m0-plan` (renamed from `claude/…` at the owner's request).
 6. Stop with a short summary for the owner: what was done, what is disabled or deferred, open questions.
 
 ## Definition of done
