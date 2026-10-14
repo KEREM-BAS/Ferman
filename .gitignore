@@ -1,0 +1,60 @@
+# ── OS and editors ─────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+*.swp
+*~
+.idea/
+*.iml
+.vscode/*
+!.vscode/extensions.json
+!.vscode/settings.json
+
+# ── Rust ───────────────────────────────────────────────────────
+/target/
+**/target/
+**/*.rs.bk
+# cargo-fuzz output (targets and seed corpora that are committed live elsewhere)
+fuzz/artifacts/
+fuzz/corpus/
+fuzz/coverage/
+
+# ── Flutter / Dart ─────────────────────────────────────────────
+.dart_tool/
+.packages
+.pub-cache/
+.pub/
+.flutter-plugins
+.flutter-plugins-dependencies
+app/build/
+app/**/ephemeral/
+app/**/Flutter/GeneratedPluginRegistrant.*
+app/**/flutter_export_environment.sh
+app/**/Pods/
+app/**/.symlinks/
+# golden-test diff output
+**/failures/
+coverage/
+
+# ── Build outputs (design references, PDFium downloads, packaging) ──
+/build/
+# build/design-refs/ holds Playwright renders of every artboard; never commit them
+/.cache/
+pdfium-cache/
+*.dmg
+*.msix
+*.exe
+*.AppImage
+
+# ── Tools ──────────────────────────────────────────────────────
+node_modules/
+tools/**/node_modules/
+*.log
+
+# ── Local configuration and secrets ────────────────────────────
+.env
+.env.*
+*.p12
+*.pfx
+*.mobileprovision
+.claude/settings.local.json
