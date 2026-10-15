@@ -1,0 +1,44 @@
+# Test corpus
+
+The PDFs that Ferman's engine tests, pixel-diff acceptance runs and fuzz regressions read. Every file
+here has a row in the table below: where it came from, under which licence, its SHA-256 and what it
+covers. A file without a row is not merged. Background: [ARCHITECTURE.md §13.3](../../docs/ARCHITECTURE.md#133-corpus)
+and [ADR 0017](../../docs/adr/0017-testing-and-ci.md).
+
+The corpus is empty in M1. The first files arrive in M2.
+
+## Rules
+
+- **No confidential documents.** Never add a real contract, statement, payslip, ID, medical record or
+  anything else with personal or client data, even redacted. Sample documents with realistic content
+  (the Turkish rental contract, the bank statement, the payslip) are generated with invented data.
+- **Licence first.** A real-world file is added only if its licence allows redistribution in this
+  repository (public domain, CC0, CC BY, or a permissive licence). The licence column names it as an
+  SPDX identifier where one exists, and the source column links to the page that states it.
+- **Generated files name their generator.** A file produced by a script in `tools/corpus` lists that
+  script and its arguments in the source column, so anyone can regenerate it byte for byte. Generators
+  are deterministic: no timestamps, random ids or machine-specific paths in the output.
+- **Hashes are checked.** The SHA-256 is of the file as committed. Changing a file means a new hash, a
+  new row note and a reason in the commit message.
+- **Size.** **Proposed:** files up to 1 MB are committed here; larger files are fetched by
+  `tools/corpus` with a pinned SHA-256 and listed here all the same.
+- **Fuzz regressions.** A crash found by a fuzz target becomes a file here (source: the target name and
+  the date it was found), with the test that replays it.
+- **Damaged on purpose.** Truncated, malformed and hostile files are welcome. Say what is wrong with
+  them in the "covers" column.
+
+## Columns
+
+| Column | What goes in it |
+|---|---|
+| File | Path relative to this folder, for example `generated/rental-contract-tr.pdf` |
+| Source | A URL for a real-world file, or `tools/corpus/<script>` plus its arguments for a generated one |
+| Licence | SPDX identifier (`CC0-1.0`, `CC-BY-4.0`, `Apache-2.0`, …), or `generated` for files made by our scripts (they inherit the repository's Apache-2.0) |
+| SHA-256 | Lowercase hex digest of the committed file (`sha256sum`, `shasum -a 256` or `Get-FileHash`) |
+| Covers | What the file exercises: producer, fonts and encodings, scripts, structure, damage, features |
+| Added | The milestone that added it (`M2`, `M3`, …) |
+
+## Files
+
+| File | Source | Licence | SHA-256 | Covers | Added |
+|---|---|---|---|---|---|

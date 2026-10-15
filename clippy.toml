@@ -1,0 +1,5 @@
+# Library code never unwraps, expects or panics (ADR 0010, workspace lints in Cargo.toml).
+# Tests may: a failing assertion is how a test reports.
+allow-unwrap-in-tests = true
+allow-expect-in-tests = true
+allow-panic-in-tests = true

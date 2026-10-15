@@ -1,0 +1,5 @@
+# The toolchain that builds Ferman. CI reads it from this file. Cargo.toml's rust-version is the floor.
+[toolchain]
+channel = "1.99.0"
+components = ["rustfmt", "clippy"]
+profile = "minimal"
