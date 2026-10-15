@@ -16,7 +16,7 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 |---|---|
 | Milestone | **M1, foundations: in progress.** Started on 2026-10-15 on the branch `m1-foundations`, with draft pull request #2 to `main` |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | Confirm that the latest head (`dcdf8a3`, the codegen version check) is green, then tick ROADMAP step 3's version box. Run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green in every job on the three systems, with PDFium bundled and loaded through the bridge in all three integration tests. Then wave 3 (phase G, the component library); see the [M1 plan](#m1-plan). The zero-copy decision waits for the owner ([Q19](QUESTIONS.md#q19)) and the R1 and R2 measurement |
+| Next | Wave 3, phase G: the component library. The foundations, Kbd and Tooltip are committed (G1); the component groups follow (G2 to G9), then the spec walker and the gallery (G10); see the [M1 plan](#m1-plan). Run [38824955001](https://github.com/KEREM-BAS/Ferman/actions/runs/38824955001) (head `0d2b562`) was green on the three systems, so every box of ROADMAP step 3 but the zero-copy one is ticked; that one waits for the owner ([Q19](QUESTIONS.md#q19)) and the R1 and R2 measurement |
 | Application code | committed on `m1-foundations` (head `dcdf8a3`): phases A to D (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, the fonts and icons, `tokens.g.dart`, CI), wave 2's phases E1, E2 and F1 to F4 (the render thread and engine facade, the S6 checks, the theme layer, the Icon widget, the licence registry, the first goldens, casing and region formats), phase E3 (flutter_rust_bridge 2.13.0 through cargokit, the generated bindings, the engine services, the integration test with its profile-mode driver, the `bridge_imports` check) and phase E4 (PDFium bundled in the app on each system) |
 | Questions | 19 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006 and 0008; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
@@ -108,7 +108,8 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   development container: the release bundle holds `lib/libpdfium.so`, byte-identical to the pinned
   library, and the 5 integration tests pass with PDFium loaded through the bridge. CI run
   [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green on the three systems, so the ROADMAP boxes it
-  evidences are ticked; the version box waits for the codegen version check (`dcdf8a3`). The bridge
+  evidences are ticked, and run [38824955001](https://github.com/KEREM-BAS/Ferman/actions/runs/38824955001) (head `0d2b562`) ticked the version box
+  (`dcdf8a3`); only the zero-copy box stays open. The bridge
   byte transfer misses its target in debug and profile builds; the options are in ADR 0009 and the
   decision is [Q19](QUESTIONS.md#q19) ([Measurements](#measurements)).
 - [ ] Step 4. Token generator. `tools/tokens` and `tokens.g.dart` done (phase D2, 125 tests); the

@@ -498,7 +498,10 @@ Deliverables: FRB 2.13.0 codegen configured to scan only the `frb` module of `fe
 `app/lib/bridge/` (generated, never edited) and `app/lib/engine/` (the only Dart code that imports
 the bridge); an API version check at start-up; `tools/pdfium` and the skeleton render thread.
 
-- [ ] The Rust crate, the Dart package and the codegen are all 2.13.0; a CI check compares the three.
+- [x] The Rust crate, the Dart package and the codegen are all 2.13.0; a CI check compares the three.
+  Evidence: CI run [38824955001](https://github.com/KEREM-BAS/Ferman/actions/runs/38824955001) (pull request #2, head `0d2b562`, 2026-10-15): `tools/checks`
+  `frb_versions` (crate and Dart package) in the repository checks, and "The code generator has the
+  bridge crate's version" (`dcdf8a3`) in the codegen job.
 - [x] CI regenerates the bindings and fails if they differ from the committed ones. Evidence: CI run
   [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): job "Generated Flutter code is current" (`flutter_rust_bridge_codegen generate` and
   `cargo fmt -p ferman-api`, then `git diff --exit-code`).
@@ -580,7 +583,7 @@ build on the macOS CI runner. The default SSE codec copies the bytes. The Dco co
 options and a proposal are recorded in
 [ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed), and
 the owner decides in [Q19](QUESTIONS.md#q19); the zero-copy box stays open until R1 and R2 are
-measured. The version box waits for a green run of the codegen version check (`dcdf8a3`).
+measured.
 
 #### Step 4. Token generator
 
