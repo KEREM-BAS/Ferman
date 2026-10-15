@@ -1,0 +1,24 @@
+# Values the design draws in component CSS instead of declaring as tokens
+# (ADR 0012, "Hatch patterns"). They are emitted with the tokens so that
+# widgets never hard-code them.
+#
+# Each entry cites the design file and line it was copied from, relative to
+# the repository root. The generator checks that the cited line still
+# contains `css` exactly, so a design re-export that moves or changes it stops
+# the run; review the change and update the entry. var() references resolve
+# against the light (:root) tokens.
+#
+# `css` must be a repeating-linear-gradient with hard stops in the
+# two-position form (`colour start end`), each stop starting where the
+# previous one ended.
+
+hatches:
+  redact-pending:
+    doc: Stripes on text marked for redaction but not yet applied (.fm-mark--redact-pending)
+    source: design/_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/components/editing/editing.css:33
+    css: 'repeating-linear-gradient(-45deg, var(--redact-pending-bg) 0 4px, rgba(180, 35, 24, 0.22) 4px 6px)'
+
+  thumb-lines:
+    doc: Placeholder text lines drawn on page thumbnails (.fm-thumb__lines)
+    source: design/_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/components/pages/pages.css:16
+    css: 'repeating-linear-gradient(to bottom, #D6D2CB 0 2px, transparent 2px 6px)'
