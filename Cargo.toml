@@ -35,6 +35,12 @@ serde_json = "1.0.154"
 clap = { version = "4.6.7", features = ["derive", "string"] }
 # The crate, the Dart package and flutter_rust_bridge_codegen must be exactly the same version.
 flutter_rust_bridge = "=2.13.0"
+# Pinned exactly: PDFium (tools/pdfium, tag chromium/7881) and pdfium-render move together, in one
+# commit (ADR 0004). Default features off: no `image` until pages render (M2), and the API level is
+# named instead of `pdfium_latest`, so a pdfium-render update cannot move it silently.
+pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
+# Replies from the render thread: a oneshot future that async API functions await without blocking.
+futures-channel = "0.3.34"
 
 # Dev and test only; never in the shipped graph.
 insta = "1.49.0"
@@ -43,6 +49,10 @@ proptest = "1.12.0"
 [workspace.lints.rust]
 # Every public item is documented. A warning here; CI turns it into an error with -D warnings.
 missing_docs = "warn"
+# flutter_rust_bridge's #[frb] attribute expands to cfg_attr(frb_expand, …); codegen sets that cfg
+# when it expands the crate. Declared here as FRB's own templates do (a member cannot add lints next
+# to `workspace = true`).
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(frb_expand)"] }
 # unsafe_code is deliberately not set here: each crate root carries #![forbid(unsafe_code)], except
 # ferman-api, which uses #![deny(unsafe_code)] so the FRB-generated module can be allowed (ADR 0010).
 # unreachable_pub is not enabled: the FRB-generated module in ferman-api is full of `pub` items in a
