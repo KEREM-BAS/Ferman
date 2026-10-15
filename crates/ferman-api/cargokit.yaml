@@ -1,0 +1,11 @@
+# cargokit options for the Flutter app build (app/rust_builder). The app always builds the
+# bridge surface; ferman-cli and the tests build ferman-api without it (ADR 0003).
+cargo:
+  debug:
+    extra_flags:
+      - --features
+      - frb
+  release:
+    extra_flags:
+      - --features
+      - frb

@@ -9,6 +9,11 @@ publish.workspace = true
 authors.workspace = true
 repository.workspace = true
 
+[lib]
+# rlib for ferman-cli and tests; cdylib (Linux, Windows) and staticlib (macOS) are what cargokit
+# builds for the Flutter app (app/rust_builder).
+crate-type = ["rlib", "cdylib", "staticlib"]
+
 [features]
 default = []
 # The Dart bridge surface (the `frb` module). On in the app build; off for ferman-cli and the

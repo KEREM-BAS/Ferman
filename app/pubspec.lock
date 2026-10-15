@@ -652,6 +652,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "4.0.9"
+  rust_lib_ferman:
+    dependency: "direct main"
+    description:
+      path: rust_builder
+      relative: true
+    source: path
+    version: "0.1.0"
   screen_retriever:
     dependency: transitive
     description:

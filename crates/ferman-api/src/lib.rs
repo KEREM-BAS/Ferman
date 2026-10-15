@@ -29,10 +29,23 @@ pub mod facade;
 #[cfg(feature = "frb")]
 pub mod frb;
 
-// M1 step 3 declares the FRB-generated Rust glue here, with these attributes directly on the module
-// declaration (rustfmt puts each attribute on its own line; tools/checks accepts that form). The
-// allow list names every lint the workspace sets beyond the defaults (Cargo.toml), because
-// clippy::all does not cover restriction lints. Codegen runs with `add_mod_to_lib: false` (this
-// comment already holds the text it looks for, and its own line would lack the attributes), so the
-// declaration is added by hand:
-// #[cfg(feature = "frb")] #[allow(unsafe_code, missing_docs, clippy::all, clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo, clippy::unimplemented, clippy::dbg_macro, clippy::print_stdout, clippy::print_stderr)] mod frb_generated;
+// The FRB-generated Rust glue (flutter_rust_bridge 2.13.0, `app/flutter_rust_bridge.yaml`, which
+// sets `add_mod_to_lib: false` so this hand-written declaration keeps its attributes). It is the only
+// place in Ferman's own crates where unsafe code is allowed (ADR 0002, tools/checks unsafe_roots).
+// The allow list names every lint the workspace sets beyond the defaults, because clippy::all does
+// not cover restriction lints. Never edit frb_generated.rs by hand.
+#[cfg(feature = "frb")]
+#[allow(
+    unsafe_code,
+    missing_docs,
+    clippy::all,
+    clippy::unwrap_used,
+    clippy::expect_used,
+    clippy::panic,
+    clippy::todo,
+    clippy::unimplemented,
+    clippy::dbg_macro,
+    clippy::print_stdout,
+    clippy::print_stderr
+)]
+mod frb_generated;

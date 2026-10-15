@@ -1,0 +1,12 @@
+# flutter_rust_bridge 2.13.0 code generation (ADR 0002). Run from app/:
+#   flutter_rust_bridge_codegen generate
+# then `cargo fmt -p ferman-api` (the generated Rust follows our edition 2024 style only after it).
+# Only the `frb` module of ferman-api is scanned; the facade carries frb(ignore).
+rust_input: crate::frb
+rust_root: ../crates/ferman-api/
+rust_features:
+  - frb
+dart_output: lib/bridge/
+dart_entrypoint_class_name: FermanBridge
+add_mod_to_lib: false
+dart_format_line_length: 80
