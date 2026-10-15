@@ -7,5 +7,9 @@
   "startPlaceholderTitle": "Drop a PDF here",
   "@startPlaceholderTitle": {
     "description": "Headline of the empty start screen (design board a1-5) before any file is open."
+  },
+  "availableInFutureVersion": "Available in a future version",
+  "@availableInFutureVersion": {
+    "description": "Tooltip and screen-reader hint on every control whose feature is not built yet; the control stays visible and disabled (brief, design gap G10). Keep it short: it appears in a small tooltip bubble."
   }
 }

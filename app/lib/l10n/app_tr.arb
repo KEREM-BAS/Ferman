@@ -1,5 +1,6 @@
 {
   "@@locale": "tr",
   "appName": "Ferman",
-  "startPlaceholderTitle": "PDF'yi buraya bırakın"
+  "startPlaceholderTitle": "PDF'yi buraya bırakın",
+  "availableInFutureVersion": "Gelecek bir sürümde sunulacak"
 }

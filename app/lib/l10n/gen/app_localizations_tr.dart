@@ -14,4 +14,7 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get startPlaceholderTitle => 'PDF\'yi buraya bırakın';
+
+  @override
+  String get availableInFutureVersion => 'Gelecek bir sürümde sunulacak';
 }

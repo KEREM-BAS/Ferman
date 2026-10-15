@@ -14,4 +14,7 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startPlaceholderTitle => 'Drop a PDF here';
+
+  @override
+  String get availableInFutureVersion => 'Available in a future version';
 }

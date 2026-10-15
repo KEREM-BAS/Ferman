@@ -111,6 +111,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Drop a PDF here'**
   String get startPlaceholderTitle;
+
+  /// Tooltip and screen-reader hint on every control whose feature is not built yet; the control stays visible and disabled (brief, design gap G10). Keep it short: it appears in a small tooltip bubble.
+  ///
+  /// In en, this message translates to:
+  /// **'Available in a future version'**
+  String get availableInFutureVersion;
 }
 
 class _AppLocalizationsDelegate
