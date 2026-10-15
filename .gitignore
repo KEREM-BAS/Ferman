@@ -58,3 +58,7 @@ tools/**/node_modules/
 *.pfx
 *.mobileprovision
 .claude/settings.local.json
+
+# Python bytecode from tools/fonts/coverage.py
+__pycache__/
+*.pyc
