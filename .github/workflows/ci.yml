@@ -175,6 +175,21 @@ jobs:
           flutter-version: ${{ env.FLUTTER_VERSION }}
           channel: stable
           cache: true
+      - name: Install the toolchain from rust-toolchain.toml
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - name: Cache the bridge code generator
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/bin/flutter_rust_bridge_codegen
+            ~/.cargo/bin/cargo-expand
+          key: frb-codegen-2.13.0-cargo-expand-1.0.127-${{ runner.os }}
+      - name: Install the bridge code generator
+        run: |
+          command -v flutter_rust_bridge_codegen || cargo install --locked flutter_rust_bridge_codegen@2.13.0
+          command -v cargo-expand || cargo install --locked cargo-expand@1.0.127
       - name: Regenerate and compare
         working-directory: app
         shell: bash
@@ -184,6 +199,8 @@ jobs:
           flutter gen-l10n
           dart run build_runner build --delete-conflicting-outputs
           dart format lib/l10n/gen
+          flutter_rust_bridge_codegen generate
+          cargo fmt -p ferman-api
           git diff --exit-code
           test -z "$(git status --porcelain)"
 
