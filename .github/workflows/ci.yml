@@ -241,6 +241,20 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle (the desktop build fails without it)
+        working-directory: .
+        run: |
+          case "$RUNNER_OS" in
+            Linux) id=linux-x64 ;;
+            macOS) id=mac-univ ;;
+            Windows) id=win-x64 ;;
+          esac
+          bash tools/pdfium/fetch.sh --platform "$id"
       - name: Analyze (flutter analyze, and dart analyze for the riverpod_lint plugin)
         run: |
           flutter analyze
@@ -267,7 +281,10 @@ jobs:
         if: runner.os == 'Linux'
         run: |
           dart pub global activate very_good_cli "$VERY_GOOD_CLI_VERSION"
-          very_good packages check licenses --allowed="MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC,Zlib,BSL-1.0,Unicode-3.0,Unicode-DFS-2016,0BSD"
+          # The command of docs/DEPENDENCIES.md section 8.
+          very_good packages check licenses \
+            --dependency-type=direct-main,direct-dev,transitive \
+            --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
       - name: Web build (kept buildable until phase 5; Proposed)
         if: runner.os == 'Linux'
         run: flutter build web --release
@@ -299,4 +316,16 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle
+        working-directory: .
+        run: bash tools/pdfium/fetch.sh --platform linux-x64
       - run: flutter build linux --release
+      - name: The bundle holds the engine and PDFium
+        run: |
+          test -f build/linux/x64/release/bundle/lib/libferman_api.so
+          test -f build/linux/x64/release/bundle/lib/libpdfium.so
