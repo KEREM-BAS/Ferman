@@ -334,7 +334,7 @@
           "required": false,
           "default": "currentColor",
           "dartDefault": null,
-          "notes": "null inherits the ambient foreground colour (IconTheme or DefaultTextStyle), like currentColor.",
+          "notes": "null inherits the DefaultTextStyle colour (CSS color), else an IconTheme colour, like currentColor.",
           "declared": true
         },
         {

@@ -1,0 +1,7 @@
+# package:test configuration for `flutter test` in app/.
+tags:
+  # alchemist tags every goldenTest with `golden`. Goldens are generated and
+  # compared on Linux only (ADR 0017): CI runs `flutter test` on Linux and
+  # `flutter test --exclude-tags golden` on macOS and Windows. Regenerate
+  # them on Linux with `flutter test --update-goldens --tags golden`.
+  golden:

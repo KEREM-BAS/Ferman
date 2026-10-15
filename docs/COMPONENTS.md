@@ -423,7 +423,7 @@ Drawn in: 00 Fixes, 01 First run and files, 02 View, 03a Edit text, 03b Edit con
 | `name` | yes | `name` | `IconName` (required) |  |  | Generated enum (tools/icons). |
 | `size` | yes | `size` | `double` | `16` |  | Screens use 10, 11, 12, 14, 16, 18, 20, 24 and more. |
 | `strokeWidth` | yes | `strokeWidth` | `double` | `1.5` |  | In viewBox units, as the SVG attribute: 2 for 12 px glyphs and badges; FmWindow caption glyphs use 1 and 1.2, FmPhone 1.8 and 2.2. |
-| `color` | yes | `color` | `Color?` | `"currentColor"`; Dart: `null` |  | null inherits the ambient foreground colour (IconTheme or DefaultTextStyle), like currentColor. |
+| `color` | yes | `color` | `Color?` | `"currentColor"`; Dart: `null` |  | null inherits the DefaultTextStyle colour (CSS color), else an IconTheme colour, like currentColor. |
 | `label` | yes | `semanticLabel` | `String?` |  |  | Set: role img with this label. Null: excluded from semantics (aria-hidden). |
 | `flipRtl` | yes | `flipRtl` | `bool?` | `false`; Dart: `null` |  | Null, the Dart default, uses IconName.directional; true or false overrides one use (decision 3). See notes. |
 | `style` | yes | — | `n/a` |  |  | Omitted: CSS hook; use layout widgets. |
