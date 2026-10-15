@@ -3,6 +3,8 @@ include: package:very_good_analysis/analysis_options.yaml
 analyzer:
   exclude:
     - build/**
+    # Vendored cargokit build tool (its own package and lints; see rust_builder/README.md).
+    - rust_builder/**
     - lib/bridge/**
     - lib/l10n/gen/**
     - "**/*.g.dart"
