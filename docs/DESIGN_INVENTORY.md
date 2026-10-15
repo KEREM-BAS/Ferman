@@ -1650,7 +1650,7 @@ The DS uses IBM Plex (brief §2). The export holds 23 WOFF2 files in `_ds/ferman
 | Language | Script | In the export | Decision |
 |---|---|---|---|
 | English (`en`) | Latin | Yes: Plex Sans, Serif and Mono latin subsets | IBM Plex Sans (bundled). |
-| Turkish (`tr`) | Latin + Latin Extended-A (ğ ş İ ı) | Yes: ı (U+0131) is in the latin subset; ğ, ş and İ are in latin-ext (all 6 tested letters present) | IBM Plex Sans (bundled). Keep it in every fallback chain: Plex Sans Arabic, Hebrew and Devanagari carry only one of İ ı Ğ ğ Ş ş. |
+| Turkish (`tr`) | Latin + Latin Extended-A (ğ ş İ ı) | Yes: ı (U+0131) is in the latin subset; ğ, ş and İ are in latin-ext (all 6 tested letters present) | IBM Plex Sans (bundled). It comes first in every UI chain: Plex Sans Arabic, Hebrew and Devanagari carry only one of İ ı Ğ ğ Ş ş ([G64](DESIGN_GAPS.md#g64)). |
 | German (`de`) | Latin (ß, ẞ U+1E9E in latin-ext) | Yes | IBM Plex Sans (bundled). |
 | French (`fr`) | Latin (œ « » ’) | Yes | IBM Plex Sans (bundled). |
 | Spanish (`es`) | Latin (ñ ¿ ¡) | Yes | IBM Plex Sans (bundled). |
@@ -1660,10 +1660,10 @@ The DS uses IBM Plex (brief §2). The export holds 23 WOFF2 files in `_ds/ferman
 | Polish (`pl`) | Latin Extended-A (ą ć ę ł ń ś ź ż) | Yes: all 16 tested letters in latin-ext for Sans, Serif and Mono | IBM Plex Sans (bundled). |
 | Russian (`ru`) | Cyrillic | Yes: 66 of 66 tested letters in the cyrillic subsets of Sans, Serif and Mono | IBM Plex Sans (bundled); the complete file covers Cyrillic. |
 | Ukrainian (`uk`) | Cyrillic (є і ї ґ) | Yes: є, і, ї and ґ are present; only U+02BC (modifier-letter apostrophe) is missing, and U+2019 is in the latin subset | IBM Plex Sans (bundled). Use U+2019 for the apostrophe. |
-| Arabic (`ar`) | Arabic | Yes: IBM Plex Sans Arabic 400/500/600 (49 of 49 tested letters and Arabic-Indic digits). Its own ASCII and Latin-1 glyphs draw Latin inside Arabic text; Latin Extended-A falls back to Plex Sans. | IBM Plex Sans Arabic 400, 500, 600 (bundled), with IBM Plex Sans after it. |
-| Persian (`fa`) | Arabic script (Persian: پ چ ژ گ ک ی, Persian digits ۰-۹ U+06F0-06F9, ZWNJ) | Mostly: the Arabic file has پ چ ژ گ ک ی and U+06F0-06F9. ZWNJ isn't in the cmap (the shaper treats it as invisible). The Serif and Mono files have no Arabic. | IBM Plex Sans Arabic (bundled). Persian digits come from the fa locale. Test text with ZWNJ in goldens. |
-| Hebrew (`he`) | Hebrew | No: not in the export (only loaded from the Google CDN by fm-additions.css) | IBM Plex Sans Hebrew (bundled, [Q08](QUESTIONS.md#q08)). |
-| Hindi (`hi`) | Devanagari | No: not in the export (only loaded from the Google CDN) | IBM Plex Sans Devanagari (bundled, [Q08](QUESTIONS.md#q08)). |
+| Arabic (`ar`) | Arabic | Yes: IBM Plex Sans Arabic 400/500/600 (49 of 49 tested letters and Arabic-Indic digits). It also carries ASCII and Latin-1, but the UI draws Latin from IBM Plex Sans, which comes first (ARCHITECTURE §11.5). | IBM Plex Sans Arabic 400, 500, 600 (bundled), after IBM Plex Sans (the `--font-ui` order, [G64](DESIGN_GAPS.md#g64)). |
+| Persian (`fa`) | Arabic script (Persian: پ چ ژ گ ک ی, Persian digits ۰-۹ U+06F0-06F9, ZWNJ) | Mostly: the Arabic file has پ چ ژ گ ک ی and U+06F0-06F9. ZWNJ isn't in the cmap (the shaper treats it as invisible). The Serif and Mono files have no Arabic. | IBM Plex Sans Arabic (bundled), after IBM Plex Sans (the `--font-ui` order). Persian digits come from the region setting (Iran), not the UI language ([G34](DESIGN_GAPS.md#g34)). Test text with ZWNJ in goldens. |
+| Hebrew (`he`) | Hebrew | No: not in the export (only loaded from the Google CDN by fm-additions.css) | IBM Plex Sans Hebrew (bundled, [Q08](QUESTIONS.md#q08)), after IBM Plex Sans (the `--font-ui` order). |
+| Hindi (`hi`) | Devanagari | No: not in the export (only loaded from the Google CDN) | IBM Plex Sans Devanagari (bundled, [Q08](QUESTIONS.md#q08)), after IBM Plex Sans (the `--font-ui` order: with Plex Sans Devanagari first, İ, ş and ế get misplaced marks). |
 | Japanese (`ja`) | Japanese (Kanji + Kana) | No: only loaded from the Google CDN (IBM Plex Sans JP, Noto Serif JP) | System fonts (Hiragino Sans; Yu Gothic UI or Meiryo UI; Noto Sans CJK JP). Pass the ja locale so Han characters take Japanese forms. No synthetic bold or italic. |
 | Korean (`ko`) | Hangul (+ Hanja) | No: only loaded from the Google CDN (IBM Plex Sans KR) | System fonts (Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR). |
 | Chinese (Simplified) (`zh-Hans`) | Simplified Chinese (Han) | No: Noto Sans SC loads from the Google CDN only | System fonts (PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC). |
@@ -1686,12 +1686,14 @@ approved by the owner on 2026-10-15.
   - IBM Plex Sans Arabic 400, 500 and 600, which also covers Persian.
   - IBM Plex Sans Hebrew and IBM Plex Sans Devanagari, 400, 500 and 600 ([Q08](QUESTIONS.md#q08)).
 - Japanese, Korean, Simplified Chinese and Traditional Chinese use system fonts. The app passes the
-  locale so Han characters take the right regional forms, and never synthesises bold or italic for
-  them.
+  locale so Han characters take the right regional forms, and never asks for italic. Flutter cannot
+  switch synthetic bold off, so the theme names system families with real bold faces
+  ([G65](DESIGN_GAPS.md#g65)).
 - The design's WOFF2 subsets are not used. The app never loads fonts from the network; the Google
   Fonts `@import` in `fm-additions.css` is a detail of the design tool ([G07](DESIGN_GAPS.md#g07)).
-- IBM Plex Sans stays in every fallback chain, so Latin and Turkish text renders inside Arabic,
-  Persian and Hebrew UI.
+- IBM Plex Sans comes first in every UI chain (the design's `--font-ui` order), so Latin, Turkish and
+  Vietnamese text renders correctly inside Arabic, Persian, Hebrew and Hindi UI
+  ([G64](DESIGN_GAPS.md#g64)).
 - The signature handwriting fonts (`--font-hand-1` to `-3`: Caveat, Homemade Apple, Dancing Script)
   are an open question ([Q08](QUESTIONS.md#q08) group 3). If they ship, each ships with its licence: Homemade Apple is
   Apache-2.0, the others OFL-1.1.

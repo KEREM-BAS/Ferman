@@ -42,7 +42,7 @@ On every pull request and on `main`, on **macOS (arm64), Windows (x64) and Linux
 
 | Job | Steps |
 |---|---|
-| Rust | `cargo fmt --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace`; **proposed:** dependency-graph check ([ADR 0003](0003-crate-layout-and-api-boundary.md)) |
+| Rust | `cargo fmt --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace`; the tests that need PDFium (`#[ignore]` by default) with `cargo test --workspace -- --ignored` against the pinned library for the runner's platform (`tools/pdfium/fetch.sh`, an absolute `FERMAN_PDFIUM_PATH`), then `ferman info --json --pdfium`, which must report `loaded`, on all three systems; **proposed:** dependency-graph check ([ADR 0003](0003-crate-layout-and-api-boundary.md)) |
 | Licences and advisories | `cargo deny check` (licences, bans, advisories, sources), plus a dev-dependency run; pub licence check with very_good_cli ([ADR 0016](0016-dependency-licence-policy.md)) |
 | Generated code | regenerate FRB bindings, `tokens.g.dart`, l10n and icon assets; fail on any diff; check that FRB's crate, package and codegen versions match |
 | Flutter | `flutter analyze` (the brief's check) and `dart analyze --fatal-infos` (the riverpod_lint 3.1.9 plugin reports only there); `flutter test` (widget tests everywhere; goldens on Linux only, below); project checks for forbidden APIs, literal design values, left-or-right layout APIs and direct `toUpperCase` ([ADR 0011](0011-flutter-state-navigation-components.md), [ADR 0012](0012-design-token-pipeline.md), [ADR 0014](0014-localization-and-rtl.md)) |
@@ -118,8 +118,15 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
   component state, in **light and dark × en, tr and ar**, with the real bundled fonts loaded and text not
   obscured. Goldens are generated and compared on the Linux runner only, so font rasterisation is stable;
   platform chrome variants (macOS, Windows) are rendered there by setting the target platform in the test.
+  Golden tests carry the `golden` tag (`app/dart_test.yaml`): Linux runs `flutter test`, macOS and
+  Windows run `flutter test --exclude-tags golden`, and a failed golden run uploads its failure images.
+  Every golden test also passes `skip: !isGoldenHost` (`app/test/helpers/golden_config.dart`): off
+  Linux alchemist's test variant has no values, and flutter_test fails such a test while its file
+  loads, before `--exclude-tags golden` applies. The first goldens (M1 step 5) were generated in the
+  development container and match on the CI Linux runner.
 - **integration_test** runs desktop flows against the real engine from M3, starting with Flow A (open,
-  fix a typo, save).
+  fix a typo, save). From M1, one file (`app/integration_test/app_test.dart`) checks the engine through
+  the bridge on each system, with the bundled PDFium loaded.
 
 ### Design-reference comparison
 
@@ -128,7 +135,7 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
   preinstalled in the development container, where the Playwright CDN is blocked, and CI uses the same
   pin. CI never runs the Playwright installer, because it also downloads Playwright's ffmpeg build
   (LGPL-2.1) with every Chromium; it downloads the revision 1194 headless shell directly, checks its
-  SHA-256 and passes its path to the renderer. The renderer runs offline: the React and Babel runtime
+  SHA-256 (pinned from the first CI download on 2026-10-15) and passes its path to the renderer. The renderer runs offline: the React and Babel runtime
   scripts and the fonts come from npm packages pinned in its lockfile and are served locally, and all
   other network requests fail the run, so the design's Google Fonts import never loads.
 - Capture rule: each of the 214 product boards is captured from the first `.fm-root` inside the

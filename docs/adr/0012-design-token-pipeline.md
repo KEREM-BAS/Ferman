@@ -139,6 +139,37 @@ Rules the generator follows, each covered by a test:
 `copyWith` (the generated classes have none), and wires light, dark, dim, touch, CJK and reduced
 motion into the app's theme. Reduced motion is taken when `MediaQuery.disableAnimationsOf` is true.
 
+The layer, as built in M1 (`theme.dart` exports `app/lib/design/theme/` and `tokens.g.dart`):
+
+- `FermanTheme`, one `ThemeExtension` holding the token sets that vary: `colors`, `elevation` and
+  `focus` (light, dark), `density` (desktop, touch), `motion` (standard, reduced), `pageFilter` (none,
+  dim) and `typography` (named so because `ThemeExtension.type` is the extension's key). Its `copyWith`
+  replaces whole sets; `lerp` interpolates them and switches durations, curves, the filter, families
+  and the brightness at t = 0.5. The constant classes are reached through views with the token names:
+  `space`, `size`, `radius`, `border`, `z`, `ramps`, `pageColors`, `typeScale`, `hatch`
+  (`theme/static_tokens.dart`, kept in step with `tokens.g.dart` by a test).
+- `context.ferman` (`FermanThemeContext`), how widgets read it. Outside `app/lib/design/`, reading a
+  set that varies from its generated constant (`FermanColorTokens.light`, `FermanMotionTokens.standard`,
+  `FermanTheme.dark`, …) fails the `theme-bypass` rule of `s6_literals`.
+- `FermanThemeScope`, inside `MaterialApp.builder`: resolves the theme for the UI locale, reduced motion
+  and the density it is given (the app passes touch on iOS and Android), and sets the base text style
+  (the body role in `textPrimary` with the UI font features) and the icon theme (`textPrimary`, the
+  design's `currentColor`).
+- `FermanTypography`: the ten roles per UI locale; `cjk` roles for ja, ko and zh; every style carries
+  the locale (Han regional forms); the font chain per script from `FermanFontFamilies`: the design's
+  `--font-ui` order, IBM Plex Sans first, for every language but CJK (ar, fa, he and hi included,
+  [G64](../DESIGN_GAPS.md#g64)), and for CJK the system families of [ADR 0013](0013-fonts-and-icons.md)
+  right after Plex Sans. Flutter has no `font-synthesis` switch; naming the CJK families picks real
+  bold faces where the system has them ([G65](../DESIGN_GAPS.md#g65)).
+- `FermanMaterialTheme.light` and `.dark`: the `ThemeData` carrying the extension, with only the
+  colour scheme, canvas, selection, icon theme, UI font and no splashes.
+- `themeModeProvider` (`app/lib/app/theme_mode.dart`): match system, light or dark; `app.dart` maps it
+  to `MaterialApp.themeMode` and animates the switch over `durBase` with `easeOut` from
+  `FermanTheme.motionFor`. Under reduced motion that duration is zero, so the switch is instant; the
+  animation is never turned off with `AnimationStyle.noAnimation`, which would make `MaterialApp`
+  replace `AnimatedTheme` with `Theme` and remount the app below it. The choice is held in memory
+  until the settings store of M1 step 9 persists it.
+
 ### Checks
 
 - Unit tests assert the counts (348 declarations, 269 unique names) and spot values: dark
@@ -148,8 +179,10 @@ motion into the app's theme. Reduced motion is taken when `MediaQuery.disableAni
 - **CI regenerates `tokens.g.dart` and fails if the committed file differs**
   ([ADR 0017](0017-testing-and-ci.md)).
 - A CI script fails when widget code outside `app/lib/design/` uses literal colours, durations, radii or
-  sizes (for example `Color(0x…)`, `Duration(milliseconds: …)`, `BorderRadius.circular(<number>)`), with
-  a small reviewed allow-list for things like `0` and `1`.
+  sizes (for example `Color(0x…)`, `Duration(milliseconds: …)`, `BorderRadius.circular(<number>)`):
+  `tools/checks` `s6_literals`, over `app/lib/` except `app/lib/design/` and `app/lib/engine/` (engine
+  services, no widgets). Zero is allowed except in colours; other exceptions go in the reviewed
+  allow-list `tools/checks/lib/src/checks/s6_allowlist.dart`, each with a reason.
 
 ### What the pipeline does not invent
 
@@ -177,8 +210,8 @@ where the tokens allow, and the gap stays open until the design adds a set.
 
 - M1: the generator, its tests, `tokens.g.dart`, `theme.dart`, the CI freshness and literal-value checks.
   Built before the component library ([ADR 0011](0011-flutter-state-navigation-components.md)). The
-  generator, its tests and `tokens.g.dart` exist (phase D2); `theme.dart` and the literal-value check
-  come with phase F.
+  generator, its tests and `tokens.g.dart` exist (phase D2); `theme.dart` with `app/lib/design/theme/`
+  and the literal-value check (`s6_literals`) exist (phase F).
 
 ## Alternatives considered
 

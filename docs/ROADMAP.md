@@ -371,6 +371,7 @@ licences re-checked on 2026-10-15); [DEPENDENCIES.md](DEPENDENCIES.md) is the re
 | Rust | clap 4.6.7 (derive, string) | MIT OR Apache-2.0 | ferman-cli argument parser, chosen in step 1 |
 | Rust (dev) | insta 1.49.0, proptest 1.12.0 | Apache-2.0; MIT OR Apache-2.0 | snapshot and property tests; proptest is pinned in the workspace table and enters `Cargo.lock` with its first use |
 | Rust | pdfium-render 0.9.4 | MIT OR Apache-2.0 | default features off; `pdfium_7881` and `thread_safe` on |
+| Rust | futures-channel 0.3.34 | MIT OR Apache-2.0 | oneshot replies from the render thread (M1 step 3); requests use `std::sync::mpsc` until M2 |
 | Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881` (151.0.7881.0), non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive and per library in `tools/pdfium/pdfium.lock`; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
 | Dart | flutter_riverpod 3.4.3, riverpod_annotation 4.0.7, riverpod_generator 4.0.9, build_runner 2.16.2 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)); build_runner 2.17 conflicts with riverpod_generator 4.0.9 |
 | Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin in `analysis_options.yaml`, reported by `dart analyze`; custom_lint is not used |
@@ -380,8 +381,8 @@ licences re-checked on 2026-10-15); [DEPENDENCIES.md](DEPENDENCIES.md) is the re
 | Dart (dev) | alchemist 0.14.1, mocktail 1.0.5 | MIT | goldens (golden_toolkit is discontinued); mocks |
 | Dart | flutter_rust_bridge 2.13.0 | MIT | Dart side of the bridge |
 | Dart | shared_preferences 2.5 | BSD-3-Clause | only if step 9 chooses it for settings |
-| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24.22.0 LTS, playwright-core 1.56.1, cargo-deny 0.20.2, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0; the Dart tool packages' args, path, yaml, crypto and test | various permissive | never shipped; why playwright-core is pinned to 1.56.1 is in step 6 |
-| CI | actions/checkout, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache for the Cargo cache (approved in [Q17](QUESTIONS.md#q17)), actions/setup-node and actions/upload-artifact for the design references; the Rust toolchain comes from `rustup toolchain install` | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
+| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24.22.0 LTS, playwright-core 1.56.1, cargo-deny 0.20.2, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0, cargo-expand 1.0.127; the Dart tool packages' args, path, yaml, crypto and test; vendored cargokit (from the flutter_rust_bridge 2.13.0 template) and its build tool's pub packages | various permissive | never shipped; why playwright-core is pinned to 1.56.1 is in step 6 |
+| CI | actions/checkout, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache for the Cargo cache (approved in [Q17](QUESTIONS.md#q17)), actions/setup-node and actions/upload-artifact for the design references and golden failures, actions/cache for the PDFium archives and the codegen tools; the Rust toolchain comes from `rustup toolchain install` | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
 | Assets | IBM Plex TTFs (18 files in six families) | OFL-1.1 | unmodified files, Reserved Font Name "Plex", SHA-256 pinned in `tools/fonts/fonts.lock` ([ADR 0013](adr/0013-fonts-and-icons.md)) |
 | Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for every glyph; the two Lucide licence files ship |
 | Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, 13 @fontsource 5.3.0 font packages, pixelmatch 7.2.0, pngjs 7.0.0 | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0; pixelmatch ISC | npm packages pinned in the `tools/design-refs` lockfile and served locally; never in the app |
@@ -406,21 +407,27 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
 `allow` cannot override `forbid`. This is the documented exception that
 [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md) allows.
 
-- [ ] `cargo build`, `cargo test`, `cargo fmt --all --check` and
+- [x] `cargo build`, `cargo test`, `cargo fmt --all --check` and
   `cargo clippy --workspace --all-targets -- -D warnings` pass on macOS, Windows and Linux in CI.
-- [ ] `cargo deny check` passes for licences, bans, advisories and sources. The bans list holds
+  Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): jobs Rust (ubuntu-24.04, macos-15, windows-2025), with clippy and tests with and without the
+  `frb` feature; `cargo fmt --all --check` runs once, in the Linux job, because formatting does not
+  depend on the system.
+- [x] `cargo deny check` passes for licences, bans, advisories and sources. The bans list holds
   `pdfium` (GPL-3.0), `mupdf`, `mupdf-sys`, `jbig2dec`, the poppler bindings, `magick_rust`,
   `libheif-sys`, `ffmpeg-sys-next`, and `rustybuzz` except as krilla's wrapper
   (`{ crate = "rustybuzz", wrappers = ["krilla"] }`; [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
-  accepted on 2026-10-15).
-- [ ] The workspace declares `rust-version` and the toolchain file pins 1.99.0; CI reads the
-  toolchain from the file.
-- [ ] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
-  the crate roots).
+  accepted on 2026-10-15). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): job cargo-deny, with the dev-dependency licence run.
+- [x] The workspace declares `rust-version` and the toolchain file pins 1.99.0; CI reads the
+  toolchain from the file. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): `rust-version = "1.88"` in `Cargo.toml`, `rust-toolchain.toml`
+  pins 1.99.0, and each Rust job runs "Install the toolchain from rust-toolchain.toml".
+- [x] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
+  the crate roots). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `unsafe_roots` check in the "Repository checks" step.
 - [ ] **Proposed:** a script reads `cargo metadata` and fails on any crate edge not allowed by
   [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph).
-- [ ] `ferman --version` prints the app version and API version on all three systems.
-- [ ] Every GitHub Action is pinned by commit SHA.
+- [x] `ferman --version` prints the app version and API version on all three systems. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the
+  "CLI smoke test" step of the three Rust jobs.
+- [x] Every GitHub Action is pinned by commit SHA. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `action_pins` check in the "Repository
+  checks" step.
 
 Progress (2026-10-15, development container): the workspace, the seven crate skeletons,
 `rust-toolchain.toml`, `clippy.toml`, `deny.toml` (cargo-deny 0.20.2: advisories, bans, licences and
@@ -429,7 +436,9 @@ and fmt, clippy and the workspace tests pass. `tools/checks` runs the repository
 ARB parity, untracked build output, the crate graph (Proposed), `design/` unchanged, FRB versions, the
 pub deny list (Proposed), unsafe roots and version sync. `.github/workflows/ci.yml` runs them with the
 Rust jobs on three systems and cargo-deny; the toolchain comes from `rustup toolchain install`, which
-reads `rust-toolchain.toml`. The boxes are ticked once CI is green on the pushed branch.
+reads `rust-toolchain.toml`. The first full CI run, [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) on pull request #2, was green on all three
+systems and evidences every box except the Proposed crate-graph check, which stays open until the
+owner approves it.
 
 #### Step 2. Flutter app skeleton
 
@@ -442,17 +451,31 @@ start, document and settings; gen-l10n with `app_en.arb`; the bundle identifier
 Ubuntu 22.04 or later (glibc). The macOS App Sandbox entitlement of the Flutter template stays on
 until the owner answers [Q18](QUESTIONS.md#q18), before M2.
 
-- [ ] `flutter analyze` and `dart analyze --fatal-infos` report zero issues and `flutter test`
+- [x] `flutter analyze` and `dart analyze --fatal-infos` report zero issues and `flutter test`
   passes on all three systems. Both analyzers run: the riverpod_lint 3.1.9 plugin reports only
-  through `dart analyze`.
-- [ ] `flutter build macos`, `flutter build windows` and `flutter build linux` succeed in CI, and a
-  smoke integration test starts each build and finds the root widget.
-- [ ] CI pins Flutter 3.47.7; `pubspec.yaml` requires Dart 3.13.5 or later.
+  through `dart analyze`. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the Analyze and Test steps of the jobs Flutter (ubuntu-24.04,
+  macos-15, windows-2025). Passed at `18c7471` (run 38802741500); failed at `41613ea` and `1554fb2`;
+  green again in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the Analyze and Test steps of the three Flutter jobs.
+- [x] `flutter build macos`, `flutter build windows` and `flutter build linux` succeed in CI, and a
+  smoke integration test starts each build and finds the root widget. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the "Desktop build" and
+  integration-test steps of the three Flutter jobs (`app/integration_test/app_test.dart` finds
+  `FermanApp`). Passed at `18c7471` (run 38802741500); at `41613ea` the macOS and Windows jobs stopped
+  before the build, and at `7914bfc` (run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341)) the macOS integration test found no engine
+  library (fixed in `b9b14ec`); green again in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "Desktop build" and the
+  integration tests of the three Flutter jobs.
+- [x] CI pins Flutter 3.47.7; `pubspec.yaml` requires Dart 3.13.5 or later. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): `FLUTTER_VERSION:
+  3.47.7` for subosito/flutter-action in every Flutter job; `sdk: ^3.13.5` in `app/pubspec.yaml`.
 - [ ] The platform projects carry the bundle identifier and the Q03 minimums, and CI also builds the
   Linux app on Ubuntu 22.04 to prove the floor. arm64 app builds and Windows 10 are checked by the
   owner (pending owner checks in [PROGRESS.md](PROGRESS.md#pending-owner-checks)).
-- [ ] CI runs build_runner and fails if any generated file differs from the committed one.
-- [ ] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md.
+- [x] CI runs build_runner and fails if any generated file differs from the committed one. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15):
+  job "Generated Flutter code is current" (gen-l10n and build_runner, then `git diff --exit-code`).
+- [x] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md. Run
+  [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`) passed the "Dart licence check" step of the Linux Flutter job, but
+  that step checked the direct dependencies only. Since `52603cb` the step runs the full command of
+  [DEPENDENCIES.md §8](DEPENDENCIES.md#8-dart-licence-check) (direct, dev and transitive dependencies,
+  the §8 allow-list), and it passed in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the "Dart licence check" step
+  of the Linux Flutter job (107 packages).
 - [ ] **Proposed:** CI fails if `pubspec.lock` contains a package from the network deny list: HTTP
   clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs
   ([ADR 0015](adr/0015-privacy-and-network.md)).
@@ -463,7 +486,11 @@ Progress: the app skeleton is committed (`23a09c3`): `flutter create` for macOS,
 web with the bundle identifier, macOS 12.0, the copyright line, very_good_analysis 11 with the
 riverpod_lint plugin, Riverpod code generation, go_router, gen-l10n (en, tr, ar) and the window setup.
 flutter_svg was dropped in `246d6df`, because it and vector_graphics depend on `http`, which the pub
-deny list forbids.
+deny list forbids. The Flutter CI jobs, the codegen check and the Ubuntu 22.04 floor build (phase C4)
+ran green in [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500). The box for the platform projects stays open: the floor build passed, but the
+arm64 builds and Windows 10 are owner checks. The two Proposed boxes wait for the owner. Boxes ticked
+at `18c7471` were unticked when a later head failed or the evidence changed; they are ticked again
+with the next green run on the latest head.
 
 #### Step 3. flutter_rust_bridge wiring
 
@@ -472,28 +499,88 @@ Deliverables: FRB 2.13.0 codegen configured to scan only the `frb` module of `fe
 the bridge); an API version check at start-up; `tools/pdfium` and the skeleton render thread.
 
 - [ ] The Rust crate, the Dart package and the codegen are all 2.13.0; a CI check compares the three.
-- [ ] CI regenerates the bindings and fails if they differ from the committed ones.
-- [ ] ferman-api builds with the `frb` feature on and off, and a CI check fails on any
-  `allow(unsafe_code)` outside the FRB-generated module (step 1).
-- [ ] An integration test on each system calls `engine_info()` from Dart and gets the expected
-  values.
-- [ ] A panic in a test-only Rust call reaches Dart as an error and the app keeps running.
+- [x] CI regenerates the bindings and fails if they differ from the committed ones. Evidence: CI run
+  [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): job "Generated Flutter code is current" (`flutter_rust_bridge_codegen generate` and
+  `cargo fmt -p ferman-api`, then `git diff --exit-code`).
+- [x] ferman-api builds with the `frb` feature on and off, and a CI check fails on any
+  `allow(unsafe_code)` outside the FRB-generated module (step 1). Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15):
+  the Clippy and Test steps with and without `--features frb` in the three Rust jobs, and
+  `tools/checks` `unsafe_roots` in the repository checks.
+- [x] An integration test on each system calls `engine_info()` from Dart and gets the expected
+  values. Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the integration tests of the three Flutter jobs
+  (`app/integration_test/app_test.dart`, "reports the versions, and the bundled PDFium is loaded").
+- [x] A panic in a test-only Rust call reaches Dart as an error and the app keeps running. Evidence:
+  CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "a panic in Rust reaches Dart as an error and the engine keeps working" in
+  the debug-build integration tests of the three Flutter jobs.
 - [ ] Zero-copy check: a 1 MB byte vector crosses from Rust to Dart in under 0.2 ms on R1 and R2
   ([ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)). If it does not, the texture-registry fallback
   is designed and recorded in [ADR 0009](adr/0009-threading-and-jobs.md) before M2 starts.
-- [ ] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
-- [ ] `tools/pdfium` downloads `chromium/7881` for macOS (arm64 and x64, combined universal), Windows
+- [x] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
+  Evidence: `tools/checks` `bridge_imports` (`4b8c5c3`, with fixture tests), passing in the
+  repository checks of CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15).
+- [x] `tools/pdfium` downloads `chromium/7881` for macOS (arm64 and x64, combined universal), Windows
   (x64, arm64) and Linux (x64, arm64), checks a pinned SHA-256 per archive, and fails on a mismatch.
-- [ ] The skeleton render thread loads the bundled PDFium on all three systems in CI, and
+  Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "PDFium archives (SHA-256 and licence files)" in the repository
+  checks (`selftest.sh`, with its mismatch cases, then `fetch.sh --all` and `--verify`), and the
+  self-test again on macOS and Linux in the Rust jobs.
+- [x] The skeleton render thread loads the bundled PDFium on all three systems in CI, and
   `engine_info()` reports `loaded = true`, proven by a real PDFium call after binding, together with
   the pinned build tag `chromium/7881`. PDFium has no runtime version API, so the tag is the pin
-  recorded with `tools/pdfium`, not a value read from the library.
+  recorded with `tools/pdfium`, not a value read from the library. Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15):
+  the integration tests of the three Flutter jobs assert `PdfiumState.loaded` and `chromium/7881`
+  with PDFium bundled in the app, and the Rust jobs' `ferman info --json --pdfium` reports `loaded`.
 
 Progress (2026-10-15, development container): `tools/pdfium` exists (phase D1). `fetch.sh` pins the
 SHA-256 of all seven archives and of the library inside each (`pdfium.lock`), uses upstream's
 universal macOS archive after checking its two slices against the thin libraries, checks the licence
 files against the committed copies, and passes its 13-case self-test. Its box is ticked once CI runs
-it on the three systems; the rest of step 3 is wave 2.
+it on the three systems. Phases E1 and E2 (wave 2) added the render
+thread and the facade: ferman-render binds PDFium once per process, from an absolute path, on its own
+thread, and reports `Loaded { tag: "chromium/7881" }` only after a real PDFium call; ferman-api has
+the lazy global `Engine`, async `engine_info()`, the test-only `debug_panic` and `debug_bytes`, and
+the `frb` mirrors; `ferman info --json --pdfium <path>` reports `loaded`. The tests that need PDFium
+are ignored by default and pass with an absolute `FERMAN_PDFIUM_PATH` (7 in the development
+container). CI runs them on the three systems: the first run,
+[38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054) (head `41613ea`), passed on
+Linux and Windows and failed on macOS, where `fetch.sh --platform mac-univ` rejected the library as
+"not a universal Mach-O library". `9393190` fixed that: `fetch.sh` reads the header with tail, head,
+`od -tx1` and bash arithmetic instead of `od -j` and awk, and CI runs `tools/pdfium/selftest.sh` in the
+Rust jobs on macOS and Linux; run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341) (head `7914bfc`) passed the PDFium tests on the
+three systems.
+
+Phase E3 (`0ae4f29`, `1554fb2`, `4b8c5c3`, `16eae39`) wired the bridge. `app/flutter_rust_bridge.yaml`
+scans only `crate::frb` with the `frb` feature (`add_mod_to_lib: false`); the bindings are committed in
+`app/lib/bridge/` and `crates/ferman-api/src/frb_generated.rs`. The FFI plugin `rust_lib_ferman`
+(`app/rust_builder/`) builds ferman-api through cargokit, vendored from the flutter_rust_bridge 2.13.0
+template with two marked patches (the pinned toolchain; the library name with `_`). `app/lib/engine/`
+holds `EngineService`, `FrbEngineService` with the API-version check at start-up, a web stub, a fake
+for tests and the Riverpod providers; `bootstrap()` starts the engine and falls back to
+`UnavailableEngineService`, so the app still opens. Since `b9b14ec` the engine library is opened by
+absolute path beside the executable, because the bridge's default macOS loader found no library in
+run 38822085341. `app/integration_test/app_test.dart` checks the API version, `engine_info()`, the
+panic path and the 1 MiB byte transfer through the bridge; `app/test_driver/integration_test.dart`
+runs it in profile mode with `flutter drive --profile` (`be0a04b`). Profile builds carry the bridge
+since `ba9f6d2` (`crates/ferman-api/cargokit.yaml` lists debug, profile and release). The CI codegen
+job regenerates the bindings and fails on any diff, and `tools/checks` `bridge_imports` fails on any
+import of the bridge outside `app/lib/engine/`. Run 38822085341 passed the integration test on Linux and Windows; on macOS it found no engine
+library, which `b9b14ec` fixed.
+
+Phase E4 (`3e7bf8e`, `52603cb`) bundles PDFium: the Linux and Windows CMake files install the fetched
+library into the bundle and stop at configure time when it is missing, and the macOS Runner target's
+Bundle Framework phase copies it into `Contents/Frameworks`. The integration test asserts
+`PdfiumState.loaded` and the tag `chromium/7881`, and the Ubuntu 22.04 job checks that the bundle
+holds PDFium and that the release engine exports `frb_get_rust_content_hash` (`99a75e1`). CI run
+[38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15) was green in every job on the three systems, with the bundled PDFium loaded through
+the bridge in all three integration tests.
+
+The 1 MiB transfer misses its target: 52–63 ms in a debug build and a 3,310 µs minimum (5,915 µs
+median, 20 warm calls) in a profile build, both in the development container, and 46 ms in a debug
+build on the macOS CI runner. The default SSE codec copies the bytes. The Dco codec
+(`full_dep: true`) was tried in a scratch copy and its Dart did not compile (a name clash). The
+options and a proposal are recorded in
+[ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed), and
+the owner decides in [Q19](QUESTIONS.md#q19); the zero-copy box stays open until R1 and R2 are
+measured. The version box waits for a green run of the codegen version check (`dcdf8a3`).
 
 #### Step 4. Token generator
 
@@ -520,8 +607,15 @@ overrides.
 Progress (2026-10-15, development container): `tools/tokens` and the generated `tokens.g.dart` exist.
 Its 125 tests count the tokens per file and environment against the CSS sources (348 declarations, 269
 unique names: 238 from the design system, 31 new), check each mapping rule, determinism and
-`dart run tokens --check`. The first three boxes are ticked once CI runs these tests; `theme.dart`,
-the reduced-motion widget test and the S6 check follow in phase F.
+`dart run tokens --check`. Phase F added the theme layer: `app/lib/design/theme.dart` and
+`app/lib/design/theme/` (`FermanTheme`, `context.ferman`, `FermanThemeScope`, `FermanMaterialTheme`,
+`FermanTypography`), `themeModeProvider` (`app/lib/app/theme_mode.dart`, in memory until step 9) and
+`app/lib/app/app.dart`. `app/test/design/theme/app_theme_test.dart` switches light, dark and match
+system while the app runs, and turns reduced motion on and off, with the same router and navigator
+mounted throughout; reduced motion gives zero durations and an instant switch. 67 theme tests pass.
+The S6 checks (`s6_literals`, `s6_forbidden_api`, `s6_directional`, `s6_casing`,
+`s6_material_imports`) run in `tools/checks` with 83 fixture tests and pass on the repository. The
+boxes are ticked once a green CI run covers these tests.
 
 #### Step 5. Fonts and icons
 
@@ -564,7 +658,13 @@ Progress (2026-10-15, development container): the 18 TTFs and 6 licence files ar
 self-test and `coverage.py` pass. `tools/icons` wrote the 229 SVGs, `PROVENANCE.md`, the two Lucide
 licence files and `icon_name.g.dart`; its 73 tests check the count, every path against a separate
 extraction of the design source, the provenance and the directional list. The boxes are ticked once CI
-runs these checks; the golden, the Icon widget and the LicenseRegistry test follow in phase F.
+runs these checks; phase F added the Icon widget and its painter (widget tests for size, colour,
+stroke, mirroring and semantics; all 229 icons paint), the LicenseRegistry entries with their test,
+and the script-coverage and icon goldens in `app/test/goldens/`, generated in the development
+container. They match on the CI Linux runner (the Flutter Linux job of
+[38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The script-coverage
+golden showed that a script font first in the chain misplaces the marks of İ, ş and ế, so every UI
+language but CJK uses the design's `--font-ui` order, IBM Plex Sans first ([G64](DESIGN_GAPS.md#g64)).
 
 #### Step 6. Design references
 
@@ -578,8 +678,9 @@ playwright-core is pinned to 1.56.1, not the newest release, because its browser
 is blocked. CI uses the same revision, so local and CI renders come from the same browser
 ([DEPENDENCIES.md](DEPENDENCIES.md#23-tools-never-shipped)). CI does not run the Playwright installer, which
 also downloads Playwright's ffmpeg build (LGPL-2.1) with every Chromium: it downloads the revision
-1194 headless shell directly with `tools/design-refs/fetch-chromium.sh` (its SHA-256 is pinned from
-the first CI download) and passes its path to the renderer with `--chromium`.
+1194 headless shell directly with `tools/design-refs/fetch-chromium.sh` (its SHA-256, `d745c721…c91f`,
+is pinned from the first CI download on 2026-10-15) and passes its path to the renderer with
+`--chromium`.
 
 Capture rule: only the boards built on FmBoard carry `data-fm-artboard`, so it is not the capture
 key. Each of the 214 product boards is captured from the first `.fm-root` inside the element with the
@@ -730,6 +831,15 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
   description for translators. Setting up the Weblate project is a BACKLOG entry until the owner
   creates it.
 
+Progress (2026-10-15, development container): phase F4 added the casing utility `LocaleCasing`
+(`app/lib/l10n/casing.dart`) and the region formats `Region` and `RegionFormat`
+(`app/lib/l10n/region.dart`, `format.dart`), with 79 tests in `app/test/l10n/`: the casing cases of
+the box above, every SpecialCasing-15.0.0 line, a 160-string ICU fixture, CLDR 48 formats for the 45
+listed regions in both load orders of flutter_localizations, and an English UI with the Türkiye
+region. `bootstrap()` loads the region formats with `initializeRegionFormats()`. The region provider
+and the a11-1b picker come with step 9; the ARB work and the right-to-left checks with phase J. The
+casing and region boxes are ticked once a green CI run covers these tests.
+
 #### Step 11. Golden matrix
 
 - [ ] Goldens exist for the language picker, welcome steps 2 and 3, the empty start screen, the shell
@@ -771,6 +881,8 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
   [G24](DESIGN_GAPS.md#g24) network claims, [G34](DESIGN_GAPS.md#g34) locale formats,
   [G52](DESIGN_GAPS.md#g52) bundled translations, [G63](DESIGN_GAPS.md#g63) internal-error message
   (found in M1).
+- Typography (found in M1): [G64](DESIGN_GAPS.md#g64) UI font order, [G65](DESIGN_GAPS.md#g65) CJK
+  synthetic bold.
 
 ### Exit checks
 

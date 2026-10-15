@@ -14,11 +14,11 @@ These rules apply to the engine crates, the fuzz workspace and the workspace fil
 
 ## Toolchain and pinned versions
 
-- Rust 1.99.0, pinned in `rust-toolchain.toml` with rustfmt and clippy; CI installs it with `rustup toolchain install`. `rust-version = "1.88"` in the workspace `Cargo.toml` is the floor, raised in the same commit as a crate that needs more.
+- Rust 1.99.0, pinned in `rust-toolchain.toml` with rustfmt and clippy; CI installs it with `rustup toolchain install`, and cargokit builds the app's engine with it (a "Ferman patch" in `app/rust_builder/`). `rust-version = "1.88"` in the workspace `Cargo.toml` is the floor, raised in the same commit as a crate that needs more.
 - Ferman's own crates are path dependencies without a version requirement in `[workspace.dependencies]` (`deny.toml` sets `allow-wildcard-paths`), so a version bump touches only `[workspace.package]`.
 - lopdf `=0.45`. It ships breaking releases almost monthly, so bump it on purpose, with a full corpus and pixel-diff run.
-- pdfium-render 0.9.4 with the prebuilt bblanchon/pdfium-binaries tag `chromium/7881` (non-V8, non-XFA build). `tools/pdfium` fetches it and checks a pinned SHA-256 per archive. The archive's `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app.
-- flutter_rust_bridge `=2.13.0`. The Rust crate, the Dart package and `flutter_rust_bridge_codegen` must have exactly the same version; CI compares them.
+- pdfium-render `=0.9.4` (default features off; `pdfium_7881` and `thread_safe`; `image_025` joins with page rendering in M2) with the prebuilt bblanchon/pdfium-binaries tag `chromium/7881` (non-V8, non-XFA build). Its bindings are process-wide and never unbound, so ferman-render binds one library per process, from an absolute path, behind a lock. `tools/pdfium` fetches it and checks a pinned SHA-256 per archive. The archive's `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app.
+- flutter_rust_bridge `=2.13.0`. The Rust crate, the Dart package and `flutter_rust_bridge_codegen` must have exactly the same version; CI compares them. After a change to the `frb` module, regenerate the bindings (`src/frb_generated.rs` and `app/lib/bridge/`) with `(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api` (codegen 2.13.0 needs cargo-expand 1.0.127); the CI codegen job fails on any diff.
 - Shaping: harfrust, pinned exactly, as [ADR 0007](../../docs/adr/0007-harfrust-instead-of-rustybuzz.md) decides (accepted by the owner on 2026-10-15, [Q04](../../docs/QUESTIONS.md#q04)). Never add rustybuzz as a direct dependency: `deny.toml` bans it except as krilla's wrapper (`{ crate = "rustybuzz", wrappers = ["krilla"] }`). Keep the shaper behind the internal `Shaper` trait in ferman-fonts; nothing outside ferman-fonts names the shaping crate.
 - Fonts otherwise use the brief's crates: skrifa and read-fonts (parsing), subsetter (subsetting), fontdb (system fonts).
 - `image` is built with default features off.
@@ -44,7 +44,7 @@ These rules apply to the engine crates, the fuzz workspace and the workspace fil
 
 ## API boundary
 
-- Only ferman-api is UI-facing. FRB codegen scans only its `frb` module; the facade is pure Rust. ferman-cli and the integration tests use the facade with the `frb` feature off.
+- Only ferman-api is UI-facing. FRB codegen scans only its `frb` module; the facade is pure Rust and carries `#[cfg_attr(feature = "frb", flutter_rust_bridge::frb(ignore))]`, because FRB matches types by bare name across the crate. The `frb` mirrors are plain structs and enums without data. Never use `std::pin::pin!`, or any macro that expands to `super let`, in ferman-api: FRB 2.13 codegen expands the whole crate and cannot parse it; use `Box::pin`. ferman-cli and the integration tests use the facade with the `frb` feature off.
 - Only plain data crosses: integers, floats, strings, enums, byte vectors and structs of those, plus opaque `u64` handles. Geometry is in page space. lopdf types, PDF matrices and PDFium objects never cross.
 - Every API function is async or returns a stream, except `api_version()`.
 - Never block in an async FRB function. It validates input, sends a message to the right actor or queue, and awaits the reply.
@@ -54,7 +54,7 @@ These rules apply to the engine crates, the fuzz workspace and the workspace fil
 
 The model is Proposed in [ADR 0009](../../docs/adr/0009-threading-and-jobs.md); the brief fixes the outcome: rendering and heavy work never run on the UI thread.
 
-- PDFium is not thread-safe. Only ferman-render links it, and every PDFium call runs on its single render thread. pdfium-render's `thread_safe` feature (one global lock) stays on as a second guard.
+- PDFium is not thread-safe. Only ferman-render links it, and every PDFium call runs on its single render thread. pdfium-render's `thread_safe` feature (one global lock) stays on as a second guard. In M1 the render thread takes requests over `std::sync::mpsc` and replies through `futures_channel::oneshot` futures; crossbeam-channel comes with the tile queue in M2.
 - lopdf is the source of truth. PDFium only rasterises: it reloads the revised bytes after a pixel-changing commit and never writes.
 - One actor per open document serialises mutations and publishes immutable snapshots. Readers (render thread, jobs, text queries) hold snapshots and never block the actor.
 - Tiles go through the prioritised, cancellable tile queue. Long work runs as a job on the job pool, never on FRB worker threads.
@@ -81,6 +81,7 @@ Brief §4 is the hardest part and must be flawless ([ADR 0005](../../docs/adr/00
 ## Tests
 
 - Unit tests next to the code; integration tests in `crates/*/tests/` through public APIs. The full open, edit, save and reopen path is tested through the ferman-api facade.
+- Tests that need the PDFium library are `#[ignore]` by default and run with an absolute `FERMAN_PDFIUM_PATH` (`cargo test --workspace -- --ignored`; cargo runs each test binary from its crate's folder, so a relative path breaks). CI runs them on the three systems. Tests that must not depend on the caller's shell remove `FERMAN_PDFIUM_PATH` first.
 - A cargo-fuzz target for every parser, from the first parser in M2, including third-party parsers reached through our wrappers (lopdf through ferman-core, skrifa and read-fonts through ferman-fonts, image decoders): object lexer and parser, xref and trailer paths (including repair), content-stream lexer and interpreter, stream filters, CMap and ToUnicode, the Type1 parser and font program parsing, encryption, incremental writer round trip, and "open arbitrary bytes" through the facade. Crashes become regression files in the corpus. `fuzz/` is a separate workspace, so `libfuzzer-sys` (NCSA) never ships. Its NCSA exception was approved by the owner on 2026-10-15 ([Q17](../../docs/QUESTIONS.md#q17)) for `fuzz/` only; create `fuzz/` with the first parser in M2.
 - Property tests (proptest) for every encoder and decoder: lexer round trip, encode and decode for every encoding, edit then revert gives identical bytes, written incremental updates parse back to the same objects.
 - Every corpus file has its source, licence, SHA-256 and purpose in `tests/corpus/README.md`.

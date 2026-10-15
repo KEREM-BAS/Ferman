@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-63 entries: 51 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 and G63 were found in M1.
+65 entries: 53 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G65 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 25 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 27 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -133,6 +133,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G61](#g61) | conflict | M2 | Search | Accent-insensitive search on by default only for Turkish documents | Decided |
 | [G62](#g62) | conflict | M1 | Comment / annotation tools | The bundle's `ANNOTATION_TOOLS` lists 9 tools; the boards draw 11 | Decided |
 | [G63](#g63) | missing state | M1 | Errors | No message drawn for an internal error | Decided |
+| [G64](#g64) | conflict (internal to design) | M1 | Typography / localization | Arabic, Hebrew and Hindi UI text: which Plex family comes first | Decided |
+| [G65](#g65) | conflict | M1 | Typography / CJK | CJK text: no synthetic bold, which Flutter cannot switch off | Decided |
 
 ## Entries
 
@@ -210,7 +212,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Fonts
 - **Artboards:** `a1-1`
 - **Gap or conflict:** `assets/fonts` holds only 23 WOFF2 unicode-range subsets, and Flutter bundles TTF or OTF, not WOFF2. The IBM Plex Sans subsets are variable fonts (weight axis), so mapping weights 500 and 600 to the "-400-normal" files is correct. No Plex Sans italic is shipped, yet the FontPicker "Not installed" state sets the font name in italic UI text, which would be synthesised. Plex Serif 500 is used once, in mock document text only. Vietnamese (U+1EA0–1EF1) is not covered, although a1-1 lists "Tiếng Việt". The export has no local fonts for 6 of the 21 UI languages (he, hi, ja, ko, zh-Hans, zh-Hant) or for the signature styles `--font-hand-1..3`; those load only from Google Fonts ([G07](#g07)).
-- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans after Plex Sans Arabic in the fallback chain. (Measured in M1: the Arabic, Hebrew and Devanagari fonts carry ASCII and Latin-1 but not Latin Extended-A, so Turkish letters inside those UIs come from Plex Sans.) Plex Sans Italic 400 is bundled for the drawn FontPicker state: the design declares no italic Plex Sans face, so the boards show a synthesised oblique there, and the app uses IBM's true italic instead. Plex Sans Hebrew and Plex Sans Devanagari are bundled too, as the owner decided. Japanese, Korean and both Chinese scripts use system fonts, with no font packs. The handwriting faces (M4) and similar fonts for missing glyphs (M3) wait for the open groups 3 and 4 of [Q08](QUESTIONS.md#q08). The design's woff2 subsets are not used.
+- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans first and Plex Sans Arabic after it, the design's `--font-ui` order. (Measured in M1: the Arabic, Hebrew and Devanagari fonts carry ASCII and Latin-1 but not Latin Extended-A or ế; with one of them first, Flutter builds those letters from it as base plus mark with misplaced marks, so every UI language but CJK uses the `--font-ui` order, [ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui), [G64](#g64).) Plex Sans Italic 400 is bundled for the drawn FontPicker state: the design declares no italic Plex Sans face, so the boards show a synthesised oblique there, and the app uses IBM's true italic instead. Plex Sans Hebrew and Plex Sans Devanagari are bundled too, as the owner decided. Japanese, Korean and both Chinese scripts use system fonts, with no font packs. The handwriting faces (M4) and similar fonts for missing glyphs (M3) wait for the open groups 3 and 4 of [Q08](QUESTIONS.md#q08). The design's woff2 subsets are not used.
 - **Status:** Decided. The owner answered [Q08](QUESTIONS.md#q08) groups 1 and 2 on 2026-10-15 (bundle Plex Sans Hebrew and Devanagari; CJK from system fonts). Was Needs owner.
 - **Evidence:** The five `plex-sans-*-400-normal.woff2` files carry fvar, gvar, avar, HVAR and STAT tables. `forms.css` line 128 sets `font-style: italic` on `.fm-fonttrigger--missing`. The latin-ext range jumps from U+1E9F to U+1EF2.
 
@@ -573,10 +575,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Milestone:** M2
 - **Area:** Locale formatting in English UI
 - **Artboards:** rule: `a11-1b`, `a12-2c`; dates: `a2-7`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a12-2a`, `a2-3b`, `a2-3d`, `a5-5c`; decimals: `a1-2a`, `a3-1b`, `a3-1c`, `a3-3a`, `a3-4`, `a1-9b`, `a12-1ja`, `a13-5`, `a12-1tr`, `a12-1de`, `a9-1`, `a11-6b`
-- **Gap or conflict:** a11-1b states the rule: region formats drive dates and numbers (with the region Türkiye: "13.10.2026", "18.500,50", "10,5 pt"), and a12-2c repeats it. The boards break it with four date styles: "13 Oct 2026, 14:32" (the FmDocPanel on most 02 View boards, a2-7), the US "Oct 12, 2026" (Start a1-4, a1-4b, a1-4c, a1-6), "12/10/2026" (Arabic Start a12-2a) and the region-correct "13.10.2026" (a2-3b, a2-3d, a5-5c). Decimals mix too: "10.5 pt" and "2.4 MB" (a1-2a, a3-1b, a3-1c, a3-3a, a3-4, a1-9b, a12-1ja, a13-5) against "10,5 pt", "1,2 MB" and "24,6 MB" (a12-1tr, a12-1de, a2-3b, a9-1, a11-6b). FmStart dates and the font-size labels in a12-1tr, a12-1de and a12-1ja follow the UI language.
-- **Decision:** Numbers, dates, file sizes, paper sizes and units always follow the region setting (a11-1b), never the UI language ([ADR 0014](adr/0014-localization-and-rtl.md)). Boards that show another format are read as drawn for another region. Goldens fix the region in each test.
+- **Gap or conflict:** a11-1b states the rule: region formats drive dates and numbers (with the region Türkiye: "13.10.2026", "18.500,50", "10,5 pt"), and a12-2c repeats it. The boards break it with four date styles: "13 Oct 2026, 14:32" (the FmDocPanel on most 02 View boards, a2-7), the US "Oct 12, 2026" (Start a1-4, a1-4b, a1-4c, a1-6), "١٢/١٠/٢٠٢٦" (Arabic Start a12-2a, Arabic-Indic digits through FmStart's dg()) and the region-correct "13.10.2026" (a2-3b, a2-3d, a5-5c). Decimals mix too: "10.5 pt" and "2.4 MB" (a1-2a, a3-1b, a3-1c, a3-3a, a3-4, a1-9b, a12-1ja, a13-5) against "10,5 pt", "1,2 MB" and "24,6 MB" (a12-1tr, a12-1de, a2-3b, a9-1, a11-6b). FmStart dates and the font-size labels in a12-1tr, a12-1de and a12-1ja follow the UI language.
+- **Decision:** Numbers, dates, file sizes, paper sizes and units always follow the region setting (a11-1b), never the UI language ([ADR 0014](adr/0014-localization-and-rtl.md)). Boards that show another format are read as drawn for another region. Goldens fix the region in each test. Built in M1 (`app/lib/l10n/region.dart`, `format.dart`). The digits come from the region. Both Arabic boards draw Arabic-Indic digits: a12-1ar ("١٠٫٥ pt") and a12-2a, whose dates FmStart converts with dg() (lines 82–87; rendered "١٢/١٠/٢٠٢٦"). They are the Saudi Arabia region, and goldens of the Arabic boards use Saudi Arabia. The United Arab Emirates region writes Latin digits, as CLDR's ar-AE does; no board draws it. Numeric dates follow CLDR `yMd`, so the German region writes "2.10.2026" and "28.9.2026" where a12-2b draws "02.10.2026" and "28.09.2026"; accepted. a12-2a writes Arabic times on a 24-hour clock ("اليوم ١٤:٣٢"); CLDR's ar-SA and ar-EG write "h:mm a" ("٢:٣٢ م"). Times follow CLDR; accepted. US times keep CLDR's U+202F before "PM". The a11-1b week picker draws Monday, Sunday and Saturday; a region whose CLDR first day is Friday (the Maldives) adds a Friday option. Percentages: Turkish CLDR writes "%100", with the sign first, while the boards draw "100%" (no "%100" appears anywhere in `design/`). The app follows CLDR through `RegionFormat`, which has no percentage helper yet; the zoom field revisits this when it is built in M2.
 - **Status:** Decided
-- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic).
+- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic, turned into Arabic-Indic digits by dg() at lines 82–87).
 
 <a id="g35"></a>
 
@@ -954,3 +956,29 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A generic message in the style of a1-9b, with no error code in the sentence: "Something went wrong inside Ferman. Copy the technical details to report the problem.", with the "Copy technical details" action. The ARB entries (`errorInternal` in `app_en.arb` and `app_tr.arb`, with a translator description) are added with the first error strings; the Turkish text goes through native review like every other string.
 - **Status:** Decided
 - **Evidence:** `MessageKey::INTERNAL` in `crates/ferman-api/src/facade/error.rs`; no board in `design/` draws a generic internal-error message.
+
+<a id="g64"></a>
+
+### G64 · Arabic, Hebrew and Hindi UI text: which Plex family comes first
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Typography / localization
+- **Artboards:** `a12-2a`, `a12-2c`
+- **Gap or conflict:** The Arabic boards inherit `.fm-root`'s `--type-body`, which uses `--font-ui`: IBM Plex Sans first, then Plex Sans Arabic, Hebrew and Devanagari, so Latin letters, digits and spaces in Arabic UI text come from Plex Sans. The design system also defines `--font-arabic` (`typography.css:7`) with Plex Sans Arabic first; it appears once, on a mock translated document page in 03c, and no UI board uses it. The M0 version of [ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui) put Plex Sans Arabic first for ar and fa, Plex Sans Hebrew first for he and Plex Sans Devanagari first for hi. Measured in M1: the three script fonts lack İ, ş and ế but carry I, s, ê and the combining marks U+0307, U+0327 and U+0301, so with one of them first Flutter builds those letters from it as base plus mark. Plex Sans Devanagari misplaces all three marks; Plex Sans Arabic and Hebrew place İ and ş correctly but set the acute of ế beside the circumflex.
+- **Decision:** Every UI language but CJK uses the design's `--font-ui` order, IBM Plex Sans first, ar, fa, he and hi included, as the Arabic boards do. Arabic, Persian, Hebrew and Devanagari text renders pixel-identically either way (checked at 11 to 40 px, with digits and punctuation); only the Latin letters, digits and punctuation inside those UIs come from Plex Sans, and a wrapped line that holds only digits or punctuation takes Plex Sans's line metrics, as in the browser. `--font-arabic` is not used for UI text. Implemented in `FermanFontFamilies.uiChain` (`app/lib/design/theme/typography.dart`); ARCHITECTURE §11.5 and [ADR 0013](adr/0013-fonts-and-icons.md) record the chains. Revisit if the step 11 goldens for a12-2a and a12-2c differ visibly from their references.
+- **Status:** Decided
+- **Evidence:** `--font-ui` and `--font-arabic` in `design/_ds/…/tokens/typography.css` lines 6–7, `--font-ui` in `design/ds-additions/fm-additions.css` line 48; the `dir="rtl"` boards in `design/12 Localization.dc.html`, which never use `--font-arabic`; `--font-arabic` in `design/03c Edit review and translate.dc.html`. M1: the mark placement in `app/test/goldens/script_coverage_golden_test.dart` and its golden `script_coverage.png`.
+
+<a id="g65"></a>
+
+### G65 · CJK text: no synthetic bold, which Flutter cannot switch off
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Typography / CJK
+- **Artboards:** none (a CSS rule)
+- **Gap or conflict:** `fm-additions.css` sets `font-synthesis: none` for `[lang|="ja"]`, `zh` and `ko`. Flutter has no such switch; when a system CJK font lacks the requested weight, the engine may embolden the regular face.
+- **Decision:** The CJK roles keep the design's weights and no role is italic. For ja, ko, zh-Hans and zh-Hant the theme names the ADR 0013 system families right after IBM Plex Sans (Hiragino Sans, Yu Gothic UI, Noto Sans CJK JP; Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR; PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC; PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC), so real bold faces are picked where the system has them. Remaining synthesis is checked by hand with the step 5 CJK samples on R1, R2 and Linux.
+- **Status:** Decided
+- **Evidence:** `design/ds-additions/fm-additions.css` lines 55–56; `FermanFontFamilies` in `app/lib/design/theme/typography.dart`.

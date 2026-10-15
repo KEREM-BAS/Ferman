@@ -98,33 +98,42 @@ adds, removes or upgrades a dependency without updating this file is not merged.
 ## 2. In use today
 
 What M1 has added so far, read from `Cargo.lock`, `app/pubspec.lock`, the tool lockfiles and
-`.github/workflows/ci.yml` on 2026-10-15. Some of it is still in the working tree and is committed by
-phase ([PROGRESS.md](PROGRESS.md#m1-plan)).
+`.github/workflows/ci.yml` on 2026-10-15. Everything listed here is committed on `m1-foundations`
+([PROGRESS.md](PROGRESS.md#m1-plan)).
 
 ### 2.1 Rust crates
 
 | Name | Purpose | Version (Cargo.lock) | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
 | thiserror | Error enum in every crate | 2.0.21 | MIT OR Apache-2.0 | ok | M1 | [ADR 0010](adr/0010-error-handling-no-panics.md). MSRV 1.77. |
-| tracing | ferman-api: records caught panics (no subscriber yet) | 0.1.44 | MIT | ok | M1 | Logs never leave the device ([ADR 0015](adr/0015-privacy-and-network.md)). tracing-subscriber is added with the first log file ([section 3.1](#31-bridge-errors-and-logging)). MSRV 1.65. |
+| tracing | ferman-api: records caught panics; ferman-render: the render thread's start and the PDFium load, with the library path (no subscriber yet) | 0.1.44 | MIT | ok | M1 | Logs never leave the device ([ADR 0015](adr/0015-privacy-and-network.md)). File paths may appear in the local log, never in `engine_info()` ([ARCHITECTURE.md §8.4](ARCHITECTURE.md#84-logs)). tracing-subscriber is added with the first log file ([section 3.1](#31-bridge-errors-and-logging)). MSRV 1.65. |
 | serde (derive) | ferman-api: `Serialize` on `EngineInfo` and its parts | 1.0.229 | MIT OR Apache-2.0 | ok | M1 | Derived directly, with no feature flag. |
-| serde_json | ferman-cli: `info --json` | 1.0.154 | MIT OR Apache-2.0 | ok | M1 | |
+| serde_json | ferman-cli: `info --json`; ferman-api (dev): the PDFium status JSON test | 1.0.154 | MIT OR Apache-2.0 | ok | M1 | |
 | clap (`derive`, `string`) | ferman-cli argument parser | 4.6.7 | MIT OR Apache-2.0 | ok | M1 | Chosen in M1 step 1. MSRV 1.85. Pulls anstream, anstyle*, clap_lex, strsim and heck (MIT, or MIT OR Apache-2.0). |
-| flutter_rust_bridge (crate) | Rust side of the Dart–Rust bridge, behind ferman-api's optional `frb` feature | `=2.13.0` | MIT | ok | M1 | The crate, the Dart package and the codegen must be the same version ([ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md)); `tools/checks` compares the crate and the Dart package, and CI compares the codegen. 2.14.0-beta.2 exists and is not used. Its default features add about 75 crates, among them tokio 1.53.3, futures 0.3.34, backtrace 0.3.76, allo-isolate 0.1.27 (clarify hash `0x0a6d4ed6`, [section 7](#7-denytoml)), dart-sys 4.1.5, threadpool 1.8.1, anyhow 1.0.104, dashmap 5.5.3 and md-5 0.10.6. MSRV 1.70. |
+| flutter_rust_bridge (crate) | Rust side of the Dart–Rust bridge, behind ferman-api's optional `frb` feature | `=2.13.0` | MIT | ok | M1 | The crate, the Dart package and the codegen must be the same version ([ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md)); `tools/checks` compares the crate and the Dart package, and the CI codegen job installs the codegen at exactly 2.13.0 (its cache key names the version). 2.14.0-beta.2 exists and is not used. Its default features add about 75 crates, among them tokio 1.53.3, futures 0.3.34, backtrace 0.3.76, allo-isolate 0.1.27 (clarify hash `0x0a6d4ed6`, [section 7](#7-denytoml)), dart-sys 4.1.5, threadpool 1.8.1, anyhow 1.0.104, dashmap 5.5.3 and md-5 0.10.6. MSRV 1.70. |
+| pdfium-render | ferman-render: binds PDFium at run time on the render thread; read-only rasteriser from M2 | `=0.9.4` | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` (checked in the 0.9.4 manifest: `pdfium_latest = ["pdfium_7881"]`, `image_latest = ["image_025"]`; the API level is named so a pdfium-render update cannot move it). `image_025` ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md)) is added with page rendering in M2. Pinned exactly: it moves with the PDFium tag in one commit. Binds with `bind_to_library` from an explicit, absolute path; its bindings are process-wide and never unbound, so ferman-render binds once per process behind a lock. Pulls on the desktop targets: libloading 0.9.0 (ISC, MSRV 1.88), chrono 0.4.45 (default features), iana-time-zone 0.1.65 (Linux, macOS), core-foundation-sys 0.8.7 (macOS), windows-link 0.2.1 (Windows), itertools 0.15.0, either 1.19.0, num-traits 0.2.19, autocfg 1.5.1 (build), bitflags 2.13.2, bytemuck 1.25.2 (Zlib OR Apache-2.0 OR MIT), bytes 1.12.1 (MIT), log 0.4.34, once_cell 1.21.4, maybe-owned 0.3.4, utf16string 0.2.0, vecmath 1.0.0 and piston-float 1.0.1 (MIT); 22 packages are new in `Cargo.lock`. MSRV 1.61. Upgrade check: reusing a binding relies on `Pdfium::default()` taking pdfium-render's reuse branch (`library.rs`). pdfium-render panics if its global lock is poisoned, which ends the render thread (status "failed: the render thread has stopped"). It never calls `FPDF_DestroyLibrary`. |
+| futures-channel | ferman-render: oneshot replies from the render thread, awaited by async API functions without blocking | 0.3.34 | MIT OR Apache-2.0 | ok | M1 | Default features (`std`). Already in the graph through flutter_rust_bridge's futures 0.3.34. Requests use `std::sync::mpsc`; crossbeam-channel ([section 3.5](#35-concurrency-and-caching)) is not added before M2. MSRV 1.71. |
 | insta (dev) | ferman-cli snapshot test | 1.49.0 | Apache-2.0 | ok | M1 | Pulls console 0.16.6 (MIT), similar 2.7.0 (Apache-2.0) and tempfile 3.27.0 (MIT OR Apache-2.0). MSRV 1.66. |
 
 Notable transitive licences: memchr 2.8.3 and byteorder 1.5.0 are `Unlicense OR MIT` (the MIT side
-applies), miniz_oxide 0.8.9 is `MIT OR Zlib OR Apache-2.0`, and unicode-ident 1.0.27 adds
-Unicode-3.0. `cargo deny check` (0.20.2) passes for advisories, bans, licences and sources. It prints
-three expected warnings: the `libfuzzer-sys` exception and the rustybuzz wrapper are not met yet, and
-syn appears twice (2.0.119 and 3.0.9). Every MSRV in the graph is 1.88 or lower. proptest is pinned in
-`[workspace.dependencies]` and enters `Cargo.lock` with its first use ([section 3.10](#310-dev-and-test-rust)).
+applies), miniz_oxide 0.8.9 is `MIT OR Zlib OR Apache-2.0`, bytemuck 1.25.2 is
+`Zlib OR Apache-2.0 OR MIT`, libloading 0.9.0 is ISC, and unicode-ident 1.0.27 adds Unicode-3.0.
+console_log 1.1.0, android_system_properties 0.1.6, iana-time-zone-haiku 0.1.2 and windows-core
+0.62.2 (with windows-implement, windows-interface, windows-result and windows-strings) are in
+`Cargo.lock` through pdfium-render and chrono but are built for none of the desktop targets.
+`cargo deny check` (0.20.2) passes for advisories, bans, licences and sources, and the dev-dependency
+licence run passes too; pdfium-render's tree needed no `[[licenses.clarify]]` entry. It prints three
+expected warnings: the `libfuzzer-sys` exception and the rustybuzz wrapper are not met yet, and syn
+appears twice (2.0.119 and 3.0.9). Every MSRV in the graph is 1.88 or lower (libloading 0.9.0 is
+exactly 1.88). proptest is pinned in `[workspace.dependencies]` and enters `Cargo.lock` with its
+first use ([section 3.10](#310-dev-and-test-rust)).
 
 ### 2.2 Dart and Flutter packages (app)
 
 Licences re-checked on pub.dev on 2026-10-15. `very_good packages check licenses` over
-`app/pubspec.lock` (direct and transitive, the allow-list of [section 8](#8-dart-licence-check))
-passes: 107 packages, BSD-3-Clause (79), MIT (23) and Apache-2.0 (5).
+`app/pubspec.lock` (the full command of [section 8](#8-dart-licence-check): direct, dev and transitive
+dependencies) passes: 107 packages, BSD-3-Clause (79), MIT (23) and Apache-2.0 (5). `rust_lib_ferman`
+is a path package and is not counted.
 
 | Name | Purpose | Version (pubspec.lock) | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
@@ -133,16 +142,17 @@ passes: 107 packages, BSD-3-Clause (79), MIT (23) and Apache-2.0 (5).
 | go_router | Navigation | 18.1.0 (2026-10-14) | BSD-3-Clause | ok | M1 | Publisher flutter.dev. |
 | intl | Messages, dates and numbers | 0.20.3 | BSD-3-Clause | ok | M1 | flutter_localizations requires `^0.20.3`. Publisher dart.dev. |
 | flutter_localizations | Framework localisations and RTL support | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | Used with gen-l10n ([ADR 0014](adr/0014-localization-and-rtl.md)). |
-| path_provider | App support, cache and data directories | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. |
+| path_provider | App support, cache and data directories | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
 | window_manager | Custom title bars, window size and state | 0.5.2 | MIT | ok | M1 | Publisher leanflutter.dev. Windows, macOS and Linux only. Pulls screen_retriever 0.2.2 (MIT). |
 | path_parsing | Parses the icons' SVG path data for the Icon widget's `CustomPainter` | 1.1.0 (2024-11-01) | MIT | ok | M1 | Publisher flutter.dev (flutter/packages, `third_party/packages/path_parsing`); its LICENSE is the MIT text. Depends on meta and vector_math 2.4.0 (both BSD-3-Clause). Replaces flutter_svg ([section 4](#4-rejected), [ADR 0013](adr/0013-fonts-and-icons.md)). |
 | flutter_rust_bridge (Dart) | Dart side of the bridge | 2.13.0 | MIT | ok | M1 | Same version as the crate and the codegen. Publisher cjycode.com. |
+| rust_lib_ferman | FFI plugin with no Dart code: builds ferman-api (`frb` feature) through cargokit and bundles the library with the app | path package `app/rust_builder` (0.1.0) | Apache-2.0 | ok | M1 | Ferman's own code. Linux and Windows build through CMake, macOS through CocoaPods; Flutter warns that it does not support Swift Package Manager ([section 9](#9-known-risks), [B007](BACKLOG.md#open)). Its vendored cargokit is in [section 2.3](#23-tools-never-shipped). |
 | riverpod_generator (dev) | Riverpod code generator | 4.0.9 | MIT | ok | M1 | Needs analyzer >=13 <15, which is why custom_lint cannot be used. |
 | build_runner (dev) | Runs the code generators | 2.16.2 | BSD-3-Clause | ok | M1 | Publisher tools.dart.dev. 2.17.1 (2026-10-14) exists, but build_runner 2.17 conflicts with riverpod_generator 4.0.9. |
 | alchemist (dev) | Golden tests | 0.14.1 | MIT | ok | M1 | Publisher betterment.dev. Replaces golden_toolkit. Goldens load the real fonts ([brief §5](BRIEF.md)). |
 | mocktail (dev) | Mocks for tests | 1.0.5 | MIT | ok | M1 | Publisher felangel.dev. |
 | very_good_analysis (dev) | Lint rule set | 11.0.0 | MIT | ok | M1 | Required by [brief §5](BRIEF.md). It enforces `unnecessary_type_name_in_constructor`, so Ferman's Dart uses Dart 3.13's `new` constructor form. |
-| flutter_test, integration_test (dev) | Widget and integration tests | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | |
+| flutter_test, integration_test, flutter_driver (dev) | Widget and integration tests; flutter_driver runs the integration test in profile mode | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | flutter_driver was already transitive through integration_test; since `be0a04b` it is a direct dev dependency for `app/test_driver/integration_test.dart` (`flutter drive --profile`). The lockfile changed only its dependency type, so the licence count stays at 107. |
 | riverpod_lint | Riverpod lints | 3.1.9 | MIT | ok | M1 | A native analyzer plugin under `plugins:` in `app/analysis_options.yaml`, not a pubspec dependency, so it is not in `pubspec.lock` and the licence check above does not see it; its licence was checked on pub.dev. No verified publisher. Its diagnostics appear only in `dart analyze`, so CI runs `dart analyze --fatal-infos` as well as `flutter analyze`. |
 
 `http` is not in `app/pubspec.lock`: the pub deny list (`tools/checks` `pub_denylist`, still
@@ -154,13 +164,17 @@ passes: 107 packages, BSD-3-Clause (79), MIT (23) and Apache-2.0 (5).
 |---|---|---|---|---|---|---|
 | cargo-deny | Licence, ban, advisory and source gate | 0.20.2 | MIT OR Apache-2.0 | ok | M1 | Since 0.18.4, GNU licences are matched strictly; only the allow-list and exceptions apply. The pinned cargo-deny-action bundles the same version. MSRV 1.88. |
 | very_good_cli | Licence gate for Dart packages | 1.5.0 | MIT | ok | M1 | `very_good packages check licenses` ([section 8](#8-dart-licence-check)). Needs Dart 3.13. |
+| flutter_rust_bridge_codegen | Generates the bridge bindings (`app/lib/bridge/`, `crates/ferman-api/src/frb_generated.rs`) | 2.13.0 | MIT | ok | M1 | In use since M1 step 3 (`0ae4f29`). `cargo install --locked flutter_rust_bridge_codegen@2.13.0`, matching the runtime crate and package. The CI codegen job installs it, caches the binary (actions/cache, [section 2.4](#24-github-actions)), regenerates the bindings and fails on any diff. MSRV 1.74. |
+| cargo-expand | Expands ferman-api's macros for the codegen | 1.0.127 | MIT OR Apache-2.0 | ok | M1 | flutter_rust_bridge_codegen 2.13.0 calls it. `cargo install --locked cargo-expand@1.0.127`; cached with the codegen in CI. |
+| cargokit (vendored in `app/rust_builder/cargokit/`) | Builds ferman-api during `flutter build` and hands the library to the plugin (CMake on Linux and Windows, CocoaPods on macOS) | from the flutter_rust_bridge 2.13.0 integration template | MIT OR Apache-2.0 | ok | M1 | Copyright Matej Knopp; both texts in `cargokit/LICENSE`. Two changes, each marked "Ferman patch": `build_tool/lib/src/builder.dart` builds with the toolchain from `rust-toolchain.toml` instead of `stable`, and `cargo.dart` `libraryName` turns `-` into `_`, so cargokit finds `libferman_api`. Precompiled binaries are not configured, so it never downloads an engine library and always builds from source ([app/rust_builder/README.md](../app/rust_builder/README.md)). `crates/ferman-api/cargokit.yaml` turns on the `frb` feature for the debug, profile and release modes, which cargokit reads separately (`ba9f6d2`). Its scripts run at build time and are not in the app bundle. |
+| cargokit build tool's pub packages | Run cargokit's build tool (`app/rust_builder/cargokit/build_tool/`) | 54 packages pinned in its `pubspec.yaml` and `pubspec.lock`: logging 1.2.0, path 1.8.0, version 3.0.0, collection 1.18.0, ed25519_edwards 0.3.1, hex 0.2.0, yaml 3.1.2, source_span 1.10.0, github 9.17.0, args 2.4.2, crypto 3.0.3, convert 3.1.1, http 1.1.0 and toml 0.14.0, plus transitive packages | BSD-3-Clause (48), MIT (6), Apache-2.0 (1) | ok | M1 | `very_good packages check licenses` over `build_tool/` passes: 55 licences for 54 packages. Fetched from pub.dev at the first native build; build time only, never shipped. They include `http` and `github`, which serve the precompiled-binary code that is not configured. `pub_denylist` reads only `app/pubspec.lock`, so these are a known build-time exception to the network deny list ([section 8](#8-dart-licence-check)). |
 | args | Command-line options of `tools/checks`, `tools/tokens` and `tools/icons` | 2.7.0 | BSD-3-Clause | ok | M1 | Publisher dart.dev. Each tool commits its own `pubspec.lock`. |
 | path | Path handling in the three Dart tools | 1.9.1 | BSD-3-Clause | ok | M1 | |
 | yaml | `tools/checks` (pubspec and lock files) and `tools/tokens/supplement.yaml` | 3.1.4 | MIT | ok | M1 | Transitive: collection 1.19.1, meta 1.19.0, source_span 1.10.2, string_scanner 1.4.1 and term_glyph 1.2.2 (all BSD-3-Clause). |
 | crypto | SHA-512 tarball integrity and SHA-256 licence checks in `tools/icons` | 3.0.7 | BSD-3-Clause | ok | M1 | Pulls typed_data 1.4.0 (BSD-3-Clause). |
 | test, very_good_analysis (dev) | Tests and lints of the three Dart tools | 1.33.0; 11.0.0 | BSD-3-Clause; MIT | ok | M1 | The licence check over `tools/tokens/pubspec.lock` passes: 50 packages, BSD-3-Clause and MIT. |
 | playwright-core | Drives Chromium to render every artboard to PNG | 1.56.1 (re-checked 2026-10-15) | Apache-2.0 | ok | M1 | `tools/design-refs`, pinned exactly in its lockfile (lockfileVersion 3, 22 packages from registry.npmjs.org with sha512 integrity). **Pinned to 1.56.1, not the newest release (1.64.1, published 2026-10-14),** because its Chromium revision (1194, Chromium 141.0.7390.37) is the browser preinstalled in the development container, where the Playwright download CDN is blocked. CI uses the same revision, so local and CI renders come from the same browser. playwright-core installs no browser itself, and Ferman never runs the Playwright installer ([section 9](#9-known-risks)). Upgrading means moving the container browser and the pin together. |
-| Chromium headless shell, revision 1194 | The browser the renderer drives | 141.0.7390.37 | BSD-3-Clause, plus the licences of its components | ok | M1 | On developer machines and CI runners only; never shipped. The development container has it in `/opt/pw-browsers`. CI downloads `chromium-headless-shell-linux.zip` for revision 1194 directly with `tools/design-refs/fetch-chromium.sh`, which checks its SHA-256 (pinned from the first CI download) and prints the path the renderer takes with `--chromium`. |
+| Chromium headless shell, revision 1194 | The browser the renderer drives | 141.0.7390.37 | BSD-3-Clause, plus the licences of its components | ok | M1 | On developer machines and CI runners only; never shipped. The development container has it in `/opt/pw-browsers`. CI downloads `chromium-headless-shell-linux.zip` for revision 1194 directly with `tools/design-refs/fetch-chromium.sh`, which checks its SHA-256 (pinned as `d745c721…c91f` from the first CI download on 2026-10-15) and prints the path the renderer takes with `--chromium`. |
 | React, ReactDOM | Runtime the design export needs to render | 18.3.1 | MIT | ok | M1 | The export loads them from unpkg.com at run time (`design/support.js`). Installed from npm, pinned in the `tools/design-refs` lockfile and served from those local copies, so rendering works offline. Every run checks that the local files' SHA-384 equals the SRI hashes in `design/support.js`. Dependencies: scheduler 0.23.2, loose-envify 1.4.0 and js-tokens 4.0.0 (all MIT). Never in the app ([brief §2](BRIEF.md)). |
 | @babel/standalone | JSX transform the design export can load | 7.29.0 (2026-01-31) | MIT | ok | M1 | Same as React, SRI checked; the export loads it only for JSX imports, which no board uses. |
 | Design-reference fonts | The 13 families the export loads from Google Fonts | @fontsource/{ibm-plex-sans-jp, ibm-plex-sans-kr, ibm-plex-sans-hebrew, ibm-plex-sans-devanagari, noto-sans-sc, noto-serif-jp, noto-naskh-arabic, eb-garamond, cormorant-garamond, crimson-pro, caveat, dancing-script, homemade-apple} 5.3.0 (2026-07-19) | OFL-1.1; homemade-apple Apache-2.0 | ok | M1 | Pinned in the `tools/design-refs` lockfile; each package's LICENSE holds the font licence. Served locally as generated `@font-face` CSS, with the families and weights of the `fm-additions.css` import, so the renderer never touches the network ([G07](DESIGN_GAPS.md#g07)). 5.3.1 of the three CJK packages (2026-10-11) was too new to pin, so all use 5.3.0. Never in the app. |
@@ -173,8 +187,8 @@ standard library; they add no dependency.
 
 ### 2.4 GitHub Actions
 
-Pinned by full commit SHA in `.github/workflows/ci.yml`, with the version in a comment; `tools/checks`
-fails on an unpinned action ([ADR 0017](adr/0017-testing-and-ci.md)).
+Pinned by full commit SHA in `.github/workflows/ci.yml` and `design-refs.yml`, with the version in a
+comment; `tools/checks` fails on an unpinned action ([ADR 0017](adr/0017-testing-and-ci.md)).
 
 | Name | Purpose | Version and SHA | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
@@ -182,6 +196,9 @@ fails on an unpinned action ([ADR 0017](adr/0017-testing-and-ci.md)).
 | subosito/flutter-action | Installs Flutter | v2.23.0, `1a449444c387b1966244ae4d4f8c696479add0b2` | MIT | ok | M1 | `flutter-version: 3.47.7`. |
 | Swatinem/rust-cache | Cargo build cache | v2.9.2, `6323deb102c322ba6fcbdcafc7e3dddab59af2b6` | LGPL-3.0 | caution | M1 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)). Runs only in CI and is never distributed with Ferman, so it creates no obligation for users. Never vendor or copy its code. |
 | EmbarkStudios/cargo-deny-action | Runs cargo-deny | v2.1.1, `3c6349835b2b7b196a839186cb8b78e02f7b5f25` | MIT OR Apache-2.0 | ok | M1 | Bundles cargo-deny 0.20.2. |
+| actions/cache | The PDFium archive caches, keyed on `tools/pdfium/pdfium.lock` (all seven archives in the repository-checks job; one archive per system in the Rust jobs, the Flutter jobs and the Ubuntu 22.04 job), and the flutter_rust_bridge_codegen and cargo-expand binaries in the codegen job, keyed on their versions | v6.1.0, `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` | MIT | ok | M1 | Not used for Cargo, which rust-cache handles. |
+| actions/setup-node | Installs Node for `tools/design-refs` | v7.1.0, `949feb2413d6458794dcd2491c4babbbce0c15c1` | MIT | ok | M1 | `node-version-file: tools/design-refs/.nvmrc` (24.22.0), in the repository-checks job and the design-reference workflow. |
+| actions/upload-artifact | Uploads the design-reference PNGs and, when a Linux golden test fails, its failure images | v7.0.2, `cf430e030ddbb5b0abf93d22962f4752f3646cd9` | MIT | ok | M1 | |
 
 The Rust toolchain comes from `rustup toolchain install`, which reads `rust-toolchain.toml`; no
 toolchain action is used ([section 4](#4-rejected)).
@@ -209,9 +226,9 @@ the row then moves to [section 2](#2-in-use-today). MSRV is the minimum Rust ver
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
 | lopdf | Document model: parsing, incremental and full writes. The source of truth | 0.45.0 (2026-09-08) | MIT | ok | M2 | Pin `=0.45`: breaking minor releases come almost monthly (0.41 to 0.45 between June and September 2026). Wrapped inside ferman-core so an upgrade touches one crate. `embed_image` and `async` features off. Pulls aes, cbc, ecb, md-5, sha2 0.11, brotli-decompressor, encoding_rs and stringprep. MSRV 1.88. [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md). |
-| pdfium-render | Safe Rust binding to PDFium, used as a read-only rasteriser | 0.9.4 (2026-09-06) | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881`, `thread_safe` and `image_025`. PDFium is not thread-safe: `thread_safe` puts every call behind one global lock, and Ferman also keeps PDFium on one render thread ([ADR 0009](adr/0009-threading-and-jobs.md), Proposed). Binds at run time (`bind_to_library`), because the prebuilt builds are shared libraries only. Never used to edit or save. Not the GPL-3.0 `pdfium` crate. MSRV 1.61. M1 step 3 ([ROADMAP.md](ROADMAP.md)): a skeleton render thread that loads PDFium and reports that it is loaded, with the pinned tag; `tools/pdfium` with a pinned SHA-256 per archive and per library already exists ([section 5.1](#51-pdfium)). Page rendering starts in M2. |
+| pdfium-render | Safe Rust binding to PDFium, used as a read-only rasteriser | 0.9.4 (2026-09-06) | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` since M1 step 3 ([section 2.1](#21-rust-crates)); `image_025` is added with page rendering in M2. PDFium is not thread-safe: `thread_safe` puts every call behind one global lock, and Ferman also keeps PDFium on one render thread ([ADR 0009](adr/0009-threading-and-jobs.md), Proposed). Binds at run time (`bind_to_library`), because the prebuilt builds are shared libraries only. Never used to edit or save. Not the GPL-3.0 `pdfium` crate. MSRV 1.61. In use since M1 step 3: the render thread binds PDFium and reports it loaded, with the pinned tag, only after a real call; `tools/pdfium` pins a SHA-256 per archive and per library ([section 5.1](#51-pdfium)). Page rendering starts in M2. |
 | PDFium (prebuilt, bblanchon/pdfium-binaries) | Native renderer loaded by pdfium-render | tag `chromium/7881`; newest tag is `chromium/8100` | BSD-3-Clause AND Apache-2.0; the packager's notice is MIT; plus bundled third-party licences | caution | M1 | Caution is for the notice obligations and the supply chain, not the licence. Details in [section 5.1](#51-pdfium). |
-| image | Raster decode and encode: compress, insert images, OCR input | 0.25.10 (2026-03-10) | MIT OR Apache-2.0 | caution | M4 | `default-features = false` with `png`, `jpeg`, `tiff`, `webp`, `gif` and `rayon`. The defaults pull the AVIF encoder (ravif and rav1e, BSD-2-Clause), exr and the unmaintained `paste` (RUSTSEC-2024-0436). pdfium-render already brings `image` with default features off (JPEG only) from M1. MSRV 1.88. |
+| image | Raster decode and encode: compress, insert images, OCR input | 0.25.10 (2026-03-10) | MIT OR Apache-2.0 | caution | M4 | `default-features = false` with `png`, `jpeg`, `tiff`, `webp`, `gif` and `rayon`. The defaults pull the AVIF encoder (ravif and rav1e, BSD-2-Clause), exr and the unmaintained `paste` (RUSTSEC-2024-0436). pdfium-render brings `image` with default features off (JPEG only) once its `image_025` feature is turned on with page rendering in M2. MSRV 1.88. |
 | hayro | Optional pure-Rust rasteriser: web fallback and cross-checks | 0.8.0 (2026-10-04) | Apache-2.0 OR MIT | ok | P5 | By the krilla author. Does not match PDFium's fidelity yet. Considered only for the web build. |
 
 ### 3.3 Fonts and text
@@ -240,7 +257,7 @@ the row then moves to [section 2](#2-in-use-today). MSRV is the minimum Rust ver
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
 | rayon | Data-parallel work: thumbnails, search, batch steps | 1.12.0 (2026-04-14) | MIT OR Apache-2.0 | ok | M2 | PDFium calls never run on rayon threads; they stay on the render thread. MSRV 1.80. |
-| crossbeam-channel | Queues between the bridge, document actors and the render thread | 0.5.17 (2026-09-05) | MIT OR Apache-2.0 | ok | M2 | Alternatives: `std::sync::mpsc` or flume 0.12.0 (Apache-2.0 OR MIT). MSRV 1.60. |
+| crossbeam-channel | Queues between the bridge, document actors and the render thread | 0.5.17 (2026-09-05) | MIT OR Apache-2.0 | ok | M2 | Alternatives: `std::sync::mpsc` or flume 0.12.0 (Apache-2.0 OR MIT). The M1 render thread uses `std::sync::mpsc` with futures-channel replies ([section 2.1](#21-rust-crates)). MSRV 1.60. |
 | lru | Tile, page and thumbnail caches | 0.18.5 (2026-09-23) | MIT | ok | M2 | RUSTSEC-2021-0130 was fixed in 0.7.1. For a concurrent cache: quick_cache 0.7.0 (MIT) or hashlink 0.12.2 (MIT OR Apache-2.0). MSRV 1.85. |
 
 ### 3.6 File safety
@@ -304,12 +321,12 @@ dropped ([section 4](#4-rejected)).
 ### 3.12 Tooling
 
 None of these ship with the app. Toolchains are in [section 6](#6-toolchain). The tools in use since M1
-(cargo-deny, very_good_cli, the Dart tool packages, playwright-core and the other design-reference
-packages) are in [section 2.3](#23-tools-never-shipped).
+(cargo-deny, very_good_cli, flutter_rust_bridge_codegen, cargo-expand, cargokit, the Dart tool
+packages, playwright-core and the other design-reference packages) are in
+[section 2.3](#23-tools-never-shipped).
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| flutter_rust_bridge_codegen | Generates the bridge bindings | 2.13.0 | MIT | ok | M1 | `cargo install flutter_rust_bridge_codegen --locked --version 2.13.0`, matching the runtime; installed in the development container, first used in M1 step 3. MSRV 1.74. |
 | cargo-about | Generates the Rust third-party notices | 0.9.2 (2026-08-18) | MIT OR Apache-2.0 | ok | M4 | Feeds the licences screen in M4 ([G14](DESIGN_GAPS.md#g14)); every release from M5 bundles its output. PDFium, fonts and icons are merged in by hand. MSRV 1.88. |
 
 ### 3.13 GitHub Actions
@@ -318,11 +335,8 @@ Every third-party action is pinned by full commit SHA, with the version in a com
 ([ADR 0017](adr/0017-testing-and-ci.md)). The actions in use are in
 [section 2.4](#24-github-actions).
 
-| Name | Purpose | Version | SPDX licence | Status | First milestone | Notes |
-|---|---|---|---|---|---|---|
-| actions/setup-node | Installs Node for `tools/design-refs` | v7.0.0 (2026-07-13), `820762786026740c76f36085b0efc47a31fe5020` | MIT | ok | M1 | For the design-reference workflow (phase D5), with `node-version-file: tools/design-refs/.nvmrc` (24.22.0). |
-| actions/upload-artifact | Uploads the design-reference PNGs | v7.0.1 (2026-04-10), `043fb46d1a93c77aae656e7c1c64a875d1fc6a0a` | MIT | ok | M1 | For the design-reference workflow (phase D5). |
-| actions/cache | General CI caches (for example the PDFium download cache, keyed on `tools/pdfium/pdfium.lock`), if needed | version set when added | MIT | ok | M1 | Pinned by commit SHA like every action. Not needed for Cargo now that rust-cache is approved. |
+No further action is planned: actions/setup-node, actions/upload-artifact and actions/cache, planned
+here in M0, are in use and listed in section 2.4 with the versions CI pins.
 
 ### 3.14 Notable transitive dependencies
 
@@ -337,7 +351,10 @@ licence or maintenance detail worth knowing.
 | encoding_rs | lopdf | (Apache-2.0 OR MIT) AND BSD-3-Clause | |
 | slotmap | fontdb | Zlib | |
 | nix 0.31 | atomic-write-file | MIT | |
-| libloading | cryptoki | ISC | |
+| libloading 0.9.0 | pdfium-render (M1), cryptoki (P3) | ISC | Loads PDFium at run time. MSRV 1.88, the workspace floor. |
+| chrono 0.4.45 | pdfium-render (`chrono = "0"`, default features) | MIT OR Apache-2.0 | Brings iana-time-zone (Linux, macOS) with core-foundation-sys (macOS), and windows-link (Windows). |
+| vecmath 1.0.0, piston-float 1.0.1 | pdfium-render | MIT | Small and rarely released. |
+| console_log 1.1.0 | pdfium-render, wasm only | `MIT/Apache-2.0` (old-style string) | Not built for the desktop targets; check the licence string again when the wasm targets join `deny.toml` in phase 5. |
 | flatbuffers | rten | Apache-2.0 | |
 | hayro-write | krilla (`pdf` feature) | Apache-2.0 OR MIT | |
 | ICU4X support crates (zerovec, yoke, tinystr, litemap, writeable, potential_utf) | icu_casemap, icu_collator | Unicode-3.0 | |
@@ -345,6 +362,7 @@ licence or maintenance detail worth knowing.
 | dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)), unmodified. From M2 its notice and source location ship with every build that includes desktop_drop. It is the only MPL-2.0 package, skipped by name in the pub licence check. |
 | screen_retriever 0.2.2 (pub) | window_manager | MIT | |
 | meta, vector_math 2.4.0 (pub) | path_parsing | BSD-3-Clause | |
+| jni 1.1.0, jni_flutter 1.0.4+1, jni_util 1.0.0 (pub) | path_provider, through path_provider_android 2.3.1 | BSD-3-Clause | Publisher dart.dev. jni's build hook builds `libdartjni.so` (about 150 KB, BSD-3-Clause) into the Linux bundle's `lib/`, although desktop never uses it. Dropping unused native assets from desktop bundles is [B006](BACKLOG.md#open) (M5). |
 
 **Proposed:** from M1, a script generates a full list of crates and pub packages with their licences from
 `Cargo.lock` and `pubspec.lock` (through `cargo deny list` and very_good_cli's report) and appends it
@@ -413,7 +431,7 @@ These ship inside the app. Each one's licence text ships with it and appears in 
 | SHA-256 per archive | Pinned in `tools/pdfium/pdfium.lock`, together with the SHA-256 of the library inside each archive (table below). `fetch.sh` refuses a mismatch and leaves nothing behind. |
 | Signing | Upstream builds are unsigned. The library is signed with the app's identity when the app is packaged (M5, [Q02](QUESTIONS.md#q02)). |
 | Licence | PDFium: BSD-3-Clause AND Apache-2.0. In the bblanchon archive, PDFium's own licence (both texts) is `licenses/pdfium.txt`. The top-level `LICENSE` is the packager's MIT notice (Copyright Benoit Blanchon), and it also ships, because it is part of the redistributed package. |
-| Ship with the app | The archive's `LICENSE` (packager MIT notice) and its `licenses/` directory (15 files for chromium/7881), unchanged, committed flattened in `app/assets/licenses/pdfium/` (copied byte for byte from linux-x64). The upstream texts contain contributor contact details; licence texts ship unaltered. |
+| Ship with the app | The library, bundled per platform since M1 phase E4 (`3e7bf8e`): `lib/libpdfium.so` in the Linux bundle next to `libferman_api.so`, `pdfium.dll` next to `ferman.exe` on Windows (both installed by the app's CMake files, which stop at configure time when the fetched library is missing), and `Contents/Frameworks/libpdfium.dylib` on macOS (the Runner target's Bundle Framework phase, with CodeSignOnCopy). The build takes it from `build/pdfium/<id>/`, so a desktop build needs `tools/pdfium/fetch.sh --platform <id>` first ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)). With it, the archive's `LICENSE` (packager MIT notice) and its `licenses/` directory (15 files for chromium/7881), unchanged, committed flattened in `app/assets/licenses/pdfium/` (copied byte for byte from linux-x64). The upstream texts contain contributor contact details; licence texts ship unaltered. |
 
 | Archive | Archive SHA-256 | Library SHA-256 |
 |---|---|---|
@@ -498,8 +516,9 @@ the newest IBM release tag of its package (checked on 2026-10-15).
 Script coverage, measured with `tools/fonts/coverage.py` (cmap of each file): Plex Sans covers Turkish,
 Vietnamese U+1EA0 to U+1EF9, Cyrillic and Greek. Plex Sans Arabic, Hebrew and Devanagari each carry
 full ASCII (95 of 95) and all Latin-1 letters (64 of 64), but not Latin Extended-A (only one of
-İ ı Ğ ğ Ş ş), so Plex Sans stays after them in every fallback chain. Latin inside Arabic text uses the
-Arabic font's own Latin glyphs.
+İ ı Ğ ğ Ş ş), so Plex Sans comes first in every UI fallback chain (the `--font-ui` order,
+[ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui)), and Latin inside Arabic, Hebrew and
+Devanagari text comes from Plex Sans.
 
 ### 5.3 Icons
 
@@ -520,7 +539,8 @@ Arabic font's own Latin glyphs.
 | Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. | M1 |
 | `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
 | Rust crates | per crate | Generated by cargo-about. | M4 |
-| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry`. | M1 to M4 |
+| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 24 texts), which `bootstrap()` calls. | M1 to M4 |
+| Unicode Character Database 15.0 and CLDR data (case tables in app/lib/l10n/casing.dart, territory lists in app/lib/l10n/region.dart, grouping and date-time tables in app/lib/l10n/format.dart, SpecialCasing lines, ICU results and CLDR 48 formats in app/test/l10n/) | Unicode-3.0 | The Unicode License V3 that opens assets/licenses/pdfium/icu.txt, also registered under "Unicode data (UCD and CLDR)" | M1 |
 
 ## 6. Toolchain
 
@@ -565,8 +585,7 @@ Notes:
 
 - `include-dev = false` keeps the main licence check on the shipped graph; bans, advisories and sources
   still see dev-dependencies. Dev-dependency licences are checked by a second run on a copy with
-  `include-dev = true`, which passed when run by hand in M1. Its CI step is still to be added to the
-  cargo-deny job:
+  `include-dev = true`, which CI runs as the second step of the cargo-deny job:
 
   ```sh
   sed 's/^include-dev = false/include-dev = true/' deny.toml > deny-dev.toml
@@ -584,8 +603,9 @@ Notes:
 ## 8. Dart licence check
 
 cargo-deny does not see pub packages, so very_good_cli checks them with the same allow-list. On
-2026-10-15 the check passes for `app/pubspec.lock` (107 packages) and `tools/tokens/pubspec.lock`;
-the CI step that runs it for `app/` and the Dart tools is added with the Flutter CI job (phase C4).
+2026-10-15 the check passes for `app/pubspec.lock` (107 packages), `tools/tokens/pubspec.lock` and
+cargokit's build tool (54 packages, [section 2.3](#23-tools-never-shipped)). CI runs the command below
+for `app/` in the Linux Flutter job (since `52603cb`).
 MPL-2.0 is not on the list. The M1 graph has no MPL-2.0 package, so M1 runs the check without
 `--skip-packages`. The owner approved `dbus` on 2026-10-15 ([Q17](QUESTIONS.md#q17),
 [section 3.11](#311-flutter-and-dart-packages)), so `--skip-packages=dbus` is added in the same commit as
@@ -603,7 +623,9 @@ very_good packages check licenses \
 an HTTP client, a font downloader such as google_fonts, or an analytics or crash-reporting SDK
 ([ADR 0015](adr/0015-privacy-and-network.md)). It exists as `pub_denylist` in `tools/checks`, which
 fails on direct and transitive entries alike (its map of transitive exceptions is empty). It caught
-`http` arriving through flutter_svg, which was then dropped ([section 4](#4-rejected)).
+`http` arriving through flutter_svg, which was then dropped ([section 4](#4-rejected)). It reads only
+`app/pubspec.lock`: the `http` and `github` packages of cargokit's build tool run at build time, never
+ship, and are a known build-time exception.
 
 ## 9. Known risks
 
@@ -619,7 +641,7 @@ fails on direct and transitive entries alike (its map of transitive exceptions i
 | **PDFium is not thread-safe and runs in-process.** pdfium-render's `thread_safe` feature is one global lock. | One render thread limits throughput; a PDFium crash ends the app. | One render thread with the lock as a second guard; caches and prefetch; helper processes if M2 measurements demand it ([ADR 0009](adr/0009-threading-and-jobs.md)). | M2 |
 | **lopdf churn.** Breaking releases almost monthly. | Upgrades break the build. | Pin `=0.45`; wrap it inside ferman-core; upgrade on purpose with the corpus as the safety net. | M2 |
 | **Slow-moving crates and packages.** unicode-bidi (last release 2024-12), ttf-parser (2024-11), threadpool through flutter_rust_bridge (2020), freezed_annotation (2025-07), file_selector (2025-11), atomicwrites (2024). | Unfixed bugs; future unmaintained advisories. | Prefer maintained alternatives where they exist (ICU4X bidi data, read-fonts instead of ttf-parser); avoid atomicwrites and freezed; watch advisories. | M1 onwards |
-| **flutter_rust_bridge version lockstep.** The crate, the Dart package and the codegen must match exactly; 2.14 is in beta. | A mismatch fails at run time or generates wrong bindings. | Pin all three to 2.13.0; `tools/checks` compares the crate and the package and CI compares the codegen's `--version`; generated code is committed and regenerated in CI; all three move in one commit. | M1 |
+| **flutter_rust_bridge version lockstep.** The crate, the Dart package and the codegen must match exactly; 2.14 is in beta. | A mismatch fails at run time or generates wrong bindings. | Pin all three to 2.13.0; `tools/checks` compares the crate and the package, and the CI codegen job installs exactly 2.13.0 (no separate `--version` comparison); generated code is committed and regenerated in CI; all three move in one commit. | M1 |
 | **allo-isolate licence metadata.** Declared through a licence file, shown as "non-standard". | cargo-deny cannot classify it. | `[[licenses.clarify]]` with the file hash (`0x0a6d4ed6`); a changed file fails the check, so every FRB upgrade re-checks it. | M1 |
 | **desktop_drop pulls MPL-2.0 `dbus` on every platform** (unconditional import; used only on Linux at run time). | A notice obligation in every desktop build; a licence outside the allow-list. | Approved by the owner on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Ship its notice with the source location in every build that includes desktop_drop, and skip it by name in the pub check so no other MPL-2.0 package passes. | M2 |
 | **Swatinem/rust-cache is LGPL-3.0.** | None for users: it runs only in CI and is never distributed. | Approved by the owner on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Pin by SHA; never vendor or copy its code. | M1 |
@@ -628,6 +650,7 @@ fails on direct and transitive entries alike (its map of transitive exceptions i
 | **The pub deny list and SVG rendering.** flutter_svg and vector_graphics depend on `http`. | An HTTP client in the app graph, against [ADR 0015](adr/0015-privacy-and-network.md). | flutter_svg dropped; icons painted from path data with path_parsing; `pub_denylist` keeps `http` out. | M1 |
 | **Plex Reserved Font Name.** | Shipping a modified or subset Plex file under the "Plex" name would breach the licence. | Ship IBM's unmodified TTFs only ([section 5.2](#52-fonts)). | M1 |
 | **Minimum Rust version rises.** 1.88 for the core set, 1.92 with krilla, 1.94 with rten 0.27. | Builds fail on older toolchains. | The toolchain is pinned (1.99); `rust-version` is raised in the same commit as the crate that needs it. | M1 onwards |
+| **rust_lib_ferman has no Swift Package Manager support.** On macOS cargokit builds the plugin through CocoaPods, and Flutter 3.47.7 warns that the plugin does not support Swift Package Manager, which "will become an error in a future version of Flutter". | A later Flutter upgrade could fail the macOS build. | Add a `Package.swift` to `app/rust_builder` ([B007](BACKLOG.md#open)) before the Flutter upgrade that makes it an error, by M5 at the latest. | M5 |
 | **Lucide naming drift.** The design pinned Lucide 0.460.0; the current release is 1.56.0. | Icon names may differ between releases. | Ferman ships path data, not names; the provenance table records the source version of each glyph. | M1 |
 
 ## 10. What could not be verified

@@ -130,7 +130,12 @@ taller leading ([ADR 0012](0012-design-token-pipeline.md)).
 ### Follow-up
 
 - M1: gen-l10n setup, en, tr and ar ARB files, the casing utility, format locale plumbing, RTL shell,
-  goldens, the CI checks.
+  goldens, the CI checks. Built so far (phase F4): `LocaleCasing`, which carries the full Unicode 15.0
+  case mappings with every SpecialCasing rule because the Dart VM's tables are older, and the region
+  formats (`Region`, `RegionFormat`), loaded by `bootstrap()` through `initializeRegionFormats()`
+  ([ARCHITECTURE.md §11.2](../ARCHITECTURE.md#112-locale-aware-casing) and
+  [§11.3](../ARCHITECTURE.md#113-numbers-dates-and-units)). The region provider and the a11-1b picker
+  come with the settings in M1 step 9.
 - M2: search folding with ICU4X; spread and book order from `/ViewerPreferences/Direction`.
 - After M1: Weblate project setup, documented in [CONTRIBUTING.md](../../CONTRIBUTING.md).
 

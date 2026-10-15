@@ -64,9 +64,9 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
     mobile large title (a later phase), so neither is bundled.
   - **IBM Plex Sans Arabic** 400, 500 and 600 (IBM release `plex-sans-arabic` 1.1.0, revision 1.005),
     which also covers the Persian letters (پ چ ژ گ ک ی) and digits. It carries full ASCII and the
-    Latin-1 letters, which serve Latin inside Arabic text, but not Latin Extended-A (only one of
-    İ ı Ğ ğ Ş ş) and not U+200C (zero-width non-joiner), so IBM Plex Sans follows it in the fallback
-    chain.
+    Latin-1 letters but not Latin Extended-A (only one of İ ı Ğ ğ Ş ş), ế or U+200C (zero-width
+    non-joiner), so in the UI it comes after IBM Plex Sans, in the design's `--font-ui` order (see
+    [the UI font order](#the-ui-font-order-m1-2026-10-15)).
   - The 18 files and 6 licence texts are fetched by `tools/fonts` from IBM's release zips and pinned by
     SHA-256 in `tools/fonts/fonts.lock` ([DEPENDENCIES.md §5.2](../DEPENDENCIES.md#52-fonts)).
 - **The Reserved Font Name is respected.** We never subset, convert, rename or otherwise modify the font
@@ -86,7 +86,9 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
   far too large to bundle.
 - Every text style carries the UI locale, so Han characters take the right regional forms
   (Traditional Chinese never shows Simplified forms). Bold and italic are never synthesised for CJK, as
-  the design asks (`font-synthesis: none`).
+  the design asks (`font-synthesis: none`). Flutter has no switch for this, so the theme names the
+  system families, which picks real bold faces where the system has them, and no CJK role is italic
+  ([G65](../DESIGN_GAPS.md#g65)).
 - If a character is not covered by any bundled or system font, Flutter's own fallback applies; the
   language picker (a1-1) is tested for every native language name.
 
@@ -97,7 +99,22 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
   licences, under the same rules as the other Plex families. They are small (zips of 1.7 MB and
   5.3 MB), they are what the design's UI stack names, and they keep the Hebrew and Hindi UI in the
   design's typeface (revisions 1.003 and 1.002). Like the Arabic font they carry ASCII and Latin-1 but
-  not Latin Extended-A, so IBM Plex Sans follows each of them in the fallback chain.
+  not Latin Extended-A, so in the UI they come after IBM Plex Sans (below).
+
+### The UI font order (M1, 2026-10-15)
+
+- Every UI language but Japanese, Korean and Chinese uses the design's `--font-ui` order: IBM Plex
+  Sans, then Plex Sans Arabic, Plex Sans Hebrew and Plex Sans Devanagari, then the system fonts. That
+  includes ar, fa, he and hi, as the design's Arabic boards (12 Localization) use `--font-ui`. For CJK
+  the system families of the language come right after IBM Plex Sans, and the rest of `--font-ui`
+  follows them. `FermanFontFamilies.uiChain` (`app/lib/design/theme/typography.dart`) builds every
+  chain from the generated `--font-ui` stack ([ARCHITECTURE.md §11.5](../ARCHITECTURE.md#115-fonts-in-the-ui)).
+- Why no script font comes first: the Arabic, Hebrew and Devanagari fonts lack İ, ş and ế but carry
+  their base letters and combining marks, so with one of them first Flutter draws those letters from
+  it as base plus mark, with misplaced marks (script-coverage golden, 2026-10-15). With Plex Sans first,
+  Arabic, Persian, Hebrew and Devanagari text renders pixel-identically.
+- This replaces the M0 wording, which put each script font before Plex Sans. It follows the boards
+  and changes none of the decisions above ([G64](../DESIGN_GAPS.md#g64)).
 
 ### Accepted (brief): icons from the design's exact path data
 
@@ -167,9 +184,12 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
 - M1: download script with pinned checksums for the font zips (including Plex Sans Hebrew and
   Devanagari), `pubspec.yaml` font declarations, `tools/icons` with the provenance table, licence
   registration. Done in phase D: `tools/fonts` (with the committed TTFs and `coverage.py`) and
-  `tools/icons` (229 SVGs, `IconName`, the provenance table and the Lucide licence files). Still to come
-  in phase F: the `pubspec.yaml` font and asset declarations, the Icon widget with its path data, and
-  the `LicenseRegistry` entries.
+  `tools/icons` (229 SVGs, `IconName`, the provenance table and the Lucide licence files). The `pubspec.yaml`
+  font and asset declarations came with the committed fonts (`67fd234`). Done in phase F: the Icon
+  widget (`app/lib/design/icons/icon.dart`, painted by `icon_painter.dart` from the generated element
+  data) and the `LicenseRegistry` entries (`app/lib/app/licenses.dart`, 24 texts, registered by
+  `bootstrap()` and checked against `pubspec.yaml` by `app/test/app/licenses_test.dart`), with the
+  script-coverage and icon goldens.
 - M3: similar fonts for missing glyphs, once Q08 group 4 is answered.
 - M4: handwriting fonts for typed signatures, once Q08 group 3 is answered; the third-party notices
   screen ([G14](../DESIGN_GAPS.md#g14)).

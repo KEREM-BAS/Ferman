@@ -24,7 +24,7 @@ ferman/
 ├── CLAUDE.md  README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 ├── Cargo.toml  Cargo.lock  rust-toolchain.toml  clippy.toml  deny.toml
 │
-│  Built during M1, phase by phase (app/ is committed, the rest is landing); fuzz/ comes in M2:
+│  Built during M1, phase by phase; fuzz/ comes in M2:
 ├── crates/                Rust workspace; all seven crates exist from M1
 │   ├── ferman-core/       document model, parsing/writing (lopdf), content-stream interpreter, incremental save
 │   ├── ferman-render/     page rendering with pdfium-render, tiles, thumbnails, caches
@@ -35,6 +35,7 @@ ferman/
 │   └── ferman-cli/        `ferman` CLI on the same facade
 ├── fuzz/                  (M2) cargo-fuzz workspace, one target per parser
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
+│   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
 ├── tools/                 checks/, tokens/, icons/, fonts/, pdfium/, design-refs/ (M1); corpus/ (M2)
 ├── tests/corpus/          README.md with provenance (M1); test PDFs from M2
 ├── .github/workflows/     CI on macOS, Windows and Linux
@@ -45,7 +46,7 @@ The brief cites `design/ui_kits/desktop/index.html`, which is missing from the e
 
 ## Commands
 
-Commands marked "planned" arrive with their M1 step; the others work today. Phase L1 checks the list on a fresh clone.
+Every command below works today. Phase L1 checks the list on a fresh clone.
 
 ```sh
 # Rust
@@ -53,13 +54,19 @@ cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
 cargo clippy -p ferman-api --features frb --all-targets -- -D warnings
 cargo test --workspace
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --workspace -- --ignored   # tests that need PDFium (tools/pdfium/fetch.sh first; the path must be absolute)
 cargo deny check
 cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: info --json
 
 # Flutter (run both analyzers: riverpod_lint reports only through dart analyze)
 (cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
+(cd app && flutter test --exclude-tags golden)                        # macOS and Windows: goldens are Linux only
+(cd app && flutter test --update-goldens --tags golden)               # regenerate goldens (Linux only)
 (cd app && dart run build_runner build --delete-conflicting-outputs)   # Riverpod and other codegen
-flutter_rust_bridge_codegen generate                                  # bridge bindings (FRB 2.13.0; planned, step 3)
+(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127)
+bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
+(cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
+(cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2
 (cd app && very_good packages check licenses)                         # Dart licence check (flags: DEPENDENCIES.md §8)
 
 # Tools
@@ -116,7 +123,7 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5,
 - Signed documents: warn before editing that the signature will become invalid ([G35](docs/DESIGN_GAPS.md#g35)).
 
 **Fonts and icons**
-- Fonts are IBM Plex (Sans, Serif, Mono, Sans Arabic, Sans Hebrew and Sans Devanagari, [Q08](docs/QUESTIONS.md#q08)), bundled as IBM's unmodified static TTFs with their OFL-1.1 licence files in `app/assets`. The Reserved Font Name "Plex" is respected: never subset, rename or modify the files we ship. Embedding a subset into a user's PDF is document embedding, which OFL-1.1 allows. Scripts the bundled fonts don't cover (CJK) fall back to system fonts ([ADR 0013](docs/adr/0013-fonts-and-icons.md)). The design's woff2 subsets and its runtime Google Fonts import are never used.
+- Fonts are IBM Plex (Sans, Serif, Mono, Sans Arabic, Sans Hebrew and Sans Devanagari, [Q08](docs/QUESTIONS.md#q08)), bundled as IBM's unmodified static TTFs with their OFL-1.1 licence files in `app/assets`. The Reserved Font Name "Plex" is respected: never subset, rename or modify the files we ship. Embedding a subset into a user's PDF is document embedding, which OFL-1.1 allows. Scripts the bundled fonts don't cover (CJK) fall back to system fonts ([ADR 0013](docs/adr/0013-fonts-and-icons.md)). Every UI language but CJK uses the design's `--font-ui` order, Plex Sans first ([G64](docs/DESIGN_GAPS.md#g64)). The design's woff2 subsets and its runtime Google Fonts import are never used.
 - Icons use the design's exact path data (229 icons), painted by a `CustomPainter` through path_parsing, shipped with the Lucide ISC and Feather MIT notices and a provenance table. No flutter_svg: it and vector_graphics pull in `http`.
 
 **Unfinished features**
@@ -149,7 +156,7 @@ Otherwise work autonomously. Put open questions in [docs/QUESTIONS.md](docs/QUES
 2. Plan the milestone in [docs/PROGRESS.md](docs/PROGRESS.md) from its acceptance criteria in [docs/ROADMAP.md](docs/ROADMAP.md).
 3. Implement and test in small steps. A new decision gets a Proposed ADR from [docs/adr/template.md](docs/adr/template.md).
 4. Update the docs as you go: PROGRESS, ARCHITECTURE and ADRs, DEPENDENCIES, DESIGN_GAPS, QUESTIONS, BACKLOG and the commands in this file.
-5. Commit in small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`) and push. Commits, pull request titles and pull request bodies carry no AI attribution: no `Co-Authored-By` or `Claude-Session` lines, no "Generated with" lines, and never an AI author. Author them as the owner: in a fresh clone, set the local `git config user.name` and `user.email` to the owner's identity from the earlier commits (`git log -1 --format='%an <%ae>' 7f3945b`). M1 work lives on the branch `m1-foundations`, with a draft pull request to `main` (opened once phase B is pushed) that the owner merges when M1 is done.
+5. Commit in small Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`) and push. Commits, pull request titles and pull request bodies carry no AI attribution: no `Co-Authored-By` or `Claude-Session` lines, no "Generated with" lines, and never an AI author. Author them as the owner: in a fresh clone, set the local `git config user.name` and `user.email` to the owner's identity from the earlier commits (`git log -1 --format='%an <%ae>' 7f3945b`). M1 work lives on the branch `m1-foundations`, with draft pull request #2 to `main`, which the owner merges when M1 is done.
 6. Stop with a short summary for the owner: what was done, what is disabled or deferred, open questions.
 
 ## Definition of done

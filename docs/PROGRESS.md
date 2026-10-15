@@ -14,14 +14,14 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 
 | Topic | State |
 |---|---|
-| Milestone | **M1, foundations: in progress.** Started on 2026-10-15 on the branch `m1-foundations`, with a draft pull request to `main` (opened once phase B is pushed) |
+| Milestone | **M1, foundations: in progress.** Started on 2026-10-15 on the branch `m1-foundations`, with draft pull request #2 to `main` |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | Commit phase A (the owner's answers, this plan), phase B (Rust workspace, `tools/checks`, CI) and phase D (tools), push, open the draft pull request; then wave 2 (phases E and F); see the [M1 plan](#m1-plan) |
-| Application code | the Flutter app skeleton (`23a09c3`, phases C1 and C2) and the switch from flutter_svg to path_parsing (`246d6df`) are committed; the Rust workspace, `tools/checks`, the tool packages, the committed fonts and icons, `tokens.g.dart` and the first CI workflow are in the working tree and committed by phase |
-| Questions | 18 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 10 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18); see [QUESTIONS.md](QUESTIONS.md#summary) |
+| Next | Confirm that the latest head (`dcdf8a3`, the codegen version check) is green, then tick ROADMAP step 3's version box. Run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green in every job on the three systems, with PDFium bundled and loaded through the bridge in all three integration tests. Then wave 3 (phase G, the component library); see the [M1 plan](#m1-plan). The zero-copy decision waits for the owner ([Q19](QUESTIONS.md#q19)) and the R1 and R2 measurement |
+| Application code | committed on `m1-foundations` (head `dcdf8a3`): phases A to D (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, the fonts and icons, `tokens.g.dart`, CI), wave 2's phases E1, E2 and F1 to F4 (the render thread and engine facade, the S6 checks, the theme layer, the Icon widget, the licence registry, the first goldens, casing and region formats), phase E3 (flutter_rust_bridge 2.13.0 through cargokit, the generated bindings, the engine services, the integration test with its profile-mode driver, the `bridge_imports` check) and phase E4 (PDFium bundled in the app on each system) |
+| Questions | 19 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006 and 0008; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 63 recorded: 51 Decided, 12 Needs owner, 0 Resolved (G62 and G63 found in M1) |
-| Backlog | empty: M1 adds the first entries as it disables features |
+| Design gaps | 65 recorded: 53 Decided, 12 Needs owner, 0 Resolved (G62 to G65 found in M1) |
+| Backlog | 7 open: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work; M1 adds the disabled shell and settings items as it builds them |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-15 |
 
@@ -86,24 +86,54 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 (en, tr, ar), app shell, start screen, settings skeleton, CI green (brief §7). Steps from
 [ROADMAP.md](ROADMAP.md), section 5; how they are executed is in the [M1 plan](#m1-plan):
 
-- [ ] Step 1. Cargo workspace, crate skeletons, toolchain, cargo-deny, CI matrix. Implemented in the
-  working tree (fmt, clippy, the workspace tests and `cargo deny check` pass in the development
-  container); ticked when CI is green.
-- [ ] Step 2. Flutter app skeleton. Skeleton committed (`23a09c3`); the Flutter CI job, the builds and
-  the Ubuntu 22.04 floor come with phase C4.
-- [ ] Step 3. flutter_rust_bridge wiring
-- [ ] Step 4. Token generator. `tools/tokens` and `tokens.g.dart` done (phase D2, 125 tests);
-  `theme.dart`, the reduced-motion test and the S6 literal check follow in phase F.
+- [ ] Step 1. Cargo workspace, crate skeletons, toolchain, cargo-deny, CI matrix. Committed; CI run
+  [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`) was green on the three systems and
+  evidences every ROADMAP box except the Proposed crate-graph check, which waits for the owner.
+- [ ] Step 2. Flutter app skeleton. Committed with its CI (phase C4); run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) was green on the three
+  systems, with the Ubuntu 22.04 floor build. Open: the platform-projects box (arm64 builds and
+  Windows 10 are owner checks) and the two Proposed boxes.
+- [ ] Step 3. flutter_rust_bridge wiring. `tools/pdfium` (phase D1) and the render thread and engine
+  facade (phases E1 and E2: PDFium binds on its own thread, async `engine_info()`, `ferman info
+  --pdfium`, the `frb` mirrors) committed. Phase E3 committed (`0ae4f29`, `1554fb2`, `4b8c5c3`,
+  `16eae39`): flutter_rust_bridge 2.13.0 through vendored cargokit, the generated bindings, the engine
+  services with the start-up API-version check, the one-file integration test, the CI codegen check
+  and the `bridge_imports` check; the engine library is opened by absolute path beside the executable
+  (`b9b14ec`). The macOS PDFium fetch is fixed (`9393190`), and run
+  [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341) (head `7914bfc`) passed the PDFium tests in the Rust jobs on the three systems and the
+  bridge integration test on Linux and Windows; on macOS the test found no engine library, which
+  `b9b14ec` fixes. Profile builds now carry the bridge too (`ba9f6d2`: `cargokit.yaml` lists debug,
+  profile and release), the Ubuntu 22.04 job checks that the release engine exports it (`99a75e1`), and
+  `app/test_driver/integration_test.dart` runs the integration test in profile mode (`be0a04b`). Phase
+  E4 (PDFium bundled in the app) is committed (`3e7bf8e`, `52603cb`) and verified on Linux in the
+  development container: the release bundle holds `lib/libpdfium.so`, byte-identical to the pinned
+  library, and the 5 integration tests pass with PDFium loaded through the bridge. CI run
+  [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green on the three systems, so the ROADMAP boxes it
+  evidences are ticked; the version box waits for the codegen version check (`dcdf8a3`). The bridge
+  byte transfer misses its target in debug and profile builds; the options are in ADR 0009 and the
+  decision is [Q19](QUESTIONS.md#q19) ([Measurements](#measurements)).
+- [ ] Step 4. Token generator. `tools/tokens` and `tokens.g.dart` done (phase D2, 125 tests); the
+  theme layer, the live theme switch and reduced-motion widget tests and the S6 checks done (phases
+  F1 and F2: 67 theme tests, 83 S6 fixture tests); `check_all` now runs 15 checks, `bridge_imports`
+  included, and all pass; ticked when CI is green.
 - [ ] Step 5. Fonts and icons. `tools/fonts` with the 18 committed TTFs and `tools/icons` with the 229
-  SVGs, `IconName` and the provenance table done (phases D3 and D4); the pubspec declarations, the Icon
-  widget, the coverage golden and LicenseRegistry follow in phase F.
+  SVGs, `IconName` and the provenance table done (phases D3 and D4); the pubspec declarations came
+  with the fonts (`67fd234`). Phase F3 added the Icon widget and its painter, the LicenseRegistry
+  entries (registered by `bootstrap()`), and the script-coverage and icon goldens, which match on the
+  CI Linux runner (run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The script-coverage golden led to the `--font-ui` order for every
+  UI language but CJK ([G64](DESIGN_GAPS.md#g64)). The CJK check on R1, R2 and Linux is a pending
+  owner check.
 - [ ] Step 6. Design references. `tools/design-refs` renders all 224 PNGs offline and deterministically
-  in the development container; the CI workflow (phase D5) and the build-output scan are pending.
+  in the development container. The design-reference workflow (phase D5) renders the M1 boards twice
+  on pull requests and every board twice on demand; its pull-request runs are green, with the
+  Chromium hash pinned from the first. A full on-demand run in CI and the build-output scan are
+  pending.
 - [ ] Step 7. Component library. The component spec is done ([COMPONENTS.md](COMPONENTS.md),
   phase G0).
 - [ ] Step 8. App shell
 - [ ] Step 9. Start screen and settings skeleton
-- [ ] Step 10. Localization en, tr and ar, right to left, locale-aware casing
+- [ ] Step 10. Localization en, tr and ar, right to left, locale-aware casing — casing (`LocaleCasing`)
+  and region-format utilities (`Region`, `RegionFormat`) with tests done; region provider and a11-1b
+  picker pending
 - [ ] Step 11. Golden matrix
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the
@@ -165,8 +195,8 @@ executed.
 
 ### Delivery
 
-- Branch `m1-foundations`, created from `origin/main` after the M0 merge. A **draft pull request** to
-  `main`, opened once phase B is pushed, runs CI on every push; the owner merges it when M1 is done.
+- Branch `m1-foundations`, created from `origin/main` after the M0 merge. **Draft pull request #2** to
+  `main`, opened on 2026-10-15, runs CI on every push; the owner merges it when M1 is done.
 - Small Conventional Commits, pushed per phase, authored as the owner, with no AI attribution in
   commits or in pull request titles and bodies ([CLAUDE.md](../CLAUDE.md), How to work).
 - Helper agents never commit. The lead reviews each chunk and commits it with explicit paths. At most
@@ -188,7 +218,8 @@ Sequential dependencies:
 
 - The Rust workspace (step 1) and the app skeleton (step 2) come before the bridge (step 3).
 - Tokens (step 4) and fonts and icons (step 5) come before components (step 7).
-- **The first golden (phase F3) must pass on the CI Linux runner before component work starts.**
+- **The first golden (phase F3) must pass on the CI Linux runner before component work starts.** It
+  does: the Flutter Linux job of run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054) passed the script-coverage and icon goldens.
 - Then components (7) → shell (8) → start screen and settings (9) → l10n (10) → golden matrix (11).
 - Design references (step 6) are needed only for the step 11 comparison report.
 
@@ -273,6 +304,41 @@ Taken by the lead within the approved architecture, reversible, and listed in th
 - **build_runner stays at 2.16.2:** 2.17 conflicts with riverpod_generator 4.0.9.
 - **Message keys are lowerCamelCase ARB keys** (`errorInternal`), not dotted names, because gen-l10n
   rejects dots ([ADR 0010](adr/0010-error-handling-no-panics.md)).
+- **UI font order:** every UI language but CJK uses the design's `--font-ui` order, IBM Plex Sans
+  first, ar, fa, he and hi included, as the Arabic boards do. The Arabic, Hebrew and Devanagari fonts
+  lack İ, ş and ế, and with one of them first Flutter builds those letters from base plus mark with
+  misplaced marks ([G64](DESIGN_GAPS.md#g64), [ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui),
+  [ADR 0013](adr/0013-fonts-and-icons.md)).
+- **Start-up order:** `bootstrap()` calls `registerLicenses()` and `initializeRegionFormats()` before
+  `setUpWindow()`, so the region formats are loaded before the localization delegates.
+- **CI:** the Rust tests that need PDFium run on all three systems (`tools/pdfium/fetch.sh` for the
+  runner's platform, an absolute `FERMAN_PDFIUM_PATH`, and `ferman info --json --pdfium` must report
+  `loaded`); goldens run on Linux only, and macOS and Windows run `flutter test --exclude-tags
+  golden`. Every golden test also passes `skip: !isGoldenHost` (`app/test/helpers/golden_config.dart`,
+  `7914bfc`): off Linux alchemist's test variant has no values, and flutter_test failed both golden
+  files while loading them, before `--exclude-tags golden` applies. The PDFium archives are downloaded
+  before they are verified (`18c7471`), and the Chromium headless shell's SHA-256 is pinned in
+  `tools/design-refs/fetch-chromium.sh` (`d745c721…c91f`) from the first CI download on 2026-10-15
+  (`9b7fcec`). The Flutter jobs and the Ubuntu 22.04 job fetch PDFium (cached) before the desktop
+  build, and the Dart licence step runs the full command of
+  [DEPENDENCIES.md §8](DEPENDENCIES.md#8-dart-licence-check) (`52603cb`).
+- **`s6_literals` skips `app/lib/engine/`:** it holds engine services and no widgets; the other S6
+  checks still cover it.
+- **The Arabic boards are the Saudi Arabia region:** both draw Arabic-Indic digits, and the United
+  Arab Emirates region writes Latin digits as CLDR does ([G34](DESIGN_GAPS.md#g34)).
+- **`FERMAN_PDFIUM_PATH` is honoured in every build**, release included, as specified: it lets
+  packagers and developers point the app at another PDFium build, and anyone who can set a process's
+  environment can already run code as the user.
+- **cargokit is vendored** from the flutter_rust_bridge 2.13.0 template with two changes marked
+  "Ferman patch" (the toolchain from `rust-toolchain.toml`; the library name with `-` turned into `_`).
+  Precompiled binaries are not configured, so it always builds the engine from source
+  ([app/rust_builder/README.md](../app/rust_builder/README.md)).
+- **The engine library is opened by absolute path** beside the executable (`b9b14ec`), not through
+  flutter_rust_bridge's default loader, which first tries a folder relative to the current directory
+  and on macOS looks for a framework named after the crate
+  ([ARCHITECTURE.md §3.9](ARCHITECTURE.md#39-versioning)).
+- **One integration-test file:** Linux desktop cannot launch the app a second time for a second file,
+  so every integration test lives in `app/integration_test/app_test.dart`.
 
 ### Honest recording
 
@@ -289,12 +355,17 @@ Checks this environment cannot do. Each is ticked only with the owner's result.
 - [ ] Native-speaker review of the Turkish and Arabic strings (gate S5, step 10).
 - [ ] R1 and R2 hardware checks: macOS traffic lights and full screen; Windows 11 snap layouts on
   hover over maximize; CJK system fonts with the right regional forms (step 5); the bridge zero-copy
-  timing (step 3); the start-screen budget (step 9).
+  timing (step 3, in profile mode: `flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart` from `app/`); the start-screen
+  budget (step 9).
 - [ ] arm64 app builds: the arm64 slice of the macOS universal app on Apple silicon, Windows on arm64
   and Linux on arm64.
 - [ ] Windows 10 22H2: the app starts and the shell works (Q03 floor).
 - [ ] The Linux title bar on GNOME and KDE.
 - [ ] Screen readers: VoiceOver on macOS, Narrator or NVDA on Windows, Orca on Linux.
+- [ ] Goldens: the first goldens (script coverage and icons) were generated in the development
+  container, not on the CI runner as ROADMAP §5 step 11 asks; the CI Linux runner proves them (they
+  passed in the Flutter Linux job of run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The owner accepts this or asks for
+  goldens generated by CI.
 
 The design gaps to settle in M1 are listed in [ROADMAP.md](ROADMAP.md), section 5, under "Design
 gaps to settle in M1".
@@ -318,14 +389,28 @@ the ADRs that changed status here.
 
 ## Measurements
 
-None yet. M1 step 3 records the bridge numbers. Every number names the machine it came from: R1 and
-R2 numbers come from the owner's runs on the reference machines, other numbers are labelled with
-their CI runner or development machine ([honest recording](#honest-recording)). From M2 on, every
-performance budget that applies to a milestone is measured on R1 and R2 and recorded here
+M1 step 3 records the bridge numbers. Every number names the machine it came from: R1 and R2 numbers
+come from the owner's runs on the reference machines, other numbers are labelled with their CI
+runner or development machine ([honest recording](#honest-recording)). From M2 on, every performance
+budget that applies to a milestone is measured on R1 and R2 and recorded here
 ([ARCHITECTURE.md](ARCHITECTURE.md), section 14; gate S8 in [ROADMAP.md](ROADMAP.md)).
 
 | Date | Milestone | Measure | Budget | Machine | Result | Evidence |
 |---|---|---|---|---|---|---|
+| 2026-10-15 | M1 | `debug_bytes`: a 1 MiB `Vec<u8>` from Rust to Dart, round trip timed in Dart | under 0.2 ms on R1 and R2, profile or release build | development container, Linux x64, Xvfb, debug build of app and engine (not R1 or R2) | 52–63 ms over four runs, one cold call each; **does not meet the target** | integration test "a 1 MiB byte vector crosses the bridge" (`app/integration_test/app_test.dart`), `flutter test integration_test -d linux` before `be0a04b` |
+| 2026-10-15 | M1 | `debug_bytes`: a 1 MiB `Vec<u8>` from Rust to Dart, round trip timed in Dart | under 0.2 ms on R1 and R2, profile or release build | development container, Linux x64, Xvfb, profile build of app and engine (not R1 or R2) | 20 warm calls after one warm-up: minimum 3,310 µs, median 5,915 µs; **does not meet the target** | the same test since `be0a04b`, run with `flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart` |
+| 2026-10-15 | M1 | `debug_bytes`: a 1 MiB `Vec<u8>` from Rust to Dart, round trip timed in Dart | under 0.2 ms on R1 and R2, profile or release build | CI runner `macos-15`, debug build of app and engine (not R1 or R2) | 46,351 µs, one cold call; **does not meet the target** | run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726), Flutter (macos-15), step "Integration test (macOS and Windows)" (before `be0a04b`) |
+
+Both results are far over the target, because the transfer copies. With codegen 2.13's default
+`full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one byte
+at a time into a serialisation buffer, and Dart copies it out with `getUint8List`. `full_dep: true`
+(the Dco codec) needs ffigen as a dev dependency and libclang for codegen; tried in a scratch copy, it
+generated bindings whose Dart did not compile (ffigen's C struct `ApiVersion` clashes with the Dart
+mirror). The options (the Dco codec, an opaque pixel buffer read through a pointer view, the texture
+registry) and a proposal are in
+[ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed); the
+owner decides in [Q19](QUESTIONS.md#q19), before M2 step 3. The ROADMAP zero-copy box stays open until
+R1 and R2 are measured.
 
 ## Session log
 
@@ -336,4 +421,6 @@ Newest last. One row per session.
 | 2026-10-13 to 2026-10-14 | M0 | Read-only discovery of `design/`: all 223 boards inventoried (214 artboards and 9 fix boards), and 60 gaps and conflicts verified against the files; a 61st (G61, search defaults) came from the review of the documents against the brief. The brief saved verbatim as `docs/BRIEF.md`; the only change is that its repository-tree block is wrapped in a `text` code fence so it renders. Wrote the M0 documents: inventory, architecture, ADRs 0001 to 0018, roadmap, this file, dependencies, design gaps, questions, backlog, CLAUDE.md and the rules files, README, LICENSE, CONTRIBUTING, CODE_OF_CONDUCT, SECURITY and `.gitignore`. Removed the tracked `.DS_Store` and ignored it. `design/` unchanged; no application code. | see `git log` |
 | 2026-10-14 | M0 | Review pass over all M0 documents against the brief, the design and each other: 72 findings, all addressed. Main changes: the file-picker interim aligned with ADR 0018 everywhere; component names follow the design system, with `Fm` kept only for the `Fm*` building blocks; G61 (accent-insensitive search on by default for every document); Q17 (three licence exceptions and the reading of "GPL-compatible") and the sign-off sub-question in Q14; the PDFium licence files and the Lucide icon provenance re-checked against the upstream archives; [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md) added with the OFL-1.1, ISC and MIT texts for the third-party material already in `design/`. At the owner's request the commits were rewritten without AI attribution and the branch was renamed to `m0-plan`. Deleting the old remote branch `claude/gracious-curie-uhjwhl` was refused by the session's git access (HTTP 403), so the owner deletes it on GitHub ([Owner actions](#owner-actions)). `design/` unchanged; no application code. | see `git log` |
 | 2026-10-15 | M1 | The owner approved M0 (pull request #1 merged as `fe99894`) and gave the go-ahead for M1, answering Q01, Q03, Q04 and Q05 and parts of Q08, Q12, Q14 and Q17. The answers were recorded in every document that mentions them: ADR 0007 and ADR 0013 Accepted, G06, G07, G09 and G15 Decided, rustybuzz rejected as a direct dependency, the three licence exceptions approved. Added Q18 (macOS App Sandbox), the rule against AI attribution in pull requests, the tooling pins (Node 24.22.0, playwright-core 1.56.1) and the design-reference capture rule. Wrote the [M1 plan](#m1-plan) and started M1 on `m1-foundations`; the draft pull request to `main` is opened once phase B is pushed. The owner had deleted the old remote branches. `design/` unchanged. | see `git log` |
-| 2026-10-15 | M1 | Wave 1. Committed the app skeleton (`23a09c3`) and the switch from flutter_svg to path_parsing (`246d6df`). Built in the working tree, each with passing tests in the development container: the Rust workspace with the seven crate skeletons, ferman-cli and `deny.toml`; `tools/checks`; `tools/tokens` and `tokens.g.dart`; `tools/pdfium` and `tools/fonts` with the 18 IBM Plex TTFs and the PDFium licence files; `tools/icons` with the 229 SVGs, `IconName`, the provenance table and the component spec ([COMPONENTS.md](COMPONENTS.md)); `tools/design-refs` (224 PNGs offline, identical over six full renders); the first CI workflow. Reviews corrected the capture rule (the fix boards `f4a`, `f4b` and `f6a` are `div`s), dropped flutter_svg (`http`), kept the Playwright installer out of CI (LGPL ffmpeg), and added G62 and G63. The docs, CLAUDE.md commands and DEPENDENCIES rows now describe what exists. `design/` unchanged. | `23a09c3`, `246d6df`; the rest by phase |
+| 2026-10-15 | M1 | Wave 1. Committed the app skeleton (`23a09c3`) and the switch from flutter_svg to path_parsing (`246d6df`). Built in the working tree, each with passing tests in the development container: the Rust workspace with the seven crate skeletons, ferman-cli and `deny.toml`; `tools/checks`; `tools/tokens` and `tokens.g.dart`; `tools/pdfium` and `tools/fonts` with the 18 IBM Plex TTFs and the PDFium licence files; `tools/icons` with the 229 SVGs, `IconName`, the provenance table and the component spec ([COMPONENTS.md](COMPONENTS.md)); `tools/design-refs` (224 PNGs offline, identical over six full renders); the first CI workflow. Reviews corrected the capture rule (the fix boards `f4a`, `f4b` and `f6a` are `div`s), dropped flutter_svg (`http`), kept the Playwright installer out of CI (LGPL ffmpeg), and added G62 and G63. The docs, CLAUDE.md commands and DEPENDENCIES rows now describe what exists. Committed by phase (A: `946e50d`, `8c6150a`; B: `249d76b` to `f0e2c06`; D: `993bb16` to `879b5e7`; CI: `0096014`), pushed, and draft pull request #2 opened. The first CI run was cancelled by the next push; the Chromium hash was then pinned from the first design-reference run, and CI downloads the PDFium archives before verifying them. CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`) was green in all ten jobs on Ubuntu, macOS and Windows, so the evidenced boxes of ROADMAP §5 steps 1 and 2 are ticked. `design/` unchanged. | `23a09c3`, `246d6df`, `946e50d` to `0096014`, `9b7fcec`, `18c7471`, `19c4beb` |
+| 2026-10-15 | M1 | Wave 2 (phases E1, E2 and F1 to F4), each part reviewed and fixed before its commit: the render thread binds PDFium on its own thread and reports it loaded only after a real call; the engine facade with async `engine_info()` and the test-only debug calls, with the facade hidden from bridge codegen and `Box::pin` instead of `pin!`; the S6 checks in `tools/checks`; the theme layer over the tokens with a live theme switch and reduced motion; the Icon widget, the licence registry and the first two goldens; locale-aware casing and region formats; CI runs the PDFium tests on three systems and goldens on Linux only. The script-coverage golden showed misplaced marks with a script font first, so every UI language but CJK uses `--font-ui` (G64); G65 recorded; G34 corrected (both Arabic boards draw Arabic-Indic digits); five BACKLOG rows; the docs updated. CI run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054) (head `41613ea`) failed on macOS (the PDFium fetch in the Rust job) and on macOS and Windows (the golden test files do not load under `--exclude-tags golden`); Linux passed, goldens included. Fixing it comes first. `design/` unchanged. | `41b80c5`, `0e52fc5`, `27f9e9e`, `9750c83`, `8e1a891`, `069d3f2`, `41613ea` |
+| 2026-10-15 | M1 | Wave 2, phases E3 and E4, and the red CI. The red run 38819082054 was fixed: `fetch.sh` reads the Mach-O header without `od -j` and awk arithmetic, which failed with the BSD tools on macOS, and CI runs `tools/pdfium/selftest.sh` in the Rust jobs on macOS and Linux (`9393190`); every golden test passes `skip: !isGoldenHost`, so macOS and Windows declare no golden test (`7914bfc`); `app/analysis_options.yaml` leaves the vendored cargokit build tool out, after run 38821129509 reported 51 issues there (`a704ce2`). Phase E3: flutter_rust_bridge 2.13.0 through cargokit (the `rust_lib_ferman` FFI plugin, two marked patches), the generated bindings, the engine services and providers with the start-up API-version check and a web stub, and the one-file integration test (`0ae4f29`); the CI codegen check with cached flutter_rust_bridge_codegen 2.13.0 and cargo-expand 1.0.127 (`1554fb2`); the `bridge_imports` check, the 15th in `tools/checks` (`4b8c5c3`); the cargokit patches listed in the rust_builder README (`16eae39`). Run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341) (head `7914bfc`) was green in every job but Flutter (macos-15): the build worked through CocoaPods, with Flutter's warning that `rust_lib_ferman` does not support Swift Package Manager (B007), but the integration test found no engine library, because the bridge's default macOS loader looks for `ferman_api.framework`. The app now opens the engine library by absolute path beside the executable (`b9b14ec`). Phase E4: PDFium bundled in the app on each system, with the integration test asserting `loaded` and `chromium/7881`; CI fetches PDFium before the desktop builds and runs the full Dart licence check (`3e7bf8e`, `52603cb`). Verified on Linux in the development container: the bundle holds the pinned `libpdfium.so`, the 5 integration tests pass, and the 1 MiB bridge transfer measured 52–63 ms in a debug build, far over the 0.2 ms target; the codec decision is open. Profile builds shipped the engine without the bridge (the app reported `libraryMissing`, undefined symbol `frb_get_rust_content_hash`) because `cargokit.yaml` listed only debug and release; it now lists all three modes (`ba9f6d2`), and the Ubuntu 22.04 job checks the export with `nm -D` (`99a75e1`). The transfer test now times 20 warm calls, and `app/test_driver/integration_test.dart` with flutter_driver runs it in profile mode (`be0a04b`): minimum 3,310 µs, median 5,915 µs in the container, still far over the target. Run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green in every job on the three systems, the full Dart licence check (107 packages), the 22.04 bundle check and PDFium loaded in all three integration tests included, so ROADMAP step 2 boxes 1, 2 and 6 were ticked again and step 3's evidenced boxes were ticked. The Dco codec (`full_dep: true`) was tried in a scratch worktree; its Dart did not compile, so the options and a proposal went into ADR 0009 and the decision became Q19. CI now also compares the codegen's version with the crate (`dcdf8a3`). The PR description lost an attribution footer that CLAUDE.md forbids. The docs record these changes: DEPENDENCIES (the codegen tools, cargokit and its build tool, `rust_lib_ferman`, flutter_driver, jni), BACKLOG B006 and B007, the Turkish percent form in G34. `design/` unchanged. | `0ae4f29`, `1554fb2`, `9393190`, `a704ce2`, `7914bfc`, `4b8c5c3`, `16eae39`, `b9b14ec`, `3e7bf8e`, `52603cb`, `ba9f6d2`, `be0a04b`, `99a75e1`, `dcdf8a3` |
