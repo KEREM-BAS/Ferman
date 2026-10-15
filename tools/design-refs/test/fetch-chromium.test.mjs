@@ -47,19 +47,27 @@ function run(script, args, extraEnv = {}) {
   return spawnSync('bash', [script, ...args], { encoding: 'utf8', env });
 }
 
-/** A copy of the script with CHROMIUM_SHA256 pinned to [hash]. */
+const PIN_LINE = /^readonly CHROMIUM_SHA256=(UNPINNED|[0-9a-f]{64})$/m;
+
+/** A copy of the script with CHROMIUM_SHA256 set to [hash] (or `UNPINNED`). */
 async function pinnedScript(hash) {
   const text = await readFile(SCRIPT, 'utf8');
-  assert.match(text, /^readonly CHROMIUM_SHA256=UNPINNED$/m);
+  assert.match(text, PIN_LINE);
   const file = path.join(base, `pinned-${hash.slice(0, 8)}.sh`);
-  await writeFile(file, text.replace(/^readonly CHROMIUM_SHA256=UNPINNED$/m, `readonly CHROMIUM_SHA256=${hash}`));
+  await writeFile(file, text.replace(PIN_LINE, `readonly CHROMIUM_SHA256=${hash}`));
   return file;
 }
+
+test('the real script pins a SHA-256 for the zip', async () => {
+  const text = await readFile(SCRIPT, 'utf8');
+  assert.match(text, /^readonly CHROMIUM_SHA256=[0-9a-f]{64}$/m);
+});
 
 test('unpinned: unpacks, prints the executable, and warns loudly with the computed hash', { skip }, async () => {
   const cache = path.join(base, 'cache-unpinned');
   const summary = path.join(base, 'summary.md');
-  const r = run(SCRIPT, ['--zip', zip, cache], { GITHUB_STEP_SUMMARY: summary });
+  const unpinned = await pinnedScript('UNPINNED');
+  const r = run(unpinned, ['--zip', zip, cache], { GITHUB_STEP_SUMMARY: summary });
   assert.equal(r.status, 0, r.stderr);
   const exe = path.join(cache, 'chromium_headless_shell-1194', 'chrome-linux', 'headless_shell');
   assert.equal(r.stdout, `${exe}\n`);
@@ -70,14 +78,14 @@ test('unpinned: unpacks, prints the executable, and warns loudly with the comput
   assert.equal((await readFile(path.join(cache, 'chromium_headless_shell-1194', 'ZIP_SHA256'), 'utf8')).trim(), zipHash);
 
   // A second run uses the cache and downloads nothing (no --zip, and the cache is complete).
-  const again = run(SCRIPT, [cache]);
+  const again = run(unpinned, [cache]);
   assert.equal(again.status, 0, again.stderr);
   assert.equal(again.stdout, `${exe}\n`);
   assert.doesNotMatch(again.stderr, /downloading/);
 });
 
-test('unpinned on GitHub Actions: also a ::warning:: annotation, on stderr only', { skip }, () => {
-  const r = run(SCRIPT, ['--zip', zip, path.join(base, 'cache-gha')], { GITHUB_ACTIONS: 'true' });
+test('unpinned on GitHub Actions: also a ::warning:: annotation, on stderr only', { skip }, async () => {
+  const r = run(await pinnedScript('UNPINNED'), ['--zip', zip, path.join(base, 'cache-gha')], { GITHUB_ACTIONS: 'true' });
   assert.equal(r.status, 0, r.stderr);
   assert.match(r.stderr, /^::warning title=Chromium download not pinned::/m);
   assert.doesNotMatch(r.stdout, /warning/i);
@@ -109,7 +117,7 @@ test('refuses a zip without the headless shell', { skip }, async () => {
   await writeFile(path.join(other, 'readme.txt'), 'x');
   const bad = path.join(base, 'bad.zip');
   assert.equal(spawnSync('zip', ['-q', bad, 'readme.txt'], { cwd: other }).status, 0);
-  const r = run(SCRIPT, ['--zip', bad, path.join(base, 'cache-bad')]);
+  const r = run(await pinnedScript('UNPINNED'), ['--zip', bad, path.join(base, 'cache-bad')]);
   assert.equal(r.status, 1);
   assert.match(r.stderr, /holds no chrome-linux\/headless_shell/);
 });

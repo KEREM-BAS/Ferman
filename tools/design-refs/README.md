@@ -85,11 +85,12 @@ which would also download Playwright's ffmpeg build (LGPL-2.1):
   `PLAYWRIGHT_BROWSERS_PATH=<cache-dir>` works too) and prints the executable's path on stdout;
 - a later run reuses the unpacked copy; `--zip <file>` checks and unpacks a zip downloaded before.
 
-**The hash is not pinned yet.** The CDN is blocked in the development container, so the zip has
-never been downloaded here and `CHROMIUM_SHA256` reads `UNPINNED`. While it does, the script
-prints the computed SHA-256 with a loud warning (also as a GitHub Actions `::warning::` and in the
-step summary) and carries on. After the first CI run, copy that hash from the log into
-`CHROMIUM_SHA256`; from then on a different zip fails the step.
+**The hash is pinned.** `CHROMIUM_SHA256` holds the SHA-256 of `chromium-headless-shell-linux.zip`
+for revision 1194 (`d745c721…c91f`), taken from the first CI download on 2026-10-15 (the CDN is
+blocked in the development container). A different zip fails the step. When the revision
+changes, set `CHROMIUM_SHA256=UNPINNED`: the script then prints the computed SHA-256 with a loud
+warning (also as a GitHub Actions `::warning::` and in the step summary) and carries on, so the
+new hash can be copied from the CI log.
 
 On macOS and Windows, download the matching zip of the same revision by hand
 (`chromium-headless-shell-mac-arm64.zip`, `-mac.zip` or `-win64.zip` under the same CDN path),

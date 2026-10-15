@@ -21,7 +21,7 @@
 set -euo pipefail
 
 readonly REVISION=1194
-readonly CHROMIUM_SHA256=UNPINNED
+readonly CHROMIUM_SHA256=d745c7210cc88b73c7991a22c9624819960d84bc3de77ac7336d2de841a8c91f
 readonly ZIP_NAME=chromium-headless-shell-linux.zip
 readonly URLS=(
   "https://cdn.playwright.dev/dbazure/download/playwright/builds/chromium/${REVISION}/${ZIP_NAME}"
