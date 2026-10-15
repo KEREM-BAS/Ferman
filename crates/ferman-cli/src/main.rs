@@ -4,17 +4,20 @@
 //! with the `frb` feature off, so it carries no bridge code. Output is human-readable by default
 //! and JSON with `--json`; the JSON carries the API version (docs/ARCHITECTURE.md §2.3).
 //!
-//! M1 has two commands: `ferman --version` and `ferman info [--json]`. Errors print one short line
-//! to standard error and exit with status 1; argument errors exit with status 2. A failed write,
-//! including of `--version` or `--help`, exits with status 1.
+//! M1 has two commands: `ferman --version` and `ferman info [--json] [--pdfium <path>]`. `info`
+//! starts an engine of its own and reports whether PDFium loaded; a missing or broken library is
+//! reported, not an error. Errors print one short line to standard error and exit with status 1;
+//! argument errors exit with status 2. A failed write, including of `--version` or `--help`, exits
+//! with status 1.
 #![forbid(unsafe_code)]
 
 use std::error::Error;
 use std::io::{self, Write};
+use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-use ferman_api::facade::{self, EngineInfo, PdfiumStatus};
+use ferman_api::facade::{self, Engine, EngineConfig, EngineInfo, PdfiumLibrary, PdfiumStatus};
 
 /// Ferman's engine on the command line.
 #[derive(Debug, Parser)]
@@ -31,6 +34,10 @@ enum Command {
         /// Print JSON for scripts instead of text.
         #[arg(long)]
         json: bool,
+        /// The PDFium library to load. Default: the file named by FERMAN_PDFIUM_PATH, otherwise
+        /// the library bundled next to the executable.
+        #[arg(long, value_name = "PATH")]
+        pdfium: Option<PathBuf>,
     },
 }
 
@@ -82,11 +89,17 @@ fn version_text() -> String {
 }
 
 fn run(cli: &Cli) -> Result<(), Box<dyn Error>> {
-    match cli.command {
-        Command::Info { json } => {
-            let info = facade::engine_info()?;
+    match &cli.command {
+        Command::Info { json, pdfium } => {
+            let pdfium = pdfium
+                .clone()
+                .map_or(PdfiumLibrary::Find, PdfiumLibrary::Path);
+            // An engine of its own, so `--pdfium` applies; dropping it stops the render thread.
+            let engine = Engine::start(EngineConfig { pdfium });
+            let info = facade::block_on(engine.info())?;
+            drop(engine);
             let mut out = io::stdout().lock();
-            if json {
+            if *json {
                 serde_json::to_writer_pretty(&mut out, &info)?;
                 writeln!(out)?;
             } else {
@@ -105,10 +118,11 @@ fn write_info_text(out: &mut impl Write, info: &EngineInfo) -> io::Result<()> {
         info.app_version, info.api_version
     )?;
     writeln!(out, "build profile: {}", info.build_profile.as_str())?;
-    let pdfium = match info.pdfium {
-        PdfiumStatus::NotLoaded => "not loaded",
-    };
-    writeln!(out, "pdfium: {pdfium}")?;
+    match &info.pdfium {
+        PdfiumStatus::NotLoaded => writeln!(out, "pdfium: not loaded")?,
+        PdfiumStatus::Loaded { tag } => writeln!(out, "pdfium: loaded ({tag})")?,
+        PdfiumStatus::Failed { reason } => writeln!(out, "pdfium: failed: {reason}")?,
+    }
     writeln!(out, "engine crates:")?;
     for krate in &info.crates {
         writeln!(out, "  {} {}", krate.name, krate.version)?;

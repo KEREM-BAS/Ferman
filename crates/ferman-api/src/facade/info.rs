@@ -2,8 +2,6 @@
 
 use serde::Serialize;
 
-use super::error::ApiError;
-use super::guard::guard;
 use super::version::{API_VERSION, APP_VERSION, ApiVersion};
 
 /// Versions and build facts of the running engine, for the About screen, bug reports and
@@ -72,24 +70,32 @@ impl CrateVersion {
 
 /// Whether the PDFium library is loaded.
 ///
-/// It serializes as `{"state": "not_loaded"}`. The skeleton render thread (M1 step 3) adds a
-/// loaded state with the pinned binary's tag; PDFium has no version call of its own.
+/// It serializes as `{"state": "not_loaded"}`, `{"state": "loaded", "tag": "chromium/7881"}` or
+/// `{"state": "failed", "reason": "…"}`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize)]
 #[serde(tag = "state", rename_all = "snake_case")]
 pub enum PdfiumStatus {
-    /// PDFium has not been loaded.
+    /// No PDFium library was found or configured, so none was loaded.
     NotLoaded,
+    /// PDFium is loaded: it was bound and a real call into it succeeded.
+    Loaded {
+        /// The pinned build tag, such as `"chromium/7881"`. PDFium has no runtime version API, so
+        /// this is the pin recorded with `tools/pdfium`, not a value read from the library.
+        tag: String,
+    },
+    /// A PDFium library was found or configured, but it did not load or did not work.
+    Failed {
+        /// Technical text for logs and bug reports, in English. It never contains the library
+        /// path. The UI shows its own localized message and keeps this behind "Copy technical
+        /// details".
+        reason: String,
+    },
 }
 
-/// Returns the versions and build facts of the running engine.
-///
-/// # Errors
-///
-/// Returns an internal [`ApiError`] if gathering the facts fails unexpectedly; today nothing can
-/// fail except a bug.
-pub fn engine_info() -> Result<EngineInfo, ApiError> {
-    guard(|| {
-        Ok(EngineInfo {
+impl EngineInfo {
+    /// The facts of this build, with the given PDFium status.
+    pub(crate) fn new(pdfium: PdfiumStatus) -> Self {
+        Self {
             app_version: APP_VERSION.to_owned(),
             api_version: API_VERSION,
             build_profile: BuildProfile::CURRENT,
@@ -101,9 +107,9 @@ pub fn engine_info() -> Result<EngineInfo, ApiError> {
                 CrateVersion::new("ferman-ops", ferman_ops::VERSION),
                 CrateVersion::new("ferman-api", env!("CARGO_PKG_VERSION")),
             ],
-            pdfium: PdfiumStatus::NotLoaded,
-        })
-    })
+            pdfium,
+        }
+    }
 }
 
 #[cfg(test)]
@@ -112,7 +118,7 @@ mod tests {
 
     #[test]
     fn engine_info_reports_versions_and_profile() {
-        let info = engine_info().unwrap();
+        let info = EngineInfo::new(PdfiumStatus::NotLoaded);
         assert_eq!(info.app_version, APP_VERSION);
         assert_eq!(info.api_version, API_VERSION);
         assert_eq!(info.build_profile, BuildProfile::CURRENT);
@@ -130,6 +136,24 @@ mod tests {
             ]
         );
         assert!(info.crates.iter().all(|c| c.version == APP_VERSION));
+    }
+
+    #[test]
+    fn pdfium_status_serializes_with_a_state_tag() {
+        let json = |status: &PdfiumStatus| serde_json::to_string(status).unwrap();
+        assert_eq!(json(&PdfiumStatus::NotLoaded), r#"{"state":"not_loaded"}"#);
+        assert_eq!(
+            json(&PdfiumStatus::Loaded {
+                tag: "chromium/7881".to_owned()
+            }),
+            r#"{"state":"loaded","tag":"chromium/7881"}"#
+        );
+        assert_eq!(
+            json(&PdfiumStatus::Failed {
+                reason: "dlopen failed".to_owned()
+            }),
+            r#"{"state":"failed","reason":"dlopen failed"}"#
+        );
     }
 
     #[test]

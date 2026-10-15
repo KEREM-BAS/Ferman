@@ -1,6 +1,6 @@
 ---
 source: crates/ferman-cli/tests/cli.rs
-expression: redacted
+expression: redacted_info_json(&output)
 ---
 {
   "app_version": "[version]",

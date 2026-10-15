@@ -2,12 +2,16 @@
 //!
 //! ferman-api has two layers (ADR 0003, docs/ARCHITECTURE.md §2.3 and §3):
 //!
-//! - [`facade`]: plain Rust, always built. Versions, engine information, [`facade::ApiError`] and
-//!   the panic guard today; the `Engine`, its configuration, handles and data types, the document
-//!   actors, the job manager and, from M5, the network gateway later. ferman-cli and the
-//!   integration tests call this module.
+//! - [`facade`]: plain Rust, always built. Today: versions, the [`facade::Engine`] with its
+//!   configuration and the render thread that loads PDFium, engine information,
+//!   [`facade::ApiError`], the panic guards and two test-only calls for the bridge. Later: handles
+//!   and data types, the document actors, the job manager and, from M5, the network gateway.
+//!   ferman-cli and the integration tests call this module.
 //! - `frb` (feature `frb`, on in the app build): thin wrappers that expose facade functions to
-//!   Dart. Nothing else lives there, and flutter_rust_bridge codegen scans only that module.
+//!   Dart, and plain mirrors of the facade's data types. Nothing else lives there, and
+//!   flutter_rust_bridge codegen scans only that module: the facade carries `frb(ignore)`, because
+//!   codegen matches types by bare name across the whole crate and would otherwise take the
+//!   facade's `EngineInfo` or `ApiError` for the mirror of the same name.
 //!
 //! The UI never sees PDF internals. Only plain data crosses the boundary (integers, floats,
 //! strings, enums, byte vectors and structs of those, plus opaque `u64` handles), and no localized
@@ -18,6 +22,8 @@
 //! unsafe code is allowed, and tools/checks fails on any other `allow(unsafe_code)` (ADR 0010).
 #![deny(unsafe_code)]
 
+// Hidden from flutter_rust_bridge codegen, so it reads only `crate::frb` (see above).
+#[cfg_attr(feature = "frb", flutter_rust_bridge::frb(ignore))]
 pub mod facade;
 
 #[cfg(feature = "frb")]
@@ -26,5 +32,7 @@ pub mod frb;
 // M1 step 3 declares the FRB-generated Rust glue here, with these attributes directly on the module
 // declaration (rustfmt puts each attribute on its own line; tools/checks accepts that form). The
 // allow list names every lint the workspace sets beyond the defaults (Cargo.toml), because
-// clippy::all does not cover restriction lints:
+// clippy::all does not cover restriction lints. Codegen runs with `add_mod_to_lib: false` (this
+// comment already holds the text it looks for, and its own line would lack the attributes), so the
+// declaration is added by hand:
 // #[cfg(feature = "frb")] #[allow(unsafe_code, missing_docs, clippy::all, clippy::unwrap_used, clippy::expect_used, clippy::panic, clippy::todo, clippy::unimplemented, clippy::dbg_macro, clippy::print_stdout, clippy::print_stderr)] mod frb_generated;

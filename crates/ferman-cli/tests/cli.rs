@@ -6,13 +6,52 @@
 
 use std::process::{Command, Output, Stdio};
 
-use ferman_api::facade::{API_VERSION, APP_VERSION};
+use ferman_api::facade::{API_VERSION, APP_VERSION, PDFIUM_PATH_ENV};
 
+/// Runs ferman without FERMAN_PDFIUM_PATH, so the result does not depend on the caller's shell:
+/// PDFium then loads only through `--pdfium` (nothing is bundled next to the test binary).
 fn ferman(args: &[&str]) -> Output {
     Command::new(env!("CARGO_BIN_EXE_ferman"))
         .args(args)
+        .env_remove(PDFIUM_PATH_ENV)
         .output()
         .unwrap_or_else(|err| panic!("cannot run ferman: {err}"))
+}
+
+/// The PDFium library named by FERMAN_PDFIUM_PATH, for the tests that need it.
+fn pdfium_path() -> String {
+    std::env::var(PDFIUM_PATH_ENV)
+        .ok()
+        .filter(|path| !path.is_empty())
+        .unwrap_or_else(|| panic!("{PDFIUM_PATH_ENV} must name the PDFium library"))
+}
+
+/// The JSON of `ferman info --json` with the values that change between builds checked and then
+/// redacted, for a snapshot.
+fn redacted_info_json(output: &Output) -> String {
+    assert!(output.status.success(), "{}", stderr(output));
+    let text = stdout(output);
+
+    let json: serde_json::Value = serde_json::from_str(text)
+        .unwrap_or_else(|err| panic!("info --json printed invalid JSON: {err}"));
+    assert_eq!(json["app_version"], APP_VERSION);
+    assert_eq!(json["api_version"]["major"], API_VERSION.major);
+    assert_eq!(json["api_version"]["minor"], API_VERSION.minor);
+    let crates = json["crates"]
+        .as_array()
+        .unwrap_or_else(|| panic!("no crates array: {json}"));
+    assert_eq!(crates.len(), 6);
+    assert!(crates.iter().all(|c| c["version"] == APP_VERSION));
+    let profile = json["build_profile"]
+        .as_str()
+        .unwrap_or_else(|| panic!("no build profile: {json}"));
+    assert!(matches!(profile, "debug" | "release"), "{profile}");
+
+    text.replace(&format!("\"{APP_VERSION}\""), "\"[version]\"")
+        .replace(
+            &format!("\"build_profile\": \"{profile}\""),
+            "\"build_profile\": \"[profile]\"",
+        )
 }
 
 fn stdout(output: &Output) -> &str {
@@ -62,27 +101,56 @@ fn version_is_the_workspace_version() {
 #[test]
 fn info_json_matches_the_snapshot() {
     let output = ferman(&["info", "--json"]);
+    insta::assert_snapshot!("info_json", redacted_info_json(&output));
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn info_json_with_pdfium_matches_the_snapshot() {
+    let output = ferman(&["info", "--json", "--pdfium", &pdfium_path()]);
+    insta::assert_snapshot!("info_json_pdfium_loaded", redacted_info_json(&output));
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn info_finds_pdfium_through_the_environment() {
+    let output = Command::new(env!("CARGO_BIN_EXE_ferman"))
+        .args(["info"])
+        .env(PDFIUM_PATH_ENV, pdfium_path())
+        .output()
+        .unwrap();
     assert!(output.status.success(), "{}", stderr(&output));
-    let text = stdout(&output);
+    assert!(
+        stdout(&output).contains("\npdfium: loaded (chromium/7881)\n"),
+        "{}",
+        stdout(&output)
+    );
+}
 
-    // Check the values that change between builds, then redact them for the snapshot.
-    let json: serde_json::Value = serde_json::from_str(text).unwrap();
-    assert_eq!(json["app_version"], APP_VERSION);
-    assert_eq!(json["api_version"]["major"], API_VERSION.major);
-    assert_eq!(json["api_version"]["minor"], API_VERSION.minor);
-    let crates = json["crates"].as_array().unwrap();
-    assert_eq!(crates.len(), 6);
-    assert!(crates.iter().all(|c| c["version"] == APP_VERSION));
-    let profile = json["build_profile"].as_str().unwrap();
-    assert!(matches!(profile, "debug" | "release"), "{profile}");
+#[test]
+fn info_reports_a_missing_pdfium_and_still_succeeds() {
+    let missing = std::env::temp_dir()
+        .join(format!("ferman-cli-missing-{}", std::process::id()))
+        .join("libpdfium.so");
+    let missing = missing.to_str().unwrap();
+    let output = ferman(&["info", "--json", "--pdfium", missing]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let json: serde_json::Value = serde_json::from_str(stdout(&output)).unwrap();
+    assert_eq!(json["pdfium"]["state"], "failed");
+    let reason = json["pdfium"]["reason"].as_str().unwrap();
+    assert!(
+        reason.starts_with("cannot load the PDFium library"),
+        "{reason}"
+    );
+    assert!(!reason.contains("ferman-cli-missing"), "{reason}");
 
-    let redacted = text
-        .replace(&format!("\"{APP_VERSION}\""), "\"[version]\"")
-        .replace(
-            &format!("\"build_profile\": \"{profile}\""),
-            "\"build_profile\": \"[profile]\"",
-        );
-    insta::assert_snapshot!("info_json", redacted);
+    let output = ferman(&["info", "--pdfium", missing]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    assert!(
+        stdout(&output).contains("\npdfium: failed: cannot load the PDFium library"),
+        "{}",
+        stdout(&output)
+    );
 }
 
 #[test]
