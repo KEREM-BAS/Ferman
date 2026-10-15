@@ -117,6 +117,27 @@ jobs:
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
         run: cargo test -p ferman-api --features frb --locked
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: Tests that need PDFium
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            Linux) id=linux-x64; lib=lib/libpdfium.so ;;
+            macOS) id=mac-univ; lib=lib/libpdfium.dylib ;;
+            Windows) id=win-x64; lib=bin/pdfium.dll ;;
+          esac
+          bash tools/pdfium/fetch.sh --platform "$id"
+          root="$PWD"
+          if [ "$RUNNER_OS" = "Windows" ]; then root="$(cygpath -m "$PWD")"; fi
+          export FERMAN_PDFIUM_PATH="$root/build/pdfium/$id/$lib"
+          cargo test --workspace --locked -- --ignored
+          cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
+          grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
       - name: CLI smoke test
         shell: bash
         run: |
@@ -208,8 +229,21 @@ jobs:
       - name: Format
         if: runner.os == 'Linux'
         run: dart format --output=none --set-exit-if-changed lib test integration_test
-      - name: Test
-        run: flutter test
+      - name: Test (goldens on Linux only)
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            flutter test
+          else
+            flutter test --exclude-tags golden
+          fi
+      - name: Upload golden failures
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: golden-failures
+          path: app/test/**/failures/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Dart licence check
         if: runner.os == 'Linux'
         run: |
