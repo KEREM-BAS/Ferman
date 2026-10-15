@@ -21,3 +21,10 @@
 *.yml text eol=lf
 *.json text eol=lf
 *.md text eol=lf
+
+# Third-party licence texts are kept byte-identical to upstream (their
+# hashes are checked against the release archives).
+app/assets/fonts/**/LICENSE.txt -text
+app/assets/licenses/** -text
+app/assets/icons/LICENSE-*.txt -text
+tools/*/*.lock text eol=lf
