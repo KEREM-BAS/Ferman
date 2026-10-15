@@ -257,9 +257,24 @@ verify_archive() {
   echo "OK   pdfium-$id.tgz"
 }
 
-# be32 <file> <offset>: the big-endian unsigned 32-bit integer at offset, in decimal.
+# hex_at <file> <offset> <count>: <count> bytes at <offset>, as lowercase hex digits.
+# Uses tail and head instead of od -j and awk arithmetic, which differ between the GNU
+# and BSD (macOS) tools.
+hex_at() {
+  # tail may be stopped by SIGPIPE once head has its bytes.
+  { tail -c +"$(($2 + 1))" "$1" || true; } | head -c "$3" | od -An -v -tx1 | tr -dc '0-9a-f'
+}
+
+# be32 <file> <offset>: the big-endian unsigned 32-bit integer at offset, in decimal
+# (-1 if the file is too short).
 be32() {
-  od -An -tu1 -j "$2" -N 4 "$1" | awk '{ printf "%.0f\n", (($1 * 256 + $2) * 256 + $3) * 256 + $4 }'
+  local hex
+  hex=$(hex_at "$1" "$2" 4)
+  if [ "${#hex}" -ne 8 ]; then
+    echo -1
+    return
+  fi
+  echo $((16#$hex))
 }
 
 # check_universal <dylib>: the universal (fat) Mach-O holds exactly the mac-x64 and
@@ -268,7 +283,7 @@ be32() {
 check_universal() {
   local lib=$1 i base cpu off size arch want got seen=""
   if [ "$(be32 "$lib" 0)" != 3405691582 ]; then # 0xcafebabe, FAT_MAGIC
-    fail "$lib is not a universal Mach-O library"
+    fail "$lib is not a universal Mach-O library (it starts with $(hex_at "$lib" 0 8))"
     return 1
   fi
   if [ "$(be32 "$lib" 4)" != 2 ]; then

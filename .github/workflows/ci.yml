@@ -131,6 +131,8 @@ jobs:
             macOS) id=mac-univ; lib=lib/libpdfium.dylib ;;
             Windows) id=win-x64; lib=bin/pdfium.dll ;;
           esac
+          # The fetch script's own tests, with this system's tools (BSD ones on macOS).
+          if [ "$RUNNER_OS" != "Windows" ]; then bash tools/pdfium/selftest.sh; fi
           bash tools/pdfium/fetch.sh --platform "$id"
           root="$PWD"
           if [ "$RUNNER_OS" = "Windows" ]; then root="$(cygpath -m "$PWD")"; fi
