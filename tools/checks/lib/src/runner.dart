@@ -9,6 +9,11 @@ import 'package:checks/src/checks/crate_graph.dart';
 import 'package:checks/src/checks/design_untouched.dart';
 import 'package:checks/src/checks/frb_versions.dart';
 import 'package:checks/src/checks/pub_denylist.dart';
+import 'package:checks/src/checks/s6_casing.dart';
+import 'package:checks/src/checks/s6_directional.dart';
+import 'package:checks/src/checks/s6_forbidden_api.dart';
+import 'package:checks/src/checks/s6_literals.dart';
+import 'package:checks/src/checks/s6_material_imports.dart';
 import 'package:checks/src/checks/unsafe_roots.dart';
 import 'package:checks/src/checks/version_sync.dart';
 
@@ -23,6 +28,13 @@ const List<Check> allChecks = [
   ArbParityCheck(),
   PubDenylistCheck(),
   FrbVersionsCheck(),
+  // S6: the Flutter conventions of brief §6 in app/lib (ADR 0011, 0012,
+  // 0014), with the reviewed exceptions in s6_allowlist.dart.
+  S6MaterialImportsCheck(),
+  S6ForbiddenApiCheck(),
+  S6LiteralsCheck(),
+  S6DirectionalCheck(),
+  S6CasingCheck(),
 ];
 
 /// Exit status when every check passed or was skipped.
