@@ -8,7 +8,8 @@ accident.
 Brief §8 asks Milestone 0 to end with at least three questions: the bundle identifier
 ([Q01](#q01)), the publisher name for code signing ([Q02](#q02)) and the minimum macOS and Windows
 versions ([Q03](#q03)). The others came up during discovery and planning. The owner answered the
-first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1.
+first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
+[Q19](#q19) after the M1 bridge benchmark.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -82,6 +83,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q16](#q16) | OCR engine | P3 | Open |
 | [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache); M2 | Answered in part 2026-10-15: parts 1 to 3 approved; part 4 open |
 | [Q18](#q18) | macOS App Sandbox | before M2 | Open |
+| [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Open |
 
 ## Questions
 
@@ -658,4 +660,33 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Related:** [Q07](#q07), [Q01](#q01), [Q03](#q03), [ADR 0008](adr/0008-file-safety-and-saving.md),
   [ADR 0018](adr/0018-native-file-pickers.md), [G28](DESIGN_GAPS.md#g28),
   [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)
+- **Answer:** none yet
+
+<a id="q19"></a>
+
+### Q19 · Tile transfer across the bridge
+
+- **Question:** Which path should rendered tiles take from Rust to Dart, now that the default
+  bridge codec copies them?
+- **Why it matters:** The brief asks for 60 fps scrolling and zooming. The M1 benchmark moves 1 MiB
+  in 3.3 ms at best in a profile build in the development container (median 5.9 ms), against a
+  target of 0.2 ms on R1 and R2. The default SSE codec of flutter_rust_bridge 2.13 copies a
+  `Vec<u8>` byte by byte and again on the Dart side, so a zoom step with dozens of tiles would spend
+  its frame on copies. The numbers and the options are in
+  [ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed).
+- **Options:** (a) the Dco codec (`full_dep: true`): generated, no hand-written unsafe code, but
+  codegen needs ffigen and libclang, and the M1 trial needs a fix for a name clash before it
+  compiles; (b) an opaque Rust pixel buffer that Dart reads through a pointer view with a native
+  finalizer: zero copy, but a small hand-written unsafe `extern "C"` surface in ferman-api, an
+  exception to [ADR 0010](adr/0010-error-handling-no-panics.md); (c) a platform texture registry:
+  native code on three systems and a `Texture` widget per tile.
+- **Proposal:** (a) first, measured on R1 and R2 with `flutter drive --profile`; (b) if (a) misses
+  the budget; (c) only if both fail.
+- **Meanwhile:** M1 keeps the default codec. M1 moves no tiles, so nothing depends on the answer
+  yet. Running the profile benchmark on R1 and R2 is an owner check
+  ([PROGRESS.md](PROGRESS.md#measurements)).
+- **Needed by:** before M2 step 3 (tiles and the viewer).
+- **Status:** Open
+- **Related:** [ADR 0009](adr/0009-threading-and-jobs.md), [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
+  [ADR 0010](adr/0010-error-handling-no-panics.md), [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)
 - **Answer:** none yet

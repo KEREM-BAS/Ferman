@@ -135,6 +135,50 @@ version check and engine info), so the actor model is built from M2, once approv
 - M3: edit transactions on the actor, reload-per-edit measurement.
 - M4: background task drawer with pause and cancel.
 
+### Tile transfer: M1 measurements and options (Proposed)
+
+The M1 benchmark (`debug_bytes`, the integration test "a 1 MiB byte vector crosses the bridge")
+does not meet the target of 1 MB in under 0.2 ms. No number below comes from R1 or R2:
+
+| Build | Machine | Result for 1 MiB |
+|---|---|---|
+| Debug, one cold call per run, four runs | Development container, Linux x64, Xvfb | 52 to 63 ms |
+| Debug, one cold call | CI runner `macos-15`, run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) | 46 ms |
+| Profile (`flutter drive --profile`), 20 warm calls | Development container, Linux x64, Xvfb | minimum 3.3 ms, median 5.9 ms |
+
+The cause is the codec, not the build mode. With codegen 2.13's default `full_dep: false`, the
+generated glue uses the SSE codec: the Rust side writes the `Vec<u8>` into a serialization buffer one
+byte at a time, and Dart copies it out with `getUint8List`. At the profile rate, one 256 × 256 RGBA
+tile (256 KiB) costs about 0.8 ms, so a zoom step that delivers dozens of tiles would spend the whole
+16 ms frame on copies.
+
+Options, cheapest first:
+
+1. **The Dco codec (`full_dep: true`).** A `Vec<u8>` crosses through `Dart_PostCObject` as external
+   typed data, which should be zero copy. It keeps the generated boundary and adds no hand-written
+   unsafe code. Costs: codegen then needs ffigen (dev dependency, BSD-3-Clause) and libclang (LLVM,
+   Apache-2.0 WITH LLVM-exception) on developer machines and in the CI codegen job. Tried in M1 in a
+   scratch copy: the bindings generated, but the Dart did not compile, because ffigen emits a C
+   struct named `ApiVersion` that clashes with the Dart mirror of the same name. It needs a rename
+   or an FRB setting. Zero copy is not verified yet.
+2. **An opaque pixel buffer read through a pointer view.** The engine keeps each tile's pixels in a
+   Rust buffer and hands Dart a pointer and length. Dart wraps it with `Pointer<Uint8>.asTypedList`
+   and a native finalizer that frees the buffer in Rust. This is zero copy, but it needs a small
+   hand-written `extern "C"` surface in ferman-api outside the generated module. That is an
+   exception to the unsafe-code rule ([ADR 0010](0010-error-handling-no-panics.md)), which the owner
+   must approve.
+3. **A platform texture registry** (the fallback named in M0). The engine renders into pixel buffers
+   registered with Flutter's texture registry: a pixel-buffer texture on Linux and Windows, a
+   `CVPixelBuffer` on macOS. Nothing crosses into Dart, but it needs native code on three systems,
+   one `Texture` widget per tile, and goldens of the canvas then need a test path.
+4. **Keep the copying codec.** It is not recommended, because of the frame cost above.
+
+**Proposed:** try option 1 at the start of M2 step 3, before tiles are built, and measure it on R1
+and R2 with `flutter drive --profile` (the command is in CONTRIBUTING.md). If it misses the budget,
+use option 2, with the owner's approval of its unsafe surface. Use option 3 only if both fail. The
+owner decides, through the approval of this ADR ([Q19](../QUESTIONS.md#q19)); until then, M1 changes
+nothing in the codec.
+
 ## Alternatives considered
 
 - **A mutex around each document model.** Simple, but renders and jobs would contend with typing, and
