@@ -48,14 +48,26 @@ void main() {
     });
 
     test('a 1 MiB byte vector crosses the bridge', () async {
-      final watch = Stopwatch()..start();
-      final length = await engine.debugBytesLength(1024 * 1024);
-      watch.stop();
-      expect(length, 1024 * 1024);
-      // Recorded for ARCHITECTURE §3.4; the 0.2 ms budget is checked on R1
-      // and R2 with a release build.
+      const length = 1024 * 1024;
+      // One warm-up call, then 20 timed ones; the minimum and the median
+      // are recorded for ARCHITECTURE §3.4. The 0.2 ms budget applies to a
+      // release build on R1 and R2.
+      expect(await engine.debugBytesLength(length), length);
+      final samples = <int>[];
+      for (var i = 0; i < 20; i++) {
+        final watch = Stopwatch()..start();
+        final received = await engine.debugBytesLength(length);
+        watch.stop();
+        expect(received, length);
+        samples.add(watch.elapsedMicroseconds);
+      }
+      samples.sort();
+      // The measurement goes to the test log; there is no other reporter.
       // ignore: avoid_print
-      print('debug_bytes 1 MiB round trip: ${watch.elapsedMicroseconds} us');
+      print(
+        'debug_bytes 1 MiB round trip: min ${samples.first} us, '
+        'median ${samples[samples.length ~/ 2]} us (20 samples)',
+      );
     });
   });
 }
