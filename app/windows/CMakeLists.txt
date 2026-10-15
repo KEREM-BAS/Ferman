@@ -87,6 +87,26 @@ if(PLUGIN_BUNDLED_LIBRARIES)
     COMPONENT Runtime)
 endif()
 
+# PDFium, the engine's read-only rasteriser, goes next to the executable,
+# where ferman-api loads pdfium.dll. tools/pdfium/fetch.sh unpacks the
+# pinned build into build/pdfium/ at the repository root; a build without it
+# fails here instead of shipping an app that cannot render.
+if(FLUTTER_TARGET_PLATFORM STREQUAL "windows-arm64")
+  set(PDFIUM_PLATFORM "win-arm64")
+else()
+  set(PDFIUM_PLATFORM "win-x64")
+endif()
+get_filename_component(PDFIUM_LIBRARY
+  "${CMAKE_CURRENT_SOURCE_DIR}/../../build/pdfium/${PDFIUM_PLATFORM}/bin/pdfium.dll"
+  ABSOLUTE)
+if(NOT EXISTS "${PDFIUM_LIBRARY}")
+  message(FATAL_ERROR
+    "PDFium is missing (${PDFIUM_LIBRARY}). From the repository root, run:\n"
+    "  bash tools/pdfium/fetch.sh --platform ${PDFIUM_PLATFORM}")
+endif()
+install(FILES "${PDFIUM_LIBRARY}" DESTINATION "${INSTALL_BUNDLE_LIB_DIR}"
+  COMPONENT Runtime)
+
 # Copy the native assets provided by the build.dart from all packages.
 set(NATIVE_ASSETS_DIR "${PROJECT_BUILD_DIR}native_assets/windows/")
 install(DIRECTORY "${NATIVE_ASSETS_DIR}"

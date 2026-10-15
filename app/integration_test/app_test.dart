@@ -28,15 +28,15 @@ void main() {
       expect(engine.apiVersion(), kAppApiVersion);
     });
 
-    test('reports the versions and the PDFium state', () async {
+    test('reports the versions, and the bundled PDFium is loaded', () async {
       final status = await engine.status();
       expect(status.appVersion, '0.1.0');
       expect(status.apiVersion, kAppApiVersion);
-      expect(
-        status.pdfium,
-        isNot(PdfiumState.failed),
-        reason: status.pdfiumReason,
-      );
+      // The build bundles PDFium next to the executable (CMake on Linux and
+      // Windows, the Bundle Framework phase on macOS); the engine reports it
+      // loaded only after a real PDFium call.
+      expect(status.pdfium, PdfiumState.loaded, reason: status.pdfiumReason);
+      expect(status.pdfiumTag, 'chromium/7881');
     });
 
     test('a panic in Rust reaches Dart as an error and the engine keeps '
