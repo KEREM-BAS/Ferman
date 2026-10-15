@@ -1,6 +1,10 @@
+import 'dart:io';
+
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
+    show ExternalLibrary;
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
 /// This file and the generated `app/lib/bridge/` are the only Dart code that
@@ -12,10 +16,13 @@ class FrbEngineService implements EngineService {
   /// service. Throws an [EngineUnavailableException] when the library cannot
   /// be loaded or speaks an API version this app does not accept.
   static Future<FrbEngineService> start() async {
+    final library = bundledEngineLibraryPath();
     try {
       // The bridge loads the library once per process; a second start (for
       // example an integration test after the app started) reuses it.
-      if (!FermanBridge.instance.initialized) await FermanBridge.init();
+      if (!FermanBridge.instance.initialized) {
+        await FermanBridge.init(externalLibrary: ExternalLibrary.open(library));
+      }
     } on Object {
       throw const EngineUnavailableException(
         EngineUnavailableReason.libraryMissing,
@@ -83,6 +90,36 @@ class FrbEngineService implements EngineService {
   /// Returns [length] bytes from the engine, for the bridge benchmark.
   Future<int> debugBytesLength(int length) async =>
       (await bridge.debugBytes(len: length)).length;
+}
+
+/// The engine library the build bundles with the app, as an absolute path
+/// next to the running executable (where the Rust engine also finds PDFium).
+///
+/// The bridge's default loader is not used: it first tries a folder relative
+/// to the current directory, so a packaged app could load a library from
+/// wherever it was started, and on macOS it looks for a framework named after
+/// the crate, while cargokit links the engine into the `rust_lib_ferman`
+/// plugin framework.
+String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
+  final os = operatingSystem ?? Platform.operatingSystem;
+  final separator = os == 'windows' ? r'\' : '/';
+  final exe = executable ?? Platform.resolvedExecutable;
+  final cut = exe.lastIndexOf(separator);
+  final dir = cut < 0 ? '.' : exe.substring(0, cut);
+  String join(List<String> parts) => [dir, ...parts].join(separator);
+  return switch (os) {
+    'linux' => join(['lib', 'libferman_api.so']),
+    'windows' => join(['ferman_api.dll']),
+    'macos' => join([
+      '..',
+      'Frameworks',
+      'rust_lib_ferman.framework',
+      'rust_lib_ferman',
+    ]),
+    _ => throw const EngineUnavailableException(
+      EngineUnavailableReason.unsupportedPlatform,
+    ),
+  };
 }
 
 /// Starts the engine for this platform.
