@@ -1,6 +1,7 @@
 # Ferman roadmap
 
-Status: Milestone 0 is complete and waits for the owner's approval. No application code exists yet.
+Status: Milestone 0 is complete and approved (2026-10-15). Milestone 1 is in progress on the branch
+`m1-foundations`, with a draft pull request to `main` (opened once phase B is pushed).
 
 This document details the roadmap in [brief](BRIEF.md) §7 and covers brief §8 item 4. For every
 milestone it gives the goal, the scope from the brief, the deliverables, the artboards it covers,
@@ -14,7 +15,7 @@ and the exit checks.
 - One milestone at a time (brief §9). A milestone starts only after the previous one is accepted.
 
 Related: [architecture](ARCHITECTURE.md) · [design inventory](DESIGN_INVENTORY.md) ·
-[design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) ·
+[component spec](COMPONENTS.md) · [design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) ·
 [backlog](BACKLOG.md) · [progress](PROGRESS.md) · [ADRs](adr/README.md)
 
 ## Contents
@@ -92,12 +93,12 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 
 | Code | Name | Goal in one line | Status | Boards | Needs first |
 |---|---|---|---|---|---|
-| M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete, pending owner approval | 0 | — |
-| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Not started | 13 | M0 approval; [Q01](QUESTIONS.md#q01) and [Q03](QUESTIONS.md#q03) wanted (a marked placeholder and the proposal are allowed) |
-| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q17](QUESTIONS.md#q17) (desktop_drop and `fuzz/`) |
-| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q04](QUESTIONS.md#q04), [Q07](QUESTIONS.md#q07), [Q09](QUESTIONS.md#q09) |
-| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3 |
-| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q15](QUESTIONS.md#q15) |
+| M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
+| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | In progress | 13 | M0 approval (given 2026-10-15) |
+| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q18](QUESTIONS.md#q18) (macOS App Sandbox) |
+| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4, [Q09](QUESTIONS.md#q09) |
+| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 |
+| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging), [Q15](QUESTIONS.md#q15) |
 | P2 | Phase 2 | Add text and images, find and replace, page marks, redaction, hidden information | Not started | 18 | M5 |
 | P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; [Q06](QUESTIONS.md#q06), [Q16](QUESTIONS.md#q16) |
 | P4 | Phase 4 | Form authoring, PDF/A and preflight, PDF/UA tools, batch, translation, local AI | Not started | 17 | P3 |
@@ -156,8 +157,9 @@ and continue with the safest option.
 
 - [ ] **S1 CI green** on macOS, Windows and Linux: `cargo fmt --all --check`,
   `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`,
-  `cargo deny check`, `flutter analyze` with zero issues, `flutter test`, and the desktop build for
-  each system.
+  `cargo deny check`, `flutter analyze` and `dart analyze --fatal-infos` with zero issues (the
+  riverpod_lint analyzer plugin reports only through `dart analyze`), `flutter test`, and the desktop
+  build for each system.
 - [ ] **S2 Rust quality**: no `unwrap`, `expect`, `panic`, `todo` or `unimplemented` in library code
   (Clippy lints denied outside tests); `thiserror` errors; every public item documented; unit and
   integration tests for new code ([ADR 0010](adr/0010-error-handling-no-panics.md)).
@@ -202,8 +204,9 @@ and continue with the safest option.
 
 ## 4. M0: discovery and plan
 
-**Status:** Complete, pending owner approval. **Boards:** none; this milestone produced the
-inventory.
+**Status:** Complete. The owner approved M0 on 2026-10-15: pull request #1 was merged into `main`
+(merge commit `fe99894`) and the owner gave the go-ahead for M1. **Boards:** none; this milestone
+produced the inventory.
 
 ### Goal
 
@@ -221,12 +224,12 @@ without writing application code (brief §8).
 | [docs/BRIEF.md](BRIEF.md) | the owner's brief, verbatim |
 | [docs/DESIGN_INVENTORY.md](DESIGN_INVENTORY.md) | all 223 boards mapped to feature, milestone and engine capability; tokens, components, icons, fonts, flows, fixes, sample documents; missing screens and states |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | crates, API boundary, threading, data flow, text editing pipeline, file safety, errors, security, privacy, localization, platform integration, testing strategy, performance budgets, risks |
-| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part) |
+| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part; the owner accepted 0007 and 0013 on 2026-10-15) |
 | docs/ROADMAP.md | this document |
 | [docs/PROGRESS.md](PROGRESS.md) | milestone checklist and session log |
 | [docs/DEPENDENCIES.md](DEPENDENCIES.md) | licence policy, planned dependencies per milestone with versions and licences, bundled assets, proposed `deny.toml` |
 | [docs/DESIGN_GAPS.md](DESIGN_GAPS.md) | 61 verified gaps and conflicts, G01 to G61 (G61 from the review of the documents), each with the option chosen |
-| [docs/QUESTIONS.md](QUESTIONS.md) | 17 questions for the owner, Q01 to Q17 |
+| [docs/QUESTIONS.md](QUESTIONS.md) | 17 questions for the owner, Q01 to Q17 (Q18 was added in M1) |
 | [docs/BACKLOG.md](BACKLOG.md) | entry format only; empty until M1 disables its first feature |
 | [CLAUDE.md](../CLAUDE.md), [.claude/rules/rust.md](../.claude/rules/rust.md), [.claude/rules/flutter.md](../.claude/rules/flutter.md) | session rules, repo map, definition of done; path-scoped Rust and Flutter rules |
 | [README.md](../README.md), [LICENSE](../LICENSE), [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md), [SECURITY.md](../SECURITY.md), [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), `.gitignore` | community files; Apache-2.0 licence text; licence texts for the third-party material inside `design/` |
@@ -249,27 +252,41 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 
 ### Exit checks
 
-- [ ] Committed and pushed; summary and questions sent to the owner (brief §8 item 7).
-- [ ] The owner approves M0. No application code is written before that.
+- [x] Committed and pushed; summary and questions sent to the owner (brief §8 item 7). Evidence:
+  pull request #1 from `m0-plan`, merged into `main` as `fe99894`.
+- [x] The owner approves M0. No application code is written before that. Evidence: the merge of
+  pull request #1 (`fe99894`) and the owner's go-ahead on 2026-10-15.
 - [ ] The owner answers at least [Q01](QUESTIONS.md#q01) bundle identifier, [Q02](QUESTIONS.md#q02)
-  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01 and Q03 are
-  wanted before M1 step 2; until then a marked placeholder (Q01) and the proposal (Q03) are used.
-  Both are final before M5; Q02 is needed before M5.
-- [ ] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
+  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01
+  (`io.github.kerembas.ferman`) and Q03 were answered on 2026-10-15. Q02 is still open; it is needed
+  before M5, so this box stays open until then.
+- [x] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
   0008, and the licence exceptions in [Q17](QUESTIONS.md#q17) are approved, changed or rejected, or
-  carried into M1 as open questions with the safest option in force.
+  carried into M1 as open questions with the safest option in force. Evidence: on 2026-10-15 the owner
+  accepted ADR 0007 ([Q04](QUESTIONS.md#q04)) and the Hebrew and Devanagari part of ADR 0013
+  ([Q08](QUESTIONS.md#q08)) and approved Q17 parts 1 to 3. ADR 0009, ADR 0018, the Proposed details
+  and Q17 part 4 are carried into M1 unapproved, with the safest option in force
+  ([PROGRESS.md](PROGRESS.md#adr-status)).
 - [ ] The owner enables GitHub private vulnerability reporting, which [SECURITY.md](../SECURITY.md)
   and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) rely on (see
-  [PROGRESS.md](PROGRESS.md#owner-actions)).
+  [PROGRESS.md](PROGRESS.md#owner-actions)). Not known to be done on 2026-10-15.
 
 ## 5. M1: foundations
 
-**Status:** Not started. **Needs first:** owner approval of M0; [Q01](QUESTIONS.md#q01) bundle
-identifier and [Q03](QUESTIONS.md#q03) minimum OS versions are wanted before step 2 (until then a
-marked placeholder and the proposal are used; both are final before M5); [Q08](QUESTIONS.md#q08)
-before Hebrew and Devanagari fonts ship in step 5; [Q12](QUESTIONS.md#q12) before the Linux title
-bar in step 8; [Q17](QUESTIONS.md#q17) for the Swatinem/rust-cache CI action (until then
-actions/cache or no cache); [Q14](QUESTIONS.md#q14) for the copyright line.
+**Status:** In progress. Started on 2026-10-15 on the branch `m1-foundations`, with a draft pull
+request to `main` (opened once phase B is pushed); the plan and its commit phases are in
+[PROGRESS.md](PROGRESS.md#m1-plan). Committed so far: the Flutter app skeleton (`23a09c3`, phases C1
+and C2) and the switch from flutter_svg to path_parsing (`246d6df`). The Rust workspace, `tools/checks`,
+the tool packages and the first CI workflow exist in the working tree and are being committed by
+phase.
+**Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
+the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
+[Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
+[Q05](QUESTIONS.md#q05) eight mode tabs, [Q08](QUESTIONS.md#q08) Plex Sans Hebrew and Devanagari,
+[Q12](QUESTIONS.md#q12) the custom Linux title bar, [Q14](QUESTIONS.md#q14) "Copyright The Ferman
+Authors" and [Q17](QUESTIONS.md#q17) Swatinem/rust-cache. Still open and not blocking M1:
+[Q11](QUESTIONS.md#q11) design re-export, the sign-off part of Q14, and [Q18](QUESTIONS.md#q18)
+macOS App Sandbox (the template's sandbox stays on in M1).
 
 ### Goal
 
@@ -289,9 +306,11 @@ the bridge, and is built and tested by green CI on all three systems. It opens n
   `deny.toml`, `.github/workflows/` CI on macOS, Windows and Linux.
 - Flutter app in `app/` for macOS, Windows, Linux and web, wired to `ferman-api` through
   flutter_rust_bridge 2.13.0.
-- `tools/tokens` and the generated `app/lib/design/tokens.g.dart` with `ThemeExtension`s;
-  `tools/icons` with 229 SVG icons; IBM Plex fonts with licence files; `tools/design-refs`;
-  `tools/pdfium` with the pinned PDFium binaries.
+- `tools/tokens` and the generated `app/lib/design/tokens.g.dart` (plain `Ferman*Tokens` value
+  classes), wrapped in `ThemeExtension`s by `app/lib/design/theme.dart`; `tools/icons` with the 229
+  design icons (SVG assets with provenance, and path data the Icon widget paints); IBM Plex fonts with
+  licence files (`tools/fonts`); `tools/design-refs`; `tools/pdfium` with the pinned PDFium binaries;
+  `tools/checks` with the repository checks CI runs.
 - The Ferman component library in `app/lib/design/components/`, 1:1 with the design system (same
   names, variants and states, [ADR 0011](adr/0011-flutter-state-navigation-components.md)).
 - The app shell, first-run screens, the empty start screen and the settings skeleton.
@@ -328,38 +347,44 @@ Notes on these boards:
 - All seven crates exist with the module layout of [ARCHITECTURE.md §2.3](ARCHITECTURE.md#23-crates-in-detail),
   the workspace lint set, crate docs and at least one test each.
 - `ferman-api`: the pure-Rust facade plus the `frb` feature. Two calls: `api_version()` (the only
-  synchronous call) and an async `engine_info()` that returns versions and build profile.
+  synchronous call) and an async `engine_info()` that returns the app and API versions, the build
+  profile and the PDFium status.
 - `ApiError { kind, message_key, details }` skeleton and `catch_unwind` at the boundary
-  ([ADR 0010](adr/0010-error-handling-no-panics.md)).
+  ([ADR 0010](adr/0010-error-handling-no-panics.md)). `message_key` comes from the closed
+  `MessageKey` type (a newtype with constants and `MessageKey::ALL`); `details` is an
+  `Option<String>` of structural facts in M1.
 - `ferman-cli`: `ferman --version` and `ferman info --json`, both through the facade.
-- `ferman-render`: a skeleton render thread that loads PDFium and reports its version
-  ([ADR 0009](adr/0009-threading-and-jobs.md)). No PDF parsing or rendering yet.
+- `ferman-render`: a skeleton render thread that loads PDFium and reports that it is loaded, with
+  the pinned build tag ([ADR 0009](adr/0009-threading-and-jobs.md)). PDFium has no runtime version
+  API, so the tag comes from the pin. No PDF parsing or rendering yet.
 
 ### New dependencies
 
-Versions and licences were verified on 2026-10-13; [DEPENDENCIES.md](DEPENDENCIES.md) is the record.
+Versions and licences were verified on 2026-10-13 and re-checked when each dependency was added (pub.dev
+licences re-checked on 2026-10-15); [DEPENDENCIES.md](DEPENDENCIES.md) is the record.
 
 | Kind | Dependency | Licence | Notes |
 |---|---|---|---|
-| Rust | flutter_rust_bridge `=2.13.0` | MIT | crate, Dart package and codegen must be the same version; allo-isolate needs a cargo-deny clarify entry |
-| Rust | thiserror 2.0, tracing 0.1 and tracing-subscriber | MIT OR Apache-2.0; MIT | errors and local logs |
-| Rust (dev) | proptest 1.12, insta 1.49 | MIT OR Apache-2.0; Apache-2.0 | property and snapshot tests |
-| Rust | argument parser for ferman-cli | to check | chosen and licence-checked in step 1 |
+| Rust | flutter_rust_bridge `=2.13.0` | MIT | crate, Dart package and codegen must be the same version; allo-isolate needs a cargo-deny clarify entry (hash `0x0a6d4ed6`) |
+| Rust | thiserror 2.0.21, tracing 0.1.44 | MIT OR Apache-2.0; MIT | errors and local logs; tracing-subscriber is added with the first log output |
+| Rust | serde 1.0.229 (derive), serde_json 1.0.154 | MIT OR Apache-2.0 | `engine_info` serialisation; `ferman info --json` |
+| Rust | clap 4.6.7 (derive, string) | MIT OR Apache-2.0 | ferman-cli argument parser, chosen in step 1 |
+| Rust (dev) | insta 1.49.0, proptest 1.12.0 | Apache-2.0; MIT OR Apache-2.0 | snapshot and property tests; proptest is pinned in the workspace table and enters `Cargo.lock` with its first use |
 | Rust | pdfium-render 0.9.4 | MIT OR Apache-2.0 | default features off; `pdfium_7881` and `thread_safe` on |
-| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881`, non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
-| Dart | flutter_riverpod 3.4, riverpod_annotation 4, riverpod_generator 4, build_runner 2.16 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)) |
-| Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin; custom_lint is not used |
-| Dart | go_router 18, very_good_analysis 11 | BSD-3-Clause; MIT | navigation; lints |
-| Dart | intl 0.20, flutter_localizations (SDK) | BSD-3-Clause | gen-l10n, dates and numbers |
-| Dart | window_manager 0.5, flutter_svg 2.3, path_provider 2.1 | MIT; MIT; BSD-3-Clause | custom title bars; icons; app directories |
-| Dart (dev) | alchemist 0.14, mocktail 1.0 | MIT | goldens (golden_toolkit is discontinued); mocks |
+| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881` (151.0.7881.0), non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive and per library in `tools/pdfium/pdfium.lock`; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
+| Dart | flutter_riverpod 3.4.3, riverpod_annotation 4.0.7, riverpod_generator 4.0.9, build_runner 2.16.2 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)); build_runner 2.17 conflicts with riverpod_generator 4.0.9 |
+| Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin in `analysis_options.yaml`, reported by `dart analyze`; custom_lint is not used |
+| Dart | go_router 18.1.0, very_good_analysis 11.0.0 | BSD-3-Clause; MIT | navigation; lints |
+| Dart | intl 0.20.3, flutter_localizations (SDK) | BSD-3-Clause | gen-l10n, dates and numbers |
+| Dart | window_manager 0.5.2, path_parsing 1.1.0, path_provider 2.1.6 | MIT; MIT; BSD-3-Clause | custom title bars; icon path data for the Icon painter; app directories. flutter_svg is not used: it and vector_graphics depend on `http` ([DEPENDENCIES.md](DEPENDENCIES.md#4-rejected)) |
+| Dart (dev) | alchemist 0.14.1, mocktail 1.0.5 | MIT | goldens (golden_toolkit is discontinued); mocks |
 | Dart | flutter_rust_bridge 2.13.0 | MIT | Dart side of the bridge |
 | Dart | shared_preferences 2.5 | BSD-3-Clause | only if step 9 chooses it for settings |
-| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24 LTS, Playwright 1.64, cargo-deny 0.20, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0 | various permissive | never shipped |
-| CI | actions/checkout, dtolnay/rust-toolchain, subosito/flutter-action, EmbarkStudios/cargo-deny-action, and a Cargo cache: Swatinem/rust-cache only if [Q17](QUESTIONS.md#q17) approves its LGPL-3.0 licence, otherwise actions/cache (MIT) or none | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
-| Assets | IBM Plex TTFs | OFL-1.1 | unmodified files, Reserved Font Name "Plex" ([ADR 0013](adr/0013-fonts-and-icons.md)) |
-| Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for non-Lucide glyphs |
-| Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, the font families the export loads from Google Fonts | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0 | vendored for `tools/design-refs`; licences checked before vendoring; never in the app |
+| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24.22.0 LTS, playwright-core 1.56.1, cargo-deny 0.20.2, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0; the Dart tool packages' args, path, yaml, crypto and test | various permissive | never shipped; why playwright-core is pinned to 1.56.1 is in step 6 |
+| CI | actions/checkout, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache for the Cargo cache (approved in [Q17](QUESTIONS.md#q17)), actions/setup-node and actions/upload-artifact for the design references; the Rust toolchain comes from `rustup toolchain install` | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
+| Assets | IBM Plex TTFs (18 files in six families) | OFL-1.1 | unmodified files, Reserved Font Name "Plex", SHA-256 pinned in `tools/fonts/fonts.lock` ([ADR 0013](adr/0013-fonts-and-icons.md)) |
+| Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for every glyph; the two Lucide licence files ship |
+| Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, 13 @fontsource 5.3.0 font packages, pixelmatch 7.2.0, pngjs 7.0.0 | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0; pixelmatch ISC | npm packages pinned in the `tools/design-refs` lockfile and served locally; never in the app |
 
 ### Steps
 
@@ -385,8 +410,9 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
   `cargo clippy --workspace --all-targets -- -D warnings` pass on macOS, Windows and Linux in CI.
 - [ ] `cargo deny check` passes for licences, bans, advisories and sources. The bans list holds
   `pdfium` (GPL-3.0), `mupdf`, `mupdf-sys`, `jbig2dec`, the poppler bindings, `magick_rust`,
-  `libheif-sys` and `ffmpeg-sys-next`. `rustybuzz` is banned outside krilla's wrapper only if the
-  owner approves ADR 0007; until then the brief's rustybuzz stays allowed.
+  `libheif-sys`, `ffmpeg-sys-next`, and `rustybuzz` except as krilla's wrapper
+  (`{ crate = "rustybuzz", wrappers = ["krilla"] }`; [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
+  accepted on 2026-10-15).
 - [ ] The workspace declares `rust-version` and the toolchain file pins 1.99.0; CI reads the
   toolchain from the file.
 - [ ] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
@@ -396,18 +422,35 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
 - [ ] `ferman --version` prints the app version and API version on all three systems.
 - [ ] Every GitHub Action is pinned by commit SHA.
 
+Progress (2026-10-15, development container): the workspace, the seven crate skeletons,
+`rust-toolchain.toml`, `clippy.toml`, `deny.toml` (cargo-deny 0.20.2: advisories, bans, licences and
+sources ok), ferman-cli (`--version`, `info --json`, with clap 4.6) and `tests/corpus/README.md` exist,
+and fmt, clippy and the workspace tests pass. `tools/checks` runs the repository checks: action pins,
+ARB parity, untracked build output, the crate graph (Proposed), `design/` unchanged, FRB versions, the
+pub deny list (Proposed), unsafe roots and version sync. `.github/workflows/ci.yml` runs them with the
+Rust jobs on three systems and cargo-deny; the toolchain comes from `rustup toolchain install`, which
+reads `rust-toolchain.toml`. The boxes are ticked once CI is green on the pushed branch.
+
 #### Step 2. Flutter app skeleton
 
 Deliverables: `app/` with macOS, Windows, Linux and web targets; `analysis_options.yaml` with
 very_good_analysis 11 and the riverpod_lint plugin; Riverpod code generation; go_router routes for
-start, document and settings; gen-l10n with `app_en.arb`; bundle identifier from Q01 and minimum OS
-versions from Q03 in the platform projects (a marked placeholder plus a BACKLOG entry while either
-question is open).
+start, document and settings; gen-l10n with `app_en.arb`; the bundle identifier
+`io.github.kerembas.ferman` ([Q01](QUESTIONS.md#q01)) and the minimum OS versions of
+[Q03](QUESTIONS.md#q03) in the platform projects: macOS deployment target 12.0 with a universal
+(arm64 and x86_64) build, Windows 10 22H2 and Windows 11 on x64 and arm64, Linux best effort on
+Ubuntu 22.04 or later (glibc). The macOS App Sandbox entitlement of the Flutter template stays on
+until the owner answers [Q18](QUESTIONS.md#q18), before M2.
 
-- [ ] `flutter analyze` reports zero issues and `flutter test` passes on all three systems.
+- [ ] `flutter analyze` and `dart analyze --fatal-infos` report zero issues and `flutter test`
+  passes on all three systems. Both analyzers run: the riverpod_lint 3.1.9 plugin reports only
+  through `dart analyze`.
 - [ ] `flutter build macos`, `flutter build windows` and `flutter build linux` succeed in CI, and a
   smoke integration test starts each build and finds the root widget.
 - [ ] CI pins Flutter 3.47.7; `pubspec.yaml` requires Dart 3.13.5 or later.
+- [ ] The platform projects carry the bundle identifier and the Q03 minimums, and CI also builds the
+  Linux app on Ubuntu 22.04 to prove the floor. arm64 app builds and Windows 10 are checked by the
+  owner (pending owner checks in [PROGRESS.md](PROGRESS.md#pending-owner-checks)).
 - [ ] CI runs build_runner and fails if any generated file differs from the committed one.
 - [ ] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md.
 - [ ] **Proposed:** CI fails if `pubspec.lock` contains a package from the network deny list: HTTP
@@ -415,6 +458,12 @@ question is open).
   ([ADR 0015](adr/0015-privacy-and-network.md)).
 - [ ] **Proposed:** CI compiles the web target with the engine stubbed, so the web path stays
   buildable until phase 5.
+
+Progress: the app skeleton is committed (`23a09c3`): `flutter create` for macOS, Windows, Linux and
+web with the bundle identifier, macOS 12.0, the copyright line, very_good_analysis 11 with the
+riverpod_lint plugin, Riverpod code generation, go_router, gen-l10n (en, tr, ar) and the window setup.
+flutter_svg was dropped in `246d6df`, because it and vector_graphics depend on `http`, which the pub
+deny list forbids.
 
 #### Step 3. flutter_rust_bridge wiring
 
@@ -436,7 +485,15 @@ the bridge); an API version check at start-up; `tools/pdfium` and the skeleton r
 - [ ] `tools/pdfium` downloads `chromium/7881` for macOS (arm64 and x64, combined universal), Windows
   (x64, arm64) and Linux (x64, arm64), checks a pinned SHA-256 per archive, and fails on a mismatch.
 - [ ] The skeleton render thread loads the bundled PDFium on all three systems in CI, and
-  `engine_info()` reports its version.
+  `engine_info()` reports `loaded = true`, proven by a real PDFium call after binding, together with
+  the pinned build tag `chromium/7881`. PDFium has no runtime version API, so the tag is the pin
+  recorded with `tools/pdfium`, not a value read from the library.
+
+Progress (2026-10-15, development container): `tools/pdfium` exists (phase D1). `fetch.sh` pins the
+SHA-256 of all seven archives and of the library inside each (`pdfium.lock`), uses upstream's
+universal macOS archive after checking its two slices against the thin libraries, checks the licence
+files against the committed copies, and passes its 13-case self-test. Its box is ticked once CI runs
+it on the three systems; the rest of step 3 is wave 2.
 
 #### Step 4. Token generator
 
@@ -460,20 +517,33 @@ overrides.
 - [ ] The S6 literal check is active: a colour, size, radius or duration literal in widget code
   outside `app/lib/design/` fails CI.
 
+Progress (2026-10-15, development container): `tools/tokens` and the generated `tokens.g.dart` exist.
+Its 125 tests count the tokens per file and environment against the CSS sources (348 declarations, 269
+unique names: 238 from the design system, 31 new), check each mapping rule, determinism and
+`dart run tokens --check`. The first three boxes are ticked once CI runs these tests; `theme.dart`,
+the reduced-motion widget test and the S6 check follow in phase F.
+
 #### Step 5. Fonts and icons
 
 Deliverables ([ADR 0013](adr/0013-fonts-and-icons.md)): `app/assets/fonts/` with IBM's unmodified
-static TTFs (Plex Sans 400/500/600, Plex Serif, Plex Mono and Plex Sans Arabic, plus Plex Sans
-Hebrew and Plex Sans Devanagari if Q08 approves them) and an OFL text per family;
+static TTFs (Plex Sans 400/500/600, Plex Serif, Plex Mono, Plex Sans Arabic, Plex Sans Hebrew and
+Plex Sans Devanagari; the last two approved in [Q08](QUESTIONS.md#q08) on 2026-10-15) and an OFL
+text per family;
 `app/assets/icons/` with 229 SVGs written by `tools/icons` from `ICON_PATHS` and `fm-icons.js`, a
-provenance table, and the Lucide ISC and Feather MIT notices; LicenseRegistry entries for every
-bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)).
+provenance table, and the Lucide ISC and Feather MIT notices; the generated `IconName` enum and path
+data, which the Icon widget paints with a `CustomPainter` through path_parsing (the SVG files stay as
+the exported, provenance-tracked set and are not loaded at run time; flutter_svg is not used because
+it and vector_graphics depend on `http`, which the network deny list forbids); LicenseRegistry entries
+for every bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)).
 
 - [ ] Each font file's SHA-256 equals the IBM upstream release file it came from (recorded in
-  DEPENDENCIES.md). No bundled font is subset, renamed or modified.
+  DEPENDENCIES.md and `tools/fonts/fonts.lock`, checked by `tools/fonts/fetch.sh --verify-committed`).
+  No bundled font is subset, renamed or modified.
 - [ ] A coverage test reads each font's cmap: Plex Sans covers Latin including Turkish and
-  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian. A golden of
-  "İMZALA ğ ş ı · Tiếng Việt · Русский · Ελληνικά · العربية · فارسی" shows no fallback glyphs.
+  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew covers
+  Hebrew; Plex Sans Devanagari covers Devanagari (`tools/fonts/coverage.py`). A golden of
+  "İMZALA ğ ş ı · Tiếng Việt · Русский · Ελληνικά · العربية · فارسی · עברית · हिन्दी" shows no
+  fallback glyphs.
 - [ ] Japanese, Korean, Simplified and Traditional Chinese samples render with the system fonts of
   ADR 0013 and the right locale per text style, checked by hand on R1, R2 and a Linux machine and
   recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms, [G07](DESIGN_GAPS.md#g07)).
@@ -482,25 +552,57 @@ bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06
   0.300.0) for each of the 84 added glyphs, and "Ferman design" for ellipse alone
   ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)).
 - [ ] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
-  the icons the design flips.
+  the 8 icons the design flips: arrow-left, arrow-right, chevron-left, chevron-right, undo-2, redo-2,
+  skip-back and skip-forward (a `tools/icons` test re-reads the design files for this list).
 - [ ] **Proposed** (the step 2 network deny list): the app never fetches fonts; CI fails if
   `pubspec.lock` contains google_fonts or another font downloader.
 - [ ] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
   ([G08](DESIGN_GAPS.md#g08)).
 
+Progress (2026-10-15, development container): the 18 TTFs and 6 licence files are in
+`app/assets/fonts/`, pinned in `tools/fonts/fonts.lock`; `fetch.sh --verify-committed`, the 18-case
+self-test and `coverage.py` pass. `tools/icons` wrote the 229 SVGs, `PROVENANCE.md`, the two Lucide
+licence files and `icon_name.g.dart`; its 73 tests check the count, every path against a separate
+extraction of the design source, the provenance and the directional list. The boxes are ticked once CI
+runs these checks; the golden, the Icon widget and the LicenseRegistry test follow in phase F.
+
 #### Step 6. Design references
 
-Deliverables: `tools/design-refs` on Node 24 and Playwright 1.64 with a lockfile; vendored React
-18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0 and the fonts the export loads at run time, each with
-its licence; one PNG per board in `build/design-refs/` (gitignored).
+Deliverables: `tools/design-refs` on Node 24.22.0 LTS and playwright-core 1.56.1 with a lockfile;
+React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0 and the fonts the export loads at run time
+(npm @fontsource packages), pinned in that lockfile, each with its licence, and served from local
+copies; one PNG per board in `build/design-refs/` (gitignored).
 
-- [ ] All 223 boards render, one PNG per board id, captured from the element that carries
-  `data-fm-artboard`; the DS additions sheet renders too. A count check fails if an id is missing.
+playwright-core is pinned to 1.56.1, not the newest release, because its browser revision
+(Chromium 1194) is the browser preinstalled in the development container, where the Playwright CDN
+is blocked. CI uses the same revision, so local and CI renders come from the same browser
+([DEPENDENCIES.md](DEPENDENCIES.md#23-tools-never-shipped)). CI does not run the Playwright installer, which
+also downloads Playwright's ffmpeg build (LGPL-2.1) with every Chromium: it downloads the revision
+1194 headless shell directly with `tools/design-refs/fetch-chromium.sh` (its SHA-256 is pinned from
+the first CI download) and passes its path to the renderer with `--chromium`.
+
+Capture rule: only the boards built on FmBoard carry `data-fm-artboard`, so it is not the capture
+key. Each of the 214 product boards is captured from the first `.fm-root` inside the element with the
+id `<id>`, or from that element itself when it carries `.fm-root` (the seven sidebar boards `a2-3p`
+to `a2-3x`). The nine fix boards `f1` to `f6a` are captured as the whole element with the id: the
+`section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and `f6a` (inside the sections
+`f4` and `f6`). Every board is rendered on its own freshly loaded page.
+
+- [ ] All 223 boards render, one PNG per board id, captured by the rule above; the DS additions sheet
+  renders too. A count check fails if an id is missing.
 - [ ] The run is offline: requests for unpkg.com and fonts.googleapis.com are answered from the
-  vendored copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)).
+  local copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)).
 - [ ] Two runs on the same machine give pixel-identical PNGs.
 - [ ] Nothing under `design/` changes (CI checks `git diff --stat -- design/` is empty).
-- [ ] None of the vendored files ends up in an app build (CI scans the build output).
+- [ ] None of the design-reference files (runtime scripts, fonts, `design/` content) ends up in an
+  app build (CI scans the build output).
+
+Progress (2026-10-15, development container, 4 CPUs): `tools/design-refs` rendered all 224 PNGs (223
+boards and the DS additions sheet) with the count check, offline, with 0 blocked requests and 0
+missing files; six full renders and `--twice` runs gave identical SHA-256 for every PNG. The first
+three boxes are ticked once the design-reference workflow reproduces this in CI. The `design/` check
+runs in CI through `tools/checks`. The build-output scan does not exist yet; it is added to the app
+build job, and its box stays open until then.
 
 #### Step 7. Component library
 
@@ -509,7 +611,11 @@ manifest, plus the internal Field, Popover and Scrim; the data constants `ICON_P
 `ANNOTATION_TOOLS` become the generated `IconName`, `FermanMode` and `AnnotationTool` enums) and the DS additions as widgets (FmNumber, document tabs,
 window chrome, thumbnail badges and legend, date-picker popover, mention list, status-bar save
 indicator); a component spec of props, variants and states taken from `_ds_bundle.js` and
-`_adherence.oxlintrc.json` ([G02](DESIGN_GAPS.md#g02)); a debug-only gallery route for review.
+`_adherence.oxlintrc.json` ([G02](DESIGN_GAPS.md#g02)), written in M1 as
+`app/test/design/component_spec.json` and [COMPONENTS.md](COMPONENTS.md) (56 entries, tier 1 for the
+components the M1 boards draw); a debug-only gallery route for review. The `AnnotationTool` enum
+follows the drawing (11 tools), not the stale `ANNOTATION_TOOLS` constant (9;
+[G62](DESIGN_GAPS.md#g62)).
 
 - [ ] Every component exists under its design-system name (Button, IconButton, ToolButton and so on;
   the `Fm*` shell building blocks and `FmNumber` keep their `Fm` names), with every variant and
@@ -550,9 +656,10 @@ row per mode, sidebar, canvas placeholder, right panel and status bar, built fro
   between the tabs and Search drags the window, and snap layouts appear on hover over maximize on
   Windows 11 (checked by hand on R2 and recorded).
 - [ ] macOS: traffic lights sit where the design puts them; full screen works.
-- [ ] Linux: the title bar follows the answer to Q12. Until then, native decorations plus a BACKLOG
-  entry; the proposal is client-side decorations with caption buttons at the end, Ctrl shortcuts and
-  Cancel-left dialog order ([G15](DESIGN_GAPS.md#g15)).
+- [ ] Linux: a custom title bar, as the owner decided in [Q12](QUESTIONS.md#q12): client-side
+  decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel-left dialog
+  order; the window drags and resizes from the drawn areas ([G15](DESIGN_GAPS.md#g15)). The look on
+  GNOME and KDE is a pending owner check.
 - [ ] Every action in the shortcut table appears in its tooltip and menu as ⌘, ⌥, ⇧ on macOS and
   Ctrl, Alt, Shift on Windows and Linux. A test fails on any duplicate binding per platform; the ⌥⌘S
   collision is resolved before this step ([G44](DESIGN_GAPS.md#g44)).
@@ -654,14 +761,16 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
 - Shell and components: [G09](DESIGN_GAPS.md#g09) eighth mode, [G10](DESIGN_GAPS.md#g10)
   future-version state, [G21](DESIGN_GAPS.md#g21) narrow windows, [G22](DESIGN_GAPS.md#g22) tooltips
   and focus, [G23](DESIGN_GAPS.md#g23) app accessibility, [G44](DESIGN_GAPS.md#g44) ⌥⌘S collision
-  (decided here because the shell tooltips show it).
+  (decided here because the shell tooltips show it), [G62](DESIGN_GAPS.md#g62) annotation-tool list
+  (found in M1).
 - Variants: [G15](DESIGN_GAPS.md#g15) Linux, [G16](DESIGN_GAPS.md#g16) Windows,
   [G17](DESIGN_GAPS.md#g17) dark, [G18](DESIGN_GAPS.md#g18) right to left,
   [G19](DESIGN_GAPS.md#g19) Turkish.
 - Copy and first run: [G11](DESIGN_GAPS.md#g11) start screen promises, [G12](DESIGN_GAPS.md#g12)
   "Included", [G13](DESIGN_GAPS.md#g13) licence, [G20](DESIGN_GAPS.md#g20) language picker states,
   [G24](DESIGN_GAPS.md#g24) network claims, [G34](DESIGN_GAPS.md#g34) locale formats,
-  [G52](DESIGN_GAPS.md#g52) bundled translations.
+  [G52](DESIGN_GAPS.md#g52) bundled translations, [G63](DESIGN_GAPS.md#g63) internal-error message
+  (found in M1).
 
 ### Exit checks
 
@@ -669,7 +778,9 @@ E1 to E8, plus:
 
 - [ ] CLAUDE.md lists the real build, test, codegen, token and design-reference commands.
 - [ ] The measured bridge numbers from step 3 are in ARCHITECTURE.md §3.4 and PROGRESS.md.
-- [ ] The PDFium tag and archive hashes are in DEPENDENCIES.md.
+- [x] The PDFium tag and archive hashes are in DEPENDENCIES.md. Evidence:
+  [DEPENDENCIES.md §5.1](DEPENDENCIES.md#51-pdfium) (tag `chromium/7881`, archive and library SHA-256
+  for all seven archives, matching `tools/pdfium/pdfium.lock`).
 - [ ] Every M1 tool, menu item and quick tool that is disabled has a BACKLOG.md entry naming its
   milestone.
 
@@ -680,17 +791,19 @@ E1 to E8, plus:
 - M1 accepted.
 - Approval of [ADR 0009](adr/0009-threading-and-jobs.md), threading and jobs. The render thread, the
   tile queue and the document actors are built on it. ADR 0009 is Proposed and has no question of its
-  own; it is reviewed with M0. If it is not approved when M1 ends, only the brief's rule applies
-  (nothing heavy on the UI thread), and M2 stops for the owner's decision before step 1.
+  own; it was not approved at the M0 go-ahead and is carried through M1. If it is not approved when
+  M1 ends, only the brief's rule applies (nothing heavy on the UI thread), and M2 stops for the
+  owner's decision before step 1.
 - [Q07](QUESTIONS.md#q07), native pickers. ADR 0018 is Proposed. If the owner has not answered when
   M2 starts, "Open file…" and ⌘O or Ctrl+O use the OS-native open picker as the safest option
   ([brief §9](BRIEF.md)), as ADR 0018, Q07 and [G26](DESIGN_GAPS.md#g26) say, and the M2 summary
   flags it for approval. Drag and drop, recent files and "Open with" work alongside it.
-- [Q17](QUESTIONS.md#q17), licence exceptions. desktop_drop (which pulls MPL-2.0 `dbus` on every
-  platform) and the `fuzz/` workspace (NCSA `libfuzzer-sys`) are added only after the owner approves
-  them. If Q17 is still open when M2 starts, drag and drop uses another permissively licensed package
-  or a platform channel, and the fuzz criterion waits for the answer with a BACKLOG entry, flagged in
-  the M2 summary.
+- [Q18](QUESTIONS.md#q18), the macOS App Sandbox. It decides how macOS reaches the files the user
+  opens, how recent files reopen (security-scoped bookmarks) and where the atomic save puts its temp
+  file. M1 keeps the template's sandbox on; the owner is asked before M2 starts.
+- Licence exceptions are settled: the owner approved desktop_drop with its MPL-2.0 `dbus` dependency
+  and the `fuzz/` workspace with NCSA `libfuzzer-sys` on 2026-10-15 ([Q17](QUESTIONS.md#q17)), so
+  both are added in M2 as named exceptions.
 - [Q13](QUESTIONS.md#q13), document JavaScript policy. The non-V8 PDFium build already runs no
   scripts.
 
@@ -775,8 +888,8 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 | Rust | unicode-normalization 0.1, unicode-segmentation 1.13, unicode-bidi 0.3 | MIT OR Apache-2.0 | search folding, word boundaries, logical order for right-to-left text |
 | Rust | icu_casemap 2.3, icu_collator 2.3 | Unicode-3.0 | Turkish-aware search folding; locale sorting of recent files; binary size checked |
 | Rust (dev) | criterion 0.8, tempfile 3.27 | Apache-2.0 OR MIT; MIT OR Apache-2.0 | benchmarks; test files |
-| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, pending [Q17](QUESTIONS.md#q17) |
-| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); added only if [Q17](QUESTIONS.md#q17) approves it, and its notice then ships in every build |
+| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, approved in [Q17](QUESTIONS.md#q17) |
+| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); approved in [Q17](QUESTIONS.md#q17); its notice ships in every build and the pub licence check skips `dbus` by name |
 
 ### Steps
 
@@ -938,10 +1051,8 @@ E1 to E8, plus:
 
 ## 7. M3: edit text core
 
-**Status:** Not started. **Needs first:** M2 accepted; [Q04](QUESTIONS.md#q04) shaper (until the
-owner approves [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), the brief's rustybuzz stands,
-behind one internal trait so a switch touches one module); [Q09](QUESTIONS.md#q09) missing-glyph
-default; [Q08](QUESTIONS.md#q08) similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
+**Status:** Not started. **Needs first:** M2 accepted; [Q09](QUESTIONS.md#q09) missing-glyph
+default; [Q08](QUESTIONS.md#q08) group 4, similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
 for the Save as location picker (if it is still open, "Other location…" hands off to the OS-native
 save picker as the safest option, as ADR 0018 and G26 say, and the M3 summary flags it; see step 8).
 
@@ -1007,7 +1118,8 @@ new text" is P2.
   incremental writer matching the original cross-reference form; full rewrite; safe write; external
   change detection; recovery journal ([ARCHITECTURE.md §6.1](ARCHITECTURE.md#61-content-stream-interpreter-ferman-core),
   [§7](ARCHITECTURE.md#7-file-safety)).
-- **ferman-fonts:** shaping (rustybuzz per the brief, or harfrust if ADR 0007 is approved),
+- **ferman-fonts:** shaping with harfrust ([ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
+  accepted in [Q04](QUESTIONS.md#q04)),
   subsetting (subsetter), system fonts (fontdb), coverage per shaped glyph, metric comparison for the
   similar-font ranking, the registry of fonts bundled with the app, embedding permissions (OS/2
   `fsType`), ToUnicode and CMap writing, glyph and shaping caches (brief §3).
@@ -1026,7 +1138,7 @@ new text" is P2.
 
 | Kind | Dependency | Licence | Notes |
 |---|---|---|---|
-| Rust | rustybuzz 0.20 per the brief, or harfrust 0.14 if ADR 0007 is approved | MIT | rustybuzz is archived upstream; harfrust shares read-fonts 0.45 with skrifa 0.48 |
+| Rust | harfrust 0.14 ([ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), accepted) | MIT | pinned exactly; shares read-fonts 0.45 with skrifa 0.48; rustybuzz stays banned as a direct dependency |
 | Rust | subsetter 0.2.6 | MIT OR Apache-2.0 | its `variable-fonts` feature pulls a second fontations copy; keep it off unless needed |
 | Rust | fontdb 0.24 | MIT | system font discovery; brings ttf-parser transitively (not used directly) |
 | Rust | a UAX #14 line breaker | to check | chosen and licence-checked in step 5 |
@@ -1268,8 +1380,8 @@ states, [G43](DESIGN_GAPS.md#g43) saving settings, [G44](DESIGN_GAPS.md#g44) sho
 
 E1 to E8, plus:
 
-- [ ] ADRs 0005, 0006 and 0008 match the implementation; ADR 0007 is approved or the brief's
-  rustybuzz is in place.
+- [ ] ADRs 0005, 0006, 0007 and 0008 match the implementation; harfrust is the shaper and no direct
+  rustybuzz dependency exists.
 - [ ] The Turkish, Arabic and CJK cases the brief requires (E01 to E03, E09, E12) pass. Any other
   case that cannot reach zero diff is fixed, or its block becomes "not editable" with a reason and a
   BACKLOG entry. No case is skipped or passed silently.
@@ -1277,8 +1389,8 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) handwriting fonts
-for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
+**Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) group 3, handwriting
+fonts for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
 Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print.
 
 ### Goal
@@ -1351,7 +1463,7 @@ privacy rows for features that do not exist yet in `a11-1h`.
 |---|---|---|---|
 | Rust | image 0.25 | MIT OR Apache-2.0 | default features off; png, jpeg, tiff, webp and gif only (avoids the unmaintained `paste` crate) |
 | Rust | cargo-about 0.9 (tool) | MIT OR Apache-2.0 | third-party notices for the licences screen ([G14](DESIGN_GAPS.md#g14)); every release in M5 bundles its output |
-| Fonts | handwriting fonts for typed signatures, if Q08 approves (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
+| Fonts | handwriting fonts for typed signatures, if Q08 group 3 approves them (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
 | Dart or platform | a printing package or platform channel | to check | chosen and licence-checked in step 9 |
 
 ### Steps
@@ -1443,11 +1555,17 @@ E1 to E8, plus:
 
 ## 9. M5: release pipeline
 
-**Status:** Not started. **Needs first:** M4 accepted; [Q01](QUESTIONS.md#q01) bundle identifier
-(final), [Q02](QUESTIONS.md#q02) code-signing publisher name, [Q03](QUESTIONS.md#q03) minimum OS
-versions, [Q12](QUESTIONS.md#q12) Linux packaging, [Q14](QUESTIONS.md#q14) copyright holder,
-[Q15](QUESTIONS.md#q15) update-check endpoint and payload. The owner provides the Apple Developer ID,
-notarization credentials and a Windows code-signing certificate.
+**Status:** Not started. **Needs first:** M4 accepted; [Q02](QUESTIONS.md#q02) code-signing
+publisher name, [Q12](QUESTIONS.md#q12) Linux packaging formats, [Q15](QUESTIONS.md#q15)
+update-check endpoint and payload. The owner provides the Apple Developer ID, notarization
+credentials and a Windows code-signing certificate. Already answered: [Q01](QUESTIONS.md#q01) bundle
+identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03) minimum OS versions and
+[Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors".
+
+**Flathub note.** Flathub verifies an `io.github.<user>` id against the GitHub account `<user>`. The
+repository's account is `KEREM-BAS`, not `kerembas`, so a Flatpak on Flathub needs a `kerembas`
+account or organisation on GitHub, or a domain-based id. This is decided with the packaging part of
+Q12.
 
 ### Goal
 
@@ -1468,7 +1586,7 @@ manifests.
   notarized and stapled; PDFium signed inside the bundle.
 - Windows: installer for x64 and arm64 (format chosen in this milestone), Authenticode signed with a
   timestamp, registering the PDF ProgID and "Open with"; PDFium signed.
-- Linux, best effort: formats per [Q12](QUESTIONS.md#q12).
+- Linux, best effort: formats per [Q12](QUESTIONS.md#q12) (see the Flathub note above).
 - The network gateway in `ferman-api` (`net` module) with the update check, the network activity log
   and the per-purpose switches ([ARCHITECTURE.md §10.2](ARCHITECTURE.md#102-one-gateway)).
 - Auto-update with signed update packages; Homebrew cask and winget manifests.
@@ -1485,7 +1603,7 @@ manifests.
 
 `a11-5` changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry,
 nothing locked." ([G13](DESIGN_GAPS.md#g13)); names the copyright holder from
-[Q14](QUESTIONS.md#q14) (proposed: "The Ferman Authors"), and its "Licences" button opens the M4
+[Q14](QUESTIONS.md#q14) ("The Ferman Authors"), and its "Licences" button opens the M4
 notices screen.
 
 ### Engine capabilities and crates
@@ -1510,7 +1628,7 @@ notices screen.
   installers, the Linux packages chosen in Q12, SHA-256 checksums, release notes and the third-party
   notices.
 - [ ] macOS: `spctl --assess` and `stapler validate` pass on a clean macOS virtual machine for the
-  minimum supported version from Q03; the app and `libpdfium.dylib` carry the Developer ID signature.
+  minimum supported version from Q03 (macOS 12); the app and `libpdfium.dylib` carry the Developer ID signature.
 - [ ] Windows: `signtool verify /pa` passes for the installer, `ferman.exe` and `pdfium.dll`; the
   installer registers the ProgID so "Open with" and double-click work, and uninstalls cleanly.
 - [ ] About shows the version and the commit the tag points to; "Copy version info" copies both.
@@ -1988,8 +2106,8 @@ risk first bites.
 | **lopdf API churn**: breaking releases almost monthly | H | M | pin `=0.45`; wrap it inside ferman-core; upgrade on purpose, with the corpus as the safety net | M2 | [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md) |
 | **Font licensing**: the Plex Reserved Font Name forbids shipping modified or subset Plex files; installed fonts may forbid embedding (`fsType`); handwriting fonts and CJK fonts carry their own terms; glyph lists, AFM metrics and CMaps need checks | M | H | ship IBM's unmodified files with OFL texts; respect `fsType` in missing-glyph step 2 and say why; bundle handwriting fonts only after [Q08](QUESTIONS.md#q08); check every data file's licence before adding it; list everything in the licences screen | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06), [G08](DESIGN_GAPS.md#g08) |
 | **Fontations churn**: skrifa and read-fonts are pre-1.0 and break every few weeks; harfrust, subsetter and krilla pin different versions, so two copies end up in the binary with handles that cannot be shared | H | M | pin exact versions; upgrade skrifa, read-fonts, the shaper, subsetter and krilla together; keep the shaper behind one trait; cargo-deny warns on duplicates | M2 | [DEPENDENCIES.md](DEPENDENCIES.md), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
-| **Shaper**: the brief names rustybuzz, which is archived upstream | H | M | ADR 0007 proposes harfrust; the shaper trait makes the switch one module | M3 | [Q04](QUESTIONS.md#q04) |
-| **CJK fonts size and coverage**: Japanese, Korean, Simplified and Traditional Chinese fonts add tens of megabytes each; some Linux systems have none installed | H | M | system fonts per ADR 0013, with the right locale per text style; detect missing coverage and say so instead of showing empty boxes; optional font packs only if the owner chooses them in [Q08](QUESTIONS.md#q08) | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G07](DESIGN_GAPS.md#g07) |
+| **Shaper**: the brief names rustybuzz, which is archived upstream; its successor harfrust is pre-1.0 | H | M | ADR 0007 accepted (harfrust); exact pin and joint upgrades with the font stack; rustybuzz banned except through krilla; the shaper trait keeps it in one module | M3 | [Q04](QUESTIONS.md#q04), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
+| **CJK fonts size and coverage**: Japanese, Korean, Simplified and Traditional Chinese fonts add tens of megabytes each; some Linux systems have none installed | H | M | system fonts per ADR 0013, with the right locale per text style; detect missing coverage and say so instead of showing empty boxes; no font packs, as the owner decided in [Q08](QUESTIONS.md#q08) group 2 | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G07](DESIGN_GAPS.md#g07) |
 | **Code signing and notarization**: needs an Apple Developer ID, notarization credentials, a Windows certificate and the publisher name; a new publisher has no SmartScreen reputation; the third-party PDFium binaries are unsigned | M | H | answer [Q02](QUESTIONS.md#q02) early; set up accounts before M5; a signing dry run in M4 with a test certificate; sign PDFium with the app; secrets in a protected CI environment | M5 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **PDFium supply chain**: weekly third-party builds, unsigned | M | H | pinned tag and SHA-256 per archive; non-V8, non-XFA build; licences folder shipped | M2 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Bridge performance**: zero-copy tile transfer and executor behaviour not measured yet | M | M | M1 step 3 benchmark; texture-registry fallback | M1 | [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles) |
@@ -1999,8 +2117,9 @@ risk first bites.
 | **IME and caret on a custom canvas**: CJK composition and dead keys break | M | M | `DeltaTextInputClient` from the first prototype; CJK and Turkish input in integration tests | M3 | [ARCHITECTURE.md §6.12](ARCHITECTURE.md#612-the-ui-side-of-editing) |
 | **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback; native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; ask for a re-export ([Q11](QUESTIONS.md#q11)) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
-| **Owner decisions pending**: Q01 to Q17 and the Proposed ADRs (0007, 0009, 0013 in part, 0018) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
-| **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | M | M | ask before adding (brief §9); actions/cache or no cache meanwhile; desktop_drop and `fuzz/` added only after approval; if declined, another package or a platform channel for drag and drop | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
+| **Owner decisions pending**: the open questions (Q02, Q06, Q07, Q09 to Q11, Q13, Q15, Q16, Q18 and the open parts of Q08, Q12, Q14 and Q17) and the Proposed ADRs (0009, 0018, and the Proposed details in 0003, 0004, 0006 and 0008) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
+| **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | L | M | approved by the owner on 2026-10-15 as named exceptions only: the `dbus` notice ships with every build, the pub check skips `dbus` by name, `libfuzzer-sys` only in `fuzz/`, rust-cache only in CI and pinned by SHA; any new exception is asked again (brief §9) | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
+| **macOS App Sandbox**: the Flutter template turns it on; it changes file access, recent files and the atomic save | M | M | keep it on in M1, where no files open; ask before M2; bookmarks and the system replacement directory if it stays on | M2 | [Q18](QUESTIONS.md#q18) |
 | **OCR engine**: ocrs recognises Latin only and its model licence is unclear | H | M | decide [Q16](QUESTIONS.md#q16) before phase 3; Tesseract is the fallback | P3 | [Q16](QUESTIONS.md#q16) |
 | **Signature crates**: cms 0.3 is only a release candidate; rsa has an unpatched timing advisory | M | M | wait for cms 0.3.0 or pin the release candidate after review; sign through PKCS#11 or the OS keystore; rsa for verification only | P3 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Office conversion**: fidelity and the licences of any converter | H | M | an ADR before phase 3; fidelity report lists what was lost | P3 | — |

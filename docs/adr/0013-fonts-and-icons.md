@@ -1,9 +1,11 @@
 # ADR 0013: Fonts and icons
 
-- **Status:** Accepted (brief) in part; **Proposed** in part (marked below)
+- **Status:** Accepted. The brief's parts are Accepted (brief); the Plex Sans Hebrew and Devanagari
+  part was accepted by the owner on 2026-10-15 (Q08 groups 1 and 2).
 - **Date:** 2026-10-14
-- **Approval:** brief §2 for the accepted parts, including the icons. The proposed part (bundling
-  Plex Sans Hebrew and Plex Sans Devanagari) is asked in [Q08](../QUESTIONS.md#q08).
+- **Approval:** brief §2 for the parts marked Accepted (brief), including the icons. Bundling Plex
+  Sans Hebrew and Plex Sans Devanagari was approved by the owner on 2026-10-15
+  ([Q08](../QUESTIONS.md#q08), groups 1 and 2).
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -50,17 +52,23 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
 
 - We bundle **IBM's official, unmodified static TTF files** from the IBM/plex GitHub releases
   (`fonts/complete/ttf`), never the design's woff2 subsets:
-  - **IBM Plex Sans** 400, 500 and 600 (IBM release `plex-sans` 1.1.0). The complete files cover
-    Latin, Turkish, Vietnamese, Cyrillic and Greek.
-  - **IBM Plex Serif** (IBM release `plex-serif` 2.0.0) in the weights the tokens use (the wordmark
-    at 600).
-  - **IBM Plex Mono** (IBM release `plex-mono` 2.5.0) in the weights the tokens use (technical
-    details, a1-9b).
-  - **IBM Plex Sans Arabic** 400, 500 and 600 (IBM release `plex-sans-arabic` 1.1.0), which also covers
-    Persian letters and digits. It has no Latin, so IBM Plex Sans follows it in the fallback chain.
-  - An italic face is added only if a drawn UI state needs one (the FontPicker missing state uses italic
-    text, [G06](../DESIGN_GAPS.md#g06)); the release includes italic TTFs, so that is a `pubspec.yaml`
-    change, not a new decision.
+  - **IBM Plex Sans** 400, 500 and 600, plus Italic 400 (IBM release `plex-sans` 1.1.0, font
+    revision 3.005). The complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek. The
+    italic is there because a drawn UI state needs one: the FontPicker missing state uses italic text,
+    which the boards synthesise as an oblique because the design declares no italic face; the app uses
+    IBM's true italic ([G06](../DESIGN_GAPS.md#g06)).
+  - **IBM Plex Serif** 400, Italic 400 and 600 (IBM release `plex-serif` 2.0.0, revision 3.006): the
+    weights the design system's `@font-face` set declares (the wordmark at 600).
+  - **IBM Plex Mono** 400 and 500 (IBM release `plex-mono` 2.5.0, revision 2.005), for technical
+    details (a1-9b). Mono 600 appears only in the boards' own section numbers and weight 700 only in a
+    mobile large title (a later phase), so neither is bundled.
+  - **IBM Plex Sans Arabic** 400, 500 and 600 (IBM release `plex-sans-arabic` 1.1.0, revision 1.005),
+    which also covers the Persian letters (پ چ ژ گ ک ی) and digits. It carries full ASCII and the
+    Latin-1 letters, which serve Latin inside Arabic text, but not Latin Extended-A (only one of
+    İ ı Ğ ğ Ş ş) and not U+200C (zero-width non-joiner), so IBM Plex Sans follows it in the fallback
+    chain.
+  - The 18 files and 6 licence texts are fetched by `tools/fonts` from IBM's release zips and pinned by
+    SHA-256 in `tools/fonts/fonts.lock` ([DEPENDENCIES.md §5.2](../DEPENDENCIES.md#52-fonts)).
 - **The Reserved Font Name is respected.** We never subset, convert, rename or otherwise modify the font
   files we ship. Subsets that Ferman embeds into a user's PDF are document embedding, which OFL-1.1
   allows ([ADR 0006](0006-font-pipeline-and-missing-glyphs.md)).
@@ -82,14 +90,14 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
 - If a character is not covered by any bundled or system font, Flutter's own fallback applies; the
   language picker (a1-1) is tested for every native language name.
 
-### Proposed: Plex Sans Hebrew and Plex Sans Devanagari
+### Accepted (owner, Q08, 2026-10-15): Plex Sans Hebrew and Plex Sans Devanagari
 
-- **Proposed:** also bundle **IBM Plex Sans Hebrew** (IBM release `plex-sans-hebrew` 1.1.0) and
-  **IBM Plex Sans Devanagari** (IBM release `plex-sans-devanagari` 1.1.0), unmodified, with their
-  licences. They are small (zips of 1.7 MB and 5.3 MB), they are what the design's UI stack names, and
-  they keep the Hebrew and Hindi UI in the design's typeface.
-- **Until approved**, Hebrew and Hindi use system fonts like CJK: SF Hebrew or Arial Hebrew, Segoe UI,
-  Noto Sans Hebrew; Kohinoor Devanagari, Nirmala UI, Noto Sans Devanagari.
+- We also bundle **IBM Plex Sans Hebrew** (IBM release `plex-sans-hebrew` 1.1.0) and **IBM Plex Sans
+  Devanagari** (IBM release `plex-sans-devanagari` 1.1.0), 400, 500 and 600, unmodified, with their
+  licences, under the same rules as the other Plex families. They are small (zips of 1.7 MB and
+  5.3 MB), they are what the design's UI stack names, and they keep the Hebrew and Hindi UI in the
+  design's typeface (revisions 1.003 and 1.002). Like the Arabic font they carry ASCII and Latin-1 but
+  not Latin Extended-A, so IBM Plex Sans follows each of them in the fallback chain.
 
 ### Accepted (brief): icons from the design's exact path data
 
@@ -99,8 +107,14 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
   The brief says the icons come from the design ([brief §2](../BRIEF.md)), so we ship its exact
   geometry, including the seven glyphs that are not in Lucide 0.460.0. A test fails if the count or any
   path differs from the design source.
-- SVGs are rendered with flutter_svg, optionally precompiled with vector_graphics. No icon font, as the
-  design system says; not the third-party lucide_icons_flutter package.
+- The app paints the icons itself: `tools/icons` also generates Dart path data, which a small
+  `CustomPainter` in the Icon widget parses with path_parsing (MIT, from the flutter/packages
+  repository) and strokes. The SVG files stay in `app/assets/icons/` as the exported, provenance-tracked
+  set and are not loaded at run time. flutter_svg was dropped in M1 (lead decision, 2026-10-15): it and
+  vector_graphics depend on the `http` package, which the network deny list forbids
+  ([ADR 0015](0015-privacy-and-network.md)). No icon font, as the design system says; not the
+  third-party lucide_icons_flutter package. The widget can override the stroke width, because some
+  drawings use 1.8, 2 or 2.2.
 - A **provenance table** (`app/assets/icons/PROVENANCE.md`, generated) names, for each icon, the Lucide
   release its geometry matches: "Lucide 0.460.0" (222 icons), "Lucide 1.56.0" (bell, grid-2x2, funnel),
   "Lucide 0.500.0" (paperclip, which also matches 0.469.0, and expand) and "Lucide 0.300.0"
@@ -108,19 +122,24 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
   marked pending until the design re-export settles it ([Q11](../QUESTIONS.md#q11)).
 - The **Lucide ISC licence and the Feather MIT notice** ship in `app/assets/icons/` and in the notices
   screen: the `LICENSE` of each source release. The 0.300.0, 0.460.0 and 0.500.0 files are identical, so
-  one copy covers them; the 1.56.0 file ships beside it. They cover the Lucide and Feather geometry. The
+  one copy covers them (`LICENSE-lucide-0.460.0.txt`); the 1.56.0 file ships beside it
+  (`LICENSE-lucide-1.56.0.txt`), both copied verbatim from the npm tarballs, which `tools/icons` checks
+  against pinned hashes. Both are registered with `LicenseRegistry` under "Lucide". They cover the Lucide and Feather geometry. The
   one glyph drawn for Ferman (ellipse) is part of the project.
-- A per-icon `directional` flag drives RTL mirroring (chevrons, arrows, undo and redo, skip back and
-  forward, and the other cases listed in [DESIGN_INVENTORY.md](../DESIGN_INVENTORY.md))
-  ([ADR 0014](0014-localization-and-rtl.md)).
+- A per-icon `directional` flag drives RTL mirroring ([ADR 0014](0014-localization-and-rtl.md)). It
+  is set on exactly the 8 icons the design flips: arrow-left, arrow-right, chevron-left,
+  chevron-right, undo-2, redo-2, skip-back and skip-forward. A `tools/icons` test re-reads the design
+  files for this list. Send, reply, the list icons, text-cursor, arrow-left-right, volume-2 and
+  chevrons-left and chevrons-right are not mirrored. The Icon widget's `flipRtl` defaults to this flag.
 
 ### Other fonts the design uses
 
 - **Handwriting faces** for typed signatures (`--font-hand-1..3`: Caveat and Dancing Script under OFL,
-  Homemade Apple under Apache-2.0) are needed for simple signatures in M4. Whether to bundle them is part
-  of [Q08](../QUESTIONS.md#q08). If Homemade Apple ships, its Apache-2.0 licence ships with it.
+  Homemade Apple under Apache-2.0) are needed for simple signatures in M4. Whether to bundle them is
+  group 3 of [Q08](../QUESTIONS.md#q08), still open. If Homemade Apple ships, its Apache-2.0 licence
+  ships with it.
 - **Similar fonts for missing glyphs** (the a3-3b group "SIMILAR FONTS INCLUDED WITH FERMAN", drawn
-  with Cormorant Garamond and Crimson Pro) are decided together with Q08
+  with Cormorant Garamond and Crimson Pro) are group 4 of Q08, still open and needed by M3
   ([ADR 0006](0006-font-pipeline-and-missing-glyphs.md)). Any font chosen must allow embedding.
 - **The Google Fonts `@import` is never used.** Ferman never fetches fonts at run time
   ([ADR 0015](0015-privacy-and-network.md)).
@@ -138,17 +157,22 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
 
 - IBM's release files differ in version from the design's Google copies (for example Plex Sans 3.005
   versus 3.201), so metrics and line heights are compared against the design references in M1.
-- CJK, and until approval Hebrew and Hindi, depend on the fonts installed on each system. Goldens for
-  those languages vary by platform and are not part of the M1 en, tr and ar golden set.
+- CJK depends on the fonts installed on each system. Goldens for those languages vary by platform and
+  are not part of the M1 en, tr and ar golden set.
 - Static weights mean one file per weight instead of one variable font.
 - Persian text with ZWNJ needs explicit tests, because the Arabic font does not map it.
 
 ### Follow-up
 
-- M1: download script with pinned checksums for the font zips, `pubspec.yaml` font declarations,
-  `tools/icons` with the provenance table, licence registration.
-- M4: handwriting fonts for typed signatures once Q08 is answered; the third-party notices screen
-  ([G14](../DESIGN_GAPS.md#g14)).
+- M1: download script with pinned checksums for the font zips (including Plex Sans Hebrew and
+  Devanagari), `pubspec.yaml` font declarations, `tools/icons` with the provenance table, licence
+  registration. Done in phase D: `tools/fonts` (with the committed TTFs and `coverage.py`) and
+  `tools/icons` (229 SVGs, `IconName`, the provenance table and the Lucide licence files). Still to come
+  in phase F: the `pubspec.yaml` font and asset declarations, the Icon widget with its path data, and
+  the `LicenseRegistry` entries.
+- M3: similar fonts for missing glyphs, once Q08 group 4 is answered.
+- M4: handwriting fonts for typed signatures, once Q08 group 3 is answered; the third-party notices
+  screen ([G14](../DESIGN_GAPS.md#g14)).
 
 ## Alternatives considered
 

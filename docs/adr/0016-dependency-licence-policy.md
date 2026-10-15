@@ -2,7 +2,9 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §1, §3 and §9
+- **Approval:** brief §1, §3 and §9. The three licence exceptions below were approved by the owner on
+  2026-10-15 ([Q17](../QUESTIONS.md#q17), parts 1 to 3); the reading of "GPL-compatible" (part 4) is
+  still open.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -27,7 +29,8 @@ Enforce with cargo-deny and list every dependency with its licence in docs/DEPEN
 
 So in practice the rule is: **permissive licences, plus MPL-2.0 for unmodified dependencies after the
 owner's review**. This reading of "GPL-compatible" is the project's, not the brief's wording;
-[Q17](../QUESTIONS.md#q17) asks the owner to confirm it, and until then this stricter reading applies.
+[Q17](../QUESTIONS.md#q17) (part 4, still open) asks the owner to confirm it, and until then this
+stricter reading applies.
 The dependency check of 2026-10-13 found that the planned Rust graph (about 356 runtime crates) uses
 only MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Zlib and Unicode-3.0, or offers one of them
 inside an OR expression. Two anomalies: `allo-isolate` (from flutter_rust_bridge) declares its
@@ -52,21 +55,22 @@ the copies inside `design/` in [THIRD_PARTY_NOTICES.md](../../THIRD_PARTY_NOTICE
   BSD-2-Clause, BSD-3-Clause, ISC, Zlib, 0BSD, BSL-1.0, CC0-1.0, Unicode-3.0, Unicode-DFS-2016. An OR
   expression is fine when one side is on this list (for example `MIT OR Apache-2.0 OR LGPL-2.1-or-later`).
 - **MPL-2.0:** only per package, after the owner's review, for an unmodified dependency, with a notice.
-  Known cases: `dbus` through desktop_drop (every platform), pending [Q17](../QUESTIONS.md#q17);
-  `option-ext` if `dirs` appears, which would be asked the same way.
-- **NCSA:** only for `libfuzzer-sys`, only in the separate `fuzz/` workspace, which never ships. Pending
-  [Q17](../QUESTIONS.md#q17).
+  Known cases: `dbus` through desktop_drop (every platform), approved on 2026-10-15
+  ([Q17](../QUESTIONS.md#q17)); `option-ext` if `dirs` appears, which would be asked the same way.
+- **NCSA:** only for `libfuzzer-sys`, only in the separate `fuzz/` workspace, which never ships.
+  Approved on 2026-10-15 ([Q17](../QUESTIONS.md#q17)).
 - **Fonts:** OFL-1.1 (and Apache-2.0 for Homemade Apple if it ships), for font files only, never as a
   code licence.
 - **Tools that run only in CI** (for example the LGPL-3.0 Swatinem/rust-cache action) are not
   distributed, so their licence does not reach users. Their code is never vendored or copied. rust-cache
-  is pending [Q17](../QUESTIONS.md#q17).
+  was approved on 2026-10-15 ([Q17](../QUESTIONS.md#q17)).
 
 These three exceptions (MPL-2.0 `dbus`, NCSA `libfuzzer-sys`, the LGPL-3.0 CI action) are outside the
-allow-list, so they wait for the owner ([brief §9](../BRIEF.md)). Until [Q17](../QUESTIONS.md#q17) is
-answered: M1 CI caches with actions/cache (MIT) or not at all, desktop_drop is not added, and the
-`fuzz/` workspace is not created. The brief requires cargo-fuzz targets from the first parser
-([brief §5](../BRIEF.md)), so the answer is needed by M2.
+allow-list, so they waited for the owner ([brief §9](../BRIEF.md)). The owner approved all three on
+2026-10-15 ([Q17](../QUESTIONS.md#q17), parts 1 to 3): CI may cache with Swatinem/rust-cache from M1,
+desktop_drop is added in M2 (unmodified, with the `dbus` notice), and the `fuzz/` workspace is created
+with the first parser in M2, as the brief requires ([brief §5](../BRIEF.md)). Each stays a named
+exception; none widens the allow-list.
 
 ### Never
 
@@ -77,10 +81,11 @@ answered: M1 CI caches with actions/cache (MIT) or not at all, desktop_drop is n
 
 ### Enforcement: Rust
 
-`deny.toml` (cargo-deny 0.20) is added in M1, based on the discovery's proposal:
+`deny.toml` (cargo-deny 0.20) was added in M1 step 1, based on the discovery's proposal, and passes
+`cargo deny check`; [DEPENDENCIES.md §7](../DEPENDENCIES.md#7-denytoml) summarises it. An excerpt:
 
 ```toml
-# Excerpt. The full file is created in M1 and reviewed with DEPENDENCIES.md.
+# Excerpt of deny.toml at the repository root.
 [licenses]
 confidence-threshold = 0.93
 allow = [
@@ -88,13 +93,13 @@ allow = [
   "ISC", "Zlib", "0BSD", "BSL-1.0", "CC0-1.0", "Unicode-3.0", "Unicode-DFS-2016",
 ]
 exceptions = [
-  { crate = "libfuzzer-sys", allow = ["NCSA"] },   # fuzz/ workspace only; pending Q17
+  { crate = "libfuzzer-sys", allow = ["NCSA"] },   # fuzz/ workspace only; approved in Q17
 ]
 
 [[licenses.clarify]]
 crate = "allo-isolate"                              # licence file is the Apache-2.0 text
 expression = "Apache-2.0"
-license-files = [{ path = "LICENSE", hash = 0x00000000 }]   # hash filled in from cargo-deny's report
+license-files = [{ path = "LICENSE", hash = 0x0a6d4ed6 }]   # XXH32 of the normalised LICENSE text
 
 [bans]
 multiple-versions = "warn"
@@ -109,8 +114,7 @@ deny = [
   { crate = "magick_rust", reason = "ImageMagick renders PDF through Ghostscript (AGPL)" },
   { crate = "libheif-sys", reason = "links LGPL-3.0 libheif" },
   { crate = "ffmpeg-sys-next", reason = "FFmpeg LGPL/GPL" },
-  # Added only when ADR 0007 is approved:
-  # { crate = "rustybuzz", wrappers = ["krilla"], reason = "archived; use harfrust" },
+  { crate = "rustybuzz", wrappers = ["krilla"], reason = "archived; use harfrust (ADR 0007)" },
   # Added with the network gateway in M5 (ADR 0015), for the HTTP client chosen then:
   # { crate = "<http client>", wrappers = ["ferman-api"], reason = "network only through the gateway" },
 ]
@@ -132,8 +136,9 @@ unknown-git = "deny"
 ### Enforcement: Dart
 
 cargo-deny does not see pub packages. CI runs very_good_cli's licence check with the same allow-list
-(`very_good packages check licenses --allowed=…`). MPL-2.0 is not on that list. If Q17 approves `dbus`,
-it is skipped by name and listed in DEPENDENCIES.md, so any other MPL package still fails the check.
+(`very_good packages check licenses --allowed=…`). MPL-2.0 is not on that list. `dbus`, approved in Q17,
+is skipped by name from the commit that adds desktop_drop (M2) and listed in DEPENDENCIES.md, so any
+other MPL package still fails the check.
 
 ### Enforcement: assets
 
@@ -155,8 +160,8 @@ the third-party notices screen ([G14](../DESIGN_GAPS.md#g14)).
 - Fast-moving crates are pinned exactly (lopdf `=0.45`, the fontations stack, flutter_rust_bridge
   `=2.13.0`), and `image` is used with default features off to avoid unmaintained transitive crates.
 - Inbound contributions are accepted under Apache-2.0 (inbound equals outbound), as described in
-  [CONTRIBUTING.md](../../CONTRIBUTING.md). The copyright line is pending
-  ([Q14](../QUESTIONS.md#q14)).
+  [CONTRIBUTING.md](../../CONTRIBUTING.md). The copyright line is "Copyright The Ferman Authors"
+  ([Q14](../QUESTIONS.md#q14), answered on 2026-10-15).
 
 ## Consequences
 
@@ -171,17 +176,20 @@ the third-party notices screen ([G14](../DESIGN_GAPS.md#g14)).
 - Some useful libraries are out of reach (MuPDF, poppler, Ghostscript, LGPL codecs). Ferman relies on
   PDFium and Rust crates instead.
 - The policy is stricter than a literal reading of "GPL-compatible". That is deliberate: it keeps the
-  brief's Apache-2.0 licence intact. The owner is asked to confirm it in Q17 and can relax it through
-  an ADR.
+  brief's Apache-2.0 licence intact. The owner is asked to confirm it in Q17 (part 4, open) and can
+  relax it through an ADR.
 - Licence checks need maintenance: clarify hashes, exceptions and the Dart skip list change with
   upgrades.
 
 ### Follow-up
 
-- M0: [Q17](../QUESTIONS.md#q17) asks the owner about the three exceptions.
-- M1: `deny.toml`, the CI jobs for cargo-deny and the pub licence check, the first DEPENDENCIES.md
-  entries for real dependencies.
-- M3: add the rustybuzz ban if ADR 0007 is approved.
+- M0: [Q17](../QUESTIONS.md#q17) asked the owner about the three exceptions; approved on 2026-10-15.
+- M1: `deny.toml` with the rustybuzz ban (ADR 0007 accepted), the CI jobs for cargo-deny and the pub
+  licence check, the first DEPENDENCIES.md entries for real dependencies. Done so far: `deny.toml`, the
+  cargo-deny CI job and the DEPENDENCIES.md entries; the dev-dependency licence run and the pub licence
+  check in CI follow.
+- M2: desktop_drop with the named `dbus` skip and notice; the `fuzz/` workspace with its
+  `libfuzzer-sys` exception.
 - M4: cargo-about notices for the licences screen.
 - M5: bundle the notices in every release; the gateway ban entry.
 

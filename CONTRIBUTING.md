@@ -12,7 +12,7 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 4. [Workflow](#workflow)
 5. [Licensing of contributions](#licensing-of-contributions)
 6. [Dependencies](#dependencies)
-7. [Development setup (planned for Milestone 1)](#development-setup-planned-for-milestone-1)
+7. [Development setup](#development-setup)
 8. [Quality bar](#quality-bar)
 9. [Text-editing changes](#text-editing-changes)
 10. [Translations](#translations)
@@ -22,9 +22,9 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 
 ## Project status
 
-Ferman is at **Milestone 0: discovery and planning**. The repository holds the design export and the
-planning documents. There is no application code yet, and none is written until the maintainer
-approves the plan. Milestone 1 then sets up the workspace, the app and CI.
+Ferman is at **Milestone 1: foundations**. The maintainer approved the plan (Milestone 0) on
+2026-10-15. Milestone 1 is setting up the Rust workspace, the Flutter app, the design tooling and CI,
+on the branch `m1-foundations`; the app opens no PDFs until Milestone 2.
 
 What helps most right now:
 
@@ -34,8 +34,9 @@ What helps most right now:
 - Tell us about freely licensed PDFs that would make good test files (see
   [Reporting bugs](#reporting-bugs) for what we can accept).
 
-Please do not open pull requests with application code yet. They cannot be reviewed until the
-workspace and CI exist.
+Please wait with pull requests for application code until Milestone 1 is merged into `main`. Until
+then the workspace, the app and CI are still being laid out, and changes cannot be reviewed against a
+stable base.
 
 ## Before you start
 
@@ -126,8 +127,7 @@ Ferman is licensed under the [Apache License 2.0](LICENSE).
   without any additional terms or conditions. Contributions offered under other terms are not
   accepted.
 - **No contributor licence agreement.** You keep the copyright in your contribution. The project's
-  copyright line is "The Ferman Authors", which is waiting for the maintainer's confirmation
-  ([Q14](docs/QUESTIONS.md#q14)).
+  copyright line is "Copyright The Ferman Authors" ([Q14](docs/QUESTIONS.md#q14)).
 - Submit only work you have the right to submit. Do not copy code from projects whose licences are
   not compatible (see [Dependencies](#dependencies)) or from proprietary SDKs.
 
@@ -147,9 +147,10 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
 - **Permissive licences only**, such as MIT, Apache-2.0, BSD, ISC and Zlib. The brief allows
   "permissive or GPL-compatible" licences; because Ferman is Apache-2.0, that rules out GPL code of any
   version. MPL-2.0 is allowed only for an unmodified dependency, after review. This reading of
-  "GPL-compatible" is the project's; the maintainer is asked to confirm it in
-  [Q17](docs/QUESTIONS.md#q17), together with the first MPL-2.0 case and two CI and fuzzing
-  exceptions.
+  "GPL-compatible" is the project's. The maintainer approved three named exceptions on 2026-10-15
+  (MPL-2.0 `dbus` through desktop_drop, NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0
+  Swatinem/rust-cache in CI only), and the reading itself is still to be confirmed
+  ([Q17](docs/QUESTIONS.md#q17)).
 - **Never** AGPL, GPL, LGPL as the only licence, non-commercial licences, or code with no clear
   licence. **Never** MuPDF, Ghostscript, poppler or xpdf, including tools that call them. Tools that
   run only in CI and are never distributed are reviewed separately
@@ -165,10 +166,11 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
   files, unmodified: never subset, rename or convert the files we ship. Embedding a subset of a font
   into a user's PDF is document embedding, which OFL-1.1 allows.
 
-## Development setup (planned for Milestone 1)
+## Development setup
 
-Nothing below works yet. Milestone 1 creates the workspace and the app, fixes the exact commands and
-updates this section.
+Milestone 1 is creating the workspace and the app. The commands below are the ones that exist so far;
+[CLAUDE.md](CLAUDE.md#commands) keeps the full list, and the end of Milestone 1 checks it on a fresh
+clone and updates this section.
 
 **Toolchain**
 
@@ -178,14 +180,15 @@ updates this section.
 - **Flutter** 3.47.7 stable, which includes Dart 3.13.5, with desktop support for your system and the
   platform tools Flutter needs: Xcode on macOS, Visual Studio with the C++ desktop workload on
   Windows, the GTK development packages and a C++ toolchain on Linux.
-- **Node.js** 24 LTS, for the tools only (the design-reference renderer). Node is never part of the
-  app.
+- **Node.js** 24.22.0 LTS, for the tools only (the design-reference renderer, pinned to
+  playwright-core 1.56.1 and its Chromium revision 1194). Node is never part of the app.
 - **cargo-deny**, and **flutter_rust_bridge_codegen** 2.13.0. The codegen, the Rust crate and the Dart
   package must be the same version.
-- **PDFium** comes from a script in `tools/pdfium` that downloads the pinned prebuilt binaries and
-  checks their SHA-256.
+- **PDFium** comes from `tools/pdfium/fetch.sh`, which downloads the pinned prebuilt binaries and
+  checks their SHA-256. The IBM Plex fonts are committed; `tools/fonts/fetch.sh` re-fetches and checks
+  them.
 
-**Commands (planned)**
+**Commands**
 
 ```sh
 # Rust
@@ -194,16 +197,19 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo test --workspace
 cargo deny check
 
-# Flutter
-(cd app && flutter analyze && flutter test)
+# Flutter (both analyzers: the riverpod_lint plugin reports only through dart analyze)
+(cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
 (cd app && dart run build_runner build --delete-conflicting-outputs)   # Riverpod and other codegen
-flutter_rust_bridge_codegen generate                                  # bridge bindings
 (cd app && very_good packages check licenses)                         # Dart licence check
 
 # Tools
+(cd tools/checks && dart run bin/check_all.dart --root ../..)   # the repository checks CI runs
 (cd tools/tokens && dart run)        # design tokens → app/lib/design/tokens.g.dart
+(cd tools/icons && dart run)         # design icons → app/assets/icons and the IconName enum
 node tools/design-refs               # renders every artboard to build/design-refs/
 ```
+
+The bridge bindings (`flutter_rust_bridge_codegen generate`) arrive with Milestone 1 step 3.
 
 Generated files (`tokens.g.dart`, the bridge bindings and other `*.g.dart` files) are never edited by
 hand. Nothing under `build/` is committed.
@@ -223,7 +229,7 @@ From [brief §5](docs/BRIEF.md#5-quality-bar) and [§6](docs/BRIEF.md#6-flutter-
 
 **Flutter**
 
-- very_good_analysis lints, and `flutter analyze` with zero issues.
+- very_good_analysis lints, and `flutter analyze` and `dart analyze --fatal-infos` with zero issues.
 - Widget tests for every component and screen.
 - Golden tests for every implemented screen in **light and dark × en, tr and ar**, with the real
   bundled fonts loaded. Goldens use alchemist and are compared with the design-reference renders.

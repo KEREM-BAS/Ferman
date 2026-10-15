@@ -14,21 +14,24 @@ These rules apply to the engine crates, the fuzz workspace and the workspace fil
 
 ## Toolchain and pinned versions
 
-- Rust stable 1.99, pinned with `rust-toolchain.toml` (created in M1).
+- Rust 1.99.0, pinned in `rust-toolchain.toml` with rustfmt and clippy; CI installs it with `rustup toolchain install`. `rust-version = "1.88"` in the workspace `Cargo.toml` is the floor, raised in the same commit as a crate that needs more.
+- Ferman's own crates are path dependencies without a version requirement in `[workspace.dependencies]` (`deny.toml` sets `allow-wildcard-paths`), so a version bump touches only `[workspace.package]`.
 - lopdf `=0.45`. It ships breaking releases almost monthly, so bump it on purpose, with a full corpus and pixel-diff run.
 - pdfium-render 0.9.4 with the prebuilt bblanchon/pdfium-binaries tag `chromium/7881` (non-V8, non-XFA build). `tools/pdfium` fetches it and checks a pinned SHA-256 per archive. The archive's `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app.
 - flutter_rust_bridge `=2.13.0`. The Rust crate, the Dart package and `flutter_rust_bridge_codegen` must have exactly the same version; CI compares them.
-- Shaping: the brief names rustybuzz, which is archived upstream. [ADR 0007](../../docs/adr/0007-harfrust-instead-of-rustybuzz.md) proposes harfrust ([Q04](../../docs/QUESTIONS.md#q04)). Until the owner approves it, the brief's rustybuzz stands. Keep the shaper behind the internal `Shaper` trait in ferman-fonts, so the switch touches one module.
+- Shaping: harfrust, pinned exactly, as [ADR 0007](../../docs/adr/0007-harfrust-instead-of-rustybuzz.md) decides (accepted by the owner on 2026-10-15, [Q04](../../docs/QUESTIONS.md#q04)). Never add rustybuzz as a direct dependency: `deny.toml` bans it except as krilla's wrapper (`{ crate = "rustybuzz", wrappers = ["krilla"] }`). Keep the shaper behind the internal `Shaper` trait in ferman-fonts; nothing outside ferman-fonts names the shaping crate.
 - Fonts otherwise use the brief's crates: skrifa and read-fonts (parsing), subsetter (subsetting), fontdb (system fonts).
 - `image` is built with default features off.
 - Never add the `pdfium` crate (GPL-3.0, not pdfium-render), mupdf, jbig2dec, poppler or xpdf bindings, or magick_rust.
 
 ## Errors and panics
 
-- No `unwrap`, `expect`, `panic!`, `todo!` or `unimplemented!` in library code. Enforce it with workspace Clippy lints (`unwrap_used`, `expect_used`, `panic`, `todo`, `unimplemented` denied in library crates). Tests may unwrap (`allow-unwrap-in-tests` and `allow-expect-in-tests` in `clippy.toml`). See [ADR 0010](../../docs/adr/0010-error-handling-no-panics.md).
+- No `unwrap`, `expect`, `panic!`, `todo!` or `unimplemented!` in library code. Enforce it with workspace Clippy lints (`unwrap_used`, `expect_used`, `panic`, `todo`, `unimplemented` denied in library crates). Tests may unwrap, expect and panic (`allow-unwrap-in-tests`, `allow-expect-in-tests` and `allow-panic-in-tests` in `clippy.toml`); these cover only `#[test]` functions, so helpers in an integration-test crate need `#![allow(clippy::panic)]`. See [ADR 0010](../../docs/adr/0010-error-handling-no-panics.md).
+- The workspace also denies `dbg_macro`, `print_stdout` and `print_stderr`: `println!` panics on a closed pipe, so write through `std::io` (`writeln!`) and handle the error. The FRB-generated module's allow list names these restriction lints too, because `clippy::all` does not cover them.
 - No unchecked indexing or slicing: use `get` and checked arithmetic. `clippy::indexing_slicing` and `clippy::arithmetic_side_effects` are denied in parser and decoder modules (lexer, xref, filters, CMaps, font parsing, interpreter). Sizes and offsets read from files always use checked arithmetic.
-- One `thiserror` error type per crate (`CoreError`, `FontError`, `TextError`, `RenderError`, …). ferman-api maps them to `ApiError { kind, message_key, details }`.
-- No localized text leaves the engine. Errors and notices carry message keys with parameters; Dart formats them.
+- One `thiserror` error type per crate (`CoreError`, `FontError`, `TextError`, `RenderError`, …), `#[non_exhaustive]`. ferman-api maps them to `ApiError { kind, message_key, details }`.
+- No localized text leaves the engine. Errors and notices carry message keys with parameters; Dart formats them. Keys are lowerCamelCase ARB keys (gen-l10n rejects dots) defined only as constants of the closed `MessageKey` type and listed in `MessageKey::ALL`. A CI check that every key exists in `app_en.arb` and `app_tr.arb` arrives with the first error strings (M1 step 10); the first key, `errorInternal`, gets its ARB entries then.
+- `details` holds structural facts only (sizes, offsets, object numbers), never document text or paths. A caught panic's payload never reaches `details` or the release log.
 - `catch_unwind` is used only at the ferman-api actor and job entry points, as a last resort. The release profile keeps `panic = "unwind"`.
 - `#![forbid(unsafe_code)]` at every crate root except ferman-api, which uses `#![deny(unsafe_code)]` and allows unsafe code only on the FRB-generated module behind the `frb` feature (an inner `allow` cannot override `forbid`). CI fails on any other `allow(unsafe_code)`. pdfium-render is the unsafe layer for PDFium; any further unsafe code is a documented, reviewed exception ([ARCHITECTURE.md §8.1](../../docs/ARCHITECTURE.md#81-errors-per-crate), [ADR 0010](../../docs/adr/0010-error-handling-no-panics.md)).
 - Logs (`tracing`) stay on the device and never contain document text, typed characters, passwords or rendered content.
@@ -78,7 +81,7 @@ Brief §4 is the hardest part and must be flawless ([ADR 0005](../../docs/adr/00
 ## Tests
 
 - Unit tests next to the code; integration tests in `crates/*/tests/` through public APIs. The full open, edit, save and reopen path is tested through the ferman-api facade.
-- A cargo-fuzz target for every parser, from the first parser in M2, including third-party parsers reached through our wrappers (lopdf through ferman-core, skrifa and read-fonts through ferman-fonts, image decoders): object lexer and parser, xref and trailer paths (including repair), content-stream lexer and interpreter, stream filters, CMap and ToUnicode, the Type1 parser and font program parsing, encryption, incremental writer round trip, and "open arbitrary bytes" through the facade. Crashes become regression files in the corpus. `fuzz/` is a separate workspace, so `libfuzzer-sys` (NCSA) never ships. Its NCSA exception is pending [Q17](../../docs/QUESTIONS.md#q17); create `fuzz/` only once the owner approves it (needed by M2).
+- A cargo-fuzz target for every parser, from the first parser in M2, including third-party parsers reached through our wrappers (lopdf through ferman-core, skrifa and read-fonts through ferman-fonts, image decoders): object lexer and parser, xref and trailer paths (including repair), content-stream lexer and interpreter, stream filters, CMap and ToUnicode, the Type1 parser and font program parsing, encryption, incremental writer round trip, and "open arbitrary bytes" through the facade. Crashes become regression files in the corpus. `fuzz/` is a separate workspace, so `libfuzzer-sys` (NCSA) never ships. Its NCSA exception was approved by the owner on 2026-10-15 ([Q17](../../docs/QUESTIONS.md#q17)) for `fuzz/` only; create `fuzz/` with the first parser in M2.
 - Property tests (proptest) for every encoder and decoder: lexer round trip, encode and decode for every encoding, edit then revert gives identical bytes, written incremental updates parse back to the same objects.
 - Every corpus file has its source, licence, SHA-256 and purpose in `tests/corpus/README.md`.
 
@@ -90,5 +93,5 @@ Brief §4 is the hardest part and must be flawless ([ADR 0005](../../docs/adr/00
 ## Dependencies
 
 - Any dependency change updates [DEPENDENCIES.md](../../docs/DEPENDENCIES.md) (version, SPDX licence, milestone, purpose) in the same commit and passes `cargo deny check` (licences, bans, advisories, sources).
-- Allowed licences and bans are in [ADR 0016](../../docs/adr/0016-dependency-licence-policy.md). Ask the owner before adding a dependency with an unusual licence.
+- Allowed licences and bans are in [ADR 0016](../../docs/adr/0016-dependency-licence-policy.md). Ask the owner before adding a dependency with an unusual licence. The approved exceptions are named, one crate each (`libfuzzer-sys` in `fuzz/` only); they never widen the allow-list. The reading of "GPL-compatible" is still open ([Q17](../../docs/QUESTIONS.md#q17) part 4), so the stricter reading applies.
 - Add later-phase crates only in their phase: signing (cms, x509-cert, cryptoki, rsa) and OCR (ocrs, rten; engine choice open in [Q16](../../docs/QUESTIONS.md#q16)) in P3, krilla in P4. Verify each before use.

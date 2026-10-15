@@ -45,7 +45,7 @@ On every pull request and on `main`, on **macOS (arm64), Windows (x64) and Linux
 | Rust | `cargo fmt --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace`; **proposed:** dependency-graph check ([ADR 0003](0003-crate-layout-and-api-boundary.md)) |
 | Licences and advisories | `cargo deny check` (licences, bans, advisories, sources), plus a dev-dependency run; pub licence check with very_good_cli ([ADR 0016](0016-dependency-licence-policy.md)) |
 | Generated code | regenerate FRB bindings, `tokens.g.dart`, l10n and icon assets; fail on any diff; check that FRB's crate, package and codegen versions match |
-| Flutter | `flutter analyze`; `flutter test` (widget tests everywhere; goldens on Linux only, below); project checks for forbidden APIs, literal design values, left-or-right layout APIs and direct `toUpperCase` ([ADR 0011](0011-flutter-state-navigation-components.md), [ADR 0012](0012-design-token-pipeline.md), [ADR 0014](0014-localization-and-rtl.md)) |
+| Flutter | `flutter analyze` (the brief's check) and `dart analyze --fatal-infos` (the riverpod_lint 3.1.9 plugin reports only there); `flutter test` (widget tests everywhere; goldens on Linux only, below); project checks for forbidden APIs, literal design values, left-or-right layout APIs and direct `toUpperCase` ([ADR 0011](0011-flutter-state-navigation-components.md), [ADR 0012](0012-design-token-pipeline.md), [ADR 0014](0014-localization-and-rtl.md)) |
 | Desktop build | `flutter build macos`, `flutter build windows`, `flutter build linux` with the native engine and the pinned PDFium |
 | Fuzz smoke (Linux) | a short run of every fuzz target |
 | Benchmarks (Linux) | criterion benchmarks compared with stored baselines |
@@ -55,11 +55,15 @@ A nightly workflow runs longer fuzzing sessions (Linux and macOS) and the full c
 **Pinning and hygiene:**
 
 - Every third-party action is pinned by **full commit SHA**, with the version in a comment:
-  actions/checkout (v7.0.1), dtolnay/rust-toolchain, subosito/flutter-action (v2.23.0, with
-  `flutter-version: 3.47.7`), EmbarkStudios/cargo-deny-action (v2.1.1), and Swatinem/rust-cache
-  (v2.9.2) only if [Q17](../QUESTIONS.md#q17) approves its LGPL-3.0 licence. Until then the Cargo cache
-  uses actions/cache (MIT), or CI runs without one ([ADR 0016](0016-dependency-licence-policy.md)).
-- Toolchains are pinned: Rust from `rust-toolchain.toml` (1.99), Flutter 3.47.7, Node 24 LTS for tools.
+  actions/checkout (v7.0.1), subosito/flutter-action (v2.23.0, with `flutter-version: 3.47.7`),
+  EmbarkStudios/cargo-deny-action (v2.1.1), and Swatinem/rust-cache (v2.9.2) for the Cargo cache;
+  the design-reference workflow adds actions/setup-node and actions/upload-artifact. rust-cache is
+  LGPL-3.0; it runs only in CI, is never distributed or copied, and was approved by the owner on
+  2026-10-15 ([Q17](../QUESTIONS.md#q17), [ADR 0016](0016-dependency-licence-policy.md)).
+- Toolchains are pinned: Rust from `rust-toolchain.toml` (1.99), installed by `rustup toolchain
+  install`, which reads that file, so no third-party toolchain action is needed; Flutter 3.47.7;
+  Node 24.22.0 LTS and playwright-core 1.56.1 for the tools
+  ([DEPENDENCIES.md](../DEPENDENCIES.md#6-toolchain)).
 - Workflows run with `permissions: contents: read` unless a job needs more.
 - The PDFium archive is fetched by `tools/pdfium` and checked against its pinned SHA-256
   ([ADR 0004](0004-lopdf-model-pdfium-renderer.md)).
@@ -83,9 +87,9 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
 ### Fuzzing
 
 - cargo-fuzz targets live in a separate `fuzz/` workspace (nightly toolchain; Linux and macOS, since
-  Windows support is limited). `libfuzzer-sys` never enters the shipped graph. Its NCSA licence is an
-  exception pending [Q17](../QUESTIONS.md#q17); the workspace is created once the owner approves it,
-  which is needed by M2.
+  Windows support is limited). `libfuzzer-sys` never enters the shipped graph. Its NCSA licence is a
+  named exception the owner approved on 2026-10-15 ([Q17](../QUESTIONS.md#q17)); the workspace is
+  created with the first parser in M2.
 - One target per parser, from the **first parser in M2**: object lexer and parser, cross-reference and
   trailer (including repair), content-stream lexer, interpreter, each stream filter, CMap and ToUnicode,
   the Type1 parser, encryption and password handling, the incremental writer round trip, and "open
@@ -119,9 +123,19 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
 
 ### Design-reference comparison
 
-- `tools/design-refs` (Node 24, Playwright 1.64) renders every artboard to `build/design-refs/<id>.png`
-  (gitignored). It runs offline: the React and Babel runtime scripts are vendored in `tools/`, fonts are
-  local, and all network requests are blocked, so the design's Google Fonts import never loads.
+- `tools/design-refs` (Node 24.22.0, playwright-core 1.56.1) renders every artboard to
+  `build/design-refs/<id>.png` (gitignored). playwright-core is pinned to the Chromium revision (1194)
+  preinstalled in the development container, where the Playwright CDN is blocked, and CI uses the same
+  pin. CI never runs the Playwright installer, because it also downloads Playwright's ffmpeg build
+  (LGPL-2.1) with every Chromium; it downloads the revision 1194 headless shell directly, checks its
+  SHA-256 and passes its path to the renderer. The renderer runs offline: the React and Babel runtime
+  scripts and the fonts come from npm packages pinned in its lockfile and are served locally, and all
+  other network requests fail the run, so the design's Google Fonts import never loads.
+- Capture rule: each of the 214 product boards is captured from the first `.fm-root` inside the
+  element with the id `<id>`, or from that element itself when it carries `.fm-root` (the seven
+  sidebar boards `a2-3p` to `a2-3x`). The nine fix boards `f1` to `f6a` are captured as the whole
+  element with the id: the `section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and
+  `f6a` (inside the sections `f4` and `f6`). Every board is rendered on its own freshly loaded page.
 - A comparison script lines up each golden with its artboard and reports a perceptual difference score.
   In M1 the score is reviewed by a person in the pull request, not used as a gate; a gate is considered
   once the scores are understood.

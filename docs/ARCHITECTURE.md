@@ -1,6 +1,6 @@
 # Ferman architecture
 
-Status: Milestone 0, docs only. No code exists yet.
+Status: Milestone 1 (foundations) is in progress. This document describes the target design; [PROGRESS.md](PROGRESS.md) records what has been built so far.
 
 This document covers brief §8 item 3: crates, API boundary, threading, data flow, file safety, error handling, testing strategy and performance budgets. It turns brief §3 to §6 into an engineering design.
 
@@ -8,7 +8,7 @@ This document covers brief §8 item 3: crates, API boundary, threading, data flo
 - Anything marked **Proposed** is a new decision. It waits for the owner's approval through its ADR (see the [ADR index](adr/README.md)).
 - If this document and the brief disagree, the brief wins and this document has a bug.
 
-Related: [roadmap](ROADMAP.md) · [design inventory](DESIGN_INVENTORY.md) · [design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) · [backlog](BACKLOG.md)
+Related: [roadmap](ROADMAP.md) · [design inventory](DESIGN_INVENTORY.md) · [component spec](COMPONENTS.md) · [design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) · [backlog](BACKLOG.md)
 
 ## Contents
 
@@ -94,18 +94,20 @@ ferman/
 ├── app/                  Flutter app: macos, windows, linux, web now; ios, android later
 ├── tools/
 │   ├── tokens/           design tokens → app/lib/design/tokens.g.dart (ADR 0012)
-│   ├── icons/            ICON_PATHS + fm-icons.js → SVG assets + provenance table
+│   ├── icons/            ICON_PATHS + fm-icons.js → SVG assets, IconName enum, provenance table
+│   ├── fonts/            fetches the pinned IBM Plex release zips, checks SHA-256 and coverage
 │   ├── design-refs/      Playwright renders of every artboard → build/design-refs/
 │   ├── pdfium/           fetches pinned PDFium binaries and checks SHA-256
-│   └── corpus/           corpus generators and fetch scripts
+│   ├── checks/           repository checks CI runs (pins, ARB parity, crate graph, design/ untouched, …)
+│   └── corpus/           corpus generators and fetch scripts (M2)
 ├── tests/corpus/         test PDFs + README.md with provenance
 ├── docs/                 brief, architecture, ADRs, roadmap, progress, …
 └── .github/workflows/    CI
 ```
 
-`fuzz/` is not in the brief's tree. It is the standard cargo-fuzz location, kept as a separate workspace so `libfuzzer-sys` (NCSA) never enters the shipped dependency graph. The NCSA exception is pending [Q17](QUESTIONS.md#q17), so `fuzz/` is created only once the owner approves it (needed by M2).
+`fuzz/` is not in the brief's tree. It is the standard cargo-fuzz location, kept as a separate workspace so `libfuzzer-sys` (NCSA) never enters the shipped dependency graph. The owner approved the NCSA exception on 2026-10-15 ([Q17](QUESTIONS.md#q17)); `fuzz/` is created with the first parser in M2.
 
-Toolchain targets: Rust stable 1.99, pinned with `rust-toolchain.toml` in M1; Flutter 3.47.7 with Dart 3.13.5; Node 24 LTS for the tools.
+Toolchain targets: Rust stable 1.99, pinned with `rust-toolchain.toml` (1.99.0); Flutter 3.47.7 with Dart 3.13.5; Node 24.22.0 LTS and playwright-core 1.56.1 for the tools ([DEPENDENCIES.md §6](DEPENDENCIES.md#6-toolchain)).
 
 ### 2.2 Dependency graph
 
@@ -127,7 +129,7 @@ Rules:
 - Operations that need pixels (OCR, the redaction pixel check in a8-2c, visual compare in a9-2) get them from ferman-api, which composes ferman-render and ferman-ops. PDFium stays behind one door.
 - ferman-cli uses ferman-api with the `frb` feature off, so the CLI has no FRB code.
 - Dev-dependencies (criterion, proptest, insta) never appear in the shipped graph.
-- **Proposed:** a CI script reads `cargo metadata` and fails on any edge not in this table.
+- **Proposed:** a CI script reads `cargo metadata` and fails on any edge not in this table. It exists as the `crate_graph` check in `tools/checks` and stays marked Proposed until the owner approves it.
 
 ### 2.3 Crates in detail
 
@@ -140,9 +142,9 @@ Rules:
 #### ferman-fonts
 
 - **Responsibility:** font programs (TrueType and CFF/CFF2 through skrifa and read-fonts; a minimal Type1 parser for the built-in encoding and glyph names, because skrifa does not read Type1), encoding tables (Standard, WinAnsi, MacRoman, MacExpert, PDFDoc, Symbol, ZapfDingbats), glyph names to Unicode (Adobe Glyph List), CMap and ToUnicode parsing with `usecmap` chains, coverage, metric comparison for similar-font ranking, shaping, subsetting, system font discovery, the registry of fonts bundled with the app, and glyph and shaping caches.
-- **Shaping:** the brief names rustybuzz, which is archived upstream. [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) **proposes** harfrust ([Q04](QUESTIONS.md#q04)). Until the owner approves, the brief's rustybuzz stands. The shaper sits behind one internal trait so the switch touches one module.
+- **Shaping:** harfrust ([ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), accepted by the owner on 2026-10-15, [Q04](QUESTIONS.md#q04)) instead of the archived rustybuzz the brief names. cargo-deny bans rustybuzz except as krilla's wrapper. The shaper sits behind one internal trait, so nothing outside ferman-fonts names the shaping crate.
 - **Public surface:** `FontProgram`, `GlyphId`, `Coverage`, `Shaper`, `ShapedRun`, `Subset`, `SystemFonts`, `FontMatch`, `SimilarFonts`, `Encoding`, `CMap`, `ToUnicode`, `FontError`.
-- **Key dependencies:** skrifa, read-fonts, harfrust (Proposed) or rustybuzz, subsetter, fontdb, unicode-normalization. Predefined CJK CMap data and the Adobe Glyph List are added only after their licences are checked and listed in [DEPENDENCIES.md](DEPENDENCIES.md).
+- **Key dependencies:** skrifa, read-fonts, harfrust, subsetter, fontdb, unicode-normalization. Predefined CJK CMap data and the Adobe Glyph List are added only after their licences are checked and listed in [DEPENDENCIES.md](DEPENDENCIES.md).
 
 #### ferman-text
 
@@ -167,20 +169,22 @@ Rules:
 
 - **facade** (pure Rust, always built): `Engine`, `EngineConfig`, all handles and DTOs, `ApiError`, the document actors, the job manager and, from M5, the network gateway (section 10). ferman-cli and the integration tests call this module.
 - **frb** (feature `frb`, on in the app build): thin wrappers that expose facade functions to Dart, stream sinks for tiles and jobs, mirrors of DTOs. Nothing else lives here. FRB codegen scans only this module, so the generated surface stays small. The Rust glue that FRB generates sits beside it, behind the same feature. It is never edited by hand, and it is the only place in Ferman's own crates where unsafe code is allowed (section 8.1).
-- **Key dependencies:** every Ferman crate, flutter_rust_bridge `=2.13.0` (optional), thiserror, tracing. The FRB Rust crate, the Dart package and the codegen tool must have exactly the same version. A CI check compares the three.
+- **Key dependencies:** every Ferman crate, flutter_rust_bridge `=2.13.0` (optional), thiserror, tracing, serde (derive). The FRB Rust crate, the Dart package and the codegen tool must have exactly the same version. A CI check compares the three.
 
 #### ferman-cli
 
 - **Responsibility:** the `ferman` binary for tests and power users: `info`, `pages`, `render`, `text`, `edit` (applies an edit script), `save`, `verify-edit` (runs the pixel-diff acceptance check on one case), and later `compress`, `combine` and others.
 - **Output:** human-readable by default, `--json` for scripts. JSON output carries the API version.
-- **Key dependencies:** ferman-api (facade only) and an argument parser chosen in M1.
+- **Key dependencies:** ferman-api (facade only), clap 4.6 (derive), chosen in M1 step 1, and serde_json for `--json`. Output is written with `writeln!` and checked, because `println!` panics on a closed pipe.
 
 ### 2.4 Tools, corpus and fuzzing
 
-- **tools/tokens** reads `tokens/*.css` and `ds-additions/fm-additions.css` (the additions are not merged into the DS files, [G05](DESIGN_GAPS.md#g05)) and generates `app/lib/design/tokens.g.dart`, exposed through `ThemeExtension`. It produces light, dark, touch density, page dim, CJK type overrides and reduced motion. The implementation language and mapping rules are in [ADR 0012](adr/0012-design-token-pipeline.md).
-- **tools/icons** writes the design's exact path data for all 229 icons (ICON_PATHS plus fm-icons.js) as SVG assets drawn at 1.5 px stroke, with a provenance table that names, for each glyph, the Lucide release its geometry matches (0.460.0 for 222 glyphs; 1.56.0, 0.500.0 or 0.300.0 for six more), or "Ferman design" for ellipse alone ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60), [ADR 0013](adr/0013-fonts-and-icons.md)).
-- **tools/design-refs** uses Node 24 LTS and Playwright to render every artboard to `build/design-refs/<id>.png` (gitignored). It runs offline with vendored runtime scripts and local fonts, and blocks every network request, so the export's runtime Google Fonts `@import` never loads ([G07](DESIGN_GAPS.md#g07)).
-- **tools/pdfium** downloads `chromium/7881` for each platform, checks a pinned SHA-256 per archive, and unpacks the library, its `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE`.
+- **tools/tokens** reads `tokens/*.css` and `ds-additions/fm-additions.css` (the additions are not merged into the DS files, [G05](DESIGN_GAPS.md#g05)) and generates `app/lib/design/tokens.g.dart`: plain `const` value classes named `Ferman*Tokens`, with a `lerp` for those that have variants. `app/lib/design/theme.dart` wraps them in `ThemeExtension`s. The variants cover light, dark, touch density, page dim, CJK type overrides and reduced motion. The implementation language, the class names and the mapping rules are in [ADR 0012](adr/0012-design-token-pipeline.md); `dart run tokens --check` fails if the committed file is stale.
+- **tools/icons** writes the design's exact path data for all 229 icons (ICON_PATHS plus fm-icons.js) as SVG assets in `app/assets/icons/` (viewBox 24, 1.5 px stroke, the design's markup byte for byte), the generated `IconName` enum with the 8 directional icons marked, and a provenance table that names, for each glyph, the Lucide release its geometry matches (0.460.0 for 222 glyphs; 1.56.0, 0.500.0 or 0.300.0 for six more), or "Ferman design" for ellipse alone ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60), [ADR 0013](adr/0013-fonts-and-icons.md)). The app paints icons from generated path data with a `CustomPainter` (path_parsing); the SVG files are the exported, provenance-tracked set and are not loaded at run time. It also renders the reference part of [COMPONENTS.md](COMPONENTS.md) from `app/test/design/component_spec.json`.
+- **tools/fonts** downloads the pinned IBM Plex release zips, checks every SHA-256 in `fonts.lock` and installs the unmodified TTFs and licence files into `app/assets/fonts/`; `--verify-committed` is the offline CI check, and `coverage.py` reads each font's cmap for the scripts each family must cover.
+- **tools/design-refs** uses Node 24.22.0 LTS and playwright-core 1.56.1 to render every artboard to `build/design-refs/<id>.png` (gitignored). playwright-core is pinned to the Chromium revision (1194) preinstalled in the development container, where the Playwright CDN is blocked, and CI uses the same revision. CI does not run the Playwright installer, which also downloads Playwright's ffmpeg build (LGPL-2.1): it downloads the revision 1194 headless shell directly (`tools/design-refs/fetch-chromium.sh`) and passes its path with `--chromium`. The renderer runs offline: the runtime scripts and fonts the export loads from unpkg.com and Google Fonts come from npm packages pinned in its lockfile and are served locally, and every other network request fails the run, so the export's runtime Google Fonts `@import` never loads ([G07](DESIGN_GAPS.md#g07)). Capture rule: each of the 214 product boards is captured from the first `.fm-root` inside the element with the id `<id>`, or from that element itself when it carries `.fm-root` (the seven sidebar boards `a2-3p` to `a2-3x`); the nine fix boards `f1` to `f6a` are captured as the whole element with the id: the `section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and `f6a`. Every board is rendered on its own freshly loaded page.
+- **tools/pdfium** downloads `chromium/7881` for each platform, checks the pinned SHA-256 of each archive and of the library inside it (`pdfium.lock`), and unpacks the library, its `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE`. On macOS it uses upstream's universal archive, whose two slices it checks against the pinned thin libraries, so no `lipo` step is needed.
+- **tools/checks** is a Dart command (`dart run bin/check_all.dart`) with the repository checks CI runs: action pins, ARB parity, untracked build output, the crate graph (Proposed), `design/` unchanged, FRB versions, the pub deny list (Proposed), unsafe roots and version sync.
 - **tools/corpus** holds deterministic generators for the design's sample documents (section 13.3) and a fetch script for larger real-world files.
 - **tests/corpus/** holds the PDFs and a README.md with provenance for every file: source, licence, SHA-256 and what it covers. **Proposed:** files up to 1 MB are committed; larger ones are fetched by tools/corpus with pinned hashes.
 - **fuzz/** holds the cargo-fuzz targets (section 13.6).
@@ -197,7 +201,7 @@ app/
 │   ├── design/
 │   │   ├── tokens.g.dart    generated by tools/tokens (never edited by hand)
 │   │   ├── theme.dart       ThemeExtension wiring: light, dark, touch, dim, reduced motion
-│   │   ├── icons/           generated icon registry for assets/icons
+│   │   ├── icons/           generated IconName enum and icon path data (painted, not loaded as SVG)
 │   │   └── components/      Ferman component library, 1:1 with the design system (DS names)
 │   ├── l10n/                ARB files (app_en.arb is the source), casing and formatting utilities
 │   └── features/
@@ -210,7 +214,7 @@ app/
 │       └── recovery/        crash recovery prompt (a1-12)
 ├── assets/
 │   ├── fonts/               unmodified IBM Plex TTFs + LICENSE.txt per family
-│   ├── icons/               229 SVGs + Lucide ISC and Feather MIT notices + provenance
+│   ├── icons/               229 SVGs (provenance-tracked, not loaded) + Lucide notices + provenance
 │   └── licenses/            third-party notices (PDFium licenses/ and packager LICENSE, Rust crates)
 ├── test/                    widget and golden tests (alchemist)
 ├── integration_test/        desktop flows against the real engine
@@ -356,6 +360,8 @@ pub struct JobEvent {
 ### 3.8 Errors
 
 Every fallible call returns `ApiError { kind, message_key, details }`. `details` holds parameters for the message (file name, page), a `technical` string for "Copy technical details" (a1-9b), and a `retryable` flag. Section 8 lists the kinds and how they map to design states.
+
+In M1, `details` is an `Option<String>` of structural facts (for a caught panic, the fixed text "panic at the API boundary"). The message parameters and the retry flag are added with the first call that needs them.
 
 ### 3.9 Versioning
 
@@ -624,7 +630,7 @@ The design is not silent: it says so once, marks the character, and offers "Choo
 
 1. **The embedded font has the glyph.** Use it. If the program contains the glyph but the encoding has no code for it (for example `/gbreve` in a WinAnsi-encoded font), the engine assigns an unused code through `/Differences` in a new font dictionary used only by the edited block. The original dictionary stays untouched, so other text keeps its bytes and its rendering.
 2. **The same font is installed.** fontdb finds it by PostScript name (subset tag removed), then family and style. The engine checks that it really is the same font: units per em, and advance widths of the glyphs the document uses within one unit in 1000 of `/Widths`. It respects the font's embedding permissions (OS/2 `fsType`): restricted fonts go to step 3 with the reason ([G37](DESIGN_GAPS.md#g37)), no-subsetting fonts are embedded whole. The engine builds a new subset with subsetter and embeds it as a new Type0 font with Identity-H encoding and a ToUnicode CMap, used only by the runs that need it. The original subset is not modified, so every other block is untouched. The user is told once, for example "Ferman took ‘ğ’ from Garamond Premier Pro on this computer". That notice is not drawn yet (G37).
-3. **Otherwise, the design's flow.** Similar fonts are ranked by coverage of the needed characters and by metrics (x-height, cap height, average width, weight, serif or sans class), from three groups: embedded in this document, installed on this computer, included with Ferman (a3-3b). With the default "Use a similar font and say so" (a11-1c), the character is drawn in the closest match and marked once: amber wavy underline, amber frame tab, warning on the font field (a3-3a, f2). "Choose a font…" opens the a3-3b picker. "Keep as is" keeps the substitution. "Ask each time" asks first. "Keep the original font and mark the character" leaves the character undrawn and marked. The default is confirmed in [Q09](QUESTIONS.md#q09). Which similar fonts ship beyond IBM Plex is [Q08](QUESTIONS.md#q08).
+3. **Otherwise, the design's flow.** Similar fonts are ranked by coverage of the needed characters and by metrics (x-height, cap height, average width, weight, serif or sans class), from three groups: embedded in this document, installed on this computer, included with Ferman (a3-3b). With the default "Use a similar font and say so" (a11-1c), the character is drawn in the closest match and marked once: amber wavy underline, amber frame tab, warning on the font field (a3-3a, f2). "Choose a font…" opens the a3-3b picker. "Keep as is" keeps the substitution. "Ask each time" asks first. "Keep the original font and mark the character" leaves the character undrawn and marked. The default is confirmed in [Q09](QUESTIONS.md#q09). Which similar fonts ship beyond IBM Plex is group 4 of [Q08](QUESTIONS.md#q08), still open.
 
 Every substitution is recorded as an edit in the review list (a3-12) and announced with the "Font substituted" toast (a11-6). Bold and italic are never faked (a3-15).
 
@@ -648,7 +654,7 @@ The same machinery serves translation overflow later (a3-13b, P4). The labels ar
 ### 6.10 Right-to-left text
 
 - Logical text runs through the bidi algorithm per paragraph, with the base direction from the block. Numbers, dates and IBANs stay left-to-right and isolated.
-- Runs are shaped with the font's GSUB and GPOS tables (rustybuzz per the brief, harfrust if [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) is approved), producing glyph ids in visual order with advances and mark offsets.
+- Runs are shaped with the font's GSUB and GPOS tables (harfrust, [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md)), producing glyph ids in visual order with advances and mark offsets.
 - Glyph ids map to codes through the font's encoding (often CID equals GID under Identity-H). Horizontal offsets go into `TJ`. Vertical mark offsets need `Ts` or a new `Tm`.
 - A subset font often lacks contextual forms the original text never used (initial, medial, final forms, lam-alef ligatures). So coverage is checked per shaped glyph, not per character, and a missing form goes through section 6.7.
 - Persian text with ZWNJ is tested explicitly, because some fonts do not map it.
@@ -720,9 +726,9 @@ The design keeps versions for 30 days in a hidden folder next to the file (a9-8,
 
 ### 7.6 Autosave journal and recovery
 
-Location, per platform (the final folder name depends on the bundle identifier, [Q01](QUESTIONS.md#q01)):
+Location, per platform (the bundle identifier is `io.github.kerembas.ferman`, [Q01](QUESTIONS.md#q01)):
 
-- macOS: `~/Library/Application Support/<bundle id>/Recovery/`
+- macOS: `~/Library/Application Support/io.github.kerembas.ferman/Recovery/`. While the App Sandbox is on ([Q18](QUESTIONS.md#q18)), that path lies inside the app container, `~/Library/Containers/io.github.kerembas.ferman/Data/`.
 - Windows: `%LOCALAPPDATA%\Ferman\Recovery\`
 - Linux: `$XDG_STATE_HOME/ferman/recovery/` (default `~/.local/state/ferman/recovery/`)
 
@@ -793,11 +799,11 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 | `Cancelled` | job cancelled | none; expected |
 | `Internal` | a bug or a caught panic | generic message plus "Copy technical details" |
 
-- **Message keys.** The engine defines a `MessageKey` enum whose values are ARB keys (camelCase, for example `errorSaveDiskFull`). A CI test checks that every key exists in `app_en.arb` and `app_tr.arb`. The sentence states what happened and the way out; error codes never appear in it (a1-9b). Technical details stay secondary.
+- **Message keys.** The engine defines one closed `MessageKey` type whose values are ARB keys (lowerCamelCase, as gen-l10n requires, for example `errorSaveDiskFull`): a newtype with a private field, one constant per key and `MessageKey::ALL`. The first key is `errorInternal`. Its `&'static str` field cannot cross FRB, so the `frb` layer mirrors it as a `String`. A CI test checks that every key in `MessageKey::ALL` exists in `app_en.arb` and `app_tr.arb`; it is added with the first error strings in the ARB files (M1 step 10). The sentence states what happened and the way out; error codes never appear in it (a1-9b). Technical details stay secondary.
 
 ### 8.3 Panics at the boundary
 
-- FRB v2 turns a panic in a Rust call into a Dart exception. ferman-api also wraps each actor and job entry point in `catch_unwind` as a last resort.
+- FRB v2 turns a panic in a Rust call into a Dart exception. ferman-api also wraps each actor and job entry point in `catch_unwind` as a last resort (`guard()` in the facade). A panic payload is free text from any crate and can embed document text, so it never reaches `details` or the release log; only debug builds log it.
 - A panic in a document actor marks that document as stopped: no more edits. The UI offers to reopen it from the recovery journal. Other documents are unaffected.
 - The release profile keeps `panic = "unwind"`. With `abort`, every bug would become a crash that loses all open documents.
 - A crash inside PDFium (C++) cannot be caught. The defences are fuzzing, the pinned binary, the recovery journal, and the helper-process option (section 4.4).
@@ -911,19 +917,20 @@ ICU4X stays in the engine (`icu_casemap` for search folding, `icu_collator` for 
 
 ### 11.5 Fonts in the UI
 
-Bundled: IBM's unmodified static TTFs under OFL-1.1, with the Reserved Font Name "Plex" respected: never subset, renamed or modified ([ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06)). The design's woff2 subsets and its runtime Google Fonts import are never used ([G07](DESIGN_GAPS.md#g07)).
+Bundled: IBM's unmodified static TTFs under OFL-1.1, with the Reserved Font Name "Plex" respected: never subset, renamed or modified ([ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06)). The families are Plex Sans, Serif, Mono, Sans Arabic, Sans Hebrew and Sans Devanagari. CJK uses system fonts, with no font packs ([Q08](QUESTIONS.md#q08), groups 1 and 2). Handwriting faces (M4) and similar fonts for missing glyphs (M3) are the open groups 3 and 4 of Q08. The design's woff2 subsets and its runtime Google Fonts import are never used ([G07](DESIGN_GAPS.md#g07)).
 
 | UI language | First font | Fallback chain |
 |---|---|---|
 | Latin and Cyrillic (en, tr, de, fr, es, pt-BR, it, nl, pl, ru, uk, id, vi) | IBM Plex Sans 400/500/600 | system UI font |
-| ar, fa | IBM Plex Sans Arabic | IBM Plex Sans (Latin inside Arabic text) → system |
-| he | IBM Plex Sans Hebrew (Proposed, [Q08](QUESTIONS.md#q08)) | IBM Plex Sans → system |
-| hi | IBM Plex Sans Devanagari (Proposed, Q08) | IBM Plex Sans → system |
+| ar, fa | IBM Plex Sans Arabic (its own ASCII and Latin-1 glyphs serve Latin inside Arabic text) | IBM Plex Sans (Turkish and other Latin Extended letters, U+200C) → system |
+| he | IBM Plex Sans Hebrew (bundled; owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | IBM Plex Sans → system |
+| hi | IBM Plex Sans Devanagari (bundled; owner, Q08, 2026-10-15) | IBM Plex Sans → system |
 | ja | IBM Plex Sans for Latin | Hiragino Sans (macOS), Yu Gothic UI (Windows), Noto Sans CJK JP (Linux) |
 | ko | IBM Plex Sans for Latin | Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR |
 | zh-Hans | IBM Plex Sans for Latin | PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC |
 | zh-Hant | IBM Plex Sans for Latin | PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC |
 
+- Plex Sans Arabic, Hebrew and Devanagari each carry full ASCII and the Latin-1 letters, but not Latin Extended-A (only one of İ ı Ğ ğ Ş ş), so Plex Sans stays after them in every fallback chain (checked by `tools/fonts/coverage.py`).
 - The text locale is set on every text style, so Han characters take the right regional forms (Traditional Chinese must not show Simplified forms, G07).
 - IBM Plex Mono is used for technical details (a1-9b). IBM Plex Serif is bundled for the design's specimens and as a similar-font candidate.
 - UI fonts never affect page rendering. PDF pages are drawn by PDFium with the document's own fonts.
@@ -932,18 +939,21 @@ Bundled: IBM's unmodified static TTFs under OFL-1.1, with the Reserved Font Name
 
 Desktop first: macOS and Windows, Linux best effort (brief §1).
 
-- **Window chrome.** window_manager hides the native title bar. Ferman draws the title bar as designed: macOS traffic lights in place, Windows caption buttons per f6. On Windows 11, custom caption buttons lose the snap-layout flyout unless the maximize button area is reported to the OS; this needs a small native hook (risk, section 15). Linux has no drawn chrome; client-side decorations are proposed in [G15](DESIGN_GAPS.md#g15), pending [Q12](QUESTIONS.md#q12).
+- **Supported systems** ([Q03](QUESTIONS.md#q03), answered on 2026-10-15). macOS 12 Monterey or later, one universal build (arm64 and x86_64), deployment target 12.0. Windows 10 22H2 and Windows 11, on x64 and arm64. Linux best effort on glibc-based distributions from Ubuntu 22.04 on; CI also builds on Ubuntu 22.04 to prove the floor. These minimums decide which OS APIs below can be used without fallbacks. The bundle identifier is `io.github.kerembas.ferman` on every platform ([Q01](QUESTIONS.md#q01)).
+- **Window chrome.** window_manager hides the native title bar. Ferman draws the title bar as designed: macOS traffic lights in place, Windows caption buttons per f6. On Windows 11, custom caption buttons lose the snap-layout flyout unless the maximize button area is reported to the OS; this needs a small native hook (risk, section 15). Linux gets a custom title bar too, as the owner decided ([Q12](QUESTIONS.md#q12), [G15](DESIGN_GAPS.md#g15)): client-side decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel on the left in dialogs; the window drags and resizes from the drawn areas.
+- **macOS App Sandbox.** Flutter's macOS template turns on the App Sandbox entitlement. M1 keeps it on. Under it, Ferman reaches only its container and the files the user grants (open and save panels, drag and drop, "Open with"); recent files need security-scoped bookmarks, and the atomic save of section 7.2 has to use the system's replacement directory. Whether it stays on is [Q18](QUESTIONS.md#q18), asked before M2.
 - **File associations and "Open with".** macOS declares PDF in `Info.plist` and receives open events from the OS, routed to Dart through a method channel. Windows registers a ProgID in the installer (M5) and receives the path on the command line. A second launch forwards its paths to the running instance over a local channel (a named pipe on Windows, a Unix socket on Linux; macOS routes to the running app itself). The file opens as a new tab, or focuses the tab if it is already open. These states are not drawn yet ([G25](DESIGN_GAPS.md#g25)).
 - **Default PDF app** (a1-3, M2). macOS asks the system to make Ferman the default handler, and the system asks the user to confirm. Windows opens Settings › Default apps, because apps cannot change the default themselves.
-- **Drag and drop.** desktop_drop on the start screen, the tab strip and the page grid (a1-6). Until conversion exists, non-PDF files show "Can't open yet" with "Available in a future version" ([G11](DESIGN_GAPS.md#g11)). desktop_drop depends on MPL-2.0 `dbus` on every platform, so it is added only if [Q17](QUESTIONS.md#q17) approves it; otherwise drag and drop uses another permissively licensed package or a platform channel.
+- **Drag and drop.** desktop_drop on the start screen, the tab strip and the page grid (a1-6). Until conversion exists, non-PDF files show "Can't open yet" with "Available in a future version" ([G11](DESIGN_GAPS.md#g11)). desktop_drop depends on MPL-2.0 `dbus` on every platform; the owner approved that exception on 2026-10-15 ([Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2 with the `dbus` notice in every build.
 - **File pickers.** OS-native open, save and folder pickers through file_selector: NSOpenPanel and NSSavePanel, IFileOpenDialog and IFileSaveDialog, xdg-desktop-portal on Linux. This is the only exception to the custom-dialog rule, **proposed** in [ADR 0018](adr/0018-native-file-pickers.md) ([Q07](QUESTIONS.md#q07)). Every other dialog is a Ferman component. Until the owner answers, M1 builds no picker; if M2 starts before an answer, the native open picker is used as the safest option (brief §9) and each milestone summary flags it ([G26](DESIGN_GAPS.md#g26)).
 - **Printing.** Basic system print is proposed for M4 ([Q10](QUESTIONS.md#q10)): Ferman hands the document to the OS print dialog, with "Use system dialog…" one click away (a9-6). Booklet, poster and separations are proposed for P5. The package is chosen and licence-checked in M4.
+- **PDFium loading.** `engine_info()` reports whether PDFium loaded: `loaded = true` only after a real PDFium call succeeds once the library is bound, so a library that binds but cannot run does not count as loaded. PDFium has no runtime version API, so `engine_info()` reports the pinned build tag (`chromium/7881`) recorded with `tools/pdfium`, not a version read from the library.
 - **PDFium bundling.**
   - macOS: `libpdfium.dylib` (arm64 and x64 combined into one universal file) in `Contents/Frameworks`, signed with the app's Developer ID under the hardened runtime and notarized with the app.
   - Windows: `pdfium.dll` (x64, arm64) next to the executable, Authenticode-signed with the app, so security tools do not flag an unsigned third-party binary.
   - Linux: `libpdfium.so` (x64, arm64) in a `lib/` folder found through an `$ORIGIN` run path.
   - The archive's `licenses/` folder (including `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app and appear in the third-party notices ([G14](DESIGN_GAPS.md#g14)). If the library is missing, Ferman shows an error screen instead of crashing.
-- **Code signing** needs the publisher name ([Q02](QUESTIONS.md#q02)). Minimum OS versions ([Q03](QUESTIONS.md#q03)) decide which OS APIs above can be used without fallbacks.
+- **Code signing** needs the publisher name ([Q02](QUESTIONS.md#q02)). Development and CI builds stay unsigned until then.
 - **Settings window.** a11-1 draws Settings as its own window. If desktop multi-window support is not stable in the pinned Flutter version, Settings opens as a window-styled surface inside the main window, and real windows follow later.
 - **Web (phase 5).** The engine compiles to WebAssembly (FRB v2 supports the web). Rendering uses a PDFium WebAssembly build (experimental today) or hayro as a pure-Rust fallback. Threads need cross-origin isolation. Files come from the browser's file APIs, and recents are remembered by name only (a14-2b). There is no atomic rename on the web, so saving writes a new file through the browser.
 - **Mobile (phase 5).** iOS and Android from the same Flutter code. PDFium binaries exist for both (iOS 17, Android API 23 as built). The touch density tokens already exist in the design.
@@ -987,7 +997,7 @@ The rule from brief §4: render before and after with PDFium; the pixel differen
 
 ### 13.5 Flutter tests
 
-- Widget tests for every component and screen, with very_good_analysis lints and `flutter analyze` clean.
+- Widget tests for every component and screen, with very_good_analysis lints, and `flutter analyze` and `dart analyze --fatal-infos` clean (the riverpod_lint plugin reports only through `dart analyze`).
 - **Goldens** with alchemist for every implemented screen in light and dark × en, tr and ar, with the real bundled fonts loaded (text is never obscured). Goldens are generated on the Linux CI runner only, so font rasterisation does not vary between machines. Other runners run widget tests without goldens.
 - **Design-reference comparison.** tools/design-refs renders each artboard to `build/design-refs/`. A comparison script lines up each golden with its artboard and reports a perceptual difference score. **Proposed:** in M1 the score is reported in the pull request and reviewed by a person, not used as a gate.
 - integration_test runs desktop flows against the real engine from M3, starting with Flow A (open, fix a typo, save).
@@ -1032,7 +1042,7 @@ CI runners are slower and noisier than reference hardware. **Proposed:** each CI
 
 | Risk | Impact | Mitigation | Link |
 |---|---|---|---|
-| rustybuzz is archived upstream | no fixes for the shaper the brief names | ADR 0007 proposes harfrust behind one internal trait | [Q04](QUESTIONS.md#q04) |
+| The shaper: rustybuzz, which the brief names, is archived upstream; harfrust, which replaces it, is pre-1.0 | shaping regressions on upgrades | ADR 0007 accepted (harfrust): exact pin, joint upgrades with the font stack, shaping and pixel-diff suites on every upgrade, one internal trait; rustybuzz banned except through krilla | [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), [Q04](QUESTIONS.md#q04) |
 | lopdf breaks its API almost monthly | upgrade churn, behaviour changes | pin `=0.45`; wrap it inside ferman-core; upgrade deliberately with the corpus as a safety net | [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md) |
 | PDFium is not thread-safe and runs in-process | throughput limit; a PDFium crash ends the app | one render thread plus the global lock; recovery journal; helper processes if M2 measurements demand it | section 4.4 |
 | lopdf and PDFium disagree on damaged files | the user sees content the model does not contain | read-only on disagreement; repair is a full rewrite to a new file | section 5.2 |
@@ -1041,15 +1051,16 @@ CI runners are slower and noisier than reference hardware. **Proposed:** each CI
 | One PDFium reload per edit on very large files | edit-to-render above 100 ms | custom reader without copies; render only changed pages; measure in M3 | section 14 |
 | IME and caret handling on a custom canvas | broken CJK and dead-key input | `DeltaTextInputClient` from the first M3 prototype; CJK cases in integration tests | section 6.12 |
 | Windows custom caption buttons lose snap layouts | platform behaviour regresses | native hit-test hook for the maximize button | section 12 |
+| macOS App Sandbox restricts file access | recent files and the atomic save need extra platform code | keep the template's sandbox in M1; ask before M2; bookmarks and the system replacement directory if it stays | [Q18](QUESTIONS.md#q18) |
 | Version history folder next to the file (a9-8) | sync conflicts, read-only folders | decide with an ADR when M4 is planned | section 7.4 |
 | OCR engine (ocrs is a Latin-only preview with an unclear model licence) | Turkish and other scripts poorly recognised | decide before P3; Tesseract is the fallback | [Q16](QUESTIONS.md#q16) |
 | Unsigned third-party PDFium builds | supply-chain risk | pinned tag and SHA-256; sign with the app | section 12 |
 
-Open questions that affect this design are all in [QUESTIONS.md](QUESTIONS.md):
+Open questions that affect this design are all in [QUESTIONS.md](QUESTIONS.md). Answered on 2026-10-15 and recorded above: [Q01](QUESTIONS.md#q01) bundle identifier, [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust, [Q05](QUESTIONS.md#q05) eight mode tabs, and parts of [Q08](QUESTIONS.md#q08), [Q12](QUESTIONS.md#q12), [Q14](QUESTIONS.md#q14) and [Q17](QUESTIONS.md#q17). Still open:
 
-- Paths, signing and OS APIs: [Q01](QUESTIONS.md#q01) bundle identifier, [Q02](QUESTIONS.md#q02) code-signing publisher name, [Q03](QUESTIONS.md#q03) minimum macOS, Windows and Linux versions.
-- Fonts and text: [Q04](QUESTIONS.md#q04) harfrust instead of rustybuzz, [Q08](QUESTIONS.md#q08) bundling Plex Hebrew and Devanagari, CJK system fonts and handwriting fonts, [Q09](QUESTIONS.md#q09) missing-glyph default as designed.
+- Paths, signing and OS APIs: [Q02](QUESTIONS.md#q02) code-signing publisher name, [Q18](QUESTIONS.md#q18) macOS App Sandbox.
+- Fonts and text: [Q08](QUESTIONS.md#q08) groups 3 and 4 (handwriting fonts, similar fonts for missing glyphs), [Q09](QUESTIONS.md#q09) missing-glyph default as designed.
 - Privacy and security: [Q06](QUESTIONS.md#q06) OCSP, CRL and local-network discovery, [Q13](QUESTIONS.md#q13) document JavaScript never executed, [Q15](QUESTIONS.md#q15) update-check endpoint and payload.
-- Shell and platform: [Q05](QUESTIONS.md#q05) eight mode tabs including Tools, [Q07](QUESTIONS.md#q07) OS-native file pickers, [Q12](QUESTIONS.md#q12) Linux packaging and window chrome.
-- Scope: [Q10](QUESTIONS.md#q10) milestones for unscheduled drawn features, [Q11](QUESTIONS.md#q11) design re-export and design-gap decisions, [Q14](QUESTIONS.md#q14) copyright holder "The Ferman Authors", [Q16](QUESTIONS.md#q16) OCR engine choice.
-- Licences: [Q17](QUESTIONS.md#q17) three licence exceptions (MPL-2.0 `dbus`, NCSA `libfuzzer-sys`, LGPL-3.0 Swatinem/rust-cache) and the reading of "GPL-compatible".
+- Shell and platform: [Q07](QUESTIONS.md#q07) OS-native file pickers, [Q12](QUESTIONS.md#q12) Linux packaging formats.
+- Scope: [Q10](QUESTIONS.md#q10) milestones for unscheduled drawn features, [Q11](QUESTIONS.md#q11) design re-export and design-gap decisions, [Q14](QUESTIONS.md#q14) commit sign-off, [Q16](QUESTIONS.md#q16) OCR engine choice.
+- Licences: [Q17](QUESTIONS.md#q17) part 4, the reading of "GPL-compatible" (the stricter reading applies meanwhile).

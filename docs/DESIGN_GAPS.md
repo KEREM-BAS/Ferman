@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-61 entries: 45 Decided, 16 Needs owner, 0 Resolved.
+63 entries: 51 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 and G63 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 23 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 25 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -75,16 +75,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G03](#g03) | export gap | M1 | Design system export / foundations | Foundation guidelines and specimens missing | Needs owner ([Q11](QUESTIONS.md#q11)) |
 | [G04](#g04) | export gap | M1 | Design system export / iconography | Icon SVGs missing; glyphs exist only as path data | Decided |
 | [G05](#g05) | export gap | M1 | Token pipeline | 31 added tokens and 3 overrides live outside the DS tokens | Decided |
-| [G06](#g06) | export gap | M1 | Fonts | WOFF2 subsets unusable in Flutter; several scripts uncovered | Needs owner ([Q08](QUESTIONS.md#q08)) |
-| [G07](#g07) | export gap | M1 | Fonts / privacy | Fonts loaded from Google Fonts at run time | Needs owner ([Q08](QUESTIONS.md#q08)) |
+| [G06](#g06) | export gap | M1 | Fonts | WOFF2 subsets unusable in Flutter; several scripts uncovered | Decided ([Q08](QUESTIONS.md#q08) groups 1 and 2) |
+| [G07](#g07) | export gap | M1 | Fonts / privacy | Fonts loaded from Google Fonts at run time | Decided ([Q08](QUESTIONS.md#q08) groups 1 and 2) |
 | [G08](#g08) | export gap | M1 | Fonts / licences | No licence texts for fonts or icons | Decided |
-| [G09](#g09) | conflict (internal to design) | M1 | App shell / mode tabs | Artboards show 8 mode tabs; the DS constant lists 7 | Needs owner ([Q05](QUESTIONS.md#q05)) |
+| [G09](#g09) | conflict (internal to design) | M1 | App shell / mode tabs | Artboards show 8 mode tabs; the DS constant lists 7 | Decided ([Q05](QUESTIONS.md#q05)) |
 | [G10](#g10) | missing state | M1 | Shell / tool rows / start / palette / settings | No disabled "Available in a future version" state | Decided |
 | [G11](#g11) | conflict | M2 | Start screen / drag-and-drop | Start screen promises conversion and later tools | Decided |
 | [G12](#g12) | conflict | M1 | First run | Onboarding marks later-phase features as included | Decided |
 | [G13](#g13) | conflict | M1 | First run / About | Licence shown as GPL-3.0, not Apache-2.0 | Decided |
 | [G14](#g14) | missing screen | M4 | About / licences | No third-party notices screen | Decided |
-| [G15](#g15) | missing variant | M1 | App shell / window chrome | No Linux window chrome | Needs owner ([Q12](QUESTIONS.md#q12)) |
+| [G15](#g15) | missing variant | M1 | App shell / window chrome | No Linux window chrome | Decided ([Q12](QUESTIONS.md#q12)) |
 | [G16](#g16) | missing variant | M1 | Windows variants of M1–M4 screens | Windows variants missing for most screens | Decided |
 | [G17](#g17) | missing variant | M1 | Dark theme for M1–M4 screens | Dark variants missing for most screens | Decided |
 | [G18](#g18) | missing variant | M1 | RTL (ar/fa/he) for M1–M4 screens | Right-to-left variants missing for most screens | Decided |
@@ -131,6 +131,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G59](#g59) | ambiguity | M2 | Start / sample documents | e-Devlet form shown as 2 pages; the fixture has 1 | Decided |
 | [G60](#g60) | export gap | M1 | Icons | Seven added icons are not from Lucide 0.460.0 | Needs owner ([Q11](QUESTIONS.md#q11)) |
 | [G61](#g61) | conflict | M2 | Search | Accent-insensitive search on by default only for Turkish documents | Decided |
+| [G62](#g62) | conflict | M1 | Comment / annotation tools | The bundle's `ANNOTATION_TOOLS` lists 9 tools; the boards draw 11 | Decided |
+| [G63](#g63) | missing state | M1 | Errors | No message drawn for an internal error | Decided |
 
 ## Entries
 
@@ -156,7 +158,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Design system export / components
 - **Artboards:** none (component library)
 - **Gap or conflict:** Each of the 11 component folders in `_ds/.../components/` (annotations, core, editing, empty, feedback, fill-sign, forms, navigation, overlays, pages, panels) holds only its `.css` file. The manifest names 45 components with `.jsx` source paths, but no `.jsx`, `.d.ts`, `.prompt.md` or `.card.html` file exists for any of them, and all 11 component cards are missing. The template `templates/editor-screen/EditorScreen.dc.html` listed in the manifest is missing too. The component API can still be recovered: `_adherence.oxlintrc.json` keeps the declared prop names for 38 component and subtype names, with 35 enum-value rules (for example Badge tone `neutral|accent|success|warning|danger|edited`), and the transpiled component code in `_ds_bundle.js` is readable.
-- **Decision:** Write the Flutter component spec in M1 from three sources: `_adherence.oxlintrc.json` for props and enums, the transpiled components in `_ds_bundle.js` for behaviour and states, and the component CSS for visuals. The Flutter library keeps the design system's names, variants and states (brief §6). Ask for a re-export with sources, type definitions and cards.
+- **Decision:** Write the Flutter component spec in M1 from three sources: `_adherence.oxlintrc.json` for props and enums, the transpiled components in `_ds_bundle.js` for behaviour and states, and the component CSS for visuals. The Flutter library keeps the design system's names, variants and states (brief §6). Ask for a re-export with sources, type definitions and cards. Carried out in M1: the spec is `app/test/design/component_spec.json`, described and rendered in [COMPONENTS.md](COMPONENTS.md) (56 entries: the 45 manifest components, Field, Popover and Scrim, and the 8 DS additions), with the ambiguities and the decision taken for each.
 - **Status:** Needs owner: [Q11](QUESTIONS.md#q11), design re-export and fixes. The decision above is in force until the owner answers.
 - **Evidence:** Every `components/<group>/` folder holds one file. All 45 `sourcePath` entries and all 11 component cards are missing. The components are exported on `window.FermanDesignSystem_278323` and used live by the boards.
 
@@ -182,7 +184,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Design system export / iconography
 - **Artboards:** none (iconography)
 - **Gap or conflict:** The readme promises `assets/icons/` with "145 Lucide SVGs", but the folder does not exist and there is no `.svg` file anywhere under `design/`. The glyphs exist only as path strings: 145 in `ICON_PATHS` in `_ds_bundle.js` and 84 more in `ds-additions/fm-icons.js`, merged at run time with no overlap, so 229 in total. Index.dc.html still says "Icon set (+64)". The design system draws icons with a 1.5 px stroke (Lucide's own files use 2 px) and rules out an icon font ("No icon font, no PNG icons, no sprite sheet.").
-- **Decision:** Generate one SVG per icon from `ICON_PATHS` and `fm-icons.js`, with a 1.5 px `currentColor` stroke, and ship them as SVG assets, not an icon font. The Lucide ISC licence and the Feather MIT notice ship with them ([ADR 0013](adr/0013-fonts-and-icons.md); provenance in [G60](#g60)).
+- **Decision:** Generate one SVG per icon from `ICON_PATHS` and `fm-icons.js`, with a 1.5 px `currentColor` stroke, and keep them in `app/assets/icons/` as the exported, provenance-tracked set; not an icon font. The app paints the same path data with a `CustomPainter` (path_parsing) rather than loading the SVGs, because flutter_svg and vector_graphics depend on `http`. The Lucide ISC licence and the Feather MIT notice ship with them ([ADR 0013](adr/0013-fonts-and-icons.md); provenance in [G60](#g60)). Carried out in M1 by `tools/icons`: 229 SVGs, the `IconName` enum and `PROVENANCE.md`.
 - **Status:** Decided
 - **Evidence:** Readme lines 41 and 146 promise the folder. `_ds_bundle.js` line 74 opens `ICON_PATHS` with exactly 145 keys; `fm-icons.js` adds 84. Readme lines 147–150 give the 1.5 px stroke and "No icon font, no PNG icons, no sprite sheet."
 
@@ -208,8 +210,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Fonts
 - **Artboards:** `a1-1`
 - **Gap or conflict:** `assets/fonts` holds only 23 WOFF2 unicode-range subsets, and Flutter bundles TTF or OTF, not WOFF2. The IBM Plex Sans subsets are variable fonts (weight axis), so mapping weights 500 and 600 to the "-400-normal" files is correct. No Plex Sans italic is shipped, yet the FontPicker "Not installed" state sets the font name in italic UI text, which would be synthesised. Plex Serif 500 is used once, in mock document text only. Vietnamese (U+1EA0–1EF1) is not covered, although a1-1 lists "Tiếng Việt". The export has no local fonts for 6 of the 21 UI languages (he, hi, ja, ko, zh-Hans, zh-Hant) or for the signature styles `--font-hand-1..3`; those load only from Google Fonts ([G07](#g07)).
-- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans after Plex Sans Arabic in the fallback chain for Latin text inside the Arabic UI. Plex Sans Italic is added only for the drawn FontPicker state. Proposed: also Plex Sans Hebrew and Plex Sans Devanagari. Japanese, Korean and both Chinese scripts use system fonts. The handwriting faces and any further fonts wait for the owner. The design's woff2 subsets are not used.
-- **Status:** Needs owner: [Q08](QUESTIONS.md#q08), fonts to bundle. The decision above is in force until the owner answers.
+- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans after Plex Sans Arabic in the fallback chain. (Measured in M1: the Arabic, Hebrew and Devanagari fonts carry ASCII and Latin-1 but not Latin Extended-A, so Turkish letters inside those UIs come from Plex Sans.) Plex Sans Italic 400 is bundled for the drawn FontPicker state: the design declares no italic Plex Sans face, so the boards show a synthesised oblique there, and the app uses IBM's true italic instead. Plex Sans Hebrew and Plex Sans Devanagari are bundled too, as the owner decided. Japanese, Korean and both Chinese scripts use system fonts, with no font packs. The handwriting faces (M4) and similar fonts for missing glyphs (M3) wait for the open groups 3 and 4 of [Q08](QUESTIONS.md#q08). The design's woff2 subsets are not used.
+- **Status:** Decided. The owner answered [Q08](QUESTIONS.md#q08) groups 1 and 2 on 2026-10-15 (bundle Plex Sans Hebrew and Devanagari; CJK from system fonts). Was Needs owner.
 - **Evidence:** The five `plex-sans-*-400-normal.woff2` files carry fvar, gvar, avar, HVAR and STAT tables. `forms.css` line 128 sets `font-style: italic` on `.fm-fonttrigger--missing`. The latin-ext range jumps from U+1E9F to U+1EF2.
 
 <a id="g07"></a>
@@ -221,9 +223,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Fonts / privacy
 - **Artboards:** `a1-1`, `a5-3`
 - **Gap or conflict:** `fm-additions.css` line 1 imports 13 families from fonts.googleapis.com at run time: IBM Plex Sans JP, KR, Hebrew and Devanagari, Noto Sans SC, Noto Serif JP, Noto Naskh Arabic, EB Garamond, Cormorant Garamond, Crimson Pro, Caveat, Homemade Apple and Dancing Script. None of them is bundled, and every board links this file. Traditional Chinese has no font at all: "繁體中文" falls back to Noto Sans SC, with Simplified glyph forms, or to a system font. Vietnamese is covered by neither the bundled nor the imported fonts. So the a1-1 picker shows the native names for he, hi, ja, ko, zh-Hans, zh-Hant and vi correctly only when online or through system fonts. The handwriting fonts are used in a5-3, FmSettings and the mobile tasks file.
-- **Decision:** The app never fetches fonts at run time and never uses the Google Fonts import ([ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). The bundled Plex families cover Latin (including Turkish and Vietnamese), Cyrillic, Greek, Arabic and Persian. Japanese, Korean and Chinese use system fonts, and every text style carries the UI locale, so Traditional Chinese gets Traditional forms. Hebrew and Hindi use system fonts until the owner approves Plex Sans Hebrew and Devanagari; the handwriting fonts wait for the same answer. The a1-1 picker is tested for every native language name.
-- **Status:** Needs owner: [Q08](QUESTIONS.md#q08), fonts to bundle. The decision above is in force until the owner answers.
-- **Evidence:** No board lacks the `fm-additions.css` link. `tokens/fonts.css` bundles only Plex Sans, Sans Arabic, Serif and Mono. `--font-ui` stops at Noto Sans SC, with no Traditional Chinese family.
+- **Decision:** The app never fetches fonts at run time and never uses the Google Fonts import ([ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). The bundled Plex families cover Latin (including Turkish and Vietnamese), Cyrillic, Greek, Arabic and Persian. Japanese, Korean and Chinese use system fonts, and every text style carries the UI locale, so Traditional Chinese gets Traditional forms. Hebrew and Hindi use the bundled Plex Sans Hebrew and Plex Sans Devanagari. The handwriting fonts and the similar-font faces are bundled only if the owner chooses them in the open groups 3 and 4 of [Q08](QUESTIONS.md#q08); until then none ships. The a1-1 picker is tested for every native language name.
+- **Status:** Decided. The owner answered [Q08](QUESTIONS.md#q08) groups 1 and 2 on 2026-10-15; groups 3 (handwriting, M4) and 4 (similar fonts, M3) stay open in Q08 and do not change this decision. Was Needs owner.
+- **Evidence:** No board lacks the `fm-additions.css` link. `tokens/fonts.css` bundles only Plex Sans, Sans Arabic, Serif and Mono. `--font-ui` stops at Noto Sans SC, with no Traditional Chinese family. M1: `tools/design-refs` serves the 13 families from pinned @fontsource 5.3.0 packages and React, ReactDOM and Babel from npm with SRI hashes matching `design/support.js`, and fails on any other request, so the reference renders are offline too. Glyphs no web font covers fall back to the machine's system fonts, so container and CI renders can differ there; CI renders its own references.
 
 <a id="g08"></a>
 
@@ -247,8 +249,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** App shell / mode tabs
 - **Artboards:** `FmWindow` and every desktop and tablet board with a mode, for example `f4a`, `f6`, `f6a`, `a1-7`, `a1-10`, `a1-11`, `a10-1`, `a11-2`, `a11-7`, `a12-1tr`, `a12-1de`, `a9-8`
 - **Gap or conflict:** FmWindow (`MODE_IDS`) and every desktop and tablet board with a mode show 8 mode tabs: View, Edit, Comment, Fill & Sign, Organize, Convert, Protect, Tools. The design system constant `FERMAN_MODES` in `_ds_bundle.js` and the design system readme list 7, without Tools. The Index and the a12-1de note ("The mode bar fits all eight modes") confirm 8. The Tools row holds Compress, Compare, Accessibility, PDF/A & preflight, Batch actions, Print, Measure, Version history and AI assistant. Compress is also a Start quick tool, a mobile file action and a batch step; Version history has no entry point other than the Tools row (a9-8). The brief does not list the modes.
-- **Decision:** Follow the artboards: 8 mode tabs, including Tools, in the drawn order. `FERMAN_MODES` is stale. Tools items from later phases stay visible but disabled with "Available in a future version". Compress and Version history (M4) work from the Tools row as drawn, and basic Print once [Q10](QUESTIONS.md#q10) confirms M4; Compress also works from Start ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). The owner is asked to confirm.
-- **Status:** Needs owner: [Q05](QUESTIONS.md#q05), eight mode tabs. The decision above is in force until the owner answers.
+- **Decision:** Follow the artboards: 8 mode tabs, including Tools, in the drawn order. `FERMAN_MODES` is stale. Tools items from later phases stay visible but disabled with "Available in a future version". Compress and Version history (M4) work from the Tools row as drawn, and basic Print once [Q10](QUESTIONS.md#q10) confirms M4; Compress also works from Start ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Status:** Decided. The owner confirmed eight mode tabs on 2026-10-15 ([Q05](QUESTIONS.md#q05)). Was Needs owner.
 - **Evidence:** FmWindow.dc.html line 190: `MODE_IDS = ['view','edit','comment','sign','organize','convert','protect','tools']`, labelled Tools, Araçlar, Werkzeuge, أدوات and ツール. `_ds_bundle.js` lines 1785–1813: `FERMAN_MODES` ends at protect.
 
 <a id="g10"></a>
@@ -325,8 +327,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** App shell / window chrome
 - **Artboards:** none drawn; references to mirror: `f6a`, `a1-4c`, `a1-10b`, `a11-1w`
 - **Gap or conflict:** No Linux board exists, and "Linux" appears in no board. The platform prop of FmWindow, FmStart, FmSettings, FmEditPanel and FmDocPanel allows only `mac` and `win`, and FmBoard has no `linux` option. The Linux title bar and caption buttons, the dialog button order, Ctrl shortcuts and file-manager wording ("Show in Files") are undefined.
-- **Decision:** Until the owner decides, Linux uses the system's window decorations, with Ferman's tab, mode and tool rows below them, Ctrl shortcuts, Cancel on the left and the affirmative button on the right in dialogs, and "Show in Files" wording; this has a BACKLOG entry. The proposal for the owner is client-side decorations with the caption buttons at the end, in the GNOME (libadwaita) style. Boards for the main editor (like f6a), Start (like a1-4c), one dialog (like a1-10b) and Settings (like a11-1w) are asked for in the re-export.
-- **Status:** Needs owner: [Q12](QUESTIONS.md#q12), Linux packaging and window chrome. The decision above is in force until the owner answers.
+- **Decision:** Linux gets a custom title bar: client-side decorations drawn by Ferman, matching the custom title bars on macOS and Windows, with the caption buttons at the end in the GNOME (libadwaita) style. Ctrl shortcuts, Cancel on the left and the affirmative button on the right in dialogs, and "Show in Files" wording. Until Linux boards exist, the Linux chrome is built from the Windows chrome of f6a with those changes and recorded in goldens. Boards for the main editor (like f6a), Start (like a1-4c), one dialog (like a1-10b) and Settings (like a11-1w) are asked for in the re-export. Packaging formats are a separate open part of [Q12](QUESTIONS.md#q12), decided before M5.
+- **Status:** Decided. The owner chose the custom title bar on 2026-10-15 ([Q12](QUESTIONS.md#q12), window chrome). Was Needs owner.
 - **Evidence:** A search of all files for Linux, GNOME, GTK, Ubuntu, Fedora, Flatpak, AppImage, libadwaita, Nautilus and "Show in Files" finds nothing. The Index describes FmWindow as "Desktop shell: macOS and Windows chrome".
 
 <a id="g16"></a>
@@ -912,7 +914,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** Of the 84 icons added in `ds-additions/fm-icons.js`, 77 match Lucide 0.460.0. Seven do not: bell, grid-2x2 and funnel match Lucide 1.56.0; paperclip matches Lucide 0.469.0 and 0.500.0; expand matches Lucide 0.500.0; file-signature matches Lucide 0.263.0 and 0.300.0 (an older drawing). Only ellipse, a plain SVG ellipse, matches no Lucide release, so 228 of the 229 glyphs are Lucide's work. Index.dc.html says "Icon set (+64)"; the file has 84.
 - **Decision:** Ship the design's exact path data as SVG assets at 1.5 px, because the design is the visual source of truth, with a generated provenance table that gives each icon's source (the Lucide release its geometry matches: 0.460.0, 1.56.0, 0.500.0 or 0.300.0, or "Ferman design" for ellipse alone) and the Lucide ISC and Feather MIT notices ([ADR 0013](adr/0013-fonts-and-icons.md)). The one glyph that matches no release, ellipse, is marked pending in the provenance table until the re-export settles it.
 - **Status:** Needs owner: [Q11](QUESTIONS.md#q11), design re-export and fixes. The decision above is in force until the owner answers.
-- **Evidence:** During the M0 discovery the path data of every added icon was compared with Lucide 0.460.0 and 1.56.0; the M0 review compared the other seven with the lucide-static packages of 0.263.0, 0.300.0, 0.469.0 and 0.500.0, and the result was confirmed against `fm-icons.js`; Index.dc.html still says "+64".
+- **Evidence:** During the M0 discovery the path data of every added icon was compared with Lucide 0.460.0 and 1.56.0; the M0 review compared the other seven with the lucide-static packages of 0.263.0, 0.300.0, 0.469.0 and 0.500.0, and the result was confirmed against `fm-icons.js`; Index.dc.html still says "+64". Confirmed again in M1 by `tools/icons` against the pinned lucide-static npm tarballs (`tools/icons/lucide_matches.json`).
 
 <a id="g61"></a>
 
@@ -926,3 +928,29 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The option is on by default for every document, whatever its language. The checkbox stays as drawn, so people can turn it off. The last sentence of its description becomes "On by default." M2 acceptance tests the default settings: "muller" finds "Müller" in `mietvertrag-de`, and "istanbul" finds "İSTANBUL" in `kira-tr`.
 - **Status:** Decided
 - **Evidence:** 02 View.dc.html line 116 (a2-4a): the checkbox with `default-checked` and the description "On by default for Turkish documents."; brief §7, M2.
+
+<a id="g62"></a>
+
+### G62 · The bundle's annotation-tool list is stale
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Comment / annotation tools (component library)
+- **Artboards:** `a4-1` and every board that shows the Comment tool row through `FmWindow`
+- **Gap or conflict:** The bundle's `ANNOTATION_TOOLS` constant, the default `tools` of AnnotationTools, lists 9 tools: Select, Highlight, Underline, Strikethrough, Note, "Text box", Draw, Shapes (with the `square` icon) and Stamp. `FmWindow` passes its own list of 11 to AnnotationTools, and that is what the boards draw: it adds Callout (C) and Measure (M, with a menu), labels the text tool "Text" and draws Shapes with the `shapes` icon.
+- **Decision:** The `AnnotationTool` enum follows the drawing (11 tools, in FmWindow's order, labels, icons and keys), as `FermanMode` does for the mode tabs ([G09](#g09)). The stale constant is not copied. Tools that do not work yet are disabled with the future-version tooltip ([G10](#g10)).
+- **Status:** Decided
+- **Evidence:** `_ds_bundle.js` lines 2218–2270 (`ANNOTATION_TOOLS`, 9 entries); `FmWindow.dc.html` lines 233–237 (`annotTools`, 11 entries) and line 86, which passes them as `tools`; `04 Comment.dc.html` (a4-1). Found while writing the component spec ([COMPONENTS.md](COMPONENTS.md)).
+
+<a id="g63"></a>
+
+### G63 · No message drawn for an internal error
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Errors
+- **Artboards:** `a1-9b` (the pattern to follow)
+- **Gap or conflict:** The engine's `Internal` error kind (a bug, or a panic caught at the API boundary) needs a message in the user's language, with the message key `errorInternal` ([ARCHITECTURE.md §8.2](ARCHITECTURE.md#82-mapping-to-apierror)). No board draws one. a1-9b draws only the damaged-file error with "Copy technical details".
+- **Decision:** A generic message in the style of a1-9b, with no error code in the sentence: "Something went wrong inside Ferman. Copy the technical details to report the problem.", with the "Copy technical details" action. The ARB entries (`errorInternal` in `app_en.arb` and `app_tr.arb`, with a translator description) are added with the first error strings; the Turkish text goes through native review like every other string.
+- **Status:** Decided
+- **Evidence:** `MessageKey::INTERNAL` in `crates/ferman-api/src/facade/error.rs`; no board in `design/` draws a generic internal-error message.

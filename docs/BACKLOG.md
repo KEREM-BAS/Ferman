@@ -18,8 +18,10 @@ Related: [roadmap](ROADMAP.md) · [design inventory](DESIGN_INVENTORY.md) ·
 - Every entry point that is visible but disabled: tools, menu items, quick tools, palette commands,
   settings options and panes.
 - Every drawn screen or state that is deferred to a later milestone.
-- Every placeholder that stands in for a missing answer or asset, such as a marked bundle-identifier
-  placeholder while [Q01](QUESTIONS.md#q01) is open.
+- Every placeholder that stands in for a missing answer or asset, such as a default kept while an
+  owner question in [QUESTIONS.md](QUESTIONS.md) is open.
+- Every check the development container and CI cannot run (hardware, arm64 builds, screen readers,
+  native-speaker review), with its pending owner check in [PROGRESS.md](PROGRESS.md#pending-owner-checks).
 - Every string in a goldened screen that falls back to English because its translation is missing.
 - Every test case or check that was skipped, with the reason.
 
@@ -54,8 +56,8 @@ Example of a row, for illustration only:
 
 ## Open
 
-No entries yet. Milestone 0 wrote no application code, so nothing is disabled yet. M1 adds the
-first entries when it builds the shell, the start screen and the settings skeleton.
+No entries yet. M1 (in progress) adds the first entries when it builds the shell, the start screen
+and the settings skeleton, in the same commits that disable each item.
 
 | ID | Feature | Artboards | Where it appears disabled | Target milestone | Notes |
 |---|---|---|---|---|---|

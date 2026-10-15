@@ -5,8 +5,8 @@ and other private documents. We take security reports seriously and are grateful
 
 ## Supported versions
 
-Ferman has no released versions yet. The project is at Milestone 0 (planning), so there is nothing to
-install and nothing to patch.
+Ferman has no released versions yet. The project is at Milestone 1 (foundations), so there is nothing
+to install and nothing to patch.
 
 Once releases exist, the latest release gets security fixes. Older releases do not, so please update
 to the latest release before you report.

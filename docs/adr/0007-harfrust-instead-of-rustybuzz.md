@@ -1,9 +1,9 @@
 # ADR 0007: harfrust instead of rustybuzz for shaping
 
-- **Status:** Proposed
+- **Status:** Accepted (owner, Q04, 2026-10-15)
 - **Date:** 2026-10-14
-- **Approval:** none yet; asked in [Q04](../QUESTIONS.md#q04)
-- **Supersedes:** none (it would change the shaper named in brief §3)
+- **Approval:** the owner, on 2026-10-15, answering [Q04](../QUESTIONS.md#q04) with the M0 go-ahead
+- **Supersedes:** none (it changes the shaper named in brief §3)
 - **Superseded by:** none
 
 ## Context
@@ -33,7 +33,7 @@ parsing, and Ferman shapes text from untrusted fonts.
 
 ## Decision
 
-**Proposed:** ferman-fonts uses **harfrust 0.14** instead of rustybuzz.
+ferman-fonts uses **harfrust 0.14** instead of rustybuzz.
 
 - harfrust is pinned to an exact version and upgraded together with skrifa, read-fonts and subsetter,
   as one font stack.
@@ -41,13 +41,13 @@ parsing, and Ferman shapes text from untrusted fonts.
   shaping crate.
 - rustybuzz is not a direct dependency anywhere. It is tolerated only as a transitive dependency of
   krilla until a krilla release moves to harfrust; P4 work prefers that release.
-- Once this ADR is approved, cargo-deny bans rustybuzz except when krilla pulls it in
-  (`wrappers = ["krilla"]`, [ADR 0016](0016-dependency-licence-policy.md)), and
-  [DEPENDENCIES.md](../DEPENDENCIES.md) marks rustybuzz as rejected.
+- cargo-deny bans rustybuzz except when krilla pulls it in
+  (`{ crate = "rustybuzz", wrappers = ["krilla"] }`, [ADR 0016](0016-dependency-licence-policy.md)),
+  from the first `deny.toml` in M1 step 1. [DEPENDENCIES.md](../DEPENDENCIES.md) lists rustybuzz as
+  rejected as a direct dependency.
 
-**Until the owner approves, the brief stands:** rustybuzz is the shaper, and the cargo-deny ban on
-rustybuzz is not active. Shaping is first needed in M3, so the choice must be settled before M3 starts.
-Because of the `Shaper` trait, switching later touches one module.
+The owner approved this on 2026-10-15 ([Q04](../QUESTIONS.md#q04)). Shaping is first needed in M3,
+when harfrust is added.
 
 ## Consequences
 
@@ -64,14 +64,15 @@ Because of the `Shaper` trait, switching later touches one module.
   reruns the shaping and pixel-diff suites.
 - Until krilla moves to harfrust, a P4 build would contain both shapers. That costs binary size, not
   correctness, because krilla's copy is only used inside krilla.
-- This changes a library the brief names, so it needs the owner's approval before it takes effect
-  ([brief §3](../BRIEF.md), [§9](../BRIEF.md)).
+- This changes a library the brief names, so it needed the owner's approval before it took effect
+  ([brief §3](../BRIEF.md), [§9](../BRIEF.md)). The owner gave it on 2026-10-15.
 
 ### Follow-up
 
-- M0: [Q04](../QUESTIONS.md#q04) asks the owner.
-- M3, if approved: add harfrust, activate the cargo-deny ban, add Arabic, Persian, Devanagari and CJK
-  shaping tests against HarfBuzz reference output.
+- M0: [Q04](../QUESTIONS.md#q04) asked the owner; approved on 2026-10-15.
+- M1 step 1: the cargo-deny ban on rustybuzz (krilla wrapper only) is active in the first `deny.toml`.
+- M3: add harfrust and Arabic, Persian, Devanagari and CJK shaping tests against HarfBuzz reference
+  output.
 - P4: check whether krilla has released its harfrust move before adding it.
 
 ## Alternatives considered

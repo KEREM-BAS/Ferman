@@ -79,7 +79,7 @@ The brief fixes the answer: "Rust engine + one Flutter UI, connected with flutte
   has had no release since 2020.
 - Each platform build must bundle and sign a native Rust library and the PDFium library. Signing needs
   the publisher name ([Q02](../QUESTIONS.md#q02)); minimum OS versions decide which OS APIs we can use
-  ([Q03](../QUESTIONS.md#q03)). Linux packaging is open ([Q12](../QUESTIONS.md#q12)).
+  ([Q03](../QUESTIONS.md#q03), answered 2026-10-15). Linux packaging is open ([Q12](../QUESTIONS.md#q12)).
 
 ### Follow-up
 

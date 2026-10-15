@@ -11,12 +11,13 @@ These rules apply to the Flutter app, the token generator and the design-referen
 
 ## Toolchain and packages
 
-- Flutter 3.47.7 with Dart 3.13.5. Node 24 LTS only for `tools/design-refs`.
+- Flutter 3.47.7 with Dart 3.13.5. Node 24.22.0 LTS and playwright-core 1.56.1 only for `tools/design-refs` (the pin matches the Chromium revision 1194 preinstalled in the development container; CI uses the same revision). Never run the Playwright installer (`npx playwright-core install`): it also downloads Playwright's ffmpeg build (LGPL-2.1). CI downloads the revision 1194 headless shell directly (`tools/design-refs/fetch-chromium.sh`) and passes its path with `--chromium`.
 - State: flutter_riverpod 3.4, riverpod_annotation 4 and riverpod_generator 4, run by build_runner. Providers use `@riverpod`.
-- Lints: very_good_analysis 11 plus riverpod_lint 3.1.9 as an analyzer plugin under `plugins:` in `analysis_options.yaml`. Do not add custom_lint.
+- Lints: very_good_analysis 11 plus riverpod_lint 3.1.9 as an analyzer plugin under `plugins:` in `analysis_options.yaml`. Do not add custom_lint. Run both `flutter analyze` and `dart analyze --fatal-infos`: the plugin's diagnostics appear only in `dart analyze`.
+- Constructors use Dart 3.13's `new` form (`const new(...)`, `new(...)`, `new name(...)`), because very_good_analysis 11 enforces `unnecessary_type_name_in_constructor`. Callers still write `ClassName(...)`.
 - Navigation: go_router 18. Modes, document tabs and sidebar tabs are state, not routes.
 - Goldens: alchemist. Do not use golden_toolkit (discontinued).
-- Desktop and assets: window_manager, desktop_drop (only once [Q17](../../docs/QUESTIONS.md#q17) approves its MPL-2.0 `dbus` dependency), file_selector, flutter_svg. Localization: intl and flutter_localizations.
+- Desktop and assets: window_manager, path_provider, path_parsing (icon path data), desktop_drop (from M2; its MPL-2.0 `dbus` dependency was approved in [Q17](../../docs/QUESTIONS.md#q17), ships unmodified with its notice and is skipped by name in the licence check), file_selector (M2, [ADR 0018](../../docs/adr/0018-native-file-pickers.md)). Localization: intl and flutter_localizations. Never flutter_svg or vector_graphics: both depend on `http`, which the network deny list forbids.
 - flutter_rust_bridge 2.13.0, the same version as the Rust crate and the codegen.
 - No GetX in any form. No networking, font-downloading (google_fonts), analytics or crash-reporting packages.
 - Every new package goes into [DEPENDENCIES.md](../../docs/DEPENDENCIES.md) with its licence and passes `very_good packages check licenses`.
@@ -36,7 +37,7 @@ These rules apply to the Flutter app, the token generator and the design-referen
 ## Brief §6 conventions
 
 - **State and navigation:** Riverpod with code generation; go_router.
-- **Design tokens:** `tools/tokens` reads the tokens in `design/` (`tokens/*.css` plus `ds-additions/fm-additions.css`, [G05](../../docs/DESIGN_GAPS.md#g05)) and generates `app/lib/design/tokens.g.dart`, exposed through a `ThemeExtension` ([ADR 0012](../../docs/adr/0012-design-token-pipeline.md)). Widgets read tokens only through that ThemeExtension. Never hardcode colours, sizes, radii or durations in widgets.
+- **Design tokens:** `tools/tokens` reads the tokens in `design/` (`tokens/*.css` plus `ds-additions/fm-additions.css`, [G05](../../docs/DESIGN_GAPS.md#g05)) and generates `app/lib/design/tokens.g.dart`: plain `Ferman*Tokens` value classes that `app/lib/design/theme.dart` wraps in `ThemeExtension`s ([ADR 0012](../../docs/adr/0012-design-token-pipeline.md)). Widgets read tokens only through those ThemeExtensions. Never hardcode colours, sizes, radii or durations in widgets.
 - **Component library first:** before building screens, build the Ferman component library in `app/lib/design/components/`. It mirrors the design system 1:1: the same names, variants and states. Dart class names are the design-system names (`Button`, `IconButton`, …); only the `Fm*` building blocks such as `FmWindow` and `FmNumber` keep `Fm` ([ADR 0011](../../docs/adr/0011-flutter-state-navigation-components.md)). Screens are built from it.
 - **Dialogs and popups:** custom popup-style widgets from the design system. Never the default Material or Cupertino dialog implementations (`showDialog`, `AlertDialog`, `showCupertinoDialog`, `showModalBottomSheet`, `showDatePicker`, `SnackBar`, Material `Tooltip`, `PopupMenuButton`). No GetX.
 - **File pickers:** OS-native open, save and folder pickers through file_selector are the only proposed exception ([ADR 0018](../../docs/adr/0018-native-file-pickers.md), Proposed, [Q07](../../docs/QUESTIONS.md#q07)). Until the owner answers, M1 builds no picker and features that need one stay disabled with "Available in a future version". If M2 starts before an answer, the OS-native picker is used as the safest option ([brief §9](../../docs/BRIEF.md#9-how-to-work-in-every-later-session)) and flagged again in the M2 summary. All picker calls go through one `FilePickerService` with a fake for tests.
@@ -46,21 +47,23 @@ These rules apply to the Flutter app, the token generator and the design-referen
 - **Casing:** Dart's `toUpperCase` is not locale-aware. Use the locale-aware casing utility in `app/lib/l10n/`, so Turkish shows "İMZALA".
 - **Formats:** locale-aware dates, numbers ("10,5 pt"), paper sizes and units, taken from the region setting, not the UI language ([G34](../../docs/DESIGN_GAPS.md#g34)).
 - **Right to left:** `EdgeInsetsDirectional` and `AlignmentDirectional` everywhere. Mirror directional icons. Never mirror the PDF canvas.
-- **Desktop:** custom title bars for macOS and Windows as designed (window_manager). Linux chrome is open ([G15](../../docs/DESIGN_GAPS.md#g15), [Q12](../../docs/QUESTIONS.md#q12)). Full keyboard shortcuts through Shortcuts and Actions, shown in tooltips and menus. Focus traversal in reading order. Semantics labels on every control.
+- **Desktop:** custom title bars for macOS and Windows as designed (window_manager). Linux gets a custom title bar too: client-side decorations, caption buttons at the end, Ctrl shortcuts and Cancel on the left in dialogs ([G15](../../docs/DESIGN_GAPS.md#g15), [Q12](../../docs/QUESTIONS.md#q12)). Full keyboard shortcuts through Shortcuts and Actions, shown in tooltips and menus. Focus traversal in reading order. Semantics labels on every control.
+- **Platform projects:** bundle identifier `io.github.kerembas.ferman` ([Q01](../../docs/QUESTIONS.md#q01)); minimums macOS 12.0 (universal), Windows 10 22H2 and 11 (x64, arm64), Linux best effort from Ubuntu 22.04 ([Q03](../../docs/QUESTIONS.md#q03)); copyright "Copyright The Ferman Authors" ([Q14](../../docs/QUESTIONS.md#q14)). Keep the macOS template's App Sandbox entitlement on until the owner answers [Q18](../../docs/QUESTIONS.md#q18), before M2.
 - **Android 12+ splash** (mobile phase): use `background_image`.
 - **Unfinished features:** features not implemented yet stay visible exactly as designed but disabled, with the tooltip "Available in a future version" and an entry in [BACKLOG.md](../../docs/BACKLOG.md).
 
 ## Fonts and icons
 
-- Bundle IBM's unmodified static Plex TTFs in `app/assets/fonts/` with their OFL-1.1 licence files: Plex Sans 400/500/600, Plex Serif, Plex Mono, Plex Sans Arabic, and Plex Sans Hebrew and Devanagari if approved ([Q08](../../docs/QUESTIONS.md#q08)). Never subset, rename or modify them (Reserved Font Name "Plex").
+- Bundle IBM's unmodified static Plex TTFs in `app/assets/fonts/` with their OFL-1.1 licence files: Plex Sans 400/500/600 and Italic 400, Plex Serif 400, Italic 400 and 600, Plex Mono 400/500, and Plex Sans Arabic, Plex Sans Hebrew and Plex Sans Devanagari 400/500/600 (the last two approved in [Q08](../../docs/QUESTIONS.md#q08)). `tools/fonts` fetches them and pins their SHA-256. Never subset, rename or modify them (Reserved Font Name "Plex"). No handwriting or similar-font faces until Q08 groups 3 and 4 are answered.
+- The Arabic, Hebrew and Devanagari fonts carry ASCII and Latin-1 but not Turkish letters (Latin Extended-A), so Plex Sans stays after them in every fallback chain.
 - CJK falls back to system fonts ([ADR 0013](../../docs/adr/0013-fonts-and-icons.md)). Set the text locale on text styles so Han characters take the right regional forms.
 - Never use the design's woff2 subsets or its runtime Google Fonts import. The app never fetches fonts.
-- Icons are SVG assets generated from the design's exact path data (229 icons), drawn at 1.5 px stroke, with the Lucide ISC and Feather MIT notices and a provenance table. Every licence text appears through Flutter's LicenseRegistry.
+- Icons come from the design's exact path data (229 icons), generated by `tools/icons` and painted by the Icon widget's `CustomPainter` through path_parsing at a 1.5 px stroke (overridable). The SVGs in `app/assets/icons/` are the exported, provenance-tracked set and are not loaded at run time. Exactly 8 icons mirror in right to left (`IconName.directional`): arrow-left, arrow-right, chevron-left, chevron-right, undo-2, redo-2, skip-back, skip-forward. The Lucide ISC and Feather MIT notices (`LICENSE-lucide-0.460.0.txt`, `LICENSE-lucide-1.56.0.txt`) and every other licence text appear through Flutter's LicenseRegistry.
 
 ## Tests
 
-- `flutter analyze` is clean. Widget tests for every component and screen.
+- `flutter analyze` and `dart analyze --fatal-infos` are clean. Widget tests for every component and screen.
 - alchemist goldens for every implemented screen in light and dark × en, tr and ar, with the real bundled fonts loaded. Goldens are generated on the Linux CI runner only.
 - Compare goldens against the artboard renders in `build/design-refs/` (made by `tools/design-refs`). Never commit `build/design-refs/` or golden failure output.
-- `tools/design-refs` runs offline with vendored runtime scripts and blocks every other network request. It reads `design/` and never writes to it.
-- `tools/tokens` has its own tests (`dart test`) for value mapping, environments and `var()` resolution.
+- `tools/design-refs` runs offline: the runtime scripts and fonts come from npm packages pinned in its lockfile and are served locally, and every other network request fails the run. Capture rule: a product board is the first `.fm-root` inside the element with the id `<id>`, or that element itself when it carries `.fm-root` (the sidebar boards `a2-3p` to `a2-3x`); the fix boards `f1` to `f6a` are the whole element with the id (the `section` for `f1` to `f6`, the nested `div` for `f4a`, `f4b` and `f6a`). Each board renders on its own fresh page. It reads `design/` and never writes to it.
+- `tools/tokens`, `tools/icons` and `tools/checks` have their own tests (`dart test`), and `dart run tokens --check` and `dart run icons --check` fail on stale generated files.
