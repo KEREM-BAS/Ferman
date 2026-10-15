@@ -1,0 +1,11 @@
+{
+  "@@locale": "en",
+  "appName": "Ferman",
+  "@appName": {
+    "description": "Product name. A proper noun: do not translate; keep the Latin spelling in every language."
+  },
+  "startPlaceholderTitle": "Drop a PDF here",
+  "@startPlaceholderTitle": {
+    "description": "Headline of the empty start screen (design board a1-5) before any file is open."
+  }
+}

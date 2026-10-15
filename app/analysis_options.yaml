@@ -1,0 +1,18 @@
+include: package:very_good_analysis/analysis_options.yaml
+
+analyzer:
+  exclude:
+    - build/**
+    - lib/bridge/**
+    - lib/l10n/gen/**
+    - "**/*.g.dart"
+    - web/**
+    - windows/**
+    - macos/**
+    - linux/**
+  errors:
+    # Generated code and test fixtures are excluded above; everything else must be clean.
+    todo: ignore
+
+plugins:
+  riverpod_lint: 3.1.9
