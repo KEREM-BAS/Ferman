@@ -192,6 +192,16 @@ jobs:
         run: |
           command -v flutter_rust_bridge_codegen || cargo install --locked flutter_rust_bridge_codegen@2.13.0
           command -v cargo-expand || cargo install --locked cargo-expand@1.0.127
+      - name: The code generator has the bridge crate's version
+        shell: bash
+        run: |
+          # tools/checks frb_versions compares the crate and the Dart package; this compares
+          # the code generator with the crate.
+          want=$(sed -n 's/^flutter_rust_bridge = "=\(.*\)"$/\1/p' Cargo.toml)
+          got=$(flutter_rust_bridge_codegen --version)
+          echo "crate $want; $got"
+          test -n "$want"
+          test "$got" = "flutter_rust_bridge_codegen $want"
       - name: Regenerate and compare
         working-directory: app
         shell: bash
