@@ -325,7 +325,10 @@ jobs:
         working-directory: .
         run: bash tools/pdfium/fetch.sh --platform linux-x64
       - run: flutter build linux --release
-      - name: The bundle holds the engine and PDFium
+      - name: The bundle holds the engine, with the bridge, and PDFium
         run: |
-          test -f build/linux/x64/release/bundle/lib/libferman_api.so
-          test -f build/linux/x64/release/bundle/lib/libpdfium.so
+          lib=build/linux/x64/release/bundle/lib
+          test -f "$lib/libpdfium.so"
+          # cargokit builds the frb feature only for the modes listed in
+          # crates/ferman-api/cargokit.yaml.
+          nm -D "$lib/libferman_api.so" | grep -q frb_get_rust_content_hash
