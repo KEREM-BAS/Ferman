@@ -2,6 +2,8 @@ import 'package:alchemist/alchemist.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
+import '../helpers/golden_config.dart';
+
 /// The ROADMAP §5 step 5 sample: Turkish, Vietnamese, Cyrillic, Greek,
 /// Arabic, Persian, Hebrew and Devanagari in one line.
 const String scriptSample =
@@ -66,6 +68,7 @@ Future<void> main() async {
   await goldenTest(
     'the bundled fonts cover every script of the sample without fallback '
     'glyphs',
+    skip: !isGoldenHost,
     fileName: 'script_coverage',
     builder: () => GoldenTestGroup(
       columns: 1,

@@ -44,3 +44,13 @@ final AlchemistConfig fermanAlchemistConfig = AlchemistConfig(
   platformGoldensConfig: PlatformGoldensConfig(platforms: {HostPlatform.linux}),
   ciGoldensConfig: const CiGoldensConfig(enabled: false),
 );
+
+/// Whether this host generates and compares goldens: Linux only
+/// ([fermanAlchemistConfig]).
+///
+/// On any other host alchemist's test variant has no values, and
+/// flutter_test fails such a test while the file loads, before
+/// `--exclude-tags golden` applies. Golden tests therefore pass
+/// `skip: !isGoldenHost`, which declares nothing on macOS and Windows.
+final bool isGoldenHost = fermanAlchemistConfig.platformGoldensConfig.platforms
+    .contains(HostPlatform.current());

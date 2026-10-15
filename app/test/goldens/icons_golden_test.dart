@@ -3,6 +3,8 @@ import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
+import '../helpers/golden_config.dart';
+
 const int _columns = 6;
 const double _cellWidth = 168;
 const double _cellHeight = 24;
@@ -66,6 +68,7 @@ Future<void> main() async {
   await goldenTest(
     'all 229 icons draw from the design path data, and directional icons '
     'mirror in right to left',
+    skip: !isGoldenHost,
     fileName: 'icons',
     builder: () => GoldenTestGroup(
       columns: 1,
