@@ -1,0 +1,38 @@
+{
+  "name": "ferman-design-refs",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Renders every board of the read-only design export to PNG, offline, as the reference for the app's goldens.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.mjs",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "render": "node index.mjs",
+    "list": "node index.mjs --list",
+    "test": "node --test \"test/*.test.mjs\""
+  },
+  "dependencies": {
+    "@babel/standalone": "7.29.0",
+    "@fontsource/caveat": "5.3.0",
+    "@fontsource/cormorant-garamond": "5.3.0",
+    "@fontsource/crimson-pro": "5.3.0",
+    "@fontsource/dancing-script": "5.3.0",
+    "@fontsource/eb-garamond": "5.3.0",
+    "@fontsource/homemade-apple": "5.3.0",
+    "@fontsource/ibm-plex-sans-devanagari": "5.3.0",
+    "@fontsource/ibm-plex-sans-hebrew": "5.3.0",
+    "@fontsource/ibm-plex-sans-jp": "5.3.0",
+    "@fontsource/ibm-plex-sans-kr": "5.3.0",
+    "@fontsource/noto-naskh-arabic": "5.3.0",
+    "@fontsource/noto-sans-sc": "5.3.0",
+    "@fontsource/noto-serif-jp": "5.3.0",
+    "pixelmatch": "7.2.0",
+    "playwright-core": "1.56.1",
+    "pngjs": "7.0.0",
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  }
+}
