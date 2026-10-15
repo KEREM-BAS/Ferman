@@ -4,6 +4,7 @@ import 'package:args/args.dart';
 import 'package:checks/src/check.dart';
 import 'package:checks/src/checks/action_pins.dart';
 import 'package:checks/src/checks/arb_parity.dart';
+import 'package:checks/src/checks/bridge_imports.dart';
 import 'package:checks/src/checks/build_untracked.dart';
 import 'package:checks/src/checks/crate_graph.dart';
 import 'package:checks/src/checks/design_untouched.dart';
@@ -28,6 +29,7 @@ const List<Check> allChecks = [
   ArbParityCheck(),
   PubDenylistCheck(),
   FrbVersionsCheck(),
+  BridgeImportsCheck(),
   // S6: the Flutter conventions of brief §6 in app/lib (ADR 0011, 0012,
   // 0014), with the reviewed exceptions in s6_allowlist.dart.
   S6MaterialImportsCheck(),
