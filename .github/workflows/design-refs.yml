@@ -1,0 +1,56 @@
+# Renders the design boards to PNG (tools/design-refs) as the reference for the app's goldens.
+# Pull requests render the M1 boards; a manual run renders every board twice and checks that the
+# two runs are identical. The browser is fetched by tools/design-refs/fetch-chromium.sh, never by
+# the Playwright installer (which would also download an LGPL ffmpeg build).
+name: Design references
+
+on:
+  pull_request:
+    paths:
+      - tools/design-refs/**
+      - app/lib/**
+      - app/test/**
+      - .github/workflows/design-refs.yml
+  workflow_dispatch:
+
+concurrency:
+  group: design-refs-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  render:
+    name: Render design references
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: tools/design-refs
+        shell: bash
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: tools/design-refs/.nvmrc
+      - run: npm ci
+      - name: System libraries and fonts for Chromium (apt only, no browser download)
+        run: npx --no-install playwright-core install-deps chromium-headless-shell
+      - name: Chromium headless shell 1194 (SHA-256 checked; no Playwright installer, no ffmpeg)
+        run: |
+          exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")
+          echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
+      - name: Render the M1 boards
+        if: github.event_name == 'pull_request'
+        run: node index.mjs --only @m1 --twice
+      - name: Render every board, twice
+        if: github.event_name == 'workflow_dispatch'
+        run: node index.mjs --twice
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: always()
+        with:
+          name: design-refs
+          path: build/design-refs/
+          if-no-files-found: warn
+          retention-days: 14

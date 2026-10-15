@@ -1,0 +1,243 @@
+# Ferman CI: repository checks, tools, Rust and Flutter on macOS, Windows and Linux.
+# Every action is pinned by commit SHA (tools/checks action_pins).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: 3.47.7
+  VERY_GOOD_CLI_VERSION: 1.5.0
+
+jobs:
+  repo-checks:
+    name: Repository checks and tools
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Base commit for the design/ check
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "CHECKS_BASE=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_ENV"
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "CHECKS_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+          else
+            echo "CHECKS_BASE=HEAD~1" >> "$GITHUB_ENV"
+          fi
+      - name: Dart tools (checks, tokens, icons)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for t in checks tokens icons; do
+            echo "::group::tools/$t"
+            (cd "tools/$t" && dart pub get --enforce-lockfile && dart format --output=none --set-exit-if-changed . && dart analyze --fatal-infos && dart test)
+            echo "::endgroup::"
+          done
+      - name: Repository checks
+        working-directory: tools/checks
+        run: dart run bin/check_all.dart --root ../..
+      - name: Generated files are current (tokens, icons, component spec)
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd tools/tokens && dart run bin/tokens.dart --check)
+          (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
+      - name: PDFium archives (SHA-256 and licence files)
+        shell: bash
+        run: |
+          bash tools/pdfium/selftest.sh
+          bash tools/pdfium/fetch.sh --all --verify --check-licenses
+      - name: Bundled fonts (unmodified IBM files)
+        shell: bash
+        run: |
+          bash tools/fonts/selftest.sh
+          bash tools/fonts/fetch.sh --verify-committed
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: tools/design-refs/.nvmrc
+      - name: Design-reference tool tests
+        working-directory: tools/design-refs
+        run: |
+          npm ci
+          npm test
+
+  rust:
+    name: Rust (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Format
+        if: runner.os == 'Linux'
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Clippy (ferman-api with the bridge feature)
+        run: cargo clippy -p ferman-api --features frb --all-targets --locked -- -D warnings
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: Test (ferman-api with the bridge feature)
+        run: cargo test -p ferman-api --features frb --locked
+      - name: CLI smoke test
+        shell: bash
+        run: |
+          out="$(cargo run -q --locked -p ferman-cli -- --version)"
+          echo "$out"
+          [[ "$out" =~ ^ferman\ [0-9]+\.[0-9]+\.[0-9]+\ \(api\ [0-9]+\.[0-9]+\)$ ]]
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check
+      - name: Licence config that includes dev-dependencies
+        run: |
+          sed 's/^include-dev = false/include-dev = true/' deny.toml > deny-dev.toml
+          grep -q '^include-dev = true' deny-dev.toml
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          arguments: --all-features --config deny-dev.toml
+          command: check
+          command-arguments: licenses
+
+  codegen:
+    name: Generated Flutter code is current
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Regenerate and compare
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          dart run build_runner build --delete-conflicting-outputs
+          dart format lib/l10n/gen
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+
+  flutter:
+    name: Flutter (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux
+          - os: macos-15
+            target: macos
+          - os: windows-2025
+            target: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+        shell: bash
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: git config --system core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux desktop build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev xvfb
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Analyze (flutter analyze, and dart analyze for the riverpod_lint plugin)
+        run: |
+          flutter analyze
+          dart analyze --fatal-infos
+      - name: Format
+        if: runner.os == 'Linux'
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+      - name: Test
+        run: flutter test
+      - name: Dart licence check
+        if: runner.os == 'Linux'
+        run: |
+          dart pub global activate very_good_cli "$VERY_GOOD_CLI_VERSION"
+          very_good packages check licenses --allowed="MIT,BSD-2-Clause,BSD-3-Clause,Apache-2.0,ISC,Zlib,BSL-1.0,Unicode-3.0,Unicode-DFS-2016,0BSD"
+      - name: Web build (kept buildable until phase 5; Proposed)
+        if: runner.os == 'Linux'
+        run: flutter build web --release
+      - name: Desktop build
+        run: flutter build ${{ matrix.target }} --release
+      - name: Integration test (Linux, under Xvfb)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a flutter test integration_test -d linux
+      - name: Integration test (macOS and Windows)
+        if: runner.os != 'Linux'
+        run: flutter test integration_test -d ${{ matrix.target }}
+
+  linux-floor:
+    name: Linux build on Ubuntu 22.04 (Q03 minimum)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux desktop build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - run: flutter build linux --release
