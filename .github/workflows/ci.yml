@@ -62,10 +62,16 @@ jobs:
           set -euo pipefail
           (cd tools/tokens && dart run bin/tokens.dart --check)
           (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
+      - name: Cache the PDFium archives
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ hashFiles('tools/pdfium/pdfium.lock') }}
       - name: PDFium archives (SHA-256 and licence files)
         shell: bash
         run: |
           bash tools/pdfium/selftest.sh
+          bash tools/pdfium/fetch.sh --all
           bash tools/pdfium/fetch.sh --all --verify --check-licenses
       - name: Bundled fonts (unmodified IBM files)
         shell: bash
