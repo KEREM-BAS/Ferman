@@ -247,6 +247,22 @@ jobs:
         run: |
           sudo apt-get update -q
           sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev xvfb
+      - name: System fonts for the goldens (test only, never bundled)
+        if: runner.os == 'Linux'
+        run: |
+          # DejaVu Sans Mono draws the macOS key symbols and Noto Sans CJK the
+          # language picker's CJK names in the goldens, standing in for the
+          # system font fallback flutter test lacks (G87). A new version
+          # would move pixels, so fail here with the reason rather than in
+          # the golden comparison.
+          sudo apt-get install -y -q fonts-dejavu-core fonts-noto-cjk
+          expected="fonts-dejavu-core 2.37-8
+          fonts-noto-cjk 1:20230817+repack1-3"
+          actual="$(dpkg-query -W -f='${Package} ${Version}\n' fonts-dejavu-core fonts-noto-cjk)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::The golden fonts changed version: $actual. Regenerate the goldens and update this step and app/test/helpers/fonts.dart."
+            exit 1
+          fi
       - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
         with:
           flutter-version: ${{ env.FLUTTER_VERSION }}

@@ -1,5 +1,6 @@
 import 'dart:ui' as ui;
 
+import 'package:ferman/design/theme.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -89,5 +90,52 @@ void main() {
     skip: cjkFallbackLoaded
         ? false
         : 'fonts-noto-cjk is not installed ($notoSansCjkPath)',
+  );
+
+  test('flutter_test_config appends the loaded system fonts to every UI '
+      'chain, after the bundled ones', () {
+    expect(FermanFontFamilies.debugExtraFallback, systemFallbackFamilies);
+    // The themes were built after the hook was set: their chains end with
+    // the system fonts.
+    for (final theme in [FermanTheme.light, FermanTheme.dark]) {
+      final body = theme.typography.body;
+      final chain = [?body.fontFamily, ...?body.fontFamilyFallback];
+      expect(
+        chain.sublist(chain.length - systemFallbackFamilies.length),
+        systemFallbackFamilies,
+      );
+      expect(chain.first, 'IBM Plex Sans');
+    }
+  });
+
+  test(
+    'the macOS key symbols draw from DejaVu Sans Mono through the UI chain',
+    () async {
+      final body = FermanTheme.light.typography.body.copyWith(
+        color: const Color(0xFF000000),
+      );
+      for (final symbol in macKeySymbols.runes.map(String.fromCharCode)) {
+        final viaChain = await _pixels(symbol, body);
+        // The same glyph from DejaVu Sans Mono alone, with the same size
+        // and leading.
+        final dejaVu = await _pixels(
+          symbol,
+          body.copyWith(
+            fontFamily: keySymbolFamily,
+            fontFamilyFallback: const [],
+          ),
+        );
+        // What Plex Sans alone draws: its missing-glyph box.
+        final plexOnly = await _pixels(
+          symbol,
+          body.copyWith(fontFamilyFallback: const []),
+        );
+        expect(viaChain, dejaVu, reason: symbol);
+        expect(viaChain, isNot(plexOnly), reason: symbol);
+      }
+    },
+    skip: keySymbolFallbackLoaded
+        ? false
+        : 'fonts-dejavu-core is not installed ($dejaVuSansMonoPath)',
   );
 }

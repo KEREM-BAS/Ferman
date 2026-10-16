@@ -93,6 +93,18 @@
       "golden": "shell_edit_mac_dark_en.png",
       "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
       "note": "The macOS shell chrome in Edit mode, dark (ROADMAP §5 step 8). The canvas is masked. The thumbnails and the text-block panel show the edited document (M3) and are expected to differ."
+    },
+    {
+      "board": "a12-1tr",
+      "golden": "shell_edit_mac_light_tr.png",
+      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
+      "note": "The macOS shell chrome in Edit mode in Turkish, light. The canvas is masked. The thumbnails, the text-block panel, Save and Review edits show the edited document (M3) and are expected to differ."
+    },
+    {
+      "board": "a12-1ar",
+      "golden": "shell_edit_mac_light_ar.png",
+      "masks": [{ "label": "canvas", "x": 264, "y": 123, "width": 960, "height": 751 }],
+      "note": "The macOS shell chrome in Edit mode in Arabic, right to left, light: the traffic lights at the end, the sidebar and the panel swapped, the canvas never mirrored. The canvas is masked, mirrored to 264, 123. The thumbnails, the text-block panel, Save and Review edits show the edited document (M3) and are expected to differ; the board draws Arabic-Indic digits, as the Saudi Arabia region of the golden does."
     }
   ]
 }

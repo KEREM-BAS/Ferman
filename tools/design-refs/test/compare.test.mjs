@@ -113,6 +113,13 @@ test('the map pairs the boards with the goldens drawn from them', async () => {
   assert.equal(golden['f6a'], 'shell_edit_win_light_en.png');
   assert.equal(golden['a2-1b'], 'shell_view_mac_light_en.png');
   assert.equal(golden['a3-1d'], 'shell_edit_mac_dark_en.png');
+  assert.equal(golden['a12-1tr'], 'shell_edit_mac_light_tr.png');
+  assert.equal(golden['a12-1ar'], 'shell_edit_mac_light_ar.png');
+  // Right to left, the canvas sits at the other end of the window.
+  assert.deepEqual(
+    map.pairs.find((p) => p.id === 'a12-1ar').masks.map((m) => [m.x, m.y, m.width, m.height]),
+    [[1440 - 216 - 960, 123, 960, 751]],
+  );
   // The fix boards are larger than one window: each is cropped to a window or a strip of one.
   for (const id of ['f6-mac', 'f6-win', 'f6a']) {
     const pair = map.pairs.find((p) => p.id === id);

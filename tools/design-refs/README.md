@@ -23,7 +23,7 @@ export FERMAN_CHROMIUM="$(tools/design-refs/fetch-chromium.sh)"
 # The development container already has it in /opt/pw-browsers, which is found on its own.
 
 node tools/design-refs                            # all 223 boards + the DS additions sheet
-node tools/design-refs --only @m1                 # the 15 M1 boards
+node tools/design-refs --only @m1                 # the 17 M1 boards
 node tools/design-refs --only a1-1,a11-1 --twice  # render twice, fail unless identical
 node tools/design-refs --list                     # ids, capture mode, file; the sets
 node tools/design-refs compare                    # goldens against references: build/design-compare/
@@ -176,6 +176,8 @@ the `@m1` set, and only boards of that set, which CI renders.
 | `a12-2d` | none | | German board: no German golden in M1. |
 | `a2-1b` | `shell_view_mac_light_en` | canvas masked | The macOS chrome, light (ROADMAP step 8). |
 | `a3-1d` | `shell_edit_mac_dark_en` | canvas masked | The macOS chrome, dark (ROADMAP step 8). |
+| `a12-1tr` | `shell_edit_mac_light_tr` | canvas masked | The macOS chrome in Turkish, Edit mode. |
+| `a12-1ar` | `shell_edit_mac_light_ar` | canvas masked (mirrored, 264, 123) | The macOS chrome in Arabic, right to left, Edit mode. |
 
 The canvas mask is 960 × 751 at 216, 123: FmWindow's canvas between the sidebar (216 px) and the
 right panel (264 px), below the title bar, mode bar and tool row (38 + 40 + 45 px) and above the

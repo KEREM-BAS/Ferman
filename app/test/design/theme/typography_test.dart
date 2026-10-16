@@ -28,6 +28,17 @@ List<TextStyle> _roles(FermanTypography t) => [
 ];
 
 void main() {
+  // These tests check the app's own chains. flutter_test_config.dart appends
+  // the system fonts it loaded for goldens (FermanFontFamilies
+  // .debugExtraFallback); take them out before any typography is built in
+  // this file, and put them back at the end.
+  late List<String> testFallback;
+  setUpAll(() {
+    testFallback = FermanFontFamilies.debugExtraFallback;
+    FermanFontFamilies.debugExtraFallback = const [];
+  });
+  tearDownAll(() => FermanFontFamilies.debugExtraFallback = testFallback);
+
   group('FermanScript.forLocale', () {
     test('maps UI languages to scripts', () {
       final cases = <Locale?, FermanScript>{
@@ -139,6 +150,37 @@ void main() {
         if (first != _sans) {
           expect(chain[1], _sans, reason: '$script');
         }
+      }
+    });
+
+    test('the test-only fallback is appended to every chain, once', () {
+      addTearDown(() => FermanFontFamilies.debugExtraFallback = const []);
+      final production = {
+        for (final script in FermanScript.values)
+          script: FermanFontFamilies.uiChain(script),
+      };
+      // Noto Sans CJK JP is already in the Japanese chain.
+      FermanFontFamilies.debugExtraFallback = const [
+        'Test Symbols',
+        'Noto Sans CJK JP',
+      ];
+      for (final script in FermanScript.values) {
+        final chain = FermanFontFamilies.uiChain(script);
+        expect(chain.toSet(), hasLength(chain.length), reason: '$script');
+        expect(chain, [
+          ...?production[script],
+          'Test Symbols',
+          if (script != FermanScript.japanese) 'Noto Sans CJK JP',
+        ], reason: '$script');
+      }
+      // Typography built while it is set carries it at the end of every
+      // role's chain (Polish is built nowhere else in this file).
+      final pl = FermanTypography.forLocale(const Locale('pl'));
+      for (final role in _roles(pl)) {
+        expect(_chain(role).sublist(_chain(role).length - 2), [
+          'Test Symbols',
+          'Noto Sans CJK JP',
+        ]);
       }
     });
 

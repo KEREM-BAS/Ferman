@@ -12,8 +12,12 @@ import 'helpers/golden_config.dart';
 ///   text renders with the real fonts, not the test font's boxes
 ///   (alchemist loads them again for its own tests; that is harmless).
 /// - Loads the system Noto Sans CJK font when `fonts-noto-cjk` is
-///   installed, for CJK text in widget tests; goldens never contain CJK
-///   ([loadCjkFallbackFont]).
+///   installed ([loadCjkFallbackFont]) and the system DejaVu Sans Mono when
+///   `fonts-dejavu-core` is ([loadKeySymbolFallbackFont]), and appends them
+///   to every UI font chain ([useSystemFallbackFonts]), before any test
+///   builds a theme: goldens then draw what the app takes from the
+///   system's font fallback, the macOS key symbols ⌘ ⌥ ⇧ ⌃ ⌫ ⌦ ↵ (G87) and
+///   the language picker's CJK names, instead of boxes.
 /// - Runs the tests under [fermanAlchemistConfig]: goldens on Linux only.
 ///   They carry alchemist's `golden` tag, declared in `dart_test.yaml`, so
 ///   `flutter test --exclude-tags golden` skips them and
@@ -22,6 +26,8 @@ Future<void> testExecutable(FutureOr<void> Function() testMain) async {
   TestWidgetsFlutterBinding.ensureInitialized();
   await loadAppFonts();
   await loadCjkFallbackFont();
+  await loadKeySymbolFallbackFont();
+  useSystemFallbackFonts();
   return await AlchemistConfig.runWithConfig<FutureOr<void>>(
     config: fermanAlchemistConfig,
     run: testMain,

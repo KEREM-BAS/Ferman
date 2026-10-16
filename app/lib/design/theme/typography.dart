@@ -124,6 +124,26 @@ abstract final class FermanFontFamilies {
     FermanScript.hebrew => const [],
   };
 
+  /// Families that tests append to the end of every chain [uiChain]
+  /// returns. Empty, and never set, in the app.
+  ///
+  /// Production leaves the characters the bundled IBM Plex files lack to
+  /// the system's own font fallback (ADR 0013): on macOS that is how the
+  /// key symbols ⌘ ⌥ ⇧ ⌃ ⌫ ⌦ ↵ appear in shortcut caps (G87), as the
+  /// design's `--font-ui` gets them from `system-ui`, and how the language
+  /// picker shows the Japanese, Korean and Chinese names in a non-CJK UI.
+  /// Naming a system family here in the app would tie the UI to fonts that
+  /// only some machines have, and the Plex files are never extended.
+  ///
+  /// `flutter test` has no system font fallback, so a golden would draw
+  /// those characters as boxes. The test configuration
+  /// (`test/flutter_test_config.dart`) loads system fonts that have them
+  /// and names them here before any test runs. It must be set before the
+  /// first typography is built: [FermanTypography] caches its roles per
+  /// locale, and `FermanTheme.light` and `dark` keep the first ones built.
+  @visibleForTesting
+  static List<String> debugExtraFallback = const [];
+
   /// The UI font chain for [script]: the first family, then the fallbacks.
   ///
   /// - [FermanScript.standard], [FermanScript.arabic] and
@@ -134,11 +154,12 @@ abstract final class FermanFontFamilies {
   ///
   /// No script font comes first: the Arabic, Hebrew and Devanagari fonts
   /// lack Turkish and Vietnamese letters (ADR 0013, ARCHITECTURE §11.5).
+  /// Tests may add families at the end ([debugExtraFallback]).
   static List<String> uiChain(FermanScript script) {
     const ui = FermanTypeTokens.fontUi;
     final sans = ui.family!;
     final rest = ui.fallback;
-    return switch (script) {
+    final chain = switch (script) {
       FermanScript.standard ||
       FermanScript.arabic ||
       FermanScript.hebrew => [sans, ...rest],
@@ -147,6 +168,11 @@ abstract final class FermanFontFamilies {
       FermanScript.simplifiedChinese ||
       FermanScript.traditionalChinese => [sans, ...systemFor(script), ...rest],
     };
+    return [
+      ...chain,
+      for (final family in debugExtraFallback)
+        if (!chain.contains(family)) family,
+    ];
   }
 }
 
