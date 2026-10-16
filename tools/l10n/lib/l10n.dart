@@ -1,10 +1,11 @@
-/// The Ferman isolated-fallback generator (G93).
+/// The Ferman localization tools.
 ///
-/// Reads the abstract messages of the gen-l10n class in
-/// `app/lib/l10n/gen/app_localizations.dart` and writes
+/// The isolated-fallback generator (G93) reads the abstract messages of the
+/// gen-l10n class in `app/lib/l10n/gen/app_localizations.dart` and writes
 /// `app/lib/l10n/isolated_fallback.g.dart`: the English strings wrapped in
 /// left-to-right isolates, for a right-to-left app language without a
-/// translation.
+/// translation. The review table renders every message of the ARB files into
+/// `docs/TRANSLATION_REVIEW.md` for the native-speaker review.
 library;
 
 export 'src/cli.dart'
@@ -23,3 +24,21 @@ export 'src/generator.dart'
 export 'src/masked_source.dart' show MaskedSource, matchingBracket;
 export 'src/messages.dart'
     show Message, Parameter, ParameterKind, parseMessages, parseParameters;
+export 'src/review_table.dart'
+    show
+        ArbFile,
+        arbDirectory,
+        generateReviewDoc,
+        languageNames,
+        loadArbFiles,
+        markdownCell,
+        missingCell,
+        parseArb,
+        renderReviewTable,
+        replaceReviewRegion,
+        reviewBeginMarker,
+        reviewDocPath,
+        reviewEndMarker,
+        templateArbFile;
+export 'src/review_table_cli.dart' show reviewTableCommand, runReviewTableCli;
+export 'src/root.dart' show findRepoRoot;

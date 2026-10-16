@@ -10,6 +10,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:l10n/src/errors.dart';
 import 'package:l10n/src/generator.dart';
+import 'package:l10n/src/root.dart';
 import 'package:path/path.dart' as p;
 
 /// Exit code when `--check` finds the generated file stale or missing.
@@ -74,7 +75,7 @@ Future<int> runL10nCli(
 
   final rootOption = options.option('root');
   final root = rootOption == null
-      ? _findRoot(workingDirectory ?? Directory.current.path)
+      ? findRepoRoot(workingDirectory ?? Directory.current.path)
       : p.normalize(p.absolute(rootOption));
   if (root == null) {
     err.writeln(
@@ -116,16 +117,3 @@ String get _usage =>
     'Generates $outputPath from $inputPath (G93).\n\n'
     'Usage, from tools/l10n: dart run l10n [--root <dir>] [--check]\n\n'
     '${_parser.usage}';
-
-String? _findRoot(String start) {
-  var directory = p.normalize(p.absolute(start));
-  while (true) {
-    if (File(p.join(directory, 'app', 'l10n.yaml')).existsSync() &&
-        File(p.join(directory, 'tools', 'l10n', 'pubspec.yaml')).existsSync()) {
-      return directory;
-    }
-    final parent = p.dirname(directory);
-    if (parent == directory) return null;
-    directory = parent;
-  }
-}

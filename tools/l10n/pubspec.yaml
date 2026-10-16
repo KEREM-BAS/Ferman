@@ -2,8 +2,9 @@ name: l10n
 description: >-
   Generates app/lib/l10n/isolated_fallback.g.dart, the English strings wrapped
   in left-to-right isolates for an untranslated right-to-left app language
-  (G93), from the gen-l10n output. Pure Dart; run `dart run l10n` in this
-  directory.
+  (G93), from the gen-l10n output, and the translation table of
+  docs/TRANSLATION_REVIEW.md from the ARB files. Pure Dart; run `dart run l10n`
+  or `dart run l10n:review_table` in this directory.
 publish_to: none
 
 environment:

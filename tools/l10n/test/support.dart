@@ -1,3 +1,4 @@
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:l10n/l10n.dart';
@@ -60,3 +61,39 @@ class _AppLocalizationsDelegate {
   String get notAMember => 'x';
 }
 ''';
+
+/// The review document of a [reviewRoot] before the table is rendered.
+const String emptyReviewDoc =
+    '# Review\n\nWritten by hand.\n\n'
+    '$reviewBeginMarker\n$reviewEndMarker\n\nAfter the table.\n';
+
+/// A fresh temporary root for the review table: `app/l10n.yaml`, a
+/// `tools/l10n/pubspec.yaml`, the ARB files in [arbs] (by locale, each a
+/// JSON object) and [doc] as `docs/TRANSLATION_REVIEW.md`.
+Directory reviewRoot({
+  required Map<String, Map<String, Object?>> arbs,
+  String? doc = emptyReviewDoc,
+}) {
+  final temp = Directory.systemTemp.createTempSync('ferman_review_');
+  File(p.join(repoRoot, 'app', 'l10n.yaml')).copySync(
+    (File(
+      p.join(temp.path, 'app', 'l10n.yaml'),
+    )..parent.createSync(recursive: true)).path,
+  );
+  File(p.join(temp.path, 'tools', 'l10n', 'pubspec.yaml'))
+    ..parent.createSync(recursive: true)
+    ..writeAsStringSync('name: l10n\n');
+  for (final MapEntry(key: locale, value: messages) in arbs.entries) {
+    File(p.joinAll([temp.path, ...arbDirectory.split('/'), 'app_$locale.arb']))
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(
+        '${const JsonEncoder.withIndent('  ').convert(messages)}\n',
+      );
+  }
+  if (doc != null) {
+    File(p.joinAll([temp.path, ...reviewDocPath.split('/')]))
+      ..parent.createSync(recursive: true)
+      ..writeAsStringSync(doc);
+  }
+  return temp;
+}

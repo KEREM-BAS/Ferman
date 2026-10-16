@@ -19,7 +19,7 @@ ferman/
 │   ├── _ds/…/             design system: tokens/*.css, components, assets, _ds_bundle.js
 │   ├── ds-additions/      fm-additions.css (extra tokens and overrides), fm-icons.js (84 extra icons)
 │   └── shots/             partial 924×540 JPEG previews from the design session (not a reference; compare against build/design-refs/)
-├── docs/                  brief, architecture, ADRs, roadmap, progress, inventory, component spec, gaps, questions, backlog
+├── docs/                  brief, architecture, ADRs, roadmap, progress, inventory, component spec, gaps, questions, backlog, translation review
 ├── .claude/rules/         path-scoped rules: rust.md, flutter.md
 ├── CLAUDE.md  README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 ├── Cargo.toml  Cargo.lock  rust-toolchain.toml  clippy.toml  deny.toml
@@ -78,6 +78,7 @@ bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a 
 (cd tools/tokens && dart run)                 # design tokens → app/lib/design/tokens.g.dart (ADR 0012); CI: dart run tokens --check
 (cd tools/icons && dart run)                  # icons → app/assets/icons, IconName, PROVENANCE.md (ADR 0013); CI: dart run icons --check
 (cd tools/l10n && dart run)                   # after flutter gen-l10n: isolated fallback strings → app/lib/l10n/isolated_fallback.g.dart (G93); CI: dart run l10n --check
+(cd tools/l10n && dart run l10n:review_table)   # after an ARB change: the translation table in docs/TRANSLATION_REVIEW.md; CI: --check
 (cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md reference from app/test/design/component_spec.json
 tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage (offline; CI runs both)
 tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     # pinned PDFium → build/pdfium/<id>/
@@ -188,6 +189,7 @@ From [brief §9](docs/BRIEF.md#9-how-to-work-in-every-later-session), plus the g
 - [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md): every dependency and asset with its licence
 - [docs/QUESTIONS.md](docs/QUESTIONS.md): open questions for the owner
 - [docs/BACKLOG.md](docs/BACKLOG.md): disabled, deferred and skipped items
+- [docs/TRANSLATION_REVIEW.md](docs/TRANSLATION_REVIEW.md): every string in English, Turkish and Arabic for the native-speaker review (generated table)
 - [docs/adr/](docs/adr/README.md): architecture decision records
 
 Rust-only rules load from [.claude/rules/rust.md](.claude/rules/rust.md) and Flutter-only rules from [.claude/rules/flutter.md](.claude/rules/flutter.md) when you work in those paths.

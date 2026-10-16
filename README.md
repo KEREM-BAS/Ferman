@@ -97,7 +97,7 @@ ferman/
 ├── tests/corpus/        test PDFs, with their provenance in tests/corpus/README.md
 ├── fuzz/                cargo-fuzz targets, one per parser (from Milestone 2)
 ├── docs/                brief, architecture, ADRs, roadmap, progress, inventory, component spec,
-│                        gaps, dependencies, questions, backlog
+│                        gaps, dependencies, questions, backlog, translation review
 ├── .github/workflows/   CI on macOS, Windows and Linux
 ├── .claude/rules/       path-scoped working rules for the Rust and Flutter code
 ├── build/               local output such as design-reference renders (never committed)
@@ -123,6 +123,7 @@ JavaScript or font files.
 | [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) | Every dependency in use or planned and every bundled asset, with its licence |
 | [docs/QUESTIONS.md](docs/QUESTIONS.md) | Open questions for the maintainer |
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Work that is disabled, deferred or skipped |
+| [docs/TRANSLATION_REVIEW.md](docs/TRANSLATION_REVIEW.md) | Every UI string in English, Turkish and Arabic with the note for translators, for native-speaker review |
 | [CLAUDE.md](CLAUDE.md) | The short version of the rules, the commands and the definition of done |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | How we treat each other |

@@ -2,14 +2,17 @@
 
 Generates `app/lib/l10n/isolated_fallback.g.dart`: the English strings, each wrapped in a
 left-to-right isolate, for a right-to-left app language that has no translation yet
-([G93](../../docs/DESIGN_GAPS.md#g93), [G20](../../docs/DESIGN_GAPS.md#g20)). Pure Dart; no Flutter
-needed to run it.
+([G93](../../docs/DESIGN_GAPS.md#g93), [G20](../../docs/DESIGN_GAPS.md#g20)). A second command
+renders the translation table of [docs/TRANSLATION_REVIEW.md](../../docs/TRANSLATION_REVIEW.md) from
+the ARB files ([Review table](#review-table)). Pure Dart; no Flutter needed to run either.
 
 ```sh
 cd tools/l10n
 dart pub get
 dart run l10n           # write app/lib/l10n/isolated_fallback.g.dart (only if it changed)
 dart run l10n --check   # write nothing; exit 1 if the file is missing or stale
+dart run l10n:review_table           # render the table in docs/TRANSLATION_REVIEW.md (only if it changed)
+dart run l10n:review_table --check   # write nothing; exit 1 if the table is stale
 dart test
 ```
 
@@ -76,6 +79,33 @@ translated: Persian and Hebrew today). `Localizations` loads the first delegate 
 supports the locale, so it replaces `AppLocalizations.delegate`. English, Turkish and Arabic keep the
 gen-l10n classes unchanged.
 
+## Review table
+
+`dart run l10n:review_table` replaces the region between the two `GENERATED TRANSLATION TABLE`
+markers of `docs/TRANSLATION_REVIEW.md` with a table rendered from the ARB files in `app/lib/l10n/`
+(`arb-dir` and `template-arb-file` in `app/l10n.yaml`; a test checks that they still match); the
+prose around the markers is written by hand. Run it whenever an ARB message or the description of
+an English message is added, changed or removed. `--check` writes nothing and exits with 1 when the table is stale; CI runs it in the step
+"Generated files are current", and the codegen job regenerates it and fails on any diff.
+
+- A line of counts: the messages in `app_en.arb` and how many of them each other language has.
+- One row per message of `app_en.arb`, in file order: the key, the English message, the message of
+  each other ARB file (Turkish first, then the others by locale code; a language without a name in
+  `languageNames` is headed by its code), and the `description` of the English `@key` entry, the
+  note for translators. Keys only in a translation are left out (`tools/checks` `arb_parity` and the
+  app's ARB tests catch those); `@@locale` and the other metadata are skipped.
+- A dash (—) marks a language without a message for the key: the app shows the English one.
+- Cells are escaped for GitHub Markdown: a backslash before each of `\`, `|`, `*`, `_`, `` ` ``,
+  `[`, `]`, `~` and `$`, the entities `&amp;`, `&lt;` and `&gt;` for `&`, `<` and `>`, and `<br>`
+  for a line break, so the syntax characters of a message show as written, ICU syntax included.
+  Spaces at the start or end of a cell and runs of spaces collapse, as Markdown renders them.
+- The output is deterministic, with LF line endings; a checkout with CRLF line endings reads as
+  current.
+
+Exit codes are those of `dart run l10n`: 2 when the document, its markers (each exactly once, the
+begin marker first) or `app_en.arb` is missing, or an ARB file is not UTF-8 or not a JSON object of
+string messages.
+
 ## Self-tests
 
 `dart test` covers the reader (comments, nested block comments, raw, triple-quoted and interpolated
@@ -83,6 +113,9 @@ strings), the member parser (getters, methods with typed, optional positional an
 defaults, trailing commas, annotations, and every rejected form), the emitter, the real gen-l10n
 output, determinism, formatting, that the committed file is current, the `app/l10n.yaml` paths, and
 the command line (`--check` on a missing, stale and fresh file, a new message, root discovery, exit
-codes 2 and 64, `--help`). In the app, `app/test/l10n/isolated_fallback_test.dart` checks
-independently that the generated class overrides every message of `AppLocalizations` and every key
-of `app_en.arb`, and measures the reading order on screen.
+codes 2 and 64, `--help`), and the review table (the ARB reader and its errors, row and column
+order, missing messages, escaping, the marker region and its errors, that the committed document is
+current and has a row for every message, the `app/l10n.yaml` paths, and the command line). In the
+app, `app/test/l10n/isolated_fallback_test.dart` checks independently that the generated class
+overrides every message of `AppLocalizations` and every key of `app_en.arb`, and measures the
+reading order on screen.

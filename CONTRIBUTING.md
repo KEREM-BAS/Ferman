@@ -229,6 +229,7 @@ bash tools/pdfium/fetch.sh --platform linux-x64     # or win-x64, mac-univ
 (cd tools/tokens && dart run)        # design tokens → app/lib/design/tokens.g.dart
 (cd tools/icons && dart run)         # design icons → app/assets/icons and the IconName enum
 (cd tools/l10n && dart run)          # after flutter gen-l10n: the isolated fallback strings
+(cd tools/l10n && dart run l10n:review_table)   # after an ARB change: docs/TRANSLATION_REVIEW.md
 (cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md from the component spec
 tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage
 (cd tools/design-refs && npm ci && npm test)
@@ -307,7 +308,12 @@ pixel-diff tests:
 
 - **English is the source** (`app_en.arb`). **Turkish is complete**: a pull request that adds or
   changes a UI string updates Turkish too, and CI checks that the keys match.
-- Arabic exists for every string in the goldens, written or reviewed by a person.
+- Arabic exists for every string in the goldens.
+- The Turkish and Arabic strings of Milestone 1 wait for a native speaker's review: every string,
+  in English, Turkish and Arabic with the note for translators, is in
+  [docs/TRANSLATION_REVIEW.md](docs/TRANSLATION_REVIEW.md), with how to send corrections. A pull
+  request that changes an ARB file regenerates that table (`dart run l10n:review_table` in
+  `tools/l10n/`); CI fails when it is stale.
 - Other languages fall back to English until they are translated. Community translation will run
   through **Weblate** (planned, after Milestone 1); this section will explain how to join.
 - **Never machine-translate silently.** Machine output may enter only as a suggestion that a person
