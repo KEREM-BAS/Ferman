@@ -1,6 +1,8 @@
 # Renders the design boards to PNG (tools/design-refs) as the reference for the app's goldens.
 # Pull requests render the M1 boards; a manual run renders every board twice and checks that the
-# two runs are identical. The browser is fetched by tools/design-refs/fetch-chromium.sh, never by
+# two runs are identical. Then the committed goldens are compared with the references
+# (`node index.mjs compare`): the report goes to the step summary and, on pull requests from this
+# repository, to one pull-request comment; the scores are informative and never fail the job. The browser is fetched by tools/design-refs/fetch-chromium.sh, never by
 # the Playwright installer (which would also download an LGPL ffmpeg build).
 name: Design references
 
@@ -25,6 +27,9 @@ jobs:
     name: Render design references
     runs-on: ubuntu-24.04
     timeout-minutes: 30
+    permissions:
+      contents: read
+      pull-requests: write
     defaults:
       run:
         working-directory: tools/design-refs
@@ -54,3 +59,21 @@ jobs:
           path: build/design-refs/
           if-no-files-found: warn
           retention-days: 14
+      - name: Compare the goldens with the references (informative; scores never fail the job)
+        if: ${{ !cancelled() && hashFiles('build/design-refs/*.png') != '' }}
+        run: |
+          node index.mjs compare
+          cat ../../build/design-compare/report.md >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        if: ${{ !cancelled() && hashFiles('build/design-compare/report.md') != '' }}
+        with:
+          name: design-compare
+          path: build/design-compare/
+          if-no-files-found: warn
+          retention-days: 14
+      - name: Post the comparison report on the pull request
+        if: ${{ !cancelled() && github.event_name == 'pull_request' && github.event.pull_request.head.repo.full_name == github.repository && hashFiles('build/design-compare/report.md') != '' }}
+        env:
+          GH_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file ../../build/design-compare/report.md --edit-last --create-if-none

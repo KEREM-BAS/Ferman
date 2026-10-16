@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 // tools/design-refs: renders every board of the read-only design export to one PNG per board id,
-// offline, as the visual reference for the app's goldens. See README.md.
+// offline, as the visual reference for the app's goldens; `compare` lines the goldens up with those
+// references (compare.mjs). See README.md.
 
 import { createHash } from 'node:crypto';
 import { existsSync } from 'node:fs';
@@ -15,6 +16,7 @@ import { PNG } from 'pngjs';
 import { loadBoards, scanDesign, selectorFor, validateBoards, writeBoards } from './boards.mjs';
 import { LAUNCH_ARGS, expectedShell, resolveChromium, unexpectedPageErrors } from './browser.mjs';
 import { USAGE, UsageError, isInsideDir, parseCli, selectTargets } from './cli.mjs';
+import { compareMain } from './compare.mjs';
 import { createOfflineRouter } from './routes.mjs';
 import { startServer } from './server.mjs';
 
@@ -401,17 +403,24 @@ async function main() {
   return status;
 }
 
-main().then(
-  (code) => {
+if (process.argv[2] === 'compare') {
+  // compareMain reports its own errors and resolves to the exit code.
+  compareMain(process.argv.slice(3), { repoDir: REPO_DIR, toolDir: TOOL_DIR }).then((code) => {
     process.exitCode = code;
-  },
-  (error) => {
-    if (error instanceof UsageError) {
-      console.error(`design-refs: ${error.message}\n\n${USAGE}`);
-      process.exitCode = 2;
-    } else {
-      console.error(`design-refs: ${error instanceof Error ? error.message : String(error)}`);
-      process.exitCode = 1;
-    }
-  },
-);
+  });
+} else {
+  main().then(
+    (code) => {
+      process.exitCode = code;
+    },
+    (error) => {
+      if (error instanceof UsageError) {
+        console.error(`design-refs: ${error.message}\n\n${USAGE}`);
+        process.exitCode = 2;
+      } else {
+        console.error(`design-refs: ${error instanceof Error ? error.message : String(error)}`);
+        process.exitCode = 1;
+      }
+    },
+  );
+}

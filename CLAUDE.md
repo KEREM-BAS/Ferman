@@ -79,6 +79,7 @@ tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   
 tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     # pinned PDFium → build/pdfium/<id>/
 (cd tools/design-refs && npm ci && npm test)
 node tools/design-refs [--only @m1] [--twice]  # every board → build/design-refs/<id>.png, offline
+node tools/design-refs compare                 # goldens vs references → build/design-compare/report.md (informative)
 ```
 
 Each tool's README has the full options and its self-tests. The renderer needs the Chromium 1194 headless shell: the development container has it in `/opt/pw-browsers`; on Linux x64 `tools/design-refs/fetch-chromium.sh` downloads it and prints the path for `--chromium`. Never use the Playwright installer: it also downloads an LGPL ffmpeg build.

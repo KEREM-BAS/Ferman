@@ -13,8 +13,10 @@ export function defaultJobs() {
 }
 
 export const USAGE = `Usage: node tools/design-refs [options]
+       node tools/design-refs compare [options]
 
-Renders design boards to <out>/<id>.png, offline.
+Renders design boards to <out>/<id>.png, offline. \`compare\` lines the app's goldens up with
+those renders and writes a report (node tools/design-refs compare --help).
 
 Options:
   --only <ids>       render only these ids (comma-separated, repeatable); @<set> expands a set

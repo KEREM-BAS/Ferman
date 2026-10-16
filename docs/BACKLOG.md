@@ -61,7 +61,7 @@ disable them. The first entries come from the casing and region-format utilities
 B007 come from the bridge and PDFium bundling work (phases E3 and E4), B008 and B009 from the title
 bars (phase H1), B010 to B017 from the component library (phase G), B018 to B092 from the
 shell, first run, the start screen and Settings (phases H2 to H5 and I2 to I4), and B093 to B096 from
-narrow windows (phase H6).
+narrow windows (phase H6), and B097 and B098 from the golden comparison (phase K2).
 
 In "Where it appears disabled", keys in parentheses are the control's keys in the shortcut table
 (`app/lib/features/shell/shortcuts.dart`). They do nothing until the feature ships: a command without
@@ -165,6 +165,8 @@ and Shift for ⇧.
 | B094 | Resizing the sidebar and the right panel | none drawn ([G21](DESIGN_GAPS.md#g21)) | not visible | M2, with the viewer | Both keep their FmWindow widths (216 and 264 px); G21 asks for resize handles and limits, which no board draws beyond the split-view separator of a2-8a and a2-8b. |
 | B095 | A tooltip with both the name and the reason for a disabled tool whose label has hidden | none drawn ([G95](DESIGN_GAPS.md#g95)) | Tool rows of a narrow window (every collapsed tool in M1) | M2 | A disabled control shows its reason as its tooltip ([G10](DESIGN_GAPS.md#g10)), so a collapsed disabled tool reads "Available in a future version" without its name; the name stays the accessible name and appears in the overflow menu. Showing both needs a Tooltip and FermanInteractive change. |
 | B096 | The document tab strip below about 760 px | a14-1, a14-1c (tablet shells) | not visible: the desktop minimum width (1024 px) keeps it out of reach | P5 (web and tablets) | Below about 760 px the title bar's tabs overflow; the tablet shells draw their own tab handling. |
+| B097 | Comparing the German boards with goldens | `a12-2b`, `a12-2d` | not visible: the comparison report lists them as not compared | when German strings exist (community translation, [ADR 0014](adr/0014-localization-and-rtl.md)) | M1 has no German UI, so `tools/design-refs/compare-map.json` has no golden for them; the Proposed pseudo-locale tests stand in for their text expansion. |
+| B098 | Unmasking the comparison of the canvas and the recent files | `a2-1b`, `a3-1d`, `f6a`, `a12-2a` | not visible: masked in the comparison report | M2 (the canvas and recent files), M3 (the edited document of f6a and a3-1d) | The boards draw a rendered document and recent files that M1 cannot show, so `compare-map.json` masks the shell canvas (960 × 751 at 216, 123) and the recent files of a12-2a; remove each mask when the feature ships. |
 
 ## Done
 

@@ -12,6 +12,7 @@
   "scripts": {
     "render": "node index.mjs",
     "list": "node index.mjs --list",
+    "compare": "node index.mjs compare",
     "test": "node --test \"test/*.test.mjs\""
   },
   "dependencies": {

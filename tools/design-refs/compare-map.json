@@ -1,0 +1,98 @@
+{
+  "$comment": "Golden-versus-reference pairs for `node tools/design-refs compare` (ROADMAP §5 step 11). Each pair names a board of boards.json (its render is <refs>/<board>.png) and a golden of the M1 matrix (<goldens>/<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png, a whole 1440 × 900 window at 1x), or says why the board is not compared. `crop` cuts the board render, `goldenCrop` the golden; both must give the same size. `masks` are rectangles in the compared frame (after cropping) that neither score counts. Rectangles are whole pixels: x, y, width, height. README.md explains the fields and the scores.",
+  "goldenSize": { "width": 1440, "height": 900 },
+  "pairs": [
+    {
+      "id": "f6-mac",
+      "board": "f6",
+      "golden": "shell_edit_mac_light_en.png",
+      "crop": { "x": 0, "y": 182, "width": 1440, "height": 79 },
+      "goldenCrop": { "x": 0, "y": 0, "width": 1440, "height": 79 },
+      "cropSource": "The strip 'Title bar and mode bar · macOS': the first .fm-root inside section#f6, 1440 × 79 (FmWindow platform=mac mode=edit status=false). Its box, measured in the renderer's page, starts 182.41 px below the board's clip, which Chromium snaps to row 182; in f6.png its 1 px box-shadow ring is row 181, row 261 and column 1440. Checked: the top 79 rows of the a3-1c render (a light macOS Edit window) equal this crop pixel for pixel.",
+      "note": "Fix 6, the macOS title bar and mode bar (Edit mode, three document tabs, the first unsaved), against the top 79 rows of the macOS Edit shell: title bar 38, mode bar 40 and the first row of the tool row."
+    },
+    {
+      "id": "f6-win",
+      "board": "f6",
+      "golden": "shell_edit_win_light_en.png",
+      "crop": { "x": 0, "y": 318, "width": 1440, "height": 79 },
+      "goldenCrop": { "x": 0, "y": 0, "width": 1440, "height": 79 },
+      "cropSource": "The strip 'Title bar and mode bar · Windows': the second .fm-root inside section#f6, 1440 × 79 (FmWindow platform=win mode=edit status=false). Its box starts 317.5 px below the board's clip, snapped to row 318; in f6.png its ring is row 317, row 397 and column 1440. Checked: the top 79 rows of the f6a window equal this crop pixel for pixel.",
+      "note": "Fix 6, the Windows title bar and mode bar (caption buttons, Ctrl K), against the top 79 rows of the Windows Edit shell. The Windows window that section#f6 also draws is the f6a board: rows 470 to 1369 of f6.png are pixel-identical to the f6a crop, so it is compared once, as f6a."
+    },
+    {
+      "board": "f6a",
+      "golden": "shell_edit_win_light_en.png",
+      "crop": { "x": 0, "y": 45, "width": 1440, "height": 900 },
+      "cropSource": "The window: the .fm-root inside div#f6a, 1440 × 900 (FmWindow platform=win mode=edit save=unsaved). Its box starts 44.69 px below the board's clip, snapped to row 45; in f6a.png its ring is row 44, row 945 and column 1440. The board render (3468 × 1008) also holds the 'F6a Main editor' heading above it and a caption below.",
+      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
+      "note": "Fix 6a, the Windows editor in Edit mode with unsaved edits. The canvas is masked: it shows the Kira contract with an edited block (M3), and M1 opens no PDF. The thumbnails and the text-block panel show that document and are expected to differ; the reference's 8 px rounded corners show the board's background."
+    },
+    {
+      "board": "a1-1",
+      "golden": "language_picker_mac_light_en.png",
+      "note": "Language picker, macOS, light, English. The board draws a keyboard focus ring on Türkçe and no 'Not translated yet' state (G20)."
+    },
+    {
+      "board": "a1-2b",
+      "golden": "welcome_privacy_mac_light_en.png",
+      "note": "Welcome step 2 of 3. The app lists all four network uses (G24) where the board names only the update check, so the rows are expected to differ."
+    },
+    {
+      "board": "a1-2c",
+      "golden": "welcome_free_mac_light_en.png",
+      "note": "Welcome step 3 of 3. The app says Apache-2.0 instead of GPL-3.0-or-later (G13) and does not mark unshipped features as Included (G12), so those texts are expected to differ."
+    },
+    {
+      "board": "a1-5",
+      "golden": "start_mac_light_en.png",
+      "note": "The empty start screen with the drop zone, macOS, light, English. Actions and quick tools that need later milestones are disabled in the app (G11)."
+    },
+    {
+      "board": "a11-1",
+      "golden": "settings_general_mac_light_en.png",
+      "note": "Settings, General, macOS, light, English. Options that need later milestones are disabled in the app."
+    },
+    {
+      "board": "a11-1w",
+      "golden": "settings_general_win_light_en.png",
+      "note": "Settings, General, with Windows chrome (caption buttons, no traffic lights); the same values as a11-1."
+    },
+    {
+      "board": "a11-1b",
+      "golden": "settings_language_mac_light_en.png",
+      "note": "Settings, Language and region, macOS, light, English, with the Türkiye region (13.10.2026, 14:32, 18.500,50, 10,5 pt). A golden drawn with another region differs in the examples."
+    },
+    {
+      "board": "a12-2a",
+      "golden": "start_mac_light_ar.png",
+      "masks": [{ "label": "recent-files", "x": 0, "y": 232, "width": 1440, "height": 668 }],
+      "note": "The start screen in Arabic, right to left, macOS. The board draws pinned and recent files (M2) where M1 shows the empty drop zone, so everything below the quick tools is masked (the chips end at row 218, the drop area starts at row 245 in a12-2a and a1-5). The board's two document tabs in the title bar are expected to differ."
+    },
+    {
+      "board": "a12-2b",
+      "notCompared": "German board (Start, Windows): German is not translated in M1, so there is no German golden; the pseudo-locale goldens that stand in for the German boards (ARCHITECTURE §13.5) are out of scope for this report."
+    },
+    {
+      "board": "a12-2c",
+      "golden": "settings_language_mac_light_ar.png",
+      "note": "Settings, Language and region, in Arabic, right to left, macOS, with the Türkiye region."
+    },
+    {
+      "board": "a12-2d",
+      "notCompared": "German board (Settings, Language and region, Windows): German is not translated in M1, so there is no German golden; the pseudo-locale goldens that stand in for the German boards (ARCHITECTURE §13.5) are out of scope for this report."
+    },
+    {
+      "board": "a2-1b",
+      "golden": "shell_view_mac_light_en.png",
+      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
+      "note": "The macOS shell chrome in View mode, light (ROADMAP §5 step 8: the macOS shell has no M1 board of its own). The canvas is masked. The thumbnails and the Document panel describe an open document (M2) and are expected to differ."
+    },
+    {
+      "board": "a3-1d",
+      "golden": "shell_edit_mac_dark_en.png",
+      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
+      "note": "The macOS shell chrome in Edit mode, dark (ROADMAP §5 step 8). The canvas is masked. The thumbnails and the text-block panel show the edited document (M3) and are expected to differ."
+    }
+  ]
+}

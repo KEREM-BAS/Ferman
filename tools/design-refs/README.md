@@ -4,6 +4,9 @@ Renders every board of the read-only design export in `design/` to one PNG per b
 as the visual reference the app's goldens are compared against
 ([ROADMAP §5 step 6](../../docs/ROADMAP.md), [G07](../../docs/DESIGN_GAPS.md#g07)). It reads
 `design/` and never writes to it. The output goes to `build/design-refs/`, which is gitignored.
+`node tools/design-refs compare` then lines the app's goldens up with those references and writes
+a report with a perceptual difference score per pair
+([ROADMAP §5 step 11](../../docs/ROADMAP.md); [Comparing goldens with the references](#comparing-goldens-with-the-references)).
 Nothing here is part of the app.
 
 ## Usage
@@ -23,6 +26,7 @@ node tools/design-refs                            # all 223 boards + the DS addi
 node tools/design-refs --only @m1                 # the 15 M1 boards
 node tools/design-refs --only a1-1,a11-1 --twice  # render twice, fail unless identical
 node tools/design-refs --list                     # ids, capture mode, file; the sets
+node tools/design-refs compare                    # goldens against references: build/design-compare/
 ```
 
 | Option | Meaning |
@@ -57,6 +61,144 @@ missing from `design/`, `--twice` found a difference, or the browser cannot be f
 
 Measured in the development container (4 CPUs, 4 jobs): all 224 PNGs in about 3 minutes, the 15
 M1 boards in about 15 seconds; `--twice` doubles that.
+
+## Comparing goldens with the references
+
+`compare` lines up each window golden of the app (phase K1) with the render of the board it was
+built from, scores how far apart they are, and writes the images a person needs to judge it. It
+is informative: in M1 a person reviews the report, and no score fails a run
+([ROADMAP §5 step 11](../../docs/ROADMAP.md), [ARCHITECTURE §13.5](../../docs/ARCHITECTURE.md#135-flutter-tests)).
+It needs no browser and no network: it reads PNGs and writes PNGs and Markdown.
+
+```sh
+node tools/design-refs --only @m1                 # the references first (or a full render)
+node tools/design-refs compare                    # → build/design-compare/report.md
+node tools/design-refs compare --goldens <dir> --out <dir> --threshold 0.05
+```
+
+| Option | Meaning |
+|---|---|
+| `--refs <dir>` | The board renders, `<dir>/<board>.png`. Default: `build/design-refs`. |
+| `--goldens <dir>` | The goldens. Default: `app/test/goldens/goldens/linux`. |
+| `--out <dir>` | Output directory. Default: `build/design-compare`. Refused inside `design/` and inside the goldens folder. |
+| `--map <file>` | The pairs. Default: `tools/design-refs/compare-map.json`. |
+| `--threshold <t>` | pixelmatch's colour threshold, from 0 to 1: how far apart, in its YIQ colour distance, two pixels may be and still count as the same. Default: 0.1, pixelmatch's own default. |
+
+Output, in `--out`:
+
+- `report.md`: a summary line (pairs compared, missing, with errors, not compared; the median and
+  highest share of differing pixels), how to read the scores, and one table row per pair with its
+  result, both scores, its images and its notes (the map's note, the crops and the masks).
+- `<pair>.side.png`: reference | golden | diff side by side, with a grey gap and every masked area
+  outlined in magenta on the reference and the golden.
+- `<pair>.diff.png`: pixelmatch's diff: the reference faded, red where pixels differ beyond the
+  threshold, yellow where the difference is anti-aliasing (not counted), grey stripes where a mask
+  applies.
+
+Each pair's two images are deleted before it is compared, so a pair that is missing this time
+leaves no image from an earlier run. The report holds no time stamp; in GitHub Actions it links
+the run whose `design-compare` artifact holds the images.
+
+A pair's result is one of:
+
+| Result | When |
+|---|---|
+| `compared` | Both images exist and have the same size after cropping. |
+| `missing` | The golden, the reference or both do not exist (the row says which). A missing goldens folder makes every pair missing; it is not an error, because the goldens may come later than the map. |
+| `error` | An image cannot be decoded, a crop lies outside its image, a golden without a `goldenCrop` is not 1440 × 900, or the two sides differ in size. |
+| `not compared` | The map gives the reason instead of a golden. |
+
+Exit codes: 0 when the report is written, whatever the scores and results; 64 for a usage error;
+66 when the map cannot be read or is invalid, or the reference folder does not exist; 1 for
+anything unexpected.
+
+### The scores
+
+- **Differing pixels**: the share of the compared pixels (those no mask covers) whose colour
+  differs by more than the threshold, with anti-aliased pixels left out (pixelmatch detects a pixel
+  as anti-aliasing from its neighbours in both images). It answers "how much of the window is a
+  different colour". Identical images score 0 %; one changed pixel of 1440 × 900 is 0.00008 %.
+- **1 − SSIM**: one minus the mean structural similarity (SSIM, Wang et al. 2004) of the luma
+  (Rec. 601) over 8 × 8 windows in steps of 4, with masked pixels left out of every window. It
+  answers "how different is the structure": edges, text and texture. 0 is identical.
+
+What they do not mean:
+
+- They are not a pass mark, and no threshold says "matches the design". Flutter and Chromium
+  rasterise text differently, so a faithful golden still differs at the edges of its glyphs
+  (pixelmatch leaves out what it recognises as anti-aliasing; SSIM does not), and the expected
+  differences (the licence text of `a1-2c`, the network rows of `a1-2b`, a disabled control)
+  count like real ones. Read the side-by-side image.
+- They are not comparable across pairs: a window that is mostly flat background dilutes its share
+  of differing pixels. For scale, measured on the references themselves: the whole window shifted
+  right by 1 px gives 0.66 % to 0.86 % and 1 − SSIM 0.031 to 0.039 (`a1-2c`, `a1-5`, `a11-1`); two
+  different screens (the `a1-5` render standing in for the `a1-2c` golden) give 2.21 % and 0.1523.
+- 1 − SSIM does not see a change of colour at the same luma; the differing-pixel score does,
+  through pixelmatch's YIQ distance. Neither looks under a mask.
+
+### The map
+
+`compare-map.json` lists every pair. `goldenSize` is the contract with the goldens: a whole
+window at 1440 × 900 and a device pixel ratio of 1, named
+`<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png` with the screens of the golden matrix. Each pair:
+
+| Field | Meaning |
+|---|---|
+| `board` | A board id of `boards.json`; its reference is `<refs>/<board>.png`. |
+| `id` | The pair's name in the report and its image names. Default: the board id; required when a board has two pairs (`f6-mac`, `f6-win`). |
+| `golden` | The golden's file name, or none with `notCompared`. |
+| `notCompared` | Why the board has no golden. |
+| `crop` | `{x, y, width, height}`: the part of the board render to compare. Needs `cropSource`. |
+| `cropSource` | How the crop rectangle was found. |
+| `goldenCrop` | The part of the golden to compare (default: all of it). Both sides must have the same size. |
+| `masks` | `[{label, x, y, width, height}]` in the compared frame (after cropping): areas neither score counts. |
+| `note` | What a reviewer should know: what the board shows and which differences are expected. |
+
+Every run checks the map (unknown keys, unknown boards, golden names, rectangle sizes, masks inside
+the frame) and stops with exit code 66 on a problem. The tests check that it names every board of
+the `@m1` set, and only boards of that set, which CI renders.
+
+| Pair | Golden | Crop and masks | Why |
+|---|---|---|---|
+| `f6-mac` | `shell_edit_mac_light_en` | board 0, 182, 1440 × 79; golden top 79 rows | Fix 6's macOS title bar and mode bar strip (Edit mode). |
+| `f6-win` | `shell_edit_win_light_en` | board 0, 318, 1440 × 79; golden top 79 rows | Fix 6's Windows strip. |
+| `f6a` | `shell_edit_win_light_en` | board 0, 45, 1440 × 900; canvas masked | The Windows editor window, Edit mode. |
+| `a1-1` | `language_picker_mac_light_en` | | Language picker, macOS, light, English. |
+| `a1-2b` | `welcome_privacy_mac_light_en` | | Welcome step 2 (G24 changes the rows). |
+| `a1-2c` | `welcome_free_mac_light_en` | | Welcome step 3 (G12, G13 change the texts). |
+| `a1-5` | `start_mac_light_en` | | The empty start screen. |
+| `a11-1` | `settings_general_mac_light_en` | | Settings General, macOS. |
+| `a11-1w` | `settings_general_win_light_en` | | Settings General, Windows chrome. |
+| `a11-1b` | `settings_language_mac_light_en` | | Settings Language and region (region Türkiye). |
+| `a12-2a` | `start_mac_light_ar` | rows 232 to 899 masked | Start in Arabic; the board's recent files are M2. |
+| `a12-2b` | none | | German board: no German golden in M1. |
+| `a12-2c` | `settings_language_mac_light_ar` | | Settings Language and region in Arabic. |
+| `a12-2d` | none | | German board: no German golden in M1. |
+| `a2-1b` | `shell_view_mac_light_en` | canvas masked | The macOS chrome, light (ROADMAP step 8). |
+| `a3-1d` | `shell_edit_mac_dark_en` | canvas masked | The macOS chrome, dark (ROADMAP step 8). |
+
+The canvas mask is 960 × 751 at 216, 123: FmWindow's canvas between the sidebar (216 px) and the
+right panel (264 px), below the title bar, mode bar and tool row (38 + 40 + 45 px) and above the
+status bar (26 px), as measured in the `a2-1b`, `a3-1d` and `f6a` renders. It hides the document
+those boards draw; M1 opens none.
+
+How the fix-board crops were found. The renders of `f6` (3468 × 1433) and `f6a` (3468 × 1008)
+are wider than a window, because the fix sections stretch to the widest section of their page,
+and they hold headings and captions. The windows inside them are `.fm-root` elements: in
+`section#f6`, two strips of 1440 × 79 (FmWindow `platform=mac` and `platform=win`, `mode=edit`,
+no status bar) and one 1440 × 900 window; in `div#f6a`, the same 1440 × 900 window. Their boxes
+were measured in the renderer's page relative to the board's clip (182.41, 317.5 and 469.69 px
+down in `f6`, 44.69 px in `f6a`, all at x 0) and checked in the PNGs, where each box's 1 px
+box-shadow ring is the row above it, the row below it and column 1440. The window inside `f6`
+(rows 470 to 1369) is pixel-identical to the `f6a` crop, so `f6` is compared through its two
+strips, and the window once, as `f6a`. Both strip crops were confirmed to the pixel: the top 79
+rows of the `f6a` window (Windows) and of the `a3-1c` render (a light macOS Edit window) equal
+them, with 0 differing pixels and 1 − SSIM 0. After a design re-export, measure again: the boards'
+box positions can move.
+
+In CI, the design-references workflow runs `compare` after rendering the M1 boards, appends
+`report.md` to the job's step summary and uploads `build/design-compare/` as the
+`design-compare` artifact.
 
 ## The browser
 
@@ -104,6 +246,7 @@ npx playwright-core install-deps chromium-headless-shell   # system libraries an
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
 node index.mjs --only @m1 --twice                   # in a later step, with FERMAN_CHROMIUM set
+node index.mjs compare                              # then the report, appended to the step summary
 ```
 
 ## What is captured
@@ -193,8 +336,8 @@ vendored into the repository, and none of it ships with Ferman. The browser is d
 | react-dom | 18.3.1 | MIT | `umd/react-dom.production.min.js`, served for unpkg.com |
 | @babel/standalone | 7.29.0 | MIT | `babel.min.js`, served for unpkg.com (the export loads it only for JSX imports) |
 | scheduler 0.23.2, loose-envify 1.4.0, js-tokens 4.0.0 | | MIT | dependencies of react and react-dom |
-| pixelmatch | 7.2.0 | ISC | diff images for `--twice`; later the golden-vs-reference comparison |
-| pngjs | 7.0.0 | MIT | PNG decoding for pixelmatch |
+| pixelmatch | 7.2.0 | ISC | diff images for `--twice`; the differing-pixel score and diff images of `compare` |
+| pngjs | 7.0.0 | MIT | PNG decoding and encoding for both |
 | @fontsource/ibm-plex-sans-jp | 5.3.0 | OFL-1.1 | IBM Plex Sans JP 400, 500, 600 |
 | @fontsource/ibm-plex-sans-kr | 5.3.0 | OFL-1.1 | IBM Plex Sans KR 400, 500, 600 |
 | @fontsource/ibm-plex-sans-hebrew | 5.3.0 | OFL-1.1 | IBM Plex Sans Hebrew 400, 500, 600 |
