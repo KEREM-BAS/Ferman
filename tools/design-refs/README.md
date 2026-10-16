@@ -23,7 +23,7 @@ export FERMAN_CHROMIUM="$(tools/design-refs/fetch-chromium.sh)"
 # The development container already has it in /opt/pw-browsers, which is found on its own.
 
 node tools/design-refs                            # all 223 boards + the DS additions sheet
-node tools/design-refs --only @m1                 # the 17 M1 boards
+node tools/design-refs --only @m1                 # the 18 M1 boards
 node tools/design-refs --only a1-1,a11-1 --twice  # render twice, fail unless identical
 node tools/design-refs --list                     # ids, capture mode, file; the sets
 node tools/design-refs compare                    # goldens against references: build/design-compare/
@@ -57,7 +57,10 @@ stale looks current.
 The exit code is 0 only if every requested board has its PNG. It is 1 if a board failed, a PNG is
 missing (the count check), a request tried to leave the machine, a file the design references is
 missing from `design/`, `--twice` found a difference, or the browser cannot be found or launched;
-2 for a usage error.
+2 for a usage error. The count check and this exit code are `countCheck` and `runStatus` in
+`outcome.mjs`; `test/outcome.test.mjs` checks without a browser that a requested board without a
+PNG fails the run and is named, and that a blocked request fails the run even when every board has
+its PNG.
 
 Measured in the development container (4 CPUs, 4 jobs): all 224 PNGs in about 3 minutes, the 15
 M1 boards in about 15 seconds; `--twice` doubles that.
@@ -178,6 +181,7 @@ the `@m1` set, and only boards of that set, which CI renders.
 | `a3-1d` | `shell_edit_mac_dark_en` | canvas masked | The macOS chrome, dark (ROADMAP step 8). |
 | `a12-1tr` | `shell_edit_mac_light_tr` | canvas masked | The macOS chrome in Turkish, Edit mode. |
 | `a12-1ar` | `shell_edit_mac_light_ar` | canvas masked (mirrored, 264, 123) | The macOS chrome in Arabic, right to left, Edit mode. |
+| `a11-1h` | `settings_privacy_mac_light_en` | | Settings Privacy (the switches are off and disabled in M1, G89). |
 
 The canvas mask is 960 × 751 at 216, 123: FmWindow's canvas between the sidebar (216 px) and the
 right panel (264 px), below the title bar, mode bar and tool row (38 + 40 + 45 px) and above the
@@ -240,14 +244,16 @@ On macOS and Windows, download the matching zip of the same revision by hand
 (`chromium-headless-shell-mac-arm64.zip`, `-mac.zip` or `-win64.zip` under the same CDN path),
 unpack it and pass its `headless_shell` executable with `--chromium`.
 
-In CI (Linux) the design-refs job runs, in `tools/design-refs`:
+In CI, the tool's tests (`npm ci && npm test`) run in the "Design-reference tool tests" step of
+`.github/workflows/ci.yml`, and the renders run in their own workflow,
+`.github/workflows/design-refs.yml` (Linux), in `tools/design-refs`:
 
 ```sh
-npm ci && npm test
+npm ci
 npx playwright-core install-deps chromium-headless-shell   # system libraries and fonts (apt)
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-node index.mjs --only @m1 --twice                   # in a later step, with FERMAN_CHROMIUM set
+node index.mjs --only @m1 --twice                   # pull requests; a manual run renders every board twice
 node index.mjs compare                              # then the report, appended to the step summary
 ```
 

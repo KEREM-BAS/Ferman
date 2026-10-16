@@ -71,11 +71,12 @@ bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a 
 
 # Tools
 (cd tools/checks && dart run bin/check_all.dart --root ../..)   # repository checks CI runs
+(cd tools/checks && dart run bin/scan_bundle.dart --root ../.. ../../app/build/web)   # no design-export file in a build output (CI scans every release build)
 (cd tools/tokens && dart run)                 # design tokens → app/lib/design/tokens.g.dart (ADR 0012); CI: dart run tokens --check
 (cd tools/icons && dart run)                  # icons → app/assets/icons, IconName, PROVENANCE.md (ADR 0013); CI: dart run icons --check
 (cd tools/l10n && dart run)                   # after flutter gen-l10n: isolated fallback strings → app/lib/l10n/isolated_fallback.g.dart (G93); CI: dart run l10n --check
 (cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md reference from app/test/design/component_spec.json
-tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage (offline)
+tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage (offline; CI runs both)
 tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     # pinned PDFium → build/pdfium/<id>/
 (cd tools/design-refs && npm ci && npm test)
 node tools/design-refs [--only @m1] [--twice]  # every board → build/design-refs/<id>.png, offline

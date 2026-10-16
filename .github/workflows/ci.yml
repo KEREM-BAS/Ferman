@@ -74,11 +74,12 @@ jobs:
           bash tools/pdfium/selftest.sh
           bash tools/pdfium/fetch.sh --all
           bash tools/pdfium/fetch.sh --all --verify --check-licenses
-      - name: Bundled fonts (unmodified IBM files)
+      - name: Bundled fonts (unmodified IBM files, script coverage)
         shell: bash
         run: |
           bash tools/fonts/selftest.sh
           bash tools/fonts/fetch.sh --verify-committed
+          python3 -I tools/fonts/coverage.py
       - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
         with:
           node-version-file: tools/design-refs/.nvmrc
@@ -316,8 +317,113 @@ jobs:
       - name: Web build (kept buildable until phase 5; Proposed)
         if: runner.os == 'Linux'
         run: flutter build web --release
+      - name: No design files in the web build
+        if: runner.os == 'Linux'
+        working-directory: tools/checks
+        run: |
+          # The design export, its runtime scripts and fonts, and copies of any
+          # file under design/ (tools/checks/lib/src/bundle_scan.dart).
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. ../../app/build/web
       - name: Desktop build
         run: flutter build ${{ matrix.target }} --release
+      - name: Universal app for macOS 12.0 (Q03)
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          app=build/macos/Build/Products/Release/Ferman.app
+          if [ ! -d "$app" ]; then
+            echo "::error::No release app at app/$app"
+            ls build/macos/Build/Products/Release || true
+            exit 1
+          fi
+          plist="$app/Contents/Info.plist"
+          status=0
+          fail() { echo "::error::$1"; status=1; }
+          # Every failure reports itself and the step goes on, so one bad file
+          # never ends the step without an error or hides the next one.
+          bins=()
+          if name="$(plutil -extract CFBundleExecutable raw "$plist")"; then
+            exe="$app/Contents/MacOS/$name"
+            bins+=("$exe")
+          else
+            exe=
+            fail "app/$plist has no CFBundleExecutable"
+          fi
+          bins+=("$app/Contents/Frameworks/rust_lib_ferman.framework/rust_lib_ferman")
+          bins+=("$app/Contents/Frameworks/libpdfium.dylib")
+          # The minimum macOS of each slice: LC_BUILD_VERSION minos, or
+          # LC_VERSION_MIN_MACOSX version in older binaries.
+          minos() {
+            if xcrun --find vtool >/dev/null 2>&1; then
+              xcrun vtool -show-build "$1"
+            else
+              otool -arch all -l "$1"
+            fi | awk '$1 == "cmd" { cmd = $2 }
+              cmd == "LC_BUILD_VERSION" && $1 == "minos" { print $2 }
+              cmd == "LC_VERSION_MIN_MACOSX" && $1 == "version" { print $2 }'
+          }
+          if ! min_plist="$(plutil -extract LSMinimumSystemVersion raw "$plist")"; then
+            fail "app/$plist has no LSMinimumSystemVersion"
+          elif [ "$min_plist" != "12.0" ]; then
+            fail "LSMinimumSystemVersion is $min_plist, not 12.0"
+          fi
+          version_re='^[0-9]+(\.[0-9]+){0,2}$'
+          for bin in "${bins[@]}"; do
+            if [ ! -f "$bin" ]; then
+              fail "app/$bin is missing from the app bundle"
+              continue
+            fi
+            # One universal build: both slices in every binary.
+            if ! archs="$(lipo -archs "$bin")"; then
+              fail "app/$bin: lipo -archs cannot read it"
+              continue
+            fi
+            for arch in x86_64 arm64; do
+              case " $archs " in
+                *" $arch "*) ;;
+                *) fail "app/$bin is not universal: lipo -archs gives '$archs', no $arch" ;;
+              esac
+            done
+            if ! versions="$(minos "$bin")"; then
+              fail "app/$bin: cannot read its load commands"
+              continue
+            fi
+            count="$(printf '%s\n' "$versions" | grep -c . || true)"
+            if [ "$count" -lt 2 ]; then
+              fail "app/$bin: $count minimum macOS version(s) found, expected one per slice"
+              continue
+            fi
+            # The app targets exactly 12.0; a library it loads may not need anything newer.
+            while IFS= read -r v; do
+              # Only a plain version number reaches the arithmetic: anything
+              # else fails here instead of aborting the loop.
+              if [[ ! $v =~ $version_re ]]; then
+                fail "app/$bin: unreadable minimum macOS '$v'"
+                continue
+              fi
+              IFS=. read -r major minor _ <<< "$v"
+              n=$((10#$major * 100 + 10#${minor:-0}))
+              if [ "$bin" = "$exe" ] && [ "$n" -ne 1200 ]; then
+                fail "app/$bin targets macOS $v, not 12.0"
+              elif [ "$n" -gt 1200 ]; then
+                fail "app/$bin needs macOS $v, newer than the app's 12.0"
+              fi
+            done <<< "$(printf '%s\n' "$versions" | sort -u)"
+            echo "app/$bin: $archs; minimum macOS $(printf '%s\n' "$versions" | paste -sd ' ' -)"
+          done
+          exit "$status"
+      - name: No design files in the app build
+        working-directory: tools/checks
+        run: |
+          case "$RUNNER_OS" in
+            Linux) out=build/linux/x64/release/bundle ;;
+            macOS) out=build/macos/Build/Products/Release/Ferman.app ;;
+            Windows) out=build/windows/x64/runner/Release ;;
+            *) echo "::error::No release output known for $RUNNER_OS"; exit 1 ;;
+          esac
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. "../../app/$out"
       - name: Integration test (Linux, under Xvfb)
         if: runner.os == 'Linux'
         run: xvfb-run -a flutter test integration_test -d linux

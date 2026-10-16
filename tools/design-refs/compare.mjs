@@ -23,6 +23,7 @@ export const GOLDEN_SCREENS = [
   'start',
   'settings_general',
   'settings_language',
+  'settings_privacy',
   'shell_view',
   'shell_edit',
   'shell_comment',

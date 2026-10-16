@@ -6,8 +6,9 @@ standard library only, then:
   * lists each file's family and style from its name table, its OS/2 weight class,
     italic flag and font revision, which the pubspec.yaml declarations must use;
   * checks that each family's cmap covers the scripts Ferman's UI needs: Plex Sans
-    covers Turkish, Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and
-    Persian; Plex Sans Hebrew covers Hebrew; Plex Sans Devanagari covers Devanagari;
+    covers Basic Latin, the Latin-1 letters, Turkish, Vietnamese, Cyrillic and Greek;
+    Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew covers Hebrew; Plex
+    Sans Devanagari covers Devanagari;
   * checks that the golden sample string of ROADMAP M1 step 5 resolves through the UI
     fallback chain without a missing character.
 
@@ -60,6 +61,9 @@ def span(first: int, last: int, skip: tuple[int, ...] = ()) -> list[int]:
 # Every file of the family must map every listed code point.
 REQUIRED: dict[str, list[tuple[str, list[int]]]] = {
     "IBM Plex Sans": [
+        ("Basic Latin U+0020..U+007E", span(0x0020, 0x007E)),
+        # The same range as the script fonts' own Latin line below.
+        ("Latin-1 letters U+00C0..U+00FF", span(0x00C0, 0x00FF)),
         ("Turkish", chars("İıĞğŞşÇçÖöÜüÂâÎîÛû")),
         ("Vietnamese U+1EA0..U+1EF9", span(0x1EA0, 0x1EF9)),
         (

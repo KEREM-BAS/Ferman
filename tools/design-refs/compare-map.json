@@ -105,6 +105,11 @@
       "golden": "shell_edit_mac_light_ar.png",
       "masks": [{ "label": "canvas", "x": 264, "y": 123, "width": 960, "height": 751 }],
       "note": "The macOS shell chrome in Edit mode in Arabic, right to left, light: the traffic lights at the end, the sidebar and the panel swapped, the canvas never mirrored. The canvas is masked, mirrored to 264, 123. The thumbnails, the text-block panel, Save and Review edits show the edited document (M3) and are expected to differ; the board draws Arabic-Indic digits, as the Saudi Arabia region of the golden does."
+    },
+    {
+      "board": "a11-1h",
+      "golden": "settings_privacy_mac_light_en.png",
+      "note": "Settings, Privacy, macOS, light, English. The board draws four network switches on; M1 shows every switch off and disabled with the future-version tooltip, and Show network activity disabled (G89), so the switches and that button are expected to differ."
     }
   ]
 }

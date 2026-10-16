@@ -17,6 +17,7 @@ import { loadBoards, scanDesign, selectorFor, validateBoards, writeBoards } from
 import { LAUNCH_ARGS, expectedShell, resolveChromium, unexpectedPageErrors } from './browser.mjs';
 import { USAGE, UsageError, isInsideDir, parseCli, selectTargets } from './cli.mjs';
 import { compareMain } from './compare.mjs';
+import { countCheck, runStatus } from './outcome.mjs';
 import { createOfflineRouter } from './routes.mjs';
 import { startServer } from './server.mjs';
 
@@ -376,7 +377,7 @@ async function main() {
     await writeManifest(options.out, [...list.boards, ...list.pages], pass);
 
     // Count check: one PNG per requested board, or the run fails.
-    const missing = targets.filter((t) => !pass.results.has(t.id)).map((t) => t.id);
+    const { missing, error: countError } = countCheck(targets, pass.results);
     const misses = [...new Set(server.misses)].filter((m) => m !== '/favicon.ico');
     log('');
     log(`rendered ${rendered} of ${targets.length} board(s) in ${seconds(pass.ms)} (chromium ${pass.browserVersion})`);
@@ -395,8 +396,8 @@ async function main() {
       if (mismatches.length === 0) log(`twice: all ${rendered} PNG(s) identical (second render ${seconds(secondMs)})`);
       for (const m of mismatches) console.error(`NOT DETERMINISTIC ${m.id}: ${m.reason}`);
     }
-    if (missing.length > 0) console.error(`NO PNG for ${missing.length} of ${targets.length} board(s): ${missing.join(' ')}`);
-    if (failures.length + missing.length + router.violations.length + misses.length + mismatches.length > 0) status = 1;
+    if (countError !== null) console.error(countError);
+    status = runStatus({ failures, missing, violations: router.violations, misses, mismatches });
   } finally {
     await server.close();
   }

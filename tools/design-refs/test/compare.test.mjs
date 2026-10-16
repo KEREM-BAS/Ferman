@@ -115,6 +115,7 @@ test('the map pairs the boards with the goldens drawn from them', async () => {
   assert.equal(golden['a3-1d'], 'shell_edit_mac_dark_en.png');
   assert.equal(golden['a12-1tr'], 'shell_edit_mac_light_tr.png');
   assert.equal(golden['a12-1ar'], 'shell_edit_mac_light_ar.png');
+  assert.equal(golden['a11-1h'], 'settings_privacy_mac_light_en.png');
   // Right to left, the canvas sits at the other end of the window.
   assert.deepEqual(
     map.pairs.find((p) => p.id === 'a12-1ar').masks.map((m) => [m.x, m.y, m.width, m.height]),

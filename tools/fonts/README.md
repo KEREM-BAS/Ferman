@@ -96,9 +96,11 @@ inside the zip.
 
 ## Coverage (coverage.py)
 
-Result for the committed files (2026-10-15), every check passing:
+Result for the committed files (2026-10-16), every check passing. CI runs it in the
+repository-checks job, after `--verify-committed`:
 
-- **Plex Sans** (all four files): Turkish (İ ı Ğ ğ Ş ş Ç ç Ö ö Ü ü Â â Î î Û û), Vietnamese
+- **Plex Sans** (all four files): Basic Latin U+0020 to U+007E, the Latin-1 letters U+00C0 to
+  U+00FF, Turkish (İ ı Ğ ğ Ş ş Ç ç Ö ö Ü ü Â â Î î Û û), Vietnamese
   U+1EA0 to U+1EF9 plus Ă Đ Ơ Ư and the combining marks, Cyrillic U+0400 to U+045F plus Ґ ґ,
   Greek with tonos and dialytika, and the UI punctuation including € and ₺.
 - **Plex Sans Arabic:** Arabic letters, harakat, Arabic-Indic digits, the Persian letters

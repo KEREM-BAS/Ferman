@@ -18,10 +18,10 @@ test('boards.json matches the design files', async () => {
   for (const b of [...list.boards, ...list.pages]) assert.ok(existsSync(path.join(DESIGN_DIR, b.file)), b.file);
 });
 
-test('the M1 set names the 17 M1 boards', async () => {
+test('the M1 set names the 18 M1 boards', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
-  assert.equal(list.sets.m1.length, 17);
-  assert.equal(new Set(list.sets.m1).size, 17);
+  assert.equal(list.sets.m1.length, 18);
+  assert.equal(new Set(list.sets.m1).size, 18);
 });
 
 test('validation reports missing, extra and moved boards', () => {

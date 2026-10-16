@@ -33,7 +33,7 @@ test('rejects bad options as usage errors', () => {
 test('selects boards by id and set, in boards.json order', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
   const m1 = selectTargets(list, ['@m1']);
-  assert.equal(m1.length, 17);
+  assert.equal(m1.length, 18);
   const order = [...list.boards, ...list.pages].map((b) => b.id);
   assert.deepEqual(
     m1.map((b) => b.id),

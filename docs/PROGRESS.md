@@ -212,11 +212,12 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   part of [G87](DESIGN_GAPS.md#g87) ([G96](DESIGN_GAPS.md#g96)); CI installs both and fails if their
   versions change. Two consecutive runs and a regeneration gave byte-identical PNGs. Phase K2 built
   the comparison report: `node tools/design-refs compare` lines up each golden with its board
-  (`tools/design-refs/compare-map.json`: 18 pairs, f6 and f6a cropped, the canvas masked until M2,
-  the Turkish and Arabic editors a12-1tr and a12-1ar added with K1), scores the differing pixels and
-  1 − SSIM, and writes a report that the design-references workflow puts in the step summary and one
-  pull-request comment (informative, not a gate). In the development container 16 pairs compare with
-  a median of 1.9 % differing pixels and at most 10.7 % (a3-1d, the dark editor with a document);
+  (`tools/design-refs/compare-map.json`: 19 pairs, f6 and f6a cropped, the canvas masked until M2,
+  the Turkish and Arabic editors a12-1tr and a12-1ar and Settings Privacy a11-1h added with K1),
+  scores the differing pixels and 1 − SSIM, and writes a report that the design-references workflow
+  puts in the step summary and one pull-request comment (informative, not a gate). In the development
+  container 17 pairs compare with a median of 1.6 % differing pixels and at most 10.7 % (a3-1d, the
+  dark editor with a document);
   [G97](DESIGN_GAPS.md#g97) lists the drawn and token-built variants and the expected differences.
   The German boards are not compared (B097).
 - [ ] Acceptance criteria, standard gates and exit checks met

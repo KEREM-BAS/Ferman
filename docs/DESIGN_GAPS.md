@@ -1425,7 +1425,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing variant
 - **Milestone:** M1
 - **Area:** Golden matrix
-- **Artboards:** compared: `f6`, `f6a`, `a1-1`, `a1-2b`, `a1-2c`, `a1-5`, `a11-1`, `a11-1w`, `a11-1b`, `a12-2a`, `a12-2c`, `a2-1b`, `a3-1d`, `a12-1tr`, `a12-1ar`; not compared (German): `a12-2b`, `a12-2d`; the Privacy pane `a11-1h`; nearest drawn modes: `a2-9`, `a4-1`, `a4-1d`, `a5-1`, `a5-1d`, `a6-1`, `a7-1`, `a8-1`, `a9-1`
+- **Artboards:** compared: `f6`, `f6a`, `a1-1`, `a1-2b`, `a1-2c`, `a1-5`, `a11-1`, `a11-1w`, `a11-1b`, `a11-1h`, `a12-2a`, `a12-2c`, `a2-1b`, `a3-1d`, `a12-1tr`, `a12-1ar`; not compared (German): `a12-2b`, `a12-2d`; nearest drawn modes: `a2-9`, `a4-1`, `a4-1d`, `a5-1`, `a5-1d`, `a6-1`, `a7-1`, `a8-1`, `a9-1`
 - **Gap or conflict:** ROADMAP §5 step 11 asks for goldens of the language picker, welcome steps 2 and 3, the empty start screen, Settings General and Language and region, and the shell in eight modes with macOS and Windows chrome, each in light and dark × en, tr and ar. The matrix adds Settings General with Windows chrome (a11-1w) and the Privacy pane, the third built pane of Settings, as the brief asks goldens of every implemented screen: 144 goldens. The boards draw only some of these variants, and those they draw often show states M1 cannot reach (an open document, recent files, unsaved edits).
 - **Decision:** Every golden is built from the tokens and the ARB files; a board, where one exists, is the reference the comparison report scores it against ([ARCHITECTURE §13.5](ARCHITECTURE.md#135-flutter-tests)). The variants with no board are built from tokens as G16 (Windows), G17 (dark), G18 (right to left) and G19 (Turkish) decide:
 
