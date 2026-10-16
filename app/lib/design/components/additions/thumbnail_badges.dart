@@ -54,11 +54,15 @@ enum ThumbnailBadge {
 /// aside for them (`PageThumbnail.badges`).
 ///
 /// Each badge shows its text from [tooltips] (such as "1 warning · Madde 6
-/// uses a font without ‘ğ’") on hover and keyboard focus.
+/// uses a font without ‘ğ’") on hover and keyboard focus. A badge without
+/// a tooltip is decoration only: it takes no focus and screen readers skip
+/// it.
 ///
 /// **Keyboard** (f5): the badges are one Tab stop; the arrow keys move
 /// between them, wrapping, and each badge announces its tooltip. Focus
-/// keeps the badge's ring and adds the focus ring (G22).
+/// keeps the badge's ring and adds the focus ring (G22). Focus belongs to
+/// a badge, not a position, so it stays on its badge when others come or
+/// go.
 ///
 /// [ThumbnailBadgeLegend] is the "Page badges" legend the Pages header's
 /// info button opens.
@@ -91,7 +95,7 @@ class ThumbnailBadges extends StatefulWidget {
   final Set<ThumbnailBadge> badges;
 
   /// The tooltip and accessible name of each badge; a badge without one
-  /// shows no tooltip.
+  /// shows no tooltip and is not focusable.
   final Map<ThumbnailBadge, String> tooltips;
 
   /// [badges] in the fixed order.
@@ -113,23 +117,26 @@ class ThumbnailBadges extends StatefulWidget {
 }
 
 class _ThumbnailBadgesState extends State<ThumbnailBadges> {
-  final List<FocusNode> _nodes = [];
-  final Set<int> _focusVisible = {};
-  int _stop = 0;
+  // One node per badge, made up front (there are five), so a badge keeps
+  // its focus whatever comes or goes, and no node is disposed while built.
+  final Map<ThumbnailBadge, FocusNode> _nodes = {
+    for (final badge in ThumbnailBadge.values)
+      badge: FocusNode(debugLabel: 'ThumbnailBadge ${badge.name}'),
+  };
+  final Set<ThumbnailBadge> _focusVisible = {};
 
-  void _syncNodes(int count) {
-    while (_nodes.length < count) {
-      _nodes.add(FocusNode(debugLabel: 'ThumbnailBadge ${_nodes.length}'));
-    }
-    while (_nodes.length > count) {
-      _nodes.removeLast().dispose();
-    }
-    if (_stop >= count) _stop = 0;
-  }
+  /// The badge that holds the group's Tab stop.
+  ThumbnailBadge? _stop;
+
+  /// The badges that take focus: those with a tooltip, in the fixed order.
+  List<ThumbnailBadge> get _stops => [
+    for (final badge in widget.ordered)
+      if (widget.tooltips.containsKey(badge)) badge,
+  ];
 
   @override
   void dispose() {
-    for (final node in _nodes) {
+    for (final node in _nodes.values) {
       node.dispose();
     }
     super.dispose();
@@ -157,20 +164,24 @@ class _ThumbnailBadgesState extends State<ThumbnailBadges> {
     } else {
       return KeyEventResult.ignored;
     }
-    final from = _nodes.indexWhere((node) => node.hasFocus);
+    final stops = _stops;
+    final from = stops.indexWhere((badge) => _nodes[badge]!.hasFocus);
     if (from < 0) return KeyEventResult.ignored;
-    final count = _nodes.length;
-    _nodes[((from + delta) % count + count) % count].requestFocus();
+    final count = stops.length;
+    _nodes[stops[((from + delta) % count + count) % count]]!.requestFocus();
     return KeyEventResult.handled;
   }
 
   @override
   Widget build(BuildContext context) {
     final ordered = widget.ordered;
-    _syncNodes(ordered.length);
     if (ordered.isEmpty) return const SizedBox.shrink();
     final theme = context.ferman;
     final forced = FermanForcedStates.of(context).contains(WidgetState.focused);
+    final stops = _stops;
+    final stop = stops.contains(_stop)
+        ? _stop
+        : (stops.isEmpty ? null : stops.first);
     return Focus(
       canRequestFocus: false,
       skipTraversal: true,
@@ -182,13 +193,15 @@ class _ThumbnailBadgesState extends State<ThumbnailBadges> {
           mainAxisSize: MainAxisSize.min,
           spacing: ThumbnailBadges.gap,
           children: [
-            for (var i = 0; i < ordered.length; i++)
+            for (final badge in ordered)
               _badge(
                 context,
                 theme,
-                ordered[i],
-                i,
-                focusVisible: _focusVisible.contains(i) || forced,
+                badge,
+                stop: stop,
+                focusVisible:
+                    widget.tooltips.containsKey(badge) &&
+                    (_focusVisible.contains(badge) || forced),
               ),
           ],
         ),
@@ -199,11 +212,12 @@ class _ThumbnailBadgesState extends State<ThumbnailBadges> {
   Widget _badge(
     BuildContext context,
     FermanTheme theme,
-    ThumbnailBadge badge,
-    int index, {
+    ThumbnailBadge badge, {
+    required ThumbnailBadge? stop,
     required bool focusVisible,
   }) {
     final message = widget.tooltips[badge];
+    final focusable = message != null;
     final dot = badge == ThumbnailBadge.edited;
     Widget result = FocusRing(
       visible: focusVisible,
@@ -220,24 +234,31 @@ class _ThumbnailBadgesState extends State<ThumbnailBadges> {
         child: result,
       );
     }
-    final node = _nodes[index]..skipTraversal = index != _stop;
+    final node = _nodes[badge]!..skipTraversal = badge != stop;
     result = FocusableActionDetector(
       focusNode: node,
+      // A badge without a tooltip is decoration only: no focus, no node.
+      enabled: focusable,
       includeFocusSemantics: false,
-      onFocusChange: (value) {
-        if (value) setState(() => _stop = index);
-      },
-      onShowFocusHighlight: (value) => setState(() {
-        value ? _focusVisible.add(index) : _focusVisible.remove(index);
+      // Rebuild on every change, so the semantics' focused flag follows
+      // focus out of the badge too.
+      onFocusChange: (value) => setState(() {
+        if (value) _stop = badge;
       }),
-      child: Semantics(
-        container: true,
-        image: true,
-        focusable: true,
-        focused: node.hasFocus,
-        label: message,
-        onFocus: node.requestFocus,
-        child: result,
+      onShowFocusHighlight: (value) => setState(() {
+        value ? _focusVisible.add(badge) : _focusVisible.remove(badge);
+      }),
+      child: ExcludeSemantics(
+        excluding: !focusable,
+        child: Semantics(
+          container: true,
+          image: true,
+          focusable: true,
+          focused: node.hasFocus,
+          label: message,
+          onFocus: node.requestFocus,
+          child: result,
+        ),
       ),
     );
     if (message != null) {

@@ -16,6 +16,25 @@ void main() {
   Widget host(Widget child, {Brightness brightness = Brightness.light}) =>
       componentHost(SizedBox(width: 300, child: child), brightness: brightness);
 
+  /// The first canvas call named [method] and its arguments.
+  List<dynamic> firstCall(WidgetTester tester, Symbol method) {
+    List<dynamic>? found;
+    expect(
+      markOf(tester),
+      paints..everything((name, arguments) {
+        if (name == method) found ??= arguments;
+        return true;
+      }),
+    );
+    return found!;
+  }
+
+  /// The baseline of a one-line run laid out at its own size.
+  double baselineOf(WidgetTester tester) {
+    final box = tester.renderObject<RenderBox>(find.byType(MarkedText));
+    return box.getDryBaseline(box.constraints, TextBaseline.alphabetic)!;
+  }
+
   testWidgets('highlight is the default: yellow, multiplied, under the text', (
     tester,
   ) async {
@@ -75,6 +94,81 @@ void main() {
         })
         ..paragraph(),
     );
+  });
+
+  testWidgets('underline geometry: its top 2 px under the baseline', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      componentHost(
+        const Highlight(
+          variant: HighlightVariant.underline,
+          child: TextSpan(text: 'IBAN'),
+        ),
+      ),
+    );
+    final rect = firstCall(tester, #drawRect).first as Rect;
+    expect(
+      rect.top,
+      closeTo(baselineOf(tester) + Highlight.underlineOffset, 1e-9),
+    );
+    expect(rect.left, 0);
+    expect(rect.height, Highlight.lineThickness);
+    expect(rect.width, tester.getSize(find.byType(MarkedText)).width);
+  });
+
+  testWidgets('squiggly geometry: a 1.5 px wave from 3 px down', (
+    tester,
+  ) async {
+    await tester.pumpWidget(
+      componentHost(
+        const Highlight(
+          variant: HighlightVariant.squiggly,
+          child: TextSpan(text: 'kira'),
+        ),
+      ),
+    );
+    final path = firstCall(tester, #drawPath).first as Path;
+    var top = double.infinity;
+    var bottom = double.negativeInfinity;
+    for (final metric in path.computeMetrics()) {
+      for (var at = 0.0; at <= metric.length; at += 0.1) {
+        final y = metric.getTangentForOffset(at)!.position.dy;
+        if (y < top) top = y;
+        if (y > bottom) bottom = y;
+      }
+    }
+    final baseline = baselineOf(tester);
+    expect(top, closeTo(baseline + Highlight.squigglyOffset, 0.05));
+    // One thickness either side of the wave's middle line.
+    expect(
+      bottom,
+      closeTo(
+        baseline + Highlight.squigglyOffset + 2 * Highlight.squigglyThickness,
+        0.05,
+      ),
+    );
+  });
+
+  testWidgets('strikethrough geometry: through the lowercase letters', (
+    tester,
+  ) async {
+    const text = TextSpan(text: 'kullandırılamaz');
+    // The run's box, from the highlight fill of the same text.
+    await tester.pumpWidget(componentHost(const Highlight(child: text)));
+    final top = (firstCall(tester, #drawRRect).first as RRect).top;
+    await tester.pumpWidget(
+      componentHost(
+        const Highlight(variant: HighlightVariant.strikethrough, child: text),
+      ),
+    );
+    final baseline = baselineOf(tester);
+    final rect = firstCall(tester, #drawRect).first as Rect;
+    expect(
+      rect.center.dy,
+      closeTo(baseline - (baseline - top) * MarkPaint.strikeRatio, 1e-9),
+    );
+    expect(rect.height, Highlight.lineThickness);
   });
 
   testWidgets('strikethrough: a 2 px line over the text', (tester) async {

@@ -11,13 +11,23 @@ import 'package:flutter/widgets.dart';
 /// A 1.5 px bar of `--edit-caret` (ink 700, page-tuned, the same in both
 /// themes), 1.15 em tall for the ambient font size and sinking 0.2 em
 /// below the baseline (`vertical-align: -0.2em`). It takes no width in the
-/// line: the bar straddles its position (`margin: 0 -0.75px`). Inside text,
-/// place it in a `WidgetSpan` aligned to the baseline.
+/// line: the bar straddles its position (`margin: 0 -0.75px`).
+///
+/// Inside text, place it in a `WidgetSpan` aligned to the baseline. A
+/// widget span's child does not inherit the span's style, so give the
+/// caret the span's font size with
+/// `DefaultTextStyle.merge(style: TextStyle(fontSize: <span size>), child:
+/// const TextCaret())`. The span applies the text scaler to the caret, so
+/// the caret itself never scales its size; used outside text, it is not
+/// scaled.
 ///
 /// It blinks in hard steps: shown for the first half of every
 /// [blinkPeriod] and hidden for the second (`fm-caret` keyframes,
 /// `steps(1)`). Under reduced motion (the zero durations of
-/// `context.ferman.motion`) it stays solid (COMPONENTS.md, decision 12).
+/// `context.ferman.motion`) it stays solid (COMPONENTS.md, decision 12),
+/// and while its tickers are muted ([TickerMode]) or it is hidden (an
+/// `IndexedStack` page that is not shown, [Visibility]) it stays solid
+/// and runs no timer.
 ///
 /// It is decorative and excluded from semantics.
 class TextCaret extends StatefulWidget {
@@ -54,7 +64,10 @@ class _TextCaretState extends State<TextCaret> {
   void didChangeDependencies() {
     super.didChangeDependencies();
     final reduced = context.ferman.motion.durBase == Duration.zero;
-    if (reduced) {
+    // Both register a dependency, so this runs again when either flips.
+    final ticking = TickerMode.valuesOf(context).enabled;
+    final shown = Visibility.of(context);
+    if (reduced || !ticking || !shown) {
       _timer?.cancel();
       _timer = null;
       _visible = true;
@@ -74,9 +87,10 @@ class _TextCaretState extends State<TextCaret> {
 
   @override
   Widget build(BuildContext context) {
-    final style = DefaultTextStyle.of(context).style;
-    final fontSize = MediaQuery.textScalerOf(context)
-        .scale(style.fontSize ?? TextCaret.fallbackFontSize);
+    // Unscaled: inside text, the widget span applies the text scaler.
+    final fontSize =
+        DefaultTextStyle.of(context).style.fontSize ??
+        TextCaret.fallbackFontSize;
     return ExcludeSemantics(
       child: _CaretBar(
         color: context.ferman.pageColors.editCaret,

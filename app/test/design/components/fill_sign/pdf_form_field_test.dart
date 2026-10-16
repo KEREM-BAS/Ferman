@@ -23,6 +23,32 @@ void main() {
   Color borderOf(WidgetTester tester) =>
       (boxOf(tester).border! as Border).top.color;
 
+  /// The foreground painter around the box: the read-only dotted line or
+  /// the signature's dashes.
+  RenderObject linePainterOf(WidgetTester tester) => tester.renderObject(
+    find.ancestor(of: box, matching: find.byType(CustomPaint)).first,
+  );
+
+  /// Expects the read-only dotted bottom line: 1 px squares 2 px apart.
+  void expectDottedLine(WidgetTester tester) {
+    final height = tester.getSize(box).height;
+    final dots = <Rect>[];
+    expect(
+      linePainterOf(tester),
+      paints..everything((method, arguments) {
+        if (method == #drawRect &&
+            (arguments[1] as Paint).color.toARGB32() ==
+                ramps.paper400.toARGB32()) {
+          dots.add(arguments.first as Rect);
+        }
+        return true;
+      }),
+    );
+    expect(dots.length, greaterThan(3));
+    expect(dots.first, Rect.fromLTWH(0, height - 1, 1, 1));
+    expect(dots[1].left - dots[0].left, 2);
+  }
+
   setUp(() {
     FocusManager.instance.highlightStrategy =
         FocusHighlightStrategy.alwaysTraditional;
@@ -48,8 +74,9 @@ void main() {
       expect(asterisk, findsOneWidget);
       final star = tester.getRect(asterisk);
       final field = tester.getRect(box);
-      expect(star.top, field.top - PdfFormField.asteriskTop);
-      expect(star.right, field.right + PdfFormField.asteriskEnd);
+      // From the padding edge, inside the 1 px border.
+      expect(star.top, field.top - (PdfFormField.asteriskTop - 1));
+      expect(star.right, field.right + (PdfFormField.asteriskEnd - 1));
     });
 
     testWidgets('hover strengthens an empty border only', (tester) async {
@@ -131,12 +158,43 @@ void main() {
           ),
         ),
       );
-      final border = boxOf(tester).border! as Border;
-      expect(border.top, BorderSide.none);
-      expect(border.bottom.color, ramps.paper400);
+      // A transparent 1 px border all round (the content stays put), the
+      // dotted line drawn over the bottom one.
+      expect(boxOf(tester).border, Border.all(color: const Color(0x00000000)));
+      expect(boxOf(tester).borderRadius, isNull);
       expect(boxOf(tester).color, isNull);
+      expectDottedLine(tester);
       expect(find.text('2026-0047812'), findsOneWidget);
       expect(find.byType(EditableText), findsNothing);
+    });
+
+    testWidgets('read-only dropdown and checkbox: the dotted line too', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.dropdown,
+            state: PdfFormFieldState.readonly,
+            value: 'İSTANBUL',
+          ),
+        ),
+      );
+      expectDottedLine(tester);
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.checkbox,
+            state: PdfFormFieldState.readonly,
+            checked: true,
+          ),
+        ),
+      );
+      expect(boxOf(tester).border, Border.all(color: const Color(0x00000000)));
+      expectDottedLine(tester);
+      // Not in the other looks.
+      await tester.pumpWidget(componentHost(const PdfFormField()));
+      expect(linePainterOf(tester), isNot(paints..rect()));
     });
 
     testWidgets('page-tuned: the same colours in the dark theme', (
@@ -159,7 +217,7 @@ void main() {
       );
       expect(
         tester.getRect(asterisk).left,
-        tester.getRect(box).left - PdfFormField.asteriskEnd,
+        tester.getRect(box).left - (PdfFormField.asteriskEnd - 1),
       );
     });
   });
@@ -206,20 +264,51 @@ void main() {
       expect(tester.widget<Icon>(find.byType(Icon)).name, IconName.calendar);
     });
 
-    testWidgets('multiline: 54 px at least, several lines', (tester) async {
+    testWidgets('multiline: three 16 px rows, 60 px in every look', (
+      tester,
+    ) async {
+      const lines =
+          'Birinci satır\nİkinci satır\nÜçüncü satır\nDördüncü\nBeşinci';
       await tester.pumpWidget(
         componentHost(
           PdfFormField(type: PdfFormFieldType.multiline, onChanged: (_) {}),
         ),
       );
+      expect(tester.getSize(box).height, 60);
+      final editor = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editor.maxLines, PdfFormField.multilineRows);
+      expect(editor.minLines, PdfFormField.multilineRows);
       expect(
-        tester.getSize(box).height,
-        greaterThanOrEqualTo(PdfFormField.multilineMinHeight),
+        editor.style.height! * editor.style.fontSize!,
+        closeTo(PdfFormField.multilineLineHeight, 1e-9),
       );
+      // More lines scroll inside; the box stays.
+      await tester.enterText(find.byType(EditableText), lines);
+      await tester.pump();
+      expect(tester.getSize(box).height, 60);
+      // Read-only and not editable: the same box and line height.
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.multiline,
+            state: PdfFormFieldState.readonly,
+            value: lines,
+          ),
+        ),
+      );
+      expect(tester.getSize(box).height, 60);
+      final text = tester.widget<Text>(find.text(lines));
+      expect(text.maxLines, PdfFormField.multilineRows);
       expect(
-        tester.widget<EditableText>(find.byType(EditableText)).maxLines,
-        isNull,
+        text.style!.height! * text.style!.fontSize!,
+        closeTo(PdfFormField.multilineLineHeight, 1e-9),
       );
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(type: PdfFormFieldType.multiline, value: 'Kısa'),
+        ),
+      );
+      expect(tester.getSize(box).height, 60);
     });
 
     testWidgets('semantics: label, required, error as hint, invalid', (
@@ -314,6 +403,47 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(Menu), findsNothing);
     });
+
+    testWidgets('semantics: focusable and focused while it can open', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          PdfFormField(
+            type: PdfFormFieldType.dropdown,
+            label: 'İl',
+            options: const ['A', 'B'],
+            focusNode: node,
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(box),
+        isSemantics(label: 'İl', isFocusable: true, isFocused: false),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(box),
+        isSemantics(isFocusable: true, isFocused: true),
+      );
+      // Without a handler it cannot open, nor take focus.
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.dropdown,
+            label: 'İl',
+            options: ['A', 'B'],
+          ),
+        ),
+      );
+      expect(tester.getSemantics(box), isSemantics(isFocusable: false));
+      handle.dispose();
+    });
   });
 
   group('PdfFormField checkbox and radio', () {
@@ -340,16 +470,50 @@ void main() {
       expect(boxOf(tester).color, PdfFormField.filledFill);
       await tester.tap(box);
       expect(presses, 1);
-      node.requestFocus();
-      await tester.pump();
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      expect(presses, 1);
-      await tester.sendKeyEvent(LogicalKeyboardKey.space);
-      expect(presses, 2);
       expect(
         tester.getSemantics(box),
         isSemantics(label: 'Beyan', hasCheckedState: true, isChecked: true),
       );
+      handle.dispose();
+    });
+
+    testWidgets('Space toggles; Enter does not, even with the app shortcuts', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      for (final type in [PdfFormFieldType.checkbox, PdfFormFieldType.radio]) {
+        var presses = 0;
+        final node = FocusNode();
+        addTearDown(node.dispose);
+        // The app's shortcuts map Enter and NumpadEnter to ActivateIntent.
+        await tester.pumpWidget(
+          componentHost(
+            Shortcuts(
+              shortcuts: WidgetsApp.defaultShortcuts,
+              child: Actions(
+                actions: WidgetsApp.defaultActions,
+                child: PdfFormField(
+                  type: type,
+                  label: 'Beyan',
+                  focusNode: node,
+                  onPressed: () => presses++,
+                ),
+              ),
+            ),
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+        expect(presses, 0, reason: '$type');
+        await tester.sendKeyEvent(LogicalKeyboardKey.space);
+        expect(presses, 1, reason: '$type');
+        expect(
+          tester.getSemantics(box),
+          isSemantics(isFocusable: true, isFocused: true),
+        );
+      }
       handle.dispose();
     });
 
@@ -394,6 +558,19 @@ void main() {
         findsNothing,
       );
       expect(borderOf(tester), ramps.red600);
+      // 4 px under the box (`a5-2b`: `display:grid;gap:4px`), where text
+      // fields keep the `.fm-pff` 3 px gap.
+      expect(
+        tester.getTopLeft(error).dy - tester.getBottomLeft(box).dy,
+        FermanSpaceTokens.space1,
+      );
+      await tester.pumpWidget(
+        componentHost(const PdfFormField(error: 'Enter all 11 digits.')),
+      );
+      expect(
+        tester.getTopLeft(error).dy - tester.getBottomLeft(box).dy,
+        PdfFormField.gap,
+      );
     });
   });
 
@@ -438,6 +615,123 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(presses, 2);
+    });
+
+    testWidgets('unsigned: the asterisk and the content inside the dashes', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          PdfFormField(
+            type: PdfFormFieldType.signature,
+            required: true,
+            width: 150,
+            signHereLabel: 'Sign here',
+            onPressed: () {},
+          ),
+        ),
+      );
+      const border = PdfFormField.signatureBorder;
+      final field = tester.getRect(box);
+      final star = tester.getRect(asterisk);
+      expect(star.top, field.top - (PdfFormField.asteriskTop - border));
+      expect(star.right, field.right + (PdfFormField.asteriskEnd - border));
+      expect(
+        tester.getTopLeft(find.byType(Icon)).dx - field.left,
+        PdfFormField.signaturePaddingX + border,
+      );
+      // Signed: a 1 px solid border, which takes its own room.
+      await tester.pumpWidget(
+        componentHost(
+          PdfFormField(
+            type: PdfFormFieldType.signature,
+            required: true,
+            signedAs: 'Ayşe Yılmaz',
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(
+        tester.getRect(asterisk).top,
+        tester.getRect(box).top - (PdfFormField.asteriskTop - 1),
+      );
+      expect(
+        tester.getTopLeft(find.text('Ayşe Yılmaz')).dx -
+            tester.getRect(box).left,
+        PdfFormField.signaturePaddingX + 1,
+      );
+    });
+
+    testWidgets('read-only: the dotted line; solid once signed', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.signature,
+            state: PdfFormFieldState.readonly,
+            signHereLabel: 'Sign here',
+          ),
+        ),
+      );
+      final unsigned = boxOf(tester).border! as BorderDirectional;
+      expect(unsigned.top.color, const Color(0x00000000));
+      expect(unsigned.top.width, PdfFormField.signatureBorder);
+      expect(unsigned.start.width, PdfFormField.signatureBorder);
+      expect(unsigned.bottom.width, 1);
+      expectDottedLine(tester);
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.signature,
+            state: PdfFormFieldState.readonly,
+            signedAs: 'M. Kaya',
+          ),
+        ),
+      );
+      final signed = boxOf(tester).border! as BorderDirectional;
+      expect(signed.top, const BorderSide(color: Color(0x00000000)));
+      expect(signed.bottom, BorderSide(color: ramps.paper400));
+      expect(linePainterOf(tester), isNot(paints..rect()));
+    });
+
+    testWidgets('semantics: focusable and focused while it can sign', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          PdfFormField(
+            type: PdfFormFieldType.signature,
+            signHereLabel: 'Sign here',
+            focusNode: node,
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(box),
+        isSemantics(isFocusable: true, isFocused: false, hasFocusAction: true),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(box),
+        isSemantics(isFocusable: true, isFocused: true),
+      );
+      await tester.pumpWidget(
+        componentHost(
+          const PdfFormField(
+            type: PdfFormFieldType.signature,
+            state: PdfFormFieldState.readonly,
+            signHereLabel: 'Sign here',
+          ),
+        ),
+      );
+      expect(tester.getSemantics(box), isSemantics(isFocusable: false));
+      handle.dispose();
     });
 
     testWidgets('signed: the name in the italic signature face', (

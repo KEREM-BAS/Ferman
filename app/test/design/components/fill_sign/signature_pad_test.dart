@@ -8,6 +8,7 @@ import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/components/navigation/segmented_control.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -180,6 +181,84 @@ void main() {
       expect(values.single.ink, SignaturePad.blueInk);
     });
 
+    testWidgets('a press focuses the area, so Ctrl+Z undoes right away', (
+      tester,
+    ) async {
+      final values = <SignatureValue>[];
+      await tester.pumpWidget(componentHost(pad(onChanged: values.add)));
+      final areaNode = Focus.of(tester.element(area));
+      expect(areaNode.hasFocus, isFalse);
+      final start = tester.getTopLeft(area) + const Offset(40, 60);
+      final gesture = await tester.startGesture(
+        start,
+        kind: PointerDeviceKind.mouse,
+      );
+      await gesture.moveBy(const Offset(30, 5));
+      await gesture.up();
+      await tester.pumpAndSettle();
+      expect(areaNode.hasFocus, isTrue);
+      expect(values.last.strokes, hasLength(1));
+      // A press is not keyboard focus: no ring (`:focus-visible`).
+      FocusRing ring() => tester.widget<FocusRing>(
+        find.ancestor(of: area, matching: find.byType(FocusRing)),
+      );
+      expect(ring().visible, isFalse);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyZ);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pump();
+      expect(values.last.strokes, isEmpty);
+      // Leaving and coming back by keyboard shows the ring again.
+      areaNode.unfocus();
+      await tester.pumpAndSettle();
+      areaNode.requestFocus();
+      await tester.pumpAndSettle();
+      expect(ring().visible, isTrue);
+    });
+
+    testWidgets('a pen or finger stroke never scrolls the dialog around it', (
+      tester,
+    ) async {
+      final values = <SignatureValue>[];
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox(
+            height: 200,
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: [
+                  pad(onChanged: values.add),
+                  const SizedBox(height: 400),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      final start = tester.getTopLeft(area) + const Offset(60, 120);
+      await tester.timedDragFrom(
+        start,
+        const Offset(40, -80),
+        const Duration(milliseconds: 300),
+      );
+      await tester.pumpAndSettle();
+      expect(controller.offset, 0);
+      expect(values, hasLength(1));
+      expect(values.single.strokes.single.length, greaterThan(2));
+      // Outside the area the body still scrolls.
+      // From the gap between the mode control and the area.
+      await tester.timedDragFrom(
+        tester.getTopLeft(area) + const Offset(60, -6),
+        const Offset(0, -80),
+        const Duration(milliseconds: 300),
+      );
+      await tester.pumpAndSettle();
+      expect(controller.offset, greaterThan(0));
+    });
+
     testWidgets('the stroke path smooths through midpoints', (tester) async {
       final path = SignatureStrokesPainter.pathOf(const [
         Offset.zero,
@@ -323,6 +402,49 @@ void main() {
       await tester.pump();
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       expect(inks, [SignaturePad.blueInk]);
+    });
+
+    testWidgets('ink swatch edges: the dark hairline only at rest', (
+      tester,
+    ) async {
+      Color? edge(String name) {
+        final circle = tester.widget<Container>(
+          find.descendant(of: swatch(name), matching: find.byType(Container)),
+        );
+        final border =
+            (circle.foregroundDecoration! as BoxDecoration).border as Border?;
+        return border?.top.color;
+      }
+
+      // Dark, at rest: the light hairline on the unchecked swatch, the
+      // light-theme one on the checked swatch (the later rule wins).
+      await tester.pumpWidget(
+        componentHost(pad(onInkChanged: (_) {}), brightness: Brightness.dark),
+      );
+      expect(edge('Blue'), SignaturePad.swatchRingDark);
+      expect(edge('Black'), SignaturePad.swatchRingLight);
+      // Hovered: the light-theme hairline.
+      await tester.pumpWidget(
+        componentHost(
+          pad(onInkChanged: (_) {}),
+          brightness: Brightness.dark,
+          forcedStates: const {WidgetState.hovered},
+        ),
+      );
+      expect(edge('Blue'), SignaturePad.swatchRingLight);
+      // Focused: the focus ring replaces the hairline.
+      await tester.pumpWidget(
+        componentHost(
+          pad(onInkChanged: (_) {}),
+          brightness: Brightness.dark,
+          forcedStates: const {WidgetState.focused},
+        ),
+      );
+      expect(edge('Blue'), isNull);
+      expect(edge('Black'), isNull);
+      // Light: the light hairline.
+      await tester.pumpWidget(componentHost(pad(onInkChanged: (_) {})));
+      expect(edge('Blue'), SignaturePad.swatchRingLight);
     });
 
     testWidgets('"Save on this device" asks the owner', (tester) async {

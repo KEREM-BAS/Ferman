@@ -244,6 +244,7 @@ void main() {
         componentHost(
           const ThumbnailBadges(
             badges: {ThumbnailBadge.comments, ThumbnailBadge.signature},
+            tooltips: tooltips,
           ),
           textDirection: TextDirection.rtl,
         ),
@@ -255,6 +256,140 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.pump();
       expect(signature.hasFocus, isTrue);
+    });
+
+    testWidgets('focus stays on its badge when others come or go', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const ThumbnailBadges(
+            badges: {ThumbnailBadge.warnings},
+            tooltips: tooltips,
+          ),
+        ),
+      );
+      nodeOf(tester, ThumbnailBadge.warnings).requestFocus();
+      await tester.pumpAndSettle();
+      // An edit adds the edited dot before the warning.
+      await tester.pumpWidget(
+        componentHost(
+          const ThumbnailBadges(
+            badges: {ThumbnailBadge.edited, ThumbnailBadge.warnings},
+            tooltips: tooltips,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final warnings = nodeOf(tester, ThumbnailBadge.warnings);
+      expect(warnings.hasFocus, isTrue);
+      expect(warnings.skipTraversal, isFalse);
+      expect(nodeOf(tester, ThumbnailBadge.edited).hasFocus, isFalse);
+      bool ringOn(ThumbnailBadge which) => tester
+          .widget<FocusRing>(
+            find
+                .descendant(of: badge(which), matching: find.byType(FocusRing))
+                .first,
+          )
+          .visible;
+      expect(ringOn(ThumbnailBadge.warnings), isTrue);
+      expect(ringOn(ThumbnailBadge.edited), isFalse);
+      // And when a badge before it goes away again.
+      await tester.pumpWidget(
+        componentHost(
+          const ThumbnailBadges(
+            badges: {ThumbnailBadge.warnings},
+            tooltips: tooltips,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(nodeOf(tester, ThumbnailBadge.warnings).hasFocus, isTrue);
+      expect(ringOn(ThumbnailBadge.warnings), isTrue);
+    });
+
+    testWidgets('the focused flag follows focus out of a badge', (
+      tester,
+    ) async {
+      // Touch highlight mode (tablets): no focus highlight callbacks.
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTouch;
+      final handle = tester.ensureSemantics();
+      final outside = FocusNode();
+      addTearDown(outside.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const ThumbnailBadges(
+                badges: {ThumbnailBadge.comments},
+                tooltips: tooltips,
+              ),
+              Focus(focusNode: outside, child: const SizedBox.square()),
+            ],
+          ),
+        ),
+      );
+      final glyph = find.descendant(
+        of: badge(ThumbnailBadge.comments),
+        matching: find.byType(Icon),
+      );
+      nodeOf(tester, ThumbnailBadge.comments).requestFocus();
+      await tester.pumpAndSettle();
+      expect(tester.getSemantics(glyph), isSemantics(isFocused: true));
+      outside.requestFocus();
+      await tester.pumpAndSettle();
+      expect(tester.getSemantics(glyph), isSemantics(isFocused: false));
+      handle.dispose();
+    });
+
+    testWidgets('a badge without a tooltip is decoration only', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          const ThumbnailBadges(
+            badges: {
+              ThumbnailBadge.edited,
+              ThumbnailBadge.comments,
+              ThumbnailBadge.warnings,
+            },
+            tooltips: {
+              ThumbnailBadge.edited: 'Edited since opened',
+              ThumbnailBadge.warnings: '1 warning',
+            },
+          ),
+        ),
+      );
+      final edited = nodeOf(tester, ThumbnailBadge.edited);
+      final comments = nodeOf(tester, ThumbnailBadge.comments);
+      final warnings = nodeOf(tester, ThumbnailBadge.warnings);
+      expect(comments.canRequestFocus, isFalse);
+      expect(
+        find.descendant(
+          of: badge(ThumbnailBadge.comments),
+          matching: find.byType(Tooltip),
+        ),
+        findsNothing,
+      );
+      // No node of its own: its glyph's node is the group's, unlabelled.
+      final semantics = tester.getSemantics(
+        find.descendant(
+          of: badge(ThumbnailBadge.comments),
+          matching: find.byType(Icon),
+        ),
+      );
+      expect(semantics.getSemanticsData().flagsCollection.isImage, isFalse);
+      expect(semantics.label, isEmpty);
+      edited.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(warnings.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(edited.hasFocus, isTrue);
+      handle.dispose();
     });
 
     testWidgets('no badges: nothing drawn', (tester) async {

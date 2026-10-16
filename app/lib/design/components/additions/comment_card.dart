@@ -13,8 +13,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// A comment in the Comments panel list, a DS addition drawn inline in
 /// `FmComments.dc.html` (lines 25 to 35, the card styles on line 76).
 ///
-/// A raised card (9 px by 10 px padding, medium corners, a subtle hairline)
-/// stacking, 6 px apart:
+/// A raised card (a subtle 1 px hairline, then 9 px by 10 px padding,
+/// medium corners) stacking, 6 px apart:
 ///
 /// - a head row: a 20 px chip in [chipColor] with the annotation type's
 ///   [icon] (12 px, stroke 2, [iconColor] or page ink), [author] in body
@@ -40,9 +40,11 @@ import 'package:flutter/widgets.dart' hide Icon;
 ///
 /// **Keyboard.** The card is a button: Enter and Space call [onPressed]
 /// (expand and select the annotation). ArrowUp and ArrowDown move to the
-/// card above or below (not drawn). The reply field and the buttons are
-/// separate Tab stops; Enter in the field or the Reply button sends a
-/// non-empty reply through [onReply] and clears the field.
+/// card above or below and scroll it into view (not drawn); at the first
+/// or last card they do nothing, so focus stays in the list. The reply
+/// field and the buttons are separate Tab stops; Enter in the field or the
+/// Reply button sends a non-empty reply through [onReply] and clears the
+/// field, and focus returns to (or stays in) the field for the next reply.
 ///
 /// For screen readers the card is a button named [semanticLabel] (the
 /// board's `<author>, <type> on page N, resolved, N replies`, localized by
@@ -196,6 +198,7 @@ class _CommentCardNode extends FocusNode {
 class _CommentCardState extends State<CommentCard> {
   final _CommentCardNode _node = _CommentCardNode();
   final TextEditingController _reply = TextEditingController();
+  final FocusNode _replyNode = FocusNode(debugLabel: 'CommentCard reply');
 
   @override
   void initState() {
@@ -208,6 +211,7 @@ class _CommentCardState extends State<CommentCard> {
     _reply
       ..removeListener(_onReplyText)
       ..dispose();
+    _replyNode.dispose();
     _node.dispose();
     super.dispose();
   }
@@ -220,6 +224,11 @@ class _CommentCardState extends State<CommentCard> {
   }
 
   void _send([String? _]) {
+    // Focus goes back to the field every time. After Enter it never leaves
+    // (EditableText's unfocus and this land in one focus update); after
+    // the Reply button it moves before Reply turns disabled, so it never
+    // falls back to Resolve.
+    _replyNode.requestFocus();
     final onReply = widget.onReply;
     final text = _reply.text;
     if (onReply == null || text.trim().isEmpty) return;
@@ -253,8 +262,22 @@ class _CommentCardState extends State<CommentCard> {
         target = other;
       }
     }
-    target?.requestFocus();
-    return target == null ? KeyEventResult.ignored : KeyEventResult.handled;
+    if (target != null) {
+      target.requestFocus();
+      final targetContext = target.context;
+      if (targetContext != null) {
+        // No animation, as ModeTabs scrolls a tab into view.
+        Scrollable.ensureVisible(
+          targetContext,
+          alignmentPolicy: down
+              ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+              : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+        );
+      }
+    }
+    // Stop at the first and last card: the app's directional focus must
+    // not take the arrows out of the list.
+    return KeyEventResult.handled;
   }
 
   @override
@@ -422,6 +445,7 @@ class _CommentCardState extends State<CommentCard> {
               TextField(
                 size: FieldSize.sm,
                 controller: _reply,
+                focusNode: _replyNode,
                 autofocus: true,
                 placeholder: widget.replyPlaceholder,
                 semanticLabel: widget.replyPlaceholder,
@@ -475,11 +499,14 @@ class _CommentCardState extends State<CommentCard> {
           );
     // The frame is the button; the content sits over it, letting clicks on
     // its text through to the frame, so the reply field and the buttons are
-    // not inside the card's button (Space and Enter stay theirs).
+    // not inside the card's button (Space and Enter stay theirs). The frame
+    // draws the 1 px border, so the content sits inside it as well as the
+    // padding (`padding: 9px 10px; border: 1px`).
+    final borderWidth = theme.border.borderWidth;
     final content = Padding(
       padding: EdgeInsetsDirectional.symmetric(
-        vertical: CommentCard.paddingY,
-        horizontal: theme.space.space2_5,
+        vertical: CommentCard.paddingY + borderWidth,
+        horizontal: theme.space.space2_5 + borderWidth,
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,

@@ -5,6 +5,7 @@ import 'package:ferman/design/components/foundation/forced_states.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
@@ -47,14 +48,25 @@ enum MetaPlacement {
 /// page ink colour (`--paper-900`) in both themes. [width] fixes the
 /// frame's outer width.
 ///
+/// **Layout** (`margin: -4px -5px`): the frame hugs the text. It overhangs
+/// the widget's layout slot by 5 px at the sides and 4 px at the top and
+/// bottom ([marginX], [marginY]), so wrapping a paragraph in a
+/// [TextEditBox] leaves its text (within 1 px) where it was and the block
+/// takes no extra room: the slot is the frame less 10 px across and 8 px
+/// down (with [width], `width - 10`). The overhang, and the 4 px band the
+/// handles reach past the frame, still take the pointer, as long as the
+/// parent's own bounds cover them.
+///
 /// - [TextEditBoxState.idle]: no frame; the pointer shows a 1 px dashed
 ///   `--edit-box-hover` frame (`.fm-editbox--idle:hover`) and the text
 ///   cursor;
 /// - [TextEditBoxState.hover]: that dashed frame without a pointer;
 /// - [TextEditBoxState.selected] and [TextEditBoxState.editing]: a 1.5 px
 ///   solid `--edit-box` frame, eight 7 px handles ([showHandles], by
-///   default in these states) and the [meta] label (such as
-///   "IBM Plex Serif · 10.5 pt"); editing adds a faint ink tint.
+///   default in these states) with their resize cursors (mirrored at the
+///   corners in right to left) and the [meta] label (such as
+///   "IBM Plex Serif · 10.5 pt"); editing adds a faint ink tint. The
+///   handles do not resize yet (M3).
 ///
 /// The label is 18 px tall, ink on white (amber with a warning triangle
 /// when [metaWarning]) and sits where [metaPlacement] says: above the
@@ -66,14 +78,17 @@ enum MetaPlacement {
 ///
 /// **Keyboard** (not in the bundle; the M3 editing model): the block takes
 /// focus; keyboard focus on an idle block shows the dashed frame and the
-/// focus ring (G22), while the selected and editing frames double as focus.
+/// focus ring (G22), page-tuned like the frame (2 px page white, then 2 px
+/// `--edit-box`, the layers of `.fm-note-pin:focus-visible`), while the
+/// selected and editing frames double as focus.
 /// Enter on a selected block asks for [TextEditBoxState.editing] and
 /// Escape while editing asks for [TextEditBoxState.selected], through
 /// [onStateChanged]; the box is controlled and only changes when [state]
 /// does. A click calls [onPressed].
 ///
 /// Page-tuned colours: the frame sits on the white page in both themes.
-/// For screen readers the block is a multiline text field while editing,
+/// For screen readers the block is focusable and can be tapped (which
+/// calls [onPressed]); it is a multiline text field while editing,
 /// labelled [semanticLabel] (the block's text).
 class TextEditBox extends StatefulWidget {
   /// Frames [child] in [state].
@@ -99,6 +114,21 @@ class TextEditBox extends StatefulWidget {
 
   /// `.fm-editbox` `padding: 3px 4px`, horizontal part.
   static const double paddingX = 4;
+
+  /// `.fm-editbox` `margin: -4px -5px`, vertical part: how far the frame
+  /// overhangs the layout slot at the top and bottom.
+  static const double marginY = 4;
+
+  /// `.fm-editbox` `margin: -4px -5px`, horizontal part: how far the frame
+  /// overhangs the layout slot at the sides.
+  static const double marginX = 5;
+
+  /// The page-tuned focus ring's outer edge, `0 0 0 4px` (as
+  /// `.fm-note-pin:focus-visible` and `--focus-ring`).
+  static const double focusRingSpread = 4;
+
+  /// The page-tuned focus ring's page-white gap, `0 0 0 2px`.
+  static const double focusGapSpread = 2;
 
   /// `.fm-editbox` `border-radius: 1px`.
   static const double radius = 1;
@@ -260,6 +290,17 @@ class _GatedAction<T extends Intent> extends CallbackAction<T> {
 class _TextEditBoxState extends State<TextEditBox> {
   bool _hovered = false;
   bool _focusVisible = false;
+  bool _focused = false;
+  FocusNode? _ownNode;
+
+  FocusNode get _node =>
+      widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'TextEditBox'));
+
+  @override
+  void dispose() {
+    _ownNode?.dispose();
+    super.dispose();
+  }
 
   static const Map<ShortcutActivator, Intent> _shortcuts = {
     SingleActivator(LogicalKeyboardKey.enter): _EditIntent(),
@@ -319,10 +360,25 @@ class _TextEditBoxState extends State<TextEditBox> {
     if (widget.width != null) {
       box = SizedBox(width: widget.width, child: box);
     }
-    // Keyboard focus on a block without a solid frame shows the ring too.
-    box = FocusRing(
-      visible: focusVisible && frame != _FrameStyle.solid,
-      borderRadius: radius,
+    // Keyboard focus on a block without a solid frame shows the ring too:
+    // page-tuned (2 px page white, then 2 px --edit-box, the layers of
+    // `.fm-note-pin:focus-visible`), because the page is white in both
+    // themes. Always in the tree, so focus never rebuilds the block.
+    box = CustomPaint(
+      painter: FocusRingPainter(
+        layers: [
+          BoxShadow(
+            color: page.editBox,
+            spreadRadius: TextEditBox.focusRingSpread,
+          ),
+          BoxShadow(
+            color: page.pageBg,
+            spreadRadius: TextEditBox.focusGapSpread,
+          ),
+        ],
+        borderRadius: radius,
+        progress: focusVisible && frame != _FrameStyle.solid ? 1 : 0,
+      ),
       child: box,
     );
     final meta = widget.meta;
@@ -330,22 +386,29 @@ class _TextEditBoxState extends State<TextEditBox> {
       clipBehavior: Clip.none,
       children: [
         box,
-        if (widget.handlesShown) ..._handles(page.editBox, page.editHandleFill),
         if (widget.metaShown && meta != null) _metaLabel(context, meta),
       ],
     );
     final editing = state == TextEditBoxState.editing;
+    final inert = widget.inert;
+    // The block's own node carries its focus and tap, as FermanInteractive
+    // does: Focus's semantics would merge into the node above instead.
     box = Semantics(
       container: true,
       textField: editing,
       multiline: editing ? true : null,
+      focusable: !inert,
+      focused: inert ? null : _focused,
       label: widget.semanticLabel,
+      onFocus: inert ? null : _node.requestFocus,
+      onTap: inert ? null : widget.onPressed,
       child: box,
     );
-    return FocusableActionDetector(
-      focusNode: widget.focusNode,
+    box = FocusableActionDetector(
+      focusNode: _node,
       autofocus: widget.autofocus,
-      enabled: !widget.inert,
+      enabled: !inert,
+      includeFocusSemantics: false,
       shortcuts: _shortcuts,
       actions: {
         _EditIntent: _GatedAction<_EditIntent>(
@@ -361,50 +424,106 @@ class _TextEditBoxState extends State<TextEditBox> {
               widget.onStateChanged?.call(TextEditBoxState.selected),
         ),
       },
+      onFocusChange: (value) => setState(() => _focused = value),
       onShowFocusHighlight: (value) => setState(() => _focusVisible = value),
       onShowHoverHighlight: (value) => setState(() => _hovered = value),
-      mouseCursor: widget.inert ? MouseCursor.defer : SystemMouseCursors.text,
-      child: GestureDetector(
-        behavior: HitTestBehavior.opaque,
-        excludeFromSemantics: true,
-        onTap: widget.inert ? null : widget.onPressed,
-        child: box,
-      ),
+      mouseCursor: inert ? MouseCursor.defer : SystemMouseCursors.text,
+      child: box,
+    );
+    // The handles reach 4 px past the frame (`top: -4px` and so on). The
+    // frame sits inside a 4 px band so they take the pointer there too;
+    // the band itself, between the handles, does not.
+    Widget result = Stack(
+      clipBehavior: Clip.none,
+      children: [
+        Padding(
+          padding: const EdgeInsetsDirectional.all(TextEditBox.handleOffset),
+          child: box,
+        ),
+        if (widget.handlesShown)
+          ..._handles(context, page.editBox, page.editHandleFill),
+      ],
+    );
+    result = GestureDetector(
+      excludeFromSemantics: true,
+      onTap: inert ? null : widget.onPressed,
+      child: result,
+    );
+    // `margin: -4px -5px`, plus the handle band: the layout slot is the
+    // frame less the CSS margins.
+    return _NegativeMargin(
+      horizontal: TextEditBox.marginX + TextEditBox.handleOffset,
+      vertical: TextEditBox.marginY + TextEditBox.handleOffset,
+      child: result,
     );
   }
 
   /// The eight handles: corners and edge midpoints (`data-h`), centred on
-  /// the frame line. Symmetric, so their sides need no mirroring.
-  List<Widget> _handles(Color border, Color fill) {
-    const offset = -TextEditBox.handleOffset;
-    final handle = ExcludeSemantics(
-      child: Container(
-        key: const ValueKey<String>('TextEditBox.handle'),
-        width: TextEditBox.handleSize,
-        height: TextEditBox.handleSize,
-        decoration: BoxDecoration(
-          color: fill,
-          border: Border.all(
-            color: border,
-            width: context.ferman.border.borderWidth,
-          ),
-          borderRadius: const BorderRadius.all(
-            Radius.circular(TextEditBox.radius),
+  /// the frame line, with their resize cursors (`cursor: nwse-resize` and
+  /// so on). The handles themselves are symmetric; the corner cursors
+  /// follow the corner they end up at in right to left.
+  List<Widget> _handles(BuildContext context, Color border, Color fill) {
+    final inert = widget.inert;
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    // Top-start and bottom-end lie on one diagonal, top-end and
+    // bottom-start on the other; which is which depends on the direction.
+    final startDiagonal = rtl
+        ? SystemMouseCursors.resizeUpRightDownLeft
+        : SystemMouseCursors.resizeUpLeftDownRight;
+    final endDiagonal = rtl
+        ? SystemMouseCursors.resizeUpLeftDownRight
+        : SystemMouseCursors.resizeUpRightDownLeft;
+    Widget handle(MouseCursor cursor) => MouseRegion(
+      cursor: inert ? MouseCursor.defer : cursor,
+      child: ExcludeSemantics(
+        child: Container(
+          key: const ValueKey<String>('TextEditBox.handle'),
+          width: TextEditBox.handleSize,
+          height: TextEditBox.handleSize,
+          decoration: BoxDecoration(
+            color: fill,
+            border: Border.all(
+              color: border,
+              width: context.ferman.border.borderWidth,
+            ),
+            borderRadius: const BorderRadius.all(
+              Radius.circular(TextEditBox.radius),
+            ),
           ),
         ),
       ),
     );
-    final centredX = Center(heightFactor: 1, child: handle);
-    final centredY = Center(widthFactor: 1, child: handle);
+    Widget centredX(MouseCursor cursor) =>
+        Center(heightFactor: 1, child: handle(cursor));
+    Widget centredY(MouseCursor cursor) =>
+        Center(widthFactor: 1, child: handle(cursor));
+    const upDown = SystemMouseCursors.resizeUpDown;
+    const leftRight = SystemMouseCursors.resizeLeftRight;
+    // At 0 in the handle band: 4 px outside the frame.
     return [
-      PositionedDirectional(top: offset, start: offset, child: handle),
-      PositionedDirectional(top: offset, start: 0, end: 0, child: centredX),
-      PositionedDirectional(top: offset, end: offset, child: handle),
-      PositionedDirectional(top: 0, bottom: 0, end: offset, child: centredY),
-      PositionedDirectional(bottom: offset, end: offset, child: handle),
-      PositionedDirectional(bottom: offset, start: 0, end: 0, child: centredX),
-      PositionedDirectional(bottom: offset, start: offset, child: handle),
-      PositionedDirectional(top: 0, bottom: 0, start: offset, child: centredY),
+      PositionedDirectional(top: 0, start: 0, child: handle(startDiagonal)),
+      PositionedDirectional(top: 0, start: 0, end: 0, child: centredX(upDown)),
+      PositionedDirectional(top: 0, end: 0, child: handle(endDiagonal)),
+      PositionedDirectional(
+        top: 0,
+        bottom: 0,
+        end: 0,
+        child: centredY(leftRight),
+      ),
+      PositionedDirectional(bottom: 0, end: 0, child: handle(startDiagonal)),
+      PositionedDirectional(
+        bottom: 0,
+        start: 0,
+        end: 0,
+        child: centredX(upDown),
+      ),
+      PositionedDirectional(bottom: 0, start: 0, child: handle(endDiagonal)),
+      PositionedDirectional(
+        top: 0,
+        bottom: 0,
+        start: 0,
+        child: centredY(leftRight),
+      ),
     ];
   }
 
@@ -532,4 +651,140 @@ class _FramePainter extends CustomPainter {
       oldDelegate.style != style ||
       oldDelegate.color != color ||
       oldDelegate.width != width;
+}
+
+/// Lays [child] out [horizontal] wider at each side and [vertical] taller
+/// at the top and bottom than its own slot, overhanging it, as a CSS
+/// negative margin does. Equal margins at both ends, so it needs no
+/// direction.
+class _NegativeMargin extends SingleChildRenderObjectWidget {
+  const new({
+    required this.horizontal,
+    required this.vertical,
+    required super.child,
+  });
+
+  final double horizontal;
+  final double vertical;
+
+  @override
+  _RenderNegativeMargin createRenderObject(BuildContext context) =>
+      _RenderNegativeMargin(horizontal: horizontal, vertical: vertical);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderNegativeMargin renderObject,
+  ) {
+    renderObject
+      ..horizontal = horizontal
+      ..vertical = vertical;
+  }
+}
+
+class _RenderNegativeMargin extends RenderShiftedBox {
+  new({required this._horizontal, required this._vertical}) : super(null);
+
+  double _horizontal;
+  double _vertical;
+
+  double get horizontal => _horizontal;
+  set horizontal(double value) {
+    if (value == _horizontal) return;
+    _horizontal = value;
+    markNeedsLayout();
+  }
+
+  double get vertical => _vertical;
+  set vertical(double value) {
+    if (value == _vertical) return;
+    _vertical = value;
+    markNeedsLayout();
+  }
+
+  /// [constraints] grown by the margins: the child's constraints.
+  BoxConstraints _grow(BoxConstraints constraints) {
+    final dx = 2 * _horizontal;
+    final dy = 2 * _vertical;
+    return BoxConstraints(
+      minWidth: constraints.minWidth + dx,
+      maxWidth: constraints.maxWidth + dx,
+      minHeight: constraints.minHeight + dy,
+      maxHeight: constraints.maxHeight + dy,
+    );
+  }
+
+  /// The slot for a child of [childSize]: the child less the margins.
+  Size _shrink(BoxConstraints constraints, Size childSize) =>
+      constraints.constrain(
+        Size(
+          math.max(0, childSize.width - 2 * _horizontal),
+          math.max(0, childSize.height - 2 * _vertical),
+        ),
+      );
+
+  @override
+  double computeMinIntrinsicWidth(double height) => math.max(
+    0,
+    (child?.getMinIntrinsicWidth(height + 2 * _vertical) ?? 0) -
+        2 * _horizontal,
+  );
+
+  @override
+  double computeMaxIntrinsicWidth(double height) => math.max(
+    0,
+    (child?.getMaxIntrinsicWidth(height + 2 * _vertical) ?? 0) -
+        2 * _horizontal,
+  );
+
+  @override
+  double computeMinIntrinsicHeight(double width) => math.max(
+    0,
+    (child?.getMinIntrinsicHeight(width + 2 * _horizontal) ?? 0) -
+        2 * _vertical,
+  );
+
+  @override
+  double computeMaxIntrinsicHeight(double width) => math.max(
+    0,
+    (child?.getMaxIntrinsicHeight(width + 2 * _horizontal) ?? 0) -
+        2 * _vertical,
+  );
+
+  @override
+  Size computeDryLayout(BoxConstraints constraints) {
+    final child = this.child;
+    if (child == null) return constraints.smallest;
+    return _shrink(constraints, child.getDryLayout(_grow(constraints)));
+  }
+
+  @override
+  void performLayout() {
+    final child = this.child;
+    if (child == null) {
+      size = constraints.smallest;
+      return;
+    }
+    child.layout(_grow(constraints), parentUsesSize: true);
+    (child.parentData! as BoxParentData).offset = Offset(
+      -_horizontal,
+      -_vertical,
+    );
+    size = _shrink(constraints, child.size);
+  }
+
+  @override
+  bool hitTest(BoxHitTestResult result, {required Offset position}) {
+    // The overhang takes the pointer too: test against the child's box,
+    // not this slot.
+    final child = this.child;
+    if (child == null) return false;
+    final offset = (child.parentData! as BoxParentData).offset;
+    if (!(offset & child.size).contains(position)) return false;
+    if (hitTestChildren(result, position: position)) {
+      result.add(BoxHitTestEntry(this, position));
+      return true;
+    }
+    return false;
+  }
 }

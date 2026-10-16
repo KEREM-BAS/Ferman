@@ -176,8 +176,28 @@ void main() {
       );
       final cardRight = tester.getTopRight(frame).dx;
       final replyRight = tester.getTopRight(find.text('Güncelliyorum.')).dx;
-      // 1 px border is inside the 10 px padding: 10 px padding + 10 px indent.
-      expect(cardRight - replyRight, closeTo(20, 0.5));
+      // 1 px border + 10 px padding + 10 px indent.
+      expect(cardRight - replyRight, closeTo(21, 0.5));
+    });
+
+    testWidgets('the content sits inside the border and the padding', (
+      tester,
+    ) async {
+      // Unbounded height, as in the scrolling comments list.
+      await tester.pumpWidget(
+        componentHost(
+          Column(mainAxisSize: MainAxisSize.min, children: [card()]),
+        ),
+      );
+      final card0 = tester.getRect(frame);
+      final chip0 = tester.getRect(chip);
+      // `border: 1px` + `padding: 9px 10px`.
+      expect(chip0.top - card0.top, CommentCard.paddingY + 1);
+      expect(chip0.left - card0.left, FermanSpaceTokens.space2_5 + 1);
+      final text = tester.getRect(
+        find.text('Ödeme günü beşi yerine onu olabilir mi?'),
+      );
+      expect(card0.bottom - text.bottom, CommentCard.paddingY + 1);
     });
   });
 
@@ -220,6 +240,48 @@ void main() {
         tester.widget<EditableText>(find.byType(EditableText)).controller.text,
         isEmpty,
       );
+    });
+
+    testWidgets('sending keeps focus in the reply field', (tester) async {
+      final sent = <String>[];
+      await tester.pumpWidget(
+        componentHost(
+          card(
+            expanded: true,
+            composing: true,
+            onResolve: () {},
+            onReply: sent.add,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      FocusNode field() =>
+          tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+      // Enter in the field.
+      await tester.enterText(find.byType(EditableText), 'Teşekkürler');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(sent, ['Teşekkürler']);
+      expect(field().hasFocus, isTrue);
+      // The Reply button, from the keyboard: it turns disabled, and focus
+      // goes back to the field, not to Resolve.
+      await tester.enterText(find.byType(EditableText), 'Bir de bu.');
+      await tester.pump();
+      final reply = find.descendant(
+        of: find.ancestor(
+          of: find.text('Reply').last,
+          matching: find.byType(Button),
+        ),
+        matching: find.text('Reply'),
+      );
+      Focus.of(tester.element(reply)).requestFocus();
+      await tester.pumpAndSettle();
+      expect(field().hasFocus, isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(sent, ['Teşekkürler', 'Bir de bu.']);
+      expect(field().hasFocus, isTrue);
+      expect(Focus.of(tester.element(find.text('Resolve'))).hasFocus, isFalse);
     });
 
     testWidgets('composing needs an expanded card', (tester) async {
@@ -294,6 +356,96 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
       await tester.pump();
       expect(first.hasFocus, isTrue);
+    });
+
+    testWidgets('the arrows stop at the first and last card', (tester) async {
+      final above = FocusNode();
+      final below = FocusNode();
+      addTearDown(above.dispose);
+      addTearDown(below.dispose);
+      // The app's own shortcuts: an unhandled arrow moves focus
+      // directionally (DirectionalFocusIntent).
+      await tester.pumpWidget(
+        componentHost(
+          Shortcuts(
+            shortcuts: WidgetsApp.defaultShortcuts,
+            child: Actions(
+              actions: WidgetsApp.defaultActions,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Focus(
+                    focusNode: above,
+                    child: const SizedBox(width: 40, height: 20),
+                  ),
+                  card(author: 'A', onPressed: () {}),
+                  card(author: 'B', onPressed: () {}),
+                  Focus(
+                    focusNode: below,
+                    child: const SizedBox(width: 40, height: 20),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      final first = Focus.of(tester.element(frame.first));
+      final last = Focus.of(tester.element(frame.last))..requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(last.hasFocus, isTrue);
+      expect(below.hasFocus, isFalse);
+      first.requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      expect(first.hasFocus, isTrue);
+      expect(above.hasFocus, isFalse);
+    });
+
+    testWidgets('the arrows scroll the focused card into view', (tester) async {
+      final controller = ScrollController();
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox(
+            height: 200,
+            child: SingleChildScrollView(
+              controller: controller,
+              child: Column(
+                children: [
+                  for (var i = 0; i < 6; i++)
+                    card(author: 'Kişi $i', onPressed: () {}),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      final viewport = tester.getRect(find.byType(SingleChildScrollView));
+      bool focusedInView() {
+        final rect = FocusManager.instance.primaryFocus!.rect;
+        return rect.top >= viewport.top - 0.5 &&
+            rect.bottom <= viewport.bottom + 0.5;
+      }
+
+      Focus.of(tester.element(frame.first)).requestFocus();
+      await tester.pump();
+      for (var i = 0; i < 5; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pump();
+        expect(focusedInView(), isTrue);
+      }
+      expect(controller.offset, greaterThan(0));
+      expect(Focus.of(tester.element(frame.last)).hasFocus, isTrue);
+      for (var i = 0; i < 5; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+        await tester.pump();
+        expect(focusedInView(), isTrue);
+      }
+      expect(controller.offset, 0);
     });
 
     testWidgets('semantics: a button with the summary label', (tester) async {

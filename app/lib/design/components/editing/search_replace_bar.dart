@@ -110,7 +110,11 @@ class SearchReplaceBarLabels {
 /// (`components/editing/editing.css`, `.fm-search`; `SearchReplaceBar.jsx`).
 ///
 /// A 440 px raised bar (at most the available width) with large corners
-/// and the popover shadow. The find row holds a disclosure button that
+/// and the popover shadow. The rows fill its 428 px content box, as
+/// `editing.css` is written; the browser render lets the find row's
+/// min-content overflow the 6 px end padding, so its fields come out 8 px
+/// wider than here (a design-internal conflict, recorded in DESIGN_GAPS).
+/// The find row holds a disclosure button that
 /// shows or hides the replace row ([onToggleReplace]), a small find field
 /// with a search glyph and the three match options as 20 px toggles
 /// ([matchCase], [wholeWord], [regex], reported through [onToggleOption]),
@@ -118,7 +122,10 @@ class SearchReplaceBarLabels {
 /// without a query, "N of M" ([SearchReplaceBarLabels.count]) or "No
 /// results" in the danger colour; previous, next, Replace and Replace all
 /// are disabled while nothing matches. With [showReplace], a second row
-/// holds the replace field and the Replace and Replace all buttons. A
+/// holds the replace field and the Replace and Replace all buttons. Until
+/// replace ships, [replaceDisabledReason] keeps the disclosure, the
+/// replace field and both buttons visible but disabled, the reason shown
+/// as their tooltip and semantics hint (G10). A
 /// [notice] (the honest font notice) shows under the rows in a warning
 /// callout.
 ///
@@ -155,6 +162,7 @@ class SearchReplaceBar extends StatefulWidget {
     this.onReplaceAll,
     this.onClose,
     this.autofocus = false,
+    this.replaceDisabledReason,
   });
 
   /// `.fm-search` `width: 440px`.
@@ -232,6 +240,13 @@ class SearchReplaceBar extends StatefulWidget {
   /// Whether the find field takes focus when the bar appears.
   final bool autofocus;
 
+  /// Why replace is unavailable: the localized "Available in a future
+  /// version" until replace ships (G10). It disables the disclosure, the
+  /// replace field and the Replace and Replace all buttons, which stay
+  /// focusable with the reason as their tooltip and hint. Null leaves
+  /// replace enabled. Not a design-system prop.
+  final String? replaceDisabledReason;
+
   /// The localized texts. Not a design-system prop.
   final SearchReplaceBarLabels labels;
 
@@ -257,7 +272,14 @@ class SearchReplaceBar extends StatefulWidget {
       ..add(FlagProperty('matchCase', value: matchCase, ifTrue: 'match case'))
       ..add(FlagProperty('wholeWord', value: wholeWord, ifTrue: 'whole word'))
       ..add(FlagProperty('regex', value: regex, ifTrue: 'regex'))
-      ..add(StringProperty('notice', notice, defaultValue: null));
+      ..add(StringProperty('notice', notice, defaultValue: null))
+      ..add(
+        StringProperty(
+          'replaceDisabledReason',
+          replaceDisabledReason,
+          defaultValue: null,
+        ),
+      );
   }
 }
 
@@ -330,6 +352,8 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
     final labels = widget.labels;
     final hasMatches = widget.total > 0;
     final none = widget.query.isNotEmpty && widget.total == 0;
+    final replaceReason = widget.replaceDisabledReason;
+    final replaceOff = replaceReason != null;
     final textStyle = FieldBox.textStyleOf(
       theme,
       FieldSize.sm,
@@ -418,6 +442,8 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
           label: widget.showReplace ? labels.hideReplace : labels.showReplace,
           size: IconButtonSize.sm,
           showTooltip: false,
+          disabled: replaceOff,
+          disabledReason: replaceReason,
           onPressed: widget.onToggleReplace,
         ),
         findField,
@@ -459,6 +485,7 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
                 Expanded(
                   child: FieldBox(
                     size: FieldSize.sm,
+                    disabled: replaceOff,
                     child: Row(
                       spacing: FieldBox.contentGap,
                       children: [
@@ -475,6 +502,7 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
                                 controller: _replace,
                                 focusNode: _replaceNode,
                                 style: textStyle,
+                                enabled: !replaceOff,
                                 placeholder: labels.replaceWith,
                                 onChanged: widget.onReplaceChanged,
                                 onEditingComplete: () {},
@@ -488,13 +516,15 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
                 ),
                 Button(
                   size: ButtonSize.sm,
-                  disabled: !hasMatches,
+                  disabled: !hasMatches || replaceOff,
+                  disabledReason: replaceReason,
                   onPressed: widget.onReplace,
                   child: Text(labels.replace),
                 ),
                 Button(
                   size: ButtonSize.sm,
-                  disabled: !hasMatches,
+                  disabled: !hasMatches || replaceOff,
+                  disabledReason: replaceReason,
                   onPressed: widget.onReplaceAll,
                   child: Text(labels.replaceAll),
                 ),

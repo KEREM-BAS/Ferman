@@ -50,7 +50,9 @@ enum PageMarkKind {
 /// `--search-match`, `--search-current`, `--redact-pending`,
 /// `--redact-applied`). The edited mark uses the DS additions' patch
 /// (`fm-additions.css`, fix 3): a 1.5 px dotted `--edit-mark` underline 3 px
-/// under the baseline, no fill.
+/// under the baseline, no fill, in square dots snapped to device pixels as
+/// Chromium draws a thin dotted decoration. Underlines are painted under
+/// the text, as CSS paints them, so descenders and cedillas stay on top.
 ///
 /// [tooltip] is the mark's `title`: shown on hover and given to screen
 /// readers. The bundle's English defaults ("Edited", "Marked for
@@ -106,10 +108,24 @@ class PageMark extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final page = theme.pageColors;
+    // CSS paints underlines before the text (CSS Text Decoration 3), so
+    // both underlines go behind it; only a line-through goes over.
     final behind = switch (kind) {
       PageMarkKind.selection => MarkPaint.fill(page.editSelection, radius),
-      PageMarkKind.edited => null,
-      PageMarkKind.missingGlyph => MarkPaint.fill(page.glyphMissingBg, radius),
+      PageMarkKind.edited => MarkPaint.dottedUnderline(
+        page.editMark,
+        editedThickness,
+        underlineOffset,
+        devicePixelRatio: MediaQuery.maybeDevicePixelRatioOf(context) ?? 1,
+      ),
+      PageMarkKind.missingGlyph => (Canvas canvas, MarkFragment fragment) {
+        MarkPaint.fill(page.glyphMissingBg, radius)(canvas, fragment);
+        MarkPaint.wavyUnderline(
+          page.glyphMissing,
+          missingGlyphThickness,
+          underlineOffset,
+        )(canvas, fragment);
+      },
       PageMarkKind.search => MarkPaint.fill(page.searchMatch, radius),
       PageMarkKind.searchCurrent => (Canvas canvas, MarkFragment fragment) {
         MarkPaint.fill(page.searchCurrent, radius)(canvas, fragment);
@@ -124,19 +140,6 @@ class PageMark extends StatelessWidget {
       },
       PageMarkKind.redactApplied => MarkPaint.fill(page.redactApplied, radius),
     };
-    final over = switch (kind) {
-      PageMarkKind.edited => MarkPaint.dottedUnderline(
-        page.editMark,
-        editedThickness,
-        underlineOffset,
-      ),
-      PageMarkKind.missingGlyph => MarkPaint.wavyUnderline(
-        page.glyphMissing,
-        missingGlyphThickness,
-        underlineOffset,
-      ),
-      _ => null,
-    };
     final redacted = kind == PageMarkKind.redactApplied;
     Widget result = Semantics(
       container: true,
@@ -146,7 +149,6 @@ class PageMark extends StatelessWidget {
         child: MarkedText(
           text: child,
           paintBehind: behind,
-          paintOver: over,
           showText: !redacted,
         ),
       ),
@@ -314,25 +316,36 @@ abstract final class MarkPaint {
         );
       };
 
-  /// Round dots of [thickness] spaced one dot apart, [offset] under the
-  /// baseline (`text-decoration: underline dotted`,
-  /// `text-decoration-skip-ink: none`).
+  /// Square dots of [thickness] spaced one dot apart, their top edge
+  /// [offset] under the baseline (`text-decoration: underline dotted`,
+  /// `text-decoration-skip-ink: none`), as Chromium draws a thin dotted
+  /// decoration: the dot size and the line's position are snapped to whole
+  /// device pixels of [devicePixelRatio] (1.5 px makes 2 px dots at 1x and
+  /// 1.5 px dots at 2x) and painted without anti-aliasing.
   static MarkPainter dottedUnderline(
     Color color,
     double thickness,
-    double offset,
-  ) => (canvas, fragment) {
-    final paint = Paint()..color = color;
-    final y = fragment.baseline + offset + thickness / 2;
+    double offset, {
+    double devicePixelRatio = 1,
+  }) => (canvas, fragment) {
+    final dpr = devicePixelRatio;
+    final dot = math.max(1, (thickness * dpr).round()) / dpr;
+    final top = ((fragment.baseline + offset) * dpr).roundToDouble() / dpr;
+    final paint = Paint()
+      ..color = color
+      ..isAntiAlias = false;
     final rect = fragment.rect;
     for (
-      var x = rect.left + thickness / 2;
-      x <= rect.right - thickness / 2;
-      x += thickness * 2
+      var x = (rect.left * dpr).roundToDouble() / dpr;
+      x + dot <= rect.right + _snapTolerance;
+      x += dot * 2
     ) {
-      canvas.drawCircle(Offset(x, y), thickness / 2, paint);
+      canvas.drawRect(Rect.fromLTWH(x, top, dot, dot), paint);
     }
   };
+
+  /// How far a snapped dot may reach past the run's end.
+  static const double _snapTolerance = 0.01;
 
   /// A wave of [thickness] and [color], [offset] under the baseline
   /// (`text-decoration: underline wavy`): [wavePeriod] times the thickness
@@ -387,7 +400,9 @@ extension on Rect {
 /// [paintBehind] runs before the text and [paintOver] after it, once per
 /// line the run takes ([MarkFragment]), so a mark breaks with the text as
 /// CSS `box-decoration-break: clone` does. [showText] false paints only
-/// the mark (an applied redaction).
+/// the mark (an applied redaction). When the box is wider than the text
+/// (a tight width), the text and its marks follow the ambient text
+/// alignment, as `Text.rich` does.
 ///
 /// [text] may hold text spans only, no widget spans. For screen readers
 /// the run is one text node with its plain text.
@@ -563,25 +578,30 @@ class _RenderMarkedText extends RenderBox {
     }
   }
 
-  void _layout(double maxWidth) {
-    _painter.layout(maxWidth: maxWidth);
+  /// Lays the text out for [constraints], passing the minimum width as
+  /// `RenderParagraph` does, so a box wider than the text aligns it.
+  void _layout(BoxConstraints constraints) {
+    _painter.layout(
+      minWidth: constraints.minWidth,
+      maxWidth: constraints.maxWidth,
+    );
   }
 
   @override
   double computeMinIntrinsicWidth(double height) {
-    _layout(double.infinity);
+    _painter.layout();
     return _painter.minIntrinsicWidth;
   }
 
   @override
   double computeMaxIntrinsicWidth(double height) {
-    _layout(double.infinity);
+    _painter.layout();
     return _painter.maxIntrinsicWidth;
   }
 
   @override
   double computeMinIntrinsicHeight(double width) {
-    _layout(width);
+    _painter.layout(maxWidth: width);
     return _painter.height;
   }
 
@@ -591,19 +611,28 @@ class _RenderMarkedText extends RenderBox {
 
   @override
   Size computeDryLayout(BoxConstraints constraints) {
-    _layout(constraints.maxWidth);
+    _layout(constraints);
     return constraints.constrain(_painter.size);
   }
 
   @override
   double? computeDistanceToActualBaseline(TextBaseline baseline) {
-    _layout(constraints.maxWidth);
+    _layout(constraints);
+    return _painter.computeDistanceToActualBaseline(baseline);
+  }
+
+  @override
+  double? computeDryBaseline(
+    BoxConstraints constraints,
+    TextBaseline baseline,
+  ) {
+    _layout(constraints);
     return _painter.computeDistanceToActualBaseline(baseline);
   }
 
   @override
   void performLayout() {
-    _layout(constraints.maxWidth);
+    _layout(constraints);
     _fragments = null;
     size = constraints.constrain(_painter.size);
   }
@@ -661,7 +690,7 @@ class _RenderMarkedText extends RenderBox {
 
   @override
   void paint(PaintingContext context, Offset offset) {
-    _layout(constraints.maxWidth);
+    _layout(constraints);
     final canvas = context.canvas;
     final behind = _paintBehind;
     final over = _paintOver;

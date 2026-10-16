@@ -62,10 +62,15 @@ enum PdfFormFieldState {
 /// Fields are drawn on the white page, so their colours are the same in
 /// both themes (`--form-field-*`). A field is [width] wide (checkboxes and
 /// radios are 16 px), with an optional [label] above in 10 px medium text,
-/// a red asterisk at its top-end corner when [required], and [error] under
-/// it in red with a `circle-alert` (text only under checkboxes and radios,
-/// as `a5-2b` draws it). Values are set in the document face (12 px IBM
-/// Plex Serif); placeholders in the UI face at 11 px.
+/// a red asterisk at its top-end corner when [required] (placed from the
+/// box's padding edge, inside its border, as CSS places it), and [error]
+/// under it in red with a `circle-alert` (text only, 4 px under checkboxes
+/// and radios, as `a5-2b` draws it). Values are set in the document face
+/// (12 px IBM Plex Serif); placeholders in the UI face at 11 px. A
+/// multiline field is a fixed three 16 px rows (60 px, the bundle's
+/// `textarea rows: 3`); longer text scrolls inside it. Read-only fields
+/// keep a transparent 1 px border and draw a dotted line under the value
+/// (a signed signature keeps a solid one).
 ///
 /// **Look.** [state] forces a look; null derives it: error when [error] is
 /// set, filled when there is a [value], [checked] or [signedAs], else
@@ -82,13 +87,15 @@ enum PdfFormFieldState {
 /// signing).
 ///
 /// **Keyboard.** Tab and Shift+Tab move between fields; Space toggles a
-/// checkbox or radio (not in the bundle); Enter and Space start signing;
-/// Enter, Space and ArrowDown open a dropdown.
+/// checkbox or radio (not in the bundle; Enter does not, even with the
+/// app's Enter-activates shortcut, and goes on to the form); Enter and
+/// Space start signing; Enter, Space and ArrowDown open a dropdown.
 ///
 /// For screen readers a field is a text field, a popup button, a checkbox,
 /// a radio or a button, named [semanticLabel] or [label] ("Sign here" and
 /// `Signed by <name>` come from the caller), required when [required],
-/// with [error] as its hint and marked invalid.
+/// with [error] as its hint and marked invalid; the controls that take
+/// keyboard focus say so (focusable, focused).
 class PdfFormField extends StatefulWidget {
   /// Creates a field of [type].
   const new({
@@ -204,11 +211,18 @@ class PdfFormField extends StatefulWidget {
   /// The gaps between those dashes.
   static const double dashGap = 2;
 
-  /// `.fm-pff__box--multiline` `min-height: 54px`.
+  /// `.fm-pff__box--multiline` `min-height: 54px`. The bundle's
+  /// three-row `textarea` makes the box taller: [multilineRows] lines of
+  /// [multilineLineHeight], the 5 px padding and the 1 px border at the
+  /// top and bottom, 60 px in every look.
   static const double multilineMinHeight = 54;
 
   /// `.fm-pff__box--multiline` `line-height: 16px`.
   static const double multilineLineHeight = 16;
+
+  /// `PdfFormField.jsx` `<textarea rows: 3>`: the multiline box shows three
+  /// lines and scrolls the rest.
+  static const int multilineRows = 3;
 
   /// The kind of field.
   final PdfFormFieldType type;
@@ -311,6 +325,13 @@ class PdfFormField extends StatefulWidget {
 }
 
 class _OpenIntent extends Intent {
+  const new();
+}
+
+/// Space on a checkbox or radio: not [ActivateIntent], so the app's
+/// Enter-activates shortcut finds no action here and Enter goes on to the
+/// form.
+class _ToggleIntent extends Intent {
   const new();
 }
 
@@ -423,14 +444,27 @@ class _PdfFormFieldState extends State<PdfFormField> {
           ),
         ],
       ),
+      // `border-color: transparent; border-bottom: 1px dotted`: the box
+      // keeps its 1 px inset on every side; [_DottedBottomPainter] draws
+      // the dotted line over the bottom one.
       PdfFormFieldState.readonly => BoxDecoration(
         shape: shape,
-        border: Border(
-          bottom: BorderSide(color: ramps.paper400, width: width),
-        ),
+        border: Border.all(color: _transparent, width: width),
       ),
     };
   }
+
+  static const Color _transparent = Color(0x00000000);
+
+  /// The dotted line under a read-only box (`border-bottom: 1px dotted
+  /// #A39E94`), or no painter for the other looks.
+  CustomPainter? _readonlyLine(FermanTheme theme, PdfFormFieldState look) =>
+      look == PdfFormFieldState.readonly
+      ? _DottedBottomPainter(
+          color: theme.ramps.paper400,
+          width: theme.border.borderWidth,
+        )
+      : null;
 
   TextStyle _valueStyle(FermanTheme theme) => theme.typography.body.copyWith(
     fontFamily: theme.typeScale.fontDocSample.family,
@@ -466,12 +500,20 @@ class _PdfFormFieldState extends State<PdfFormField> {
   }
 
   /// The label, the box with its asterisk, and the message.
+  ///
+  /// [border] is the box's border width at the top and end: the asterisk
+  /// is placed from the padding edge inside it (`.fm-pff__box` is the
+  /// asterisk's containing block). Checkboxes and radios ([messageIcon]
+  /// false) put their message 4 px under the box, as `a5-2b` draws it
+  /// (`display:grid;gap:4px`).
   Widget _frame(
     FermanTheme theme,
     Widget box, {
     bool sized = true,
     bool messageIcon = true,
+    double? border,
   }) {
+    final inset = border ?? theme.border.borderWidth;
     final label = widget.label;
     final error = widget.error;
     final showError =
@@ -490,8 +532,8 @@ class _PdfFormFieldState extends State<PdfFormField> {
         children: [
           box,
           PositionedDirectional(
-            top: -PdfFormField.asteriskTop,
-            end: -PdfFormField.asteriskEnd,
+            top: inset - PdfFormField.asteriskTop,
+            end: inset - PdfFormField.asteriskEnd,
             child: ExcludeSemantics(
               child: Text(
                 '*',
@@ -511,7 +553,7 @@ class _PdfFormFieldState extends State<PdfFormField> {
     final column = Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
-      spacing: PdfFormField.gap,
+      spacing: messageIcon ? PdfFormField.gap : theme.space.space1,
       children: [
         if (label != null && sized)
           ExcludeSemantics(
@@ -555,6 +597,10 @@ class _PdfFormFieldState extends State<PdfFormField> {
   }
 
   /// Focus, hover and keyboard around a box that is not a text input.
+  ///
+  /// Only the intents [shortcuts] binds get an action, so a key the app
+  /// maps to an intent this field does not bind (Enter to [ActivateIntent]
+  /// on a checkbox) finds no action here and goes on.
   Widget _detector({
     required Widget child,
     required Map<ShortcutActivator, Intent> shortcuts,
@@ -567,18 +613,27 @@ class _PdfFormFieldState extends State<PdfFormField> {
     includeFocusSemantics: false,
     shortcuts: shortcuts,
     actions: {
-      ActivateIntent: CallbackAction<ActivateIntent>(
-        onInvoke: (_) {
-          onActivate?.call();
-          return null;
-        },
-      ),
-      _OpenIntent: CallbackAction<_OpenIntent>(
-        onInvoke: (_) {
-          onActivate?.call();
-          return null;
-        },
-      ),
+      if (shortcuts.values.any((intent) => intent is ActivateIntent))
+        ActivateIntent: CallbackAction<ActivateIntent>(
+          onInvoke: (_) {
+            onActivate?.call();
+            return null;
+          },
+        ),
+      if (shortcuts.values.any((intent) => intent is _OpenIntent))
+        _OpenIntent: CallbackAction<_OpenIntent>(
+          onInvoke: (_) {
+            onActivate?.call();
+            return null;
+          },
+        ),
+      if (shortcuts.values.any((intent) => intent is _ToggleIntent))
+        _ToggleIntent: CallbackAction<_ToggleIntent>(
+          onInvoke: (_) {
+            onActivate?.call();
+            return null;
+          },
+        ),
     },
     onFocusChange: (value) => setState(() => _focused = value),
     onShowHoverHighlight: (value) => setState(() => _hovered = value),
@@ -630,6 +685,10 @@ class _PdfFormFieldState extends State<PdfFormField> {
               color: ink,
             ),
     );
+    final lined = CustomPaint(
+      foregroundPainter: _readonlyLine(theme, look),
+      child: box,
+    );
     return _semantics(
       checked: checked,
       radio: radio,
@@ -640,10 +699,10 @@ class _PdfFormFieldState extends State<PdfFormField> {
         _detector(
           enabled: enabled,
           shortcuts: const {
-            SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+            SingleActivator(LogicalKeyboardKey.space): _ToggleIntent(),
           },
           onActivate: widget.onPressed,
-          child: box,
+          child: lined,
         ),
         sized: false,
         messageIcon: false,
@@ -658,9 +717,9 @@ class _PdfFormFieldState extends State<PdfFormField> {
     final ramps = theme.ramps;
     final decoration = _decoration(theme, look, hovered: hovered);
     final readonly = look == PdfFormFieldState.readonly;
-    final borderColor = readonly
-        ? ramps.paper400
-        : (decoration.border! as Border).top.color;
+    final signed = signedAs != null;
+    final hairline = theme.border.borderWidth;
+    final borderColor = (decoration.border! as Border).top.color;
     final Widget content;
     if (signedAs != null) {
       content = Text(
@@ -701,32 +760,66 @@ class _PdfFormFieldState extends State<PdfFormField> {
         ],
       );
     }
+    // The box's border: solid and 1 px when signed (`.is-signed`); 1.5 px
+    // dashed, painted by [_DashedBoxPainter] and taking no layout room,
+    // when unsigned. Read-only keeps those widths in transparent, with a
+    // dotted 1 px bottom line, solid once signed (`.is-signed` wins the
+    // border style).
+    final BoxBorder? border;
+    if (!readonly) {
+      border = signed ? decoration.border : null;
+    } else if (signed) {
+      final transparent = BorderSide(color: _transparent, width: hairline);
+      border = BorderDirectional(
+        top: transparent,
+        start: transparent,
+        end: transparent,
+        bottom: BorderSide(color: ramps.paper400, width: hairline),
+      );
+    } else {
+      const dashed = BorderSide(
+        color: _transparent,
+        width: PdfFormField.signatureBorder,
+      );
+      border = BorderDirectional(
+        top: dashed,
+        start: dashed,
+        end: dashed,
+        bottom: BorderSide(color: _transparent, width: hairline),
+      );
+    }
+    // The painted dashes take no layout room, so the padding makes up
+    // for them (`padding: 0 10px` inside `border-width: 1.5px`).
+    final paddingX = !readonly && !signed
+        ? PdfFormField.signaturePaddingX + PdfFormField.signatureBorder
+        : PdfFormField.signaturePaddingX;
     final box = Container(
       key: const ValueKey<String>('PdfFormField.box'),
       height: PdfFormField.signatureHeight,
-      padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: PdfFormField.signaturePaddingX,
-      ),
+      padding: EdgeInsetsDirectional.symmetric(horizontal: paddingX),
       alignment: AlignmentDirectional.centerStart,
       decoration: BoxDecoration(
         color: decoration.color,
         boxShadow: decoration.boxShadow,
         borderRadius: readonly ? null : decoration.borderRadius,
-        border: signedAs != null || readonly ? decoration.border : null,
+        border: border,
       ),
       // The field's semantics name it; the drawn text is not read twice.
       child: ExcludeSemantics(child: content),
     );
-    final framed = signedAs != null || readonly
-        ? box
-        : CustomPaint(
-            foregroundPainter: _DashedBoxPainter(color: borderColor),
-            child: box,
-          );
+    final framed = CustomPaint(
+      foregroundPainter: readonly
+          ? (signed ? null : _readonlyLine(theme, look))
+          : (signed ? null : _DashedBoxPainter(color: borderColor)),
+      child: box,
+    );
     return MergeSemantics(
       child: Semantics(
         button: true,
         enabled: enabled,
+        focusable: enabled,
+        focused: enabled ? _focused : null,
+        onFocus: enabled ? _node.requestFocus : null,
         isRequired: widget.required ? true : null,
         label:
             widget.semanticLabel ??
@@ -750,6 +843,9 @@ class _PdfFormFieldState extends State<PdfFormField> {
             onActivate: widget.onPressed,
             child: framed,
           ),
+          // The asterisk sits inside the dashed 1.5 px border, or the
+          // signed 1 px one (and the read-only one's 1.5 px top).
+          border: signed ? hairline : PdfFormField.signatureBorder,
         ),
       ),
     );
@@ -791,6 +887,10 @@ class _PdfFormFieldState extends State<PdfFormField> {
         ],
       ),
     );
+    final lined = CustomPaint(
+      foregroundPainter: _readonlyLine(theme, look),
+      child: box,
+    );
     void open() => setState(() => _open = true);
     void close() {
       setState(() => _open = false);
@@ -801,6 +901,9 @@ class _PdfFormFieldState extends State<PdfFormField> {
       child: Semantics(
         button: true,
         enabled: enabled,
+        focusable: enabled,
+        focused: enabled ? _focused : null,
+        onFocus: enabled ? _node.requestFocus : null,
         expanded: _open,
         isRequired: widget.required ? true : null,
         label: widget.semanticLabel ?? widget.label,
@@ -824,7 +927,7 @@ class _PdfFormFieldState extends State<PdfFormField> {
                 SingleActivator(LogicalKeyboardKey.arrowDown): _OpenIntent(),
               },
               onActivate: open,
-              child: box,
+              child: lined,
             ),
             child: Menu(
               autofocus: true,
@@ -850,15 +953,16 @@ class _PdfFormFieldState extends State<PdfFormField> {
     final decoration = _decoration(theme, look, hovered: hovered);
     final valueStyle = _valueStyle(theme);
     final placeholder = widget.placeholder;
+    // `.fm-pff__box--multiline` `line-height: 16px`, editable or not.
+    final style = multiline
+        ? valueStyle.copyWith(
+            height:
+                PdfFormField.multilineLineHeight / PdfFormField.valueFontSize,
+          )
+        : valueStyle;
     final Widget input;
     if (_editable) {
       _empty = _text.text.isEmpty;
-      final style = multiline
-          ? valueStyle.copyWith(
-              height:
-                  PdfFormField.multilineLineHeight / PdfFormField.valueFontSize,
-            )
-          : valueStyle;
       final editor = multiline
           ? _MultilineInput(
               controller: _text,
@@ -897,22 +1001,26 @@ class _PdfFormFieldState extends State<PdfFormField> {
       input = Text(
         semanticsLabel: '',
         value.isEmpty ? (placeholder ?? '') : value,
-        maxLines: multiline ? null : 1,
+        maxLines: multiline ? PdfFormField.multilineRows : 1,
         softWrap: multiline,
-        overflow: multiline ? null : TextOverflow.clip,
-        style: value.isEmpty ? _placeholderStyle(theme) : valueStyle,
+        overflow: TextOverflow.clip,
+        style: value.isEmpty ? _placeholderStyle(theme) : style,
       );
     }
     final glyph = switch (widget.type) {
       PdfFormFieldType.date => IconName.calendar,
       _ => null,
     };
+    // The textarea's three rows, its padding and border: 60 px in every
+    // look (read-only keeps a transparent border).
+    final height = multiline
+        ? PdfFormField.multilineRows * PdfFormField.multilineLineHeight +
+              2 * PdfFormField.boxPaddingX +
+              2 * theme.border.borderWidth
+        : PdfFormField.boxHeight;
     Widget box = Container(
       key: const ValueKey<String>('PdfFormField.box'),
-      height: multiline ? null : PdfFormField.boxHeight,
-      constraints: multiline
-          ? const BoxConstraints(minHeight: PdfFormField.multilineMinHeight)
-          : null,
+      height: height,
       padding: multiline
           ? const EdgeInsetsDirectional.all(PdfFormField.boxPaddingX)
           : const EdgeInsetsDirectional.symmetric(
@@ -934,6 +1042,10 @@ class _PdfFormFieldState extends State<PdfFormField> {
             ),
         ],
       ),
+    );
+    box = CustomPaint(
+      foregroundPainter: _readonlyLine(theme, look),
+      child: box,
     );
     // `:focus-within` and `:hover` on the box.
     box = Focus(
@@ -977,6 +1089,7 @@ class _PdfFormFieldState extends State<PdfFormField> {
       inMutuallyExclusiveGroup: radio ? true : null,
       enabled: enabled,
       focusable: enabled,
+      focused: enabled ? _focused : null,
       isRequired: widget.required ? true : null,
       label: widget.semanticLabel ?? widget.label,
       hint: widget.error,
@@ -1042,8 +1155,9 @@ class _MultilineInputState extends State<_MultilineInput>
           cursorWidth: FieldInput.caretWidth,
           selectionColor: theme.pageColors.editSelection,
           autofocus: widget.autofocus,
-          maxLines: null,
-          minLines: 3,
+          // `rows: 3`: three lines high; longer text scrolls inside.
+          maxLines: PdfFormField.multilineRows,
+          minLines: PdfFormField.multilineRows,
           keyboardType: TextInputType.multiline,
           onChanged: widget.onChanged,
           rendererIgnoresPointer: true,
@@ -1092,4 +1206,29 @@ class _DashedBoxPainter extends CustomPainter {
   @override
   bool shouldRepaint(_DashedBoxPainter oldDelegate) =>
       oldDelegate.color != color;
+}
+
+/// Paints a read-only box's dotted bottom line (`border-bottom: 1px dotted
+/// #A39E94`) as Chromium draws a thin dotted border: squares [width] wide
+/// at a pitch of twice that, along the bottom edge, inside the box.
+class _DottedBottomPainter extends CustomPainter {
+  const new({required this.color, required this.width});
+
+  final Color color;
+  final double width;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..isAntiAlias = false;
+    final top = size.height - width;
+    for (var x = 0.0; x + width <= size.width; x += width * 2) {
+      canvas.drawRect(Rect.fromLTWH(x, top, width, width), paint);
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DottedBottomPainter oldDelegate) =>
+      oldDelegate.color != color || oldDelegate.width != width;
 }

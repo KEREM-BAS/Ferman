@@ -9,6 +9,7 @@ import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
 /// One reply under a note or a comment, the design-system `NoteReply`
@@ -50,7 +51,8 @@ class NoteReply {
 /// 4 px corners, a hairline and a small shadow, showing a 14 px
 /// `message-square` in page ink. Activating it (click, Enter, Space) calls
 /// [onToggle]. Its keyboard focus is a page-tuned ring: 2 px white, then
-/// 2 px ink 500 (`.fm-note-pin:focus-visible`).
+/// 2 px ink 500 (`.fm-note-pin:focus-visible`), its corners growing with
+/// each band as CSS spread shadows do.
 ///
 /// **Expanded**: a 256 px card on the raised surface with medium corners
 /// and the popover shadow. Its 32 px head is in [color] with [author]
@@ -60,7 +62,13 @@ class NoteReply {
 /// keeping its line breaks), each of [replies] over a hairline (author in
 /// semibold with the time after it), [child], and, while [onReply] is set,
 /// a small reply field (Enter sends a non-empty reply through [onReply]
-/// and clears the field).
+/// and clears the field, which keeps focus for the next reply).
+///
+/// **Keyboard** (board `a4-1d`): opening the note from the keyboard moves
+/// focus into the card; Tab moves through More, Close and the reply field
+/// and on out of the card. Escape anywhere in the card calls [onToggle]
+/// (close), and closing from the keyboard (Escape, or Close activated
+/// while focus is in the card) returns focus to the pin.
 ///
 /// The head, pin and note colours are document colours; the card surface,
 /// text and field follow the theme. The bundle's English names
@@ -98,16 +106,28 @@ class StickyNote extends StatefulWidget {
   /// `StickyNote.jsx` pin and head icon size.
   static const double iconSize = 14;
 
-  /// `.fm-note-pin` `box-shadow: 0 0 0 1px rgba(0,0,0,.12),
-  /// 0 2px 4px rgba(0,0,0,.14)`.
-  static const List<BoxShadow> pinShadow = [
-    BoxShadow(color: Color(0x24000000), offset: Offset(0, 2), blurRadius: 4),
+  /// `.fm-note-pin` `box-shadow: 0 0 0 1px rgba(0,0,0,.12), …`: the
+  /// hairline ring at rest, painted with its corner grown to 5 px as CSS
+  /// does.
+  static const List<BoxShadow> pinRing = [
     BoxShadow(color: Color(0x1F000000), spreadRadius: 1),
+  ];
+
+  /// `.fm-note-pin` `box-shadow: …, 0 2px 4px rgba(0,0,0,.14)`: the drop
+  /// shadow at rest.
+  static const List<BoxShadow> pinDropShadow = [
+    BoxShadow(color: Color(0x24000000), offset: Offset(0, 2), blurRadius: 4),
   ];
 
   /// `.fm-note-pin:focus-visible` `box-shadow: 0 0 0 2px #FFFFFF,
   /// 0 0 0 4px var(--ink-500)`: the page-tuned focus ring, inner part.
   static const Color pinFocusGap = Color(0xFFFFFFFF);
+
+  /// That ring's `0 0 0 2px`: the white band's spread.
+  static const double pinFocusGapSpread = 2;
+
+  /// That ring's `0 0 0 4px`: the ink band's spread.
+  static const double pinFocusSpread = 4;
 
   /// `.fm-note` `width: 256px`.
   static const double cardWidth = 256;
@@ -117,6 +137,10 @@ class StickyNote extends StatefulWidget {
 
   /// `.fm-note__head .fm-iconbtn:hover` `background: rgba(0,0,0,.08)`.
   static const Color headButtonHover = Color(0x14000000);
+
+  /// The head buttons' fill at rest: [headButtonHover] fully transparent,
+  /// so the hover tint fades in from nothing.
+  static const Color headButtonRest = Color(0x00000000);
 
   /// Whether the note shows as a pin.
   final bool collapsed;
@@ -189,18 +213,62 @@ class StickyNote extends StatefulWidget {
 
 class _StickyNoteState extends State<StickyNote> {
   final TextEditingController _reply = TextEditingController();
+  final FocusNode _pinNode = FocusNode(debugLabel: 'StickyNote.pin');
+  final FocusNode _replyNode = FocusNode(debugLabel: 'StickyNote.reply');
+
+  /// The card's focus scope: Escape inside it closes the note. A note on
+  /// the page is not modal, so Tab leaves it at either end.
+  final FocusScopeNode _cardNode = FocusScopeNode(
+    debugLabel: 'StickyNote.card',
+    traversalEdgeBehavior: TraversalEdgeBehavior.parentScope,
+  );
+
+  @override
+  void didUpdateWidget(StickyNote oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    // The old subtree is still mounted here, so `hasFocus` is current.
+    final closing = !oldWidget.collapsed && widget.collapsed;
+    final opening = oldWidget.collapsed && !widget.collapsed;
+    if ((closing && _cardNode.hasFocus) || (opening && _pinNode.hasFocus)) {
+      // Closed from the keyboard, focus returns to the pin (a4-1d); opened
+      // from it, focus moves into the note. After this frame, once the
+      // new side is in the focus tree: a scope that is not attached yet
+      // drops a focus request.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (!mounted || widget.collapsed != closing) return;
+        (closing ? _pinNode : _cardNode).requestFocus();
+      });
+    }
+  }
 
   @override
   void dispose() {
     _reply.dispose();
+    _pinNode.dispose();
+    _replyNode.dispose();
+    _cardNode.dispose();
     super.dispose();
   }
 
   void _send(String value) {
+    // The field keeps focus for the next reply, as the bundle's input does
+    // (Enter would otherwise give it up; both land in one focus update).
+    _replyNode.requestFocus();
     final onReply = widget.onReply;
     if (onReply == null || value.isEmpty) return;
     onReply(value);
     _reply.clear();
+  }
+
+  KeyEventResult _onCardKey(FocusNode _, KeyEvent event) {
+    final onToggle = widget.onToggle;
+    if (event is KeyDownEvent &&
+        event.logicalKey == LogicalKeyboardKey.escape &&
+        onToggle != null) {
+      onToggle();
+      return KeyEventResult.handled;
+    }
+    return KeyEventResult.ignored;
   }
 
   @override
@@ -211,35 +279,47 @@ class _StickyNoteState extends State<StickyNote> {
     final theme = context.ferman;
     final ramps = theme.ramps;
     final fill = widget.color.resolve(theme);
+    const radius = BorderRadius.all(Radius.circular(StickyNote.pinRadius));
     return FermanInteractive(
+      focusNode: _pinNode,
       onPressed: widget.onToggle,
       semanticLabel: widget.semanticLabel,
       builder: (context, states, _) {
         final focused = states.contains(WidgetState.focused);
-        return Container(
-          key: const ValueKey<String>('StickyNote.pin'),
-          width: StickyNote.pinSize,
-          height: StickyNote.pinSize,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(
-            color: fill,
-            borderRadius: const BorderRadius.all(
-              Radius.circular(StickyNote.pinRadius),
-            ),
-            boxShadow: focused
+        // The spread rings round out with each band (radius 5, or 6 and 8
+        // for the focus ring), as CSS spread shadows do, and sit above the
+        // drop shadow. Focus replaces the whole box shadow.
+        return CustomPaint(
+          foregroundPainter: FocusRingPainter(
+            layers: focused
                 ? [
-                    BoxShadow(color: ramps.ink500, spreadRadius: 4),
+                    BoxShadow(
+                      color: ramps.ink500,
+                      spreadRadius: StickyNote.pinFocusSpread,
+                    ),
                     const BoxShadow(
                       color: StickyNote.pinFocusGap,
-                      spreadRadius: 2,
+                      spreadRadius: StickyNote.pinFocusGapSpread,
                     ),
                   ]
-                : StickyNote.pinShadow,
+                : StickyNote.pinRing,
+            borderRadius: radius,
           ),
-          child: Icon(
-            IconName.messageSquare,
-            size: StickyNote.iconSize,
-            color: ramps.paper900,
+          child: Container(
+            key: const ValueKey<String>('StickyNote.pin'),
+            width: StickyNote.pinSize,
+            height: StickyNote.pinSize,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: fill,
+              borderRadius: radius,
+              boxShadow: focused ? null : StickyNote.pinDropShadow,
+            ),
+            child: Icon(
+              IconName.messageSquare,
+              size: StickyNote.iconSize,
+              color: ramps.paper900,
+            ),
           ),
         );
       },
@@ -364,6 +444,7 @@ class _StickyNoteState extends State<StickyNote> {
             child: TextField(
               size: FieldSize.sm,
               controller: _reply,
+              focusNode: _replyNode,
               placeholder: widget.replyPlaceholder,
               semanticLabel: widget.replyPlaceholder,
               onSubmitted: _send,
@@ -394,7 +475,12 @@ class _StickyNoteState extends State<StickyNote> {
       scopesRoute: true,
       namesRoute: true,
       label: widget.semanticLabel,
-      child: card,
+      child: FocusScope(
+        node: _cardNode,
+        includeSemantics: false,
+        onKeyEvent: _onCardKey,
+        child: card,
+      ),
     );
   }
 }
@@ -430,21 +516,35 @@ class _HeadButton extends StatelessWidget {
             (states.contains(WidgetState.hovered) ||
                 states.contains(WidgetState.pressed));
         final size = theme.density.controlHXs;
+        final motion = theme.motion;
+        // `.fm-iconbtn` transitions: the focus ring over --dur-fast, the
+        // tint and the icon colour over --dur-instant (none under reduced
+        // motion).
         return FocusRing(
           visible: states.contains(WidgetState.focused),
           borderRadius: radius,
-          child: Container(
+          duration: motion.durFast,
+          curve: motion.easeOut,
+          child: AnimatedContainer(
+            duration: motion.durInstant,
+            curve: motion.easeOut,
             width: size,
             height: size,
             alignment: Alignment.center,
             decoration: BoxDecoration(
-              color: tinted ? StickyNote.headButtonHover : null,
+              color: tinted
+                  ? StickyNote.headButtonHover
+                  : StickyNote.headButtonRest,
               borderRadius: radius,
             ),
-            child: Icon(
-              icon,
-              size: StickyNote.iconSize,
-              color: disabled ? theme.ramps.paper500 : theme.ramps.paper800,
+            child: TweenAnimationBuilder<Color?>(
+              tween: ColorTween(
+                end: disabled ? theme.ramps.paper500 : theme.ramps.paper800,
+              ),
+              duration: motion.durInstant,
+              curve: motion.easeOut,
+              builder: (context, color, _) =>
+                  Icon(icon, size: StickyNote.iconSize, color: color),
             ),
           ),
         );

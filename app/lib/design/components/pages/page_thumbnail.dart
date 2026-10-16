@@ -65,7 +65,8 @@ enum ThumbnailMarker {
 /// caption type. A sideways [rotation] (90 or 270) re-proportions the page
 /// and turns the lines, and any rotation adds a `rotate-cw` glyph before
 /// the number. The page colour filter (`--page-filter`) applies to the
-/// page only.
+/// page and what sits on it ([child], the lines, [badges], [marker]), never
+/// to the cell, the rings or the number.
 ///
 /// [badges] (a `ThumbnailBadges`) sits at the page's top-end corner and
 /// moves the placeholder lines aside. [marker] is the bundle's older
@@ -74,14 +75,21 @@ enum ThumbnailMarker {
 /// States: hover tints the cell, [selected] fills it with the selection
 /// colour, rings the page in the accent and colours the number; keyboard
 /// focus shows the focus ring; [state] lifts the cell while dragged or
-/// leaves a dashed slot; [dropIndicator] draws the accent drop line with
+/// leaves a dashed slot. These changes animate as the CSS transitions do
+/// (the fill over `--dur-instant`, the drag shadow, focus ring and scale
+/// over `--dur-base`, the page ring over `--dur-fast`; at once under
+/// reduced motion), and the widget tree stays the same in every state, so
+/// [child] and [badges] keep their state. [dropIndicator] draws the accent
+/// drop line with
 /// round ends before or after the page, across it in a
 /// [ThumbnailOrientation.vertical] list and down its side in a
 /// [ThumbnailOrientation.horizontal] row. The drop line and the badges
 /// mirror in right to left; the page content never does.
 ///
 /// **Keyboard:** Enter and Space call [onPressed] (select). ArrowUp and
-/// ArrowDown move to the thumbnail above or below (not in the bundle).
+/// ArrowDown move to the thumbnail above or below and scroll it into view
+/// (not in the bundle); at the first or last thumbnail they do nothing, so
+/// focus never leaves the list.
 ///
 /// For screen readers it is a selectable button (the design's listbox
 /// option) named [semanticLabel] (the bundle's English "Page N", localized
@@ -187,13 +195,24 @@ class PageThumbnail extends StatefulWidget {
   /// `.fm-thumb__drop--h-before` `inset-inline-start: -3px`.
   static const double dropOffsetHorizontal = 3;
 
-  /// `.fm-thumb__drop::before, ::after`: 6 px of content inside a 2 px
-  /// border, so the round end is 10 px across and centred on the line's
-  /// end (the content-box sizing its offsets assume).
+  /// `.fm-thumb__drop::before, ::after` `width` and `height: 6px` with a
+  /// `border: 2px`. Under `.fm-root` (border-box, `base.css`) the CSS draws
+  /// a 6 px end 2 px off the line's centre; its offsets (`top: -4px` on a
+  /// 2 px line) assume content-box sizing, so the widget draws the 10 px
+  /// end those offsets centre on the line.
   static const double dropEndSize = 10;
 
   /// `.fm-thumb__drop::before` `border: 2px solid var(--accent)`.
   static const double dropEndBorder = 2;
+
+  /// `.fm-thumb__drop--v-*::before` `inset-inline-start: -6px` and
+  /// `::after` `inset-inline-end: -6px`; `--h-*::before` `top: -6px` and
+  /// `::after` `bottom: -6px`: how far the round ends reach past the line's
+  /// ends.
+  static const double dropEndOffset = 6;
+
+  /// `.fm-thumb__drop` `border-radius: 1px`.
+  static const double dropRadius = 1;
 
   /// The page number.
   final int page;
@@ -357,8 +376,22 @@ class _PageThumbnailState extends State<PageThumbnail> {
         target = other;
       }
     }
-    target?.requestFocus();
-    return target == null ? KeyEventResult.ignored : KeyEventResult.handled;
+    if (target != null) {
+      target.requestFocus();
+      final targetContext = target.context;
+      if (targetContext != null) {
+        // No animation, as ModeTabs scrolls a tab into view.
+        Scrollable.ensureVisible(
+          targetContext,
+          alignmentPolicy: down
+              ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+              : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+        );
+      }
+    }
+    // A listbox: the arrows never move focus out of the list, even at the
+    // first or last thumbnail.
+    return KeyEventResult.handled;
   }
 
   @override
@@ -398,19 +431,19 @@ class _PageThumbnailState extends State<PageThumbnail> {
           final radius = BorderRadius.all(
             Radius.circular(theme.radius.radiusMd),
           );
-          Widget cell = Container(
+          final motion = theme.motion;
+          // `.fm-thumb` transitions its background over --dur-instant …
+          Widget cell = AnimatedContainer(
             key: const ValueKey<String>('PageThumbnail.cell'),
+            duration: motion.durInstant,
+            curve: motion.easeOut,
             padding: EdgeInsetsDirectional.fromSTEB(
               theme.space.space2,
               theme.space.space2,
               theme.space.space2,
               PageThumbnail.paddingBottom,
             ),
-            decoration: BoxDecoration(
-              color: fill,
-              borderRadius: radius,
-              boxShadow: dragging ? theme.elevation.shadowDrag : null,
-            ),
+            decoration: BoxDecoration(color: fill, borderRadius: radius),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               spacing: PageThumbnail.gap,
@@ -423,19 +456,45 @@ class _PageThumbnailState extends State<PageThumbnail> {
               ],
             ),
           );
+          // … its box shadow (the drag shadow, the focus ring) over
+          // --dur-base …
+          cell = AnimatedContainer(
+            key: const ValueKey<String>('PageThumbnail.lift'),
+            duration: motion.durBase,
+            curve: motion.easeOut,
+            decoration: BoxDecoration(
+              borderRadius: radius,
+              boxShadow: dragging
+                  ? theme.elevation.shadowDrag
+                  : const <BoxShadow>[],
+            ),
+            child: cell,
+          );
           cell = FocusRing(
             visible: states.contains(WidgetState.focused),
             borderRadius: radius,
+            duration: motion.durBase,
+            curve: motion.easeOut,
             child: cell,
           );
-          if (dragging) {
-            cell = Transform.scale(scale: PageThumbnail.dragScale, child: cell);
-          }
+          // … and its transform over --dur-base. The scale stays in the tree
+          // at 1 when not dragged, so a drag never rebuilds the cell.
+          cell = AnimatedScale(
+            scale: dragging ? PageThumbnail.dragScale : 1,
+            duration: motion.durBase,
+            curve: motion.easeOut,
+            child: cell,
+          );
+          // The same tree with or without a drop line: the cell stays the
+          // first child, so the page and its badges keep their state.
           final indicator = widget.dropIndicator;
-          if (indicator == null) return cell;
           return Stack(
             clipBehavior: Clip.none,
-            children: [cell, _dropLine(theme, indicator)],
+            fit: StackFit.passthrough,
+            children: [
+              cell,
+              if (indicator != null) _dropLine(theme, indicator),
+            ],
           );
         },
       ),
@@ -459,47 +518,52 @@ class _PageThumbnailState extends State<PageThumbnail> {
         child: CustomPaint(painter: _DashedOutlinePainter(colors.accentBorder)),
       );
     }
-    Widget content = DecoratedBox(
-      decoration: BoxDecoration(color: theme.pageColors.pageBg),
-      child: widget.child ?? _lines(theme),
+    final marker = widget.marker;
+    final badges = widget.badges;
+    // `filter: var(--page-filter)` on `.fm-thumb__page` covers everything
+    // painted inside it: the page, the marker and the badges (their
+    // tooltips open in the overlay, unfiltered).
+    Widget content = Stack(
+      fit: StackFit.expand,
+      children: [
+        DecoratedBox(
+          decoration: BoxDecoration(color: theme.pageColors.pageBg),
+          child: widget.child ?? _lines(theme),
+        ),
+        if (marker != null) _marker(theme, marker),
+        if (badges != null)
+          PositionedDirectional(
+            top: PageThumbnail.cornerInset,
+            end: PageThumbnail.cornerInset,
+            child: badges,
+          ),
+      ],
     );
     final filter = theme.pageColorFilter;
     if (filter != null) {
       content = ColorFiltered(colorFilter: filter, child: content);
     }
-    final marker = widget.marker;
-    final badges = widget.badges;
-    return Container(
-      key: const ValueKey<String>('PageThumbnail.page'),
-      width: size.width,
-      height: size.height,
-      decoration: BoxDecoration(
-        borderRadius: radius,
-        boxShadow: [
-          ...theme.elevation.shadowSm,
-          BoxShadow(
-            color: selected ? colors.accent : colors.borderDefault,
-            spreadRadius: selected
-                ? PageThumbnail.selectedRing
-                : theme.border.borderWidth,
-          ),
-        ],
-      ),
-      child: ClipRRect(
-        borderRadius: radius,
-        child: Stack(
-          fit: StackFit.expand,
-          children: [
-            content,
-            if (marker != null) _marker(theme, marker),
-            if (badges != null)
-              PositionedDirectional(
-                top: PageThumbnail.cornerInset,
-                end: PageThumbnail.cornerInset,
-                child: badges,
-              ),
+    // `.fm-thumb__page` transitions its box shadow over --dur-fast (not
+    // its size, which a rotation changes at once).
+    return SizedBox.fromSize(
+      size: size,
+      child: AnimatedContainer(
+        key: const ValueKey<String>('PageThumbnail.page'),
+        duration: theme.motion.durFast,
+        curve: theme.motion.easeOut,
+        decoration: BoxDecoration(
+          borderRadius: radius,
+          boxShadow: [
+            ...theme.elevation.shadowSm,
+            BoxShadow(
+              color: selected ? colors.accent : colors.borderDefault,
+              spreadRadius: selected
+                  ? PageThumbnail.selectedRing
+                  : theme.border.borderWidth,
+            ),
           ],
         ),
+        child: ClipRRect(borderRadius: radius, child: content),
       ),
     );
   }
@@ -623,11 +687,16 @@ class _PageThumbnailState extends State<PageThumbnail> {
     final line = DecoratedBox(
       decoration: BoxDecoration(
         color: colors.accent,
-        borderRadius: const BorderRadius.all(Radius.circular(1)),
+        borderRadius: const BorderRadius.all(
+          Radius.circular(PageThumbnail.dropRadius),
+        ),
       ),
     );
-    // The round ends overhang the line by half their size.
+    // Across the line, the round ends overhang it by half their extra size
+    // (`top: -4px` on the 2 px line); along it they start 6 px past its
+    // ends (`inset-inline-start: -6px`).
     const overhang = (end - thickness) / 2;
+    const reach = -PageThumbnail.dropEndOffset;
     final Widget drawn = vertical
         ? SizedBox(
             height: end,
@@ -641,12 +710,8 @@ class _PageThumbnailState extends State<PageThumbnail> {
                   height: thickness,
                   child: line,
                 ),
-                PositionedDirectional(
-                  start: -end / 2,
-                  top: 0,
-                  child: roundEnd(),
-                ),
-                PositionedDirectional(end: -end / 2, top: 0, child: roundEnd()),
+                PositionedDirectional(start: reach, top: 0, child: roundEnd()),
+                PositionedDirectional(end: reach, top: 0, child: roundEnd()),
               ],
             ),
           )
@@ -662,13 +727,9 @@ class _PageThumbnailState extends State<PageThumbnail> {
                   width: thickness,
                   child: line,
                 ),
+                PositionedDirectional(top: reach, start: 0, child: roundEnd()),
                 PositionedDirectional(
-                  top: -end / 2,
-                  start: 0,
-                  child: roundEnd(),
-                ),
-                PositionedDirectional(
-                  bottom: -end / 2,
+                  bottom: reach,
                   start: 0,
                   child: roundEnd(),
                 ),

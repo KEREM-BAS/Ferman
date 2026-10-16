@@ -2,6 +2,8 @@ import 'package:ferman/design/components/editing/text_edit_box.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
@@ -32,6 +34,19 @@ void main() {
         )
         .first,
   );
+
+  FocusRingPainter ringOf(WidgetTester tester) =>
+      tester
+              .widget<CustomPaint>(
+                find.descendant(
+                  of: find.byType(TextEditBox),
+                  matching: find.byWidgetPredicate(
+                    (w) => w is CustomPaint && w.painter is FocusRingPainter,
+                  ),
+                ),
+              )
+              .painter!
+          as FocusRingPainter;
 
   Widget block({
     TextEditBoxState state = TextEditBoxState.editing,
@@ -180,6 +195,53 @@ void main() {
     testWidgets('width fixes the outer width', (tester) async {
       await tester.pumpWidget(componentHost(block(width: 240)));
       expect(boxRect(tester).width, 240);
+      // The slot is the frame less the 5 px negative margins.
+      expect(
+        tester.getSize(find.byType(TextEditBox)).width,
+        240 - 2 * TextEditBox.marginX,
+      );
+    });
+
+    testWidgets('margin -4px -5px: the frame hugs the text in its slot', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const Text('Madde 3'),
+              block(state: TextEditBoxState.selected),
+              const Text('Madde 5'),
+            ],
+          ),
+        ),
+      );
+      final slot = tester.getRect(find.byType(TextEditBox));
+      expect(
+        boxRect(tester),
+        Rect.fromLTRB(
+          slot.left - TextEditBox.marginX,
+          slot.top - TextEditBox.marginY,
+          slot.right + TextEditBox.marginX,
+          slot.bottom + TextEditBox.marginY,
+        ),
+      );
+      // The text sits 1 px up and back from where its neighbours put it.
+      final text = tester.getTopLeft(find.text('Kiracı, aylık kira bedeli'));
+      expect(text, slot.topLeft - const Offset(1, 1));
+      expect(tester.getTopLeft(find.text('Madde 5')).dy, slot.bottom);
+      // The overhang still takes the pointer.
+      var presses = 0;
+      await tester.pumpWidget(
+        componentHost(
+          block(state: TextEditBoxState.idle, onPressed: () => presses++),
+        ),
+      );
+      final frame = boxRect(tester);
+      await tester.tapAt(frame.topLeft + const Offset(1, 1));
+      expect(presses, 1);
     });
 
     testWidgets('page-tuned: the same frame colour in the dark theme', (
@@ -189,6 +251,62 @@ void main() {
         componentHost(block(), brightness: Brightness.dark),
       );
       expect(frameOf(tester), paints..rect(color: page.editBox));
+    });
+
+    testWidgets('handles: resize cursors, taking the pointer past the frame', (
+      tester,
+    ) async {
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      // A test mouse is device 1.
+      MouseCursor? cursor() =>
+          RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1);
+      Future<MouseCursor?> cursorAt(Offset position) async {
+        await mouse.moveTo(position);
+        await tester.pump();
+        return cursor();
+      }
+
+      await tester.pumpWidget(componentHost(block()));
+      final frame = boxRect(tester);
+      final corners = tester.getRect(handles.at(0));
+      // The handle's outer corner, outside the frame.
+      expect(
+        await cursorAt(corners.topLeft + const Offset(1, 1)),
+        SystemMouseCursors.resizeUpLeftDownRight,
+      );
+      expect(frame.contains(corners.topLeft + const Offset(1, 1)), isFalse);
+      expect(
+        await cursorAt(tester.getCenter(handles.at(1))),
+        SystemMouseCursors.resizeUpDown,
+      );
+      expect(
+        await cursorAt(tester.getCenter(handles.at(2))),
+        SystemMouseCursors.resizeUpRightDownLeft,
+      );
+      expect(
+        await cursorAt(tester.getCenter(handles.at(3))),
+        SystemMouseCursors.resizeLeftRight,
+      );
+      // The frame itself: the text cursor.
+      expect(await cursorAt(frame.center), SystemMouseCursors.text);
+      // Right to left: the top-start handle is at the right.
+      await tester.pumpWidget(
+        componentHost(block(), textDirection: TextDirection.rtl),
+      );
+      final topStart = tester.getRect(handles.at(0));
+      expect(topStart.right, boxRect(tester).right + TextEditBox.handleOffset);
+      expect(
+        await cursorAt(topStart.center),
+        SystemMouseCursors.resizeUpRightDownLeft,
+      );
+      // Inert: the handles defer to the page.
+      await tester.pumpWidget(componentHost(block(inert: true)));
+      expect(
+        await cursorAt(tester.getCenter(handles.at(0))),
+        SystemMouseCursors.basic,
+      );
     });
   });
 
@@ -298,11 +416,89 @@ void main() {
       await tester.pumpWidget(
         componentHost(block(state: TextEditBoxState.idle, focusNode: node)),
       );
-      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isFalse);
+      expect(ringOf(tester).progress, 0);
       node.requestFocus();
       await tester.pumpAndSettle();
-      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
+      expect(ringOf(tester).progress, 1);
       expect(frameOf(tester), paints..path(color: page.editBoxHover));
+      // The selected frame doubles as focus: no ring.
+      await tester.pumpWidget(
+        componentHost(block(state: TextEditBoxState.selected, focusNode: node)),
+      );
+      expect(ringOf(tester).progress, 0);
+    });
+
+    testWidgets('the focus ring is page-tuned: white and ink in dark too', (
+      tester,
+    ) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          block(state: TextEditBoxState.idle, focusNode: node),
+          brightness: Brightness.dark,
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      final ring = ringOf(tester);
+      expect(ring.progress, 1);
+      expect(ring.layers, [
+        BoxShadow(
+          color: page.editBox,
+          spreadRadius: TextEditBox.focusRingSpread,
+        ),
+        BoxShadow(color: page.pageBg, spreadRadius: TextEditBox.focusGapSpread),
+      ]);
+      // Not the dark theme's `--focus-ring` (soot gap, dark-blue ring).
+      expect(
+        ring.layers.map((layer) => layer.color),
+        isNot(contains(FermanFocusTokens.dark.focusRing.first.color)),
+      );
+      expect(
+        frameOf(tester),
+        paints
+          ..drrect(color: page.editBox)
+          ..drrect(color: page.pageBg),
+      );
+    });
+
+    testWidgets('semantics: focusable, focused and tappable', (tester) async {
+      final handle = tester.ensureSemantics();
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      var presses = 0;
+      await tester.pumpWidget(
+        componentHost(block(focusNode: node, onPressed: () => presses++)),
+      );
+      final text = find.text('Kiracı, aylık kira bedeli');
+      expect(
+        tester.getSemantics(text),
+        isSemantics(
+          isFocusable: true,
+          isFocused: false,
+          hasTapAction: true,
+          hasFocusAction: true,
+          isTextField: true,
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(text),
+        isSemantics(isFocusable: true, isFocused: true, isTextField: true),
+      );
+      tester.semantics.tap(find.semantics.byLabel(RegExp('^Madde 4')));
+      expect(presses, 1);
+      // Outside Edit mode: neither focusable nor tappable.
+      await tester.pumpWidget(
+        componentHost(block(inert: true, onPressed: () => presses++)),
+      );
+      expect(
+        tester.getSemantics(text),
+        isSemantics(isFocusable: false, hasTapAction: false),
+      );
+      handle.dispose();
     });
 
     testWidgets('a click calls onPressed', (tester) async {

@@ -68,6 +68,7 @@ void main() {
     VoidCallback? onReplace,
     VoidCallback? onReplaceAll,
     VoidCallback? onClose,
+    String? replaceDisabledReason,
   }) => SearchReplaceBar(
     labels: labels,
     query: query,
@@ -85,6 +86,7 @@ void main() {
     onReplace: onReplace,
     onReplaceAll: onReplaceAll,
     onClose: onClose,
+    replaceDisabledReason: replaceDisabledReason,
   );
 
   setUp(() {
@@ -378,6 +380,73 @@ void main() {
         ),
       );
       expect(toggles, 1);
+    });
+
+    testWidgets('replace not shipped: visible, disabled with the reason', (
+      tester,
+    ) async {
+      const reason = 'Available in a future version';
+      final handle = tester.ensureSemantics();
+      var toggles = 0;
+      var replaced = 0;
+      await tester.pumpWidget(
+        componentHost(
+          bar(onToggleReplace: () => toggles++, replaceDisabledReason: reason),
+        ),
+      );
+      final disclosure = find.byWidgetPredicate(
+        (w) => w is IconButton && w.label == 'Show replace',
+      );
+      expect(iconButton(tester, 'Show replace').disabled, isTrue);
+      expect(iconButton(tester, 'Show replace').disabledReason, reason);
+      // G10: still focusable, the reason as hint, activation does nothing.
+      final glyph = find.descendant(
+        of: disclosure,
+        matching: find.byType(Icon),
+      );
+      expect(
+        tester.getSemantics(glyph),
+        isSemantics(hint: reason, isFocusable: true, hasTapAction: false),
+      );
+      final node = Focus.of(tester.element(glyph))..requestFocus();
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.tap(disclosure);
+      expect(toggles, 0);
+      // The tooltip shows the reason.
+      await tester.pump(const Duration(seconds: 1));
+      expect(find.text(reason), findsOneWidget);
+      // The replace row, when shown, keeps its look but takes nothing.
+      await tester.pumpWidget(
+        componentHost(
+          bar(
+            query: 'kira',
+            current: 1,
+            total: 3,
+            showReplace: true,
+            onReplace: () => replaced++,
+            onReplaceAll: () => replaced++,
+            replaceDisabledReason: reason,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      for (final label in ['Replace', 'Replace all']) {
+        final button = tester.widget<Button>(
+          find.ancestor(of: find.text(label), matching: find.byType(Button)),
+        );
+        expect(button.disabled, isTrue);
+        expect(button.disabledReason, reason);
+      }
+      await tester.tap(find.text('Replace all'));
+      expect(replaced, 0);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText).last).readOnly,
+        isTrue,
+      );
+      handle.dispose();
     });
 
     testWidgets('semantics: a named group with a live count', (tester) async {

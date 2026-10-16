@@ -13,6 +13,7 @@ import 'package:ferman/design/components/navigation/segmented_control.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show EagerGestureRecognizer;
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
@@ -177,8 +178,11 @@ class SignaturePadLabels {
 ///   midpoints at a 2.2 px width; "Sign above the line" while empty. The
 ///   strokes are kept as data ([initialStrokes] to start with) and passed
 ///   out through [onChanged] when a stroke ends; nothing is turned into an
-///   image. Ctrl+Z (⌘Z) in the focused area removes the last stroke
-///   (`a5-3b` board note).
+///   image. Pressing on the area focuses it (without the keyboard focus
+///   ring), so Ctrl+Z (⌘Z) removes the last stroke right after drawing
+///   (`a5-3b` board note). The area claims the pointer at once
+///   (`touch-action: none`), so a pen or finger stroke never scrolls the
+///   dialog around it.
 /// - **Type:** the name ([initialName] to start with) in the 40 px italic
 ///   signature face, in [ink]; "Type your name above the line" while empty.
 /// - **Image:** the dashed drop box with "Choose image…". Picking or
@@ -353,6 +357,10 @@ class _SignaturePadState extends State<SignaturePad> {
   ];
   bool _drawing = false;
   bool _areaFocusVisible = false;
+
+  /// Whether the area took focus from a pointer press, which shows no
+  /// focus ring (CSS `:focus-visible` never matches after a click).
+  bool _pointerFocus = false;
   String _lastTyped = '';
 
   static const List<Color> _inks = [
@@ -422,6 +430,12 @@ class _SignaturePadState extends State<SignaturePad> {
 
   void _down(PointerDownEvent event) {
     if (widget.mode != SignatureMode.draw) return;
+    // The bundle's area is `tabIndex: 0`, so a press focuses it and the
+    // undo keys work right after drawing.
+    if (!_area.hasFocus) {
+      _pointerFocus = true;
+      _area.requestFocus();
+    }
     setState(() {
       _drawing = true;
       _strokes.add([_round(event.localPosition)]);
@@ -657,8 +671,25 @@ class _SignaturePadState extends State<SignaturePad> {
       onPointerCancel: (_) => _up(),
       child: area,
     );
+    if (draw) {
+      // `touch-action: none`: the area wins the gesture arena on pointer
+      // down, so a scrolling parent (the dialog body) never takes a pen or
+      // finger stroke. Only in draw mode, so the Type field and the Image
+      // button keep their gestures.
+      area = RawGestureDetector(
+        behavior: HitTestBehavior.opaque,
+        gestures: <Type, GestureRecognizerFactory>{
+          EagerGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<EagerGestureRecognizer>(
+                EagerGestureRecognizer.new,
+                (_) {},
+              ),
+        },
+        child: area,
+      );
+    }
     area = FocusRing(
-      visible: draw && (_areaFocusVisible || forced),
+      visible: draw && ((_areaFocusVisible && !_pointerFocus) || forced),
       borderRadius: radius,
       child: area,
     );
@@ -675,6 +706,9 @@ class _SignaturePadState extends State<SignaturePad> {
           },
         ),
       },
+      onFocusChange: (value) => setState(() {
+        if (!value) _pointerFocus = false;
+      }),
       onShowFocusHighlight: (value) =>
           setState(() => _areaFocusVisible = value),
       mouseCursor: draw ? SystemMouseCursors.precise : MouseCursor.defer,
@@ -746,6 +780,10 @@ class _SignaturePadState extends State<SignaturePad> {
 
 /// An ink swatch (`.fm-annot-color`): an 18 px circle in [color] with a
 /// hairline, a ring on hover, the checked double ring and the focus ring.
+/// The dark theme's light hairline shows only at rest: the `:hover` and
+/// checked rules come later with the same specificity and bring back the
+/// dark one, and focus replaces the hairline with the focus ring, as
+/// `AnnotationTools` draws its swatches.
 class _InkSwatch extends StatelessWidget {
   const new({
     required this.color,
@@ -790,18 +828,18 @@ class _InkSwatch extends StatelessWidget {
         } else {
           outside = const [];
         }
+        final ring = theme.isDark && !checked && !hovered
+            ? SignaturePad.swatchRingDark
+            : SignaturePad.swatchRingLight;
         return Container(
           width: SignaturePad.swatchSize,
           height: SignaturePad.swatchSize,
           decoration: BoxDecoration(shape: BoxShape.circle, boxShadow: outside),
           foregroundDecoration: BoxDecoration(
             shape: BoxShape.circle,
-            border: Border.all(
-              color: theme.isDark
-                  ? SignaturePad.swatchRingDark
-                  : SignaturePad.swatchRingLight,
-              width: theme.border.borderWidth,
-            ),
+            border: focused
+                ? null
+                : Border.all(color: ring, width: theme.border.borderWidth),
           ),
           child: DecoratedBox(
             decoration: BoxDecoration(color: color, shape: BoxShape.circle),

@@ -3,6 +3,7 @@ import 'dart:ui' show SemanticsRole;
 import 'package:ferman/design/components/annotations/annotation_color.dart';
 import 'package:ferman/design/components/annotations/sticky_note.dart';
 import 'package:ferman/design/components/forms/text_field.dart';
+import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
@@ -46,6 +47,27 @@ void main() {
     (w) => w is FermanInteractive && w.semanticLabel == label,
   );
 
+  FocusRingPainter pinRingOf(WidgetTester tester) =>
+      tester
+              .widget<CustomPaint>(
+                find
+                    .ancestor(of: pin, matching: find.byType(CustomPaint))
+                    .first,
+              )
+              .foregroundPainter!
+          as FocusRingPainter;
+
+  /// The label of the control that has focus, or its focus node's.
+  String? focusedLabel() {
+    final focus = FocusManager.instance.primaryFocus;
+    final context = focus?.context;
+    if (context == null) return null;
+    return context
+            .findAncestorWidgetOfExactType<FermanInteractive>()
+            ?.semanticLabel ??
+        focus?.debugLabel;
+  }
+
   setUp(() {
     FocusManager.instance.highlightStrategy =
         FocusHighlightStrategy.alwaysTraditional;
@@ -65,7 +87,26 @@ void main() {
       expect(tester.getSize(pin), const Size.square(StickyNote.pinSize));
       final box = tester.widget<Container>(pin).decoration! as BoxDecoration;
       expect(box.color, ramps.annotYellow);
-      expect(box.boxShadow, StickyNote.pinShadow);
+      expect(box.boxShadow, StickyNote.pinDropShadow);
+      // The hairline ring, its corner grown to 5 px as CSS does, above the
+      // drop shadow.
+      final ring = pinRingOf(tester);
+      expect(ring.layers, StickyNote.pinRing);
+      expect(
+        ring.borderRadius,
+        const BorderRadius.all(Radius.circular(StickyNote.pinRadius)),
+      );
+      expect(
+        tester.renderObject(
+          find.ancestor(of: pin, matching: find.byType(CustomPaint)).first,
+        ),
+        paints..drrect(
+          outer: RRect.fromRectAndRadius(
+            const Rect.fromLTWH(-1, -1, 26, 26),
+            const Radius.circular(StickyNote.pinRadius + 1),
+          ),
+        ),
+      );
       expect(
         tester.widget<Icon>(find.byType(Icon)).name,
         IconName.messageSquare,
@@ -101,11 +142,123 @@ void main() {
         ),
       );
       final box = tester.widget<Container>(pin).decoration! as BoxDecoration;
-      expect(box.boxShadow, [
-        BoxShadow(color: ramps.ink500, spreadRadius: 4),
-        const BoxShadow(color: StickyNote.pinFocusGap, spreadRadius: 2),
+      // Focus replaces the whole box shadow.
+      expect(box.boxShadow, isNull);
+      expect(pinRingOf(tester).layers, [
+        BoxShadow(color: ramps.ink500, spreadRadius: StickyNote.pinFocusSpread),
+        const BoxShadow(
+          color: StickyNote.pinFocusGap,
+          spreadRadius: StickyNote.pinFocusGapSpread,
+        ),
       ]);
+      // Each band's corner grows with it: 8 px for the ink, 6 px for the
+      // white.
+      expect(
+        tester.renderObject(
+          find.ancestor(of: pin, matching: find.byType(CustomPaint)).first,
+        ),
+        paints
+          ..drrect(
+            color: ramps.ink500,
+            outer: RRect.fromRectAndRadius(
+              const Rect.fromLTWH(-4, -4, 32, 32),
+              const Radius.circular(8),
+            ),
+          )
+          ..drrect(
+            color: StickyNote.pinFocusGap,
+            outer: RRect.fromRectAndRadius(
+              const Rect.fromLTWH(-2, -2, 28, 28),
+              const Radius.circular(6),
+            ),
+          ),
+      );
     });
+
+    testWidgets(
+      'opened from the keyboard: focus in, Esc closes, back to the pin',
+      (tester) async {
+        final after = FocusNode(debugLabel: 'after');
+        addTearDown(after.dispose);
+        var collapsed = true;
+        final sent = <String>[];
+        await tester.pumpWidget(
+          componentHost(
+            Shortcuts(
+              shortcuts: WidgetsApp.defaultShortcuts,
+              child: Actions(
+                actions: WidgetsApp.defaultActions,
+                child: StatefulBuilder(
+                  builder: (context, setState) => Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      note(
+                        collapsed: collapsed,
+                        onToggle: () => setState(() => collapsed = !collapsed),
+                        onReply: sent.add,
+                      ),
+                      Focus(focusNode: after, child: const SizedBox.square()),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+          ),
+        );
+        Future<void> key(LogicalKeyboardKey key) async {
+          await tester.sendKeyEvent(key);
+          await tester.pumpAndSettle();
+        }
+
+        Focus.of(tester.element(find.byType(Icon))).requestFocus();
+        await tester.pumpAndSettle();
+        expect(focusedLabel(), 'Note from Mert Kaya');
+        // Enter opens the card and focus moves into it.
+        await key(LogicalKeyboardKey.enter);
+        expect(collapsed, isFalse);
+        expect(focusedLabel(), 'StickyNote.card');
+        await key(LogicalKeyboardKey.tab);
+        expect(focusedLabel(), 'More');
+        // Escape closes it and focus returns to the pin.
+        await key(LogicalKeyboardKey.escape);
+        expect(collapsed, isTrue);
+        expect(focusedLabel(), 'Note from Mert Kaya');
+        // Close, from the keyboard, does the same.
+        await key(LogicalKeyboardKey.enter);
+        await key(LogicalKeyboardKey.tab);
+        await key(LogicalKeyboardKey.tab);
+        expect(focusedLabel(), 'Close note');
+        await key(LogicalKeyboardKey.enter);
+        expect(collapsed, isTrue);
+        expect(focusedLabel(), 'Note from Mert Kaya');
+        // Escape in the reply field closes it too.
+        await key(LogicalKeyboardKey.enter);
+        await key(LogicalKeyboardKey.tab);
+        await key(LogicalKeyboardKey.tab);
+        await key(LogicalKeyboardKey.tab);
+        expect(
+          tester
+              .widget<EditableText>(find.byType(EditableText))
+              .focusNode
+              .hasFocus,
+          isTrue,
+        );
+        // A note is not modal: Tab goes on out of the card.
+        await key(LogicalKeyboardKey.tab);
+        expect(after.hasFocus, isTrue);
+        await key(LogicalKeyboardKey.tab);
+        // Back in the card (wherever traversal lands), Escape closes it.
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .requestFocus();
+        await tester.pumpAndSettle();
+        await key(LogicalKeyboardKey.escape);
+        expect(collapsed, isTrue);
+        expect(focusedLabel(), 'Note from Mert Kaya');
+        expect(sent, isEmpty);
+      },
+    );
   });
 
   group('StickyNote card', () {
@@ -183,6 +336,31 @@ void main() {
         (square.decoration! as BoxDecoration).color,
         StickyNote.headButtonHover,
       );
+      // `.fm-iconbtn` transitions: the tint over --dur-instant, the focus
+      // ring over --dur-fast.
+      const motion = FermanMotionTokens.standard;
+      expect(
+        tester
+            .widget<AnimatedContainer>(
+              find.descendant(
+                of: headButton('Close note'),
+                matching: find.byType(AnimatedContainer),
+              ),
+            )
+            .duration,
+        motion.durInstant,
+      );
+      expect(
+        tester
+            .widget<FocusRing>(
+              find.descendant(
+                of: headButton('Close note'),
+                matching: find.byType(FocusRing),
+              ),
+            )
+            .duration,
+        motion.durFast,
+      );
       expect(
         tester
             .widget<Icon>(
@@ -204,14 +382,28 @@ void main() {
       await tester.enterText(find.byType(EditableText), '');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       expect(sent, isEmpty);
+      // The field keeps focus after Enter, even on an empty field.
+      bool fieldFocused() => tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode
+          .hasFocus;
+      await tester.pumpAndSettle();
+      expect(fieldFocused(), isTrue);
       await tester.enterText(find.byType(EditableText), 'Tamam.');
       await tester.testTextInput.receiveAction(TextInputAction.done);
-      await tester.pump();
+      await tester.pumpAndSettle();
       expect(sent, ['Tamam.']);
       expect(
         tester.widget<EditableText>(find.byType(EditableText)).controller.text,
         isEmpty,
       );
+      expect(fieldFocused(), isTrue);
+      // Ready for the next reply.
+      await tester.enterText(find.byType(EditableText), 'Bir de bu.');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pumpAndSettle();
+      expect(sent, ['Tamam.', 'Bir de bu.']);
+      expect(fieldFocused(), isTrue);
     });
 
     testWidgets('semantics: a dialog named after the author', (tester) async {
