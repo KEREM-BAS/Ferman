@@ -19,9 +19,9 @@ final class _Screen {
   final String? region;
 }
 
-/// First run's three steps, the empty start screen and Settings' General
-/// and Language and region panes, each in light and dark × en, tr and ar
-/// with macOS chrome, as their boards draw them.
+/// First run's three steps, the empty start screen and Settings' General,
+/// Language and region and Privacy panes, each in light and dark × en, tr
+/// and ar with macOS chrome, as their boards draw them.
 const List<_Screen> _screens = [
   _Screen('language_picker', M1Screen.languagePicker, 'a1-1'),
   _Screen('welcome_privacy', M1Screen.privacyStep, 'a1-2b'),
@@ -37,6 +37,7 @@ const List<_Screen> _screens = [
     'a11-1b',
     region: 'TR',
   ),
+  _Screen('settings_privacy', M1Screen.settingsPrivacy, 'a11-1h'),
 ];
 
 /// The boards of the other languages and chromes where one exists.

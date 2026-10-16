@@ -26,15 +26,30 @@ String _screen(FermanMode mode) => switch (mode) {
   FermanMode.tools => 'shell_tools',
 };
 
-/// The boards drawn for a mode and chrome in English and light; the shell
-/// is the editor at `/debug/shell` with its placeholder documents, so the
-/// boards are the nearest drawn states, not the same document.
-String? _board(FermanMode mode, GoldenChrome chrome) =>
-    switch ((mode, chrome)) {
-      (FermanMode.view, GoldenChrome.mac) => 'a2-1b',
-      (FermanMode.edit, GoldenChrome.win) => 'f6a',
-      _ => null,
-    };
+/// The boards `tools/design-refs/compare-map.json` scores a golden against;
+/// the shell is the editor at `/debug/shell` with its placeholder
+/// documents, so the boards are the nearest drawn states, not the same
+/// document.
+String? _board(
+  FermanMode mode,
+  GoldenChrome chrome,
+  GoldenTheme theme,
+  GoldenLanguage language,
+) => switch ((mode, chrome, theme, language)) {
+  (FermanMode.view, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.en) =>
+    'a2-1b',
+  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.en) =>
+    'f6',
+  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.dark, GoldenLanguage.en) =>
+    'a3-1d',
+  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.tr) =>
+    'a12-1tr',
+  (FermanMode.edit, GoldenChrome.mac, GoldenTheme.light, GoldenLanguage.ar) =>
+    'a12-1ar',
+  (FermanMode.edit, GoldenChrome.win, GoldenTheme.light, GoldenLanguage.en) =>
+    'f6, f6a',
+  _ => null,
+};
 
 /// The editor shell (`/debug/shell`, the placeholder documents) in each of
 /// the eight modes with macOS and Windows chrome, in light and dark × en,
@@ -49,9 +64,7 @@ Future<void> main() async {
             chrome: chrome,
             theme: theme,
             language: language,
-            board: theme == GoldenTheme.light && language == GoldenLanguage.en
-                ? _board(mode, chrome)
-                : null,
+            board: _board(mode, chrome, theme, language),
             settings: goldenSettings(
               theme: theme,
               language: language,
