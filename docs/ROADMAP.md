@@ -94,7 +94,7 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 | Code | Name | Goal in one line | Status | Boards | Needs first |
 |---|---|---|---|---|---|
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
-| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | In progress | 13 | M0 approval (given 2026-10-15) |
+| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete, pending owner approval | 13 | M0 approval (given 2026-10-15) |
 | M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q18](QUESTIONS.md#q18) (macOS App Sandbox) |
 | M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4, [Q09](QUESTIONS.md#q09) |
 | M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 |
@@ -273,12 +273,11 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 
 ## 5. M1: foundations
 
-**Status:** In progress. Started on 2026-10-15 on the branch `m1-foundations`, with a draft pull
-request to `main` (opened once phase B is pushed); the plan and its commit phases are in
-[PROGRESS.md](PROGRESS.md#m1-plan). Committed so far: the Flutter app skeleton (`23a09c3`, phases C1
-and C2) and the switch from flutter_svg to path_parsing (`246d6df`). The Rust workspace, `tools/checks`,
-the tool packages and the first CI workflow exist in the working tree and are being committed by
-phase.
+**Status:** Complete, pending owner approval (2026-10-16). Built on the branch `m1-foundations`
+with pull request #2 to `main`; the plan, its phases and the session log are in
+[PROGRESS.md](PROGRESS.md#m1-plan). Every box below that a test, a CI run or a measurement can prove
+is ticked with its evidence; the open ones wait on the owner: Proposed items to approve, checks on
+R1, R2 and arm64 hardware, and native-speaker review ([BACKLOG.md](BACKLOG.md) B100).
 **Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
 the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
 [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
@@ -1429,10 +1428,28 @@ casing and region boxes are ticked once a green CI run covers these tests.
 
 ### Acceptance criteria
 
-- [ ] Steps 1 to 11 accepted.
-- [ ] Standard gates S1 to S9 (S3 starts in M2).
-- [ ] A fresh clone builds, tests and runs on macOS, Windows and Linux using only the commands in
-  CLAUDE.md.
+- [ ] Steps 1 to 11 accepted. Every box of steps 1 to 11 that a test, a CI run or a measurement can
+  prove is ticked with its evidence. The open ones wait on the owner: the Proposed items (the crate
+  graph, the pub deny list, the web build, the font deny list, the 1024 px minimum width, the start
+  budget and the pseudo-locale), the checks on R1, R2 and arm64 hardware, and native-speaker review
+  (B100).
+- [ ] Standard gates S1 to S9 (S3 starts in M2). S1 (CI run
+  [38916384485](https://github.com/KEREM-BAS/Ferman/actions/runs/38916384485) (pull request #2, head
+  `f41d789`, 2026-10-16)), S2 (the workspace's Clippy lints and `missing_docs`, denied in CI), S4
+  ([G97](DESIGN_GAPS.md#g97) and the component goldens), S6 (the `s6_*` checks), S7 (cargo-deny and
+  the Dart licence check) and S9 (the last exit check) are met. S5 waits on the native-speaker
+  review of Turkish and Arabic, and S8 on the R1 and R2 measurements (B100); S3 starts in M2.
+- [x] A fresh clone builds, tests and runs on macOS, Windows and Linux using only the commands in
+  CLAUDE.md. Evidence: a fresh clone of `m1-foundations` at `f41d789` (2026-10-16, development
+  container, Linux x64) ran every command of CLAUDE.md's Commands list, 30 in all: Rust fmt, clippy
+  with and without the bridge feature, tests with and without PDFium, cargo-deny and the CLI;
+  Flutter analyze, the whole test suite, regenerating the goldens, build_runner and the bridge
+  codegen with no change; the Linux and web builds, the integration test under Xvfb and its profile
+  run; the Dart licence check, `check_all`, the build scan, the token, icon, l10n and component-spec
+  generators with no change, the font and PDFium checks, and the design-reference tests, render and
+  comparison; the tree was clean at the end. On macOS and Windows CI runs the same commands from a
+  fresh checkout: CI run [38916384485](https://github.com/KEREM-BAS/Ferman/actions/runs/38916384485)
+  (pull request #2, head `f41d789`, 2026-10-16).
 
 ### Design gaps to settle in M1
 
@@ -1468,13 +1485,28 @@ casing and region boxes are ticked once a green CI run covers these tests.
 
 E1 to E8, plus:
 
-- [ ] CLAUDE.md lists the real build, test, codegen, token and design-reference commands.
-- [ ] The measured bridge numbers from step 3 are in ARCHITECTURE.md §3.4 and PROGRESS.md.
+- [x] CLAUDE.md lists the real build, test, codegen, token and design-reference commands. Evidence:
+  CLAUDE.md's Commands list holds the build (Cargo, `flutter build <linux|windows|macos>`, `flutter
+  build web`, `flutter run`), test, codegen (build_runner, the bridge, gen-l10n and `tools/l10n`),
+  token, icon and design-reference commands, and each ran on the fresh clone of the acceptance
+  criteria.
+- [x] The measured bridge numbers from step 3 are in ARCHITECTURE.md §3.4 and PROGRESS.md. Evidence:
+  [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles) and [PROGRESS.md](PROGRESS.md#measurements)
+  record every bridge number with the machine it came from: debug and profile builds in the
+  development container (the profile run of the fresh clone at `f41d789`: minimum 4,570 µs, median
+  8,726 µs for 1 MiB) and debug builds on the CI runners. None comes from R1 or R2; that measurement
+  is a pending owner check (B100), and the fallback is designed in ADR 0009.
 - [x] The PDFium tag and archive hashes are in DEPENDENCIES.md. Evidence:
   [DEPENDENCIES.md §5.1](DEPENDENCIES.md#51-pdfium) (tag `chromium/7881`, archive and library SHA-256
   for all seven archives, matching `tools/pdfium/pdfium.lock`).
-- [ ] Every M1 tool, menu item and quick tool that is disabled has a BACKLOG.md entry naming its
-  milestone.
+- [x] Every M1 tool, menu item and quick tool that is disabled has a BACKLOG.md entry naming its
+  milestone. Evidence: a check of `app/lib` at `f41d789` (2026-10-16) found 144 controls disabled
+  for a future version, 96 in the shell, 13 on the start screen, 12 in first run and 23 in Settings,
+  each with an open [BACKLOG.md](BACKLOG.md) row that names its target milestone, and no row naming
+  a control that is gone; "disable every tool with the future-version tooltip"
+  (`app/test/features/shell/shell_screen_test.dart`) and "every entry point is disabled with the
+  reason (G10)" (`app/test/features/start/start_screen_test.dart`) keep the shell and the start
+  screen so.
 
 ## 6. M2: open and view
 

@@ -22,9 +22,10 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 
 ## Project status
 
-Ferman is at **Milestone 1: foundations**. The maintainer approved the plan (Milestone 0) on
-2026-10-15. Milestone 1 is setting up the Rust workspace, the Flutter app, the design tooling and CI,
-on the branch `m1-foundations`; the app opens no PDFs until Milestone 2.
+Ferman is at **Milestone 1: foundations**, complete and waiting for the maintainer's approval. The
+maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the Rust workspace, the
+Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI,
+on the branch `m1-foundations` (pull request #2); the app opens no PDFs until Milestone 2.
 
 What helps most right now:
 
@@ -34,9 +35,8 @@ What helps most right now:
 - Tell us about freely licensed PDFs that would make good test files (see
   [Reporting bugs](#reporting-bugs) for what we can accept).
 
-Please wait with pull requests for application code until Milestone 1 is merged into `main`. Until
-then the workspace, the app and CI are still being laid out, and changes cannot be reviewed against a
-stable base.
+Please wait with pull requests for application code until Milestone 1 is merged into `main`, so
+changes can be reviewed against a stable base.
 
 ## Before you start
 
@@ -168,9 +168,9 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
 
 ## Development setup
 
-Milestone 1 is creating the workspace and the app. The commands below are the ones that exist so far;
-[CLAUDE.md](CLAUDE.md#commands) keeps the full list, and the end of Milestone 1 checks it on a fresh
-clone and updates this section.
+The commands below build, test and check everything Milestone 1 made. At the end of Milestone 1 each
+one ran on a fresh clone on Linux, and CI runs them on macOS and Windows; [CLAUDE.md](CLAUDE.md#commands)
+keeps the same list for coding sessions.
 
 **Toolchain**
 
@@ -190,6 +190,9 @@ clone and updates this section.
   `flutter build` or integration test; on Linux and Windows the build stops with a message naming
   that command when the library is missing. The IBM Plex fonts are committed; `tools/fonts/fetch.sh`
   re-fetches and checks them.
+- **Goldens** are generated and compared on Linux only. They need two Ubuntu font packages that stand
+  in for the system font fallback `flutter test` lacks: `sudo apt-get install fonts-dejavu-core
+  fonts-noto-cjk` (CI pins their versions).
 
 **Commands**
 
@@ -197,8 +200,10 @@ clone and updates this section.
 # Rust
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
+cargo clippy -p ferman-api --features frb --all-targets -- -D warnings
 cargo test --workspace
 cargo deny check
+cargo run -p ferman-cli -- --version                # ferman 0.1.0 (api 0.1); also: info --json
 # Tests that need PDFium: run tools/pdfium/fetch.sh first; the path must be absolute
 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --workspace -- --ignored
 
@@ -206,21 +211,29 @@ FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --w
 (cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
 (cd app && flutter test --exclude-tags golden)            # on macOS and Windows: goldens are Linux only
 (cd app && flutter test --update-goldens --tags golden)   # regenerate goldens, on Linux only
-(cd app && dart run build_runner build)   # Riverpod and other codegen
-(cd app && very_good packages check licenses)                         # Dart licence check
+(cd app && dart run build_runner build)                   # Riverpod and other codegen
+(cd app && very_good packages check licenses)             # Dart licence check (flags: docs/DEPENDENCIES.md §8)
 
 # Desktop builds and the integration test bundle PDFium: fetch it for your system first
 bash tools/pdfium/fetch.sh --platform linux-x64     # or win-x64, mac-univ
 (cd app && flutter build linux --release)           # or windows, macos
+(cd app && flutter run -d linux)                    # or windows, macos
+(cd app && flutter build web --release)             # the web build, with the engine stubbed
 (cd app && flutter test integration_test -d linux)  # the engine through the bridge; on Linux under xvfb-run -a
 # The same test in profile mode, for the bridge timing (use your system for -d)
 (cd app && flutter drive --profile -d linux --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)
 
 # Tools
 (cd tools/checks && dart run bin/check_all.dart --root ../..)   # the repository checks CI runs
+(cd tools/checks && dart run bin/scan_bundle.dart --root ../.. ../../app/build/web)   # no design file in a build
 (cd tools/tokens && dart run)        # design tokens → app/lib/design/tokens.g.dart
 (cd tools/icons && dart run)         # design icons → app/assets/icons and the IconName enum
-node tools/design-refs               # renders every artboard to build/design-refs/
+(cd tools/l10n && dart run)          # after flutter gen-l10n: the isolated fallback strings
+(cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md from the component spec
+tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage
+(cd tools/design-refs && npm ci && npm test)
+node tools/design-refs --only @m1    # renders the M1 boards to build/design-refs/ (all boards without --only)
+node tools/design-refs compare       # goldens against the references → build/design-compare/report.md
 ```
 
 The bridge bindings (`app/lib/bridge/` and `crates/ferman-api/src/frb_generated.rs`) are generated by

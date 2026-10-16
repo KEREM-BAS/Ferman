@@ -8,7 +8,7 @@ Start every session by reading docs/PROGRESS.md.
 
 Then read this file and the part of [docs/BRIEF.md](docs/BRIEF.md) that covers your task ([brief §9](docs/BRIEF.md#9-how-to-work-in-every-later-session)). The brief is authoritative. If any other doc disagrees with it, the brief wins and the doc gets fixed. [docs/PROGRESS.md](docs/PROGRESS.md) holds the current milestone, the next step and the session log.
 
-The owner approved M0 on 2026-10-15 (pull request #1). M1 (foundations) is in progress; PROGRESS.md holds its plan. The next milestone waits for the owner's go-ahead.
+The owner approved M0 on 2026-10-15 (pull request #1). M1 (foundations) is complete and waits for the owner's approval (pull request #2); PROGRESS.md holds its plan, log and pending owner checks. The next milestone waits for the owner's go-ahead.
 
 ## Repo map
 
@@ -46,7 +46,7 @@ The brief cites `design/ui_kits/desktop/index.html`, which is missing from the e
 
 ## Commands
 
-Every command below works today. Phase L1 checks the list on a fresh clone.
+Every command below works today: at the end of M1 each one ran on a fresh clone on Linux, and CI runs them on macOS and Windows.
 
 ```sh
 # Rust
@@ -65,6 +65,9 @@ cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: 
 (cd app && dart run build_runner build)   # Riverpod and other codegen
 (cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
+(cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
+(cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)
+(cd app && flutter build web --release)                              # web build with the engine stubbed (Proposed, kept buildable until phase 5)
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
 (cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2
 (cd app && very_good packages check licenses)                         # Dart licence check (flags: DEPENDENCIES.md §8)

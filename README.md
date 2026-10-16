@@ -4,12 +4,15 @@ A free, open-source PDF editor. Click any text in any PDF and edit it like a Wor
 
 ## Status
 
-**Pre-alpha. Milestone 1: foundations, in progress.**
+**Pre-alpha. Milestone 1: foundations, complete and waiting for the maintainer's approval.**
 
-The maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 builds the foundations: the
-Rust workspace, the Flutter app and its shell, the bridge between them, the design tokens, fonts and
-icons, and CI on three systems. There is nothing to download yet, and the app opens no PDFs until
-Milestone 2. [docs/PROGRESS.md](docs/PROGRESS.md) shows where the work stands.
+The maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the foundations: the
+Rust workspace and engine facade, the Flutter app with its shell in eight modes, first run, the start
+screen and a settings skeleton, the bridge between them with PDFium bundled, the design tokens, fonts,
+icons and component library, English, Turkish and Arabic with right to left, and CI on macOS, Windows
+and Linux. There is nothing to download yet, and the app opens no PDFs until Milestone 2.
+[docs/PROGRESS.md](docs/PROGRESS.md) shows where the work stands, and
+[CONTRIBUTING.md](CONTRIBUTING.md#development-setup) how to build and run it.
 
 ## What Ferman will be
 
@@ -73,8 +76,7 @@ design, and the [architecture decision records](docs/adr/README.md) explain why.
 
 ## Repository layout
 
-Milestone 1 adds the engine, app, tools and CI folders phase by phase; `fuzz/` arrives in
-Milestone 2.
+Milestone 1 added the engine, app, tools and CI folders; `fuzz/` arrives in Milestone 2.
 
 ```text
 ferman/
@@ -89,8 +91,9 @@ ferman/
 │   ├── ferman-api/      the only crate the UI calls
 │   └── ferman-cli/      the `ferman` command line, with the same operations
 ├── app/                 Flutter app: macOS, Windows, Linux and web now; iOS and Android later
-├── tools/               token generator, icon export, font and PDFium fetch scripts,
-│                        design-reference renderer, repository checks
+├── tools/               token generator, icon export, localization fallback generator, font and
+│                        PDFium fetch scripts, design-reference renderer and comparison,
+│                        repository checks and the build scanner
 ├── tests/corpus/        test PDFs, with their provenance in tests/corpus/README.md
 ├── fuzz/                cargo-fuzz targets, one per parser (from Milestone 2)
 ├── docs/                brief, architecture, ADRs, roadmap, progress, inventory, component spec,
@@ -131,7 +134,7 @@ JavaScript or font files.
 | Code | Milestone | What it delivers |
 |---|---|---|
 | M0 | Discovery and plan | Design inventory, architecture and plans. Docs only. Done, approved on 2026-10-15. |
-| M1 | Foundations | Workspace, Flutter app, bridge, design tokens, component library, light and dark themes, en/tr/ar, app shell, start screen, settings skeleton, green CI. In progress. |
+| M1 | Foundations | Workspace, Flutter app, bridge, design tokens, component library, light and dark themes, en/tr/ar, app shell, start screen, settings skeleton, green CI. Complete, waiting for the maintainer's approval. |
 | M2 | Open and view | Open from the dialog, drag and drop, recent files and "Open with"; password unlock and repair notice; tiled rendering, zoom modes and page layouts; thumbnails, outline, attachments, search; document properties; several documents in tabs |
 | M3 | Edit text core | Click any text and edit it; save and save as; undo and redo; a review list of edits |
 | M4 | Rest of phase 1 | Organize pages, combine and split, comments and annotations, form filling, simple signatures, compress, version history, command palette, toasts, background tasks, full settings |
