@@ -153,6 +153,12 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
     const DesktopWindowState(),
   );
 
+  // Every refresh and every event takes a new generation; a refresh whose
+  // answers arrive after a newer one, after an event or after dispose is
+  // dropped, so a slow answer never overwrites newer state.
+  int _generation = 0;
+  bool _disposed = false;
+
   /// The window of this desktop app, or null on the web and mobile.
   static WindowManagerDesktopWindow? forCurrentPlatform() {
     if (!isDesktop) return null;
@@ -214,14 +220,18 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
 
   @override
   void dispose() {
+    if (_disposed) return;
+    _disposed = true;
     windowManager.removeListener(this);
     _channel.dispose();
     _state.dispose();
   }
 
   Future<void> _refresh() async {
+    final generation = ++_generation;
     final maximized = await windowManager.isMaximized();
     final fullScreen = await windowManager.isFullScreen();
+    if (_disposed || generation != _generation) return;
     _state.value = DesktopWindowState(
       maximized: maximized,
       fullScreen: fullScreen,
@@ -229,6 +239,8 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
   }
 
   void _set({bool? maximized, bool? fullScreen}) {
+    if (_disposed) return;
+    _generation++;
     final current = _state.value;
     _state.value = DesktopWindowState(
       maximized: maximized ?? current.maximized,

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
@@ -54,7 +56,7 @@ void main() {
       (_) {},
     );
     // Let a refresh's channel calls finish.
-    await Future<void>.delayed(Duration.zero);
+    await pumpEventQueue();
   }
 
   Future<WindowManagerDesktopWindow> started(WindowPlatform platform) async {
@@ -153,6 +155,55 @@ void main() {
         [for (final c in fermanCalls) c.method],
         ['setMaximizeButtonRect', 'setTrafficLightLayout'],
       );
+    });
+
+    test('a slow refresh never overwrites a newer event', () async {
+      final window = await started(WindowPlatform.win);
+      final answer = Completer<Object?>();
+      messenger.setMockMethodCallHandler(windowManagerChannel, (call) async {
+        windowManagerCalls.add(call);
+        return switch (call.method) {
+          'isMaximized' => await answer.future,
+          'isFullScreen' => false,
+          _ => null,
+        };
+      });
+      // A resize starts a refresh that waits for its answer...
+      await messenger.handlePlatformMessage(
+        windowManagerChannel.name,
+        const StandardMethodCodec().encodeMethodCall(
+          const MethodCall('onEvent', {'eventName': 'resized'}),
+        ),
+        (_) {},
+      );
+      // ...while the window is maximized.
+      await windowEvent('maximize');
+      expect(window.state.value.maximized, isTrue);
+      answer.complete(false);
+      await pumpEventQueue();
+      expect(window.state.value.maximized, isTrue);
+    });
+
+    test('a refresh that ends after dispose changes nothing', () async {
+      final answer = Completer<Object?>();
+      final window = await started(WindowPlatform.win);
+      messenger.setMockMethodCallHandler(windowManagerChannel, (call) async {
+        return switch (call.method) {
+          'isMaximized' => await answer.future,
+          _ => false,
+        };
+      });
+      await messenger.handlePlatformMessage(
+        windowManagerChannel.name,
+        const StandardMethodCodec().encodeMethodCall(
+          const MethodCall('onEvent', {'eventName': 'restore'}),
+        ),
+        (_) {},
+      );
+      window.dispose();
+      answer.complete(true);
+      // Setting a disposed notifier would throw here.
+      await pumpEventQueue();
     });
 
     test('stops following the window once disposed', () async {
