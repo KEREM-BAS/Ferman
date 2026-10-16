@@ -103,6 +103,26 @@ void main() {
       expect(find.text('Rotate page'), findsNothing);
     });
 
+    testWidgets('opening later shows it in the next frame without waiting', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const Tooltip(message: 'Rotate page', open: false, child: target),
+        ),
+      );
+      await tester.pumpWidget(
+        componentHost(
+          const Tooltip(message: 'Rotate page', open: true, child: target),
+        ),
+      );
+      // The switch to open was built in the frame above; the bubble is
+      // shown after it and built in the next frame, which it asks for.
+      expect(tester.binding.hasScheduledFrame, isTrue);
+      await tester.pump();
+      expect(find.text('Rotate page'), findsOneWidget);
+    });
+
     testWidgets('shows the shortcut as inverse key caps', (tester) async {
       await tester.pumpWidget(
         componentHost(

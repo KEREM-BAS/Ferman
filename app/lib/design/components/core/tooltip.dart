@@ -135,18 +135,24 @@ class _TooltipState extends State<Tooltip> {
   @override
   void initState() {
     super.initState();
-    if (widget.open ?? false) _update();
+    if (widget.open ?? false) _updateAfterFrame();
   }
 
   @override
   void didUpdateWidget(Tooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.open != oldWidget.open) {
-      // The overlay cannot be shown or hidden during a build.
-      WidgetsBinding.instance.addPostFrameCallback((_) {
+    if (widget.open != oldWidget.open) _updateAfterFrame();
+  }
+
+  /// Runs [_update] once the current frame is laid out: the overlay cannot
+  /// be shown or hidden during a build, and a forced-open bubble needs its
+  /// anchor's layout.
+  void _updateAfterFrame() {
+    WidgetsBinding.instance
+      ..addPostFrameCallback((_) {
         if (mounted) _update();
-      });
-    }
+      })
+      ..scheduleFrame();
   }
 
   @override
@@ -162,8 +168,7 @@ class _TooltipState extends State<Tooltip> {
       _hide();
     } else if (!_shown) {
       if (widget.open ?? false) {
-        // Forced open: show in the next frame, once the overlay is laid out.
-        WidgetsBinding.instance.addPostFrameCallback((_) => _show());
+        _show();
       } else {
         _timer = Timer(widget.delay, _show);
       }
