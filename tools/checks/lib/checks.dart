@@ -13,6 +13,7 @@ export 'src/checks/action_pins.dart';
 export 'src/checks/arb_parity.dart';
 export 'src/checks/bridge_imports.dart';
 export 'src/checks/build_untracked.dart';
+export 'src/checks/component_spec.dart';
 export 'src/checks/crate_graph.dart';
 export 'src/checks/design_untouched.dart';
 export 'src/checks/frb_versions.dart';
