@@ -236,6 +236,9 @@ class _TooltipState extends State<Tooltip> {
           child: Focus(
             canRequestFocus: false,
             skipTraversal: true,
+            // A listener only: a semantics node here would sit between a
+            // tab bar and its tabs.
+            includeSemantics: false,
             onFocusChange: _onFocusChange,
             child: widget.child,
           ),

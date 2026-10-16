@@ -22,17 +22,22 @@ void main() {
   }
 
   group('FocusRing', () {
-    testWidgets('draws nothing while hidden', (tester) async {
+    testWidgets('draws nothing while hidden, with the same widget tree', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         componentHost(const FocusRing(visible: false, child: box)),
       );
-      expect(
-        find.ancestor(
-          of: find.byKey(box.key!),
-          matching: find.byType(DecoratedBox),
-        ),
-        findsNothing,
+      final hidden = decorationOf(tester);
+      expect(hidden.boxShadow, isNull);
+      expect(hidden.border, isNull);
+      final element = tester.element(find.byKey(box.key!));
+
+      await tester.pumpWidget(
+        componentHost(const FocusRing(visible: true, child: box)),
       );
+      // The child keeps its element: showing the ring rebuilds nothing.
+      expect(tester.element(find.byKey(box.key!)), same(element));
     });
 
     testWidgets('outer: the --focus-ring shadows behind the control', (

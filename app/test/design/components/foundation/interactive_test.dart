@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:flutter/gestures.dart';
@@ -231,6 +233,113 @@ void main() {
         ),
       );
       handle.dispose();
+    });
+
+    testWidgets('a tab reports selected false; others only when selected', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          FermanInteractive(
+            onPressed: () {},
+            semanticsRole: SemanticsRole.tab,
+            isButton: false,
+            semanticLabel: 'View',
+            builder: (context, states, child) =>
+                const SizedBox(width: 40, height: 24, key: Key('tab')),
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('tab'))),
+        matchesSemantics(
+          label: 'View',
+          // Selected state present, and false.
+          hasSelectedState: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+      );
+
+      await tester.pumpWidget(componentHost(control(onPressed: () {})));
+      expect(
+        tester.getSemantics(controlFinder),
+        isNot(matchesSemantics(hasSelectedState: true)),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('checked and the mutually exclusive group reach semantics', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          FermanInteractive(
+            onPressed: () {},
+            checked: true,
+            inMutuallyExclusiveGroup: true,
+            isButton: false,
+            semanticLabel: 'Yellow',
+            builder: (context, states, child) =>
+                const SizedBox(width: 20, height: 20, key: Key('radio')),
+          ),
+        ),
+      );
+      expect(
+        tester.getSemantics(find.byKey(const Key('radio'))),
+        matchesSemantics(
+          label: 'Yellow',
+          hasCheckedState: true,
+          isChecked: true,
+          isInMutuallyExclusiveGroup: true,
+          hasEnabledState: true,
+          isEnabled: true,
+          isFocusable: true,
+          hasTapAction: true,
+          hasFocusAction: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('skipTraversal: Tab skips it, a request still focuses it', (
+      tester,
+    ) async {
+      late Set<WidgetState> skippedStates;
+      await tester.pumpWidget(
+        componentHost(
+          FermanInteractive(
+            onPressed: () {},
+            skipTraversal: true,
+            builder: (context, states, child) {
+              skippedStates = states;
+              return const SizedBox(width: 20, height: 20, key: Key('skip'));
+            },
+          ),
+        ),
+      );
+      final node = tester
+          .widget<Focus>(
+            find
+                .ancestor(
+                  of: find.byKey(const Key('skip')),
+                  matching: find.byType(Focus),
+                )
+                .first,
+          )
+          .focusNode!;
+      // Traversal (Tab) skips the node...
+      expect(node.skipTraversal, isTrue);
+      expect(node.canRequestFocus, isTrue);
+      // ...but it can still be focused directly, as by arrow keys in a group.
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(skippedStates, contains(WidgetState.focused));
     });
 
     testWidgets('adds the forced states', (tester) async {

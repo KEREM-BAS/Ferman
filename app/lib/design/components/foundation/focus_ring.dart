@@ -27,8 +27,11 @@ enum FocusRingStyle {
 /// [child] and extends 1 px.
 ///
 /// The ring never changes the control's size, so focusing a control never
-/// moves its neighbours. It is purely visual: focus itself is handled by
-/// the component (usually through `FermanInteractive`).
+/// moves its neighbours, and the widget tree stays the same whether the
+/// ring shows or not, so showing it never rebuilds [child] from scratch
+/// (focus nodes and animations below it keep their state). It is purely
+/// visual: focus itself is handled by the component (usually through
+/// `FermanInteractive`).
 ///
 /// [outer]: FocusRingStyle.outer
 /// [inset]: FocusRingStyle.inset
@@ -69,32 +72,30 @@ class FocusRing extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    if (!visible) return child;
     final theme = context.ferman;
-    return switch (style) {
-      FocusRingStyle.outer => DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          boxShadow: outerShadows(theme),
-        ),
-        child: child,
-      ),
-      FocusRingStyle.field => DecoratedBox(
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          boxShadow: fieldShadows(theme),
-        ),
-        child: child,
-      ),
-      FocusRingStyle.inset => DecoratedBox(
-        position: DecorationPosition.foreground,
-        decoration: BoxDecoration(
-          borderRadius: borderRadius,
-          border: Border.fromBorderSide(theme.focus.focusRingInset),
-        ),
-        child: child,
-      ),
-    };
+    final decoration = !visible
+        ? const BoxDecoration()
+        : switch (style) {
+            FocusRingStyle.outer => BoxDecoration(
+              borderRadius: borderRadius,
+              boxShadow: outerShadows(theme),
+            ),
+            FocusRingStyle.field => BoxDecoration(
+              borderRadius: borderRadius,
+              boxShadow: fieldShadows(theme),
+            ),
+            FocusRingStyle.inset => BoxDecoration(
+              borderRadius: borderRadius,
+              border: Border.fromBorderSide(theme.focus.focusRingInset),
+            ),
+          };
+    return DecoratedBox(
+      position: style == FocusRingStyle.inset
+          ? DecorationPosition.foreground
+          : DecorationPosition.background,
+      decoration: decoration,
+      child: child,
+    );
   }
 
   @override

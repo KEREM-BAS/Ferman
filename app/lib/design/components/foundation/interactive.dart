@@ -44,7 +44,10 @@ class FermanInteractive extends StatefulWidget {
     this.disabled = false,
     this.disabledReason,
     this.selected = false,
+    this.selectable,
     this.toggled,
+    this.checked,
+    this.inMutuallyExclusiveGroup = false,
     this.tooltip,
     this.tooltipShortcut,
     this.tooltipSide = TooltipSide.bottom,
@@ -53,6 +56,7 @@ class FermanInteractive extends StatefulWidget {
     this.isButton = true,
     this.focusNode,
     this.autofocus = false,
+    this.skipTraversal = false,
     this.child,
   });
 
@@ -72,6 +76,19 @@ class FermanInteractive extends StatefulWidget {
 
   /// Whether the control is the selected one of a set (a tab, a segment).
   final bool selected;
+
+  /// Whether screen readers hear the selected state even when it is false.
+  /// Null means: for tabs ([SemanticsRole.tab]) yes, otherwise only when
+  /// [selected] is true.
+  final bool? selectable;
+
+  /// The checked state of a checkbox, radio or checkable menu item
+  /// (`aria-checked`); null for a control that is not checkable.
+  final bool? checked;
+
+  /// Whether the control is one choice of a set where only one can be
+  /// checked (a radio).
+  final bool inMutuallyExclusiveGroup;
 
   /// The pressed state of a toggle (`aria-pressed`); null for a control
   /// that is not a toggle.
@@ -102,6 +119,11 @@ class FermanInteractive extends StatefulWidget {
 
   /// Whether the control takes focus when it first appears.
   final bool autofocus;
+
+  /// Whether Tab skips the control while it stays focusable by pointer and
+  /// by arrow keys within its group (window caption buttons, the items of a
+  /// roving-focus group).
+  final bool skipTraversal;
 
   /// The part of the control that does not depend on the states.
   final Widget? child;
@@ -152,7 +174,10 @@ class _FermanInteractiveState extends State<FermanInteractive> {
 
   FocusNode get _node =>
       widget.focusNode ??
-      (_ownNode ??= FocusNode(debugLabel: 'FermanInteractive'));
+      (_ownNode ??= FocusNode(
+        debugLabel: 'FermanInteractive',
+        skipTraversal: widget.skipTraversal,
+      ));
 
   @override
   void dispose() {
@@ -188,9 +213,16 @@ class _FermanInteractiveState extends State<FermanInteractive> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    _ownNode?.skipTraversal = widget.skipTraversal;
+  }
+
+  @override
   void didUpdateWidget(FermanInteractive oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_enabled) _pressed = false;
+    _ownNode?.skipTraversal = widget.skipTraversal;
   }
 
   Set<WidgetState> _states(BuildContext context) => {
@@ -247,8 +279,12 @@ class _FermanInteractiveState extends State<FermanInteractive> {
       enabled: enabled,
       focusable: focusable,
       focused: focusable ? _focused : null,
-      selected: widget.selected ? true : null,
+      selected: (widget.selectable ?? widget.semanticsRole == SemanticsRole.tab)
+          ? widget.selected
+          : (widget.selected ? true : null),
       toggled: widget.toggled,
+      checked: widget.checked,
+      inMutuallyExclusiveGroup: widget.inMutuallyExclusiveGroup ? true : null,
       label: widget.semanticLabel,
       hint: _showsReason ? widget.disabledReason : null,
       tooltip: message,
