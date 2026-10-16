@@ -21,7 +21,8 @@ import 'package:flutter/widgets.dart';
 /// - [WidgetState.disabled] when [disabled] is true or [onPressed] is null;
 /// - [WidgetState.selected] when [selected] is true;
 ///
-/// plus the states a [FermanForcedStates] above it forces.
+/// plus [extraStates] and the states a [FermanForcedStates] above it
+/// forces.
 ///
 /// A tap, Enter or Space activates an enabled control ([onPressed]).
 ///
@@ -57,6 +58,7 @@ class FermanInteractive extends StatefulWidget {
     this.focusNode,
     this.autofocus = false,
     this.skipTraversal = false,
+    this.extraStates = const <WidgetState>{},
     this.child,
   });
 
@@ -125,6 +127,15 @@ class FermanInteractive extends StatefulWidget {
   /// roving-focus group).
   final bool skipTraversal;
 
+  /// States the control shows in addition to the ones it tracks, passed to
+  /// [builder] as they are: states that the platform, not Flutter, sees for
+  /// the control. WindowChrome passes the native hover and press of the
+  /// maximize button, whose area Windows owns while it offers snap layouts.
+  /// Unlike [FermanForcedStates], which the gallery and goldens place
+  /// above whole subtrees, they belong to this control alone, and a
+  /// [WidgetState.hovered] among them also opens the control's tooltip.
+  final Set<WidgetState> extraStates;
+
   /// The part of the control that does not depend on the states.
   final Widget? child;
 
@@ -161,7 +172,14 @@ class FermanInteractive extends StatefulWidget {
         ),
       )
       ..add(StringProperty('tooltip', tooltip, defaultValue: null))
-      ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null));
+      ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null))
+      ..add(
+        IterableProperty<WidgetState>(
+          'extraStates',
+          extraStates,
+          defaultValue: const <WidgetState>{},
+        ),
+      );
   }
 }
 
@@ -231,6 +249,7 @@ class _FermanInteractiveState extends State<FermanInteractive> {
     if (_focusVisible) WidgetState.focused,
     if (!_enabled) WidgetState.disabled,
     if (widget.selected) WidgetState.selected,
+    ...widget.extraStates,
     ...FermanForcedStates.of(context),
   };
 
@@ -297,6 +316,8 @@ class _FermanInteractiveState extends State<FermanInteractive> {
         message: message,
         shortcut: _showsReason ? null : widget.tooltipShortcut,
         side: widget.tooltipSide,
+        // A hover only the platform sees opens the tooltip too.
+        hovered: enabled && widget.extraStates.contains(WidgetState.hovered),
         excludeFromSemantics: true,
         child: result,
       );

@@ -370,6 +370,113 @@ void main() {
       expect(presses, 1);
     });
 
+    testWidgets('a focused menu button keeps its focus and state when it is '
+        'disabled with a reason and enabled again', (tester) async {
+      var menus = 0;
+      Widget button({required bool disabled, bool withPress = true}) =>
+          componentHost(
+            ToolButton(
+              icon: IconName.shapes,
+              label: 'Shapes',
+              hasMenu: true,
+              disabled: disabled,
+              disabledReason: disabled ? 'Later' : null,
+              onPressed: withPress ? () {} : null,
+              onMenuRequested: () => menus++,
+            ),
+          );
+      await tester.pumpWidget(button(disabled: false));
+      await focusFirstTabStop(tester);
+      final node = FocusManager.instance.primaryFocus;
+      expect(node?.debugLabel, 'FermanInteractive');
+      await tester.pumpWidget(button(disabled: true));
+      await tester.pumpAndSettle();
+      expect(FocusManager.instance.primaryFocus, same(node));
+      // Disabled: ArrowDown asks for nothing.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      expect(menus, 0);
+      await tester.pumpWidget(button(disabled: false));
+      await tester.pumpAndSettle();
+      expect(FocusManager.instance.primaryFocus, same(node));
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      expect(menus, 1);
+      // A null onPressed (plain disabled) and back: still the same node.
+      await tester.pumpWidget(button(disabled: false, withPress: false));
+      await tester.pumpWidget(button(disabled: false));
+      expect(tabStopNodes.single, same(node));
+    });
+
+    testWidgets('ArrowDown with a modifier held does not open the menu', (
+      tester,
+    ) async {
+      var menus = 0;
+      await tester.pumpWidget(
+        componentHost(
+          ToolButton(
+            icon: IconName.shapes,
+            label: 'Shapes',
+            hasMenu: true,
+            onPressed: () {},
+            onMenuRequested: () => menus++,
+          ),
+        ),
+      );
+      await focusFirstTabStop(tester);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      expect(menus, 0);
+    });
+
+    testWidgets('active and disabled with a reason (the M1 default tool): '
+        'disabled colours on no fill, light and dark; still toggled', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      for (final brightness in Brightness.values) {
+        for (final forced in [
+          <WidgetState>{},
+          {WidgetState.hovered},
+        ]) {
+          await tester.pumpWidget(
+            componentHost(
+              ToolButton(
+                icon: IconName.highlighter,
+                label: 'Highlight',
+                active: true,
+                disabled: true,
+                disabledReason: 'Later',
+                onPressed: () {},
+              ),
+              brightness: brightness,
+              forcedStates: forced,
+            ),
+          );
+          // The colours change over --dur-instant.
+          await tester.pumpAndSettle();
+          final theme = FermanTheme.forBrightness(brightness);
+          // `.fm-toolbtn:disabled` comes after the pressed rules.
+          expect(_decoration(tester).color, transparent);
+          expect(textColor(tester, 'Highlight'), theme.colors.textDisabled);
+          expect(
+            _icon(tester, IconName.highlighter).color,
+            theme.colors.iconDisabled,
+          );
+        }
+      }
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Highlight')),
+        isSemantics(
+          hasToggledState: true,
+          isToggled: true,
+          hint: 'Later',
+          isEnabled: false,
+          isFocusable: true,
+        ),
+      );
+      handle.dispose();
+    });
+
     testWidgets('menu without onMenuRequested: ArrowDown presses', (
       tester,
     ) async {

@@ -62,8 +62,14 @@ class SegmentOption<T> {
 /// The control is controlled: [value] is the checked option and
 /// [onChanged] is called with the option the user picks; a null
 /// [onChanged] makes it inert. [fullWidth] stretches the track and shares
-/// its width equally between the segments. Sidebar tabs are a
-/// SegmentedControl over an `IndexedStack` (ADR 0011).
+/// its width equally between the segments with a label; icon-only segments
+/// keep their 24 px and pack at the start of the track, because in the
+/// bundle their Tooltip wrapper, not the segment, is the flex item
+/// (FmSidebar a2-3p, a4-1c). Sidebar tabs are a SegmentedControl over an
+/// `IndexedStack` (ADR 0011).
+///
+/// State changes are instant: `.fm-segment` declares no transition, unlike
+/// `.fm-modetab` and `.fm-toolbtn`.
 ///
 /// **Disabled.** [disabled] disables every segment, a segment's own
 /// `disabled` only that one. With a reason ([disabledReason], or the
@@ -106,7 +112,8 @@ class SegmentedControl<T> extends StatefulWidget {
   /// The accessible name of the group (the design's `label`).
   final String semanticLabel;
 
-  /// Whether the track fills the available width, with equal segments.
+  /// Whether the track fills the available width, with equal labelled
+  /// segments (icon-only segments keep their width).
   final bool fullWidth;
 
   /// Whether the whole control is disabled.
@@ -174,12 +181,12 @@ class _SegmentedControlState<T> extends State<SegmentedControl<T>> {
       widget.onChanged == null;
 
   /// The reason a disabled segment gives: its own when it is disabled
-  /// itself, else the whole control's. An inert control (no onChanged)
-  /// gives none.
+  /// itself and has one, else the whole control's while the whole control
+  /// is disabled. An inert control (no onChanged) gives none.
   String? _reason(int index) {
     final option = widget.options[index];
-    if (option.disabled) return option.disabledReason ?? widget.disabledReason;
-    return widget.disabled ? widget.disabledReason : null;
+    final own = option.disabled ? option.disabledReason : null;
+    return own ?? (widget.disabled ? widget.disabledReason : null);
   }
 
   bool _isFocusable(int index) => !_isDisabled(index) || _reason(index) != null;
@@ -230,7 +237,7 @@ class _SegmentedControlState<T> extends State<SegmentedControl<T>> {
           checked: i == checked,
           disabled: _isDisabled(i),
           disabledReason: _reason(i),
-          expand: widget.fullWidth,
+          expand: widget.fullWidth && !options[i].iconOnly,
           focusNode: _nodes[i]..skipTraversal = i != stop,
           onPressed: onChanged == null
               ? null
@@ -241,8 +248,11 @@ class _SegmentedControlState<T> extends State<SegmentedControl<T>> {
       mainAxisSize: widget.fullWidth ? MainAxisSize.max : MainAxisSize.min,
       spacing: theme.space.space0_5,
       children: [
-        for (final segment in segments)
-          if (widget.fullWidth) Expanded(child: segment) else segment,
+        for (var i = 0; i < segments.length; i++)
+          if (widget.fullWidth && !options[i].iconOnly)
+            Expanded(child: segments[i])
+          else
+            segments[i],
       ],
     );
     row = Semantics(
@@ -365,13 +375,13 @@ class _Segment<T> extends StatelessWidget {
           height: 1,
           color: foreground,
         );
+    // Plain Container and DefaultTextStyle: `.fm-segment` has no
+    // transition, so its states switch at once.
     return FocusRing(
       visible: states.contains(WidgetState.focused),
       style: FocusRingStyle.inset,
       borderRadius: radius,
-      child: AnimatedContainer(
-        duration: theme.motion.durInstant,
-        curve: theme.motion.easeOut,
+      child: Container(
         height: theme.density.controlHSm - SegmentedControl.trackInset,
         constraints: const BoxConstraints(
           minWidth: SegmentedControl.minSegmentWidth,
@@ -387,9 +397,7 @@ class _Segment<T> extends StatelessWidget {
           borderRadius: radius,
           boxShadow: shadows,
         ),
-        child: AnimatedDefaultTextStyle(
-          duration: theme.motion.durInstant,
-          curve: theme.motion.easeOut,
+        child: DefaultTextStyle(
           style: style,
           child: Row(
             mainAxisSize: MainAxisSize.min,

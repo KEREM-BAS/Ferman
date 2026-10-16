@@ -205,6 +205,8 @@ void main() {
       await tester.pumpAndSettle();
       expect(changes.last, FermanMode.comment);
       expect(focusLabel, 'ModeTabs comment');
+      // The roving Tab stop follows the selection.
+      expect(tabStops, ['ModeTabs comment']);
 
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
@@ -224,6 +226,77 @@ void main() {
       await tester.pumpAndSettle();
       expect(changes.last, FermanMode.view);
       expect(focusLabel, 'ModeTabs view');
+      expect(tabStops, ['ModeTabs view']);
+    });
+
+    testWidgets('arrow keys with a modifier held are left to the app', (
+      tester,
+    ) async {
+      final changes = <FermanMode>[];
+      await tester.pumpWidget(componentHost(_Host(onChanged: changes.add)));
+      await focusFirstTabStop(tester);
+      for (final modifier in [
+        LogicalKeyboardKey.shiftLeft,
+        LogicalKeyboardKey.controlLeft,
+        LogicalKeyboardKey.altLeft,
+        LogicalKeyboardKey.metaLeft,
+      ]) {
+        await tester.sendKeyDownEvent(modifier);
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.sendKeyUpEvent(modifier);
+        await tester.pumpAndSettle();
+      }
+      expect(changes, isEmpty);
+      expect(focusLabel, 'ModeTabs edit');
+    });
+
+    testWidgets('when the modes overflow, a tab moved to off screen scrolls '
+        'into view at once', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const SizedBox(width: 240, child: _Host())),
+      );
+      Rect tab(String label) => tester.getRect(
+        find.ancestor(
+          of: find.text(label),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      final viewport = tester.getRect(find.byType(Scrollable));
+      expect(tab('Tools').left, greaterThan(viewport.right));
+      await focusFirstTabStop(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.end);
+      // No scroll animation: in view after one frame.
+      await tester.pump();
+      expect(tab('Tools').right, lessThanOrEqualTo(viewport.right));
+      expect(tab('Tools').left, greaterThanOrEqualTo(viewport.left));
+      await tester.sendKeyEvent(LogicalKeyboardKey.home);
+      await tester.pump();
+      expect(tab('View').left, greaterThanOrEqualTo(viewport.left));
+    });
+
+    testWidgets('when the modes overflow, the clip is the inside of the '
+        'track border, 2 px clear of the tabs (CSS padding box)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(const SizedBox(width: 200, child: _Host())),
+      );
+      final track = tester.getRect(find.byType(ModeTabs));
+      final viewport = tester.getRect(find.byType(Scrollable));
+      final edit = tester.getRect(
+        find.ancestor(
+          of: find.text('Edit'),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      expect(track.width, 200);
+      // The viewport (the clip) is inside the 1 px border …
+      expect(viewport, track.deflate(1));
+      // … and the selected tab's 1 px ring and shadow have 2 px inside it.
+      expect(edit.top - viewport.top, 2);
+      expect(viewport.bottom - edit.bottom, 2);
+      expect(viewport.height, edit.height + 4);
     });
 
     testWidgets('right to left: ArrowRight moves to the previous tab and the '
@@ -278,6 +351,9 @@ void main() {
         view.getSemanticsData().flagsCollection.isSelected,
         Tristate.isFalse,
       );
+      // One node per tab: no extra child repeating the selected state.
+      expect(view.childrenCount, 0);
+      expect(edit.childrenCount, 0);
       expect(find.bySemanticsLabel('Fill & Sign'), findsOneWidget);
       handle.dispose();
     });

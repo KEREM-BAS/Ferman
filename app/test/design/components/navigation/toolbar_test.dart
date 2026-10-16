@@ -1,3 +1,4 @@
+import 'package:ferman/design/components/forms/select.dart';
 import 'package:ferman/design/components/navigation/segmented_control.dart';
 import 'package:ferman/design/components/navigation/tool_button.dart';
 import 'package:ferman/design/components/navigation/toolbar.dart';
@@ -13,9 +14,18 @@ import 'navigation_test_helpers.dart';
 /// The focus nodes the tools of a test use, disposed after it.
 final List<FocusNode> _nodes = [];
 
-ToolButton _tool(String label, {bool disabled = false, String? reason}) {
+/// The focus node labelled [label], made once per test.
+FocusNode _node(String label) {
+  for (final node in _nodes) {
+    if (node.debugLabel == label) return node;
+  }
   final node = FocusNode(debugLabel: label);
   _nodes.add(node);
+  return node;
+}
+
+ToolButton _tool(String label, {bool disabled = false, String? reason}) {
+  final node = _node(label);
   return ToolButton(
     icon: IconName.hand,
     label: label,
@@ -230,6 +240,179 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       expect(focusLabel, 'C');
+    });
+
+    testWidgets('the arrows follow the order on screen, also for an item '
+        'added later', (tester) async {
+      Widget bar(List<Widget> children) => componentHost(
+        SizedBox(
+          width: 600,
+          child: Toolbar(semanticLabel: 'Tools', children: children),
+        ),
+      );
+      Widget keyed(String label) =>
+          KeyedSubtree(key: ValueKey(label), child: _tool(label));
+      await tester.pumpWidget(bar([keyed('A'), keyed('C')]));
+      await tester.pumpWidget(bar([keyed('A'), keyed('L'), keyed('C')]));
+      // A and C keep their elements, so L's node was attached last.
+      expect(tabStops, ['A', 'C', 'L']);
+      _node('A').requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(focusLabel, 'L');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(focusLabel, 'C');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      expect(focusLabel, 'L');
+    });
+
+    testWidgets('a tool enabled later takes its place in the arrow order', (
+      tester,
+    ) async {
+      Widget bar({required bool disabled}) => componentHost(
+        SizedBox(
+          width: 600,
+          child: Toolbar(
+            semanticLabel: 'Tools',
+            children: [
+              _tool('U', disabled: disabled),
+              _tool('A'),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpWidget(bar(disabled: true));
+      await tester.pumpWidget(bar(disabled: false));
+      _node('A').requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      expect(focusLabel, 'U');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(focusLabel, 'A');
+    });
+
+    testWidgets('in a select the arrows stay with it, open or closed, and '
+        'the open list stays attached', (tester) async {
+      final select = FocusNode(debugLabel: 'zoom');
+      addTearDown(select.dispose);
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            SizedBox(
+              width: 600,
+              child: Toolbar(
+                semanticLabel: 'View tools',
+                children: [
+                  _tool('A'),
+                  SizedBox(
+                    width: 140,
+                    child: Select<int>(
+                      semanticLabel: 'Zoom',
+                      focusNode: select,
+                      value: 100,
+                      onChanged: (_) {},
+                      options: const [
+                        SelectOption(value: 100, label: '100%'),
+                        SelectOption(value: 200, label: '200%'),
+                      ],
+                    ),
+                  ),
+                  _tool('B'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      _node('A').requestFocus();
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(focusLabel, 'zoom');
+      // Closed: the arrows do not leave the select.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      expect(focusLabel, 'zoom');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      expect(focusLabel, 'zoom');
+      // Open: nor do they leave it while the list shows.
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.text('200%'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pumpAndSettle();
+      expect(focusLabel, 'zoom');
+      expect(find.text('200%'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('200%'), findsNothing);
+      expect(focusLabel, 'zoom');
+    });
+
+    testWidgets('dark: the bar on the dark panel surface, the separator in '
+        'the dark border colour, the floating pill raised', (tester) async {
+      final dark = FermanTheme.dark;
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox(
+            width: 600,
+            child: Toolbar(
+              semanticLabel: 'Tools',
+              children: [_tool('A'), const ToolbarSeparator(), _tool('B')],
+            ),
+          ),
+          brightness: Brightness.dark,
+        ),
+      );
+      final box = tester.widget<Container>(
+        find
+            .descendant(
+              of: find.byType(Toolbar),
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = box.decoration! as BoxDecoration;
+      expect(decoration.color, dark.colors.surfacePanel);
+      expect(
+        decoration.border,
+        Border(bottom: BorderSide(color: dark.colors.borderSubtle)),
+      );
+      expect(
+        tester
+            .widget<ColoredBox>(
+              find.descendant(
+                of: find.byType(ToolbarSeparator),
+                matching: find.byType(ColoredBox),
+              ),
+            )
+            .color,
+        dark.colors.borderDefault,
+      );
+
+      await tester.pumpWidget(
+        componentHost(
+          Toolbar(
+            variant: ToolbarVariant.floating,
+            semanticLabel: 'Text tools',
+            children: [_tool('A')],
+          ),
+          brightness: Brightness.dark,
+        ),
+      );
+      final pill =
+          tester
+                  .widget<DecoratedBox>(
+                    find
+                        .descendant(
+                          of: find.byType(Toolbar),
+                          matching: find.byType(DecoratedBox),
+                        )
+                        .first,
+                  )
+                  .decoration
+              as BoxDecoration;
+      expect(pill.color, dark.colors.surfaceRaised);
+      expect(pill.boxShadow, dark.elevation.shadowPopover);
     });
 
     testWidgets('in a text field the arrows move the caret', (tester) async {

@@ -44,7 +44,8 @@ enum TooltipSide {
 /// the other side when it does not fit, and never takes pointer events.
 ///
 /// [open] forces the bubble open or closed for goldens and the state sheet;
-/// null follows hover and focus.
+/// null follows hover and focus. [hovered] adds a hover that only the
+/// platform sees (the Windows maximize button).
 ///
 /// For screen readers [message] is the child's tooltip.
 class Tooltip extends StatefulWidget {
@@ -56,6 +57,7 @@ class Tooltip extends StatefulWidget {
     this.shortcut,
     this.side = TooltipSide.bottom,
     this.open,
+    this.hovered = false,
     this.delay = defaultDelay,
     this.excludeFromSemantics = false,
   });
@@ -86,6 +88,11 @@ class Tooltip extends StatefulWidget {
   /// and focus.
   final bool? open;
 
+  /// Hover that the platform reports for the child while Flutter does not
+  /// see the pointer (the Windows maximize button). Not a design-system
+  /// prop.
+  final bool hovered;
+
   /// How long the pointer or focus stays before the bubble opens.
   final Duration delay;
 
@@ -113,6 +120,7 @@ class Tooltip extends StatefulWidget {
       ..add(
         FlagProperty('open', value: open, ifTrue: 'open', ifFalse: 'closed'),
       )
+      ..add(FlagProperty('hovered', value: hovered, ifTrue: 'hovered'))
       ..add(
         DiagnosticsProperty<Duration>(
           'delay',
@@ -130,18 +138,20 @@ class _TooltipState extends State<Tooltip> {
   bool _focused = false;
   bool _shown = false;
 
-  bool get _wanted => widget.open ?? (_hovered || _focused);
+  bool get _wanted => widget.open ?? (_hovered || widget.hovered || _focused);
 
   @override
   void initState() {
     super.initState();
-    if (widget.open ?? false) _updateAfterFrame();
+    if ((widget.open ?? false) || widget.hovered) _updateAfterFrame();
   }
 
   @override
   void didUpdateWidget(Tooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.open != oldWidget.open) _updateAfterFrame();
+    if (widget.open != oldWidget.open || widget.hovered != oldWidget.hovered) {
+      _updateAfterFrame();
+    }
   }
 
   /// Runs [_update] once the current frame is laid out: the overlay cannot

@@ -140,10 +140,31 @@ class ToolButton extends StatelessWidget {
 
   bool get _iconOnly => !showLabel;
 
-  @override
-  Widget build(BuildContext context) {
+  static const SingleActivator _menuKey = SingleActivator(
+    LogicalKeyboardKey.arrowDown,
+  );
+
+  /// ArrowDown on an enabled [hasMenu] button asks for the menu.
+  KeyEventResult _onKey(FocusNode _, KeyEvent event) {
     final menu = onMenuRequested ?? onPressed;
-    Widget button = FermanInteractive(
+    if (!hasMenu || !_enabled || menu == null) return KeyEventResult.ignored;
+    if (!_menuKey.accepts(event, HardwareKeyboard.instance)) {
+      return KeyEventResult.ignored;
+    }
+    menu();
+    return KeyEventResult.handled;
+  }
+
+  @override
+  Widget build(BuildContext context) => Focus(
+    // Always there, whether or not ArrowDown applies, so the tree keeps its
+    // shape and the button keeps its state and focus when [disabled],
+    // [onPressed] or [hasMenu] change.
+    canRequestFocus: false,
+    skipTraversal: true,
+    includeSemantics: false,
+    onKeyEvent: _onKey,
+    child: FermanInteractive(
       focusNode: focusNode,
       onPressed: onPressed,
       disabled: disabled,
@@ -154,15 +175,8 @@ class ToolButton extends StatelessWidget {
       semanticLabel: label,
       builder: (context, states, _) =>
           ExcludeSemantics(child: _visual(context, states)),
-    );
-    if (hasMenu && _enabled && menu != null) {
-      button = CallbackShortcuts(
-        bindings: {const SingleActivator(LogicalKeyboardKey.arrowDown): menu},
-        child: button,
-      );
-    }
-    return button;
-  }
+    ),
+  );
 
   Widget _visual(BuildContext context, Set<WidgetState> states) {
     final theme = context.ferman;

@@ -1,5 +1,6 @@
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
@@ -19,17 +20,23 @@ import 'package:intl/intl.dart' show Bidi;
 ///   reaches 1 px below its box (`margin-bottom: -1px`) to cover the title
 ///   bar's bottom border. The name is in the strong body style.
 /// - **Idle:** a 28 px (`--doctab-h`) rounded row in the secondary text
-///   colour, 4 px above the bottom; the surface tints on hover.
+///   colour, 4 px above the bottom; the surface tints on hover (FmWindow
+///   draws no pressed fill, as on ModeTabs).
 /// - **Unsaved** ([unsaved]): a 7 px dot replaces the close button (fix 4),
-///   and screen readers hear the name and [unsavedLabel].
+///   with [unsavedLabel] as its tooltip (the design's `title`), and screen
+///   readers hear the name and [unsavedLabel].
 /// - **Loading** ([loading]): [spinner] (the design's 12 px Spinner
-///   "Opening", passed by the caller) replaces the icon.
+///   "Opening", passed by the caller) replaces the icon, on active and idle
+///   tabs alike (the DS additions states; FmWindow's idle markup draws only
+///   `file-text`, a conflict recorded in DESIGN_GAPS.md).
 /// - **Locked or repaired:** [icon] is `lock`, `wrench` or `file-x`
-///   instead of `file-text`.
-/// - **Close:** the active clean tab shows an extra-small close button
-///   (the design's xs IconButton "Close document") that calls [onClose],
-///   with [closeLabel] and the platform [closeShortcut] (⌘W, Ctrl+W) in
-///   its tooltip. Idle clean tabs keep its space empty, as drawn.
+///   instead of `file-text`, on active and idle tabs alike (as for
+///   loading).
+/// - **Close:** the active clean tab shows the extra-small close
+///   IconButton (the design's xs IconButton "Close document") that calls
+///   [onClose], with [closeLabel] and the platform [closeShortcut] (⌘W,
+///   Ctrl+W) in its tooltip. Idle clean tabs keep its space empty, as
+///   drawn.
 ///
 /// The name is ellipsized and takes its own direction (`dir="auto"`); the
 /// full name shows in a tooltip over the icon and name (the design's
@@ -42,7 +49,11 @@ import 'package:intl/intl.dart' show Bidi;
 /// through the app's shortcut table, not through the tab.
 ///
 /// **Semantics:** a tab named by the file name (plus [unsavedLabel] when
-/// unsaved) that says whether it is selected.
+/// unsaved) that says whether it is selected. While [loading], the
+/// spinner's own status node (its `semanticLabel`, "Opening") sits inside
+/// the tab, as the design's `role="status"` Spinner does. The close button
+/// is a button inside the tab with focus of its own: while it has focus,
+/// the tab itself does not report focus.
 class DocumentTab extends StatefulWidget {
   /// A tab for the document [name].
   const new({
@@ -97,8 +108,9 @@ class DocumentTab extends StatefulWidget {
   final List<String>? closeShortcut;
 
   /// The loading indicator shown in place of the icon while [loading]: the
-  /// design's 12 px Spinner labelled "Opening". Not a design-system prop:
-  /// the Spinner is another component, so the caller passes it.
+  /// design's 12 px Spinner with the localized "Opening" as its
+  /// `semanticLabel`, which screen readers hear inside the tab. Not a
+  /// design-system prop: the label is copy, so the caller builds it.
   final Widget? spinner;
 
   /// The focus node; one is created when null. [DocumentTabStrip] passes
@@ -159,31 +171,18 @@ class _DocumentTabState extends State<DocumentTab> {
   FocusNode get _node =>
       widget.focusNode ?? (_own ??= FocusNode(debugLabel: 'DocumentTab'));
 
-  @override
-  void initState() {
-    super.initState();
-    _node.addListener(_onFocusChange);
-  }
-
-  @override
-  void didUpdateWidget(DocumentTab oldWidget) {
-    super.didUpdateWidget(oldWidget);
-    final old = oldWidget.focusNode ?? _own;
-    if (old != _node) {
-      old?.removeListener(_onFocusChange);
-      _node.addListener(_onFocusChange);
-    }
-  }
+  /// The focus node above the tab, which the close button's focus hangs
+  /// from: a sibling of the tab's own node in the focus tree, not a child,
+  /// so the tab neither reports focus nor shows its ring while the close
+  /// button has focus. The button stays inside the tab on screen and for
+  /// screen readers.
+  FocusNode? _parentFocus;
 
   @override
   void dispose() {
-    _node.removeListener(_onFocusChange);
     _own?.dispose();
     super.dispose();
   }
-
-  // Rebuilds when focus moves between the tab and its close button.
-  void _onFocusChange() => setState(() {});
 
   /// The direction of the file name from its first strong character, as
   /// `dir="auto"`; null keeps the ambient direction.
@@ -195,30 +194,28 @@ class _DocumentTabState extends State<DocumentTab> {
 
   @override
   Widget build(BuildContext context) {
-    final active = widget.active;
+    _parentFocus = Focus.maybeOf(
+      context,
+      scopeOk: true,
+      createDependency: false,
+    );
+    // FermanInteractive states selected true or false for a tab.
     return FermanInteractive(
       focusNode: _node,
       onPressed: widget.onPressed,
-      selected: active,
+      selected: widget.active,
       semanticsRole: SemanticsRole.tab,
       isButton: false,
       semanticLabel: widget.name,
-      builder: (context, states, _) => Semantics(
-        // A tab always states whether it is selected; FermanInteractive sets
-        // only the selected one.
-        selected: active ? null : false,
-        child: _visual(context, states),
-      ),
+      builder: _visual,
     );
   }
 
-  Widget _visual(BuildContext context, Set<WidgetState> states) {
+  Widget _visual(BuildContext context, Set<WidgetState> states, Widget? _) {
     final theme = context.ferman;
     final colors = theme.colors;
     final active = widget.active || states.contains(WidgetState.selected);
-    // The ring marks the tab itself, not its close button.
-    final closeFocused = _node.hasFocus && !_node.hasPrimaryFocus;
-    final ring = states.contains(WidgetState.focused) && !closeFocused;
+    final ring = states.contains(WidgetState.focused);
     final iconSize = theme.density.iconSm;
     final spinner = widget.spinner;
     final leading = widget.loading
@@ -241,17 +238,23 @@ class _DocumentTabState extends State<DocumentTab> {
     final slot = theme.density.controlHXs;
     final Widget trailing;
     if (widget.unsaved) {
+      // The dot's own `title` (FmWindow lines 23–24); its label joins the
+      // tab's name for screen readers.
       trailing = Semantics(
         label: widget.unsavedLabel,
-        child: SizedBox.square(
-          dimension: slot,
-          child: Center(
-            child: SizedBox.square(
-              dimension: DocumentTab.dotSize,
-              child: DecoratedBox(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: active ? colors.iconPrimary : colors.iconSecondary,
+        child: Tooltip(
+          message: widget.unsavedLabel,
+          excludeFromSemantics: true,
+          child: SizedBox.square(
+            dimension: slot,
+            child: Center(
+              child: SizedBox.square(
+                dimension: DocumentTab.dotSize,
+                child: DecoratedBox(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: active ? colors.iconPrimary : colors.iconSecondary,
+                  ),
                 ),
               ),
             ),
@@ -259,10 +262,18 @@ class _DocumentTabState extends State<DocumentTab> {
         ),
       );
     } else if (active && widget.onClose != null) {
-      trailing = _CloseButton(
-        label: widget.closeLabel,
-        shortcut: widget.closeShortcut,
-        onPressed: widget.onClose,
+      trailing = Focus(
+        parentNode: _parentFocus,
+        canRequestFocus: false,
+        skipTraversal: true,
+        includeSemantics: false,
+        child: IconButton(
+          icon: IconName.x,
+          label: widget.closeLabel,
+          size: IconButtonSize.xs,
+          shortcut: widget.closeShortcut,
+          onPressed: widget.onClose,
+        ),
       );
     } else {
       trailing = SizedBox(width: slot);
@@ -274,14 +285,14 @@ class _DocumentTabState extends State<DocumentTab> {
           child: Tooltip(
             message: widget.name,
             excludeFromSemantics: true,
-            child: ExcludeSemantics(
-              child: Row(
-                spacing: theme.space.space1_5,
-                children: [
-                  leading,
-                  Expanded(child: name),
-                ],
-              ),
+            child: Row(
+              spacing: theme.space.space1_5,
+              children: [
+                // The icon is decorative; a spinner keeps its own status
+                // node. The name is the tab's label already.
+                leading,
+                Expanded(child: ExcludeSemantics(child: name)),
+              ],
             ),
           ),
         ),
@@ -320,11 +331,10 @@ class _DocumentTabState extends State<DocumentTab> {
       );
     } else {
       final radius = BorderRadius.all(Radius.circular(theme.radius.radiusMd));
-      final hovered = states.contains(WidgetState.hovered);
-      final pressed = states.contains(WidgetState.pressed);
-      final background = pressed
-          ? colors.surfacePressed
-          : (hovered ? colors.surfaceHover : const Color(0x00000000));
+      // `style-hover` only: FmWindow line 24 draws no pressed fill.
+      final background = states.contains(WidgetState.hovered)
+          ? colors.surfaceHover
+          : const Color(0x00000000);
       tab = SizedBox(
         height: DocumentTab.height,
         child: Padding(
@@ -362,7 +372,7 @@ class _DocumentTabState extends State<DocumentTab> {
   ///
   /// The ring is a sibling of the tab's content, not its parent, so showing
   /// or hiding it never rebuilds the content: the close button inside keeps
-  /// its state and its focus.
+  /// its state.
   static Widget _withRing({
     required bool visible,
     required BorderRadiusGeometry borderRadius,
@@ -388,86 +398,34 @@ class _DocumentTabState extends State<DocumentTab> {
   );
 }
 
-/// The close button of the active clean tab: the design's xs ghost
-/// IconButton (`.fm-iconbtn--xs`: 22 px, `--radius-xs`, a 14 px `x`).
-class _CloseButton extends StatelessWidget {
-  const new({
-    required this.label,
-    required this.shortcut,
-    required this.onPressed,
-  });
-
-  final String label;
-  final List<String>? shortcut;
-  final VoidCallback? onPressed;
-
-  @override
-  Widget build(BuildContext context) => FermanInteractive(
-    onPressed: onPressed,
-    tooltip: label,
-    tooltipShortcut: shortcut,
-    semanticLabel: label,
-    builder: (context, states, _) {
-      final theme = context.ferman;
-      final colors = theme.colors;
-      final hovered = states.contains(WidgetState.hovered);
-      final pressed = states.contains(WidgetState.pressed);
-      final disabled = states.contains(WidgetState.disabled);
-      final radius = BorderRadius.all(Radius.circular(theme.radius.radiusXs));
-      final Color background;
-      if (disabled) {
-        background = const Color(0x00000000);
-      } else if (pressed) {
-        background = colors.surfacePressed;
-      } else if (hovered) {
-        background = colors.surfaceHover;
-      } else {
-        background = const Color(0x00000000);
-      }
-      final Color glyph;
-      if (disabled) {
-        glyph = colors.iconDisabled;
-      } else if (hovered) {
-        glyph = colors.textPrimary;
-      } else {
-        glyph = colors.iconPrimary;
-      }
-      return FocusRing(
-        visible: states.contains(WidgetState.focused),
-        borderRadius: radius,
-        child: AnimatedContainer(
-          duration: theme.motion.durInstant,
-          curve: theme.motion.easeOut,
-          width: theme.density.controlHXs,
-          height: theme.density.controlHXs,
-          alignment: Alignment.center,
-          decoration: BoxDecoration(color: background, borderRadius: radius),
-          child: Icon(IconName.x, size: theme.density.iconSm, color: glyph),
-        ),
-      );
-    },
-  );
-}
-
 /// The title bar's strip of open documents: the tab list "Open documents"
 /// of `FmWindow` (`FmWindow.dc.html` lines 21–27). Not a design-system
 /// component: the container that gives [DocumentTab]s their tab-list
 /// semantics and arrow keys.
 ///
-/// The [tabs] sit 2 px apart, bottom-aligned 6 px below the top of the
-/// title bar, each 188 px wide and shrinking toward 112 px when space runs
-/// out. After them come [overflow], the design's "+N" ghost small Button
-/// with a chevron-down that opens the list of the other documents, and
-/// [trailing], the "+" IconButton "Open file" (disabled with the
-/// future-version tooltip until M2). Both are other components, so the
-/// caller passes them; the strip only places them as drawn.
+/// The strip fills the title bar above its 1 px bottom line (37 px of the
+/// 38 px `--titlebar-h`). The [tabs] sit 2 px apart on its bottom edge
+/// (`align-items: flex-end`), each 188 px wide and shrinking toward 112 px
+/// when space runs out: an idle tab's 32 px box starts 5 px from the top
+/// (FmWindow's `padding-top: 6px` leaves 31 px, which the 32 px tabs
+/// overflow by 1 px), and the active tab reaches 1 px further down, over
+/// the line (`margin-bottom: -1px`), which it covers as long as the title
+/// bar paints the line under its content. After them come [overflow], the
+/// design's "+N" ghost small Button with a chevron-down that opens the list
+/// of the other documents, and [trailing], the "+" IconButton "Open file"
+/// (disabled with the future-version tooltip until M2). Both are other
+/// components, so the caller passes them; the strip only places them as
+/// drawn. With no tabs (the empty Start board, a1-5) the buttons come
+/// first, with no gap before them.
 ///
 /// **Keyboard:** ArrowLeft and ArrowRight move to the previous and next tab
 /// in the visual direction and wrap, and the tab they land on is activated
 /// (as on ModeTabs). Only the active tab is a Tab stop.
 ///
 /// **Semantics:** a tab bar named [semanticLabel] ("Open documents") holding
-/// only the tabs; [overflow] and [trailing] follow it.
+/// only the tabs; [overflow] and [trailing] follow it. With no tabs there
+/// is no tab bar, since an empty one would be announced as a list of
+/// nothing (and Flutter's debug role checks reject an empty tab bar).
 class DocumentTabStrip extends StatefulWidget {
   /// A strip of [tabs].
   const new({
@@ -552,30 +510,35 @@ class _DocumentTabStripState extends State<DocumentTabStrip> {
     final tabs = widget.tabs;
     final active = tabs.indexWhere((tab) => tab.active);
     final stop = active < 0 ? 0 : active;
-    Widget list = Row(
-      mainAxisSize: MainAxisSize.min,
-      crossAxisAlignment: CrossAxisAlignment.end,
-      spacing: theme.space.space0_5,
-      children: [
-        for (var i = 0; i < tabs.length; i++)
-          Flexible(
-            child: tabs[i]._withFocusNode(_nodes[i]..skipTraversal = i != stop),
-          ),
-      ],
-    );
-    list = Semantics(
-      container: true,
-      explicitChildNodes: true,
-      role: SemanticsRole.tabBar,
-      label: widget.semanticLabel,
-      child: Focus(
-        canRequestFocus: false,
-        includeSemantics: false,
-        skipTraversal: true,
-        onKeyEvent: _onKey,
-        child: list,
-      ),
-    );
+    Widget? list;
+    if (tabs.isNotEmpty) {
+      list = Row(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.end,
+        spacing: theme.space.space0_5,
+        children: [
+          for (var i = 0; i < tabs.length; i++)
+            Flexible(
+              child: tabs[i]._withFocusNode(
+                _nodes[i]..skipTraversal = i != stop,
+              ),
+            ),
+        ],
+      );
+      list = Semantics(
+        container: true,
+        explicitChildNodes: true,
+        role: SemanticsRole.tabBar,
+        label: widget.semanticLabel,
+        child: Focus(
+          canRequestFocus: false,
+          includeSemantics: false,
+          skipTraversal: true,
+          onKeyEvent: _onKey,
+          child: list,
+        ),
+      );
+    }
     Widget slot(Widget child, {double start = 0}) => SizedBox(
       height: DocumentTab.height,
       child: Padding(
@@ -589,12 +552,21 @@ class _DocumentTabStripState extends State<DocumentTabStrip> {
     final overflow = widget.overflow;
     final trailing = widget.trailing;
     return Padding(
-      padding: EdgeInsetsDirectional.only(top: theme.space.space1_5),
+      // The title bar's content box (`--titlebar-h` less its bottom line)
+      // with the 32 px tabs on its bottom edge: 5 px at the desktop density.
+      padding: EdgeInsetsDirectional.only(
+        top:
+            theme.density.titlebarH -
+            theme.border.borderWidth -
+            DocumentTab.height,
+      ),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.end,
         spacing: theme.space.space0_5,
         children: [
-          Flexible(child: list),
+          // CSS `gap` adds no space before the first item, so with no tabs
+          // nothing stands in for the list.
+          if (list != null) Flexible(child: list),
           if (overflow != null)
             slot(overflow, start: DocumentTabStrip.overflowGap),
           if (trailing != null) slot(trailing),

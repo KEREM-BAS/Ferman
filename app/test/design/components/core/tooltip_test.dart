@@ -40,6 +40,41 @@ void main() {
       expect(find.text('Rotate page'), findsNothing);
     });
 
+    testWidgets('a hover the platform reports opens it after the delay and '
+        'closes it when it ends', (tester) async {
+      Widget tooltip({required bool hovered}) => componentHost(
+        Tooltip(message: 'Maximize', hovered: hovered, child: target),
+      );
+      await tester.pumpWidget(tooltip(hovered: false));
+      await tester.pumpWidget(tooltip(hovered: true));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Maximize'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 60));
+      await tester.pumpAndSettle();
+      expect(find.text('Maximize'), findsOneWidget);
+
+      await tester.pumpWidget(tooltip(hovered: false));
+      await tester.pump();
+      expect(find.text('Maximize'), findsNothing);
+      // No bubble later either.
+      await tester.pump(Tooltip.defaultDelay);
+      await tester.pumpAndSettle();
+      expect(find.text('Maximize'), findsNothing);
+    });
+
+    testWidgets('a platform hover present from the start opens it too', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const Tooltip(message: 'Maximize', hovered: true, child: target),
+        ),
+      );
+      await tester.pump(Tooltip.defaultDelay);
+      await tester.pumpAndSettle();
+      expect(find.text('Maximize'), findsOneWidget);
+    });
+
     testWidgets('Escape hides it', (tester) async {
       await tester.pumpWidget(
         componentHost(const Tooltip(message: 'Rotate page', child: target)),

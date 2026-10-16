@@ -351,5 +351,37 @@ void main() {
       );
       expect(states, {WidgetState.hovered, WidgetState.focused});
     });
+
+    testWidgets('adds its extra states, with the forced ones, to this '
+        'control only', (tester) async {
+      Set<WidgetState>? otherStates;
+      await tester.pumpWidget(
+        componentHost(
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              FermanInteractive(
+                onPressed: () {},
+                extraStates: const {WidgetState.pressed},
+                builder: (context, value, _) {
+                  states = value;
+                  return const SizedBox(width: 40, height: 24);
+                },
+              ),
+              FermanInteractive(
+                onPressed: () {},
+                builder: (context, value, _) {
+                  otherStates = value;
+                  return const SizedBox(width: 40, height: 24);
+                },
+              ),
+            ],
+          ),
+          forcedStates: const {WidgetState.focused},
+        ),
+      );
+      expect(states, {WidgetState.pressed, WidgetState.focused});
+      expect(otherStates, {WidgetState.focused});
+    });
   });
 }

@@ -23,7 +23,10 @@ import 'package:flutter/widgets.dart';
 /// the user's choice. The active tool is drawn on (`aria-pressed`); when it
 /// is [AnnotationTool.colored] its button shows a swatch of [color], and
 /// otherwise the colour group is disabled (opacity 0.4, as the bundle's
-/// inline style).
+/// inline style). That holds even when the active tool is not among
+/// [tools] (the bundle's `cur && !cur.colored`). The dimming leaves a
+/// focused swatch's ring at full strength, so a group disabled with a
+/// reason still shows clear focus (G22).
 ///
 /// **Disabled tools** (G10): a tool in [disabledReasons] is a
 /// disabled-with-reason tool button: it stays focusable, shows its reason
@@ -133,7 +136,11 @@ class AnnotationTools extends StatefulWidget {
   static const Color swatchRingLight = Color(0x29000000);
 
   /// `[data-theme="dark"] .fm-annot-color`
-  /// `box-shadow: inset 0 0 0 1px rgba(255,255,255,.28)`.
+  /// `box-shadow: inset 0 0 0 1px rgba(255,255,255,.28)`: the dark edge of
+  /// a swatch at rest only. The later `:hover` and `[aria-checked]` rules
+  /// have the same specificity and start with the light edge
+  /// ([swatchRingLight]), so a hovered or checked swatch has it in dark
+  /// too.
   static const Color swatchRingDark = Color(0x47FFFFFF);
 
   /// The inner outside ring of a hovered or checked colour:
@@ -245,9 +252,7 @@ class _AnnotationToolsState extends State<AnnotationTools> {
             onChanged: widget.onColorChanged,
             semanticLabel: widget.colorsSemanticLabel,
             labelOf: widget.colorLabelOf,
-            disabled:
-                widget.colorsDisabledReason != null ||
-                !(widget.tools.contains(active) && active.colored),
+            disabled: widget.colorsDisabledReason != null || !active.colored,
             disabledReason: widget.colorsDisabledReason,
           ),
         ],
@@ -333,6 +338,8 @@ class _ColorGroupState extends State<_ColorGroup> {
           ),
       ],
     );
+    // A disabled group is dimmed swatch by swatch (`_Swatch`), under the
+    // focus ring, not as a whole.
     group = Semantics(
       container: true,
       explicitChildNodes: true,
@@ -345,12 +352,6 @@ class _ColorGroupState extends State<_ColorGroup> {
         child: group,
       ),
     );
-    if (widget.disabled) {
-      group = Opacity(
-        opacity: AnnotationTools.disabledColorsOpacity,
-        child: group,
-      );
-    }
     return Focus(
       canRequestFocus: false,
       includeSemantics: false,
@@ -429,32 +430,42 @@ class _Swatch extends StatelessWidget {
     } else {
       shadows = const [];
     }
-    final ring = theme.isDark
+    // `[data-theme="dark"] .fm-annot-color` loses the cascade to the later
+    // :hover and [aria-checked] rules (same specificity), which both start
+    // with the light-theme inset ring.
+    final ring = theme.isDark && !isChecked && !hovered
         ? AnnotationTools.swatchRingDark
         : AnnotationTools.swatchRingLight;
     final circle = BorderRadius.all(Radius.circular(theme.radius.radiusFull));
-    return FocusRing(
-      visible: focused,
-      borderRadius: circle,
-      child: SizedBox.square(
-        dimension: AnnotationTools.swatchSize,
+    Widget body = SizedBox.square(
+      dimension: AnnotationTools.swatchSize,
+      child: DecoratedBox(
+        position: DecorationPosition.foreground,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          border: focused
+              ? null
+              : Border.all(color: ring, width: theme.border.borderWidth),
+        ),
         child: DecoratedBox(
-          position: DecorationPosition.foreground,
           decoration: BoxDecoration(
+            color: color.resolve(theme),
             shape: BoxShape.circle,
-            border: focused
-                ? null
-                : Border.all(color: ring, width: theme.border.borderWidth),
-          ),
-          child: DecoratedBox(
-            decoration: BoxDecoration(
-              color: color.resolve(theme),
-              shape: BoxShape.circle,
-              boxShadow: shadows,
-            ),
+            boxShadow: shadows,
           ),
         ),
       ),
     );
+    // The bundle dims the whole group; the swatches and their rings never
+    // overlap (4 px apart, a checked ring reaches 4 px), so dimming each
+    // one gives the same pixels and leaves the focus ring at full
+    // strength.
+    if (disabled) {
+      body = Opacity(
+        opacity: AnnotationTools.disabledColorsOpacity,
+        child: body,
+      );
+    }
+    return FocusRing(visible: focused, borderRadius: circle, child: body);
   }
 }

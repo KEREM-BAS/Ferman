@@ -1,5 +1,8 @@
+import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/format.dart';
+import 'package:ferman/l10n/region.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
@@ -31,7 +34,8 @@ enum SaveState {
 /// - [SaveState.unsaved]: a 7 px dot in `--warning-solid`, text in the
 ///   primary colour ("Unsaved changes");
 /// - [SaveState.saved]: `hard-drive` ("Saved on this device · 14:32");
-/// - [SaveState.saving]: [spinner], the design's 12 px Spinner ("Saving…");
+/// - [SaveState.saving]: the design's 12 px [Spinner] ("Saving…"),
+///   decorative, since the text says what is happening;
 /// - [SaveState.error]: `circle-alert`, text in `--danger` ("Couldn’t
 ///   save");
 /// - [SaveState.readOnly]: `lock` ("Read-only").
@@ -39,13 +43,15 @@ enum SaveState {
 /// Fix 4: the Save button, the tab's dot and this indicator always agree,
 /// so all three read the same save state.
 ///
-/// [label] is the localized text for [state]. For [SaveState.saved] the
-/// caller formats [savedAt] from the region setting (`RegionFormat`,
-/// "14:32") into it; the component library does not read the ARB files or
-/// the region format, so it cannot build the text itself.
+/// [label] is the localized text for [state]. For [SaveState.saved] with
+/// [savedAt], [region] and [savedLabel] given, the text is instead
+/// [savedLabel] around [savedAt] formatted as a time of day for [region]
+/// (`RegionFormat.time`: "14:32" in Türkiye, "2:32 PM" in the United
+/// States; G34), so the time shown always matches [savedAt]. The strings
+/// themselves stay with the caller: components hold no copy.
 ///
-/// **Semantics:** a polite live region whose label is [label], so screen
-/// readers announce each change (the design's `role="status"`).
+/// **Semantics:** a polite live region whose label is the text shown, so
+/// screen readers announce each change (the design's `role="status"`).
 class SaveIndicator extends StatelessWidget {
   /// The indicator for [state], reading [label].
   const new({
@@ -53,24 +59,31 @@ class SaveIndicator extends StatelessWidget {
     super.key,
     this.state = SaveState.unsaved,
     this.savedAt,
-    this.spinner,
+    this.region,
+    this.savedLabel,
   });
 
   /// The save state shown.
   final SaveState state;
 
-  /// When the document was last saved; the caller formats it into [label]
-  /// for [SaveState.saved].
+  /// When the document was last saved, shown for [SaveState.saved] in the
+  /// time format of [region] (with [savedLabel]).
   final DateTime? savedAt;
 
-  /// The localized text for [state], for example "Unsaved changes" or
-  /// "Saved on this device · 14:32". Not a design-system prop.
+  /// The localized text for [state], for example "Unsaved changes". For
+  /// [SaveState.saved] it is used when [savedAt], [region] or [savedLabel]
+  /// is missing, so it then carries the formatted time itself ("Saved on
+  /// this device · 14:32"). Not a design-system prop.
   final String label;
 
-  /// The busy mark of [SaveState.saving]: the design's 12 px Spinner,
-  /// passed by the caller because it is another component. Not a
-  /// design-system prop.
-  final Widget? spinner;
+  /// The region whose time format [savedAt] is shown in (G34), from the
+  /// region setting. Not a design-system prop.
+  final Region? region;
+
+  /// The localized text of [SaveState.saved] around the formatted time,
+  /// for example `(time) => 'Saved on this device · $time'` (an ARB
+  /// message with a placeholder). Not a design-system prop.
+  final String Function(String time)? savedLabel;
 
   /// The marks' size: `size="12"` (`FmWindow.dc.html` lines 174–177).
   static const double markSize = 12;
@@ -81,9 +94,25 @@ class SaveIndicator extends StatelessWidget {
   /// The unsaved dot: `width: 7px; height: 7px`.
   static const double dotSize = 7;
 
+  /// The text shown and announced: [label], or for [SaveState.saved] the
+  /// time of [savedAt] in [savedLabel] when all three are given.
+  String get _text {
+    final at = savedAt;
+    final where = region;
+    final template = savedLabel;
+    if (state != SaveState.saved ||
+        at == null ||
+        where == null ||
+        template == null) {
+      return label;
+    }
+    return template(RegionFormat.forRegion(where).time(at));
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
+    final text = _text;
     final colors = theme.colors;
     final color = switch (state) {
       SaveState.unsaved => colors.textPrimary,
@@ -105,17 +134,15 @@ class SaveIndicator extends StatelessWidget {
         ),
       ),
       SaveState.saved => icon(IconName.hardDrive),
-      SaveState.saving => SizedBox.square(
-        dimension: markSize,
-        child: spinner == null ? null : Center(child: spinner),
-      ),
+      // Decorative: the live region already says "Saving…".
+      SaveState.saving => const Spinner(size: markSize),
       SaveState.error => icon(IconName.circleAlert),
       SaveState.readOnly => icon(IconName.lock),
     };
     return Semantics(
       container: true,
       liveRegion: true,
-      label: label,
+      label: text,
       child: ExcludeSemantics(
         child: DefaultTextStyle.merge(
           style: theme.typography.caption.copyWith(
@@ -130,7 +157,7 @@ class SaveIndicator extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             spacing: theme.space.space1_5,
-            children: [mark, Text(label)],
+            children: [mark, Text(text)],
           ),
         ),
       ),
@@ -151,6 +178,7 @@ class SaveIndicator extends StatelessWidget {
       ..add(
         DiagnosticsProperty<DateTime>('savedAt', savedAt, defaultValue: null),
       )
-      ..add(StringProperty('label', label));
+      ..add(StringProperty('label', label))
+      ..add(DiagnosticsProperty<Region>('region', region, defaultValue: null));
   }
 }

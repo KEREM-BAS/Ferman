@@ -95,11 +95,25 @@ void main() {
       expect(track.borderRadius, BorderRadius.circular(4));
       // 20 px segments in a 26 px track (`--control-h-sm`).
       expect(tester.getSize(find.byType(SegmentedControl<String>)).height, 26);
-      final segment = find.ancestor(
-        of: find.text('Dark'),
-        matching: find.byType(AnimatedContainer),
-      );
+      final segment = find
+          .ancestor(of: find.text('Dark'), matching: find.byType(Container))
+          .first;
       expect(tester.getSize(segment).height, 20);
+      // `.fm-segment` declares no transition: no animated widgets.
+      expect(
+        find.descendant(
+          of: find.byType(SegmentedControl<String>),
+          matching: find.byType(AnimatedContainer),
+        ),
+        findsNothing,
+      );
+      expect(
+        find.descendant(
+          of: find.byType(SegmentedControl<String>),
+          matching: find.byType(AnimatedDefaultTextStyle),
+        ),
+        findsNothing,
+      );
 
       final checked = containerDecoration(tester, find.text('Light'));
       expect(checked.color, theme.colors.surfaceRaised);
@@ -127,6 +141,35 @@ void main() {
       final checked = containerDecoration(tester, find.text('Light'));
       expect(checked.color, theme.ramps.soot200);
       expect(checked.boxShadow, isEmpty);
+    });
+
+    testWidgets('dark, disabled: the checked segment keeps soot-200 (the dark '
+        'rule outranks :disabled)', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const _Host(disabled: true), brightness: Brightness.dark),
+      );
+      final theme = FermanTheme.dark;
+      final checked = containerDecoration(tester, find.text('Light'));
+      expect(checked.color, theme.ramps.soot200);
+      expect(checked.boxShadow, isEmpty);
+      expect(textColor(tester, 'Light'), theme.colors.textDisabled);
+      expect(containerDecoration(tester, find.text('Dark')).color, transparent);
+      expect(textColor(tester, 'Dark'), theme.colors.textDisabled);
+    });
+
+    testWidgets('state changes are instant: hover tints in the same frame', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(const _Host()));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.text('Dark')));
+      await tester.pump();
+      expect(
+        containerDecoration(tester, find.text('Dark')).color,
+        FermanTheme.light.colors.surfaceHover,
+      );
     });
 
     testWidgets('hover tints an unchecked segment', (tester) async {
@@ -177,11 +220,11 @@ void main() {
       final icons = tester.widgetList<Icon>(find.byType(Icon)).toList();
       expect(icons.first.size, 14);
       final padding = tester
-          .widget<AnimatedContainer>(
+          .widget<Container>(
             find
                 .ancestor(
                   of: find.byType(Icon).first,
-                  matching: find.byType(AnimatedContainer),
+                  matching: find.byType(Container),
                 )
                 .first,
           )
@@ -369,18 +412,103 @@ void main() {
       expect(tabStops, isEmpty);
     });
 
+    testWidgets('a segment disabled on its own, without a reason, does not '
+        'borrow the reason of an enabled control', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          const _Host(
+            disabledReason: 'Available in a future version',
+            options: [
+              SegmentOption(value: 'a', label: 'A'),
+              SegmentOption(value: 'b', label: 'B', disabled: true),
+              SegmentOption(value: 'c', label: 'C'),
+            ],
+            initial: 'a',
+          ),
+        ),
+      );
+      final b = tester.getSemantics(find.bySemanticsLabel('B'));
+      expect(b.hint, isEmpty);
+      expect(b.tooltip, isEmpty);
+      expect(
+        b,
+        isSemantics(
+          hasEnabledState: true,
+          isEnabled: false,
+          isFocusable: false,
+        ),
+      );
+      await focusFirstTabStop(tester);
+      expect(focusLabel, 'SegmentedControl 0');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(focusLabel, 'SegmentedControl 2');
+      handle.dispose();
+    });
+
     testWidgets('full width shares the track equally', (tester) async {
       await tester.pumpWidget(componentHost(const _Host(fullWidth: true)));
       expect(tester.getSize(find.byType(SegmentedControl<String>)).width, 300);
       Size size(String label) => tester.getSize(
-        find.ancestor(
-          of: find.text(label),
-          matching: find.byType(AnimatedContainer),
-        ),
+        find
+            .ancestor(of: find.text(label), matching: find.byType(Container))
+            .first,
       );
       expect(size('Light').width, size('System').width);
       // 300 - 2 × 3 px of padding and border - 2 × 2 px gaps, in three.
       expect(size('Light').width, closeTo((300 - 6 - 4) / 3, 0.01));
+    });
+
+    testWidgets('full width: icon-only segments keep 24 px and pack at the '
+        'start (FmSidebar a2-3p), mirrored in right to left', (tester) async {
+      const options = [
+        SegmentOption(value: 'pages', icon: IconName.layoutGrid, tooltip: 'P'),
+        SegmentOption(value: 'outline', icon: IconName.list, tooltip: 'O'),
+        SegmentOption(value: 'notes', icon: IconName.stickyNote, tooltip: 'N'),
+        SegmentOption(value: 'find', icon: IconName.search, tooltip: 'F'),
+        SegmentOption(value: 'files', icon: IconName.paperclip, tooltip: 'A'),
+        SegmentOption(value: 'sign', icon: IconName.signature, tooltip: 'S'),
+      ];
+      for (final direction in TextDirection.values) {
+        await tester.pumpWidget(
+          componentHost(
+            KeyedSubtree(
+              key: ValueKey(direction),
+              child: const _Host(
+                fullWidth: true,
+                options: options,
+                initial: 'pages',
+              ),
+            ),
+            textDirection: direction,
+          ),
+        );
+        final track = tester.getRect(find.byType(SegmentedControl<String>));
+        expect(track.width, 300);
+        final segments = [
+          for (final icon in find.byType(Icon).evaluate())
+            tester.getRect(
+              find
+                  .ancestor(
+                    of: find.byWidget(icon.widget),
+                    matching: find.byType(Container),
+                  )
+                  .first,
+            ),
+        ];
+        expect(segments, hasLength(6));
+        for (final segment in segments) {
+          expect(segment.width, 24);
+        }
+        if (direction == TextDirection.ltr) {
+          expect(segments.first.left - track.left, 3);
+          expect(segments[1].left - segments.first.right, 2);
+        } else {
+          expect(track.right - segments.first.right, 3);
+          expect(segments.first.left - segments[1].right, 2);
+        }
+      }
     });
   });
 }

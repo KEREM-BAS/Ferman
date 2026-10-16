@@ -1,6 +1,8 @@
 import 'package:ferman/design/components/additions/save_indicator.dart';
+import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/region.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -57,18 +59,89 @@ void main() {
       );
     });
 
-    testWidgets('saving: the spinner the caller passes', (tester) async {
+    testWidgets('saved: the time of savedAt in the region format, in the '
+        'localized text, shown and announced', (tester) async {
+      final handle = tester.ensureSemantics();
+      String saved(String time) => 'Saved on this device · $time';
+      final at = DateTime(2026, 10, 15, 14, 32);
       await tester.pumpWidget(
         componentHost(
-          const SaveIndicator(
-            state: SaveState.saving,
-            label: 'Saving…',
-            spinner: SizedBox.square(dimension: 12, key: Key('spinner')),
+          SaveIndicator(
+            state: SaveState.saved,
+            savedAt: at,
+            region: Region.turkiye,
+            savedLabel: saved,
+            label: 'Saved on this device',
           ),
         ),
       );
-      expect(find.byKey(const Key('spinner')), findsOneWidget);
+      expect(find.text('Saved on this device · 14:32'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byType(SaveIndicator)),
+        isSemantics(label: 'Saved on this device · 14:32', isLiveRegion: true),
+      );
+      await tester.pumpWidget(
+        componentHost(
+          SaveIndicator(
+            state: SaveState.saved,
+            savedAt: at,
+            region: Region.unitedStates,
+            savedLabel: saved,
+            label: 'Saved on this device',
+          ),
+        ),
+      );
+      expect(find.text('Saved on this device · 2:32\u202FPM'), findsOneWidget);
+      // Without a region the caller's text stands.
+      await tester.pumpWidget(
+        componentHost(
+          SaveIndicator(
+            state: SaveState.saved,
+            savedAt: at,
+            savedLabel: saved,
+            label: 'Saved on this device · 14:32',
+          ),
+        ),
+      );
+      expect(find.text('Saved on this device · 14:32'), findsOneWidget);
+      // Other states always show the label.
+      await tester.pumpWidget(
+        componentHost(
+          SaveIndicator(
+            savedAt: at,
+            region: Region.turkiye,
+            savedLabel: saved,
+            label: 'Unsaved changes',
+          ),
+        ),
+      );
+      expect(find.text('Unsaved changes'), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets("saving: the design's 12 px Spinner, decorative", (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          const SaveIndicator(state: SaveState.saving, label: 'Saving…'),
+        ),
+      );
+      final spinner = tester.widget<Spinner>(find.byType(Spinner));
+      expect(spinner.size, 12);
+      expect(spinner.semanticLabel, isNull);
       expect(find.byType(Icon), findsNothing);
+      expect(
+        tester.getRect(find.text('Saving…')).left -
+            tester.getRect(find.byType(Spinner)).right,
+        6,
+      );
+      expect(
+        tester.getSemantics(find.byType(SaveIndicator)),
+        isSemantics(label: 'Saving…', isLiveRegion: true),
+      );
+      handle.dispose();
     });
 
     testWidgets('error: circle-alert in the danger colour, light and dark', (

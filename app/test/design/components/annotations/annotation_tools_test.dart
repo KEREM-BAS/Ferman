@@ -49,6 +49,9 @@ class _Host extends StatefulWidget {
     this.disabledReasons = const {},
     this.colorsDisabledReason,
     this.showLabels = false,
+    this.toolsInert = false,
+    this.colorsInert = false,
+    this.tools = AnnotationTool.values,
   });
 
   final AnnotationTool tool;
@@ -58,6 +61,9 @@ class _Host extends StatefulWidget {
   final Map<AnnotationTool, String> disabledReasons;
   final String? colorsDisabledReason;
   final bool showLabels;
+  final bool toolsInert;
+  final bool colorsInert;
+  final List<AnnotationTool> tools;
 
   @override
   State<_Host> createState() => _HostState();
@@ -77,18 +83,23 @@ class _HostState extends State<_Host> {
       colorLabelOf: (color) => _colorLabels[color]!,
       tool: _tool,
       color: _color,
+      tools: widget.tools,
       showLabels: widget.showLabels,
       disabledReasons: widget.disabledReasons,
       colorsDisabledReason: widget.colorsDisabledReason,
       onToolMenuRequested: widget.onMenu,
-      onToolChanged: (tool) {
-        setState(() => _tool = tool);
-        widget.onTool?.call(tool);
-      },
-      onColorChanged: (color) {
-        setState(() => _color = color);
-        widget.onColor?.call(color);
-      },
+      onToolChanged: widget.toolsInert
+          ? null
+          : (tool) {
+              setState(() => _tool = tool);
+              widget.onTool?.call(tool);
+            },
+      onColorChanged: widget.colorsInert
+          ? null
+          : (color) {
+              setState(() => _color = color);
+              widget.onColor?.call(color);
+            },
     ),
   );
 }
@@ -101,6 +112,25 @@ ToolButton _button(WidgetTester tester, String label) =>
     );
 
 Finder _swatch(String label) => find.bySemanticsLabel(label);
+
+/// The label of the tool with focus, or the debug label of the focused
+/// node when it is not a tool (a colour).
+String? _focused() {
+  final focus = FocusManager.instance.primaryFocus;
+  return focus?.context?.findAncestorWidgetOfExactType<ToolButton>()?.label ??
+      focus?.debugLabel;
+}
+
+/// The swatch edges drawn, by colour.
+List<Color> _edges(WidgetTester tester) => [
+  for (final decoration
+      in tester
+          .widgetList<DecoratedBox>(find.byType(DecoratedBox))
+          .map((box) => box.decoration)
+          .whereType<BoxDecoration>())
+    if (decoration.shape == BoxShape.circle && decoration.border != null)
+      (decoration.border! as Border).top.color,
+];
 
 BoxDecoration _swatchFill(WidgetTester tester, Color color) => tester
     .widgetList<DecoratedBox>(find.byType(DecoratedBox))
@@ -193,7 +223,7 @@ void main() {
         componentHost(_Host(tool: AnnotationTool.select, onColor: colors.add)),
       );
       final opacity = tester.widget<Opacity>(
-        find.ancestor(of: _swatch('Green'), matching: find.byType(Opacity)),
+        find.descendant(of: _swatch('Green'), matching: find.byType(Opacity)),
       );
       expect(opacity.opacity, AnnotationTools.disabledColorsOpacity);
       await tester.tap(_swatch('Green'), warnIfMissed: false);
@@ -239,20 +269,32 @@ void main() {
       ]);
     });
 
-    testWidgets('dark: the swatch edge is a light ring', (tester) async {
+    testWidgets('dark: the swatch edge is a light ring at rest; checked and '
+        'hovered swatches keep the dark edge (the later CSS rules win)', (
+      tester,
+    ) async {
       await tester.pumpWidget(
         componentHost(const _Host(), brightness: Brightness.dark),
       );
-      final rings = tester
-          .widgetList<DecoratedBox>(find.byType(DecoratedBox))
-          .map((box) => box.decoration)
-          .whereType<BoxDecoration>()
-          .where(
-            (decoration) =>
-                decoration.border ==
-                Border.all(color: AnnotationTools.swatchRingDark),
-          );
-      expect(rings, hasLength(6));
+      final edges = _edges(tester);
+      expect(edges, hasLength(6));
+      expect(
+        edges.where((edge) => edge == AnnotationTools.swatchRingDark),
+        hasLength(5),
+      );
+      // The checked yellow (a4-1d).
+      expect(
+        edges.where((edge) => edge == AnnotationTools.swatchRingLight),
+        hasLength(1),
+      );
+      await tester.pumpWidget(
+        componentHost(
+          const _Host(),
+          brightness: Brightness.dark,
+          forcedStates: const {WidgetState.hovered},
+        ),
+      );
+      expect(_edges(tester), List.filled(6, AnnotationTools.swatchRingLight));
     });
 
     testWidgets('colour group keyboard: only the checked colour is a Tab '
@@ -359,6 +401,127 @@ void main() {
         tester.getSemantics(_swatch('Green')),
         isSemantics(hint: 'Not yet', isEnabled: false, isFocusable: true),
       );
+      // The swatches are dimmed, but the focus ring is not (G22).
+      final ring = find.descendant(
+        of: _swatch('Green'),
+        matching: find.byType(FocusRing),
+      );
+      expect(tester.widget<FocusRing>(ring).visible, isTrue);
+      expect(
+        find.ancestor(of: ring, matching: find.byType(Opacity)),
+        findsNothing,
+      );
+      expect(
+        tester
+            .widget<Opacity>(
+              find.descendant(of: ring, matching: find.byType(Opacity)),
+            )
+            .opacity,
+        AnnotationTools.disabledColorsOpacity,
+      );
+    });
+
+    testWidgets('a coloured active tool missing from tools keeps the colours '
+        "enabled (the bundle's cur && !cur.colored)", (tester) async {
+      final colors = <AnnotationColor>[];
+      await tester.pumpWidget(
+        componentHost(
+          _Host(
+            tool: AnnotationTool.shapes,
+            tools: const [AnnotationTool.select, AnnotationTool.highlight],
+            onColor: colors.add,
+          ),
+        ),
+      );
+      expect(find.byType(Opacity), findsNothing);
+      await tester.tap(_swatch('Blue'));
+      expect(colors, [AnnotationColor.blue]);
+    });
+
+    testWidgets('arrow keys move across the tools as in Toolbar, visiting a '
+        'tool disabled with a reason, then into the colour group', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const _Host(disabledReasons: {AnnotationTool.callout: 'Later'}),
+        ),
+      );
+      await focusFirstTabStop(tester);
+      expect(_focused(), 'Select');
+      final visited = <String?>[];
+      for (var i = 0; i < 11; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        visited.add(_focused());
+      }
+      expect(visited, [
+        'Highlight',
+        'Underline',
+        'Strikethrough',
+        'Note',
+        'Text',
+        'Callout',
+        'Draw',
+        'Shapes',
+        'Stamp',
+        'Measure',
+        // The colour group's only Tab stop, the checked colour.
+        'AnnotationTools yellow',
+      ]);
+      // Inside the colour group its own arrows win.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pumpAndSettle();
+      expect(_focused(), 'AnnotationTools ink');
+      // From the first tool, ArrowLeft wraps to the colour group.
+      await focusFirstTabStop(tester);
+      expect(_focused(), 'Select');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      expect(_focused(), 'AnnotationTools ink');
+    });
+
+    testWidgets('right to left: ArrowLeft moves to the next tool', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(const _Host(), textDirection: TextDirection.rtl),
+      );
+      await focusFirstTabStop(tester);
+      expect(_focused(), 'Select');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      expect(_focused(), 'Highlight');
+    });
+
+    testWidgets('inert tools and colours have no Tab stops', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const _Host(toolsInert: true, colorsInert: true)),
+      );
+      expect(tabStops, isEmpty);
+    });
+
+    testWidgets('tools that become active keep the arrow order: ArrowRight '
+        'from Draw lands on Shapes', (tester) async {
+      await tester.pumpWidget(componentHost(const _Host(toolsInert: true)));
+      await tester.pumpWidget(componentHost(const _Host()));
+      tabStopNodes
+          .firstWhere(
+            (node) =>
+                node.context
+                    ?.findAncestorWidgetOfExactType<ToolButton>()
+                    ?.label ==
+                'Draw',
+          )
+          .requestFocus();
+      await tester.pumpAndSettle();
+      expect(_focused(), 'Draw');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(_focused(), 'Shapes');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(_focused(), 'Stamp');
     });
 
     testWidgets('ArrowDown on a tool with a menu asks for the menu', (

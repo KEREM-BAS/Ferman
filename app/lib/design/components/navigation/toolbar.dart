@@ -1,3 +1,4 @@
+import 'package:ferman/design/components/forms/select.dart';
 import 'package:ferman/design/components/navigation/roving_focus.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -24,12 +25,14 @@ enum ToolbarVariant {
 ///
 /// **Keyboard** (`Toolbar.jsx`): every item stays a Tab stop, and
 /// ArrowLeft and ArrowRight move focus to the previous and next item in the
-/// visual direction (mirrored in right to left), wrapping. They stop on
-/// enabled items and on disabled items that give a reason (which stay
-/// focusable, G10), and skip plain disabled ones. Inside a segmented
-/// control, tab strip or radio group only its Tab stop is visited, and the
-/// group's own arrow keys win while focus is in it. While focus is in a
-/// text field the arrows move the caret instead.
+/// visual direction (mirrored in right to left), wrapping, in the order the
+/// items appear on screen. They stop on enabled items and on disabled items
+/// that give a reason (which stay focusable, G10), and skip plain disabled
+/// ones. Inside a segmented control, tab strip or radio group only its Tab
+/// stop is visited, and the group's own arrow keys win while focus is in
+/// it. While focus is in a text field or a [Select], the arrows are left to
+/// it (`Toolbar.jsx` skips `INPUT` and `SELECT`), so focus never leaves an
+/// open select list.
 ///
 /// **Semantics:** a container labelled [semanticLabel] that keeps its
 /// items as separate nodes. Flutter has no toolbar role.
@@ -63,8 +66,11 @@ class Toolbar extends StatelessWidget {
     if (step == null) return KeyEventResult.ignored;
     final focused = FocusManager.instance.primaryFocus;
     if (focused == null || focused == node) return KeyEventResult.ignored;
-    // In a text field the arrows move the caret.
-    if (focused.context?.findAncestorStateOfType<EditableTextState>() != null) {
+    // In a text field the arrows move the caret; a select keeps them too.
+    final focusedContext = focused.context;
+    if (focusedContext == null ||
+        focusedContext.findAncestorStateOfType<EditableTextState>() != null ||
+        _inSelect(focusedContext, context)) {
       return KeyEventResult.ignored;
     }
     // The items: the Tab stops that are not inside another Tab stop of the
@@ -78,6 +84,15 @@ class Toolbar extends StatelessWidget {
             .any(inToolbar.contains))
           stop,
     ];
+    // In the order on screen, not the order the focus nodes were attached
+    // (a tool added later would come last).
+    final rtl = Directionality.of(context) == TextDirection.rtl;
+    mergeSort<FocusNode>(
+      items,
+      compare: (a, b) => rtl
+          ? b.rect.right.compareTo(a.rect.right)
+          : a.rect.left.compareTo(b.rect.left),
+    );
     final from = items.indexWhere(
       (item) => item == focused || focused.ancestors.contains(item),
     );
@@ -86,6 +101,19 @@ class Toolbar extends StatelessWidget {
     if (to == null) return KeyEventResult.handled;
     items[to].requestFocus();
     return KeyEventResult.handled;
+  }
+
+  /// Whether [focused] is inside a [Select] of the toolbar at [toolbar].
+  static bool _inSelect(BuildContext focused, BuildContext toolbar) {
+    var found = false;
+    focused.visitAncestorElements((element) {
+      if (element.widget is Select) {
+        found = true;
+        return false;
+      }
+      return element != toolbar;
+    });
+    return found;
   }
 
   @override

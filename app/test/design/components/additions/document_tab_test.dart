@@ -1,7 +1,9 @@
 import 'dart:ui' show SemanticsRole, Tristate;
 
 import 'package:ferman/design/components/additions/document_tab.dart';
+import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/core/kbd.dart';
+import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
@@ -148,6 +150,34 @@ void main() {
       expect(find.text('e-Arşiv fatura 4187.pdf'), findsNWidgets(2));
     });
 
+    testWidgets('idle: no pressed fill, only the hover tint (FmWindow line '
+        '24)', (tester) async {
+      final theme = FermanTheme.light;
+      Color? fill() =>
+          (tester
+                      .widget<AnimatedContainer>(
+                        find.descendant(
+                          of: find.byType(DocumentTab),
+                          matching: find.byType(AnimatedContainer),
+                        ),
+                      )
+                      .decoration!
+                  as BoxDecoration)
+              .color;
+      await tester.pumpWidget(
+        componentHost(
+          _tab('a.pdf'),
+          forcedStates: const {WidgetState.hovered, WidgetState.pressed},
+        ),
+      );
+      expect(fill(), theme.colors.surfaceHover);
+      await tester.pumpWidget(
+        componentHost(_tab('a.pdf'), forcedStates: const {WidgetState.pressed}),
+      );
+      await tester.pumpAndSettle();
+      expect(fill(), transparent);
+    });
+
     testWidgets('the active clean tab has a 22 px close button with the '
         'shortcut in its tooltip', (tester) async {
       var closes = 0;
@@ -166,10 +196,15 @@ void main() {
         (widget) => widget is Icon && widget.name == IconName.x,
       );
       expect(close, findsOneWidget);
-      final button = find.ancestor(
-        of: close,
-        matching: find.byType(AnimatedContainer),
-      );
+      // The library's xs IconButton, not a copy of it.
+      final iconButton = tester.widget<IconButton>(find.byType(IconButton));
+      expect(iconButton.size, IconButtonSize.xs);
+      expect(iconButton.icon, IconName.x);
+      expect(iconButton.label, 'Close document');
+      expect(iconButton.shortcut, ['Ctrl', 'W']);
+      final button = find
+          .ancestor(of: close, matching: find.byType(AnimatedContainer))
+          .first;
       expect(tester.getSize(button), const Size(22, 22));
       await tester.tap(close);
       expect(closes, 1);
@@ -221,33 +256,82 @@ void main() {
       );
       final node = tester.getSemantics(find.byType(FocusRing));
       expect(node.label, 'Kira sözleşmesi.pdf\nUnsaved changes');
-      handle.dispose();
 
       await tester.pumpWidget(componentHost(_tab('a.pdf', unsaved: true)));
       expect(
         (tester.widget<DecoratedBox>(dot).decoration as BoxDecoration).color,
         theme.colors.iconSecondary,
       );
+      // One node, the tab, with both parts of the name, and no extra child
+      // node (FermanInteractive alone states "not selected").
+      final idle = tester.getSemantics(find.byType(FocusRing));
+      expect(idle.label, 'a.pdf\nUnsaved changes');
+      expect(idle.childrenCount, 0);
+      expect(
+        idle.getSemanticsData().flagsCollection.isSelected,
+        Tristate.isFalse,
+      );
+      handle.dispose();
     });
 
-    testWidgets('loading: the spinner replaces the icon', (tester) async {
+    testWidgets('unsaved: the dot has its own "Unsaved changes" tooltip, on '
+        'active and idle tabs', (tester) async {
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      for (final active in [true, false]) {
+        await tester.pumpWidget(
+          componentHost(
+            KeyedSubtree(
+              key: ValueKey(active),
+              child: _tab('a.pdf', active: active, unsaved: true),
+            ),
+          ),
+        );
+        final dot = find.byWidgetPredicate(
+          (widget) =>
+              widget is DecoratedBox &&
+              (widget.decoration as BoxDecoration).shape == BoxShape.circle,
+        );
+        expect(find.text('Unsaved changes'), findsNothing);
+        await mouse.moveTo(tester.getCenter(dot));
+        await tester.pump(const Duration(milliseconds: 450));
+        await tester.pumpAndSettle();
+        expect(find.text('Unsaved changes'), findsOneWidget);
+        // Not the name's tooltip.
+        expect(find.text('a.pdf'), findsOneWidget);
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+      }
+    });
+
+    testWidgets('loading: the spinner replaces the icon, and screen readers '
+        'hear its status inside the tab', (tester) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         componentHost(
           _tab(
             'İmar planı.pdf',
             active: true,
             loading: true,
-            spinner: const SizedBox.square(dimension: 12, key: Key('spinner')),
+            spinner: const Spinner(size: 12, semanticLabel: 'Opening'),
           ),
         ),
       );
-      expect(find.byKey(const Key('spinner')), findsOneWidget);
+      expect(tester.getSize(find.byType(Spinner)), const Size(12, 12));
       expect(
         find.byWidgetPredicate(
           (widget) => widget is Icon && widget.name == IconName.fileText,
         ),
         findsNothing,
       );
+      final status = tester.getSemantics(find.bySemanticsLabel('Opening'));
+      expect(status, isSemantics(label: 'Opening', isLiveRegion: true));
+      final tab = tester.getSemantics(find.bySemanticsLabel('İmar planı.pdf'));
+      expect(tab.getSemanticsData().role, SemanticsRole.tab);
+      expect(tab.label, 'İmar planı.pdf');
+      expect(status.parent, tab);
+      handle.dispose();
     });
 
     testWidgets('locked and repaired icons', (tester) async {
@@ -326,8 +410,11 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('keyboard: the inset ring marks the tab, not while its close '
-        'button has focus; Enter activates', (tester) async {
+    testWidgets('keyboard: the inset ring and the focused state mark the tab, '
+        'not while its close button has focus; Enter and Space activate', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
       var presses = 0;
       var closes = 0;
       await tester.pumpWidget(
@@ -346,27 +433,44 @@ void main() {
               widget is FocusRing && widget.style == FocusRingStyle.inset,
         ),
       );
-      // The close button's node is inside the tab's, so it comes first
-      // among the descendants; focus the tab itself.
+      Tristate focused(String label) => tester
+          .getSemantics(find.bySemanticsLabel(label))
+          .getSemanticsData()
+          .flagsCollection
+          .isFocused;
+      // The close button is a Tab stop of its own after the tab: its focus
+      // hangs beside the tab's, not under it.
+      expect(tabStops, ['DocumentTab', 'FermanInteractive']);
+      await focusFirstTabStop(tester);
+      expect(focusLabel, 'DocumentTab');
+      expect(tabRing().visible, isTrue);
+      expect(tabRing().style, FocusRingStyle.inset);
+      expect(focused('a.pdf'), Tristate.isTrue);
+      expect(focused('Close document'), Tristate.isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(presses, 2);
+      await pressTab(tester);
+      expect(focusLabel, 'FermanInteractive');
+      expect(tabRing().visible, isFalse);
+      expect(focused('a.pdf'), Tristate.isFalse);
+      expect(focused('Close document'), Tristate.isTrue);
+      // The close button stays inside the tab for screen readers.
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Close document')).parent,
+        tester.getSemantics(find.bySemanticsLabel('a.pdf')),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(closes, 1);
+      expect(presses, 2);
       tabStopNodes
           .firstWhere((node) => node.debugLabel == 'DocumentTab')
           .requestFocus();
       await tester.pumpAndSettle();
       expect(tabRing().visible, isTrue);
-      expect(tabRing().style, FocusRingStyle.inset);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      expect(presses, 1);
-      // The close button is a Tab stop of its own, inside the tab.
-      expect(tabStops, ['FermanInteractive', 'DocumentTab']);
-      tabStopNodes
-          .firstWhere((node) => node.debugLabel == 'FermanInteractive')
-          .requestFocus();
-      await tester.pumpAndSettle();
-      expect(focusLabel, 'FermanInteractive');
-      expect(tabRing().visible, isFalse);
-      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
-      expect(closes, 1);
-      expect(presses, 1);
+      expect(focused('a.pdf'), Tristate.isTrue);
+      expect(focused('Close document'), Tristate.isFalse);
+      handle.dispose();
     });
   });
 
@@ -377,14 +481,17 @@ void main() {
       Widget? overflow,
       Widget? trailing,
       double width = 900,
+      double? height,
+      List<String> names = const ['a.pdf', 'b.pdf', 'c.pdf'],
     }) => SizedBox(
       width: width,
+      height: height,
       child: DocumentTabStrip(
         semanticLabel: 'Open documents',
         overflow: overflow,
         trailing: trailing,
         tabs: [
-          for (final (i, name) in ['a.pdf', 'b.pdf', 'c.pdf'].indexed)
+          for (final (i, name) in names.indexed)
             _tab(
               name,
               active: i == active,
@@ -394,7 +501,7 @@ void main() {
       ),
     );
 
-    testWidgets('tabs 2 px apart, bottom-aligned 6 px down, then the '
+    testWidgets('tabs 2 px apart, bottom-aligned 5 px down, then the '
         'overflow and open buttons', (tester) async {
       await tester.pumpWidget(
         componentHost(
@@ -408,7 +515,11 @@ void main() {
       final first = tester.getRect(tabs.at(0));
       final second = tester.getRect(tabs.at(1));
       expect(second.left - first.right, 2);
-      expect(first.top - tester.getRect(find.byType(DocumentTabStrip)).top, 6);
+      final strip0 = tester.getRect(find.byType(DocumentTabStrip));
+      // The title bar's 37 px above its line; FmWindow's 6 px padding
+      // leaves 31 px, which the 32 px tabs overflow by 1 px.
+      expect(strip0.height, 37);
+      expect(first.top - strip0.top, 5);
       final more = tester.getRect(find.byKey(const Key('more')));
       final open = tester.getRect(find.byKey(const Key('open')));
       final last = tester.getRect(tabs.at(2));
@@ -416,6 +527,87 @@ void main() {
       expect(open.left - more.right, 2);
       // Centred in the 32 px row above its 4 px bottom padding.
       expect(last.bottom - more.bottom, 5);
+    });
+
+    testWidgets("in the title bar's 37 px: idle tabs 5..37 at full height, "
+        'the active tab 6..38 over the line below', (tester) async {
+      final theme = FermanTheme.light;
+      // The area the window frame gives the title bar's content.
+      final height = theme.density.titlebarH - theme.border.borderWidth;
+      await tester.pumpWidget(
+        componentHost(
+          strip(
+            height: height,
+            trailing: const SizedBox(width: 26, height: 26, key: Key('open')),
+          ),
+        ),
+      );
+      final top = tester.getRect(find.byType(DocumentTabStrip)).top;
+      final tabs = find.byType(DocumentTab);
+      final idle = tester.getRect(tabs.at(1));
+      expect(idle.top - top, 5);
+      expect(idle.bottom - top, 37);
+      final pill = find.descendant(
+        of: tabs.at(1),
+        matching: find.byType(AnimatedContainer),
+      );
+      expect(tester.getRect(pill).top - top, 5);
+      expect(tester.getSize(pill).height, 28);
+      // Painted 1 px down by its translation: over the title bar's line.
+      final active = tester.getRect(
+        find
+            .descendant(
+              of: tabs.at(0),
+              matching: find.byWidgetPredicate(
+                (widget) => widget is Container && widget.decoration != null,
+              ),
+            )
+            .first,
+      );
+      expect(active.top - top, 6);
+      expect(active.bottom - top, 38);
+      final open = tester.getRect(find.byKey(const Key('open')));
+      expect(open.top - top, 6);
+      expect(open.bottom - top, 32);
+    });
+
+    testWidgets('no open documents: no tab bar, and the buttons come first '
+        'with no gap', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          strip(
+            names: const [],
+            trailing: Semantics(
+              button: true,
+              label: 'Open file',
+              child: const SizedBox(width: 26, height: 26, key: Key('open')),
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(find.bySemanticsLabel('Open documents'), findsNothing);
+      expect(find.bySemanticsLabel('Open file'), findsOneWidget);
+      final left = tester.getRect(find.byType(DocumentTabStrip)).left;
+      expect(tester.getRect(find.byKey(const Key('open'))).left, left);
+      expect(tabStops, isEmpty);
+
+      await tester.pumpWidget(
+        componentHost(
+          strip(
+            names: const [],
+            overflow: const SizedBox(width: 50, height: 26, key: Key('more')),
+            trailing: const SizedBox(width: 26, height: 26, key: Key('open')),
+          ),
+        ),
+      );
+      // Only the overflow button's own 2 px.
+      expect(
+        tester.getRect(find.byKey(const Key('more'))).left - left,
+        DocumentTabStrip.overflowGap,
+      );
+      handle.dispose();
     });
 
     testWidgets('tabs shrink when space runs out', (tester) async {
@@ -470,11 +662,19 @@ void main() {
           ),
         ),
       );
+      final bar = tester.getSemantics(find.bySemanticsLabel('Open documents'));
+      expect(bar, isSemantics(role: SemanticsRole.tabBar));
+      final children = <SemanticsNode>[];
+      bar.visitChildren((child) {
+        children.add(child);
+        return true;
+      });
       expect(
-        tester.getSemantics(find.bySemanticsLabel('Open documents')),
-        isSemantics(role: SemanticsRole.tabBar),
+        [for (final child in children) child.label],
+        ['a.pdf', 'b.pdf', 'c.pdf'],
       );
-      expect(find.bySemanticsLabel('Open file'), findsOneWidget);
+      final open = tester.getSemantics(find.bySemanticsLabel('Open file'));
+      expect(open.parent, isNot(bar));
       handle.dispose();
     });
   });

@@ -43,7 +43,11 @@ enum ModeTabsVariant {
 /// their mode labels and say whether they are selected.
 ///
 /// When the modes do not fit, the strip scrolls without a scroll bar, as the
-/// CSS `overflow-x: auto; scrollbar-width: none` does.
+/// CSS `overflow-x: auto; scrollbar-width: none` does. As in CSS, the
+/// track's 2 px padding scrolls with the tabs and the clip is the inside of
+/// the track's border, so the selected tab keeps its ring and shadow. A
+/// tab the arrow keys move to is brought into view at once, as the
+/// bundle's `focus()` does.
 class ModeTabs extends StatefulWidget {
   /// The mode tabs for [modes], with [value] selected.
   const new({
@@ -151,9 +155,9 @@ class _ModeTabsState extends State<ModeTabs> {
     final node = _nodeFor(next)..requestFocus();
     final target = node.context;
     if (target != null) {
+      // No animation: `btn.focus()` in ModeTabs.jsx scrolls at once.
       Scrollable.ensureVisible(
         target,
-        duration: context.ferman.motion.durFast,
         alignmentPolicy: RovingFocus.alignmentFor(from, to),
       );
     }
@@ -204,6 +208,11 @@ class _ModeTabsState extends State<ModeTabs> {
       behavior: ScrollConfiguration.of(context).copyWith(scrollbars: false),
       child: SingleChildScrollView(
         scrollDirection: Axis.horizontal,
+        // `.fm-modetabs` `padding: 2px` inside the scrolling box: the clip
+        // edge is the inside of the border, 2 px clear of the tabs.
+        padding: segmented
+            ? EdgeInsetsDirectional.all(theme.space.space0_5)
+            : null,
         child: strip,
       ),
     );
@@ -218,9 +227,7 @@ class _ModeTabsState extends State<ModeTabs> {
         borderRadius: BorderRadius.all(Radius.circular(theme.radius.radiusMd)),
       ),
       child: Padding(
-        padding: EdgeInsetsDirectional.all(
-          theme.space.space0_5 + theme.border.borderWidth,
-        ),
+        padding: EdgeInsetsDirectional.all(theme.border.borderWidth),
         child: strip,
       ),
     );
@@ -245,6 +252,7 @@ class _ModeTab extends StatelessWidget {
   final FocusNode focusNode;
   final VoidCallback? onPressed;
 
+  // FermanInteractive states selected true or false for a tab.
   @override
   Widget build(BuildContext context) => FermanInteractive(
     focusNode: focusNode,
@@ -253,12 +261,8 @@ class _ModeTab extends StatelessWidget {
     semanticsRole: SemanticsRole.tab,
     isButton: false,
     semanticLabel: label,
-    builder: (context, states, _) => Semantics(
-      // A tab always states whether it is selected; FermanInteractive sets
-      // only the selected one.
-      selected: selected ? null : false,
-      child: ExcludeSemantics(child: _visual(context, states)),
-    ),
+    builder: (context, states, _) =>
+        ExcludeSemantics(child: _visual(context, states)),
   );
 
   Widget _visual(BuildContext context, Set<WidgetState> states) {
