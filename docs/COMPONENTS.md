@@ -167,7 +167,7 @@ built; the ones that need a design answer are also listed for the lead to record
 2. **Annotation tools.** The bundle constant `ANNOTATION_TOOLS` has nine tools; FmWindow and `a4-1`
    draw eleven (adding Callout and Measure, labelling Text "Text" and drawing Shapes with the
    `shapes` icon). `AnnotationTool` follows the drawing, as `FermanMode` does for the stale
-   `FERMAN_MODES` (G09). This is not yet a DESIGN_GAPS entry.
+   `FERMAN_MODES` (G09). DESIGN_GAPS records it as [G62](DESIGN_GAPS.md#g62).
 3. **Icon mirroring default.** The DS default of `flipRtl` is false and boards flip single uses. The
    design flips exactly eight glyphs, so `IconName.directional` marks them and the Icon widget
    mirrors them by default: `flipRtl` is `bool?` with the Dart default `null` (`dartDefault`), which
@@ -220,7 +220,7 @@ built; the ones that need a design answer are also listed for the lead to record
 16. **Thumbnail markers.** `PageThumbnail.marker` (edited, comment) is superseded by the five
     ThumbnailBadges of fix 5; the prop stays in the spec because the lint config declares it.
 17. **IconButton loading.** The state sheet draws a Spinner in place of the button; the bundle has no
-    prop. The spec keeps it as a state without a prop.
+    prop, so the spec adds the Flutter-only `loading` parameter (`ds: null`, as in decision 14).
 18. **Turkish matching in the command palette.** The bundle lowercases with the Turkish locale
     whatever the UI language; Flutter matches with the casing rules of the app locale
     (ARCHITECTURE §11.2).
@@ -230,6 +230,81 @@ built; the ones that need a design answer are also listed for the lead to record
     `IconElement` classes (`icon_element.dart`), with the design's attribute values unchanged. The
     Icon widget paints them with a CustomPainter (path data through path_parsing). The SVG files in
     `app/assets/icons/` remain the provenance-tracked export and are not loaded at run time.
+20. **Labels come from the caller.** The bundle carries English copy: DS `label` defaults ("Mode",
+    "Loading"), the DropZone `COPY` strings and footnote, hard-coded names ("Comment tools", "Color",
+    "Dismiss", "Cancel", "Pause", "Resume") and the `label` of every `FERMAN_MODES` and
+    `ANNOTATION_TOOLS` entry. Components hold no English strings, so each becomes a caller
+    parameter: a required `String` (`ModeTabs.semanticLabel`, `AnnotationTools.semanticLabel` and
+    `colorsSemanticLabel`, `DocumentTab.unsavedLabel` and `closeLabel`, the four `WindowChrome`
+    labels, `SaveIndicator.label`); a label that is required, by assertion, whenever its button shows
+    (`Banner.dismissLabel`, `Toast.closeLabel`, the `TaskProgress` Cancel, Pause and Resume labels); a
+    nullable text that is not shown when null (the DropZone copy; `Spinner.semanticLabel`, whose null
+    makes the spinner decorative); or a `*LabelOf` callback for enum values (`ModeTabs.labelOf`,
+    `AnnotationTools.toolLabelOf` and `colorLabelOf`). `FermanMode` and `AnnotationTool` carry no
+    label, so their item field `label` has `dart: null`. A widget that carries copy is built by the
+    caller and passed in (`DocumentTab.spinner`, the Spinner "Opening"). `SaveIndicator` takes
+    `savedLabel` and `region` to put the saved time, formatted with `RegionFormat.time`, inside the
+    localized text ([G34](DESIGN_GAPS.md#g34)). The design's English stays in the spec, as the DS
+    `default` and in the notes, as the source for the ARB files.
+21. **How notices are announced.** The design's `role="status"` notices (Banner info, success and
+    neutral; every Toast but danger; TaskProgress; SaveIndicator; a labelled Spinner) are polite live
+    regions. Its alerts (a danger Toast; a danger or warning Banner: `role="alert"`,
+    `aria-live="assertive"`) are announced assertively, but Flutter allows no live region on a node
+    with the alert role. So on the web an alert has the alert role, which browsers announce on their
+    own; where the platform supports announcements (`MediaQueryData.supportsAnnounce`: the desktop
+    systems and iOS) it has the alert role and its text is also sent once as an assertive
+    `SemanticsService` announcement when it appears and when it changes, because Flutter's desktop
+    bridges do not announce roles; on Android it stays a polite live region, as Flutter's own error
+    texts do. The shared piece is `FeedbackSemantics`
+    (`app/lib/design/components/feedback/feedback_semantics.dart`), internal to the feedback group.
+22. **Indeterminate progress.** The bundle keeps `role="progressbar"` and drops `aria-valuenow` while
+    indeterminate. Flutter has a loading-spinner role for busy work of unknown length, so an
+    indeterminate ProgressBar uses it, with no value, as the Spinner does; a determinate ProgressBar
+    is a progress bar named by its label, with the percentage (0 to 100) as its value.
+23. **Reduced motion as built.** Decision 12 holds: the Spinner (0.8 s) and the loading Button's
+    loader (0.9 s) keep turning under reduced motion, as their literal CSS keyframes do, and the
+    indeterminate ProgressBar's 40 % fill stays still at the start edge. Transitions that use the
+    duration tokens (fills and colours, the focus-ring fade, the Toast's rise, the progress fill) take
+    no time.
+24. **No toolbar, group or separator roles, no `aria-haspopup`.** Flutter's semantics roles have no
+    toolbar, group or separator, and there is no has-popup flag. Toolbar and ToolbarGroup are
+    semantics containers named by their `semanticLabel` that keep their items as separate nodes;
+    ToolbarSeparator is decorative and not announced; a ToolButton with `hasMenu` is announced as a
+    button, its caret is only drawn, and ArrowDown asks for the menu (decision 4). The spec's
+    `semantics.role` keeps the design's ARIA roles. Revisit when Flutter adds these roles.
+25. **Toolbar arrow keys.** ArrowLeft and ArrowRight visit the items in the order they appear on
+    screen, mirrored in right to left, not in the order their focus nodes were attached, so a tool
+    that appears later keeps its place and the arrows agree with Tab. Inside a segmented control, tab
+    strip or radio group only that group's Tab stop is visited, and the group's own arrow keys win
+    while focus is in it. While focus is in a text field or a Select, the arrows are left to it, as
+    `Toolbar.jsx` skips `INPUT` and `SELECT`, so focus never leaves an open select list.
+26. **AnnotationTools dims each swatch.** The bundle dims the whole colour group to 0.4 opacity while
+    it is disabled. Flutter dims each swatch under its focus ring instead: the swatches and their
+    rings never overlap (4 px apart; a checked ring reaches 4 px), so the pixels are the same, and the
+    focus ring of a group disabled with a reason keeps its full strength
+    ([G71](DESIGN_GAPS.md#g71)).
+27. **ModeTabs scrolls at once.** When the modes overflow, a tab the arrow keys move to is brought
+    into view without an animation, as the bundle's `focus()` does.
+28. **Document tabs: the close button, tooltips and the empty strip.** The close button sits inside
+    the tab on screen and for screen readers, but its focus node hangs from a node above the tab's own
+    (a sibling, not a child), so while the close button has focus the tab neither reports focus nor
+    shows its ring; the ring is painted beside the tab's content, so showing it never rebuilds the
+    close button. The design gives the whole tab a `title` (the file name) and the unsaved dot and the
+    close button their own; a browser shows the innermost one, so the name tooltip covers only the
+    icon and the name, and the dot (`unsavedLabel`) and the close button (`closeLabel` with ⌘W or
+    Ctrl+W) have their own tooltips. `DocumentTabStrip`, which is not a design-system component,
+    places the tabs and gives them their tab-list semantics and arrow keys: its tab bar ("Open
+    documents") holds only the tabs, and the "+N" and "+" buttons follow it. With no tabs, as on the
+    empty Start board `a1-5`, it builds no tab bar, since an empty one would be announced as a list of
+    nothing and Flutter's debug role checks reject it.
+29. **The focus ring is painted as bands.** CSS clips an outer `box-shadow` to the outside of the
+    border box; a `BoxDecoration` shadow in Flutter also fills the inside, which shows on transparent
+    controls such as a ghost button. `FocusRing` paints the outer ring (a 2 px gap, then 2 px of the
+    focus colour) and the field ring (1 px) as bands outside the control's shape, with the corners
+    growing by the spread as CSS spread shadows do. The outer and field rings fade and grow in over
+    the component's box-shadow duration (`--dur-fast` for buttons, zero under reduced motion); the
+    inset ring switches at once, because the controls that use it have no box-shadow transition. The
+    ring never changes the control's size or the widget tree.
 
 ## Reference (generated)
 
@@ -290,8 +365,8 @@ built; the ones that need a design answer are also listed for the lead to record
 |---|---|
 | `KeyCaps` | List<String>: key-cap labels already resolved for the platform from the one shortcut table (⌘ ⌥ ⇧ on macOS; Ctrl, Alt, Shift on Windows and Linux). |
 | `IconName` | Generated enum, app/lib/design/icons/icon_name.g.dart; its drawing is IconNameElements.elements in icon_data.g.dart. |
-| `FermanMode` | Enum with id, label and icon (component FERMAN_MODES). |
-| `AnnotationTool` | Enum with id, label, icon, shortcut, colored and hasMenu (component ANNOTATION_TOOLS). |
+| `FermanMode` | Enum with id and icon; labels are localized and passed by the caller (component FERMAN_MODES). |
+| `AnnotationTool` | Enum with id, icon, shortcut, colored and hasMenu; labels are localized and passed by the caller (component ANNOTATION_TOOLS). |
 | `T` | The option value type of a generic component (Select, Radio, SegmentedControl). |
 | `TaskAction` | Record ({String label, VoidCallback onPressed}). |
 | `ToastAction` | Record ({String label, VoidCallback onPressed}). |
@@ -484,6 +559,8 @@ Drawn in: 00 Fixes, 01 First run and files, 02 View, 03a Edit text, 03b Edit con
 | `type` | yes | — | `n/a` | `"button"` | `button`, `submit`, `reset` | Omitted: HTML form submission type; Flutter has no forms to submit. |
 | `children` | yes | `child` | `Widget` (required) |  |  | Usually Text; boards also put a Kbd (title-bar Search) or a Badge (Review edits) after the label. |
 | — |  | `onPressed` | `VoidCallback?` |  |  | DS onClick via ...rest. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the button takes focus when it first appears. |
 
 Variants (variant): `primary`, `secondary`, `ghost`, `danger`. Sizes: `sm`, `md`, `lg`.
 
@@ -509,7 +586,7 @@ Semantics: role button; label child text; Flutter: button, enabled, focusable, t
 Notes:
 
 - The DS additions state sheet shows the error state "Shown as toast": a failed action raises a Toast, the button has no error look.
-- Loading has no Flutter "busy" flag; announce progress through the label or a live region.
+- Loading has no Flutter "busy" flag; announce progress through the label or a live region (B012).
 
 #### IconButton
 
@@ -534,6 +611,9 @@ Drawn in: 02 View, 03a Edit text, 03b Edit content, 03c Edit review and translat
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
 | — |  | `disabledReason` | `String?` |  |  | G10. |
 | — |  | `onPressed` | `VoidCallback?` |  |  |  |
+| — |  | `loading` | `bool` | `false` |  | A Spinner the size of the icon replaces the button's fill and icon (the state sheet); the button keeps its focus and activation does nothing. No bundle prop (decision 17). |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the button takes focus when it first appears. |
 
 Variants (variant): `ghost`, `secondary`, `primary`. Sizes: `xs`, `sm`, `md`, `lg`.
 
@@ -548,7 +628,7 @@ States:
 | `toggledOn` | prop (`active`) | `core.css:55`, `core.css:56` |  |
 | `disabled` | prop (`disabled`) | `core.css:57` |  |
 | `disabledWithReason` | prop (`disabledReason`) |  | G10. Tooltip: "Available in a future version". The bundle drops the tooltip of a disabled IconButton (IconButton.jsx: "if (!tooltip \|\| disabled) return btn"); G10 overrides that: a disabled button with a reason shows the reason as its tooltip. The FmWindow Redo button is drawn disabled. |
-| `loading` | prop | `DS additions.dc.html:103` | The state sheet draws loading as a 16 px Spinner in place of the button; no prop exists in the bundle. |
+| `loading` | prop (`loading`) | `DS additions.dc.html:103` | The state sheet draws loading as a 16 px Spinner in place of the button; the bundle has no prop, so the spec adds the Flutter-only loading parameter (decision 17). The button keeps its focus and ring; activation does nothing. |
 
 Keyboard:
 
@@ -575,6 +655,8 @@ Drawn in: 00 Fixes, DS additions.
 | `open` | yes | `open` | `bool?` |  |  | Forces the bubble open or closed (goldens, the state sheet); null follows hover and focus. |
 | `delay` | yes | `delay` | `Duration` | `450`; Dart: `Duration(milliseconds: 450)` |  |  |
 | `children` | yes | `child` | `Widget` (required) |  |  |  |
+| — |  | `hovered` | `bool` | `false` |  | Hover the platform reports for the child while Flutter does not see the pointer (the Windows maximize button). |
+| — |  | `excludeFromSemantics` | `bool` | `false` |  | Leaves message out of the child's semantics, for a child that puts it on its own semantics node (FermanInteractive). |
 
 Variants (side): `top`, `bottom`, `left`, `right`.
 
@@ -1181,6 +1263,7 @@ Drawn in: 00 Fixes, 03a Edit text, 03b Edit content, 03c Edit review and transla
 | `onOpenChange` | yes | `onOpenChanged` | `ValueChanged<bool>?` |  |  |  |
 | `actions` | yes | `actions` | `List<Widget>` | `[]` |  |  |
 | `children` | yes | `child` | `Widget` (required) |  |  |  |
+| — |  | `showTopBorder` | `bool` | `true` |  | Whether the 1 px line above shows; the panel passes false for its first section, where the design drops the line (:first-child). |
 
 States:
 
@@ -1220,14 +1303,15 @@ Drawn in: FmWindow.
 | `onChange` |  | `onChanged` | `ValueChanged<FermanMode>?` |  |  |  |
 | `variant` |  | `variant` | `ModeTabsVariant` | `"segmented"` | `segmented`, `underline` | underline is for the web build (readme). |
 | `showIcons` |  | `showIcons` | `bool` | `false` |  |  |
-| `label` |  | `semanticLabel` | `String` | `"Mode"` |  |  |
+| `label` |  | `semanticLabel` | `String` (required) | `"Mode"` |  | Required in Dart: the caller passes the localized "Mode"; components hold no English strings (decision 20). |
+| — |  | `labelOf` | `String Function(FermanMode mode)` (required) |  |  | The localized name of a mode, shown on its tab, from the ARB files; FermanMode carries no label. |
 
 Item type `FermanMode` → `FermanMode` (declared in the lint config):
 
 | DS field | Lint | Dart | Type | Default | Values | Notes |
 |---|---|---|---|---|---|---|
 | `id` | yes | `id` | `String` (required) |  |  |  |
-| `label` | yes | `label` | `String` (required) |  |  | Localized. |
+| `label` | yes | — | `n/a` |  |  | Omitted: Localized copy; supplied through ModeTabs.labelOf. |
 | `icon` | yes | `icon` | `IconName` (required) |  |  |  |
 
 Variants (variant): `segmented`, `underline`.
@@ -1248,13 +1332,15 @@ Keyboard:
 - `Home`: first mode
 - `End`: last mode
 
-Semantics: role tablist of tabs; label semanticLabel; tabs by mode label; Flutter: role: tabBar / tab, selected, focusable (only the selected tab is a Tab stop).
+Semantics: role tablist of tabs; label semanticLabel; tabs by labelOf; Flutter: role: tabBar / tab, selected, focusable (only the selected tab is a Tab stop).
 
 Notes:
 
 - Eight modes, as every artboard shows (G09, Q05); the DS constant lists seven.
 - Selection follows focus (automatic activation), with a roving Tab stop.
 - Each mode keeps its state when the user switches away (IndexedStack, ADR 0011).
+- When the modes do not fit, the strip scrolls without a scroll bar, clipped inside the track border; a tab the arrow keys reach is brought into view at once (decision 27). Collapsing to icons in narrow windows is not built (G21, B013).
+- The track is 32 px tall (control-h-sm plus padding and border), not the 30 px size hint of FmWindow (G68).
 
 #### FERMAN_MODES
 
@@ -1282,7 +1368,7 @@ Semantics: role none; label none.
 Notes:
 
 - tools (wrench) comes from FmWindow MODE_IDS and MODE_ICONS; FERMAN_MODES in the bundle is stale (G09).
-- Labels are localized; mode names are proper nouns (readme "Casing").
+- Labels are localized; mode names are proper nouns (readme "Casing"). The enum carries no label: entries list the design's English labels for the ARB files, and ModeTabs.labelOf supplies the localized ones (decision 20).
 
 #### SegmentedControl
 
@@ -1348,6 +1434,8 @@ Notes:
 
 - The bundle does not skip disabled segments when moving with arrows; Flutter skips plain disabled segments and stops on disabled-with-reason ones without selecting them.
 - Sidebar tabs are a SegmentedControl over an IndexedStack (ADR 0011).
+- fullWidth shares the width equally between the labelled segments; icon-only segments keep their 24 px and pack at the start of the track, because in the bundle their Tooltip wrapper, not the segment, is the flex item (FmSidebar a2-3p, a4-1c).
+- State changes are instant: .fm-segment declares no transition, unlike .fm-modetab and .fm-toolbtn.
 
 #### Toolbar
 
@@ -1385,7 +1473,9 @@ Notes:
 
 - Items stay Tab stops as in the bundle; arrows add quicker movement. Inside a tablist or radiogroup only the Tab stop of that group is visited.
 - Disabled-with-reason items stay focusable (decision 1 in COMPONENTS.md), so the arrow keys stop on them as Tab does and their reason can be read; only plain disabled items are skipped.
-- Narrow windows (proposed, G21): the row collapses to icons with an overflow menu.
+- Arrow keys follow the order on screen, mirrored in right to left, and leave a focused text field or Select alone, so focus never leaves an open select list (decision 25).
+- No Flutter toolbar or group role exists: the toolbar is a semantics container named semanticLabel (decision 24).
+- Narrow windows (G21): the row is to collapse to icons with an overflow menu; not built yet (B013).
 
 #### ToolbarSeparator
 
@@ -1467,6 +1557,8 @@ Drawn in: 03a Edit text, 04 Comment, FmWindow.
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
 | — |  | `disabledReason` | `String?` |  |  | G10: later-phase tools. |
 | `onClick` | yes | `onPressed` | `VoidCallback?` |  |  |  |
+| — |  | `onMenuRequested` | `VoidCallback?` |  |  | Called when ArrowDown asks for the menu of a hasMenu button; null falls back to onPressed. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
 
 Variants (layout): `inline`, `stacked`.
 
@@ -1496,6 +1588,7 @@ Semantics: role button (aria-pressed when a toggle, aria-haspopup=menu with a ca
 Notes:
 
 - The bundle shows a tooltip only when icon-only or when a shortcut is given; tool-button tooltips always show the shortcut when one exists (G22).
+- Flutter has no aria-haspopup: a hasMenu button is a button with the caret drawn, and ArrowDown or activation asks for the menu (decision 24). The menu itself is placed by the caller (B014).
 
 ### Group: pages
 
@@ -1730,6 +1823,11 @@ Drawn in: FmWindow.
 | `tools` |  | `tools` | `List<AnnotationTool>` | `"ANNOTATION_TOOLS"`; Dart: `AnnotationTool.values` |  |  |
 | — |  | `disabledReasons` | `Map<AnnotationTool, String>` | `{}` |  | Per-tool reason (G10): that tool renders as a disabled-with-reason ToolButton (still focusable, tooltip and hint, activation does nothing). M1 passes "Available in a future version" for every unshipped tool. |
 | — |  | `colorsDisabledReason` | `String?` |  |  | Reason for the whole colour radiogroup (G10): disabled-with-reason swatches, still focusable. Independent of colorsDisabled, which follows the active tool. |
+| — |  | `semanticLabel` | `String` (required) |  |  | The accessible name of the row, the localized "Comment tools" (the bundle hard-codes the English name). |
+| — |  | `toolLabelOf` | `String Function(AnnotationTool tool)` (required) |  |  | The localized name of a tool: its label, tooltip and accessible name. |
+| — |  | `colorsSemanticLabel` | `String` (required) |  |  | The accessible name of the colour group, the localized "Color". |
+| — |  | `colorLabelOf` | `String Function(AnnotationColor color)` (required) |  |  | The localized name of a colour, its accessible name (the design names ink Black). |
+| — |  | `onToolMenuRequested` | `ValueChanged<AnnotationTool>?` |  |  | Called with a tool that has a menu when ArrowDown asks for the menu; null falls back to selecting the tool. |
 
 Item type `AnnotationTool` → `AnnotationTool` (declared in the lint config):
 
@@ -1737,7 +1835,7 @@ Item type `AnnotationTool` → `AnnotationTool` (declared in the lint config):
 |---|---|---|---|---|---|---|
 | `id` | yes | `id` | `String` (required) |  |  |  |
 | `icon` | yes | `icon` | `IconName` (required) |  |  |  |
-| `label` | yes | `label` | `String` (required) |  |  |  |
+| `label` | yes | — | `n/a` |  |  | Omitted: Localized copy; supplied through AnnotationTools.toolLabelOf. |
 | `key` | yes | `shortcut` | `String?` |  |  | Single-key shortcut. |
 | `colored` | yes | `colored` | `bool` | `false` |  |  |
 | `menu` | yes | `hasMenu` | `bool` | `false` |  |  |
@@ -1750,9 +1848,9 @@ States:
 |---|---|---|---|
 | `toolActive` | prop (`tool`) | `navigation.css:62`, `navigation.css:68` | The active coloured tool shows a swatch of the current colour. |
 | `colorHover` | pointer | `annotations.css:42` |  |
-| `colorFocusVisible` | keyboard | `annotations.css:43` |  |
+| `colorFocusVisible` | keyboard | `annotations.css:43` | G69. The focus ring replaces the swatch's own rings and wins over the checked rings, which the CSS cascade puts last (G22). |
 | `colorChecked` | data | `annotations.css:44` |  |
-| `colorsDisabled` | data | `annotations.css:39` | Opacity 0.4 and aria-disabled when the active tool is not coloured (inline style in the bundle). |
+| `colorsDisabled` | data | `annotations.css:39` | Opacity 0.4 and aria-disabled when the active tool is not coloured (inline style in the bundle). The swatches are then plain disabled: skipped by Tab and the arrows, inert (G69). Each swatch is dimmed under its focus ring rather than the group as a whole (decision 26). |
 | `toolDisabledWithReason` | prop (`disabledReasons`) |  | G10. Tooltip: "Available in a future version". A tool with a reason renders as ToolButton disabledWithReason. The bundle has no disabled tools; M1 draws the row with every unshipped tool disabled (ROADMAP step 8). |
 | `colorsDisabledWithReason` | prop (`colorsDisabledReason`) |  | G10. Tooltip: "Available in a future version". Disabled styling of colorsDisabled with the reason as tooltip and hint; the swatches stay focusable and do not change the colour. |
 
@@ -1762,11 +1860,14 @@ Keyboard:
 - `V`, `H`, `U`, `S`, `N`, `X`, `C`, `P`, `R`, `M`: select the tool (single-key shortcuts from the shortcut table)
 - `ArrowLeft`, `ArrowRight`: inside the colour group: move and check (radio-group pattern; not in the bundle)
 
-Semantics: role toolbar "Comment tools" with a radiogroup "Color"; label "Comment tools"; colours by name; Flutter: checked (colour), toggled (tool).
+Semantics: role toolbar "Comment tools" with a radiogroup "Color"; label semanticLabel ("Comment tools"); tools by toolLabelOf; the colour group by colorsSemanticLabel ("Color") and colours by colorLabelOf; Flutter: checked (colour), toggled (tool).
 
 Notes:
 
 - FmWindow passes its own tool list (11 tools); see AnnotationTool.
+- Tool and colour names, and the names of the row and the colour group, come from the caller; the bundle hard-codes English (decision 20).
+- The palette has no orange (the bundle's PALETTE): with color orange the active tool's swatch shows orange, no swatch is checked and the first one is the Tab stop (G69).
+- Menus of the hasMenu tools (Shapes, Stamp, Measure) are asked for through onToolMenuRequested; the row builds none (B014).
 
 #### ANNOTATION_TOOLS
 
@@ -2041,6 +2142,7 @@ Drawn in: 00 Fixes, 01 First run and files, 03b Edit content, 03c Edit review an
 | `actions` | yes | `actions` | `List<Widget>` | `[]` |  |  |
 | `onDismiss` | yes | `onDismiss` | `VoidCallback?` |  |  | Shows an xs IconButton "Dismiss" without tooltip. |
 | `children` | yes | `child` | `Widget?` |  |  |  |
+| — |  | `dismissLabel` | `String?` |  |  | The localized name of the Dismiss button ("Dismiss"); required with onDismiss. |
 
 Variants (tone): `info`, `success`, `warning`, `danger`, `neutral`. Variants (variant): `box`, `bar`.
 
@@ -2050,11 +2152,12 @@ States:
 |---|---|---|---|
 | `default` | none | `feedback.css:18`, `feedback.css:27`, `feedback.css:29`, `feedback.css:31`, `feedback.css:33`, `feedback.css:35` |  |
 
-Semantics: role alert (danger, warning) or status; label title and message; Flutter: liveRegion.
+Semantics: role alert (danger, warning; assertive: role alert, announced through SemanticsService where supported, polite live region fallback on Android) or status (polite live region); label title and message; Flutter: role: alert, or liveRegion.
 
 Notes:
 
 - Material has MaterialBanner and Banner; import hidden or prefixed.
+- Announcements follow decision 21.
 
 #### ProgressBar
 
@@ -2074,6 +2177,7 @@ Drawn in: 05b Sign, 07 Convert, 08 Protect, 09b Tools, 13b Mobile tasks, FmFormP
 | `size` | yes | `size` | `ProgressSize` | `"sm"` | `sm`, `md` |  |
 | `label` | yes | `label` | `String?` |  |  |  |
 | `showValue` | yes | `showValue` | `bool` | `false` |  |  |
+| — |  | `valueText` | `String?` |  |  | The percentage as the screen formats it for the region setting ("%40" in Turkish, G34); null shows "N%". |
 
 Variants (tone): `accent`, `success`, `danger`, `paused`. Sizes: `sm`, `md`.
 
@@ -2082,13 +2186,14 @@ States:
 | State | Trigger | Sources | Notes |
 |---|---|---|---|
 | `determinate` | none | `feedback.css:42`, `feedback.css:44` |  |
-| `indeterminate` | prop (`indeterminate`) | `feedback.css:48` | Under reduced motion the sweep stops; show a static partial fill. |
+| `indeterminate` | prop (`indeterminate`) | `feedback.css:48` | Under reduced motion the 40 % fill stays still at the start edge (decision 23). |
 
-Semantics: role progressbar; label label; Flutter: value (percent, absent when indeterminate).
+Semantics: role progressbar; label label; Flutter: role: progressBar, or loadingSpinner while indeterminate (decision 22), value (percent, absent when indeterminate).
 
 Notes:
 
 - Never LinearProgressIndicator from Material.
+- The bundle writes the percentage as "N%"; the screen passes valueText formatted for the region (G74, G34).
 
 #### Spinner
 
@@ -2104,13 +2209,13 @@ Drawn in: 00 Fixes, 01 First run and files, 05b Sign, 07 Convert, 13b Mobile tas
 |---|---|---|---|---|---|---|
 | `size` | yes | `size` | `double` | `16` |  | Border 1.5 at ≤12, 3 at ≥32, else 2. |
 | `onAccent` | yes | `onAccent` | `bool` | `false` |  |  |
-| `label` | yes | `semanticLabel` | `String` | `"Loading"` |  |  |
+| `label` | yes | `semanticLabel` | `String?` | `"Loading"`; Dart: `null` |  | The screens pass the localized label; null makes the spinner decorative, for a spinner whose surrounding text already says what is happening (decision 20). |
 
 States:
 
 | State | Trigger | Sources | Notes |
 |---|---|---|---|
-| `spinning` | none | `feedback.css:50`, `feedback.css:51` | 0.8 s linear rotation; under reduced motion it keeps turning slowly or shows a static ring (reduced-motion tokens zero the durations only). |
+| `spinning` | none | `feedback.css:50`, `feedback.css:51` | 0.8 s linear rotation; it keeps turning under reduced motion, as the CSS animation does (decision 23). |
 
 Semantics: role status; label semanticLabel; Flutter: liveRegion, label.
 
@@ -2142,6 +2247,9 @@ Drawn in: 01 First run and files, 07 Convert, 10 AI assistant, 11b App, 13b Mobi
 | `onResume` | yes | `onResume` | `VoidCallback?` |  |  |  |
 | `primaryAction` | yes | `primaryAction` | `TaskAction?` |  |  | {label, onClick}. |
 | `secondaryAction` | yes | `secondaryAction` | `TaskAction?` |  |  |  |
+| — |  | `cancelLabel` | `String?` |  |  | The localized name of the Cancel IconButton ("Cancel"); required with onCancel. |
+| — |  | `pauseLabel` | `String?` |  |  | The localized label of the Pause button ("Pause"); required with onPause. |
+| — |  | `resumeLabel` | `String?` |  |  | The localized label of the Resume button ("Resume"); required with onResume. |
 
 Variants (state): `running`, `paused`, `done`, `error`. Variants (variant): `card`, `inline`.
 
@@ -2159,7 +2267,7 @@ Semantics: role status (polite live region); label title and detail; Flutter: li
 
 Notes:
 
-- Jobs are async, cancellable and stream progress (ARCHITECTURE.md); Cancel is an IconButton "Cancel".
+- Jobs are async, cancellable and stream progress (ARCHITECTURE.md); Cancel is an IconButton named by the localized cancelLabel, Pause and Resume are Buttons labelled by pauseLabel and resumeLabel.
 
 #### Toast
 
@@ -2179,6 +2287,7 @@ Drawn in: 00 Fixes, 11b App.
 | `icon` | yes | `icon` | `IconName?` |  |  | Defaults per tone: info, circle-check, triangle-alert, circle-alert. |
 | `action` | yes | `action` | `ToastAction?` |  |  | {label, onClick}: a ghost sm Button in accent text. |
 | `onClose` | yes | `onClose` | `VoidCallback?` |  |  |  |
+| — |  | `closeLabel` | `String?` |  |  | The localized name of the Dismiss button ("Dismiss"); required with onClose. |
 
 Variants (tone): `neutral`, `success`, `warning`, `danger`.
 
@@ -2188,11 +2297,13 @@ States:
 |---|---|---|---|
 | `default` | none | `feedback.css:3`, `feedback.css:9`, `feedback.css:10`, `feedback.css:11`, `feedback.css:16` | Rises in over --dur-slow. |
 
-Semantics: role alert (danger, assertive) or status (polite); label title and message; Flutter: liveRegion.
+Semantics: role alert (danger; assertive: role alert, announced through SemanticsService where supported, polite live region fallback on Android) or status (polite live region); label title and message; Flutter: role: alert, or liveRegion.
 
 Notes:
 
 - Never SnackBar (ADR 0011).
+- Announcements follow decision 21.
+- The toast stack (bottom end, above the status bar, .fm-toast-region) and the timing (errors stay until dismissed, the rest leave after six seconds unless hovered or focused, a11-6) belong to the screen that shows toasts (B011).
 
 ### Group: empty
 
@@ -2216,10 +2327,17 @@ Drawn in: 14 Tablet and web, FmStart.
 | `shortcut` |  | `shortcut` | `KeyCaps` | `["⌘","O"]` |  |  |
 | `recent` |  | `recent` | `List<RecentFile>` | `[]` |  |  |
 | `onOpenRecent` |  | `onOpenRecent` | `ValueChanged<RecentFile>?` |  |  |  |
-| `footnote` |  | `footnote` | `String?` | `"Files stay on this device. Ferman never uploads your documents."` |  |  |
+| `footnote` |  | `footnote` | `String?` | `"Files stay on this device. Ferman never uploads your documents."`; Dart: `null` |  | The screen passes the localized footnote; null shows none (decision 20). |
 | `onFiles` |  | `onFiles` | `ValueChanged<List<String>>?` |  |  | Dropped file paths. |
 | `minHeight` |  | `minHeight` | `double?` |  |  | FmStart uses 470. |
 | — |  | `disabledReason` | `String?` |  |  | Disables drop handling, the Open and New buttons and the recent rows as disabled-with-reason (still focusable, the reason as tooltip and hint) (G10). |
+| — |  | `overTitle` | `String?` |  |  | The title while a drag hovers ("Release to open"). |
+| — |  | `overSubtitle` | `String?` |  |  | The subtitle while a drag hovers. |
+| — |  | `errorTitle` | `String?` |  |  | The title of the error state ("That file isn’t a PDF"). |
+| — |  | `errorSubtitle` | `String?` |  |  | The subtitle of the error state. |
+| — |  | `openLabel` | `String?` |  |  | The Open button's label ("Open a PDF"); null hides the button. |
+| — |  | `createLabel` | `String?` |  |  | The New button's label ("New blank PDF"); null hides the button. |
+| — |  | `recentTitle` | `String?` |  |  | The heading above the recent files ("Recent"). |
 
 Item type `RecentFile` → `RecentFile` (declared in the lint config):
 
@@ -2256,7 +2374,9 @@ Semantics: role region with a heading (title) and buttons; label title; Flutter:
 Notes:
 
 - Desktop drops need desktop_drop (Q17 approved); M1 shows the drop strip disabled with disabledReason "Available in a future version" until its milestone (ROADMAP step 9).
-- Copy per state lives in the ARB files; FmStart overrides title, subtitle and footnote.
+- Copy per state lives in the ARB files; every text is a parameter (overTitle, errorTitle, openLabel and the others), and a null text is not shown (decision 20).
+- The dashed border is painted as 3 px dashes with 2 px gaps, and the Open shortcut joins symbol caps ("⌘O") but puts a plus between word caps ("Ctrl+O") (G73).
+- Desktop file drops arrive with desktop_drop in M2 (B010).
 
 ### Group: overlays
 
@@ -2489,10 +2609,15 @@ Drawn in: FmWindow, DS additions.
 | — |  | `name` | `String` (required) |  |  | File name, ellipsized, dir auto; full name in the tooltip. |
 | — |  | `active` | `bool` | `false` |  |  |
 | — |  | `unsaved` | `bool` | `false` |  | A 7 px dot replaces the close button. |
-| — |  | `loading` | `bool` | `false` |  | 12 px Spinner "Opening" replaces the icon. |
-| — |  | `icon` | `IconName` | `"file-text"` |  | lock for a locked file, wrench for a repaired one. |
+| — |  | `loading` | `bool` | `false` |  | The spinner (the design's 12 px Spinner "Opening") replaces the icon. Also on idle tabs (G67). |
+| — |  | `icon` | `IconName` | `"file-text"` |  | lock for a locked file, wrench for a repaired one, file-x for a broken one. Also on idle tabs (G67). |
 | — |  | `onPressed` | `VoidCallback?` |  |  |  |
 | — |  | `onClose` | `VoidCallback?` |  |  | xs IconButton "Close document" with ⌘W / Ctrl+W, shown on the active clean tab. |
+| — |  | `unsavedLabel` | `String` (required) |  |  | The localized "Unsaved changes": the dot's tooltip, read after the name when unsaved. |
+| — |  | `closeLabel` | `String` (required) |  |  | The localized "Close document": the close button's tooltip and name. |
+| — |  | `closeShortcut` | `KeyCaps?` |  |  | The close shortcut as key caps for the platform (⌘ W or Ctrl W), shown in the close button's tooltip. |
+| — |  | `spinner` | `Widget?` |  |  | Shown in place of the icon while loading: the design's 12 px Spinner with the localized "Opening" as its semanticLabel, a status node inside the tab. The caller builds it because the label is copy. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null (DocumentTabStrip passes its own). |
 
 States:
 
@@ -2514,11 +2639,14 @@ Keyboard:
 - `Enter`, `Space`: activate
 - `⌘W`, `Ctrl+W`: close the active document (shortcut table)
 
-Semantics: role tab in the tablist "Open documents"; label file name, plus "Unsaved changes" when unsaved; Flutter: role: tab, selected, focusable.
+Semantics: role tab in the tablist "Open documents"; label file name, plus unsavedLabel when unsaved; Flutter: role: tab, selected, focusable, the spinner's status node (its semanticLabel, "Opening") inside the tab while loading, the close button: a button inside the tab with focus of its own; the tab does not report focus while it has it (decision 28).
 
 Notes:
 
-- Tab widths use --doctab-w 188, --doctab-w-min 112, height --doctab-h 28 (fm-additions.css).
+- Tab widths use --doctab-w 188 and --doctab-w-min 112 (fm-additions.css). The active tab and the idle tab's box are 32 px tall as FmWindow draws them; --doctab-h (28 px) is the idle tab's inner row (G68).
+- Idle tabs tint on hover only: FmWindow draws no pressed fill, as on ModeTabs.
+- The name tooltip covers the icon and the name; the unsaved dot and the close button have their own (decision 28).
+- DocumentTabStrip, not a design-system component, places the tabs and gives them the tab-list semantics and arrow keys; with no tabs it has no tab bar (decision 28).
 - The "+" button is an IconButton "Open file"; disabled with the future-version tooltip until M2 (ROADMAP step 8).
 
 #### WindowChrome
@@ -2534,10 +2662,17 @@ Drawn in: FmWindow, DS additions.
 | DS prop | Lint | Dart | Type | Default | Values | Notes |
 |---|---|---|---|---|---|---|
 | — |  | `platform` | `WindowPlatform` (required) |  | `mac`, `win`, `linux` |  |
-| — |  | `maximized` | `bool` | `false` |  | Maximize glyph becomes restore (not drawn). |
+| — |  | `maximized` | `bool` | `false` |  | Maximize glyph becomes restore, named restoreLabel (not drawn; G66). |
 | — |  | `onMinimize` | `VoidCallback?` |  |  |  |
 | — |  | `onMaximize` | `VoidCallback?` |  |  |  |
 | — |  | `onClose` | `VoidCallback?` |  |  |  |
+| — |  | `minimizeLabel` | `String` (required) |  |  | The localized "Minimize". |
+| — |  | `maximizeLabel` | `String` (required) |  |  | The localized "Maximize". |
+| — |  | `restoreLabel` | `String` (required) |  |  | The localized "Restore", for a maximized window. |
+| — |  | `closeLabel` | `String` (required) |  |  | The localized "Close" (the window, not a document). |
+| — |  | `paintTrafficLights` | `bool` | `false` |  | Paints the design's placeholder traffic lights in the macOS slot instead of leaving room for the native ones (goldens, the gallery). |
+| — |  | `maximizeButtonStates` | `Set<WidgetState>` | Dart: `const <WidgetState>{}` |  | States the maximize button shows in addition to its own, from the window integration (Windows: hover and press while the system owns the button's area for its snap layouts). |
+| — |  | `onMaximizeButtonRect` | `ValueChanged<Rect>?` |  |  | Called with the maximize button's rectangle in the coordinates of the Flutter view whenever it moves or changes size, and once for a new callback (Windows snap layouts; Windows and Linux layouts only). |
 
 Variants (platform): `mac`, `win`, `linux`.
 
@@ -2555,12 +2690,14 @@ Keyboard:
 
 - `⌘M`, `Alt+F4`, `Ctrl+Q`: window commands from the platform and the shortcut table; caption buttons are not Tab stops, as in native apps
 
-Semantics: role buttons Minimize, Maximize, Close; label t.minimize, t.maximize, t.closeWin; Flutter: button, label.
+Semantics: role buttons Minimize, Maximize, Close; label minimizeLabel, maximizeLabel (restoreLabel when maximized), closeLabel; the design's t.minimize, t.maximize, t.closeWin; Flutter: button, label.
 
 Notes:
 
 - Windows 11 snap layouts appear on hover over maximize (WM_NCHITTEST, ROADMAP step 8).
-- Golden tests draw the native controls with a test-only painter (plan, recorded in DESIGN_GAPS).
+- macOS: the 78 × 38 px light slot stays empty for the native traffic lights; paintTrafficLights paints the design's placeholder lights for goldens and the gallery (G70).
+- Windows: a pressed caption button shows surface-pressed, the close button stays red; the buttons keep the arrow cursor (G70, G66).
+- Linux reuses the Windows layout until GNOME and KDE boards exist (G15, B015).
 
 #### SaveIndicator
 
@@ -2575,7 +2712,10 @@ Drawn in: FmWindow, 00 Fixes.
 | DS prop | Lint | Dart | Type | Default | Values | Notes |
 |---|---|---|---|---|---|---|
 | — |  | `state` | `SaveState` | `"unsaved"` | `unsaved`, `saved`, `saving`, `error`, `readonly` |  |
-| — |  | `savedAt` | `DateTime?` |  |  | Formatted from the region setting ("14:32"). |
+| — |  | `savedAt` | `DateTime?` |  |  | Formatted with RegionFormat.time for region inside savedLabel ("14:32"); without them the caller's label is shown. |
+| — |  | `label` | `String` (required) |  |  | The localized text for state ("Unsaved changes"); required, since components hold no English copy. For saved without savedAt, region and savedLabel it carries the formatted time itself. |
+| — |  | `region` | `Region?` |  |  | The region whose time format savedAt is shown in (G34), from the region setting. |
+| — |  | `savedLabel` | `String Function(String time)?` |  |  | The localized saved text around the formatted time, an ARB message with a placeholder ("Saved on this device · {time}"). |
 
 Variants (state): `unsaved`, `saved`, `saving`, `error`, `readonly`.
 

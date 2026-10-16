@@ -28,7 +28,7 @@ import 'package:intl/intl.dart' show Bidi;
 /// - **Loading** ([loading]): [spinner] (the design's 12 px Spinner
 ///   "Opening", passed by the caller) replaces the icon, on active and idle
 ///   tabs alike (the DS additions states; FmWindow's idle markup draws only
-///   `file-text`, a conflict recorded in DESIGN_GAPS.md).
+///   `file-text`; DESIGN_GAPS.md G67).
 /// - **Locked or repaired:** [icon] is `lock`, `wrench` or `file-x`
 ///   instead of `file-text`, on active and idle tabs alike (as for
 ///   loading).

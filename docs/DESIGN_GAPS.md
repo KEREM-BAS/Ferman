@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-66 entries: 54 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G66 were found in M1.
+74 entries: 62 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G74 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 27 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 36 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -136,6 +136,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G64](#g64) | conflict (internal to design) | M1 | Typography / localization | Arabic, Hebrew and Hindi UI text: which Plex family comes first | Decided |
 | [G65](#g65) | conflict | M1 | Typography / CJK | CJK text: no synthetic bold, which Flutter cannot switch off | Decided |
 | [G66](#g66) | missing state | M1 | Window chrome | Title bar states and gestures the boards do not draw | Decided |
+| [G67](#g67) | conflict (internal to design) | M1 | Window chrome / document tabs | Idle tabs drawn without the spinner and icons their data carries | Decided |
+| [G68](#g68) | conflict (internal to design) | M1 | Window chrome / document tabs and mode bar | Tabs drawn 32 px against `--doctab-h` (28 px) and a 30 px size hint | Decided |
+| [G69](#g69) | conflict (internal to design) | M1 | Comment / annotation tools | Colour swatches: focus hidden when checked, a dimmed group still active, no orange | Decided |
+| [G70](#g70) | missing state | M1 | Window chrome | Placeholder traffic lights and no pressed caption button | Decided |
+| [G71](#g71) | conflict (internal to design) | M1 | Component library: focus | The CSS hides or dims the focus ring of disabled-with-reason controls | Decided |
+| [G72](#g72) | conflict (internal to design) | M1 | Component library: IconButton | Pressed secondary and primary icon buttons: core.css and the state sheet disagree | Decided |
+| [G73](#g73) | ambiguity | M1 | Start / empty state (DropZone) | Dash pattern unspecified; the Open shortcut runs word caps together | Decided |
+| [G74](#g74) | conflict | M1 | Locale formatting / progress | Progress percentages written "N%" in every region | Decided |
 
 ## Entries
 
@@ -993,6 +1001,110 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Window chrome
 - **Artboards:** every board drawn with `FmWindow`; f6 and f6a (caption buttons)
 - **Gap or conflict:** FmWindow draws the title bar of an active, unmaximized window. It draws no maximized (restore) caption button and has no "Restore" string, no inactive window, no macOS full screen, and it does not say what dragging or double-clicking the bar does or where a window without the system title bar resizes from its top edge.
-- **Decision:** A maximized window shows the restore glyph (two overlapping squares, the `copy` icon, as Windows draws it) named "Restore", with the operating system's own word in Turkish ("Geri yükle") and Arabic ("استعادة"), pending the native-speaker review like every string. An inactive window keeps the active colours. In macOS full screen, where the system owns the traffic lights, the light slot gives way to the 8 px gap the Windows bar has. The bar's empty space moves the window once a pressed pointer moves (a trackpad scroll never does); a double-click there, counted with the system's double-click interval and distance, does what the system does (macOS: the "Double-click a window's title bar to" setting; Windows and Linux: maximize or restore, [B009](BACKLOG.md#open) for desktop settings on Linux). On Windows the top strip of the window, over the caption buttons too, is the top resize edge while the window is not maximized, as on a native title bar.
+- **Decision:** A maximized window shows the restore glyph (two overlapping squares: the `copy` icon mirrored horizontally, so the front square sits at the bottom left, as Windows draws it; mirrored with the bar in right to left) named "Restore", with the operating system's own word in Turkish ("Geri yükle") and Arabic ("استعادة"), pending the native-speaker review like every string. The caption buttons keep the arrow cursor, as native caption buttons do (FmWindow line 33 sets no cursor). An inactive window keeps the active colours. In macOS full screen, where the system owns the traffic lights, the light slot gives way to the 8 px gap the Windows bar has. The bar's empty space moves the window once a pressed pointer moves (a trackpad scroll never does); a double-click there, counted with the system's double-click interval and distance, does what the system does (macOS: the "Double-click a window's title bar to" setting; Windows and Linux: maximize or restore, [B009](BACKLOG.md#open) for desktop settings on Linux). On Windows the top strip of the window, over the caption buttons too, is the top resize edge while the window is not maximized, as on a native title bar.
+- **Status:** Decided. On 2026-10-16 the restore glyph was described exactly (the mirrored `copy` icon) and the arrow cursor was added.
+- **Evidence:** `design/FmWindow.dc.html` lines 17–34 (header), line 33 (caption buttons, no `cursor`) and line 184 (`minimize`, `maximize`, `closeWin`; no restore); `design/00 Fixes.dc.html` f6 and f6a. Implemented in M1 phase H1 ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).
+
+<a id="g67"></a>
+
+### G67 · Idle document tabs with a spinner or a custom icon
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Window chrome / document tabs
+- **Artboards:** the DS additions sheet (document tabs and window chrome); `a1-7`, `a1-8`, `a1-8b`, `a1-9`, `a1-9b` (on the active tab only)
+- **Gap or conflict:** FmWindow builds every tab with its loading state and icon (line 213). Its active-tab markup draws the 12 px Spinner "Opening" while the tab loads and the tab's icon otherwise (line 23), but its idle-tab markup has no spinner and hard-codes the `file-text` icon (line 24). The DS additions sheet passes idle tabs that are loading ("İmar planı açıklama raporu.pdf") and locked ("Maaş bordrosu Eylül 2026.pdf", `lock`) (line 156), and its caption lists loading (spinner), locked and repaired among the tab states (line 65), yet it renders them as plain idle tabs. The product boards draw loading, locked, repaired and broken tabs only as the active tab (`01 First run and files` lines 255–262).
+- **Decision:** The tab data and the caption win: an idle tab shows the 12 px Spinner while it loads and its own icon (`lock`, `wrench`, `file-x`) otherwise, as the active tab does. The unsaved dot and the empty close-button space of idle tabs stay as drawn.
 - **Status:** Decided
-- **Evidence:** `design/FmWindow.dc.html` lines 17–34 (header) and line 184 (`minimize`, `maximize`, `closeWin`; no restore); `design/00 Fixes.dc.html` f6 and f6a. Implemented in M1 phase H1 ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).
+- **Evidence:** `design/FmWindow.dc.html` lines 23 (active tab: Spinner or `tab.icon`), 24 (idle tab: `name="file-text"`) and 213 (`tabList`, with `loading` and `icon` for every tab); `design/DS additions.dc.html` lines 65 (caption) and 156 (`tabStates`); `design/01 First run and files.dc.html` lines 255–262. Implemented in `app/lib/design/components/additions/document_tab.dart` (M1 phase G).
+
+<a id="g68"></a>
+
+### G68 · Tab heights: the drawn 32 px against `--doctab-h` and a size hint
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Window chrome / document tabs and mode bar
+- **Artboards:** every board drawn with `FmWindow`; `f6`, `f6a`
+- **Gap or conflict:** The token `--doctab-h` is 28 px, and the Index describes the document tabs as "28–32 px". FmWindow draws the active tab 32 px tall and the idle tab as a 32 px box that holds a 28 px row 4 px above its bottom. The tab list sits in the 38 px title bar above its 1 px bottom border with `padding-top: 6px`, which leaves 31 px for the 32 px tabs, so they overflow the padding by 1 px; the active tab reaches 1 px further down to cover the border (`margin-bottom: -1px`). The mode bar imports ModeTabs with a 30 px size hint, but its CSS makes the track 32 px: a 26 px tab (`--control-h-sm`) plus 2 px of padding and a 1 px border on each side.
+- **Decision:** The markup and the CSS win. The active tab and the idle tab's box are 32 px tall, and the idle row is 28 px, which is what `--doctab-h` describes; the idle boxes start 5 px below the top of the title bar, where the 1 px overflow puts them. The ModeTabs track is 32 px: a `hint-size` only sizes the board tool's placeholder.
+- **Status:** Decided
+- **Evidence:** `design/ds-additions/fm-additions.css` line 19 (`--doctab-h: 28px`); `design/Index.dc.html` line 102; `design/FmWindow.dc.html` lines 17 (title bar and its border), 21 (`padding-top:6px`), 23 (active tab), 24 (idle tab) and 38 (`hint-size="640px,30px"`); `design/_ds/…/tokens/spacing.css` lines 23 (`--control-h-sm`) and 33 (`--titlebar-h`); `design/_ds/…/components/navigation/navigation.css` lines 4–8. Implemented in `app/lib/design/components/additions/document_tab.dart` (`DocumentTab`, `DocumentTabStrip`) and `app/lib/design/components/navigation/mode_tabs.dart` (M1 phase G).
+
+<a id="g69"></a>
+
+### G69 · Annotation colour swatches: focus, the disabled group and orange
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Comment / annotation tools (component library)
+- **Artboards:** `a4-1` and every board that shows the Comment tool row through `FmWindow`
+- **Gap or conflict:** Three points of the AnnotationTools colour group disagree. (1) `.fm-annot-color:focus-visible` puts the focus ring in place of the swatch's rings, but the checked rule comes later with the same specificity, so a focused checked swatch shows its checked rings and no focus ring. (2) When the active tool is not coloured, the bundle dims the group to 0.4 opacity and marks it `aria-disabled`, yet the swatches stay Tab stops and a click still changes the colour. (3) The annotation palette has orange (`--annot-orange`, the Highlight colours), but the AnnotationTools palette lists only yellow, green, blue, pink, red and ink; with orange as the colour no swatch is checked, and the active tool's swatch falls back to yellow.
+- **Decision:** (1) Focus wins: a focused swatch shows the focus ring whether it is checked or not ([G22](#g22)). (2) A group dimmed for an uncoloured tool is disabled in behaviour too: its swatches are skipped by Tab and the arrow keys and ignore clicks; with a reason ([G10](#g10)) they stay focusable and show it. (3) The tool's swatch shows the real colour, orange included; no swatch is checked, and the first swatch is the group's Tab stop.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/annotations/annotations.css` lines 39–44; `design/_ds/…/_ds_bundle.js` line 19 (`orange` in the Highlight `COLORS`), lines 2271–2295 (`PALETTE`, no orange), 2320 (the swatch's fallback `|| PALETTE[0]`), 2338–2341 (`aria-disabled` and the opacity on the group) and 2352 (each swatch's `onClick`); `design/_ds/…/tokens/colors.css` line 77 (`--annot-orange`). Implemented in `app/lib/design/components/annotations/annotation_tools.dart` (M1 phase G).
+
+<a id="g70"></a>
+
+### G70 · Window controls: the macOS light slot and the pressed caption button
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Window chrome
+- **Artboards:** every board drawn with `FmWindow`; `f6`, `f6a`
+- **Gap or conflict:** FmWindow draws the window controls as markup. On macOS it paints three placeholder traffic lights (decorative, 12 px, 8 px apart, with `padding-inline: 14px 12px`), which the app cannot use: the real lights belong to the system. On Windows it draws the 46 px caption buttons with a hover tint and the red close hover, but no pressed state. Linux is not drawn ([G15](#g15)).
+- **Decision:** On macOS the title bar keeps a 78 × 38 px slot at its start (the drawn padding, three lights and two gaps, by the height of the title bar), empty in the app: the window integration places the native lights in it. Goldens and the component gallery paint the design's placeholder lights there. On Windows a pressed minimize or maximize button shows `--surface-pressed`, and a pressed close button keeps the red of its hover with the white glyph. Linux uses the Windows caption buttons until GNOME and KDE boards exist ([G15](#g15), [B015](BACKLOG.md#open)). The restore glyph, the cursor and the other title-bar states are [G66](#g66).
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 18 (the placeholder lights, `aria-hidden`), 19 (the 8 px start gap on Windows) and 33 (the caption buttons: `style-hover` only); `design/ds-additions/fm-additions.css` lines 23–24 (`--win-caption-w`, `--win-close-hover`); `design/_ds/…/tokens/spacing.css` line 33 (`--titlebar-h: 38px`). Implemented in `app/lib/design/components/additions/window_chrome.dart` (M1 phase G) and the window integration ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).
+
+<a id="g71"></a>
+
+### G71 · Disabled-with-reason controls: the design hides or dims their focus ring
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: focus
+- **Artboards:** none draws a focused disabled control; the DS additions "Interactive states" sheet draws the disabled states
+- **Gap or conflict:** [G10](#g10) keeps a control that is disabled with a reason focusable, so its reason can be read, and [G22](#g22) gives every focusable control the focus ring. The CSS assumes a disabled control never has focus: `.fm-btn:disabled` and `.fm-iconbtn:disabled` set `box-shadow: none`, which would remove the ring that `:focus-visible` adds, and the bundle's 0.4 opacity on a disabled AnnotationTools colour group would dim a focused swatch's ring with it.
+- **Decision:** A focused disabled-with-reason control shows the full focus ring over its disabled look: buttons and icon buttons keep the ring despite `box-shadow: none`, and a disabled colour group is dimmed swatch by swatch under the ring ([COMPONENTS.md](COMPONENTS.md) decision 26). Plain disabled controls cannot take focus, so the CSS rule still holds for them.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/core/core.css` lines 11 and 50 (`:focus-visible`), 32 and 57 (`:disabled`, `box-shadow: none`); `design/_ds/…/_ds_bundle.js` lines 2339–2341 (the colour group's opacity). Implemented in `app/lib/design/components/core/button.dart`, `core/icon_button.dart` and `annotations/annotation_tools.dart` (M1 phase G).
+
+<a id="g72"></a>
+
+### G72 · Pressed secondary and primary icon buttons: core.css and the state sheet disagree
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: IconButton
+- **Artboards:** none draws a pressed icon button; the DS additions "Interactive states" sheet draws its other states
+- **Gap or conflict:** In `core.css`, `.fm-iconbtn:active` sets `--surface-pressed`, but `.fm-iconbtn--secondary:hover` and `.fm-iconbtn--primary:hover` come later with the same specificity, and a pressed button is also hovered, so a pressed secondary or primary icon button shows its hover fill. The forced-state harness of the state sheet gives every icon button `--surface-pressed` when it forces the active state.
+- **Decision:** The `core.css` cascade wins, since it is what the components run: a pressed ghost icon button shows `--surface-pressed`, a pressed secondary one the hover tint over the raised surface, and a pressed primary one `--accent-hover`. The harness is documentation only, and the state sheet draws no pressed icon button.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/core/core.css` lines 49 (`:active`), 52 and 54 (`--secondary:hover`, `--primary:hover`); `design/ds-additions/fm-additions.css` lines 89 (the harness, "for state sheets only") and 96 (`[data-fm-force="active"] … .fm-iconbtn`); `design/DS additions.dc.html` lines 98–103 (the icon-button row of the state sheet). Implemented in `app/lib/design/components/core/icon_button.dart` (M1 phase G).
+
+<a id="g73"></a>
+
+### G73 · Drop zone: the dashed border and the Open shortcut
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Start / empty state (DropZone)
+- **Artboards:** `a1-5`
+- **Gap or conflict:** The drop zone's border is `1.5px dashed`; CSS leaves the dash pattern to the browser, and Flutter has no dashed border. The Open button shows its shortcut after the label as `shortcut.join('')`, which suits the macOS symbols ("⌘O") but runs word caps together: FmStart passes `Ctrl`, `O` on Windows, which the bundle writes "CtrlO", while the f6a note writes Windows shortcuts with a plus ("Ctrl+K, Ctrl+Z, Ctrl+Y, Ctrl+H").
+- **Decision:** The border is painted with 3 px dashes and 2 px gaps, as Chromium draws the 1.5 px dashed border in the `a1-5` render; the over state stays solid. The shortcut joins symbol caps without a separator ("⌘O") and puts a plus between word caps ("Ctrl+O").
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/empty/empty.css` lines 5 (`border: 1.5px dashed`) and 8 (`--over`, solid); `design/_ds/…/_ds_bundle.js` line 791 (`shortcut.join('')`); `design/FmStart.dc.html` lines 38 (`shortcut="{{ openKeys }}"`) and 106 (`openKeys`); `design/00 Fixes.dc.html` line 131 (f6a). Implemented in `app/lib/design/components/empty/drop_zone.dart` (M1 phase G).
+
+<a id="g74"></a>
+
+### G74 · Progress percentages: the bundle writes "N%" in every region
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Locale formatting / progress
+- **Artboards:** `a9-5b` (batch progress, "43%"), and every progress bar that shows its value
+- **Gap or conflict:** ProgressBar writes its percentage as the number followed by "%", whatever the region. [G34](#g34) makes numbers follow the region setting: Turkish CLDR writes the sign first ("%43"), and the Saudi Arabia region writes Arabic-Indic digits.
+- **Decision:** The screen formats the percentage for the region and passes it to ProgressBar as `valueText`; without it the bar shows "N%". The semantics value stays the number from 0 to 100. The percentage helper in `RegionFormat` arrives with the first screen that shows a percentage (the zoom field in M2, [G34](#g34)).
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/_ds_bundle.js` lines 874 (`pct`) and 882 (`pct, "%"`); `design/09b Tools.dc.html` line 50 (`a9-5b`, `show-value`). Implemented in `app/lib/design/components/feedback/progress_bar.dart` (M1 phase G).

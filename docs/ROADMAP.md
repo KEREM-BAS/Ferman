@@ -876,6 +876,11 @@ casing and region boxes are ticked once a green CI run covers these tests.
   and focus, [G23](DESIGN_GAPS.md#g23) app accessibility, [G44](DESIGN_GAPS.md#g44) ⌥⌘S collision
   (decided here because the shell tooltips show it), [G62](DESIGN_GAPS.md#g62) annotation-tool list
   (found in M1).
+- Components (found in M1): [G67](DESIGN_GAPS.md#g67) idle document tabs,
+  [G68](DESIGN_GAPS.md#g68) tab heights, [G69](DESIGN_GAPS.md#g69) annotation colour swatches,
+  [G71](DESIGN_GAPS.md#g71) focus ring on disabled-with-reason controls,
+  [G72](DESIGN_GAPS.md#g72) pressed icon buttons, [G73](DESIGN_GAPS.md#g73) drop-zone border and
+  shortcut.
 - Variants: [G15](DESIGN_GAPS.md#g15) Linux, [G16](DESIGN_GAPS.md#g16) Windows,
   [G17](DESIGN_GAPS.md#g17) dark, [G18](DESIGN_GAPS.md#g18) right to left,
   [G19](DESIGN_GAPS.md#g19) Turkish.
@@ -883,10 +888,11 @@ casing and region boxes are ticked once a green CI run covers these tests.
   "Included", [G13](DESIGN_GAPS.md#g13) licence, [G20](DESIGN_GAPS.md#g20) language picker states,
   [G24](DESIGN_GAPS.md#g24) network claims, [G34](DESIGN_GAPS.md#g34) locale formats,
   [G52](DESIGN_GAPS.md#g52) bundled translations, [G63](DESIGN_GAPS.md#g63) internal-error message
-  (found in M1).
+  and [G74](DESIGN_GAPS.md#g74) progress percentages (found in M1).
 - Typography (found in M1): [G64](DESIGN_GAPS.md#g64) UI font order, [G65](DESIGN_GAPS.md#g65) CJK
   synthetic bold.
-- Window chrome (found in M1): [G66](DESIGN_GAPS.md#g66) title bar states and gestures.
+- Window chrome (found in M1): [G66](DESIGN_GAPS.md#g66) title bar states and gestures,
+  [G70](DESIGN_GAPS.md#g70) window controls.
 
 ### Exit checks
 

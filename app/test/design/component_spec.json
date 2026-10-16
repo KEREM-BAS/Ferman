@@ -69,8 +69,8 @@
   "types": {
     "KeyCaps": "List<String>: key-cap labels already resolved for the platform from the one shortcut table (⌘ ⌥ ⇧ on macOS; Ctrl, Alt, Shift on Windows and Linux).",
     "IconName": "Generated enum, app/lib/design/icons/icon_name.g.dart; its drawing is IconNameElements.elements in icon_data.g.dart.",
-    "FermanMode": "Enum with id, label and icon (component FERMAN_MODES).",
-    "AnnotationTool": "Enum with id, label, icon, shortcut, colored and hasMenu (component ANNOTATION_TOOLS).",
+    "FermanMode": "Enum with id and icon; labels are localized and passed by the caller (component FERMAN_MODES).",
+    "AnnotationTool": "Enum with id, icon, shortcut, colored and hasMenu; labels are localized and passed by the caller (component ANNOTATION_TOOLS).",
     "T": "The option value type of a generic component (Select, Radio, SegmentedControl).",
     "TaskAction": "Record ({String label, VoidCallback onPressed}).",
     "ToastAction": "Record ({String label, VoidCallback onPressed}).",
@@ -584,6 +584,24 @@
           "default": null,
           "notes": "DS onClick via ...rest.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the button takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -668,7 +686,7 @@
       },
       "notes": [
         "The DS additions state sheet shows the error state \"Shown as toast\": a failed action raises a Toast, the button has no error look.",
-        "Loading has no Flutter \"busy\" flag; announce progress through the label or a live region."
+        "Loading has no Flutter \"busy\" flag; announce progress through the label or a live region (B012)."
       ]
     },
     {
@@ -805,6 +823,33 @@
           "required": false,
           "default": null,
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "loading",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "A Spinner the size of the icon replaces the button's fill and icon (the state sheet); the button keeps its focus and activation does nothing. No bundle prop (decision 17).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the button takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -886,6 +931,7 @@
         {
           "name": "loading",
           "trigger": "prop",
+          "prop": "loading",
           "refs": [
             {
               "file": "DSAdditions",
@@ -893,7 +939,7 @@
               "text": "FermanDesignSystem_278323.Spinner\" size=\"{{ 16 }}\""
             }
           ],
-          "notes": "The state sheet draws loading as a 16 px Spinner in place of the button; no prop exists in the bundle."
+          "notes": "The state sheet draws loading as a 16 px Spinner in place of the button; the bundle has no prop, so the spec adds the Flutter-only loading parameter (decision 17). The button keeps its focus and ring; activation does nothing."
         }
       ],
       "keyboard": [{"keys": ["Enter"], "action": "onPressed"}, {"keys": ["Space"], "action": "onPressed"}],
@@ -970,6 +1016,24 @@
           "required": true,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "hovered",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Hover the platform reports for the child while Flutter does not see the pointer (the Windows maximize button).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "excludeFromSemantics",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Leaves message out of the child's semantics, for a child that puts it on its own semantics node (FermanInteractive).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -2945,6 +3009,15 @@
           "required": true,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "showTopBorder",
+          "type": "bool",
+          "required": false,
+          "default": true,
+          "notes": "Whether the 1 px line above shows; the panel passes false for its first section, where the design drops the line (:first-child).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -3056,8 +3129,18 @@
           "ds": "label",
           "dart": "semanticLabel",
           "type": "String",
-          "required": false,
+          "required": true,
           "default": "Mode",
+          "notes": "Required in Dart: the caller passes the localized \"Mode\"; components hold no English strings (decision 20).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "labelOf",
+          "type": "String Function(FermanMode mode)",
+          "required": true,
+          "default": null,
+          "notes": "The localized name of a mode, shown on its tab, from the ARB files; FermanMode carries no label.",
           "declared": false
         }
       ],
@@ -3069,11 +3152,11 @@
             {"ds": "id", "dart": "id", "type": "String", "required": true, "default": null, "declared": true},
             {
               "ds": "label",
-              "dart": "label",
-              "type": "String",
-              "required": true,
+              "dart": null,
+              "type": "n/a",
+              "required": false,
               "default": null,
-              "notes": "Localized.",
+              "omitReason": "Localized copy; supplied through ModeTabs.labelOf.",
               "declared": true
             },
             {
@@ -3153,13 +3236,15 @@
       ],
       "semantics": {
         "role": "tablist of tabs",
-        "label": "semanticLabel; tabs by mode label",
+        "label": "semanticLabel; tabs by labelOf",
         "properties": ["role: tabBar / tab", "selected", "focusable (only the selected tab is a Tab stop)"]
       },
       "notes": [
         "Eight modes, as every artboard shows (G09, Q05); the DS constant lists seven.",
         "Selection follows focus (automatic activation), with a roving Tab stop.",
-        "Each mode keeps its state when the user switches away (IndexedStack, ADR 0011)."
+        "Each mode keeps its state when the user switches away (IndexedStack, ADR 0011).",
+        "When the modes do not fit, the strip scrolls without a scroll bar, clipped inside the track border; a tab the arrow keys reach is brought into view at once (decision 27). Collapsing to icons in narrow windows is not built (G21, B013).",
+        "The track is 32 px tall (control-h-sm plus padding and border), not the 30 px size hint of FmWindow (G68)."
       ]
     },
     {
@@ -3195,7 +3280,7 @@
       ],
       "notes": [
         "tools (wrench) comes from FmWindow MODE_IDS and MODE_ICONS; FERMAN_MODES in the bundle is stale (G09).",
-        "Labels are localized; mode names are proper nouns (readme \"Casing\")."
+        "Labels are localized; mode names are proper nouns (readme \"Casing\"). The enum carries no label: entries list the design's English labels for the ARB files, and ModeTabs.labelOf supplies the localized ones (decision 20)."
       ]
     },
     {
@@ -3453,7 +3538,9 @@
       },
       "notes": [
         "The bundle does not skip disabled segments when moving with arrows; Flutter skips plain disabled segments and stops on disabled-with-reason ones without selecting them.",
-        "Sidebar tabs are a SegmentedControl over an IndexedStack (ADR 0011)."
+        "Sidebar tabs are a SegmentedControl over an IndexedStack (ADR 0011).",
+        "fullWidth shares the width equally between the labelled segments; icon-only segments keep their 24 px and pack at the start of the track, because in the bundle their Tooltip wrapper, not the segment, is the flex item (FmSidebar a2-3p, a4-1c).",
+        "State changes are instant: .fm-segment declares no transition, unlike .fm-modetab and .fm-toolbtn."
       ]
     },
     {
@@ -3537,7 +3624,9 @@
       "notes": [
         "Items stay Tab stops as in the bundle; arrows add quicker movement. Inside a tablist or radiogroup only the Tab stop of that group is visited.",
         "Disabled-with-reason items stay focusable (decision 1 in COMPONENTS.md), so the arrow keys stop on them as Tab does and their reason can be read; only plain disabled items are skipped.",
-        "Narrow windows (proposed, G21): the row collapses to icons with an overflow menu."
+        "Arrow keys follow the order on screen, mirrored in right to left, and leave a focused text field or Select alone, so focus never leaves an open select list (decision 25).",
+        "No Flutter toolbar or group role exists: the toolbar is a semantics container named semanticLabel (decision 24).",
+        "Narrow windows (G21): the row is to collapse to icons with an overflow menu; not built yet (B013)."
       ]
     },
     {
@@ -3745,6 +3834,24 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "onMenuRequested",
+          "type": "VoidCallback?",
+          "required": false,
+          "default": null,
+          "notes": "Called when ArrowDown asks for the menu of a hasMenu button; null falls back to onPressed.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -3842,7 +3949,8 @@
         "properties": ["button", "toggled", "enabled", "focusable", "tooltip"]
       },
       "notes": [
-        "The bundle shows a tooltip only when icon-only or when a shortcut is given; tool-button tooltips always show the shortcut when one exists (G22)."
+        "The bundle shows a tooltip only when icon-only or when a shortcut is given; tool-button tooltips always show the shortcut when one exists (G22).",
+        "Flutter has no aria-haspopup: a hasMenu button is a button with the caret drawn, and ArrowDown or activation asks for the menu (decision 24). The menu itself is placed by the caller (B014)."
       ]
     },
     {
@@ -4661,6 +4769,51 @@
           "default": null,
           "notes": "Reason for the whole colour radiogroup (G10): disabled-with-reason swatches, still focusable. Independent of colorsDisabled, which follows the active tool.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The accessible name of the row, the localized \"Comment tools\" (the bundle hard-codes the English name).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "toolLabelOf",
+          "type": "String Function(AnnotationTool tool)",
+          "required": true,
+          "default": null,
+          "notes": "The localized name of a tool: its label, tooltip and accessible name.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "colorsSemanticLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The accessible name of the colour group, the localized \"Color\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "colorLabelOf",
+          "type": "String Function(AnnotationColor color)",
+          "required": true,
+          "default": null,
+          "notes": "The localized name of a colour, its accessible name (the design names ink Black).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onToolMenuRequested",
+          "type": "ValueChanged<AnnotationTool>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with a tool that has a menu when ArrowDown asks for the menu; null falls back to selecting the tool.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -4679,10 +4832,11 @@
             },
             {
               "ds": "label",
-              "dart": "label",
-              "type": "String",
-              "required": true,
+              "dart": null,
+              "type": "n/a",
+              "required": false,
               "default": null,
+              "omitReason": "Localized copy; supplied through AnnotationTools.toolLabelOf.",
               "declared": true
             },
             {
@@ -4736,7 +4890,9 @@
         {
           "name": "colorFocusVisible",
           "trigger": "keyboard",
-          "refs": [{"file": "annotations", "line": 43, "text": ".fm-annot-color:focus-visible"}]
+          "refs": [{"file": "annotations", "line": 43, "text": ".fm-annot-color:focus-visible"}],
+          "gap": "G69",
+          "notes": "The focus ring replaces the swatch's own rings and wins over the checked rings, which the CSS cascade puts last (G22)."
         },
         {
           "name": "colorChecked",
@@ -4747,7 +4903,7 @@
           "name": "colorsDisabled",
           "trigger": "data",
           "refs": [{"file": "annotations", "line": 39, "text": ".fm-annot-colors {"}],
-          "notes": "Opacity 0.4 and aria-disabled when the active tool is not coloured (inline style in the bundle)."
+          "notes": "Opacity 0.4 and aria-disabled when the active tool is not coloured (inline style in the bundle). The swatches are then plain disabled: skipped by Tab and the arrows, inert (G69). Each swatch is dimmed under its focus ring rather than the group as a whole (decision 26)."
         },
         {
           "name": "toolDisabledWithReason",
@@ -4784,10 +4940,15 @@
       ],
       "semantics": {
         "role": "toolbar \"Comment tools\" with a radiogroup \"Color\"",
-        "label": "\"Comment tools\"; colours by name",
+        "label": "semanticLabel (\"Comment tools\"); tools by toolLabelOf; the colour group by colorsSemanticLabel (\"Color\") and colours by colorLabelOf",
         "properties": ["checked (colour)", "toggled (tool)"]
       },
-      "notes": ["FmWindow passes its own tool list (11 tools); see AnnotationTool."]
+      "notes": [
+        "FmWindow passes its own tool list (11 tools); see AnnotationTool.",
+        "Tool and colour names, and the names of the row and the colour group, come from the caller; the bundle hard-codes English (decision 20).",
+        "The palette has no orange (the bundle's PALETTE): with color orange the active tool's swatch shows orange, no swatch is checked and the first one is the Tab stop (G69).",
+        "Menus of the hasMenu tools (Shapes, Stamp, Measure) are asked for through onToolMenuRequested; the row builds none (B014)."
+      ]
     },
     {
       "name": "ANNOTATION_TOOLS",
@@ -5660,6 +5821,15 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "dismissLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The localized name of the Dismiss button (\"Dismiss\"); required with onDismiss.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5681,11 +5851,14 @@
       ],
       "keyboard": [],
       "semantics": {
-        "role": "alert (danger, warning) or status",
+        "role": "alert (danger, warning; assertive: role alert, announced through SemanticsService where supported, polite live region fallback on Android) or status (polite live region)",
         "label": "title and message",
-        "properties": ["liveRegion"]
+        "properties": ["role: alert, or liveRegion"]
       },
-      "notes": ["Material has MaterialBanner and Banner; import hidden or prefixed."]
+      "notes": [
+        "Material has MaterialBanner and Banner; import hidden or prefixed.",
+        "Announcements follow decision 21."
+      ]
     },
     {
       "name": "ProgressBar",
@@ -5751,6 +5924,15 @@
           "required": false,
           "default": false,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "valueText",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The percentage as the screen formats it for the region setting (\"%40\" in Turkish, G34); null shows \"N%\".",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5770,12 +5952,19 @@
           "trigger": "prop",
           "prop": "indeterminate",
           "refs": [{"file": "feedback", "line": 48, "text": ".fm-progress--indeterminate .fm-progress__fill"}],
-          "notes": "Under reduced motion the sweep stops; show a static partial fill."
+          "notes": "Under reduced motion the 40 % fill stays still at the start edge (decision 23)."
         }
       ],
       "keyboard": [],
-      "semantics": {"role": "progressbar", "label": "label", "properties": ["value (percent, absent when indeterminate)"]},
-      "notes": ["Never LinearProgressIndicator from Material."]
+      "semantics": {
+        "role": "progressbar",
+        "label": "label",
+        "properties": ["role: progressBar, or loadingSpinner while indeterminate (decision 22)", "value (percent, absent when indeterminate)"]
+      },
+      "notes": [
+        "Never LinearProgressIndicator from Material.",
+        "The bundle writes the percentage as \"N%\"; the screen passes valueText formatted for the region (G74, G34)."
+      ]
     },
     {
       "name": "Spinner",
@@ -5817,9 +6006,11 @@
         {
           "ds": "label",
           "dart": "semanticLabel",
-          "type": "String",
+          "type": "String?",
           "required": false,
           "default": "Loading",
+          "dartDefault": null,
+          "notes": "The screens pass the localized label; null makes the spinner decorative, for a spinner whose surrounding text already says what is happening (decision 20).",
           "declared": true
         }
       ],
@@ -5834,7 +6025,7 @@
             {"file": "feedback", "line": 50, "text": ".fm-spinner {"},
             {"file": "feedback", "line": 51, "text": ".fm-spinner--on-accent"}
           ],
-          "notes": "0.8 s linear rotation; under reduced motion it keeps turning slowly or shows a static ring (reduced-motion tokens zero the durations only)."
+          "notes": "0.8 s linear rotation; it keeps turning under reduced motion, as the CSS animation does (decision 23)."
         }
       ],
       "keyboard": [],
@@ -5953,6 +6144,33 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "cancelLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The localized name of the Cancel IconButton (\"Cancel\"); required with onCancel.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "pauseLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The localized label of the Pause button (\"Pause\"); required with onPause.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "resumeLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The localized label of the Resume button (\"Resume\"); required with onResume.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5998,7 +6216,7 @@
       "keyboard": [],
       "semantics": {"role": "status (polite live region)", "label": "title and detail", "properties": ["liveRegion"]},
       "notes": [
-        "Jobs are async, cancellable and stream progress (ARCHITECTURE.md); Cancel is an IconButton \"Cancel\"."
+        "Jobs are async, cancellable and stream progress (ARCHITECTURE.md); Cancel is an IconButton named by the localized cancelLabel, Pause and Resume are Buttons labelled by pauseLabel and resumeLabel."
       ]
     },
     {
@@ -6065,6 +6283,15 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "closeLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The localized name of the Dismiss button (\"Dismiss\"); required with onClose.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -6086,11 +6313,15 @@
       ],
       "keyboard": [],
       "semantics": {
-        "role": "alert (danger, assertive) or status (polite)",
+        "role": "alert (danger; assertive: role alert, announced through SemanticsService where supported, polite live region fallback on Android) or status (polite live region)",
         "label": "title and message",
-        "properties": ["liveRegion"]
+        "properties": ["role: alert, or liveRegion"]
       },
-      "notes": ["Never SnackBar (ADR 0011)."]
+      "notes": [
+        "Never SnackBar (ADR 0011).",
+        "Announcements follow decision 21.",
+        "The toast stack (bottom end, above the status bar, .fm-toast-region) and the timing (errors stay until dismissed, the rest leave after six seconds unless hovered or focused, a11-6) belong to the screen that shows toasts (B011)."
+      ]
     },
     {
       "name": "DropZone",
@@ -6180,6 +6411,8 @@
           "type": "String?",
           "required": false,
           "default": "Files stay on this device. Ferman never uploads your documents.",
+          "dartDefault": null,
+          "notes": "The screen passes the localized footnote; null shows none (decision 20).",
           "declared": false
         },
         {
@@ -6207,6 +6440,69 @@
           "required": false,
           "default": null,
           "notes": "Disables drop handling, the Open and New buttons and the recent rows as disabled-with-reason (still focusable, the reason as tooltip and hint) (G10).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "overTitle",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The title while a drag hovers (\"Release to open\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "overSubtitle",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The subtitle while a drag hovers.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "errorTitle",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The title of the error state (\"That file isn’t a PDF\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "errorSubtitle",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The subtitle of the error state.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "openLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The Open button's label (\"Open a PDF\"); null hides the button.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "createLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The New button's label (\"New blank PDF\"); null hides the button.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "recentTitle",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading above the recent files (\"Recent\").",
           "declared": false
         }
       ],
@@ -6308,7 +6604,9 @@
       },
       "notes": [
         "Desktop drops need desktop_drop (Q17 approved); M1 shows the drop strip disabled with disabledReason \"Available in a future version\" until its milestone (ROADMAP step 9).",
-        "Copy per state lives in the ARB files; FmStart overrides title, subtitle and footnote."
+        "Copy per state lives in the ARB files; every text is a parameter (overTitle, errorTitle, openLabel and the others), and a null text is not shown (decision 20).",
+        "The dashed border is painted as 3 px dashes with 2 px gaps, and the Open shortcut joins symbol caps (\"⌘O\") but puts a plus between word caps (\"Ctrl+O\") (G73).",
+        "Desktop file drops arrive with desktop_drop in M2 (B010)."
       ]
     },
     {
@@ -7071,7 +7369,7 @@
           "type": "bool",
           "required": false,
           "default": false,
-          "notes": "12 px Spinner \"Opening\" replaces the icon.",
+          "notes": "The spinner (the design's 12 px Spinner \"Opening\") replaces the icon. Also on idle tabs (G67).",
           "declared": false
         },
         {
@@ -7080,7 +7378,7 @@
           "type": "IconName",
           "required": false,
           "default": "file-text",
-          "notes": "lock for a locked file, wrench for a repaired one.",
+          "notes": "lock for a locked file, wrench for a repaired one, file-x for a broken one. Also on idle tabs (G67).",
           "declared": false
         },
         {
@@ -7098,6 +7396,51 @@
           "required": false,
           "default": null,
           "notes": "xs IconButton \"Close document\" with ⌘W / Ctrl+W, shown on the active clean tab.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "unsavedLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Unsaved changes\": the dot's tooltip, read after the name when unsaved.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "closeLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Close document\": the close button's tooltip and name.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "closeShortcut",
+          "type": "KeyCaps?",
+          "required": false,
+          "default": null,
+          "notes": "The close shortcut as key caps for the platform (⌘ W or Ctrl W), shown in the close button's tooltip.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "spinner",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "Shown in place of the icon while loading: the design's 12 px Spinner with the localized \"Opening\" as its semanticLabel, a status node inside the tab. The caller builds it because the label is copy.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null (DocumentTabStrip passes its own).",
           "declared": false
         }
       ],
@@ -7186,11 +7529,20 @@
       ],
       "semantics": {
         "role": "tab in the tablist \"Open documents\"",
-        "label": "file name, plus \"Unsaved changes\" when unsaved",
-        "properties": ["role: tab", "selected", "focusable"]
+        "label": "file name, plus unsavedLabel when unsaved",
+        "properties": [
+          "role: tab",
+          "selected",
+          "focusable",
+          "the spinner's status node (its semanticLabel, \"Opening\") inside the tab while loading",
+          "the close button: a button inside the tab with focus of its own; the tab does not report focus while it has it (decision 28)"
+        ]
       },
       "notes": [
-        "Tab widths use --doctab-w 188, --doctab-w-min 112, height --doctab-h 28 (fm-additions.css).",
+        "Tab widths use --doctab-w 188 and --doctab-w-min 112 (fm-additions.css). The active tab and the idle tab's box are 32 px tall as FmWindow draws them; --doctab-h (28 px) is the idle tab's inner row (G68).",
+        "Idle tabs tint on hover only: FmWindow draws no pressed fill, as on ModeTabs.",
+        "The name tooltip covers the icon and the name; the unsaved dot and the close button have their own (decision 28).",
+        "DocumentTabStrip, not a design-system component, places the tabs and gives them the tab-list semantics and arrow keys; with no tabs it has no tab bar (decision 28).",
         "The \"+\" button is an IconButton \"Open file\"; disabled with the future-version tooltip until M2 (ROADMAP step 8)."
       ]
     },
@@ -7222,7 +7574,7 @@
           "type": "bool",
           "required": false,
           "default": false,
-          "notes": "Maximize glyph becomes restore (not drawn).",
+          "notes": "Maximize glyph becomes restore, named restoreLabel (not drawn; G66).",
           "declared": false
         },
         {
@@ -7247,6 +7599,70 @@
           "type": "VoidCallback?",
           "required": false,
           "default": null,
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "minimizeLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Minimize\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "maximizeLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Maximize\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "restoreLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Restore\", for a maximized window.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "closeLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized \"Close\" (the window, not a document).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "paintTrafficLights",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Paints the design's placeholder traffic lights in the macOS slot instead of leaving room for the native ones (goldens, the gallery).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "maximizeButtonStates",
+          "type": "Set<WidgetState>",
+          "required": false,
+          "default": null,
+          "dartDefault": "const <WidgetState>{}",
+          "notes": "States the maximize button shows in addition to its own, from the window integration (Windows: hover and press while the system owns the button's area for its snap layouts).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onMaximizeButtonRect",
+          "type": "ValueChanged<Rect>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the maximize button's rectangle in the coordinates of the Flutter view whenever it moves or changes size, and once for a new callback (Windows snap layouts; Windows and Linux layouts only).",
           "declared": false
         }
       ],
@@ -7316,12 +7732,14 @@
       ],
       "semantics": {
         "role": "buttons Minimize, Maximize, Close",
-        "label": "t.minimize, t.maximize, t.closeWin",
+        "label": "minimizeLabel, maximizeLabel (restoreLabel when maximized), closeLabel; the design's t.minimize, t.maximize, t.closeWin",
         "properties": ["button", "label"]
       },
       "notes": [
         "Windows 11 snap layouts appear on hover over maximize (WM_NCHITTEST, ROADMAP step 8).",
-        "Golden tests draw the native controls with a test-only painter (plan, recorded in DESIGN_GAPS)."
+        "macOS: the 78 × 38 px light slot stays empty for the native traffic lights; paintTrafficLights paints the design's placeholder lights for goldens and the gallery (G70).",
+        "Windows: a pressed caption button shows surface-pressed, the close button stays red; the buttons keep the arrow cursor (G70, G66).",
+        "Linux reuses the Windows layout until GNOME and KDE boards exist (G15, B015)."
       ]
     },
     {
@@ -7352,7 +7770,34 @@
           "type": "DateTime?",
           "required": false,
           "default": null,
-          "notes": "Formatted from the region setting (\"14:32\").",
+          "notes": "Formatted with RegionFormat.time for region inside savedLabel (\"14:32\"); without them the caller's label is shown.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "label",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The localized text for state (\"Unsaved changes\"); required, since components hold no English copy. For saved without savedAt, region and savedLabel it carries the formatted time itself.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "region",
+          "type": "Region?",
+          "required": false,
+          "default": null,
+          "notes": "The region whose time format savedAt is shown in (G34), from the region setting.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "savedLabel",
+          "type": "String Function(String time)?",
+          "required": false,
+          "default": null,
+          "notes": "The localized saved text around the formatted time, an ARB message with a placeholder (\"Saved on this device · {time}\").",
           "declared": false
         }
       ],
