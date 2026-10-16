@@ -118,6 +118,53 @@ void main() {
       expect(const ProgressBar(value: -1).percent, 0);
       expect(const ProgressBar().percent, 0);
       expect(const ProgressBar(value: 0.426).percent, 43);
+      // NaN (0 / 0 for an empty job) counts as 0, as `value || 0` does.
+      expect(const ProgressBar(value: double.nan).percent, 0);
+      expect(const ProgressBar(value: double.infinity).percent, 100);
+    });
+
+    testWidgets('a NaN value shows an empty bar and 0 %', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          bar(
+            const ProgressBar(
+              value: double.nan,
+              label: 'Exporting',
+              showValue: true,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getSize(fill).width, 0);
+      expect(find.text('0%'), findsOneWidget);
+      expect(tester.getSemantics(track).getSemanticsData().value, '0');
+      handle.dispose();
+    });
+
+    testWidgets('a wrapping label keeps the percentage on its first line', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          const SizedBox(
+            width: 120,
+            child: ProgressBar(
+              value: 0.42,
+              label: 'Recognizing text on every page',
+              showValue: true,
+            ),
+          ),
+        ),
+      );
+      final label = find.text('Recognizing text on every page');
+      // Several caption lines (16 px each).
+      expect(tester.getSize(label).height, greaterThanOrEqualTo(32));
+      expect(
+        tester.getTopLeft(find.text('42%')).dy,
+        tester.getTopLeft(label).dy,
+      );
     });
 
     testWidgets('indeterminate: a 40 % fill sweeps; no percentage', (
@@ -133,6 +180,27 @@ void main() {
       final start = tester.getTopLeft(fill).dx;
       await tester.pump(const Duration(milliseconds: 700));
       expect(tester.getTopLeft(fill).dx, greaterThan(start));
+      await tester.pumpWidget(const SizedBox());
+    });
+
+    testWidgets('indeterminate in right to left sweeps from the right', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          bar(const ProgressBar(indeterminate: true)),
+          textDirection: TextDirection.rtl,
+        ),
+      );
+      final trackRight = tester.getTopRight(find.byType(ProgressBar)).dx;
+      // t = 0: inset-inline-start −40 %, so the fill lies wholly past the
+      // right (start) edge.
+      expect(tester.getTopLeft(fill).dx, closeTo(trackRight, 0.01));
+      final start = tester.getTopRight(fill).dx;
+      await tester.pump(const Duration(milliseconds: 700));
+      // It moves toward the left (end) edge.
+      expect(tester.getTopRight(fill).dx, lessThan(start));
+      expect(tester.getTopRight(fill).dx, lessThan(trackRight));
       await tester.pumpWidget(const SizedBox());
     });
 

@@ -13,18 +13,30 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import 'panel_pixels.dart';
 
 void main() {
   const light = FermanColorTokens.light;
   const desktop = FermanDensityTokens.desktop;
 
-  final box = find.descendant(
+  // The outer container animates the shadow, the inner one (the square)
+  // the fill and border.
+  final containers = find.descendant(
     of: find.byType(IconButton),
     matching: find.byType(AnimatedContainer),
   );
+  final box = containers.last;
 
   BoxDecoration decoration(WidgetTester tester) =>
       tester.widget<AnimatedContainer>(box).decoration! as BoxDecoration;
+
+  List<BoxShadow>? shadow(WidgetTester tester) =>
+      (tester.widget<AnimatedContainer>(containers.first).decoration!
+              as BoxDecoration)
+          .boxShadow;
+
+  FocusRing ring(WidgetTester tester) =>
+      tester.widget<FocusRing>(find.byType(FocusRing));
 
   Icon glyph(WidgetTester tester) => tester.widget<Icon>(find.byType(Icon));
 
@@ -126,7 +138,7 @@ void main() {
       final decorated = decoration(tester);
       expect(decorated.color, light.surfaceRaised);
       expect((decorated.border! as Border).top.color, light.borderDefault);
-      expect(decorated.boxShadow, FermanElevationTokens.light.shadowSm);
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
     });
 
     testWidgets('primary: accent fill, on-accent icon; dark tokens', (
@@ -299,13 +311,157 @@ void main() {
       );
       node.requestFocus();
       await tester.pumpAndSettle();
-      final ring = tester.widget<FocusRing>(find.byType(FocusRing));
-      expect(ring.visible, isTrue);
-      expect(ring.style, FocusRingStyle.outer);
+      expect(ring(tester).visible, isTrue);
+      expect(ring(tester).style, FocusRingStyle.outer);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.tap(find.byType(IconButton));
       expect(taps, 3);
+    });
+
+    testWidgets('keyboard focus on a secondary replaces its shadow with the '
+        'ring', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          IconButton(
+            icon: IconName.rotateCw,
+            label: 'Rotate page',
+            variant: IconButtonVariant.secondary,
+            focusNode: node,
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(ring(tester).visible, isTrue);
+      expect(shadow(tester), isEmpty);
+      node.unfocus();
+      await tester.pumpAndSettle();
+      expect(ring(tester).visible, isFalse);
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
+    });
+
+    testWidgets('fill and icon over --dur-instant, shadow and ring over '
+        '--dur-fast', (tester) async {
+      const standard = FermanMotionTokens.standard;
+      await tester.pumpWidget(
+        componentHost(
+          IconButton(
+            icon: IconName.rotateCw,
+            label: 'Rotate page',
+            variant: IconButtonVariant.secondary,
+            onPressed: () {},
+          ),
+        ),
+      );
+      expect(
+        tester.widget<AnimatedContainer>(box).duration,
+        standard.durInstant,
+      );
+      expect(
+        tester.widget<AnimatedContainer>(containers.first).duration,
+        standard.durFast,
+      );
+      expect(ring(tester).duration, standard.durFast);
+      expect(ring(tester).curve, standard.easeOut);
+    });
+
+    testWidgets('a focused ghost button keeps the panel colour inside, light '
+        'and dark', (tester) async {
+      for (final brightness in Brightness.values) {
+        final colors = brightness == Brightness.dark
+            ? FermanColorTokens.dark
+            : light;
+        await tester.pumpWidget(
+          componentHost(
+            onPanel(
+              colors.surfacePanel,
+              IconButton(
+                icon: IconName.rotateCw,
+                label: 'Rotate page',
+                onPressed: () {},
+              ),
+            ),
+            brightness: brightness,
+            forcedStates: const {WidgetState.focused},
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(ring(tester).visible, isTrue);
+        final pixels = await PanelPixels.capture(tester);
+        final button = pixels.rectOf(tester, box);
+        final x = button.left.floor();
+        final y = button.center.dy.floor();
+        // Inside, beside the icon: the panel shows through (#F7F6F3 light,
+        // #161615 dark), not the ring's raised-surface gap.
+        expect(pixels.at(x + 3, y), colors.surfacePanel, reason: '$brightness');
+        expect(pixels.at(x + 3, y), isNot(colors.surfaceRaised));
+        // The ring: 2 px of the gap, 2 px of the focus colour, then panel.
+        expect(
+          pixels.at(x - 1, y),
+          colors.surfaceRaised,
+          reason: '$brightness',
+        );
+        expect(pixels.at(x - 3, y), colors.borderFocus, reason: '$brightness');
+        expect(pixels.at(x - 5, y), colors.surfacePanel, reason: '$brightness');
+      }
+    });
+
+    testWidgets('a focused disabled-with-reason button stays transparent '
+        'inside its ring', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          Builder(
+            builder: (context) => onPanel(
+              light.surfacePanel,
+              IconButton(
+                icon: IconName.redo2,
+                label: 'Redo',
+                variant: IconButtonVariant.secondary,
+                disabled: true,
+                disabledReason: futureVersionReason(context),
+                onPressed: () {},
+              ),
+            ),
+          ),
+          forcedStates: const {WidgetState.focused},
+        ),
+      );
+      await tester.pumpAndSettle();
+      final ringPaint = find
+          .descendant(
+            of: find.byType(FocusRing),
+            matching: find.byType(CustomPaint),
+          )
+          .first;
+      final painter =
+          tester.widget<CustomPaint>(ringPaint).painter! as FocusRingPainter;
+      expect(painter.progress, 1);
+      final inner = painter.borderRadius.toRRect(
+        Offset.zero & tester.getSize(box),
+      );
+      // Only bands outside the control; nothing fills its inside.
+      expect(
+        ringPaint,
+        paints
+          ..drrect(inner: inner)
+          ..drrect(inner: inner),
+      );
+      expect(
+        ringPaint,
+        isNot(paints..rrect(rrect: inner, color: light.surfaceRaised)),
+      );
+      expect(decoration(tester).color!.a, 0);
+      final pixels = await PanelPixels.capture(tester);
+      final button = pixels.rectOf(tester, box);
+      expect(
+        pixels.at(button.left.floor() + 3, button.center.dy.floor()),
+        light.surfacePanel,
+      );
     });
 
     testWidgets('disabled: disabled icon colour, no fill, no tooltip', (
@@ -370,9 +526,11 @@ void main() {
       handle.dispose();
     });
 
-    testWidgets('loading: a spinner the icon size, in the same footprint', (
-      tester,
-    ) async {
+    testWidgets('loading: a spinner the icon size, in the same footprint; '
+        'activation waits', (tester) async {
+      var taps = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(
         componentHost(
@@ -380,19 +538,79 @@ void main() {
             icon: IconName.download,
             label: 'Export',
             loading: true,
-            onPressed: () {},
+            focusNode: node,
+            onPressed: () => taps++,
           ),
         ),
       );
       final spinner = tester.widget<Spinner>(find.byType(Spinner));
       expect(spinner.size, 16);
       expect(spinner.semanticLabel, 'Export');
-      expect(find.byType(FermanInteractive), findsNothing);
+      // The spinner sits inside the still-mounted control: no fill, no
+      // border, no shadow.
+      expect(
+        find.descendant(
+          of: find.byType(FermanInteractive),
+          matching: find.byType(Spinner),
+        ),
+        findsOneWidget,
+      );
+      expect(containers, findsNothing);
       expect(
         tester.getSize(find.byType(IconButton)),
         Size.square(desktop.controlHMd),
       );
+      await tester.tap(find.byType(IconButton));
+      node.requestFocus();
+      // The spinner never settles: two frames land the focus.
+      await tester.pump();
+      await tester.pump();
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(taps, 0);
       handle.dispose();
+    });
+
+    testWidgets('a focused button keeps its focus and ring through loading', (
+      tester,
+    ) async {
+      var taps = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      Widget button({required bool loading}) => componentHost(
+        IconButton(
+          icon: IconName.download,
+          label: 'Export',
+          loading: loading,
+          focusNode: node,
+          onPressed: () => taps++,
+        ),
+      );
+      await tester.pumpWidget(button(loading: false));
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(ring(tester).visible, isTrue);
+      final control = tester.element(find.byType(FermanInteractive));
+
+      await tester.pumpWidget(button(loading: true));
+      // The spinner never settles.
+      await tester.pump();
+      await tester.pump();
+      expect(node.hasFocus, isTrue);
+      expect(ring(tester).visible, isTrue);
+      expect(find.byType(Spinner), findsOneWidget);
+      expect(tester.element(find.byType(FermanInteractive)), same(control));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(taps, 0);
+
+      await tester.pumpWidget(button(loading: false));
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isTrue);
+      expect(ring(tester).visible, isTrue);
+      expect(find.byType(Spinner), findsNothing);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(taps, 1);
     });
   });
 

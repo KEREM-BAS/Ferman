@@ -50,9 +50,16 @@ enum IconButtonSize {
 /// `DS additions.dc.html`): hover and pressed fills, the outer focus ring
 /// on keyboard focus (G22), the toggle's on look, disabled (the disabled
 /// icon colour, no fill, no tooltip) and disabled with [disabledReason]:
-/// focusable, the reason as tooltip and semantics hint (G10). [loading]
-/// shows a [Spinner] the size of the icon in place of the button, as the
-/// state sheet draws it, keeping the button's footprint.
+/// focusable, the reason as tooltip and semantics hint (G10). Keyboard
+/// focus also drops the secondary shadow, which the ring replaces. The
+/// fill and icon colours change over `--dur-instant`, the shadows (the
+/// focus ring included) over `--dur-fast`.
+///
+/// [loading] shows a [Spinner] the size of the icon in place of the
+/// button's fill and icon, as the state sheet draws it, keeping the
+/// button's footprint. The button stays in the focus order (a focused
+/// button keeps its focus and ring) and activating it does nothing until
+/// loading ends.
 class IconButton extends StatelessWidget {
   /// Creates an icon button showing [icon], named [label].
   const new({
@@ -119,9 +126,9 @@ class IconButton extends StatelessWidget {
   /// Called when the button is activated; null disables it.
   final VoidCallback? onPressed;
 
-  /// Whether the action is running: a spinner replaces the button (the
-  /// state sheet's loading state). Not a design-system prop
-  /// (COMPONENTS.md, decision 17).
+  /// Whether the action is running: a spinner replaces the button's fill
+  /// and icon (the state sheet's loading state) and activation does
+  /// nothing. Not a design-system prop (COMPONENTS.md, decision 17).
   final bool loading;
 
   /// The focus node; one is created when null. Not a design-system prop.
@@ -147,16 +154,15 @@ class IconButton extends StatelessWidget {
       IconButtonSize.md => density.controlHMd,
       IconButtonSize.lg => density.controlHLg,
     };
-    if (loading) {
-      return SizedBox.square(
-        dimension: extent,
-        child: Center(
-          child: Spinner(size: iconSizeFor(size), semanticLabel: label),
-        ),
-      );
-    }
+    final press = onPressed;
+    // The control stays mounted and enabled while loading, so a focused
+    // button keeps its focus node and its focus; only activation waits.
     return FermanInteractive(
-      onPressed: onPressed,
+      onPressed: press == null
+          ? null
+          : () {
+              if (!loading) press();
+            },
       disabled: disabled,
       disabledReason: disabledReason,
       toggled: active,
@@ -166,7 +172,37 @@ class IconButton extends StatelessWidget {
       semanticLabel: label,
       focusNode: focusNode,
       autofocus: autofocus,
-      builder: (context, states, _) => _body(context, states, extent),
+      builder: (context, states, _) => loading
+          ? _loadingBody(context, states, extent)
+          : _body(context, states, extent),
+    );
+  }
+
+  BorderRadius _radius(FermanTheme theme) => BorderRadius.all(
+    Radius.circular(
+      size == IconButtonSize.xs ? theme.radius.radiusXs : theme.radius.radiusSm,
+    ),
+  );
+
+  /// The loading state: the spinner in the button's footprint, no fill,
+  /// border or shadow (the state sheet), with the focus ring.
+  Widget _loadingBody(
+    BuildContext context,
+    Set<WidgetState> states,
+    double extent,
+  ) {
+    final theme = context.ferman;
+    return FocusRing(
+      visible: states.contains(WidgetState.focused),
+      borderRadius: _radius(theme),
+      duration: theme.motion.durFast,
+      curve: theme.motion.easeOut,
+      child: SizedBox.square(
+        dimension: extent,
+        child: Center(
+          child: Spinner(size: iconSizeFor(size), semanticLabel: label),
+        ),
+      ),
     );
   }
 
@@ -175,6 +211,7 @@ class IconButton extends StatelessWidget {
     final colors = theme.colors;
     final hovered = states.contains(WidgetState.hovered);
     final pressed = states.contains(WidgetState.pressed);
+    final focused = states.contains(WidgetState.focused);
     const transparent = Color(0x00000000);
 
     var background = transparent;
@@ -195,7 +232,9 @@ class IconButton extends StatelessWidget {
             ? Color.alphaBlend(colors.surfaceHover, colors.surfaceRaised)
             : colors.surfaceRaised;
         border = colors.borderDefault;
-        shadow = theme.elevation.shadowSm;
+        // `.fm-iconbtn:focus-visible` puts the focus ring in place of
+        // `--shadow-sm` (it is the more specific rule).
+        shadow = focused ? const [] : theme.elevation.shadowSm;
       case IconButtonVariant.primary:
         // As for secondary, `--primary:hover` wins over `:active`.
         background = hovered || pressed ? colors.accentHover : colors.accent;
@@ -211,34 +250,37 @@ class IconButton extends StatelessWidget {
       shadow = const [];
     }
 
-    final radius = BorderRadius.all(
-      Radius.circular(
-        size == IconButtonSize.xs
-            ? theme.radius.radiusXs
-            : theme.radius.radiusSm,
-      ),
-    );
+    final radius = _radius(theme);
+    final motion = theme.motion;
     return FocusRing(
-      visible: states.contains(WidgetState.focused),
+      visible: focused,
       borderRadius: radius,
+      duration: motion.durFast,
+      curve: motion.easeOut,
+      // `.fm-iconbtn` changes its box shadow over --dur-fast …
       child: AnimatedContainer(
-        duration: theme.motion.durInstant,
-        curve: theme.motion.easeOut,
-        width: extent,
-        height: extent,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          color: background,
-          border: Border.all(color: border, width: theme.border.borderWidth),
-          borderRadius: radius,
-          boxShadow: shadow,
-        ),
-        child: TweenAnimationBuilder<Color?>(
-          tween: ColorTween(end: foreground),
-          duration: theme.motion.durInstant,
-          curve: theme.motion.easeOut,
-          builder: (context, color, _) =>
-              Icon(icon, size: iconSizeFor(size), color: color),
+        duration: motion.durFast,
+        curve: motion.easeOut,
+        decoration: BoxDecoration(borderRadius: radius, boxShadow: shadow),
+        // … and its fill and icon colour over --dur-instant.
+        child: AnimatedContainer(
+          duration: motion.durInstant,
+          curve: motion.easeOut,
+          width: extent,
+          height: extent,
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: background,
+            border: Border.all(color: border, width: theme.border.borderWidth),
+            borderRadius: radius,
+          ),
+          child: TweenAnimationBuilder<Color?>(
+            tween: ColorTween(end: foreground),
+            duration: motion.durInstant,
+            curve: motion.easeOut,
+            builder: (context, color, _) =>
+                Icon(icon, size: iconSizeFor(size), color: color),
+          ),
         ),
       ),
     );

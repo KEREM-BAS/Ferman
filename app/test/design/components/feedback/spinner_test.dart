@@ -1,3 +1,4 @@
+import 'dart:math' as math;
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/feedback/spinner.dart';
@@ -32,6 +33,53 @@ void main() {
       expect(ring.trackColor, FermanColorTokens.light.borderDefault);
       expect(ring.arcColor, FermanColorTokens.light.accent);
       expect(ring.strokeWidth, 2);
+    });
+
+    testWidgets('draws the ring inside the box, accent on the top quarter', (
+      tester,
+    ) async {
+      const colors = FermanColorTokens.light;
+      final ringPaint = find.descendant(
+        of: find.byType(Spinner),
+        matching: find.byType(CustomPaint),
+      );
+      // Border-box sizing: the stroke's outer edge is on the box, so the
+      // ring's centre line is half a stroke in.
+      for (final (size, stroke) in [(16.0, 2.0), (12.0, 1.5), (32.0, 3.0)]) {
+        await tester.pumpWidget(componentHost(Spinner(size: size)));
+        final ring = Rect.fromLTRB(
+          stroke / 2,
+          stroke / 2,
+          size - stroke / 2,
+          size - stroke / 2,
+        );
+        expect(
+          ringPaint,
+          paints
+            ..something(
+              (method, args) =>
+                  method == #drawOval &&
+                  args[0] == ring &&
+                  // Paint keeps 32-bit float channels: compare as ARGB.
+                  (args[1] as Paint).color.toARGB32() ==
+                      colors.borderDefault.toARGB32() &&
+                  (args[1] as Paint).strokeWidth == stroke &&
+                  (args[1] as Paint).style == PaintingStyle.stroke,
+            )
+            // `border-top-color`: the quarter between the two upper
+            // diagonals, centred on 12 o'clock.
+            ..arc(
+              rect: ring,
+              startAngle: -3 * math.pi / 4,
+              sweepAngle: math.pi / 2,
+              useCenter: false,
+              color: colors.accent,
+              strokeWidth: stroke,
+              style: PaintingStyle.stroke,
+            ),
+          reason: '$size',
+        );
+      }
     });
 
     testWidgets('the stroke follows the size', (tester) async {

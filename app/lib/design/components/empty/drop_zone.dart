@@ -171,7 +171,10 @@ class DropZone extends StatelessWidget {
   /// shown after [openLabel].
   final List<String> shortcut;
 
-  /// The recent files listed in the idle state.
+  /// The recent files listed in the idle state. Each row is keyed by its
+  /// file's [RecentFile.path] (its [RecentFile.name] when the path is
+  /// unknown), so a row keeps its focus and hover when the list changes;
+  /// the entries must be unique by that key.
   final List<RecentFile> recent;
 
   /// Called with the recent file the user picks.
@@ -268,51 +271,62 @@ class DropZone extends StatelessWidget {
       decoration: BoxDecoration(
         color: colors.surfaceRaised,
         borderRadius: BorderRadius.all(Radius.circular(radius)),
+        // `box-shadow: 0 0 0 1px var(--border-subtle), var(--shadow-sm)` in
+        // reverse: CSS paints the first layer on top, Flutter the last, so
+        // the ring comes last to stay over the small shadow.
         boxShadow: [
-          BoxShadow(color: colors.borderSubtle, spreadRadius: 1),
           ...theme.elevation.shadowSm,
+          BoxShadow(
+            color: colors.borderSubtle,
+            spreadRadius: theme.border.borderWidth,
+          ),
         ],
       ),
       child: Icon(glyph, size: iconSize, color: iconColor),
     );
 
-    final text = ConstrainedBox(
-      constraints: const BoxConstraints(maxWidth: textMaxWidth),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space.space1_5,
-        children: [
-          if (heading != null)
-            Semantics(
-              header: true,
-              child: Text(
-                heading,
-                textAlign: TextAlign.center,
-                style: theme.typography.body.copyWith(
-                  fontSize: theme.typeScale.size2xl,
-                  height: theme.typeScale.height2xl,
-                  fontWeight: theme.typeScale.weightSemibold,
-                  letterSpacing:
-                      theme.typeScale.trackingTight * theme.typeScale.size2xl,
-                  color: colors.textPrimary,
-                ),
-              ),
+    // A block with nothing in it is left out, so it adds no gap.
+    final text = heading == null && sub == null
+        ? null
+        : ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: textMaxWidth),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: theme.space.space1_5,
+              children: [
+                if (heading != null)
+                  Semantics(
+                    header: true,
+                    child: Text(
+                      heading,
+                      textAlign: TextAlign.center,
+                      style: theme.typography.body.copyWith(
+                        fontSize: theme.typeScale.size2xl,
+                        height: theme.typeScale.height2xl,
+                        fontWeight: theme.typeScale.weightSemibold,
+                        letterSpacing:
+                            theme.typeScale.trackingTight *
+                            theme.typeScale.size2xl,
+                        color: colors.textPrimary,
+                      ),
+                    ),
+                  ),
+                if (sub != null)
+                  Text(
+                    sub,
+                    textAlign: TextAlign.center,
+                    style: theme.typography.prose.copyWith(
+                      color: colors.textSecondary,
+                    ),
+                  ),
+              ],
             ),
-          if (sub != null)
-            Text(
-              sub,
-              textAlign: TextAlign.center,
-              style: theme.typography.prose.copyWith(
-                color: colors.textSecondary,
-              ),
-            ),
-        ],
-      ),
-    );
+          );
 
     final showCreate =
         createLabel != null && (onCreate != null || disabledWithReason);
-    final actions = shown == DropZoneState.over
+    final actions =
+        shown == DropZoneState.over || (openLabel == null && !showCreate)
         ? null
         : Wrap(
             alignment: WrapAlignment.center,
@@ -393,7 +407,13 @@ class DropZone extends StatelessWidget {
                           ),
                         ),
                       ),
-                    for (final file in recent) _recentRow(context, file),
+                    // Keyed like the design's rows (`key: f.name`), so a
+                    // row's focus and hover stay with its file.
+                    for (final file in recent)
+                      KeyedSubtree(
+                        key: ValueKey<String>(file.path ?? file.name),
+                        child: _recentRow(context, file),
+                      ),
                   ],
                 ),
               ),
@@ -414,6 +434,8 @@ class DropZone extends StatelessWidget {
               Flexible(
                 child: Text(
                   footnote!,
+                  // `.fm-drop` `text-align: center`, inherited.
+                  textAlign: TextAlign.center,
                   style: theme.typography.caption.copyWith(
                     color: colors.textTertiary,
                   ),
@@ -422,26 +444,30 @@ class DropZone extends StatelessWidget {
             ],
           );
 
-    final content = AnimatedContainer(
-      duration: theme.motion.durBase,
-      curve: theme.motion.easeOut,
-      width: double.infinity,
+    // `.fm-drop` transitions only its fill and border colours: the minimum
+    // height applies at once, outside the animated fill.
+    final content = ConstrainedBox(
       constraints: BoxConstraints(minHeight: minHeight ?? defaultMinHeight),
-      padding: EdgeInsetsDirectional.symmetric(
-        horizontal: paddingX + borderWidth,
-        vertical: paddingY + borderWidth,
-      ),
-      decoration: BoxDecoration(
-        color: shown == DropZoneState.over
-            ? colors.accentSubtle
-            : const Color(0x00000000),
-        borderRadius: BorderRadius.all(Radius.circular(radius)),
-      ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        mainAxisAlignment: MainAxisAlignment.center,
-        spacing: theme.space.space4,
-        children: [tile, text, ?actions, ?recentList, ?foot],
+      child: AnimatedContainer(
+        duration: theme.motion.durBase,
+        curve: theme.motion.easeOut,
+        width: double.infinity,
+        padding: EdgeInsetsDirectional.symmetric(
+          horizontal: paddingX + borderWidth,
+          vertical: paddingY + borderWidth,
+        ),
+        decoration: BoxDecoration(
+          color: shown == DropZoneState.over
+              ? colors.accentSubtle
+              : const Color(0x00000000),
+          borderRadius: BorderRadius.all(Radius.circular(radius)),
+        ),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          mainAxisAlignment: MainAxisAlignment.center,
+          spacing: theme.space.space4,
+          children: [tile, ?text, ?actions, ?recentList, ?foot],
+        ),
       ),
     );
 
@@ -484,9 +510,8 @@ class DropZone extends StatelessWidget {
           visible: states.contains(WidgetState.focused),
           style: FocusRingStyle.inset,
           borderRadius: radius,
-          child: AnimatedContainer(
-            duration: theme.motion.durInstant,
-            curve: theme.motion.easeOut,
+          // `.fm-drop__file` has no transition: the hover fill shows at once.
+          child: Container(
             height: recentRowHeight,
             padding: EdgeInsetsDirectional.symmetric(
               horizontal: theme.space.space2,

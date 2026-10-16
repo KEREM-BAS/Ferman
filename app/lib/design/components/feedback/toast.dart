@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/core/button.dart';
 import 'package:ferman/design/components/core/icon_button.dart';
+import 'package:ferman/design/components/feedback/feedback_semantics.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -40,8 +41,12 @@ typedef ToastAction = ({String label, VoidCallback onPressed});
 /// seconds unless hovered or focused, `a11-6`) belong to the screen that
 /// shows toasts.
 ///
-/// For screen readers it is a polite live region whose label is the title
-/// and the message.
+/// For screen readers its label is the title and the message. A danger
+/// toast is an alert, announced assertively when it appears (`Toast.jsx`
+/// `role="alert"`, `aria-live="assertive"`; the `a11-6` note "Errors …
+/// are announced assertively"); the other tones are a polite live region
+/// (`role="status"`). See `FeedbackSemantics` for how each platform gets
+/// the assertive announcement.
 class Toast extends StatelessWidget {
   /// Creates a toast.
   const new({
@@ -204,9 +209,8 @@ class Toast extends StatelessWidget {
         child: row,
       ),
     );
-    return Semantics(
-      container: true,
-      liveRegion: true,
+    return FeedbackSemantics(
+      alert: tone == ToastTone.danger,
       child: TweenAnimationBuilder<double>(
         tween: Tween(begin: 0, end: 1),
         duration: theme.motion.durSlow,

@@ -8,7 +8,8 @@
 /// `package:flutter/widgets.dart` with `hide` for the ones they use.
 ///
 /// Internal building blocks stay out of this library: `FieldInput` and
-/// `CheckRow` (forms) and `RovingFocus` (navigation).
+/// `CheckRow` (forms), `RovingFocus` (navigation) and `FeedbackSemantics`
+/// (feedback).
 library;
 
 export 'package:ferman/design/components/additions/date_picker.dart';

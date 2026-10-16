@@ -74,7 +74,8 @@ class ProgressBar extends StatelessWidget {
   /// `animation: fm-indeterminate 1.4s`.
   static const Duration indeterminatePeriod = Duration(milliseconds: 1400);
 
-  /// How much is done, from 0 to 1; null counts as 0.
+  /// How much is done, from 0 to 1; null and NaN count as 0 (an empty job
+  /// whose done / total is 0 / 0 shows an empty bar).
   final double? value;
 
   /// Whether the amount is unknown.
@@ -96,8 +97,14 @@ class ProgressBar extends StatelessWidget {
   /// ("%40" in Turkish); null shows "N%". Not a design-system prop.
   final String? valueText;
 
-  /// [value] as a whole percentage from 0 to 100 (`ProgressBar.jsx`).
-  int get percent => ((value ?? 0).clamp(0, 1) * 100).round();
+  /// [value] as a whole percentage from 0 to 100 (`ProgressBar.jsx`
+  /// `Math.round(Math.max(0, Math.min(1, value || 0)) * 100)`); null and
+  /// NaN count as 0, as `value || 0` does.
+  int get percent {
+    final v = value;
+    if (v == null || v.isNaN) return 0;
+    return (v.clamp(0.0, 1.0) * 100).round();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -160,6 +167,9 @@ class ProgressBar extends StatelessWidget {
           Row(
             spacing: theme.space.space2,
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            // `.fm-progress__head` stretches its items, so the percentage
+            // stays on the first line of a label that wraps.
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Flexible(
                 child: Text(

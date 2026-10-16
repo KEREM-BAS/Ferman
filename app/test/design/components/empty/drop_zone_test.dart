@@ -159,15 +159,42 @@ void main() {
       expect(sub.style!.color, light.textSecondary);
     });
 
-    testWidgets('at least 380 px tall, or minHeight', (tester) async {
+    testWidgets('at least 380 px tall, or minHeight, applied at once', (
+      tester,
+    ) async {
       await tester.pumpWidget(componentHost(zone(onOpen: () {})));
       expect(tester.getSize(body).height, DropZone.defaultMinHeight);
       expect(tester.getSize(body).width, 700);
       await tester.pumpWidget(
         componentHost(zone(onOpen: () {}, minHeight: 470)),
       );
-      await tester.pumpAndSettle();
+      // `.fm-drop` transitions only colours: no tween of the height.
       expect(tester.getSize(body).height, 470);
+    });
+
+    testWidgets('the icon tile: raised, the 1 px subtle ring over the small '
+        'shadow', (tester) async {
+      await tester.pumpWidget(componentHost(zone(onOpen: () {})));
+      final tile = tester.widget<Container>(
+        find
+            .ancestor(
+              of: find.byType(Icon).first,
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      final decoration = tile.decoration! as BoxDecoration;
+      expect(decoration.color, light.surfaceRaised);
+      final shadows = decoration.boxShadow!;
+      // Flutter paints the last layer on top; CSS the first.
+      expect(
+        shadows.last,
+        BoxShadow(color: light.borderSubtle, spreadRadius: 1),
+      );
+      expect(
+        shadows.take(shadows.length - 1).toList(),
+        FermanElevationTokens.light.shadowSm,
+      );
     });
 
     testWidgets('over: solid accent border and fill, no actions', (
@@ -349,17 +376,25 @@ void main() {
       );
       final row = find.ancestor(
         of: find.text('Kira sözleşmesi.pdf'),
-        matching: find.byType(AnimatedContainer),
+        matching: find.byType(Container),
       );
       expect(tester.getSize(row.first).height, DropZone.recentRowHeight);
+      // `.fm-drop__file` has no transition: no animated container.
+      expect(
+        find.ancestor(
+          of: find.text('Kira sözleşmesi.pdf'),
+          matching: find.byType(AnimatedContainer),
+        ),
+        findsOneWidget, // the zone's fill only
+      );
       final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
       await mouse.addPointer(location: Offset.zero);
       addTearDown(mouse.removePointer);
       await mouse.moveTo(tester.getCenter(find.text('Kira sözleşmesi.pdf')));
-      await tester.pumpAndSettle();
+      // The hover fill shows on the next frame, not over --dur-instant.
+      await tester.pump();
       final hovered =
-          tester.widget<AnimatedContainer>(row.first).decoration!
-              as BoxDecoration;
+          tester.widget<Container>(row.first).decoration! as BoxDecoration;
       expect(hovered.color, light.surfaceHover);
 
       // Open is disabled without onOpen, so the first Tab stop is the first
@@ -473,6 +508,83 @@ void main() {
   });
 
   group('DropZone layout and semantics', () {
+    testWidgets('a footnote that wraps stays centred', (tester) async {
+      await tester.pumpWidget(componentHost(zone(onOpen: () {})));
+      expect(
+        tester.widget<Text>(find.text('Files stay on this device.')).textAlign,
+        TextAlign.center,
+      );
+    });
+
+    testWidgets('with no copy the tile is centred: empty blocks add no gap', (
+      tester,
+    ) async {
+      final stateIcon = find
+          .descendant(of: find.byType(DropZone), matching: find.byType(Icon))
+          .first;
+      for (final state in DropZoneState.values) {
+        await tester.pumpWidget(
+          componentHost(
+            SizedBox(
+              width: 600,
+              child: DropZone(state: state, title: 'Drop a PDF here'),
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        // Idle shows the title, the other states have no copy at all.
+        if (state == DropZoneState.idle) continue;
+        expect(
+          tester.getCenter(stateIcon).dy,
+          tester.getCenter(body).dy,
+          reason: '$state',
+        );
+      }
+      await tester.pumpWidget(
+        componentHost(const SizedBox(width: 600, child: DropZone())),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getCenter(stateIcon).dy, tester.getCenter(body).dy);
+      expect(find.byType(Wrap), findsNothing);
+    });
+
+    testWidgets('a recent row keeps its focus when the list changes', (
+      tester,
+    ) async {
+      const files = [
+        RecentFile(name: 'A.pdf', meta: 'Now', path: '/a.pdf'),
+        RecentFile(name: 'B.pdf', meta: 'Now', path: '/b.pdf'),
+        RecentFile(name: 'C.pdf', meta: 'Now', path: '/c.pdf'),
+      ];
+      Widget list(List<RecentFile> recent) =>
+          componentHost(zone(onOpenRecent: (_) {}, files: recent));
+      String focusedName() {
+        final focused = tester
+            .widgetList<FocusRing>(find.byType(FocusRing))
+            .where((ring) => ring.visible);
+        return tester
+            .widget<Text>(
+              find
+                  .descendant(
+                    of: find.byWidget(focused.single),
+                    matching: find.byType(Text),
+                  )
+                  .first,
+            )
+            .data!;
+      }
+
+      await tester.pumpWidget(list(files));
+      // The row's own focus node, the nearest above its name.
+      Focus.of(tester.element(find.text('B.pdf'))).requestFocus();
+      await tester.pumpAndSettle();
+      expect(focusedName(), 'B.pdf');
+
+      await tester.pumpWidget(list(files.sublist(1)));
+      await tester.pumpAndSettle();
+      expect(focusedName(), 'B.pdf');
+    });
+
     testWidgets('a region named by the title, which is a heading', (
       tester,
     ) async {

@@ -15,7 +15,10 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// section), a header at least 36 px tall with the [title] in panel-title
 /// type and the header [actions] (usually extra-small `IconButton`s) at the
 /// end, then the body [child], padded 12 px at the sides and 14 px below.
-/// Several body parts sit [bodyGap] apart, as the design's grid sets them.
+/// The design's body is a grid with a 10 px gap ([bodyGap]); [child] is
+/// placed as it is, so a body of several parts stacks them itself, for
+/// example in `Column(crossAxisAlignment: CrossAxisAlignment.stretch,
+/// spacing: PanelSection.bodyGap, children: …)`.
 ///
 /// With [collapsible] (the default) the title is a toggle with a 14 px
 /// chevron that turns −90° when collapsed (+90° in right to left) over
@@ -52,7 +55,9 @@ class PanelSection extends StatefulWidget {
   /// `PanelSection.jsx` chevron size.
   static const double chevronSize = 14;
 
-  /// `.fm-panelsection__body` `gap: 10px`, between body parts.
+  /// `.fm-panelsection__body` `gap: 10px`, the gap a body of several parts
+  /// puts between them (the same as `--space-2-5`,
+  /// `context.ferman.space.space2_5`). The section does not apply it.
   static const double bodyGap = 10;
 
   /// `.fm-panelsection__body` `padding: 0 12px 14px`: the bottom padding.

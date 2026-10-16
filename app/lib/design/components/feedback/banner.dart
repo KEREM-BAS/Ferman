@@ -1,4 +1,5 @@
 import 'package:ferman/design/components/core/icon_button.dart';
+import 'package:ferman/design/components/feedback/feedback_semantics.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -44,8 +45,11 @@ enum BannerVariant {
 ///
 /// The banner takes the width of its parent, which must be bounded.
 ///
-/// For screen readers it is a polite live region, so a banner that
-/// appears is announced; its title and message are its label.
+/// For screen readers its title and message are its label, and a banner
+/// that appears is announced: a danger or warning banner as an alert,
+/// assertively (`Banner.jsx` `role="alert"`), the other tones politely, as
+/// a live region (`role="status"`). See `FeedbackSemantics` for how each
+/// platform gets the assertive announcement.
 class Banner extends StatelessWidget {
   /// Creates a banner.
   const new({
@@ -156,8 +160,11 @@ class Banner extends StatelessWidget {
           );
     final Widget body;
     if (bar) {
+      // `.fm-banner--bar .fm-banner__body { gap: 6px }`: between the parts
+      // and between the lines when they wrap.
       body = Wrap(
         spacing: theme.space.space1_5,
+        runSpacing: theme.space.space1_5,
         crossAxisAlignment: WrapCrossAlignment.center,
         children: [?titleText, ?child],
       );
@@ -212,9 +219,8 @@ class Banner extends StatelessWidget {
       ],
     );
     final side = BorderSide(color: border, width: theme.border.borderWidth);
-    return Semantics(
-      container: true,
-      liveRegion: true,
+    return FeedbackSemantics(
+      alert: tone == BannerTone.danger || tone == BannerTone.warning,
       child: Container(
         padding: EdgeInsetsDirectional.fromSTEB(
           padX,

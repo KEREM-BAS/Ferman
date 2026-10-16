@@ -49,7 +49,10 @@ enum ButtonSize {
 ///
 /// - hover and pressed change the fill (and the secondary border and
 ///   shadow); the danger button's pressed state adds an inner shadow;
-/// - keyboard focus shows the outer focus ring (G22);
+/// - keyboard focus shows the outer focus ring (G22), which takes the place
+///   of the secondary button's shadow;
+/// - the fill, border and text colours change over `--dur-instant`, the
+///   shadows (the focus ring included) over `--dur-fast`;
 /// - [disabled] (or a null [onPressed]) shows the sunken fill and the
 ///   disabled text colour, a ghost button stays unfilled; with
 ///   [disabledReason] the button stays focusable and shows the reason as
@@ -96,10 +99,13 @@ class Button extends StatelessWidget {
   static const Color dangerForeground = Color(0xFFFFFFFF);
 
   /// `.fm-btn--danger:active` `box-shadow: inset 0 1px 2px rgba(0,0,0,.2)`.
+  /// A CSS blur of 2 px is a Gaussian with a sigma of 1, which is a
+  /// [BoxShadow.blurRadius] of 0.866 (as `tools/tokens` converts the
+  /// shadow tokens).
   static const BoxShadow dangerPressedShadow = BoxShadow(
     color: Color(0x33000000),
     offset: Offset(0, 1),
-    blurRadius: 2,
+    blurRadius: 0.866,
   );
 
   /// The label, usually a [Text].
@@ -158,6 +164,7 @@ class Button extends StatelessWidget {
     final isDisabled = states.contains(WidgetState.disabled);
     final hovered = states.contains(WidgetState.hovered);
     final pressed = states.contains(WidgetState.pressed);
+    final focused = states.contains(WidgetState.focused);
     const transparent = Color(0x00000000);
 
     var background = transparent;
@@ -180,7 +187,9 @@ class Button extends StatelessWidget {
             ? Color.alphaBlend(colors.surfaceHover, colors.surfaceRaised)
             : colors.surfaceRaised;
         border = hovered ? colors.borderStrong : colors.borderDefault;
-        shadow = pressed ? const [] : theme.elevation.shadowSm;
+        // `:active` drops `--shadow-sm`, and `.fm-btn:focus-visible` puts the
+        // focus ring in its place (it is the more specific rule).
+        shadow = pressed || focused ? const [] : theme.elevation.shadowSm;
       case ButtonVariant.ghost:
         background = pressed
             ? colors.surfacePressed
@@ -232,22 +241,13 @@ class Button extends StatelessWidget {
         ? null
         : Icon(iconEnd!, size: glyph);
 
-    Widget result = AnimatedContainer(
-      duration: theme.motion.durInstant,
-      curve: theme.motion.easeOut,
-      height: height,
-      width: fullWidth ? double.infinity : null,
-      constraints: BoxConstraints(minWidth: density.hitMin),
+    final motion = theme.motion;
+    // Inside the border (the CSS padding box): the padding, then the label.
+    Widget content = Padding(
       padding: EdgeInsetsDirectional.symmetric(horizontal: padding),
-      decoration: BoxDecoration(
-        color: background,
-        border: Border.all(color: border, width: theme.border.borderWidth),
-        borderRadius: radius,
-        boxShadow: shadow,
-      ),
       child: AnimatedDefaultTextStyle(
-        duration: theme.motion.durInstant,
-        curve: theme.motion.easeOut,
+        duration: motion.durInstant,
+        curve: motion.easeOut,
         style: DefaultTextStyle.of(context).style.merge(label),
         softWrap: false,
         maxLines: 1,
@@ -259,18 +259,58 @@ class Button extends StatelessWidget {
         ),
       ),
     );
-    if (innerShadow) {
-      result = CustomPaint(
-        foregroundPainter: InsetShadowPainter(
-          shadow: dangerPressedShadow,
-          borderRadius: theme.radius.radiusSm,
-        ),
-        child: result,
-      );
-    }
+    // `.fm-btn--danger:active`'s inset shadow: cast inside the padding box,
+    // under the label, and faded in and out over --dur-fast like every
+    // box-shadow change of `.fm-btn`. Always in the tree, so pressing never
+    // rebuilds the label.
+    content = TweenAnimationBuilder<double>(
+      tween: Tween<double>(end: innerShadow ? 1 : 0),
+      duration: motion.durFast,
+      curve: motion.easeOut,
+      builder: (context, t, child) => CustomPaint(
+        painter: t <= 0
+            ? null
+            : InsetShadowPainter(
+                shadow: dangerPressedShadow
+                    .scale(t)
+                    .copyWith(
+                      color: dangerPressedShadow.color.withValues(
+                        alpha: dangerPressedShadow.color.a * t,
+                      ),
+                    ),
+                borderRadius: theme.radius.radiusSm - theme.border.borderWidth,
+              ),
+        child: child,
+      ),
+      child: content,
+    );
+
+    // `.fm-btn` changes its fill, border and text over --dur-instant …
+    Widget result = AnimatedContainer(
+      duration: motion.durInstant,
+      curve: motion.easeOut,
+      height: height,
+      width: fullWidth ? double.infinity : null,
+      constraints: BoxConstraints(minWidth: density.hitMin),
+      decoration: BoxDecoration(
+        color: background,
+        border: Border.all(color: border, width: theme.border.borderWidth),
+        borderRadius: radius,
+      ),
+      child: content,
+    );
+    // … and its box shadow over --dur-fast.
+    result = AnimatedContainer(
+      duration: motion.durFast,
+      curve: motion.easeOut,
+      decoration: BoxDecoration(borderRadius: radius, boxShadow: shadow),
+      child: result,
+    );
     result = FocusRing(
-      visible: states.contains(WidgetState.focused),
+      visible: focused,
       borderRadius: radius,
+      duration: motion.durFast,
+      curve: motion.easeOut,
       child: result,
     );
     if (loading) {

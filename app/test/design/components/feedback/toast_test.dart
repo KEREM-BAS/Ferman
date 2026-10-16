@@ -3,10 +3,12 @@ import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/feedback/toast.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import 'announcements.dart';
 
 void main() {
   const light = FermanColorTokens.light;
@@ -190,6 +192,92 @@ void main() {
         tester.getSemantics(find.text('Saved')),
         isSemantics(label: 'Saved\nAt 14:32', isLiveRegion: true),
       );
+      handle.dispose();
+    });
+
+    testWidgets('a danger toast is an alert, announced assertively once', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final announcements = recordAnnouncements(tester);
+      Widget toast(String message) => componentHost(
+        withAnnouncements(
+          Toast(
+            tone: ToastTone.danger,
+            title: 'Couldn’t save',
+            message: message,
+            action: (label: 'Save as…', onPressed: () {}),
+            onClose: () {},
+            closeLabel: 'Dismiss',
+          ),
+        ),
+      );
+      await tester.pumpWidget(toast('The disk is full.'));
+      await tester.pumpAndSettle();
+      final data = tester
+          .getSemantics(find.text('Couldn’t save'))
+          .getSemanticsData();
+      expect(data.role, SemanticsRole.alert);
+      expect(data.flagsCollection.isLiveRegion, isFalse);
+      expect(data.label, 'Couldn’t save\nThe disk is full.');
+      // The title and the message, not the action or Dismiss.
+      expect(announcements, [
+        {
+          'viewId': tester.view.viewId,
+          'message': 'Couldn’t save\nThe disk is full.',
+          'textDirection': TextDirection.ltr.index,
+          'assertiveness': Assertiveness.assertive.index,
+        },
+      ]);
+
+      // A rebuild with the same text is not announced again; new text is.
+      await tester.pumpWidget(toast('The disk is full.'));
+      await tester.pumpAndSettle();
+      expect(announcements, hasLength(1));
+      await tester.pumpWidget(toast('The file is locked.'));
+      await tester.pumpAndSettle();
+      expect(announcements, hasLength(2));
+      expect(
+        announcements.last['message'],
+        'Couldn’t save\nThe file is locked.',
+      );
+      handle.dispose();
+    });
+
+    testWidgets('other tones stay polite and are not announced', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final announcements = recordAnnouncements(tester);
+      for (final tone in [
+        ToastTone.neutral,
+        ToastTone.success,
+        ToastTone.warning,
+      ]) {
+        await tester.pumpWidget(
+          componentHost(withAnnouncements(Toast(tone: tone, title: 'Saved'))),
+        );
+        await tester.pumpAndSettle();
+        final data = tester.getSemantics(find.text('Saved')).getSemanticsData();
+        expect(data.flagsCollection.isLiveRegion, isTrue, reason: '$tone');
+        expect(data.role, SemanticsRole.none, reason: '$tone');
+      }
+      expect(announcements, isEmpty);
+      handle.dispose();
+    });
+
+    testWidgets('without announcements (Android) a danger toast falls back '
+        'to the live region', (tester) async {
+      final handle = tester.ensureSemantics();
+      final announcements = recordAnnouncements(tester);
+      await tester.pumpWidget(
+        componentHost(const Toast(tone: ToastTone.danger, title: 'Failed')),
+      );
+      await tester.pumpAndSettle();
+      final data = tester.getSemantics(find.text('Failed')).getSemanticsData();
+      expect(data.flagsCollection.isLiveRegion, isTrue);
+      expect(data.role, SemanticsRole.none);
+      expect(announcements, isEmpty);
       handle.dispose();
     });
   });

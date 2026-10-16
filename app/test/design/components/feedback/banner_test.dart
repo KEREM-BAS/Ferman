@@ -3,10 +3,12 @@ import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/feedback/banner.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import 'announcements.dart';
 
 void main() {
   const light = FermanColorTokens.light;
@@ -151,6 +153,38 @@ void main() {
       );
     });
 
+    testWidgets('bar: a message that wraps sits 6 px below the title', (
+      tester,
+    ) async {
+      const title = 'Changed on disk.';
+      const message =
+          'It was modified at 14:41, probably by iCloud Drive. You have 3 '
+          'unsaved edits.';
+      await tester.pumpWidget(
+        componentHost(
+          const SizedBox(
+            width: 240,
+            child: Banner(
+              variant: BannerVariant.bar,
+              tone: BannerTone.warning,
+              title: title,
+              child: Text(message),
+            ),
+          ),
+        ),
+      );
+      // The message moved to a second run, under the title.
+      expect(
+        tester.getTopLeft(find.text(message)).dx,
+        tester.getTopLeft(find.text(title)).dx,
+      );
+      expect(
+        tester.getTopLeft(find.text(message)).dy -
+            tester.getBottomLeft(find.text(title)).dy,
+        6,
+      );
+    });
+
     testWidgets('actions and Dismiss: the actions reach into the padding, as '
         'the negative margins do', (tester) async {
       var dismissed = 0;
@@ -244,6 +278,72 @@ void main() {
         tester.getSemantics(find.text('Read only')),
         isSemantics(label: 'Read only\nSigned.', isLiveRegion: true),
       );
+      handle.dispose();
+    });
+
+    testWidgets('danger and warning banners are alerts, announced '
+        'assertively', (tester) async {
+      final handle = tester.ensureSemantics();
+      final announcements = recordAnnouncements(tester);
+      for (final tone in [BannerTone.danger, BannerTone.warning]) {
+        await tester.pumpWidget(
+          componentHost(
+            withAnnouncements(
+              wide(
+                Banner(
+                  key: ValueKey(tone),
+                  tone: tone,
+                  title: 'Signed document',
+                  onDismiss: () {},
+                  dismissLabel: 'Dismiss',
+                  child: const Text('Editing removes the signature.'),
+                ),
+              ),
+            ),
+          ),
+        );
+        await tester.pump();
+        final data = tester
+            .getSemantics(find.text('Signed document'))
+            .getSemanticsData();
+        expect(data.role, SemanticsRole.alert, reason: '$tone');
+        expect(data.flagsCollection.isLiveRegion, isFalse, reason: '$tone');
+        expect(
+          announcements.last['message'],
+          'Signed document\nEditing removes the signature.',
+        );
+        expect(
+          announcements.last['assertiveness'],
+          Assertiveness.assertive.index,
+        );
+      }
+      expect(announcements, hasLength(2));
+      handle.dispose();
+    });
+
+    testWidgets('info, success and neutral banners stay polite', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final announcements = recordAnnouncements(tester);
+      for (final tone in [
+        BannerTone.info,
+        BannerTone.success,
+        BannerTone.neutral,
+      ]) {
+        await tester.pumpWidget(
+          componentHost(
+            withAnnouncements(wide(Banner(tone: tone, title: 'Read only'))),
+          ),
+        );
+        await tester.pump();
+        final data = tester
+            .getSemantics(find.text('Read only'))
+            .getSemanticsData();
+        expect(data.flagsCollection.isLiveRegion, isTrue, reason: '$tone');
+        expect(data.role, SemanticsRole.none, reason: '$tone');
+      }
+      expect(announcements, isEmpty);
       handle.dispose();
     });
   });

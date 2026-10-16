@@ -1,6 +1,7 @@
 import 'package:ferman/design/components/core/button.dart';
 import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
+import 'package:ferman/design/components/foundation/forced_states.dart';
 import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
@@ -10,31 +11,36 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import 'panel_pixels.dart';
 
 void main() {
   const light = FermanColorTokens.light;
   const desktop = FermanDensityTokens.desktop;
 
+  // The outer container animates the shadow, the inner one the fill,
+  // border and text.
+  final containers = find.descendant(
+    of: find.byType(Button),
+    matching: find.byType(AnimatedContainer),
+  );
+
   BoxDecoration decoration(WidgetTester tester) =>
-      tester
-              .widget<AnimatedContainer>(
-                find.descendant(
-                  of: find.byType(Button),
-                  matching: find.byType(AnimatedContainer),
-                ),
-              )
-              .decoration!
+      tester.widget<AnimatedContainer>(containers.last).decoration!
           as BoxDecoration;
+
+  List<BoxShadow>? shadow(WidgetTester tester) =>
+      (tester.widget<AnimatedContainer>(containers.first).decoration!
+              as BoxDecoration)
+          .boxShadow;
+
+  FocusRing ring(WidgetTester tester) => tester.widget<FocusRing>(
+    find.descendant(of: find.byType(Button), matching: find.byType(FocusRing)),
+  );
 
   Color? textColor(WidgetTester tester, String text) =>
       DefaultTextStyle.of(tester.element(find.text(text))).style.color;
 
-  Size buttonSize(WidgetTester tester) => tester.getSize(
-    find.descendant(
-      of: find.byType(Button),
-      matching: find.byType(AnimatedContainer),
-    ),
-  );
+  Size buttonSize(WidgetTester tester) => tester.getSize(containers.last);
 
   setUp(() {
     FocusManager.instance.highlightStrategy =
@@ -55,7 +61,7 @@ void main() {
       final box = decoration(tester);
       expect(box.color, light.surfaceRaised);
       expect((box.border! as Border).top.color, light.borderDefault);
-      expect(box.boxShadow, FermanElevationTokens.light.shadowSm);
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
       expect(
         box.borderRadius,
         const BorderRadius.all(Radius.circular(FermanRadiusTokens.radiusSm)),
@@ -90,7 +96,7 @@ void main() {
       final box = decoration(tester);
       expect(box.color!.a, 0);
       expect((box.border! as Border).top.color.a, 0);
-      expect(box.boxShadow, isEmpty);
+      expect(shadow(tester), isEmpty);
     });
 
     testWidgets('danger: solid danger fill, white text', (tester) async {
@@ -143,22 +149,40 @@ void main() {
           ),
         );
         expect(buttonSize(tester).height, height, reason: '$size');
-        final container = tester.widget<AnimatedContainer>(
-          find.descendant(
-            of: find.byType(Button),
-            matching: find.byType(AnimatedContainer),
-          ),
-        );
+        // The padding sits inside the 1 px border, around the label.
+        final inner = tester
+            .widgetList<Padding>(
+              find.descendant(
+                of: containers.last,
+                matching: find.byType(Padding),
+              ),
+            )
+            .where((widget) => widget.padding is EdgeInsetsDirectional);
         expect(
-          container.padding,
+          inner.single.padding,
           EdgeInsetsDirectional.symmetric(horizontal: padding),
           reason: '$size',
         );
+        expect(
+          tester.getTopLeft(find.byType(Icon)).dx -
+              tester.getTopLeft(containers.last).dx,
+          FermanBorderTokens.borderWidth + padding,
+          reason: '$size',
+        );
         expect(tester.widget<Icon>(find.byType(Icon)).size, glyph);
-        final fontSize = DefaultTextStyle.of(tester.element(find.text('Save')))
-            .style
-            .fontSize;
-        expect(fontSize, size == ButtonSize.sm ? 12 : 13, reason: '$size');
+        final style = DefaultTextStyle.of(tester.element(find.text('Save')))
+            .style;
+        expect(
+          style.fontSize,
+          size == ButtonSize.sm ? 12 : 13,
+          reason: '$size',
+        );
+        // `.fm-btn--sm` keeps the 18 px line of --type-body-strong.
+        expect(
+          style.fontSize! * style.height!,
+          moreOrLessEquals(18),
+          reason: '$size',
+        );
       }
     });
 
@@ -256,18 +280,41 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
-      expect(decoration(tester).boxShadow, isEmpty);
+      expect(shadow(tester), isEmpty);
     });
 
-    testWidgets('danger pressed adds the inner shadow', (tester) async {
-      Iterable<CustomPaint> insetPaints() => tester
-          .widgetList<CustomPaint>(
-            find.descendant(
-              of: find.byType(Button),
-              matching: find.byType(CustomPaint),
-            ),
-          )
-          .where((paint) => paint.foregroundPainter is InsetShadowPainter);
+    testWidgets('dark secondary hover blends the dark hover tint', (
+      tester,
+    ) async {
+      const dark = FermanColorTokens.dark;
+      await tester.pumpWidget(
+        componentHost(
+          Button(onPressed: () {}, child: const Text('Go')),
+          brightness: Brightness.dark,
+          forcedStates: const {WidgetState.hovered},
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        decoration(tester).color,
+        Color.alphaBlend(dark.surfaceHover, dark.surfaceRaised),
+      );
+      expect(
+        (decoration(tester).border! as Border).top.color,
+        dark.borderStrong,
+      );
+      expect(shadow(tester), FermanElevationTokens.dark.shadowSm);
+    });
+
+    testWidgets('danger pressed casts the inner shadow inside the border, '
+        'under the label', (tester) async {
+      final shadowPaint = find.descendant(
+        of: containers.last,
+        matching: find.byType(CustomPaint),
+      );
+      InsetShadowPainter? painter() =>
+          tester.widget<CustomPaint>(shadowPaint.first).painter
+              as InsetShadowPainter?;
 
       await tester.pumpWidget(
         componentHost(
@@ -278,7 +325,7 @@ void main() {
           ),
         ),
       );
-      expect(insetPaints(), isEmpty);
+      expect(painter(), isNull);
       await tester.pumpWidget(
         componentHost(
           Button(
@@ -289,10 +336,71 @@ void main() {
           forcedStates: const {WidgetState.pressed},
         ),
       );
-      final painter =
-          insetPaints().single.foregroundPainter! as InsetShadowPainter;
-      expect(painter.shadow, Button.dangerPressedShadow);
-      expect(painter.shadow.color, const Color(0x33000000));
+      await tester.pumpAndSettle();
+      final inset = painter()!;
+      expect(inset.shadow, Button.dangerPressedShadow);
+      expect(inset.shadow.color, const Color(0x33000000));
+      // CSS blur 2px: sigma 1.
+      expect(inset.shadow.blurSigma, moreOrLessEquals(1, epsilon: 1e-3));
+      // The padding edge: 1 px inside the border, radius 4 − 1.
+      expect(
+        inset.borderRadius,
+        FermanRadiusTokens.radiusSm - FermanBorderTokens.borderWidth,
+      );
+      expect(
+        tester.getRect(shadowPaint.first),
+        tester.getRect(containers.last).deflate(FermanBorderTokens.borderWidth),
+      );
+      // A background painter: the label is its child, painted over it.
+      expect(
+        tester.widget<CustomPaint>(shadowPaint.first).foregroundPainter,
+        isNull,
+      );
+      expect(
+        find.descendant(of: shadowPaint.first, matching: find.text('Apply')),
+        findsOneWidget,
+      );
+    });
+
+    testWidgets('the inner shadow fades over --dur-fast', (tester) async {
+      final pressed = ValueNotifier<bool>(false);
+      addTearDown(pressed.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          ValueListenableBuilder<bool>(
+            valueListenable: pressed,
+            builder: (context, value, _) => FermanForcedStates(
+              states: {if (value) WidgetState.pressed},
+              child: Button(
+                variant: ButtonVariant.danger,
+                onPressed: () {},
+                child: const Text('Apply'),
+              ),
+            ),
+          ),
+        ),
+      );
+      InsetShadowPainter? painter() =>
+          tester
+                  .widget<CustomPaint>(
+                    find
+                        .descendant(
+                          of: containers.last,
+                          matching: find.byType(CustomPaint),
+                        )
+                        .first,
+                  )
+                  .painter
+              as InsetShadowPainter?;
+      expect(painter(), isNull);
+      pressed.value = true;
+      await tester.pump();
+      await tester.pump(FermanMotionTokens.standard.durFast ~/ 2);
+      final halfway = painter()!.shadow.color.a;
+      expect(halfway, greaterThan(0));
+      expect(halfway, lessThan(Button.dangerPressedShadow.color.a));
+      await tester.pumpAndSettle();
+      expect(painter()!.shadow, Button.dangerPressedShadow);
     });
 
     testWidgets('a real pointer hovers and presses', (tester) async {
@@ -318,7 +426,10 @@ void main() {
       await tester.pumpAndSettle();
     });
 
-    testWidgets('keyboard focus shows the outer focus ring', (tester) async {
+    testWidgets('keyboard focus shows the outer focus ring in place of the '
+        'secondary shadow', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
       await tester.pumpWidget(
         componentHost(
           Shortcuts(
@@ -327,27 +438,136 @@ void main() {
               actions: WidgetsApp.defaultActions,
               child: FocusScope(
                 autofocus: true,
-                child: Button(onPressed: () {}, child: const Text('Save')),
+                child: Button(
+                  focusNode: node,
+                  onPressed: () {},
+                  child: const Text('Save'),
+                ),
               ),
             ),
           ),
         ),
       );
-      FocusRing ring() => tester.widget<FocusRing>(
-        find.descendant(
-          of: find.byType(Button),
-          matching: find.byType(FocusRing),
-        ),
-      );
-      expect(ring().visible, isFalse);
+      expect(ring(tester).visible, isFalse);
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
       await tester.sendKeyEvent(LogicalKeyboardKey.tab);
       await tester.pumpAndSettle();
-      expect(ring().visible, isTrue);
-      expect(ring().style, FocusRingStyle.outer);
+      expect(ring(tester).visible, isTrue);
+      expect(ring(tester).style, FocusRingStyle.outer);
       expect(
-        ring().borderRadius,
+        ring(tester).borderRadius,
         const BorderRadius.all(Radius.circular(FermanRadiusTokens.radiusSm)),
       );
+      // `.fm-btn:focus-visible` replaces `--shadow-sm` with the ring.
+      expect(shadow(tester), isEmpty);
+      node.unfocus();
+      await tester.pumpAndSettle();
+      expect(ring(tester).visible, isFalse);
+      expect(shadow(tester), FermanElevationTokens.light.shadowSm);
+    });
+
+    testWidgets('forced focus on a secondary: ring, no shadow', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          Button(onPressed: () {}, child: const Text('Cancel')),
+          forcedStates: const {WidgetState.focused},
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(ring(tester).visible, isTrue);
+      expect(shadow(tester), isEmpty);
+      expect(decoration(tester).color, light.surfaceRaised);
+    });
+
+    testWidgets('colours change over --dur-instant, shadows and the ring over '
+        '--dur-fast; all at once under reduced motion', (tester) async {
+      const standard = FermanMotionTokens.standard;
+      for (final reduced in [false, true]) {
+        await tester.pumpWidget(
+          componentHost(
+            Button(onPressed: () {}, child: const Text('Save')),
+            disableAnimations: reduced,
+          ),
+        );
+        final outer = tester.widget<AnimatedContainer>(containers.first);
+        final inner = tester.widget<AnimatedContainer>(containers.last);
+        expect(
+          inner.duration,
+          reduced ? Duration.zero : standard.durInstant,
+          reason: 'reduced: $reduced',
+        );
+        expect(
+          outer.duration,
+          reduced ? Duration.zero : standard.durFast,
+          reason: 'reduced: $reduced',
+        );
+        expect(
+          ring(tester).duration,
+          reduced ? Duration.zero : standard.durFast,
+          reason: 'reduced: $reduced',
+        );
+        expect(outer.curve, standard.easeOut);
+        expect(ring(tester).curve, standard.easeOut);
+      }
+    });
+
+    testWidgets('a focused ghost button keeps the panel colour inside', (
+      tester,
+    ) async {
+      for (final brightness in Brightness.values) {
+        final colors = brightness == Brightness.dark
+            ? FermanColorTokens.dark
+            : light;
+        await tester.pumpWidget(
+          componentHost(
+            onPanel(
+              colors.surfacePanel,
+              Button(
+                variant: ButtonVariant.ghost,
+                onPressed: () {},
+                child: const SizedBox.shrink(),
+              ),
+            ),
+            brightness: brightness,
+            forcedStates: const {WidgetState.focused},
+          ),
+        );
+        await tester.pumpAndSettle();
+        final pixels = await PanelPixels.capture(tester);
+        final button = pixels.rectOf(tester, containers.last);
+        final y = button.center.dy.floor();
+        // Inside the button: the panel, not the ring's raised-surface gap.
+        expect(
+          pixels.at(button.left.floor() + 3, y),
+          colors.surfacePanel,
+          reason: '$brightness',
+        );
+        expect(
+          pixels.at(button.left.floor() - 1, y),
+          colors.surfaceRaised,
+          reason: '$brightness gap',
+        );
+        expect(
+          pixels.at(button.left.floor() - 3, y),
+          colors.borderFocus,
+          reason: '$brightness ring',
+        );
+      }
+    });
+
+    testWidgets('disabled secondary: sunken fill, no border, no shadow', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          Button(disabled: true, onPressed: () {}, child: const Text('Go')),
+        ),
+      );
+      final box = decoration(tester);
+      expect(box.color, light.surfaceSunken);
+      expect((box.border! as Border).top.color.a, 0);
+      expect(shadow(tester), isEmpty);
+      expect(textColor(tester, 'Go'), light.textDisabled);
     });
 
     testWidgets('disabled: sunken fill, disabled text, inert, skipped', (
@@ -369,7 +589,7 @@ void main() {
       );
       final box = decoration(tester);
       expect(box.color, light.surfaceSunken);
-      expect(box.boxShadow, isEmpty);
+      expect(shadow(tester), isEmpty);
       expect(textColor(tester, 'Save'), light.textDisabled);
       await tester.tap(find.text('Save'), warnIfMissed: false);
       expect(taps, 0);

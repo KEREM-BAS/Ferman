@@ -67,6 +67,35 @@ void main() {
       expect(tester.widget<Icon>(find.byType(Icon)).name, IconName.chevronDown);
     });
 
+    testWidgets('the body is placed as it is; bodyGap is --space-2-5', (
+      tester,
+    ) async {
+      expect(PanelSection.bodyGap, FermanSpaceTokens.space2_5);
+      await tester.pumpWidget(
+        componentHost(
+          panel(
+            const PanelSection(
+              title: 'Text',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: PanelSection.bodyGap,
+                children: [
+                  SizedBox(height: 20, key: Key('first')),
+                  SizedBox(height: 20, key: Key('second')),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      // The 10 px between the parts is the caller's Column, as documented.
+      expect(
+        tester.getTopLeft(find.byKey(const Key('second'))).dy -
+            tester.getBottomLeft(find.byKey(const Key('first'))).dy,
+        10,
+      );
+    });
+
     testWidgets('top border, off for the first section', (tester) async {
       BoxDecoration decoration() =>
           tester
