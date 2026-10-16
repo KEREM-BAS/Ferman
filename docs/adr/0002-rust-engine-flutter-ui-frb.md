@@ -44,7 +44,7 @@ The brief fixes the answer: "Rust engine + one Flutter UI, connected with flutte
   fails if anything changes. Nobody edits it by hand.
 - **Calls are async.** Every engine call returns a Future or a Stream. The only synchronous call is the
   API version check at start-up. Tiles and job progress arrive as streams (FRB `StreamSink`). Details of
-  the threading model are in [ADR 0009](0009-threading-and-jobs.md) (Proposed).
+  the threading model are in [ADR 0009](0009-threading-and-jobs.md) (Accepted 2026-10-16).
 - **Toolchains** (verified 2026-10-13):
   - Rust stable **1.99**, pinned in `rust-toolchain.toml` in M1. The crates' minimum supported Rust
     version is declared in the workspace and is at least 1.88 for the core set.

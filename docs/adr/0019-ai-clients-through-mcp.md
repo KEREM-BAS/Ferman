@@ -1,11 +1,11 @@
 # ADR 0019: AI clients through a local MCP server
 
-- **Status:** Accepted (owner, 2026-10-16): the direction. The details marked **Proposed** below are
-  settled with the owner when the work starts.
+- **Status:** Accepted (owner, 2026-10-16): the direction, then the details below as written.
 - **Date:** 2026-10-16
 - **Approval:** the owner, in the M1 session on 2026-10-16 ([Q20](../QUESTIONS.md#q20)): "after M3,
   with the Ferman app open, local; Settings gives a connection link for Claude, ChatGPT and whatever
   else we can support, or opens it already set up; ask while building it if something comes up."
+  The details below were approved as written on 2026-10-16, with the other Proposed items of M1.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -54,7 +54,8 @@ No board draws this ([G94](../DESIGN_GAPS.md#g94)). The design draws Ferman's ow
 5. **Out of scope:** Ferman calling AI providers itself (the P4 assistant), access from another
    computer, and AI actions on files that are not open in Ferman.
 
-**Proposed** (settled with the owner when the step starts):
+**Approved by the owner on 2026-10-16**, with the other Proposed items of M1; anything that changes
+when the step starts goes back to the owner:
 
 - **Transport and pairing.** Clients such as Claude Desktop start a local server as a process and talk
   to it over standard input and output, and install packaged extensions in one click. Ferman ships
@@ -66,7 +67,7 @@ No board draws this ([G94](../DESIGN_GAPS.md#g94)). The design draws Ferman's ow
   never by opening a port silently.
 - **Tools.** The first set: list open documents and pages, read text blocks and page images, search,
   and the edit transaction (begin, apply, commit, rollback); then each M3 and M4 operation as a tool
-  (organize, comments, forms, signatures, compress). Saving: proposed that a client may save only
+  (organize, comments, forms, signatures, compress). Saving: a client may save only
   after the user confirms in Ferman, and never with "optimize and clean".
 - **Code.** The server logic lives in a new crate `ferman-mcp` on top of `ferman-api`; the app hosts
   the socket and the CLI hosts the stdio side. The MCP SDK is the official Rust SDK (`rmcp`) if its
@@ -97,7 +98,8 @@ No board draws this ([G94](../DESIGN_GAPS.md#g94)). The design draws Ferman's ow
 
 ### Follow-up
 
-- [Q20](../QUESTIONS.md#q20): the Proposed details above, with the owner, when M4 step 11 starts.
+- [Q20](../QUESTIONS.md#q20): the details above were approved on 2026-10-16; changes go back to the
+  owner when M4 step 11 starts.
 - [G94](../DESIGN_GAPS.md#g94): the Settings section and the connected notice need a board, or are
   built from the existing components and recorded.
 - [DEPENDENCIES.md](../DEPENDENCIES.md): the MCP SDK, licence-checked, in the same change that adds it.

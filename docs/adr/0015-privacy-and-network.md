@@ -2,7 +2,11 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §1 and §3
+- **Approval:** brief §1 and §3. On 2026-10-16 the owner added OCSP and CRL revocation lookups as a
+  fifth network use, off until first use, with their own switch in Settings › Privacy and an entry
+  in the network activity log (phase 3), ruled out local-network discovery and phone pairing
+  ([Q06](../QUESTIONS.md#q06)), and settled the update-check endpoint ([Q15](../QUESTIONS.md#q15)).
+  The sections below are brought in line in the M2 planning pass.
 - **Supersedes:** none
 - **Superseded by:** none
 

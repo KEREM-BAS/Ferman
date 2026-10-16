@@ -2,7 +2,8 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §3
+- **Approval:** brief §3. The private snapshot below, Proposed in M0, was approved by the owner on
+  2026-10-16.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -42,8 +43,9 @@ removing content although saves are incremental ([G57](../DESIGN_GAPS.md#g57)).
 1. Never write in place. Every save writes a complete new file and replaces the old one atomically.
 2. Never keep the user's file open or memory-mapped after open. The engine reads it into memory.
    Another app truncating the file must not crash Ferman, and on Windows an open mapping would block the
-   replace. **Proposed:** files above 256 MB are copied to a private snapshot in the cache directory
-   and mapped from there ([ARCHITECTURE.md](../ARCHITECTURE.md) section 5.1).
+   replace. **Approved by the owner on 2026-10-16:** files above 256 MB are copied to a private
+   snapshot in the cache directory and mapped from there ([ARCHITECTURE.md](../ARCHITECTURE.md)
+   section 5.1).
 3. A failed save leaves the original untouched and deletes the temp file.
 4. Edits are never lost because a save failed. They stay in memory and in the recovery journal.
 

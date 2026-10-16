@@ -1,8 +1,9 @@
 # ADR 0009: Threading model and jobs
 
-- **Status:** Proposed
+- **Status:** Accepted (owner, 2026-10-16)
 - **Date:** 2026-10-14
-- **Approval:** none yet; requested in the M0 review
+- **Approval:** the owner, on 2026-10-16, with the other Proposed items of M1; the order of the
+  tile-transfer options through [Q19](../QUESTIONS.md#q19)
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -28,7 +29,7 @@ Constraints:
 
 ## Decision
 
-**Proposed:** the engine uses message-passing actors, immutable revisions, one render thread and a
+The engine uses message-passing actors, immutable revisions, one render thread and a
 job pool.
 
 ### Threads
@@ -97,10 +98,10 @@ dropped on reload), per-page text models in the snapshot (shared across revision
 change), glyph and shaping caches in ferman-fonts, and a system font index. Exact caps are in
 [ARCHITECTURE.md](../ARCHITECTURE.md) section 4.7.
 
-### Until approved
+### Before approval (M1)
 
-Only the brief's rule applies: nothing heavy on the UI thread. M1 needs little engine concurrency (the
-version check and engine info), so the actor model is built from M2, once approved.
+Only the brief's rule applied: nothing heavy on the UI thread. M1 needed little engine concurrency
+(the version check and engine info), so the actor model is built from M2.
 
 ## Consequences
 
@@ -135,7 +136,9 @@ version check and engine info), so the actor model is built from M2, once approv
 - M3: edit transactions on the actor, reload-per-edit measurement.
 - M4: background task drawer with pause and cancel.
 
-### Tile transfer: M1 measurements and options (Proposed)
+<a id="tile-transfer-m1-measurements-and-options-proposed"></a>
+
+### Tile transfer: M1 measurements and options
 
 The M1 benchmark (`debug_bytes`, the integration test "a 1 MiB byte vector crosses the bridge")
 does not meet the target of 1 MB in under 0.2 ms. No number below comes from R1 or R2:
@@ -173,13 +176,14 @@ Options, cheapest first:
    one `Texture` widget per tile, and goldens of the canvas then need a test path.
 4. **Keep the copying codec.** It is not recommended, because of the frame cost above.
 
-**Proposed:** try option 1 at the start of M2 step 3, before tiles are built, and measure it on R1
-and R2 with `flutter drive --profile` (the command is in CONTRIBUTING.md). If it misses the budget,
-use option 2, with the owner's approval of its unsafe surface. Use option 3 only if both fail. The
-owner decides, through the approval of this ADR ([Q19](../QUESTIONS.md#q19)); until then, M1 changes
-nothing in the codec.
+**Approved by the owner on 2026-10-16** ([Q19](../QUESTIONS.md#q19)): try option 1 at the start of
+M2 step 3, before tiles are built, and measure it on R1 and R2 with `flutter drive --profile` (the
+command is in CONTRIBUTING.md). If it misses the budget, use option 2, with the owner's approval of
+its unsafe surface. Use option 3 only if both fail. M1 changed nothing in the codec.
 
-#### Option 3 in detail: the texture-registry fallback (Proposed)
+<a id="option-3-in-detail-the-texture-registry-fallback-proposed"></a>
+
+#### Option 3 in detail: the texture-registry fallback
 
 ROADMAP §5 step 3 asks for the texture-registry fallback to be designed before M2 starts if the
 benchmark misses its budget, which it does. This is that design. It is used only if options 1 and 2

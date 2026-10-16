@@ -1,8 +1,8 @@
 # ADR 0018: OS-native file pickers
 
-- **Status:** Proposed
+- **Status:** Accepted (owner, [Q07](../QUESTIONS.md#q07), 2026-10-16)
 - **Date:** 2026-10-14
-- **Approval:** none yet; asked in [Q07](../QUESTIONS.md#q07)
+- **Approval:** the owner, on 2026-10-16 ([Q07](../QUESTIONS.md#q07), option a)
 - **Supersedes:** none (it adds an exception to the dialog rule in brief §6)
 - **Superseded by:** none
 
@@ -40,7 +40,7 @@ What the design shows:
 
 ## Decision
 
-**Proposed:** OS-native pickers are used for exactly three things, and are the only exception Ferman
+OS-native pickers are used for exactly three things, and are the only exception Ferman
 adds to the custom-dialog rule:
 
 1. **Open a file**: ⌘O / Ctrl+O, "Open file…" on the Start screen, "Pages from a file" and the
@@ -72,12 +72,10 @@ How:
   (security-scoped bookmarks on macOS, portal document handles on Linux), stored with the recent-files
   list.
 
-**Until the owner decides**, M1 builds no file picker; features that would open one stay visible and
-disabled with "Available in a future version". If M2 starts before an answer, the OS-native open picker
-is used as the safest option, as [brief §9](../BRIEF.md) asks: it is not a Material or Cupertino
-dialog, and a custom file browser could not work in sandboxed builds. M3 then adds the native
-save-location handoff from a1-11, and a later milestone the folder picker where it needs one. This
-interim follows brief §9, not this ADR, and each milestone summary flags it again for approval.
+Before the owner's answer of 2026-10-16 ([Q07](../QUESTIONS.md#q07)), M1 built no file picker;
+features that would open one stayed visible and disabled with "Available in a future version". M2
+adds the open picker, M3 the native save-location handoff from a1-11, and a later milestone the
+folder picker where it needs one.
 
 ## Consequences
 
@@ -93,8 +91,8 @@ interim follows brief §9, not this ADR, and each milestone summary flags it aga
   the OS, not Ferman's UI language. We accept this as platform convention.
 - Native pickers cannot be driven by widget tests or goldens; tests use the fake service, and
   integration tests cover the handoff where the platform allows.
-- Linux behaviour varies with the desktop environment and portal availability, and Linux packaging is
-  still open ([Q12](../QUESTIONS.md#q12)).
+- Linux behaviour varies with the desktop environment and portal availability; Linux ships as a
+  Flatpak on Flathub plus an AppImage from M5 ([Q12](../QUESTIONS.md#q12), 2026-10-16).
 - Recent files on sandboxed platforms need bookmark handling, which adds code and edge cases (moved or
   deleted files, [G28](../DESIGN_GAPS.md#g28)).
 

@@ -8,7 +8,7 @@ Start every session by reading docs/PROGRESS.md.
 
 Then read this file and the part of [docs/BRIEF.md](docs/BRIEF.md) that covers your task ([brief §9](docs/BRIEF.md#9-how-to-work-in-every-later-session)). The brief is authoritative. If any other doc disagrees with it, the brief wins and the doc gets fixed. [docs/PROGRESS.md](docs/PROGRESS.md) holds the current milestone, the next step and the session log.
 
-The owner approved M0 on 2026-10-15 (pull request #1). M1 (foundations) is complete and waits for the owner's approval (pull request #2); PROGRESS.md holds its plan, log and pending owner checks. The next milestone waits for the owner's go-ahead.
+The owner approved M0 on 2026-10-15 (pull request #1) and M1 (foundations) on 2026-10-16 (pull request #2, merged), and answered every open question in [docs/QUESTIONS.md](docs/QUESTIONS.md) the same day. The owner is adding a corrected design export to `design/` next; M2 (open and view) is planned after it, and starts only on the owner's go-ahead. PROGRESS.md holds the log and the pending owner checks.
 
 ## Repo map
 
@@ -67,7 +67,7 @@ cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: 
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
 (cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)
-(cd app && flutter build web --release)                              # web build with the engine stubbed (Proposed, kept buildable until phase 5)
+(cd app && flutter build web --release)                              # web build with the engine stubbed (kept buildable until phase 5)
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
 (cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2
 (cd app && very_good packages check licenses)                         # Dart licence check (flags: DEPENDENCIES.md §8)
@@ -102,11 +102,11 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5,
 - Custom title bars on macOS, Windows and Linux; on Linux, client-side decorations with the caption buttons at the end ([G15](docs/DESIGN_GAPS.md#g15), [Q12](docs/QUESTIONS.md#q12)).
 
 **Architecture**
-- The decisions in [brief §3](docs/BRIEF.md#3-architecture-fixed-decisions-change-only-through-an-adr-that-i-approve) are fixed. Change them only through an ADR the owner approves. A Proposed ADR is not in force until approved (0009 threading, 0018 pickers). Nor are the details marked **Proposed:** inside Accepted (brief) ADRs. Accepted by the owner on 2026-10-15: 0007 (harfrust instead of rustybuzz) and the Plex Sans Hebrew and Devanagari part of 0013. Accepted on 2026-10-16: the direction of [ADR 0019](docs/adr/0019-ai-clients-through-mcp.md) (AI clients through a local MCP server in the running app, after M3); its details are Proposed. [ADR 0018](docs/adr/0018-native-file-pickers.md) (native pickers) has its own interim rule: M1 builds no picker, and if M2 starts before the owner answers [Q07](docs/QUESTIONS.md#q07), the OS-native picker is used as the safest option and flagged again.
+- The decisions in [brief §3](docs/BRIEF.md#3-architecture-fixed-decisions-change-only-through-an-adr-that-i-approve) are fixed. Change them only through an ADR the owner approves. A Proposed ADR is not in force until approved, nor is a detail marked **Proposed:** inside an Accepted ADR. Accepted by the owner on 2026-10-15: 0007 (harfrust instead of rustybuzz) and the Plex Sans Hebrew and Devanagari part of 0013. Accepted on 2026-10-16: [ADR 0009](docs/adr/0009-threading-and-jobs.md) (threading and jobs, with the tile-transfer order of [Q19](docs/QUESTIONS.md#q19)), [ADR 0018](docs/adr/0018-native-file-pickers.md) (OS-native pickers for open, save location and folder; the a1-11 Save as sheet hands off to them), [ADR 0019](docs/adr/0019-ai-clients-through-mcp.md) (AI clients through a local MCP server in the running app, after M3, with its details), and the Proposed details of ADRs 0003, 0004, 0006 and 0008.
 - The UI never touches PDF internals. It calls only `ferman-api`: open and close, page info, tile rendering, text blocks, edit transactions (begin/apply/commit/rollback, giving engine-level undo and redo) and jobs.
 - lopdf is the document model and source of truth. PDFium (pdfium-render with prebuilt bblanchon/pdfium-binaries bundled per platform) is a read-only rasteriser, used only inside `ferman-render`.
 - Rendering and heavy work never run on the UI thread. Tiles for deep zoom; thumbnail and glyph caches. Jobs (OCR, convert, compress, batch) are async, cancellable and stream progress.
-- PDFs are untrusted input: resource limits and fuzzing. Document JavaScript is never executed (policy to confirm in [Q13](docs/QUESTIONS.md#q13)).
+- PDFs are untrusted input: resource limits and fuzzing. Document JavaScript is never executed, and the user is told when a document contains scripts (confirmed in [Q13](docs/QUESTIONS.md#q13)).
 
 **File safety**
 - Never corrupt a user's file. Save through a temp file and an atomic rename. Incremental update is the default; "optimize and clean" is an optional full rewrite. Autosave and recovery files live in the app data directory.
@@ -114,11 +114,11 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5,
 **Privacy**
 - No telemetry, no analytics, no crash reporting service. Logs stay on the device.
 - The network is used only for: the update check (can be disabled), optional language-pack downloads, optional AI (a local model or the user's own key), and signature timestamp servers. All of them are listed in Settings → Privacy.
-- OCSP/CRL lookups and local-network discovery (a7-4) are drawn but not in the brief. They stay off until the owner decides ([Q06](docs/QUESTIONS.md#q06)).
+- The owner added one use on 2026-10-16 ([Q06](docs/QUESTIONS.md#q06)): OCSP/CRL revocation lookups, off until first use, with their own switch in Settings → Privacy and an entry in the network log (phase 3). Local-network discovery and phone pairing (a7-4) are not built: Scan to PDF offers only the scanners the operating system provides.
 
 **Dependencies**
 - Permissive licences only. The brief's "permissive or GPL-compatible", applied to an Apache-2.0 product, rules out GPL (any version), LGPL as a sole licence and AGPL. MPL-2.0 is allowed only per package after owner review. Never non-commercial; no MuPDF, no Ghostscript. Enforced with cargo-deny and the Dart licence check ([ADR 0016](docs/adr/0016-dependency-licence-policy.md)).
-- Three named licence exceptions are approved ([Q17](docs/QUESTIONS.md#q17), 2026-10-15): MPL-2.0 `dbus` through desktop_drop (from M2, unmodified, notice in every build, skipped by name in the pub check), NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0 Swatinem/rust-cache in CI only. They widen nothing else. The reading of "GPL-compatible" is still open, so the stricter reading above applies.
+- Three named licence exceptions are approved ([Q17](docs/QUESTIONS.md#q17), 2026-10-15): MPL-2.0 `dbus` through desktop_drop (from M2, unmodified, notice in every build, skipped by name in the pub check), NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0 Swatinem/rust-cache in CI only. They widen nothing else. The owner confirmed the stricter reading of "GPL-compatible" above on 2026-10-16 (Q17 part 4).
 - Every dependency is listed with its licence in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md), updated in the same change.
 
 **Text editing** ([brief §4](docs/BRIEF.md#4-the-hardest-part-editing-existing-text-must-be-flawless))
@@ -163,7 +163,7 @@ Otherwise work autonomously. Put open questions in [docs/QUESTIONS.md](docs/QUES
 2. Plan the milestone in [docs/PROGRESS.md](docs/PROGRESS.md) from its acceptance criteria in [docs/ROADMAP.md](docs/ROADMAP.md).
 3. Implement and test in small steps. A new decision gets a Proposed ADR from [docs/adr/template.md](docs/adr/template.md).
 4. Update the docs as you go: PROGRESS, ARCHITECTURE and ADRs, DEPENDENCIES, DESIGN_GAPS, QUESTIONS, BACKLOG and the commands in this file.
-5. Commit in Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`), at most 15 to 20 per pull request (the owner, 2026-10-16): collect a phase's work, check it, then commit it as one or a few commits and push the batch, not every fix on its own. Commits, pull request titles and pull request bodies carry no AI attribution: no `Co-Authored-By` or `Claude-Session` lines, no "Generated with" lines, and never an AI author. Author them as the owner: in a fresh clone, set the local `git config user.name` and `user.email` to the owner's identity from the earlier commits (`git log -1 --format='%an <%ae>' 7f3945b`). M1 work lives on the branch `m1-foundations`, with pull request #2 to `main` (ready for review), which the owner merges when M1 is done.
+5. Commit in Conventional Commits (`feat:`, `fix:`, `docs:`, `test:`, `refactor:`, `build:`, `ci:`, `chore:`), at most 15 to 20 per pull request (the owner, 2026-10-16): collect a phase's work, check it, then commit it as one or a few commits and push the batch, not every fix on its own. Commits, pull request titles and pull request bodies carry no AI attribution: no `Co-Authored-By` or `Claude-Session` lines, no "Generated with" lines, and never an AI author. Author them as the owner: in a fresh clone, set the local `git config user.name` and `user.email` to the owner's identity from the earlier commits (`git log -1 --format='%an <%ae>' 7f3945b`). M1 was merged from `m1-foundations` (pull request #2). M2 work goes on the branch `m2-open-and-view`, with one pull request to `main` that the owner merges when told it is ready. From M2 on every commit carries a DCO `Signed-off-by:` line in the owner's name ([Q14](docs/QUESTIONS.md#q14)).
 6. Stop with a short summary for the owner: what was done, what is disabled or deferred, open questions. When a pull request is complete and CI is green on its last commit, tell the owner plainly that it is ready to merge, with a merge commit (not squash or rebase), so the commit ids the docs cite as evidence stay in `main`.
 
 ## Definition of done

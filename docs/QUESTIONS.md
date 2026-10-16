@@ -9,7 +9,8 @@ Brief §8 asks Milestone 0 to end with at least three questions: the bundle iden
 ([Q01](#q01)), the publisher name for code signing ([Q02](#q02)) and the minimum macOS and Windows
 versions ([Q03](#q03)). The others came up during discovery and planning. The owner answered the
 first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
-[Q19](#q19) after the M1 bridge benchmark.
+[Q19](#q19) after the M1 bridge benchmark. The owner answered every remaining question on
+2026-10-16, when M1 was merged.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -30,7 +31,7 @@ Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture
   [DESIGN_GAPS.md](DESIGN_GAPS.md) entries (from Needs owner to Decided or Resolved), and
   [ROADMAP.md](ROADMAP.md), [DEPENDENCIES.md](DEPENDENCIES.md) or [ARCHITECTURE.md](ARCHITECTURE.md)
   where they mention the question.
-- New questions get the next free id, Q19 onwards. Ids are never reused, so links stay valid.
+- New questions get the next free id, Q21 onwards. Ids are never reused, so links stay valid.
 
 ### Status values
 
@@ -66,25 +67,25 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | ID | Question | Needed by | Status |
 |---|---|---|---|
 | [Q01](#q01) | Bundle identifier | M1 step 2 | Answered 2026-10-15: `io.github.kerembas.ferman` |
-| [Q02](#q02) | Code-signing publisher name | M5 | Open |
+| [Q02](#q02) | Code-signing publisher name | M5 | Answered 2026-10-16: one name; an individual Apple membership unless an organisation exists; Azure Trusted Signing or an organisation-validated certificate, else SignPath |
 | [Q03](#q03) | Minimum OS versions and architectures | M1 step 2 | Answered 2026-10-15 |
 | [Q04](#q04) | Approve ADR 0007: harfrust instead of rustybuzz | M1 step 1 | Answered 2026-10-15: harfrust |
 | [Q05](#q05) | Confirm eight mode tabs, including Tools | M1 step 8 | Answered 2026-10-15: eight tabs |
-| [Q06](#q06) | Network uses the design adds: OCSP and CRL, local network | M4 (Privacy rows); P3 | Open |
-| [Q07](#q07) | Approve ADR 0018: OS-native file pickers | M2 | Open |
-| [Q08](#q08) | Fonts to bundle: Hebrew, Devanagari, CJK, handwriting, similar fonts | M1 step 5; M3; M4 | Answered in part 2026-10-15: groups 1 and 2; groups 3 (M4) and 4 (M3) open |
-| [Q09](#q09) | Missing-glyph default as designed | M3 | Open |
-| [Q10](#q10) | Milestones for drawn features the roadmap does not name | M2 | Open |
-| [Q11](#q11) | Design re-export and fixes, or DESIGN_GAPS decisions as final | none blocked; M1 gains most | Open |
-| [Q12](#q12) | Linux packaging formats and window chrome | M1 step 8; M5 | Answered in part 2026-10-15: custom title bar; packaging open until M5 |
-| [Q13](#q13) | Document JavaScript is never executed | M2 | Open |
-| [Q14](#q14) | Copyright holder "The Ferman Authors"; commit sign-off | M1 | Answered in part 2026-10-15: "The Ferman Authors"; sign-off open |
-| [Q15](#q15) | Update check: endpoint and payload | M5 | Open |
-| [Q16](#q16) | OCR engine | P3 | Open |
-| [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache); M2 | Answered in part 2026-10-15: parts 1 to 3 approved; part 4 open |
-| [Q18](#q18) | macOS App Sandbox | before M2 | Open |
-| [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Open |
-| [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered in part 2026-10-16: yes, after M3, live in the running app, set up from Settings; details open |
+| [Q06](#q06) | Network uses the design adds: OCSP and CRL, local network | M4 (Privacy rows); P3 | Answered 2026-10-16: revocation allowed, off until first use; only the system's scanners, no pairing |
+| [Q07](#q07) | Approve ADR 0018: OS-native file pickers | M2 | Answered 2026-10-16: native pickers; ADR 0018 Accepted |
+| [Q08](#q08) | Fonts to bundle: Hebrew, Devanagari, CJK, handwriting, similar fonts | M1 step 5; M3; M4 | Answered 2026-10-15 and 2026-10-16: all four groups (handwriting and similar fonts bundled) |
+| [Q09](#q09) | Missing-glyph default as designed | M3 | Answered 2026-10-16: the design's default, and the `fsType` detail |
+| [Q10](#q10) | Milestones for drawn features the roadmap does not name | M2 | Answered 2026-10-16: the proposal |
+| [Q11](#q11) | Design re-export and fixes, or DESIGN_GAPS decisions as final | none blocked; M1 gains most | Answered 2026-10-16: (c), the missing files with the next export, boards for the riskiest gaps |
+| [Q12](#q12) | Linux packaging formats and window chrome | M1 step 8; M5 | Answered 2026-10-15 and 2026-10-16: custom title bar; Flatpak and AppImage in M5 |
+| [Q13](#q13) | Document JavaScript is never executed | M2 | Answered 2026-10-16: never run, and say so |
+| [Q14](#q14) | Copyright holder "The Ferman Authors"; commit sign-off | M1 | Answered 2026-10-15 and 2026-10-16: "The Ferman Authors"; DCO sign-off required from M2 |
+| [Q15](#q15) | Update check: endpoint and payload | M5 | Answered 2026-10-16: a signed manifest served from GitHub (Releases or Pages); the release files on GitHub Releases |
+| [Q16](#q16) | OCR engine | P3 | Answered 2026-10-16: chosen at the start of phase 3; Tesseract the fallback |
+| [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache); M2 | Answered 2026-10-15 and 2026-10-16: three exceptions; the stricter reading confirmed |
+| [Q18](#q18) | macOS App Sandbox | before M2 | Answered 2026-10-16: keep the sandbox if M2 shows it works, else off for the Developer ID build |
+| [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Answered 2026-10-16: the Dco codec first, then the pointer view, then textures |
+| [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered 2026-10-16: after M3, live in the running app, set up from Settings; details as proposed |
 
 ## Questions
 
@@ -152,13 +153,18 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** one name on both platforms. Use an individual Apple membership unless an
   organisation exists. On Windows, use Azure Trusted Signing or an organisation-validated
   certificate in the same name if available to you, and SignPath Foundation otherwise.
-- **Meanwhile:** development and CI builds stay unsigned. M4 runs a signing dry run with a test
-  certificate (see [ROADMAP.md](ROADMAP.md)). Nothing is published as a release before an answer.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, development and CI builds stay
+  unsigned. M4 runs a signing dry run with a test certificate (see [ROADMAP.md](ROADMAP.md)).
+  Nothing is published as a release before an answer.
 - **Needed by:** M5. Enrolment and certificate validation can take weeks, so an early answer helps.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
   [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), [Q01](#q01), [Q14](#q14)
-- **Answer:** none yet
+- **Answer:** the proposal: one publisher name on both platforms. On macOS, an individual Apple
+  Developer Program membership, signed with the owner's legal name, unless an organisation exists.
+  On Windows, Azure Trusted Signing or an organisation-validated certificate in the same name if
+  available, and SignPath Foundation otherwise.
+
 
 <a id="q03"></a>
 
@@ -270,13 +276,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     (b) only the scanners the operating system provides, and no pairing; (c) left out.
 - **Proposal:** revocation (a). Local network (b) for phase 3, and pairing reconsidered with the
   mobile apps in phase 5.
-- **Meanwhile:** none of these is enabled. The drawn rows and switches stay visible but disabled.
-  Nothing is built before phase 3.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, none of these is enabled. The
+  drawn rows and switches stay visible but disabled. Nothing is built before phase 3.
 - **Needed by:** M4 decides which rows Settings › Privacy shows; P3 builds the features.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [G24](DESIGN_GAPS.md#g24), [G51](DESIGN_GAPS.md#g51), [G52](DESIGN_GAPS.md#g52),
   [G56](DESIGN_GAPS.md#g56), [ADR 0015](adr/0015-privacy-and-network.md)
-- **Answer:** none yet
+- **Answer:** the proposal. Revocation (a): OCSP and CRL lookups are allowed, off until first use,
+  with their own switch in Settings › Privacy and an entry in the network activity log. They become
+  a fifth network use beside the brief's four, listed in Settings › Privacy; [ADR
+  0015](adr/0015-privacy-and-network.md) follows when phase 3 builds them. Local network (b): Scan
+  to PDF (phase 3) offers only the scanners the operating system provides; Ferman does no
+  local-network discovery and no phone pairing, which is reconsidered with the mobile apps in phase
+  5.
 
 <a id="q07"></a>
 
@@ -295,15 +307,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   work in sandboxed builds; (c) native pickers everywhere, including Save as, which drops the drawn
   a1-11 sheet.
 - **Proposal:** (a), as [ADR 0018](adr/0018-native-file-pickers.md) describes.
-- **Meanwhile:** M1 builds no picker; entry points that would open one stay visible and disabled
-  with "Available in a future version". If M2 starts before an answer, the OS-native open picker is
-  used as the safest option (brief §9), and in M3 the native save-location handoff from a1-11; each
-  milestone summary flags it again for approval, as ADR 0018 says.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, M1 builds no picker; entry
+  points that would open one stay visible and disabled with "Available in a future version". If M2
+  starts before an answer, the OS-native open picker is used as the safest option (brief §9), and in
+  M3 the native save-location handoff from a1-11; each milestone summary flags it again for
+  approval, as ADR 0018 says.
 - **Needed by:** M2 (open dialog); M3 (Save as).
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [ADR 0018](adr/0018-native-file-pickers.md), [G25](DESIGN_GAPS.md#g25),
   [G26](DESIGN_GAPS.md#g26), [G28](DESIGN_GAPS.md#g28), [Q12](#q12), [Q18](#q18)
-- **Answer:** none yet
+- **Answer:** (a), the proposal: OS-native pickers for opening a file, choosing a save location and
+  choosing a folder are the only exception to the custom-dialog rule. Ferman's a1-11 Save as sheet
+  stays and hands off to the native panel for "Other location…". [ADR
+  0018](adr/0018-native-file-pickers.md) is Accepted.
 
 <a id="q08"></a>
 
@@ -328,11 +344,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Options:** bundle each group or not; for group 2, system fonts only or optional font packs.
 - **Proposal:** bundle groups 1, 3 and 4 as unmodified upstream files with their licences; CJK from
   system fonts, with no font packs.
-- **Meanwhile:** for the open groups 3 and 4: no handwriting fonts ship, so typed signatures wait
-  while drawn and image signatures work; missing-glyph step 3 offers embedded fonts, installed fonts
-  and the bundled Plex families.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, for the open groups 3 and 4: no
+  handwriting fonts ship, so typed signatures wait while drawn and image signatures work;
+  missing-glyph step 3 offers embedded fonts, installed fonts and the bundled Plex families.
 - **Needed by:** M1 step 5 (groups 1 and 2, answered), M3 (group 4), M4 (group 3).
-- **Status:** Answered in part on 2026-10-15 (groups 1 and 2). Groups 3 and 4 stay Open.
+- **Status:** Answered on 2026-10-15 (groups 1 and 2) and 2026-10-16 (groups 3 and 4)
 - **Related:** [ADR 0013](adr/0013-fonts-and-icons.md) (Accepted),
   [ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md), [G06](DESIGN_GAPS.md#g06),
   [G07](DESIGN_GAPS.md#g07), [G08](DESIGN_GAPS.md#g08)
@@ -341,8 +357,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     400, 500 and 600), as unmodified TTFs with their OFL-1.1 licence files, from M1 step 5.
     [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted in full.
   - Group 2: Japanese, Korean and Chinese use system fonts, with no font packs.
-  - Groups 3 (handwriting faces, needed by M4) and 4 (similar fonts for missing glyphs, needed by
-    M3) are still open.
+  - Groups 3 and 4 (2026-10-16): bundled, as proposed. Caveat, Dancing Script and Homemade Apple for
+    typed signatures (M4), and Cormorant Garamond and Crimson Pro as similar fonts for missing
+    glyphs (M3), each as the unmodified upstream files with its licence;
+    [DEPENDENCIES.md](DEPENDENCIES.md) lists them when they are added.
 
 <a id="q09"></a>
 
@@ -368,14 +386,17 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   default; (c) "Keep the original font and mark the character" as the default. For the `fsType`
   detail: (i) as proposed; (ii) reuse embedded glyphs whatever `fsType` says.
 - **Proposal:** (a), and the `fsType` detail as proposed (i).
-- **Meanwhile:** (a), with step 2 always tried first
-  ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)). No text is edited before M3, so the
-  `fsType` detail has no effect until then.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, (a), with step 2 always tried
+  first ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)). No text is edited before M3, so
+  the `fsType` detail has no effect until then.
 - **Needed by:** M3.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [G36](DESIGN_GAPS.md#g36), [G37](DESIGN_GAPS.md#g37),
   [ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)
-- **Answer:** none yet
+- **Answer:** (a) and (i), the proposal: the default stays the design's "Use a similar font and say
+  so", with step 2 always tried first, and text set in an embedded font whose OS/2 `fsType` allows
+  at most preview and print does not reuse its embedded glyphs ([ADR
+  0006](adr/0006-font-pipeline-and-missing-glyphs.md)).
 
 <a id="q10"></a>
 
@@ -401,12 +422,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   Drawn features placed with the nearest roadmap item (crash recovery with saving, bookmarks and
   metadata editing, links, and others) are listed in [ROADMAP.md](ROADMAP.md) under "Not scheduled
   yet".
-- **Meanwhile:** the proposal. Entry points stay disabled with "Available in a future version"
-  until each feature ships.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, the proposal. Entry points stay
+  disabled with "Available in a future version" until each feature ships.
 - **Needed by:** M2 (layers), then M4 and each later phase.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [G33](DESIGN_GAPS.md#g33), [ROADMAP.md](ROADMAP.md)
-- **Answer:** none yet
+- **Answer:** the proposal is accepted as the table above gives it.
 
 <a id="q11"></a>
 
@@ -431,21 +452,25 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   - (c) A mix: the missing files now, and boards only for the riskiest gaps (M1 shell variants and
     the M3 editing states).
 - **Proposal:** (c).
-- **Meanwhile:** the DESIGN_GAPS decisions stand. The `Fm*` building blocks, `_ds_bundle.js` and
-  `_adherence.oxlintrc.json` are the source for components. Ferman builds undrawn states from
-  existing components and records them in goldens. A re-export replaces `design/` only through a
-  change you make or approve (brief §9). The repository already carries the OFL-1.1 (IBM Plex), ISC
-  (Lucide) and MIT (Feather) texts for the third-party material inside `design/` in
-  [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), outside `design/`. The app ships its own
-  licence files in `app/assets` either way (brief §2).
+- **Meanwhile:** the DESIGN_GAPS decisions stand until a board of the new export replaces them.
+  The `Fm*` building blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` are the source
+  for components. Ferman builds undrawn states from existing components and records them in goldens.
+  A re-export replaces `design/` only through a change you make or approve (brief §9). The
+  repository already carries the OFL-1.1 (IBM Plex), ISC (Lucide) and MIT (Feather) texts for the
+  third-party material inside `design/` in [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md),
+  outside `design/`. The app ships its own licence files in `app/assets` either way (brief §2).
 - **Needed by:** no milestone is blocked. M1 (component library and shell) gains most from an early
   answer.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G03](DESIGN_GAPS.md#g03),
   [G04](DESIGN_GAPS.md#g04), [G05](DESIGN_GAPS.md#g05), [G08](DESIGN_GAPS.md#g08),
   [G60](DESIGN_GAPS.md#g60), and every DESIGN_GAPS entry that asks for boards;
   [ADR 0012](adr/0012-design-token-pipeline.md), [ADR 0013](adr/0013-fonts-and-icons.md)
-- **Answer:** none yet
+- **Answer:** (c), the proposal: the missing files (the desktop UI kit, the component sources and
+  types, the guidelines, and where the seven added icons of [G60](DESIGN_GAPS.md#g60) come from)
+  come with the next design-system export, and corrected or new boards come for the riskiest gaps.
+  The owner is preparing those boards and adds the new export to `design/` in a change of their own;
+  Ferman's documents and goldens follow it.
 
 <a id="q12"></a>
 
@@ -466,16 +491,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     GNOME (libadwaita) style, matching the custom title bars on macOS and Windows; (b) the system's
     own decorations, with Ferman's tab, mode and tool rows below them.
 - **Proposal:** Flatpak on Flathub plus an AppImage for M5; chrome (a).
-- **Meanwhile:** for the open packaging part: no packaging before M5.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, for the open packaging part: no
+  packaging before M5.
 - **Needed by:** M1 step 8 (chrome, answered); M5 (packaging).
-- **Status:** Answered in part on 2026-10-15 (window chrome). The packaging formats stay Open until
-  M5.
+- **Status:** Answered on 2026-10-15 (window chrome) and 2026-10-16 (packaging)
 - **Related:** [G15](DESIGN_GAPS.md#g15), [G53](DESIGN_GAPS.md#g53),
   [ADR 0018](adr/0018-native-file-pickers.md), [Q01](#q01), [Q03](#q03), [Q07](#q07)
 - **Answer:** chrome (a): a custom Linux title bar with client-side decorations drawn by Ferman, the
   caption buttons at the end, Ctrl shortcuts and Cancel on the left in dialogs.
-  [G15](DESIGN_GAPS.md#g15) is Decided. The formats are decided before M5; a Flatpak on Flathub
-  would also need the Flathub id check noted in [Q01](#q01).
+  [G15](DESIGN_GAPS.md#g15) is Decided.
+
+  Packaging (2026-10-16): the proposal, a Flatpak on Flathub plus an AppImage, built in M5. The
+  release files for macOS, Windows and Linux are published on GitHub Releases ([Q15](#q15)). The
+  Flathub id check in [Q01](#q01) still applies.
 
 <a id="q13"></a>
 
@@ -491,14 +519,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   date and percentage formats, simple sums) without a script engine; (c) run scripts in a sandboxed
   engine.
 - **Proposal:** (a) now; consider (b) with form filling (M4) or form authoring (P4).
-- **Meanwhile:** (a). The PDFium build Ferman ships has no JavaScript engine, and the engine never
-  executes document scripts ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md),
-  [ADR 0015](adr/0015-privacy-and-network.md)).
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, (a). The PDFium build Ferman
+  ships has no JavaScript engine, and the engine never executes document scripts ([ADR
+  0004](adr/0004-lopdf-model-pdfium-renderer.md), [ADR 0015](adr/0015-privacy-and-network.md)).
 - **Needed by:** M2 (opening documents that contain scripts); M4 (form filling).
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md),
   [ADR 0015](adr/0015-privacy-and-network.md), [ARCHITECTURE.md](ARCHITECTURE.md)
-- **Answer:** none yet
+- **Answer:** (a), the proposal: Ferman never runs document JavaScript and tells the user when a
+  document contains scripts that it does not run. (b), helpers for common form formats without a
+  script engine, is considered with form filling (M4) or form authoring (P4).
 
 <a id="q14"></a>
 
@@ -517,15 +547,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   future organisation. Sign-off: (i) required from M1, with a CI check; (ii) welcome but not
   required; (iii) not used.
 - **Proposal:** (a), and sign-off (i).
-- **Meanwhile:** for the open sign-off part: sign-off is welcome but not required, and CI does not
-  check it.
-- **Needed by:** M1 (app metadata and About, answered; the sign-off check, open).
-- **Status:** Answered in part on 2026-10-15 (copyright holder). The sign-off part stays Open.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, for the open sign-off part:
+  sign-off is welcome but not required, and CI does not check it.
+- **Needed by:** M1 (app metadata and About), M2 (the sign-off check); both answered.
+- **Status:** Answered on 2026-10-15 (copyright holder) and 2026-10-16 (sign-off)
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
   [CONTRIBUTING.md](../CONTRIBUTING.md), [LICENSE](../LICENSE)
 - **Answer:** (a), "Copyright The Ferman Authors", in the app metadata (the macOS bundle and the
   Windows file properties), About, installers and notice files. The LICENSE file stays the
-  unmodified Apache-2.0 text. Whether every commit must carry a DCO sign-off is not decided yet.
+  unmodified Apache-2.0 text.
+
+  Sign-off (2026-10-16): (i), required. Every commit carries a DCO 1.1 `Signed-off-by:` line from M2
+  on, as M1 is merged; the first M2 pull request adds the CI check and updates
+  [CONTRIBUTING.md](../CONTRIBUTING.md).
 
 <a id="q15"></a>
 
@@ -545,12 +579,18 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** endpoint (a), with one manifest per channel (Stable, Beta) and a signature. One
   HTTPS request with no cookies and no identifiers; the user agent carries only the version and
   platform, matching a11-1h; the comparison happens on the device.
-- **Meanwhile:** no network code exists before M5.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, no network code exists before
+  M5.
 - **Needed by:** M5.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [G24](DESIGN_GAPS.md#g24), [G53](DESIGN_GAPS.md#g53),
   [ADR 0015](adr/0015-privacy-and-network.md)
-- **Answer:** none yet
+- **Answer:** the proposal, with the owner's note that the release files for macOS, Windows and
+  Linux are published on the repository's GitHub Releases. The update check reads a static, signed
+  manifest per channel (Stable, Beta) served from GitHub (Releases or Pages), with no server of
+  Ferman's own: one HTTPS request with no cookies and no identifiers, a user agent carrying only the
+  version and platform (as a11-1h says), and the comparison made on the device. Update packages are
+  verified with their signature before they are installed.
 
 <a id="q16"></a>
 
@@ -568,13 +608,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   trained data under Apache-2.0, at the cost of a C++ dependency on three systems; (c) another
   engine with ONNX models, after a licence review.
 - **Proposal:** decide at the start of phase 3 after a fresh check. Tesseract is the fallback.
-- **Meanwhile:** no OCR before phase 3. OCR entry points are disabled with "Available in a future
-  version".
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, no OCR before phase 3. OCR
+  entry points are disabled with "Available in a future version".
 - **Needed by:** P3.
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md), [DEPENDENCIES.md](DEPENDENCIES.md),
   [ROADMAP.md](ROADMAP.md), [G29](DESIGN_GAPS.md#g29), [G39](DESIGN_GAPS.md#g39)
-- **Answer:** none yet
+- **Answer:** the proposal: the engine is chosen at the start of phase 3 after a fresh check of ocrs
+  and other engines, with Tesseract and Leptonica as the fallback.
 
 <a id="q17"></a>
 
@@ -605,11 +646,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** approve all three as named exceptions (a cargo-deny exception for `libfuzzer-sys`, a
   named skip in the pub licence check for `dbus`, rust-cache pinned by commit SHA), and confirm the
   reading.
-- **Meanwhile:** for the open part 4: the stricter reading applies
-  ([DEPENDENCIES.md](DEPENDENCIES.md#1-policy)).
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, for the open part 4: the
+  stricter reading applies ([DEPENDENCIES.md](DEPENDENCIES.md#1-policy)).
 - **Needed by:** M1 (the CI cache) and M2 (drag and drop and the first fuzz targets), all answered.
   Part 4 blocks nothing while the stricter reading applies.
-- **Status:** Answered in part on 2026-10-15 (parts 1 to 3). Part 4 stays Open.
+- **Status:** Answered on 2026-10-15 (parts 1 to 3) and 2026-10-16 (part 4)
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
   [ADR 0017](adr/0017-testing-and-ci.md), [DEPENDENCIES.md](DEPENDENCIES.md), [Q16](#q16)
 - **Answer:** parts 1 to 3 approved as named exceptions:
@@ -620,9 +661,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
      cargo-deny exception for that crate. `fuzz/` is created with the first parser in M2.
   3. Swatinem/rust-cache (LGPL-3.0) in CI only, pinned by commit SHA, never vendored or copied.
 
-  Part 4, the project's reading of "GPL-compatible", is not decided yet. Until it is, the stricter
-  reading applies: no GPL code of any version, no LGPL-only code, and MPL-2.0 only per package after
-  the owner's review.
+  Part 4 (2026-10-16): the reading is confirmed. No GPL code of any version, no LGPL-only code, and
+  MPL-2.0 only per package after the owner's review.
 
 <a id="q18"></a>
 
@@ -653,15 +693,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   unsandboxed for direct downloads.
 - **Proposal:** (a), if M2 shows that recent files and the atomic save of ADR 0008 work under it;
   otherwise (b), with the reason recorded.
-- **Meanwhile:** M1 keeps the template's sandbox entitlement on. M1 opens no documents, so nothing
-  depends on the answer yet. The M1 settings file goes to the app support directory that
-  path_provider reports, which lies inside the container while the sandbox is on.
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, M1 keeps the template's sandbox
+  entitlement on. M1 opens no documents, so nothing depends on the answer yet. The M1 settings file
+  goes to the app support directory that path_provider reports, which lies inside the container
+  while the sandbox is on.
 - **Needed by:** before M2 starts (opening files, recent files, file pickers).
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [Q07](#q07), [Q01](#q01), [Q03](#q03), [ADR 0008](adr/0008-file-safety-and-saving.md),
   [ADR 0018](adr/0018-native-file-pickers.md), [G28](DESIGN_GAPS.md#g28),
   [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)
-- **Answer:** none yet
+- **Answer:** (a), the proposal: the App Sandbox stays on in every macOS build, with security-scoped
+  bookmarks for recent files and the system's replacement directory for atomic saves, if M2 shows
+  that both work under it. If they do not, (b): the Developer ID build (DMG and Homebrew) drops the
+  sandbox and keeps the hardened runtime, with the reason recorded.
 
 <a id="q19"></a>
 
@@ -683,14 +727,19 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   native code on three systems and a `Texture` widget per tile.
 - **Proposal:** (a) first, measured on R1 and R2 with `flutter drive --profile`; (b) if (a) misses
   the budget; (c) only if both fail.
-- **Meanwhile:** M1 keeps the default codec. M1 moves no tiles, so nothing depends on the answer
-  yet. Running the profile benchmark on R1 and R2 is an owner check
-  ([PROGRESS.md](PROGRESS.md#measurements)).
+- **Meanwhile:** superseded by the answer of 2026-10-16. Until then, M1 keeps the default codec. M1
+  moves no tiles, so nothing depends on the answer yet. Running the profile benchmark on R1 and R2
+  is an owner check ([PROGRESS.md](PROGRESS.md#measurements)).
 - **Needed by:** before M2 step 3 (tiles and the viewer).
-- **Status:** Open
+- **Status:** Answered on 2026-10-16
 - **Related:** [ADR 0009](adr/0009-threading-and-jobs.md), [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
   [ADR 0010](adr/0010-error-handling-no-panics.md), [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)
-- **Answer:** none yet
+- **Answer:** the proposal: (a) first, the Dco codec, measured on R1 and R2 with `flutter drive
+  --profile`; (b) only if (a) misses the budget; (c) only if both fail. Option (b) needs a small
+  hand-written unsafe surface in ferman-api, an exception to [ADR
+  0010](adr/0010-error-handling-no-panics.md), so it is built only with the owner's approval of that
+  surface, as [ADR 0009](adr/0009-threading-and-jobs.md) says. ADR 0009 is Accepted with the other
+  Proposed items of M1 ([PROGRESS.md](PROGRESS.md#owner-decisions-in-force-2026-10-15)).
 
 <a id="q20"></a>
 
@@ -707,11 +756,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   reachable only from the same computer ([ADR 0019](adr/0019-ai-clients-through-mcp.md)).
 - **Meanwhile:** nothing is built before M4 step 11.
 - **Needed by:** M4 step 11.
-- **Status:** Answered in part on 2026-10-16: the direction; the details marked Proposed in ADR 0019
-  are settled with the owner when the step starts.
+- **Status:** Answered on 2026-10-16: the direction, then the details
 - **Related:** [ADR 0019](adr/0019-ai-clients-through-mcp.md), [ADR 0015](adr/0015-privacy-and-network.md),
   [G94](DESIGN_GAPS.md#g94), [Q13](#q13)
 - **Answer:** The owner, 2026-10-16: yes, planned after M3. It works with the Ferman app open, locally.
   In Settings, Ferman gives a connection link for each client it can support (Claude, ChatGPT and
   others), or opens the client already set up. Anything that turns out to be a problem while building
   it is asked then.
+
+  The details (2026-10-16): the owner approved the Proposed details of [ADR
+  0019](adr/0019-ai-clients-through-mcp.md) as written, together with the other Proposed items of
+  M1. Anything that changes when M4 step 11 starts goes back to the owner.

@@ -24,10 +24,11 @@ change is proposed in writing and approved before it takes effect.
 | **Deprecated** | No longer relevant, and nothing replaces it. |
 
 Some ADRs are split: one part comes from the brief and another part is new. Those say so in their
-status line (for example ADR 0013, whose new part the owner has since accepted) and mark each part. A smaller new detail inside an Accepted (brief)
-ADR is marked **Proposed:** where it appears, as in [ARCHITECTURE.md](../ARCHITECTURE.md) (for example
-the crate-edge check in ADR 0003). Like a Proposed ADR, it has no effect until the owner approves it, at
-the milestone review or in the question it cites.
+status line (for example ADR 0013, whose new part the owner has since accepted) and mark each part.
+A smaller new detail inside an Accepted (brief) ADR is marked **Proposed:** where it appears, as in
+[ARCHITECTURE.md](../ARCHITECTURE.md) (for example the crash-log placeholders in ADR 0010). Like a
+Proposed ADR, it has no effect until the owner approves it, at the milestone review or in the
+question it cites.
 
 ## Process
 
@@ -56,35 +57,33 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 |---|---|---|
 | [0001](0001-record-architecture-decisions.md) | Record architecture decisions | Accepted (brief) |
 | [0002](0002-rust-engine-flutter-ui-frb.md) | Rust engine and one Flutter UI, connected by flutter_rust_bridge v2 | Accepted (brief) |
-| [0003](0003-crate-layout-and-api-boundary.md) | Crate layout and the ferman-api boundary | Accepted (brief) |
-| [0004](0004-lopdf-model-pdfium-renderer.md) | lopdf as the document model, PDFium as a read-only rasteriser | Accepted (brief) |
+| [0003](0003-crate-layout-and-api-boundary.md) | Crate layout and the ferman-api boundary | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
+| [0004](0004-lopdf-model-pdfium-renderer.md) | lopdf as the document model, PDFium as a read-only rasteriser | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
 | [0005](0005-block-scoped-text-editing.md) | Block-scoped text editing | Accepted (brief) |
-| [0006](0006-font-pipeline-and-missing-glyphs.md) | Font pipeline and the missing-glyph policy | Accepted (brief) |
+| [0006](0006-font-pipeline-and-missing-glyphs.md) | Font pipeline and the missing-glyph policy | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
 | [0007](0007-harfrust-instead-of-rustybuzz.md) | harfrust instead of rustybuzz for shaping | Accepted (owner, [Q04](../QUESTIONS.md#q04), 2026-10-15) |
-| [0008](0008-file-safety-and-saving.md) | File safety and saving | Accepted (brief) |
-| [0009](0009-threading-and-jobs.md) | Threading model and jobs | **Proposed** |
+| [0008](0008-file-safety-and-saving.md) | File safety and saving | Accepted (brief); its Proposed detail approved (owner, 2026-10-16) |
+| [0009](0009-threading-and-jobs.md) | Threading model and jobs | Accepted (owner, 2026-10-16) |
 | [0010](0010-error-handling-no-panics.md) | Error handling without panics | Accepted (brief) |
 | [0011](0011-flutter-state-navigation-components.md) | Flutter state, navigation and components | Accepted (brief) |
 | [0012](0012-design-token-pipeline.md) | Design token pipeline | Accepted (brief) |
 | [0013](0013-fonts-and-icons.md) | Fonts and icons | Accepted: brief parts, plus Plex Sans Hebrew and Devanagari (owner, [Q08](../QUESTIONS.md#q08), 2026-10-15) |
 | [0014](0014-localization-and-rtl.md) | Localization and right-to-left support | Accepted (brief) |
-| [0015](0015-privacy-and-network.md) | Privacy and network use | Accepted (brief) |
-| [0016](0016-dependency-licence-policy.md) | Dependency licence policy | Accepted (brief); three licence exceptions approved (owner, [Q17](../QUESTIONS.md#q17), 2026-10-15) |
+| [0015](0015-privacy-and-network.md) | Privacy and network use | Accepted (brief); a fifth network use, revocation lookups, added (owner, [Q06](../QUESTIONS.md#q06), 2026-10-16) |
+| [0016](0016-dependency-licence-policy.md) | Dependency licence policy | Accepted (brief); three licence exceptions approved (owner, [Q17](../QUESTIONS.md#q17), 2026-10-15); the reading of "GPL-compatible" confirmed (2026-10-16) |
 | [0017](0017-testing-and-ci.md) | Testing and continuous integration | Accepted (brief) |
-| [0018](0018-native-file-pickers.md) | OS-native file pickers | **Proposed** |
-| [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted: the direction (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16); details Proposed |
+| [0018](0018-native-file-pickers.md) | OS-native file pickers | Accepted (owner, [Q07](../QUESTIONS.md#q07), 2026-10-16) |
+| [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16): the direction, then the details |
 
 ## Waiting for the owner
 
 Approved on 2026-10-15, with the M0 go-ahead: ADR 0007 ([Q04](../QUESTIONS.md#q04)), the new part of
 ADR 0013 ([Q08](../QUESTIONS.md#q08)) and the three licence exceptions in ADR 0016
-([Q17](../QUESTIONS.md#q17), parts 1 to 3). Still waiting:
-
-| ADR | What needs approval | Question | Until approved |
-|---|---|---|---|
-| [0003](0003-crate-layout-and-api-boundary.md), [0004](0004-lopdf-model-pdfium-renderer.md), [0008](0008-file-safety-and-saving.md) | Proposed details: the CI crate-edge check (0003); read-only open when lopdf and PDFium disagree (0004); a private snapshot for files above 256 MB (0008) | no question; not approved at the M0 go-ahead, so carried into M1 | Not built until approved. |
-| [0006](0006-font-pipeline-and-missing-glyphs.md) | Proposed detail: text set in an embedded font whose `fsType` allows at most preview and print does not reuse its glyphs | [Q09](../QUESTIONS.md#q09) | Settled before M3, when text editing starts. |
-| [0009](0009-threading-and-jobs.md) | Document actors, immutable revisions, one PDFium render thread, tile queue, job pool | no question; not approved at the M0 go-ahead, so carried into M1 | Only the brief's rule applies: no rendering or heavy work on the UI thread. |
-| [0016](0016-dependency-licence-policy.md) | The project's reading of "GPL-compatible" (no GPL code of any version, no LGPL-only code, MPL-2.0 only per package after review). The three licence exceptions were approved on 2026-10-15. | [Q17](../QUESTIONS.md#q17), part 4 | The stricter reading applies. |
-| [0018](0018-native-file-pickers.md) | OS-native open, save and folder pickers as the only exception to the custom-dialog rule | [Q07](../QUESTIONS.md#q07) | M1 builds no file picker. If M2 starts before an answer, the OS picker is used as the safest option (brief §9) and flagged again in each milestone summary. |
-| [0019](0019-ai-clients-through-mcp.md) | Proposed details: transport and pairing (`ferman mcp` over standard input and output, a local socket and a token), the first tools and saving only after the user confirms, the `ferman-mcp` crate and its SDK, what the window shows while a client is connected | [Q20](../QUESTIONS.md#q20) | Nothing is built before M4 step 11; the details are settled with the owner when it starts. |
+([Q17](../QUESTIONS.md#q17), parts 1 to 3). Approved on 2026-10-16, when M1 was merged: ADR 0009
+(with the order of the tile-transfer options, [Q19](../QUESTIONS.md#q19)), ADR 0018
+([Q07](../QUESTIONS.md#q07)), the details of ADR 0019 ([Q20](../QUESTIONS.md#q20)), the Proposed
+details of ADRs 0003, 0004, 0006 ([Q09](../QUESTIONS.md#q09)) and 0008, and the reading of
+"GPL-compatible" in ADR 0016 ([Q17](../QUESTIONS.md#q17), part 4). Still waiting: the Proposed
+detail of [ADR 0010](0010-error-handling-no-panics.md), where the copied crash log replaces the home
+folder, folder names and file names with placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md) section
+8.4); it was not among the items approved on 2026-10-16.

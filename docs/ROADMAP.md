@@ -94,7 +94,7 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 | Code | Name | Goal in one line | Status | Boards | Needs first |
 |---|---|---|---|---|---|
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
-| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete, pending owner approval | 13 | M0 approval (given 2026-10-15) |
+| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete (approved 2026-10-16) | 13 | M0 approval (given 2026-10-15) |
 | M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q18](QUESTIONS.md#q18) (macOS App Sandbox) |
 | M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4, [Q09](QUESTIONS.md#q09) |
 | M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 |
@@ -275,11 +275,12 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 
 ## 5. M1: foundations
 
-**Status:** Complete, pending owner approval (2026-10-16). Built on the branch `m1-foundations`
-with pull request #2 to `main`; the plan, its phases and the session log are in
+**Status:** Complete, approved by the owner on 2026-10-16: pull request #2 from `m1-foundations`
+merged into `main` (merge commit `aa7ad21`); the plan, its phases and the session log are in
 [PROGRESS.md](PROGRESS.md#m1-plan). Every box below that a test, a CI run or a measurement can prove
-is ticked with its evidence; the open ones wait on the owner: Proposed items to approve, checks on
-R1, R2 and arm64 hardware, and native-speaker review ([BACKLOG.md](BACKLOG.md) B100).
+is ticked with its evidence; the open ones wait on the owner's checks on R1, R2 and arm64 hardware
+and on native-speaker review ([BACKLOG.md](BACKLOG.md) B100). The Proposed items were approved on
+2026-10-16; their boxes are ticked in the M2 planning pass.
 **Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
 the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
 [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,

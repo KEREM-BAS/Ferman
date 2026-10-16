@@ -14,13 +14,13 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 
 | Topic | State |
 |---|---|
-| Milestone | **M1, foundations: complete, pending owner approval** (2026-10-16). Built on the branch `m1-foundations`; pull request #2 to `main` is ready for the owner's review and merge |
+| Milestone | **M1, foundations: complete and approved** (2026-10-16): pull request #2 from `m1-foundations` merged into `main` (merge commit `aa7ad21`). M2 (open and view) is not started |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | The owner reviews M1: the [pending owner checks](#pending-owner-checks), the Proposed items listed in the M1 summary and in [ROADMAP.md](ROADMAP.md) §5, and the merge of pull request #2. M2 starts on the owner's go-ahead, with ADR 0009 ([Q19](QUESTIONS.md#q19)), [Q07](QUESTIONS.md#q07) and [Q18](QUESTIONS.md#q18) to settle first (ROADMAP §6) |
-| Application code | committed on `m1-foundations`: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
-| Questions | 20 entries: 4 answered (Q01, Q03, Q04, Q05), 5 answered in part (Q08, Q12, Q14, Q17, Q20), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
-| Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006, 0008 and 0019; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 99 recorded: 87 Decided, 12 Needs owner, 0 Resolved (G62 to G99 found in M1) |
+| Next | The owner adds a corrected design export to `design/` ([Q11](QUESTIONS.md#q11)). Then the M2 plan is written here from [ROADMAP.md](ROADMAP.md) §6, on the branch `m2-open-and-view`, and M2 starts on the owner's go-ahead. That planning pass also brings ROADMAP, ARCHITECTURE, DEPENDENCIES, DESIGN_INVENTORY, BACKLOG, the body text of ADRs 0015 and 0017, CONTRIBUTING, SECURITY and the rules files in line with the answers of 2026-10-16: their mentions of the questions and their **Proposed** markers |
+| Application code | in `main` since the M1 merge: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
+| Questions | 20 entries, all answered: the last ones on 2026-10-16, as proposed, with the release files for macOS, Windows and Linux on GitHub Releases ([Q15](QUESTIONS.md#q15)); see [QUESTIONS.md](QUESTIONS.md#summary) |
+| Proposed ADRs | the Proposed detail in 0010 (crash-log placeholders) and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)); 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, and the reading of "GPL-compatible" in 0016 were approved on 2026-10-16 (see [ADR status](#adr-status)) |
+| Design gaps | 99 recorded: 99 Decided, 0 Needs owner, 0 Resolved (G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16) |
 | Backlog | 98 open and 2 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-16 |
@@ -42,7 +42,7 @@ Things only the owner can do on GitHub. Each is ticked when done.
 | Milestone | Status | Details |
 |---|---|---|
 | M0 Discovery and plan | Complete (approved 2026-10-15) | [ROADMAP.md](ROADMAP.md), section 4 |
-| M1 Foundations | Complete, pending owner approval | [ROADMAP.md](ROADMAP.md), section 5; [M1 plan](#m1-plan) |
+| M1 Foundations | Complete (approved 2026-10-16) | [ROADMAP.md](ROADMAP.md), section 5; [M1 plan](#m1-plan) |
 | M2 Open and view | Not started | [ROADMAP.md](ROADMAP.md), section 6 |
 | M3 Edit text core | Not started | [ROADMAP.md](ROADMAP.md), section 7 |
 | M4 Rest of phase 1 | Not started | [ROADMAP.md](ROADMAP.md), section 8 |
@@ -88,7 +88,7 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 
 - [ ] Step 1. Cargo workspace, crate skeletons, toolchain, cargo-deny, CI matrix. Committed; CI run
   [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`) was green on the three systems and
-  evidences every ROADMAP box except the Proposed crate-graph check, which waits for the owner.
+  evidences every ROADMAP box except the crate-graph check (Proposed in M1, approved on 2026-10-16).
 - [ ] Step 2. Flutter app skeleton. Committed with its CI (phase C4); run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) was green on the three
   systems, with the Ubuntu 22.04 floor build. Open: the platform-projects box (arm64 builds and
   Windows 10 are owner checks) and the two Proposed boxes.
@@ -234,7 +234,8 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the
   owner's agreement
-- [ ] The owner approves M1
+- [x] The owner approves M1. Evidence: pull request #2 (`m1-foundations`) merged into `main` as
+  `aa7ad21` on 2026-10-16.
 
 ### M2 · Open and view
 
@@ -357,22 +358,33 @@ Given with the M0 go-ahead and recorded in [QUESTIONS.md](QUESTIONS.md):
   Accepted; rustybuzz is banned except as krilla's wrapper from the first `deny.toml`.
 - [Q05](QUESTIONS.md#q05): eight mode tabs, including Tools ([G09](DESIGN_GAPS.md#g09) Decided).
 - [Q08](QUESTIONS.md#q08) groups 1 and 2: Plex Sans Hebrew and Plex Sans Devanagari are bundled; CJK
-  uses system fonts. [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted. Groups 3 and 4 stay open.
+  uses system fonts. [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted. Groups 3 and 4 stayed open
+  (answered 2026-10-16, below).
 - [Q12](QUESTIONS.md#q12): a custom Linux title bar (client-side decorations, caption buttons at the
-  end, Ctrl shortcuts, Cancel-left dialogs; [G15](DESIGN_GAPS.md#g15) Decided). Packaging stays open
-  until M5.
-- [Q14](QUESTIONS.md#q14): "Copyright The Ferman Authors". The sign-off part stays open.
+  end, Ctrl shortcuts, Cancel-left dialogs; [G15](DESIGN_GAPS.md#g15) Decided). Packaging stayed
+  open (answered 2026-10-16, below).
+- [Q14](QUESTIONS.md#q14): "Copyright The Ferman Authors". The sign-off part stayed open (answered
+  2026-10-16, below).
 - [Q17](QUESTIONS.md#q17) parts 1 to 3: Swatinem/rust-cache in CI, `dbus` through desktop_drop (M2),
-  `libfuzzer-sys` in `fuzz/` only. Part 4 stays open, and the stricter reading applies.
+  `libfuzzer-sys` in `fuzz/` only. Part 4 stayed open (answered 2026-10-16, below).
 - Delivery: the `m1-foundations` branch and an early draft pull request, as above.
 - No AI attribution in commits or in pull request titles and bodies.
 - New [Q18](QUESTIONS.md#q18): the macOS App Sandbox stays on in M1, as Flutter's template sets it;
-  the owner is asked before M2.
+  the owner was asked before M2 (answered 2026-10-16, below).
 - [Q20](QUESTIONS.md#q20), 2026-10-16, during M1: AI clients such as Claude and ChatGPT will work on
   the documents open in Ferman through a local MCP server, after M3 (ROADMAP M4 step 11). The app
   stays open and does the work locally; Settings gives a connection link for each supported client,
   or opens it already set up. [ADR 0019](adr/0019-ai-clients-through-mcp.md) is Accepted for the
-  direction; its Proposed details (transport, pairing, tools, saving) are asked when the step starts.
+  direction; its details (transport, pairing, tools, saving) were approved on 2026-10-16, below.
+- 2026-10-16, after the M1 merge: the owner answered every open question as proposed:
+  [Q02](QUESTIONS.md#q02), [Q06](QUESTIONS.md#q06), [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08)
+  groups 3 and 4, [Q09](QUESTIONS.md#q09) to [Q13](QUESTIONS.md#q13), [Q14](QUESTIONS.md#q14) (DCO
+  sign-off from M2), [Q15](QUESTIONS.md#q15) (the release files for macOS, Windows and Linux on
+  GitHub Releases), [Q16](QUESTIONS.md#q16), [Q17](QUESTIONS.md#q17) part 4,
+  [Q18](QUESTIONS.md#q18), [Q19](QUESTIONS.md#q19) and the details of [Q20](QUESTIONS.md#q20). The
+  owner also approved every item under [Still Proposed in M1](#still-proposed-in-m1) and kept the
+  United Kingdom region for the English goldens. All [DESIGN_GAPS.md](DESIGN_GAPS.md) entries are
+  now Decided.
 - 2026-10-16, at the end of M1: at most 15 to 20 commits per pull request from M2 on (pull request
   #2 has 92), so work is committed and pushed in checked batches rather than fix by fix; this narrows
   the "small Conventional Commits" of brief §9. Work goes on in cloud sessions, and the owner is told
@@ -381,14 +393,14 @@ Given with the M0 go-ahead and recorded in [QUESTIONS.md](QUESTIONS.md):
 
 ### Still Proposed in M1
 
-Not approved, so built only as reversible tooling, kept marked **Proposed**, and listed in the M1
-summary:
+Approved by the owner on 2026-10-16, when M1 was merged. They were built in M1 only as reversible
+tooling, marked **Proposed**:
 
 - [ADR 0009](adr/0009-threading-and-jobs.md) (threading and jobs) and
   [ADR 0018](adr/0018-native-file-pickers.md) (native pickers; M1 builds no picker).
 - The Proposed details in ADRs 0003, 0004, 0006 and 0008.
 - ROADMAP items marked Proposed: the crate-graph check and the pub deny list (both built as
-  `tools/checks` checks, still Proposed), the web stub build, the feature registry, the pseudo-locale,
+  `tools/checks` checks), the web stub build, the feature registry, the pseudo-locale,
   the 1024 px minimum window width and the 1.5 s start budget.
 
 ### Decisions taken during M1
@@ -493,7 +505,8 @@ Checks this environment cannot do. Each is ticked only with the owner's result.
   CI runner as ROADMAP §5 step 11 asks; the CI Linux runner proves them (the first ones passed in the
   Flutter Linux job of run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The owner accepts this or asks for
   goldens generated by CI. The English goldens use the United Kingdom region, so the clock reads
-  "14:32" as the boards draw it; the owner may prefer the United States ([G34](DESIGN_GAPS.md#g34)).
+  "14:32" as the boards draw it; the owner kept the United Kingdom on 2026-10-16
+  ([G34](DESIGN_GAPS.md#g34)).
 
 The design gaps to settle in M1 are listed in [ROADMAP.md](ROADMAP.md), section 5, under "Design
 gaps to settle in M1".
@@ -507,13 +520,13 @@ the ADRs that changed status here.
 | ADR | Status | Waiting for |
 |---|---|---|
 | [0007 harfrust instead of rustybuzz](adr/0007-harfrust-instead-of-rustybuzz.md) | Accepted (owner, [Q04](QUESTIONS.md#q04), 2026-10-15) | — |
-| [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Proposed | the owner's review; M2 stops before step 1 without it |
+| [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Accepted (owner, 2026-10-16; the tile-transfer order through [Q19](QUESTIONS.md#q19)) | — |
 | [0013 fonts and icons](adr/0013-fonts-and-icons.md) | Accepted: brief parts, plus Plex Sans Hebrew and Devanagari (owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | — |
-| [0018 native file pickers](adr/0018-native-file-pickers.md) | Proposed | [Q07](QUESTIONS.md#q07) |
-| [0019 AI clients through MCP](adr/0019-ai-clients-through-mcp.md) | Accepted: the direction (owner, [Q20](QUESTIONS.md#q20), 2026-10-16); details Proposed | the details, with the owner, when M4 step 11 starts |
-| [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief), each with one Proposed detail | the owner's review (not approved at the M0 go-ahead) |
-| [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief), with one Proposed detail (`fsType`) | [Q09](QUESTIONS.md#q09) |
-| [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions approved on 2026-10-15; the reading of "GPL-compatible" open | [Q17](QUESTIONS.md#q17) part 4 |
+| [0018 native file pickers](adr/0018-native-file-pickers.md) | Accepted (owner, [Q07](QUESTIONS.md#q07), 2026-10-16) | — |
+| [0019 AI clients through MCP](adr/0019-ai-clients-through-mcp.md) | Accepted (owner, [Q20](QUESTIONS.md#q20), 2026-10-16): the direction, then the details | — |
+| [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief); the Proposed detail of each approved by the owner on 2026-10-16 | — |
+| [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief); the `fsType` detail approved by the owner on 2026-10-16 ([Q09](QUESTIONS.md#q09)) | — |
+| [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions approved on 2026-10-15; the reading of "GPL-compatible" confirmed on 2026-10-16 ([Q17](QUESTIONS.md#q17) part 4) | — |
 | All others | Accepted (brief) | — |
 
 ## Measurements
@@ -532,15 +545,15 @@ budget that applies to a milestone is measured on R1 and R2 and recorded here
 | 2026-10-16 | M1 | `debug_bytes`: a 1 MiB `Vec<u8>` from Rust to Dart, round trip timed in Dart | under 0.2 ms on R1 and R2, profile or release build | development container, Linux x64, Xvfb, profile build of a fresh clone at `f41d789` (not R1 or R2) | 20 warm calls after one warm-up: minimum 4,570 µs, median 8,726 µs; **does not meet the target** | the fresh-clone run of CLAUDE.md's commands, `flutter drive --profile -d linux …` |
 
 Both results are far over the target, because the transfer copies. With codegen 2.13's default
-`full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one byte
-at a time into a serialisation buffer, and Dart copies it out with `getUint8List`. `full_dep: true`
-(the Dco codec) needs ffigen as a dev dependency and libclang for codegen; tried in a scratch copy, it
-generated bindings whose Dart did not compile (ffigen's C struct `ApiVersion` clashes with the Dart
-mirror). The options (the Dco codec, an opaque pixel buffer read through a pointer view, the texture
-registry) and a proposal are in
-[ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed); the
-owner decides in [Q19](QUESTIONS.md#q19), before M2 step 3. The ROADMAP zero-copy box stays open until
-R1 and R2 are measured.
+`full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one
+byte at a time into a serialisation buffer, and Dart copies it out with `getUint8List`. `full_dep:
+true` (the Dco codec) needs ffigen as a dev dependency and libclang for codegen; tried in a scratch
+copy, it generated bindings whose Dart did not compile (ffigen's C struct `ApiVersion` clashes with
+the Dart mirror). The options (the Dco codec, an opaque pixel buffer read through a pointer view,
+the texture registry) and a proposal are in [ADR
+0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed); the owner
+chose in [Q19](QUESTIONS.md#q19) on 2026-10-16: (a) first, measured on R1 and R2 before M2 step 3.
+The ROADMAP zero-copy box stays open until R1 and R2 are measured.
 
 ## Session log
 
@@ -560,3 +573,4 @@ Newest last. One row per session.
 | 2026-10-16 | M1 | Phase L, closing M1. A review of the batch found four minor problems (the spec walker skipped Dart 3.13 factories; the component goldens' Arabic region; the audit count in this log; DejaVu Serif in the Flutter rules), all fixed with a test where code changed. A one-off GitHub GraphQL error failed the comparison comment on `54d2ef9`; one re-run passed and the step now retries, then only warns (`acc4b4d`). The ROADMAP §5 boxes are ticked with their evidence: 67 of 84, the rest waiting on the owner (Proposed items, R1, R2 and arm64 checks, native review; B100). A fresh clone at `f41d789` ran all 30 CLAUDE.md commands on Linux; CLAUDE.md, CONTRIBUTING and README gained the build, run and web commands and the M1 status. A check found all 144 controls disabled for a future version listed in BACKLOG with their milestones. CI runs on `54d2ef9` and `f41d789` were green on the three systems. M1 is complete and waits for the owner's approval; pull request #2 is ready for review. `design/` unchanged. | `f41d789` to the head of this push |
 | 2026-10-16 | M1 | The owner asked for the translation review table in the repository. [TRANSLATION_REVIEW.md](TRANSLATION_REVIEW.md) holds every message in English, Turkish and Arabic with the note for translators, how to review and how to send corrections; the table is generated from the ARB files by `dart run l10n:review_table` (`tools/l10n`), and CI fails when it is stale. The column that said where each translation came from is not carried over: it needed scratch data from phase J1 and was incomplete for the strings of phases F to I. `design/` unchanged. | the head of this push |
 | 2026-10-16 | M1 | The owner set two working rules: at most 15 to 20 commits per pull request from M2 on, pushed in checked batches, and a plain message when a pull request is ready to merge (CLAUDE.md "How to work", ROADMAP §3.1 and E7, the owner decisions above). `design/` unchanged. | the head of this push |
+| 2026-10-16 | M2 prep | The owner merged M1 (pull request #2, `aa7ad21`) and answered every open question as proposed, with the release files for macOS, Windows and Linux on GitHub Releases (Q15), and approved every item under Still Proposed in M1. QUESTIONS.md has all 20 entries answered; the 12 Needs owner entries of DESIGN_GAPS.md are Decided (G01 to G03, G25, G26, G33, G36, G51 to G53, G56, G60); ADRs 0009 and 0018 are Accepted, with the Proposed details of 0003, 0004, 0006, 0008 and 0019 and the reading of "GPL-compatible" in 0016; CLAUDE.md, ROADMAP's M1 status and this file follow. At the owner's request this pass changed only the answers and their status lines: the other mentions in ROADMAP, ARCHITECTURE, DEPENDENCIES, DESIGN_INVENTORY, BACKLOG, the body text of ADRs 0015 and 0017, CONTRIBUTING, SECURITY and the rules files follow in the M2 planning pass, after the owner adds a corrected design export. On the branch `m2-open-and-view`. `design/` unchanged. | the head of this push |

@@ -110,8 +110,8 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   Material `Tooltip` and `PopupMenuButton`. Date fields use Ferman's own picker, on mobile too
   ([G55](../DESIGN_GAPS.md#g55)).
 - No GetX, in any form.
-- The only proposed exception is OS-native file pickers ([ADR 0018](0018-native-file-pickers.md),
-  Proposed).
+- The only exception is OS-native file pickers ([ADR 0018](0018-native-file-pickers.md), Accepted
+  2026-10-16).
 - A CI script (`tools/`) fails the build when feature code uses the forbidden APIs above. custom_lint is
   not used for this. In M1 these are the `tools/checks` S6 checks: `s6_forbidden_api` (the APIs above and
   their close relatives, such as `showAdaptiveDialog`, `showCupertinoSheet`, `showMenu` and `TabBar`,
