@@ -1,0 +1,404 @@
+import 'dart:ui' show SemanticsRole;
+
+import 'package:ferman/design/components/overlays/dialog.dart';
+import 'package:ferman/design/components/overlays/scrim.dart';
+import 'package:ferman/design/icons/icon.dart';
+import 'package:ferman/design/theme.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' hide Icon;
+import 'package:flutter_test/flutter_test.dart';
+
+import '../../../helpers/component_host.dart';
+
+/// A focusable stand-in for a footer or body button.
+class _Button extends StatelessWidget {
+  const new(this.label, {this.node, this.autofocus = false});
+
+  final String label;
+  final FocusNode? node;
+  final bool autofocus;
+
+  @override
+  Widget build(BuildContext context) => Focus(
+    focusNode: node,
+    autofocus: autofocus,
+    child: SizedBox(width: 80, height: 30, child: Text(label)),
+  );
+}
+
+void main() {
+  final light = FermanTheme.light.colors;
+
+  BoxDecoration surfaceOf(WidgetTester tester) =>
+      tester
+              .widget<DecoratedBox>(
+                find
+                    .descendant(
+                      of: find.byType(Dialog),
+                      matching: find.byType(DecoratedBox),
+                    )
+                    .first,
+              )
+              .decoration
+          as BoxDecoration;
+
+  Widget dialog({
+    bool open = true,
+    bool inline = false,
+    DialogTone tone = DialogTone.standard,
+    DialogSize size = DialogSize.md,
+    IconName? icon = IconName.shieldAlert,
+    Widget? child = const Text('Body text'),
+    List<Widget> actions = const [_Button('Cancel'), _Button('Apply')],
+    Widget? footerStart,
+    VoidCallback? onClose,
+    Widget? closeButton,
+  }) => Dialog(
+    open: open,
+    inline: inline,
+    title: 'Apply 2 redactions?',
+    description: 'The text under them is removed for good.',
+    icon: icon,
+    tone: tone,
+    size: size,
+    actions: actions,
+    footerStart: footerStart,
+    onClose: onClose,
+    closeLabel: 'Close',
+    closeButton: closeButton,
+    child: child,
+  );
+
+  setUp(() {
+    FocusManager.instance.highlightStrategy =
+        FocusHighlightStrategy.alwaysTraditional;
+  });
+
+  tearDown(() {
+    FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
+  });
+
+  group('Dialog', () {
+    testWidgets('inline: the box in place, 520 px, large corners, dialog '
+        'shadow', (tester) async {
+      await tester.pumpWidget(componentHost(dialog(inline: true)));
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+      final surface = surfaceOf(tester);
+      expect(surface.color, light.surfaceRaised);
+      expect(surface.borderRadius, const BorderRadius.all(Radius.circular(8)));
+      expect(surface.boxShadow, FermanTheme.light.elevation.shadowDialog);
+      expect(
+        tester
+            .getSize(
+              find
+                  .descendant(
+                    of: find.byType(Dialog),
+                    matching: find.byType(DecoratedBox),
+                  )
+                  .first,
+            )
+            .width,
+        520,
+      );
+    });
+
+    testWidgets('sizes: 400, 520 and 640 px', (tester) async {
+      for (final (size, width) in [
+        (DialogSize.sm, 400.0),
+        (DialogSize.md, 520.0),
+        (DialogSize.lg, 640.0),
+      ]) {
+        await tester.pumpWidget(
+          componentHost(
+            dialog(inline: true, size: size),
+            size: const Size(900, 700),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(
+          tester
+              .getSize(
+                find
+                    .descendant(
+                      of: find.byType(Dialog),
+                      matching: find.byType(DecoratedBox),
+                    )
+                    .first,
+              )
+              .width,
+          width,
+        );
+      }
+    });
+
+    testWidgets('head: glyph colours by tone, title and description type', (
+      tester,
+    ) async {
+      for (final (tone, background, foreground) in [
+        (DialogTone.standard, light.accentSubtle, light.textAccent),
+        (DialogTone.warning, light.warningBg, light.warning),
+        (DialogTone.danger, light.dangerBg, light.danger),
+      ]) {
+        await tester.pumpWidget(
+          componentHost(dialog(inline: true, tone: tone)),
+        );
+        await tester.pumpAndSettle();
+        final glyph = tester.widget<Container>(
+          find
+              .ancestor(of: find.byType(Icon), matching: find.byType(Container))
+              .first,
+        );
+        expect((glyph.decoration! as BoxDecoration).color, background);
+        expect(tester.widget<Icon>(find.byType(Icon)).color, foreground);
+        expect(tester.widget<Icon>(find.byType(Icon)).size, 18);
+      }
+      final title = tester.widget<Text>(find.text('Apply 2 redactions?'));
+      expect(title.style!.fontSize, 16);
+      expect(title.style!.fontWeight, FontWeight.w600);
+      final description = tester.widget<Text>(
+        find.text('The text under them is removed for good.'),
+      );
+      expect(description.style!.color, light.textSecondary);
+      expect(description.style!.fontSize, 14);
+    });
+
+    testWidgets('layout: head 18 px down and 20 px in, actions at the end '
+        '8 px apart, footer start at the start', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          dialog(inline: true, footerStart: const Text('Don’t ask again')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final box = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(Dialog),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      final glyph = tester.getRect(
+        find
+            .ancestor(of: find.byType(Icon), matching: find.byType(Container))
+            .first,
+      );
+      expect(glyph.top - box.top, 18);
+      expect(glyph.left - box.left, 20);
+      final cancel = tester.getRect(find.widgetWithText(_Button, 'Cancel'));
+      final apply = tester.getRect(find.widgetWithText(_Button, 'Apply'));
+      expect(box.right - apply.right, 20);
+      expect(apply.left - cancel.left - 80, 8);
+      expect(tester.getRect(find.text('Don’t ask again')).left - box.left, 20);
+    });
+
+    testWidgets('modal: over a scrim in the overlay, closed when open is '
+        'false', (tester) async {
+      await tester.pumpWidget(componentHost(dialog(open: false)));
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsOneWidget);
+      expect(find.text('Apply 2 redactions?'), findsOneWidget);
+      final box = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(Scrim),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect(box.center.dx, 400);
+      await tester.pumpWidget(componentHost(dialog(open: false)));
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+    });
+
+    testWidgets('modal: Escape and a scrim click call onClose', (tester) async {
+      var closes = 0;
+      await tester.pumpWidget(componentHost(dialog(onClose: () => closes++)));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 1);
+      await tester.tapAt(const Offset(10, 10));
+      expect(closes, 2);
+    });
+
+    testWidgets('modal: no onClose, no Escape', (tester) async {
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsOneWidget);
+    });
+
+    testWidgets('modal: focus goes to the autofocus child, Tab cycles inside, '
+        'focus returns on close', (tester) async {
+      final outside = FocusNode();
+      final cancel = FocusNode();
+      final apply = FocusNode();
+      for (final node in [outside, cancel, apply]) {
+        addTearDown(node.dispose);
+      }
+      Widget page({required bool open}) => componentHost(
+        Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Focus(
+              focusNode: outside,
+              child: const SizedBox(width: 10, height: 10),
+            ),
+            dialog(
+              open: open,
+              child: null,
+              actions: [
+                _Button('Cancel', node: cancel),
+                _Button('Apply', node: apply, autofocus: true),
+              ],
+            ),
+          ],
+        ),
+      );
+      await tester.pumpWidget(page(open: false));
+      outside.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.pumpWidget(page(open: true));
+      await tester.pumpAndSettle();
+      expect(apply.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(cancel.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pump();
+      expect(apply.hasFocus, isTrue);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pump();
+      expect(cancel.hasFocus, isTrue);
+      expect(outside.hasFocus, isFalse);
+      await tester.pumpWidget(page(open: false));
+      await tester.pumpAndSettle();
+      expect(outside.hasFocus, isTrue);
+    });
+
+    testWidgets('modal: without autofocus, the first control in the body', (
+      tester,
+    ) async {
+      final field = FocusNode();
+      addTearDown(field.dispose);
+      await tester.pumpWidget(
+        componentHost(dialog(child: _Button('Password', node: field))),
+      );
+      await tester.pumpAndSettle();
+      expect(field.hasFocus, isTrue);
+    });
+
+    testWidgets('modal: with nothing focusable, the dialog itself', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(dialog(actions: const [])));
+      await tester.pumpAndSettle();
+      final focus = FocusManager.instance.primaryFocus;
+      expect(focus?.debugLabel, 'Dialog box');
+    });
+
+    testWidgets('the close button slot', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          dialog(
+            inline: true,
+            closeButton: const SizedBox(
+              key: Key('close'),
+              width: 26,
+              height: 26,
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final box = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(Dialog),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      expect(
+        box.right - tester.getRect(find.byKey(const Key('close'))).right,
+        16,
+      );
+    });
+
+    testWidgets('no body: the footer sits 20 px under the head', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(dialog(inline: true, child: null)));
+      await tester.pumpAndSettle();
+      expect(find.text('Body text'), findsNothing);
+    });
+
+    testWidgets('semantics: a dialog named by the title, an alert dialog for '
+        'danger', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      var node = tester.getSemantics(find.byType(DecoratedBox).first);
+      while (node.label != 'Apply 2 redactions?' && node.parent != null) {
+        node = node.parent!;
+      }
+      var data = node.getSemanticsData();
+      expect(data.label, 'Apply 2 redactions?');
+      expect(data.hint, 'The text under them is removed for good.');
+      expect(data.role, SemanticsRole.dialog);
+      expect(data.flagsCollection.scopesRoute, isTrue);
+      await tester.pumpWidget(componentHost(dialog(tone: DialogTone.danger)));
+      await tester.pumpAndSettle();
+      node = tester.getSemantics(find.text('Body text'));
+      while (node.label != 'Apply 2 redactions?' && node.parent != null) {
+        node = node.parent!;
+      }
+      data = node.getSemanticsData();
+      expect(data.role, SemanticsRole.alertDialog);
+      handle.dispose();
+    });
+
+    testWidgets('right to left: glyph on the right, actions on the left', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(dialog(inline: true), textDirection: TextDirection.rtl),
+      );
+      await tester.pumpAndSettle();
+      final box = tester.getRect(
+        find
+            .descendant(
+              of: find.byType(Dialog),
+              matching: find.byType(DecoratedBox),
+            )
+            .first,
+      );
+      final glyph = tester.getRect(
+        find
+            .ancestor(of: find.byType(Icon), matching: find.byType(Container))
+            .first,
+      );
+      expect(box.right - glyph.right, 20);
+      expect(
+        tester.getRect(find.widgetWithText(_Button, 'Apply')).left - box.left,
+        20,
+      );
+    });
+
+    testWidgets('dark theme', (tester) async {
+      await tester.pumpWidget(
+        componentHost(dialog(inline: true), brightness: Brightness.dark),
+      );
+      await tester.pumpAndSettle();
+      expect(surfaceOf(tester).color, FermanTheme.dark.colors.surfaceRaised);
+    });
+  });
+}
