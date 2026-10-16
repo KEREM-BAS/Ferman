@@ -146,7 +146,11 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   CI runs [38852612065](https://github.com/KEREM-BAS/Ferman/actions/runs/38852612065),
   [38855104204](https://github.com/KEREM-BAS/Ferman/actions/runs/38855104204) and
   [38861303299](https://github.com/KEREM-BAS/Ferman/actions/runs/38861303299) were green on the
-  three systems. The component gallery (G10) is pending.
+  three systems. Phase G10 built the component gallery at `/debug/gallery` (`app/lib/features/gallery/`):
+  every spec component with its variants, sizes and forced states, previewed in light, dark or dim,
+  standard or touch density, reduced motion, either direction and en, tr or ar; a test fails when a
+  spec component has no gallery section. It found an inline TaskProgress overflowing a narrow slot
+  (fixed) and a stacked ToolButton 2 px too tall at touch density (its fix comes with H6).
 - [ ] Step 8. App shell. Phase H1, the title bars: the native parts are in `1a39443` (macOS
   light placement, Windows snap layouts, the Linux header bar), and CI run
   [38831554960](https://github.com/KEREM-BAS/Ferman/actions/runs/38831554960) built and ran them on

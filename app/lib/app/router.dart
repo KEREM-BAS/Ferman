@@ -1,4 +1,5 @@
 import 'package:ferman/app/window_frame.dart';
+import 'package:ferman/features/gallery/gallery_screen.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
@@ -33,6 +34,11 @@ abstract final class Routes {
   /// The editor shell with placeholder documents (M1 phases H2 to H5). In
   /// M1 it is reachable only here; documents open into it from M2 on.
   static const String debugShell = '/debug/shell';
+
+  /// The component gallery (M1 phase G10): every component of the library
+  /// with its variants and states, for review against the design. A debug
+  /// surface like [debugShell].
+  static const String debugGallery = '/debug/gallery';
 }
 
 /// The app's router.
@@ -94,6 +100,10 @@ GoRouter router(Ref ref) {
             builder: (context, state) => ShellScreen(
               onOpenSettings: () => context.push(Routes.settings),
             ),
+          ),
+          GoRoute(
+            path: Routes.debugGallery,
+            builder: (context, state) => const GalleryScreen(),
           ),
           GoRoute(
             path: '${Routes.settings}/:pane',

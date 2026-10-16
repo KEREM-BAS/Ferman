@@ -183,52 +183,61 @@ class TaskProgress extends StatelessWidget {
       ...theme.typeScale.featuresUi,
       ...theme.typeScale.numericTabular,
     ];
+    final text = Text.rich(
+      TextSpan(
+        children: [
+          TextSpan(
+            text: title,
+            style: TextStyle(color: colors.textPrimary),
+          ),
+          if (detail != null) TextSpan(text: ' · $detail'),
+        ],
+      ),
+      maxLines: 1,
+      softWrap: false,
+      overflow: TextOverflow.ellipsis,
+    );
     return DefaultTextStyle.merge(
       style: theme.typography.caption.copyWith(
         color: colors.textSecondary,
         fontFeatures: features,
       ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        spacing: theme.space.space2,
-        children: [
-          if (state == TaskState.running)
-            const Spinner(size: inlineSpinnerSize)
-          else
-            Icon(switch (state) {
-              TaskState.done => IconName.circleCheck,
-              TaskState.error => IconName.circleAlert,
-              TaskState.running || TaskState.paused => IconName.pause,
-            }, size: inlineIconSize),
-          Text.rich(
-            TextSpan(
-              children: [
-                TextSpan(
-                  text: title,
-                  style: TextStyle(color: colors.textPrimary),
+      // In a slot of bounded width (FmWindow's 260 px status-bar slot) the
+      // text gives way, as the inline-flex text does in the CSS, and ends
+      // in an ellipsis; given unbounded width (a plain Row child) it keeps
+      // its own width.
+      child: LayoutBuilder(
+        builder: (context, constraints) => Row(
+          mainAxisSize: MainAxisSize.min,
+          spacing: theme.space.space2,
+          children: [
+            if (state == TaskState.running)
+              const Spinner(size: inlineSpinnerSize)
+            else
+              Icon(switch (state) {
+                TaskState.done => IconName.circleCheck,
+                TaskState.error => IconName.circleAlert,
+                TaskState.running || TaskState.paused => IconName.pause,
+              }, size: inlineIconSize),
+            if (constraints.hasBoundedWidth) Flexible(child: text) else text,
+            if (state != TaskState.done)
+              SizedBox(
+                width: inlineProgressWidth,
+                child: ProgressBar(
+                  value: value,
+                  indeterminate: indeterminate,
+                  tone: toneFor(state),
                 ),
-                if (detail != null) TextSpan(text: ' · $detail'),
-              ],
-            ),
-            softWrap: false,
-          ),
-          if (state != TaskState.done)
-            SizedBox(
-              width: inlineProgressWidth,
-              child: ProgressBar(
-                value: value,
-                indeterminate: indeterminate,
-                tone: toneFor(state),
               ),
-            ),
-          if (onCancel != null && state != TaskState.done)
-            IconButton(
-              icon: IconName.x,
-              label: cancelLabel ?? '',
-              size: IconButtonSize.xs,
-              onPressed: onCancel,
-            ),
-        ],
+            if (onCancel != null && state != TaskState.done)
+              IconButton(
+                icon: IconName.x,
+                label: cancelLabel ?? '',
+                size: IconButtonSize.xs,
+                onPressed: onCancel,
+              ),
+          ],
+        ),
       ),
     );
   }

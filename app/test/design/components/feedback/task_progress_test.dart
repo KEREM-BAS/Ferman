@@ -247,6 +247,47 @@ void main() {
   });
 
   group('TaskProgress inline', () {
+    testWidgets('a narrow slot ellipsizes the text; a plain row keeps it '
+        'whole', (tester) async {
+      Widget progress() => TaskProgress(
+        variant: TaskProgressVariant.inline,
+        title: 'Recognizing text',
+        detail: 'Page 14 of 64 · about 2 minutes left',
+        value: 0.22,
+        onCancel: () {},
+        cancelLabel: 'Cancel',
+      );
+      const label = 'Recognizing text · Page 14 of 64 · about 2 minutes left';
+      await tester.pumpWidget(
+        componentHost(SizedBox(width: 260, child: progress())),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(
+        tester.getSize(find.byType(TaskProgress)).width,
+        lessThanOrEqualTo(260),
+      );
+      final text = tester.widget<Text>(find.text(label));
+      expect(text.overflow, TextOverflow.ellipsis);
+      expect(text.maxLines, 1);
+      // The bar keeps its 96 px.
+      expect(
+        tester.getSize(find.byType(ProgressBar)).width,
+        TaskProgress.inlineProgressWidth,
+      );
+
+      // A plain Row child gets unbounded width: the text keeps its width.
+      await tester.pumpWidget(
+        componentHost(
+          Row(mainAxisSize: MainAxisSize.min, children: [progress()]),
+        ),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(find.byType(TaskProgress)).width, greaterThan(260));
+      await tester.pumpWidget(const SizedBox());
+    });
+
     testWidgets('running: 12 px spinner, title · detail, 96 px bar, Cancel', (
       tester,
     ) async {
