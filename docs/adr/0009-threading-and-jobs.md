@@ -179,6 +179,57 @@ use option 2, with the owner's approval of its unsafe surface. Use option 3 only
 owner decides, through the approval of this ADR ([Q19](../QUESTIONS.md#q19)); until then, M1 changes
 nothing in the codec.
 
+#### Option 3 in detail: the texture-registry fallback (Proposed)
+
+ROADMAP §5 step 3 asks for the texture-registry fallback to be designed before M2 starts if the
+benchmark misses its budget, which it does. This is that design. It is used only if options 1 and 2
+fail on R1 and R2.
+
+- **What crosses the bridge.** Only small messages: a tile request (document, page, zoom, tile
+  index, texture slot) and a result (slot, version, or a typed error). The pixels never enter Dart.
+- **Pixel buffers.** ferman-render keeps a pool of tile buffers, 256 × 256 device pixels at 4 bytes
+  each (256 KiB), two per texture slot (front and back). The render thread draws a tile into the
+  back buffer with PDFium, then swaps front and back under a short lock and tells the platform side
+  that a new frame is ready. Byte order is the platform's: BGRA on macOS (PDFium's native order) and
+  RGBA on Linux and Windows (PDFium's `FPDF_REVERSE_BYTE_ORDER` render flag, through pdfium-render's
+  render configuration), so no conversion pass runs.
+- **Platform textures.** One texture per slot, registered once and reused for whichever tile the
+  slot shows:
+  - Linux: a subclass of `FlPixelBufferTexture` whose `copy_pixels` returns the front buffer,
+    registered with `fl_texture_registrar_register_texture` and refreshed with
+    `fl_texture_registrar_mark_texture_frame_available`.
+  - Windows: a `flutter::PixelBufferTexture` whose callback returns a `FlutterDesktopPixelBuffer`
+    pointing at the front buffer, with a release callback that unlocks it, registered through the
+    plugin registrar's `TextureRegistrar` and refreshed with `MarkTextureFrameAvailable`.
+  - macOS: an object conforming to `FlutterTexture` whose `copyPixelBuffer` returns a
+    `CVPixelBuffer` (`kCVPixelFormatType_32BGRA`) made from the front buffer with a release callback,
+    registered with `FlutterTextureRegistry` and refreshed with `textureFrameAvailable:`.
+  The three live in the `rust_lib_ferman` plugin (`app/rust_builder/`), beside the code that loads
+  the engine, and the app creates and disposes slots through the plugin's method channel.
+- **Locking and lifetime.** Flutter reads a texture on its raster thread while the render thread
+  draws the next tile. The front buffer is held from `copy_pixels` or `copyPixelBuffer` until the
+  release callback (macOS, Windows) or the next call (Linux); the swap waits for that hold, never
+  the other way round, so the raster thread never blocks on rendering. Disposing a slot unregisters
+  the texture first and frees its buffers only after Flutter's unregister callback.
+- **The engine side.** The platform code reads buffers through a small C surface of ferman-api
+  (acquire the front buffer of a slot, release it), next to the generated bridge. Like option 2, it
+  is hand-written `extern "C"` code outside the generated module, an exception to the unsafe-code
+  rule ([ADR 0010](0010-error-handling-no-panics.md)) that the owner must approve.
+- **The canvas.** The canvas lays out one `Texture(textureId: …)` widget per visible tile, sized in
+  logical pixels for the tile's device pixels. Slots are recycled as tiles leave the viewport; a
+  prefetch margin keeps neighbouring tiles ready. About 60 slots cover a 1440 × 900 window at 2× with
+  a one-tile margin: 60 × 2 × 256 KiB, about 30 MiB, counted in the tile cache's cap (ARCHITECTURE §4.7).
+  Priorities and cancellation stay as in the tile queue above.
+- **Tests.** `flutter test` has no texture registry, and a `Texture` widget paints nothing there, so
+  the canvas has a test path: the fake engine of the widget tests hands the canvas decoded images
+  (`decodeImageFromPixels`) for the same slots, and the canvas goldens use it. The integration test
+  on each system renders one page through the real textures and compares a read-back of the front
+  buffer with a PDFium render of the same tile, pixel for pixel.
+- **Web.** The web target (phase 5) has no platform texture registry; it is decided with the web
+  engine.
+- **Cost.** Native code on three systems, a method channel, the C surface and the test path: about
+  the size of the title bar work of M1 phase H1, against a few lines of codegen settings for option 1.
+
 ## Alternatives considered
 
 - **A mutex around each document model.** Simple, but renders and jobs would contend with typing, and
