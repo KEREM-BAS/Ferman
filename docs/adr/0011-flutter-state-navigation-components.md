@@ -51,7 +51,11 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   generated bridge code.
 - Data classes use Dart 3 records and sealed classes. freezed is not added unless a clear need appears.
 - Where settings are stored (an engine-side file shared with the CLI, or shared_preferences with its
-  async API) is decided in M1 and recorded in [ARCHITECTURE.md](../ARCHITECTURE.md).
+  async API) is decided in M1 and recorded in [ARCHITECTURE.md](../ARCHITECTURE.md). Decided in M1
+  step 9: a Dart `FileSettingsStore` writes versioned `settings.json` to the app support directory
+  through a temporary file and a rename; neither shared_preferences (it writes outside the app data
+  directory on macOS) nor an engine-side file yet (the CLI reads no settings in M1)
+  ([ARCHITECTURE.md §12](../ARCHITECTURE.md#12-platform-integration)).
 
 ### Navigation
 

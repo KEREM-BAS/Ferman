@@ -129,9 +129,16 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   Chromium hash pinned from the first. A full on-demand run in CI and the build-output scan are
   pending.
 - [ ] Step 7. Component library. The component spec is done ([COMPONENTS.md](COMPONENTS.md),
-  phase G0).
+  phase G0). Phase G1 committed the foundations (`b2a22af`): `FermanInteractive` (states,
+  activation, disabled with a reason), `FocusRing`, `FermanForcedStates`, `FermanAnchoredLayout`,
+  `Kbd`, `Tooltip` and the localized "Available in a future version" (`093dfd0`), with 45 widget
+  tests. Phases G2 to G9 (the component groups) are in progress; the spec walker (`tools/checks`
+  `component_spec`) is written and is wired into CI when every component exists (G10).
 - [ ] Step 8. App shell
-- [ ] Step 9. Start screen and settings skeleton
+- [ ] Step 9. Start screen and settings skeleton. Phase I1 committed the settings store
+  (`a2f1988`): `settings.json` in the app support directory through a temporary file and a rename,
+  loaded before the first frame; the theme choice now persists across restarts (22 tests). The
+  decision is recorded in [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration).
 - [ ] Step 10. Localization en, tr and ar, right to left, locale-aware casing — casing (`LocaleCasing`)
   and region-format utilities (`Region`, `RegionFormat`) with tests done; region provider and a11-1b
   picker pending
