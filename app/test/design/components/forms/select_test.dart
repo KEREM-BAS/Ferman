@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -494,6 +495,40 @@ void main() {
       expect(chosen, ['grid']);
       expect(find.byType(PopoverSurface), findsNothing);
       expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('Tab reaches the box, and Enter then opens the list; a plain '
+        'disabled select is skipped', (tester) async {
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            afterLeadingTabStop(SizedBox(width: 220, child: select())),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(Select<String>));
+      expect(borderOf(tester), light.borderFocus);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(focusIsWithin(find.byType(Select<String>)), isTrue);
+
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            KeyedSubtree(
+              key: const ValueKey('disabled'),
+              child: afterLeadingTabStop(
+                SizedBox(width: 220, child: select(disabled: true)),
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectTabSkips(tester, find.byType(Select<String>));
     });
 
     testWidgets('keyboard: Space and Alt+ArrowDown open; Escape closes '

@@ -85,7 +85,7 @@ GoRouter router(Ref ref) {
         routes: [
           GoRoute(
             path: Routes.start,
-            builder: (context, state) => const StartScreen(),
+            builder: (context, state) => const FmStart(),
           ),
           GoRoute(
             path: Routes.welcome,
@@ -93,13 +93,12 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: Routes.settings,
-            builder: (context, state) => const SettingsScreen(),
+            builder: (context, state) => const FmSettings(),
           ),
           GoRoute(
             path: Routes.debugShell,
-            builder: (context, state) => ShellScreen(
-              onOpenSettings: () => context.push(Routes.settings),
-            ),
+            builder: (context, state) =>
+                FmWindow(onOpenSettings: () => context.push(Routes.settings)),
           ),
           GoRoute(
             path: Routes.debugGallery,
@@ -107,7 +106,7 @@ GoRouter router(Ref ref) {
           ),
           GoRoute(
             path: '${Routes.settings}/:pane',
-            builder: (context, state) => SettingsScreen(
+            builder: (context, state) => FmSettings(
               initialPane: SettingsPane.fromPath(state.pathParameters['pane']),
             ),
           ),

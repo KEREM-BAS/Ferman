@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -288,6 +289,59 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PopoverSurface), findsNothing);
       expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('keyboard: Tab reaches the trigger; Space opens with the '
+        'search focused; ArrowUp moves back up the rows; Enter chooses', (
+      tester,
+    ) async {
+      final chosen = <String>[];
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            afterLeadingTabStop(
+              SizedBox(width: 200, child: picker(onChanged: chosen.add)),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(FontPicker));
+      expect(borderOf(tester), light.borderFocus);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      final search = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode;
+      expect(search.hasFocus, isTrue);
+      // Down to the last row (IBM Plex Mono), then up one (IBM Plex Sans).
+      for (var i = 0; i < fonts.length; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+      }
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(search.hasFocus, isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(chosen, ['IBM Plex Sans']);
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(focusIsWithin(find.byType(FontPicker)), isTrue);
+      // Space on the trigger opens it again.
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+    });
+
+    testWidgets('a plain disabled trigger is not a Tab stop', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            SizedBox(width: 200, child: picker(disabled: true)),
+          ),
+        ),
+      );
+      await expectTabSkips(tester, find.byType(FontPicker));
     });
 
     testWidgets('keyboard: the arrows stay in the list, whatever lies under '

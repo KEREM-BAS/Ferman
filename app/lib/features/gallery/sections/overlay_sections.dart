@@ -166,17 +166,18 @@ Widget dialogSection(BuildContext context) {
       description: description,
       onClose: () {},
       closeLabel: l10n.windowClose,
-      footerStart: tone == DialogTone.standard && size != DialogSize.lg
+      alternateAction: tone == DialogTone.standard && size != DialogSize.lg
           ? Button(
               variant: ButtonVariant.ghost,
               onPressed: () {},
               child: const Text(GallerySamples.dontSave),
             )
           : null,
-      actions: [
-        Button(onPressed: () {}, child: const Text(GallerySamples.cancel)),
-        primary,
-      ],
+      cancelAction: Button(
+        onPressed: () {},
+        child: const Text(GallerySamples.cancel),
+      ),
+      actions: [primary],
     );
   }
 

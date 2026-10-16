@@ -27,7 +27,7 @@ import 'package:go_router/go_router.dart';
 /// [ShellCommandScope] for the start screen, and the cards show the
 /// table's ⌘O and ⌘N. The title bar above shows the home header (a1-5),
 /// with the Settings button.
-class StartScreen extends ConsumerWidget {
+class FmStart extends ConsumerWidget {
   /// Creates the start screen.
   const new({super.key});
 

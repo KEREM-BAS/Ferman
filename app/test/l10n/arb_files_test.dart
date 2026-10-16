@@ -18,6 +18,18 @@ Map<String, Object?> _arb(String code) =>
 Set<String> _keys(Map<String, Object?> arb) =>
     arb.keys.where((key) => !key.startsWith('@')).toSet();
 
+/// The URIs of every `import` and `export` directive in [source]: whole
+/// directives up to their `;`, so the URIs of a conditional directive's
+/// later lines count too, single or double quoted.
+List<String> _directiveUris(String source) => [
+  for (final directive in RegExp(
+    r'^\s*(import|export)\b[^;]*;',
+    multiLine: true,
+  ).allMatches(source))
+    for (final uri in RegExp('''['"]([^'"]*)['"]''').allMatches(directive[0]!))
+      uri[1]!,
+];
+
 /// The placeholder names in [message], in the order they appear.
 Set<String> _placeholdersIn(String message) => {
   for (final match in RegExp(r'\{(\w+)[,}]').allMatches(message))
@@ -37,6 +49,98 @@ const Set<String> _sameInArabic = {
   'shellConvertMarkdown',
   'regionPaperA4', // the ISO paper size name
   'regionPaperLetter', // the paper size name, as a12-2c writes it
+};
+
+/// Each Arabic string the design's Arabic boards draw for M1, by the ARB
+/// key that holds it: a12-2a (the start screen, FmStart `lang="ar"` in
+/// FmWindow's home header) and a12-2c (Settings › Language and region,
+/// FmSettings `pane="language" lang="ar"`). The strings are the `ar` data
+/// of `design/FmStart.dc.html` (`ST.ar`), `design/FmSettings.dc.html`
+/// (`L.ar`) and, for the home header, `design/FmWindow.dc.html` (`FM_S.ar`).
+/// FmStart's empty state (a1-5's drop zone, the M1 start screen) comes from
+/// the same `ST.ar` data.
+///
+/// Left out, with the reason:
+///
+/// - FmStart `openSub` ("…وExcel والصور لتحويلها"): it promises conversion;
+///   until conversion ships the card says "PDF files" (G11,
+///   `startOpenFileDescription`).
+/// - FmStart `drop` and `dropSub`: the drop strip above pinned and recent
+///   files, which shows only once there are recent files (M2); M1's start
+///   screen is the empty state with its drop zone. `dropSub` also promises
+///   conversion (G11).
+/// - FmStart `pinned`, `unpin`, `recent`, `searchRecent`, `view`, `grid`,
+///   `list`, `sort`, `name`, `where`, `pagesH`, `opened`, `footer`, `clear`,
+///   `pages` and the file badges: pinned and recent files (M2).
+/// - FmStart `dropN`, `dropHow`, `dropTabs`, `dropTabsSub`, `dropCombine`
+///   and `dropCombineSub`: dropping several files at once (M2).
+/// - FmSettings `regions` ("تركيا (Türkiye)") and `appLangs`: region and
+///   language names come from the region and language tables (CLDR names
+///   and each language's own name), not from ARB messages.
+/// - FmWindow's document tabs: the start screen opens no document before
+///   M2 (G88), and file names are data.
+const Map<String, String> _arabicBoardStrings = {
+  // a12-2a: the home header (FmWindow `FM_S.ar`).
+  'shellHome': 'الرئيسية',
+  'shellOpenDocuments': 'المستندات المفتوحة',
+  'shellOpenFile': 'فتح ملف',
+  'shellSearch': 'بحث',
+  'shellSettings': 'الإعدادات',
+  // a12-2a: the action cards and quick tools (FmStart `ST.ar`).
+  'startOpenFile': 'فتح ملف…',
+  'startCreatePdf': 'إنشاء PDF',
+  'startCreatePdfDescription': 'من صفحة فارغة أو ملفات أو الحافظة',
+  'startCombineFiles': 'دمج الملفات',
+  'startCombineFilesDescription': 'دمج عدة ملفات في ملف PDF واحد',
+  'startScanToPdf': 'مسح ضوئي إلى PDF',
+  'startScanToPdfDescription': 'من ماسح ضوئي أو كاميرا الهاتف',
+  'startQuickTools': 'أدوات سريعة',
+  'startToolCompress': 'ضغط',
+  'startToolConvert': 'تحويل',
+  'startToolSign': 'توقيع',
+  'startToolOcr': 'التعرّف على النص (OCR)',
+  'startToolProtect': 'حماية',
+  'startToolCompare': 'مقارنة',
+  // The empty state (FmStart `emptyTitle`, `emptySub`, `emptyFoot`).
+  'startDropTitle': 'أفلت ملف PDF هنا',
+  'startDropSubtitle': 'أو افتح ملفًا من جهازك.',
+  'startDropFootnote': 'تبقى الملفات على هذا الجهاز.',
+  // a12-2c: the window, its search and the pane list (FmSettings `L.ar`).
+  'settingsTitle': 'الإعدادات',
+  'settingsSearch': 'البحث في الإعدادات',
+  'settingsPaneGeneral': 'عام',
+  'settingsPaneLanguage': 'اللغة والمنطقة',
+  'settingsPaneEditing': 'التحرير',
+  'settingsPaneFonts': 'الخطوط',
+  'settingsPaneSignatures': 'التوقيعات والشهادات',
+  'settingsPaneOcr': 'التعرّف على النص (OCR)',
+  'settingsPaneAi': 'المساعد الذكي',
+  'settingsPanePrivacy': 'الخصوصية',
+  'settingsPaneUpdates': 'التحديثات',
+  'settingsPaneShortcuts': 'اختصارات لوحة المفاتيح',
+  'settingsPaneAdvanced': 'متقدّم',
+  // a12-2c: the Language and region pane.
+  'languageAppLanguage': 'لغة التطبيق',
+  'settingsAppLanguageHint': 'يتغيّر Ferman فورًا دون إعادة تشغيل.',
+  'settingsDocumentLanguages': 'لغات المستندات',
+  'settingsDocumentLanguagesHint':
+      'تُستخدم للتعرّف على النص والتدقيق الإملائي والوصل بشرطة عندما لا يحدّد '
+      'المستند لغته.',
+  'languageNameTurkish': 'التركية',
+  'languageNameEnglish': 'الإنجليزية',
+  'settingsAddDocumentLanguage': 'إضافة',
+  'regionFormats': 'تنسيقات المنطقة',
+  'regionPaperSize': 'حجم الورق',
+  'regionUnits': 'الوحدات',
+  'regionFirstDay': 'أول أيام الأسبوع',
+  'regionMonday': 'الاثنين',
+  'regionSunday': 'الأحد',
+  'regionSaturday': 'السبت',
+  'regionExamples': 'أمثلة',
+  'regionExampleDate': 'التاريخ',
+  'regionExampleTime': 'الوقت',
+  'regionExampleNumber': 'الرقم',
+  'regionExampleFontSize': 'حجم الخط',
 };
 
 void main() {
@@ -71,6 +175,14 @@ void main() {
           if (ar[key] == en[key]) key,
       };
       expect(same, _sameInArabic);
+    });
+
+    test('Arabic is the design’s own text where the Arabic boards draw it '
+        '(a12-2a, a12-2c)', () {
+      expect(_keys(en), containsAll(_arabicBoardStrings.keys));
+      for (final MapEntry(:key, value: design) in _arabicBoardStrings.entries) {
+        expect(ar[key], design, reason: key);
+      }
     });
 
     test('gen-l10n found no untranslated Arabic or Turkish message', () {
@@ -187,15 +299,12 @@ void main() {
           .where((file) => file.path.endsWith('.dart'));
       expect(files, isNotEmpty);
       for (final file in files) {
-        final directives = file.readAsLinesSync().where(
-          (line) => RegExp(r'^\s*(import|export)\s').hasMatch(line),
-        );
-        for (final directive in directives) {
-          for (final uri in forbidden) {
+        for (final uri in _directiveUris(file.readAsStringSync())) {
+          for (final prefix in forbidden) {
             expect(
-              directive.contains("'$uri"),
+              uri.startsWith(prefix),
               isFalse,
-              reason: '${file.path}: $directive',
+              reason: '${file.path}: $uri',
             );
           }
         }

@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -372,6 +373,28 @@ void main() {
       expect(ringOf(tester), [
         BoxShadow(color: light.borderFocus, spreadRadius: 1),
       ]);
+    });
+
+    testWidgets('Tab reaches the field, and one disabled with a reason; a '
+        'plain disabled field is skipped', (tester) async {
+      Future<void> pump(String key, {bool disabled = false, String? reason}) =>
+          tester.pumpWidget(
+            componentHost(
+              KeyedSubtree(
+                key: ValueKey(key),
+                child: afterLeadingTabStop(
+                  field(disabled: disabled, disabledReason: reason),
+                ),
+              ),
+            ),
+          );
+      await pump('enabled');
+      await expectTabReaches(tester, find.byType(TextField));
+      expect(borderOf(tester), light.borderFocus);
+      await pump('reason', disabled: true, reason: 'Not yet');
+      await expectTabReaches(tester, find.byType(TextField));
+      await pump('plain', disabled: true);
+      await expectTabSkips(tester, find.byType(TextField));
     });
 
     testWidgets('a click focuses the field and shows the ring', (tester) async {

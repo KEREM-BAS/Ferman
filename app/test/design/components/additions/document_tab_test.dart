@@ -14,6 +14,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 import '../navigation/navigation_test_helpers.dart';
 
 DocumentTab _tab(
@@ -707,6 +708,37 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
       await tester.pumpAndSettle();
       expect(presses, [0]);
+    });
+
+    testWidgets('Tab reaches the active tab; ArrowLeft moves to the previous '
+        'tab and activates it, wrapping, and to the next in right to left', (
+      tester,
+    ) async {
+      for (final (direction, expected) in [
+        (TextDirection.ltr, [0, 2]),
+        (TextDirection.rtl, [2, 0]),
+      ]) {
+        final presses = <int>[];
+        await tester.pumpWidget(
+          componentHost(
+            KeyedSubtree(
+              key: ValueKey(direction),
+              child: afterLeadingTabStop(
+                strip(active: 1, onPressed: presses.add),
+              ),
+            ),
+            textDirection: direction,
+          ),
+        );
+        await expectTabReaches(tester, find.byType(DocumentTabStrip));
+        expect(focusLabel, 'DocumentTabStrip 1');
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+        expect(focusLabel, 'DocumentTabStrip ${expected.first}');
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+        expect(presses, expected, reason: '$direction');
+      }
     });
 
     testWidgets('semantics: a tab bar of the tabs only', (tester) async {

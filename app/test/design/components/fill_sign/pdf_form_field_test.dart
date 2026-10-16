@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const page = FermanPageColors();
@@ -56,6 +57,93 @@ void main() {
 
   tearDown(() {
     FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
+  });
+
+  group('PdfFormField keyboard', () {
+    testWidgets('Tab and Shift+Tab move between the fields of a form, every '
+        'type in turn', (tester) async {
+      const names = [
+        'text',
+        'multiline',
+        'date',
+        'dropdown',
+        'checkbox',
+        'radio',
+        'signature',
+      ];
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              spacing: 4,
+              children: [
+                PdfFormField(
+                  key: const ValueKey('text'),
+                  label: 'Adı',
+                  onChanged: (_) {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('multiline'),
+                  type: PdfFormFieldType.multiline,
+                  label: 'Adres',
+                  onChanged: (_) {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('date'),
+                  type: PdfFormFieldType.date,
+                  label: 'Tarih',
+                  onChanged: (_) {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('dropdown'),
+                  type: PdfFormFieldType.dropdown,
+                  label: 'İl',
+                  options: const ['A', 'B'],
+                  onChanged: (_) {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('checkbox'),
+                  type: PdfFormFieldType.checkbox,
+                  label: 'Beyan',
+                  onPressed: () {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('radio'),
+                  type: PdfFormFieldType.radio,
+                  label: 'Kadın',
+                  onPressed: () {},
+                ),
+                PdfFormField(
+                  key: const ValueKey('signature'),
+                  type: PdfFormFieldType.signature,
+                  label: 'İmza',
+                  width: 150,
+                  signHereLabel: 'Sign here',
+                  onPressed: () {},
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      Future<void> press({bool shift = false}) async {
+        if (shift) await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        if (shift) await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pumpAndSettle();
+      }
+
+      await expectTabReaches(tester, find.byKey(const ValueKey('text')));
+      for (final name in names.skip(1)) {
+        await press();
+        expect(focusIsWithin(find.byKey(ValueKey(name))), isTrue, reason: name);
+      }
+      for (final name in names.reversed.skip(1)) {
+        await press(shift: true);
+        expect(focusIsWithin(find.byKey(ValueKey(name))), isTrue, reason: name);
+      }
+    });
   });
 
   group('PdfFormField looks', () {

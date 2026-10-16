@@ -11,10 +11,10 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The editor shell below the title bar (FmWindow, M1 phases H2 to H4): the
-/// mode bar, the current mode's tool row, the sidebar, the canvas, the
-/// right panel and the status bar. Its title-bar part is
-/// `ShellTitleBarContent`, which the router gives the window frame.
+/// The editor shell below the title bar (building block `FmWindow.dc.html`,
+/// M1 phases H2 to H4): the mode bar, the current mode's tool row, the
+/// sidebar, the canvas, the right panel and the status bar. Its title-bar
+/// part is `ShellTitleBarContent`, which the router gives the window frame.
 ///
 /// Sizes at 1440 × 900 come from the tokens: mode bar `--modebar-h` (40),
 /// tool row `--toolbar-h` (44, plus FmWindow's second 1 px line), sidebar
@@ -38,7 +38,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// M1 reaches it only at `/debug/shell`, with placeholder documents; the
 /// start screen stays at `/`.
-class ShellScreen extends ConsumerWidget {
+class FmWindow extends ConsumerWidget {
   /// The shell.
   const new({super.key, this.onOpenSettings});
 
@@ -85,7 +85,7 @@ class ShellScreen extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (shown.sidebar)
-                          ShellRegion.sidebar.wrap(const ShellSidebar()),
+                          ShellRegion.sidebar.wrap(const FmSidebar()),
                         Expanded(
                           // Keyed, so the canvas keeps its state and focus
                           // when the sidebar before it hides or shows.
@@ -93,7 +93,7 @@ class ShellScreen extends ConsumerWidget {
                           child: ShellRegion.canvas.wrap(const ShellCanvas()),
                         ),
                         if (shown.panel)
-                          ShellRegion.panel.wrap(const ShellPanel()),
+                          ShellRegion.panel.wrap(const FmDocPanel()),
                       ],
                     ),
                   ),

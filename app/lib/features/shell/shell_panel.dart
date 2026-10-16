@@ -5,16 +5,16 @@ import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The right panel (FmDocPanel): `--panel-w` wide on the panel surface with
-/// a subtle line on its start side, and a 40 px heading with the panel's
-/// title and a "More" button.
+/// The right panel (building block `FmDocPanel.dc.html`): `--panel-w` wide
+/// on the panel surface with a subtle line on its start side, and a 40 px
+/// heading with the panel's title and a "More" button.
 ///
 /// The title is "Document" (FmDocPanel `kind="view"`), or "Edit" in Edit
 /// mode (`kind="edit"`). The panel's sections (file properties, fonts,
 /// security) need an open document (M2), so the body is empty and More is
 /// disabled with the future-version tooltip. The mode panels of later
 /// milestones (FmEditPanel, FmComments, FmFormPanel) take its place.
-class ShellPanel extends ConsumerWidget {
+class FmDocPanel extends ConsumerWidget {
   /// The right panel.
   const new({super.key});
 

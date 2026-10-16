@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -128,6 +129,29 @@ void main() {
       expect(ring.style, FocusRingStyle.outer);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(values, [true]);
+    });
+
+    testWidgets('Tab reaches the switch, and Space then toggles; a plain '
+        'disabled switch is skipped', (tester) async {
+      final values = <bool>[];
+      await tester.pumpWidget(
+        componentHost(afterLeadingTabStop(toggle(onChanged: values.add))),
+      );
+      await expectTabReaches(tester, find.byType(Switch));
+      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(values, [true]);
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('disabled'),
+            child: afterLeadingTabStop(
+              toggle(onChanged: values.add, disabled: true),
+            ),
+          ),
+        ),
+      );
+      await expectTabSkips(tester, find.byType(Switch));
     });
 
     testWidgets('Enter does not toggle (Space only)', (tester) async {

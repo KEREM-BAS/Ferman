@@ -87,7 +87,15 @@ class Kbd extends StatelessWidget {
       locale: theme.typography.body.locale,
     );
     Widget cap(String key) {
-      final text = Text(key, style: style, textAlign: TextAlign.center);
+      // A cap is one key: it reads left to right in every UI direction, so a
+      // bracket or arrow on it is never mirrored ("⌘]" stays "]"). The row of
+      // caps still follows the UI direction, as a12-1ar draws "K ⌘".
+      final text = Text(
+        key,
+        style: style,
+        textAlign: TextAlign.center,
+        textDirection: TextDirection.ltr,
+      );
       if (tone != KbdTone.standard) {
         return Padding(
           padding: const EdgeInsetsDirectional.symmetric(

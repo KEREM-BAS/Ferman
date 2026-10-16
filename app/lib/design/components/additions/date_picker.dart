@@ -82,6 +82,10 @@ class DatePicker extends StatefulWidget {
   /// The footer's `margin-top` above its border.
   static const double footerMargin = 6;
 
+  /// The longest short weekday name, in characters, that a day column
+  /// takes; a language with a longer one shows the narrow names (G98).
+  static const int maxShortWeekday = 4;
+
   /// The chosen date; null for none.
   final DateTime? value;
 
@@ -282,10 +286,16 @@ class _DatePickerState extends State<DatePicker> {
     final fullDate = DateFormat.yMMMMEEEEd(intlLocale)..useNativeDigits = false;
     final symbols = DateFormat(null, intlLocale).dateSymbols;
     // intl lists weekdays from Sunday; Monday-first names come from the
-    // parameter.
+    // parameter. Where a language's short names are whole words (Arabic,
+    // Persian and Hebrew), too wide for a day column, the narrow names stand
+    // in (G98).
+    final short = symbols.STANDALONESHORTWEEKDAYS;
+    final names =
+        short.any((name) => name.runes.length > DatePicker.maxShortWeekday)
+        ? symbols.STANDALONENARROWWEEKDAYS
+        : short;
     final mondayFirst =
-        widget.weekdayLabels ??
-        [for (var i = 1; i <= 7; i++) symbols.STANDALONESHORTWEEKDAYS[i % 7]];
+        widget.weekdayLabels ?? [for (var i = 1; i <= 7; i++) names[i % 7]];
     final weekdays = [
       for (var i = 0; i < 7; i++)
         mondayFirst[(widget.firstDayOfWeek - 1 + i) % 7],

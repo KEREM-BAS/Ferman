@@ -14,6 +14,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const page = FermanPageColors();
@@ -357,6 +358,56 @@ void main() {
       await tester.pumpWidget(componentHost(pad(onModeChanged: modes.add)));
       await tester.tap(find.text('Type'));
       expect(modes, [SignatureMode.type]);
+    });
+  });
+
+  group('SignaturePad keyboard', () {
+    testWidgets('Tab reaches the mode control, where ArrowLeft picks the '
+        'previous mode (the next in right to left); the next Tab reaches '
+        'the drawing area', (tester) async {
+      for (final (direction, expected) in [
+        (TextDirection.ltr, SignatureMode.draw),
+        (TextDirection.rtl, SignatureMode.image),
+      ]) {
+        final modes = <SignatureMode>[];
+        await tester.pumpWidget(
+          componentHost(
+            KeyedSubtree(
+              key: ValueKey(direction),
+              child: afterLeadingTabStop(
+                pad(mode: SignatureMode.type, onModeChanged: modes.add),
+              ),
+            ),
+            textDirection: direction,
+          ),
+        );
+        await expectTabReaches(
+          tester,
+          find.byType(SegmentedControl<SignatureMode>),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+        await tester.pumpAndSettle();
+        expect(modes, [expected], reason: '$direction');
+      }
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('draw'),
+            child: afterLeadingTabStop(pad(onModeChanged: (_) {})),
+          ),
+        ),
+      );
+      await expectTabReaches(
+        tester,
+        find.byType(SegmentedControl<SignatureMode>),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      // The area's focus node sits above its keyed box.
+      expect(
+        FocusManager.instance.primaryFocus,
+        Focus.of(tester.element(area)),
+      );
     });
   });
 

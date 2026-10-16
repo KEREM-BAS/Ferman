@@ -1,6 +1,6 @@
 {
   "schemaVersion": 1,
-  "description": "Ferman component spec: every design-system component, the internal Field, Popover and Scrim, and the DS additions, with their Flutter class, props, variants, sizes, states, keyboard behaviour, semantics and tier. Written by careful reading of the design export (G02); schema and rules in docs/COMPONENTS.md, which is rendered from this file by tools/icons (dart run icons:component_spec). Checked by tools/icons/test/component_spec_test.dart.",
+  "description": "Ferman component spec: every design-system component, the internal Field, Popover and Scrim, and the DS additions, with their Flutter class, props, variants, sizes, states, keyboard behaviour, semantics and tier. Written by careful reading of the design export (G02); schema and rules in docs/COMPONENTS.md, which is rendered from this file by tools/icons (dart run icons:component_spec). Checked against the design export by tools/icons/test/component_spec_test.dart, and against app/lib/design by the component_spec check of tools/checks (classes, props, item types and their fields, enums and variant values).",
   "documentation": "docs/COMPONENTS.md",
   "futureVersionTooltip": "Available in a future version",
   "manifest": {
@@ -152,6 +152,11 @@
       "source": "adherence Dialog.tone (\"default\" becomes \"standard\")"
     },
     "DialogSize": {"ds": ["sm", "md", "lg"], "dart": ["sm", "md", "lg"], "source": "adherence Dialog.size"},
+    "DialogButtonOrder": {
+      "ds": ["cancelFirst", "cancelLast"],
+      "dart": ["cancelFirst", "cancelLast"],
+      "source": "Not a design-system prop: the footer orders of a1-10b (macOS, Linux by G15) and f6a (Windows, G16)"
+    },
     "ToolbarVariant": {
       "ds": ["bar", "floating"],
       "dart": ["bar", "floating"],
@@ -1126,6 +1131,15 @@
           "default": null,
           "omitReason": "Single-key shorthand for keys; Dart takes keys only.",
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The spoken form of the shortcut; null reads the caps joined by spaces (screen readers speak the modifier symbols themselves: VoiceOver says \"command\" for ⌘).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -1146,7 +1160,7 @@
       "keyboard": [],
       "semantics": {
         "role": "none (kbd text)",
-        "label": "spoken key names, for example \"Command K\"",
+        "label": "semanticLabel, else the caps joined by spaces (\"⌘ K\", which screen readers speak as \"command K\")",
         "properties": ["label"]
       },
       "notes": ["Shortcuts appear only in tooltips and menus, never inside sentences (readme)."]
@@ -7625,7 +7639,37 @@
           "type": "List<Widget>",
           "required": false,
           "default": [],
+          "notes": "The footer buttons other than Cancel, written in the macOS and Linux order (the affirmative button last); buttonOrder lines them up, reversed on Windows.",
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "cancelAction",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The button that dismisses without acting (\"Cancel\"): before actions on macOS and Linux, after them on Windows. The bundle's actions node holds it.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "alternateAction",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The button that closes another way, without the affirmative action (a1-10b \"Don't save\"): apart at the start of the footer, after footerStart, on macOS and Linux; between actions and cancelAction on Windows. The bundle passes it as footerStart.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "buttonOrder",
+          "type": "DialogButtonOrder?",
+          "required": false,
+          "default": null,
+          "dartEnum": "DialogButtonOrder",
+          "values": ["cancelFirst", "cancelLast"],
+          "notes": "The order of actions, alternateAction and cancelAction; null follows the system the app runs on (DialogButtonOrder.current: cancelLast on Windows, cancelFirst elsewhere).",
+          "declared": false
         },
         {
           "ds": "footerStart",
@@ -7633,6 +7677,7 @@
           "type": "Widget?",
           "required": false,
           "default": null,
+          "notes": "At the start of the footer on every system (a checkbox, a link).",
           "declared": true
         },
         {
@@ -7701,7 +7746,7 @@
       },
       "notes": [
         "Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.",
-        "Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).", "onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).", "Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; popups inside them open in the modal layer's own overlay; a modal shows only while its route is current (hidden, it keeps its state and stops counting); inline ones do none of this (decision 41)."
+        "Footer button order follows the platform through buttonOrder (DialogButtonOrder.current by default): on macOS and Linux alternateAction stands apart at the start after footerStart, and the end holds cancelAction, then actions with the affirmative button last (a1-10b: \"Don't save\" … Cancel, Save; G15); on Windows the end holds actions reversed, the affirmative button first, then alternateAction, then cancelAction (f6a: primary, secondary, then Cancel; a1-10b: Save, Don't save, Cancel; G16). Focus moves through the buttons in the order they are drawn.", "onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).", "Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; popups inside them open in the modal layer's own overlay; a modal shows only while its route is current (hidden, it keeps its state and stops counting); inline ones do none of this (decision 41)."
       ]
     },
     {
@@ -7965,6 +8010,10 @@
         {"keys": ["Home", "End"], "action": "first or last item"},
         {"keys": ["Enter", "Space"], "action": "activate"},
         {"keys": ["Escape"], "action": "onClose"},
+        {
+          "keys": ["Tab", "Shift+Tab"],
+          "action": "onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger (the WAI-ARIA menu pattern; not in the bundle)"
+        },
         {"keys": ["ArrowRight"], "action": "open a submenu (ArrowLeft in RTL; not in the bundle)"}
       ],
       "semantics": {
@@ -8114,6 +8163,15 @@
         },
         {
           "ds": null,
+          "dart": "closeDisabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Without onClose, the close button is drawn disabled with this reason as its tooltip and semantics hint, so an unfinished close stays visible as drawn (G10).",
+          "declared": false
+        },
+        {
+          "ds": null,
           "dart": "unsavedLabel",
           "type": "String",
           "required": true,
@@ -8209,6 +8267,15 @@
           "trigger": "prop",
           "prop": "loading",
           "refs": [{"file": "FmWindow", "line": 23, "text": "<sc-if value=\"{{ tab.loading }}\">"}]
+        },
+        {
+          "name": "closeDisabledWithReason",
+          "trigger": "prop",
+          "prop": "closeDisabledReason",
+          "refs": [],
+          "tooltip": "Available in a future version",
+          "gap": "G10",
+          "notes": "The close button of the active clean tab in the disabled look, the reason as tooltip and semantics hint; it stays focusable and activation does nothing (closing documents arrives in M2)."
         },
         {
           "name": "locked",

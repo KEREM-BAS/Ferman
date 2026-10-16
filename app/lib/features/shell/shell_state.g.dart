@@ -285,7 +285,7 @@ abstract class _$ShellPanelPreference extends $Notifier<ShellSide> {
 }
 
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
-/// null before its first layout. `ShellScreen` measures it after each
+/// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
 /// from it. Kept alive, so it outlasts the frames nobody watches it.
 
@@ -293,12 +293,12 @@ abstract class _$ShellPanelPreference extends $Notifier<ShellSide> {
 final shellWidthProvider = ShellWidthProvider._();
 
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
-/// null before its first layout. `ShellScreen` measures it after each
+/// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
 /// from it. Kept alive, so it outlasts the frames nobody watches it.
 final class ShellWidthProvider extends $NotifierProvider<ShellWidth, double?> {
   /// The width the shell was last laid out at, as `shellWidthProvider`, or
-  /// null before its first layout. `ShellScreen` measures it after each
+  /// null before its first layout. `FmWindow` measures it after each
   /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
   /// from it. Kept alive, so it outlasts the frames nobody watches it.
   ShellWidthProvider._()
@@ -331,7 +331,7 @@ final class ShellWidthProvider extends $NotifierProvider<ShellWidth, double?> {
 String _$shellWidthHash() => r'9f6430a54143fa0af650620fc5106ff42ed09068';
 
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
-/// null before its first layout. `ShellScreen` measures it after each
+/// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
 /// from it. Kept alive, so it outlasts the frames nobody watches it.
 

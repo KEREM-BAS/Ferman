@@ -89,7 +89,7 @@ class ShellPanelPreference extends _$ShellPanelPreference {
 }
 
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
-/// null before its first layout. `ShellScreen` measures it after each
+/// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
 /// from it. Kept alive, so it outlasts the frames nobody watches it.
 @Riverpod(keepAlive: true)

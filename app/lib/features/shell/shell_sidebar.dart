@@ -9,17 +9,17 @@ import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The sidebar on the start side (FmSidebar): `--sidebar-w` wide on the
-/// panel surface with a subtle line on its end side, holding the six tabs
-/// as an icon-only SegmentedControl over an [IndexedStack] (never a
-/// `TabBarView`, ADR 0011), the tab's heading with its count and buttons,
-/// and the tab's content.
+/// The sidebar on the start side (building block `FmSidebar.dc.html`):
+/// `--sidebar-w` wide on the panel surface with a subtle line on its end
+/// side, holding the six tabs as an icon-only SegmentedControl over an
+/// [IndexedStack] (never a `TabBarView`, ADR 0011), the tab's heading with
+/// its count and buttons, and the tab's content.
 ///
 /// The tabs switch; their content needs an open document (M2), so the
 /// content is empty, the Pages heading counts the placeholder document's
 /// pages, and the heading buttons are disabled with the future-version
 /// tooltip.
-class ShellSidebar extends ConsumerWidget {
+class FmSidebar extends ConsumerWidget {
   /// The sidebar.
   const new({super.key});
 

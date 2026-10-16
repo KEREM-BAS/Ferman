@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -222,6 +223,30 @@ void main() {
     String shown(WidgetTester tester) =>
         tester.widget<EditableText>(find.byType(EditableText)).controller.text;
 
+    Color borderOf(WidgetTester tester) =>
+        ((tester
+                            .widget<AnimatedContainer>(
+                              find.byKey(FieldBox.boxKey),
+                            )
+                            .decoration!
+                        as BoxDecoration)
+                    .border!
+                as Border)
+            .top
+            .color;
+
+    List<BoxShadow> ringOf(WidgetTester tester) {
+      final ring = tester.widget<AnimatedContainer>(
+        find
+            .ancestor(
+              of: find.byKey(FieldBox.boxKey),
+              matching: find.byType(AnimatedContainer),
+            )
+            .first,
+      );
+      return (ring.decoration! as BoxDecoration).boxShadow ?? const [];
+    }
+
     setUp(() {
       FocusManager.instance.highlightStrategy =
           FocusHighlightStrategy.alwaysTraditional;
@@ -307,6 +332,61 @@ void main() {
       await tester.pump();
       expect(background(), light.surfacePressed);
       await mouse.up();
+    });
+
+    testWidgets('hover: the strong border on the box, none while disabled', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(stepper()));
+      expect(borderOf(tester), light.borderDefault);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byType(EditableText)));
+      await tester.pumpAndSettle();
+      // `.fm-input:hover`.
+      expect(borderOf(tester), light.borderStrong);
+      expect(ringOf(tester), isEmpty);
+      await mouse.moveTo(Offset.zero);
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderDefault);
+      await tester.pumpWidget(componentHost(stepper(disabled: true)));
+      await mouse.moveTo(tester.getCenter(find.byType(EditableText)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderSubtle);
+    });
+
+    testWidgets('focus-visible: Tab reaches the field; the box shows the '
+        'focus border and the 1 px field ring, over the hover border', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(afterLeadingTabStop(stepper())));
+      expect(ringOf(tester), isEmpty);
+      await expectTabReaches(tester, find.byType(NumberStepper));
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasPrimaryFocus,
+        isTrue,
+      );
+      // `.fm-input:focus-within`: ink border plus a 1 px ring.
+      expect(borderOf(tester), light.borderFocus);
+      expect(ringOf(tester), [
+        BoxShadow(color: light.borderFocus, spreadRadius: 1),
+      ]);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byType(EditableText)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderFocus);
+      // The arrows are not Tab stops: the next Tab leaves the stepper.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expectFocusAfter(find.byType(NumberStepper));
+      expect(borderOf(tester), light.borderStrong);
+      expect(ringOf(tester), isEmpty);
     });
 
     testWidgets('ArrowUp and ArrowDown step; Shift takes ten steps', (

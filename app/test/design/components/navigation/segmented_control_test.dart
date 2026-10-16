@@ -1,5 +1,6 @@
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/navigation/segmented_control.dart';
@@ -11,6 +12,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 import 'navigation_test_helpers.dart';
 
 const List<SegmentOption<String>> _theme = [
@@ -405,6 +407,111 @@ void main() {
       expect(focusLabel, 'SegmentedControl 1');
       expect(changes, isEmpty);
       handle.dispose();
+    });
+
+    testWidgets('a segment disabled with the future-version reason: the '
+        'arrow keys focus it, and the reason shows as its tooltip after the '
+        'delay and in semantics (G10)', (tester) async {
+      final handle = tester.ensureSemantics();
+      final changes = <String>[];
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            Builder(
+              builder: (context) => _Host(
+                onChanged: changes.add,
+                initial: 'a',
+                options: [
+                  const SegmentOption(value: 'a', label: 'A'),
+                  SegmentOption(
+                    value: 'b',
+                    label: 'B',
+                    disabled: true,
+                    disabledReason: futureVersionReason(context),
+                  ),
+                  const SegmentOption(value: 'c', label: 'C'),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(SegmentedControl<String>));
+      expect(focusLabel, 'SegmentedControl 0');
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(focusLabel, 'SegmentedControl 1');
+      expect(changes, isEmpty);
+      // Not before the delay.
+      await tester.pump(
+        Tooltip.defaultDelay - const Duration(milliseconds: 50),
+      );
+      expect(find.text('Available in a future version'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('B')),
+        isSemantics(
+          label: 'B',
+          hint: 'Available in a future version',
+          tooltip: 'Available in a future version',
+          isInMutuallyExclusiveGroup: true,
+          hasCheckedState: true,
+          isChecked: false,
+          hasEnabledState: true,
+          isEnabled: false,
+          isFocusable: true,
+          isFocused: true,
+        ),
+      );
+      // Space does not check it; the next arrow moves on and closes it.
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pump();
+      expect(changes, isEmpty);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(changes, ['c']);
+      expect(find.text('Available in a future version'), findsNothing);
+      handle.dispose();
+    });
+
+    testWidgets('a segment disabled with the future-version reason shows it '
+        'on hover after the delay', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          Builder(
+            builder: (context) => _Host(
+              initial: 'a',
+              options: [
+                const SegmentOption(value: 'a', label: 'A'),
+                SegmentOption(
+                  value: 'b',
+                  label: 'B',
+                  disabled: true,
+                  disabledReason: futureVersionReason(context),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.text('B')));
+      await tester.pump(
+        Tooltip.defaultDelay - const Duration(milliseconds: 50),
+      );
+      expect(find.text('Available in a future version'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 50));
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsOneWidget);
+      // A disabled segment shows no hover tint.
+      expect(containerDecoration(tester, find.text('B')).color, transparent);
+      await mouse.moveTo(Offset.zero);
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsNothing);
     });
 
     testWidgets('disabled without a reason: no Tab stop', (tester) async {

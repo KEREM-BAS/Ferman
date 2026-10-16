@@ -6,6 +6,7 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -207,6 +208,43 @@ void main() {
       expect(dismissed, 1);
     });
 
+    testWidgets('Tab reaches the grid, one Tab stop, on the chosen day; '
+        'Space chooses the focused day; the next Tab leaves the grid', (
+      tester,
+    ) async {
+      final chosen = <DateTime>[];
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            picker(value: DateTime(2026, 11, 4), onChanged: chosen.add),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(DatePicker));
+      final ring =
+          tester
+                  .widget<Container>(
+                    find
+                        .ancestor(
+                          of: find.text('4').first,
+                          matching: find.byType(Container),
+                        )
+                        .first,
+                  )
+                  .foregroundDecoration
+              as BoxDecoration?;
+      expect(
+        (ring?.border as Border?)?.top.color,
+        FermanTheme.light.focus.focusRingInset.color,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(chosen, [DateTime(2026, 11, 5)]);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expectFocusAfter(find.byType(DatePicker));
+    });
+
     testWidgets('right to left: ArrowLeft moves to the next day', (
       tester,
     ) async {
@@ -328,6 +366,29 @@ void main() {
         ),
       );
       expect(find.text('Kasım 2026'), findsOneWidget);
+    });
+
+    testWidgets('whole-word short names give way to the narrow ones: Arabic '
+        'heads its columns with one letter each (G98)', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          DatePicker(month: november, region: Region.forCode('SA')),
+          locale: const Locale('ar'),
+        ),
+      );
+      // Monday first, as the default firstDayOfWeek of the component.
+      for (final letter in ['ن', 'ث', 'ر', 'خ', 'ج', 'س', 'ح']) {
+        expect(find.text(letter), findsOneWidget, reason: letter);
+      }
+      expect(find.text('الخميس'), findsNothing);
+      // Turkish short names fit a column and stay.
+      await tester.pumpWidget(
+        componentHost(
+          DatePicker(month: november, region: Region.turkiye),
+          locale: const Locale('tr'),
+        ),
+      );
+      expect(find.text('Per'), findsOneWidget);
     });
 
     testWidgets('semantics: a dialog; days named by the full date', (

@@ -38,7 +38,7 @@ import 'package:go_router/go_router.dart';
 /// through the pane, each column as one group in reading order. When a
 /// change cannot be stored, a warning Banner at the top of the pane says
 /// that it lasts only until Ferman closes (`settingsSaveFailedProvider`).
-class SettingsScreen extends ConsumerStatefulWidget {
+class FmSettings extends ConsumerStatefulWidget {
   /// Settings on [initialPane].
   const new({super.key, this.initialPane = SettingsPane.general});
 
@@ -80,14 +80,14 @@ class SettingsScreen extends ConsumerStatefulWidget {
   }
 
   @override
-  ConsumerState<SettingsScreen> createState() => _SettingsScreenState();
+  ConsumerState<FmSettings> createState() => _FmSettingsState();
 }
 
-class _SettingsScreenState extends ConsumerState<SettingsScreen> {
+class _FmSettingsState extends ConsumerState<FmSettings> {
   late SettingsPane _pane = widget.initialPane;
 
   @override
-  void didUpdateWidget(SettingsScreen oldWidget) {
+  void didUpdateWidget(FmSettings oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (oldWidget.initialPane != widget.initialPane) {
       _pane = widget.initialPane;
@@ -101,13 +101,13 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final saveFailed = ref.watch(settingsSaveFailedProvider);
-    void close() => SettingsScreen.close(context);
+    void close() => FmSettings.close(context);
 
     final nav = Container(
-      width: SettingsScreen.navWidth,
+      width: FmSettings.navWidth,
       padding: const EdgeInsetsDirectional.symmetric(
-        horizontal: SettingsScreen.navPaddingX,
-        vertical: SettingsScreen.navPaddingY,
+        horizontal: FmSettings.navPaddingX,
+        vertical: FmSettings.navPaddingY,
       ),
       decoration: BoxDecoration(
         color: colors.surfacePanel,
@@ -186,18 +186,18 @@ class _SettingsScreenState extends ConsumerState<SettingsScreen> {
                 alignment: AlignmentDirectional.topStart,
                 child: ConstrainedBox(
                   constraints: const BoxConstraints(
-                    maxWidth: SettingsScreen.paneMaxWidth,
+                    maxWidth: FmSettings.paneMaxWidth,
                   ),
                   child: Padding(
                     padding: const EdgeInsetsDirectional.fromSTEB(
-                      SettingsScreen.panePaddingX,
-                      SettingsScreen.panePaddingTop,
-                      SettingsScreen.panePaddingX,
-                      SettingsScreen.panePaddingX,
+                      FmSettings.panePaddingX,
+                      FmSettings.panePaddingTop,
+                      FmSettings.panePaddingX,
+                      FmSettings.panePaddingX,
                     ),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: SettingsScreen.paneGap,
+                      spacing: FmSettings.paneGap,
                       children: [
                         if (saveFailed)
                           Banner(
@@ -304,7 +304,7 @@ class _NavRow extends StatelessWidget {
           borderRadius: radius,
           child: Container(
             constraints: const BoxConstraints(
-              minHeight: SettingsScreen.navRowHeight,
+              minHeight: FmSettings.navRowHeight,
             ),
             padding: EdgeInsetsDirectional.symmetric(
               horizontal: theme.space.space2_5,

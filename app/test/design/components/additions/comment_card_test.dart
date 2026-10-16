@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const light = FermanColorTokens.light;
@@ -329,6 +330,64 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(presses, 3);
+    });
+
+    testWidgets('Tab reaches the card, and Enter presses it; composing, the '
+        'reply field and Resolve are the next Tab stops', (tester) async {
+      var presses = 0;
+      await tester.pumpWidget(
+        componentHost(afterLeadingTabStop(card(onPressed: () => presses++))),
+      );
+      await expectTabReaches(tester, find.byType(CommentCard));
+      expect(
+        FocusManager.instance.primaryFocus,
+        Focus.of(tester.element(frame)),
+      );
+      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(presses, 1);
+
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('composing'),
+            child: afterLeadingTabStop(
+              card(
+                expanded: true,
+                composing: true,
+                onPressed: () {},
+                onResolve: () {},
+                onReply: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(CommentCard));
+      expect(
+        FocusManager.instance.primaryFocus,
+        Focus.of(tester.element(frame)),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasPrimaryFocus,
+        isTrue,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(
+        focusIsWithin(
+          find.ancestor(
+            of: find.text('Resolve'),
+            matching: find.byType(Button),
+          ),
+        ),
+        isTrue,
+      );
     });
 
     testWidgets('ArrowDown and ArrowUp move between cards', (tester) async {

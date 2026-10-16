@@ -403,7 +403,7 @@ void main() {
     testWidgets('choosing Persian in Settings isolates the strings in place, '
         'and English removes the isolates', (tester) async {
       await _pump(tester, M1Screen.settingsLanguage, 'en');
-      final state = tester.state(find.byType(SettingsScreen));
+      final state = tester.state(find.byType(FmSettings));
       Future<void> choose(AppLanguage language) async {
         tester
             .widget<Select<AppLanguage>>(find.byType(Select<AppLanguage>))
@@ -418,12 +418,12 @@ void main() {
       );
       expect(find.text('Settings'), findsNothing);
       // The same screen, reloaded in place: nothing was rebuilt from scratch.
-      expect(tester.state(find.byType(SettingsScreen)), same(state));
+      expect(tester.state(find.byType(FmSettings)), same(state));
 
       await choose(AppLanguage.english);
       expect(find.text('Settings'), findsOneWidget);
       expect(_texts(tester).where((text) => text.contains(_lri)), isEmpty);
-      expect(tester.state(find.byType(SettingsScreen)), same(state));
+      expect(tester.state(find.byType(FmSettings)), same(state));
     });
   });
 

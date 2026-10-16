@@ -63,8 +63,8 @@ enum M1Screen {
   Type get widgetType => switch (this) {
     languagePicker => LanguagePicker,
     privacyStep || freeStep => WelcomeStep,
-    start => StartScreen,
-    _ => SettingsScreen,
+    start => FmStart,
+    _ => FmSettings,
   };
 
   /// Moves the app, started with [settings], to this screen, through the
@@ -81,7 +81,7 @@ enum M1Screen {
           await tester.pumpAndSettle();
         }
       case settingsGeneral || settingsLanguage || settingsPrivacy:
-        final context = tester.element(find.byType(StartScreen));
+        final context = tester.element(find.byType(FmStart));
         // The push completes only when Settings closes.
         unawaited(
           GoRouter.of(context).push<void>(Routes.settingsPane(pane!.path)),

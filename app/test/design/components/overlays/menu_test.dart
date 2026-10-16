@@ -12,6 +12,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -211,6 +212,104 @@ void main() {
       expect(chosen.map((item) => item.id), ['rotate']);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       expect(closes, 1);
+    });
+
+    testWidgets('items are not Tab stops, as the menu role says: Tab skips '
+        'the menu; with autofocus the first item takes focus when the menu '
+        'appears, and the arrows move from there', (tester) async {
+      await tester.pumpWidget(
+        host(afterLeadingTabStop(menu(autofocus: false))),
+      );
+      await expectTabSkips(tester, find.byType(Menu));
+      await tester.pumpWidget(
+        host(
+          KeyedSubtree(
+            key: const ValueKey('autofocus'),
+            child: afterLeadingTabStop(menu()),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(focusIsWithin(find.byType(Menu)), isTrue);
+      expect(rowColor(tester, 'Rotate'), light.surfaceSelectedStrong);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(rowColor(tester, 'Extract'), light.surfaceSelectedStrong);
+    });
+
+    testWidgets('Tab and Shift+Tab close an open menu, from a submenu too: '
+        'the host closes it and focus returns to the trigger, not to the '
+        'start of the page', (tester) async {
+      final trigger = FocusNode(debugLabel: 'More');
+      addTearDown(trigger.dispose);
+      var open = true;
+      var closes = 0;
+      late StateSetter setOpen;
+      await tester.pumpWidget(
+        host(
+          afterLeadingTabStop(
+            StatefulBuilder(
+              builder: (context, setState) {
+                setOpen = setState;
+                // As the toolbar's overflow menu does: the host closes the
+                // popover and gives focus back to its trigger.
+                void close() {
+                  closes++;
+                  setState(() => open = false);
+                  trigger.requestFocus();
+                }
+
+                return Popover(
+                  open: open,
+                  surface: false,
+                  onDismiss: close,
+                  anchor: Focus(
+                    focusNode: trigger,
+                    child: const SizedBox(width: 60, height: 20),
+                  ),
+                  child: menu(onClose: close),
+                );
+              },
+            ),
+          ),
+        ),
+      );
+      Future<void> reopen() async {
+        setOpen(() => open = true);
+        await tester.pumpAndSettle();
+        expect(rowColor(tester, 'Rotate'), light.surfaceSelectedStrong);
+      }
+
+      void expectClosed(int count) {
+        expect(closes, count);
+        expect(find.byType(Menu), findsNothing);
+        expect(trigger.hasPrimaryFocus, isTrue);
+      }
+
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'Rotate'), light.surfaceSelectedStrong);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expectClosed(1);
+
+      await reopen();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+      expectClosed(2);
+
+      // From a submenu, Tab closes the whole menu, not just the submenu.
+      await reopen();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'Blank page'), light.surfaceSelectedStrong);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expectClosed(3);
+      expect(find.text('Blank page'), findsNothing);
     });
 
     testWidgets('submenu: ArrowRight opens it beside the item with the first '

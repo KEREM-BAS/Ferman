@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 /// [page] as the first route of a navigator under a 40 px top bar, as the
 /// app's screens sit under the window frame's title bar.
@@ -542,6 +543,29 @@ void main() {
       expect(rowColor(tester, 'Contract'), light.surfaceSelectedStrong);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       expect(closes, 1);
+    });
+
+    testWidgets('no Tab stop of its own: opening takes focus to the search '
+        'field (it opens by its shortcut, not by Tab), and Tab and Shift+Tab '
+        'keep focus there, never behind the scrim', (tester) async {
+      await tester.pumpWidget(
+        componentHost(afterLeadingTabStop(palette(open: false))),
+      );
+      await expectTabSkips(tester, find.byType(CommandPalette));
+      await tester.pumpWidget(componentHost(afterLeadingTabStop(palette())));
+      await tester.pumpAndSettle();
+      final field = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode;
+      expect(field.hasPrimaryFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(field.hasPrimaryFocus, isTrue);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.pumpAndSettle();
+      expect(field.hasPrimaryFocus, isTrue);
     });
 
     testWidgets('pointer: moving over a row activates it, a click runs it, a '

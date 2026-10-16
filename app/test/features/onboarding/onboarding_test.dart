@@ -27,14 +27,14 @@ void main() {
       await pumpFermanApp(tester, settings: _firstRun);
       expect(find.byType(OnboardingScreen), findsOneWidget);
       expect(find.byType(LanguagePicker), findsOneWidget);
-      expect(find.byType(StartScreen), findsNothing);
+      expect(find.byType(FmStart), findsNothing);
     });
 
     testWidgets('a finished first run opens the start screen directly', (
       tester,
     ) async {
       await pumpFermanApp(tester);
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect(find.byType(OnboardingScreen), findsNothing);
     });
   });
@@ -492,11 +492,11 @@ void main() {
       await openPrivacy(tester);
       await tester.tap(find.text('See every connection in Settings › Privacy'));
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(FmSettings), findsOneWidget);
       expect(find.text('Ferman collects nothing.'), findsOneWidget);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsNothing);
+      expect(find.byType(FmSettings), findsNothing);
       expect(find.text('Everything stays on your device'), findsOneWidget);
     });
 
@@ -513,7 +513,7 @@ void main() {
       await openPrivacy(tester);
       await tester.tap(find.text('Skip'));
       await tester.pumpAndSettle();
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect((await store.load()).onboardingCompleted, isTrue);
     });
 
@@ -522,7 +522,7 @@ void main() {
       await openPrivacy(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect((await store.load()).onboardingCompleted, isTrue);
     });
 
@@ -597,7 +597,7 @@ void main() {
       await openFree(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect((await store.load()).onboardingCompleted, isTrue);
     });
 
@@ -606,7 +606,7 @@ void main() {
       await openFree(tester);
       await tester.tap(find.text('Start using Ferman'));
       await tester.pumpAndSettle();
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect((await store.load()).onboardingCompleted, isTrue);
     });
 

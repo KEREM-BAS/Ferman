@@ -13,6 +13,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 import 'panel_pixels.dart';
 
 void main() {
@@ -317,6 +318,34 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       await tester.tap(find.byType(IconButton));
       expect(taps, 3);
+    });
+
+    testWidgets('Tab reaches the button, and one disabled with a reason; a '
+        'plain disabled button is skipped', (tester) async {
+      Future<void> pump(String key, {bool disabled = false, String? reason}) =>
+          tester.pumpWidget(
+            componentHost(
+              KeyedSubtree(
+                key: ValueKey(key),
+                child: afterLeadingTabStop(
+                  IconButton(
+                    icon: IconName.rotateCw,
+                    label: 'Rotate page',
+                    disabled: disabled,
+                    disabledReason: reason,
+                    onPressed: () {},
+                  ),
+                ),
+              ),
+            ),
+          );
+      await pump('enabled');
+      await expectTabReaches(tester, find.byType(IconButton));
+      expect(ring(tester).visible, isTrue);
+      await pump('reason', disabled: true, reason: 'Not yet');
+      await expectTabReaches(tester, find.byType(IconButton));
+      await pump('plain', disabled: true);
+      await expectTabSkips(tester, find.byType(IconButton));
     });
 
     testWidgets('keyboard focus on a secondary replaces its shadow with the '

@@ -11,6 +11,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -136,6 +137,29 @@ void main() {
       expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(values, [true]);
+    });
+
+    testWidgets('Tab reaches the checkbox, and Space then toggles; a plain '
+        'disabled checkbox is skipped', (tester) async {
+      final values = <bool>[];
+      await tester.pumpWidget(
+        componentHost(afterLeadingTabStop(checkbox(onChanged: values.add))),
+      );
+      await expectTabReaches(tester, find.byType(Checkbox));
+      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(values, [true]);
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('disabled'),
+            child: afterLeadingTabStop(
+              checkbox(onChanged: values.add, disabled: true),
+            ),
+          ),
+        ),
+      );
+      await expectTabSkips(tester, find.byType(Checkbox));
     });
 
     testWidgets('Enter does not toggle (Space only)', (tester) async {

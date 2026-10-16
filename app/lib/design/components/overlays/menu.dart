@@ -133,10 +133,14 @@ class MenuItem {
 /// **Keyboard.** ArrowDown and ArrowUp move between items, wrapping, past
 /// plain disabled items but stopping on items disabled with a reason;
 /// Home and End go to the first and last; Enter and Space activate;
-/// Escape calls [onClose]. ArrowRight (ArrowLeft in right to left) opens a
-/// submenu, as does hovering its item; ArrowLeft (ArrowRight), Escape or
-/// choosing an item close it. With [autofocus] the first item takes focus
-/// when the menu appears.
+/// Escape calls [onClose]. The items are not Tab stops (the menu role):
+/// Tab and Shift+Tab call [onClose] too, from a submenu as well, so the
+/// host closes the whole menu and returns focus to its trigger, and the
+/// menu never stays open while focus moves on (the WAI-ARIA menu pattern).
+/// ArrowRight (ArrowLeft in right to left) opens a submenu, as does
+/// hovering its item; ArrowLeft (ArrowRight), Escape or choosing an item
+/// close it. With [autofocus] the first item takes focus when the menu
+/// appears.
 ///
 /// Activating an item calls [onSelected] with it (items of submenus too).
 ///
@@ -165,7 +169,7 @@ class Menu extends StatefulWidget {
   /// Called with the item the user activates.
   final ValueChanged<MenuItem>? onSelected;
 
-  /// Called on Escape.
+  /// Called on Escape, Tab and Shift+Tab.
   final VoidCallback? onClose;
 
   /// The accessible name of the menu (the DS `label`).
@@ -188,6 +192,12 @@ class Menu extends StatefulWidget {
 }
 
 class _MenuState extends State<Menu> {
+  static const SingleActivator _tab = SingleActivator(LogicalKeyboardKey.tab);
+  static const SingleActivator _shiftTab = SingleActivator(
+    LogicalKeyboardKey.tab,
+    shift: true,
+  );
+
   final Map<int, FocusNode> _nodes = {};
   int? _submenu;
 
@@ -290,6 +300,14 @@ class _MenuState extends State<Menu> {
         !widget.items[current].disabled) {
       _openSubmenu(current);
     } else if (key == LogicalKeyboardKey.escape && widget.onClose != null) {
+      widget.onClose?.call();
+    } else if (_tab.accepts(event, HardwareKeyboard.instance) ||
+        _shiftTab.accepts(event, HardwareKeyboard.instance)) {
+      // A submenu lets Tab through to the menu it opened from, which
+      // closes the whole menu.
+      if (_SubmenuScope.within(context) || widget.onClose == null) {
+        return KeyEventResult.ignored;
+      }
       widget.onClose?.call();
     } else {
       return KeyEventResult.ignored;
@@ -621,11 +639,13 @@ class _SubmenuAnchorState extends State<_SubmenuAnchor> {
           skipTraversal: true,
           includeSemantics: false,
           onKeyEvent: _onKey,
-          child: Menu(
-            items: widget.items,
-            onSelected: widget.onSelected,
-            onClose: widget.onClose,
-            autofocus: true,
+          child: _SubmenuScope(
+            child: Menu(
+              items: widget.items,
+              onSelected: widget.onSelected,
+              onClose: widget.onClose,
+              autofocus: true,
+            ),
           ),
         );
         if (group != null) {
@@ -647,4 +667,17 @@ class _SubmenuAnchorState extends State<_SubmenuAnchor> {
       child: widget.child,
     );
   }
+}
+
+/// Marks a [Menu] opened as a submenu, which leaves Tab to the menu it
+/// opened from.
+class _SubmenuScope extends InheritedWidget {
+  const new({required super.child});
+
+  /// Whether [context] is inside a submenu.
+  static bool within(BuildContext context) =>
+      context.getInheritedWidgetOfExactType<_SubmenuScope>() != null;
+
+  @override
+  bool updateShouldNotify(_SubmenuScope oldWidget) => false;
 }

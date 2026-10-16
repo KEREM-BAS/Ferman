@@ -7,6 +7,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 enum _Page { paper, dim, invert }
 
@@ -307,6 +308,51 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.pumpAndSettle();
       expect(value, _Page.dim);
+    });
+
+    testWidgets('Tab reaches a lone radio; in a RadioGroup Tab reaches only '
+        'the checked radio, and the next Tab leaves the group', (tester) async {
+      final selected = <_Page>[];
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            radio(_Page.dim, groupValue: _Page.paper, onChanged: selected.add),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(Radio<_Page>));
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(selected, [_Page.dim]);
+
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('group'),
+            child: afterLeadingTabStop(
+              RadioGroup<_Page>(
+                groupValue: _Page.dim,
+                onChanged: (_) {},
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    for (final page in _Page.values)
+                      Radio<_Page>(value: page, label: page.name),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      final dim = find.ancestor(
+        of: find.text('dim'),
+        matching: find.byType(Radio<_Page>),
+      );
+      await expectTabReaches(tester, dim);
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expectFocusAfter(find.byType(RadioGroup<_Page>));
     });
 
     testWidgets('in a RadioGroup: arrows skip a radio disabled with a '

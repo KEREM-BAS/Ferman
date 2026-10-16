@@ -36,6 +36,45 @@ enum DialogSize {
   lg,
 }
 
+/// The order of a [Dialog]'s footer buttons: each system's convention
+/// (the f6a and a1-10b notes, G15, G16).
+enum DialogButtonOrder {
+  /// macOS and Linux, and every other system but Windows: Cancel first,
+  /// then the other actions, the affirmative one last at the end (a1-10b:
+  /// Cancel, Save; Linux by G15 and Q12).
+  cancelFirst,
+
+  /// Windows: the affirmative action first, then the others, then Cancel
+  /// (f6a: primary, secondary, then Cancel; a1-10b: Save, Don't save,
+  /// Cancel; G16).
+  cancelLast;
+
+  /// The convention of [platform]: Windows puts Cancel last, every other
+  /// system first.
+  static DialogButtonOrder of(TargetPlatform platform) =>
+      platform == TargetPlatform.windows ? cancelLast : cancelFirst;
+
+  /// The convention of the system the app runs on (`defaultTargetPlatform`).
+  static DialogButtonOrder get current => of(defaultTargetPlatform);
+
+  /// [actions], written in the macOS and Linux order (the affirmative one
+  /// last), [alternate] and [cancel] in this order: the buttons apart at
+  /// the start of the footer and those lined up at its end, each from the
+  /// start. [alternate] (a1-10b's "Don't save") is at the start for
+  /// [cancelFirst] and between the actions and [cancel] for [cancelLast].
+  ({List<Widget> start, List<Widget> end}) arrange(
+    List<Widget> actions, {
+    Widget? cancel,
+    Widget? alternate,
+  }) => switch (this) {
+    cancelFirst => (start: [?alternate], end: [?cancel, ...actions]),
+    cancelLast => (
+      start: const <Widget>[],
+      end: [...actions.reversed, ?alternate, ?cancel],
+    ),
+  };
+}
+
 /// A modal (or inline) dialog with a glyph, a question title, a
 /// description, a body and footer actions, the design-system `Dialog`
 /// component (`components/overlays/Dialog.jsx`, `.fm-dialog`). Never
@@ -50,13 +89,22 @@ enum DialogSize {
 /// secondary text, and, with [onClose], the close button at the end (a
 /// small `x` [IconButton] named [closeLabel], without a tooltip). [child]
 /// is the scrolling body in prose type (16 px by 20 px of padding); the
-/// foot ends the box with [actions] lined up at the end, 8 px apart, and
-/// [footerStart] at the start. Without a body or a foot the box ends under
-/// the head (`.fm-dialog__head` has no bottom padding). Footer actions come
-/// in the order the platform expects, and the screen orders them: on macOS
-/// and Linux Cancel comes before the affirmative button at the end (G15);
-/// on Windows primary, secondary, then Cancel (G16). The box rises in over
-/// `--dur-slow`.
+/// foot ends the box with [actions] and [cancelAction] lined up at the end,
+/// 8 px apart, and [footerStart] at the start. Without a body or a foot the
+/// box ends under the head (`.fm-dialog__head` has no bottom padding). The
+/// box rises in over `--dur-slow`.
+///
+/// **Button order.** The footer buttons follow the system's convention
+/// ([buttonOrder], by default the system the app runs on). On macOS and
+/// Linux [alternateAction] stands apart at the start, after [footerStart],
+/// and the end holds [cancelAction] first and the affirmative button last
+/// (a1-10b: "Don't save" … Cancel, Save; G15). On Windows the end holds
+/// the affirmative button first, then the others, then [alternateAction],
+/// then [cancelAction] (f6a: primary, secondary, then Cancel; a1-10b:
+/// Save, Don't save, Cancel; G16). [actions] are written in the macOS and
+/// Linux order, the affirmative button last, and Windows reverses them.
+/// Focus moves through the buttons in the order they are drawn.
+/// [footerStart] stays at the start on every system.
 ///
 /// **Modal.** Unless [inline], a dialog is shown while [open] in the root
 /// [Overlay] (through an [OverlayPortal] at [OverlayChildLocation.rootOverlay];
@@ -93,6 +141,9 @@ class Dialog extends StatefulWidget {
     this.size = DialogSize.md,
     this.child,
     this.actions = const [],
+    this.cancelAction,
+    this.alternateAction,
+    this.buttonOrder,
     this.footerStart,
     this.onClose,
     this.closeLabel = '',
@@ -148,8 +199,27 @@ class Dialog extends StatefulWidget {
   /// The body; null leaves it out.
   final Widget? child;
 
-  /// The footer buttons, lined up at the end in this order.
+  /// The footer buttons other than Cancel, written in the macOS and Linux
+  /// order (the affirmative button last) and lined up at the end in the
+  /// order of [buttonOrder].
   final List<Widget> actions;
+
+  /// The button that dismisses the dialog without acting ("Cancel"): before
+  /// [actions] on macOS and Linux, after them on Windows; null shows none.
+  /// Not a design-system prop (the bundle's `actions` node holds it).
+  final Widget? cancelAction;
+
+  /// The button that closes the dialog another way, without the
+  /// affirmative action (a1-10b's "Don't save"): apart at the start of the
+  /// footer on macOS and Linux, between [actions] and [cancelAction] on
+  /// Windows; null shows none. Not a design-system prop (the bundle passes
+  /// it as `footerStart`).
+  final Widget? alternateAction;
+
+  /// The order of [actions], [alternateAction] and [cancelAction]; null
+  /// follows the system the app runs on ([DialogButtonOrder.current]). Not
+  /// a design-system prop.
+  final DialogButtonOrder? buttonOrder;
 
   /// A widget at the start of the footer (a checkbox, a link).
   final Widget? footerStart;
@@ -189,6 +259,27 @@ class Dialog extends StatefulWidget {
         ),
       )
       ..add(EnumProperty<DialogSize>('size', size, defaultValue: DialogSize.md))
+      ..add(
+        FlagProperty(
+          'cancelAction',
+          value: cancelAction != null,
+          ifTrue: 'has cancel',
+        ),
+      )
+      ..add(
+        FlagProperty(
+          'alternateAction',
+          value: alternateAction != null,
+          ifTrue: 'has alternate',
+        ),
+      )
+      ..add(
+        EnumProperty<DialogButtonOrder>(
+          'buttonOrder',
+          buttonOrder,
+          defaultValue: null,
+        ),
+      )
       ..add(
         FlagProperty(
           'closable',
@@ -343,7 +434,13 @@ class _DialogState extends State<Dialog> {
     final onClose = widget.onClose;
     final body = widget.child;
     final footerStart = widget.footerStart;
-    final hasFoot = widget.actions.isNotEmpty || footerStart != null;
+    final buttons = (widget.buttonOrder ?? DialogButtonOrder.current).arrange(
+      widget.actions,
+      cancel: widget.cancelAction,
+      alternate: widget.alternateAction,
+    );
+    final start = [?footerStart, ...buttons.start];
+    final hasFoot = buttons.end.isNotEmpty || start.isNotEmpty;
     final (glyphBackground, glyphColor) = switch (widget.tone) {
       DialogTone.standard => (colors.accentSubtle, colors.textAccent),
       DialogTone.warning => (colors.warningBg, colors.warning),
@@ -443,17 +540,27 @@ class _DialogState extends State<Dialog> {
           child: Row(
             spacing: theme.space.space2,
             children: [
-              if (footerStart != null)
+              if (start.isNotEmpty)
                 // `.fm-dialog__foot-start { margin-inline-end: auto }`.
                 Expanded(
                   child: Align(
                     alignment: AlignmentDirectional.centerStart,
-                    child: footerStart,
+                    child: start.length == 1
+                        ? start.single
+                        : Row(
+                            mainAxisSize: MainAxisSize.min,
+                            spacing: theme.space.space2,
+                            children: [
+                              if (footerStart != null)
+                                Flexible(child: footerStart),
+                              ...buttons.start,
+                            ],
+                          ),
                   ),
                 )
               else
                 const Spacer(),
-              ...widget.actions,
+              ...buttons.end,
             ],
           ),
         ),

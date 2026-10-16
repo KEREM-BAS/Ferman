@@ -114,7 +114,7 @@ Widget progressBarSection(BuildContext context) {
                   size: size,
                   label: GallerySamples.recognizingText,
                   showValue: true,
-                  valueText: format.percent(value),
+                  valueText: format.percent(value * 100),
                 ),
               ),
             GallerySpecimen(

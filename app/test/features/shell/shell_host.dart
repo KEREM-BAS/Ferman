@@ -4,6 +4,7 @@ import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_title_bar.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
@@ -30,7 +31,8 @@ const String futureVersion = 'Available in a future version';
 /// [size] makes the window resizable: the shell takes its value, so a test
 /// can narrow and widen the window while the providers and widgets keep
 /// their state ([resizeShell]). [germanLike] replaces the English labels
-/// with [GermanLikeLocalizations].
+/// with [GermanLikeLocalizations], [localizations] with the strings of
+/// another delegate (the pseudo-locale).
 Widget shellHost({
   required FakeDesktopWindow window,
   ShortcutPlatform platform = ShortcutPlatform.linux,
@@ -42,6 +44,7 @@ Widget shellHost({
   String regionCode = 'TR',
   ValueListenable<Size>? size,
   bool germanLike = false,
+  LocalizationsDelegate<AppLocalizations>? localizations,
 }) {
   Widget frame(Size size) {
     final shell = SizedBox.fromSize(
@@ -51,15 +54,17 @@ Widget shellHost({
           onHome: onHome,
           onOpenSettings: onOpenSettings,
         ),
-        child: ShellScreen(onOpenSettings: onOpenSettings),
+        child: FmWindow(onOpenSettings: onOpenSettings),
       ),
     );
+    final delegate =
+        localizations ?? (germanLike ? const GermanLikeDelegate() : null);
     return componentHost(
-      germanLike
+      delegate != null
           ? Builder(
               builder: (context) => Localizations.override(
                 context: context,
-                delegates: const [GermanLikeDelegate()],
+                delegates: [delegate],
                 child: shell,
               ),
             )
@@ -135,7 +140,7 @@ void useArtboardView(WidgetTester tester) {
 
 /// The provider container of the shell under test.
 ProviderContainer containerOf(WidgetTester tester) =>
-    ProviderScope.containerOf(tester.element(find.byType(ShellScreen)));
+    ProviderScope.containerOf(tester.element(find.byType(FmWindow)));
 
 /// Pumps [widget] and lets its animations (except the loading tab's
 /// spinner, which never stops) finish.

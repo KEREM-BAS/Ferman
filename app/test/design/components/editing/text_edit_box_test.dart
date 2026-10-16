@@ -9,6 +9,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const page = FermanPageColors();
@@ -426,6 +427,46 @@ void main() {
         componentHost(block(state: TextEditBoxState.selected, focusNode: node)),
       );
       expect(ringOf(tester).progress, 0);
+    });
+
+    testWidgets('Tab reaches an idle block, which shows the dashed frame and '
+        'ring, and Enter on a selected one; an inert block is skipped', (
+      tester,
+    ) async {
+      final asked = <TextEditBoxState>[];
+      await tester.pumpWidget(
+        componentHost(afterLeadingTabStop(block(state: TextEditBoxState.idle))),
+      );
+      await expectTabReaches(tester, find.byType(TextEditBox));
+      expect(ringOf(tester).progress, 1);
+      expect(frameOf(tester), paints..path(color: page.editBoxHover));
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('selected'),
+            child: afterLeadingTabStop(
+              block(
+                state: TextEditBoxState.selected,
+                onStateChanged: asked.add,
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(TextEditBox));
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(asked, [TextEditBoxState.editing]);
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('inert'),
+            child: afterLeadingTabStop(
+              block(state: TextEditBoxState.idle, inert: true),
+            ),
+          ),
+        ),
+      );
+      await expectTabSkips(tester, find.byType(TextEditBox));
     });
 
     testWidgets('the focus ring is page-tuned: white and ink in dark too', (

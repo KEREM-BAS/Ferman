@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const light = FermanColorTokens.light;
@@ -330,6 +331,62 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
       expect((next, previous), (1, 1));
+    });
+
+    testWidgets('Tab reaches the bar and walks its controls in visual '
+        'order', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            bar(
+              query: 'kira',
+              current: 1,
+              total: 3,
+              onToggleReplace: () {},
+              onToggleOption: (_, _) {},
+              onPrevious: () {},
+              onNext: () {},
+              onClose: () {},
+            ),
+          ),
+        ),
+      );
+      Finder button(String label) =>
+          find.byWidgetPredicate((w) => w is IconButton && w.label == label);
+      final stops = <String, Finder>{
+        'Show replace': button('Show replace'),
+        'Find': find.byType(EditableText),
+        'Match case': toggle('Match case'),
+        'Whole word': toggle('Whole word'),
+        'Regular expression': toggle('Regular expression'),
+        'Previous match': button('Previous match'),
+        'Next match': button('Next match'),
+        'Close': button('Close'),
+      };
+      await expectTabReaches(tester, find.byType(SearchReplaceBar));
+      // One entry per Tab stop, an unlisted one included, and at most one
+      // press more than there are stops, so a stop that keeps focus fails
+      // instead of looping.
+      final order = <String>[];
+      for (
+        var press = 0;
+        press <= stops.length && focusIsWithin(find.byType(SearchReplaceBar));
+        press++
+      ) {
+        final matches = [
+          for (final MapEntry(:key, :value) in stops.entries)
+            if (focusIsWithin(value)) key,
+        ];
+        order.add(
+          matches.isEmpty
+              ? 'unlisted: ${FocusManager.instance.primaryFocus?.debugLabel}'
+              : matches.join(' + '),
+        );
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pumpAndSettle();
+      }
+      expect(order, stops.keys);
+      expectFocusAfter(find.byType(SearchReplaceBar));
     });
 
     testWidgets('Escape anywhere in the bar closes it', (tester) async {

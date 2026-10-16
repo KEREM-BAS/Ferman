@@ -1,5 +1,6 @@
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/design/components/core/button.dart';
 import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/popover.dart';
@@ -8,11 +9,13 @@ import 'package:ferman/design/components/overlays/dialog.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 /// A focusable stand-in for a footer or body button.
 class _Button extends StatelessWidget {
@@ -119,6 +122,9 @@ void main() {
     IconName? icon = IconName.shieldAlert,
     Widget? child = const Text('Body text'),
     List<Widget> actions = const [_Button('Cancel'), _Button('Apply')],
+    Widget? cancelAction,
+    Widget? alternateAction,
+    DialogButtonOrder? buttonOrder,
     Widget? footerStart,
     VoidCallback? onClose,
   }) => Dialog(
@@ -130,6 +136,9 @@ void main() {
     tone: tone,
     size: size,
     actions: actions,
+    cancelAction: cancelAction,
+    alternateAction: alternateAction,
+    buttonOrder: buttonOrder,
     footerStart: footerStart,
     onClose: onClose,
     closeLabel: 'Close',
@@ -264,6 +273,262 @@ void main() {
       expect(apply.top - tester.getRect(find.text('Body text')).bottom, 16 + 4);
       expect(box.bottom - apply.bottom, Dialog.footBottom);
     });
+
+    test('button order by system: Cancel last on Windows only', () {
+      for (final platform in TargetPlatform.values) {
+        expect(
+          DialogButtonOrder.of(platform),
+          platform == TargetPlatform.windows
+              ? DialogButtonOrder.cancelLast
+              : DialogButtonOrder.cancelFirst,
+          reason: '$platform',
+        );
+      }
+      const a = SizedBox(key: Key('a'));
+      const b = SizedBox(key: Key('b'));
+      const cancel = SizedBox(key: Key('cancel'));
+      const alternate = SizedBox(key: Key('alternate'));
+      // The buttons apart at the start, then those lined up at the end.
+      List<List<Widget>> arranged(
+        DialogButtonOrder order, {
+        Widget? cancel,
+        Widget? alternate,
+      }) {
+        final (:start, :end) = order.arrange(
+          const [a, b],
+          cancel: cancel,
+          alternate: alternate,
+        );
+        return [start, end];
+      }
+
+      expect(
+        arranged(
+          DialogButtonOrder.cancelFirst,
+          cancel: cancel,
+          alternate: alternate,
+        ),
+        [
+          [alternate],
+          [cancel, a, b],
+        ],
+      );
+      expect(
+        arranged(
+          DialogButtonOrder.cancelLast,
+          cancel: cancel,
+          alternate: alternate,
+        ),
+        [
+          <Widget>[],
+          [b, a, alternate, cancel],
+        ],
+      );
+      expect(arranged(DialogButtonOrder.cancelFirst, cancel: cancel), [
+        <Widget>[],
+        [cancel, a, b],
+      ]);
+      expect(arranged(DialogButtonOrder.cancelLast), [
+        <Widget>[],
+        [b, a],
+      ]);
+    });
+
+    testWidgets(
+      'button order (a1-10b): on macOS and Linux "Don’t save" apart at the '
+      'start, then Cancel and Save at the end; on Windows Save, Don’t save, '
+      'Cancel at the end. The footer start stays at the start (f6a, G15, '
+      'G16)',
+      (tester) async {
+        final windows = defaultTargetPlatform == TargetPlatform.windows;
+        Rect rect(String label) =>
+            tester.getRect(find.widgetWithText(_Button, label));
+        List<String> drawn(List<String> labels) =>
+            labels..sort((a, b) => rect(a).left.compareTo(rect(b).left));
+
+        await tester.pumpWidget(
+          componentHost(
+            dialog(
+              inline: true,
+              cancelAction: const _Button('Cancel'),
+              alternateAction: const _Button('Don’t save'),
+              actions: const [_Button('Save')],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        var box = tester.getRect(boxFinder);
+        expect(
+          drawn(['Cancel', 'Don’t save', 'Save']),
+          windows
+              ? ['Save', 'Don’t save', 'Cancel']
+              : ['Don’t save', 'Cancel', 'Save'],
+        );
+        // The end group 20 px in, 8 px apart.
+        final end = windows
+            ? ['Save', 'Don’t save', 'Cancel']
+            : ['Cancel', 'Save'];
+        expect(box.right - rect(end.last).right, 20);
+        for (var i = 1; i < end.length; i++) {
+          expect(rect(end[i]).left - rect(end[i - 1]).right, 8);
+        }
+        if (!windows) {
+          expect(rect('Don’t save').left - box.left, 20);
+          expect(
+            rect('Cancel').left - rect('Don’t save').right,
+            greaterThan(8),
+          );
+        }
+
+        // f6a: primary, then secondary, then Cancel on Windows; and a footer
+        // start, which stays at the start, with the alternate after it on
+        // macOS and Linux.
+        await tester.pumpWidget(
+          componentHost(
+            dialog(
+              inline: true,
+              footerStart: const Text('Don’t ask again'),
+              cancelAction: const _Button('Cancel'),
+              alternateAction: const _Button('Don’t save'),
+              actions: const [_Button('Secondary'), _Button('Primary')],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        box = tester.getRect(boxFinder);
+        final askAgain = tester.getRect(find.text('Don’t ask again'));
+        expect(askAgain.left - box.left, 20);
+        expect(
+          drawn(['Cancel', 'Don’t save', 'Secondary', 'Primary']),
+          windows
+              ? ['Primary', 'Secondary', 'Don’t save', 'Cancel']
+              : ['Don’t save', 'Cancel', 'Secondary', 'Primary'],
+        );
+        expect(rect('Don’t save').left > askAgain.right, isTrue);
+        if (!windows) {
+          expect(rect('Don’t save').left - askAgain.right, 8);
+        }
+      },
+      variant: const TargetPlatformVariant({
+        TargetPlatform.macOS,
+        TargetPlatform.linux,
+        TargetPlatform.windows,
+      }),
+    );
+
+    testWidgets('buttonOrder overrides the system; right to left mirrors the '
+        'row', (tester) async {
+      for (final direction in TextDirection.values) {
+        await tester.pumpWidget(
+          componentHost(
+            dialog(
+              inline: true,
+              buttonOrder: DialogButtonOrder.cancelLast,
+              cancelAction: const _Button('Cancel'),
+              actions: const [_Button('Apply')],
+            ),
+            textDirection: direction,
+          ),
+        );
+        await tester.pumpAndSettle();
+        final apply = tester.getRect(find.widgetWithText(_Button, 'Apply'));
+        final cancel = tester.getRect(find.widgetWithText(_Button, 'Cancel'));
+        // Apply leads in the reading direction.
+        expect(
+          direction == TextDirection.ltr
+              ? apply.left < cancel.left
+              : apply.left > cancel.left,
+          isTrue,
+          reason: '$direction',
+        );
+      }
+    });
+
+    testWidgets(
+      'button order: focus starts on the default button, Tab and '
+      'Shift+Tab follow the drawn order inside the dialog, Enter activates '
+      'the focused button and Escape closes, on every system',
+      (tester) async {
+        final pressed = <String>[];
+        var closes = 0;
+        final save = FocusNode(debugLabel: 'Save');
+        final dontSave = FocusNode(debugLabel: 'Don’t save');
+        final cancel = FocusNode(debugLabel: 'Cancel');
+        for (final node in [save, dontSave, cancel]) {
+          addTearDown(node.dispose);
+        }
+        Widget button(String label, FocusNode node, {bool autofocus = false}) =>
+            Button(
+              focusNode: node,
+              autofocus: autofocus,
+              onPressed: () => pressed.add(label),
+              child: Text(label),
+            );
+        await tester.pumpWidget(
+          componentHost(
+            dialog(
+              child: null,
+              onClose: () => closes++,
+              cancelAction: button('Cancel', cancel),
+              alternateAction: button('Don’t save', dontSave),
+              actions: [button('Save', save, autofocus: true)],
+            ),
+          ),
+        );
+        await tester.pumpAndSettle();
+        expect(save.hasPrimaryFocus, isTrue);
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(pressed, ['Save']);
+        final close = find.byWidgetPredicate(
+          (w) => w is IconButton && w.label == 'Close',
+        );
+        String? focused() {
+          for (final (name, node) in [
+            ('Save', save),
+            ('Don’t save', dontSave),
+            ('Cancel', cancel),
+          ]) {
+            if (node.hasPrimaryFocus) return name;
+          }
+          return focusIsWithin(close) ? 'Close' : null;
+        }
+
+        Future<void> tab({bool shift = false}) async {
+          if (shift) {
+            await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+          }
+          await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+          if (shift) await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+          await tester.pump();
+        }
+
+        // From Save in the drawn order, wrapping through the close button
+        // in the head, never out of the dialog.
+        final expected = defaultTargetPlatform == TargetPlatform.windows
+            ? ['Don’t save', 'Cancel', 'Close', 'Save']
+            : ['Close', 'Don’t save', 'Cancel', 'Save'];
+        final order = <String?>[];
+        for (var i = 0; i < expected.length; i++) {
+          await tab();
+          order.add(focused());
+        }
+        expect(order, expected);
+        await tab(shift: true);
+        expect(focused(), expected[2]);
+        cancel.requestFocus();
+        await tester.pump();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        expect(pressed, ['Save', 'Cancel']);
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pump();
+        expect(closes, 1);
+      },
+      variant: const TargetPlatformVariant({
+        TargetPlatform.macOS,
+        TargetPlatform.linux,
+        TargetPlatform.windows,
+      }),
+    );
 
     testWidgets('modal: over a scrim in the overlay, closed when open is '
         'false', (tester) async {

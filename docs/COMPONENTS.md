@@ -16,6 +16,10 @@ The spec has two forms that never drift apart:
   the two `GENERATED COMPONENT REFERENCE` markers is rendered from the JSON by
   `(cd tools/icons && dart run icons:component_spec)`; `--check` fails when it is stale.
 
+The `component_spec` check of `tools/checks` (run by `check_all`) walks the JSON against
+`app/lib/design/`: classes, props, item types and their fields, enum values, and the values of
+variants that no enum prop carries.
+
 `tools/icons/test/component_spec_test.dart` checks the JSON against the design export: every
 manifest entry is present, every prop and enum value the lint config declares appears with the same
 values, every source reference still points at a line that contains its text, every interactive
@@ -392,6 +396,25 @@ built; the ones that need a design answer are also listed for the lead to record
     (through the new `Tooltip.focused`, after the usual delay) and the accessible name; it keeps its
     intrinsic sizes and dry layout. `AnnotationTools` moves its colour group last. A stacked
     `ToolButton` grows by the touch icon's extra 4 px (`stackedHeightFor`).
+43. **Dialog buttons in the system's order.** The bundle leaves the order to each screen, while the
+    f6a and a1-10b notes give it per system ([G15](DESIGN_GAPS.md#g15),
+    [G16](DESIGN_GAPS.md#g16)). `Dialog` applies it: `cancelAction` (Cancel), `alternateAction`
+    (a1-10b's "Don't save") and `actions` (the others, written in the macOS and Linux order, the
+    affirmative last) are laid out by `DialogButtonOrder`, from `defaultTargetPlatform` unless
+    `buttonOrder` says otherwise. macOS and Linux put the alternate apart at the start, after
+    `footerStart`, then Cancel and the actions at the end; Windows puts the actions reversed, then
+    the alternate, then Cancel (a1-10b: Save, Don't save, Cancel; f6a: primary, secondary, Cancel).
+    Focus follows the drawn order. `footerStart` (a checkbox or a link) stays at the start
+    everywhere.
+44. **Tab closes a menu.** The bundle gives Menu no Tab behaviour. As in the WAI-ARIA menu pattern,
+    Tab and Shift+Tab call `onClose`, as Escape does, from a submenu too, so the host closes the
+    whole menu and returns focus to its trigger; with `onClose` null, Tab is left to the host.
+45. **A key cap reads left to right.** Each `Kbd` cap is one key, laid out left to right in every UI
+    direction, so a bracket or arrow on it is never mirrored ("⌘]" keeps its "]"); the row of caps
+    follows the UI direction, as a12-1ar draws "K ⌘" ([G98](DESIGN_GAPS.md#g98)).
+46. **Weekday names that fit.** `DatePicker` heads its columns with the language's short weekday
+    names; where any of them is longer than `maxShortWeekday` (4) characters, the whole words of
+    Arabic, Persian and Hebrew, it uses the narrow names instead ([G98](DESIGN_GAPS.md#g98)).
 
 ## Reference (generated)
 
@@ -546,6 +569,7 @@ built; the ones that need a design answer are also listed for the lead to record
 | `ToastTone` | `neutral`, `success`, `warning`, `danger` | `neutral`, `success`, `warning`, `danger` | adherence Toast.tone |
 | `DialogTone` | `default`, `warning`, `danger` | `standard`, `warning`, `danger` | adherence Dialog.tone ("default" becomes "standard") |
 | `DialogSize` | `sm`, `md`, `lg` | `sm`, `md`, `lg` | adherence Dialog.size |
+| `DialogButtonOrder` | `cancelFirst`, `cancelLast` | `cancelFirst`, `cancelLast` | Not a design-system prop: the footer orders of a1-10b (macOS, Linux by G15) and f6a (Windows, G16) |
 | `ToolbarVariant` | `bar`, `floating` | `bar`, `floating` | adherence Toolbar.variant; bundle AnnotationTools.variant |
 | `ToolButtonLayout` | `inline`, `stacked` | `inline`, `stacked` | adherence ToolButton.layout |
 | `ModeTabsVariant` | `segmented`, `underline` | `segmented`, `underline` | bundle ModeTabs.variant |
@@ -783,6 +807,7 @@ Drawn in: 05a Fill, 11b App, 14 Tablet and web, FmDocPanel, FmSettings, FmStart,
 | `keys` | yes | `keys` | `KeyCaps` (required) |  |  | One cap per key, already resolved for the platform. |
 | `tone` | yes | `tone` | `KbdTone` | `"default"` | `default`, `plain`, `inverse` |  |
 | `children` | yes | — | `n/a` |  |  | Omitted: Single-key shorthand for keys; Dart takes keys only. |
+| — |  | `semanticLabel` | `String?` |  |  | The spoken form of the shortcut; null reads the caps joined by spaces (screen readers speak the modifier symbols themselves: VoiceOver says "command" for ⌘). |
 
 Variants (tone): `default`, `plain`, `inverse`.
 
@@ -792,7 +817,7 @@ States:
 |---|---|---|---|
 | `default` | none | `core.css:60`, `core.css:61`, `core.css:68`, `core.css:69` |  |
 
-Semantics: role none (kbd text); label spoken key names, for example "Command K"; Flutter: label.
+Semantics: role none (kbd text); label semanticLabel, else the caps joined by spaces ("⌘ K", which screen readers speak as "command K"); Flutter: label.
 
 Notes:
 
@@ -2636,8 +2661,11 @@ Drawn in: 01 First run and files, 02 View, 04 Comment, 05a Fill, 05b Sign, 06 Or
 | `tone` | yes | `tone` | `DialogTone` | `"default"` | `default`, `warning`, `danger` |  |
 | `size` | yes | `size` | `DialogSize` | `"md"` | `sm`, `md`, `lg` |  |
 | `children` | yes | `child` | `Widget?` |  |  |  |
-| `actions` | yes | `actions` | `List<Widget>` | `[]` |  |  |
-| `footerStart` | yes | `footerStart` | `Widget?` |  |  |  |
+| `actions` | yes | `actions` | `List<Widget>` | `[]` |  | The footer buttons other than Cancel, written in the macOS and Linux order (the affirmative button last); buttonOrder lines them up, reversed on Windows. |
+| — |  | `cancelAction` | `Widget?` |  |  | The button that dismisses without acting ("Cancel"): before actions on macOS and Linux, after them on Windows. The bundle's actions node holds it. |
+| — |  | `alternateAction` | `Widget?` |  |  | The button that closes another way, without the affirmative action (a1-10b "Don't save"): apart at the start of the footer, after footerStart, on macOS and Linux; between actions and cancelAction on Windows. The bundle passes it as footerStart. |
+| — |  | `buttonOrder` | `DialogButtonOrder?` |  | `cancelFirst`, `cancelLast` | The order of actions, alternateAction and cancelAction; null follows the system the app runs on (DialogButtonOrder.current: cancelLast on Windows, cancelFirst elsewhere). |
+| `footerStart` | yes | `footerStart` | `Widget?` |  |  | At the start of the footer on every system (a checkbox, a link). |
 | `onClose` | yes | `onClose` | `VoidCallback?` |  |  | Shows the close IconButton and enables Escape and scrim clicks. |
 | `closeLabel` | yes | `closeLabel` | `String` | `"Close"` |  |  |
 
@@ -2663,7 +2691,7 @@ Semantics: role dialog, or alertdialog for the danger tone (modal); label title;
 Notes:
 
 - Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.
-- Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).
+- Footer button order follows the platform through buttonOrder (DialogButtonOrder.current by default): on macOS and Linux alternateAction stands apart at the start after footerStart, and the end holds cancelAction, then actions with the affirmative button last (a1-10b: "Don't save" … Cancel, Save; G15); on Windows the end holds actions reversed, the affirmative button first, then alternateAction, then cancelAction (f6a: primary, secondary, then Cancel; a1-10b: Save, Don't save, Cancel; G16). Focus moves through the buttons in the order they are drawn.
 - onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).
 - Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; popups inside them open in the modal layer's own overlay; a modal shows only while its route is current (hidden, it keeps its state and stops counting); inline ones do none of this (decision 41).
 
@@ -2730,6 +2758,7 @@ Keyboard:
 - `Home`, `End`: first or last item
 - `Enter`, `Space`: activate
 - `Escape`: onClose
+- `Tab`, `Shift+Tab`: onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger (the WAI-ARIA menu pattern; not in the bundle)
 - `ArrowRight`: open a submenu (ArrowLeft in RTL; not in the bundle)
 
 Semantics: role menu of menuitem or menuitemcheckbox; label semanticLabel; Flutter: role: menu / menuItem / menuItemCheckbox, checked, enabled.
@@ -2788,6 +2817,7 @@ Drawn in: FmWindow, DS additions.
 | — |  | `icon` | `IconName` | `"file-text"` |  | lock for a locked file, wrench for a repaired one, file-x for a broken one. Also on idle tabs (G67). |
 | — |  | `onPressed` | `VoidCallback?` |  |  |  |
 | — |  | `onClose` | `VoidCallback?` |  |  | xs IconButton "Close document" with ⌘W / Ctrl+W, shown on the active clean tab. |
+| — |  | `closeDisabledReason` | `String?` |  |  | Without onClose, the close button is drawn disabled with this reason as its tooltip and semantics hint, so an unfinished close stays visible as drawn (G10). |
 | — |  | `unsavedLabel` | `String` (required) |  |  | The localized "Unsaved changes": the dot's tooltip, read after the name when unsaved. |
 | — |  | `closeLabel` | `String` (required) |  |  | The localized "Close document": the close button's tooltip and name. |
 | — |  | `closeShortcut` | `KeyCaps?` |  |  | The close shortcut as key caps for the platform (⌘ W or Ctrl W), shown in the close button's tooltip. |
@@ -2803,6 +2833,7 @@ States:
 | `hover` | pointer | `FmWindow.dc.html:24` | Idle tabs only. |
 | `unsaved` | prop (`unsaved`) | `FmWindow.dc.html:23` |  |
 | `loading` | prop (`loading`) | `FmWindow.dc.html:23` |  |
+| `closeDisabledWithReason` | prop (`closeDisabledReason`) |  | G10. Tooltip: "Available in a future version". The close button of the active clean tab in the disabled look, the reason as tooltip and semantics hint; it stays focusable and activation does nothing (closing documents arrives in M2). |
 | `locked` | prop (`icon`) | `01 First run and files.dc.html:257` |  |
 | `repaired` | prop (`icon`) | `01 First run and files.dc.html:259` |  |
 | `overflow` | data | `FmWindow.dc.html:26` | Ghost sm Button "+N" with a chevron-down; opens the list of the other documents. |

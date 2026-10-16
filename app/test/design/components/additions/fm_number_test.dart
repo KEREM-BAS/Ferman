@@ -3,17 +3,43 @@ import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/region.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
 
   String shown(WidgetTester tester) =>
       tester.widget<EditableText>(find.byType(EditableText)).controller.text;
+
+  Color borderOf(WidgetTester tester) =>
+      ((tester
+                          .widget<AnimatedContainer>(
+                            find.byKey(FieldBox.boxKey),
+                          )
+                          .decoration!
+                      as BoxDecoration)
+                  .border!
+              as Border)
+          .top
+          .color;
+
+  List<BoxShadow> ringOf(WidgetTester tester) {
+    final ring = tester.widget<AnimatedContainer>(
+      find
+          .ancestor(
+            of: find.byKey(FieldBox.boxKey),
+            matching: find.byType(AnimatedContainer),
+          )
+          .first,
+    );
+    return (ring.decoration! as BoxDecoration).boxShadow ?? const [];
+  }
 
   group('FmNumber', () {
     testWidgets('the board defaults: 10,5 pt, small, 84 px', (tester) async {
@@ -122,6 +148,67 @@ void main() {
           .style;
       expect(disabled.fontSize, 13);
       expect(disabled.color, light.textDisabled);
+    });
+
+    testWidgets('hover: the strong border on the box (.fm-input:hover)', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(FmNumber(region: Region.turkiye, onChanged: (_) {})),
+      );
+      expect(borderOf(tester), light.borderDefault);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderStrong);
+      expect(ringOf(tester), isEmpty);
+      await mouse.moveTo(Offset.zero);
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderDefault);
+    });
+
+    testWidgets('focus-visible: Tab reaches the field; the focus border and '
+        'the 1 px field ring (.fm-input:focus-within); with an error, the '
+        'danger border and ring', (tester) async {
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTraditional;
+      addTearDown(
+        () => FocusManager.instance.highlightStrategy =
+            FocusHighlightStrategy.automatic,
+      );
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            FmNumber(region: Region.turkiye, onChanged: (_) {}),
+          ),
+        ),
+      );
+      expect(ringOf(tester), isEmpty);
+      await expectTabReaches(tester, find.byType(FmNumber));
+      expect(borderOf(tester), light.borderFocus);
+      expect(ringOf(tester), [
+        BoxShadow(color: light.borderFocus, spreadRadius: 1),
+      ]);
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(
+            key: const ValueKey('error'),
+            child: afterLeadingTabStop(
+              FmNumber(
+                region: Region.turkiye,
+                value: 0,
+                error: 'Enter 4–96 pt.',
+                onChanged: (_) {},
+              ),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(FmNumber));
+      expect(borderOf(tester), light.danger);
+      expect(ringOf(tester), [BoxShadow(color: light.danger, spreadRadius: 1)]);
     });
 
     testWidgets('typing either separator commits (B003)', (tester) async {

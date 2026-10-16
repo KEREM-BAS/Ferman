@@ -10,6 +10,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -531,6 +532,44 @@ void main() {
         light.accent,
       );
       expect(edgeOf(back), ColorPicker.chipEdgeLight);
+    });
+
+    testWidgets('Tab reaches the trigger; Space opens the popover on the '
+        'selected swatch and Space on a swatch picks it', (tester) async {
+      final picked = <Color?>[];
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            afterLeadingTabStop(
+              SizedBox(width: 160, child: picker(onChanged: picked.add)),
+            ),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(ColorPicker));
+      expect(borderOf(tester), light.borderFocus);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      expect(
+        (swatchOf(tester, '#1F1D1A').decoration! as BoxDecoration).boxShadow,
+        FocusRing.outerShadows(FermanTheme.light),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(picked, [ColorPicker.standardSwatches[1]]);
+      // A pick keeps the popover open; Escape closes it onto the trigger,
+      // where Space opens it again.
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(focusIsWithin(find.byType(ColorPicker)), isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
     });
 
     testWidgets('with no colour chosen the first swatch takes focus', (

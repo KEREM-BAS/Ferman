@@ -24,7 +24,7 @@ void main() {
     await tester.pumpWidget(const ProviderScope(child: FermanApp()));
     await tester.pumpAndSettle();
     expect(find.byType(LanguagePicker), findsOneWidget);
-    expect(find.byType(StartScreen), findsNothing);
+    expect(find.byType(FmStart), findsNothing);
   });
 
   testWidgets('starts on the start screen once first run is done', (
@@ -42,7 +42,7 @@ void main() {
       ),
     );
     await tester.pumpAndSettle();
-    expect(find.byType(StartScreen), findsOneWidget);
+    expect(find.byType(FmStart), findsOneWidget);
     expect(find.text('Drop a PDF here'), findsOneWidget);
   });
 
@@ -74,7 +74,7 @@ void main() {
           tester,
           settings: AppSettings(onboardingCompleted: true, languageCode: code),
         );
-        final screen = tester.element(find.byType(StartScreen));
+        final screen = tester.element(find.byType(FmStart));
         expect(Directionality.of(screen), TextDirection.rtl);
         expect(Localizations.localeOf(screen), const Locale('en'));
         // The English string, in a left-to-right isolate so that it keeps
@@ -90,7 +90,7 @@ void main() {
       tester,
     ) async {
       await pumpApp(tester, systemLocales: const [Locale('he', 'IL')]);
-      final screen = tester.element(find.byType(StartScreen));
+      final screen = tester.element(find.byType(FmStart));
       expect(Directionality.of(screen), TextDirection.rtl);
       expect(Localizations.localeOf(screen), const Locale('en'));
     });
@@ -105,7 +105,7 @@ void main() {
           languageCode: 'de',
         ),
       );
-      final screen = tester.element(find.byType(StartScreen));
+      final screen = tester.element(find.byType(FmStart));
       expect(Directionality.of(screen), TextDirection.ltr);
       expect(Localizations.localeOf(screen), const Locale('en'));
       // Left to right, the English strings need no isolates.
@@ -120,7 +120,7 @@ void main() {
           languageCode: 'ar',
         ),
       );
-      final screen = tester.element(find.byType(StartScreen));
+      final screen = tester.element(find.byType(FmStart));
       expect(Directionality.of(screen), TextDirection.rtl);
       expect(Localizations.localeOf(screen), const Locale('ar'));
     });
@@ -133,7 +133,7 @@ void main() {
       final container = await pumpApp(tester);
       container.read(routerProvider).go('/no-such-route');
       await tester.pumpAndSettle();
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmStart), findsOneWidget);
       expect(find.text('Page Not Found'), findsNothing);
     });
 

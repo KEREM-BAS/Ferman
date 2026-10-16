@@ -115,16 +115,16 @@ void main() {
   testWidgets('Ctrl+, opens Settings on Linux; ⌘, does not', (tester) async {
     await pumpFermanApp(tester);
     await press(tester, LogicalKeyboardKey.metaLeft, LogicalKeyboardKey.comma);
-    expect(find.byType(SettingsScreen), findsNothing);
+    expect(find.byType(FmSettings), findsNothing);
     await press(
       tester,
       LogicalKeyboardKey.controlLeft,
       LogicalKeyboardKey.comma,
     );
-    expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(find.byType(FmSettings), findsOneWidget);
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await tester.pumpAndSettle();
-    expect(find.byType(StartScreen), findsOneWidget);
+    expect(find.byType(FmStart), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets('⌘, opens Settings on macOS; Ctrl+, does not', (tester) async {
@@ -134,9 +134,9 @@ void main() {
       LogicalKeyboardKey.controlLeft,
       LogicalKeyboardKey.comma,
     );
-    expect(find.byType(SettingsScreen), findsNothing);
+    expect(find.byType(FmSettings), findsNothing);
     await press(tester, LogicalKeyboardKey.metaLeft, LogicalKeyboardKey.comma);
-    expect(find.byType(SettingsScreen), findsOneWidget);
+    expect(find.byType(FmSettings), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
 
   group('in en, tr and ar', () {
@@ -157,8 +157,8 @@ void main() {
             size: size,
           );
           expect(tester.takeException(), isNull);
-          expect(localeOf(tester, find.byType(StartScreen)), Locale(code));
-          expect(directionOf(tester, find.byType(StartScreen)), direction);
+          expect(localeOf(tester, find.byType(FmStart)), Locale(code));
+          expect(directionOf(tester, find.byType(FmStart)), direction);
           expect(find.text(title), findsOneWidget);
         });
       }

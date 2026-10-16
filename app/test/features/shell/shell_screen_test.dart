@@ -59,11 +59,11 @@ void main() {
         const Rect.fromLTWH(0, 78, 1440, 44),
       );
       expect(
-        tester.getRect(find.byType(ShellSidebar)),
+        tester.getRect(find.byType(FmSidebar)),
         const Rect.fromLTWH(0, 123, 216, 751),
       );
       expect(
-        tester.getRect(find.byType(ShellPanel)),
+        tester.getRect(find.byType(FmDocPanel)),
         const Rect.fromLTWH(1440 - 264, 123, 264, 751),
       );
       expect(
@@ -104,11 +104,11 @@ void main() {
         shellHost(window: window, locale: const Locale('ar')),
       );
       expect(
-        tester.getRect(find.byType(ShellSidebar)),
+        tester.getRect(find.byType(FmSidebar)),
         const Rect.fromLTWH(1440 - 216, 123, 216, 751),
       );
       expect(
-        tester.getRect(find.byType(ShellPanel)),
+        tester.getRect(find.byType(FmDocPanel)),
         const Rect.fromLTWH(0, 123, 264, 751),
       );
       expect(find.text('عرض'), findsOneWidget);
@@ -158,7 +158,7 @@ void main() {
       // And the canvas sits between the mirrored panels, the sidebar right.
       expect(
         tester.getRect(canvas).right,
-        tester.getRect(find.byType(ShellSidebar)).left,
+        tester.getRect(find.byType(FmSidebar)).left,
       );
     });
   });
@@ -251,7 +251,7 @@ void main() {
 
       await tester.tap(iconButton('Show or hide sidebar'));
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
       expect(
         tester.widget<IconButton>(iconButton('Show or hide sidebar')).active,
         isFalse,
@@ -260,15 +260,15 @@ void main() {
 
       await tester.tap(iconButton('Show or hide panel'));
       await settle(tester);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmDocPanel), findsNothing);
       expect(tester.getRect(find.byType(ShellCanvas)).width, 1440);
       expect(identical(tester.state(find.byType(ShellCanvas)), canvas), isTrue);
 
       await tester.tap(iconButton('Show or hide sidebar'));
       await tester.tap(iconButton('Show or hide panel'));
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsOneWidget);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsOneWidget);
       expect(identical(tester.state(find.byType(ShellCanvas)), canvas), isTrue);
     });
 
@@ -282,7 +282,7 @@ void main() {
       await settle(tester);
       await tester.tap(iconButton('Show or hide sidebar'));
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
       await tester.tap(iconButton('Show or hide sidebar'));
       await settle(tester);
       expect(
@@ -295,7 +295,7 @@ void main() {
       );
       expect(
         find.descendant(
-          of: find.byType(ShellSidebar),
+          of: find.byType(FmSidebar),
           matching: find.text('Outline'),
         ),
         findsWidgets,
@@ -748,7 +748,7 @@ void main() {
       );
       expect(
         find.descendant(
-          of: find.byType(ShellSidebar),
+          of: find.byType(FmSidebar),
           matching: find.text('Pages'),
         ),
         findsOneWidget,
@@ -761,7 +761,7 @@ void main() {
         futureVersion,
       );
       final pages = tester.element(
-        find.byKey(ShellSidebar.keyOf(SidebarTab.pages), skipOffstage: false),
+        find.byKey(FmSidebar.keyOf(SidebarTab.pages), skipOffstage: false),
       );
 
       containerOf(tester)
@@ -781,7 +781,7 @@ void main() {
       await settle(tester);
       expect(
         identical(
-          tester.element(find.byKey(ShellSidebar.keyOf(SidebarTab.pages))),
+          tester.element(find.byKey(FmSidebar.keyOf(SidebarTab.pages))),
           pages,
         ),
         isTrue,
@@ -869,7 +869,7 @@ void main() {
       await pumpShell(tester, shellHost(window: window));
       expect(
         find.descendant(
-          of: find.byType(ShellPanel),
+          of: find.byType(FmDocPanel),
           matching: find.text('Document'),
         ),
         findsOneWidget,
@@ -880,7 +880,7 @@ void main() {
       await settle(tester);
       expect(
         find.descendant(
-          of: find.byType(ShellPanel),
+          of: find.byType(FmDocPanel),
           matching: find.text('Edit'),
         ),
         findsOneWidget,

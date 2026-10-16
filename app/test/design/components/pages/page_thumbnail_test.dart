@@ -8,6 +8,7 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+import '../keyboard_reach.dart';
 
 void main() {
   const light = FermanColorTokens.light;
@@ -665,6 +666,22 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(presses, 3);
+    });
+
+    testWidgets('Tab reaches the thumbnail with the focus ring; Enter then '
+        'selects', (tester) async {
+      var presses = 0;
+      await tester.pumpWidget(
+        componentHost(
+          afterLeadingTabStop(
+            PageThumbnail(page: 1, width: 60, onPressed: () => presses++),
+          ),
+        ),
+      );
+      await expectTabReaches(tester, find.byType(PageThumbnail));
+      expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(presses, 1);
     });
 
     testWidgets('ArrowDown and ArrowUp move between thumbnails', (

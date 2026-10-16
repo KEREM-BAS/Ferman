@@ -29,16 +29,13 @@ Future<ProviderContainer> _pumpApp(WidgetTester tester) async {
 
 /// The theme the start screen sees.
 FermanTheme _ferman(WidgetTester tester) =>
-    tester.element(find.byType(StartScreen)).ferman;
+    tester.element(find.byType(FmStart)).ferman;
 
 /// The colour the app paints behind the start screen.
 Color _background(WidgetTester tester) => tester
     .widget<ColoredBox>(
       find
-          .ancestor(
-            of: find.byType(StartScreen),
-            matching: find.byType(ColoredBox),
-          )
+          .ancestor(of: find.byType(FmStart), matching: find.byType(ColoredBox))
           .first,
     )
     .color;
@@ -70,7 +67,7 @@ void main() {
     expect(_ferman(tester).isDark, isTrue);
     expect(_background(tester), FermanColorTokens.dark.surfacePanel);
     expect(
-      DefaultTextStyle.of(tester.element(find.byType(StartScreen))).style.color,
+      DefaultTextStyle.of(tester.element(find.byType(FmStart))).style.color,
       FermanColorTokens.dark.textPrimary,
     );
 
@@ -167,7 +164,7 @@ void main() {
     tester,
   ) async {
     await _pumpApp(tester);
-    final context = tester.element(find.byType(StartScreen));
+    final context = tester.element(find.byType(FmStart));
     final ferman = context.ferman;
     expect(ferman.typography.locale, Localizations.localeOf(context));
     expect(Theme.of(context).extension<FermanTheme>(), same(ferman));

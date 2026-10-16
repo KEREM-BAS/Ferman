@@ -253,7 +253,9 @@ jobs:
         run: |
           # DejaVu Sans Mono draws the macOS key symbols and Noto Sans CJK the
           # language picker's CJK names in the goldens, standing in for the
-          # system font fallback flutter test lacks (G87). A new version
+          # system font fallback flutter test lacks (G87); DejaVu Serif stands
+          # in for Georgia and Times New Roman in the FontPicker component
+          # golden (G96). A new version
           # would move pixels, so fail here with the reason rather than in
           # the golden comparison.
           sudo apt-get install -y -q fonts-dejavu-core fonts-noto-cjk

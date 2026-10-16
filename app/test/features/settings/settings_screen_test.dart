@@ -26,7 +26,7 @@ const _future = 'Available in a future version';
 /// Opens Settings on [pane] from the start screen, as the a1-2b link and
 /// the shortcut do.
 Future<void> _openAndSettle(WidgetTester tester, [String? pane]) async {
-  final context = tester.element(find.byType(StartScreen));
+  final context = tester.element(find.byType(FmStart));
   // The push completes only when Settings closes.
   unawaited(
     GoRouter.of(context)
@@ -68,7 +68,7 @@ void main() {
     ) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester);
-      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(FmSettings), findsOneWidget);
       for (final label in [
         'Language and region',
         'Editing',
@@ -150,21 +150,21 @@ void main() {
       await _openAndSettle(tester);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsNothing);
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmSettings), findsNothing);
+      expect(find.byType(FmStart), findsOneWidget);
 
       await _openAndSettle(tester);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.keyW);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsNothing);
+      expect(find.byType(FmSettings), findsNothing);
 
       await _openAndSettle(tester);
       await tester.tap(find.bySemanticsLabel('Close settings'));
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsNothing);
-      expect(find.byType(StartScreen), findsOneWidget);
+      expect(find.byType(FmSettings), findsNothing);
+      expect(find.byType(FmStart), findsOneWidget);
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
     testWidgets('⌘W closes Settings on macOS, from the shortcut table', (
@@ -176,12 +176,12 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.keyW);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsOneWidget);
+      expect(find.byType(FmSettings), findsOneWidget);
       await tester.sendKeyDownEvent(LogicalKeyboardKey.metaLeft);
       await tester.sendKeyEvent(LogicalKeyboardKey.keyW);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.metaLeft);
       await tester.pumpAndSettle();
-      expect(find.byType(SettingsScreen), findsNothing);
+      expect(find.byType(FmSettings), findsNothing);
     }, variant: TargetPlatformVariant.only(TargetPlatform.macOS));
 
     for (final (code, direction) in const [
@@ -197,8 +197,8 @@ void main() {
         );
         await _openAndSettle(tester);
         final navEdge = direction == TextDirection.ltr
-            ? SettingsScreen.navWidth
-            : boardSize.width - SettingsScreen.navWidth;
+            ? FmSettings.navWidth
+            : boardSize.width - FmSettings.navWidth;
         bool inNav(Rect rect) => direction == TextDirection.ltr
             ? rect.right <= navEdge
             : rect.left >= navEdge;
@@ -224,7 +224,7 @@ void main() {
       expect(find.byType(Banner), findsNothing);
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
-      expect(tester.element(find.byType(SettingsScreen)).ferman.isDark, isTrue);
+      expect(tester.element(find.byType(FmSettings)).ferman.isDark, isTrue);
       final banner = tester.widget<Banner>(find.byType(Banner));
       expect(banner.tone, BannerTone.warning);
       expect(banner.title, 'Your settings couldn’t be saved.');
@@ -255,13 +255,10 @@ void main() {
     testWidgets('the theme switches at once and persists', (tester) async {
       final store = await pumpFermanApp(tester);
       await _openAndSettle(tester);
-      expect(
-        tester.element(find.byType(SettingsScreen)).ferman.isDark,
-        isFalse,
-      );
+      expect(tester.element(find.byType(FmSettings)).ferman.isDark, isFalse);
       await tester.tap(find.text('Dark'));
       await tester.pumpAndSettle();
-      expect(tester.element(find.byType(SettingsScreen)).ferman.isDark, isTrue);
+      expect(tester.element(find.byType(FmSettings)).ferman.isDark, isTrue);
       expect((await store.load()).themeMode, AppThemeMode.dark);
       await tester.tap(find.text('Light'));
       await tester.pumpAndSettle();
@@ -279,7 +276,7 @@ void main() {
           themeMode: AppThemeMode.dark,
         ),
       );
-      expect(tester.element(find.byType(StartScreen)).ferman.isDark, isTrue);
+      expect(tester.element(find.byType(FmStart)).ferman.isDark, isTrue);
       await _openAndSettle(tester);
       final control = tester.widget<SegmentedControl<AppThemeMode>>(
         find.byType(SegmentedControl<AppThemeMode>),
@@ -366,7 +363,7 @@ void main() {
       await tester.tap(find.text('Türkçe').last);
       await tester.pumpAndSettle();
       expect((await store.load()).languageCode, 'tr');
-      expect(localeOf(tester, find.byType(SettingsScreen)), const Locale('tr'));
+      expect(localeOf(tester, find.byType(FmSettings)), const Locale('tr'));
       expect(find.text('Ayarlar'), findsOneWidget);
       // Back to the system's English: no choice is stored, so the app
       // follows the system again.
@@ -375,7 +372,7 @@ void main() {
           .onChanged!(AppLanguage.english);
       await tester.pumpAndSettle();
       expect((await store.load()).languageCode, isNull);
-      expect(localeOf(tester, find.byType(SettingsScreen)), const Locale('en'));
+      expect(localeOf(tester, find.byType(FmSettings)), const Locale('en'));
     });
 
     testWidgets('choosing فارسی mirrors the settings, in English', (
@@ -387,11 +384,8 @@ void main() {
           .widget<Select<AppLanguage>>(find.byType(Select<AppLanguage>))
           .onChanged!(AppLanguage.persian);
       await tester.pumpAndSettle();
-      expect(
-        directionOf(tester, find.byType(SettingsScreen)),
-        TextDirection.rtl,
-      );
-      expect(localeOf(tester, find.byType(SettingsScreen)), const Locale('en'));
+      expect(directionOf(tester, find.byType(FmSettings)), TextDirection.rtl);
+      expect(localeOf(tester, find.byType(FmSettings)), const Locale('en'));
       // The English strings come in left-to-right isolates (G93).
       expect(
         find.text(IsolatedFallbackLocalizations.isolate('Settings')),
@@ -408,10 +402,7 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('العربية').last);
       await tester.pumpAndSettle();
-      expect(
-        directionOf(tester, find.byType(SettingsScreen)),
-        TextDirection.rtl,
-      );
+      expect(directionOf(tester, find.byType(FmSettings)), TextDirection.rtl);
       // The pane list moves to the right (a12-2c).
       expect(
         tester.getCenter(find.text('الإعدادات')).dx,
@@ -719,8 +710,8 @@ void main() {
             );
             await _openAndSettle(tester, pane.path);
             expect(tester.takeException(), isNull);
-            expect(directionOf(tester, find.byType(SettingsScreen)), direction);
-            expect(localeOf(tester, find.byType(SettingsScreen)), Locale(code));
+            expect(directionOf(tester, find.byType(FmSettings)), direction);
+            expect(localeOf(tester, find.byType(FmSettings)), Locale(code));
           });
         }
       }

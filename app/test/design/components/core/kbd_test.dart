@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/core/kbd.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -62,6 +63,24 @@ void main() {
       );
       expect(find.bySemanticsLabel('Command K'), findsOneWidget);
       handle.dispose();
+    });
+
+    testWidgets('a cap reads left to right in right to left, so a bracket is '
+        'not mirrored', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const Kbd(['⌘', ']']), textDirection: TextDirection.rtl),
+      );
+      for (final key in ['⌘', ']']) {
+        final paragraph = tester.renderObject<RenderParagraph>(
+          find.descendant(of: find.text(key), matching: find.byType(RichText)),
+        );
+        expect(paragraph.textDirection, TextDirection.ltr, reason: key);
+      }
+      // The row still follows the UI direction.
+      expect(
+        tester.getCenter(find.text('⌘')).dx,
+        greaterThan(tester.getCenter(find.text(']')).dx),
+      );
     });
 
     testWidgets('mirrors the cap order in right to left', (tester) async {

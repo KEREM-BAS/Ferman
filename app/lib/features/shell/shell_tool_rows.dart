@@ -124,6 +124,16 @@ class _ViewTools extends ConsumerWidget {
   /// The zoom steps of the menu (FmWindow `zooms`).
   static const List<int> zoomSteps = [50, 75, 100, 125, 150, 200, 400];
 
+  /// The commands of the zoom menu's and the Fit control's choices, by
+  /// their values.
+  static const Map<String, ShellCommand> fitCommands = {
+    'fit-width': ShellCommand.fitWidth,
+    'fit-page': ShellCommand.fitPage,
+    'width': ShellCommand.fitWidth,
+    'page': ShellCommand.fitPage,
+    'actual': ShellCommand.actualSize,
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
@@ -133,11 +143,14 @@ class _ViewTools extends ConsumerWidget {
     // The region writes the percentage: "%100" for Türkiye (G34).
     String percent(int value) => bidiIsolate(format.percent(value));
     // The zoom menu and the segmented controls move into a narrow row's
-    // overflow menu as submenus of their choices (G21).
+    // overflow menu as submenus of their choices (G21). A choice that is a
+    // command of the shortcut table shows its keys, as the zoom menu (a2-2)
+    // draws Fit width ⌘2, Fit page ⌘0 and Actual size ⌘1.
     MenuItem choices(
       String label,
       List<(String, String, IconName?)> options, {
       String? checked,
+      Map<String, ShellCommand> commands = const {},
     }) => MenuItem(
       id: label,
       label: label,
@@ -149,6 +162,7 @@ class _ViewTools extends ConsumerWidget {
             id: value,
             label: name,
             icon: icon,
+            shortcut: commands[value]?.caps(platform),
             checked: value == checked,
           ),
       ],
@@ -186,11 +200,16 @@ class _ViewTools extends ConsumerWidget {
           shortcut: ShellCommand.zoomOut.caps(platform),
         ),
         ToolbarItem(
-          menuItem: choices(l10n.shellZoom, [
-            for (final step in zoomSteps) ('$step', percent(step), null),
-            ('fit-width', l10n.shellFitWidth, null),
-            ('fit-page', l10n.shellFitPage, null),
-          ], checked: '100'),
+          menuItem: choices(
+            l10n.shellZoom,
+            [
+              for (final step in zoomSteps) ('$step', percent(step), null),
+              ('fit-width', l10n.shellFitWidth, null),
+              ('fit-page', l10n.shellFitPage, null),
+            ],
+            checked: '100',
+            commands: fitCommands,
+          ),
           child: SizedBox(
             width: zoomWidth,
             child: Select<String>(
@@ -219,7 +238,7 @@ class _ViewTools extends ConsumerWidget {
             ('width', l10n.shellFitWidth, IconName.arrowLeftRight),
             ('page', l10n.shellFitPage, IconName.maximize),
             ('actual', l10n.shellActualSize, IconName.scan),
-          ]),
+          ], commands: fitCommands),
           child: SegmentedControl<String?>(
             semanticLabel: l10n.shellFit,
             value: null,
@@ -594,17 +613,11 @@ class _OrganizeTools extends ConsumerWidget {
           showLabel: false,
           shortcut: ShellCommand.rotateRight.caps(platform),
         ),
-        _future(
-          context,
-          icon: IconName.copy,
-          label: l10n.shellToolDuplicate,
-          shortcut: ShellCommand.duplicatePages.caps(platform),
-        ),
+        _future(context, icon: IconName.copy, label: l10n.shellToolDuplicate),
         _future(
           context,
           icon: IconName.fileOutput,
           label: l10n.shellToolExtract,
-          shortcut: ShellCommand.extractPages.caps(platform),
         ),
         _future(context, icon: IconName.replace, label: l10n.shellToolReplace),
         _future(
@@ -712,7 +725,6 @@ class _ProtectTools extends ConsumerWidget {
           icon: IconName.fileSearch,
           label: l10n.shellToolFindRedact,
           active: false,
-          shortcut: ShellCommand.findAndRedact.caps(platform),
         ),
         const ToolbarSeparator(),
         _future(

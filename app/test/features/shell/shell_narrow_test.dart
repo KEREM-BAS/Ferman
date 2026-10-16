@@ -120,9 +120,9 @@ void main() {
                 FermanSizeTokens.sidebarW +
                 FermanSizeTokens.panelW +
                 WindowMetrics.canvasMinWidth;
-            expect(find.byType(ShellSidebar), findsOneWidget);
+            expect(find.byType(FmSidebar), findsOneWidget);
             expect(
-              find.byType(ShellPanel),
+              find.byType(FmDocPanel),
               width >= both ? findsOneWidget : findsNothing,
               reason: '$size',
             );
@@ -298,16 +298,16 @@ void main() {
           tester.widget<IconButton>(_iconButton(label)).active ?? false;
 
       // The right panel steps aside first; its toggle reads as off.
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsNothing);
       expect(active('Show or hide sidebar'), isTrue);
       expect(active('Show or hide panel'), isFalse);
 
       // Opening it keeps it; the sidebar steps aside.
       await tester.tap(_iconButton('Show or hide panel'));
       await settle(tester);
-      expect(find.byType(ShellPanel), findsOneWidget);
-      expect(find.byType(ShellSidebar), findsNothing);
+      expect(find.byType(FmDocPanel), findsOneWidget);
+      expect(find.byType(FmSidebar), findsNothing);
       expect(active('Show or hide sidebar'), isFalse);
       expect(active('Show or hide panel'), isTrue);
 
@@ -318,37 +318,37 @@ void main() {
       await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
       await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsNothing);
 
       // Both come back when the window widens, and the one opened last
       // stays when it narrows again.
       await resizeShell(tester, sizes, const Size(1280, 720));
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsOneWidget);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsOneWidget);
       await tester.tap(_iconButton('Show or hide panel'));
       await settle(tester);
       await tester.tap(_iconButton('Show or hide panel'));
       await settle(tester);
       await resizeShell(tester, sizes, const Size(1024, 720));
-      expect(find.byType(ShellPanel), findsOneWidget);
-      expect(find.byType(ShellSidebar), findsNothing);
+      expect(find.byType(FmDocPanel), findsOneWidget);
+      expect(find.byType(FmSidebar), findsNothing);
 
       // A panel that stepped aside stays open: closing the other gives it
       // the room back.
       await tester.tap(_iconButton('Show or hide panel'));
       await settle(tester);
-      expect(find.byType(ShellPanel), findsNothing);
-      expect(find.byType(ShellSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsOneWidget);
 
       // A closed panel stays closed when the window widens.
       await tester.tap(_iconButton('Show or hide sidebar'));
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsNothing);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
+      expect(find.byType(FmDocPanel), findsNothing);
       await resizeShell(tester, sizes, const Size(1440, 720));
-      expect(find.byType(ShellSidebar), findsNothing);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
+      expect(find.byType(FmDocPanel), findsNothing);
       expect(identical(tester.state(find.byType(ShellCanvas)), canvas), isTrue);
     });
 
@@ -371,8 +371,8 @@ void main() {
 
       const reason = 'Make the window wider to show this panel';
       // 880 px: the sidebar fits on its own, the panel does not.
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsNothing);
       final panel = toggle('Show or hide panel');
       expect(panel.onPressed, isNull);
       expect(panel.active, isFalse);
@@ -380,19 +380,19 @@ void main() {
       await keys(LogicalKeyboardKey.keyP);
       expect(container.read(shellPanelOpenProvider), isTrue);
       expect(container.read(shellPanelPreferenceProvider), ShellSide.sidebar);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmDocPanel), findsNothing);
       // The sidebar's toggle and keys still close and open it.
       expect(toggle('Show or hide sidebar').disabledReason, isNull);
       await tester.tap(_iconButton('Show or hide sidebar'));
       await settle(tester);
-      expect(find.byType(ShellSidebar), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
       await keys(LogicalKeyboardKey.keyS);
-      expect(find.byType(ShellSidebar), findsOneWidget);
+      expect(find.byType(FmSidebar), findsOneWidget);
 
       // 800 px: neither fits; both toggles and their keys are disabled.
       await resizeShell(tester, sizes, const Size(800, 720));
-      expect(find.byType(ShellSidebar), findsNothing);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(find.byType(FmSidebar), findsNothing);
+      expect(find.byType(FmDocPanel), findsNothing);
       for (final label in ['Show or hide sidebar', 'Show or hide panel']) {
         expect(toggle(label).onPressed, isNull, reason: label);
         expect(toggle(label).disabledReason, reason, reason: label);
@@ -404,8 +404,8 @@ void main() {
 
       // Both come back when the window widens.
       await resizeShell(tester, sizes, const Size(1440, 720));
-      expect(find.byType(ShellSidebar), findsOneWidget);
-      expect(find.byType(ShellPanel), findsOneWidget);
+      expect(find.byType(FmSidebar), findsOneWidget);
+      expect(find.byType(FmDocPanel), findsOneWidget);
       expect(toggle('Show or hide panel').onPressed, isNotNull);
     });
 
@@ -473,8 +473,8 @@ void main() {
           lessThanOrEqualTo(leftmostFull),
         );
       }
-      expect(tester.getRect(find.byType(ShellSidebar)).right, 1024);
-      expect(find.byType(ShellPanel), findsNothing);
+      expect(tester.getRect(find.byType(FmSidebar)).right, 1024);
+      expect(find.byType(FmDocPanel), findsNothing);
     });
   });
 
