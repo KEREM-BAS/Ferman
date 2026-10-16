@@ -148,7 +148,9 @@ flowchart LR
 ### 3.1 Working rhythm
 
 From brief §9: plan the milestone in [PROGRESS.md](PROGRESS.md), implement, test, update the docs,
-commit in small Conventional Commits, push, then stop with a summary for the owner. Ask the owner
+commit in small Conventional Commits, push, then stop with a summary for the owner. The owner added
+a limit on 2026-10-16: at most 15 to 20 commits per pull request, so work is committed and pushed in
+checked batches, and the owner is told when a pull request is ready to merge. Ask the owner
 before changing an architectural decision, adding a dependency with an unusual licence, touching
 `design/`, or deleting work someone else created. Put open questions in [QUESTIONS.md](QUESTIONS.md)
 and continue with the safest option.
@@ -198,8 +200,8 @@ and continue with the safest option.
   listed. Nothing is silently skipped.
 - [ ] **E6** [QUESTIONS.md](QUESTIONS.md), [DEPENDENCIES.md](DEPENDENCIES.md) and the commands in
   [CLAUDE.md](../CLAUDE.md) are current.
-- [ ] **E7** Work is committed in small Conventional Commits and pushed; CI is green on the pushed
-  branch.
+- [ ] **E7** Work is committed in Conventional Commits, at most 15 to 20 per pull request (from M2,
+  the owner's rule of 2026-10-16), and pushed; CI is green on the pushed branch.
 - [ ] **E8** A short summary goes to the owner. The next milestone waits for the owner's go-ahead.
 
 ## 4. M0: discovery and plan
