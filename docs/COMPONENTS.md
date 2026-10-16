@@ -406,15 +406,18 @@ built; the ones that need a design answer are also listed for the lead to record
     the alternate, then Cancel (a1-10b: Save, Don't save, Cancel; f6a: primary, secondary, Cancel).
     Focus follows the drawn order. `footerStart` (a checkbox or a link) stays at the start
     everywhere.
-44. **Tab closes a menu.** The bundle gives Menu no Tab behaviour. As in the WAI-ARIA menu pattern,
-    Tab and Shift+Tab call `onClose`, as Escape does, from a submenu too, so the host closes the
-    whole menu and returns focus to its trigger; with `onClose` null, Tab is left to the host.
+44. **Tab closes a menu.** The bundle gives Menu no Tab behaviour. Tab and Shift+Tab call `onClose`,
+    as Escape does, from a submenu too, so the host closes the whole menu and returns focus to its
+    trigger; with `onClose` null, Tab is left to the host. The WAI-ARIA menu pattern also closes the
+    menu on Tab but moves focus on past the trigger; Ferman keeps the Escape behaviour, so focus is
+    never lost behind a closed popover and the next Tab moves on from the trigger.
 45. **A key cap reads left to right.** Each `Kbd` cap is one key, laid out left to right in every UI
     direction, so a bracket or arrow on it is never mirrored ("⌘]" keeps its "]"); the row of caps
     follows the UI direction, as a12-1ar draws "K ⌘" ([G98](DESIGN_GAPS.md#g98)).
 46. **Weekday names that fit.** `DatePicker` heads its columns with the language's short weekday
-    names; where any of them is longer than `maxShortWeekday` (4) characters, the whole words of
-    Arabic, Persian and Hebrew, it uses the narrow names instead ([G98](DESIGN_GAPS.md#g98)).
+    names; where any of them is longer than `maxShortWeekday` (4) characters (whole words in Arabic
+    and Persian, "יום" and a letter in Hebrew), it uses the narrow names instead
+    ([G98](DESIGN_GAPS.md#g98)).
 
 ## Reference (generated)
 
@@ -2758,7 +2761,7 @@ Keyboard:
 - `Home`, `End`: first or last item
 - `Enter`, `Space`: activate
 - `Escape`: onClose
-- `Tab`, `Shift+Tab`: onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger (the WAI-ARIA menu pattern; not in the bundle)
+- `Tab`, `Shift+Tab`: onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger, as on Escape (WAI-ARIA closes on Tab but moves focus on; not in the bundle)
 - `ArrowRight`: open a submenu (ArrowLeft in RTL; not in the bundle)
 
 Semantics: role menu of menuitem or menuitemcheckbox; label semanticLabel; Flutter: role: menu / menuItem / menuItemCheckbox, checked, enabled.

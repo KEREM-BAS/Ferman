@@ -40,8 +40,10 @@ bool hasRtlGolden(GalleryEntry entry) => !noRtlGolden.contains(entry.name);
 /// Every component of the gallery (`galleryEntries`: the component spec
 /// and the focus rings), each with every variant and state its section
 /// draws, in light and dark, and in Arabic, right to left, for the
-/// directional ones (ROADMAP §5 step 7). English uses the gallery's own
-/// region for it, the United States; Arabic uses Saudi Arabia.
+/// directional ones (ROADMAP §5 step 7). Each language takes the
+/// gallery's region for it (`Region.fromLocale`): the United States for
+/// English, and Egypt, CLDR's likely region for Arabic, so the DatePicker's
+/// week starts on Saturday; the window goldens use Saudi Arabia (G34).
 ///
 /// Files: `component_<entry>_<light|dark>.png` and
 /// `component_<entry>_<light|dark>_rtl.png`, the entry being the

@@ -135,8 +135,10 @@ class MenuItem {
 /// Home and End go to the first and last; Enter and Space activate;
 /// Escape calls [onClose]. The items are not Tab stops (the menu role):
 /// Tab and Shift+Tab call [onClose] too, from a submenu as well, so the
-/// host closes the whole menu and returns focus to its trigger, and the
-/// menu never stays open while focus moves on (the WAI-ARIA menu pattern).
+/// host closes the whole menu and returns focus to its trigger, as on
+/// Escape, so the menu never stays open while focus moves on (the
+/// WAI-ARIA menu pattern closes the menu on Tab too, but moves focus on
+/// past the trigger; Ferman keeps the Escape behaviour, decision 44).
 /// ArrowRight (ArrowLeft in right to left) opens a submenu, as does
 /// hovering its item; ArrowLeft (ArrowRight), Escape or choosing an item
 /// close it. With [autofocus] the first item takes focus when the menu

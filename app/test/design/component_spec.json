@@ -8012,7 +8012,7 @@
         {"keys": ["Escape"], "action": "onClose"},
         {
           "keys": ["Tab", "Shift+Tab"],
-          "action": "onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger (the WAI-ARIA menu pattern; not in the bundle)"
+          "action": "onClose, from a submenu too: the items are not Tab stops, so the host closes the whole menu and returns focus to its trigger, as on Escape (WAI-ARIA closes on Tab but moves focus on; not in the bundle)"
         },
         {"keys": ["ArrowRight"], "action": "open a submenu (ArrowLeft in RTL; not in the bundle)"}
       ],

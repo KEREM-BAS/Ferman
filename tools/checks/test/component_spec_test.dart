@@ -461,6 +461,29 @@ class Select<T> extends StatefulWidget {
     });
   });
 
+  test('reads factories written the Dart 3.13 way, by name alone', () {
+    final declarations = ComponentSpecCheck.declarationsIn(
+      DartSource('app/lib/design/x.dart', '''
+class Select<T> {
+  const new({required this.options});
+  factory of(List<T> items, {bool dense = false}) => Select(options: items);
+  factory _resolve(Locale? locale, FermanScript script) {
+    return Select(options: const []);
+  }
+  const factory redirect({int z}) = _Other;
+}
+'''),
+    );
+    expect(declarations.single.parameters, {
+      'options',
+      'items',
+      'dense',
+      'locale',
+      'script',
+      'z',
+    });
+  });
+
   test('reads annotated constructors, function-typed formals and legacy '
       'defaults', () {
     final declarations = ComponentSpecCheck.declarationsIn(

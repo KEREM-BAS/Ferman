@@ -337,20 +337,25 @@ final class ComponentSpecCheck implements Check {
   }
 
   /// The parameter names of every constructor in a class or enum [body]:
-  /// Dart 3.13's `new(`, `new name(`, `factory`, and the classic `Name(`
-  /// and `Name.named(` forms. Only declarations count: a constructor
-  /// starts a member (after a `;`, `{` or `}`, its annotations and its
-  /// `const`, `factory` or `external`), so a call such as
-  /// `=> Name(child: x)` in a body does not.
+  /// Dart 3.13's `new(`, `new name(` and `factory name(`, and the
+  /// classic `Name(`, `Name.named(` and `factory Name.named(` forms.
+  /// Only declarations count: a constructor starts a member (after a
+  /// `;`, `{` or `}`, its annotations and its `const`, `factory` or
+  /// `external`), so a call such as `=> Name(child: x)` in a body does
+  /// not.
   static Set<String> _constructorParameters(String body, String className) {
     const prefix =
         r'(?:^|[;{}])\s*(?:@[A-Za-z_][\w.]*(?:\([^()]*\))?\s*)*'
         r'(?:(?:const|factory|external)\s+)*';
     const newForm = r'new(?:\s+[A-Za-z_]\w*)?';
+    // `factory` is a built-in identifier, so a member that starts with
+    // `factory name(` is always a factory constructor; the prefix may also
+    // have taken the `factory`, as before `Name.named(`.
+    const factoryForm = r'factory\s+[A-Za-z_]\w*(?:\.[A-Za-z_]\w*)?';
     const named = r'(?:\.[A-Za-z_]\w*)?';
     final name = RegExp.escape(className);
     final starts = RegExp(
-      '$prefix(?:$newForm|$name$named)'
+      '$prefix(?:$factoryForm|$newForm|$name$named)'
       r'\s*\(',
     );
     final names = <String>{};

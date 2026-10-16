@@ -391,10 +391,7 @@ void main() {
           }
         }
         // The menu rows draw the keys as caps, in order, disabled rows too,
-        // as native menus do. G87's list of where key symbols show in M1
-        // does not name this menu yet: whether a disabled row keeps its
-        // caps is pending the lead's decision, and this expectation follows
-        // it.
+        // greyed, as native menus do (G87).
         expect(
           tester
               .widgetList<Kbd>(

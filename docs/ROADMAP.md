@@ -422,7 +422,22 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
 - [x] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
   the crate roots). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `unsafe_roots` check in the "Repository checks" step.
 - [ ] **Proposed:** a script reads `cargo metadata` and fails on any crate edge not allowed by
-  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph).
+  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph). Implemented; the box waits for the
+  owner's approval of the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): `tools/checks` `crate_graph`
+  (`tools/checks/lib/src/checks/crate_graph.dart`, `f0e2c06`) prints "PASS crate_graph" in the
+  "Repository checks" step of the job "Repository checks and tools". It runs `cargo metadata
+  --format-version 1 --no-deps` and fails on any edge between Ferman crates that ARCHITECTURE.md
+  §2.2 does not allow, dev-dependency edges included. It also enforces the single-door rule
+  (`flutter_rust_bridge` only in ferman-api, `pdfium-render` only in ferman-render), keeps
+  criterion, insta and proptest as dev-only, makes ferman-cli use the facade only, and keeps FRB
+  optional. Its tests in `tools/checks/test/crate_graph_test.dart` ("accepts the documented graph",
+  "flags an edge that is not in the graph", "flags dev-dependency edges too", "flags a crate that is
+  not in the graph", "reads a real workspace through cargo metadata") pass in the "Dart tools
+  (checks, tokens, icons, l10n)" step of the same job. The check has been in the "Repository checks"
+  step since run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head
+  `18c7471`).
 - [x] `ferman --version` prints the app version and API version on all three systems. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the
   "CLI smoke test" step of the three Rust jobs.
 - [x] Every GitHub Action is pinned by commit SHA. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `action_pins` check in the "Repository
@@ -466,7 +481,14 @@ until the owner answers [Q18](QUESTIONS.md#q18), before M2.
   3.47.7` for subosito/flutter-action in every Flutter job; `sdk: ^3.13.5` in `app/pubspec.yaml`.
 - [ ] The platform projects carry the bundle identifier and the Q03 minimums, and CI also builds the
   Linux app on Ubuntu 22.04 to prove the floor. arm64 app builds and Windows 10 are checked by the
-  owner (pending owner checks in [PROGRESS.md](PROGRESS.md#pending-owner-checks)).
+  owner (pending owner checks in [PROGRESS.md](PROGRESS.md#pending-owner-checks)). Implemented,
+  pending owner check (B100). Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): "Universal app for macOS 12.0 (Q03)" in Flutter (macos-15) logs
+  "Ferman.app/Contents/MacOS/Ferman: x86_64 arm64; minimum macOS 12.0 12.0", and the same for
+  `rust_lib_ferman.framework` and `libpdfium.dylib`; "Linux build on Ubuntu 22.04 (Q03 minimum)"
+  builds the floor; the platform projects carry `io.github.kerembas.ferman`. The owner runs the
+  x86_64 slice, Windows and Linux on arm64, and Windows 10 22H2.
 - [x] CI runs build_runner and fails if any generated file differs from the committed one. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15):
   job "Generated Flutter code is current" (gen-l10n and build_runner, then `git diff --exit-code`).
 - [x] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md. Run
@@ -476,10 +498,34 @@ until the owner answers [Q18](QUESTIONS.md#q18), before M2.
   the §8 allow-list), and it passed in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the "Dart licence check" step
   of the Linux Flutter job (107 packages).
 - [ ] **Proposed:** CI fails if `pubspec.lock` contains a package from the network deny list: HTTP
-  clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs
-  ([ADR 0015](adr/0015-privacy-and-network.md)).
+  clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs ([ADR
+  0015](adr/0015-privacy-and-network.md)). Implemented; the box waits for the owner's approval of
+  the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): `tools/checks` `pub_denylist`
+  (`tools/checks/lib/src/checks/pub_denylist.dart`, `f0e2c06`) prints "PASS pub_denylist" in the
+  "Repository checks" step of the job "Repository checks and tools". It fails on any direct or
+  transitive entry in `app/pubspec.lock` that matches `http`, `dio`, `google_fonts`, `firebase*`,
+  `sentry*`, `*analytics*`, `*crashlytics*`, `amplitude*` or `mixpanel*`. Its map of transitive
+  exceptions is empty. Its tests in `tools/checks/test/pub_denylist_test.dart` ("fails for each
+  denied package", "accepts an approved exception only as a transitive dependency", "passes for a
+  lock file without denied packages", "deniedPattern") pass in the "Dart tools (checks, tokens,
+  icons, l10n)" step. The check has been in the "Repository checks" step since run
+  [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`).
 - [ ] **Proposed:** CI compiles the web target with the engine stubbed, so the web path stays
-  buildable until phase 5.
+  buildable until phase 5. Implemented; the box waits for the owner's approval of the Proposed item.
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16): the step "Web build (kept buildable until phase 5;
+  Proposed)" (`flutter build web --release`) of the job Flutter (ubuntu-24.04). The engine is
+  stubbed through the conditional export in `app/lib/engine/engine_start.dart`: under
+  `dart.library.js_interop` it exports `startEngine` from `engine_service_web.dart`, which throws
+  `EngineUnavailableException(EngineUnavailableReason.unsupportedPlatform)`. So
+  `engine_service_frb.dart`, the only file outside `app/lib/bridge/` that imports the bridge, stays
+  out of the web build. Settings use `app/lib/settings/settings_store_web.dart` through the
+  conditional export in `app/lib/settings/settings_start.dart`. `bootstrap()` turns the exception
+  into `UnavailableEngineService`; its unit test "UnavailableEngineService throws the reason on
+  every call" (`app/test/engine/engine_models_test.dart`) passes in the Test step of the three
+  Flutter jobs.
 
 Progress: the app skeleton is committed (`23a09c3`): `flutter create` for macOS, Windows, Linux and
 web with the bundle identifier, macOS 12.0, the copyright line, very_good_analysis 11 with the
@@ -516,7 +562,12 @@ the bridge); an API version check at start-up; `tools/pdfium` and the skeleton r
   the debug-build integration tests of the three Flutter jobs.
 - [ ] Zero-copy check: a 1 MB byte vector crosses from Rust to Dart in under 0.2 ms on R1 and R2
   ([ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)). If it does not, the texture-registry fallback
-  is designed and recorded in [ADR 0009](adr/0009-threading-and-jobs.md) before M2 starts.
+  is designed and recorded in [ADR 0009](adr/0009-threading-and-jobs.md) before M2 starts. Pending
+  owner check (B100): the R1 and R2 profile measurement. Every recorded number misses 0.2 ms
+  (PROGRESS.md "Measurements", ARCHITECTURE.md §3.4), so the texture-registry fallback is designed
+  in [ADR
+  0009](adr/0009-threading-and-jobs.md#option-3-in-detail-the-texture-registry-fallback-proposed)
+  (`44cfe93`); the ADR is Proposed and the path is the owner's choice in [Q19](QUESTIONS.md#q19).
 - [x] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
   Evidence: `tools/checks` `bridge_imports` (`4b8c5c3`, with fixture tests), passing in the
   repository checks of CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15).
@@ -592,19 +643,75 @@ Deliverables: `tools/tokens` ([ADR 0012](adr/0012-design-token-pipeline.md)) rea
 with `ThemeExtension`s for light, dark, page dim, touch density, reduced motion and the CJK type
 overrides.
 
-- [ ] All 269 unique token names are generated: colours (132 in `:root`, 48 dark, 1 dim),
-  typography (41), spacing (34, plus 12 touch), effects (31, plus 5 dark and 4 reduced-motion), and
+- [x] All 269 unique token names are generated: colours (132 in `:root`, 48 dark, 1 dim), typography
+  (41), spacing (34, plus 12 touch), effects (31, plus 5 dark and 4 reduced-motion), and
   `fm-additions.css` (31 new tokens, 3 overrides, 5 CJK leading overrides, 1 dark). A test counts
-  them against the CSS sources.
-- [ ] Every mapping issue in [DESIGN_INVENTORY.md §6](DESIGN_INVENTORY.md#6-design-system) has a
+  them against the CSS sources. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "hold the declarations ROADMAP step 4 and ADR 0012 list" (parses the CSS
+  and counts per file and environment: colors.css 132 light / 48 dark / 1 dim, typography.css 41,
+  spacing.css 34 + 12 touch, effects.css 31 + 5 dark + 4 reduced motion, fm-additions.css 34 light
+  (31 new + 3 overrides) / 5 CJK / 1 dark, 348 declarations) and "define 269 unique names: 238 in
+  the design system and 31 new in the additions, which also override 3" (overrides edit-changed,
+  edit-changed-bg, font-ui) in `tools/tokens/test/cascade_test.dart`, "every token name becomes
+  exactly one field" in `tools/tokens/test/model_test.dart` and "documents every token by its CSS
+  name" in `tools/tokens/test/generator_test.dart`, run by the step "Dart tools (checks, tokens,
+  icons, l10n)" of the "Repository checks and tools" job.
+- [x] Every mapping issue in [DESIGN_INVENTORY.md §6](DESIGN_INVENTORY.md#6-design-system) has a
   documented rule and a test: rgba overlays, multi-layer shadows with rings, the two-layer focus
   ring, cubic-bezier easings, the CSS `font` shorthand, `var()` chains, `--page-filter` as a colour
-  matrix, hatch patterns, and kebab-case name collisions (`--text-*`, `--icon-*`).
-- [ ] Two runs give byte-identical output; CI fails if `tokens.g.dart` is stale.
-- [ ] Light, dark and "match system" switch at run time without a restart; when the OS asks for
-  reduced motion, durations come from the reduced-motion tokens (widget test).
-- [ ] The S6 literal check is active: a colour, size, radius or duration literal in widget code
-  outside `app/lib/design/` fails CI.
+  matrix, hatch patterns, and kebab-case name collisions (`--text-*`, `--icon-*`). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the rules are documented in `tools/tokens/README.md` ("Inputs" for
+  `supplement.yaml` hatches, "Pipeline" for per-environment `var()` resolution, "Mapping rules",
+  "Output naming") and in the ADR 0012 "Value mapping" table. Tests in `tools/tokens/test/`: rgba:
+  the group "alphaByte rounds alpha × 255 half up, exactly" (`color_test.dart`) and "semantic
+  colours per theme" (`model_test.dart`). Multi-layer shadows with rings: "reverse the layer order
+  and turn rings into spread" (`mappers_test.dart`) and "shadows: multiple layers, rings, negative
+  spread and inset" (`classifier_test.dart`). Two-layer and inset focus ring: "shadows and the focus
+  ring" (`model_test.dart`) and "an inset ring becomes an inside border" (`mappers_test.dart`).
+  Easings: "cubic" (`mappers_test.dart`) and "motion" (`model_test.dart`). `font` shorthand: "the
+  font shorthand" (`classifier_test.dart`) and "font shorthand keeps bundled families and a height
+  ratio" (`mappers_test.dart`). `var()` chains: "resolves chains" and "resolves after merging, so
+  inherited chains see overrides" (`resolver_test.dart`). `--page-filter`: "the dim page filter
+  composes left to right" (`color_matrix_test.dart`) and "the dim page filter" (`model_test.dart`).
+  Hatches: "maps hard stops to stripes" (`supplement_test.dart`) and "hatches from the supplement"
+  (`model_test.dart`). Kebab collisions: the group "name collisions" (`model_test.dart`) with
+  "--text-* colours and sizes land in different classes", "--icon-* colours and sizes land in
+  different classes" and "--border-* colours and widths land in different classes". All run in the
+  step "Dart tools (checks, tokens, icons, l10n)" of the "Repository checks and tools" job.
+- [x] Two runs give byte-identical output; CI fails if `tokens.g.dart` is stale. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "is deterministic: two runs are byte-identical", "matches the committed
+  app/lib/design/tokens.g.dart" (group "generateTokens") and "--check fails on a stale file and
+  leaves it alone" (group "runTokensCli") in `tools/tokens/test/generator_test.dart`, run by the
+  step "Dart tools (checks, tokens, icons, l10n)", and `dart run bin/tokens.dart --check` in the
+  step "Generated files are current (tokens, icons, component spec, isolated fallback)" of the
+  "Repository checks and tools" job.
+- [x] Light, dark and "match system" switch at run time without a restart; when the OS asks for
+  reduced motion, durations come from the reduced-motion tokens (widget test). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the widget tests "light, dark and match system switch live, without a
+  restart" (the same root Navigator state stays mounted while the mode goes dark, light and system,
+  and system follows platform brightness), "reduced motion: zero durations and an instant switch"
+  (`FermanMotionTokens.reduced`, all four durations `Duration.zero` with `disableAnimations`),
+  "standard motion when the system does not reduce it" and "turning reduced motion on and off keeps
+  the app mounted" in `app/test/design/theme/app_theme_test.dart`, run by the step "Test (goldens on
+  Linux only)" of the "Flutter (ubuntu-24.04)", "Flutter (macos-15)" and "Flutter (windows-2025)"
+  jobs.
+- [x] The S6 literal check is active: a colour, size, radius or duration literal in widget code
+  outside `app/lib/design/` fails CI. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the `tools/checks` check `s6_literals`
+  (`tools/checks/lib/src/checks/s6_literals.dart`, registered in `tools/checks/lib/src/runner.dart`;
+  rules color, material-color, duration, radius, insets, size, font-size and theme-bypass over
+  `app/lib/` outside `app/lib/design/` and `app/lib/engine/`, which holds no widgets; the reviewed
+  allowlist `s6Allowlist` in `s6_allowlist.dart` is empty) passes in the step "Repository checks" of
+  the "Repository checks and tools" job. Its fixture tests in
+  `tools/checks/test/s6_literals_test.dart` include "fails on literals in feature code and passes in
+  the design system", "skips the design system and the engine services" and the groups "color",
+  "duration", "radius", "insets", "size", "font-size" and "theme-bypass". They run in the step "Dart
+  tools (checks, tokens, icons, l10n)".
 
 Progress (2026-10-15, development container): `tools/tokens` and the generated `tokens.g.dart` exist.
 Its 125 tests count the tokens per file and environment against the CSS sources (348 declarations, 269
@@ -632,28 +739,109 @@ the exported, provenance-tracked set and are not loaded at run time; flutter_svg
 it and vector_graphics depend on `http`, which the network deny list forbids); LicenseRegistry entries
 for every bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)).
 
-- [ ] Each font file's SHA-256 equals the IBM upstream release file it came from (recorded in
-  DEPENDENCIES.md and `tools/fonts/fonts.lock`, checked by `tools/fonts/fetch.sh --verify-committed`).
-  No bundled font is subset, renamed or modified.
-- [ ] A coverage test reads each font's cmap: Plex Sans covers Latin including Turkish and
-  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew covers
-  Hebrew; Plex Sans Devanagari covers Devanagari (`tools/fonts/coverage.py`). A golden of
+- [x] Each font file's SHA-256 equals the IBM upstream release file it came from (recorded in
+  DEPENDENCIES.md and `tools/fonts/fonts.lock`, checked by `tools/fonts/fetch.sh
+  --verify-committed`). No bundled font is subset, renamed or modified. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the step "Bundled fonts (unmodified IBM files)" of the "Repository checks
+  and tools" job runs `bash tools/fonts/selftest.sh` (a changed byte, a missing font, an extra file
+  and a reworded licence each fail) and `bash tools/fonts/fetch.sh --verify-committed`. The second
+  fails on any committed file whose SHA-256 differs from `tools/fonts/fonts.lock` and on any file
+  the lock does not pin. The release zip SHA-256 values are in DEPENDENCIES.md §5.2, and the per-TTF
+  values are the `font` lines of `fonts.lock`. Measurement, development container, 2026-10-16: the
+  six upstream IBM/plex release zips (`@ibm/plex-sans@1.1.0`, `plex-serif@2.0.0`, `plex-mono@2.5.0`,
+  `plex-sans-arabic@1.1.0`, `plex-sans-hebrew@1.1.0`, `plex-sans-devanagari@1.1.0`) hash to the
+  pinned zip values. All 18 TTFs in their `fonts/complete/ttf/` folders, under the same file names,
+  hash to the `fonts.lock` values and equal the committed files in `app/assets/fonts/`.
+- [x] A coverage test reads each font's cmap: Plex Sans covers Latin including Turkish and
+  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew
+  covers Hebrew; Plex Sans Devanagari covers Devanagari (`tools/fonts/coverage.py`). A golden of
   "İMZALA ğ ş ı · Tiếng Việt · Русский · Ελληνικά · العربية · فارسی · עברית · हिन्दी" shows no
-  fallback glyphs.
+  fallback glyphs. Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): the step "Bundled fonts (unmodified IBM files, script coverage)" of the
+  "Repository checks and tools" job runs `python3 -I tools/fonts/coverage.py`, which reads every
+  committed font's cmap and requires Basic Latin, the Latin-1 letters, Turkish, Vietnamese, Cyrillic
+  and Greek in Plex Sans, Arabic and Persian in Plex Sans Arabic, Hebrew in Plex Sans Hebrew and
+  Devanagari in Plex Sans Devanagari. The golden "the bundled fonts cover every script of the sample
+  without fallback glyphs" (`app/test/goldens/script_coverage_golden_test.dart`) passes in the
+  Flutter (ubuntu-24.04) job of CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
 - [ ] Japanese, Korean, Simplified and Traditional Chinese samples render with the system fonts of
   ADR 0013 and the right locale per text style, checked by hand on R1, R2 and a Linux machine and
-  recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms, [G07](DESIGN_GAPS.md#g07)).
-- [ ] Exactly 229 icons are generated; a test fails if the count or any path differs from the design
+  recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms,
+  [G07](DESIGN_GAPS.md#g07)). Implemented, pending owner check (B100). Evidence (implementation; the
+  hand check is pending): CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "CJK puts the system families of ADR 0013 after Plex Sans" (Hiragino Sans,
+  Yu Gothic UI, Noto Sans CJK JP; Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR; PingFang SC,
+  Microsoft YaHei UI, Noto Sans CJK SC; PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC),
+  "every role carries the UI locale" (including `ja` and `zh-Hant`), "CJK takes the CJK roles:
+  taller leading on five roles" and "Traditional Chinese falls back to the TC families" (zh_TW has
+  PingFang TC and no PingFang SC; zh_CN has Noto Sans CJK SC and no Noto Sans CJK TC) in
+  `app/test/design/theme/typography_test.dart` at `b358281`, and "the app resolves the type roles
+  for the UI locale" in `app/test/design/theme/app_theme_test.dart`, run by the step "Test (goldens
+  on Linux only)" of the three Flutter jobs. The hand check on R1, R2 and Linux is listed as pending
+  in PROGRESS.md step 5.
+- [x] Exactly 229 icons are generated; a test fails if the count or any path differs from the design
   source. The provenance table names the matching Lucide release (0.460.0, 1.56.0, 0.500.0 or
   0.300.0) for each of the 84 added glyphs, and "Ferman design" for ellipse alone
-  ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)).
-- [ ] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
-  the 8 icons the design flips: arrow-left, arrow-right, chevron-left, chevron-right, undo-2, redo-2,
-  skip-back and skip-forward (a `tools/icons` test re-reads the design files for this list).
+  ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "the design has exactly 229 icons: 145 in ICON_PATHS, 84 added", "the
+  reader agrees with an independent line-by-line extraction", "every generated SVG holds the source
+  markup byte for byte" and "a changed count fails loudly" in
+  `tools/icons/test/design_icons_test.dart`. "the enum has one value per icon, in name order" and
+  "enum values and SVG files are in sync" in `tools/icons/test/enum_test.dart`. "has one case per
+  icon, in name order" and "compiles and round-trips to the design markup" (group
+  "icon_data.g.dart") in `tools/icons/test/icon_data_test.dart`. "sources agree with G60 and ADR
+  0013" (222 at Lucide 0.460.0; bell, funnel and grid-2x2 at 1.56.0; expand and paperclip at
+  0.500.0; file-signature at 0.300.0; ellipse alone as Ferman design) and "the provenance table
+  names every icon and the licence files" in `tools/icons/test/provenance_test.dart`. All run in the
+  step "Dart tools (checks, tokens, icons, l10n)". `dart run icons --check` runs in the step
+  "Generated files are current (tokens, icons, component spec, isolated fallback)" of the
+  "Repository checks and tools" job. Measurement, development container, 2026-10-16: `dart run icons
+  --check --lucide <dir>` recomputed provenance from the four pinned lucide-static tarballs and
+  reported 'Icons are up to date (229 SVGs, 6 other files)'.
+- [x] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
+  the 8 icons the design flips: arrow-left, arrow-right, chevron-left, chevron-right, undo-2,
+  redo-2, skip-back and skip-forward (a `tools/icons` test re-reads the design files for this list).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16): "defaults to the design-system 1.5 in viewBox units"
+  (group "Icon stroke"), "exactly the eight glyphs the design flips are directional", "directional
+  glyphs mirror in right to left only", "other glyphs never mirror by default" and "a mirrored glyph
+  is the left-to-right one flipped" (group "Icon mirroring") in
+  `app/test/design/icons/icon_test.dart`, and "takes the stroke width in viewBox units" in
+  `app/test/design/icons/icon_painter_test.dart`. These run in the step "Test (goldens on Linux
+  only)" of the three Flutter jobs. In `tools/icons/test/directional_test.dart`, "every icon the
+  design flips with a literal name is directional" and "the only directional icon flipped through
+  data is arrow-left" re-read `design/*.dc.html` and `_ds_bundle.js`. "exactly the directional icons
+  carry the flag" (`tools/icons/test/enum_test.dart`) checks the eight names. These run in the step
+  "Dart tools (checks, tokens, icons, l10n)".
 - [ ] **Proposed** (the step 2 network deny list): the app never fetches fonts; CI fails if
-  `pubspec.lock` contains google_fonts or another font downloader.
-- [ ] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
-  ([G08](DESIGN_GAPS.md#g08)).
+  `pubspec.lock` contains google_fonts or another font downloader. Implemented; the box waits for
+  the owner's approval of the Proposed item. Evidence (implementation; the criterion is Proposed):
+  CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
+  #2, head `b358281`, 2026-10-16): the `tools/checks` check `pub_denylist`
+  (`tools/checks/lib/src/checks/pub_denylist.dart`: `http`, `dio`, `google_fonts`, `firebase*`,
+  `sentry*`, `*analytics*`, `*crashlytics*`, `amplitude*` and `mixpanel*` in `app/pubspec.lock`;
+  `transitiveExceptions` empty) passes in the step "Repository checks" of the "Repository checks and
+  tools" job. Its tests "fails for each denied package" (google_fonts as a direct dependency and
+  http as a transitive one both fail) and "passes for a lock file without denied packages"
+  (`tools/checks/test/pub_denylist_test.dart`) run in the step "Dart tools (checks, tokens, icons,
+  l10n)". The fonts ship as assets declared in `app/pubspec.yaml`, checked by "the bundled families
+  are declared in pubspec.yaml" in `app/test/design/theme/typography_test.dart`.
+- [x] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
+  ([G08](DESIGN_GAPS.md#g08)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "lists every licence asset of pubspec.yaml, once", "covers the PDFium
+  archive, the six Plex families and Lucide" (16 + 6 + 2 texts) and "points at files that exist and
+  are not empty" (group "bundledLicenses"), and "makes LicenseRegistry yield every bundled licence
+  text" and "shows the OFL, ISC and MIT texts by name" (group "registerLicenses"), in
+  `app/test/app/licenses_test.dart`. These are flutter_test tests under `TestWidgetsFlutterBinding`,
+  reading the assets through `rootBundle`, run by the step "Test (goldens on Linux only)" of the
+  three Flutter jobs. `bootstrap()` calls `registerLicenses()` (`app/lib/app/bootstrap.dart`).
 
 Progress (2026-10-15, development container): the 18 TTFs and 6 licence files are in
 `app/assets/fonts/`, pinned in `tools/fonts/fonts.lock`; `fetch.sh --verify-committed`, the 18-case
@@ -691,14 +879,54 @@ to `a2-3x`). The nine fix boards `f1` to `f6a` are captured as the whole element
 `section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and `f6a` (inside the sections
 `f4` and `f6`). Every board is rendered on its own freshly loaded page.
 
-- [ ] All 223 boards render, one PNG per board id, captured by the rule above; the DS additions sheet
-  renders too. A count check fails if an id is missing.
-- [ ] The run is offline: requests for unpkg.com and fonts.googleapis.com are answered from the
-  local copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)).
-- [ ] Two runs on the same machine give pixel-identical PNGs.
-- [ ] Nothing under `design/` changes (CI checks `git diff --stat -- design/` is empty).
-- [ ] None of the design-reference files (runtime scripts, fonts, `design/` content) ends up in an
-  app build (CI scans the build output).
+- [x] All 223 boards render, one PNG per board id, captured by the rule above; the DS additions
+  sheet renders too. A count check fails if an id is missing. Evidence: design-references run
+  [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885) (manual, head
+  `c9475fb`, 2026-10-16), step "Render every board, twice": "rendered 224 of 224 board(s) in 247.7 s
+  (chromium 141.0.7390.37)", the 223 boards and the DS additions sheet. The count check's failure
+  path: "the count check names each requested board without a PNG and fails the run" in
+  `tools/design-refs/test/outcome.test.mjs`, in the step "Design-reference tool tests" of CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16).
+- [x] The run is offline: requests for unpkg.com and fonts.googleapis.com are answered from the
+  local copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)). Evidence:
+  design-references run [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885)
+  (manual, head `c9475fb`, 2026-10-16): "served locally: 896 script(s), 896 font stylesheet(s), 6273
+  font file(s)", with no blocked request, for all 224 renders. The failure path: "a blocked request
+  to another host fails the run, even when every board has its PNG"
+  (`tools/design-refs/test/outcome.test.mjs`) and the router's "aborts and records every other
+  request" (`test/router.test.mjs`), in the step "Design-reference tool tests" of CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16).
+- [x] Two runs on the same machine give pixel-identical PNGs. Evidence: design-references run
+  [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885) (manual, head
+  `c9475fb`, 2026-10-16), step "Render every board, twice" (`node index.mjs --twice`): "twice: all
+  224 PNG(s) identical (second render 240.0 s)" on the ubuntu-24.04 runner; pull requests render the
+  M1 boards twice the same way.
+- [x] Nothing under `design/` changes (CI checks `git diff --stat -- design/` is empty). Evidence:
+  CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
+  #2, head `b358281`, 2026-10-16). The "Base commit for the design/ check" step sets `CHECKS_BASE`
+  to the pull request's base commit (`fe99894`, main). The `tools/checks` `design_untouched` check
+  (`tools/checks/lib/src/checks/design_untouched.dart`) then reports "PASS design_untouched" in the
+  "Repository checks" step: it runs `git diff --name-only <base> -- design/` and lists untracked
+  files under `design/`. Its fixture tests "fails when a tracked file changed", "fails when a change
+  was committed after the base", "fails when a file was deleted" and "fails on an untracked file"
+  (`tools/checks/test/design_untouched_test.dart`) pass in the "Dart tools (checks, tokens, icons,
+  l10n)" step. The renderer also refuses output inside `design/` ("--out guard: inside design/ or
+  not", `tools/design-refs/test/cli.test.mjs`), and its server refuses writes ("refuses writes",
+  `tools/design-refs/test/server.test.mjs`); both pass in the "Design-reference tool tests" step.
+- [x] None of the design-reference files (runtime scripts, fonts, `design/` content) ends up in an
+  app build (CI scans the build output). Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): the steps "No design files in the app build" (Flutter on ubuntu-24.04,
+  macos-15 and windows-2025; macOS logs "PASS
+  ../../app/build/macos/Build/Products/Release/Ferman.app: 83 files, none from the design export")
+  and "No design files in the web build" (ubuntu-24.04) run `tools/checks/bin/scan_bundle.dart`,
+  which fails on the design export's file names, React and Babel scripts by name or licence header,
+  any woff or woff2 font or `@fontsource` path, and SHA-256 copies of any file under `design/`. Its
+  tests are in `tools/checks/test/scan_bundle_test.dart` ("finds a copy of a design file under any
+  name", "compares with the real design export"), in the step "Dart tools (checks, tokens, icons,
+  l10n)".
 
 Progress (2026-10-15, development container, 4 CPUs): `tools/design-refs` rendered all 224 PNGs (223
 boards and the DS additions sheet) with the count check, offline, with 0 blocked requests and 0
@@ -720,22 +948,84 @@ components the M1 boards draw); a debug-only gallery route for review. The `Anno
 follows the drawing (11 tools), not the stale `ANNOTATION_TOOLS` constant (9;
 [G62](DESIGN_GAPS.md#g62)).
 
-- [ ] Every component exists under its design-system name (Button, IconButton, ToolButton and so on;
+- [x] Every component exists under its design-system name (Button, IconButton, ToolButton and so on;
   the `Fm*` shell building blocks and `FmNumber` keep their `Fm` names), with every variant and
   state in the spec ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). A test walks the
-  spec and fails on anything missing.
-- [ ] Widget tests cover every state, including focus-visible ([G22](DESIGN_GAPS.md#g22)) and a
+  spec and fails on anything missing. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): the `component_spec` check
+  (`tools/checks/lib/src/checks/component_spec.dart`) passes in the "Repository checks" step. It
+  walks `app/test/design/component_spec.json` against `app/lib/design/` and fails on a missing
+  component, prop, item type, item field, enum value or value of a variant no enum prop carries; its
+  fixture tests ("reports a missing item type and a missing item field", "reports a missing value of
+  a variant without an enum prop", `tools/checks/test/component_spec_test.dart`) run in the step
+  "Dart tools (checks, tokens, icons, l10n)". The states are proven by the widget tests of the next
+  box. Names: the design-system names, and the `Fm*` building blocks keep theirs, as ADR 0011 says:
+  `FmWindow`, `FmSidebar`, `FmDocPanel`, `FmStart`, `FmSettings` and `FmNumber` (`efc2b26`).
+- [x] Widget tests cover every state, including focus-visible ([G22](DESIGN_GAPS.md#g22)) and a
   disabled state with the tooltip "Available in a future version" for Button, IconButton,
-  ToolButton, menu items and SegmentedControl options ([G10](DESIGN_GAPS.md#g10)).
-- [ ] Goldens for every component in light and dark, and in right-to-left for directional ones.
-- [ ] Keyboard and screen readers: every interactive component is reachable with Tab, works with the
+  ToolButton, menu items and SegmentedControl options ([G10](DESIGN_GAPS.md#g10)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. Every
+  component's test file covers the states of its spec entry, focus-visible included ("NumberStepper
+  focus-visible: Tab reaches the field; the box shows the focus border and the 1 px field ring, over
+  the hover border", "FmNumber hover: the strong border on the box (.fm-input:hover)"). The
+  future-version tooltip: the Button, IconButton, ToolButton and Menu tests, and "a segment disabled
+  with the future-version reason: the arrow keys focus it, and the reason shows as its tooltip after
+  the delay and in semantics" and "… shows it on hover after the delay"
+  (`app/test/design/components/navigation/segmented_control_test.dart`).
+- [x] Goldens for every component in light and dark, and in right-to-left for directional ones.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16), Flutter (ubuntu-24.04), step "Test (goldens on Linux
+  only)": `app/test/goldens/components_golden_test.dart` writes 206 goldens, every section of the
+  component gallery (57) in light and dark, and the 46 sections with directional content in the
+  Arabic right-to-left preview too (`component_<Entry>_<light|dark>[_rtl].png`); symmetric
+  components, page content and the icon grid are listed in `noRtlGolden` with their reasons
+  (ARCHITECTURE.md §13.5).
+- [x] Keyboard and screen readers: every interactive component is reachable with Tab, works with the
   keys its role implies (Enter, Space, arrows, Esc), and has a Semantics label (widget tests)
-  ([G23](DESIGN_GAPS.md#g23)).
-- [ ] Dialogs, menus, popovers, tooltips and toasts are components from this library; the S6 check is
-  active for `showDialog`, `AlertDialog`, `SimpleDialog`, `CupertinoAlertDialog`, `TabBarView` and
-  GetX.
-- [ ] Components that need the engine later (SignaturePad, Stamp, PdfFormField, CommandPalette and
-  others) are complete visually, with every state, and take their data through parameters.
+  ([G23](DESIGN_GAPS.md#g23)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. Every
+  interactive component has a test that reaches it with a real Tab key between a leading and a
+  trailing stop (`app/test/design/components/keyboard_reach.dart`), for example "Select Tab reaches
+  the box, and Enter then opens the list; a plain disabled select is skipped", "Checkbox Tab reaches
+  the checkbox, and Space then toggles" and "PdfFormField keyboard Tab and Shift+Tab move between
+  the fields of a form, every type in turn"; CommandPalette and Menu take focus on open
+  ("CommandPalette no Tab stop of its own …", "Menu Tab and Shift+Tab close an open menu, from a
+  submenu too …"). Keys: Space on the ColorPicker and FontPicker triggers, ArrowUp in FontPicker,
+  ArrowLeft in both directions on the DocumentTabStrip and the SignaturePad mode control, Escape
+  closing the Select, ColorPicker and Menu popovers. Labels: each test file's semantics assertions,
+  and "names every control" in `app/test/features/shell/shell_screen_test.dart`. Real screen readers
+  are a pending owner check (B100).
+- [x] Dialogs, menus, popovers, tooltips and toasts are components from this library; the S6 check
+  is active for `showDialog`, `AlertDialog`, `SimpleDialog`, `CupertinoAlertDialog`, `TabBarView`
+  and GetX. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), "Repository checks" step: "PASS s6_forbidden_api" and "PASS
+  s6_material_imports", with the reviewed allow-list `s6Allowlist` empty
+  (`tools/checks/lib/src/checks/s6_allowlist.dart`). `s6_forbidden_api`
+  (`tools/checks/lib/src/checks/s6_forbidden_api.dart`) forbids showDialog, AlertDialog,
+  SimpleDialog, CupertinoAlertDialog, TabBarView, TabBar, SnackBar, PopupMenuButton, showMenu,
+  Material's Tooltip and Dialog, and other Material or Cupertino overlays, plus GetX imports.
+  `s6_material_imports` allows Material only in `app/lib/design/` and `app/lib/app/app.dart`. Their
+  fixture tests "every forbidden name when Material is imported" (group "api"), "imports of GetX"
+  (group "getx") and "fails on Material dialogs anywhere, the design system included"
+  (`tools/checks/test/s6_forbidden_api_test.dart`), and "allows the design system and app.dart only"
+  (`tools/checks/test/s6_material_imports_test.dart`), pass in the "Dart tools (checks, tokens,
+  icons, l10n)" step. The library's own Dialog, Menu, Popover, Tooltip and Toast have widget tests
+  in `app/test/design/components/overlays/dialog_test.dart`, `overlays/menu_test.dart`,
+  `forms/popover_test.dart`, `core/tooltip_test.dart` and `feedback/toast_test.dart`, which pass in
+  the three Flutter jobs.
+- [x] Components that need the engine later (SignaturePad, Stamp, PdfFormField, CommandPalette and
+  others) are complete visually, with every state, and take their data through parameters. Evidence:
+  CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request
+  #2, head `54d2ef9`, 2026-10-16): the tier-2 components draw every state the gallery forces, in the
+  component goldens of the previous boxes (`component_SignaturePad_*`, `component_Stamp_*`,
+  `component_PdfFormField_*`, `component_CommandPalette_*` and the rest), with state tests in their
+  test files; they take their data through parameters and item types (SignatureValue, NoteReply,
+  CommandItem, RecentFile), which the `component_spec` check walks, and nothing in `app/lib/design/`
+  imports the engine.
 
 #### Step 8. App shell
 
@@ -743,34 +1033,155 @@ Deliverables: `app/lib/features/shell/` with the title bar, document tab strip, 
 row per mode, sidebar, canvas placeholder, right panel and status bar, built from `FmWindow`
 ([G01](DESIGN_GAPS.md#g01)); one shortcut table bound through `Shortcuts` and `Actions`.
 
-- [ ] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px (45 px
+- [x] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px (45 px
   with FmWindow's second 1 px line, [G84](DESIGN_GAPS.md#g84)), sidebar 216 px, right panel 264 px,
-  status bar 26 px. Goldens line up with the references for `f6` and
-  `f6a` (Windows) and with the chrome of `a2-1b` and `a3-1d` (macOS); every difference is fixed or
-  recorded in DESIGN_GAPS.md.
-- [ ] Eight mode tabs in the designed order: View, Edit, Comment, Fill & Sign, Organize, Convert,
-  Protect, Tools ([G09](DESIGN_GAPS.md#g09), [Q05](QUESTIONS.md#q05)). Mode tabs and sidebar tabs are
-  custom segmented controls over an `IndexedStack`; a widget test shows each mode keeps its state
-  when the user switches away and back.
-- [ ] Every tool in every tool row is visible as drawn. Tools that do not work yet are disabled with
-  the future-version tooltip and listed in BACKLOG.md (S9).
-- [ ] Document tabs show the active, idle, unsaved, loading and "+N" overflow states with placeholder
-  data, and "+" opens nothing yet (disabled with the tooltip until M2).
+  status bar 26 px. Goldens line up with the references for `f6` and `f6a` (Windows) and with the
+  chrome of `a2-1b` and `a3-1d` (macOS); every difference is fixed or recorded in DESIGN_GAPS.md.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16): "matches FmWindow sizes at 1440 × 900"
+  (`app/test/features/shell/shell_screen_test.dart`, group "layout") in the three Flutter jobs. The
+  goldens `shell_edit_win_light_en`, `shell_edit_mac_light_en`, `shell_view_mac_light_en` and
+  `shell_edit_mac_dark_en` are lined up with f6 (both strips), f6a, a2-1b and a3-1d, canvas masked,
+  in the report of design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16) (3.4 to 4.5 % differing pixels; a3-1d 10.7 % with its document); each
+  difference is fixed or recorded in [G84](DESIGN_GAPS.md#g84) and [G97](DESIGN_GAPS.md#g97).
+- [x] Eight mode tabs in the designed order: View, Edit, Comment, Fill & Sign, Organize, Convert,
+  Protect, Tools ([G09](DESIGN_GAPS.md#g09), [Q05](QUESTIONS.md#q05)). Mode tabs and sidebar tabs
+  are custom segmented controls over an `IndexedStack`; a widget test shows each mode keeps its
+  state when the user switches away and back. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs, in
+  `app/test/features/shell/shell_screen_test.dart`. "shows the eight modes in the designed order"
+  (group "mode bar") checks that `ModeTabs.modes` is `FermanMode.values` and that View, Edit,
+  Comment, Fill & Sign, Organize, Convert, Protect and Tools run left to right. "switches modes and
+  keeps each mode's state" checks that each mode's tool row in the `IndexedStack` is still the same
+  mounted element after a switch away and back. "the sidebar tabs switch over an IndexedStack"
+  (group "sidebar, canvas, panel and status bar") checks the `SegmentedControl<SidebarTab>` and that
+  the Pages page keeps its element after a switch away and back. The `s6_forbidden_api` check
+  (`tools/checks/lib/src/checks/s6_forbidden_api.dart`, registered in
+  `tools/checks/lib/src/runner.dart`) rejects Material's `TabBar` and `TabBarView`. It runs in step
+  "Repository checks" of the "Repository checks and tools" job.
+- [x] Every tool in every tool row is visible as drawn. Tools that do not work yet are disabled with
+  the future-version tooltip and listed in BACKLOG.md (S9). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs: "draw every
+  tool of FmWindow, in order" and "disable every tool with the future-version tooltip" in
+  `app/test/features/shell/shell_screen_test.dart` (group "tool rows"). The first compares every
+  item of the eight rows, including separators, spacers, switches, menu carets and icon-only tools,
+  with FmWindow's markup in order. The second checks that every item, and every AnnotationTools tool
+  and colour, is disabled with "Available in a future version". Each tool has a row in BACKLOG.md.
+  View: B033 to B038 and B040. Edit: B041 to B049. Comment: B050, B051, and B014 for the Shapes,
+  Stamp and Measure menus. Fill & Sign: B052 to B055 and B024. Organize: B056 and B020. Convert:
+  B019, B021, B023 and B025. Protect: B026 and B057 to B059. Tools: B022, B027, B032, B051 and B060
+  to B064. FmWindow's field navigation (Previous field, Next field) is drawn only when the document
+  has fields, and B052 records that it is not shown.
+- [x] Document tabs show the active, idle, unsaved, loading and "+N" overflow states with
+  placeholder data, and "+" opens nothing yet (disabled with the tooltip until M2). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs: "shows the
+  house button, the document tabs and their states" in
+  `app/test/features/shell/shell_screen_test.dart` (group "title bar"). It checks five placeholder
+  tabs: one active, three idle, one unsaved and one loading. It also checks "+3", named "3 more",
+  and that both "Open file" (+) and the +3 button are disabled with the future-version reason. In
+  `app/test/design/components/additions/document_tab_test.dart`, the tests "active: 32 px on the
+  panel surface, open at the bottom, strong name, 1 px over the border below", "idle: a 28 px
+  rounded row in the secondary colour that tints on hover", "unsaved: a 7 px dot replaces the close
+  button and is read after the name" and "loading: the spinner replaces the icon, and screen readers
+  hear its status inside the tab" run in the same step.
 - [ ] Windows: caption buttons 46 px wide, close turns red on hover, window corners 8 px, the area
   between the tabs and Search drags the window, and snap layouts appear on hover over maximize on
-  Windows 11 (checked by hand on R2 and recorded).
-- [ ] macOS: traffic lights sit where the design puts them; full screen works.
+  Windows 11 (checked by hand on R2 and recorded). Implemented, pending owner check (B100).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter
+  jobs. In `app/test/design/components/additions/window_chrome_test.dart`: "Windows: three 46 px
+  caption buttons, 38 px tall, after a 4 px gap, with the drawn glyphs", and "close turns #C42B1C
+  with a white glyph on hover, in both themes". In `app/test/app/window_frame_test.dart`, which uses
+  a Windows window: "a drag on the empty space moves the window" (group "moving the window"),
+  "reports the maximize button for the snap layouts, and gives the area back when it goes" and
+  "draws the hover and press the native side reports" (group "Windows"). In
+  `app/test/features/shell/shell_screen_test.dart`: "leaves the space between the tabs and Search to
+  move the window", which runs on a Linux window over the TitleBar code that Windows shares
+  (`window_frame.dart`, `case WindowPlatform.win || WindowPlatform.linux`). The native snap-layout
+  hook (`app/windows/runner/title_bar.cpp`, which returns HTMAXBUTTON) builds in step "Desktop
+  build" of Flutter (windows-2025), and that runner also passed "Integration test (macOS and
+  Windows)".
+- [ ] macOS: traffic lights sit where the design puts them; full screen works. Implemented, pending
+  owner check (B100). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. In
+  `app/test/app/window_frame_test.dart` (group "macOS"): "keeps the traffic-light slot at the start
+  and places the native lights in it" (a 78 px slot, lights 14 px from the leading edge, 12 px wide,
+  8 px apart, in the 37 px bar), "puts the lights at the right edge in right to left" and "drops the
+  slot in full screen, where the system owns the lights". In
+  `app/test/design/components/additions/window_chrome_test.dart`: "macOS: an empty 78 px slot for
+  the native lights" and "macOS placeholder lights: three 12 px circles 8 px apart, decorative". In
+  `app/test/app/platform_window_test.dart`: "sends the traffic-light layout". In
+  `app/test/app/desktop_window_test.dart`: "follows maximize and full-screen events", which follows
+  window_manager's full-screen events and runs on a Windows window. The native placement in
+  `app/macos/Runner/MainFlutterWindow.swift` (`setTrafficLightLayout`) builds and starts in steps
+  "Desktop build" and "Integration test (macOS and Windows)" of Flutter (macos-15).
 - [ ] Linux: a custom title bar, as the owner decided in [Q12](QUESTIONS.md#q12): client-side
   decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel-left dialog
   order; the window drags and resizes from the drawn areas ([G15](DESIGN_GAPS.md#g15)). The look on
-  GNOME and KDE is a pending owner check.
-- [ ] Every action in the shortcut table appears in its tooltip and menu as ⌘, ⌥, ⇧ on macOS and
+  GNOME and KDE is a pending owner check. Implemented, pending owner check (B100). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs.
+  `app/test/app/desktop_window_test.dart`: "TargetPlatform.linux draws the linux title bar".
+  `app/test/app/window_frame_test.dart`: "draws the caption buttons at the end, without snap
+  layouts" (group "Linux"), and "runs the window keys on any screen: Alt+F4 and Ctrl+Q on Linux"
+  (group "WindowFrame"). `app/test/design/components/additions/window_chrome_test.dart`: "Linux
+  reuses the Windows layout (G15)". `app/test/features/shell/shortcuts_test.dart`: "has no duplicate
+  binding on linux", "shows ⌘ ⌥ ⇧ ⌃ on macOS and Ctrl Alt Shift elsewhere", and "Ctrl+Alt+S and
+  Ctrl+Alt+P toggle the sidebar and the panel on Linux".
+  `app/test/features/shell/shell_screen_test.dart`: "leaves the space between the tabs and Search to
+  move the window", on a Linux window. The Linux app builds and starts in steps "Desktop build" and
+  "Integration test (Linux, under Xvfb)" of Flutter (ubuntu-24.04). Cancel-left dialog order:
+  "Dialog button order: Cancel before the affirmative button on macOS and Linux; on Windows …"
+  (`app/test/design/components/overlays/dialog_test.dart`) in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16). Resizing from the window's edges and the look on GNOME and KDE are the
+  owner's to check.
+- [x] Every action in the shortcut table appears in its tooltip and menu as ⌘, ⌥, ⇧ on macOS and
   Ctrl, Alt, Shift on Windows and Linux. A test fails on any duplicate binding per platform; the ⌥⌘S
-  collision is resolved before this step ([G44](DESIGN_GAPS.md#g44)).
-- [ ] Focus moves in visual order: title bar, mode bar, tool row, sidebar, canvas, right panel,
-  status bar (widget test). Every control has a Semantics label.
+  collision is resolved before this step ([G44](DESIGN_GAPS.md#g44)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): "<mac|windows|linux>: every control bound to a command shows exactly its
+  keys, or its reason while disabled, and every command with a control is found" and "… every
+  overflow-menu entry shows exactly its command’s keys, and its reason as its tooltip"
+  (`app/test/features/shell/shortcut_caps_test.dart`), with "has no duplicate binding on <platform>"
+  and the ⌥⌘S checks in `app/test/features/shell/shortcuts_test.dart`, in the three Flutter jobs.
+  Commands no M1 control shows wait for the palette and the cheat sheet ([G99](DESIGN_GAPS.md#g99),
+  B030, B076).
+- [x] Focus moves in visual order: title bar, mode bar, tool row, sidebar, canvas, right panel,
+  status bar (widget test). Every control has a Semantics label. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs, group
+  "accessibility" of `app/test/features/shell/shell_screen_test.dart`. "focus moves title bar, mode
+  bar, tool row, sidebar, canvas, panel, status bar" presses Tab from the Home button and expects
+  the regions in `ShellRegion.values` order (titleBar, modeBar, toolRow, sidebar, canvas, panel,
+  statusBar), then back to the title bar. "names every control" walks the semantics tree in every
+  mode and every sidebar tab. It fails on any button, focusable, toggle or checkable node that has
+  no label, tooltip or value.
 - [ ] **Proposed:** at a minimum window width of 1024 px nothing overlaps; the tool row collapses to
-  icons with an overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)).
+  icons with an overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)). Implemented; the
+  box waits for the owner's approval of the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16); the tests came in with `c5fda08`, and run
+  [38883084870](https://github.com/KEREM-BAS/Ferman/actions/runs/38883084870) was green at that
+  head. Step "Test (goldens on Linux only)" of the three Flutter jobs runs these tests in
+  `app/test/features/shell/shell_narrow_test.dart` (group "narrow windows (G21)"): "English: from
+  1440 to 1024 px every mode fits without overflow; labels hide from the end, the right panel steps
+  aside and the mode tabs keep their labels", plus its Turkish, Arabic and German-length-labels
+  variants. They run at 1440, 1280, 1152 and 1024 px, and at 1024 × 640. They check for no
+  exceptions, every tool inside its Toolbar, labels hiding from the end, the panel gone below 216 +
+  264 + 640 px, a canvas at least 640 px wide, and document tabs at least their minimum width. The
+  group "the tool rows’ overflow menu" has "<mode>: lists exactly the items out of the row, disabled
+  with the future-version reason, toggles with their state" for each of the eight modes, at a row
+  width of 240 px. In `app/test/app/desktop_window_test.dart`: "asks the window for the shell’s
+  minimum size at start-up: 1024 × 640 (G21; the width Proposed)" and "at the minimum width either
+  side panel fits beside the canvas". `applyWindowLimits` is called in `app/lib/app/bootstrap.dart`
+  line 57.
 
 #### Step 9. Start screen and settings skeleton
 
@@ -784,35 +1195,91 @@ written by Dart through a temporary file and a rename
 ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); shared_preferences was not chosen
 ([DEPENDENCIES.md §4](DEPENDENCIES.md#4-rejected)).
 
-- [ ] The start screen matches `a1-5` and `a12-2a` in goldens. Open file…, Create PDF, Combine files,
-  Scan to PDF, the quick tools and the drop strip are visible and disabled with the tooltip until
-  their milestones ([G11](DESIGN_GAPS.md#g11)).
-- [ ] The language picker (`a1-1`) lists all 21 languages. English, Turkish and Arabic are complete;
+- [x] The start screen matches `a1-5` and `a12-2a` in goldens. Open file…, Create PDF, Combine
+  files, Scan to PDF, the quick tools and the drop strip are visible and disabled with the tooltip
+  until their milestones ([G11](DESIGN_GAPS.md#g11)). Evidence: the goldens `start_mac_light_en` and
+  `start_mac_light_ar` pass in Flutter (ubuntu-24.04) of CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), and design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16) lines them up with a1-5 (1.1 % differing pixels) and a12-2a (2.2 %, recent
+  files masked), the differences recorded in [G11](DESIGN_GAPS.md#g11) and
+  [G97](DESIGN_GAPS.md#g97). "shows the actions, quick tools and drop area of a1-5" and "every entry
+  point is disabled with the reason (G10)" in `app/test/features/start/start_screen_test.dart`.
+- [x] The language picker (`a1-1`) lists all 21 languages. English, Turkish and Arabic are complete;
   the others carry the "Not translated yet" state chosen in [G20](DESIGN_GAPS.md#g20). Choosing
-  Arabic switches the whole UI to right-to-left at once.
-- [ ] `a1-2b` lists the four network uses with "off until you use it" for all but the update check,
+  Arabic switches the whole UI to right-to-left at once. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)". Group "language picker (a1-1)" in
+  `app/test/features/onboarding/onboarding_test.dart` has three tests. "lists the 21 languages by
+  their own names" finds every `AppLanguage` endonym and exactly 18 "Not translated yet". "choosing
+  العربية mirrors the whole UI at once" checks right to left and that the first column moves right.
+  "choosing a language without a translation keeps English".
+  `app/test/l10n/locale_providers_test.dart` has "lists the 21 languages of a1-1 with en, tr and ar
+  translated" (21 values; translated: en, tr, ar). Completeness: the `arb_parity` check
+  (`tools/checks/lib/src/checks/arb_parity.dart`, step "Repository checks") covers Turkish, and
+  "app_ar.arb has every key of app_en.arb and no other" and "gen-l10n found no untranslated Arabic
+  or Turkish message" in `app/test/l10n/arb_files_test.dart` cover Arabic.
+- [x] `a1-2b` lists the four network uses with "off until you use it" for all but the update check,
   and links to Settings → Privacy ([G24](DESIGN_GAPS.md#g24)). `a1-2c` says Apache-2.0
   ([G13](DESIGN_GAPS.md#g13)) and marks unshipped features as coming in a future version
-  ([G12](DESIGN_GAPS.md#g12)).
-- [ ] Settings shows the 11 panes of `a11-1`. General: Theme (Match system, Light, Dark) works live
+  ([G12](DESIGN_GAPS.md#g12)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), tests in `app/test/features/onboarding/onboarding_test.dart`. Group
+  "privacy step (a1-2b)" has two tests. "lists the facts and the four network uses (G24)" checks the
+  rows One optional check for updates, OCR language packs, AI assistant and Signature timestamps;
+  the update check reads "… You can turn it off." and exactly three texts contain "Off until you use
+  it." "links to Settings › Privacy and comes back to the step" opens Settings showing "Ferman
+  collects nothing.", the Privacy pane statement. Group "free step (a1-2c)" has "says Apache-2.0 and
+  never marks later features Included": Apache-2.0, no GPL, and every feature tile except "3
+  interface languages" announced as "…, Available in a future version".
+- [x] Settings shows the 11 panes of `a11-1`. General: Theme (Match system, Light, Dark) works live
   and persists across restarts. Language and region (`a11-1b`): app language en, tr or ar (the
   picker lists all 21 languages, the others in English for now, [G20](DESIGN_GAPS.md#g20)); region
   formats with live examples ("13.10.2026", "10,5 pt" for Türkiye). The Windows variant matches
   `a11-1w`, right-to-left matches `a12-2c`. Options that need later milestones are disabled with the
-  tooltip.
-- [ ] Settings → Privacy shows the four network uses of brief §3, each disabled with the tooltip
+  tooltip. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), `app/test/features/settings/settings_screen_test.dart`: "lists the 11
+  panes; only the built ones are enabled", "the theme switches at once and persists", "the stored
+  theme is there after a restart", "later options are drawn and disabled", "choosing Türkçe switches
+  the app at once", "lists the 21 languages, untranslated ones marked (G20)" and "choosing a region
+  changes the examples and defaults"; the goldens `settings_general_win_light_en` and
+  `settings_language_mac_light_ar` are lined up with a11-1w (0.7 %) and a12-2c (1.0 %) in the report
+  of design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
+- [x] Settings → Privacy shows the four network uses of brief §3, each disabled with the tooltip
   until its milestone ([ADR 0015](adr/0015-privacy-and-network.md)). The drawn "Signature checks"
   row stays visible but disabled until the owner decides [Q06](QUESTIONS.md#q06)
-  ([G51](DESIGN_GAPS.md#g51)).
-- [ ] Settings are stored only in the app data directory; nothing leaves the device.
+  ([G51](DESIGN_GAPS.md#g51)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "lists the network uses, each off and disabled" in group "Privacy
+  (a11-1h)" of `app/test/features/settings/settings_screen_test.dart`. It finds the rows Check for
+  updates, Timestamps, Downloads you start and Your AI provider (the four network uses; per
+  `app_en.arb`, Downloads you start is "OCR language packs and the assistant’s model") and the drawn
+  Signature checks row. It asserts that all five switches are off, disabled and carry "Available in
+  a future version", and that "Show network activity…" has the same reason.
+- [x] Settings are stored only in the app data directory; nothing leaves the device. Evidence: CI
+  run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2,
+  head `54d2ef9`, 2026-10-16): "the settings store lives in the app support directory the app’s
+  store asks only for the app support directory, and a save writes only settings.json there, through
+  its temporary file" and "no settings code can reach the network no file under lib/settings/ or
+  lib/features/settings/ imports a network or browser library or names a network class"
+  (`app/test/settings/settings_on_device_test.dart`), with the `pub_denylist` check, in the three
+  Flutter jobs and the repository checks.
 - [x] Settings opens as its own window if desktop multi-window is stable in Flutter 3.47.7, otherwise
   as a window-styled surface ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); the
   choice is recorded. Evidence: Flutter 3.47.7's windowing API is not stable, so Settings is a
   window-styled surface at `/settings` (ARCHITECTURE.md §12, [G89](DESIGN_GAPS.md#g89), BACKLOG
   B090); `app/test/features/settings/settings_screen_test.dart` and
   `app/test/features/shell/shell_route_test.dart`.
-- [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and R2
-  (tracked, not gated).
+- [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and
+  R2 (tracked, not gated). Implemented, pending owner check: the start screen this budget times is
+  built and tested (`app/test/features/start/start_screen_test.dart`, CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628)), and `bootstrap()`
+  loads the settings before `runApp`. No measurement exists. PROGRESS.md "Pending owner checks"
+  lists "the start-screen budget (step 9)" among the R1 and R2 hardware checks.
 
 #### Step 10. Localization en, tr and ar, right to left, locale-aware casing
 
@@ -822,24 +1289,100 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
 **Proposed:** a pseudo-locale for text expansion.
 
 - [ ] `app_tr.arb` has every key of `app_en.arb` (CI key-parity check), reviewed by a native Turkish
-  speaker.
+  speaker. Implemented, pending owner check. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). The `arb_parity` check (`tools/checks/lib/src/checks/arb_parity.dart`,
+  registered in `tools/checks/lib/src/runner.dart`) passes in step "Repository checks" of job
+  "Repository checks and tools". It checks that every key of `app_en.arb` is in `app_tr.arb`, that
+  there are no extra keys, and that no Turkish value repeats the English outside the reviewed list.
+  Its tests in `tools/checks/test/arb_parity_test.dart`, "fails when Turkish misses a key or has an
+  extra one" and "fails when Turkish repeats the English text of a key", run in step "Dart tools
+  (checks, tokens, icons, l10n)". `app/test/l10n/arb_files_test.dart` adds "Arabic and Turkish use
+  the placeholders of the English message". The native Turkish review (gate S5) is a pending owner
+  check in PROGRESS.md.
 - [ ] Arabic exists for every M1 string, taken from the design's Arabic boards where they have it
   (`a12-2a`, `a12-2c`) and reviewed by a native speaker. Missing translations fall back to English
-  and are listed in BACKLOG.md. Other languages fall back to English.
-- [ ] Casing tests: Turkish `upper("imzala")` gives "İMZALA", `upper("ılık")` gives "ILIK",
-  `lower("İSTANBUL")` gives "istanbul" and `lower("I")` gives "ı"; English keeps "i" ↔ "I". The cases
-  are checked against a table derived from Unicode SpecialCasing.
-- [ ] Numbers, dates, paper sizes and units follow the region setting, never the UI language: with an
-  English UI and the Türkiye region a test sees "13.10.2026 · 14:32" and "10,5 pt"
-  ([G34](DESIGN_GAPS.md#g34)).
-- [ ] Right to left: the S6 directional check is active; directional icons mirror and the others do
-  not; the canvas placeholder is never mirrored (widget test).
+  and are listed in BACKLOG.md. Other languages fall back to English. Implemented, pending owner
+  check (B100). Evidence (partial): CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). Group "ROADMAP §5 step 10: Arabic exists for every M1 string" in
+  `app/test/l10n/arb_files_test.dart`: "app_ar.arb has every key of app_en.arb and no other",
+  "Arabic repeats the English text only for names, symbols and formats", "gen-l10n found no
+  untranslated Arabic or Turkish message" and "languages without a translation show the English
+  strings". The design copy is spot-checked by "right to left mirrors the order (a12-2a)" in
+  `app/test/features/start/start_screen_test.dart` and "document languages in Arabic match a12-2c"
+  and "choosing العربية mirrors the settings" in
+  `app/test/features/settings/settings_screen_test.dart`. The design's own text: "Arabic is the
+  design’s own text where the Arabic boards draw it (a12-2a, a12-2c)"
+  (`app/test/l10n/arb_files_test.dart`, 54 strings) in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16). The native Arabic review (gate S5) is the owner's.
+- [x] Casing tests: Turkish `upper("imzala")` gives "İMZALA", `upper("ılık")` gives "ILIK",
+  `lower("İSTANBUL")` gives "istanbul" and `lower("I")` gives "ı"; English keeps "i" ↔ "I". The
+  cases are checked against a table derived from Unicode SpecialCasing. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the Flutter jobs on the three
+  systems. In `app/test/l10n/casing_test.dart`, group "ROADMAP §5 step 10" has "Turkish upper and
+  lower case" (upper("imzala") = "İMZALA", upper("ılık") = "ILIK", lower("İSTANBUL") = "istanbul",
+  lower("I") = "ı") and "English keeps i and I as a pair". Group "SpecialCasing-15.0.0.txt" has
+  "every unconditional mapping, in every language" (103 lines) and "every conditional mapping, with
+  its context" (16 lines), together the 119 data lines of the Unicode file.
+  `app/test/l10n/casing_icu_test.dart` has "matches ICU on context- and language-dependent strings".
+- [x] Numbers, dates, paper sizes and units follow the region setting, never the UI language: with
+  an English UI and the Türkiye region a test sees "13.10.2026 · 14:32" and "10,5 pt"
+  ([G34](DESIGN_GAPS.md#g34)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). In `app/test/l10n/region_formats_screen_test.dart`, group "ROADMAP §5 step
+  10: formats follow the region, never the UI language (G34)": "an English UI with the Türkiye
+  region sees "13.10.2026 · 14:32" and "10,5 pt" in Settings › Language and region" and "a Turkish
+  UI with the United States region keeps US formats". Paper sizes and units: "the region default
+  paper in the region default unit" in `app/test/l10n/format_test.dart`; "formats for the region,
+  not the UI language (G34)" and "the United States defaults to Letter, inches and Sunday" in
+  `app/test/l10n/locale_providers_test.dart`; and, in
+  `app/test/features/settings/settings_screen_test.dart`, "choosing a region changes the examples
+  and defaults" (an English UI that picks Türkiye gets A4) and "paper, units and week store
+  overrides only when they differ".
+- [x] Right to left: the S6 directional check is active; directional icons mirror and the others do
+  not; the canvas placeholder is never mirrored (widget test). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). The `s6_directional` check
+  (`tools/checks/lib/src/checks/s6_directional.dart`, registered in
+  `tools/checks/lib/src/runner.dart`) passes in step "Repository checks", and its fixture tests in
+  `tools/checks/test/s6_directional_test.dart` run in step "Dart tools (checks, tokens, icons,
+  l10n)". Group "Icon mirroring" in `app/test/design/icons/icon_test.dart` has "exactly the eight
+  glyphs the design flips are directional", "directional glyphs mirror in right to left only" and
+  "other glyphs never mirror by default". "<code>: <screen> lays out from the right, directional
+  icons mirrored" in group "ROADMAP §5 step 10: right to left" of
+  `app/test/l10n/rtl_screens_test.dart` runs over the seven `M1Screen` screens (the language picker,
+  both welcome steps, the start screen and Settings General, Language and region and Privacy) in ar,
+  fa and he. "the canvas is never mirrored: in right to left its subtree runs left to right and its
+  glyph is not flipped (ADR 0014)" is in group "layout" of
+  `app/test/features/shell/shell_screen_test.dart`.
 - [ ] **Proposed:** every M1 screen renders in a pseudo-locale with strings 40% longer without
   clipping or overflow errors. This stands in for the German boards `a12-2b` and `a12-2d`.
-- [ ] UI translations are bundled with the app and never downloaded ([G52](DESIGN_GAPS.md#g52)).
-- [ ] The ARB files are ready for community translation through Weblate: every key has a
-  description for translators. Setting up the Weblate project is a BACKLOG entry until the owner
-  creates it.
+  Implemented; the box waits for the owner's approval of the Proposed item. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): group "every M1 screen in the pseudo-locale fits (Proposed)" in
+  `app/test/l10n/pseudo_locale_test.dart` (the seven M1 screens at 1440 × 900 and 1024 × 768) and
+  "the shell in every mode at <1440 × 900|1024 × 768>, <mac|win>" in
+  `app/test/l10n/pseudo_locale_shell_test.dart`, failing on any overflow or text that does not fit.
+- [x] UI translations are bundled with the app and never downloaded ([G52](DESIGN_GAPS.md#g52)).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16). Group "ROADMAP §5 step 10 and G52: UI translations are
+  bundled" in `app/test/l10n/arb_files_test.dart`: "the generated localizations are app code, one
+  file per ARB file" (no deferred loading), "each language loads at once, from the app itself" (a
+  `SynchronousFuture`) and "no localization or formatting code can reach the network or the file
+  system". The `pub_denylist` check (`tools/checks/lib/src/checks/pub_denylist.dart`, step
+  "Repository checks") keeps HTTP clients out of `app/pubspec.lock`.
+- [x] The ARB files are ready for community translation through Weblate: every key has a description
+  for translators. Setting up the Weblate project is a BACKLOG entry until the owner creates it.
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16). Group "ROADMAP §5 step 10: ready for translators
+  (Weblate)" in `app/test/l10n/arb_files_test.dart`: "every English message has a description for
+  translators", "every placeholder is declared, with its type" and "gen-l10n requires the metadata
+  of every message" (`required-resource-attributes: true`). Setting up the Weblate project is
+  BACKLOG row B085, which says it "is an owner action and stays in this row until the owner creates
+  it".
 
 Progress (2026-10-15, development container): phase F4 added the casing utility `LocaleCasing`
 (`app/lib/l10n/casing.dart`) and the region formats `Region` and `RegionFormat`
@@ -852,17 +1395,37 @@ casing and region boxes are ticked once a green CI run covers these tests.
 
 #### Step 11. Golden matrix
 
-- [ ] Goldens exist for the language picker, welcome steps 2 and 3, the empty start screen, the shell
-  in each of the eight modes with macOS and with Windows chrome, and Settings General and Language and
-  region, each in light and dark × en, tr and ar, with the real bundled fonts.
-- [ ] Goldens are generated and compared on the Linux CI runner only; other runners run the widget
-  tests without goldens ([ARCHITECTURE.md §13.5](ARCHITECTURE.md#135-flutter-tests)).
-- [ ] A comparison report lines up each golden with its reference (`f6`, `f6a`, `a1-1`, `a1-2b`,
+- [x] Goldens exist for the language picker, welcome steps 2 and 3, the empty start screen, the
+  shell in each of the eight modes with macOS and with Windows chrome, and Settings General and
+  Language and region, each in light and dark × en, tr and ar, with the real bundled fonts.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16), Flutter (ubuntu-24.04), step "Test (goldens on Linux
+  only)": `app/test/goldens/screens_golden_test.dart` and `shell_golden_test.dart`, 144 goldens at
+  1440 × 900: the language picker, welcome steps 2 and 3, the empty start screen, Settings General
+  (macOS and Windows), Language and region and Privacy, and the shell in each of the eight modes
+  with macOS and Windows chrome, each in light and dark × en, tr and ar, with the bundled fonts
+  ([G96](DESIGN_GAPS.md#g96), [G97](DESIGN_GAPS.md#g97)).
+- [x] Goldens are generated and compared on the Linux CI runner only; other runners run the widget
+  tests without goldens ([ARCHITECTURE.md §13.5](ARCHITECTURE.md#135-flutter-tests)). Evidence: the
+  step "Test (goldens on Linux only)" of `.github/workflows/ci.yml` runs `flutter test` on Linux and
+  `flutter test --exclude-tags golden` on macOS and Windows, and every golden passes `skip:
+  !isGoldenHost` (`app/test/helpers/golden_config.dart`); all three jobs green in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
+- [x] A comparison report lines up each golden with its reference (`f6`, `f6a`, `a1-1`, `a1-2b`,
   `a1-2c`, `a1-5`, `a11-1`, `a11-1w`, `a11-1b`, `a12-2a`, `a12-2b`, `a12-2c`, `a12-2d`) and posts a
   perceptual difference score in the pull request. A person reviews it; in M1 it is not a gate.
-- [ ] Screens with no drawn dark, Windows, Turkish or right-to-left variant are built from tokens, and
-  each such screen is noted in DESIGN_GAPS.md ([G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17),
-  [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)).
+  Evidence: design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16): `node tools/design-refs compare` lined up 19 pairs (17 compared, the
+  German a12-2b and a12-2d listed as not compared, B097) and posted the report, with pixelmatch and
+  1 − SSIM scores, as the pull request's comparison comment; informative, not a gate.
+- [x] Screens with no drawn dark, Windows, Turkish or right-to-left variant are built from tokens,
+  and each such screen is noted in DESIGN_GAPS.md ([G16](DESIGN_GAPS.md#g16),
+  [G17](DESIGN_GAPS.md#g17), [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)). Evidence:
+  [G97](DESIGN_GAPS.md#g97) lists, screen by screen, which golden variants a board draws and which
+  are built from tokens, under the rules of [G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17),
+  [G18](DESIGN_GAPS.md#g18) and [G19](DESIGN_GAPS.md#g19).
 
 ### Acceptance criteria
 
