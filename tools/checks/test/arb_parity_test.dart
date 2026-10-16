@@ -4,7 +4,8 @@ import 'package:test/test.dart';
 import 'support/fixture.dart';
 
 void main() {
-  const check = ArbParityCheck();
+  // The fixture keeps the product name in both files, as the app does.
+  const check = ArbParityCheck(sameInTurkish: {'appTitle': 'the app name'});
   const en = '''
 {
   "@@locale": "en",
@@ -40,7 +41,7 @@ void main() {
     final messages = withFiles(
       english: english,
       turkish: '{}',
-    ).run(check).messages;
+    ).run(const ArbParityCheck(sameInTurkish: {})).messages;
     expect(messages, hasLength(21));
     expect(messages.first, 'app_tr.arb is missing key10');
     expect(
@@ -89,5 +90,45 @@ void main() {
 
   test('messageKeys ignores metadata', () {
     expect(ArbParityCheck.messageKeys(en), {'appTitle', 'openFile'});
+  });
+
+  test('fails when Turkish repeats the English text of a key', () {
+    final fixture = withFiles(
+      turkish:
+          '{"@@locale": "tr", "appTitle": "Ferman", "openFile": '
+          '"Open file"}',
+    );
+    expect(
+      fixture.run(check),
+      failsWith(['app_tr.arb repeats the English text of openFile']),
+    );
+  });
+
+  test('a listed key may keep the English text; a stale entry fails', () {
+    // appTitle is listed and equal: passes (the default fixture).
+    expect(withFiles().run(check), passes);
+    // Listed but translated now, or no longer in English: both fail.
+    const stale = ArbParityCheck(
+      sameInTurkish: {'openFile': 'test', 'gone': 'test'},
+    );
+    final messages = withFiles(
+      turkish:
+          '{"@@locale": "tr", "appTitle": "Ferman", "openFile": '
+          '"Dosya aç"}',
+    ).run(stale).messages;
+    expect(
+      messages,
+      containsAll([
+        contains('lists gone, which app_en.arb does not have'),
+        contains('lists openFile, whose Turkish now differs'),
+        contains('repeats the English text of appTitle'),
+      ]),
+    );
+  });
+
+  test('the repository list names a reason for every key', () {
+    for (final reason in ArbParityCheck.repositorySameInTurkish.values) {
+      expect(reason.trim(), isNotEmpty);
+    }
   });
 }
