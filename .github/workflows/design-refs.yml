@@ -76,4 +76,14 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           PR_NUMBER: ${{ github.event.pull_request.number }}
-        run: gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file ../../build/design-compare/report.md --edit-last --create-if-none
+        run: |
+          # The report is informative and is also in the step summary and the
+          # design-compare artifact, so a GitHub API failure here is retried and
+          # then only warned about; it never turns the check red.
+          for attempt in 1 2 3; do
+            if gh pr comment "$PR_NUMBER" --repo "$GITHUB_REPOSITORY" --body-file ../../build/design-compare/report.md --edit-last --create-if-none; then
+              exit 0
+            fi
+            sleep $((attempt * 10))
+          done
+          echo "::warning::Could not post the comparison report on the pull request after 3 attempts; it is in the step summary and the design-compare artifact."
