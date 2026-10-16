@@ -3,9 +3,13 @@ import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -187,6 +191,32 @@ void main() {
 
         await tester.pumpWidget(bar(show: false));
         expect(window.maximizeButtonRects.last, isNull);
+      });
+
+      testWidgets('gives the snap-layout area back while a modal is open', (
+        tester,
+      ) async {
+        addTearDown(ModalScope.debugReset);
+        await tester.pumpWidget(bar());
+        await tester.pump();
+        final rect = window.maximizeButtonRects.last;
+        expect(rect, isNotNull);
+
+        final first = ModalScope.open(debugLabel: 'first');
+        final second = ModalScope.open(debugLabel: 'second');
+        await tester.pump();
+        expect(window.maximizeButtonRects.last, isNull);
+        final reports = window.maximizeButtonRects.length;
+
+        // The rectangle stays withdrawn until the last modal closes.
+        first.close();
+        await tester.pump();
+        await tester.pump();
+        expect(window.maximizeButtonRects, hasLength(reports));
+        second.close();
+        await tester.pump();
+        await tester.pump();
+        expect(window.maximizeButtonRects.last, rect);
       });
 
       testWidgets('draws the hover and press the native side reports', (
@@ -378,9 +408,15 @@ void main() {
   });
 
   group('WindowFrame', () {
-    Widget frame(DesktopWindow window) {
+    Widget frame(
+      DesktopWindow window, {
+      ShortcutPlatform keys = ShortcutPlatform.linux,
+    }) {
       final container = ProviderContainer(
-        overrides: [desktopWindowProvider.overrideWithValue(window)],
+        overrides: [
+          desktopWindowProvider.overrideWithValue(window),
+          shortcutPlatformProvider.overrideWithValue(keys),
+        ],
       );
       addTearDown(container.dispose);
       return UncontrolledProviderScope(
@@ -389,11 +425,95 @@ void main() {
           const SizedBox(
             width: 800,
             height: 600,
-            child: WindowFrame(child: SizedBox.expand(key: Key('screen'))),
+            // Any screen, not the shell: a focusable box, as each screen
+            // takes focus when it opens.
+            child: WindowFrame(
+              child: Focus(
+                autofocus: true,
+                child: SizedBox.expand(key: Key('screen')),
+              ),
+            ),
           ),
         ),
       );
     }
+
+    Future<void> press(
+      WidgetTester tester,
+      LogicalKeyboardKey key, {
+      required LogicalKeyboardKey modifier,
+    }) async {
+      await tester.sendKeyDownEvent(modifier);
+      await tester.sendKeyEvent(key);
+      await tester.sendKeyUpEvent(modifier);
+    }
+
+    testWidgets('runs the window keys on any screen: Alt+F4 and Ctrl+Q on '
+        'Linux', (tester) async {
+      final linux = FakeDesktopWindow(WindowPlatform.linux);
+      addTearDown(linux.dispose);
+      await tester.pumpWidget(frame(linux));
+      await tester.pump();
+      await press(
+        tester,
+        LogicalKeyboardKey.f4,
+        modifier: LogicalKeyboardKey.altLeft,
+      );
+      await press(
+        tester,
+        LogicalKeyboardKey.keyQ,
+        modifier: LogicalKeyboardKey.controlLeft,
+      );
+      expect(linux.calls, ['close', 'close']);
+    });
+
+    testWidgets('⌘M and ⌘Q on macOS; Ctrl+Q is not quit on Windows', (
+      tester,
+    ) async {
+      final mac = FakeDesktopWindow(WindowPlatform.mac);
+      addTearDown(mac.dispose);
+      await tester.pumpWidget(frame(mac, keys: ShortcutPlatform.mac));
+      await tester.pump();
+      await press(
+        tester,
+        LogicalKeyboardKey.keyM,
+        modifier: LogicalKeyboardKey.metaLeft,
+      );
+      await press(
+        tester,
+        LogicalKeyboardKey.keyQ,
+        modifier: LogicalKeyboardKey.metaLeft,
+      );
+      expect(mac.calls, ['minimize', 'close']);
+
+      await tester.pumpWidget(frame(window, keys: ShortcutPlatform.windows));
+      await tester.pump();
+      await press(
+        tester,
+        LogicalKeyboardKey.keyQ,
+        modifier: LogicalKeyboardKey.controlLeft,
+      );
+      expect(window.calls, isNot(contains('close')));
+      await press(
+        tester,
+        LogicalKeyboardKey.f4,
+        modifier: LogicalKeyboardKey.altLeft,
+      );
+      expect(window.calls, contains('close'));
+    });
+
+    testWidgets('binds no window keys where the system frames the app', (
+      tester,
+    ) async {
+      final none = NoDesktopWindow();
+      addTearDown(none.dispose);
+      await tester.pumpWidget(frame(none));
+      await tester.pump();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      final handled = await tester.sendKeyEvent(LogicalKeyboardKey.f4);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      expect(handled, isFalse);
+    });
 
     testWidgets('puts the title bar above the screen on the desktop', (
       tester,

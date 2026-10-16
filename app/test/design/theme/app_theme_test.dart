@@ -2,6 +2,8 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/settings/app_settings.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart' show Theme;
 import 'package:flutter/widgets.dart';
@@ -10,7 +12,14 @@ import 'package:flutter_test/flutter_test.dart';
 
 /// Starts the app in a fresh provider container and returns the container.
 Future<ProviderContainer> _pumpApp(WidgetTester tester) async {
-  final container = ProviderContainer.test();
+  // First run is done, so the router opens the start screen.
+  final container = ProviderContainer.test(
+    overrides: [
+      initialSettingsProvider.overrideWithValue(
+        const AppSettings(onboardingCompleted: true),
+      ),
+    ],
+  );
   await tester.pumpWidget(
     UncontrolledProviderScope(container: container, child: const FermanApp()),
   );

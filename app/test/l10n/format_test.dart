@@ -300,6 +300,41 @@ void main() {
     });
   });
 
+  group('percentages (G34, G74)', () {
+    test('take the region’s sign and place, not the UI language’s', () {
+      Intl.withLocale('en_US', () {
+        expect(turkiye.percent(40), '%40');
+        expect(turkiye.percent(100), '%100');
+      });
+      Intl.withLocale('tr', () {
+        expect(unitedStates.percent(40), '40%');
+      });
+      expect(germany.percent(40), '40$_nbsp%');
+    });
+
+    test('Arabic regions follow CLDR for the region', () {
+      // Saudi Arabia: Arabic-Indic digits and CLDR's Arabic percent sign
+      // U+066A with U+061C ARABIC LETTER MARK.
+      expect(saudiArabia.percent(40), '٤٠٪؜');
+      // The United Arab Emirates: Latin digits, the sign between U+200E
+      // LEFT-TO-RIGHT MARKs, as CLDR's ar writes it.
+      expect(emirates.percent(40), '40‎%‎');
+      expect(iran.percent(40), '۴۰٪');
+    });
+
+    test('group as numbers do, and round to whole percents by default', () {
+      expect(turkiye.percent(6400), '%6.400');
+      expect(unitedStates.percent(6400), '6,400%');
+      // CLDR groups Spanish numbers only from five digits.
+      expect(
+        RegionFormat.forRegion(Region.forCode('ES')).percent(6400),
+        '6400$_nbsp%',
+      );
+      expect(unitedStates.percent(33.4), '33%');
+      expect(unitedStates.percent(33.45, maxFractionDigits: 1), '33.5%');
+    });
+  });
+
   group('bidiIsolate', () {
     test('wraps a value in first-strong and pop isolates', () {
       expect(bidiIsolate('10,5 pt'), '\u206810,5 pt\u2069');

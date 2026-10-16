@@ -36,14 +36,19 @@ class AppThemeModeNotifier extends _$AppThemeModeNotifier {
   /// Switches the appearance to [mode] and stores it; nothing happens when
   /// it is the current one. The app restyles even if storing fails; the
   /// choice then lasts for this session (see [SettingsNotifier.change]).
-  Future<void> select(AppThemeMode mode) async {
-    if (mode == state) return;
+  ///
+  /// Completes with whether the settings are stored: false when storing
+  /// failed, which Settings tells the person (`settingsSaveFailedProvider`).
+  Future<bool> select(AppThemeMode mode) async {
+    if (mode == state) return true;
     try {
       await ref
           .read(settingsProvider.notifier)
           .change((settings) => settings.copyWith(themeMode: mode));
+      return true;
     } on SettingsStoreException {
-      // Kept for this session; Settings reports storage problems (step 9).
+      // Kept for this session; the caller reports it.
+      return false;
     }
   }
 }

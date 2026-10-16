@@ -24,6 +24,7 @@ DocumentTab _tab(
   IconName icon = IconName.fileText,
   VoidCallback? onPressed,
   VoidCallback? onClose,
+  String? closeDisabledReason,
   Widget? spinner,
 }) => DocumentTab(
   name: name,
@@ -36,6 +37,7 @@ DocumentTab _tab(
   icon: icon,
   onPressed: onPressed ?? () {},
   onClose: onClose,
+  closeDisabledReason: closeDisabledReason,
   spinner: spinner,
 );
 
@@ -212,6 +214,64 @@ void main() {
       await _hover(tester, close);
       expect(find.text('Close document'), findsOneWidget);
       expect(find.byType(Kbd), findsOneWidget);
+    });
+
+    testWidgets('without onClose, a reason draws the close button disabled '
+        'with that reason (G10)', (tester) async {
+      final handle = tester.ensureSemantics();
+      const reason = 'Available in a future version';
+      var presses = 0;
+      await tester.pumpWidget(
+        componentHost(
+          _tab(
+            'Kira sözleşmesi.pdf',
+            active: true,
+            onPressed: () => presses++,
+            closeDisabledReason: reason,
+          ),
+        ),
+      );
+      final close = find.byWidgetPredicate(
+        (widget) => widget is Icon && widget.name == IconName.x,
+      );
+      expect(close, findsOneWidget);
+      final iconButton = tester.widget<IconButton>(find.byType(IconButton));
+      expect(iconButton.size, IconButtonSize.xs);
+      expect(iconButton.onPressed, isNull);
+      expect(iconButton.disabledReason, reason);
+      expect(iconButton.label, 'Close document');
+      final button = find
+          .ancestor(of: close, matching: find.byType(AnimatedContainer))
+          .first;
+      expect(tester.getSize(button), const Size(22, 22));
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Close document')),
+        matchesSemantics(
+          label: 'Close document',
+          hint: reason,
+          isButton: true,
+          hasEnabledState: true,
+          isFocusable: true,
+          hasFocusAction: true,
+        ),
+      );
+      // The disabled button takes no tap: it falls through to the tab
+      // below, which is already the active one.
+      await tester.tap(close);
+      expect(presses, 1);
+      await _hover(tester, close);
+      expect(find.text(reason), findsOneWidget);
+
+      // An unsaved tab shows its dot instead, reason or not; an idle tab
+      // keeps the space empty.
+      for (final tab in [
+        _tab('a.pdf', active: true, unsaved: true, closeDisabledReason: reason),
+        _tab('a.pdf', closeDisabledReason: reason),
+      ]) {
+        await tester.pumpWidget(componentHost(tab));
+        expect(close, findsNothing);
+      }
+      handle.dispose();
     });
 
     testWidgets('idle clean tabs keep the close space empty', (tester) async {

@@ -35,8 +35,10 @@ import 'package:intl/intl.dart' show Bidi;
 /// - **Close:** the active clean tab shows the extra-small close
 ///   IconButton (the design's xs IconButton "Close document") that calls
 ///   [onClose], with [closeLabel] and the platform [closeShortcut] (⌘W,
-///   Ctrl+W) in its tooltip. Idle clean tabs keep its space empty, as
-///   drawn.
+///   Ctrl+W) in its tooltip. Without [onClose] but with
+///   [closeDisabledReason], the button is drawn disabled with that reason
+///   as its tooltip and semantics hint (G10), so an unfinished close stays
+///   visible as drawn. Idle clean tabs keep its space empty, as drawn.
 ///
 /// The name is ellipsized and takes its own direction (`dir="auto"`); the
 /// full name shows in a tooltip over the icon and name (the design's
@@ -67,6 +69,7 @@ class DocumentTab extends StatefulWidget {
     this.icon = IconName.fileText,
     this.onPressed,
     this.onClose,
+    this.closeDisabledReason,
     this.closeShortcut,
     this.spinner,
     this.focusNode,
@@ -91,8 +94,15 @@ class DocumentTab extends StatefulWidget {
   /// Called when the tab is activated; null makes it inert.
   final VoidCallback? onPressed;
 
-  /// Called by the close button of the active clean tab; null hides it.
+  /// Called by the close button of the active clean tab; null hides it,
+  /// unless [closeDisabledReason] is given.
   final VoidCallback? onClose;
+
+  /// Disables the close button with this reason as its tooltip (shown when
+  /// [onClose] is null): the localized "Available in a future version"
+  /// while closing documents does not exist yet (G10). Not a design-system
+  /// prop.
+  final String? closeDisabledReason;
 
   /// The localized "Unsaved changes", read after the name when [unsaved].
   /// Not a design-system prop.
@@ -140,6 +150,7 @@ class DocumentTab extends StatefulWidget {
     icon: icon,
     onPressed: onPressed,
     onClose: onClose,
+    closeDisabledReason: closeDisabledReason,
     closeShortcut: closeShortcut,
     spinner: spinner,
     focusNode: node,
@@ -161,6 +172,13 @@ class DocumentTab extends StatefulWidget {
       )
       ..add(
         FlagProperty('closable', value: onClose != null, ifTrue: 'closable'),
+      )
+      ..add(
+        StringProperty(
+          'closeDisabledReason',
+          closeDisabledReason,
+          defaultValue: null,
+        ),
       );
   }
 }
@@ -261,7 +279,8 @@ class _DocumentTabState extends State<DocumentTab> {
           ),
         ),
       );
-    } else if (active && widget.onClose != null) {
+    } else if (active &&
+        (widget.onClose != null || widget.closeDisabledReason != null)) {
       trailing = Focus(
         parentNode: _parentFocus,
         canRequestFocus: false,
@@ -273,6 +292,9 @@ class _DocumentTabState extends State<DocumentTab> {
           size: IconButtonSize.xs,
           shortcut: widget.closeShortcut,
           onPressed: widget.onClose,
+          disabledReason: widget.onClose == null
+              ? widget.closeDisabledReason
+              : null,
         ),
       );
     } else {

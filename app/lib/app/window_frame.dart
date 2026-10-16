@@ -3,7 +3,9 @@ import 'dart:async';
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind, kPrimaryButton;
@@ -12,6 +14,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The frame of every desktop screen: Ferman's own title bar above [child]
 /// (the FmWindow header, M1 phase H1).
+///
+/// The window's own keys from the shortcut table (⌘M and ⌘Q on macOS,
+/// Alt+F4 on Windows and Linux, Ctrl+Q on Linux) work on every screen it
+/// frames, through [WindowCommandScope].
 ///
 /// Where the app draws no title bar of its own (the web, mobile, see
 /// [DesktopWindow.platform]) the frame is just [child].
@@ -32,12 +38,19 @@ class WindowFrame extends ConsumerWidget {
     final window = ref.watch(desktopWindowProvider);
     final platform = window.platform;
     if (platform == null) return child;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      children: [
-        TitleBar(window: window, platform: platform, content: titleBarContent),
-        Expanded(child: child),
-      ],
+    return WindowCommandScope(
+      window: window,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          TitleBar(
+            window: window,
+            platform: platform,
+            content: titleBarContent,
+          ),
+          Expanded(child: child),
+        ],
+      ),
     );
   }
 }
@@ -53,7 +66,8 @@ class WindowFrame extends ConsumerWidget {
 /// - **Windows and Linux:** an 8 px gap at the start and the caption
 ///   buttons at the end (G15, Q12). On Windows the maximize button's area
 ///   answers the system's hit test as the maximize button, so Windows 11
-///   shows its snap layouts there.
+///   shows its snap layouts there, except while a modal covers the window
+///   ([ModalScope]): its scrim lies over the bar, so the area is Flutter's.
 ///
 /// The bar's empty space moves the window, and a double-click there does
 /// what the system does on a title bar ([DesktopWindow.titleBarDoubleClicked]),
@@ -95,6 +109,10 @@ class TitleBar extends StatefulWidget {
 class _TitleBarState extends State<TitleBar> {
   TrafficLightLayout? _sentLayout;
 
+  /// Whether a modal covers the window ([ModalScope]): its scrim, in the
+  /// root overlay, lies over the bar too.
+  bool _modalOpen = ModalScope.isOpen;
+
   // The last primary press on the empty space, for counting double-clicks.
   Duration? _lastPressTime;
   Offset? _lastPressPosition;
@@ -124,9 +142,28 @@ class _TitleBarState extends State<TitleBar> {
   }
 
   @override
+  void initState() {
+    super.initState();
+    ModalScope.openCount.addListener(_onModalCountChanged);
+  }
+
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
     _sendTrafficLightLayout();
+  }
+
+  /// While a modal is open, the Windows maximize button gives its snap-
+  /// layout area (and the top resize edge over the bar) back to Flutter, so
+  /// the scrim takes the pointer there as everywhere else; once the last
+  /// modal closes, the button reports its rectangle again.
+  void _onModalCountChanged() {
+    final open = ModalScope.isOpen;
+    if (open == _modalOpen) return;
+    if (open && widget.platform == WindowPlatform.win) {
+      unawaited(widget.window.setMaximizeButtonRect(null));
+    }
+    setState(() => _modalOpen = open);
   }
 
   @override
@@ -138,6 +175,7 @@ class _TitleBarState extends State<TitleBar> {
 
   @override
   void dispose() {
+    ModalScope.openCount.removeListener(_onModalCountChanged);
     if (widget.platform == WindowPlatform.win) {
       unawaited(widget.window.setMaximizeButtonRect(null));
     }
@@ -212,7 +250,8 @@ class _TitleBarState extends State<TitleBar> {
                   if (maximizeButton.hovered) WidgetState.hovered,
                   if (maximizeButton.pressed) WidgetState.pressed,
                 },
-                onMaximizeButtonRect: widget.platform == WindowPlatform.win
+                onMaximizeButtonRect:
+                    widget.platform == WindowPlatform.win && !_modalOpen
                     ? window.setMaximizeButtonRect
                     : null,
               ),

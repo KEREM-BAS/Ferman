@@ -1,12 +1,20 @@
 import 'package:ferman/app/router.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The root widget. This file and `lib/design/` are the only places allowed
 /// to import Material: the app uses Ferman's own components everywhere else.
+///
+/// Direction: the chosen language's ([AppLanguage.textDirection]), set
+/// below the localizations and above the router, so every route, popup and
+/// the title bar follow it. It equals the localizations' own for English,
+/// Turkish and Arabic; Persian and Hebrew, whose strings fall back to
+/// English (`appLocaleProvider`), still mirror the UI (G20, ADR 0014).
 ///
 /// Theme: the light and dark [FermanMaterialTheme]s, switched by
 /// `themeModeProvider` (match system, light, dark) while the app runs. One
@@ -22,6 +30,7 @@ class FermanApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    final direction = ref.watch(appLanguageProvider).textDirection;
     final motion = FermanTheme.motionFor(
       reduceMotion: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
     );
@@ -30,6 +39,7 @@ class FermanApp extends ConsumerWidget {
       debugShowCheckedModeBanner: false,
       localizationsDelegates: AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
+      locale: ref.watch(appLocaleProvider),
       theme: FermanMaterialTheme.light,
       darkTheme: FermanMaterialTheme.dark,
       themeMode: switch (ref.watch(themeModeProvider)) {
@@ -46,9 +56,12 @@ class FermanApp extends ConsumerWidget {
         duration: motion.durBase,
         curve: motion.easeOut,
       ),
-      builder: (context, child) => FermanThemeScope(
-        touch: FermanThemeScope.isTouchPlatform(Theme.of(context).platform),
-        child: _AppSurface(child: child),
+      builder: (context, child) => Directionality(
+        textDirection: direction,
+        child: FermanThemeScope(
+          touch: FermanThemeScope.isTouchPlatform(Theme.of(context).platform),
+          child: _AppSurface(child: child),
+        ),
       ),
       routerConfig: ref.watch(routerProvider),
     );

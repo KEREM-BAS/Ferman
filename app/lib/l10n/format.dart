@@ -31,6 +31,9 @@ import 'package:intl/number_symbols_data.dart';
 /// - A unit follows its number after U+00A0 NO-BREAK SPACE, so the pair
 ///   never wraps: "10,5 pt", "210 × 297 mm", "24,6 MB". Unit symbols are
 ///   international and not translated ([LengthUnit.symbol]).
+/// - Percentages take the region's sign and its place ([percent]): "%40"
+///   (Türkiye), "40%" (United States), "٤٠٪؜" (Saudi Arabia), as CLDR
+///   writes them (G34, G74).
 ///
 /// The strings carry no direction marks of their own beyond what CLDR puts
 /// in them (the Arabic date has U+200F RIGHT-TO-LEFT MARK after the day and
@@ -70,6 +73,7 @@ final class RegionFormat {
   final DateFormat _date;
   final DateFormat _time;
   final Map<int, NumberFormat> _decimals = {};
+  final Map<int, NumberFormat> _percents = {};
 
   /// An integer with the region's grouping: "18.500" (Türkiye), "18,500"
   /// (United States), "١٨٬٥٠٠" (Saudi Arabia); "1500" but "15.000" (Spain).
@@ -97,6 +101,26 @@ final class RegionFormat {
             _minimumGroupedIntegerDigits
         ? ungrouped
         : grouped.format(value);
+  }
+
+  /// [value] percent with the region's percent sign in its place and at
+  /// most [maxFractionDigits] decimals: "%40" (Türkiye), "40%" (United
+  /// States), "40 %" with U+00A0 (Germany), "٤٠٪؜" (Saudi Arabia, CLDR's
+  /// Arabic percent sign U+066A with U+061C ARABIC LETTER MARK), as zoom
+  /// levels show (G34, G74). [value] is the percentage itself: 40 for 40 %.
+  /// Grouped like [decimal]: "6400 %" in Spain, "%6.400" in Türkiye.
+  String percent(num value, {int maxFractionDigits = 0}) {
+    final fraction = value / 100;
+    final grouped = _percentFormat(maxFractionDigits);
+    if (!_groupsFromFiveDigits) return grouped.format(fraction);
+    final ungrouped = _percentFormat(
+      maxFractionDigits,
+      grouping: false,
+    ).format(fraction);
+    return _integerDigits(ungrouped, grouped.symbols.ZERO_DIGIT) <
+            _minimumGroupedIntegerDigits
+        ? ungrouped
+        : grouped.format(fraction);
   }
 
   /// A font size in points, with at most one decimal: "10,5 pt" (Türkiye),
@@ -210,6 +234,17 @@ final class RegionFormat {
     final min = minFractionDigits.clamp(0, max);
     final key = (min << 8 | max) << 1 | (grouping ? 1 : 0);
     return _decimals[key] ??= _newDecimalFormat(min, max, grouping: grouping);
+  }
+
+  NumberFormat _percentFormat(int maxFractionDigits, {bool grouping = true}) {
+    final max = maxFractionDigits < 0 ? 0 : maxFractionDigits;
+    final key = max << 1 | (grouping ? 1 : 0);
+    return _percents[key] ??= () {
+      final format = NumberFormat.percentPattern(region.formatLocale)
+        ..maximumFractionDigits = max;
+      if (!grouping) format.turnOffGrouping();
+      return format;
+    }();
   }
 
   NumberFormat _newDecimalFormat(int min, int max, {required bool grouping}) {

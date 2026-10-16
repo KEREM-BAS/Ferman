@@ -142,7 +142,7 @@ is a path package and is not counted.
 | go_router | Navigation | 18.1.0 (2026-10-14) | BSD-3-Clause | ok | M1 | Publisher flutter.dev. |
 | intl | Messages, dates and numbers | 0.20.3 | BSD-3-Clause | ok | M1 | flutter_localizations requires `^0.20.3`. Publisher dart.dev. |
 | flutter_localizations | Framework localisations and RTL support | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | Used with gen-l10n ([ADR 0014](adr/0014-localization-and-rtl.md)). |
-| path_provider | App support, cache and data directories | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
+| path_provider | App support, cache and data directories; the settings file lives in the app support directory | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
 | window_manager | Custom title bars, window size and state | 0.5.2 | MIT | ok | M1 | Publisher leanflutter.dev. Windows, macOS and Linux only. Pulls screen_retriever 0.2.2 (MIT). |
 | path_parsing | Parses the icons' SVG path data for the Icon widget's `CustomPainter` | 1.1.0 (2024-11-01) | MIT | ok | M1 | Publisher flutter.dev (flutter/packages, `third_party/packages/path_parsing`); its LICENSE is the MIT text. Depends on meta and vector_math 2.4.0 (both BSD-3-Clause). Replaces flutter_svg ([section 4](#4-rejected), [ADR 0013](adr/0013-fonts-and-icons.md)). |
 | flutter_rust_bridge (Dart) | Dart side of the bridge | 2.13.0 | MIT | ok | M1 | Same version as the crate and the codegen. Publisher cjycode.com. |
@@ -309,11 +309,10 @@ None of these ship. They never appear in the shipped dependency graph
 ### 3.11 Flutter and Dart packages
 
 The M1 packages are in use ([section 2.2](#22-dart-and-flutter-packages-app)); flutter_svg was
-dropped ([section 4](#4-rejected)).
+dropped and shared_preferences was not chosen ([section 4](#4-rejected)).
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| shared_preferences | UI preferences, if chosen | 2.5.6 (2026-10-05) | BSD-3-Clause | ok | M1 | Only if M1 step 9 chooses it. The alternative is a settings file owned by the Rust core and shared with the CLI ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Use the `SharedPreferencesAsync` API. |
 | desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
 | file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md) (Proposed, [Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
@@ -374,7 +373,6 @@ These needs are known. The dependency is picked, and its licence checked, in the
 
 | Need | First milestone | Notes |
 |---|---|---|
-| Settings storage | M1 | shared_preferences, or a Rust-side settings file shared with the CLI (M1 step 9). |
 | UAX #14 line breaker | M3 | Chosen in M3 step 5. |
 | File-change notification | M3 | **Proposed** for external-change detection; chosen in M3 step 8. |
 | Adobe Glyph List, standard-14 AFM metrics, predefined CJK CMaps | M3 | Data files. Added only after their licences are checked and listed here. |
@@ -412,6 +410,7 @@ These needs are known. The dependency is picked, and its licence checked, in the
 | google_fonts | pub | not checked | not checked | Fetches fonts at run time, a network use the brief does not allow ([ADR 0015](adr/0015-privacy-and-network.md)). | **Proposed** pub deny list in CI from M1 step 2 ([section 8](#8-dart-licence-check)) |
 | @ibm/plex npm packages | npm | 6.4.1 | OFL-1.1 | They hold only CSS, SCSS, WOFF and WOFF2 files (no TTF or OTF) and run an IBM telemetry script on install. Fonts come from IBM's GitHub releases instead. | review |
 | flutter_svg, vector_graphics | pub | 2.3.0; 1.2.3 | MIT; BSD-3-Clause | Both depend on `http` (`^1.0.0`) and import `package:http` for their network loaders (`SvgPicture.network`), and the network deny list forbids HTTP clients in the app graph ([ADR 0015](adr/0015-privacy-and-network.md)). Dropped in M1 (`246d6df`, lead decision of 2026-10-15): the icons are painted from generated path data with path_parsing ([section 2.2](#22-dart-and-flutter-packages-app), [ADR 0013](adr/0013-fonts-and-icons.md)). | `tools/checks` `pub_denylist` fails on `http` in `app/pubspec.lock` (**Proposed**) |
+| shared_preferences | pub | 2.5.6 | BSD-3-Clause | The licence is fine, but M1 step 9 chose its own settings file instead. On macOS shared_preferences writes to the user's preferences domain, outside the app data directory. `FileSettingsStore` (`app/lib/settings/settings_store_io.dart`) keeps `AppSettings` as versioned JSON in `settings.json` in the app support directory that path_provider reports, written with dart:io through a temporary file, a flush and a rename ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)). The web build keeps settings in memory until phase 5. | not in `pubspec.yaml`; review |
 | Playwright's ffmpeg build | CDN download | 1011 | LGPL-2.1 | `npx playwright-core install` downloads it with every Chromium, the headless shell included. The renderer never records video, so it is not needed, and an LGPL download is avoided rather than reviewed. | Ferman never runs the Playwright installer; `tools/design-refs/fetch-chromium.sh` downloads only the headless shell |
 | dtolnay/rust-toolchain | GitHub Action | no versioned releases | MIT | Not needed: `rustup toolchain install` reads `rust-toolchain.toml`, so CI has one third-party action fewer. | review |
 
@@ -540,7 +539,7 @@ Devanagari text comes from Plex Sans.
 | `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
 | Rust crates | per crate | Generated by cargo-about. | M4 |
 | PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 24 texts), which `bootstrap()` calls. | M1 to M4 |
-| Unicode Character Database 15.0 and CLDR data (case tables in app/lib/l10n/casing.dart, territory lists in app/lib/l10n/region.dart, grouping and date-time tables in app/lib/l10n/format.dart, SpecialCasing lines, ICU results and CLDR 48 formats in app/test/l10n/) | Unicode-3.0 | The Unicode License V3 that opens assets/licenses/pdfium/icu.txt, also registered under "Unicode data (UCD and CLDR)" | M1 |
+| Unicode Character Database 15.0 and CLDR data (case tables in app/lib/l10n/casing.dart, territory lists in app/lib/l10n/region.dart, territory display names and their order per language in app/lib/l10n/region_names.dart (CLDR 48 read through ICU 78.3 in Node.js 24.22.0), grouping and date-time tables in app/lib/l10n/format.dart, SpecialCasing lines, ICU results and CLDR 48 formats in app/test/l10n/) | Unicode-3.0 | The Unicode License V3 that opens assets/licenses/pdfium/icu.txt, also registered under "Unicode data (UCD and CLDR)" | M1 |
 
 ## 6. Toolchain
 

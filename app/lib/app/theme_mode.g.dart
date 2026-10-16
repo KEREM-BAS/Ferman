@@ -57,7 +57,7 @@ final class AppThemeModeNotifierProvider
 }
 
 String _$appThemeModeNotifierHash() =>
-    r'556732103ac36215ab750eac7b931afd76e967ad';
+    r'7b5c6f82fdfe9b8eec23c522c7748bdd892d110c';
 
 /// The current [AppThemeMode], as `themeModeProvider`.
 ///

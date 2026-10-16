@@ -380,7 +380,6 @@ licences re-checked on 2026-10-15); [DEPENDENCIES.md](DEPENDENCIES.md) is the re
 | Dart | window_manager 0.5.2, path_parsing 1.1.0, path_provider 2.1.6 | MIT; MIT; BSD-3-Clause | custom title bars; icon path data for the Icon painter; app directories. flutter_svg is not used: it and vector_graphics depend on `http` ([DEPENDENCIES.md](DEPENDENCIES.md#4-rejected)) |
 | Dart (dev) | alchemist 0.14.1, mocktail 1.0.5 | MIT | goldens (golden_toolkit is discontinued); mocks |
 | Dart | flutter_rust_bridge 2.13.0 | MIT | Dart side of the bridge |
-| Dart | shared_preferences 2.5 | BSD-3-Clause | only if step 9 chooses it for settings |
 | Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24.22.0 LTS, playwright-core 1.56.1, cargo-deny 0.20.2, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0, cargo-expand 1.0.127; the Dart tool packages' args, path, yaml, crypto and test; vendored cargokit (from the flutter_rust_bridge 2.13.0 template) and its build tool's pub packages | various permissive | never shipped; why playwright-core is pinned to 1.56.1 is in step 6 |
 | CI | actions/checkout, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache for the Cargo cache (approved in [Q17](QUESTIONS.md#q17)), actions/setup-node and actions/upload-artifact for the design references and golden failures, actions/cache for the PDFium archives and the codegen tools; the Rust toolchain comes from `rustup toolchain install` | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
 | Assets | IBM Plex TTFs (18 files in six families) | OFL-1.1 | unmodified files, Reserved Font Name "Plex", SHA-256 pinned in `tools/fonts/fonts.lock` ([ADR 0013](adr/0013-fonts-and-icons.md)) |
@@ -744,8 +743,9 @@ Deliverables: `app/lib/features/shell/` with the title bar, document tab strip, 
 row per mode, sidebar, canvas placeholder, right panel and status bar, built from `FmWindow`
 ([G01](DESIGN_GAPS.md#g01)); one shortcut table bound through `Shortcuts` and `Actions`.
 
-- [ ] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px, sidebar
-  216 px, right panel 264 px, status bar 26 px. Goldens line up with the references for `f6` and
+- [ ] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px (45 px
+  with FmWindow's second 1 px line, [G84](DESIGN_GAPS.md#g84)), sidebar 216 px, right panel 264 px,
+  status bar 26 px. Goldens line up with the references for `f6` and
   `f6a` (Windows) and with the chrome of `a2-1b` and `a3-1d` (macOS); every difference is fixed or
   recorded in DESIGN_GAPS.md.
 - [ ] Eight mode tabs in the designed order: View, Edit, Comment, Fill & Sign, Organize, Convert,
@@ -779,7 +779,10 @@ Deliverables: `features/onboarding` (`a1-1`, `a1-2b`, `a1-2c`), `features/start`
 region panes, a Privacy skeleton, the other panes present and disabled); settings storage, chosen
 in this step and recorded in ARCHITECTURE.md as [ADR 0011](adr/0011-flutter-state-navigation-components.md)
 asks (shared_preferences with its async API, or a settings file owned by the Rust core so the CLI and
-later platforms share it).
+later platforms share it). Chosen in phase I1: a versioned JSON file in the app support directory,
+written by Dart through a temporary file and a rename
+([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); shared_preferences was not chosen
+([DEPENDENCIES.md §4](DEPENDENCIES.md#4-rejected)).
 
 - [ ] The start screen matches `a1-5` and `a12-2a` in goldens. Open file…, Create PDF, Combine files,
   Scan to PDF, the quick tools and the drop strip are visible and disabled with the tooltip until
@@ -792,7 +795,8 @@ later platforms share it).
   ([G13](DESIGN_GAPS.md#g13)) and marks unshipped features as coming in a future version
   ([G12](DESIGN_GAPS.md#g12)).
 - [ ] Settings shows the 11 panes of `a11-1`. General: Theme (Match system, Light, Dark) works live
-  and persists across restarts. Language and region (`a11-1b`): app language en, tr or ar; region
+  and persists across restarts. Language and region (`a11-1b`): app language en, tr or ar (the
+  picker lists all 21 languages, the others in English for now, [G20](DESIGN_GAPS.md#g20)); region
   formats with live examples ("13.10.2026", "10,5 pt" for Türkiye). The Windows variant matches
   `a11-1w`, right-to-left matches `a12-2c`. Options that need later milestones are disabled with the
   tooltip.
@@ -801,9 +805,12 @@ later platforms share it).
   row stays visible but disabled until the owner decides [Q06](QUESTIONS.md#q06)
   ([G51](DESIGN_GAPS.md#g51)).
 - [ ] Settings are stored only in the app data directory; nothing leaves the device.
-- [ ] Settings opens as its own window if desktop multi-window is stable in Flutter 3.47.7, otherwise
+- [x] Settings opens as its own window if desktop multi-window is stable in Flutter 3.47.7, otherwise
   as a window-styled surface ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); the
-  choice is recorded.
+  choice is recorded. Evidence: Flutter 3.47.7's windowing API is not stable, so Settings is a
+  window-styled surface at `/settings` (ARCHITECTURE.md §12, [G89](DESIGN_GAPS.md#g89), BACKLOG
+  B090); `app/test/features/settings/settings_screen_test.dart` and
+  `app/test/features/shell/shell_route_test.dart`.
 - [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and R2
   (tracked, not gated).
 
@@ -2237,7 +2244,7 @@ risk first bites.
 | **Zero pixel diff in rare cases**: anti-aliasing at the region edge or shared resources make an edit touch pixels outside its box | M | H | the documented 2-pixel margin (Proposed); copy-on-write for shared resources; a case that cannot reach zero becomes "not editable" with a reason, never a silent pass | M3 | [ADR 0005](adr/0005-block-scoped-text-editing.md) |
 | **Text model errors** on complex layouts: wrong blocks mean wrong edits | M | H | ground truth for generated files; hand-labelled real-world files; conservative editability; every mismatch becomes a case | M3 | [ARCHITECTURE.md §6.4](ARCHITECTURE.md#64-text-model) |
 | **IME and caret on a custom canvas**: CJK composition and dead keys break | M | M | `DeltaTextInputClient` from the first prototype; CJK and Turkish input in integration tests | M3 | [ARCHITECTURE.md §6.12](ARCHITECTURE.md#612-the-ui-side-of-editing) |
-| **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback; native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
+| **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback, which M1 uses for Settings (real windows: [BACKLOG.md](BACKLOG.md) B090); native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; ask for a re-export ([Q11](QUESTIONS.md#q11)) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
 | **Owner decisions pending**: the open questions (Q02, Q06, Q07, Q09 to Q11, Q13, Q15, Q16, Q18 and the open parts of Q08, Q12, Q14 and Q17) and the Proposed ADRs (0009, 0018, and the Proposed details in 0003, 0004, 0006 and 0008) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
 | **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | L | M | approved by the owner on 2026-10-15 as named exceptions only: the `dbus` notice ships with every build, the pub check skips `dbus` by name, `libfuzzer-sys` only in `fuzz/`, rust-cache only in CI and pinned by SHA; any new exception is asked again (brief §9) | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |

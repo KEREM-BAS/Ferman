@@ -89,8 +89,9 @@ final class AppSettings {
   /// the system.
   final String? languageCode;
 
-  /// The region for formats as a region code (`TR`, `US`); null derives it
-  /// from the language and the system (a11-1b).
+  /// The region for formats as a region code (`TR`, `US`); null takes the
+  /// region of the operating system's locale ([Region.fromLocale]); the UI
+  /// language never takes part (G34, a11-1b).
   final String? regionCode;
 
   /// The paper size; null is the region's default.
