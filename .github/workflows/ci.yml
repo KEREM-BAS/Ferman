@@ -44,11 +44,11 @@ jobs:
           else
             echo "CHECKS_BASE=HEAD~1" >> "$GITHUB_ENV"
           fi
-      - name: Dart tools (checks, tokens, icons)
+      - name: Dart tools (checks, tokens, icons, l10n)
         shell: bash
         run: |
           set -euo pipefail
-          for t in checks tokens icons; do
+          for t in checks tokens icons l10n; do
             echo "::group::tools/$t"
             (cd "tools/$t" && dart pub get --enforce-lockfile && dart format --output=none --set-exit-if-changed . && dart analyze --fatal-infos && dart test)
             echo "::endgroup::"
@@ -56,12 +56,13 @@ jobs:
       - name: Repository checks
         working-directory: tools/checks
         run: dart run bin/check_all.dart --root ../..
-      - name: Generated files are current (tokens, icons, component spec)
+      - name: Generated files are current (tokens, icons, component spec, isolated fallback)
         shell: bash
         run: |
           set -euo pipefail
           (cd tools/tokens && dart run bin/tokens.dart --check)
           (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
+          (cd tools/l10n && dart run l10n --check)
       - name: Cache the PDFium archives
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -209,6 +210,7 @@ jobs:
           set -euo pipefail
           flutter pub get --enforce-lockfile
           flutter gen-l10n
+          (cd ../tools/l10n && dart pub get --enforce-lockfile && dart run l10n)
           dart run build_runner build
           dart format lib/l10n/gen
           flutter_rust_bridge_codegen generate

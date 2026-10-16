@@ -3,6 +3,7 @@ import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,6 +16,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// the title bar follow it. It equals the localizations' own for English,
 /// Turkish and Arabic; Persian and Hebrew, whose strings fall back to
 /// English (`appLocaleProvider`), still mirror the UI (G20, ADR 0014).
+///
+/// Strings: for such a right-to-left language without a translation
+/// ([AppLanguage.isolatesFallbackStrings]) the app's localizations take
+/// [IsolatedFallbackLocalizations] first, which `Localizations` loads in
+/// place of `AppLocalizations.delegate` (the first delegate of a type
+/// wins): every English string comes wrapped in a left-to-right isolate,
+/// so it keeps its own order in the mirrored UI ("1 of 2", not "of 2 1";
+/// G93). The swap happens inside the one app-level `Localizations`, so
+/// choosing or leaving Persian or Hebrew reloads the strings in place and
+/// keeps every route's state; a nested `Localizations.override` would add
+/// its own `Directionality` from the English locale and a semantics
+/// container.
 ///
 /// Theme: the light and dark [FermanMaterialTheme]s, switched by
 /// `themeModeProvider` (match system, light, dark) while the app runs. One
@@ -30,14 +43,17 @@ class FermanApp extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final direction = ref.watch(appLanguageProvider).textDirection;
+    final language = ref.watch(appLanguageProvider);
+    final direction = language.textDirection;
     final motion = FermanTheme.motionFor(
       reduceMotion: MediaQuery.maybeDisableAnimationsOf(context) ?? false,
     );
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appName,
       debugShowCheckedModeBanner: false,
-      localizationsDelegates: AppLocalizations.localizationsDelegates,
+      localizationsDelegates: language.isolatesFallbackStrings
+          ? IsolatedFallbackLocalizations.localizationsDelegates
+          : AppLocalizations.localizationsDelegates,
       supportedLocales: AppLocalizations.supportedLocales,
       locale: ref.watch(appLocaleProvider),
       theme: FermanMaterialTheme.light,

@@ -3,6 +3,7 @@ import 'package:ferman/app/router.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/widgets.dart';
@@ -76,7 +77,12 @@ void main() {
         final screen = tester.element(find.byType(StartScreen));
         expect(Directionality.of(screen), TextDirection.rtl);
         expect(Localizations.localeOf(screen), const Locale('en'));
-        expect(find.text('Drop a PDF here'), findsOneWidget);
+        // The English string, in a left-to-right isolate so that it keeps
+        // its own order in the mirrored UI (G93).
+        expect(
+          find.text(IsolatedFallbackLocalizations.isolate('Drop a PDF here')),
+          findsOneWidget,
+        );
       });
     }
 
@@ -102,6 +108,8 @@ void main() {
       final screen = tester.element(find.byType(StartScreen));
       expect(Directionality.of(screen), TextDirection.ltr);
       expect(Localizations.localeOf(screen), const Locale('en'));
+      // Left to right, the English strings need no isolates.
+      expect(find.text('Drop a PDF here'), findsOneWidget);
     });
 
     testWidgets('Arabic keeps its own strings and direction', (tester) async {

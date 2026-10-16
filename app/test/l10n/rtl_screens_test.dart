@@ -92,13 +92,35 @@ int _expectIconMirroring(WidgetTester tester, TextDirection direction) {
   return directional;
 }
 
-/// The global rectangle of each onstage text that appears exactly once.
+/// [text] without the left-to-right isolates that wrap Persian and
+/// Hebrew's English strings (`IsolatedFallbackLocalizations`, G93), so that
+/// they compare with the English screen's; other isolates (`bidiIsolate`'s
+/// first-strong ones) stay.
+String _withoutFallbackIsolates(String text) {
+  final out = StringBuffer();
+  final dropped = <bool>[];
+  for (final rune in text.runes) {
+    if (rune >= 0x2066 && rune <= 0x2068) {
+      dropped.add(rune == 0x2066);
+      if (rune == 0x2066) continue;
+    } else if (rune == 0x2069 && dropped.isNotEmpty) {
+      if (dropped.removeLast()) continue;
+    }
+    out.writeCharCode(rune);
+  }
+  return out.toString();
+}
+
+/// The global rectangle of each onstage text that appears exactly once,
+/// by its text without fallback isolates ([_withoutFallbackIsolates]).
 Map<String, Rect> _uniqueTexts(WidgetTester tester) {
   final rects = <String, Rect>{};
   final repeated = <String>{};
   for (final element in find.byType(RichText).evaluate()) {
     final paragraph = element.renderObject! as RenderParagraph;
-    final text = paragraph.text.toPlainText(includeSemanticsLabels: false);
+    final text = _withoutFallbackIsolates(
+      paragraph.text.toPlainText(includeSemanticsLabels: false),
+    );
     if (text.trim().isEmpty) continue;
     if (rects.containsKey(text)) repeated.add(text);
     rects[text] = MatrixUtils.transformRect(
@@ -337,7 +359,9 @@ void main() {
 
           // Only the horizontal place is compared: a string that differs
           // (the picker's line about the system language) can move what is
-          // below it. A pixel absorbs a reordered full stop's kerning.
+          // below it. Each English string keeps its own order inside its
+          // isolate (G93), so it is the same width; a pixel absorbs
+          // rounding.
           final compared = <String>[];
           final wrong = <String>[];
           void compare(Map<String, Rect> ltr, Map<String, Rect> rtl) {

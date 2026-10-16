@@ -7,6 +7,7 @@ import 'package:ferman/features/onboarding/welcome_step.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/l10n/app_language.dart';
+import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
@@ -366,7 +367,11 @@ void main() {
           localeOf(tester, find.byType(LanguagePicker)),
           const Locale('en'),
         );
-        expect(find.text('Choose a language'), findsOneWidget);
+        // The English strings come in left-to-right isolates (G93).
+        expect(
+          find.text(IsolatedFallbackLocalizations.isolate('Choose a language')),
+          findsOneWidget,
+        );
         expect(tester.takeException(), isNull);
       });
     }

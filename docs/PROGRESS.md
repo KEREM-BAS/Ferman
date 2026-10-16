@@ -191,7 +191,8 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   Arabic, Persian and Hebrew, bundled localizations, and the Proposed pseudo-locale at 140 % on
   every M1 screen at 1440 × 900 and 1024 × 768. They found the first-run feature tiles cutting off
   their labels (now wrapping, [G12](DESIGN_GAPS.md#g12)) and English strings reordering inside the
-  mirrored Persian and Hebrew UI (fix in progress).
+  mirrored Persian and Hebrew UI, now wrapped in left-to-right isolates by a generated class
+  (`tools/l10n`, [G93](DESIGN_GAPS.md#g93)).
 - [ ] Step 11. Golden matrix
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the

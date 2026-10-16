@@ -36,7 +36,7 @@ ferman/
 ├── fuzz/                  (M2) cargo-fuzz workspace, one target per parser
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
 │   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
-├── tools/                 checks/, tokens/, icons/, fonts/, pdfium/, design-refs/ (M1); corpus/ (M2)
+├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); corpus/ (M2)
 ├── tests/corpus/          README.md with provenance (M1); test PDFs from M2
 ├── .github/workflows/     CI on macOS, Windows and Linux
 └── build/                 gitignored output, including build/design-refs/
@@ -73,6 +73,7 @@ bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a 
 (cd tools/checks && dart run bin/check_all.dart --root ../..)   # repository checks CI runs
 (cd tools/tokens && dart run)                 # design tokens → app/lib/design/tokens.g.dart (ADR 0012); CI: dart run tokens --check
 (cd tools/icons && dart run)                  # icons → app/assets/icons, IconName, PROVENANCE.md (ADR 0013); CI: dart run icons --check
+(cd tools/l10n && dart run)                   # after flutter gen-l10n: isolated fallback strings → app/lib/l10n/isolated_fallback.g.dart (G93); CI: dart run l10n --check
 (cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md reference from app/test/design/component_spec.json
 tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage (offline)
 tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     # pinned PDFium → build/pdfium/<id>/

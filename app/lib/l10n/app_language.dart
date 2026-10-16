@@ -106,6 +106,14 @@ enum AppLanguage {
   TextDirection get textDirection =>
       rightToLeft ? TextDirection.rtl : TextDirection.ltr;
 
+  /// Whether the UI wraps each of its strings in a left-to-right isolate
+  /// while this is the app language: a right-to-left language without a
+  /// translation (Persian and Hebrew today). Its UI mirrors, but its strings
+  /// are English, which would reorder in a right-to-left paragraph ("1 of
+  /// 2" as "of 2 1"); `FermanApp` then installs
+  /// `IsolatedFallbackLocalizations` (G93).
+  bool get isolatesFallbackStrings => rightToLeft && !translated;
+
   /// The language as a [Locale], with its script or region subtag.
   Locale get locale {
     final [language, ...rest] = tag.split('-');

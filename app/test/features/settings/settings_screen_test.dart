@@ -10,6 +10,7 @@ import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/format.dart';
+import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/l10n/region.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_store.dart';
@@ -391,7 +392,11 @@ void main() {
         TextDirection.rtl,
       );
       expect(localeOf(tester, find.byType(SettingsScreen)), const Locale('en'));
-      expect(find.text('Settings'), findsOneWidget);
+      // The English strings come in left-to-right isolates (G93).
+      expect(
+        find.text(IsolatedFallbackLocalizations.isolate('Settings')),
+        findsOneWidget,
+      );
       expect(tester.takeException(), isNull);
     });
 
