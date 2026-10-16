@@ -6,6 +6,7 @@ import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart' show PointerDeviceKind, kPrimaryButton;
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -55,9 +56,14 @@ class WindowFrame extends ConsumerWidget {
 ///   shows its snap layouts there.
 ///
 /// The bar's empty space moves the window, and a double-click there does
-/// what the system does on a title bar ([DesktopWindow.titleBarDoubleClicked]).
-/// Controls in [content] keep their own clicks: only the space between them
-/// moves the window.
+/// what the system does on a title bar ([DesktopWindow.titleBarDoubleClicked]),
+/// counted from the presses with the system's double-click interval and
+/// distance ([DesktopWindow.doubleClick]), as a native title bar counts them.
+/// Only a pressed pointer moves the window: a trackpad's two-finger scroll
+/// or pinch over the bar does nothing. Controls in [content] keep their own
+/// clicks: only the space between them moves the window. The empty space is
+/// not in the semantics tree; screen readers reach the window commands
+/// through the caption buttons, the traffic lights and the shortcuts.
 class TitleBar extends StatefulWidget {
   /// The title bar of [window], drawn for [platform].
   const new({
@@ -88,6 +94,34 @@ class TitleBar extends StatefulWidget {
 
 class _TitleBarState extends State<TitleBar> {
   TrafficLightLayout? _sentLayout;
+
+  // The last primary press on the empty space, for counting double-clicks.
+  Duration? _lastPressTime;
+  Offset? _lastPressPosition;
+
+  /// A click on the empty space that did not move: nothing to do (a
+  /// double-click is counted from the presses in [_onPressDown]).
+  void _onClick() {}
+
+  /// Counts a press on the empty space; a second press within the system's
+  /// interval and distance of the first is a double-click.
+  void _onPressDown(PointerDownEvent event) {
+    if (event.buttons != kPrimaryButton) return;
+    final settings = widget.window.doubleClick;
+    final lastTime = _lastPressTime;
+    final lastPosition = _lastPressPosition;
+    if (lastTime != null &&
+        lastPosition != null &&
+        event.timeStamp - lastTime <= settings.interval &&
+        (event.position - lastPosition).distance <= settings.distance) {
+      _lastPressTime = null;
+      _lastPressPosition = null;
+      unawaited(widget.window.titleBarDoubleClicked());
+      return;
+    }
+    _lastPressTime = event.timeStamp;
+    _lastPressPosition = event.position;
+  }
 
   @override
   void didChangeDependencies() {
@@ -205,10 +239,29 @@ class _TitleBarState extends State<TitleBar> {
                 children: [
                   // Behind the controls: only the space between them moves
                   // the window.
-                  GestureDetector(
+                  Listener(
                     behavior: HitTestBehavior.opaque,
-                    onPanStart: (_) => window.startDragging(),
-                    onDoubleTap: window.titleBarDoubleClicked,
+                    onPointerDown: _onPressDown,
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      excludeFromSemantics: true,
+                      // A trackpad's two-finger scroll or pinch arrives as a
+                      // pan with no button down; a title bar never moves on
+                      // it.
+                      supportedDevices: const {
+                        PointerDeviceKind.mouse,
+                        PointerDeviceKind.touch,
+                        PointerDeviceKind.stylus,
+                        PointerDeviceKind.invertedStylus,
+                        PointerDeviceKind.unknown,
+                      },
+                      onPanStart: (_) => window.startDragging(),
+                      // A click that does not move is a click: competing
+                      // for the pointer, the tap keeps the drag from
+                      // starting until the pointer moves, as on a native
+                      // title bar.
+                      onTap: _onClick,
+                    ),
                   ),
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.stretch,

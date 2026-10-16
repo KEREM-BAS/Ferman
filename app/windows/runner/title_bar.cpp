@@ -52,6 +52,21 @@ TitleBar::~TitleBar() {
 void TitleBar::HandleMethodCall(
     const flutter::MethodCall<flutter::EncodableValue>& call,
     std::unique_ptr<flutter::MethodResult<flutter::EncodableValue>> result) {
+  if (call.method_name() == "doubleClickSettings") {
+    // The system's double-click time, and half the double-click rectangle
+    // (the farthest the second click may land from the first) in logical
+    // pixels at the window's DPI.
+    const UINT dpi = FlutterDesktopGetDpiForHWND(flutter_view_);
+    const int rect_width = GetSystemMetricsForDpi(SM_CXDOUBLECLK, dpi);
+    const double scale = dpi / 96.0;
+    result->Success(flutter::EncodableValue(flutter::EncodableMap{
+        {flutter::EncodableValue("interval"),
+         flutter::EncodableValue(static_cast<int32_t>(GetDoubleClickTime()))},
+        {flutter::EncodableValue("distance"),
+         flutter::EncodableValue(rect_width / 2.0 / scale)},
+    }));
+    return;
+  }
   if (call.method_name() != "setMaximizeButtonRect") {
     result->NotImplemented();
     return;

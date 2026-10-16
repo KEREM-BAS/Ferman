@@ -42,6 +42,10 @@ class FakeDesktopWindow implements DesktopWindow {
   ValueListenable<MaximizeButtonState> get maximizeButton =>
       maximizeButtonNotifier;
 
+  /// The double-click settings the title bar counts with.
+  @override
+  DoubleClickSettings doubleClick = DoubleClickSettings.fallback;
+
   @override
   Future<void> minimize() async => calls.add('minimize');
 

@@ -1,6 +1,8 @@
 import 'dart:async';
 
 import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart'
+    show kDoubleTapTimeout, kDoubleTapTouchSlop;
 import 'package:flutter/services.dart';
 
 /// The hover and press state of the Windows maximize button, as the native
@@ -32,6 +34,42 @@ final class MaximizeButtonState {
   @override
   String toString() =>
       'MaximizeButtonState(hovered: $hovered, pressed: $pressed)';
+}
+
+/// When two presses on the title bar make a double-click: within
+/// [interval] of each other and [distance] logical pixels apart, as the
+/// system decides for its own title bars.
+@immutable
+final class DoubleClickSettings {
+  /// Settings with [interval] and [distance].
+  const new({required this.interval, required this.distance});
+
+  /// Flutter's own double-tap values, for when the system's are unknown
+  /// (the web, tests, a runner that does not answer).
+  static const DoubleClickSettings fallback = DoubleClickSettings(
+    interval: kDoubleTapTimeout,
+    distance: kDoubleTapTouchSlop,
+  );
+
+  /// The longest time between the two presses.
+  final Duration interval;
+
+  /// The farthest the second press may land from the first, in logical
+  /// pixels.
+  final double distance;
+
+  @override
+  bool operator ==(Object other) =>
+      other is DoubleClickSettings &&
+      other.interval == interval &&
+      other.distance == distance;
+
+  @override
+  int get hashCode => Object.hash(interval, distance);
+
+  @override
+  String toString() =>
+      'DoubleClickSettings(interval: $interval, distance: $distance)';
 }
 
 /// Where the macOS traffic lights sit under Ferman's own title bar.
@@ -82,6 +120,8 @@ final class TrafficLightLayout {
 ///   zoom buttons where the design draws its lights, and
 ///   [titleBarDoubleClicked] applies the system's double-click setting
 ///   (`MainFlutterWindow`).
+/// - Every desktop: [doubleClickSettings] reports the system's double-click
+///   interval (and distance on Windows and Linux).
 /// - Windows: [setMaximizeButtonRect] makes the area of the Flutter-drawn
 ///   maximize button answer the system's hit test as the maximize button,
 ///   so Windows 11 shows its snap layouts there (`title_bar.cpp`). The
@@ -117,6 +157,33 @@ class PlatformWindowChannel {
   /// window's title bar: zoom (the default), minimize or nothing. macOS
   /// only.
   Future<void> titleBarDoubleClicked() => _invoke('titleBarDoubleClicked');
+
+  /// The system's double-click interval and distance ("doubleClickSettings":
+  /// `interval` in milliseconds, `distance` in logical pixels, either may be
+  /// missing), each falling back to [DoubleClickSettings.fallback]. The
+  /// macOS runner reports the interval, the Windows and Linux runners both.
+  Future<DoubleClickSettings> doubleClickSettings() async {
+    const fallback = DoubleClickSettings.fallback;
+    Object? reply;
+    try {
+      reply = await _channel.invokeMethod<Object?>('doubleClickSettings');
+    } on MissingPluginException {
+      return fallback;
+    } on PlatformException {
+      return fallback;
+    }
+    if (reply is! Map) return fallback;
+    final interval = reply['interval'];
+    final distance = reply['distance'];
+    return DoubleClickSettings(
+      interval: interval is int && interval > 0
+          ? Duration(milliseconds: interval)
+          : fallback.interval,
+      distance: distance is num && distance > 0
+          ? distance.toDouble()
+          : fallback.distance,
+    );
+  }
 
   /// Reports the maximize button's [rect] in logical pixels of the Flutter
   /// view, or null to give the area back to Flutter. Windows only.

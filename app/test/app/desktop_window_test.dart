@@ -7,6 +7,7 @@ import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:window_manager/window_manager.dart' show windowManager;
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -65,6 +66,9 @@ void main() {
     addTearDown(window.dispose);
     await window.start();
     windowManagerCalls.clear();
+    // start also asks the ferman/window channel for the double-click
+    // settings.
+    fermanCalls.clear();
     return window;
   }
 
@@ -145,7 +149,7 @@ void main() {
       final win = await started(WindowPlatform.win);
       await win.titleBarDoubleClicked();
       expect(methods(), ['isMaximized', 'maximize']);
-      expect(fermanCalls, hasLength(1));
+      expect(fermanCalls, isEmpty);
     });
 
     test('passes the native hooks to the ferman/window channel', () async {
@@ -217,11 +221,31 @@ void main() {
     test('stops following the window once disposed', () async {
       final window = WindowManagerDesktopWindow(WindowPlatform.win);
       await window.start();
-      final state = window.state;
+      expect(windowManager.listeners, contains(window));
       window.dispose();
-      // The listener is gone: no call reaches the disposed state.
-      await windowEvent('maximize');
-      expect(() => state.value, returnsNormally);
+      expect(windowManager.listeners, isNot(contains(window)));
+      // An event that still reaches it changes nothing and does not throw.
+      expect(window.onWindowMaximize, returnsNormally);
+    });
+
+    test("start reads the system's double-click settings", () async {
+      messenger.setMockMethodCallHandler(fermanChannel, (call) async {
+        fermanCalls.add(call);
+        return call.method == 'doubleClickSettings'
+            ? {'interval': 500, 'distance': 2.0}
+            : null;
+      });
+      final window = WindowManagerDesktopWindow(WindowPlatform.win);
+      addTearDown(window.dispose);
+      expect(window.doubleClick, DoubleClickSettings.fallback);
+      await window.start();
+      expect(
+        window.doubleClick,
+        const DoubleClickSettings(
+          interval: Duration(milliseconds: 500),
+          distance: 2,
+        ),
+      );
     });
   });
 

@@ -30,6 +30,9 @@
 // is also its top resize edge (window_manager's hidden title bar removes the
 // system's top frame).
 //
+// It also answers "doubleClickSettings" with the system's double-click time
+// and distance, so the title bar counts double-clicks as Windows does.
+//
 // Until the Flutter side reports a rectangle, nothing changes: every message
 // passes through.
 class TitleBar {

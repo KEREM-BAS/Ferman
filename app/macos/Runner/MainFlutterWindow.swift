@@ -31,6 +31,16 @@ class MainFlutterWindow: NSWindow {
 
     RegisterGeneratedPlugins(registry: flutterViewController)
 
+    // Ferman draws its own title bar. Give the window the shape window_manager's
+    // setTitleBarStyle(hidden) gives it before the window first shows: Dart
+    // starts after the window is on screen, so the system title bar would
+    // otherwise flash at every launch. window_manager's later call changes
+    // nothing visible; the overrides below do nothing until the Flutter side
+    // reports the traffic-light layout.
+    titleVisibility = .hidden
+    titlebarAppearsTransparent = true
+    styleMask.insert(.fullSizeContentView)
+
     let channel = FlutterMethodChannel(
       name: "ferman/window",
       binaryMessenger: flutterViewController.engine.binaryMessenger)
@@ -130,6 +140,10 @@ class MainFlutterWindow: NSWindow {
     case "titleBarDoubleClicked":
       performTitleBarDoubleClick()
       result(nil)
+    case "doubleClickSettings":
+      // The interval the user set in System Settings, in milliseconds. AppKit
+      // has no double-click distance setting.
+      result(["interval": Int((NSEvent.doubleClickInterval * 1000).rounded())])
     default:
       result(FlutterMethodNotImplemented)
     }
@@ -198,14 +212,17 @@ class MainFlutterWindow: NSWindow {
     let width = container.bounds.width
 
     // A button's frame is a little larger than the circle it draws; place
-    // the circles, not the frames.
+    // the circles, not the frames, on whole device pixels (half points on a
+    // Retina display).
+    let scale = backingScaleFactor
+    func aligned(_ value: CGFloat) -> CGFloat { (value * scale).rounded() / scale }
     for (index, button) in [close, minimize, zoom].enumerated() {
       let size = button.frame.size
       let offset = layout.leading + CGFloat(index) * (layout.diameter + layout.spacing)
       let circleStart = layout.rightToLeft ? width - offset - layout.diameter : offset
       let origin = NSPoint(
-        x: (circleStart - (size.width - layout.diameter) / 2).rounded(),
-        y: ((layout.titleBarHeight - size.height) / 2).rounded())
+        x: aligned(circleStart - (size.width - layout.diameter) / 2),
+        y: aligned((layout.titleBarHeight - size.height) / 2))
       button.setFrameOrigin(origin)
     }
   }

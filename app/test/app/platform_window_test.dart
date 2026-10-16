@@ -109,6 +109,50 @@ void main() {
       expect(calls.single.arguments, isNull);
     });
 
+    test("reads the system's double-click settings", () async {
+      final window = PlatformWindowChannel();
+      addTearDown(window.dispose);
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        calls.add(call);
+        return {'interval': 500, 'distance': 2.0};
+      });
+      expect(
+        await window.doubleClickSettings(),
+        const DoubleClickSettings(
+          interval: Duration(milliseconds: 500),
+          distance: 2,
+        ),
+      );
+      expect(calls.single.method, 'doubleClickSettings');
+    });
+
+    test('a missing or bad double-click value falls back to Flutter', () async {
+      final window = PlatformWindowChannel();
+      addTearDown(window.dispose);
+      // macOS reports no distance.
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        return {'interval': 450};
+      });
+      expect(
+        await window.doubleClickSettings(),
+        DoubleClickSettings(
+          interval: const Duration(milliseconds: 450),
+          distance: DoubleClickSettings.fallback.distance,
+        ),
+      );
+      messenger.setMockMethodCallHandler(channel, (call) async {
+        return {'interval': 0, 'distance': -1};
+      });
+      expect(await window.doubleClickSettings(), DoubleClickSettings.fallback);
+      messenger.setMockMethodCallHandler(channel, (call) async => 'nonsense');
+      expect(await window.doubleClickSettings(), DoubleClickSettings.fallback);
+      messenger.setMockMethodCallHandler(
+        channel,
+        (call) async => throw PlatformException(code: 'error'),
+      );
+      expect(await window.doubleClickSettings(), DoubleClickSettings.fallback);
+    });
+
     test('does nothing where no runner handles the channel', () async {
       messenger.setMockMethodCallHandler(channel, null);
       final window = PlatformWindowChannel();
@@ -123,6 +167,7 @@ void main() {
       );
       await window.setMaximizeButtonRect(const Rect.fromLTWH(0, 0, 1, 1));
       await window.titleBarDoubleClicked();
+      expect(await window.doubleClickSettings(), DoubleClickSettings.fallback);
     });
 
     test('equality of the state', () {

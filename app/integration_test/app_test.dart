@@ -1,8 +1,11 @@
 import 'package:ferman/app/app.dart';
+import 'package:ferman/app/desktop_window.dart';
+import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_service_frb.dart';
 import 'package:ferman/main.dart' as app;
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
 
@@ -19,6 +22,14 @@ void main() {
     // Integration tests run on the desktop, where bootstrap hides the
     // system title bar and Ferman draws its own.
     expect(find.byType(TitleBar), findsOneWidget);
+    // The runner answered with the system's double-click settings.
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FermanApp)),
+    );
+    expect(
+      container.read(desktopWindowProvider).doubleClick,
+      isNot(DoubleClickSettings.fallback),
+    );
   });
 
   group('engine through the bridge', () {

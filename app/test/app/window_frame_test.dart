@@ -4,6 +4,8 @@ import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/gestures.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -233,13 +235,120 @@ void main() {
       });
 
       testWidgets('a double-click on the empty space does what the system '
-          'does', (tester) async {
+          'does, at once', (tester) async {
         await tester.pumpWidget(bar());
-        await tester.tapAt(empty);
+        await tester.tapAt(empty, kind: PointerDeviceKind.mouse);
         await tester.pump(const Duration(milliseconds: 50));
-        await tester.tapAt(empty);
+        await tester.tapAt(empty, kind: PointerDeviceKind.mouse);
+        // Counted on the second press, as a native title bar does.
+        expect(window.calls, ['titleBarDoubleClicked']);
         await tester.pumpAndSettle();
         expect(window.calls, ['titleBarDoubleClicked']);
+      });
+
+      testWidgets("double-clicks follow the system's interval and distance", (
+        tester,
+      ) async {
+        window.doubleClick = const DoubleClickSettings(
+          interval: Duration(milliseconds: 500),
+          distance: 4,
+        );
+        await tester.pumpWidget(bar());
+        // Presses at given event times, as the platform stamps them.
+        Future<void> press(Offset at, int milliseconds) async {
+          final time = Duration(milliseconds: milliseconds);
+          final gesture = await tester.createGesture(
+            kind: PointerDeviceKind.mouse,
+          );
+          await gesture.down(at, timeStamp: time);
+          await gesture.up(timeStamp: time);
+          await gesture.removePointer();
+        }
+
+        // 400 ms apart: past Flutter's 300 ms, inside the system's 500 ms.
+        await press(empty, 0);
+        await press(empty, 400);
+        expect(window.calls, ['titleBarDoubleClicked']);
+
+        // Too slow.
+        window.calls.clear();
+        await press(empty, 2000);
+        await press(empty, 2600);
+        expect(window.calls, isEmpty);
+
+        // Too far apart.
+        await press(empty, 4000);
+        await press(empty + const Offset(10, 0), 4050);
+        expect(window.calls, isEmpty);
+
+        // After a double-click, a third press starts counting again.
+        await press(empty, 6000);
+        await press(empty, 6050);
+        await press(empty, 6100);
+        expect(window.calls, ['titleBarDoubleClicked']);
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('a secondary click is not part of a double-click', (
+        tester,
+      ) async {
+        await tester.pumpWidget(bar());
+        await tester.tapAt(
+          empty,
+          kind: PointerDeviceKind.mouse,
+          buttons: kSecondaryButton,
+        );
+        await tester.pump(const Duration(milliseconds: 50));
+        await tester.tapAt(empty, kind: PointerDeviceKind.mouse);
+        expect(window.calls, isEmpty);
+        await tester.pumpAndSettle();
+      });
+
+      testWidgets('a mouse drag moves the window; a trackpad scroll does not', (
+        tester,
+      ) async {
+        await tester.pumpWidget(bar());
+        final trackpad = await tester.startGesture(
+          empty,
+          kind: PointerDeviceKind.trackpad,
+        );
+        await tester.pump();
+        await trackpad.panZoomUpdate(empty, pan: const Offset(60, 0));
+        await tester.pump();
+        await trackpad.panZoomEnd();
+        await tester.pumpAndSettle();
+        expect(window.calls, isEmpty);
+
+        await tester.dragFrom(
+          empty,
+          const Offset(60, 0),
+          kind: PointerDeviceKind.mouse,
+        );
+        await tester.pumpAndSettle(const Duration(seconds: 1));
+        expect(window.calls, ['startDragging']);
+      });
+
+      testWidgets('the empty space is not in the semantics tree', (
+        tester,
+      ) async {
+        final semantics = tester.ensureSemantics();
+        await tester.pumpWidget(bar());
+        final nodes = <SemanticsNode>[];
+        void collect(SemanticsNode node) {
+          nodes.add(node);
+          node.visitChildren((child) {
+            collect(child);
+            return true;
+          });
+        }
+
+        collect(tester.getSemantics(find.byType(TitleBar)));
+        for (final node in nodes) {
+          final data = node.getSemanticsData();
+          expect(data.hasAction(SemanticsAction.scrollLeft), isFalse);
+          expect(data.hasAction(SemanticsAction.scrollUp), isFalse);
+        }
+        semantics.dispose();
       });
 
       testWidgets('controls in the content keep their clicks and drags', (

@@ -69,6 +69,10 @@ abstract class DesktopWindow {
   /// Moves the window with the pointer that is down on the title bar.
   Future<void> startDragging();
 
+  /// When two presses on the title bar make a double-click, from the
+  /// system; [DoubleClickSettings.fallback] until it answers.
+  DoubleClickSettings get doubleClick;
+
   /// Does what a double-click on the title bar does on [platform]: the
   /// System Settings choice on macOS (zoom, minimize or nothing), maximize
   /// or restore elsewhere.
@@ -108,6 +112,9 @@ class NoDesktopWindow implements DesktopWindow {
 
   @override
   ValueListenable<MaximizeButtonState> get maximizeButton => _maximizeButton;
+
+  @override
+  DoubleClickSettings get doubleClick => DoubleClickSettings.fallback;
 
   @override
   Future<void> minimize() async {}
@@ -177,6 +184,7 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
   Future<void> start() async {
     windowManager.addListener(this);
     await windowManager.setTitleBarStyle(TitleBarStyle.hidden);
+    _doubleClick = await _channel.doubleClickSettings();
     await _refresh();
   }
 
@@ -186,6 +194,10 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
   @override
   ValueListenable<MaximizeButtonState> get maximizeButton =>
       _channel.maximizeButton;
+
+  @override
+  DoubleClickSettings get doubleClick => _doubleClick;
+  DoubleClickSettings _doubleClick = DoubleClickSettings.fallback;
 
   @override
   Future<void> minimize() => windowManager.minimize();
