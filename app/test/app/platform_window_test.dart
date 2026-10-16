@@ -48,7 +48,18 @@ void main() {
         'leading': 14.0,
         'diameter': 12.0,
         'spacing': 8.0,
+        'rightToLeft': false,
       });
+      await window.setTrafficLightLayout(
+        const TrafficLightLayout(
+          titleBarHeight: 38,
+          leading: 14,
+          diameter: 12,
+          spacing: 8,
+          rightToLeft: true,
+        ),
+      );
+      expect(calls.last.arguments, containsPair('rightToLeft', true));
     });
 
     test('sends the maximize button rectangle, or null to clear it', () async {

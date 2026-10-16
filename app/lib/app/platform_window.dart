@@ -39,12 +39,13 @@ final class MaximizeButtonState {
 final class TrafficLightLayout {
   /// A layout for a title bar [titleBarHeight] tall, with lights of
   /// [diameter], [spacing] apart, the first [leading] from the window's
-  /// leading edge.
+  /// leading edge: the left edge, or the right edge when [rightToLeft].
   const new({
     required this.titleBarHeight,
     required this.leading,
     required this.diameter,
     required this.spacing,
+    this.rightToLeft = false,
   });
 
   /// The title bar's height.
@@ -59,12 +60,17 @@ final class TrafficLightLayout {
   /// The gap between two lights.
   final double spacing;
 
+  /// Whether the UI runs right to left: the lights then sit at the right
+  /// edge with close rightmost (a12-1ar).
+  final bool rightToLeft;
+
   /// The channel arguments.
-  Map<String, double> toArguments() => {
+  Map<String, Object> toArguments() => {
     'titleBarHeight': titleBarHeight,
     'leading': leading,
     'diameter': diameter,
     'spacing': spacing,
+    'rightToLeft': rightToLeft,
   };
 }
 
