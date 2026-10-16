@@ -632,6 +632,21 @@ void main() {
       );
     });
 
+    testWidgets('right to left: the Open shortcut still reads ⌘O', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(zone(), textDirection: TextDirection.rtl),
+      );
+      final shortcut = tester.widget<Text>(find.text('⌘O'));
+      expect(shortcut.textDirection, TextDirection.ltr);
+      // The shortcut follows the label, so it sits on its left.
+      expect(
+        tester.getCenter(find.text('⌘O')).dx,
+        lessThan(tester.getCenter(find.text('Open a PDF')).dx),
+      );
+    });
+
     testWidgets('RecentFile is a value', (tester) async {
       expect(
         const RecentFile(name: 'a', meta: 'b'),

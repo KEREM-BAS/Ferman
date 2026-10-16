@@ -354,6 +354,9 @@ class DropZone extends StatelessWidget {
                             opacity: shortcutOpacity,
                             child: Text(
                               shortcutText,
+                              // Key caps read left to right in every UI
+                              // language: "⌘O", never "O⌘".
+                              textDirection: TextDirection.ltr,
                               style: TextStyle(
                                 fontWeight: theme.typeScale.weightRegular,
                               ),

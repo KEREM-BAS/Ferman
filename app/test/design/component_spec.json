@@ -1819,6 +1819,15 @@
               "default": null,
               "notes": "G10.",
               "declared": false
+            },
+            {
+              "ds": null,
+              "dart": "locale",
+              "type": "Locale?",
+              "required": false,
+              "default": null,
+              "notes": "The locale of the label's text, so Han characters take their regional forms (endonyms, region own names); steers font fallback only.",
+              "declared": false
             }
           ],
           "states": [

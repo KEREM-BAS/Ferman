@@ -19,6 +19,7 @@ class SelectOption<T> {
     required this.label,
     this.disabled = false,
     this.disabledReason,
+    this.locale,
   });
 
   /// The value the option stands for.
@@ -35,16 +36,24 @@ class SelectOption<T> {
   /// so the reason can be read; plain disabled options are skipped.
   final String? disabledReason;
 
+  /// The locale of [label]'s text in the box and the list, so Han
+  /// characters take their regional forms (a language's own name, "繁體中文",
+  /// or a region's, "台灣"); null takes the surrounding text's. It steers
+  /// font fallback only, never the direction. Not a design-system prop.
+  final Locale? locale;
+
   @override
   bool operator ==(Object other) =>
       other is SelectOption<T> &&
       other.value == value &&
       other.label == label &&
       other.disabled == disabled &&
-      other.disabledReason == disabledReason;
+      other.disabledReason == disabledReason &&
+      other.locale == locale;
 
   @override
-  int get hashCode => Object.hash(value, label, disabled, disabledReason);
+  int get hashCode =>
+      Object.hash(value, label, disabled, disabledReason, locale);
 
   @override
   String toString() => 'SelectOption($value, $label)';
@@ -327,6 +336,7 @@ class _SelectState<T> extends State<Select<T>> {
     final selected = _selectedIndex;
     final icon = widget.icon;
     final text = selected >= 0 ? widget.options[selected].label : '';
+    final textLocale = selected >= 0 ? widget.options[selected].locale : null;
     // `.fm-input > svg { color: var(--icon-secondary) }` sets the colour on
     // the svg itself, so `.fm-input--disabled` does not reach it.
     final iconColor = colors.iconSecondary;
@@ -355,6 +365,10 @@ class _SelectState<T> extends State<Select<T>> {
                 maxLines: 1,
                 softWrap: false,
                 overflow: TextOverflow.ellipsis,
+                style: textLocale == null
+                    ? null
+                    : DefaultTextStyle.of(context).style
+                          .copyWith(locale: textLocale),
               ),
             ),
           ),
@@ -546,6 +560,7 @@ class _SelectRow extends StatelessWidget {
                         color: disabled
                             ? colors.textDisabled
                             : colors.textPrimary,
+                        locale: option.locale,
                       ),
                     ),
                   ),

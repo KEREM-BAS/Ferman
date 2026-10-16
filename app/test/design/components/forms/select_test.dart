@@ -653,5 +653,36 @@ void main() {
       await tester.pumpWidget(host(select(value: null)));
       expect(find.text('Continuous scroll'), findsNothing);
     });
+
+    testWidgets("an option's locale reaches its text in the box and the list", (
+      tester,
+    ) async {
+      const traditional = Locale.fromSubtags(
+        languageCode: 'zh',
+        scriptCode: 'Hant',
+      );
+      await tester.pumpWidget(
+        host(
+          Select<String>(
+            options: const [
+              SelectOption(value: 'en', label: 'English'),
+              SelectOption(value: 'zh', label: '繁體中文', locale: traditional),
+            ],
+            value: 'zh',
+            onChanged: (_) {},
+          ),
+        ),
+      );
+      TextStyle? styleOf(String label, {bool last = false}) {
+        final finder = find.text(label);
+        return tester.widget<Text>(last ? finder.last : finder.first).style;
+      }
+
+      expect(styleOf('繁體中文')?.locale, traditional);
+      await open(tester);
+      expect(styleOf('繁體中文', last: true)?.locale, traditional);
+      // An option without a locale keeps the theme's text locale.
+      expect(styleOf('English', last: true)?.locale, const Locale('en'));
+    });
   });
 }

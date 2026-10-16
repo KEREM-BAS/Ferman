@@ -906,6 +906,7 @@ Item type `SelectOption` → `SelectOption<T>` (declared in the lint config):
 | `label` | yes | `label` | `String` (required) |  |  |  |
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
 | — |  | `disabledReason` | `String?` |  |  | G10. |
+| — |  | `locale` | `Locale?` |  |  | The locale of the label's text, so Han characters take their regional forms (endonyms, region own names); steers font fallback only. |
 
 Item states:
 
