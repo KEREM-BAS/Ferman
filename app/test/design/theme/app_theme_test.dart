@@ -53,8 +53,8 @@ void main() {
   ) async {
     final container = await _pumpApp(tester);
     final screen = tester.state(find.byType(Navigator));
-    final notifier = container.read(themeModeProvider.notifier)
-      ..select(AppThemeMode.dark);
+    final notifier = container.read(themeModeProvider.notifier);
+    await notifier.select(AppThemeMode.dark);
     await tester.pumpAndSettle();
     expect(_ferman(tester).colors, same(FermanColorTokens.dark));
     expect(_ferman(tester).isDark, isTrue);
@@ -64,12 +64,12 @@ void main() {
       FermanColorTokens.dark.textPrimary,
     );
 
-    notifier.select(AppThemeMode.light);
+    await notifier.select(AppThemeMode.light);
     await tester.pumpAndSettle();
     expect(_ferman(tester).colors, same(FermanColorTokens.light));
 
     // Match system follows the platform brightness as it changes.
-    notifier.select(AppThemeMode.system);
+    await notifier.select(AppThemeMode.system);
     await tester.pumpAndSettle();
     tester.platformDispatcher.platformBrightnessTestValue = Brightness.dark;
     await tester.pumpAndSettle();
@@ -86,7 +86,7 @@ void main() {
 
   testWidgets('the switch animates over the base duration', (tester) async {
     final container = await _pumpApp(tester);
-    container.read(themeModeProvider.notifier).select(AppThemeMode.dark);
+    await container.read(themeModeProvider.notifier).select(AppThemeMode.dark);
     await tester.pump();
     final half = FermanMotionTokens.standard.durBase ~/ 2;
     await tester.pump(half);
@@ -111,7 +111,7 @@ void main() {
     expect(motion.durBase, Duration.zero);
     expect(motion.durSlow, Duration.zero);
 
-    container.read(themeModeProvider.notifier).select(AppThemeMode.dark);
+    await container.read(themeModeProvider.notifier).select(AppThemeMode.dark);
     await tester.pump();
     expect(_ferman(tester).colors, same(FermanColorTokens.dark));
     expect(tester.hasRunningAnimations, isFalse);

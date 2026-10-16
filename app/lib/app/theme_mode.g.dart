@@ -10,25 +10,25 @@ part of 'theme_mode.dart';
 // ignore_for_file: type=lint, type=warning
 /// The current [AppThemeMode], as `themeModeProvider`.
 ///
-/// The app restyles at once when it changes, without a restart. It is held
-/// in memory for now and starts at [AppThemeMode.system]; the settings store
-/// (M1 step 9) loads and persists it.
+/// The app restyles at once when it changes, without a restart. It is the
+/// theme of the stored settings (`settingsProvider`), so a choice persists
+/// across restarts.
 
 @ProviderFor(AppThemeModeNotifier)
 final themeModeProvider = AppThemeModeNotifierProvider._();
 
 /// The current [AppThemeMode], as `themeModeProvider`.
 ///
-/// The app restyles at once when it changes, without a restart. It is held
-/// in memory for now and starts at [AppThemeMode.system]; the settings store
-/// (M1 step 9) loads and persists it.
+/// The app restyles at once when it changes, without a restart. It is the
+/// theme of the stored settings (`settingsProvider`), so a choice persists
+/// across restarts.
 final class AppThemeModeNotifierProvider
     extends $NotifierProvider<AppThemeModeNotifier, AppThemeMode> {
   /// The current [AppThemeMode], as `themeModeProvider`.
   ///
-  /// The app restyles at once when it changes, without a restart. It is held
-  /// in memory for now and starts at [AppThemeMode.system]; the settings store
-  /// (M1 step 9) loads and persists it.
+  /// The app restyles at once when it changes, without a restart. It is the
+  /// theme of the stored settings (`settingsProvider`), so a choice persists
+  /// across restarts.
   AppThemeModeNotifierProvider._()
     : super(
         from: null,
@@ -57,13 +57,13 @@ final class AppThemeModeNotifierProvider
 }
 
 String _$appThemeModeNotifierHash() =>
-    r'ab5a7821bdae339b810698cd7c4fedacd576f75b';
+    r'556732103ac36215ab750eac7b931afd76e967ad';
 
 /// The current [AppThemeMode], as `themeModeProvider`.
 ///
-/// The app restyles at once when it changes, without a restart. It is held
-/// in memory for now and starts at [AppThemeMode.system]; the settings store
-/// (M1 step 9) loads and persists it.
+/// The app restyles at once when it changes, without a restart. It is the
+/// theme of the stored settings (`settingsProvider`), so a choice persists
+/// across restarts.
 
 abstract class _$AppThemeModeNotifier extends $Notifier<AppThemeMode> {
   AppThemeMode build();

@@ -1,3 +1,7 @@
+import 'package:ferman/settings/settings_providers.dart';
+import 'package:ferman/settings/settings_store.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'theme_mode.g.dart';
@@ -20,18 +24,26 @@ enum AppThemeMode {
 
 /// The current [AppThemeMode], as `themeModeProvider`.
 ///
-/// The app restyles at once when it changes, without a restart. It is held
-/// in memory for now and starts at [AppThemeMode.system]; the settings store
-/// (M1 step 9) loads and persists it.
+/// The app restyles at once when it changes, without a restart. It is the
+/// theme of the stored settings (`settingsProvider`), so a choice persists
+/// across restarts.
 @Riverpod(keepAlive: true, name: 'themeModeProvider')
 class AppThemeModeNotifier extends _$AppThemeModeNotifier {
   @override
-  AppThemeMode build() => AppThemeMode.system;
+  AppThemeMode build() =>
+      ref.watch(settingsProvider.select((settings) => settings.themeMode));
 
-  /// Switches the appearance to [mode]; nothing happens when it is the
-  /// current one.
-  void select(AppThemeMode mode) {
+  /// Switches the appearance to [mode] and stores it; nothing happens when
+  /// it is the current one. The app restyles even if storing fails; the
+  /// choice then lasts for this session (see [SettingsNotifier.change]).
+  Future<void> select(AppThemeMode mode) async {
     if (mode == state) return;
-    state = mode;
+    try {
+      await ref
+          .read(settingsProvider.notifier)
+          .change((settings) => settings.copyWith(themeMode: mode));
+    } on SettingsStoreException {
+      // Kept for this session; Settings reports storage problems (step 9).
+    }
   }
 }
