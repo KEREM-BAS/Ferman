@@ -6,6 +6,7 @@ import 'package:checks/src/checks/action_pins.dart';
 import 'package:checks/src/checks/arb_parity.dart';
 import 'package:checks/src/checks/bridge_imports.dart';
 import 'package:checks/src/checks/build_untracked.dart';
+import 'package:checks/src/checks/component_spec.dart';
 import 'package:checks/src/checks/crate_graph.dart';
 import 'package:checks/src/checks/design_untouched.dart';
 import 'package:checks/src/checks/frb_versions.dart';
@@ -30,6 +31,8 @@ const List<Check> allChecks = [
   PubDenylistCheck(),
   FrbVersionsCheck(),
   BridgeImportsCheck(),
+  // Every component of the spec exists with the spec's names (M1 G10).
+  ComponentSpecCheck(),
   // S6: the Flutter conventions of brief §6 in app/lib (ADR 0011, 0012,
   // 0014), with the reviewed exceptions in s6_allowlist.dart.
   S6MaterialImportsCheck(),
