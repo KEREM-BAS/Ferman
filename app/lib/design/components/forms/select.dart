@@ -253,26 +253,28 @@ class _SelectState<T> extends State<Select<T>> {
     final next = _step(from, direction);
     if (next == from) return;
     setState(() => _highlight = next);
-    _reveal(
-      next > from
-          ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
-          : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
-    );
+    _reveal();
   }
 
   /// Scrolls the highlighted row into view after the frame, only as far as
-  /// [policy] needs: not at all when it is in view, else to the edge it
-  /// crossed.
-  void _reveal([
-    ScrollPositionAlignmentPolicy policy =
-        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
-  ]) {
+  /// it needs: not at all when it is in view, else to the edge it lies
+  /// past, on either side (the list may have been scrolled away from it
+  /// without moving it).
+  void _reveal() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _highlight < 0 || _highlight >= _rowKeys.length) return;
       final row = _rowKeys[_highlight].currentContext;
-      if (row != null && row.mounted) {
-        Scrollable.ensureVisible(row, alignmentPolicy: policy);
-      }
+      if (row == null || !row.mounted) return;
+      // One of the two does nothing: the first only scrolls down to a row
+      // below the view, the second only up to a row above it.
+      Scrollable.ensureVisible(
+        row,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+      );
+      Scrollable.ensureVisible(
+        row,
+        alignmentPolicy: ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      );
     });
   }
 
@@ -314,13 +316,18 @@ class _SelectState<T> extends State<Select<T>> {
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.home) {
+      // -1 when no option can take the highlight.
       setState(() => _highlight = _step(-1, 1));
-      _reveal(ScrollPositionAlignmentPolicy.keepVisibleAtStart);
+      _reveal();
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.end) {
-      setState(() => _highlight = _step(widget.options.length, -1));
-      _reveal();
+      final last = _step(widget.options.length, -1);
+      // The length itself when no option can take the highlight.
+      if (last < widget.options.length) {
+        setState(() => _highlight = last);
+        _reveal();
+      }
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.tab) {
@@ -454,7 +461,11 @@ class _SelectState<T> extends State<Select<T>> {
           expanded: _open,
           value: selected >= 0 ? widget.options[selected].label : null,
           // The highlighted option's reason, while the list is open (G10).
-          hint: _open && _highlight >= 0 && widget.options[_highlight].disabled
+          hint:
+              _open &&
+                  _highlight >= 0 &&
+                  _highlight < widget.options.length &&
+                  widget.options[_highlight].disabled
               ? widget.options[_highlight].disabledReason
               : null,
           child: _box(context, states),

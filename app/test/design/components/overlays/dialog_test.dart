@@ -1,6 +1,8 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/icon_button.dart';
+import 'package:ferman/design/components/core/tooltip.dart';
+import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/dialog.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
@@ -26,6 +28,63 @@ class _Button extends StatelessWidget {
     autofocus: autofocus,
     child: SizedBox(width: 80, height: 30, child: Text(label)),
   );
+}
+
+/// A tap counter that keeps its count in its state.
+class _Counter extends StatefulWidget {
+  const new();
+
+  @override
+  State<_Counter> createState() => _CounterState();
+}
+
+class _CounterState extends State<_Counter> {
+  int _taps = 0;
+
+  @override
+  Widget build(BuildContext context) => GestureDetector(
+    onTap: () => setState(() => _taps++),
+    child: SizedBox(width: 80, height: 30, child: Text('Taps $_taps')),
+  );
+}
+
+/// [page] as the first route of a navigator under a 40 px top bar, as the
+/// app's screens sit under the window frame's title bar.
+Widget _nested(Widget page, {GlobalKey<NavigatorState>? navigator}) =>
+    SizedBox.expand(
+      child: Column(
+        children: [
+          const SizedBox(height: 40, width: double.infinity),
+          Expanded(
+            child: Navigator(
+              key: navigator,
+              onGenerateRoute: (settings) => _route(page),
+            ),
+          ),
+        ],
+      ),
+    );
+
+PageRouteBuilder<void> _route(Widget page) => PageRouteBuilder<void>(
+  pageBuilder: (context, animation, secondary) => page,
+);
+
+/// Whether a pointer at [position] reaches the scrim.
+bool _scrimHit(WidgetTester tester, Offset position) {
+  final scrim = <RenderObject>{};
+  for (final element in find.byType(Scrim, skipOffstage: false).evaluate()) {
+    void visit(Element child) {
+      final object = child.renderObject;
+      if (object != null) scrim.add(object);
+      child.visitChildren(visit);
+    }
+
+    visit(element);
+  }
+  return tester
+      .hitTestOnBinding(position)
+      .path
+      .any((entry) => scrim.contains(entry.target));
 }
 
 void main() {
@@ -314,6 +373,232 @@ void main() {
       await tester.pumpWidget(componentHost(dialog(inline: true)));
       await tester.pumpAndSettle();
       expect(ModalScope.openCount.value, 0);
+      // An open modal that turns inline stops counting, and so does a
+      // later close.
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+      await tester.pumpWidget(componentHost(dialog(inline: true)));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(componentHost(dialog(inline: true, open: false)));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+    });
+
+    testWidgets('modal under a nested navigator: a tooltip and a popover in '
+        'the body show above the box', (tester) async {
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            _nested(
+              dialog(
+                child: const Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Tooltip(
+                      message: 'Tip text',
+                      open: true,
+                      child: SizedBox(width: 40, height: 20),
+                    ),
+                    Popover(
+                      open: true,
+                      anchor: SizedBox(width: 40, height: 20),
+                      child: SizedBox(
+                        width: 120,
+                        height: 60,
+                        child: Text('Popover text'),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Tip text'), findsOneWidget);
+      expect(find.text('Popover text'), findsOneWidget);
+      // The box keeps its size and place.
+      expect(tester.getSize(modalBoxFinder).width, 520);
+      expect(tester.getRect(modalBoxFinder).center.dx, 400);
+      // A pointer on the popover reaches it, not the scrim or the box.
+      final popover = tester.renderObject(find.text('Popover text'));
+      final hit = tester.hitTestOnBinding(
+        tester.getCenter(find.text('Popover text')),
+      );
+      expect(hit.path.first.target, popover);
+    });
+
+    testWidgets('modal: a route pushed above hides it and stops counting it; '
+        'popping shows it again with its state and focus', (tester) async {
+      final navigator = GlobalKey<NavigatorState>();
+      final field = FocusNode(debugLabel: 'field');
+      final above = FocusNode(debugLabel: 'above');
+      addTearDown(field.dispose);
+      addTearDown(above.dispose);
+      var closes = 0;
+      var taps = 0;
+      await tester.pumpWidget(
+        componentHost(
+          _nested(
+            dialog(
+              onClose: () => closes++,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  _Button('Field', node: field, autofocus: true),
+                  const _Counter(),
+                ],
+              ),
+            ),
+            navigator: navigator,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Taps 0'));
+      await tester.pump();
+      expect(find.text('Taps 1'), findsOneWidget);
+      expect(field.hasFocus, isTrue);
+      expect(ModalScope.openCount.value, 1);
+      const point = Offset(400, 500);
+      expect(_scrimHit(tester, point), isTrue);
+      navigator.currentState!.push(
+        _route(
+          Focus(
+            focusNode: above,
+            autofocus: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => taps++,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+      // Hidden from the push on, while the new route comes in.
+      await tester.pump();
+      await tester.pump();
+      expect(_scrimHit(tester, point), isFalse);
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+      expect(_scrimHit(tester, point), isFalse);
+      expect(ModalScope.openCount.value, 0);
+      await tester.tapAt(point);
+      await tester.pump();
+      expect(taps, 1);
+      expect(closes, 0);
+      expect(above.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 0);
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsOneWidget);
+      expect(_scrimHit(tester, point), isTrue);
+      expect(ModalScope.openCount.value, 1);
+      expect(find.text('Taps 1'), findsOneWidget);
+      expect(field.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 1);
+    });
+
+    testWidgets('modal: closed while a route above hides it, it leaves focus '
+        'on that route', (tester) async {
+      final navigator = GlobalKey<NavigatorState>();
+      final above = FocusNode(debugLabel: 'above');
+      final opener = FocusNode(debugLabel: 'opener');
+      addTearDown(above.dispose);
+      addTearDown(opener.dispose);
+      final open = ValueNotifier<bool>(false);
+      addTearDown(open.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          _nested(
+            Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                _Button('Opener', node: opener),
+                ValueListenableBuilder<bool>(
+                  valueListenable: open,
+                  builder: (context, value, _) => dialog(open: value),
+                ),
+              ],
+            ),
+            navigator: navigator,
+          ),
+        ),
+      );
+      opener.requestFocus();
+      await tester.pumpAndSettle();
+      open.value = true;
+      await tester.pumpAndSettle();
+      expect(opener.hasFocus, isFalse);
+      navigator.currentState!.push(
+        _route(
+          Focus(focusNode: above, autofocus: true, child: const Text('Above')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(above.hasFocus, isTrue);
+      open.value = false;
+      await tester.pumpAndSettle();
+      expect(above.hasFocus, isTrue);
+      expect(ModalScope.openCount.value, 0);
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+      expect(ModalScope.openCount.value, 0);
+    });
+
+    testWidgets('modal: opened while a route above covers its own, it waits '
+        'for that route to go, without taking focus', (tester) async {
+      final navigator = GlobalKey<NavigatorState>();
+      final above = FocusNode(debugLabel: 'above');
+      final field = FocusNode(debugLabel: 'field');
+      addTearDown(above.dispose);
+      addTearDown(field.dispose);
+      final open = ValueNotifier<bool>(false);
+      addTearDown(open.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          _nested(
+            ValueListenableBuilder<bool>(
+              valueListenable: open,
+              builder: (context, value, _) => dialog(
+                open: value,
+                child: _Button('Field', node: field, autofocus: true),
+              ),
+            ),
+            navigator: navigator,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      navigator.currentState!.push(
+        _route(
+          Focus(focusNode: above, autofocus: true, child: const Text('Up')),
+        ),
+      );
+      await tester.pumpAndSettle();
+      open.value = true;
+      await tester.pumpAndSettle();
+      expect(above.hasFocus, isTrue);
+      expect(field.hasFocus, isFalse);
+      expect(find.byType(Scrim), findsNothing);
+      expect(ModalScope.openCount.value, 0);
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsOneWidget);
+      expect(ModalScope.openCount.value, 1);
+      expect(field.hasFocus, isTrue);
     });
 
     testWidgets('modal: rises 4 px and fades in over --dur-slow; at once '

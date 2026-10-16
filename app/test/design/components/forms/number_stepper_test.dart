@@ -49,6 +49,7 @@ void main() {
     });
 
     test('grouping must be well formed; a typo is not a number', () {
+      final india = Region.forCode('IN');
       expect(NumberStepper.parse('10..5', Region.unitedStates), isNull);
       expect(NumberStepper.parse('1.2.3', Region.turkiye), isNull);
       expect(NumberStepper.parse('10 5', Region.unitedStates), isNull);
@@ -56,14 +57,80 @@ void main() {
       expect(NumberStepper.parse('1,2,34', Region.unitedStates), isNull);
       expect(NumberStepper.parse('1.234.56', germany), isNull);
       expect(NumberStepper.parse('0.500.000', Region.turkiye), isNull);
-      expect(NumberStepper.parse('12.34,5', Region.turkiye), isNull);
+      // With no decimal separator the last group may be a fraction
+      // ("1,234,56" may mean 1234.56), so it is not read.
+      expect(NumberStepper.parse('1,234,56', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('12,34,56', india), isNull);
+      expect(NumberStepper.parse('1 2,5', Region.unitedStates), isNull);
+    });
+
+    test('around a certain decimal separator, groups of any length read', () {
+      // One digit added to or taken from the integer part of a grouped
+      // value the field shows: the decimal is certain (both kinds, the
+      // Arabic decimal sign, or a lone mark that is not the region's
+      // group separator), so the integer part means one number.
+      expect(NumberStepper.parse('1.34,5', germany), 134.5);
+      expect(NumberStepper.parse('1.1907,6', Region.turkiye), 11907.6);
+      expect(NumberStepper.parse('12.34,5', Region.turkiye), 1234.5);
+      expect(NumberStepper.parse('١٬٢٣٫٥', saudi), 123.5);
+      expect(NumberStepper.parse('1\u202F34,5', france), 134.5);
+      expect(NumberStepper.parse("1'2347.5", Region.forCode('CH')), 12347.5);
+      // Still no empty group (a doubled mark) and no leading 0.
+      expect(NumberStepper.parse('1..234,5', germany), isNull);
+      expect(NumberStepper.parse('1.,5', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('0.234,5', germany), isNull);
     });
 
     test('a lone group separator that groups nothing is the decimal', () {
       expect(NumberStepper.parse('0.500', Region.turkiye), 0.5);
       expect(NumberStepper.parse('0,500', Region.unitedStates), 0.5);
-      expect(NumberStepper.parse('1234,567', Region.unitedStates), 1234.567);
       expect(NumberStepper.parse('12,5', Region.unitedStates), 12.5);
+      expect(NumberStepper.parse('1234,5', Region.unitedStates), 1234.5);
+      expect(NumberStepper.parse(',567', Region.unitedStates), 0.567);
+    });
+
+    test('a lone region group separator after four digits and before three '
+        'is not a number', () {
+      // "1,234,567" with a separator deleted, or a decimal: 1000 times
+      // apart, so neither is guessed.
+      expect(NumberStepper.parse('1234,567', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('1234,567', Region.forCode('IN')), isNull);
+      expect(NumberStepper.parse('1234.567', Region.turkiye), isNull);
+      // Not the region's group separator: the decimal.
+      expect(NumberStepper.parse('1234.567', Region.unitedStates), 1234.567);
+      expect(NumberStepper.parse('1234,567', Region.turkiye), 1234.567);
+    });
+
+    test('a group separator before the first digit is ignored', () {
+      // What deleting the leading digit of a grouped value leaves.
+      expect(NumberStepper.parse('.234,5', germany), 234.5);
+      expect(NumberStepper.parse(',234.5', Region.unitedStates), 234.5);
+      expect(NumberStepper.parse(',234,567', Region.unitedStates), 234567);
+      expect(NumberStepper.parse('.234,567', Region.unitedStates), 234.567);
+      expect(NumberStepper.parse('٬٢٣٤٫٥', saudi), 234.5);
+      expect(NumberStepper.parse('٬٢٣٤', saudi), 234);
+      // Only one.
+      expect(NumberStepper.parse(',,234', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('.234.', Region.unitedStates), isNull);
+    });
+
+    test('a space beside a separator is spacing; a run of spaces is one '
+        'group separator', () {
+      expect(NumberStepper.parse('10 ,5', Region.turkiye), 10.5);
+      expect(NumberStepper.parse('10, 5', Region.unitedStates), 10.5);
+      expect(NumberStepper.parse('10 .5', Region.unitedStates), 10.5);
+      expect(NumberStepper.parse('١٠ ٫٥', saudi), 10.5);
+      expect(NumberStepper.parse('10 ٫ 5', saudi), 10.5);
+      expect(NumberStepper.parse('1  234', france), 1234);
+      expect(NumberStepper.parse('1 \u00A0234', france), 1234);
+      expect(NumberStepper.parse('1 234 ,5', france), 1234.5);
+      expect(NumberStepper.parse('1 ,234', Region.unitedStates), 1234);
+      expect(NumberStepper.parse('1 ,234', Region.turkiye), 1.234);
+      expect(NumberStepper.parse('10 ,5 pt', Region.turkiye, unit: 'pt'), 10.5);
+      // Two plain groups are still not a number, nor a doubled mark.
+      expect(NumberStepper.parse('12 34', france), isNull);
+      expect(NumberStepper.parse('10 ,, 5', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('1 . 2 . 3', Region.turkiye), isNull);
     });
 
     test('well-formed grouping still reads', () {
@@ -318,6 +385,28 @@ void main() {
       await tester.pump();
       expect(values, [12.5, 11]);
       expect(shown(tester), '10,5');
+    });
+
+    testWidgets('a digit taken from a grouped value it shows commits the '
+        'edited number', (tester) async {
+      final values = <double>[];
+      await tester.pumpWidget(
+        componentHost(
+          stepper(
+            value: 1234.5,
+            region: germany,
+            max: double.infinity,
+            step: 0.1,
+            onChanged: values.add,
+          ),
+        ),
+      );
+      expect(shown(tester), '1.234,5');
+      // The 2 deleted.
+      await tester.enterText(find.byType(EditableText), '1.34,5');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(values, [134.5]);
     });
 
     testWidgets('an overlong draft is dropped without an error', (

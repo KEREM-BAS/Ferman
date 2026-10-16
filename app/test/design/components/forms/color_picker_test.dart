@@ -290,6 +290,110 @@ void main() {
       expect(find.byType(PopoverSurface), findsNothing);
     });
 
+    testWidgets('a click opens with focus on the popover itself: no swatch '
+        'and not the trigger shows the focus ring (G22)', (tester) async {
+      final node = FocusNode(debugLabel: 'trigger');
+      addTearDown(node.dispose);
+      var value = const Color(0xFF1F1D1A);
+      await tester.pumpWidget(
+        appKeys(
+          host(
+            StatefulBuilder(
+              builder: (context, setState) => picker(
+                value: value,
+                focusNode: node,
+                onChanged: (next) => setState(() => value = next!),
+              ),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(
+        find.byKey(FieldBox.boxKey),
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      expect(node.hasFocus, isFalse);
+      expect(
+        tester.widget<FieldBox>(find.byType(FieldBox).first).focused,
+        isFalse,
+      );
+      final dialog = find.bySemanticsLabel('Choose color');
+      final focus = FocusManager.instance.primaryFocus!;
+      expect(focus, isA<FocusScopeNode>());
+      expect(
+        find
+            .descendant(
+              of: dialog,
+              matching: find.byElementPredicate(
+                (element) => identical(element, focus.context),
+              ),
+            )
+            .evaluate(),
+        isNotEmpty,
+      );
+      final current = swatchOf(tester, '#1F1D1A');
+      expect(
+        (current.decoration! as BoxDecoration).boxShadow!.first.color,
+        light.accent,
+      );
+      // A mouse pick: only the picked swatch is ringed, in the accent.
+      await tester.tap(
+        find.bySemanticsLabel('#FFE066'),
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(
+        (swatchOf(tester, '#1F1D1A').decoration! as BoxDecoration).boxShadow,
+        isEmpty,
+      );
+      expect(
+        (swatchOf(tester, '#FFE066').decoration! as BoxDecoration)
+            .boxShadow!
+            .first
+            .color,
+        light.accent,
+      );
+      // Tab moves into the swatches.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      expect(
+        (swatchOf(tester, '#1F1D1A').decoration! as BoxDecoration).boxShadow,
+        FocusRing.outerShadows(FermanTheme.light),
+      );
+    });
+
+    testWidgets('after a click opened it, a click outside leaves the trigger '
+        'without focus; Escape gives it focus', (tester) async {
+      final node = FocusNode(debugLabel: 'trigger');
+      addTearDown(node.dispose);
+      await tester.pumpWidget(host(picker(focusNode: node)));
+      await tester.tap(
+        find.byKey(FieldBox.boxKey),
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      await tester.tapAt(const Offset(700, 550), kind: PointerDeviceKind.mouse);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isFalse);
+      expect(
+        tester.widget<FieldBox>(find.byType(FieldBox).first).focused,
+        isFalse,
+      );
+      await tester.tap(
+        find.byKey(FieldBox.boxKey),
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isTrue);
+    });
+
     testWidgets('controlled open reports requests', (tester) async {
       final requests = <bool>[];
       await tester.pumpWidget(

@@ -80,6 +80,27 @@ void main() {
       expect(first.toString(), 'ModalHandle(first, closed)');
     });
 
+    test('a handle opened before debugReset does not count after it', () {
+      final stale = ModalScope.open(debugLabel: 'stale');
+      ModalScope.debugReset();
+      final open = ModalScope.open(debugLabel: 'open');
+      expect(ModalScope.openCount.value, 1);
+      stale.close();
+      expect(stale.isClosed, isTrue);
+      expect(ModalScope.openCount.value, 1);
+      expect(ModalScope.isOpen, isTrue);
+      open.close();
+      expect(ModalScope.openCount.value, 0);
+      // Closed after the reset and before any new modal: the next one
+      // still counts.
+      final early = ModalScope.open();
+      ModalScope.debugReset();
+      early.close();
+      final next = ModalScope.open();
+      expect(ModalScope.openCount.value, 1);
+      next.close();
+    });
+
     test('notifies listeners of each change', () {
       final seen = <int>[];
       void listener() => seen.add(ModalScope.openCount.value);

@@ -88,8 +88,9 @@ class FontOption {
 /// bundle; the listbox pattern its roles imply); Tab and Shift+Tab cycle
 /// through them. Focus stays in the popover, which is a focus scope of its
 /// own, so it never reaches the controls the popover covers. Enter or a
-/// click choose a font and close; Escape or a click outside close and
-/// return focus to the trigger.
+/// click choose a font and close; Escape or a click outside close. Focus
+/// returns to the trigger, except after a click that opened the popover
+/// and then chose a font or closed it, which leaves no focus ring (G22).
 /// Matching follows the casing rules of the UI language ([LocaleCasing]).
 ///
 /// The fonts are passed in: M1 does not enumerate system fonts. The open
@@ -238,6 +239,10 @@ class FontPicker extends StatefulWidget {
 
 class _FontPickerState extends State<FontPicker> {
   late bool _localOpen = widget.initiallyOpen;
+
+  /// Whether a click (or a screen reader's tap) on the trigger opened the
+  /// popover.
+  bool _pointerOpened = false;
   FocusNode? _ownNode;
   final TextEditingController _query = TextEditingController();
   final FocusNode _searchNode = FocusNode(debugLabel: 'FontPicker search');
@@ -269,20 +274,47 @@ class _FontPickerState extends State<FontPicker> {
     super.dispose();
   }
 
+  @override
+  void didUpdateWidget(FontPicker oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_open) _pointerOpened = false;
+  }
+
   void _setOpen(bool open) {
     if (open) _query.clear();
+    if (!open) _pointerOpened = false;
     if (widget.open == null) setState(() => _localOpen = open);
     widget.onOpenChanged?.call(open);
   }
 
-  void _dismiss() {
+  /// The trigger's toggle, by Enter or Space, or by [pointer].
+  void _toggle({required bool pointer}) {
+    final open = _open;
+    if (!open) _pointerOpened = pointer;
+    _setOpen(!open);
+  }
+
+  /// Escape in the popover: it closes and the trigger takes focus.
+  void _escape() {
     _setOpen(false);
     _node.requestFocus();
   }
 
-  void _choose(FontOption font) {
+  /// A click outside the popover (or Escape on the trigger): it closes,
+  /// and focus returns to the trigger unless a click opened it, so a
+  /// pointer that opened and closed it leaves no focus ring (G22).
+  void _dismiss() {
+    final refocus = !_pointerOpened;
     _setOpen(false);
-    _node.requestFocus();
+    if (refocus) _node.requestFocus();
+  }
+
+  /// Chooses [font] and closes; focus returns to the trigger unless a
+  /// click both opened the popover and chose the font ([pointer]).
+  void _choose(FontOption font, {required bool pointer}) {
+    final refocus = !(pointer && _pointerOpened);
+    _setOpen(false);
+    if (refocus) _node.requestFocus();
     widget.onChanged?.call(font.name);
   }
 
@@ -392,7 +424,8 @@ class _FontPickerState extends State<FontPicker> {
             font: font,
             selected: font.name == widget.value,
             badge: widget.missingBadge,
-            onPressed: () => _choose(font),
+            onPressed: () => _choose(font, pointer: false),
+            onTap: () => _choose(font, pointer: true),
           ),
         );
       }
@@ -484,7 +517,8 @@ class _FontPickerState extends State<FontPicker> {
     final note =
         widget.warning ?? (current.available ? null : widget.missingNote);
     final trigger = FermanInteractive(
-      onPressed: _enabled ? () => _setOpen(!open) : null,
+      onPressed: _enabled ? () => _toggle(pointer: false) : null,
+      onTap: _enabled ? () => _toggle(pointer: true) : null,
       disabled: widget.disabled,
       disabledReason: widget.disabledReason,
       semanticLabel: label,
@@ -506,7 +540,14 @@ class _FontPickerState extends State<FontPicker> {
           open: open,
           onDismiss: _dismiss,
           anchor: trigger,
-          child: _popover(context),
+          // Escape in the popover returns focus to the trigger; a click
+          // outside (or Escape on the trigger) reaches _dismiss.
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.escape): _escape,
+            },
+            child: _popover(context),
+          ),
         ),
         if (note != null)
           // Its own node, the bundle's `role="status"` note.
@@ -552,12 +593,18 @@ class _FontRow extends StatelessWidget {
     required this.selected,
     required this.badge,
     required this.onPressed,
+    required this.onTap,
   });
 
   final FontOption font;
   final bool selected;
   final Widget? badge;
+
+  /// Enter or Space on the row.
   final VoidCallback onPressed;
+
+  /// A click or a screen reader's tap on the row.
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {
@@ -568,6 +615,7 @@ class _FontRow extends StatelessWidget {
     final mark = badge;
     return FermanInteractive(
       onPressed: onPressed,
+      onTap: onTap,
       selected: selected,
       semanticLabel: font.name,
       builder: (context, states, _) {

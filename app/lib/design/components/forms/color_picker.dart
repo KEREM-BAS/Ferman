@@ -30,13 +30,17 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// led by a none swatch when [allowNone], then the hex field and the
 /// eyedropper slot. Swatches are 20 px Tab stops (as in the bundle) with a
 /// strong ring under the pointer, the focus ring under keyboard focus and
-/// an accent ring when selected. Opening the popover moves focus to the
-/// selected swatch (the first one when none is); the popover is a focus
+/// an accent ring when selected. Opening the popover with Enter or Space
+/// (or through [open] or [initiallyOpen]) moves focus to the selected
+/// swatch (the first one when none is); a click opens it with focus on the
+/// popover itself, so neither a swatch nor the trigger shows the focus
+/// ring (G22), and Tab moves into the swatches. The popover is a focus
 /// scope of its own, so Tab and Shift+Tab cycle through the swatches, the
 /// hex field and the eyedropper and never reach the controls it covers.
 /// The hex field commits a six-digit code on Enter or when focus leaves.
-/// Escape or a click outside closes the popover and returns focus to the
-/// trigger.
+/// Escape closes the popover and returns focus to the trigger; a click
+/// outside closes it too, and returns focus to the trigger unless a click
+/// opened it.
 ///
 /// The open state is [open] when given (with [onOpenChanged] reporting
 /// requests), else local, starting at [initiallyOpen]. The colour is
@@ -245,6 +249,10 @@ class _ColorPickerState extends State<ColorPicker> {
     debugLabel: 'ColorPicker popover',
   );
 
+  /// Whether a click (or a screen reader's tap) on the trigger opened the
+  /// popover: focus then goes to the popover itself, not to a swatch.
+  bool _pointerOpened = false;
+
   FocusNode get _node =>
       widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'ColorPicker'));
 
@@ -265,6 +273,7 @@ class _ColorPickerState extends State<ColorPicker> {
   void didUpdateWidget(ColorPicker oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_hexDraft && oldWidget.value != widget.value) _hex.text = _hexText();
+    if (!_open) _pointerOpened = false;
   }
 
   @override
@@ -282,13 +291,37 @@ class _ColorPickerState extends State<ColorPicker> {
   }
 
   void _setOpen(bool open) {
+    if (!open) _pointerOpened = false;
     if (widget.open == null) setState(() => _localOpen = open);
     widget.onOpenChanged?.call(open);
   }
 
-  void _dismiss() {
+  /// The trigger's toggle, by Enter or Space, or by [pointer].
+  void _toggle({required bool pointer}) {
+    final open = _open;
+    if (!open) _pointerOpened = pointer;
+    _setOpen(!open);
+  }
+
+  /// After a click opened the popover, focus goes to the popover itself
+  /// once it is built: the trigger would show the focus ring on desktop.
+  void _focusPopover() {
+    if (_pointerOpened && !_popoverScope.hasFocus) _popoverScope.requestFocus();
+  }
+
+  /// Escape in the popover: it closes and the trigger takes focus.
+  void _escape() {
     _setOpen(false);
     _node.requestFocus();
+  }
+
+  /// A click outside the popover (or Escape on the trigger): it closes,
+  /// and focus returns to the trigger unless a click opened it, so a
+  /// pointer that opened and closed it leaves no focus ring (G22).
+  void _dismiss() {
+    final refocus = !_pointerOpened;
+    _setOpen(false);
+    if (refocus) _node.requestFocus();
   }
 
   void _pick(Color? color) {
@@ -414,8 +447,8 @@ class _ColorPickerState extends State<ColorPicker> {
     final standardLabel = widget.standardColorsLabel;
     final hexLabel = widget.hexLabel;
     final eyedropper = widget.eyedropper;
-    // The swatch that takes focus when the popover opens: the selected
-    // one, else the first.
+    // The swatch that takes focus when the keyboard opens the popover: the
+    // selected one, else the first.
     final all = <Color?>[
       ...widget.documentColors,
       if (widget.allowNone) null,
@@ -423,8 +456,9 @@ class _ColorPickerState extends State<ColorPicker> {
     ];
     final selectedAt = all.indexWhere(_isSelected);
     final focusAt = selectedAt >= 0 ? selectedAt : 0;
+    final autofocus = !_pointerOpened;
     var at = -1;
-    bool takesFocus() => ++at == focusAt;
+    bool takesFocus() => ++at == focusAt && autofocus;
     return Semantics(
       role: SemanticsRole.dialog,
       explicitChildNodes: true,
@@ -536,7 +570,8 @@ class _ColorPickerState extends State<ColorPicker> {
     final value = widget.value;
     final open = _open;
     final trigger = FermanInteractive(
-      onPressed: _enabled ? () => _setOpen(!open) : null,
+      onPressed: _enabled ? () => _toggle(pointer: false) : null,
+      onTap: _enabled ? () => _toggle(pointer: true) : null,
       disabled: widget.disabled,
       disabledReason: widget.disabledReason,
       semanticLabel: label,
@@ -557,11 +592,46 @@ class _ColorPickerState extends State<ColorPicker> {
           open: open,
           onDismiss: _dismiss,
           anchor: trigger,
-          child: _popover(context),
+          // Escape in the popover returns focus to the trigger; a click
+          // outside (or Escape on the trigger) reaches _dismiss.
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.escape): _escape,
+            },
+            child: _AfterMount(
+              onMount: _focusPopover,
+              child: _popover(context),
+            ),
+          ),
         ),
       ],
     );
   }
+}
+
+/// Runs [onMount] after the frame [child] is first built in: the popover
+/// builds its content only once it shows.
+class _AfterMount extends StatefulWidget {
+  const new({required this.onMount, required this.child});
+
+  final VoidCallback onMount;
+  final Widget child;
+
+  @override
+  State<_AfterMount> createState() => _AfterMountState();
+}
+
+class _AfterMountState extends State<_AfterMount> {
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) widget.onMount();
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }
 
 /// The struck-through "none" fill (`.fm-chip--none`): the raised surface

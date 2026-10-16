@@ -63,7 +63,12 @@ enum DialogSize {
 /// [OverlayChildLocation.rootOverlay]; no Material
 /// route), centred over a [Scrim] that covers the whole window, the title
 /// bar included, wherever the dialog sits in the tree; [ModalScope] counts
-/// it while it shows. It is modal: screen readers see only the dialog,
+/// it while it shows. Tooltips, popovers and menus in the dialog open in
+/// the modal layer's own overlay, above the box. The dialog shows only
+/// while its route is the current one and its tickers run: under a route
+/// pushed above its own (or in a hidden tab) it hides and stops counting,
+/// keeping its state, and shows again with focus inside when that route
+/// goes. It is modal: screen readers see only the dialog,
 /// focus is trapped inside it (Tab and Shift+Tab cycle), and focus goes on
 /// open to a child that asks for `autofocus` (the bundle's
 /// `data-autofocus`), else to the first focusable control in the body,
@@ -213,20 +218,39 @@ class _DialogState extends State<Dialog> {
   FocusNode? _restore;
   ModalHandle? _modalHandle;
 
+  /// Whether the route the dialog sits in is the current one and its
+  /// tickers run; null before the first [didChangeDependencies].
+  bool? _routeVisible;
+
   bool get _modal => widget.open && !widget.inline;
 
+  /// Whether the modal layer shows: modal, and not under a route pushed
+  /// above the dialog's own (the root overlay is not tied to that route).
+  bool get _shown => _modal && (_routeVisible ?? false);
+
   @override
-  void initState() {
-    super.initState();
-    if (_modal) {
-      // Not attached yet, so this only records that the portal starts
-      // shown.
-      _portal.show();
-      _scheduleInitialFocus();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _portal.isShowing) _openModal();
-      });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible =
+        TickerMode.valuesOf(context).enabled &&
+        (ModalRoute.isCurrentOf(context) ?? true);
+    if (visible == _routeVisible) return;
+    final first = _routeVisible == null;
+    _routeVisible = visible;
+    if (first) {
+      if (_shown) {
+        // Not attached yet, so this only records that the portal starts
+        // shown.
+        _portal.show();
+        _scheduleInitialFocus();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _shown) _openModal();
+        });
+      }
+      return;
     }
+    // The overlay cannot change during a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
   }
 
   @override
@@ -249,16 +273,29 @@ class _DialogState extends State<Dialog> {
     super.dispose();
   }
 
+  /// Shows the portal once the dialog is modal on the current route, and
+  /// keeps it (hidden, with its state) while a route above covers it until
+  /// the dialog closes; counts and focuses the modal layer while it shows
+  /// ([_shown]).
   void _sync() {
     if (!mounted) return;
-    if (_modal && !_portal.isShowing) {
+    if (_shown && !_portal.isShowing) {
       _portal.show();
-      _openModal();
-      _scheduleInitialFocus();
     } else if (!_modal && _portal.isShowing) {
       _portal.hide();
+    }
+    if (_shown) {
+      if (_modalHandle == null) {
+        _openModal();
+        _scheduleInitialFocus();
+      }
+    } else {
+      // By the handle: an inline switch disposes the portal, which then
+      // reads as hidden already.
       _closeModal();
-      _restoreFocus();
+      // Only a real close gives focus back; under a route above, focus
+      // stays with that route.
+      if (!_modal) _restoreFocus();
     }
   }
 
@@ -272,21 +309,27 @@ class _DialogState extends State<Dialog> {
   }
 
   void _scheduleInitialFocus() {
-    _restore = FocusManager.instance.primaryFocus;
+    // Shown again after a route above it went away: focus still returns to
+    // where it was when the dialog first opened.
+    _restore ??= FocusManager.instance.primaryFocus;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      // After the autofocus requests of the dialog's children, which the
-      // focus manager applies in a microtask.
+      // After the autofocus requests of the dialog's children and the
+      // route's own focus request, which the focus manager applies in a
+      // microtask.
       scheduleMicrotask(() {
-        if (!mounted || !_modal || _scope.hasFocus) return;
+        if (!mounted || !_shown || _scope.hasFocus) return;
         final first = _body.traversalDescendants.firstOrNull;
         (first ?? _boxNode).requestFocus();
       });
     });
   }
 
+  /// Gives focus back to where it was when the dialog opened, unless a
+  /// route above the dialog's own holds it now.
   void _restoreFocus() {
     final restore = _restore;
     _restore = null;
+    if (_routeVisible != true) return;
     if (restore != null && restore.context != null && restore.canRequestFocus) {
       restore.requestFocus();
     }
@@ -479,38 +522,53 @@ class _DialogState extends State<Dialog> {
       end: 0,
       top: 0,
       bottom: 0,
-      child: BlockSemantics(
-        child: Scrim(
-          onDismiss: widget.onClose,
-          dismissLabel: label.isEmpty ? null : label,
-          child: FocusScope(
-            node: _scope,
-            child: Shortcuts(
-              shortcuts: {
-                const SingleActivator(LogicalKeyboardKey.tab):
-                    const NextFocusIntent(),
-                const SingleActivator(LogicalKeyboardKey.tab, shift: true):
-                    const PreviousFocusIntent(),
-                if (closable)
-                  const SingleActivator(LogicalKeyboardKey.escape):
-                      const DismissIntent(),
-              },
-              child: Actions(
-                actions: {
-                  NextFocusIntent: NextFocusAction(),
-                  PreviousFocusIntent: PreviousFocusAction(),
-                  DismissIntent: CallbackAction<DismissIntent>(
-                    onInvoke: (_) {
-                      _close();
-                      return null;
+      // Under a route pushed above the dialog's own, the layer keeps its
+      // state but is not painted, hit tested or read, and its tickers stop;
+      // the navigator gives focus to that route.
+      child: Offstage(
+        offstage: !_shown,
+        child: TickerMode(
+          enabled: _shown,
+          child: BlockSemantics(
+            // The modal layer's own overlay: tooltips, popovers and menus in
+            // the dialog open in it, above the box, wherever the dialog sits.
+            child: Overlay.wrap(
+              child: Scrim(
+                onDismiss: widget.onClose,
+                dismissLabel: label.isEmpty ? null : label,
+                child: FocusScope(
+                  node: _scope,
+                  child: Shortcuts(
+                    shortcuts: {
+                      const SingleActivator(LogicalKeyboardKey.tab):
+                          const NextFocusIntent(),
+                      const SingleActivator(
+                        LogicalKeyboardKey.tab,
+                        shift: true,
+                      ): const PreviousFocusIntent(),
+                      if (closable)
+                        const SingleActivator(LogicalKeyboardKey.escape):
+                            const DismissIntent(),
                     },
-                  ),
-                },
-                child: FocusTraversalGroup(
-                  child: Focus(
-                    focusNode: _boxNode,
-                    includeSemantics: false,
-                    child: _buildBox(context, modal: true),
+                    child: Actions(
+                      actions: {
+                        NextFocusIntent: NextFocusAction(),
+                        PreviousFocusIntent: PreviousFocusAction(),
+                        DismissIntent: CallbackAction<DismissIntent>(
+                          onInvoke: (_) {
+                            _close();
+                            return null;
+                          },
+                        ),
+                      },
+                      child: FocusTraversalGroup(
+                        child: Focus(
+                          focusNode: _boxNode,
+                          includeSemantics: false,
+                          child: _buildBox(context, modal: true),
+                        ),
+                      ),
+                    ),
                   ),
                 ),
               ),

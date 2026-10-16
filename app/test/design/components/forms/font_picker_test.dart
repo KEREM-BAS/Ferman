@@ -209,6 +209,58 @@ void main() {
       expect(find.byType(PopoverSurface), findsNothing);
     });
 
+    testWidgets('after a click opened it, a click on a font or outside '
+        'leaves the trigger without focus; Escape gives it focus (G22)', (
+      tester,
+    ) async {
+      final chosen = <String>[];
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        host(picker(onChanged: chosen.add, focusNode: node)),
+      );
+      final trigger = find.byKey(FieldBox.boxKey).first;
+      Future<void> openByClick() async {
+        await tester.tap(trigger);
+        await tester.pumpAndSettle();
+        expect(find.byType(PopoverSurface), findsOneWidget);
+      }
+
+      await openByClick();
+      await tester.tap(find.text('IBM Plex Sans'));
+      await tester.pumpAndSettle();
+      expect(chosen, ['IBM Plex Sans']);
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isFalse);
+
+      await openByClick();
+      await tester.tapAt(const Offset(700, 500));
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isFalse);
+
+      await openByClick();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('after a keyboard open, a click on a font gives the trigger '
+        'focus back', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(host(picker(onChanged: (_) {}, focusNode: node)));
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('IBM Plex Mono'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(node.hasFocus, isTrue);
+    });
+
     testWidgets('keyboard: Enter opens with the search focused, ArrowDown '
         'reaches the rows, Enter chooses, Escape closes', (tester) async {
       final chosen = <String>[];

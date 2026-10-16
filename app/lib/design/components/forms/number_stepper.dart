@@ -150,18 +150,34 @@ class NumberStepper extends StatefulWidget {
   ///
   /// - Either decimal separator is accepted ("10,5" and "10.5" are both
   ///   10.5 in every region), as are the Arabic decimal and group signs.
-  /// - Grouping is read as the region writes it: with both "." and "," the
-  ///   last one is the decimal separator ("1.234,5" and "1,234.5"); a
-  ///   separator that appears more than once groups ("1.234.567"); a single
-  ///   region group separator followed by exactly three digits groups too
-  ///   ("1.234" is 1234 for Türkiye, "1,234" for the United States), as the
-  ///   field itself shows such numbers, unless that is no grouping ("0.500"
-  ///   is 0.5). Spaces, no-break spaces and apostrophes between digits are
-  ///   group separators (France, Switzerland).
-  /// - Grouping must be well formed: a first group of one to three digits
-  ///   not starting with 0, then groups of three (or two, in a region with
-  ///   Indian grouping: "12,34,567"). Anything else ("10..5", "1.2.3",
-  ///   "10 5") is not a number.
+  /// - Spaces, no-break spaces, thin spaces and apostrophes between digits
+  ///   are group separators (France, Switzerland), and a run of them is
+  ///   one ("1  234"). Beside a separator, before the number and after it
+  ///   they are only spacing ("10 ,5", "− 2,5", "10,5 pt").
+  /// - The decimal separator is certain with the Arabic decimal sign, with
+  ///   both "." and "," (the last one is the decimal: "1.234,5" and
+  ///   "1,234.5"), and with a single "." or "," that is not the region's
+  ///   group separator ("1.234" is 1.234 for the United States).
+  /// - A single region group separator groups when the number it splits is
+  ///   well grouped ("1.234" is 1234 for Türkiye, "1,234" for the United
+  ///   States), as the field itself shows such numbers. Otherwise it is the
+  ///   decimal separator ("0.500" is 0.5, "12.5" is 12.5, ",5" is 0.5),
+  ///   unless four or more digits not starting with 0 lead the number and
+  ///   exactly three follow the separator ("1234.567" for Türkiye): that
+  ///   may be a group with a separator missing, 1000 times the decimal
+  ///   reading, so it is not a number.
+  /// - With no decimal separator ("1.234.567", "1 234") every separator
+  ///   groups.
+  /// - Once the decimal separator is chosen, one group separator before the
+  ///   first digit is ignored: deleting the leading digit of "1,234.5"
+  ///   leaves ",234.5", which is 234.5.
+  /// - Around a certain decimal separator, groups may have any length, but
+  ///   none may be empty and the first may not start with 0 ("1.34,5" is
+  ///   134.5; "1..234,5" is not a number). Otherwise grouping must be well
+  ///   formed: a first group of one to three digits not starting with 0,
+  ///   then groups of three (in a region with Indian grouping, groups of
+  ///   two before the last: "12,34,567"). Anything else ("10..5", "1.2.3",
+  ///   "10 5", "1,234,56") is not a number.
   /// - The region's digits, Arabic-Indic and Extended Arabic-Indic digits
   ///   and ASCII digits are all read.
   /// - A leading minus (`-`, `−`, with any direction marks) negates.
@@ -203,26 +219,47 @@ class NumberStepper extends StatefulWidget {
         return null;
       }
     }
-    // A space after the number (before its unit) is only spacing too.
+    // A space after the number (before its unit) or beside a separator is
+    // only spacing ("10 ,5"), and a run of spaces between digits is one
+    // group separator ("1  234"), in this order.
     final digits = out
         .toString()
         .replaceFirst(_trailingSpaces, '')
-        .replaceAll('s', 'g');
+        .replaceAllMapped(_spacedMark, (match) => match[1]!)
+        .replaceAll(_spaceRuns, 'g');
     final dots = '.'.allMatches(digits).length;
     final commas = ','.allMatches(digits).length;
     String? decimal;
+    // Whether the decimal separator can only be what it is read as; then
+    // the integer part means one number however it is grouped.
+    var certain = false;
     if (digits.contains('d')) {
       decimal = 'd';
+      certain = true;
     } else if (dots > 0 && commas > 0) {
       decimal = digits.lastIndexOf('.') > digits.lastIndexOf(',') ? '.' : ',';
+      certain = true;
     } else if (dots + commas == 1) {
-      // A lone region group separator groups when what it splits is a
-      // well-formed group ("1.234" in Türkiye); otherwise it is the
-      // decimal separator ("0.500", "12.5", "1234.567").
       final mark = dots > 0 ? '.' : ',';
-      final grouping =
-          mark == group && _wellGrouped(digits.split(_groupMarks), indian);
-      if (!grouping) decimal = mark;
+      final parts = digits.split(_groupMarks);
+      if (mark != group) {
+        // Not the region's group separator ("1.234" in the United States).
+        decimal = mark;
+        certain = true;
+      } else if (!_wellGrouped(parts, indian)) {
+        // A lone region group separator that splits no well-formed group
+        // is the decimal separator ("0.500", "12.5", "1234.5"), unless four
+        // or more digits come before it and three after ("1234.567" in
+        // Türkiye): a group with a separator missing, or a decimal.
+        final first = parts.first;
+        if (parts.last.length == 3 &&
+            first.length > 3 &&
+            !first.startsWith('0')) {
+          return null;
+        }
+        decimal = mark;
+      }
+      // Otherwise it groups ("1.234" in Türkiye).
     }
     var whole = digits;
     var fraction = '';
@@ -233,8 +270,14 @@ class NumberStepper extends StatefulWidget {
       fraction = digits.substring(at + 1);
       if (fraction.contains(_groupMarks)) return null;
     }
-    final groups = whole.split(_groupMarks);
-    if (groups.length > 1 && !_wellGrouped(groups, indian)) return null;
+    var groups = whole.split(_groupMarks);
+    // A group separator before the first digit ("1,234.5" with its 1
+    // deleted) separates nothing once the decimal is chosen.
+    if (groups.length > 1 && groups.first.isEmpty) groups = groups.sublist(1);
+    if (groups.length > 1 &&
+        !(certain ? _plainGroups(groups) : _wellGrouped(groups, indian))) {
+      return null;
+    }
     final number = decimal == null
         ? groups.join()
         : '${groups.join()}.$fraction';
@@ -261,6 +304,14 @@ class NumberStepper extends StatefulWidget {
     return true;
   }
 
+  /// Whether [groups] (the integer part split at its group separators,
+  /// before a certain decimal separator) has no empty group (a doubled
+  /// mark, or a mark before the decimal) and no leading 0.
+  static bool _plainGroups(List<String> groups) =>
+      groups.first.isNotEmpty &&
+      !groups.first.startsWith('0') &&
+      groups.skip(1).every((group) => group.isNotEmpty);
+
   /// Spaces, no-break spaces, thin and narrow spaces and apostrophes, which
   /// group between digits.
   static const Set<int> _spaces = {0x20, 0xA0, 0x2009, 0x202F, 0x27, 0x2019};
@@ -271,6 +322,11 @@ class NumberStepper extends StatefulWidget {
   };
 
   static final RegExp _trailingSpaces = RegExp(r's+$');
+
+  /// A separator with the spaces beside it.
+  static final RegExp _spacedMark = RegExp('s*([.,dg])s*');
+
+  static final RegExp _spaceRuns = RegExp('s+');
 
   static final RegExp _groupMarks = RegExp('[.,g]');
 

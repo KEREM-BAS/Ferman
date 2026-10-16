@@ -22,6 +22,9 @@ abstract final class ModalScope {
   static int _pending = 0;
   static bool _flushScheduled = false;
 
+  /// Bumped by [debugReset]: a handle opened before it no longer counts.
+  static int _generation = 0;
+
   /// The number of modals open now; 0 when none is.
   static ValueListenable<int> get openCount => _count;
 
@@ -32,7 +35,7 @@ abstract final class ModalScope {
   /// or is disposed; closing it again does nothing.
   static ModalHandle open({String? debugLabel}) {
     _change(1);
-    return ModalHandle._(debugLabel);
+    return ModalHandle._(debugLabel, _generation);
   }
 
   static void _change(int delta) {
@@ -59,8 +62,11 @@ abstract final class ModalScope {
   }
 
   /// Forgets every open modal, for tests that end with one still open.
+  /// Closing a handle opened before the reset then does nothing, so it
+  /// cannot take a later modal off the count.
   @visibleForTesting
   static void debugReset() {
+    _generation++;
     _pending = 0;
     _flushScheduled = false;
     _count.value = 0;
@@ -69,10 +75,13 @@ abstract final class ModalScope {
 
 /// One open modal surface, from [ModalScope.open].
 final class ModalHandle {
-  new _(this.debugLabel);
+  new _(this.debugLabel, this._generation);
 
   /// A name for debugging (the surface that opened it).
   final String? debugLabel;
+
+  /// The [ModalScope] generation the handle was opened in.
+  final int _generation;
 
   bool _closed = false;
 
@@ -83,7 +92,7 @@ final class ModalHandle {
   void close() {
     if (_closed) return;
     _closed = true;
-    ModalScope._change(-1);
+    if (_generation == ModalScope._generation) ModalScope._change(-1);
   }
 
   @override

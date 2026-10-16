@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/kbd.dart';
+import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/command_palette.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
@@ -12,6 +13,45 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
+
+/// [page] as the first route of a navigator under a 40 px top bar, as the
+/// app's screens sit under the window frame's title bar.
+Widget _nested(Widget page, {GlobalKey<NavigatorState>? navigator}) =>
+    SizedBox.expand(
+      child: Column(
+        children: [
+          const SizedBox(height: 40, width: double.infinity),
+          Expanded(
+            child: Navigator(
+              key: navigator,
+              onGenerateRoute: (settings) => _route(page),
+            ),
+          ),
+        ],
+      ),
+    );
+
+PageRouteBuilder<void> _route(Widget page) => PageRouteBuilder<void>(
+  pageBuilder: (context, animation, secondary) => page,
+);
+
+/// Whether a pointer at [position] reaches the scrim.
+bool _scrimHit(WidgetTester tester, Offset position) {
+  final scrim = <RenderObject>{};
+  for (final element in find.byType(Scrim, skipOffstage: false).evaluate()) {
+    void visit(Element child) {
+      final object = child.renderObject;
+      if (object != null) scrim.add(object);
+      child.visitChildren(visit);
+    }
+
+    visit(element);
+  }
+  return tester
+      .hitTestOnBinding(position)
+      .path
+      .any((entry) => scrim.contains(entry.target));
+}
 
 void main() {
   final light = FermanTheme.light.colors;
@@ -353,6 +393,97 @@ void main() {
       await tester.pumpWidget(componentHost(const SizedBox()));
       await tester.pumpAndSettle();
       expect(ModalScope.openCount.value, 0);
+      // An open modal that turns inline stops counting, and so does a
+      // later close.
+      await tester.pumpWidget(componentHost(palette()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+      await tester.pumpWidget(componentHost(palette(inline: true)));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(
+        componentHost(palette(inline: true, open: false)),
+      );
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(componentHost(palette()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+    });
+
+    testWidgets('modal under a nested navigator: the reason tooltip of a '
+        'disabled command shows above the palette', (tester) async {
+      await tester.pumpWidget(componentHost(_nested(palette())));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.pump(
+        Tooltip.defaultDelay + const Duration(milliseconds: 50),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(find.text('Available in a future version'), findsOneWidget);
+    });
+
+    testWidgets('modal: a route pushed above hides it and stops counting it; '
+        'popping shows it again with its query and focus', (tester) async {
+      final navigator = GlobalKey<NavigatorState>();
+      final above = FocusNode(debugLabel: 'above');
+      addTearDown(above.dispose);
+      var closes = 0;
+      var taps = 0;
+      await tester.pumpWidget(
+        componentHost(
+          _nested(palette(onClose: () => closes++), navigator: navigator),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(EditableText), 'rot');
+      await tester.pump();
+      FocusNode field() =>
+          tester.widget<EditableText>(find.byType(EditableText)).focusNode;
+      expect(field().hasFocus, isTrue);
+      expect(ModalScope.openCount.value, 1);
+      const point = Offset(400, 560);
+      expect(_scrimHit(tester, point), isTrue);
+      navigator.currentState!.push(
+        _route(
+          Focus(
+            focusNode: above,
+            autofocus: true,
+            child: GestureDetector(
+              behavior: HitTestBehavior.opaque,
+              onTap: () => taps++,
+              child: const SizedBox.expand(),
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      expect(_scrimHit(tester, point), isFalse);
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsNothing);
+      await tester.tapAt(point);
+      await tester.pump();
+      expect(taps, 1);
+      expect(closes, 0);
+      expect(above.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 0);
+      navigator.currentState!.pop();
+      await tester.pumpAndSettle();
+      expect(find.byType(Scrim), findsOneWidget);
+      expect(ModalScope.openCount.value, 1);
+      expect(
+        tester.widget<EditableText>(find.byType(EditableText)).controller.text,
+        'rot',
+      );
+      expect(field().hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 1);
     });
 
     testWidgets('Turkish casing: “İ” matches “i” in a Turkish UI', (

@@ -83,10 +83,14 @@ class CommandItem {
 /// [Overlay] (through an [OverlayPortal] at
 /// [OverlayChildLocation.rootOverlay]), 14 % from the
 /// top over the lighter [Scrim], which covers the whole window, the title
-/// bar included; [ModalScope] counts it while it shows. Screen readers see
-/// only the palette, and the search field takes focus. A pointer down on
-/// the scrim calls [onClose]. [inline] draws it in place (boards, the
-/// gallery).
+/// bar included; [ModalScope] counts it while it shows. The reason
+/// tooltips open in the modal layer's own overlay, above the palette. The
+/// palette shows only while its route is the current one and its tickers
+/// run: under a route pushed above its own (or in a hidden tab) it hides
+/// and stops counting, keeping its query, and shows again with focus in
+/// the field when that route goes. Screen readers see only the palette,
+/// and the search field takes focus. A pointer down on the scrim calls
+/// [onClose]. [inline] draws it in place (boards, the gallery).
 ///
 /// **Keyboard.** Focus stays in the search field, which shows no ring.
 /// ArrowDown and ArrowUp move the active command (stopping at the ends;
@@ -229,20 +233,41 @@ class _CommandPaletteState extends State<CommandPalette> {
   FocusNode? _restore;
   ModalHandle? _modalHandle;
 
+  /// Whether the route the palette sits in is the current one and its
+  /// tickers run; null before the first [didChangeDependencies].
+  bool? _routeVisible;
+
   bool get _modal => widget.open && !widget.inline;
+
+  /// Whether the modal layer shows: modal, and not under a route pushed
+  /// above the palette's own (the root overlay is not tied to that route).
+  bool get _shown => _modal && (_routeVisible ?? false);
 
   String get _query => widget.query ?? _field.text;
 
   @override
-  void initState() {
-    super.initState();
-    if (_modal) {
-      _portal.show();
-      _focusField();
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (mounted && _portal.isShowing) _openModal();
-      });
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible =
+        TickerMode.valuesOf(context).enabled &&
+        (ModalRoute.isCurrentOf(context) ?? true);
+    if (visible == _routeVisible) return;
+    final first = _routeVisible == null;
+    _routeVisible = visible;
+    if (first) {
+      if (_shown) {
+        // Not attached yet, so this only records that the portal starts
+        // shown.
+        _portal.show();
+        _focusField();
+        WidgetsBinding.instance.addPostFrameCallback((_) {
+          if (mounted && _shown) _openModal();
+        });
+      }
+      return;
     }
+    // The overlay cannot change during a build.
+    WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
   }
 
   @override
@@ -255,18 +280,34 @@ class _CommandPaletteState extends State<CommandPalette> {
     }
     final wasModal = oldWidget.open && !oldWidget.inline;
     if (wasModal != _modal) {
-      WidgetsBinding.instance.addPostFrameCallback((_) {
-        if (!mounted) return;
-        if (_modal && !_portal.isShowing) {
-          _portal.show();
-          _openModal();
-          _focusField();
-        } else if (!_modal && _portal.isShowing) {
-          _portal.hide();
-          _closeModal();
-          _restoreFocus();
-        }
-      });
+      // The overlay cannot be shown or hidden during a build.
+      WidgetsBinding.instance.addPostFrameCallback((_) => _sync());
+    }
+  }
+
+  /// Shows the portal once the palette is modal on the current route, and
+  /// keeps it (hidden, with its state) while a route above covers it until
+  /// the palette closes; counts and focuses the modal layer while it shows
+  /// ([_shown]).
+  void _sync() {
+    if (!mounted) return;
+    if (_shown && !_portal.isShowing) {
+      _portal.show();
+    } else if (!_modal && _portal.isShowing) {
+      _portal.hide();
+    }
+    if (_shown) {
+      if (_modalHandle == null) {
+        _openModal();
+        _focusField();
+      }
+    } else {
+      // By the handle: an inline switch disposes the portal, which then
+      // reads as hidden already.
+      _closeModal();
+      // Only a real close gives focus back; under a route above, focus
+      // stays with that route.
+      if (!_modal) _restoreFocus();
     }
   }
 
@@ -291,15 +332,20 @@ class _CommandPaletteState extends State<CommandPalette> {
   }
 
   void _focusField() {
-    _restore = FocusManager.instance.primaryFocus;
+    // Shown again after a route above it went away: focus still returns to
+    // where it was when the palette first opened.
+    _restore ??= FocusManager.instance.primaryFocus;
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      if (mounted) _fieldNode.requestFocus();
+      if (mounted && _shown) _fieldNode.requestFocus();
     });
   }
 
+  /// Gives focus back to where it was when the palette opened, unless a
+  /// route above the palette's own holds it now.
   void _restoreFocus() {
     final restore = _restore;
     _restore = null;
+    if (_routeVisible != true) return;
     if (restore != null && restore.context != null && restore.canRequestFocus) {
       restore.requestFocus();
     }
@@ -673,11 +719,24 @@ class _CommandPaletteState extends State<CommandPalette> {
     end: 0,
     top: 0,
     bottom: 0,
-    child: BlockSemantics(
-      child: Scrim(
-        top: true,
-        onDismiss: widget.onClose,
-        child: FocusScope(node: _scope, child: _palette(context)),
+    // Under a route pushed above the palette's own, the layer keeps its
+    // state but is not painted, hit tested or read, and its tickers stop;
+    // the navigator gives focus to that route.
+    child: Offstage(
+      offstage: !_shown,
+      child: TickerMode(
+        enabled: _shown,
+        child: BlockSemantics(
+          // The modal layer's own overlay: the reason tooltips open in it,
+          // above the palette, wherever the palette sits.
+          child: Overlay.wrap(
+            child: Scrim(
+              top: true,
+              onDismiss: widget.onClose,
+              child: FocusScope(node: _scope, child: _palette(context)),
+            ),
+          ),
+        ),
       ),
     ),
   );

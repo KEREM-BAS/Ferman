@@ -363,6 +363,95 @@ void main() {
       expect(listPosition(tester).pixels, Select.rowHeight);
     });
 
+    testWidgets('the arrows bring a highlight scrolled out of view back, on '
+        'either side', (tester) async {
+      Future<void> openScrolled(String value, Offset drag) async {
+        final node = FocusNode();
+        addTearDown(node.dispose);
+        await tester.pumpWidget(
+          host(
+            Select<String>(
+              // A new select each time.
+              key: ValueKey(value),
+              options: long,
+              value: value,
+              onChanged: (_) {},
+              label: 'Language',
+              focusNode: node,
+            ),
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        // A touch drag (the default kind) scrolls the list without moving
+        // the highlight.
+        await tester.dragFrom(listViewport(tester).center, drag);
+        await tester.pumpAndSettle();
+      }
+
+      bool inView(String label) {
+        final row = rowRect(tester, label);
+        final viewport = listViewport(tester);
+        return row.top >= viewport.top && row.bottom <= viewport.bottom;
+      }
+
+      // Scrolled to the end, away from the highlight on Option 0.
+      await openScrolled('o0', const Offset(0, -2000));
+      final position = listPosition(tester);
+      expect(position.pixels, position.maxScrollExtent);
+      expect(inView('Option 0'), isFalse);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'Option 1'), light.surfaceSelectedStrong);
+      expect(inView('Option 1'), isTrue);
+      // Scrolled to the top, away from the highlight on Option 19.
+      await openScrolled('o19', const Offset(0, 2000));
+      expect(listPosition(tester).pixels, 0);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'Option 18'), light.surfaceSelectedStrong);
+      expect(inView('Option 18'), isTrue);
+    });
+
+    testWidgets('keyboard: End and Home with no option to rest on do '
+        'nothing', (tester) async {
+      for (final options in [
+        const [
+          SelectOption(value: 'a', label: 'A', disabled: true),
+          SelectOption(value: 'b', label: 'B', disabled: true),
+        ],
+        const <SelectOption<String>>[],
+      ]) {
+        final node = FocusNode();
+        addTearDown(node.dispose);
+        await tester.pumpWidget(
+          host(
+            Select<String>(
+              options: options,
+              onChanged: (_) {},
+              label: 'Page layout',
+              focusNode: node,
+            ),
+          ),
+        );
+        node.requestFocus();
+        await tester.pumpAndSettle();
+        await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+        await tester.pumpAndSettle();
+        expect(find.byType(PopoverSurface), findsOneWidget);
+        await tester.sendKeyEvent(LogicalKeyboardKey.end);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        await tester.sendKeyEvent(LogicalKeyboardKey.home);
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+      }
+    });
+
     testWidgets('keyboard: Enter opens, arrows move (skipping disabled, '
         'stopping on a reason), Enter chooses', (tester) async {
       final chosen = <String>[];
