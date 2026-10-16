@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-74 entries: 62 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G74 were found in M1.
+80 entries: 68 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G80 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 36 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 42 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -144,6 +144,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G72](#g72) | conflict (internal to design) | M1 | Component library: IconButton | Pressed secondary and primary icon buttons: core.css and the state sheet disagree | Decided |
 | [G73](#g73) | ambiguity | M1 | Start / empty state (DropZone) | Dash pattern unspecified; the Open shortcut runs word caps together | Decided |
 | [G74](#g74) | conflict | M1 | Locale formatting / progress | Progress percentages written "N%" in every region | Decided |
+| [G75](#g75) | conflict (internal to design) | M1 | Component library: forms | The cascade lets hover win over the disabled look | Decided |
+| [G76](#g76) | conflict (internal to design) | M1 | Component library: SearchReplaceBar | The browser lets the find bar's rows overflow its end padding | Decided |
+| [G77](#g77) | ambiguity | M1 | Component library: PageThumbnail | Drop-line ends drawn off-centre under border-box; the dim filter also dims the ring | Decided |
+| [G78](#g78) | conflict (internal to design) | M1 | Component library: Menu, Select | The menu check is drawn grey, not in the accent the CSS asks for | Decided |
+| [G79](#g79) | conflict (internal to design) | M1 | Component library: Checkbox, Radio | Disabled checked radio, dark checked hover and disabled indeterminate drawn wrongly | Decided |
+| [G80](#g80) | missing state | M1 | Component library: text fields | No context menu designed; native inputs bring the browser's | Decided |
 
 ## Entries
 
@@ -1108,3 +1114,81 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The screen formats the percentage for the region and passes it to ProgressBar as `valueText`; without it the bar shows "N%". The semantics value stays the number from 0 to 100. The percentage helper in `RegionFormat` arrives with the first screen that shows a percentage (the zoom field in M2, [G34](#g34)).
 - **Status:** Decided
 - **Evidence:** `design/_ds/…/_ds_bundle.js` lines 874 (`pct`) and 882 (`pct, "%"`); `design/09b Tools.dc.html` line 50 (`a9-5b`, `show-value`). Implemented in `app/lib/design/components/feedback/progress_bar.dart` (M1 phase G).
+
+<a id="g75"></a>
+
+### G75 · Disabled form controls: the cascade lets hover win
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Field, TextField, NumberStepper, Select, Checkbox, Radio
+- **Artboards:** none hovers a disabled control; the DS additions "Interactive states" sheet draws disabled controls at rest
+- **Gap or conflict:** `.fm-input:hover` (specificity 0,2,0) beats `.fm-input--disabled` (0,1,0), so a disabled field under the pointer takes the strong border. `.fm-check:hover .fm-check__input` (0,3,0, and its dark variant at 0,4,0) beats `.fm-check__input:disabled` and `:disabled:checked`, so a disabled checkbox or radio under the pointer takes the hover border.
+- **Decision:** Disabled controls show no hover: a disabled field keeps the subtle border and a disabled checkbox or radio keeps its disabled look, as native disabled controls do and as their not-allowed cursor says.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 17 (`.fm-input:hover`), 22 (`.fm-input--disabled`), 46–47 (`.fm-check:hover`) and 52–53 (`:disabled`, `:disabled:checked`). Implemented in `app/lib/design/components/forms/field.dart`, `checkbox.dart` and `radio.dart` (M1 phase G).
+
+<a id="g76"></a>
+
+### G76 · Find bar: the rows overflow the end padding in the browser
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: SearchReplaceBar
+- **Artboards:** `a2-4a`, `a3-7`
+- **Gap or conflict:** `.fm-search` is a 440 px grid with 6 px padding and one implicit `auto` column. Chromium sizes that column to the find row's min-content, and the bare `<input>` keeps its default width (`size=20`), which `min-width: 0` on `.fm-input` does not remove. The rows come out 436 px wide instead of 428 px, so they and the notice run over the 6 px end padding and end about 2 px past the bar's edge. In the renders the find field is 247 px wide and the replace field 257 px.
+- **Decision:** Follow the CSS as written: the rows fill the 428 px content box, so the find and replace fields are 8 px narrower than in the renders, and the close button and the notice end 6 px inside the bar. Goldens differ from `build/design-refs/a2-4a.png` and `a3-7.png` by exactly that.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/editing/editing.css` lines 37–39 (`.fm-search`, its rows, `flex: 1` fields); `design/_ds/…/components/forms/forms.css` lines 9–12 (`.fm-input`, `min-width: 0`); measured in `build/design-refs/a3-7.png` (bar x 720–1160, find field 756–1003, notice 726–1161). Implemented in `app/lib/design/components/editing/search_replace_bar.dart` (M1 phase G).
+
+<a id="g77"></a>
+
+### G77 · Page thumbnail: the drop line's round ends and the reach of the dim filter
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Component library: PageThumbnail
+- **Artboards:** none draws a drop indicator or a dimmed thumbnail; `pages.css` is the only reference
+- **Gap or conflict:** (1) The round ends of the drop line are `6px` square with a `2px` border, and their offsets (`top: -4px` on a 2 px line, `-6px` along it) centre them on the line only under content-box sizing; `.fm-root` sets border-box, so the CSS draws a 6 px end 2 px off the line's centre. (2) `filter: var(--page-filter)` on `.fm-thumb__page` dims everything that element paints, including its own `box-shadow`: the hairline, the 2 px accent ring of a selected page and `--shadow-sm`.
+- **Decision:** (1) The widget draws the 10 px end the CSS offsets centre on the line, reaching 6 px past the line's ends, with the 2 px accent border and the panel-coloured centre. (2) The filter dims the page, its marker and its badges; the outer ring and shadow stay at full strength, so a selected thumbnail keeps the same accent ring under the dim page setting.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/pages/pages.css` lines 12 (`filter: var(--page-filter)`), 20 (the selected ring), 29–30 (the drop line and its ends) and 33–38 (their offsets); `design/_ds/…/tokens/base.css` line 12 (`box-sizing: border-box`). Implemented in `app/lib/design/components/pages/page_thumbnail.dart` (M1 phase G).
+
+<a id="g78"></a>
+
+### G78 · Menu check: the CSS asks for the accent, the render draws it grey
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Menu and the Select list
+- **Artboards:** `a2-2` (the zoom menu, "100%" checked) and every menu with a checked item
+- **Gap or conflict:** `.fm-menu__check` sets `color: var(--text-accent)` on the span around the check, but `.fm-menu__item svg` (`--icon-secondary`) matches the check's own `<svg>` and wins, as do the danger and disabled `svg` rules; the icon strokes with `currentColor`. The render draws a grey check (about `#7A766E` in `build/design-refs/a2-2.png`, antialiased paper-600), not the accent.
+- **Decision:** The render wins: the check takes the row's icon colour (secondary, danger on a danger row, disabled on a disabled row). The Select list, which reuses the Menu look ([COMPONENTS.md](COMPONENTS.md) decision 8), does the same.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/overlays/overlays.css` lines 34, 37 and 39 (the `svg` colours) and 41 (`.fm-menu__check`); `design/_ds/…/_ds_bundle.js` line 2662 (`fm-menu__check`). Implemented in `app/lib/design/components/overlays/menu.dart` and `forms/select.dart` (M1 phase G).
+
+<a id="g79"></a>
+
+### G79 · Checkbox and radio: three states the cascade draws wrongly
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Checkbox, Radio
+- **Artboards:** none draws these states; the DS additions "Interactive states" sheet draws enabled and disabled checkboxes and radios at rest
+- **Gap or conflict:** (1) `.fm-radio .fm-check__input:checked` comes after `.fm-check__input:disabled:checked` with the same specificity (0,3,0), so a disabled checked radio is drawn as an enabled one, in the accent. (2) In dark, `[data-theme="dark"] .fm-check:hover .fm-check__input` (0,4,0) beats the checked radio's accent border, so a checked radio under the pointer takes the soot border; in light the checked rule comes later and keeps the accent. (3) `.fm-check__input:disabled` comes after `.fm-check__input.is-indeterminate` with the same specificity, and `:disabled:checked` does not match an indeterminate box, so a disabled indeterminate box is sunken with its white minus barely visible on it.
+- **Decision:** (1) A disabled checked radio takes the checkbox's disabled-checked strong grey. (2) A checked radio keeps its accent border under the pointer in both themes. (3) A disabled indeterminate box takes the disabled-checked look with its minus.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 46–47 (hover), 48 (checked and indeterminate), 51 (the mark), 52–53 (`:disabled`, `:disabled:checked`) and 59 (the checked radio). Implemented in `app/lib/design/components/forms/checkbox.dart` and `radio.dart` (M1 phase G).
+
+<a id="g80"></a>
+
+### G80 · Text fields: no context menu is designed
+
+- **Type:** missing state
+- **Milestone:** M1, with the menu in M2
+- **Area:** Component library: TextField, NumberStepper and the pickers' search fields; PdfFormField text fields
+- **Artboards:** none draws a context menu on a field
+- **Gap or conflict:** The design's fields are native `<input>` elements, which bring the browser's context menu (Cut, Copy, Paste, Select all). Flutter's text input shows none unless the app builds one, and the Material and Cupertino toolbars are not used ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Decision:** In M1 a right click on a field opens nothing; cut, copy, paste and select all work from the keyboard. A context menu built from the design-system Menu, with the platform's items, order and shortcuts, comes in M2 with the first screens that edit text in fields ([B017](BACKLOG.md#open)).
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 24–27 (`.fm-input__control`, a native input). Implemented in `app/lib/design/components/forms/field_input.dart` (M1 phase G).

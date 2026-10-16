@@ -113,7 +113,7 @@ class SearchReplaceBarLabels {
 /// and the popover shadow. The rows fill its 428 px content box, as
 /// `editing.css` is written; the browser render lets the find row's
 /// min-content overflow the 6 px end padding, so its fields come out 8 px
-/// wider than here (a design-internal conflict, recorded in DESIGN_GAPS).
+/// wider than here (a design-internal conflict, G76).
 /// The find row holds a disclosure button that
 /// shows or hides the replace row ([onToggleReplace]), a small find field
 /// with a search glyph and the three match options as 20 px toggles

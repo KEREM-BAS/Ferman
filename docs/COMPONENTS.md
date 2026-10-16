@@ -306,6 +306,35 @@ built; the ones that need a design answer are also listed for the lead to record
     inset ring switches at once, because the controls that use it have no box-shadow transition. The
     ring never changes the control's size or the widget tree.
 
+30. **StickyNote and the keyboard.** Board `a4-1d` says Escape closes the note and returns focus to
+    its pin; the bundle has no Escape handler. Opening the pin from the keyboard moves focus into the
+    card, a non-modal focus scope that Tab leaves at either end; Escape in the card, or Close from
+    the keyboard, closes it and puts focus back on the pin. The reply fields of StickyNote and
+    CommentCard keep focus after Enter or Reply sends, so a second reply can follow.
+31. **TextEditBox on the page.** The frame's negative margin (`margin: -4px -5px`) is applied by a
+    render object, so the block takes the room of the paragraph it wraps and its text stays where the
+    unframed neighbours put it; the overhang takes the pointer where the parent's bounds cover it. The
+    focus ring is page-tuned like the frame: 2 px of page white, then `--edit-box` out to 4 px, in
+    both themes. The eight handles show the resize cursors of `editing.css` (mirrored in right to
+    left) and resize nothing until block resizing comes in M3 (B016).
+32. **TextCaret inside text.** In a baseline `WidgetSpan`, the span applies the text scaler, so the
+    caret takes the unscaled em size from the ambient `DefaultTextStyle` (the caller sets it with
+    `DefaultTextStyle.merge`) and is never scaled twice. It runs no blink timer while its
+    `TickerMode` is muted or it sits on a hidden `IndexedStack` page.
+33. **The edited underline's dots.** PageMark draws its dotted underline as square dots snapped to
+    device pixels without anti-aliasing (2 × 2 px at a 4 px pitch at 1x), as Chromium draws it in the
+    `a3-3a` render.
+34. **PdfFormField sizes and the read-only look.** The multiline box is a fixed 60 px, the height of
+    the bundle's three-row textarea with 16 px lines (the CSS `min-height` of 54 px never applies);
+    longer text scrolls while editing and is clipped otherwise, since a field on a page has a fixed
+    rectangle. The read-only look keeps a transparent 1 px border on every side and draws the dotted
+    bottom line as 1 px squares at a 2 px pitch; a signed read-only signature keeps its solid bottom
+    line, as the cascade gives it. Space toggles a form checkbox or radio and Enter does not, as in a
+    browser, even under the app's default shortcuts.
+35. **Replace that is not available.** With `replaceDisabledReason`, the find bar keeps the
+    disclosure, the replace field and both Replace buttons visible and disabled with the reason
+    ("Available in a future version" until replace ships in P2).
+
 ## Reference (generated)
 
 <!-- BEGIN GENERATED COMPONENT REFERENCE: tools/icons, dart run icons:component_spec -->
@@ -372,6 +401,7 @@ built; the ones that need a design answer are also listed for the lead to record
 | `ToastAction` | Record ({String label, VoidCallback onPressed}). |
 | `CommandGroup` | Record ({String label, List<CommandItem> items}). |
 | `MentionCandidate` | Record ({String initials, String name}). |
+| `CommandFooterHint` | Record ({List<String> keys, String label}): a key-cap hint in the CommandPalette footer ("↑ ↓ Move"). |
 | `n/a` | The DS prop has no Flutter parameter; see omitReason. |
 
 ### Summary
@@ -761,6 +791,13 @@ Drawn in: FmEditPanel, FmNumber, FmSettings.
 | — |  | `size` | `FieldSize` | `"md"` | `sm`, `md` |  |
 | — |  | `disabled` | `bool` | `false` |  |  |
 | — |  | `child` | `Widget` (required) |  |  | The control inside the box. |
+| — |  | `focused` | `bool?` |  |  | Whether the box shows focus; null tracks focus inside it. |
+| — |  | `hovered` | `bool?` |  |  | Whether the box shows the hover border; null tracks the pointer. |
+| — |  | `focusRingStyle` | `FocusRingStyle` | Dart: `FocusRingStyle.field` |  | The ring the box shows with focus: the field ring of `.fm-input`, or the outer `--focus-ring` of the picker triggers (`.fm-colortrigger:focus-visible`, `.fm-fonttrigger:focus-visible`). |
+| — |  | `padding` | `EdgeInsetsGeometry?` |  |  | The padding inside the box; null takes the size's side padding. |
+| — |  | `clip` | `bool` | `false` |  | Whether the box clips its content to its rounded shape (`.fm-stepper` `overflow: hidden`). |
+| — |  | `onLabelTap` | `VoidCallback?` |  |  | Called on a click on [label] (the bundle's `<label htmlFor>`); the control focuses itself. |
+| — |  | `errorIcon` | `bool` | `true` |  | Whether the error line starts with the `circle-alert` glyph (TextField's error line); false for text only (the FmNumber board, `FmNumber.dc.html`). |
 
 Sizes: `sm`, `md`.
 
@@ -808,6 +845,9 @@ Drawn in: 01 First run and files, 03a Edit text, 03b Edit content, 04 Comment, 0
 | — |  | `onChanged` | `ValueChanged<String>?` |  |  |  |
 | — |  | `onSubmitted` | `ValueChanged<String>?` |  |  |  |
 | — |  | `autofocus` | `bool` | `false` |  |  |
+| — |  | `inputFormatters` | `List<TextInputFormatter>?` |  |  | Formatters applied to every edit. |
+| — |  | `keyboardType` | `TextInputType?` |  |  | The on-screen keyboard; null for plain text. |
+| — |  | `obscureText` | `bool` | `false` |  | Whether the text is masked: the bundle's `type="password"`, passed through `...rest` (a1-8, a5-6b, a8-1, a10-2). |
 
 Sizes: `sm`, `md`.
 
@@ -856,6 +896,7 @@ Drawn in: 01 First run and files, 02 View, 03a Edit text, 03b Edit content, 03c 
 | `disabled` |  | `disabled` | `bool` | `false` |  |  |
 | — |  | `disabledReason` | `String?` |  |  | Settings controls (G10). |
 | — |  | `semanticLabel` | `String?` |  |  | aria-label via ...rest (zoom, sort). |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the box; one is created when null. |
 
 Item type `SelectOption` → `SelectOption<T>` (declared in the lint config):
 
@@ -898,7 +939,8 @@ Semantics: role combobox (native select); label label or semanticLabel; value = 
 
 Notes:
 
-- The open list is not drawn; it reuses the Menu item look (28 px rows, surface-selected-strong highlight).
+- The open list is not drawn; it reuses the Menu item look (28 px rows, surface-selected-strong highlight, the check in the secondary icon colour, G78).
+- For screen readers the open list is a menu named by the label, with radio menu items (Flutter has no listbox role, decision 36).
 - No error state in the DS.
 
 #### NumberStepper
@@ -924,6 +966,11 @@ Tier: Screens use FmNumber (locale-aware) built on it; first needed M3.
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
 | `onChange` | yes | `onChanged` | `ValueChanged<double>?` |  |  |  |
 | `id` | yes | — | `n/a` |  |  | Omitted: DOM id for the label link; Semantics links label and field. |
+| — |  | `region` | `Region` (required) |  |  | The region whose number format the field shows and reads. |
+| — |  | `error` | `String?` |  |  | The error under the box; null for none. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name when no [label] is shown. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the text control; one is created when null. |
+| — |  | `controlStyle` | `TextStyle?` |  |  | The value's text style; null takes the box's control style for [size] (12 px at [FieldSize.sm]). |
 
 Sizes: `sm`, `md`.
 
@@ -972,6 +1019,8 @@ Drawn in: 01 First run and files, 02 View, 03a Edit text, 03b Edit content, 04 C
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
 | — |  | `disabledReason` | `String?` |  |  | Settings controls (G10). |
 | `onChange` | yes | `onChanged` | `ValueChanged<bool>?` |  |  |  |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the box takes focus when it first appears. |
 
 States:
 
@@ -1018,6 +1067,8 @@ Drawn in: 01 First run and files, 03b Edit content, 03c Edit review and translat
 | `value` | yes | `value` | `T` (required) |  |  |  |
 | — |  | `groupValue` | `T?` |  |  |  |
 | `onChange` | yes | `onChanged` | `ValueChanged<T>?` |  |  |  |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the radio takes focus when it first appears. |
 
 States:
 
@@ -1028,6 +1079,7 @@ States:
 | `focusVisible` | keyboard | `forms.css:49`, `forms.css:60` |  |
 | `checked` | data | `forms.css:59` |  |
 | `disabled` | prop (`disabled`) | `forms.css:52`, `forms.css:54` |  |
+| `disabledChecked` | prop (`disabled`) | `forms.css:53` | G79. The checkbox's strong grey; the cascade would let line 59 draw it as an enabled radio. |
 | `disabledWithReason` | prop (`disabledReason`) |  | G10. Tooltip: "Available in a future version". Disabled look; the reason shows as tooltip and semantics hint (the future-version text for unshipped features, the specific reason for a capability limit, as in a3-15); stays focusable; activation does nothing. |
 
 Keyboard:
@@ -1060,6 +1112,8 @@ Drawn in: 02 View, 03a Edit text, 03b Edit content, 03c Edit review and translat
 | — |  | `disabledReason` | `String?` |  |  | Settings → Privacy rows are disabled until their milestone (G10). |
 | `onChange` | yes | `onChanged` | `ValueChanged<bool>?` |  |  |  |
 | — |  | `semanticLabel` | `String?` |  |  | aria-label via ...rest (Privacy rows). |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the switch takes focus when it first appears. |
 
 States:
 
@@ -1107,6 +1161,16 @@ Drawn in: 00 Fixes, 03a Edit text, 03b Edit content, FmEditPanel.
 | `onChange` | yes | `onChanged` | `ValueChanged<Color?>?` |  |  |  |
 | `size` | yes | `size` | `FieldSize` | `"sm"` | `sm`, `md` |  |
 | `disabled` | yes | `disabled` | `bool` | `false` |  |  |
+| — |  | `disabledReason` | `String?` |  |  | Why the picker is disabled (G10). |
+| — |  | `noneLabel` | `String?` |  |  | The trigger text for no colour (the bundle's "None"). |
+| — |  | `documentColorsLabel` | `String?` |  |  | The heading of the document colours ("In this document"). |
+| — |  | `standardColorsLabel` | `String?` |  |  | The heading of the standard swatches ("Standard"). |
+| — |  | `noColorLabel` | `String?` |  |  | The accessible name of the none swatch ("No color"). |
+| — |  | `hexLabel` | `String?` |  |  | The visible label in the hex field ("Hex"). |
+| — |  | `hexSemanticLabel` | `String?` |  |  | The accessible name of the hex field ("Hex color"). |
+| — |  | `dialogLabel` | `String?` |  |  | The accessible name of the popover ("Choose color"). |
+| — |  | `eyedropper` | `Widget?` |  |  | The eyedropper button after the hex field (an IconButton with `pipette`, disabled until M3); null shows none. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the trigger; one is created when null. |
 
 Sizes: `sm`, `md`.
 
@@ -1160,6 +1224,16 @@ Drawn in: 00 Fixes, 03a Edit text, 03b Edit content, DS additions, FmEditPanel.
 | `size` |  | `size` | `FieldSize` | `"sm"` | `sm`, `md` |  |
 | `disabled` |  | `disabled` | `bool` | `false` |  |  |
 | — |  | `glyphWarning` | `bool` | `false` |  | DS additions fix 2 ([data-fm-glyph-warning]): amber border and a triangle in the trigger only. |
+| — |  | `disabledReason` | `String?` |  |  | Why the picker is disabled (G10). |
+| — |  | `missingNote` | `String?` |  |  | The note shown when the current font is not installed ("Minion Pro isn't installed. Ferman is showing Source Serif instead."), built by the screen from the font and its substitute. |
+| — |  | `missingBadge` | `Widget?` |  |  | The badge on missing fonts' rows (a warning Badge "Not installed"); null shows none. |
+| — |  | `documentGroupLabel` | `String?` |  |  | The heading of the document's fonts ("In this document"). |
+| — |  | `systemGroupLabel` | `String?` |  |  | The heading of the device's fonts ("On this device"). |
+| — |  | `searchPlaceholder` | `String?` |  |  | The search field's placeholder ("Search fonts"). |
+| — |  | `searchSemanticLabel` | `String?` |  |  | The search field's accessible name ("Search fonts"). |
+| — |  | `listSemanticLabel` | `String?` |  |  | The list's accessible name ("Fonts"). |
+| — |  | `noMatchesText` | `String Function(String query)?` |  |  | The text shown when no font matches the query ("No fonts match “query”."). |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the trigger; one is created when null. |
 
 Item type `FontOption` → `FontOption` (declared in the lint config):
 
@@ -1224,6 +1298,8 @@ Drawn in: FmEditPanel.
 | — |  | `anchor` | `Widget` (required) |  |  |  |
 | — |  | `child` | `Widget` (required) |  |  |  |
 | — |  | `onDismiss` | `VoidCallback?` |  |  | Outside click or Escape. |
+| — |  | `surface` | `bool` | `true` |  | Whether to draw the popover surface around [child] and animate it in; false for children that draw their own. |
+| — |  | `matchAnchorWidth` | `bool` | `false` |  | Whether the popover is at least as wide as the anchor (the Select list). |
 
 States:
 
@@ -1616,6 +1692,11 @@ Drawn in: 06 Organize, 07 Convert, 14 Tablet and web, DS additions, FmSidebar.
 | `rotation` | yes | `rotation` | `int` | `0` |  | 0, 90, 180 or 270. |
 | `children` | yes | `child` | `Widget?` |  |  | The rendered page; striped placeholder lines by default. |
 | `onClick` | yes | `onPressed` | `VoidCallback?` |  |  |  |
+| — |  | `badges` | `Widget?` |  |  | The page's badges (a `ThumbnailBadges`), at its top-end corner; null shows none. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name, the localized "Page N"; null takes [label] or the number. |
+| — |  | `markerTooltip` | `String?` |  |  | The [marker]'s tooltip (the bundle's English "Edited" and "Has comments"); null shows none. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the thumbnail takes focus when it first appears. |
 
 Variants (state): `idle`, `dragging`, `placeholder`.
 
@@ -1708,6 +1789,8 @@ Drawn in: 02 View, 03b Edit content.
 | `onReplaceAll` | yes | `onReplaceAll` | `VoidCallback?` |  |  |  |
 | `onClose` | yes | `onClose` | `VoidCallback?` |  |  |  |
 | `autoFocus` | yes | `autofocus` | `bool` | `false` |  |  |
+| — |  | `labels` | `SearchReplaceBarLabels` (required) |  |  | The localized texts. |
+| — |  | `replaceDisabledReason` | `String?` |  |  | Why replace is unavailable: the localized "Available in a future version" until replace ships (G10). |
 
 States:
 
@@ -1752,6 +1835,12 @@ Drawn in: 01 First run and files, 03a Edit text, 03b Edit content, 03c Edit revi
 | `width` | yes | `width` | `double?` |  |  |  |
 | — |  | `metaPlacement` | `MetaPlacement` | `"above"` | `above`, `below`, `margin` | DS additions fix 1: first free side wins (above, below, margin). |
 | `children` | yes | `child` | `Widget` (required) |  |  |  |
+| — |  | `inert` | `bool` | `false` |  | Whether the frame is outside Edit mode: no hover frame, no focus, the default cursor. |
+| — |  | `semanticLabel` | `String?` |  |  | The block's text for screen readers; null leaves it to [child]. |
+| — |  | `onPressed` | `VoidCallback?` |  |  | Called when the block is clicked (the bundle's `onClick`). |
+| — |  | `onStateChanged` | `ValueChanged<TextEditBoxState>?` |  |  | Called with the state the keyboard asks for: editing on Enter while selected, selected on Escape while editing. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The block's focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the block takes focus when it first appears. |
 
 Variants (state): `idle`, `hover`, `selected`, `editing`. Variants (metaPlacement): `above`, `below`, `margin`.
 
@@ -1951,6 +2040,11 @@ Drawn in: 04 Comment, DocKira.
 | `onToggle` |  | `onToggle` | `VoidCallback?` |  |  |  |
 | `onReply` |  | `onReply` | `ValueChanged<String>?` |  |  | Null hides the reply field (the bundle hides it only for an explicit null). |
 | `children` |  | `child` | `Widget?` |  |  |  |
+| — |  | `semanticLabel` | `String` (required) |  |  | The accessible name of the pin and the card, the localized `Note from <author>`. |
+| — |  | `moreLabel` | `String` (required) |  |  | The name and tooltip of the More button, the localized "More". |
+| — |  | `closeLabel` | `String` (required) |  |  | The name and tooltip of the Close button, the localized "Close note". |
+| — |  | `onMore` | `VoidCallback?` |  |  | Called when the card's More button is pressed; null disables it with "Available in a future version". |
+| — |  | `replyPlaceholder` | `String?` |  |  | The reply field's placeholder and name, the localized "Reply"; null shows none. |
 
 Item type `NoteReply` → `NoteReply` (declared in the lint config):
 
@@ -1971,8 +2065,9 @@ States:
 
 Keyboard:
 
-- `Enter`, `Space`: pin: expand
+- `Enter`, `Space`: pin: expand, focus moves into the card
 - `Enter`: reply field: send
+- `Escape`: card: close and return focus to the pin (board a4-1d; not in the bundle)
 
 Semantics: role button (pin) / dialog (card) "Note from <author>"; label "Note from <author>"; Flutter: button, namesRoute (card).
 
@@ -1995,6 +2090,7 @@ Drawn in: 03c Edit review and translate, 04 Comment.
 | `lang` | yes | `locale` | `Locale?` |  |  | Casing follows the locale: Turkish uppercases i to İ (ARCHITECTURE §11.2). |
 | `size` | yes | `fontSize` | `double` | `18` |  |  |
 | `style` | yes | — | `n/a` |  |  | Omitted: CSS hook. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name; null reads [label] and [meta]. |
 
 Variants (tone): `seal`, `ink`, `green`, `neutral`.
 
@@ -2037,6 +2133,10 @@ Drawn in: 05a Fill, DocForm, DocKira.
 | `signedAs` | yes | `signedAs` | `String?` |  |  |  |
 | `onChange` | yes | `onChanged` | `ValueChanged<String>?` |  |  |  |
 | `onClick` | yes | `onPressed` | `VoidCallback?` |  |  |  |
+| — |  | `signHereLabel` | `String?` |  |  | The signature box's call to action, the localized "Sign here". |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name; null takes [label] (and for a signature, "Sign here" or [signedAs]). |
+| — |  | `focusNode` | `FocusNode?` |  |  | The field's focus node; one is created when null. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the field takes focus when it first appears. |
 
 Variants (type): `text`, `multiline`, `date`, `dropdown`, `checkbox`, `radio`, `signature`. Variants (state): `empty`, `filled`, `focus`, `error`, `readonly`.
 
@@ -2086,6 +2186,9 @@ Drawn in: 05a Fill.
 | `saveForLater` |  | `saveForLater` | `bool` | `true` |  |  |
 | `onChange` |  | `onChanged` | `ValueChanged<SignatureValue>?` |  |  |  |
 | `initialStrokes` |  | `initialStrokes` | `List<List<Offset>>` | `[]` |  |  |
+| — |  | `labels` | `SignaturePadLabels` (required) |  |  | The localized texts. |
+| — |  | `onInkChanged` | `ValueChanged<Color>?` |  |  | Called with the ink the user picks; null makes the inks inert. |
+| — |  | `onSaveForLaterChanged` | `ValueChanged<bool>?` |  |  | Called when "Save on this device" is toggled; null disables it. |
 
 Item type `SignatureValue` → `SignatureValue` (declared in the lint config):
 
@@ -2402,6 +2505,9 @@ Drawn in: 11b App.
 | `onClose` |  | `onClose` | `VoidCallback?` |  |  |  |
 | `placeholder` |  | `placeholder` | `String` | `"Search commands, pages and text"` |  |  |
 | `emptyText` |  | `emptyText` | `String?` |  |  | Default "No commands match “q”. Press Enter to search the document instead." |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name of the palette ("Command palette"). |
+| — |  | `escapeKeys` | `List<String>?` |  |  | The key caps at the end of the input row (["Esc"]); null shows none. |
+| — |  | `footerHints` | `List<CommandFooterHint>` | Dart: `const []` |  | The key hints of the footer; empty hides the footer. |
 
 Item type `CommandItem` → `CommandItem` (declared in the lint config):
 
@@ -2491,7 +2597,9 @@ Semantics: role dialog, or alertdialog for the danger tone (modal); label title;
 Notes:
 
 - Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.
-- Footer button order follows the platform: Cancel left on Windows and Linux (Q12).
+- Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).
+- onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).
+- Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; inline ones do neither.
 
 #### Menu
 
@@ -2578,6 +2686,7 @@ Tier: Behind dialogs (M2) and the palette (M4).
 | — |  | `top` | `bool` | `false` |  | Command palette placement (14vh from the top). |
 | — |  | `onDismiss` | `VoidCallback?` |  |  | Pointer down on the scrim. |
 | — |  | `child` | `Widget` (required) |  |  |  |
+| — |  | `dismissLabel` | `String?` |  |  | The accessible name of the scrim as a dismiss target ("Close"). |
 
 States:
 
@@ -2754,6 +2863,14 @@ Drawn in: DocForm.
 | — |  | `onChanged` | `ValueChanged<DateTime>?` |  |  |  |
 | — |  | `onMonthChanged` | `ValueChanged<DateTime>?` |  |  |  |
 | — |  | `onDismiss` | `VoidCallback?` |  |  |  |
+| — |  | `region` | `Region` (required) |  |  | The region whose digits the days show. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name of the calendar ("Choose a date"). |
+| — |  | `monthLabel` | `String?` |  |  | The month heading; null formats [month] for the UI language. |
+| — |  | `weekdayLabels` | `List<String>?` |  |  | The seven weekday names, Monday first; null takes the UI language's short names. |
+| — |  | `previousMonthButton` | `Widget?` |  |  | The "Previous month" IconButton (`chevron-left`, small); null shows none. |
+| — |  | `nextMonthButton` | `Widget?` |  |  | The "Next month" IconButton (`chevron-right`, small); null shows none. |
+| — |  | `todayButton` | `Widget?` |  |  | The "Today" Button (small, ghost); null shows none. |
+| — |  | `autofocus` | `bool` | `false` |  | Whether the day grid takes focus when the calendar appears (as it does when it opens from a date field). |
 
 States:
 
@@ -2772,7 +2889,7 @@ Keyboard:
 - `Enter`, `Space`: choose the focused day
 - `Escape`: close
 
-Semantics: role dialog "Choose a date" with a grid of gridcells; label "Choose a date"; days by full date; Flutter: scopesRoute, selected, button.
+Semantics: role dialog "Choose a date" with a grid of gridcells; label "Choose a date"; days by full date; Flutter: scopesRoute, namesRoute, selected, button, focusable, focused.
 
 Notes:
 
@@ -2794,6 +2911,9 @@ Drawn in: FmComments.
 | — |  | `activeIndex` | `int` | `0` |  |  |
 | — |  | `onSelected` | `ValueChanged<MentionCandidate>?` |  |  |  |
 | — |  | `onDismiss` | `VoidCallback?` |  |  |  |
+| — |  | `onActiveIndexChanged` | `ValueChanged<int>?` |  |  | Called with the index of the person the pointer or the arrow keys make active. |
+| — |  | `heading` | `String?` |  |  | The heading above the people ("People in this document"); null shows none. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name of the list ("Mention someone"). |
 
 States:
 
@@ -2841,6 +2961,13 @@ Drawn in: FmComments.
 | — |  | `onResolve` | `VoidCallback?` |  |  |  |
 | — |  | `onReply` | `ValueChanged<String>?` |  |  |  |
 | — |  | `onReopen` | `VoidCallback?` |  |  |  |
+| — |  | `semanticLabel` | `String` (required) |  |  | The accessible name of the card. |
+| — |  | `resolveLabel` | `String` (required) |  |  | The Resolve button's label. |
+| — |  | `replyLabel` | `String` (required) |  |  | The Reply button's label. |
+| — |  | `reopenLabel` | `String` (required) |  |  | The Reopen button's label. |
+| — |  | `iconColor` | `Color?` |  |  | The chip icon's colour; null takes page ink (`#1F1D1A`). |
+| — |  | `repliesLabel` | `String?` |  |  | The collapsed replies count, such as "2 replies"; null shows none. |
+| — |  | `replyPlaceholder` | `String?` |  |  | The reply field's placeholder and name; null shows none. |
 
 States:
 
@@ -2924,6 +3051,10 @@ Drawn in: FmEditPanel, DS additions.
 | — |  | `max` | `double` | `"Infinity"` |  |  |
 | — |  | `step` | `double` | `1` |  |  |
 | — |  | `onChanged` | `ValueChanged<double>?` |  |  |  |
+| — |  | `region` | `Region` (required) |  |  | The region whose number format the field shows and reads. |
+| — |  | `semanticLabel` | `String?` |  |  | The accessible name when no [label] is shown (the board's `aria`). |
+| — |  | `disabled` | `bool` | `false` |  | Whether the field is disabled. |
+| — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the text control; one is created when null. |
 
 States:
 

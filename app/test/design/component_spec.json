@@ -76,6 +76,7 @@
     "ToastAction": "Record ({String label, VoidCallback onPressed}).",
     "CommandGroup": "Record ({String label, List<CommandItem> items}).",
     "MentionCandidate": "Record ({String initials, String name}).",
+    "CommandFooterHint": "Record ({List<String> keys, String label}): a key-cap hint in the CommandPalette footer (\"↑ ↓ Move\").",
     "n/a": "The DS prop has no Flutter parameter; see omitReason."
   },
   "rules": [
@@ -1293,6 +1294,70 @@
           "default": null,
           "notes": "The control inside the box.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focused",
+          "type": "bool?",
+          "required": false,
+          "default": null,
+          "notes": "Whether the box shows focus; null tracks focus inside it.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "hovered",
+          "type": "bool?",
+          "required": false,
+          "default": null,
+          "notes": "Whether the box shows the hover border; null tracks the pointer.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusRingStyle",
+          "type": "FocusRingStyle",
+          "required": false,
+          "default": null,
+          "dartDefault": "FocusRingStyle.field",
+          "notes": "The ring the box shows with focus: the field ring of `.fm-input`, or the outer `--focus-ring` of the picker triggers (`.fm-colortrigger:focus-visible`, `.fm-fonttrigger:focus-visible`).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "padding",
+          "type": "EdgeInsetsGeometry?",
+          "required": false,
+          "default": null,
+          "notes": "The padding inside the box; null takes the size's side padding.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "clip",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the box clips its content to its rounded shape (`.fm-stepper` `overflow: hidden`).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onLabelTap",
+          "type": "VoidCallback?",
+          "required": false,
+          "default": null,
+          "notes": "Called on a click on [label] (the bundle's `<label htmlFor>`); the control focuses itself.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "errorIcon",
+          "type": "bool",
+          "required": false,
+          "default": true,
+          "notes": "Whether the error line starts with the `circle-alert` glyph (TextField's error line); false for text only (the FmNumber board, `FmNumber.dc.html`).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -1508,6 +1573,33 @@
           "required": false,
           "default": false,
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "inputFormatters",
+          "type": "List<TextInputFormatter>?",
+          "required": false,
+          "default": null,
+          "notes": "Formatters applied to every edit.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "keyboardType",
+          "type": "TextInputType?",
+          "required": false,
+          "default": null,
+          "notes": "The on-screen keyboard; null for plain text.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "obscureText",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the text is masked: the bundle's `type=\"password\"`, passed through `...rest` (a1-8, a5-6b, a8-1, a10-2).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -1686,6 +1778,15 @@
           "default": null,
           "notes": "aria-label via ...rest (zoom, sort).",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node of the box; one is created when null.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -1792,7 +1893,7 @@
         "properties": ["button", "expanded", "value", "enabled", "focusable"]
       },
       "notes": [
-        "The open list is not drawn; it reuses the Menu item look (28 px rows, surface-selected-strong highlight).",
+        "The open list is not drawn; it reuses the Menu item look (28 px rows, surface-selected-strong highlight, the check in the secondary icon colour, G78).", "For screen readers the open list is a menu named by the label, with radio menu items (Flutter has no listbox role, decision 36).",
         "No error state in the DS."
       ]
     },
@@ -1901,6 +2002,51 @@
           "default": null,
           "omitReason": "DOM id for the label link; Semantics links label and field.",
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "region",
+          "type": "Region",
+          "required": true,
+          "default": null,
+          "notes": "The region whose number format the field shows and reads.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "error",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The error under the box; null for none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name when no [label] is shown.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node of the text control; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "controlStyle",
+          "type": "TextStyle?",
+          "required": false,
+          "default": null,
+          "notes": "The value's text style; null takes the box's control style for [size] (12 px at [FieldSize.sm]).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -2054,6 +2200,24 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the box takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -2241,6 +2405,24 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the radio takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -2278,6 +2460,14 @@
             {"file": "forms", "line": 52, "text": ".fm-check__input:disabled {"},
             {"file": "forms", "line": 54, "text": ".fm-check--disabled"}
           ]
+        },
+        {
+          "name": "disabledChecked",
+          "trigger": "prop",
+          "prop": "disabled",
+          "refs": [{"file": "forms", "line": 53, "text": ".fm-check__input:disabled:checked"}],
+          "gap": "G79",
+          "notes": "The checkbox's strong grey; the cascade would let line 59 draw it as an enabled radio."
         },
         {
           "name": "disabledWithReason",
@@ -2390,6 +2580,24 @@
           "required": false,
           "default": null,
           "notes": "aria-label via ...rest (Privacy rows).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the switch takes focus when it first appears.",
           "declared": false
         }
       ],
@@ -2555,6 +2763,96 @@
           "required": false,
           "default": false,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "disabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Why the picker is disabled (G10).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "noneLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The trigger text for no colour (the bundle's \"None\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "documentColorsLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading of the document colours (\"In this document\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "standardColorsLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading of the standard swatches (\"Standard\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "noColorLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the none swatch (\"No color\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "hexLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The visible label in the hex field (\"Hex\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "hexSemanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the hex field (\"Hex color\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "dialogLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the popover (\"Choose color\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "eyedropper",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The eyedropper button after the hex field (an IconButton with `pipette`, disabled until M3); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node of the trigger; one is created when null.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -2730,6 +3028,96 @@
           "default": false,
           "notes": "DS additions fix 2 ([data-fm-glyph-warning]): amber border and a triangle in the trigger only.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "disabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Why the picker is disabled (G10).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "missingNote",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The note shown when the current font is not installed (\"Minion Pro isn't installed. Ferman is showing Source Serif instead.\"), built by the screen from the font and its substitute.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "missingBadge",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The badge on missing fonts' rows (a warning Badge \"Not installed\"); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "documentGroupLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading of the document's fonts (\"In this document\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "systemGroupLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading of the device's fonts (\"On this device\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "searchPlaceholder",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The search field's placeholder (\"Search fonts\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "searchSemanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The search field's accessible name (\"Search fonts\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "listSemanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The list's accessible name (\"Fonts\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "noMatchesText",
+          "type": "String Function(String query)?",
+          "required": false,
+          "default": null,
+          "notes": "The text shown when no font matches the query (\"No fonts match “query”.\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node of the trigger; one is created when null.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -2903,6 +3291,24 @@
           "required": false,
           "default": null,
           "notes": "Outside click or Escape.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "surface",
+          "type": "bool",
+          "required": false,
+          "default": true,
+          "notes": "Whether to draw the popover surface around [child] and animate it in; false for children that draw their own.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "matchAnchorWidth",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the popover is at least as wide as the anchor (the Select list).",
           "declared": false
         }
       ],
@@ -4066,6 +4472,51 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "badges",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The page's badges (a `ThumbnailBadges`), at its top-end corner; null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name, the localized \"Page N\"; null takes [label] or the number.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "markerTooltip",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The [marker]'s tooltip (the bundle's English \"Edited\" and \"Has comments\"); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the thumbnail takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -4403,6 +4854,24 @@
           "required": false,
           "default": false,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "labels",
+          "type": "SearchReplaceBarLabels",
+          "required": true,
+          "default": null,
+          "notes": "The localized texts.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "replaceDisabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Why replace is unavailable: the localized \"Available in a future version\" until replace ships (G10).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -4543,6 +5012,60 @@
           "required": true,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "inert",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the frame is outside Edit mode: no hover frame, no focus, the default cursor.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The block's text for screen readers; null leaves it to [child].",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onPressed",
+          "type": "VoidCallback?",
+          "required": false,
+          "default": null,
+          "notes": "Called when the block is clicked (the bundle's `onClick`).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onStateChanged",
+          "type": "ValueChanged<TextEditBoxState>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the state the keyboard asks for: editing on Enter while selected, selected on Escape while editing.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The block's focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the block takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5174,6 +5697,51 @@
           "required": false,
           "default": null,
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The accessible name of the pin and the card, the localized `Note from <author>`.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "moreLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The name and tooltip of the More button, the localized \"More\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "closeLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The name and tooltip of the Close button, the localized \"Close note\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onMore",
+          "type": "VoidCallback?",
+          "required": false,
+          "default": null,
+          "notes": "Called when the card's More button is pressed; null disables it with \"Available in a future version\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "replyPlaceholder",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The reply field's placeholder and name, the localized \"Reply\"; null shows none.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -5241,8 +5809,9 @@
         }
       ],
       "keyboard": [
-        {"keys": ["Enter", "Space"], "action": "pin: expand"},
-        {"keys": ["Enter"], "action": "reply field: send"}
+        {"keys": ["Enter", "Space"], "action": "pin: expand, focus moves into the card"},
+        {"keys": ["Enter"], "action": "reply field: send"},
+        {"keys": ["Escape"], "action": "card: close and return focus to the pin (board a4-1d; not in the bundle)"}
       ],
       "semantics": {
         "role": "button (pin) / dialog (card) \"Note from <author>\"",
@@ -5323,6 +5892,15 @@
           "default": null,
           "omitReason": "CSS hook.",
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name; null reads [label] and [meta].",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5466,6 +6044,42 @@
           "required": false,
           "default": null,
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "signHereLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The signature box's call to action, the localized \"Sign here\".",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name; null takes [label] (and for a signature, \"Sign here\" or [signedAs]).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The field's focus node; one is created when null.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the field takes focus when it first appears.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5637,6 +6251,33 @@
           "type": "List<List<Offset>>",
           "required": false,
           "default": [],
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "labels",
+          "type": "SignaturePadLabels",
+          "required": true,
+          "default": null,
+          "notes": "The localized texts.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onInkChanged",
+          "type": "ValueChanged<Color>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the ink the user picks; null makes the inks inert.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onSaveForLaterChanged",
+          "type": "ValueChanged<bool>?",
+          "required": false,
+          "default": null,
+          "notes": "Called when \"Save on this device\" is toggled; null disables it.",
           "declared": false
         }
       ],
@@ -6696,6 +7337,34 @@
           "default": null,
           "notes": "Default \"No commands match “q”. Press Enter to search the document instead.\"",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the palette (\"Command palette\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "escapeKeys",
+          "type": "List<String>?",
+          "required": false,
+          "default": null,
+          "notes": "The key caps at the end of the input row ([\"Esc\"]); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "footerHints",
+          "type": "List<CommandFooterHint>",
+          "required": false,
+          "default": null,
+          "dartDefault": "const []",
+          "notes": "The key hints of the footer; empty hides the footer.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -6996,7 +7665,7 @@
       },
       "notes": [
         "Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.",
-        "Footer button order follows the platform: Cancel left on Windows and Linux (Q12)."
+        "Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).", "onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).", "Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; inline ones do neither."
       ]
     },
     {
@@ -7302,7 +7971,16 @@
           "notes": "Pointer down on the scrim.",
           "declared": false
         },
-        {"ds": null, "dart": "child", "type": "Widget", "required": true, "default": null, "declared": false}
+        {"ds": null, "dart": "child", "type": "Widget", "required": true, "default": null, "declared": false},
+        {
+          "ds": null,
+          "dart": "dismissLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the scrim as a dismiss target (\"Close\").",
+          "declared": false
+        }
       ],
       "itemTypes": [],
       "variants": {},
@@ -7920,6 +8598,78 @@
           "required": false,
           "default": null,
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "region",
+          "type": "Region",
+          "required": true,
+          "default": null,
+          "notes": "The region whose digits the days show.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the calendar (\"Choose a date\").",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "monthLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The month heading; null formats [month] for the UI language.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "weekdayLabels",
+          "type": "List<String>?",
+          "required": false,
+          "default": null,
+          "notes": "The seven weekday names, Monday first; null takes the UI language's short names.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "previousMonthButton",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The \"Previous month\" IconButton (`chevron-left`, small); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "nextMonthButton",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The \"Next month\" IconButton (`chevron-right`, small); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "todayButton",
+          "type": "Widget?",
+          "required": false,
+          "default": null,
+          "notes": "The \"Today\" Button (small, ghost); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "autofocus",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the day grid takes focus when the calendar appears (as it does when it opens from a date field).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -7963,7 +8713,7 @@
       "semantics": {
         "role": "dialog \"Choose a date\" with a grid of gridcells",
         "label": "\"Choose a date\"; days by full date",
-        "properties": ["scopesRoute", "selected", "button"]
+        "properties": ["scopesRoute", "namesRoute", "selected", "button", "focusable", "focused"]
       },
       "notes": [
         "Custom popup on every platform, also on mobile where a note asks for the Material picker (G55); never showDatePicker (ADR 0011)."
@@ -8005,6 +8755,33 @@
           "type": "VoidCallback?",
           "required": false,
           "default": null,
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onActiveIndexChanged",
+          "type": "ValueChanged<int>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the index of the person the pointer or the arrow keys make active.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "heading",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The heading above the people (\"People in this document\"); null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name of the list (\"Mention someone\").",
           "declared": false
         }
       ],
@@ -8141,6 +8918,69 @@
           "type": "VoidCallback?",
           "required": false,
           "default": null,
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The accessible name of the card.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "resolveLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The Resolve button's label.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "replyLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The Reply button's label.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "reopenLabel",
+          "type": "String",
+          "required": true,
+          "default": null,
+          "notes": "The Reopen button's label.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "iconColor",
+          "type": "Color?",
+          "required": false,
+          "default": null,
+          "notes": "The chip icon's colour; null takes page ink (`#1F1D1A`).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "repliesLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The collapsed replies count, such as \"2 replies\"; null shows none.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "replyPlaceholder",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The reply field's placeholder and name; null shows none.",
           "declared": false
         }
       ],
@@ -8371,6 +9211,42 @@
           "type": "ValueChanged<double>?",
           "required": false,
           "default": null,
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "region",
+          "type": "Region",
+          "required": true,
+          "default": null,
+          "notes": "The region whose number format the field shows and reads.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "semanticLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The accessible name when no [label] is shown (the board's `aria`).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "disabled",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Whether the field is disabled.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focusNode",
+          "type": "FocusNode?",
+          "required": false,
+          "default": null,
+          "notes": "The focus node of the text control; one is created when null.",
           "declared": false
         }
       ],

@@ -66,7 +66,7 @@ enum ThumbnailMarker {
 /// and turns the lines, and any rotation adds a `rotate-cw` glyph before
 /// the number. The page colour filter (`--page-filter`) applies to the
 /// page and what sits on it ([child], the lines, [badges], [marker]), never
-/// to the cell, the rings or the number.
+/// to the cell, the rings or the number (G77).
 ///
 /// [badges] (a `ThumbnailBadges`) sits at the page's top-end corner and
 /// moves the placeholder lines aside. [marker] is the bundle's older
@@ -199,7 +199,7 @@ class PageThumbnail extends StatefulWidget {
   /// `border: 2px`. Under `.fm-root` (border-box, `base.css`) the CSS draws
   /// a 6 px end 2 px off the line's centre; its offsets (`top: -4px` on a
   /// 2 px line) assume content-box sizing, so the widget draws the 10 px
-  /// end those offsets centre on the line.
+  /// end those offsets centre on the line (G77).
   static const double dropEndSize = 10;
 
   /// `.fm-thumb__drop::before` `border: 2px solid var(--accent)`.
