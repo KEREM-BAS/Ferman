@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:io' show Platform;
 
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
@@ -124,7 +125,14 @@ void main() {
       await window.minimize();
       await window.startDragging();
       await window.close();
-      expect(methods(), ['minimize', 'startDragging', 'close']);
+      expect(methods(), [
+        'minimize',
+        // window_manager does not start a drag in full screen on Windows,
+        // and asks first when the tests run there.
+        if (Platform.isWindows) 'isFullScreen',
+        'startDragging',
+        'close',
+      ]);
     });
 
     test('a title-bar double-click follows the system setting on macOS and '
