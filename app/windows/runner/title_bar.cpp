@@ -100,6 +100,37 @@ bool TitleBar::IsOverMaximizeButton(LPARAM screen_point) const {
   return PtInRect(&physical, point) != 0;
 }
 
+std::optional<LRESULT> TitleBar::TopResizeEdgeHit(LPARAM screen_point) const {
+  // Only while Ferman draws the title bar, and only for a window that can be
+  // resized and is neither maximized nor full screen (full screen drops the
+  // resizable frame style).
+  if (!maximize_button_ || IsZoomed(top_level_) ||
+      (GetWindowLongPtr(top_level_, GWL_STYLE) & WS_THICKFRAME) == 0) {
+    return std::nullopt;
+  }
+  POINT point{GET_X_LPARAM(screen_point), GET_Y_LPARAM(screen_point)};
+  RECT client;
+  if (!ScreenToClient(top_level_, &point) ||
+      !GetClientRect(top_level_, &client)) {
+    return std::nullopt;
+  }
+  // As tall as the system's own resize frame at the window's DPI.
+  const UINT dpi = FlutterDesktopGetDpiForHWND(top_level_);
+  const int frame = GetSystemMetricsForDpi(SM_CYSIZEFRAME, dpi) +
+                    GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi);
+  if (point.y < 0 || point.y >= frame || point.x < 0 ||
+      point.x >= client.right) {
+    return std::nullopt;
+  }
+  if (point.x < frame) {
+    return HTTOPLEFT;
+  }
+  if (point.x >= client.right - frame) {
+    return HTTOPRIGHT;
+  }
+  return HTTOP;
+}
+
 void TitleBar::SetState(bool hovered, bool pressed) {
   if (hovered == hovered_ && pressed == pressed_) {
     return;
@@ -155,6 +186,11 @@ std::optional<LRESULT> TitleBar::HandleTopLevelMessage(HWND hwnd,
   }
   switch (message) {
     case WM_NCHITTEST:
+      // The top edge resizes the window, above the caption buttons too, as
+      // on a native title bar.
+      if (const auto edge = TopResizeEdgeHit(lparam)) {
+        return edge;
+      }
       if (IsOverMaximizeButton(lparam)) {
         return HTMAXBUTTON;
       }
@@ -197,9 +233,10 @@ LRESULT CALLBACK TitleBar::FlutterViewProc(HWND hwnd, UINT message,
                                            UINT_PTR subclass_id,
                                            DWORD_PTR ref_data) {
   auto* self = reinterpret_cast<TitleBar*>(ref_data);
-  if (message == WM_NCHITTEST && self->IsOverMaximizeButton(lparam)) {
+  if (message == WM_NCHITTEST && (self->TopResizeEdgeHit(lparam) ||
+                                  self->IsOverMaximizeButton(lparam))) {
     // Let the hit test fall through to the top-level window, which answers
-    // HTMAXBUTTON.
+    // HTTOP or HTMAXBUTTON.
     return HTTRANSPARENT;
   }
   return DefSubclassProc(hwnd, message, wparam, lparam);

@@ -52,7 +52,8 @@ void main() {
     tester,
   ) async {
     final container = await _pumpApp(tester);
-    final screen = tester.state(find.byType(Navigator));
+    // The root navigator: the window frame's shell route adds a nested one.
+    final screen = tester.state(find.byType(Navigator).first);
     final notifier = container.read(themeModeProvider.notifier);
     await notifier.select(AppThemeMode.dark);
     await tester.pumpAndSettle();
@@ -80,7 +81,7 @@ void main() {
 
     // The same navigator (and so the same screens and their state) stayed
     // mounted throughout: nothing restarted.
-    expect(tester.state(find.byType(Navigator)), same(screen));
+    expect(tester.state(find.byType(Navigator).first), same(screen));
     expect(find.text('Drop a PDF here'), findsOneWidget);
   });
 

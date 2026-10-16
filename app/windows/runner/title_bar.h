@@ -26,6 +26,10 @@
 // class reports hover and press back ("maximizeButtonState") so the button
 // can draw those states, and maximizes or restores the window on release.
 //
+// While the Flutter side has reported a rectangle, the top strip of the window
+// is also its top resize edge (window_manager's hidden title bar removes the
+// system's top frame).
+//
 // Until the Flutter side reports a rectangle, nothing changes: every message
 // passes through.
 class TitleBar {
@@ -58,6 +62,11 @@ class TitleBar {
   // Whether |screen_point| (an lParam with screen coordinates) lies on the
   // reported maximize button.
   bool IsOverMaximizeButton(LPARAM screen_point) const;
+
+  // HTTOP, HTTOPLEFT or HTTOPRIGHT when |screen_point| lies on the window's
+  // top resize edge. window_manager's hidden title bar removes the system's
+  // top frame, so the top strip of the client area takes its place.
+  std::optional<LRESULT> TopResizeEdgeHit(LPARAM screen_point) const;
 
   void SetState(bool hovered, bool pressed);
   void TrackNonClientLeave();

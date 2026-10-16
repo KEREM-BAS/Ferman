@@ -20,7 +20,7 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 | Application code | committed on `m1-foundations` (head `dcdf8a3`): phases A to D (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, the fonts and icons, `tokens.g.dart`, CI), wave 2's phases E1, E2 and F1 to F4 (the render thread and engine facade, the S6 checks, the theme layer, the Icon widget, the licence registry, the first goldens, casing and region formats), phase E3 (flutter_rust_bridge 2.13.0 through cargokit, the generated bindings, the engine services, the integration test with its profile-mode driver, the `bridge_imports` check) and phase E4 (PDFium bundled in the app on each system) |
 | Questions | 19 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006 and 0008; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 65 recorded: 53 Decided, 12 Needs owner, 0 Resolved (G62 to G65 found in M1) |
+| Design gaps | 66 recorded: 54 Decided, 12 Needs owner, 0 Resolved (G62 to G66 found in M1) |
 | Backlog | 7 open: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work; M1 adds the disabled shell and settings items as it builds them |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-15 |
@@ -134,7 +134,13 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   `Kbd`, `Tooltip` and the localized "Available in a future version" (`093dfd0`), with 45 widget
   tests. Phases G2 to G9 (the component groups) are in progress; the spec walker (`tools/checks`
   `component_spec`) is written and is wired into CI when every component exists (G10).
-- [ ] Step 8. App shell
+- [ ] Step 8. App shell. Phase H1, the title bars: the native parts are in `1a39443` (macOS
+  light placement, Windows snap layouts, the Linux header bar), and CI run
+  [38831554960](https://github.com/KEREM-BAS/Ferman/actions/runs/38831554960) built and ran them on
+  the three systems. The Flutter side hides the system title bar at start-up and frames every
+  screen with Ferman's own (`TitleBar` in `WindowFrame`, [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)):
+  drag and double-click, the caption buttons, the snap-layout area and the Windows top resize edge;
+  28 widget tests, and the integration test sees the title bar. H2 to H6 follow.
 - [ ] Step 9. Start screen and settings skeleton. Phase I1 committed the settings store
   (`a2f1988`): `settings.json` in the app support directory through a temporary file and a rename,
   loaded before the first frame; the theme choice now persists across restarts (22 tests). The
@@ -361,8 +367,9 @@ Taken by the lead within the approved architecture, reversible, and listed in th
 Checks this environment cannot do. Each is ticked only with the owner's result.
 
 - [ ] Native-speaker review of the Turkish and Arabic strings (gate S5, step 10).
-- [ ] R1 and R2 hardware checks: macOS traffic lights and full screen; Windows 11 snap layouts on
-  hover over maximize; CJK system fonts with the right regional forms (step 5); the bridge zero-copy
+- [ ] R1 and R2 hardware checks: macOS traffic lights (placement in left to right and right to left,
+  after resizing and in and out of full screen) and the title-bar double-click setting; Windows 11
+  snap layouts on hover over maximize, its hover and press, and the top resize edge; CJK system fonts with the right regional forms (step 5); the bridge zero-copy
   timing (step 3, in profile mode: `flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart` from `app/`); the start-screen
   budget (step 9).
 - [ ] arm64 app builds: the arm64 slice of the macOS universal app on Apple silicon, Windows on arm64

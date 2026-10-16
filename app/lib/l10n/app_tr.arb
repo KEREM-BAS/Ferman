@@ -2,5 +2,9 @@
   "@@locale": "tr",
   "appName": "Ferman",
   "startPlaceholderTitle": "PDF'yi buraya bırakın",
-  "availableInFutureVersion": "Gelecek bir sürümde sunulacak"
+  "availableInFutureVersion": "Gelecek bir sürümde sunulacak",
+  "windowMinimize": "Simge durumuna küçült",
+  "windowMaximize": "Ekranı kapla",
+  "windowRestore": "Geri yükle",
+  "windowClose": "Kapat"
 }

@@ -117,6 +117,30 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Available in a future version'**
   String get availableInFutureVersion;
+
+  /// Tooltip and screen-reader name of the window's minimize caption button on Windows and Linux (FmWindow t.minimize). Use the operating system's own word for this button.
+  ///
+  /// In en, this message translates to:
+  /// **'Minimize'**
+  String get windowMinimize;
+
+  /// Tooltip and screen-reader name of the window's maximize caption button on Windows and Linux (FmWindow t.maximize). Use the operating system's own word for this button.
+  ///
+  /// In en, this message translates to:
+  /// **'Maximize'**
+  String get windowMaximize;
+
+  /// Tooltip and screen-reader name of the maximize caption button while the window is maximized: it returns the window to its previous size. Not in the design; use the operating system's own word (Windows: Restore).
+  ///
+  /// In en, this message translates to:
+  /// **'Restore'**
+  String get windowRestore;
+
+  /// Tooltip and screen-reader name of the window's close caption button on Windows and Linux (FmWindow t.closeWin). Closes the window, not a document.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get windowClose;
 }
 
 class _AppLocalizationsDelegate

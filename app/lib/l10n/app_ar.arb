@@ -1,5 +1,9 @@
 {
   "@@locale": "ar",
   "appName": "Ferman",
-  "availableInFutureVersion": "متاح في إصدار قادم"
+  "availableInFutureVersion": "متاح في إصدار قادم",
+  "windowMinimize": "تصغير",
+  "windowMaximize": "تكبير",
+  "windowRestore": "استعادة",
+  "windowClose": "إغلاق"
 }

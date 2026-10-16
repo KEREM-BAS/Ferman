@@ -101,6 +101,14 @@ void main() {
       expect(window.maximizeButton.value, MaximizeButtonState.idle);
     });
 
+    test('asks macOS to handle a title-bar double-click', () async {
+      final window = PlatformWindowChannel();
+      addTearDown(window.dispose);
+      await window.titleBarDoubleClicked();
+      expect(calls.single.method, 'titleBarDoubleClicked');
+      expect(calls.single.arguments, isNull);
+    });
+
     test('does nothing where no runner handles the channel', () async {
       messenger.setMockMethodCallHandler(channel, null);
       final window = PlatformWindowChannel();
@@ -114,6 +122,7 @@ void main() {
         ),
       );
       await window.setMaximizeButtonRect(const Rect.fromLTWH(0, 0, 1, 1));
+      await window.titleBarDoubleClicked();
     });
 
     test('equality of the state', () {

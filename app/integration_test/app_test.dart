@@ -1,4 +1,5 @@
 import 'package:ferman/app/app.dart';
+import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_service_frb.dart';
 import 'package:ferman/main.dart' as app;
@@ -11,10 +12,13 @@ import 'package:integration_test/integration_test.dart';
 void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
-  testWidgets('the built app starts and shows the root widget', (tester) async {
+  testWidgets('the built app starts with its own title bar', (tester) async {
     await app.main();
     await tester.pumpAndSettle();
     expect(find.byType(FermanApp), findsOneWidget);
+    // Integration tests run on the desktop, where bootstrap hides the
+    // system title bar and Ferman draws its own.
+    expect(find.byType(TitleBar), findsOneWidget);
   });
 
   group('engine through the bridge', () {

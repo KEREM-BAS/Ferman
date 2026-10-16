@@ -11,5 +11,21 @@
   "availableInFutureVersion": "Available in a future version",
   "@availableInFutureVersion": {
     "description": "Tooltip and screen-reader hint on every control whose feature is not built yet; the control stays visible and disabled (brief, design gap G10). Keep it short: it appears in a small tooltip bubble."
+  },
+  "windowMinimize": "Minimize",
+  "@windowMinimize": {
+    "description": "Tooltip and screen-reader name of the window's minimize caption button on Windows and Linux (FmWindow t.minimize). Use the operating system's own word for this button."
+  },
+  "windowMaximize": "Maximize",
+  "@windowMaximize": {
+    "description": "Tooltip and screen-reader name of the window's maximize caption button on Windows and Linux (FmWindow t.maximize). Use the operating system's own word for this button."
+  },
+  "windowRestore": "Restore",
+  "@windowRestore": {
+    "description": "Tooltip and screen-reader name of the maximize caption button while the window is maximized: it returns the window to its previous size. Not in the design; use the operating system's own word (Windows: Restore)."
+  },
+  "windowClose": "Close",
+  "@windowClose": {
+    "description": "Tooltip and screen-reader name of the window's close caption button on Windows and Linux (FmWindow t.closeWin). Closes the window, not a document."
   }
 }

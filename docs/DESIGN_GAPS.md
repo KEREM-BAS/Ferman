@@ -62,7 +62,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-65 entries: 53 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G65 were found in M1.
+66 entries: 54 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G66 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -135,6 +135,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G63](#g63) | missing state | M1 | Errors | No message drawn for an internal error | Decided |
 | [G64](#g64) | conflict (internal to design) | M1 | Typography / localization | Arabic, Hebrew and Hindi UI text: which Plex family comes first | Decided |
 | [G65](#g65) | conflict | M1 | Typography / CJK | CJK text: no synthetic bold, which Flutter cannot switch off | Decided |
+| [G66](#g66) | missing state | M1 | Window chrome | Title bar states and gestures the boards do not draw | Decided |
 
 ## Entries
 
@@ -982,3 +983,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The CJK roles keep the design's weights and no role is italic. For ja, ko, zh-Hans and zh-Hant the theme names the ADR 0013 system families right after IBM Plex Sans (Hiragino Sans, Yu Gothic UI, Noto Sans CJK JP; Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR; PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC; PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC), so real bold faces are picked where the system has them. Remaining synthesis is checked by hand with the step 5 CJK samples on R1, R2 and Linux.
 - **Status:** Decided
 - **Evidence:** `design/ds-additions/fm-additions.css` lines 55–56; `FermanFontFamilies` in `app/lib/design/theme/typography.dart`.
+
+<a id="g66"></a>
+
+### G66 · Title bar states and gestures the boards do not draw
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Window chrome
+- **Artboards:** every board drawn with `FmWindow`; f6 and f6a (caption buttons)
+- **Gap or conflict:** FmWindow draws the title bar of an active, unmaximized window. It draws no maximized (restore) caption button and has no "Restore" string, no inactive window, no macOS full screen, and it does not say what dragging or double-clicking the bar does or where a window without the system title bar resizes from its top edge.
+- **Decision:** A maximized window shows the restore glyph (two overlapping squares, the `copy` icon, as Windows draws it) named "Restore", with the operating system's own word in Turkish ("Geri yükle") and Arabic ("استعادة"), pending the native-speaker review like every string. An inactive window keeps the active colours. In macOS full screen, where the system owns the traffic lights, the light slot gives way to the 8 px gap the Windows bar has. The bar's empty space moves the window; a double-click there does what the system does (macOS: the "Double-click a window's title bar to" setting; Windows and Linux: maximize or restore, [B009](BACKLOG.md#open) for desktop settings on Linux). On Windows the top strip of the window, over the caption buttons too, is the top resize edge while the window is not maximized, as on a native title bar.
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 17–34 (header) and line 184 (`minimize`, `maximize`, `closeWin`; no restore); `design/00 Fixes.dc.html` f6 and f6a. Implemented in M1 phase H1 ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).

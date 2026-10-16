@@ -17,4 +17,16 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get availableInFutureVersion => 'متاح في إصدار قادم';
+
+  @override
+  String get windowMinimize => 'تصغير';
+
+  @override
+  String get windowMaximize => 'تكبير';
+
+  @override
+  String get windowRestore => 'استعادة';
+
+  @override
+  String get windowClose => 'إغلاق';
 }

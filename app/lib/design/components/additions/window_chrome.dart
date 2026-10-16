@@ -1,8 +1,10 @@
 import 'package:ferman/design/components/foundation/focus_ring.dart';
+import 'package:ferman/design/components/foundation/forced_states.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
+import 'package:flutter/scheduler.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
 /// The desktop system whose window controls [WindowChrome] draws
@@ -53,6 +55,13 @@ enum WindowPlatform {
 /// **Semantics:** buttons named [minimizeLabel], [maximizeLabel] (or
 /// [restoreLabel] when [maximized]) and [closeLabel], which are also their
 /// tooltips.
+///
+/// **Windows snap layouts:** [onMaximizeButtonRect] reports where the
+/// maximize button is, so the window integration can make that area answer
+/// the system's hit test as the maximize button; the system then shows its
+/// snap layouts there and the pointer no longer reaches Flutter, so the
+/// integration passes the button's hover and press back as
+/// [maximizeButtonStates].
 class WindowChrome extends StatelessWidget {
   /// The window controls for [platform].
   const new({
@@ -67,6 +76,8 @@ class WindowChrome extends StatelessWidget {
     this.onMaximize,
     this.onClose,
     this.paintTrafficLights = false,
+    this.maximizeButtonStates = const <WidgetState>{},
+    this.onMaximizeButtonRect,
   });
 
   /// The system whose controls are drawn.
@@ -103,6 +114,16 @@ class WindowChrome extends StatelessWidget {
   /// instead of leaving room for the native ones (goldens, the gallery).
   /// Not a design-system prop.
   final bool paintTrafficLights;
+
+  /// States the maximize button shows in addition to its own, from the
+  /// window integration (Windows: hover and press while the system owns the
+  /// button's area). Not a design-system prop.
+  final Set<WidgetState> maximizeButtonStates;
+
+  /// Called with the maximize button's rectangle in the coordinates of the
+  /// Flutter view after every frame in which it moved or changed size.
+  /// Windows and Linux layouts only. Not a design-system prop.
+  final ValueChanged<Rect>? onMaximizeButtonRect;
 
   /// The macOS close light: `#FF5F57` (`FmWindow.dc.html` line 18).
   static const Color macClose = Color(0xFFFF5F57);
@@ -212,6 +233,8 @@ class WindowChrome extends StatelessWidget {
               glyphSize: maximizeGlyphSize,
               glyphStroke: maximizeGlyphStroke,
               onPressed: onMaximize,
+              extraStates: maximizeButtonStates,
+              onRect: onMaximizeButtonRect,
             ),
             _CaptionButton(
               label: closeLabel,
@@ -252,6 +275,8 @@ class _CaptionButton extends StatefulWidget {
     required this.glyphStroke,
     required this.onPressed,
     this.close = false,
+    this.extraStates = const <WidgetState>{},
+    this.onRect,
   });
 
   final String label;
@@ -260,6 +285,8 @@ class _CaptionButton extends StatefulWidget {
   final double glyphStroke;
   final VoidCallback? onPressed;
   final bool close;
+  final Set<WidgetState> extraStates;
+  final ValueChanged<Rect>? onRect;
 
   @override
   State<_CaptionButton> createState() => _CaptionButtonState();
@@ -279,7 +306,20 @@ class _CaptionButtonState extends State<_CaptionButton> {
   }
 
   @override
-  Widget build(BuildContext context) => FermanInteractive(
+  Widget build(BuildContext context) {
+    // Always wrapped, so the button keeps its state when the extra states
+    // come and go.
+    final button = FermanForcedStates(
+      states: {...FermanForcedStates.of(context), ...widget.extraStates},
+      child: _button(context),
+    );
+    final onRect = widget.onRect;
+    return onRect == null
+        ? button
+        : _RectReporter(onRect: onRect, child: button);
+  }
+
+  Widget _button(BuildContext context) => FermanInteractive(
     focusNode: _node,
     onPressed: widget.onPressed,
     tooltip: widget.label,
@@ -322,4 +362,67 @@ class _CaptionButtonState extends State<_CaptionButton> {
       );
     },
   );
+}
+
+/// Reports its child's rectangle in the coordinates of the Flutter view
+/// after every frame in which it changed: a moved child is not always laid
+/// out or painted again, so the rectangle is checked once per frame.
+class _RectReporter extends SingleChildRenderObjectWidget {
+  const new({required this.onRect, super.child});
+
+  final ValueChanged<Rect> onRect;
+
+  @override
+  RenderObject createRenderObject(BuildContext context) =>
+      _RenderRectReporter(onRect);
+
+  @override
+  void updateRenderObject(
+    BuildContext context,
+    _RenderRectReporter renderObject,
+  ) {
+    renderObject.onRect = onRect;
+  }
+}
+
+class _RenderRectReporter extends RenderProxyBox {
+  new(this.onRect);
+
+  ValueChanged<Rect> onRect;
+  Rect? _reported;
+
+  // One persistent frame callback serves every reporter; it runs after the
+  // frame's layout and paint.
+  static final Set<_RenderRectReporter> _attached = {};
+  static bool _callbackAdded = false;
+
+  static void _checkAll(Duration _) {
+    for (final reporter in _attached.toList()) {
+      reporter._check();
+    }
+  }
+
+  @override
+  void attach(PipelineOwner owner) {
+    super.attach(owner);
+    _attached.add(this);
+    if (!_callbackAdded) {
+      _callbackAdded = true;
+      SchedulerBinding.instance.addPersistentFrameCallback(_checkAll);
+    }
+  }
+
+  @override
+  void detach() {
+    _attached.remove(this);
+    super.detach();
+  }
+
+  void _check() {
+    if (!attached || !hasSize) return;
+    final rect = localToGlobal(Offset.zero) & size;
+    if (rect == _reported) return;
+    _reported = rect;
+    onRect(rect);
+  }
 }

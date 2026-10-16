@@ -886,6 +886,7 @@ casing and region boxes are ticked once a green CI run covers these tests.
   (found in M1).
 - Typography (found in M1): [G64](DESIGN_GAPS.md#g64) UI font order, [G65](DESIGN_GAPS.md#g65) CJK
   synthetic bold.
+- Window chrome (found in M1): [G66](DESIGN_GAPS.md#g66) title bar states and gestures.
 
 ### Exit checks
 

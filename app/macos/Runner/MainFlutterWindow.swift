@@ -127,8 +127,29 @@ class MainFlutterWindow: NSWindow {
       layoutTrafficLights()
       layoutTrafficLightsSoon()
       result(nil)
+    case "titleBarDoubleClicked":
+      performTitleBarDoubleClick()
+      result(nil)
     default:
       result(FlutterMethodNotImplemented)
+    }
+  }
+
+  /// Does what System Settings → Desktop & Dock → "Double-click a window's
+  /// title bar to" says, as a native title bar would: zoom (the default,
+  /// also for "Fill"), minimize, or nothing. Older systems store a
+  /// minimize-on-double-click flag instead.
+  private func performTitleBarDoubleClick() {
+    let defaults = UserDefaults.standard
+    switch defaults.string(forKey: "AppleActionOnDoubleClick") {
+    case "Minimize"?:
+      miniaturize(nil)
+    case "None"?:
+      break
+    case .none where defaults.bool(forKey: "AppleMiniaturizeOnDoubleClick"):
+      miniaturize(nil)
+    default:
+      zoom(nil)
     }
   }
 

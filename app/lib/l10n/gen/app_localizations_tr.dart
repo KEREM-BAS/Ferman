@@ -17,4 +17,16 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get availableInFutureVersion => 'Gelecek bir sürümde sunulacak';
+
+  @override
+  String get windowMinimize => 'Simge durumuna küçült';
+
+  @override
+  String get windowMaximize => 'Ekranı kapla';
+
+  @override
+  String get windowRestore => 'Geri yükle';
+
+  @override
+  String get windowClose => 'Kapat';
 }

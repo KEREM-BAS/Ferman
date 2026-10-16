@@ -79,7 +79,9 @@ final class TrafficLightLayout {
 /// H1):
 ///
 /// - macOS: [setTrafficLightLayout] places the system's close, minimize and
-///   zoom buttons where the design draws its lights (`MainFlutterWindow`).
+///   zoom buttons where the design draws its lights, and
+///   [titleBarDoubleClicked] applies the system's double-click setting
+///   (`MainFlutterWindow`).
 /// - Windows: [setMaximizeButtonRect] makes the area of the Flutter-drawn
 ///   maximize button answer the system's hit test as the maximize button,
 ///   so Windows 11 shows its snap layouts there (`title_bar.cpp`). The
@@ -111,6 +113,11 @@ class PlatformWindowChannel {
   Future<void> setTrafficLightLayout(TrafficLightLayout layout) =>
       _invoke('setTrafficLightLayout', layout.toArguments());
 
+  /// Does what the user chose in System Settings for a double-click on a
+  /// window's title bar: zoom (the default), minimize or nothing. macOS
+  /// only.
+  Future<void> titleBarDoubleClicked() => _invoke('titleBarDoubleClicked');
+
   /// Reports the maximize button's [rect] in logical pixels of the Flutter
   /// view, or null to give the area back to Flutter. Windows only.
   Future<void> setMaximizeButtonRect(Rect? rect) {
@@ -134,7 +141,7 @@ class PlatformWindowChannel {
     maximizeButton.dispose();
   }
 
-  Future<void> _invoke(String method, Object? arguments) async {
+  Future<void> _invoke(String method, [Object? arguments]) async {
     try {
       await _channel.invokeMethod<void>(method, arguments);
     } on MissingPluginException {
