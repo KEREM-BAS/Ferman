@@ -58,6 +58,7 @@ export 'package:ferman/design/components/foundation/focus_ring.dart';
 export 'package:ferman/design/components/foundation/forced_states.dart';
 export 'package:ferman/design/components/foundation/future_version.dart';
 export 'package:ferman/design/components/foundation/interactive.dart';
+export 'package:ferman/design/components/foundation/modal_scope.dart';
 export 'package:ferman/design/components/navigation/ferman_mode.dart';
 export 'package:ferman/design/components/navigation/mode_tabs.dart';
 export 'package:ferman/design/components/navigation/segmented_control.dart';

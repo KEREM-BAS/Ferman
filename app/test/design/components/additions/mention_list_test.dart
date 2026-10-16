@@ -51,6 +51,12 @@ void main() {
       final initials = tester.widget<Text>(find.text('DA'));
       expect(initials.style!.fontSize, 10);
       expect(initials.style!.fontWeight, FontWeight.w600);
+      // The initials take the row's colour (FmComments.dc.html).
+      expect(initials.style!.color, light.textPrimary);
+      expect(
+        tester.widget<Text>(find.text('AY')).style!.color,
+        light.textSecondary,
+      );
       expect(
         tester
             .getSize(
@@ -208,6 +214,14 @@ void main() {
       expect(
         rowColor(tester, 'Av. Deniz Aksoy'),
         FermanTheme.dark.colors.surfaceSelectedStrong,
+      );
+      expect(
+        tester.widget<Text>(find.text('DA')).style!.color,
+        FermanTheme.dark.colors.textPrimary,
+      );
+      expect(
+        tester.widget<Text>(find.text('AY')).style!.color,
+        FermanTheme.dark.colors.textSecondary,
       );
     });
   });

@@ -2,7 +2,9 @@ import 'package:ferman/design/components/forms/color_picker.dart';
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
+import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
@@ -11,25 +13,61 @@ import '../../../helpers/component_host.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
+  final dark = FermanTheme.dark.colors;
 
-  Widget host(Widget child, {Brightness brightness = Brightness.light}) =>
-      TapRegionSurface(
-        child: componentHost(
-          ColoredBox(
-            color: const Color(0x00000000),
-            child: SizedBox.expand(
-              child: Align(
-                alignment: AlignmentDirectional.topStart,
-                child: Padding(
-                  padding: const EdgeInsetsDirectional.all(24),
-                  child: SizedBox(width: 160, child: child),
-                ),
-              ),
+  // The app's own shortcuts and actions (Tab moves focus), which
+  // componentHost leaves out.
+  Widget appKeys(Widget child) => Shortcuts(
+    shortcuts: WidgetsApp.defaultShortcuts,
+    child: Actions(actions: WidgetsApp.defaultActions, child: child),
+  );
+
+  Widget host(
+    Widget child, {
+    Brightness brightness = Brightness.light,
+    Locale locale = const Locale('en'),
+    Set<WidgetState>? forcedStates,
+  }) => TapRegionSurface(
+    child: componentHost(
+      ColoredBox(
+        color: const Color(0x00000000),
+        child: SizedBox.expand(
+          child: Align(
+            alignment: AlignmentDirectional.topStart,
+            child: Padding(
+              padding: const EdgeInsetsDirectional.all(24),
+              child: SizedBox(width: 160, child: child),
             ),
           ),
-          brightness: brightness,
         ),
+      ),
+      brightness: brightness,
+      locale: locale,
+      forcedStates: forcedStates,
+    ),
+  );
+
+  Color borderOf(WidgetTester tester) {
+    final box = tester.widget<AnimatedContainer>(find.byKey(FieldBox.boxKey));
+    return ((box.decoration! as BoxDecoration).border! as Border).top.color;
+  }
+
+  Container swatchOf(WidgetTester tester, String label) =>
+      tester.widget<Container>(
+        find
+            .descendant(
+              of: find.bySemanticsLabel(label).last,
+              matching: find.byType(Container),
+            )
+            .first,
       );
+
+  Color? edgeOf(Container swatch) {
+    final decoration = swatch.foregroundDecoration as BoxDecoration?;
+    return (decoration?.border as Border?)?.top.color;
+  }
+
+  final second = ColorPicker.hexOf(ColorPicker.standardSwatches[1]);
 
   Widget picker({
     Color? value = const Color(0xFF1F1D1A),
@@ -40,7 +78,9 @@ void main() {
     bool initiallyOpen = false,
     ValueChanged<bool>? onOpenChanged,
     bool disabled = false,
+    String? disabledReason,
     FocusNode? focusNode,
+    String noneLabel = 'None',
   }) => ColorPicker(
     label: 'Colour',
     value: value,
@@ -51,8 +91,9 @@ void main() {
     initiallyOpen: initiallyOpen,
     onOpenChanged: onOpenChanged,
     disabled: disabled,
+    disabledReason: disabledReason,
     focusNode: focusNode,
-    noneLabel: 'None',
+    noneLabel: noneLabel,
     documentColorsLabel: 'In this document',
     standardColorsLabel: 'Standard',
     noColorLabel: 'No color',
@@ -87,9 +128,59 @@ void main() {
       expect(tester.getSize(find.byKey(FieldBox.boxKey)).height, 26);
     });
 
-    testWidgets('none: struck chip and the none label', (tester) async {
+    testWidgets('none: struck chip and the upper-cased none label', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
       await tester.pumpWidget(host(picker(value: null, allowNone: true)));
-      expect(find.text('None'), findsOneWidget);
+      // `.fm-colortrigger__value { text-transform: uppercase }`.
+      expect(find.text('NONE'), findsOneWidget);
+      expect(find.text('None'), findsNothing);
+      // Screen readers hear the word, not spelled capitals.
+      expect(
+        tester.getSemantics(find.byKey(FieldBox.boxKey)),
+        isSemantics(label: 'Colour', value: 'None', isButton: true),
+      );
+      // `.fm-chip--none`: the raised surface with a 2 px danger stripe.
+      final chip = find
+          .descendant(
+            of: find.byKey(FieldBox.boxKey),
+            matching: find.byType(CustomPaint),
+          )
+          .first;
+      expect(
+        chip,
+        paints
+          ..rect(color: light.surfaceRaised)
+          ..line(color: light.danger, strokeWidth: 2),
+      );
+      await tester.tap(find.byKey(FieldBox.boxKey));
+      await tester.pumpAndSettle();
+      final noneSwatch = find
+          .descendant(
+            of: find.bySemanticsLabel('No color').last,
+            matching: find.byType(CustomPaint),
+          )
+          .first;
+      expect(
+        noneSwatch,
+        paints
+          ..rect(color: light.surfaceRaised)
+          ..line(color: light.danger, strokeWidth: 2),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('the none label follows the casing of the UI language', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          picker(value: null, allowNone: true, noneLabel: 'yeni'),
+          locale: const Locale('tr'),
+        ),
+      );
+      expect(find.text('YENİ'), findsOneWidget);
     });
 
     testWidgets('a click opens the popover with sections, swatches and the '
@@ -113,6 +204,9 @@ void main() {
 
     testWidgets('picking a swatch reports it; the current one is ringed in '
         'the accent', (tester) async {
+      // No focus highlight, so the focused current swatch shows its ring.
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTouch;
       final picked = <Color?>[];
       await tester.pumpWidget(
         host(picker(onChanged: picked.add, initiallyOpen: true)),
@@ -218,6 +312,199 @@ void main() {
                   .decoration!
               as BoxDecoration;
       expect(box.color, light.surfaceSunken);
+      // `.fm-input > svg { color: var(--icon-secondary) }` in every state.
+      final chevron = tester.widget<Icon>(find.byType(Icon));
+      expect(chevron.color, light.iconSecondary);
+    });
+
+    testWidgets('disabled with a reason: focusable, reason as tooltip and '
+        'hint, no popover', (tester) async {
+      final handle = tester.ensureSemantics();
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        host(
+          picker(
+            disabled: true,
+            disabledReason: 'Available in a future version',
+            focusNode: node,
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Available in a future version'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byKey(FieldBox.boxKey)),
+        isSemantics(
+          label: 'Colour',
+          hint: 'Available in a future version',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: false,
+          isFocusable: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('trigger hover: the strong border, by pointer or forced', (
+      tester,
+    ) async {
+      await tester.pumpWidget(host(picker()));
+      expect(borderOf(tester), light.borderDefault);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderStrong);
+      await tester.pumpWidget(
+        host(picker(), forcedStates: {WidgetState.hovered}),
+      );
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderStrong);
+    });
+
+    testWidgets('swatch hover: a 2 px strong ring', (tester) async {
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTouch;
+      await tester.pumpWidget(host(picker(initiallyOpen: true)));
+      await tester.pumpAndSettle();
+      expect(swatchOf(tester, '#FFE066').decoration, isA<BoxDecoration>());
+      expect(
+        (swatchOf(tester, '#FFE066').decoration! as BoxDecoration).boxShadow,
+        isEmpty,
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(
+        tester.getCenter(find.bySemanticsLabel('#FFE066').last),
+      );
+      await tester.pumpAndSettle();
+      final shadows =
+          (swatchOf(tester, '#FFE066').decoration! as BoxDecoration).boxShadow!;
+      expect(shadows, hasLength(1));
+      expect(shadows.single.color, light.borderStrong);
+      expect(shadows.single.spreadRadius, 2);
+    });
+
+    testWidgets('opening moves focus to the selected swatch; keyboard focus '
+        'shows the focus ring without the inset edge', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(appKeys(host(picker(focusNode: node))));
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isFalse);
+      final current = swatchOf(tester, '#1F1D1A');
+      expect(
+        (current.decoration! as BoxDecoration).boxShadow,
+        FocusRing.outerShadows(FermanTheme.light),
+      );
+      expect(current.foregroundDecoration, isNull);
+      // Tab moves to the next swatch, which takes the ring in turn.
+      await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+      await tester.pumpAndSettle();
+      final next = swatchOf(tester, second);
+      expect(
+        (next.decoration! as BoxDecoration).boxShadow,
+        FocusRing.outerShadows(FermanTheme.light),
+      );
+      expect(next.foregroundDecoration, isNull);
+      // The current one is back to its accent ring and inset edge.
+      final back = swatchOf(tester, '#1F1D1A');
+      expect(
+        (back.decoration! as BoxDecoration).boxShadow!.first.color,
+        light.accent,
+      );
+      expect(edgeOf(back), ColorPicker.chipEdgeLight);
+    });
+
+    testWidgets('with no colour chosen the first swatch takes focus', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(picker(value: const Color(0xFF123456), initiallyOpen: true)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        (swatchOf(tester, '#1F1D1A').decoration! as BoxDecoration).boxShadow,
+        FocusRing.outerShadows(FermanTheme.light),
+      );
+    });
+
+    testWidgets('Tab and Shift+Tab stay inside the popover', (tester) async {
+      final above = FocusNode(debugLabel: 'above');
+      final below = FocusNode(debugLabel: 'below');
+      final beside = FocusNode(debugLabel: 'beside');
+      final trigger = FocusNode(debugLabel: 'trigger');
+      for (final node in [above, below, beside, trigger]) {
+        addTearDown(node.dispose);
+      }
+      Widget focusable(FocusNode node) =>
+          Focus(focusNode: node, child: const SizedBox(width: 40, height: 26));
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            appKeys(
+              Column(
+                mainAxisSize: MainAxisSize.min,
+                spacing: 10,
+                children: [
+                  focusable(above),
+                  Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: 10,
+                    children: [
+                      SizedBox(width: 160, child: picker(focusNode: trigger)),
+                      focusable(beside),
+                    ],
+                  ),
+                  // Under the popover, in the band of its swatches.
+                  focusable(below),
+                ],
+              ),
+            ),
+          ),
+        ),
+      );
+      trigger.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      final outside = {above, below, beside, trigger};
+      final hexNode = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode;
+      // Tab from the trigger's row would reach `beside` when the popover is
+      // not a scope of its own.
+      var reachedHex = false;
+      for (var i = 0; i < 24; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.pump();
+        final focus = FocusManager.instance.primaryFocus;
+        expect(outside.contains(focus), isFalse, reason: 'Tab $i: $focus');
+        if (focus == hexNode) reachedHex = true;
+      }
+      expect(reachedHex, isTrue);
+      for (var i = 0; i < 24; i++) {
+        await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.sendKeyEvent(LogicalKeyboardKey.tab);
+        await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+        await tester.pump();
+        final focus = FocusManager.instance.primaryFocus;
+        expect(outside.contains(focus), isFalse, reason: 'Shift+Tab $i');
+      }
+      expect(find.byType(PopoverSurface), findsOneWidget);
     });
 
     testWidgets('semantics: trigger button with value and expanded; dialog', (
@@ -250,6 +537,33 @@ void main() {
           .where((d) => d.border != null)
           .map((d) => (d.border! as Border).top.color);
       expect(edge, contains(ColorPicker.chipEdgeDark));
+    });
+
+    testWidgets('dark theme: a swatch at rest has the light edge; hovered and '
+        'selected swatches the dark one', (tester) async {
+      FocusManager.instance.highlightStrategy =
+          FocusHighlightStrategy.alwaysTouch;
+      await tester.pumpWidget(
+        host(picker(initiallyOpen: true), brightness: Brightness.dark),
+      );
+      await tester.pumpAndSettle();
+      expect(edgeOf(swatchOf(tester, '#FFE066')), ColorPicker.chipEdgeDark);
+      // forms.css:121 `[aria-pressed="true"]` restates the dark edge.
+      final selected = swatchOf(tester, '#1F1D1A');
+      expect(edgeOf(selected), ColorPicker.chipEdgeLight);
+      expect(
+        (selected.decoration! as BoxDecoration).boxShadow!.first.color,
+        dark.accent,
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(
+        tester.getCenter(find.bySemanticsLabel('#FFE066').last),
+      );
+      await tester.pumpAndSettle();
+      // forms.css:119 `.fm-swatch:hover` comes after :112.
+      expect(edgeOf(swatchOf(tester, '#FFE066')), ColorPicker.chipEdgeLight);
     });
   });
 }

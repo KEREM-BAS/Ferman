@@ -1,5 +1,6 @@
 import 'dart:ui' show CheckedState;
 
+import 'package:ferman/design/components/forms/check_row.dart';
 import 'package:ferman/design/components/forms/checkbox.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/icons/icon.dart';
@@ -29,6 +30,13 @@ void main() {
   Color borderOf(WidgetTester tester) =>
       (boxOf(tester).border! as Border).top.color;
 
+  // The app's own shortcuts and actions (Enter → ActivateIntent), which
+  // componentHost leaves out.
+  Widget appKeys(Widget child) => Shortcuts(
+    shortcuts: WidgetsApp.defaultShortcuts,
+    child: Actions(actions: WidgetsApp.defaultActions, child: child),
+  );
+
   Widget checkbox({
     bool checked = false,
     bool indeterminate = false,
@@ -37,11 +45,12 @@ void main() {
     String? disabledReason,
     String? description,
     FocusNode? focusNode,
+    String? label = 'Include annotations',
   }) => Checkbox(
     checked: checked,
     indeterminate: indeterminate,
     onChanged: onChanged,
-    label: 'Include annotations',
+    label: label,
     description: description,
     disabled: disabled,
     disabledReason: disabledReason,
@@ -129,6 +138,77 @@ void main() {
       expect(values, [true]);
     });
 
+    testWidgets('Enter does not toggle (Space only)', (tester) async {
+      final values = <bool>[];
+      var outer = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        appKeys(
+          componentHost(
+            CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.enter): () => outer++,
+              },
+              child: checkbox(onChanged: values.add, focusNode: node),
+            ),
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+      expect(values, isEmpty);
+      expect(outer, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(values, [true]);
+    });
+
+    testWidgets('the row: box 1 px down, 8 px before the text, the '
+        'description 2 px under the label', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          checkbox(onChanged: (_) {}, description: 'Comments and highlights'),
+        ),
+      );
+      final row = tester.getRect(find.byType(CheckRow));
+      final box = tester.getRect(
+        find.descendant(
+          of: find.byType(Checkbox),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      final label = tester.getRect(find.text('Include annotations'));
+      final description = tester.getRect(find.text('Comments and highlights'));
+      expect(box.top - row.top, CheckRow.boxTopMargin);
+      expect(label.left - box.right, 8);
+      expect(description.top - label.bottom, CheckRow.textGap);
+      // Description only: 8 px after the box, which stays 1 px down.
+      await tester.pumpWidget(
+        componentHost(
+          checkbox(
+            onChanged: (_) {},
+            label: null,
+            description: 'Comments and highlights',
+          ),
+        ),
+      );
+      final onlyRow = tester.getRect(find.byType(CheckRow));
+      final onlyBox = tester.getRect(
+        find.descendant(
+          of: find.byType(Checkbox),
+          matching: find.byType(AnimatedContainer),
+        ),
+      );
+      final onlyDescription = tester.getRect(
+        find.text('Comments and highlights'),
+      );
+      expect(onlyBox.top - onlyRow.top, CheckRow.boxTopMargin);
+      expect(onlyDescription.left - onlyBox.right, 8);
+      expect(onlyDescription.top, onlyRow.top);
+    });
+
     testWidgets('hover turns the border paper-500, even when checked', (
       tester,
     ) async {
@@ -143,11 +223,14 @@ void main() {
       expect(borderOf(tester), FermanTheme.light.ramps.paper500);
     });
 
-    testWidgets('disabled: sunken, subtle border, disabled label', (
-      tester,
-    ) async {
+    testWidgets('disabled: sunken, subtle border, disabled label, no '
+        'hover (G75), no focus', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
       await tester.pumpWidget(
-        componentHost(checkbox(disabled: true, onChanged: (_) {})),
+        componentHost(
+          checkbox(disabled: true, onChanged: (_) {}, focusNode: node),
+        ),
       );
       expect(boxOf(tester).color, light.surfaceSunken);
       expect(borderOf(tester), light.borderSubtle);
@@ -155,6 +238,28 @@ void main() {
         tester.widget<Text>(find.text('Include annotations')).style!.color,
         light.textDisabled,
       );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byType(Checkbox)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderSubtle);
+      node.requestFocus();
+      await tester.pump();
+      expect(node.hasFocus, isFalse);
+    });
+
+    testWidgets('disabled and indeterminate: the strong grey of checked', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          checkbox(indeterminate: true, disabled: true, onChanged: (_) {}),
+        ),
+      );
+      expect(boxOf(tester).color, light.borderStrong);
+      expect(borderOf(tester), light.borderStrong);
+      expect(tester.widget<Icon>(find.byType(Icon)).name, IconName.minus);
     });
 
     testWidgets('disabled and checked: strong grey', (tester) async {
@@ -188,6 +293,8 @@ void main() {
       expect(node.hasFocus, isTrue);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(values, isEmpty);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Available in a future version'), findsOneWidget);
       expect(
         tester.getSemantics(find.text('Include annotations')),
         isSemantics(

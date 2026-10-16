@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/number_stepper.dart';
+import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/region.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
@@ -14,8 +15,10 @@ import 'package:flutter/widgets.dart';
 /// [width] wide: [label] above, the value with exactly [precision]
 /// decimals in the region's format ("10,5 pt" for Türkiye, "10.5 pt" for
 /// the United States, "١٠٫٥ pt" for Saudi Arabia, "1.234,5 mm" for
-/// Germany), [unit] after it, the arrow column at the inline end, and
-/// [error] under it with the danger border. In right to left the arrows
+/// Germany) in the body role (13 px, the board's `font: var(--type-body)`
+/// over the small field's 12 px), [unit] after it in 12 px caption text,
+/// the arrow column at the inline end, and [error] under it as text only
+/// with the danger border. In right to left the arrows
 /// sit on the left and the value lines up on the right.
 ///
 /// The board's `lang` prop is a board convenience: the format follows the
@@ -98,6 +101,14 @@ class FmNumber extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => NumberStepper(
+    // FmNumber.dc.html: `font: var(--type-body); font-variant-numeric:
+    // tabular-nums` on the control.
+    controlStyle: context.ferman.typography.body.copyWith(
+      fontFeatures: [
+        ...context.ferman.typeScale.featuresUi,
+        ...context.ferman.typeScale.numericTabular,
+      ],
+    ),
     value: value,
     region: region,
     label: label,

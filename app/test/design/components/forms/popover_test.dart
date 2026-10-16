@@ -10,7 +10,12 @@ void main() {
   const anchorKey = Key('anchor');
   const contentKey = Key('content');
 
-  Widget host(Widget child, {TextDirection? textDirection}) => TapRegionSurface(
+  Widget host(
+    Widget child, {
+    TextDirection? textDirection,
+    Brightness brightness = Brightness.light,
+    bool disableAnimations = false,
+  }) => TapRegionSurface(
     child: componentHost(
       ColoredBox(
         color: const Color(0x00000000),
@@ -25,8 +30,30 @@ void main() {
         ),
       ),
       textDirection: textDirection,
+      brightness: brightness,
+      disableAnimations: disableAnimations,
     ),
   );
+
+  BoxDecoration surfaceOf(WidgetTester tester) =>
+      tester
+              .widget<DecoratedBox>(
+                find.descendant(
+                  of: find.byType(PopoverSurface),
+                  matching: find.byType(DecoratedBox),
+                ),
+              )
+              .decoration
+          as BoxDecoration;
+
+  double opacityOf(WidgetTester tester) => tester
+      .widget<Opacity>(
+        find.ancestor(
+          of: find.byKey(contentKey),
+          matching: find.byType(Opacity),
+        ),
+      )
+      .opacity;
 
   Widget popover({
     required bool open,
@@ -86,28 +113,51 @@ void main() {
       expect(find.byKey(contentKey), findsNothing);
     });
 
-    testWidgets('rises in over --dur-base', (tester) async {
+    testWidgets('rises in over --dur-base: fades in and moves up 4 px', (
+      tester,
+    ) async {
       await tester.pumpWidget(host(popover(open: true)));
       await tester.pump();
-      final opacity = tester.widget<Opacity>(
-        find.ancestor(
-          of: find.byKey(contentKey),
-          matching: find.byType(Opacity),
-        ),
-      );
-      expect(opacity.opacity, lessThan(1));
-      await tester.pump(const Duration(milliseconds: 180));
+      final anchor = tester.getRect(find.byKey(anchorKey));
+      expect(opacityOf(tester), lessThan(1));
+      // `fm-rise-in` starts `translateY(4px)` lower.
+      final first = tester.getRect(find.byKey(contentKey)).top;
+      expect(first, greaterThan(anchor.bottom + Popover.gap));
       expect(
-        tester
-            .widget<Opacity>(
-              find.ancestor(
-                of: find.byKey(contentKey),
-                matching: find.byType(Opacity),
-              ),
-            )
-            .opacity,
-        1,
+        first,
+        lessThanOrEqualTo(anchor.bottom + Popover.gap + Popover.riseDistance),
       );
+      await tester.pump(const Duration(milliseconds: 180));
+      expect(opacityOf(tester), 1);
+      expect(
+        tester.getRect(find.byKey(contentKey)).top,
+        anchor.bottom + Popover.gap,
+      );
+    });
+
+    testWidgets('reduced motion: in place at once', (tester) async {
+      await tester.pumpWidget(
+        host(popover(open: true), disableAnimations: true),
+      );
+      await tester.pump();
+      final anchor = tester.getRect(find.byKey(anchorKey));
+      expect(opacityOf(tester), 1);
+      expect(
+        tester.getRect(find.byKey(contentKey)).top,
+        anchor.bottom + Popover.gap,
+      );
+    });
+
+    testWidgets('dark theme: the dark raised surface and popover shadow', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(popover(open: true), brightness: Brightness.dark),
+      );
+      await tester.pumpAndSettle();
+      final theme = FermanTheme.dark;
+      expect(surfaceOf(tester).color, theme.colors.surfaceRaised);
+      expect(surfaceOf(tester).boxShadow, theme.elevation.shadowPopover);
     });
 
     testWidgets('a click outside dismisses; a click on the anchor does not', (
@@ -185,6 +235,22 @@ void main() {
       expect(text.style!.fontSize, 11);
       expect(text.style!.color, FermanTheme.light.colors.textTertiary);
       expect(text.style!.letterSpacing, closeTo(0.22, 0.001));
+      // `.fm-popover__section { padding: 8px 10px 4px }`.
+      final section = tester.getRect(find.byType(PopoverSection));
+      final label = tester.getRect(find.text('Standard'));
+      expect(label.topLeft - section.topLeft, const Offset(10, 8));
+      expect(section.bottom - label.bottom, 4);
+      expect(section.right - label.right, 10);
+      await tester.pumpWidget(
+        componentHost(
+          const PopoverSection('Standard'),
+          textDirection: TextDirection.rtl,
+        ),
+      );
+      final rtlSection = tester.getRect(find.byType(PopoverSection));
+      final rtlLabel = tester.getRect(find.text('Standard'));
+      expect(rtlSection.right - rtlLabel.right, 10);
+      expect(rtlLabel.top - rtlSection.top, 8);
     });
   });
 }

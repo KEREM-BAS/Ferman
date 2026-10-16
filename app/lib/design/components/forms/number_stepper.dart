@@ -17,10 +17,11 @@ import 'package:intl/number_symbols_data.dart';
 ///
 /// The box is a [Field] box of [size], [width] wide with [label] above:
 /// the value, [unit] in tertiary caption text, then a column of two 18 px
-/// arrow buttons (`chevron-up`, `chevron-down`, 11 px) behind a 1 px
-/// border on the inline end. The arrows are not Tab stops; the pointer
-/// tints them, and each turns the disabled icon colour at its limit
-/// (Increase at [max], Decrease at [min]).
+/// arrow buttons (`chevron-up`, `chevron-down`, 11 px) split by a 1 px
+/// subtle line, behind a 1 px border on their inline start, outside the
+/// 18 px. The arrows are not Tab stops; the pointer tints them, and each
+/// turns the disabled icon colour at its limit (Increase at [max], Decrease
+/// at [min]). A click on [label] focuses the field.
 ///
 /// **Region formats.** The value shows in the region's number format with
 /// exactly [precision] decimals ("10,5" for Türkiye, "10.5" for the United
@@ -31,16 +32,20 @@ import 'package:intl/number_symbols_data.dart';
 /// **Committing.** The widget is controlled. ArrowUp and ArrowDown (or the
 /// arrow buttons) commit [value] ± [step], ten steps with Shift. A typed
 /// draft commits on Enter or when focus leaves; a draft that is not a
-/// number is dropped. A commit rounds to [step], clamps to [min] and [max],
-/// fixes [precision] decimals and reports the result through [onChanged].
+/// number (a typo such as "10..5", or a number too long to hold) is
+/// dropped. A commit rounds to [step], clamps to [min] and [max], fixes
+/// [precision] decimals and reports the result through [onChanged]; the
+/// field then shows [value] as the owner passes it, so an owner that keeps
+/// or adjusts its value is shown as it is.
 ///
-/// [error] shows under the box with the danger border (FmNumber's error
-/// state); the bundle's NumberStepper has none.
+/// [error] shows under the box with the danger border, as text only
+/// (FmNumber's error state); the bundle's NumberStepper has none.
 ///
 /// For screen readers the field is a text field named by [label] (or
-/// [semanticLabel]) whose value is the formatted number with its unit, with
-/// increase and decrease actions and their resulting values (the bundle's
-/// `role="spinbutton"`; Flutter's spin-button role has no checks yet).
+/// [semanticLabel]) whose value is the formatted number with its unit, or
+/// the draft being typed, with increase and decrease actions and their
+/// resulting values (the bundle's `role="spinbutton"`; Flutter's
+/// spin-button role has no checks yet).
 class NumberStepper extends StatefulWidget {
   /// Creates a stepper showing [value] in [region]'s number format.
   const new({
@@ -60,6 +65,7 @@ class NumberStepper extends StatefulWidget {
     this.error,
     this.semanticLabel,
     this.focusNode,
+    this.controlStyle,
   }) : assert(step > 0, 'step must be positive'),
        assert(precision >= 0, 'precision must not be negative');
 
@@ -125,6 +131,12 @@ class NumberStepper extends StatefulWidget {
   /// design-system prop.
   final FocusNode? focusNode;
 
+  /// The value's text style; null takes the box's control style for
+  /// [size] (12 px at [FieldSize.sm]). The colour is always the primary or
+  /// disabled text colour. Not a design-system prop: FmNumber's board sets
+  /// `font: var(--type-body)` on its control.
+  final TextStyle? controlStyle;
+
   /// [value] in [region]'s format with exactly [precision] decimals.
   static String format(double value, Region region, int precision) =>
       RegionFormat.forRegion(region).decimal(
@@ -143,8 +155,13 @@ class NumberStepper extends StatefulWidget {
   ///   separator that appears more than once groups ("1.234.567"); a single
   ///   region group separator followed by exactly three digits groups too
   ///   ("1.234" is 1234 for Türkiye, "1,234" for the United States), as the
-  ///   field itself shows such numbers. Spaces, no-break spaces and
-  ///   apostrophes are group separators (France, Switzerland).
+  ///   field itself shows such numbers, unless that is no grouping ("0.500"
+  ///   is 0.5). Spaces, no-break spaces and apostrophes between digits are
+  ///   group separators (France, Switzerland).
+  /// - Grouping must be well formed: a first group of one to three digits
+  ///   not starting with 0, then groups of three (or two, in a region with
+  ///   Indian grouping: "12,34,567"). Anything else ("10..5", "1.2.3",
+  ///   "10 5") is not a number.
   /// - The region's digits, Arabic-Indic and Extended Arabic-Indic digits
   ///   and ASCII digits are all read.
   /// - A leading minus (`-`, `−`, with any direction marks) negates.
@@ -156,16 +173,22 @@ class NumberStepper extends StatefulWidget {
     }
     final symbols = numberFormatSymbols[region.formatLocale];
     final group = symbols?.GROUP_SEP ?? ',';
+    final indian = symbols?.DECIMAL_PATTERN.contains('#,##,##0') ?? false;
     final zero = region.zeroDigit.codeUnitAt(0);
+    // Digits become ASCII, "." and "," stay, the Arabic decimal sign is
+    // "d", spaces and apostrophes are "s" and the Arabic group sign is "g".
     final out = StringBuffer();
     var negative = false;
     var seenDigit = false;
     for (final rune in source.runes) {
-      if (_ignored.contains(rune)) continue;
+      if (_directionMarks.contains(rune)) continue;
       final digit = _digitValue(rune, zero);
       if (digit != null) {
         out.writeCharCode(0x30 + digit);
         seenDigit = true;
+      } else if (_spaces.contains(rune)) {
+        // Before the number a space is only spacing ("− 2,5").
+        if (seenDigit) out.write('s');
       } else if (rune == 0x2D || rune == 0x2212) {
         // A minus only counts before the first digit.
         if (seenDigit || negative) return null;
@@ -175,49 +198,81 @@ class NumberStepper extends StatefulWidget {
       } else if (rune == _arabicDecimal) {
         out.write('d');
       } else if (rune == _arabicGroup) {
-        // Dropped: always a group separator.
+        out.write('g');
       } else {
         return null;
       }
     }
-    var digits = out.toString();
+    // A space after the number (before its unit) is only spacing too.
+    final digits = out
+        .toString()
+        .replaceFirst(_trailingSpaces, '')
+        .replaceAll('s', 'g');
     final dots = '.'.allMatches(digits).length;
     final commas = ','.allMatches(digits).length;
     String? decimal;
     if (digits.contains('d')) {
       decimal = 'd';
-      digits = digits.replaceAll('.', '').replaceAll(',', '');
     } else if (dots > 0 && commas > 0) {
       decimal = digits.lastIndexOf('.') > digits.lastIndexOf(',') ? '.' : ',';
-      digits = digits.replaceAll(decimal == '.' ? ',' : '.', '');
-    } else if (dots + commas > 0) {
+    } else if (dots + commas == 1) {
+      // A lone region group separator groups when what it splits is a
+      // well-formed group ("1.234" in Türkiye); otherwise it is the
+      // decimal separator ("0.500", "12.5", "1234.567").
       final mark = dots > 0 ? '.' : ',';
-      final at = digits.indexOf(mark);
-      final groups =
-          dots + commas > 1 ||
-          (mark == group && at > 0 && digits.length - at - 1 == 3);
-      if (groups) {
-        digits = digits.replaceAll(mark, '');
-      } else {
-        decimal = mark;
-      }
+      final grouping =
+          mark == group && _wellGrouped(digits.split(_groupMarks), indian);
+      if (!grouping) decimal = mark;
     }
+    var whole = digits;
+    var fraction = '';
     if (decimal != null) {
       if (decimal.allMatches(digits).length > 1) return null;
-      digits = digits.replaceAll(decimal, '.');
+      final at = digits.indexOf(decimal);
+      whole = digits.substring(0, at);
+      fraction = digits.substring(at + 1);
+      if (fraction.contains(_groupMarks)) return null;
     }
-    if (!_number.hasMatch(digits)) return null;
-    final value = double.tryParse(digits);
-    if (value == null) return null;
+    final groups = whole.split(_groupMarks);
+    if (groups.length > 1 && !_wellGrouped(groups, indian)) return null;
+    final number = decimal == null
+        ? groups.join()
+        : '${groups.join()}.$fraction';
+    if (!_number.hasMatch(number)) return null;
+    final value = double.tryParse(number);
+    // A digit string too long for a double reads as infinity.
+    if (value == null || !value.isFinite) return null;
     return negative ? -value : value;
   }
 
-  /// Spaces, no-break spaces, thin and narrow spaces, apostrophes used for
-  /// grouping, and direction marks.
-  static const Set<int> _ignored = {
-    0x20, 0xA0, 0x2009, 0x202F, 0x27, 0x2019, //
-    0x200E, 0x200F, 0x061C, 0x2066, 0x2067, 0x2068, 0x2069,
+  /// Whether [groups] (the integer part split at its group separators) is
+  /// grouped as numbers are written: a first group of one to three digits
+  /// not starting with 0, then groups of three, or of two before the last
+  /// with [indian] grouping.
+  static bool _wellGrouped(List<String> groups, bool indian) {
+    final first = groups.first;
+    if (first.isEmpty || first.length > 3 || first.startsWith('0')) {
+      return false;
+    }
+    if (groups.length < 2 || groups.last.length != 3) return false;
+    for (final middle in groups.sublist(1, groups.length - 1)) {
+      if (middle.length != 3 && !(indian && middle.length == 2)) return false;
+    }
+    return true;
+  }
+
+  /// Spaces, no-break spaces, thin and narrow spaces and apostrophes, which
+  /// group between digits.
+  static const Set<int> _spaces = {0x20, 0xA0, 0x2009, 0x202F, 0x27, 0x2019};
+
+  /// Direction marks, which are ignored.
+  static const Set<int> _directionMarks = {
+    0x200E, 0x200F, 0x061C, 0x2066, 0x2067, 0x2068, 0x2069, //
   };
+
+  static final RegExp _trailingSpaces = RegExp(r's+$');
+
+  static final RegExp _groupMarks = RegExp('[.,g]');
 
   /// U+066B ARABIC DECIMAL SEPARATOR.
   static const int _arabicDecimal = 0x066B;
@@ -318,6 +373,16 @@ class _NumberStepperState extends State<NumberStepper> {
     if (!_node.hasFocus) _commitDraft();
   }
 
+  void _setDrafting(bool drafting) {
+    if (_drafting == drafting) return;
+    if (mounted) {
+      // The spoken value follows the draft.
+      setState(() => _drafting = drafting);
+    } else {
+      _drafting = drafting;
+    }
+  }
+
   void _commit(double raw) {
     final value = NumberStepper.commitValue(
       raw,
@@ -326,9 +391,12 @@ class _NumberStepperState extends State<NumberStepper> {
       max: widget.max,
       precision: widget.precision,
     );
-    _drafting = false;
-    _controller.text = _formatted(value);
+    _setDrafting(false);
     if (value != widget.value) widget.onChanged?.call(value);
+    // The owner's value, not the committed one: didUpdateWidget shows the
+    // new value once the owner passes it, and an owner that keeps its value
+    // is shown as it is.
+    _controller.text = _formatted(widget.value);
   }
 
   void _commitDraft() {
@@ -339,7 +407,7 @@ class _NumberStepperState extends State<NumberStepper> {
       unit: widget.unit,
     );
     if (parsed == null) {
-      _drafting = false;
+      _setDrafting(false);
       _controller.text = _formatted(widget.value);
     } else {
       _commit(parsed);
@@ -398,6 +466,7 @@ class _NumberStepperState extends State<NumberStepper> {
     );
     final canIncrease = enabled && value < widget.max;
     final canDecrease = enabled && value > widget.min;
+    final textColor = disabled ? colors.textDisabled : colors.textPrimary;
     final input = Focus(
       canRequestFocus: false,
       skipTraversal: true,
@@ -406,53 +475,58 @@ class _NumberStepperState extends State<NumberStepper> {
       child: FieldInput(
         controller: _controller,
         focusNode: _node,
-        style: FieldBox.textStyleOf(
-          theme,
-          widget.size,
-          color: disabled ? colors.textDisabled : colors.textPrimary,
-        ),
+        style:
+            widget.controlStyle?.copyWith(color: textColor) ??
+            FieldBox.textStyleOf(theme, widget.size, color: textColor),
         enabled: enabled,
         keyboardType: const TextInputType.numberWithOptions(
           decimal: true,
           signed: true,
         ),
-        onChanged: (_) => _drafting = true,
+        // Rebuilds on each keystroke, so the spoken value is the draft.
+        onChanged: (_) => setState(() => _drafting = true),
         onEditingComplete: () {
           _commitDraft();
           _node.unfocus();
         },
       ),
     );
+    final line = theme.border.borderWidth;
+    // `.fm-stepper__arrows { border-inline-start }` around 18 px arrows,
+    // border-box: the column is 19 px and the arrows' fills stay clear of
+    // the border.
     final arrows = DecoratedBox(
       decoration: BoxDecoration(
         border: BorderDirectional(
-          start: BorderSide(
-            color: colors.borderDefault,
-            width: theme.border.borderWidth,
-          ),
+          start: BorderSide(color: colors.borderDefault, width: line),
         ),
       ),
-      child: Column(
-        children: [
-          Expanded(
-            child: _StepperArrow(
-              icon: IconName.chevronUp,
-              enabled: canIncrease,
-              onPressed: () => _stepBy(1),
+      child: Padding(
+        padding: EdgeInsetsDirectional.only(start: line),
+        child: Column(
+          children: [
+            Expanded(
+              child: _StepperArrow(
+                icon: IconName.chevronUp,
+                enabled: canIncrease,
+                onPressed: () => _stepBy(1),
+              ),
             ),
-          ),
-          Container(
-            height: theme.border.borderWidth,
-            color: colors.borderSubtle,
-          ),
-          Expanded(
-            child: _StepperArrow(
-              icon: IconName.chevronDown,
-              enabled: canDecrease,
-              onPressed: () => _stepBy(-1),
+            // `.fm-stepper__arrow + .fm-stepper__arrow { border-top }`.
+            SizedBox(
+              width: NumberStepper.arrowWidth,
+              height: line,
+              child: ColoredBox(color: colors.borderSubtle),
             ),
-          ),
-        ],
+            Expanded(
+              child: _StepperArrow(
+                icon: IconName.chevronDown,
+                enabled: canDecrease,
+                onPressed: () => _stepBy(-1),
+              ),
+            ),
+          ],
+        ),
       ),
     );
     final hint = widget.error;
@@ -461,7 +535,14 @@ class _NumberStepperState extends State<NumberStepper> {
       child: MergeSemantics(
         child: Semantics(
           label: widget.label ?? widget.semanticLabel,
-          value: spoken(value),
+          // While typing, the draft: the unit is a suffix (after a no-break
+          // space, as in [spoken]), so the text selection still points into
+          // the value.
+          value: _drafting
+              ? (unit == null
+                    ? _controller.text
+                    : '${_controller.text}\u00a0$unit')
+              : spoken(value),
           increasedValue: canIncrease ? spoken(up) : null,
           decreasedValue: canDecrease ? spoken(down) : null,
           onIncrease: canIncrease ? () => _stepBy(1) : null,
@@ -474,8 +555,11 @@ class _NumberStepperState extends State<NumberStepper> {
           child: Field(
             label: widget.label,
             error: widget.error,
+            // FmNumber's board draws the error as text only.
+            errorIcon: false,
             size: widget.size,
             disabled: disabled,
+            onLabelTap: enabled ? _node.requestFocus : null,
             clip: true,
             padding: EdgeInsetsDirectional.only(
               start: FieldBox.sidePaddingOf(theme, widget.size),
@@ -484,7 +568,9 @@ class _NumberStepperState extends State<NumberStepper> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: FieldBox.contentGap,
               children: [
-                Expanded(child: Center(child: input)),
+                // The control takes the box's full height (`height: 100%`),
+                // so a click above or below the text line lands in it.
+                Expanded(child: input),
                 if (unit != null)
                   Center(
                     child: ExcludeSemantics(

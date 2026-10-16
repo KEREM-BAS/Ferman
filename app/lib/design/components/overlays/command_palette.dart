@@ -1,13 +1,15 @@
-import 'dart:ui' show SemanticsRole;
+import 'dart:async';
 
 import 'package:ferman/design/components/core/kbd.dart';
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/field_input.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
@@ -77,17 +79,26 @@ class CommandItem {
 /// [emptyText]. The footer lists [footerHints] ("↑ ↓ Move", "↵ Run",
 /// "Esc Close").
 ///
-/// **Modal.** Unless [inline], the palette shows while [open] in the
-/// nearest [Overlay], 14 % from the top over the lighter [Scrim]; screen
-/// readers see only the palette, and the search field takes focus. A
-/// pointer down on the scrim calls [onClose]. [inline] draws it in place
-/// (boards, the gallery).
+/// **Modal.** Unless [inline], the palette shows while [open] in the root
+/// [Overlay] (through an [OverlayPortal] at
+/// [OverlayChildLocation.rootOverlay]), 14 % from the
+/// top over the lighter [Scrim], which covers the whole window, the title
+/// bar included; [ModalScope] counts it while it shows. Screen readers see
+/// only the palette, and the search field takes focus. A pointer down on
+/// the scrim calls [onClose]. [inline] draws it in place (boards, the
+/// gallery).
 ///
 /// **Keyboard.** Focus stays in the search field, which shows no ring.
-/// ArrowDown and ArrowUp move the active command (stopping at the ends),
-/// Enter runs it ([onSelected]; nothing for a command disabled with a
-/// reason), Escape calls [onClose]. Moving the pointer over a row makes it
-/// active; a click runs it.
+/// ArrowDown and ArrowUp move the active command (stopping at the ends;
+/// nothing with no match), Enter runs it ([onSelected]; nothing for a
+/// command disabled with a reason), Escape calls [onClose]. Moving the
+/// pointer over a row makes it active; a click runs it. The list scrolls
+/// only to bring the active row into view, 6 px clear of the edge, as the
+/// bundle does. A command disabled with a reason shows the reason as a
+/// tooltip while it is the active row (G10). Flutter has no
+/// `aria-activedescendant`: where the platform supports announcements,
+/// moving the active command with the arrow keys announces its label and
+/// its reason or hint.
 ///
 /// **Matching.** A command matches when its label and keywords contain the
 /// query, compared in lower case with the casing rules of the UI language
@@ -98,8 +109,9 @@ class CommandItem {
 /// edits), else kept in the field.
 ///
 /// For screen readers the palette is a dialog named by [semanticLabel];
-/// the field is a text field; commands are buttons, the active one
-/// selected.
+/// the field is a text field named by [placeholder] (the bundle's input
+/// takes its name from the placeholder); commands are buttons, the active
+/// one selected.
 class CommandPalette extends StatefulWidget {
   /// Creates a palette over [groups].
   const new({
@@ -135,6 +147,13 @@ class CommandPalette extends StatefulWidget {
 
   /// `.fm-palette__empty` vertical padding.
   static const double emptyPadding = 28;
+
+  /// `fm-rise-in`: how far the palette rises while it fades in.
+  static const double riseDistance = 4;
+
+  /// How far clear of the list's edge a row scrolled into view lands (the
+  /// bundle's `scrollTop = top - 6`).
+  static const double revealMargin = 6;
 
   /// Whether the palette is shown.
   final bool open;
@@ -201,9 +220,14 @@ class _CommandPaletteState extends State<CommandPalette> {
   );
   final FocusNode _fieldNode = FocusNode(debugLabel: 'CommandPalette field');
   final FocusScopeNode _scope = FocusScopeNode(debugLabel: 'CommandPalette');
-  final Map<String, GlobalKey> _rowKeys = {};
+  final ScrollController _scroll = ScrollController();
+
+  /// One key per visible row, by its place in the list (a command may sit
+  /// in two groups).
+  final List<GlobalKey> _rowKeys = [];
   int _active = 0;
   FocusNode? _restore;
+  ModalHandle? _modalHandle;
 
   bool get _modal => widget.open && !widget.inline;
 
@@ -215,6 +239,9 @@ class _CommandPaletteState extends State<CommandPalette> {
     if (_modal) {
       _portal.show();
       _focusField();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _portal.isShowing) _openModal();
+      });
     }
   }
 
@@ -232,9 +259,11 @@ class _CommandPaletteState extends State<CommandPalette> {
         if (!mounted) return;
         if (_modal && !_portal.isShowing) {
           _portal.show();
+          _openModal();
           _focusField();
         } else if (!_modal && _portal.isShowing) {
           _portal.hide();
+          _closeModal();
           _restoreFocus();
         }
       });
@@ -243,11 +272,22 @@ class _CommandPaletteState extends State<CommandPalette> {
 
   @override
   void dispose() {
+    _closeModal();
     _restoreFocus();
     _field.dispose();
     _fieldNode.dispose();
     _scope.dispose();
+    _scroll.dispose();
     super.dispose();
+  }
+
+  void _openModal() {
+    _modalHandle ??= ModalScope.open(debugLabel: 'CommandPalette');
+  }
+
+  void _closeModal() {
+    _modalHandle?.close();
+    _modalHandle = null;
   }
 
   void _focusField() {
@@ -291,14 +331,62 @@ class _CommandPaletteState extends State<CommandPalette> {
     widget.onSelected?.call(item);
   }
 
-  void _setActive(int index, List<CommandItem> flat) {
-    if (index == _active || index < 0 || index >= flat.length) return;
+  /// Makes the row at [index] the active one; false when it already was or
+  /// there is no such row.
+  bool _setActive(int index, List<CommandItem> flat) {
+    if (index == _active || index < 0 || index >= flat.length) return false;
     setState(() => _active = index);
-    final key = _rowKeys[flat[index].id];
+    final key = index < _rowKeys.length ? _rowKeys[index] : null;
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final row = key?.currentContext;
-      if (row != null) Scrollable.ensureVisible(row);
+      if (mounted && row != null && row.mounted) _reveal(row);
     });
+    return true;
+  }
+
+  /// Scrolls the list just enough to show [row], 6 px clear of the edge it
+  /// crossed, and not at all when it is in view (the bundle's
+  /// `if (top < lt) scrollTop = top - 6; else if (bottom > lt + lh) …`).
+  /// Only the list scrolls, never a scrollable around an inline palette.
+  void _reveal(BuildContext row) {
+    if (!_scroll.hasClients) return;
+    final box = row.findRenderObject();
+    if (box == null || !box.attached) return;
+    final viewport = RenderAbstractViewport.maybeOf(box);
+    if (viewport == null) return;
+    final position = _scroll.position;
+    final atTop = viewport.getOffsetToReveal(box, 0).offset;
+    final atBottom = viewport.getOffsetToReveal(box, 1).offset;
+    final double target;
+    if (atTop < position.pixels) {
+      target = atTop - CommandPalette.revealMargin;
+    } else if (atBottom > position.pixels) {
+      target = atBottom + CommandPalette.revealMargin;
+    } else {
+      return;
+    }
+    position.jumpTo(
+      target.clamp(position.minScrollExtent, position.maxScrollExtent),
+    );
+  }
+
+  /// Tells screen readers which command the arrow keys made active (the
+  /// bundle's `aria-activedescendant`), where the platform takes
+  /// announcements.
+  void _announceActive(CommandItem item) {
+    final view = View.maybeOf(context);
+    if (view == null ||
+        !(MediaQuery.maybeSupportsAnnounceOf(context) ?? false)) {
+      return;
+    }
+    final extra = item.disabledReason ?? item.hint;
+    unawaited(
+      SemanticsService.sendAnnouncement(
+        view,
+        extra == null ? item.label : '${item.label}, $extra',
+        Directionality.of(context),
+      ),
+    );
   }
 
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
@@ -309,10 +397,15 @@ class _CommandPaletteState extends State<CommandPalette> {
       for (final group in _filtered(LocaleCasing.of(context))) ...group.items,
     ];
     final key = event.logicalKey;
-    if (key == LogicalKeyboardKey.arrowDown) {
-      _setActive((_active + 1).clamp(0, flat.length - 1), flat);
-    } else if (key == LogicalKeyboardKey.arrowUp) {
-      _setActive((_active - 1).clamp(0, flat.length - 1), flat);
+    if (key == LogicalKeyboardKey.arrowDown ||
+        key == LogicalKeyboardKey.arrowUp) {
+      // With no match there is nothing to move, but the keys stay with the
+      // palette.
+      if (flat.isNotEmpty) {
+        final step = key == LogicalKeyboardKey.arrowDown ? 1 : -1;
+        final index = (_active + step).clamp(0, flat.length - 1);
+        if (_setActive(index, flat)) _announceActive(flat[index]);
+      }
     } else if (key == LogicalKeyboardKey.enter ||
         key == LogicalKeyboardKey.numpadEnter) {
       if (_active < flat.length) _run(flat[_active]);
@@ -370,6 +463,10 @@ class _CommandPaletteState extends State<CommandPalette> {
     final groups = _filtered(casing);
     final flat = [for (final group in groups) ...group.items];
     if (_active >= flat.length) _active = flat.isEmpty ? 0 : flat.length - 1;
+    while (_rowKeys.length < flat.length) {
+      _rowKeys.add(GlobalKey(debugLabel: 'Command row ${_rowKeys.length}'));
+    }
+    if (_rowKeys.length > flat.length) _rowKeys.length = flat.length;
     final escape = widget.escapeKeys;
     final empty = widget.emptyText;
     final fieldStyle = theme.typography.dialogTitle.copyWith(
@@ -405,10 +502,7 @@ class _CommandPaletteState extends State<CommandPalette> {
         final at = index;
         list.add(
           _CommandRow(
-            key: _rowKeys.putIfAbsent(
-              item.id,
-              () => GlobalKey(debugLabel: 'Command ${item.id}'),
-            ),
+            key: _rowKeys[at],
             item: item,
             active: at == _active,
             label: _label(context, item.label, casing),
@@ -457,17 +551,26 @@ class _CommandPaletteState extends State<CommandPalette> {
                     skipTraversal: true,
                     includeSemantics: false,
                     onKeyEvent: _onKey,
-                    child: FieldInput(
-                      controller: _field,
-                      focusNode: _fieldNode,
-                      style: fieldStyle,
-                      placeholder: widget.placeholder.isEmpty
-                          ? null
-                          : widget.placeholder,
-                      onChanged: (text) {
-                        setState(() => _active = 0);
-                        widget.onQueryChanged?.call(text);
-                      },
+                    // FieldInput leaves its name to its owner; the bundle's
+                    // input is named by its placeholder.
+                    child: MergeSemantics(
+                      child: Semantics(
+                        label: widget.placeholder.isEmpty
+                            ? null
+                            : widget.placeholder,
+                        child: FieldInput(
+                          controller: _field,
+                          focusNode: _fieldNode,
+                          style: fieldStyle,
+                          placeholder: widget.placeholder.isEmpty
+                              ? null
+                              : widget.placeholder,
+                          onChanged: (text) {
+                            setState(() => _active = 0);
+                            widget.onQueryChanged?.call(text);
+                          },
+                        ),
+                      ),
                     ),
                   ),
                 ),
@@ -480,6 +583,7 @@ class _CommandPaletteState extends State<CommandPalette> {
               maxHeight: CommandPalette.listMaxHeight,
             ),
             child: SingleChildScrollView(
+              controller: _scroll,
               padding: EdgeInsetsDirectional.fromSTEB(
                 theme.space.space1_5,
                 theme.space.space1,
@@ -548,7 +652,7 @@ class _CommandPaletteState extends State<CommandPalette> {
       builder: (context, t, child) => Opacity(
         opacity: t,
         child: Transform.translate(
-          offset: Offset(0, 4 * (1 - t)),
+          offset: Offset(0, CommandPalette.riseDistance * (1 - t)),
           child: child,
         ),
       ),
@@ -583,7 +687,10 @@ class _CommandPaletteState extends State<CommandPalette> {
     if (widget.inline) {
       return widget.open ? _palette(context) : const SizedBox();
     }
+    // The root overlay, so the scrim covers the title bar and every
+    // nested navigator's screen.
     return OverlayPortal(
+      overlayLocation: OverlayChildLocation.rootOverlay,
       controller: _portal,
       overlayChildBuilder: _modalLayer,
       child: const SizedBox.shrink(),
@@ -644,7 +751,9 @@ class _CommandRow extends StatelessWidget {
           child: Row(
             spacing: theme.space.space2_5,
             children: [
-              Icon(item.icon, size: theme.density.iconMd, color: iconColor),
+              // The default 16 px (`Icon size={16}`) at every density: the
+              // rows keep their 34 px height.
+              Icon(item.icon, color: iconColor),
               Expanded(
                 child: DefaultTextStyle.merge(
                   style: TextStyle(
@@ -678,9 +787,12 @@ class _CommandRow extends StatelessWidget {
       child: ExcludeSemantics(child: row),
     );
     if (reason != null) {
+      // Also while the row is the active one, so keyboard users, whose
+      // focus stays in the field, can read the reason (G10).
       row = Tooltip(
         message: reason,
         side: TooltipSide.right,
+        hovered: active,
         excludeFromSemantics: true,
         child: row,
       );

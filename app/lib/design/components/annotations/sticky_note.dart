@@ -114,9 +114,15 @@ class StickyNote extends StatefulWidget {
   ];
 
   /// `.fm-note-pin` `box-shadow: …, 0 2px 4px rgba(0,0,0,.14)`: the drop
-  /// shadow at rest.
+  /// shadow at rest. A CSS blur of 4 px is a Gaussian with a sigma of 2,
+  /// which is a [BoxShadow.blurRadius] of 2.5981 (as `tools/tokens`
+  /// converts the shadow tokens).
   static const List<BoxShadow> pinDropShadow = [
-    BoxShadow(color: Color(0x24000000), offset: Offset(0, 2), blurRadius: 4),
+    BoxShadow(
+      color: Color(0x24000000),
+      offset: Offset(0, 2),
+      blurRadius: 2.5981,
+    ),
   ];
 
   /// `.fm-note-pin:focus-visible` `box-shadow: 0 0 0 2px #FFFFFF,

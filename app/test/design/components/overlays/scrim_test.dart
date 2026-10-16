@@ -57,13 +57,36 @@ void main() {
       expect(colorOf(tester), Scrim.topDark);
     });
 
-    testWidgets('fades in over --dur-base', (tester) async {
+    testWidgets('fades in over --dur-base, the child with it', (tester) async {
       await tester.pumpWidget(componentHost(const Scrim(child: box)));
-      final opacity = tester.widget<Opacity>(
-        find.descendant(of: find.byType(Scrim), matching: find.byType(Opacity)),
+      final fade = find.descendant(
+        of: find.byType(Scrim),
+        matching: find.byType(Opacity),
       );
-      expect(opacity.opacity, 0);
-      await tester.pump(const Duration(milliseconds: 180));
+      expect(tester.widget<Opacity>(fade).opacity, 0);
+      // The tint itself is the full scrim colour; the fade is on the whole
+      // layer, child included (CSS opacity fades the subtree).
+      expect(colorOf(tester), FermanTheme.light.colors.surfaceScrim);
+      expect(
+        find.descendant(of: fade, matching: find.byKey(childKey)),
+        findsOneWidget,
+      );
+      expect(
+        find.descendant(of: fade, matching: find.byType(ColoredBox)),
+        findsOneWidget,
+      );
+      await tester.pump(const Duration(milliseconds: 90));
+      final halfway = tester.widget<Opacity>(fade).opacity;
+      expect(halfway, greaterThan(0));
+      expect(halfway, lessThan(1));
+      await tester.pump(const Duration(milliseconds: 90));
+      expect(tester.widget<Opacity>(fade).opacity, 1);
+    });
+
+    testWidgets('reduced motion: shown at once', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const Scrim(child: box), disableAnimations: true),
+      );
       expect(
         tester
             .widget<Opacity>(
@@ -99,6 +122,14 @@ void main() {
       tester,
     ) async {
       final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          Scrim(onDismiss: () {}, dismissLabel: 'Close', child: box),
+        ),
+      );
+      expect(find.bySemanticsLabel('Close'), findsOneWidget);
+      // On the first, transparent frame too.
+      await tester.pumpWidget(componentHost(const SizedBox()));
       await tester.pumpWidget(
         componentHost(
           Scrim(onDismiss: () {}, dismissLabel: 'Close', child: box),

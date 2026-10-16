@@ -13,7 +13,9 @@ import 'package:flutter/widgets.dart';
 /// The 16 px circle has a 1 px strong border on the raised surface; checked,
 /// it fills with the accent around a 6 px raised centre (the CSS draws a
 /// 1 px accent border and a 4 px inset accent ring). The pointer turns an
-/// unchecked circle's border `--paper-500` (`--soot-500` in dark). Keyboard
+/// unchecked circle's border `--paper-500` (`--soot-500` in dark); a
+/// checked circle keeps its accent border under the pointer in both themes
+/// (in dark the CSS cascade would give it the soot border, G79). Keyboard
 /// focus adds the outer focus ring. The whole row (circle, [label],
 /// [description]) is the hit target, as the bundle's `<label>` is.
 ///
@@ -22,12 +24,14 @@ import 'package:flutter/widgets.dart';
 /// group value and `onChanged` for all its radios) the radios take the
 /// group's value and report to it, and the group gives them the arrow
 /// keys: ArrowUp, ArrowDown, ArrowLeft and ArrowRight move to the next or
-/// previous option and select it, Space selects the focused one, and only
-/// the checked radio is a Tab stop. Without a group, [groupValue] and
+/// previous option and select it, Space selects the focused one (Enter
+/// does not, as with a native radio), and only the checked radio is a Tab
+/// stop. Without a group, [groupValue] and
 /// [onChanged] work the same way with Tab and Space only.
 ///
-/// **Disabled.** [disabled] gives the sunken, subtle-bordered circle and the
-/// disabled label colour, and the radio takes no focus. With
+/// **Disabled.** [disabled] gives the sunken, subtle-bordered circle (the
+/// checkbox's strong grey when checked) and the disabled label colour,
+/// shows no hover (G75), and the radio takes no focus. With
 /// [disabledReason] (G10) it stays a Tab stop of its own (the group's arrow
 /// keys skip it, as the browser skips disabled radios), shows the reason
 /// as its tooltip and semantics hint, and cannot be selected.
@@ -173,7 +177,8 @@ class _RadioState<T> extends State<Radio<T>> with RadioClient<T> {
     if (disabled) {
       // The CSS lets `.fm-radio .fm-check__input:checked` win over
       // `:disabled:checked`, which would draw a disabled radio as an
-      // enabled one; the checkbox's disabled-checked look is used instead.
+      // enabled one; the checkbox's disabled-checked look is used instead
+      // (G79).
       fill = checked ? colors.borderStrong : colors.surfaceSunken;
       border = checked ? colors.borderStrong : colors.borderSubtle;
     } else if (checked) {
@@ -217,6 +222,7 @@ class _RadioState<T> extends State<Radio<T>> with RadioClient<T> {
     final enabled = this.enabled;
     return FermanInteractive(
       onPressed: enabled ? _select : null,
+      activateOnEnter: false,
       disabled: widget.disabled,
       disabledReason: widget.disabledReason,
       isButton: false,

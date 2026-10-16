@@ -6,8 +6,10 @@ import 'package:flutter/widgets.dart';
 /// spec (`components/overlays/overlays.css`, `.fm-scrim`).
 ///
 /// It fills the space it is given with `--surface-scrim` (38 % warm black;
-/// 56 % black in dark), fading in over `--dur-base` (at once with reduced
-/// motion), and centres [child] inside 16 px of padding. With [top] (the
+/// 56 % black in dark) and centres [child] inside 16 px of padding. The
+/// whole layer, [child] included, fades in over `--dur-base` (at once with
+/// reduced motion), as the CSS `fm-fade-in` on `.fm-scrim` fades its
+/// subtree. With [top] (the
 /// command palette, `.fm-scrim--top`) the tint is lighter and [child] sits
 /// at the top, 14 % of the height down. There is no backdrop blur anywhere
 /// (readme "Transparency and blur").
@@ -58,13 +60,7 @@ class Scrim extends StatelessWidget {
     final theme = context.ferman;
     final dismiss = onDismiss;
     final label = dismissLabel;
-    Widget barrier = TweenAnimationBuilder<double>(
-      tween: Tween(begin: 0, end: 1),
-      duration: theme.motion.durBase,
-      curve: theme.motion.easeOut,
-      builder: (context, t, child) => Opacity(opacity: t, child: child),
-      child: ColoredBox(color: colorOf(theme, top: top)),
-    );
+    Widget barrier = ColoredBox(color: colorOf(theme, top: top));
     barrier = Listener(
       behavior: HitTestBehavior.opaque,
       onPointerDown: dismiss == null ? null : (_) => dismiss(),
@@ -79,7 +75,7 @@ class Scrim extends StatelessWidget {
           )
         : ExcludeSemantics(child: barrier);
     final edge = theme.space.space4;
-    return LayoutBuilder(
+    final layer = LayoutBuilder(
       builder: (context, constraints) => Stack(
         children: [
           PositionedDirectional(
@@ -107,6 +103,17 @@ class Scrim extends StatelessWidget {
           ),
         ],
       ),
+    );
+    // `.fm-scrim { animation: fm-fade-in }`: CSS opacity fades the box
+    // inside the scrim with it. The barrier's semantics stay on the first,
+    // transparent frame.
+    return TweenAnimationBuilder<double>(
+      tween: Tween(begin: 0, end: 1),
+      duration: theme.motion.durBase,
+      curve: theme.motion.easeOut,
+      builder: (context, t, child) =>
+          Opacity(opacity: t, alwaysIncludeSemantics: true, child: child),
+      child: layer,
     );
   }
 

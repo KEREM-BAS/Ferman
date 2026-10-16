@@ -1,5 +1,7 @@
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/design/components/core/icon_button.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/dialog.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
@@ -28,6 +30,14 @@ class _Button extends StatelessWidget {
 
 void main() {
   final light = FermanTheme.light.colors;
+  final dark = FermanTheme.dark.colors;
+
+  final boxFinder = find
+      .descendant(of: find.byType(Dialog), matching: find.byType(DecoratedBox))
+      .first;
+  final modalBoxFinder = find
+      .descendant(of: find.byType(Scrim), matching: find.byType(DecoratedBox))
+      .first;
 
   BoxDecoration surfaceOf(WidgetTester tester) =>
       tester
@@ -52,7 +62,6 @@ void main() {
     List<Widget> actions = const [_Button('Cancel'), _Button('Apply')],
     Widget? footerStart,
     VoidCallback? onClose,
-    Widget? closeButton,
   }) => Dialog(
     open: open,
     inline: inline,
@@ -65,7 +74,6 @@ void main() {
     footerStart: footerStart,
     onClose: onClose,
     closeLabel: 'Close',
-    closeButton: closeButton,
     child: child,
   );
 
@@ -76,6 +84,7 @@ void main() {
 
   tearDown(() {
     FocusManager.instance.highlightStrategy = FocusHighlightStrategy.automatic;
+    ModalScope.debugReset();
   });
 
   group('Dialog', () {
@@ -191,6 +200,10 @@ void main() {
       expect(box.right - apply.right, 20);
       expect(apply.left - cancel.left - 80, 8);
       expect(tester.getRect(find.text('Don’t ask again')).left - box.left, 20);
+      // `.fm-dialog__body { padding: 16px 20px }` then the foot's 4 px top
+      // and 18 px bottom.
+      expect(apply.top - tester.getRect(find.text('Body text')).bottom, 16 + 4);
+      expect(box.bottom - apply.bottom, Dialog.footBottom);
     });
 
     testWidgets('modal: over a scrim in the overlay, closed when open is '
@@ -216,14 +229,145 @@ void main() {
       expect(find.byType(Scrim), findsNothing);
     });
 
-    testWidgets('modal: Escape and a scrim click call onClose', (tester) async {
+    testWidgets('modal: Escape and a scrim click call onClose; a pointer '
+        'down inside the box does not', (tester) async {
       var closes = 0;
       await tester.pumpWidget(componentHost(dialog(onClose: () => closes++)));
       await tester.pumpAndSettle();
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       expect(closes, 1);
+      await tester.tapAt(tester.getRect(modalBoxFinder).center);
+      await tester.tap(find.text('Apply 2 redactions?'));
+      expect(closes, 1);
       await tester.tapAt(const Offset(10, 10));
       expect(closes, 2);
+    });
+
+    testWidgets('modal: in the root overlay, so the scrim covers the whole '
+        'window, a top bar over a nested navigator included', (tester) async {
+      const bar = Key('bar');
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox.expand(
+            child: Column(
+              children: [
+                // The window frame's title bar, above the screens'
+                // navigator.
+                const SizedBox(key: bar, height: 40, width: double.infinity),
+                Expanded(
+                  child: Navigator(
+                    onGenerateRoute: (settings) => PageRouteBuilder<void>(
+                      pageBuilder: (context, animation, secondary) =>
+                          Center(child: dialog(onClose: () {})),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byType(Scrim)),
+        Offset.zero & const Size(800, 600),
+      );
+      final barRect = tester.getRect(find.byKey(bar));
+      expect(
+        tester.getRect(find.byType(Scrim)).contains(barRect.center),
+        isTrue,
+      );
+      // The box is centred in the window, not in the navigator's area.
+      expect(tester.getRect(modalBoxFinder).center, const Offset(400, 300));
+      // A pointer down on the title bar's area lands on the scrim.
+      expect(
+        tester
+            .hitTestOnBinding(barRect.center)
+            .path
+            .any(
+              (entry) =>
+                  entry.target is RenderBox &&
+                  tester
+                      .renderObjectList<RenderBox>(find.byType(Scrim))
+                      .contains(entry.target),
+            ),
+        isTrue,
+      );
+    });
+
+    testWidgets('modal: counted by ModalScope while it shows', (tester) async {
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+      await tester.pumpWidget(componentHost(dialog(open: false)));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      await tester.pumpWidget(componentHost(dialog()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 1);
+      // Disposed while open.
+      await tester.pumpWidget(componentHost(const SizedBox()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+      // An inline dialog is not a modal.
+      await tester.pumpWidget(componentHost(dialog(inline: true)));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
+    });
+
+    testWidgets('modal: rises 4 px and fades in over --dur-slow; at once '
+        'with reduced motion', (tester) async {
+      await tester.pumpWidget(componentHost(dialog()));
+      final opacity = find
+          .ancestor(of: modalBoxFinder, matching: find.byType(Opacity))
+          .first;
+      expect(tester.widget<Opacity>(opacity).opacity, 0);
+      final first = tester.getRect(modalBoxFinder).top;
+      await tester.pump(FermanTheme.light.motion.durSlow);
+      await tester.pumpAndSettle();
+      expect(tester.widget<Opacity>(opacity).opacity, 1);
+      expect(first - tester.getRect(modalBoxFinder).top, Dialog.riseDistance);
+      await tester.pumpWidget(
+        componentHost(
+          KeyedSubtree(key: UniqueKey(), child: dialog()),
+          disableAnimations: true,
+        ),
+      );
+      await tester.pump();
+      expect(
+        tester
+            .widget<Opacity>(
+              find
+                  .ancestor(of: modalBoxFinder, matching: find.byType(Opacity))
+                  .first,
+            )
+            .opacity,
+        1,
+      );
+    });
+
+    testWidgets('modal: clamped to the window less 16 px a side and 32 px '
+        'above and below, the body scrolling', (tester) async {
+      tester.view
+        ..physicalSize = const Size(400, 300)
+        ..devicePixelRatio = 1;
+      addTearDown(tester.view.reset);
+      await tester.pumpWidget(
+        componentHost(
+          dialog(child: const SizedBox(height: 1000)),
+          size: const Size(400, 300),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.getSize(modalBoxFinder), const Size(368, 236));
+      final body = tester.state<ScrollableState>(
+        find.descendant(
+          of: find.byType(Dialog),
+          matching: find.byType(Scrollable),
+        ),
+      );
+      expect(body.position.maxScrollExtent, greaterThan(0));
     });
 
     testWidgets('modal: no onClose, no Escape', (tester) async {
@@ -305,40 +449,94 @@ void main() {
       expect(focus?.debugLabel, 'Dialog box');
     });
 
-    testWidgets('the close button slot', (tester) async {
+    testWidgets('onClose shows the close button: a small x, 16 px from the '
+        'end, named by closeLabel, without a tooltip', (tester) async {
+      final handle = tester.ensureSemantics();
+      var closes = 0;
+      await tester.pumpWidget(componentHost(dialog(inline: true)));
+      await tester.pumpAndSettle();
+      expect(find.byType(IconButton), findsNothing);
+      await tester.pumpWidget(
+        componentHost(dialog(inline: true, onClose: () => closes++)),
+      );
+      await tester.pumpAndSettle();
+      final button = tester.widget<IconButton>(find.byType(IconButton));
+      expect(button.icon, IconName.x);
+      expect(button.size, IconButtonSize.sm);
+      expect(button.showTooltip, isFalse);
+      expect(button.label, 'Close');
+      final close = tester.getRect(find.byType(IconButton));
+      expect(close.size, const Size.square(26));
+      expect(tester.getRect(boxFinder).right - close.right, 16);
+      expect(close.top - tester.getRect(boxFinder).top, Dialog.headTop);
+      expect(find.bySemanticsLabel('Close'), findsOneWidget);
+      await tester.tap(find.byType(IconButton));
+      expect(closes, 1);
+      handle.dispose();
+    });
+
+    test('a closable dialog needs closeLabel', () {
+      expect(
+        () => Dialog(title: 'Apply?', onClose: () {}),
+        throwsAssertionError,
+      );
+    });
+
+    testWidgets('inline: Escape inside calls onClose; nothing without it', (
+      tester,
+    ) async {
+      var closes = 0;
+      final field = FocusNode();
+      addTearDown(field.dispose);
       await tester.pumpWidget(
         componentHost(
           dialog(
             inline: true,
-            closeButton: const SizedBox(
-              key: Key('close'),
-              width: 26,
-              height: 26,
-            ),
+            child: _Button('Password', node: field),
+            onClose: () => closes++,
           ),
         ),
       );
+      field.requestFocus();
       await tester.pumpAndSettle();
-      final box = tester.getRect(
-        find
-            .descendant(
-              of: find.byType(Dialog),
-              matching: find.byType(DecoratedBox),
-            )
-            .first,
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 1);
+      await tester.pumpWidget(
+        componentHost(
+          dialog(inline: true, child: _Button('Password', node: field)),
+        ),
       );
-      expect(
-        box.right - tester.getRect(find.byKey(const Key('close'))).right,
-        16,
-      );
+      field.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      expect(closes, 1);
+      expect(tester.takeException(), isNull);
     });
 
-    testWidgets('no body: the footer sits 20 px under the head', (
-      tester,
-    ) async {
+    testWidgets('no body: the footer sits 20 px under the head; with no foot '
+        'either the box ends under the head', (tester) async {
       await tester.pumpWidget(componentHost(dialog(inline: true, child: null)));
       await tester.pumpAndSettle();
       expect(find.text('Body text'), findsNothing);
+      // The titles column (taller than the 32 px glyph) ends the head.
+      final head = tester
+          .getRect(find.text('The text under them is removed for good.'))
+          .bottom;
+      final cancel = tester.getRect(find.widgetWithText(_Button, 'Cancel'));
+      // `.fm-dialog__body:empty + .fm-dialog__foot { padding-top: 20px }`.
+      expect(cancel.top - head, 20);
+      expect(tester.getRect(boxFinder).bottom - cancel.bottom, 18);
+      // `.fm-dialog__head` has no bottom padding.
+      await tester.pumpWidget(
+        componentHost(dialog(inline: true, child: null, actions: const [])),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(boxFinder).bottom,
+        tester
+            .getRect(find.text('The text under them is removed for good.'))
+            .bottom,
+      );
     });
 
     testWidgets('semantics: a dialog named by the title, an alert dialog for '
@@ -399,6 +597,29 @@ void main() {
       );
       await tester.pumpAndSettle();
       expect(surfaceOf(tester).color, FermanTheme.dark.colors.surfaceRaised);
+    });
+
+    testWidgets('dark theme: glyph colours by tone', (tester) async {
+      for (final (tone, background, foreground) in [
+        (DialogTone.standard, dark.accentSubtle, dark.textAccent),
+        (DialogTone.warning, dark.warningBg, dark.warning),
+        (DialogTone.danger, dark.dangerBg, dark.danger),
+      ]) {
+        await tester.pumpWidget(
+          componentHost(
+            dialog(inline: true, tone: tone),
+            brightness: Brightness.dark,
+          ),
+        );
+        await tester.pumpAndSettle();
+        final glyph = tester.widget<Container>(
+          find
+              .ancestor(of: find.byType(Icon), matching: find.byType(Container))
+              .first,
+        );
+        expect((glyph.decoration! as BoxDecoration).color, background);
+        expect(tester.widget<Icon>(find.byType(Icon)).color, foreground);
+      }
     });
   });
 }

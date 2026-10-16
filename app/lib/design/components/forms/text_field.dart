@@ -23,7 +23,10 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// and turns its border the danger colour.
 ///
 /// The text lives in [controller] (one is created when null) and changes
-/// are reported through [onChanged]; Enter calls [onSubmitted].
+/// are reported through [onChanged]; Enter calls [onSubmitted] and the
+/// field keeps focus, as a native input does. [obscureText] masks the text
+/// (the boards' `type="password"`). The whole box height takes clicks, and
+/// a click on [label] focuses the field.
 ///
 /// **Disabled.** [disabled] gives the sunken, subtle-bordered look with
 /// disabled text, and the field takes no focus or input. With
@@ -56,6 +59,7 @@ class TextField extends StatefulWidget {
     this.autofocus = false,
     this.inputFormatters,
     this.keyboardType,
+    this.obscureText = false,
   });
 
   /// The label above the box; null shows none.
@@ -114,6 +118,11 @@ class TextField extends StatefulWidget {
   /// prop.
   final TextInputType? keyboardType;
 
+  /// Whether the text is masked: the bundle's `type="password"`, passed
+  /// through `...rest` (a1-8, a5-6b, a8-1, a10-2). Not a design-system
+  /// prop.
+  final bool obscureText;
+
   @override
   State<TextField> createState() => _TextFieldState();
 
@@ -132,7 +141,10 @@ class TextField extends StatefulWidget {
         StringProperty('disabledReason', disabledReason, defaultValue: null),
       )
       ..add(StringProperty('placeholder', placeholder, defaultValue: null))
-      ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null));
+      ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null))
+      ..add(
+        FlagProperty('obscureText', value: obscureText, ifTrue: 'obscured'),
+      );
   }
 }
 
@@ -176,6 +188,10 @@ class _TextFieldState extends State<TextField> {
       keyboardType: widget.keyboardType,
       onChanged: widget.onChanged,
       onSubmitted: widget.onSubmitted,
+      // Keeps focus on Enter (the default gives it up), clearing the
+      // composing region as the default does.
+      onEditingComplete: _controller.clearComposing,
+      obscureText: widget.obscureText,
     );
     final box = Row(
       spacing: FieldBox.contentGap,
@@ -186,7 +202,12 @@ class _TextFieldState extends State<TextField> {
             size: FieldBox.iconSizeOf(theme, widget.size),
             color: colors.iconSecondary,
           ),
-        Expanded(child: input),
+        // `.fm-input__control { height: 100% }`: the control takes the
+        // box's full height, so a click above or below the text line
+        // lands in it.
+        Expanded(
+          child: SizedBox(height: double.infinity, child: input),
+        ),
         if (suffix != null)
           ExcludeSemantics(
             child: Text(
@@ -218,6 +239,8 @@ class _TextFieldState extends State<TextField> {
           error: widget.error,
           size: widget.size,
           disabled: disabled,
+          // A plain disabled field stays inert, as a disabled input does.
+          onLabelTap: disabled && reason == null ? null : _node.requestFocus,
           child: box,
         ),
       ),

@@ -1,6 +1,7 @@
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/kbd.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/command_palette.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
@@ -39,6 +40,17 @@ void main() {
     ),
   ];
 
+  // Fifteen commands: more than the 344 px list shows.
+  final many = <CommandGroup>[
+    (
+      label: 'Commands',
+      items: [
+        for (var i = 0; i < 15; i++)
+          CommandItem(id: 'c$i', label: 'Command $i'),
+      ],
+    ),
+  ];
+
   Widget palette({
     bool open = true,
     bool inline = false,
@@ -46,10 +58,11 @@ void main() {
     ValueChanged<String>? onQueryChanged,
     ValueChanged<CommandItem>? onSelected,
     VoidCallback? onClose,
+    List<CommandGroup>? commands,
   }) => CommandPalette(
     open: open,
     inline: inline,
-    groups: groups,
+    groups: commands ?? groups,
     query: query,
     onQueryChanged: onQueryChanged,
     onSelected: onSelected,
@@ -76,6 +89,32 @@ void main() {
     );
     return (container.decoration as BoxDecoration?)?.color;
   }
+
+  final listFinder = find
+      .descendant(
+        of: find.byType(SingleChildScrollView),
+        matching: find.byType(Scrollable),
+      )
+      .first;
+
+  Rect rowRect(WidgetTester tester, String label) => tester.getRect(
+    find
+        .ancestor(
+          of: find.textContaining(label, findRichText: true),
+          matching: find.byType(Container),
+        )
+        .first,
+  );
+
+  /// Announcements reach the test only where the platform supports them.
+  Widget announcing(Widget child) => Builder(
+    builder: (context) => MediaQuery(
+      data: MediaQuery.of(context).copyWith(supportsAnnounce: true),
+      child: child,
+    ),
+  );
+
+  tearDown(ModalScope.debugReset);
 
   group('CommandPalette', () {
     testWidgets('inline: 600 px, input row, groups, rows, footer', (
@@ -146,11 +185,174 @@ void main() {
       expect(bold.style!.fontWeight, FontWeight.w600);
     });
 
-    testWidgets('no match shows the empty text', (tester) async {
-      await tester.pumpWidget(componentHost(palette(inline: true)));
+    testWidgets('no match shows the empty text; the arrows and Enter do '
+        'nothing', (tester) async {
+      final ran = <String>[];
+      await tester.pumpWidget(
+        componentHost(palette(onSelected: (item) => ran.add(item.id))),
+      );
+      await tester.pumpAndSettle();
       await tester.enterText(find.byType(EditableText), 'zzz');
       await tester.pump();
       expect(find.text('No commands match.'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(ran, isEmpty);
+      expect(find.text('No commands match.'), findsOneWidget);
+    });
+
+    testWidgets('a long list scrolls only as far as the active row needs, '
+        '6 px clear of the edge; hover never scrolls', (tester) async {
+      await tester.pumpWidget(componentHost(palette(commands: many)));
+      await tester.pumpAndSettle();
+      final position = tester.state<ScrollableState>(listFinder).position;
+      expect(position.maxScrollExtent, greaterThan(0));
+      final viewport = tester.getRect(listFinder);
+      // Hover over a row in view: it becomes active, nothing scrolls.
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(
+        tester.getCenter(find.textContaining('Command 4', findRichText: true)),
+      );
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'Command 4'), light.surfaceSelectedStrong);
+      expect(position.pixels, 0);
+      await mouse.moveTo(const Offset(5, 5));
+      await tester.pump();
+      // ArrowDown to the first row that is not fully in view.
+      var index = 4;
+      while (rowRect(tester, 'Command ${index + 1}').bottom <=
+          viewport.bottom) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+        index++;
+        expect(position.pixels, 0, reason: 'Command $index is in view');
+      }
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      index++;
+      expect(position.pixels, greaterThan(0));
+      expect(
+        viewport.bottom - rowRect(tester, 'Command $index').bottom,
+        CommandPalette.revealMargin,
+      );
+      // Back up to a row in view: no jump.
+      final scrolled = position.pixels;
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(position.pixels, scrolled);
+    });
+
+    testWidgets('a command in two groups is fine', (tester) async {
+      const twice = <CommandGroup>[
+        (label: 'Recent', items: [CommandItem(id: 'rotate', label: 'Rotate')]),
+        (
+          label: 'Commands',
+          items: [
+            CommandItem(id: 'rotate', label: 'Rotate'),
+            CommandItem(id: 'ocr', label: 'Recognise text'),
+          ],
+        ),
+      ];
+      final ran = <String>[];
+      await tester.pumpWidget(
+        componentHost(
+          palette(commands: twice, onSelected: (item) => ran.add(item.id)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(ran, ['ocr']);
+      expect(tester.takeException(), isNull);
+    });
+
+    testWidgets('a command disabled with a reason shows it while it is the '
+        'active row (G10)', (tester) async {
+      await tester.pumpWidget(componentHost(palette()));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      // The row rebuilds active, the tooltip starts its delay after that
+      // frame, and the bubble shows a frame after the delay.
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pump();
+      expect(find.text('Available in a future version'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsNothing);
+    });
+
+    testWidgets('the arrow keys announce the active command; hover does not', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(announcing(palette())));
+      await tester.pumpAndSettle();
+      tester.takeAnnouncements();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(tester.takeAnnouncements().map((a) => a.message), [
+        'Recognise text',
+        'Ask the assistant, Available in a future version',
+      ]);
+      // At the end of the list nothing moves, so nothing is said.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(tester.takeAnnouncements().map((a) => a.message), [
+        'Contract, Page 4',
+      ]);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(
+        tester.getCenter(
+          find.textContaining('Rotate page', findRichText: true),
+        ),
+      );
+      await tester.pump();
+      expect(tester.takeAnnouncements(), isEmpty);
+    });
+
+    testWidgets('modal: in the root overlay over a top bar, counted by '
+        'ModalScope while it shows', (tester) async {
+      const bar = Key('bar');
+      Widget page({required bool open}) => componentHost(
+        SizedBox.expand(
+          child: Column(
+            children: [
+              const SizedBox(key: bar, height: 40, width: double.infinity),
+              Expanded(
+                child: Navigator(
+                  onGenerateRoute: (settings) => PageRouteBuilder<void>(
+                    pageBuilder: (context, animation, secondary) =>
+                        palette(open: open),
+                  ),
+                ),
+              ),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpWidget(page(open: true));
+      await tester.pumpAndSettle();
+      expect(
+        tester.getRect(find.byType(Scrim)),
+        Offset.zero & const Size(800, 600),
+      );
+      expect(ModalScope.openCount.value, 1);
+      await tester.pumpWidget(componentHost(const SizedBox()));
+      await tester.pumpAndSettle();
+      expect(ModalScope.openCount.value, 0);
     });
 
     testWidgets('Turkish casing: “İ” matches “i” in a Turkish UI', (
@@ -286,7 +488,28 @@ void main() {
         node = node.parent;
       }
       expect(node?.label, 'Command palette');
+      // The field is named by its placeholder, as the bundle's input is.
+      expect(
+        tester.getSemantics(find.byType(EditableText)),
+        isSemantics(
+          label: 'Search commands, pages and text',
+          isTextField: true,
+        ),
+      );
       handle.dispose();
+    });
+
+    testWidgets('row glyphs stay 16 px at touch density', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          FermanThemeScope(touch: true, child: palette(inline: true)),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final glyph = tester.widget<Icon>(
+        find.byWidgetPredicate((w) => w is Icon && w.name == IconName.rotateCw),
+      );
+      expect(glyph.size, 16);
     });
 
     testWidgets('closed: nothing shown', (tester) async {

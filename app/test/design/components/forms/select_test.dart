@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/forms/select.dart';
@@ -26,6 +28,32 @@ void main() {
     ),
     SelectOption(value: 'grid', label: 'Grid'),
   ];
+
+  final long = [
+    for (var i = 0; i < 20; i++) SelectOption(value: 'o$i', label: 'Option $i'),
+  ];
+
+  ScrollPosition listPosition(WidgetTester tester) => tester
+      .state<ScrollableState>(
+        find.descendant(
+          of: find.byType(PopoverSurface),
+          matching: find.byType(Scrollable),
+        ),
+      )
+      .position;
+
+  Rect listViewport(WidgetTester tester) => tester.getRect(
+    find.descendant(
+      of: find.byType(PopoverSurface),
+      matching: find.byType(Scrollable),
+    ),
+  );
+
+  Rect rowRect(WidgetTester tester, String label) => tester.getRect(
+    find
+        .ancestor(of: find.text(label).last, matching: find.byType(Container))
+        .first,
+  );
 
   Color borderOf(WidgetTester tester) {
     final box = tester.widget<AnimatedContainer>(find.byKey(FieldBox.boxKey));
@@ -167,7 +195,8 @@ void main() {
       final check = tester
           .widgetList<Icon>(find.byType(Icon))
           .firstWhere((icon) => icon.name == IconName.check);
-      expect(check.color, light.textAccent);
+      // The Menu check colour: `.fm-menu__item svg` wins over the accent.
+      expect(check.color, light.iconSecondary);
     });
 
     testWidgets('choosing an option reports it and closes the list', (
@@ -204,12 +233,134 @@ void main() {
       expect(chosen, isEmpty);
     });
 
-    testWidgets('a second click on the box closes the list', (tester) async {
-      await tester.pumpWidget(host(select()));
+    testWidgets('a second click on the box closes the list without a '
+        'change', (tester) async {
+      final chosen = <String>[];
+      await tester.pumpWidget(host(select(onChanged: chosen.add)));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await mouse.down(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await mouse.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      // The highlight follows the pointer onto Grid…
+      await mouse.moveTo(tester.getCenter(find.text('Grid')));
+      await tester.pump();
+      expect(rowColor(tester, 'Grid'), light.surfaceSelectedStrong);
+      // …but a click back on the box only closes the list.
+      await mouse.moveTo(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await mouse.down(tester.getCenter(find.byKey(FieldBox.boxKey)));
+      await mouse.up();
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(chosen, isEmpty);
+      // The same after hovering an option disabled with a reason.
       await open(tester);
+      await mouse.moveTo(tester.getCenter(find.text('Book')));
+      await tester.pump();
       await tester.tap(find.byKey(FieldBox.boxKey));
       await tester.pumpAndSettle();
       expect(find.byType(PopoverSurface), findsNothing);
+      expect(chosen, isEmpty);
+    });
+
+    testWidgets('a click opens the list with focus on the box, so the keys '
+        'work', (tester) async {
+      final chosen = <String>[];
+      final node = FocusNode();
+      final other = FocusNode(debugLabel: 'other');
+      addTearDown(node.dispose);
+      addTearDown(other.dispose);
+      await tester.pumpWidget(
+        host(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Focus(focusNode: other, child: const SizedBox(height: 20)),
+              select(onChanged: chosen.add, focusNode: node),
+            ],
+          ),
+        ),
+      );
+      other.requestFocus();
+      await tester.pump();
+      await open(tester);
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(chosen, ['single']);
+      expect(node.hasFocus, isTrue);
+      // Escape after a click closes without a change, focus on the box.
+      await open(tester);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      expect(chosen, ['single']);
+      expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('a long list opens scrolled to the chosen option', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        host(
+          Select<String>(
+            options: long,
+            value: 'o17',
+            onChanged: (_) {},
+            label: 'Language',
+          ),
+        ),
+      );
+      await open(tester);
+      final viewport = listViewport(tester);
+      final row = rowRect(tester, 'Option 17');
+      expect(listPosition(tester).pixels, greaterThan(0));
+      expect(row.top, greaterThanOrEqualTo(viewport.top));
+      expect(row.bottom, lessThanOrEqualTo(viewport.bottom));
+    });
+
+    testWidgets('the highlight scrolls the list only as far as it needs', (
+      tester,
+    ) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        host(
+          Select<String>(
+            options: long,
+            value: 'o0',
+            onChanged: (_) {},
+            label: 'Language',
+            focusNode: node,
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      // A row in view: no scroll.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(listPosition(tester).pixels, 0);
+      // Twelve rows fit in the 340 px list (4 px padding, 28 px rows); the
+      // thirteenth scrolls in just far enough to show at the bottom.
+      for (var i = 1; i < 12; i++) {
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+        await tester.pumpAndSettle();
+      }
+      expect(rowColor(tester, 'Option 12'), light.surfaceSelectedStrong);
+      expect(listPosition(tester).pixels, Select.rowHeight);
+      expect(rowRect(tester, 'Option 12').bottom, listViewport(tester).bottom);
+      // Back up to a row in view: no jump.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pumpAndSettle();
+      expect(listPosition(tester).pixels, Select.rowHeight);
     });
 
     testWidgets('keyboard: Enter opens, arrows move (skipping disabled, '
@@ -316,6 +467,26 @@ void main() {
       expect(rowColor(tester, 'Continuous scroll'), isNull);
     });
 
+    testWidgets('hover does not tint an option disabled with a reason, but '
+        'its reason shows', (tester) async {
+      await tester.pumpWidget(host(select()));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await open(tester);
+      await mouse.moveTo(tester.getCenter(find.text('Book')));
+      await tester.pump();
+      expect(rowColor(tester, 'Book'), isNull);
+      // The highlight stays where it was.
+      expect(
+        rowColor(tester, 'Continuous scroll'),
+        light.surfaceSelectedStrong,
+      );
+      await tester.pump(const Duration(milliseconds: 500));
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsOneWidget);
+    });
+
     testWidgets('forced hover and focus', (tester) async {
       await tester.pumpWidget(
         host(select(), forcedStates: {WidgetState.hovered}),
@@ -334,8 +505,10 @@ void main() {
       await tester.tap(find.byKey(FieldBox.boxKey), warnIfMissed: false);
       await tester.pumpAndSettle();
       expect(find.byType(PopoverSurface), findsNothing);
+      // `.fm-input > svg { color: var(--icon-secondary) }` sets the colour
+      // on the svg, which `.fm-input--disabled` does not reach.
       final chevron = tester.widget<Icon>(find.byType(Icon));
-      expect(chevron.color, light.iconDisabled);
+      expect(chevron.color, light.iconSecondary);
     });
 
     testWidgets('disabled with a reason: focusable, reason as tooltip and '
@@ -407,12 +580,41 @@ void main() {
         tester.getSemantics(find.text('Single page')),
         isSemantics(
           label: 'Single page',
+          role: SemanticsRole.menuItemRadio,
           isButton: true,
+          hasCheckedState: true,
+          isChecked: false,
           hasSelectedState: true,
           isSelected: false,
           hasEnabledState: true,
           isEnabled: true,
           hasTapAction: true,
+        ),
+      );
+      expect(
+        tester.getSemantics(find.text('Continuous scroll').last),
+        isSemantics(
+          label: 'Continuous scroll',
+          role: SemanticsRole.menuItemRadio,
+          hasCheckedState: true,
+          isChecked: true,
+        ),
+      );
+      // The open list: a menu named by the label, scoping its route (the
+      // listbox the native select's list would be).
+      expect(
+        tester.getSemantics(
+          find.byWidgetPredicate(
+            (widget) =>
+                widget is Semantics &&
+                widget.properties.role == SemanticsRole.menu,
+          ),
+        ),
+        isSemantics(
+          label: 'Page layout',
+          role: SemanticsRole.menu,
+          scopesRoute: true,
+          namesRoute: true,
         ),
       );
       handle.dispose();

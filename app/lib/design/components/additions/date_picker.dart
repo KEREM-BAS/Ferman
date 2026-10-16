@@ -43,8 +43,9 @@ import 'package:intl/intl.dart' show DateFormat;
 /// on a day chooses it.
 ///
 /// For screen readers the calendar is a dialog named by [semanticLabel]
-/// ("Choose a date"); days are buttons named by their full date, the
-/// chosen one selected.
+/// ("Choose a date"), which names the route it opens; days are buttons
+/// named by their full date, the chosen one selected, and the day with
+/// keyboard focus is focused, so the arrow keys are heard.
 class DatePicker extends StatefulWidget {
   /// Creates a calendar showing [month].
   const new({
@@ -311,8 +312,16 @@ class _DatePickerState extends State<DatePicker> {
         child: Semantics(
           button: true,
           selected: selected,
+          // The day with keyboard focus, so screen readers that follow
+          // focus hear the arrow keys (the grid's own Focus is silent).
+          focusable: true,
+          focused: _grid.hasFocus && _sameDay(day, _focused),
           label: _regionDigits(fullDate.format(day)),
           onTap: () => widget.onChanged?.call(day),
+          onFocus: () {
+            _grid.requestFocus();
+            setState(() => _focused = day);
+          },
           child: ExcludeSemantics(
             child: GestureDetector(
               behavior: HitTestBehavior.opaque,
@@ -465,6 +474,7 @@ class _DatePickerState extends State<DatePicker> {
     return Semantics(
       container: true,
       scopesRoute: true,
+      namesRoute: widget.semanticLabel != null,
       explicitChildNodes: true,
       role: SemanticsRole.dialog,
       label: widget.semanticLabel,

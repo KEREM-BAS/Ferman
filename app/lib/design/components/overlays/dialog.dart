@@ -1,6 +1,8 @@
 import 'dart:async';
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/design/components/core/icon_button.dart';
+import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
@@ -45,28 +47,33 @@ enum DialogSize {
 /// taller than it less 32 px each way). The head (18 px top, 20 px start,
 /// 16 px end) holds the 32 px [icon] glyph in the [tone]'s colours, the
 /// [title] in the dialog-title role with [description] under it in prose
-/// secondary text, and [closeButton] at the end. [child] is the scrolling
-/// body in prose type (16 px by 20 px of padding); the foot ends the box
-/// with [actions] lined up at the end, 8 px apart, and [footerStart] at the
-/// start. Footer actions come in the order the platform expects (Cancel on
-/// the left on Windows and Linux, Q12): the screen orders them. The box
-/// rises in over `--dur-slow`.
+/// secondary text, and, with [onClose], the close button at the end (a
+/// small `x` [IconButton] named [closeLabel], without a tooltip). [child]
+/// is the scrolling body in prose type (16 px by 20 px of padding); the
+/// foot ends the box with [actions] lined up at the end, 8 px apart, and
+/// [footerStart] at the start. Without a body or a foot the box ends under
+/// the head (`.fm-dialog__head` has no bottom padding). Footer actions come
+/// in the order the platform expects, and the screen orders them: on macOS
+/// and Linux Cancel comes before the affirmative button at the end (G15);
+/// on Windows primary, secondary, then Cancel (G16). The box rises in over
+/// `--dur-slow`.
 ///
-/// **Modal.** Unless [inline], a dialog is shown while [open] in the
-/// nearest [Overlay] (through an [OverlayPortal]; no Material route),
-/// centred over a [Scrim], wherever it sits in the tree. It is modal:
-/// screen readers see only the dialog, focus is trapped inside it (Tab and
-/// Shift+Tab cycle), and focus goes on open to a child that asks for
-/// `autofocus` (the bundle's `data-autofocus`), else to the first focusable
-/// control in the body, else to the dialog itself (which shows no ring),
-/// and returns on close to where it was. With [onClose], Escape and a
-/// pointer down on the scrim call it; [closeLabel] names the scrim as a
-/// dismiss target. [inline] draws the box in place, without scrim,
-/// modality or trap (boards and the gallery).
+/// **Modal.** Unless [inline], a dialog is shown while [open] in the root
+/// [Overlay] (through an [OverlayPortal] at
+/// [OverlayChildLocation.rootOverlay]; no Material
+/// route), centred over a [Scrim] that covers the whole window, the title
+/// bar included, wherever the dialog sits in the tree; [ModalScope] counts
+/// it while it shows. It is modal: screen readers see only the dialog,
+/// focus is trapped inside it (Tab and Shift+Tab cycle), and focus goes on
+/// open to a child that asks for `autofocus` (the bundle's
+/// `data-autofocus`), else to the first focusable control in the body,
+/// else to the dialog itself (which shows no ring), and returns on close
+/// to where it was. With [onClose], Escape and a pointer down on the scrim
+/// call it; [closeLabel] names the scrim as a dismiss target. [inline]
+/// draws the box in place, without scrim, modality or trap (boards and the
+/// gallery); Escape inside it still calls [onClose].
 ///
-/// **Slots.** The close button ([closeButton], an `IconButton` with `x`,
-/// [closeLabel] and no tooltip, calling [onClose]) and the footer buttons
-/// are widgets the screen composes: the buttons belong to the core group.
+/// **Slots.** The footer buttons are widgets the screen composes.
 ///
 /// For screen readers the dialog is a dialog (an alert dialog for the
 /// danger tone) named by [title], with [description] as its hint.
@@ -86,8 +93,10 @@ class Dialog extends StatefulWidget {
     this.footerStart,
     this.onClose,
     this.closeLabel = '',
-    this.closeButton,
-  });
+  }) : assert(
+         onClose == null || closeLabel != '',
+         'A closable dialog needs the localized closeLabel.',
+       );
 
   /// `.fm-dialog--lg` `width`.
   static const double largeWidth = 640;
@@ -142,17 +151,13 @@ class Dialog extends StatefulWidget {
   /// A widget at the start of the footer (a checkbox, a link).
   final Widget? footerStart;
 
-  /// Called on Escape and on a pointer down on the scrim; null makes the
-  /// dialog wait for an action.
+  /// Shows the close button and is called by it, on Escape and on a
+  /// pointer down on the scrim; null makes the dialog wait for an action.
   final VoidCallback? onClose;
 
-  /// The accessible name of the scrim as a dismiss target, and the label
-  /// the screen gives the close button ("Close"); empty for none.
+  /// The localized name of the close button and of the scrim as a dismiss
+  /// target ("Close"); required with [onClose].
   final String closeLabel;
-
-  /// The close button at the end of the head (an `IconButton` with `x`
-  /// calling [onClose]); null shows none. Not a design-system prop.
-  final Widget? closeButton;
 
   /// The width of a dialog of [size] in [theme].
   static double widthOf(FermanTheme theme, DialogSize size) => switch (size) {
@@ -206,6 +211,7 @@ class _DialogState extends State<Dialog> {
     skipTraversal: true,
   );
   FocusNode? _restore;
+  ModalHandle? _modalHandle;
 
   bool get _modal => widget.open && !widget.inline;
 
@@ -217,6 +223,9 @@ class _DialogState extends State<Dialog> {
       // shown.
       _portal.show();
       _scheduleInitialFocus();
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted && _portal.isShowing) _openModal();
+      });
     }
   }
 
@@ -232,6 +241,7 @@ class _DialogState extends State<Dialog> {
 
   @override
   void dispose() {
+    _closeModal();
     _restoreFocus();
     _scope.dispose();
     _boxNode.dispose();
@@ -243,11 +253,22 @@ class _DialogState extends State<Dialog> {
     if (!mounted) return;
     if (_modal && !_portal.isShowing) {
       _portal.show();
+      _openModal();
       _scheduleInitialFocus();
     } else if (!_modal && _portal.isShowing) {
       _portal.hide();
+      _closeModal();
       _restoreFocus();
     }
+  }
+
+  void _openModal() {
+    _modalHandle ??= ModalScope.open(debugLabel: 'Dialog');
+  }
+
+  void _closeModal() {
+    _modalHandle?.close();
+    _modalHandle = null;
   }
 
   void _scheduleInitialFocus() {
@@ -278,7 +299,7 @@ class _DialogState extends State<Dialog> {
     final colors = theme.colors;
     final icon = widget.icon;
     final description = widget.description;
-    final closeButton = widget.closeButton;
+    final onClose = widget.onClose;
     final body = widget.child;
     final footerStart = widget.footerStart;
     final hasFoot = widget.actions.isNotEmpty || footerStart != null;
@@ -338,7 +359,14 @@ class _DialogState extends State<Dialog> {
               ),
             ),
           ),
-          ?closeButton,
+          if (onClose != null)
+            IconButton(
+              icon: IconName.x,
+              label: widget.closeLabel,
+              size: IconButtonSize.sm,
+              showTooltip: false,
+              onPressed: onClose,
+            ),
         ],
       ),
     );
@@ -387,9 +415,7 @@ class _DialogState extends State<Dialog> {
               ...widget.actions,
             ],
           ),
-        )
-      else if (body == null)
-        const SizedBox(height: Dialog.footBottom),
+        ),
     ];
     final maxHeight = modal
         ? MediaQuery.sizeOf(context).height - Dialog.verticalMargin
@@ -498,9 +524,20 @@ class _DialogState extends State<Dialog> {
   @override
   Widget build(BuildContext context) {
     if (widget.inline) {
-      return widget.open ? _buildBox(context, modal: false) : const SizedBox();
+      if (!widget.open) return const SizedBox();
+      final box = _buildBox(context, modal: false);
+      if (widget.onClose == null) return box;
+      // The bundle's `onKeyDown` handles Escape on an inline box too; only
+      // the Tab trap is modal.
+      return CallbackShortcuts(
+        bindings: {const SingleActivator(LogicalKeyboardKey.escape): _close},
+        child: box,
+      );
     }
+    // The root overlay, so the scrim covers the title bar and every
+    // nested navigator's screen.
     return OverlayPortal(
+      overlayLocation: OverlayChildLocation.rootOverlay,
       controller: _portal,
       overlayChildBuilder: _modalLayer,
       child: const SizedBox.shrink(),

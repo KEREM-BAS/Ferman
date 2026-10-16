@@ -383,5 +383,109 @@ void main() {
       expect(states, {WidgetState.pressed, WidgetState.focused});
       expect(otherStates, {WidgetState.focused});
     });
+
+    testWidgets('onTap takes pointer and semantics taps; Enter and Space '
+        'still call onPressed', (tester) async {
+      final handle = tester.ensureSemantics();
+      final calls = <String>[];
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          FermanInteractive(
+            onPressed: () => calls.add('pressed'),
+            onTap: () => calls.add('tap'),
+            focusNode: node,
+            semanticLabel: 'Page layout',
+            builder: (context, value, _) =>
+                const SizedBox(width: 40, height: 24, key: Key('control')),
+          ),
+        ),
+      );
+      await tester.tap(controlFinder);
+      expect(calls, ['tap']);
+      tester.semantics.tap(find.semantics.byLabel('Page layout'));
+      expect(calls, ['tap', 'tap']);
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(calls, ['tap', 'tap', 'pressed', 'pressed']);
+      handle.dispose();
+    });
+
+    testWidgets('onTap does nothing on a disabled control', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        componentHost(
+          FermanInteractive(
+            onTap: () => taps++,
+            builder: (context, value, _) =>
+                const SizedBox(width: 40, height: 24, key: Key('control')),
+          ),
+        ),
+      );
+      await tester.tap(controlFinder, warnIfMissed: false);
+      expect(taps, 0);
+    });
+
+    testWidgets('activateOnEnter false: Space only, and Enter passes on, past '
+        "the app's own Enter shortcut", (tester) async {
+      var presses = 0;
+      var outer = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        // The app's root shortcuts map Enter to ActivateIntent.
+        Shortcuts(
+          shortcuts: WidgetsApp.defaultShortcuts,
+          child: Actions(
+            actions: WidgetsApp.defaultActions,
+            child: componentHost(
+              CallbackShortcuts(
+                bindings: {
+                  const SingleActivator(LogicalKeyboardKey.enter): () =>
+                      outer++,
+                },
+                child: FermanInteractive(
+                  onPressed: () => presses++,
+                  activateOnEnter: false,
+                  focusNode: node,
+                  builder: (context, value, _) =>
+                      const SizedBox(width: 40, height: 24),
+                ),
+              ),
+            ),
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+      expect(presses, 0);
+      expect(outer, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(presses, 1);
+      // A tap still activates.
+      await tester.tap(find.byType(FermanInteractive));
+      expect(presses, 2);
+    });
+
+    testWidgets('activateOnEnter true (the default): Enter activates', (
+      tester,
+    ) async {
+      var presses = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        componentHost(control(onPressed: () => presses++, focusNode: node)),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+      expect(presses, 2);
+    });
   });
 }

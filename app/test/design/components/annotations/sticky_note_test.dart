@@ -88,6 +88,8 @@ void main() {
       final box = tester.widget<Container>(pin).decoration! as BoxDecoration;
       expect(box.color, ramps.annotYellow);
       expect(box.boxShadow, StickyNote.pinDropShadow);
+      // `0 2px 4px`: a CSS blur of 4 px is a blur radius of 2.5981.
+      expect(StickyNote.pinDropShadow.single.blurRadius, 2.5981);
       // The hairline ring, its corner grown to 5 px as CSS does, above the
       // drop shadow.
       final ring = pinRingOf(tester);

@@ -40,6 +40,45 @@ void main() {
       expect(NumberStepper.parse('۱۰٫۵', saudi), 10.5);
       expect(NumberStepper.parse('10,5 pt', Region.turkiye, unit: 'pt'), 10.5);
       expect(NumberStepper.parse('10,5 pt', Region.turkiye, unit: 'pt'), 10.5);
+      expect(NumberStepper.parse('10,5pt', Region.turkiye, unit: 'pt'), 10.5);
+      expect(NumberStepper.parse('10,5 pt', Region.turkiye), isNull);
+      expect(
+        NumberStepper.parse('10,5 px', Region.turkiye, unit: 'pt'),
+        isNull,
+      );
+    });
+
+    test('grouping must be well formed; a typo is not a number', () {
+      expect(NumberStepper.parse('10..5', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('1.2.3', Region.turkiye), isNull);
+      expect(NumberStepper.parse('10 5', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('10 5', france), isNull);
+      expect(NumberStepper.parse('1,2,34', Region.unitedStates), isNull);
+      expect(NumberStepper.parse('1.234.56', germany), isNull);
+      expect(NumberStepper.parse('0.500.000', Region.turkiye), isNull);
+      expect(NumberStepper.parse('12.34,5', Region.turkiye), isNull);
+    });
+
+    test('a lone group separator that groups nothing is the decimal', () {
+      expect(NumberStepper.parse('0.500', Region.turkiye), 0.5);
+      expect(NumberStepper.parse('0,500', Region.unitedStates), 0.5);
+      expect(NumberStepper.parse('1234,567', Region.unitedStates), 1234.567);
+      expect(NumberStepper.parse('12,5', Region.unitedStates), 12.5);
+    });
+
+    test('well-formed grouping still reads', () {
+      final india = Region.forCode('IN');
+      expect(NumberStepper.parse('12,34,567', india), 1234567);
+      expect(NumberStepper.parse('1,234,567', india), 1234567);
+      expect(NumberStepper.parse('1 234,5', france), 1234.5);
+      expect(NumberStepper.parse('1\u202F234,5', france), 1234.5);
+      expect(NumberStepper.parse("1'234.5", Region.forCode('CH')), 1234.5);
+      expect(NumberStepper.parse('− 2,5', Region.turkiye), -2.5);
+      expect(NumberStepper.parse('1.234.567,25', germany), 1234567.25);
+    });
+
+    test('a digit string too long for a double is not a number', () {
+      expect(NumberStepper.parse('9' * 400, Region.unitedStates), isNull);
     });
 
     test('a leading minus, with direction marks', () {
@@ -239,7 +278,21 @@ void main() {
       tester,
     ) async {
       final values = <double>[];
-      await tester.pumpWidget(componentHost(stepper(onChanged: values.add)));
+      var value = 10.5;
+      // An owner that keeps the committed value.
+      await tester.pumpWidget(
+        componentHost(
+          StatefulBuilder(
+            builder: (context, setState) => stepper(
+              value: value,
+              onChanged: (next) {
+                values.add(next);
+                setState(() => value = next);
+              },
+            ),
+          ),
+        ),
+      );
       await tester.enterText(find.byType(EditableText), '12.3');
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pump();
@@ -247,7 +300,100 @@ void main() {
       expect(shown(tester), '12,5');
       await tester.enterText(find.byType(EditableText), '500');
       await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
       expect(values, [12.5, 96]);
+      expect(shown(tester), '96,0');
+    });
+
+    testWidgets('controlled: an owner that keeps its value is shown as it '
+        'is', (tester) async {
+      final values = <double>[];
+      await tester.pumpWidget(componentHost(stepper(onChanged: values.add)));
+      await tester.enterText(find.byType(EditableText), '12.3');
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(values, [12.5]);
+      expect(shown(tester), '10,5');
+      await tester.tap(find.byType(Icon).first);
+      await tester.pump();
+      expect(values, [12.5, 11]);
+      expect(shown(tester), '10,5');
+    });
+
+    testWidgets('an overlong draft is dropped without an error', (
+      tester,
+    ) async {
+      final values = <double>[];
+      await tester.pumpWidget(componentHost(stepper(onChanged: values.add)));
+      await tester.enterText(find.byType(EditableText), '9' * 400);
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(values, isEmpty);
+      expect(shown(tester), '10,5');
+    });
+
+    testWidgets('semantics: the draft is the value while typing', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(componentHost(stepper()));
+      await tester.enterText(find.byType(EditableText), '12');
+      await tester.pump();
+      expect(
+        tester.getSemantics(find.byType(EditableText)),
+        isSemantics(label: 'Size', value: '12\u00a0pt', isTextField: true),
+      );
+      await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
+      expect(
+        tester.getSemantics(find.byType(EditableText)),
+        isSemantics(label: 'Size', value: '10,5\u00a0pt', isTextField: true),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('the arrows: a 1 px subtle line between them, behind a 1 px '
+        'border outside their 18 px', (tester) async {
+      await tester.pumpWidget(componentHost(stepper()));
+      final line = find.descendant(
+        of: find.byType(NumberStepper),
+        matching: find.byWidgetPredicate(
+          (widget) =>
+              widget is ColoredBox && widget.color == light.borderSubtle,
+        ),
+      );
+      expect(tester.getSize(line), const Size(18, 1));
+      final column = find.byWidgetPredicate(
+        (widget) =>
+            widget is DecoratedBox &&
+            widget.decoration is BoxDecoration &&
+            (widget.decoration as BoxDecoration).border is BorderDirectional,
+      );
+      final arrows = tester.getRect(column);
+      expect(arrows.width, NumberStepper.arrowWidth + 1);
+      final up = tester.getRect(
+        find
+            .ancestor(
+              of: find.byType(Icon).first,
+              matching: find.byType(Container),
+            )
+            .first,
+      );
+      // The hover fill starts after the border.
+      expect(up.left, arrows.left + 1);
+      expect(up.width, NumberStepper.arrowWidth);
+    });
+
+    testWidgets('a click on the label focuses the field', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        TapRegionSurface(child: componentHost(stepper(focusNode: node))),
+      );
+      await tester.tap(find.text('Size'));
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isTrue);
     });
 
     testWidgets('a draft commits when focus leaves; a bad draft is dropped', (

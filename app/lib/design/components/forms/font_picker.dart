@@ -74,7 +74,9 @@ class FontOption {
 /// border takes the warning colour, and a note under the trigger says so
 /// ([missingNote], or [warning] which overrides it): Ferman never
 /// substitutes silently (ADR 0006). [glyphWarning] (DS additions fix 2,
-/// G36) gives the amber border and triangle in the trigger only.
+/// G36) gives the amber border and triangle in the trigger only; its
+/// border stays amber with focus and when disabled
+/// (`[data-fm-glyph-warning] .fm-fonttrigger` wins over both).
 ///
 /// Enter, Space or a click toggle the popover (280 px, at most 340 px tall,
 /// `.fm-fontpop`): a search field that takes focus, then the matching
@@ -82,9 +84,12 @@ class FontOption {
 /// each row a check for the current font, the name drawn in its family
 /// (14 px) and, for a missing font, [missingBadge]. With no match the
 /// popover shows [noMatchesText] for the query. ArrowDown and ArrowUp move
-/// between the search field and the rows (not in the bundle; the listbox
-/// pattern its roles imply); Enter or a click choose a font and close;
-/// Escape or a click outside close and return focus to the trigger.
+/// between the search field and the rows, stopping at the ends (not in the
+/// bundle; the listbox pattern its roles imply); Tab and Shift+Tab cycle
+/// through them. Focus stays in the popover, which is a focus scope of its
+/// own, so it never reaches the controls the popover covers. Enter or a
+/// click choose a font and close; Escape or a click outside close and
+/// return focus to the trigger.
 /// Matching follows the casing rules of the UI language ([LocaleCasing]).
 ///
 /// The fonts are passed in: M1 does not enumerate system fonts. The open
@@ -237,6 +242,12 @@ class _FontPickerState extends State<FontPicker> {
   final TextEditingController _query = TextEditingController();
   final FocusNode _searchNode = FocusNode(debugLabel: 'FontPicker search');
 
+  /// The popover's own focus scope: the arrows and Tab stay among the
+  /// search field and the rows.
+  final FocusScopeNode _listScope = FocusScopeNode(
+    debugLabel: 'FontPicker list',
+  );
+
   FocusNode get _node =>
       widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'FontPicker'));
 
@@ -254,6 +265,7 @@ class _FontPickerState extends State<FontPicker> {
     _ownNode?.dispose();
     _query.dispose();
     _searchNode.dispose();
+    _listScope.dispose();
     super.dispose();
   }
 
@@ -280,6 +292,8 @@ class _FontPickerState extends State<FontPicker> {
     }
     final focus = FocusManager.instance.primaryFocus;
     if (focus == null) return KeyEventResult.ignored;
+    // Inside the popover's scope, so the move stops at its ends
+    // (directional edge behaviour `stop`).
     if (event.logicalKey == LogicalKeyboardKey.arrowDown) {
       focus.focusInDirection(TraversalDirection.down);
       return KeyEventResult.handled;
@@ -303,6 +317,7 @@ class _FontPickerState extends State<FontPicker> {
       size: widget.size,
       disabled: disabled,
       warning: warn,
+      warningOverridesState: widget.glyphWarning,
       focused: states.contains(WidgetState.focused),
       hovered: states.contains(WidgetState.hovered),
       focusRingStyle: FocusRingStyle.outer,
@@ -339,10 +354,12 @@ class _FontPickerState extends State<FontPicker> {
               ),
             ),
           ),
+          // `.fm-input > svg { color: var(--icon-secondary) }` in every
+          // state.
           Icon(
             IconName.chevronDown,
             size: theme.density.iconSm,
-            color: disabled ? colors.iconDisabled : colors.iconSecondary,
+            color: colors.iconSecondary,
           ),
         ],
       ),
@@ -389,64 +406,69 @@ class _FontPickerState extends State<FontPicker> {
         skipTraversal: true,
         includeSemantics: false,
         onKeyEvent: _onListKey,
-        child: ConstrainedBox(
-          constraints: const BoxConstraints(
-            maxWidth: FontPicker.popoverWidth,
-            minWidth: FontPicker.popoverWidth,
-            maxHeight: FontPicker.popoverMaxHeight,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  theme.space.space2,
-                  theme.space.space2,
-                  theme.space.space2,
-                  theme.space.space0_5,
-                ),
-                child: _FocusOnMount(
-                  node: _searchNode,
-                  child: TextField(
-                    size: FieldSize.sm,
-                    icon: IconName.search,
-                    controller: _query,
-                    focusNode: _searchNode,
-                    placeholder: widget.searchPlaceholder,
-                    semanticLabel: widget.searchSemanticLabel,
-                    onChanged: (_) => setState(() {}),
-                  ),
-                ),
+        child: FocusScope(
+          node: _listScope,
+          child: FocusTraversalGroup(
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(
+                maxWidth: FontPicker.popoverWidth,
+                minWidth: FontPicker.popoverWidth,
+                maxHeight: FontPicker.popoverMaxHeight,
               ),
-              Flexible(
-                child: SingleChildScrollView(
-                  padding: EdgeInsetsDirectional.only(
-                    bottom: theme.space.space1_5,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      theme.space.space2,
+                      theme.space.space2,
+                      theme.space.space2,
+                      theme.space.space0_5,
+                    ),
+                    child: _FocusOnMount(
+                      node: _searchNode,
+                      child: TextField(
+                        size: FieldSize.sm,
+                        icon: IconName.search,
+                        controller: _query,
+                        focusNode: _searchNode,
+                        placeholder: widget.searchPlaceholder,
+                        semanticLabel: widget.searchSemanticLabel,
+                        onChanged: (_) => setState(() {}),
+                      ),
+                    ),
                   ),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: [
-                      ...sections,
-                      if (filtered.isEmpty && noMatches != null)
-                        Padding(
-                          padding: EdgeInsetsDirectional.symmetric(
-                            horizontal: theme.space.space3,
-                            vertical: theme.space.space2_5,
-                          ),
-                          child: Text(
-                            noMatches(_query.text),
-                            style: theme.typography.caption.copyWith(
-                              color: colors.textTertiary,
+                  Flexible(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsetsDirectional.only(
+                        bottom: theme.space.space1_5,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          ...sections,
+                          if (filtered.isEmpty && noMatches != null)
+                            Padding(
+                              padding: EdgeInsetsDirectional.symmetric(
+                                horizontal: theme.space.space3,
+                                vertical: theme.space.space2_5,
+                              ),
+                              child: Text(
+                                noMatches(_query.text),
+                                style: theme.typography.caption.copyWith(
+                                  color: colors.textTertiary,
+                                ),
+                              ),
                             ),
-                          ),
-                        ),
-                    ],
+                        ],
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -487,8 +509,11 @@ class _FontPickerState extends State<FontPicker> {
           child: _popover(context),
         ),
         if (note != null)
+          // Its own node, the bundle's `role="status"` note.
           Semantics(
+            container: true,
             liveRegion: true,
+            label: note,
             child: ExcludeSemantics(
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -600,8 +625,7 @@ class _FontRow extends StatelessWidget {
 }
 
 /// Moves focus to [node] once [child] is first built: the search field
-/// takes focus when the popover opens, although the trigger in the same
-/// focus scope still has it (so `autofocus` would not apply).
+/// takes focus from the trigger when the popover opens.
 class _FocusOnMount extends StatefulWidget {
   const new({required this.node, required this.child});
 

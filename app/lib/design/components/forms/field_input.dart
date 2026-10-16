@@ -15,8 +15,15 @@ import 'package:flutter/widgets.dart';
 /// is 1 px of the text colour; it blinks as [EditableText]'s caret does.
 ///
 /// [enabled] false makes it inert: not focusable, not editable, no pointer
-/// input. [readOnly] keeps it focusable and selectable without editing,
-/// for a control that is disabled with a reason (G10).
+/// input, under the not-allowed cursor (`.fm-input__control:disabled`).
+/// [readOnly] keeps it focusable and selectable without editing, for a
+/// control that is disabled with a reason (G10). [obscureText] masks the
+/// text (the bundle's `type="password"`).
+///
+/// The whole control, not only its text line, is inside the text field's
+/// tap region, so a click anywhere in it never counts as outside the
+/// field. A right click opens no context menu yet (keyboard copy and
+/// paste work; G80, B017).
 ///
 /// It announces itself as a text field with its value; the owning
 /// component adds the label and hint around it.
@@ -39,6 +46,7 @@ class FieldInput extends StatefulWidget {
     this.onSubmitted,
     this.onEditingComplete,
     this.mouseCursor,
+    this.obscureText = false,
   });
 
   /// The text being edited.
@@ -88,6 +96,10 @@ class FieldInput extends StatefulWidget {
   /// while editable.
   final MouseCursor? mouseCursor;
 
+  /// Whether the text is masked (a password or PIN): no suggestions,
+  /// autocorrect, copy or cut, and screen readers hear it as obscured.
+  final bool obscureText;
+
   /// The caret width (a 1 px browser caret).
   static const double caretWidth = 1;
 
@@ -100,7 +112,10 @@ class FieldInput extends StatefulWidget {
     properties
       ..add(StringProperty('placeholder', placeholder, defaultValue: null))
       ..add(FlagProperty('enabled', value: enabled, ifFalse: 'disabled'))
-      ..add(FlagProperty('readOnly', value: readOnly, ifTrue: 'read only'));
+      ..add(FlagProperty('readOnly', value: readOnly, ifTrue: 'read only'))
+      ..add(
+        FlagProperty('obscureText', value: obscureText, ifTrue: 'obscured'),
+      );
   }
 }
 
@@ -161,6 +176,9 @@ class _FieldInputState extends State<FieldInput>
       cursorWidth: FieldInput.caretWidth,
       selectionColor: theme.pageColors.editSelection,
       readOnly: widget.readOnly || !widget.enabled,
+      obscureText: widget.obscureText,
+      autocorrect: !widget.obscureText,
+      enableSuggestions: !widget.obscureText,
       showCursor: !widget.readOnly && widget.enabled,
       autofocus: widget.autofocus,
       textAlign: widget.textAlign,
@@ -197,7 +215,15 @@ class _FieldInputState extends State<FieldInput>
         ],
       ),
     );
-    result = MouseRegion(
+    // A pointer down anywhere in the control is inside the field, as
+    // Flutter's own text fields count it.
+    result = TextFieldTapRegion(child: result);
+    if (!widget.enabled) {
+      result = ExcludeFocus(child: IgnorePointer(child: result));
+    }
+    // Outermost, so the not-allowed cursor of an inert control shows: an
+    // opaque MouseRegion takes the hover even when its child does not.
+    return MouseRegion(
       cursor:
           widget.mouseCursor ??
           (widget.enabled && !widget.readOnly
@@ -205,9 +231,5 @@ class _FieldInputState extends State<FieldInput>
               : SystemMouseCursors.forbidden),
       child: result,
     );
-    if (!widget.enabled) {
-      result = ExcludeFocus(child: IgnorePointer(child: result));
-    }
-    return result;
   }
 }

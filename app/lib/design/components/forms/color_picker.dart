@@ -7,6 +7,7 @@ import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/casing.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -18,8 +19,10 @@ import 'package:flutter/widgets.dart' hide Icon;
 ///
 /// The trigger is a [Field] box of [size] with [label] above: a 16 px chip
 /// of [value] (`.fm-chip`; struck through in red for none), the colour as
-/// an upper-case hex code (or [noneLabel]) and a `chevron-down`. Keyboard
-/// focus gives it the outer focus ring (`.fm-colortrigger:focus-visible`).
+/// an upper-case hex code (or [noneLabel], upper-cased by the casing rules
+/// of the UI language: the CSS `text-transform: uppercase`) and a
+/// `chevron-down`. Keyboard focus gives it the outer focus ring
+/// (`.fm-colortrigger:focus-visible`).
 ///
 /// Enter, Space or a click toggle the popover (232 px, `.fm-colorpop`): an
 /// "In this document" section of [documentColors] when there are any, a
@@ -27,9 +30,13 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// led by a none swatch when [allowNone], then the hex field and the
 /// eyedropper slot. Swatches are 20 px Tab stops (as in the bundle) with a
 /// strong ring under the pointer, the focus ring under keyboard focus and
-/// an accent ring when selected. The hex field commits a six-digit code on
-/// Enter or when focus leaves. Escape or a click outside closes the
-/// popover; Escape returns focus to the trigger.
+/// an accent ring when selected. Opening the popover moves focus to the
+/// selected swatch (the first one when none is); the popover is a focus
+/// scope of its own, so Tab and Shift+Tab cycle through the swatches, the
+/// hex field and the eyedropper and never reach the controls it covers.
+/// The hex field commits a six-digit code on Enter or when focus leaves.
+/// Escape or a click outside closes the popover and returns focus to the
+/// trigger.
 ///
 /// The open state is [open] when given (with [onOpenChanged] reporting
 /// requests), else local, starting at [initiallyOpen]. The colour is
@@ -113,7 +120,11 @@ class ColorPicker extends StatefulWidget {
   /// `.fm-chip` `box-shadow: inset 0 0 0 1px rgba(0,0,0,.14)`.
   static const Color chipEdgeLight = Color(0x24000000);
 
-  /// `[data-theme="dark"] .fm-chip` `rgba(255,255,255,.24)`.
+  /// `[data-theme="dark"] .fm-chip, [data-theme="dark"] .fm-swatch`
+  /// `rgba(255,255,255,.24)`: the trigger's chip and a swatch at rest in
+  /// dark. A hovered or selected swatch keeps [chipEdgeLight] in dark too
+  /// (`.fm-swatch:hover` and `[aria-pressed]` come later at the same
+  /// specificity).
   static const Color chipEdgeDark = Color(0x3DFFFFFF);
 
   /// The label above the trigger; null shows none.
@@ -229,6 +240,11 @@ class _ColorPickerState extends State<ColorPicker> {
   final FocusNode _hexNode = FocusNode(debugLabel: 'ColorPicker hex');
   bool _hexDraft = false;
 
+  /// The popover's own focus scope (Tab cycles inside it).
+  final FocusScopeNode _popoverScope = FocusScopeNode(
+    debugLabel: 'ColorPicker popover',
+  );
+
   FocusNode get _node =>
       widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'ColorPicker'));
 
@@ -256,6 +272,7 @@ class _ColorPickerState extends State<ColorPicker> {
     _ownNode?.dispose();
     _hex.dispose();
     _hexNode.dispose();
+    _popoverScope.dispose();
     super.dispose();
   }
 
@@ -317,6 +334,7 @@ class _ColorPickerState extends State<ColorPicker> {
     final colors = theme.colors;
     final value = widget.value;
     final disabled = states.contains(WidgetState.disabled);
+    final noneLabel = widget.noneLabel;
     return FieldBox(
       size: widget.size,
       disabled: disabled,
@@ -331,7 +349,9 @@ class _ColorPickerState extends State<ColorPicker> {
             child: ExcludeSemantics(
               child: Text(
                 value == null
-                    ? widget.noneLabel ?? ''
+                    ? (noneLabel == null
+                          ? ''
+                          : LocaleCasing.of(context).upper(noneLabel))
                     : ColorPicker.hexOf(value),
                 maxLines: 1,
                 softWrap: false,
@@ -344,10 +364,12 @@ class _ColorPickerState extends State<ColorPicker> {
               ),
             ),
           ),
+          // `.fm-input > svg { color: var(--icon-secondary) }` in every
+          // state.
           Icon(
             IconName.chevronDown,
             size: theme.density.iconSm,
-            color: disabled ? colors.iconDisabled : colors.iconSecondary,
+            color: colors.iconSecondary,
           ),
         ],
       ),
@@ -368,15 +390,19 @@ class _ColorPickerState extends State<ColorPicker> {
     ),
   );
 
-  Widget _swatch(Color? color, {required String label}) {
+  bool _isSelected(Color? color) {
     final value = widget.value;
-    final selected = color == null
+    return color == null
         ? value == null
         : value != null && value.toARGB32() == color.toARGB32();
+  }
+
+  Widget _swatch(Color? color, {required String label, bool focus = false}) {
     return _Swatch(
       color: color,
-      selected: selected,
+      selected: _isSelected(color),
       semanticLabel: label,
+      autofocus: focus,
       onPressed: () => _pick(color),
     );
   }
@@ -388,85 +414,116 @@ class _ColorPickerState extends State<ColorPicker> {
     final standardLabel = widget.standardColorsLabel;
     final hexLabel = widget.hexLabel;
     final eyedropper = widget.eyedropper;
+    // The swatch that takes focus when the popover opens: the selected
+    // one, else the first.
+    final all = <Color?>[
+      ...widget.documentColors,
+      if (widget.allowNone) null,
+      ...widget.swatches,
+    ];
+    final selectedAt = all.indexWhere(_isSelected);
+    final focusAt = selectedAt >= 0 ? selectedAt : 0;
+    var at = -1;
+    bool takesFocus() => ++at == focusAt;
     return Semantics(
       role: SemanticsRole.dialog,
       explicitChildNodes: true,
       label: widget.dialogLabel,
-      child: SizedBox(
-        width: ColorPicker.popoverWidth,
-        child: Padding(
-          padding: EdgeInsetsDirectional.only(bottom: theme.space.space2_5),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              if (widget.documentColors.isNotEmpty) ...[
-                if (documentLabel != null) PopoverSection(documentLabel),
-                _swatches(theme, [
-                  for (final color in widget.documentColors)
-                    _swatch(color, label: ColorPicker.hexOf(color)),
-                ]),
-              ],
-              if (standardLabel != null) PopoverSection(standardLabel),
-              _swatches(theme, [
-                if (widget.allowNone)
-                  _swatch(null, label: widget.noColorLabel ?? ''),
-                for (final color in widget.swatches)
-                  _swatch(color, label: ColorPicker.hexOf(color)),
-              ]),
-              Padding(
-                padding: EdgeInsetsDirectional.fromSTEB(
-                  theme.space.space2_5,
-                  theme.space.space1_5,
-                  theme.space.space2_5,
-                  0,
-                ),
-                child: Row(
-                  spacing: theme.space.space1_5,
-                  children: [
-                    Expanded(
-                      child: MergeSemantics(
-                        child: Semantics(
-                          label: widget.hexSemanticLabel,
-                          child: FieldBox(
-                            size: FieldSize.sm,
-                            child: Row(
-                              spacing: FieldBox.contentGap,
-                              children: [
-                                if (hexLabel != null)
-                                  ExcludeSemantics(
-                                    child: Text(
-                                      hexLabel,
-                                      style: theme.typography.caption.copyWith(
-                                        color: colors.textTertiary,
+      child: FocusScope(
+        node: _popoverScope,
+        child: FocusTraversalGroup(
+          child: SizedBox(
+            width: ColorPicker.popoverWidth,
+            child: Padding(
+              padding: EdgeInsetsDirectional.only(bottom: theme.space.space2_5),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  if (widget.documentColors.isNotEmpty) ...[
+                    if (documentLabel != null) PopoverSection(documentLabel),
+                    _swatches(theme, [
+                      for (final color in widget.documentColors)
+                        _swatch(
+                          color,
+                          label: ColorPicker.hexOf(color),
+                          focus: takesFocus(),
+                        ),
+                    ]),
+                  ],
+                  if (standardLabel != null) PopoverSection(standardLabel),
+                  _swatches(theme, [
+                    if (widget.allowNone)
+                      _swatch(
+                        null,
+                        label: widget.noColorLabel ?? '',
+                        focus: takesFocus(),
+                      ),
+                    for (final color in widget.swatches)
+                      _swatch(
+                        color,
+                        label: ColorPicker.hexOf(color),
+                        focus: takesFocus(),
+                      ),
+                  ]),
+                  Padding(
+                    padding: EdgeInsetsDirectional.fromSTEB(
+                      theme.space.space2_5,
+                      theme.space.space1_5,
+                      theme.space.space2_5,
+                      0,
+                    ),
+                    child: Row(
+                      spacing: theme.space.space1_5,
+                      children: [
+                        Expanded(
+                          child: MergeSemantics(
+                            child: Semantics(
+                              label: widget.hexSemanticLabel,
+                              child: FieldBox(
+                                size: FieldSize.sm,
+                                child: Row(
+                                  spacing: FieldBox.contentGap,
+                                  children: [
+                                    if (hexLabel != null)
+                                      ExcludeSemantics(
+                                        child: Text(
+                                          hexLabel,
+                                          style: theme.typography.caption
+                                              .copyWith(
+                                                color: colors.textTertiary,
+                                              ),
+                                        ),
+                                      ),
+                                    Expanded(
+                                      child: FieldInput(
+                                        controller: _hex,
+                                        focusNode: _hexNode,
+                                        style: FieldBox.textStyleOf(
+                                          theme,
+                                          FieldSize.sm,
+                                          color: colors.textPrimary,
+                                        ),
+                                        inputFormatters: const [
+                                          _HexFormatter(),
+                                        ],
+                                        onChanged: (_) => _hexDraft = true,
+                                        onEditingComplete: _commitHex,
                                       ),
                                     ),
-                                  ),
-                                Expanded(
-                                  child: FieldInput(
-                                    controller: _hex,
-                                    focusNode: _hexNode,
-                                    style: FieldBox.textStyleOf(
-                                      theme,
-                                      FieldSize.sm,
-                                      color: colors.textPrimary,
-                                    ),
-                                    inputFormatters: const [_HexFormatter()],
-                                    onChanged: (_) => _hexDraft = true,
-                                    onEditingComplete: _commitHex,
-                                  ),
+                                  ],
                                 ),
-                              ],
+                              ),
                             ),
                           ),
                         ),
-                      ),
+                        ?eyedropper,
+                      ],
                     ),
-                    ?eyedropper,
-                  ],
-                ),
+                  ),
+                ],
               ),
-            ],
+            ),
           ),
         ),
       ),
@@ -562,28 +619,34 @@ class _Swatch extends StatelessWidget {
     required this.selected,
     required this.semanticLabel,
     required this.onPressed,
+    this.autofocus = false,
   });
 
   final Color? color;
   final bool selected;
   final String semanticLabel;
   final VoidCallback onPressed;
+  final bool autofocus;
 
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final colors = theme.colors;
-    final edge = theme.isDark
-        ? ColorPicker.chipEdgeDark
-        : ColorPicker.chipEdgeLight;
     const radius = BorderRadius.all(Radius.circular(ColorPicker.swatchRadius));
     final fill = color;
     return FermanInteractive(
       onPressed: onPressed,
       selected: selected,
       semanticLabel: semanticLabel,
+      autofocus: autofocus,
       builder: (context, states, _) {
         final focused = states.contains(WidgetState.focused);
+        final hovered = states.contains(WidgetState.hovered);
+        // forms.css:119 and :121 come after :112 with the same specificity,
+        // so a hovered or selected swatch has the dark edge in dark too.
+        final edge = theme.isDark && !selected && !hovered
+            ? ColorPicker.chipEdgeDark
+            : ColorPicker.chipEdgeLight;
         final List<BoxShadow> rings;
         if (focused) {
           rings = FocusRing.outerShadows(theme);
@@ -592,7 +655,7 @@ class _Swatch extends StatelessWidget {
             BoxShadow(color: colors.accent, spreadRadius: 4),
             BoxShadow(color: colors.surfaceRaised, spreadRadius: 2),
           ];
-        } else if (states.contains(WidgetState.hovered)) {
+        } else if (hovered) {
           rings = [BoxShadow(color: colors.borderStrong, spreadRadius: 2)];
         } else {
           rings = const [];

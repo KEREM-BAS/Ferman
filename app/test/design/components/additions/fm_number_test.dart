@@ -88,6 +88,40 @@ void main() {
               .color;
       expect(border, light.danger);
       expect(find.text('Enter 4–96 pt.'), findsOneWidget);
+      // FmNumber.dc.html draws the error as text only.
+      expect(
+        find.byWidgetPredicate(
+          (widget) => widget is Icon && widget.name == IconName.circleAlert,
+        ),
+        findsNothing,
+      );
+    });
+
+    testWidgets('the value in the body role (13 px), over the 12 px of a '
+        'small field; the unit stays 12 px', (tester) async {
+      await tester.pumpWidget(
+        componentHost(const FmNumber(region: Region.turkiye)),
+      );
+      final style = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .style;
+      expect(style.fontSize, FermanTheme.light.typeScale.sizeMd);
+      expect(style.fontSize, 13);
+      expect(style.color, light.textPrimary);
+      expect(
+        style.fontFeatures,
+        containsAll(FermanTheme.light.typeScale.numericTabular),
+      );
+      expect(tester.widget<Text>(find.text('pt')).style!.fontSize, 12);
+      // Disabled keeps the size with the disabled colour.
+      await tester.pumpWidget(
+        componentHost(const FmNumber(region: Region.turkiye, disabled: true)),
+      );
+      final disabled = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .style;
+      expect(disabled.fontSize, 13);
+      expect(disabled.color, light.textDisabled);
     });
 
     testWidgets('typing either separator commits (B003)', (tester) async {

@@ -1,8 +1,10 @@
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/font_picker.dart';
 import 'package:ferman/design/components/forms/popover.dart';
+import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
@@ -11,6 +13,7 @@ import '../../../helpers/component_host.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
+  final dark = FermanTheme.dark.colors;
 
   const fonts = [
     FontOption(name: 'IBM Plex Serif', group: FontGroup.document),
@@ -24,22 +27,35 @@ void main() {
     FontOption(name: 'IBM Plex Mono'),
   ];
 
-  Widget host(Widget child) => TapRegionSurface(
-    child: componentHost(
-      ColoredBox(
-        color: const Color(0x00000000),
-        child: SizedBox.expand(
-          child: Align(
-            alignment: AlignmentDirectional.topStart,
-            child: Padding(
-              padding: const EdgeInsetsDirectional.all(24),
-              child: SizedBox(width: 200, child: child),
+  Widget host(Widget child, {Brightness brightness = Brightness.light}) =>
+      TapRegionSurface(
+        child: componentHost(
+          ColoredBox(
+            color: const Color(0x00000000),
+            child: SizedBox.expand(
+              child: Align(
+                alignment: AlignmentDirectional.topStart,
+                child: Padding(
+                  padding: const EdgeInsetsDirectional.all(24),
+                  child: SizedBox(width: 200, child: child),
+                ),
+              ),
             ),
           ),
+          brightness: brightness,
         ),
-      ),
-    ),
-  );
+      );
+
+  Color? rowColor(WidgetTester tester, String name) => tester
+      .widget<Container>(
+        find
+            .ancestor(
+              of: find.text(name).last,
+              matching: find.byType(Container),
+            )
+            .first,
+      )
+      .color;
 
   Widget picker({
     String value = 'IBM Plex Serif',
@@ -48,6 +64,8 @@ void main() {
     bool glyphWarning = false,
     String? warning,
     FocusNode? focusNode,
+    bool disabled = false,
+    String? disabledReason,
   }) => FontPicker(
     label: 'Font',
     value: value,
@@ -57,6 +75,8 @@ void main() {
     glyphWarning: glyphWarning,
     warning: warning,
     focusNode: focusNode,
+    disabled: disabled,
+    disabledReason: disabledReason,
     missingNote:
         'Minion Pro isn’t installed. Ferman is showing IBM Plex '
         'Serif instead.',
@@ -216,6 +236,233 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(PopoverSurface), findsNothing);
       expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('keyboard: the arrows stay in the list, whatever lies under '
+        'the popover', (tester) async {
+      final chosen = <String>[];
+      final trigger = FocusNode(debugLabel: 'trigger');
+      final outside = [
+        for (final name in ['above', 'size', 'colour', 'bold', 'align'])
+          FocusNode(debugLabel: name),
+      ];
+      for (final node in [trigger, ...outside]) {
+        addTearDown(node.dispose);
+      }
+      Widget focusable(FocusNode node) =>
+          Focus(focusNode: node, child: const SizedBox(width: 60, height: 26));
+      // The FmEditPanel layout: the picker, then the size and colour row
+      // and the B/I/U and alignment row 10 px apart, under the popover.
+      await tester.pumpWidget(
+        host(
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            spacing: 10,
+            children: [
+              focusable(outside[0]),
+              picker(onChanged: chosen.add, focusNode: trigger),
+              Row(children: [focusable(outside[1]), focusable(outside[2])]),
+              Row(children: [focusable(outside[3]), focusable(outside[4])]),
+            ],
+          ),
+        ),
+      );
+      trigger.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      final search = tester
+          .widget<EditableText>(find.byType(EditableText))
+          .focusNode;
+      expect(search.hasFocus, isTrue);
+      Future<void> press(LogicalKeyboardKey key) async {
+        await tester.sendKeyEvent(key);
+        await tester.pumpAndSettle();
+        final focus = FocusManager.instance.primaryFocus;
+        expect(outside.contains(focus) || focus == trigger, isFalse);
+      }
+
+      // ArrowUp on the search field stays there.
+      await press(LogicalKeyboardKey.arrowUp);
+      expect(search.hasFocus, isTrue);
+      // ArrowDown to the first row, ArrowUp back to the search field.
+      await press(LogicalKeyboardKey.arrowDown);
+      expect(search.hasFocus, isFalse);
+      await press(LogicalKeyboardKey.arrowUp);
+      expect(search.hasFocus, isTrue);
+      // Past the last row the focus stays on it.
+      for (var i = 0; i < fonts.length + 2; i++) {
+        await press(LogicalKeyboardKey.arrowDown);
+      }
+      expect(find.byType(PopoverSurface), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(chosen, ['IBM Plex Mono']);
+      // With no match ArrowDown keeps the search field.
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      await tester.enterText(find.byType(EditableText), 'xyz');
+      await tester.pump();
+      await press(LogicalKeyboardKey.arrowDown);
+      expect(
+        tester
+            .widget<EditableText>(find.byType(EditableText))
+            .focusNode
+            .hasFocus,
+        isTrue,
+      );
+    });
+
+    testWidgets('trigger focus: the outer ring and the focus border', (
+      tester,
+    ) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(host(picker(focusNode: node)));
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      final box = tester.widget<FieldBox>(find.byType(FieldBox).first);
+      expect(box.focusRingStyle, FocusRingStyle.outer);
+      expect(box.focused, isTrue);
+      expect(borderOf(tester), light.borderFocus);
+    });
+
+    testWidgets('hover: the trigger border; rows tint under the pointer and '
+        'keyboard focus', (tester) async {
+      await tester.pumpWidget(host(picker()));
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byKey(FieldBox.boxKey).first));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderStrong);
+      await tester.tap(find.byKey(FieldBox.boxKey).first);
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'IBM Plex Sans'), isNull);
+      await mouse.moveTo(tester.getCenter(find.text('IBM Plex Sans')));
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'IBM Plex Sans'), light.surfaceHover);
+      await mouse.moveTo(const Offset(700, 10));
+      await tester.pumpAndSettle();
+      // Keyboard focus on the first row tints it too.
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pumpAndSettle();
+      expect(rowColor(tester, 'IBM Plex Serif'), light.surfaceHover);
+      expect(rowColor(tester, 'IBM Plex Sans'), isNull);
+    });
+
+    testWidgets('disabled: no popover, disabled name, sunken box', (
+      tester,
+    ) async {
+      await tester.pumpWidget(host(picker(disabled: true)));
+      await tester.tap(find.byKey(FieldBox.boxKey), warnIfMissed: false);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      final name = tester.widget<Text>(find.text('IBM Plex Serif'));
+      expect(name.style!.color, light.textDisabled);
+      final box =
+          tester
+                  .widget<AnimatedContainer>(find.byKey(FieldBox.boxKey))
+                  .decoration!
+              as BoxDecoration;
+      expect(box.color, light.surfaceSunken);
+      // `.fm-input > svg { color: var(--icon-secondary) }` in every state.
+      final chevron = tester
+          .widgetList<Icon>(find.byType(Icon))
+          .firstWhere((icon) => icon.name == IconName.chevronDown);
+      expect(chevron.color, light.iconSecondary);
+    });
+
+    testWidgets('disabled with a reason: focusable, reason as tooltip and '
+        'hint', (tester) async {
+      final handle = tester.ensureSemantics();
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        host(
+          picker(
+            disabled: true,
+            disabledReason: 'Available in a future version',
+            focusNode: node,
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(node.hasFocus, isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(find.byType(PopoverSurface), findsNothing);
+      await tester.pump(const Duration(milliseconds: 500));
+      expect(find.text('Available in a future version'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.byKey(FieldBox.boxKey)),
+        isSemantics(
+          label: 'Font',
+          hint: 'Available in a future version',
+          isButton: true,
+          hasEnabledState: true,
+          isEnabled: false,
+          isFocusable: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('glyph warning keeps the amber border with focus and when '
+        'disabled; a missing font yields to focus', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        host(picker(glyphWarning: true, focusNode: node)),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.warningSolid);
+      final ring = tester
+          .widgetList<AnimatedContainer>(find.byType(AnimatedContainer))
+          .map((box) => box.decoration)
+          .whereType<BoxDecoration>()
+          .map((d) => d.boxShadow)
+          .whereType<List<BoxShadow>>()
+          .where((shadows) => shadows.isNotEmpty);
+      expect(ring, contains(FocusRing.outerShadows(FermanTheme.light)));
+      await tester.pumpWidget(host(picker(glyphWarning: true, disabled: true)));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.warningSolid);
+      final missing = FocusNode();
+      addTearDown(missing.dispose);
+      await tester.pumpWidget(
+        host(picker(value: 'Minion Pro', focusNode: missing)),
+      );
+      missing.requestFocus();
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.borderFocus);
+    });
+
+    testWidgets('the missing-font note is a live region of its own', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(host(picker(value: 'Minion Pro')));
+      expect(
+        tester.getSemantics(find.textContaining('isn’t installed')),
+        isSemantics(
+          isLiveRegion: true,
+          label:
+              'Minion Pro isn’t installed. Ferman is showing IBM Plex '
+              'Serif instead.',
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('dark theme', (tester) async {
+      await tester.pumpWidget(host(picker(), brightness: Brightness.dark));
+      expect(borderOf(tester), dark.borderDefault);
+      final name = tester.widget<Text>(find.text('IBM Plex Serif'));
+      expect(name.style!.color, dark.textPrimary);
     });
 
     testWidgets('semantics: trigger value, selected row', (tester) async {

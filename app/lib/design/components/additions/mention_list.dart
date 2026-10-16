@@ -229,7 +229,10 @@ class _MentionRow extends StatelessWidget {
                         fontSize: theme.typeScale.size2xs,
                         fontWeight: theme.typeScale.weightSemibold,
                         height: 1,
-                        color: colors.textPrimary,
+                        // The board's initials take the row's colour.
+                        color: active
+                            ? colors.textPrimary
+                            : colors.textSecondary,
                       ),
                     ),
                   ),

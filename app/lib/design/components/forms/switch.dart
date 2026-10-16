@@ -15,15 +15,18 @@ import 'package:flutter/widgets.dart';
 /// Both change over `--dur-fast` (at once with reduced motion). [label]
 /// follows 8 px after the track in body text. Keyboard focus adds the outer
 /// focus ring around the track. The design draws no hover look. The whole
-/// row is the hit target (the bundle's `<label>`), and Space toggles.
+/// row is the hit target (the bundle's `<label>`), and Space toggles (not
+/// Enter, which passes on to the enclosing handlers, as from a native
+/// checkbox).
 ///
 /// The widget is controlled: activating it calls [onChanged] with the
 /// opposite of [value].
 ///
-/// **Disabled.** [disabled] fades the track to 50 % and turns the label the
-/// disabled text colour. With [disabledReason] (G10; the Settings →
-/// Privacy rows until their milestone) the switch stays focusable and
-/// shows the reason as its tooltip and semantics hint.
+/// **Disabled.** [disabled] fades the track to 50 % (the thumb, a sibling of
+/// the faded `<input>` in the bundle, stays opaque with its shadow) and
+/// turns the label the disabled text colour. With [disabledReason] (G10;
+/// the Settings → Privacy rows until their milestone) the switch stays
+/// focusable and shows the reason as its tooltip and semantics hint.
 ///
 /// For screen readers it is a switch, toggled on or off, named by [label]
 /// or, without one, [semanticLabel].
@@ -66,13 +69,16 @@ class Switch extends StatelessWidget {
   static const Color thumbColor = Color(0xFFFFFFFF);
 
   /// `.fm-switch__thumb` `box-shadow: 0 1px 2px rgba(0,0,0,.25)`.
+  /// A CSS blur of 2 px is a Gaussian with a sigma of 1, which is a
+  /// [BoxShadow.blurRadius] of 0.866 (as `tools/tokens` converts the
+  /// shadow tokens).
   static const BoxShadow thumbShadow = BoxShadow(
     color: Color(0x40000000),
     offset: Offset(0, 1),
-    blurRadius: 2,
+    blurRadius: 0.866,
   );
 
-  /// `.fm-switch__input:disabled` `opacity`.
+  /// `.fm-switch__input:disabled` `opacity`: the track fill only.
   static const double disabledOpacity = 0.5;
 
   /// The label after the track; null shows none.
@@ -111,13 +117,18 @@ class Switch extends StatelessWidget {
     final height = touch ? touchTrackHeight : trackHeight;
     final thumb = touch ? touchThumbSize : thumbSize;
     final radius = BorderRadius.all(Radius.circular(theme.radius.radiusFull));
-    Widget track = AnimatedContainer(
+    final fill = value ? colors.accent : colors.borderStrong;
+    // `.fm-switch__input:disabled { opacity: .5 }` fades the childless
+    // input that paints the track; the thumb is its sibling and stays
+    // opaque.
+    final faded = states.contains(WidgetState.disabled);
+    final track = AnimatedContainer(
       duration: theme.motion.durFast,
       curve: theme.motion.easeOut,
       width: width,
       height: height,
       decoration: BoxDecoration(
-        color: value ? colors.accent : colors.borderStrong,
+        color: faded ? fill.withValues(alpha: fill.a * disabledOpacity) : fill,
         borderRadius: radius,
       ),
       child: Stack(
@@ -140,9 +151,6 @@ class Switch extends StatelessWidget {
         ],
       ),
     );
-    if (states.contains(WidgetState.disabled)) {
-      track = Opacity(opacity: disabledOpacity, child: track);
-    }
     return FocusRing(
       visible: states.contains(WidgetState.focused),
       borderRadius: radius,
@@ -157,6 +165,7 @@ class Switch extends StatelessWidget {
     final text = label;
     return FermanInteractive(
       onPressed: change == null ? null : () => change(!value),
+      activateOnEnter: false,
       disabled: disabled,
       disabledReason: disabledReason,
       toggled: value,

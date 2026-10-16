@@ -1,8 +1,9 @@
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
+import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/gestures.dart';
-import 'package:flutter/widgets.dart';
+import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../../helpers/component_host.dart';
@@ -41,6 +42,7 @@ void main() {
     bool? hovered,
     FocusRingStyle focusRingStyle = FocusRingStyle.field,
     Widget child = const SizedBox(width: 10, height: 10),
+    bool errorIcon = true,
   }) => SizedBox(
     width: 200,
     child: Field(
@@ -53,6 +55,7 @@ void main() {
       focused: focused,
       hovered: hovered,
       focusRingStyle: focusRingStyle,
+      errorIcon: errorIcon,
       child: child,
     ),
   );
@@ -90,6 +93,84 @@ void main() {
       expect(find.text('Hint'), findsNothing);
       expect(find.text('Bad'), findsOneWidget);
       expect(borderOf(tester), light.danger);
+      expect(tester.widget<Icon>(find.byType(Icon)).name, IconName.circleAlert);
+    });
+
+    testWidgets('errorIcon false: the error as text only', (tester) async {
+      await tester.pumpWidget(
+        componentHost(field(error: 'Enter 4–96 pt.', errorIcon: false)),
+      );
+      expect(find.byType(Icon), findsNothing);
+      final text = tester.widget<Text>(find.text('Enter 4–96 pt.'));
+      expect(text.style!.color, light.danger);
+      expect(text.style!.fontSize, 12);
+    });
+
+    testWidgets('label: 12 px medium on a 16 px line, in every script', (
+      tester,
+    ) async {
+      await tester.pumpWidget(componentHost(field()));
+      expect(tester.getSize(find.text('Label')).height, 16);
+      final style = tester.widget<Text>(find.text('Label')).style!;
+      expect(style.fontSize, 12);
+      expect(style.fontWeight, FermanTheme.light.typeScale.weightMedium);
+      expect(style.color, light.textSecondary);
+      // The CJK caption role is 18 px tall; `--leading-sm` is not.
+      await tester.pumpWidget(
+        componentHost(
+          Builder(
+            builder: (context) => Localizations.override(
+              context: context,
+              locale: const Locale('ja'),
+              child: FermanThemeScope(child: field()),
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(find.text('Label')).height, 16);
+    });
+
+    testWidgets('onLabelTap: a click on the label', (tester) async {
+      var taps = 0;
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox(
+            width: 200,
+            child: Field(
+              label: 'Label',
+              onLabelTap: () => taps++,
+              child: const SizedBox(width: 10, height: 10),
+            ),
+          ),
+        ),
+      );
+      await tester.tap(find.text('Label'));
+      expect(taps, 1);
+    });
+
+    testWidgets('warningOverridesState: the warning border over focus and '
+        'disabled, with the focus ring', (tester) async {
+      Widget box({bool? focused, bool disabled = false}) => componentHost(
+        SizedBox(
+          width: 200,
+          child: FieldBox(
+            warning: true,
+            warningOverridesState: true,
+            focused: focused,
+            disabled: disabled,
+            focusRingStyle: FocusRingStyle.outer,
+            child: const SizedBox(),
+          ),
+        ),
+      );
+      await tester.pumpWidget(box(focused: true));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.warningSolid);
+      expect(ringOf(tester), FermanTheme.light.focus.focusRing);
+      await tester.pumpWidget(box(disabled: true));
+      await tester.pumpAndSettle();
+      expect(borderOf(tester), light.warningSolid);
+      expect(boxOf(tester).color, light.surfaceSunken);
     });
 
     testWidgets('warning border; error wins over warning', (tester) async {
@@ -148,7 +229,7 @@ void main() {
       ]);
     });
 
-    testWidgets('disabled: sunken and subtle; no hover', (tester) async {
+    testWidgets('disabled: sunken and subtle; no hover (G75)', (tester) async {
       await tester.pumpWidget(componentHost(field(disabled: true)));
       expect(boxOf(tester).color, light.surfaceSunken);
       expect(borderOf(tester), light.borderSubtle);

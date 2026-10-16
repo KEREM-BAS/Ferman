@@ -121,9 +121,12 @@ class MenuItem {
 /// Items are 28 px rows (`.fm-menu__item`): a check column when any item
 /// is checkable, the 16 px icon in the secondary icon colour, the label,
 /// the shortcut as plain key caps and, for a submenu, a `chevron-right`
-/// that mirrors in right to left. The pointer and focus tint a row with
-/// the strong selection colour (menus use the tint, not a ring). Danger
-/// items take the danger colour; disabled items the disabled colours.
+/// that mirrors in right to left. The check mark takes the row's icon
+/// colour (`.fm-menu__item svg` wins over `.fm-menu__check`). The pointer
+/// and focus tint a row with the strong selection colour (menus use the
+/// tint, not a ring). Danger items take the danger colour; disabled items
+/// the disabled colours and the default arrow cursor
+/// (`.fm-menu__item:disabled { cursor: default }`).
 /// Separators run edge to edge; headings are label type in the tertiary
 /// colour.
 ///
@@ -475,64 +478,69 @@ class _MenuRow extends StatelessWidget {
             text = colors.textPrimary;
             iconColor = colors.iconSecondary;
           }
-          return Semantics(
-            checked: checked,
-            child: Container(
-              height: Menu.itemHeight,
-              padding: EdgeInsetsDirectional.symmetric(
-                horizontal: theme.space.space2,
-              ),
-              decoration: BoxDecoration(
-                color: tinted || reasonFocused
-                    ? colors.surfaceSelectedStrong
-                    : null,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(theme.radius.radiusSm),
+          // `.fm-menu__item:disabled { cursor: default }`: the innermost
+          // cursor wins over the forbidden one FermanInteractive sets.
+          return MouseRegion(
+            cursor: disabled ? SystemMouseCursors.basic : MouseCursor.defer,
+            child: Semantics(
+              checked: checked,
+              child: Container(
+                height: Menu.itemHeight,
+                padding: EdgeInsetsDirectional.symmetric(
+                  horizontal: theme.space.space2,
                 ),
-              ),
-              child: Row(
-                spacing: theme.space.space2,
-                children: [
-                  if (checkColumn)
-                    SizedBox(
-                      width: theme.density.iconSm,
-                      child: checked ?? false
-                          ? Icon(
-                              IconName.check,
-                              size: theme.density.iconSm,
-                              strokeWidth: 2,
-                              color: disabled
-                                  ? colors.iconDisabled
-                                  : colors.textAccent,
-                            )
-                          : null,
-                    ),
-                  if (icon != null)
-                    Icon(
-                      icon,
-                      size: theme.density.iconMd,
-                      color: iconColor,
-                      flipRtl: item.flipRtl,
-                    ),
-                  Expanded(
-                    child: Text(
-                      item.label,
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.typography.body.copyWith(color: text),
-                    ),
+                decoration: BoxDecoration(
+                  color: tinted || reasonFocused
+                      ? colors.surfaceSelectedStrong
+                      : null,
+                  borderRadius: BorderRadius.all(
+                    Radius.circular(theme.radius.radiusSm),
                   ),
-                  if (shortcut != null)
-                    ExcludeSemantics(child: Kbd(shortcut, tone: KbdTone.plain)),
-                  if (item.submenu != null)
-                    Icon(
-                      IconName.chevronRight,
-                      size: theme.density.iconSm,
-                      color: iconColor,
-                      flipRtl: true,
+                ),
+                child: Row(
+                  spacing: theme.space.space2,
+                  children: [
+                    if (checkColumn)
+                      SizedBox(
+                        width: theme.density.iconSm,
+                        child: checked ?? false
+                            ? Icon(
+                                IconName.check,
+                                size: theme.density.iconSm,
+                                strokeWidth: 2,
+                                // `.fm-menu__item svg` (0,1,1) colours the
+                                // check's own svg, over the span's accent
+                                // (G78).
+                                color: iconColor,
+                              )
+                            : null,
+                      ),
+                    if (icon != null)
+                      // The default 16 px (`Icon size={16}`) at every
+                      // density: the rows keep their 28 px height.
+                      Icon(icon, color: iconColor, flipRtl: item.flipRtl),
+                    Expanded(
+                      child: Text(
+                        item.label,
+                        maxLines: 1,
+                        softWrap: false,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.typography.body.copyWith(color: text),
+                      ),
                     ),
-                ],
+                    if (shortcut != null)
+                      ExcludeSemantics(
+                        child: Kbd(shortcut, tone: KbdTone.plain),
+                      ),
+                    if (item.submenu != null)
+                      Icon(
+                        IconName.chevronRight,
+                        size: theme.density.iconSm,
+                        color: iconColor,
+                        flipRtl: true,
+                      ),
+                  ],
+                ),
               ),
             ),
           );

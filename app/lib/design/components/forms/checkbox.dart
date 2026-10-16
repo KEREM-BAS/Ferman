@@ -16,15 +16,19 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// pointer turns the border `--paper-500` (`--soot-500` in dark), checked
 /// or not, as `.fm-check:hover .fm-check__input` does. Keyboard focus adds
 /// the outer focus ring. The whole row is the hit target (the bundle's
-/// `<label>`), and Space toggles.
+/// `<label>`), and Space toggles (not Enter, which passes on to the
+/// enclosing handlers, as from a native checkbox).
 ///
 /// The widget is controlled: activating it calls [onChanged] with the
 /// opposite of [checked] (an indeterminate box reports true).
 ///
 /// **Disabled.** [disabled] gives the sunken, subtle-bordered box (strong
-/// grey when checked, `.fm-check__input:disabled:checked`) and the disabled
-/// label colour. With [disabledReason] (G10) the box stays focusable and
-/// shows the reason as its tooltip and semantics hint.
+/// grey when checked or indeterminate, `.fm-check__input:disabled:checked`)
+/// and the disabled label colour, and the box shows no hover (G75). The
+/// forms.css cascade would let `:hover` win, and would draw a disabled
+/// indeterminate box sunken with a white minus (G79). With
+/// [disabledReason] (G10) the box stays focusable and shows the reason as
+/// its tooltip and semantics hint.
 ///
 /// For screen readers it is a checkbox, checked, unchecked or mixed, named
 /// by [label], with [description] as its hint.
@@ -90,6 +94,8 @@ class Checkbox extends StatelessWidget {
     final Color fill;
     Color border;
     if (isDisabled) {
+      // No hover (G75), and an indeterminate box takes the checked look,
+      // where the forms.css cascade would draw a sunken minus (G79).
       fill = on ? colors.borderStrong : colors.surfaceSunken;
       border = on ? colors.borderStrong : colors.borderSubtle;
     } else {
@@ -131,6 +137,7 @@ class Checkbox extends StatelessWidget {
       onPressed: change == null
           ? null
           : () => change(indeterminate || !checked),
+      activateOnEnter: false,
       disabled: disabled,
       disabledReason: disabledReason,
       isButton: false,

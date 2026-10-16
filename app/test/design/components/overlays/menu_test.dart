@@ -15,6 +15,7 @@ import '../../../helpers/component_host.dart';
 
 void main() {
   final light = FermanTheme.light.colors;
+  final dark = FermanTheme.dark.colors;
 
   const items = [
     MenuItem.section('Page'),
@@ -284,13 +285,101 @@ void main() {
 
     testWidgets('right to left: the submenu opens on the left; ArrowLeft '
         'opens it', (tester) async {
-      await tester.pumpWidget(host(menu(), textDirection: TextDirection.rtl));
+      // Centred, so both sides have room and no flip can hide a wrong side.
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(menu(), textDirection: TextDirection.rtl),
+        ),
+      );
       await tester.pumpAndSettle();
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
       await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
       await tester.pumpAndSettle();
       expect(find.text('Blank page'), findsOneWidget);
+      final row = tester.getRect(
+        find
+            .ancestor(of: find.text('Insert'), matching: find.byType(Container))
+            .first,
+      );
+      final sub = tester.getRect(find.byType(Menu).last);
+      expect(sub.right, lessThanOrEqualTo(row.left));
+    });
+
+    testWidgets('left to right, centred: the submenu opens on the right', (
+      tester,
+    ) async {
+      await tester.pumpWidget(TapRegionSurface(child: componentHost(menu())));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pumpAndSettle();
+      final row = tester.getRect(
+        find
+            .ancestor(of: find.text('Insert'), matching: find.byType(Container))
+            .first,
+      );
+      expect(
+        tester.getRect(find.byType(Menu).last).left,
+        greaterThanOrEqualTo(row.right),
+      );
+    });
+
+    testWidgets('disabled with a reason: the reason as tooltip and hint when '
+        'focused', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(host(menu()));
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.pump(const Duration(milliseconds: 450));
+      await tester.pumpAndSettle();
+      expect(find.text('Available in a future version'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.text('Extract')),
+        isSemantics(
+          label: 'Extract',
+          hint: 'Available in a future version',
+          role: SemanticsRole.menuItem,
+          hasEnabledState: true,
+          isEnabled: false,
+          isFocusable: true,
+          isFocused: true,
+        ),
+      );
+      handle.dispose();
+    });
+
+    testWidgets('disabled items keep the default arrow cursor', (tester) async {
+      await tester.pumpWidget(host(menu(autofocus: false)));
+      await tester.pumpAndSettle();
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      // A test mouse is device 1.
+      MouseCursor? cursor() =>
+          RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1);
+      await mouse.moveTo(tester.getCenter(find.text('Copy')));
+      await tester.pump();
+      expect(cursor(), SystemMouseCursors.basic);
+      await mouse.moveTo(tester.getCenter(find.text('Extract')));
+      await tester.pump();
+      expect(cursor(), SystemMouseCursors.basic);
+      await mouse.moveTo(tester.getCenter(find.text('Rotate')));
+      await tester.pump();
+      expect(cursor(), SystemMouseCursors.click);
+    });
+
+    testWidgets('item glyphs stay 16 px at touch density', (tester) async {
+      await tester.pumpWidget(
+        host(FermanThemeScope(touch: true, child: menu(autofocus: false))),
+      );
+      await tester.pumpAndSettle();
+      final glyph = tester.widget<Icon>(
+        find.byWidgetPredicate((w) => w is Icon && w.name == IconName.rotateCw),
+      );
+      expect(glyph.size, 16);
     });
 
     testWidgets('checkable items show a check column', (tester) async {
@@ -306,9 +395,41 @@ void main() {
         ),
       );
       await tester.pumpAndSettle();
+      // `.fm-menu__item svg` colours the check's own svg: the row's icon
+      // colour, not the span's accent.
       final check = tester.widget<Icon>(find.byType(Icon));
       expect(check.name, IconName.check);
-      expect(check.color, light.textAccent);
+      expect(check.color, light.iconSecondary);
+      await tester.pumpWidget(
+        host(
+          menu(
+            autofocus: false,
+            entries: const [
+              MenuItem(label: 'Purge', checked: true, danger: true),
+              MenuItem(label: 'Locked', checked: true, disabled: true),
+            ],
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      final checks = tester.widgetList<Icon>(find.byType(Icon)).toList();
+      expect(checks.map((icon) => icon.color), [
+        light.danger,
+        light.iconDisabled,
+      ]);
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(
+            menu(
+              autofocus: false,
+              entries: const [MenuItem(label: 'Grid', checked: true)],
+            ),
+            brightness: Brightness.dark,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(tester.widget<Icon>(find.byType(Icon)).color, dark.iconSecondary);
     });
 
     testWidgets('semantics: a menu of menu items and checkbox items', (
@@ -352,6 +473,11 @@ void main() {
         rowColor(tester, 'Rotate'),
         FermanTheme.dark.colors.surfaceSelectedStrong,
       );
+      Color? textColor(String label) =>
+          tester.widget<Text>(find.text(label)).style!.color;
+      expect(textColor('Delete'), dark.danger);
+      expect(textColor('Copy'), dark.textDisabled);
+      expect(textColor('Page'), dark.textTertiary);
     });
   });
 }

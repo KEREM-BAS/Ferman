@@ -182,11 +182,27 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.end);
       await tester.pump();
       expect(ringOn('15'), isNotNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+      await tester.pump();
+      expect(ringOn('8'), isNotNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+      await tester.pump();
+      expect(ringOn('7'), isNotNull);
+      expect(ringOn('8'), isNull);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      expect(ringOn('15'), isNotNull);
       await tester.sendKeyEvent(LogicalKeyboardKey.enter);
       expect(chosen, [DateTime(2026, 11, 15)]);
       await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
       await tester.pump();
       expect(months, [DateTime(2026, 12)]);
+      // Back to November (the shown month), then to October.
+      await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
+      await tester.sendKeyEvent(LogicalKeyboardKey.pageUp);
+      await tester.pump();
+      expect(months, [DateTime(2026, 12), DateTime(2026, 10)]);
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       expect(dismissed, 1);
     });
@@ -214,6 +230,52 @@ void main() {
         tester.getCenter(find.text('Mo')).dx,
         greaterThan(tester.getCenter(find.text('Su')).dx),
       );
+    });
+
+    testWidgets('a month step keeps the day within the month: 31 January '
+        'to 28 February', (tester) async {
+      final chosen = <DateTime>[];
+      final months = <DateTime>[];
+      await tester.pumpWidget(
+        componentHost(
+          picker(
+            month: DateTime(2026),
+            value: DateTime(2026, 1, 31),
+            onChanged: chosen.add,
+            onMonthChanged: months.add,
+            autofocus: true,
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.pageDown);
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      expect(months, [DateTime(2026, 2)]);
+      expect(chosen, [DateTime(2026, 2, 28)]);
+    });
+
+    testWidgets('semantics: the day with keyboard focus is focused, and moves '
+        'with the arrows', (tester) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(picker(value: DateTime(2026, 11, 4), autofocus: true)),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.getSemantics(find.text('4').first),
+        isSemantics(isFocusable: true, isFocused: true, isButton: true),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+      await tester.pump();
+      expect(
+        tester.getSemantics(find.text('5').first),
+        isSemantics(isFocusable: true, isFocused: true),
+      );
+      expect(
+        tester.getSemantics(find.text('4').first),
+        isSemantics(isFocusable: true, isFocused: false),
+      );
+      handle.dispose();
     });
 
     testWidgets('moving out of the month asks for the next month', (
@@ -274,6 +336,14 @@ void main() {
       final handle = tester.ensureSemantics();
       await tester.pumpWidget(componentHost(picker(value: DateTime(2026, 11))));
       expect(find.bySemanticsLabel('Choose a date'), findsOneWidget);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Choose a date')),
+        isSemantics(
+          label: 'Choose a date',
+          scopesRoute: true,
+          namesRoute: true,
+        ),
+      );
       expect(
         tester.getSemantics(find.text('1').first),
         isSemantics(

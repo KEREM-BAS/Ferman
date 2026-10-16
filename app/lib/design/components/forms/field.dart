@@ -23,12 +23,14 @@ enum FieldSize {
 ///
 /// It stacks, 4 px apart:
 ///
-/// - [label] in 12 px medium secondary text (`.fm-field__label`);
+/// - [label] in 12 px medium secondary text on a 16 px line
+///   (`.fm-field__label`); with [onLabelTap] a click on it focuses the
+///   control, as the bundle's `<label htmlFor>` does;
 /// - the input box ([FieldBox]) around [child], [size] tall, with the
 ///   design's hover, focus, error, warning and disabled looks;
-/// - [error] with a `circle-alert` glyph in the danger colour
-///   (`.fm-field__error`), or else [hint] in tertiary caption text
-///   (`.fm-field__hint`).
+/// - [error] in the danger colour (`.fm-field__error`), after a
+///   `circle-alert` glyph unless [errorIcon] is false, or else [hint] in
+///   tertiary caption text (`.fm-field__hint`).
 ///
 /// The box shows focus whenever focus is inside it (`:focus-within`, so a
 /// click focuses it too): the focus border and a 1 px ring (G22, the
@@ -58,6 +60,8 @@ class Field extends StatelessWidget {
     this.focusRingStyle = FocusRingStyle.field,
     this.padding,
     this.clip = false,
+    this.onLabelTap,
+    this.errorIcon = true,
   });
 
   /// `.fm-field` `gap` between the label, the box and the message.
@@ -104,15 +108,31 @@ class Field extends StatelessWidget {
   /// (`.fm-stepper` `overflow: hidden`).
   final bool clip;
 
+  /// Called on a click on [label] (the bundle's `<label htmlFor>`); the
+  /// control focuses itself. Null leaves the label inert. Not a
+  /// design-system prop.
+  final VoidCallback? onLabelTap;
+
+  /// Whether the error line starts with the `circle-alert` glyph
+  /// (TextField's error line); false for text only (the FmNumber board,
+  /// `FmNumber.dc.html`). Not a design-system prop.
+  final bool errorIcon;
+
   /// The label line of a field (`.fm-field__label`), for controls that
-  /// build their own box. Visual only.
+  /// build their own box. Visual only. It takes the raw scale
+  /// (`--weight-medium var(--text-sm)/var(--leading-sm)`), not the caption
+  /// role, so its line is 16 px in every script (the CJK roles change only
+  /// `--type-*`); the caption role still gives the locale and font chain.
   static Widget labelOf(BuildContext context, String label) {
     final theme = context.ferman;
+    final scale = theme.typeScale;
     return ExcludeSemantics(
       child: Text(
         label,
         style: theme.typography.caption.copyWith(
-          fontWeight: theme.typeScale.weightMedium,
+          fontSize: scale.sizeSm,
+          height: scale.leadingSm / scale.sizeSm,
+          fontWeight: scale.weightMedium,
           color: theme.colors.textSecondary,
         ),
       ),
@@ -121,13 +141,21 @@ class Field extends StatelessWidget {
 
   /// The error line (`.fm-field__error`) when [error] is set, else the hint
   /// line (`.fm-field__hint`) when [hint] is set, else null. Visual only.
+  /// [errorIcon] false leaves the `circle-alert` glyph out of the error
+  /// line.
   static Widget? messageOf(
     BuildContext context, {
     String? hint,
     String? error,
+    bool errorIcon = true,
   }) {
     final theme = context.ferman;
     final caption = theme.typography.caption;
+    if (error != null && !errorIcon) {
+      return ExcludeSemantics(
+        child: Text(error, style: caption.copyWith(color: theme.colors.danger)),
+      );
+    }
     if (error != null) {
       return ExcludeSemantics(
         child: Row(
@@ -166,14 +194,33 @@ class Field extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final message = messageOf(context, hint: hint, error: error);
+    final message = messageOf(
+      context,
+      hint: hint,
+      error: error,
+      errorIcon: errorIcon,
+    );
     final text = label;
+    final labelTap = onLabelTap;
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: gap,
       children: [
-        if (text != null) labelOf(context, text),
+        if (text != null)
+          if (labelTap == null)
+            labelOf(context, text)
+          else
+            // Inside the text field's tap region, so a click on the label
+            // neither blurs the focused field nor counts as outside it.
+            TextFieldTapRegion(
+              child: GestureDetector(
+                behavior: HitTestBehavior.opaque,
+                excludeFromSemantics: true,
+                onTap: labelTap,
+                child: labelOf(context, text),
+              ),
+            ),
         FieldBox(
           size: size,
           error: error != null,
@@ -200,7 +247,10 @@ class Field extends StatelessWidget {
       ..add(StringProperty('error', error, defaultValue: null))
       ..add(FlagProperty('warning', value: warning, ifTrue: 'warning'))
       ..add(EnumProperty<FieldSize>('size', size, defaultValue: FieldSize.md))
-      ..add(FlagProperty('disabled', value: disabled, ifTrue: 'disabled'));
+      ..add(FlagProperty('disabled', value: disabled, ifTrue: 'disabled'))
+      ..add(
+        FlagProperty('errorIcon', value: errorIcon, ifFalse: 'no error icon'),
+      );
   }
 }
 
@@ -211,7 +261,9 @@ class Field extends StatelessWidget {
 /// ring ([focused]; the danger colour and ring with [error]), the subtle
 /// disabled border ([disabled]), the danger colour ([error]), the warning
 /// colour ([warning]), the strong border ([hovered], never while
-/// disabled), else the default border.
+/// disabled, G75), else the default border. With [warningOverridesState]
+/// the warning colour comes first, over focus and disabled
+/// (`[data-fm-glyph-warning] .fm-fonttrigger`).
 /// The border changes over `--dur-instant` and the ring over `--dur-fast`.
 ///
 /// The box's text style is the body role (12 px at [FieldSize.sm]) with
@@ -231,6 +283,7 @@ class FieldBox extends StatefulWidget {
     this.focusRingStyle = FocusRingStyle.field,
     this.padding,
     this.clip = false,
+    this.warningOverridesState = false,
   });
 
   /// The key of the decorated box, for tests and goldens.
@@ -268,6 +321,12 @@ class FieldBox extends StatefulWidget {
 
   /// Whether the content is clipped to the rounded box.
   final bool clip;
+
+  /// Whether the [warning] border wins over the focus and disabled borders
+  /// (`[data-fm-glyph-warning] .fm-fonttrigger`, 0,2,0 and loaded after
+  /// forms.css, beats `.fm-input:focus-within` and `.fm-input--disabled`);
+  /// the focus ring still shows. Not a design-system prop.
+  final bool warningOverridesState;
 
   /// The height of a box of [size] in [theme].
   static double heightOf(FermanTheme theme, FieldSize size) => switch (size) {
@@ -328,6 +387,13 @@ class FieldBox extends StatefulWidget {
         ),
       )
       ..add(
+        FlagProperty(
+          'warningOverridesState',
+          value: warningOverridesState,
+          ifTrue: 'warning over state',
+        ),
+      )
+      ..add(
         EnumProperty<FocusRingStyle>(
           'focusRingStyle',
           focusRingStyle,
@@ -352,11 +418,15 @@ class _FieldBoxState extends State<FieldBox> {
     final focused =
         widget.focused ??
         (_focusWithin || forced.contains(WidgetState.focused));
+    // A disabled box shows no hover, although the forms.css cascade lets
+    // `.fm-input:hover` beat `.fm-input--disabled` (G75).
     final hovered =
         !disabled &&
         (widget.hovered ?? (_hovered || forced.contains(WidgetState.hovered)));
     final Color border;
-    if (focused) {
+    if (widget.warning && widget.warningOverridesState) {
+      border = colors.warningSolid;
+    } else if (focused) {
       border = widget.error ? colors.danger : colors.borderFocus;
     } else if (disabled) {
       border = colors.borderSubtle;

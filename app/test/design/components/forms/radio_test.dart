@@ -29,6 +29,13 @@ void main() {
   Color borderOf(WidgetTester tester, String label) =>
       (circleOf(tester, label).border! as Border).top.color;
 
+  // The app's own shortcuts and actions (Enter → ActivateIntent), which
+  // componentHost leaves out.
+  Widget appKeys(Widget child) => Shortcuts(
+    shortcuts: WidgetsApp.defaultShortcuts,
+    child: Actions(actions: WidgetsApp.defaultActions, child: child),
+  );
+
   Widget radio(
     _Page value, {
     _Page? groupValue,
@@ -197,6 +204,51 @@ void main() {
       expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
       await tester.sendKeyEvent(LogicalKeyboardKey.space);
       expect(selected, [_Page.dim]);
+    });
+
+    testWidgets('Enter does not select (Space only)', (tester) async {
+      final selected = <_Page>[];
+      var outer = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        appKeys(
+          componentHost(
+            CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.enter): () => outer++,
+              },
+              child: radio(
+                _Page.dim,
+                groupValue: _Page.paper,
+                onChanged: selected.add,
+                focusNode: node,
+              ),
+            ),
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+      expect(selected, isEmpty);
+      expect(outer, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(selected, [_Page.dim]);
+    });
+
+    testWidgets('a checked radio keeps its accent border under the pointer, '
+        'in both themes', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          radio(_Page.paper, groupValue: _Page.paper, onChanged: (_) {}),
+          brightness: Brightness.dark,
+          forcedStates: {WidgetState.hovered},
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(borderOf(tester, 'paper'), dark.accent);
     });
 
     testWidgets('in a RadioGroup: arrow keys move and select, wrapping', (

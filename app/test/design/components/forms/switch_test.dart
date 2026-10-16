@@ -25,6 +25,13 @@ void main() {
               as BoxDecoration)
           .color!;
 
+  // The app's own shortcuts and actions (Enter → ActivateIntent), which
+  // componentHost leaves out.
+  Widget appKeys(Widget child) => Shortcuts(
+    shortcuts: WidgetsApp.defaultShortcuts,
+    child: Actions(actions: WidgetsApp.defaultActions, child: child),
+  );
+
   Widget toggle({
     bool value = false,
     ValueChanged<bool>? onChanged,
@@ -67,6 +74,11 @@ void main() {
           tester.widget<DecoratedBox>(thumbFinder).decoration as BoxDecoration;
       expect(decoration.color, Switch.thumbColor);
       expect(decoration.boxShadow, [Switch.thumbShadow]);
+      // `box-shadow: 0 1px 2px rgba(0,0,0,.25)`: a CSS blur of 2 px is a
+      // sigma of 1, a blurRadius of 0.866.
+      expect(Switch.thumbShadow.color, const Color(0x40000000));
+      expect(Switch.thumbShadow.offset, const Offset(0, 1));
+      expect(Switch.thumbShadow.blurRadius, closeTo(0.866, 1e-3));
     });
 
     testWidgets('on: accent track, thumb 14 px from the start', (tester) async {
@@ -118,6 +130,34 @@ void main() {
       expect(values, [true]);
     });
 
+    testWidgets('Enter does not toggle (Space only)', (tester) async {
+      final values = <bool>[];
+      var outer = 0;
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        appKeys(
+          componentHost(
+            CallbackShortcuts(
+              bindings: {
+                const SingleActivator(LogicalKeyboardKey.enter): () => outer++,
+              },
+              child: toggle(onChanged: values.add, focusNode: node),
+            ),
+          ),
+        ),
+      );
+      node.requestFocus();
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.sendKeyEvent(LogicalKeyboardKey.numpadEnter);
+      expect(values, isEmpty);
+      // Enter passes on to the enclosing handler.
+      expect(outer, 1);
+      await tester.sendKeyEvent(LogicalKeyboardKey.space);
+      expect(values, [true]);
+    });
+
     testWidgets('forced focus shows the ring', (tester) async {
       await tester.pumpWidget(
         componentHost(
@@ -128,26 +168,43 @@ void main() {
       expect(tester.widget<FocusRing>(find.byType(FocusRing)).visible, isTrue);
     });
 
-    testWidgets('disabled: half opacity, disabled label, no toggle', (
-      tester,
-    ) async {
+    testWidgets('disabled: the track at half opacity, the thumb opaque, '
+        'disabled label, no toggle, no focus', (tester) async {
       final values = <bool>[];
+      final node = FocusNode();
+      addTearDown(node.dispose);
       await tester.pumpWidget(
-        componentHost(toggle(onChanged: values.add, disabled: true)),
-      );
-      final opacity = tester.widget<Opacity>(
-        find.descendant(
-          of: find.byType(Switch),
-          matching: find.byType(Opacity),
+        componentHost(
+          toggle(onChanged: values.add, disabled: true, focusNode: node),
         ),
       );
-      expect(opacity.opacity, 0.5);
+      // `.fm-switch__input:disabled { opacity: .5 }` fades the track only;
+      // the thumb is its sibling.
+      expect(
+        find.ancestor(of: thumbFinder, matching: find.byType(Opacity)),
+        findsNothing,
+      );
+      expect(trackColor(tester), light.borderStrong.withValues(alpha: 0.5));
+      final thumb =
+          tester.widget<DecoratedBox>(thumbFinder).decoration as BoxDecoration;
+      expect(thumb.color, const Color(0xFFFFFFFF));
+      expect(thumb.boxShadow, [Switch.thumbShadow]);
       expect(
         tester.widget<Text>(find.text('Mark edited text')).style!.color,
         light.textDisabled,
       );
       await tester.tap(trackFinder, warnIfMissed: false);
       expect(values, isEmpty);
+      node.requestFocus();
+      await tester.pump();
+      expect(node.hasFocus, isFalse);
+      await tester.pumpWidget(
+        componentHost(
+          toggle(value: true, onChanged: values.add, disabled: true),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(trackColor(tester), light.accent.withValues(alpha: 0.5));
     });
 
     testWidgets('disabled with a reason: focusable, reason as tooltip and '

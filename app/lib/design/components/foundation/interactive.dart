@@ -25,6 +25,10 @@ import 'package:flutter/widgets.dart';
 /// forces.
 ///
 /// A tap, Enter or Space activates an enabled control ([onPressed]).
+/// [activateOnEnter] false leaves Enter out (checkboxes, radios and
+/// switches toggle on Space only, as their native inputs do), and [onTap]
+/// gives pointer taps a path of their own (a select's box toggles its list
+/// on a click, while Enter and Space also choose).
 ///
 /// **Disabled with a reason (G10).** When the control is disabled and
 /// [disabledReason] is set, the reason shows as the tooltip and the
@@ -42,6 +46,8 @@ class FermanInteractive extends StatefulWidget {
     required this.builder,
     super.key,
     this.onPressed,
+    this.onTap,
+    this.activateOnEnter = true,
     this.disabled = false,
     this.disabledReason,
     this.selected = false,
@@ -68,6 +74,18 @@ class FermanInteractive extends StatefulWidget {
 
   /// Called when the control is activated; null disables it.
   final VoidCallback? onPressed;
+
+  /// Called instead of [onPressed] on a pointer tap and a screen reader's
+  /// tap; null uses [onPressed]. Enter and Space still call [onPressed].
+  /// The control is enabled or disabled by [onPressed] and [disabled]
+  /// alone.
+  final VoidCallback? onTap;
+
+  /// Whether Enter and NumpadEnter activate the control as Space does.
+  /// False for controls whose keyboard model is Space only (Checkbox,
+  /// Radio, Switch): Enter then passes on to the enclosing handlers, as it
+  /// does from a native checkbox.
+  final bool activateOnEnter;
 
   /// Whether the control is disabled even though [onPressed] is set.
   final bool disabled;
@@ -162,6 +180,13 @@ class FermanInteractive extends StatefulWidget {
       ..add(
         StringProperty('disabledReason', disabledReason, defaultValue: null),
       )
+      ..add(
+        FlagProperty(
+          'activateOnEnter',
+          value: activateOnEnter,
+          ifFalse: 'Space only',
+        ),
+      )
       ..add(FlagProperty('selected', value: selected, ifTrue: 'selected'))
       ..add(
         FlagProperty(
@@ -209,6 +234,13 @@ class _FermanInteractiveState extends State<FermanInteractive> {
     SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
   };
 
+  /// The keys of a Space-only control. Its private intent leaves the
+  /// control without an [ActivateIntent] action, so the app's own
+  /// Enter → [ActivateIntent] shortcut passes it by as well.
+  static const Map<ShortcutActivator, Intent> _spaceShortcuts = {
+    SingleActivator(LogicalKeyboardKey.space): _SpaceActivateIntent(),
+  };
+
   bool get _enabled => FermanInteractive.isEnabled(
     onPressed: widget.onPressed,
     disabled: widget.disabled,
@@ -221,6 +253,12 @@ class _FermanInteractiveState extends State<FermanInteractive> {
       onInvoke: (_) => _activate(),
     ),
     ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+      onInvoke: (_) => _activate(),
+    ),
+  };
+
+  late final Map<Type, Action<Intent>> _spaceActions = {
+    _SpaceActivateIntent: CallbackAction<_SpaceActivateIntent>(
       onInvoke: (_) => _activate(),
     ),
   };
@@ -260,12 +298,13 @@ class _FermanInteractiveState extends State<FermanInteractive> {
     final message = _showsReason
         ? widget.disabledReason
         : (enabled ? widget.tooltip : null);
+    final tap = enabled ? (widget.onTap ?? widget.onPressed) : null;
     Widget result = FocusableActionDetector(
       focusNode: _node,
       autofocus: widget.autofocus,
       enabled: focusable,
-      shortcuts: _shortcuts,
-      actions: _actions,
+      shortcuts: widget.activateOnEnter ? _shortcuts : _spaceShortcuts,
+      actions: widget.activateOnEnter ? _actions : _spaceActions,
       // The control's own semantics node below says focusable and focused,
       // so the label, hint and state stay on one node.
       includeFocusSemantics: false,
@@ -286,7 +325,7 @@ class _FermanInteractiveState extends State<FermanInteractive> {
           onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
           onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
           onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
-          onTap: enabled ? widget.onPressed : null,
+          onTap: tap,
           child: widget.builder(context, _states(context), widget.child),
         ),
       ),
@@ -307,7 +346,7 @@ class _FermanInteractiveState extends State<FermanInteractive> {
       label: widget.semanticLabel,
       hint: _showsReason ? widget.disabledReason : null,
       tooltip: message,
-      onTap: enabled ? widget.onPressed : null,
+      onTap: tap,
       onFocus: focusable ? _node.requestFocus : null,
       child: result,
     );
@@ -324,4 +363,10 @@ class _FermanInteractiveState extends State<FermanInteractive> {
     }
     return result;
   }
+}
+
+/// Space on a control whose keyboard model is Space only
+/// ([FermanInteractive.activateOnEnter] false).
+class _SpaceActivateIntent extends Intent {
+  const new();
 }

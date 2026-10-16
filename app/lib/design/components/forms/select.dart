@@ -1,3 +1,5 @@
+import 'dart:ui' show SemanticsRole;
+
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/popover.dart';
@@ -57,18 +59,26 @@ class SelectOption<T> {
 /// `<select>` whose open list is not drawn; here the list opens in a
 /// [Popover] under the box, at least as wide as it, in the Menu item look
 /// (28 px rows, the strong selection tint on the highlighted row, a check
-/// on the chosen one) (COMPONENTS.md decision 8). Never a Material
+/// in the secondary icon colour on the chosen one) (COMPONENTS.md decision
+/// 8). Never a Material
 /// dropdown.
 ///
 /// The widget is controlled: choosing an option calls [onChanged] with its
 /// value and closes the list; the owner passes the new [value].
+///
+/// **Pointer.** A click on the box opens the list, or closes it without a
+/// change; the box takes focus, as a native `<select>` does. The pointer
+/// moves the highlight over enabled options only (`.fm-menu__item:disabled`
+/// takes no hover tint).
 ///
 /// **Keyboard.** Enter, Space or Alt+ArrowDown open the list; ArrowUp and
 /// ArrowDown move the highlight, skipping plain disabled options and
 /// stopping on options disabled with a reason; Enter or Space choose the
 /// highlighted option; Escape (or a click outside) closes without a
 /// change. Focus stays on the box throughout, which shows the field focus
-/// ring while it has keyboard focus or the list is open.
+/// ring while it has keyboard focus or the list is open. The list opens
+/// scrolled to the chosen option and scrolls only as far as the highlight
+/// needs.
 ///
 /// **Disabled.** [disabled] gives the disabled field look and no input;
 /// with [disabledReason] the box stays focusable and shows the reason as
@@ -76,7 +86,9 @@ class SelectOption<T> {
 ///
 /// For screen readers the box is a button named by [label] (or
 /// [semanticLabel]) whose value is the chosen option's label, expanded
-/// while the list is open.
+/// while the list is open. The open list is a menu of the same name whose
+/// options are radio menu items, the chosen one checked (Flutter has no
+/// listbox role).
 class Select<T> extends StatefulWidget {
   /// Creates a select over [options].
   const new({
@@ -195,13 +207,20 @@ class _SelectState<T> extends State<Select<T>> {
 
   void _openList() {
     if (!_enabled || _open) return;
+    // A click opens the list too, and the keys go to the box from then on.
+    _node.requestFocus();
     final selected = _selectedIndex;
     setState(() {
       _open = true;
       _highlight = selected >= 0 ? selected : _step(-1, 1);
     });
-    _reveal();
+    // The rows are built when the popover shows, a frame later; the list
+    // reveals the highlight once it is mounted (_OnMount).
   }
+
+  /// A click on the box (and a screen reader's tap): opens or closes the
+  /// list, never choosing.
+  void _toggle() => _open ? _close() : _openList();
 
   void _close({bool refocus = true}) {
     if (!_open) return;
@@ -221,17 +240,30 @@ class _SelectState<T> extends State<Select<T>> {
   }
 
   void _move(int direction) {
-    final next = _step(_highlight, direction);
-    if (next == _highlight) return;
+    final from = _highlight;
+    final next = _step(from, direction);
+    if (next == from) return;
     setState(() => _highlight = next);
-    _reveal();
+    _reveal(
+      next > from
+          ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+          : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+    );
   }
 
-  void _reveal() {
+  /// Scrolls the highlighted row into view after the frame, only as far as
+  /// [policy] needs: not at all when it is in view, else to the edge it
+  /// crossed.
+  void _reveal([
+    ScrollPositionAlignmentPolicy policy =
+        ScrollPositionAlignmentPolicy.keepVisibleAtEnd,
+  ]) {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (!mounted || _highlight < 0 || _highlight >= _rowKeys.length) return;
       final row = _rowKeys[_highlight].currentContext;
-      if (row != null) Scrollable.ensureVisible(row);
+      if (row != null && row.mounted) {
+        Scrollable.ensureVisible(row, alignmentPolicy: policy);
+      }
     });
   }
 
@@ -274,7 +306,7 @@ class _SelectState<T> extends State<Select<T>> {
     }
     if (key == LogicalKeyboardKey.home) {
       setState(() => _highlight = _step(-1, 1));
-      _reveal();
+      _reveal(ScrollPositionAlignmentPolicy.keepVisibleAtStart);
       return KeyEventResult.handled;
     }
     if (key == LogicalKeyboardKey.end) {
@@ -295,7 +327,9 @@ class _SelectState<T> extends State<Select<T>> {
     final selected = _selectedIndex;
     final icon = widget.icon;
     final text = selected >= 0 ? widget.options[selected].label : '';
-    final iconColor = disabled ? colors.iconDisabled : colors.iconSecondary;
+    // `.fm-input > svg { color: var(--icon-secondary) }` sets the colour on
+    // the svg itself, so `.fm-input--disabled` does not reach it.
+    final iconColor = colors.iconSecondary;
     return FieldBox(
       size: widget.size,
       disabled: disabled,
@@ -340,7 +374,8 @@ class _SelectState<T> extends State<Select<T>> {
       _rowKeys.add(GlobalKey(debugLabel: 'Select row ${_rowKeys.length}'));
     }
     final selected = _selectedIndex;
-    return ConstrainedBox(
+    final name = widget.label ?? widget.semanticLabel;
+    final list = ConstrainedBox(
       constraints: const BoxConstraints(maxHeight: Select.maxListHeight),
       child: SingleChildScrollView(
         controller: _scroll,
@@ -357,7 +392,9 @@ class _SelectState<T> extends State<Select<T>> {
                   selected: i == selected,
                   highlighted: i == _highlight,
                   onHover: () {
-                    if (_reachable(i) && _highlight != i) {
+                    // The pointer tints enabled options only; the keyboard
+                    // also stops on options disabled with a reason.
+                    if (!widget.options[i].disabled && _highlight != i) {
                       setState(() => _highlight = i);
                     }
                   },
@@ -366,6 +403,19 @@ class _SelectState<T> extends State<Select<T>> {
             ],
           ),
         ),
+      ),
+    );
+    return _OnMount(
+      onMount: _reveal,
+      child: Semantics(
+        container: true,
+        explicitChildNodes: true,
+        scopesRoute: true,
+        namesRoute: name != null,
+        // Flutter has no listbox role; a menu must not be empty.
+        role: widget.options.isEmpty ? null : SemanticsRole.menu,
+        label: name,
+        child: list,
       ),
     );
   }
@@ -381,6 +431,7 @@ class _SelectState<T> extends State<Select<T>> {
       onKeyEvent: _onKey,
       child: FermanInteractive(
         onPressed: _enabled ? _activate : null,
+        onTap: _enabled ? _toggle : null,
         disabled: widget.disabled,
         disabledReason: widget.disabledReason,
         semanticLabel: label ?? widget.semanticLabel,
@@ -440,6 +491,8 @@ class _SelectRow extends StatelessWidget {
     Widget row = Semantics(
       container: true,
       button: true,
+      role: SemanticsRole.menuItemRadio,
+      checked: selected,
       selected: selected,
       enabled: !disabled,
       label: option.label,
@@ -475,9 +528,11 @@ class _SelectRow extends StatelessWidget {
                             IconName.check,
                             size: theme.density.iconSm,
                             strokeWidth: 2,
+                            // The Menu check: `.fm-menu__item svg` colours
+                            // it, over the span's accent (G78).
                             color: disabled
                                 ? colors.iconDisabled
-                                : colors.textAccent,
+                                : colors.iconSecondary,
                           )
                         : null,
                   ),
@@ -514,4 +569,27 @@ class _SelectRow extends StatelessWidget {
     }
     return row;
   }
+}
+
+/// Runs [onMount] when the open list is first built, the frame its rows
+/// appear in (the popover builds its content only once it shows).
+class _OnMount extends StatefulWidget {
+  const new({required this.onMount, required this.child});
+
+  final VoidCallback onMount;
+  final Widget child;
+
+  @override
+  State<_OnMount> createState() => _OnMountState();
+}
+
+class _OnMountState extends State<_OnMount> {
+  @override
+  void initState() {
+    super.initState();
+    widget.onMount();
+  }
+
+  @override
+  Widget build(BuildContext context) => widget.child;
 }

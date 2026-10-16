@@ -1,7 +1,9 @@
 import 'package:ferman/design/components/forms/field.dart';
+import 'package:ferman/design/components/forms/number_stepper.dart';
 import 'package:ferman/design/components/forms/text_field.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/l10n/region.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
@@ -51,6 +53,7 @@ void main() {
     TextEditingController? controller,
     ValueChanged<String>? onChanged,
     ValueChanged<String>? onSubmitted,
+    bool obscureText = false,
   }) => SizedBox(
     width: 240,
     child: TextField(
@@ -68,8 +71,13 @@ void main() {
       controller: controller,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
+      obscureText: obscureText,
     ),
   );
+
+  // A test mouse is device 1.
+  MouseCursor? cursor() =>
+      RendererBinding.instance.mouseTracker.debugDeviceActiveCursor(1);
 
   setUp(() {
     FocusManager.instance.highlightStrategy =
@@ -168,18 +176,163 @@ void main() {
       );
     });
 
-    testWidgets('typing reports changes; Enter submits', (tester) async {
+    testWidgets('typing reports changes; Enter submits and keeps focus', (
+      tester,
+    ) async {
       final changes = <String>[];
       final submitted = <String>[];
+      final node = FocusNode();
+      addTearDown(node.dispose);
       await tester.pumpWidget(
         componentHost(
-          field(onChanged: changes.add, onSubmitted: submitted.add),
+          field(
+            onChanged: changes.add,
+            onSubmitted: submitted.add,
+            focusNode: node,
+          ),
         ),
       );
+      node.requestFocus();
+      await tester.pump();
       await tester.enterText(find.byType(EditableText), 'Türkçe');
       expect(changes, ['Türkçe']);
       await tester.testTextInput.receiveAction(TextInputAction.done);
+      await tester.pump();
       expect(submitted, ['Türkçe']);
+      expect(node.hasFocus, isTrue);
+    });
+
+    testWidgets('the whole box height takes clicks: the band above the text '
+        'line focuses the field, and keeps a focused one focused', (
+      tester,
+    ) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      Future<void> click(Offset at) async {
+        await mouse.moveTo(at);
+        await mouse.down(at);
+        await mouse.up();
+        await tester.pumpAndSettle();
+      }
+
+      for (final size in FieldSize.values) {
+        await tester.pumpWidget(
+          TapRegionSurface(
+            child: componentHost(field(focusNode: node, size: size)),
+          ),
+        );
+        node.unfocus();
+        await tester.pump();
+        final box = tester.getRect(find.byKey(FieldBox.boxKey));
+        final text = tester.getRect(find.byType(EditableText));
+        // The text line is 18 px; the band above it is still the control.
+        final band = Offset(text.center.dx, box.top + 2);
+        expect(band.dy, lessThan(text.top));
+        await click(band);
+        expect(node.hasFocus, isTrue, reason: '$size: focuses');
+        expect(cursor(), SystemMouseCursors.text);
+        await click(Offset(text.center.dx, box.bottom - 2));
+        expect(node.hasFocus, isTrue, reason: '$size: stays focused');
+      }
+    });
+
+    testWidgets('a click on the label focuses the field, and keeps a focused '
+        'one focused', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      await tester.pumpWidget(
+        TapRegionSurface(child: componentHost(field(focusNode: node))),
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      Future<void> clickLabel() async {
+        final at = tester.getCenter(find.text('Search'));
+        await mouse.moveTo(at);
+        await mouse.down(at);
+        await mouse.up();
+        await tester.pumpAndSettle();
+      }
+
+      await clickLabel();
+      expect(node.hasFocus, isTrue);
+      // A mouse down on the label does not blur the focused field.
+      await clickLabel();
+      expect(node.hasFocus, isTrue);
+      // A plain disabled field's label stays inert.
+      final other = FocusNode();
+      addTearDown(other.dispose);
+      await tester.pumpWidget(
+        TapRegionSurface(
+          child: componentHost(field(focusNode: other, disabled: true)),
+        ),
+      );
+      await clickLabel();
+      expect(other.hasFocus, isFalse);
+    });
+
+    testWidgets('a plain disabled field shows the not-allowed cursor and '
+        'takes no click', (tester) async {
+      final node = FocusNode();
+      addTearDown(node.dispose);
+      final controller = TextEditingController(text: 'A4');
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          field(disabled: true, focusNode: node, controller: controller),
+        ),
+      );
+      final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+      await mouse.addPointer(location: Offset.zero);
+      addTearDown(mouse.removePointer);
+      await mouse.moveTo(tester.getCenter(find.byType(EditableText)));
+      await tester.pump();
+      expect(cursor(), SystemMouseCursors.forbidden);
+      await tester.tap(find.byType(EditableText), warnIfMissed: false);
+      await tester.pump();
+      expect(node.hasFocus, isFalse);
+      expect(controller.text, 'A4');
+      // The disabled NumberStepper shares the control.
+      await tester.pumpWidget(
+        componentHost(
+          NumberStepper(
+            value: 10,
+            region: Region.unitedStates,
+            onChanged: (_) {},
+            disabled: true,
+          ),
+        ),
+      );
+      await mouse.moveTo(tester.getCenter(find.byType(EditableText)));
+      await tester.pump();
+      expect(cursor(), SystemMouseCursors.forbidden);
+    });
+
+    testWidgets('obscureText masks the text and announces it as obscured', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      final controller = TextEditingController(text: 'secret');
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(
+        componentHost(
+          field(label: 'Password', obscureText: true, controller: controller),
+        ),
+      );
+      final editable = tester.widget<EditableText>(find.byType(EditableText));
+      expect(editable.obscureText, isTrue);
+      expect(editable.enableSuggestions, isFalse);
+      expect(editable.autocorrect, isFalse);
+      final node = tester.getSemantics(find.byType(EditableText));
+      expect(
+        node,
+        isSemantics(label: 'Password', isTextField: true, isObscured: true),
+      );
+      expect(node.getSemanticsData().value, isNot('secret'));
+      handle.dispose();
     });
 
     testWidgets('hover turns the border strong', (tester) async {
