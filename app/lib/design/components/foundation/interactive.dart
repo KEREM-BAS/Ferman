@@ -1,0 +1,372 @@
+import 'dart:ui' show SemanticsRole;
+
+import 'package:ferman/design/components/core/tooltip.dart';
+import 'package:ferman/design/components/foundation/forced_states.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart';
+
+/// The pointer, keyboard, focus, tooltip and semantics behaviour every
+/// interactive Ferman component shares (buttons, icon buttons, tool
+/// buttons, tabs, segments, menu rows, thumbnails).
+///
+/// It tracks the component's interaction states and rebuilds [builder]
+/// with them:
+///
+/// - [WidgetState.hovered] while the pointer is over an enabled control;
+/// - [WidgetState.pressed] while an enabled control is held down;
+/// - [WidgetState.focused] while the control has keyboard focus and the
+///   focus highlight shows: the design's focus-visible state (G22), never
+///   set by a pointer click;
+/// - [WidgetState.disabled] when [disabled] is true or [onPressed] is null;
+/// - [WidgetState.selected] when [selected] is true;
+///
+/// plus [extraStates] and the states a [FermanForcedStates] above it
+/// forces.
+///
+/// A tap, Enter or Space activates an enabled control ([onPressed]).
+/// [activateOnEnter] false leaves Enter out (checkboxes, radios and
+/// switches toggle on Space only, as their native inputs do), and [onTap]
+/// gives pointer taps a path of their own (a select's box toggles its list
+/// on a click, while Enter and Space also choose).
+///
+/// **Disabled with a reason (G10).** When the control is disabled and
+/// [disabledReason] is set, the reason shows as the tooltip and the
+/// semantics hint, and the control stays focusable, so keyboard and
+/// screen-reader users can read why; activating it does nothing.
+/// Unshipped features pass the localized "Available in a future version"
+/// (`futureVersionReason`). Without a reason a disabled control is skipped
+/// by focus traversal.
+///
+/// Otherwise [tooltip] (with [tooltipShortcut] as key caps) labels the
+/// control on hover and keyboard focus.
+class FermanInteractive extends StatefulWidget {
+  /// Makes the control [builder] draws interactive.
+  const new({
+    required this.builder,
+    super.key,
+    this.onPressed,
+    this.onTap,
+    this.activateOnEnter = true,
+    this.disabled = false,
+    this.disabledReason,
+    this.selected = false,
+    this.selectable,
+    this.toggled,
+    this.checked,
+    this.inMutuallyExclusiveGroup = false,
+    this.tooltip,
+    this.tooltipShortcut,
+    this.tooltipSide = TooltipSide.bottom,
+    this.semanticLabel,
+    this.semanticsRole,
+    this.isButton = true,
+    this.focusNode,
+    this.autofocus = false,
+    this.skipTraversal = false,
+    this.extraStates = const <WidgetState>{},
+    this.child,
+  });
+
+  /// Draws the control for the current interaction states. [child] is
+  /// passed through unchanged, for the parts that do not depend on them.
+  final ValueWidgetBuilder<Set<WidgetState>> builder;
+
+  /// Called when the control is activated; null disables it.
+  final VoidCallback? onPressed;
+
+  /// Called instead of [onPressed] on a pointer tap and a screen reader's
+  /// tap; null uses [onPressed]. Enter and Space still call [onPressed].
+  /// The control is enabled or disabled by [onPressed] and [disabled]
+  /// alone.
+  final VoidCallback? onTap;
+
+  /// Whether Enter and NumpadEnter activate the control as Space does.
+  /// False for controls whose keyboard model is Space only (Checkbox,
+  /// Radio, Switch): Enter then passes on to the enclosing handlers, as it
+  /// does from a native checkbox.
+  final bool activateOnEnter;
+
+  /// Whether the control is disabled even though [onPressed] is set.
+  final bool disabled;
+
+  /// Why the control is disabled; shown as its tooltip and semantics hint
+  /// while it is disabled (G10).
+  final String? disabledReason;
+
+  /// Whether the control is the selected one of a set (a tab, a segment).
+  final bool selected;
+
+  /// Whether screen readers hear the selected state even when it is false.
+  /// Null means: for tabs ([SemanticsRole.tab]) yes, otherwise only when
+  /// [selected] is true.
+  final bool? selectable;
+
+  /// The checked state of a checkbox, radio or checkable menu item
+  /// (`aria-checked`); null for a control that is not checkable.
+  final bool? checked;
+
+  /// Whether the control is one choice of a set where only one can be
+  /// checked (a radio).
+  final bool inMutuallyExclusiveGroup;
+
+  /// The pressed state of a toggle (`aria-pressed`); null for a control
+  /// that is not a toggle.
+  final bool? toggled;
+
+  /// The label shown on hover and keyboard focus while enabled; null shows
+  /// none.
+  final String? tooltip;
+
+  /// The shortcut key caps shown after [tooltip].
+  final List<String>? tooltipShortcut;
+
+  /// The side the tooltip opens on.
+  final TooltipSide tooltipSide;
+
+  /// The accessible name when the visible content does not give one (an
+  /// icon-only control).
+  final String? semanticLabel;
+
+  /// The semantics role beyond a button, such as [SemanticsRole.tab].
+  final SemanticsRole? semanticsRole;
+
+  /// Whether screen readers announce the control as a button.
+  final bool isButton;
+
+  /// The focus node; one is created when null.
+  final FocusNode? focusNode;
+
+  /// Whether the control takes focus when it first appears.
+  final bool autofocus;
+
+  /// Whether Tab skips the control while it stays focusable by pointer and
+  /// by arrow keys within its group (window caption buttons, the items of a
+  /// roving-focus group).
+  final bool skipTraversal;
+
+  /// States the control shows in addition to the ones it tracks, passed to
+  /// [builder] as they are: states that the platform, not Flutter, sees for
+  /// the control. WindowChrome passes the native hover and press of the
+  /// maximize button, whose area Windows owns while it offers snap layouts.
+  /// Unlike [FermanForcedStates], which the gallery and goldens place
+  /// above whole subtrees, they belong to this control alone, and a
+  /// [WidgetState.hovered] among them also opens the control's tooltip.
+  final Set<WidgetState> extraStates;
+
+  /// The part of the control that does not depend on the states.
+  final Widget? child;
+
+  /// Whether a control with [onPressed] and [disabled] is enabled.
+  static bool isEnabled({
+    required VoidCallback? onPressed,
+    required bool disabled,
+  }) => !disabled && onPressed != null;
+
+  @override
+  State<FermanInteractive> createState() => _FermanInteractiveState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(
+        FlagProperty(
+          'enabled',
+          value: isEnabled(onPressed: onPressed, disabled: disabled),
+          ifFalse: 'disabled',
+        ),
+      )
+      ..add(
+        StringProperty('disabledReason', disabledReason, defaultValue: null),
+      )
+      ..add(
+        FlagProperty(
+          'activateOnEnter',
+          value: activateOnEnter,
+          ifFalse: 'Space only',
+        ),
+      )
+      ..add(FlagProperty('selected', value: selected, ifTrue: 'selected'))
+      ..add(
+        FlagProperty(
+          'toggled',
+          value: toggled,
+          ifTrue: 'toggled on',
+          ifFalse: 'toggled off',
+        ),
+      )
+      ..add(StringProperty('tooltip', tooltip, defaultValue: null))
+      ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null))
+      ..add(
+        IterableProperty<WidgetState>(
+          'extraStates',
+          extraStates,
+          defaultValue: const <WidgetState>{},
+        ),
+      );
+  }
+}
+
+class _FermanInteractiveState extends State<FermanInteractive> {
+  bool _hovered = false;
+  bool _pressed = false;
+  bool _focused = false;
+  bool _focusVisible = false;
+  FocusNode? _ownNode;
+
+  FocusNode get _node =>
+      widget.focusNode ??
+      (_ownNode ??= FocusNode(
+        debugLabel: 'FermanInteractive',
+        skipTraversal: widget.skipTraversal,
+      ));
+
+  @override
+  void dispose() {
+    _ownNode?.dispose();
+    super.dispose();
+  }
+
+  static const Map<ShortcutActivator, Intent> _shortcuts = {
+    SingleActivator(LogicalKeyboardKey.enter): ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.numpadEnter): ActivateIntent(),
+    SingleActivator(LogicalKeyboardKey.space): ActivateIntent(),
+  };
+
+  /// The keys of a Space-only control. Its private intent leaves the
+  /// control without an [ActivateIntent] action, so the app's own
+  /// Enter → [ActivateIntent] shortcut passes it by as well.
+  static const Map<ShortcutActivator, Intent> _spaceShortcuts = {
+    SingleActivator(LogicalKeyboardKey.space): _SpaceActivateIntent(),
+  };
+
+  bool get _enabled => FermanInteractive.isEnabled(
+    onPressed: widget.onPressed,
+    disabled: widget.disabled,
+  );
+
+  bool get _showsReason => !_enabled && widget.disabledReason != null;
+
+  late final Map<Type, Action<Intent>> _actions = {
+    ActivateIntent: CallbackAction<ActivateIntent>(
+      onInvoke: (_) => _activate(),
+    ),
+    ButtonActivateIntent: CallbackAction<ButtonActivateIntent>(
+      onInvoke: (_) => _activate(),
+    ),
+  };
+
+  late final Map<Type, Action<Intent>> _spaceActions = {
+    _SpaceActivateIntent: CallbackAction<_SpaceActivateIntent>(
+      onInvoke: (_) => _activate(),
+    ),
+  };
+
+  Object? _activate() {
+    if (_enabled) widget.onPressed?.call();
+    return null;
+  }
+
+  @override
+  void initState() {
+    super.initState();
+    _ownNode?.skipTraversal = widget.skipTraversal;
+  }
+
+  @override
+  void didUpdateWidget(FermanInteractive oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (!_enabled) _pressed = false;
+    _ownNode?.skipTraversal = widget.skipTraversal;
+  }
+
+  Set<WidgetState> _states(BuildContext context) => {
+    if (_enabled && _hovered) WidgetState.hovered,
+    if (_enabled && _pressed) WidgetState.pressed,
+    if (_focusVisible) WidgetState.focused,
+    if (!_enabled) WidgetState.disabled,
+    if (widget.selected) WidgetState.selected,
+    ...widget.extraStates,
+    ...FermanForcedStates.of(context),
+  };
+
+  @override
+  Widget build(BuildContext context) {
+    final enabled = _enabled;
+    final focusable = enabled || _showsReason;
+    final message = _showsReason
+        ? widget.disabledReason
+        : (enabled ? widget.tooltip : null);
+    final tap = enabled ? (widget.onTap ?? widget.onPressed) : null;
+    Widget result = FocusableActionDetector(
+      focusNode: _node,
+      autofocus: widget.autofocus,
+      enabled: focusable,
+      shortcuts: widget.activateOnEnter ? _shortcuts : _spaceShortcuts,
+      actions: widget.activateOnEnter ? _actions : _spaceActions,
+      // The control's own semantics node below says focusable and focused,
+      // so the label, hint and state stay on one node.
+      includeFocusSemantics: false,
+      onFocusChange: (value) => setState(() => _focused = value),
+      mouseCursor: enabled
+          ? SystemMouseCursors.click
+          : SystemMouseCursors.forbidden,
+      onShowFocusHighlight: (value) => setState(() => _focusVisible = value),
+      child: MouseRegion(
+        onEnter: (_) => setState(() => _hovered = true),
+        onExit: (_) => setState(() {
+          _hovered = false;
+          _pressed = false;
+        }),
+        child: GestureDetector(
+          behavior: HitTestBehavior.opaque,
+          excludeFromSemantics: true,
+          onTapDown: enabled ? (_) => setState(() => _pressed = true) : null,
+          onTapUp: enabled ? (_) => setState(() => _pressed = false) : null,
+          onTapCancel: enabled ? () => setState(() => _pressed = false) : null,
+          onTap: tap,
+          child: widget.builder(context, _states(context), widget.child),
+        ),
+      ),
+    );
+    result = Semantics(
+      container: true,
+      button: widget.isButton,
+      role: widget.semanticsRole,
+      enabled: enabled,
+      focusable: focusable,
+      focused: focusable ? _focused : null,
+      selected: (widget.selectable ?? widget.semanticsRole == SemanticsRole.tab)
+          ? widget.selected
+          : (widget.selected ? true : null),
+      toggled: widget.toggled,
+      checked: widget.checked,
+      inMutuallyExclusiveGroup: widget.inMutuallyExclusiveGroup ? true : null,
+      label: widget.semanticLabel,
+      hint: _showsReason ? widget.disabledReason : null,
+      tooltip: message,
+      onTap: tap,
+      onFocus: focusable ? _node.requestFocus : null,
+      child: result,
+    );
+    if (message != null) {
+      result = Tooltip(
+        message: message,
+        shortcut: _showsReason ? null : widget.tooltipShortcut,
+        side: widget.tooltipSide,
+        // A hover only the platform sees opens the tooltip too.
+        hovered: enabled && widget.extraStates.contains(WidgetState.hovered),
+        excludeFromSemantics: true,
+        child: result,
+      );
+    }
+    return result;
+  }
+}
+
+/// Space on a control whose keyboard model is Space only
+/// ([FermanInteractive.activateOnEnter] false).
+class _SpaceActivateIntent extends Intent {
+  const new();
+}

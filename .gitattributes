@@ -1,2 +1,30 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# Binary assets: never normalise or diff as text.
+*.png binary
+*.jpg binary
+*.ttf binary
+*.otf binary
+*.woff2 binary
+*.pdf binary
+
+# Source files are always LF, also on Windows checkouts (formatters and
+# generated-file checks compare bytes).
+*.dart text eol=lf
+*.rs text eol=lf
+*.toml text eol=lf
+*.arb text eol=lf
+*.svg text eol=lf
+*.sh text eol=lf
+*.yaml text eol=lf
+*.yml text eol=lf
+*.json text eol=lf
+*.md text eol=lf
+
+# Third-party licence texts are kept byte-identical to upstream (their
+# hashes are checked against the release archives).
+app/assets/fonts/**/LICENSE.txt -text
+app/assets/licenses/** -text
+app/assets/icons/LICENSE-*.txt -text
+tools/*/*.lock text eol=lf

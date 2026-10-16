@@ -1,0 +1,42 @@
+---
+source: crates/ferman-cli/tests/cli.rs
+expression: redacted_info_json(&output)
+---
+{
+  "app_version": "[version]",
+  "api_version": {
+    "major": 0,
+    "minor": 1
+  },
+  "build_profile": "[profile]",
+  "crates": [
+    {
+      "name": "ferman-core",
+      "version": "[version]"
+    },
+    {
+      "name": "ferman-fonts",
+      "version": "[version]"
+    },
+    {
+      "name": "ferman-text",
+      "version": "[version]"
+    },
+    {
+      "name": "ferman-render",
+      "version": "[version]"
+    },
+    {
+      "name": "ferman-ops",
+      "version": "[version]"
+    },
+    {
+      "name": "ferman-api",
+      "version": "[version]"
+    }
+  ],
+  "pdfium": {
+    "state": "loaded",
+    "tag": "chromium/7881"
+  }
+}

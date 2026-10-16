@@ -1,0 +1,16 @@
+[package]
+name = "ferman-core"
+description = "Ferman document model: parsing and writing with lopdf, content-stream interpreter, revisions and safe saving."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+thiserror.workspace = true
+
+[lints]
+workspace = true

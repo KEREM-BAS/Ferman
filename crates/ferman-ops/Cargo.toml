@@ -1,0 +1,19 @@
+[package]
+name = "ferman-ops"
+description = "Ferman document operations: organize pages, annotations, forms, compress and more."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[dependencies]
+ferman-core.workspace = true
+ferman-fonts.workspace = true
+ferman-text.workspace = true
+thiserror.workspace = true
+
+[lints]
+workspace = true

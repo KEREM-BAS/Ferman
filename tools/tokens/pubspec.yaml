@@ -1,0 +1,18 @@
+name: tokens
+description: >-
+  Generates app/lib/design/tokens.g.dart from the CSS custom properties in
+  design/ (ADR 0012). Pure Dart; run `dart run bin/tokens.dart` in this
+  directory.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  args: ^2.7.0
+  path: ^1.9.1
+  yaml: ^3.1.4
+
+dev_dependencies:
+  test: ^1.33.0
+  very_good_analysis: ^11.0.0

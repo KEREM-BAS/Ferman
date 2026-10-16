@@ -4,11 +4,15 @@ A free, open-source PDF editor. Click any text in any PDF and edit it like a Wor
 
 ## Status
 
-**Pre-alpha. Milestone 0: discovery and planning.**
+**Pre-alpha. Milestone 1: foundations, complete and waiting for the maintainer's approval.**
 
-This repository holds the design export and the planning documents. There is no app yet: no engine
-code, no builds and nothing to download. Code starts in Milestone 1, after the maintainer approves
-the plan. [docs/PROGRESS.md](docs/PROGRESS.md) shows where the work stands.
+The maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the foundations: the
+Rust workspace and engine facade, the Flutter app with its shell in eight modes, first run, the start
+screen and a settings skeleton, the bridge between them with PDFium bundled, the design tokens, fonts,
+icons and component library, English, Turkish and Arabic with right to left, and CI on macOS, Windows
+and Linux. There is nothing to download yet, and the app opens no PDFs until Milestone 2.
+[docs/PROGRESS.md](docs/PROGRESS.md) shows where the work stands, and
+[CONTRIBUTING.md](CONTRIBUTING.md#development-setup) how to build and run it.
 
 ## What Ferman will be
 
@@ -41,8 +45,9 @@ In priority order, from one codebase:
 2. Web.
 3. iOS, Android and tablets.
 
-Minimum operating system versions ([Q03](docs/QUESTIONS.md#q03)) and Linux packaging formats
-([Q12](docs/QUESTIONS.md#q12)) are not decided yet.
+Minimum operating systems: macOS 12 or later (universal), Windows 10 22H2 and Windows 11 (x64,
+arm64), and Linux on a best-effort basis from Ubuntu 22.04 ([Q03](docs/QUESTIONS.md#q03)). Linux
+packaging formats ([Q12](docs/QUESTIONS.md#q12)) are decided before the first release.
 
 ## Languages
 
@@ -71,25 +76,11 @@ design, and the [architecture decision records](docs/adr/README.md) explain why.
 
 ## Repository layout
 
-What exists today:
+Milestone 1 added the engine, app, tools and CI folders; `fuzz/` arrives in Milestone 2.
 
 ```text
 ferman/
-├── design/          the design export: design system and every product screen (read-only)
-├── docs/            brief, architecture, ADRs, roadmap, progress, inventory, gaps, dependencies,
-│                    questions, backlog
-├── .claude/rules/   path-scoped working rules for the Rust and Flutter code
-├── CLAUDE.md        working rules and commands for every coding session
-└── README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
-```
-
-`design/` is the visual source of truth. Nobody edits it, and the app never ships or loads its HTML,
-JavaScript or font files.
-
-Planned, from Milestone 1 unless noted:
-
-```text
-ferman/
+├── design/              the design export: design system and every product screen (read-only)
 ├── crates/
 │   ├── ferman-core/     document model, parsing and writing (lopdf), content-stream interpreter,
 │   │                    incremental save
@@ -100,13 +91,22 @@ ferman/
 │   ├── ferman-api/      the only crate the UI calls
 │   └── ferman-cli/      the `ferman` command line, with the same operations
 ├── app/                 Flutter app: macOS, Windows, Linux and web now; iOS and Android later
-├── tools/               token generator, icon export, design-reference renderer, PDFium fetch,
-│                        corpus scripts
+├── tools/               token generator, icon export, localization fallback generator, font and
+│                        PDFium fetch scripts, design-reference renderer and comparison,
+│                        repository checks and the build scanner
 ├── tests/corpus/        test PDFs, with their provenance in tests/corpus/README.md
 ├── fuzz/                cargo-fuzz targets, one per parser (from Milestone 2)
+├── docs/                brief, architecture, ADRs, roadmap, progress, inventory, component spec,
+│                        gaps, dependencies, questions, backlog, translation review
 ├── .github/workflows/   CI on macOS, Windows and Linux
-└── build/               local output such as design-reference renders (never committed)
+├── .claude/rules/       path-scoped working rules for the Rust and Flutter code
+├── build/               local output such as design-reference renders (never committed)
+├── CLAUDE.md            working rules and commands for every coding session
+└── README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 ```
+
+`design/` is the visual source of truth. Nobody edits it, and the app never ships or loads its HTML,
+JavaScript or font files.
 
 ## Documentation
 
@@ -118,10 +118,12 @@ ferman/
 | [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) | Crates, API boundary, threading, data flow, file safety, errors, security, testing, performance budgets |
 | [docs/adr/](docs/adr/README.md) | Architecture decision records and their status |
 | [docs/DESIGN_INVENTORY.md](docs/DESIGN_INVENTORY.md) | Every artboard, component, token, icon and font, mapped to a feature, a milestone and an engine capability |
+| [docs/COMPONENTS.md](docs/COMPONENTS.md) | The component spec: props, variants and states of every design-system component |
 | [docs/DESIGN_GAPS.md](docs/DESIGN_GAPS.md) | Gaps and conflicts in the design, with the option chosen for each |
-| [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) | Every planned dependency and bundled asset, with its licence |
+| [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md) | Every dependency in use or planned and every bundled asset, with its licence |
 | [docs/QUESTIONS.md](docs/QUESTIONS.md) | Open questions for the maintainer |
 | [docs/BACKLOG.md](docs/BACKLOG.md) | Work that is disabled, deferred or skipped |
+| [docs/TRANSLATION_REVIEW.md](docs/TRANSLATION_REVIEW.md) | Every UI string in English, Turkish and Arabic with the note for translators, for native-speaker review |
 | [CLAUDE.md](CLAUDE.md) | The short version of the rules, the commands and the definition of done |
 | [CONTRIBUTING.md](CONTRIBUTING.md) | How to contribute |
 | [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) | How we treat each other |
@@ -132,8 +134,8 @@ ferman/
 
 | Code | Milestone | What it delivers |
 |---|---|---|
-| M0 | Discovery and plan | Design inventory, architecture and plans. Docs only. Done, waiting for the maintainer's approval. |
-| M1 | Foundations | Workspace, Flutter app, bridge, design tokens, component library, light and dark themes, en/tr/ar, app shell, start screen, settings skeleton, green CI |
+| M0 | Discovery and plan | Design inventory, architecture and plans. Docs only. Done, approved on 2026-10-15. |
+| M1 | Foundations | Workspace, Flutter app, bridge, design tokens, component library, light and dark themes, en/tr/ar, app shell, start screen, settings skeleton, green CI. Complete, waiting for the maintainer's approval. |
 | M2 | Open and view | Open from the dialog, drag and drop, recent files and "Open with"; password unlock and repair notice; tiled rendering, zoom modes and page layouts; thumbnails, outline, attachments, search; document properties; several documents in tabs |
 | M3 | Edit text core | Click any text and edit it; save and save as; undo and redo; a review list of edits |
 | M4 | Rest of phase 1 | Organize pages, combine and split, comments and annotations, form filling, simple signatures, compress, version history, command palette, toasts, background tasks, full settings |
@@ -149,8 +151,8 @@ the acceptance criteria, and lists the proposed place of drawn features the road
 
 ## Contributing
 
-The project is in planning, so the most useful help right now is reading the documents and opening
-an issue when something is wrong, missing or unclear. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
+The foundations are still being laid, so the most useful help right now is reading the documents
+and opening an issue when something is wrong, missing or unclear. Please read [CONTRIBUTING.md](CONTRIBUTING.md)
 first. Everyone who takes part follows the [code of conduct](CODE_OF_CONDUCT.md).
 
 Do not report security problems in public issues. [SECURITY.md](SECURITY.md) explains how to report
@@ -172,7 +174,7 @@ The design export in `design/` contains IBM Plex font subsets (SIL Open Font Lic
 path data from Lucide (ISC licence; icons derived from Feather are under the MIT licence). The export
 ships no licence files ([G08](docs/DESIGN_GAPS.md#g08)) and is never edited, so
 [THIRD_PARTY_NOTICES.md](THIRD_PARTY_NOTICES.md) carries the full licence texts for this material.
-The app will ship its own licence files in `app/assets`.
+The app ships its own licence files in `app/assets`: the unmodified IBM Plex fonts with their
+OFL-1.1 texts, the Lucide licence files for the icons, and the PDFium notices.
 
-Copyright The Ferman Authors. The copyright holder's name is waiting for the maintainer's
-confirmation ([Q14](docs/QUESTIONS.md#q14)).
+Copyright The Ferman Authors ([Q14](docs/QUESTIONS.md#q14)).

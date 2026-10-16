@@ -700,7 +700,9 @@ kinds (`--text-*`, `--icon-*`, `--border-*`). The generated notes at the end of 
 cover each one. One of their options is overruled by a decision in section 8: IBM Plex ships as
 IBM's static TTFs, not as a variable font. The app never fetches fonts at run time (no
 `google_fonts` package, no Google Fonts import). Class names in the notes, such as `FermanColors` or
-`FermanPageColors`, are suggestions; ADR 0012 fixes the final names.
+`FermanPageColors`, were M0 suggestions; the generated names are in
+[ADR 0012](adr/0012-design-token-pipeline.md#output) (`FermanColorTokens`, `FermanPageColorTokens` and
+so on).
 
 #### Token reference (generated)
 
@@ -1303,7 +1305,7 @@ Counts: Custom-property declarations, verified by parsing every block. colors.cs
 - cubic-bezier easing: --ease-out maps to Cubic(0.2, 0, 0, 1), --ease-in-out to Cubic(0.4, 0, 0.2, 1) (identical to Curves.fastOutSlowIn), and --ease-exit to Cubic(0.4, 0, 1, 1). Durations in ms map to Duration(milliseconds: n). The reduced-motion media block sets all four to 0.
 - Font shorthand --type-* ('weight size/line-height family-var'): expand nested var() first, then parse into TextStyle(fontWeight, fontSize, height: leading/size, fontFamily, fontFamilyFallback). CSS line-height distributes half-leading evenly, so set leadingDistribution: TextLeadingDistribution.even (or TextHeightBehavior) to match vertical centring. --type-wordmark uses unitless line-height '1', so height is 1.0. The CJK overrides use literal px leading (20/18/16px) instead of --leading-* vars.
 - Font-family stacks: CSS lists become fontFamily (first entry) plus fontFamilyFallback (the rest). Drop CSS generic and system keywords (system-ui, -apple-system, 'Segoe UI', sans-serif, serif, monospace, ui-monospace, cursive, 'SF Mono', Menlo, Consolas, Georgia, 'Times New Roman') or map them to platform defaults. Use the fm-additions --font-ui, which overrides typography.css (cascade order). Every family must be declared in pubspec.yaml with matching names.
-- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import is never used and nothing is loaded at run time (no google_fonts package, no deferred download; [ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). Plex Hebrew and Devanagari, the handwriting faces and the similar-font candidates are bundled as unmodified files only if [Q08](QUESTIONS.md#q08) approves; CJK uses system fonts. No Plex Mono 600 face exists.
+- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import is never used and nothing is loaded at run time (no google_fonts package, no deferred download; [ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). Plex Sans Hebrew and Devanagari are bundled ([Q08](QUESTIONS.md#q08)); the handwriting faces and the similar-font candidates are bundled as unmodified files only if Q08 groups 3 and 4 approve them; CJK uses system fonts. No Plex Mono 600 face exists.
 - var() chains: semantic tokens point to ramps (1 level). Type roles point to weight/size/leading/font (1-2 levels). --sheet-radius points to --radius-xl. --focus-* point to --surface-raised/--border-focus and then to ramps (2 levels). --shadow-page points to --page-border. --edit-changed (additions) points to --ink-600. Resolve recursively with a cycle guard, AFTER merging each environment (light, dark = light + dark block, touch, cjk), so inherited chains pick up dark values. Emitting resolved constants is better than runtime lookups. Optionally keep the alias in a doc comment.
 - @kind annotations: the trailing '/* @kind other */' (on --page-filter in both blocks, --dur-* including the reduced-motion copies, --ease-*, --z-*) and '/* @kind font */' (on --numeric-tabular, --features-ui) are DS-tooling type hints. They are the only explicit typing. Every other token's type must be inferred from its value pattern (#hex/rgba means colour; Npx means dimension; Nms means duration; cubic-bezier means curve; quoted list means font stack; 'w s/l f' means font shorthand; plain integer means weight or z-index). Strip the @kind text from doc comments and use it as a classifier override.
 - Unit-less and odd values: --space-0: 0 and --tracking-normal: 0 (unitless zero); --weight-* 400/500/600 map to FontWeight.w400/w500/w600; --z-* are ints with no Flutter z-index (they inform Overlay/Stack ordering only); --radius-full: 999px means a pill (use StadiumBorder or BorderRadius.circular(999)); --border-width-strong: 1.5px is fractional; --tracking-tight -0.01em and --tracking-label 0.02em are em-relative, so letterSpacing = em * fontSize (for example 11px * 0.02 = 0.22) and must be computed per TextStyle; --line-height '1' is unitless in wordmark.
@@ -1332,21 +1334,26 @@ stays `Button` and `ModeTabs` stays `ModeTabs`
 the widgets library use an import prefix or `hide`, so names such as `Icon`, `Tooltip` or `Dialog`
 never clash. Only the `Fm*` building blocks keep their `Fm` names. Data constants become enums or
 generated data: `FERMAN_MODES` becomes the `FermanMode` enum, `ANNOTATION_TOOLS` the
-`AnnotationTool` enum and `ICON_PATHS` the generated `IconName` enum with its SVG assets. Additions
+`AnnotationTool` enum (with the 11 tools the boards draw, [G62](DESIGN_GAPS.md#g62)) and `ICON_PATHS`
+the generated `IconName` enum with its path data and SVG assets. Additions
 that have no DS name take a plain name in the same style, such as `DocumentTab` or `SaveIndicator`.
 Where the generated porting notes suggest `FermanInputDecorator` or `FermanNumberField`, read `Field`
 and `FmNumber`.
 
 **First needed** is the earliest milestone whose boards use the component. The brief asks for the
 library before the screens, so M1 builds what the shell, Start and Settings need first;
-[ROADMAP.md](ROADMAP.md) sets the order for the rest.
+[ROADMAP.md](ROADMAP.md) sets the order for the rest. The component spec written in M1
+([COMPONENTS.md](COMPONENTS.md)) refines this with tiers: AnnotationTools and the status-bar
+SaveIndicator are tier 1, because the M1 shell draws the Comment tool row and the save indicator
+(disabled where the feature is not built); PanelSection, TaskProgress and ProgressBar are tier 2,
+because no M1 board draws them.
 
 #### Planned Flutter widgets
 
 | DS component | Group | Flutter widget | First needed | Notes |
 |---|---|---|---|---|
-| `Icon` | core | `Icon` | M1 | Draws the glyph's SVG asset (the design's exact path data) at the DS stroke width of 1.5. `flipRtl` mirrors directional glyphs under RTL. |
-| `ICON_PATHS` | core (data) | `IconName` (generated enum) and SVG assets | M1 | All 229 glyphs: 145 from the bundle and 84 from `fm-icons.js`. |
+| `Icon` | core | `Icon` | M1 | Paints the glyph from the design's exact path data with a `CustomPainter` (path_parsing) at the DS stroke width of 1.5; the SVG assets are not loaded at run time (flutter_svg pulls in `http`). `flipRtl` defaults to `IconName.directional` and mirrors those glyphs under RTL. |
+| `ICON_PATHS` | core (data) | `IconName` (generated enum), generated path data and SVG assets | M1 | All 229 glyphs: 145 from the bundle and 84 from `fm-icons.js`. The SVGs are the exported, provenance-tracked set. |
 | `Button` | core | `Button` | M1 | Primary, secondary, ghost and danger; sm, md and lg; loading. |
 | `IconButton` | core | `IconButton` | M1 | Toggle and loading states. |
 | `Tooltip` | core | `Tooltip` | M1 | Shows the shortcut with `Kbd`. Also carries "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
@@ -1415,7 +1422,7 @@ library before the screens, so M1 builds what the shell, Start and Settings need
 | `FmWindow` | Desktop shell: title bar with document tabs, mode bar, tool rows, sidebar and panel slots, canvas, status bar. | M1 |
 | `FmSidebar` | Left sidebar (216 px) with six tabs. | M1 for the frame, M2 for the tabs |
 | `FmEditPanel` | Right panel for a selected text block. | M3 (the panel slot is M1) |
-| `FmDocPanel` | Right panel with the document summary and the Edit help. | M2 |
+| `FmDocPanel` | Right panel with the document summary and the Edit help. | M1 for the frame (the `FmDocPanel` class, `app/lib/features/shell/shell_panel.dart`: the title and More), M2 for the sections |
 | `FmFormPanel` | Right panel for forms. | M4 |
 | `FmComments` | Right panel for comments. | M4 |
 | `FmSigCard` | Signature validation card. | P3; a neutral "not checked" row is needed from M2 ([G31](DESIGN_GAPS.md#g31)) |
@@ -1525,7 +1532,7 @@ library before the screens, so M1 builds what the shell, Start and Settings need
 | `FmComments` | 300px right 'Comments' panel. Header: title + neutral count Badge + filter toggle (list-filter) + More. SegmentedControl Open 7 / Resolved 2 / All 9; optional filter row with 3 sm Selects (author, type, sort). Cards grouped by page ('Page N' + count), each showing a chip with the annotation type icon (highlight, sticky-note, square, pen-tool, underline, stamp, strikethrough, type) tinted by colour, author, time, quoted text, body, replies with @mentions, collapsed 'N replies', a composer (focused sm input with a caret, Resolve ghost + Reply primary), an optional mention listbox, and the resolved footer 'Resolved by…' + Reopen. Footer note: 'Comments are saved in the PDF. Mentions travel wit… | filter 'open'\|'resolved'\|'all' (default open); expand = comment id 1–9 (default 1; expanded card gets an accent ring and shows its replies); compose=false; mention=false; filters=false; author 'all'\|'ay'\|'mk'\|'da'. | Right panel region in Comment mode: CommentsPanel (thread list, filters, composer). |
 | `FmSigCard` | Signature validation card: a tinted status callout (20px icon + 14px w600 title + explanation), a 96px/1fr key/value grid (Signed by, Issued by, Certificate, Signed on, Revocation, Covers, Format; warning or danger values coloured) and 2 sm action buttons. | state 'valid'\|'warn'\|'invalid'\|'modified' (default valid). valid: badge-check success, 'Valid signature', actions Certificate… / Go to signature. warn: shield-alert warning, 'Valid, with 2 warnings' (signer’s clock, revocation not checked offline), actions Check again / Certificate…. invalid: shield-x danger, 'Invalid signature' (revoked certificate). modified: file-pen-line warning, 'Changed after signing', actions Show signed version / Compare. | Panel content in Fill & Sign: SignatureValidationCard (signature details panel, sidebar Signatures tab detail, validation dialog). |
 | `FmStart` | The Start/Home screen inside FmWindow(home, no status bar). Four action cards (Open file… ⌘O, Create PDF ⌘N, Combine files, Scan to PDF; 36px accent-subtle icon tile, title, subtitle, Kbd). 'Quick tools' row of sm buttons (Compress, Convert, Sign, Recognize text (OCR), Protect, Compare). A dashed 64px 'Drop files anywhere in this window' strip. 'Pinned' (3 cards with an active pin IconButton). 'Recent' header with a search TextField, sort Select and grid/list SegmentedControl. Grid view = 5 columns of 150px previews with name, meta and badge; list view = table (Name, Location, Pages, Last opened, badge). Footer: 'Recent files are listed only on this device.' + 'Clear list' link. Empty state… | platform 'mac'\|'win'; lang 'en'\|'de'\|'ar'; view 'grid'\|'list' (default grid); empty=false; dragOver=false; tabs (passed to FmWindow; default 2 idle tabs); children (overlay slot). Undeclared: recentCount (truncates the 10-item recent list). Badges: edited (file-pen-line), form (accent, text-cursor-input), signed (success, badge-check), scanned (neutral, scan). | Home / Start screen (body of the app shell when no document tab is active). |
-| `FmSettings` | Settings window: FmWindow(bare, no mode bar, no status bar) with a 240px nav (headline 'Settings', search TextField, 11 icon rows with the current row in accent on surface-selected) and a main column (surface-raised, max-width 760, padding 28 40, h1 = pane title). Panes: general (Theme segmented system/light/dark; 'PDF pages in dark theme' radios Paper white / Dimmed / Dark reading mode; default layout and zoom Selects; 'Reopen documents' Switch; default-app prompt). language (app language Select with 16 more…; document languages as Badges + Add; region formats, paper, units, first weekday; examples). editing (Mark edited text with a PageMark preview, missing-glyph policy radios, new-text f… | pane 'general'\|'language'\|'editing'\|'fonts'\|'signatures'\|'ocr'\|'ai'\|'privacy'\|'updates'\|'shortcuts'\|'advanced' (default general); platform 'mac'\|'win'; lang 'en'\|'de'\|'ar'. | Settings window/route (SettingsScreen with a NavigationRail-like list + 11 pane widgets). |
+| `FmSettings` | Settings window: FmWindow(bare, no mode bar, no status bar) with a 240px nav (headline 'Settings', search TextField, 11 icon rows with the current row in accent on surface-selected) and a main column (surface-raised, max-width 760, padding 28 40, h1 = pane title). Panes: general (Theme segmented system/light/dark; 'PDF pages in dark theme' radios Paper white / Dimmed / Dark reading mode; default layout and zoom Selects; 'Reopen documents' Switch; default-app prompt). language (app language Select with 16 more…; document languages as Badges + Add; region formats, paper, units, first weekday; examples). editing (Mark edited text with a PageMark preview, missing-glyph policy radios, new-text f… | pane 'general'\|'language'\|'editing'\|'fonts'\|'signatures'\|'ocr'\|'ai'\|'privacy'\|'updates'\|'shortcuts'\|'advanced' (default general); platform 'mac'\|'win'; lang 'en'\|'de'\|'ar'. | Settings window/route (FmSettings with a NavigationRail-like list + 11 pane widgets). |
 | `FmNumber` | Locale-aware number stepper: optional label, sm stepper box with tabular formatted value, optional unit suffix, stacked chevron arrows, optional error text and danger border. | value=10.5; precision=1; unit='pt'; label=''; lang 'en'\|'tr'\|'de'\|'ar'\|'ja' (en-US, tr-TR, de-DE, ar, ja-JP; grouping on); width=84; error=''. Undeclared: aria (accessible name; falls back to label, then 'Value'). | Form control used in every properties panel (replaces DS NumberStepper): FermanNumberField with Intl formatting through intl NumberFormat. |
 | `FmBoard` | Documentation artboard: a header (mono number, 26px title, meta such as 'macOS · Light') above a fixed-size .fm-root frame carrying data-fm-artboard, data-theme, lang, dir and data-density, with platform-specific radius and shadow; optional note paragraph below. | bid (anchor id); num; title; meta (default '<platform name> · Light/Dark'); platform 'mac'\|'win'\|'web'\|'ios'\|'android'\|'ipad'\|'atab'; theme 'light'\|'dark'; kind 'window'\|'panel'\|'bare' (default bare for ios/android, else window); lang='en'; dir 'ltr'\|'rtl'; w (default 1440, ios 417, android 436); h (default 900, ios 876, android 939); note; noteW; children. Undeclared: density (defaults to 'touch' when kind=bare). | Not an app widget. Use it as the golden-test / Widgetbook wrapper: Theme (light/dark) + Locale + Directionality + density + fixed surface size. |
 | `FmPhone` | Phone device frame (12px bezel, outer radius 66 iOS / 48 Android). Status bar (54px iOS with Dynamic Island, 36px Android; clock, wifi/wifi-off, battery). Top bar: iOS 44px nav bar (back chevron + label in accent or a lead text, centred title, right text/icon actions) with an optional large title (32/40 bold); Android 64px app bar (nav icon arrow-left/menu/x, 22px title, actions). Content slot. Bottom: iOS 83px tab bar or Android 80px navigation bar (accent-subtle indicator pill) with 4 tabs: Home (house), Files (folder), Scan (scan), Settings. Android FAB (56px, radius 12, accent). Overlay slot. Home indicator. | platform 'ios'\|'android'; title='Ferman'; large=true (iOS large title); back (back label); tab 'home'\|'files'\|'scan'\|'settings'\|'none'; bars 'full'\|'top'\|'status'\|'none'; lang 'en'\|'tr'\|'ar'\|'de' (tab labels, Eastern Arabic digits); fab (icon name, Android only); actions (string \| {text?, icon?, label?, bold?})[]; overlay; children. Undeclared: darkScreen, landscape, contentBg, barBg, clock, offline, lowBatt, lead, nav 'menu'\|'close'\|'none', flatTop, fabLabel (default 'New'). | Mobile app shell (MobileScaffold: CupertinoNavigationBar / M3 TopAppBar, bottom tab bar / NavigationBar, FAB). The bezel, status bar and home indicator are mock-only. |
@@ -1545,10 +1552,13 @@ library before the screens, so M1 builds what the shell, Start and Settings need
 These points come from [ADR 0013](adr/0013-fonts-and-icons.md).
 
 - The app ships the design's exact path data, not a fresh Lucide download: the 145 `ICON_PATHS`
-  glyphs in `_ds_bundle.js` plus the 84 in `ds-additions/fm-icons.js`, 229 in all. They become SVG
-  assets in `app/assets`, rendered with the DS stroke width of 1.5 (not Lucide's default of 2; 2 only
-  for 12 px glyphs and badges), with round caps and joins and the colour taken from the theme. There
-  is no icon font and no sprite sheet, as the DS asks ([G04](DESIGN_GAPS.md#g04)).
+  glyphs in `_ds_bundle.js` plus the 84 in `ds-additions/fm-icons.js`, 229 in all. `tools/icons`
+  writes them as SVG assets in `app/assets/icons/` (the exported, provenance-tracked set) and as
+  generated path data, which the Icon widget paints with a `CustomPainter` through path_parsing at the
+  DS stroke width of 1.5 (not Lucide's default of 2; 2 only for 12 px glyphs and badges), with round
+  caps and joins and the colour taken from the theme. The SVGs are not loaded at run time: flutter_svg
+  and vector_graphics depend on `http`, which the network deny list forbids. There is no icon font and
+  no sprite sheet, as the DS asks ([G04](DESIGN_GAPS.md#g04)).
 - All 229 ship, including the 58 that nothing in the design references yet.
 - The licence notices ship with them: Lucide's ISC licence, and Feather's MIT licence for the
   roughly 57 glyphs derived from Feather. Both appear in the third-party notices ([G08](DESIGN_GAPS.md#g08), [G14](DESIGN_GAPS.md#g14)).
@@ -1557,8 +1567,11 @@ These points come from [ADR 0013](adr/0013-fonts-and-icons.md).
   `expand` matches 0.500.0; `file-signature` matches 0.263.0 and 0.300.0. Only `ellipse` matches no
   Lucide release; it is recorded as Ferman design and stays pending until the re-export settles it
   ([G60](DESIGN_GAPS.md#g60), [ADR 0013](adr/0013-fonts-and-icons.md)).
-- Directional icons carry a per-icon flag and mirror under right-to-left. The PDF canvas never
-  mirrors (brief §6).
+- Directional icons carry a per-icon flag and mirror under right-to-left. The flag is set on exactly
+  the 8 icons the design flips: `arrow-left`, `arrow-right`, `chevron-left`, `chevron-right`,
+  `undo-2`, `redo-2`, `skip-back` and `skip-forward` (checked by a `tools/icons` test against the
+  design files). `send`, `reply`, the list icons, `text-cursor`, `arrow-left-right`, `volume-2` and
+  `chevrons-left`/`chevrons-right` are not marked. The PDF canvas never mirrors (brief §6).
 - Where the generated notes below suggest taking glyphs from a Lucide release or replacing
   `file-signature` and `ellipse`, this decision applies instead: the design's own paths ship as drawn.
 
@@ -1637,7 +1650,7 @@ The DS uses IBM Plex (brief §2). The export holds 23 WOFF2 files in `_ds/ferman
 | Language | Script | In the export | Decision |
 |---|---|---|---|
 | English (`en`) | Latin | Yes: Plex Sans, Serif and Mono latin subsets | IBM Plex Sans (bundled). |
-| Turkish (`tr`) | Latin + Latin Extended-A (ğ ş İ ı) | Yes: ı (U+0131) is in the latin subset; ğ, ş and İ are in latin-ext (all 6 tested letters present) | IBM Plex Sans (bundled). Keep it in every fallback chain: Plex Sans Arabic has no ğ, ş or İ. |
+| Turkish (`tr`) | Latin + Latin Extended-A (ğ ş İ ı) | Yes: ı (U+0131) is in the latin subset; ğ, ş and İ are in latin-ext (all 6 tested letters present) | IBM Plex Sans (bundled). It comes first in every UI chain: Plex Sans Arabic, Hebrew and Devanagari carry only one of İ ı Ğ ğ Ş ş ([G64](DESIGN_GAPS.md#g64)). |
 | German (`de`) | Latin (ß, ẞ U+1E9E in latin-ext) | Yes | IBM Plex Sans (bundled). |
 | French (`fr`) | Latin (œ « » ’) | Yes | IBM Plex Sans (bundled). |
 | Spanish (`es`) | Latin (ñ ¿ ¡) | Yes | IBM Plex Sans (bundled). |
@@ -1647,10 +1660,10 @@ The DS uses IBM Plex (brief §2). The export holds 23 WOFF2 files in `_ds/ferman
 | Polish (`pl`) | Latin Extended-A (ą ć ę ł ń ś ź ż) | Yes: all 16 tested letters in latin-ext for Sans, Serif and Mono | IBM Plex Sans (bundled). |
 | Russian (`ru`) | Cyrillic | Yes: 66 of 66 tested letters in the cyrillic subsets of Sans, Serif and Mono | IBM Plex Sans (bundled); the complete file covers Cyrillic. |
 | Ukrainian (`uk`) | Cyrillic (є і ї ґ) | Yes: є, і, ї and ґ are present; only U+02BC (modifier-letter apostrophe) is missing, and U+2019 is in the latin subset | IBM Plex Sans (bundled). Use U+2019 for the apostrophe. |
-| Arabic (`ar`) | Arabic | Yes: IBM Plex Sans Arabic 400/500/600 (49 of 49 tested letters and Arabic-Indic digits). Latin inside Arabic text falls back to Plex Sans. | IBM Plex Sans Arabic 400, 500, 600 (bundled), with IBM Plex Sans for Latin. |
-| Persian (`fa`) | Arabic script (Persian: پ چ ژ گ ک ی, Persian digits ۰-۹ U+06F0-06F9, ZWNJ) | Mostly: the Arabic file has پ چ ژ گ ک ی and U+06F0-06F9. ZWNJ isn't in the cmap (the shaper treats it as invisible). The Serif and Mono files have no Arabic. | IBM Plex Sans Arabic (bundled). Persian digits come from the fa locale. Test text with ZWNJ in goldens. |
-| Hebrew (`he`) | Hebrew | No: not in the export (only loaded from the Google CDN by fm-additions.css) | IBM Plex Sans Hebrew (proposed, [Q08](QUESTIONS.md#q08)). Until approved: system fonts (SF Hebrew or Arial Hebrew, Segoe UI or Arial, Noto Sans Hebrew). |
-| Hindi (`hi`) | Devanagari | No: not in the export (only loaded from the Google CDN) | IBM Plex Sans Devanagari (proposed, [Q08](QUESTIONS.md#q08)). Until approved: system fonts (Kohinoor Devanagari, Nirmala UI, Noto Sans Devanagari). |
+| Arabic (`ar`) | Arabic | Yes: IBM Plex Sans Arabic 400/500/600 (49 of 49 tested letters and Arabic-Indic digits). It also carries ASCII and Latin-1, but the UI draws Latin from IBM Plex Sans, which comes first (ARCHITECTURE §11.5). | IBM Plex Sans Arabic 400, 500, 600 (bundled), after IBM Plex Sans (the `--font-ui` order, [G64](DESIGN_GAPS.md#g64)). |
+| Persian (`fa`) | Arabic script (Persian: پ چ ژ گ ک ی, Persian digits ۰-۹ U+06F0-06F9, ZWNJ) | Mostly: the Arabic file has پ چ ژ گ ک ی and U+06F0-06F9. ZWNJ isn't in the cmap (the shaper treats it as invisible). The Serif and Mono files have no Arabic. | IBM Plex Sans Arabic (bundled), after IBM Plex Sans (the `--font-ui` order). Persian digits come from the region setting (Iran), not the UI language ([G34](DESIGN_GAPS.md#g34)). Test text with ZWNJ in goldens. |
+| Hebrew (`he`) | Hebrew | No: not in the export (only loaded from the Google CDN by fm-additions.css) | IBM Plex Sans Hebrew (bundled, [Q08](QUESTIONS.md#q08)), after IBM Plex Sans (the `--font-ui` order). |
+| Hindi (`hi`) | Devanagari | No: not in the export (only loaded from the Google CDN) | IBM Plex Sans Devanagari (bundled, [Q08](QUESTIONS.md#q08)), after IBM Plex Sans (the `--font-ui` order: with Plex Sans Devanagari first, İ, ş and ế get misplaced marks). |
 | Japanese (`ja`) | Japanese (Kanji + Kana) | No: only loaded from the Google CDN (IBM Plex Sans JP, Noto Serif JP) | System fonts (Hiragino Sans; Yu Gothic UI or Meiryo UI; Noto Sans CJK JP). Pass the ja locale so Han characters take Japanese forms. No synthetic bold or italic. |
 | Korean (`ko`) | Hangul (+ Hanja) | No: only loaded from the Google CDN (IBM Plex Sans KR) | System fonts (Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR). |
 | Chinese (Simplified) (`zh-Hans`) | Simplified Chinese (Han) | No: Noto Sans SC loads from the Google CDN only | System fonts (PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC). |
@@ -1660,27 +1673,29 @@ The DS uses IBM Plex (brief §2). The export holds 23 WOFF2 files in `_ds/ferman
 
 ### Font decision
 
-These points come from [ADR 0013](adr/0013-fonts-and-icons.md). The Hebrew and Devanagari fonts are
-proposed and wait for the owner.
+These points come from [ADR 0013](adr/0013-fonts-and-icons.md). The Hebrew and Devanagari fonts were
+approved by the owner on 2026-10-15.
 
 - The app bundles IBM's unmodified static TTFs from the official IBM Plex releases, each with IBM's
   OFL-1.1 licence file. They are never subset, converted or renamed, so the Reserved Font Name "Plex"
   is respected.
-  - IBM Plex Sans 400, 500 and 600. The complete files cover Latin, Turkish, Vietnamese, Cyrillic and
-    Greek.
-  - IBM Plex Serif, for the wordmark.
-  - IBM Plex Mono, for shortcuts and raw values.
+  - IBM Plex Sans 400, 500 and 600, plus Italic 400 for the FontPicker missing state. The complete
+    files cover Latin, Turkish, Vietnamese, Cyrillic and Greek.
+  - IBM Plex Serif 400, Italic 400 and 600, for the wordmark and the specimens.
+  - IBM Plex Mono 400 and 500, for shortcuts and raw values.
   - IBM Plex Sans Arabic 400, 500 and 600, which also covers Persian.
-  - Proposed: IBM Plex Sans Hebrew and IBM Plex Sans Devanagari ([Q08](QUESTIONS.md#q08)).
+  - IBM Plex Sans Hebrew and IBM Plex Sans Devanagari, 400, 500 and 600 ([Q08](QUESTIONS.md#q08)).
 - Japanese, Korean, Simplified Chinese and Traditional Chinese use system fonts. The app passes the
-  locale so Han characters take the right regional forms, and never synthesises bold or italic for
-  them.
+  locale so Han characters take the right regional forms, and never asks for italic. Flutter cannot
+  switch synthetic bold off, so the theme names system families with real bold faces
+  ([G65](DESIGN_GAPS.md#g65)).
 - The design's WOFF2 subsets are not used. The app never loads fonts from the network; the Google
   Fonts `@import` in `fm-additions.css` is a detail of the design tool ([G07](DESIGN_GAPS.md#g07)).
-- IBM Plex Sans stays in every fallback chain, so Latin and Turkish text renders inside Arabic,
-  Persian and Hebrew UI.
+- IBM Plex Sans comes first in every UI chain (the design's `--font-ui` order), so Latin, Turkish and
+  Vietnamese text renders correctly inside Arabic, Persian, Hebrew and Hindi UI
+  ([G64](DESIGN_GAPS.md#g64)).
 - The signature handwriting fonts (`--font-hand-1` to `-3`: Caveat, Homemade Apple, Dancing Script)
-  are an open question ([Q08](QUESTIONS.md#q08)). If they ship, each ships with its licence: Homemade Apple is
+  are an open question ([Q08](QUESTIONS.md#q08) group 3). If they ship, each ships with its licence: Homemade Apple is
   Apache-2.0, the others OFL-1.1.
 - Golden tests load the real fonts (brief §5).
 

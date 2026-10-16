@@ -49,7 +49,7 @@ and the result after substitution ([G36](../DESIGN_GAPS.md#g36), [G37](../DESIGN
 |---|---|---|
 | Parse font programs | skrifa and read-fonts | TrueType and CFF/CFF2 outlines and tables. skrifa does not read Type1; a minimal Type1 parser in ferman-fonts reads the built-in encoding and glyph names. Bare CFF programs (FontFile3) are expected to go through read-fonts' CFF support (verified in M2). Type3 glyphs are content-stream procedures, handled by the interpreter. ttf-parser is never a direct dependency. |
 | Encodings and CMaps | ferman-fonts | Standard, WinAnsi, MacRoman, MacExpert, PDFDoc, Symbol, ZapfDingbats, `/Differences`, glyph names to Unicode, ToUnicode and embedded CMaps with `usecmap`. Predefined CJK CMaps and glyph-list data are added after their licences are checked. |
-| Shape | rustybuzz per the brief, or harfrust if [ADR 0007](0007-harfrust-instead-of-rustybuzz.md) is approved | Behind one internal `Shaper` trait, so the switch touches one module. |
+| Shape | harfrust ([ADR 0007](0007-harfrust-instead-of-rustybuzz.md), accepted) | Behind one internal `Shaper` trait; nothing outside ferman-fonts names the shaping crate. |
 | Subset | subsetter | Builds the new subsets that steps 2 and 3 embed. |
 | System fonts | fontdb | Finds installed fonts for steps 2 and 3. |
 | Cache | ferman-fonts | Parsed fonts, glyph outlines and shaping results, keyed by a hash of the font program. |

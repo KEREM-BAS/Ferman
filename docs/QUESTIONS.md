@@ -1,12 +1,15 @@
 # Questions for the owner
 
-These are the open questions that need the owner's decision. Brief §9 says to put open questions
-here and continue with the safest option. Every entry therefore names the option in force until the
-owner answers, so work does not stop and nothing is built on an unapproved change by accident.
+These are the questions that need, or needed, the owner's decision. Brief §9 says to put open
+questions here and continue with the safest option. Every entry therefore names the option in force
+until the owner answers, so work does not stop and nothing is built on an unapproved change by
+accident.
 
 Brief §8 asks Milestone 0 to end with at least three questions: the bundle identifier
 ([Q01](#q01)), the publisher name for code signing ([Q02](#q02)) and the minimum macOS and Windows
-versions ([Q03](#q03)). The others came up during discovery and planning.
+versions ([Q03](#q03)). The others came up during discovery and planning. The owner answered the
+first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
+[Q19](#q19) after the M1 bridge benchmark.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -27,7 +30,7 @@ Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture
   [DESIGN_GAPS.md](DESIGN_GAPS.md) entries (from Needs owner to Decided or Resolved), and
   [ROADMAP.md](ROADMAP.md), [DEPENDENCIES.md](DEPENDENCIES.md) or [ARCHITECTURE.md](ARCHITECTURE.md)
   where they mention the question.
-- New questions get the next free id, Q18 onwards. Ids are never reused, so links stay valid.
+- New questions get the next free id, Q19 onwards. Ids are never reused, so links stay valid.
 
 ### Status values
 
@@ -35,6 +38,7 @@ Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture
 |---|---|
 | Open | Waiting for the owner. The default in the entry is in force. |
 | Answered | The owner has decided. The answer and its date are in the entry. |
+| Answered in part | The owner decided some parts. The entry says which parts stay open; their default is still in force. |
 | Withdrawn | No longer needed. The entry says why. |
 
 ## Entry format
@@ -52,7 +56,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** the option recommended
 - **Meanwhile:** what is in force until the owner answers
 - **Needed by:** the milestone, or the step, that the answer blocks
-- **Status:** Open, Answered (with date) or Withdrawn
+- **Status:** Open, Answered or Answered in part (with date), or Withdrawn
 - **Related:** ADRs, design gaps and other questions
 - **Answer:** none yet
 ```
@@ -61,23 +65,26 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 
 | ID | Question | Needed by | Status |
 |---|---|---|---|
-| [Q01](#q01) | Bundle identifier | M1 step 2 (placeholder allowed); final before M5 | Open |
+| [Q01](#q01) | Bundle identifier | M1 step 2 | Answered 2026-10-15: `io.github.kerembas.ferman` |
 | [Q02](#q02) | Code-signing publisher name | M5 | Open |
-| [Q03](#q03) | Minimum OS versions and architectures | M1 step 2 (proposal used); final before M5 | Open |
-| [Q04](#q04) | Approve ADR 0007: harfrust instead of rustybuzz | M1 step 1; M3 at the latest | Open |
-| [Q05](#q05) | Confirm eight mode tabs, including Tools | M1 step 8 | Open |
+| [Q03](#q03) | Minimum OS versions and architectures | M1 step 2 | Answered 2026-10-15 |
+| [Q04](#q04) | Approve ADR 0007: harfrust instead of rustybuzz | M1 step 1 | Answered 2026-10-15: harfrust |
+| [Q05](#q05) | Confirm eight mode tabs, including Tools | M1 step 8 | Answered 2026-10-15: eight tabs |
 | [Q06](#q06) | Network uses the design adds: OCSP and CRL, local network | M4 (Privacy rows); P3 | Open |
 | [Q07](#q07) | Approve ADR 0018: OS-native file pickers | M2 | Open |
-| [Q08](#q08) | Fonts to bundle: Hebrew, Devanagari, CJK, handwriting, similar fonts | M1 step 5; M3; M4 | Open |
+| [Q08](#q08) | Fonts to bundle: Hebrew, Devanagari, CJK, handwriting, similar fonts | M1 step 5; M3; M4 | Answered in part 2026-10-15: groups 1 and 2; groups 3 (M4) and 4 (M3) open |
 | [Q09](#q09) | Missing-glyph default as designed | M3 | Open |
 | [Q10](#q10) | Milestones for drawn features the roadmap does not name | M2 | Open |
 | [Q11](#q11) | Design re-export and fixes, or DESIGN_GAPS decisions as final | none blocked; M1 gains most | Open |
-| [Q12](#q12) | Linux packaging formats and window chrome | M1 step 8; M5 | Open |
+| [Q12](#q12) | Linux packaging formats and window chrome | M1 step 8; M5 | Answered in part 2026-10-15: custom title bar; packaging open until M5 |
 | [Q13](#q13) | Document JavaScript is never executed | M2 | Open |
-| [Q14](#q14) | Copyright holder "The Ferman Authors"; commit sign-off | M1; final before M5 | Open |
+| [Q14](#q14) | Copyright holder "The Ferman Authors"; commit sign-off | M1 | Answered in part 2026-10-15: "The Ferman Authors"; sign-off open |
 | [Q15](#q15) | Update check: endpoint and payload | M5 | Open |
 | [Q16](#q16) | OCR engine | P3 | Open |
-| [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache, optional); M2 | Open |
+| [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache); M2 | Answered in part 2026-10-15: parts 1 to 3 approved; part 4 open |
+| [Q18](#q18) | macOS App Sandbox | before M2 | Open |
+| [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Open |
+| [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered in part 2026-10-16: yes, after M3, live in the running app, set up from Settings; details open |
 
 ## Questions
 
@@ -105,15 +112,20 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** option 2, unless you own or plan to own a domain for Ferman. Some platforms restrict
   the characters in an id (some Linux and D-Bus ids do not allow hyphens, so Linux may need
   `io.github.kerem_bas.Ferman`); M1 checks the exact form for each platform.
-- **Meanwhile:** M0 has no code, so the placeholder `io.github.kerem-bas.ferman` appears only in
-  these documents. If M1 step 2 starts before an answer, the platform projects carry a clearly
-  marked placeholder with a [BACKLOG.md](BACKLOG.md) entry, and nothing is released with it.
-- **Needed by:** M1 step 2, where a marked placeholder is allowed. Final before M5 signing and
-  release.
-- **Status:** Open
+- **Meanwhile:** superseded by the answer. The id is final from M1 step 2 on; no placeholder is
+  used.
+- **Needed by:** M1 step 2 (platform projects).
+- **Status:** Answered on 2026-10-15
 - **Related:** [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
-  [ADR 0008](adr/0008-file-safety-and-saving.md), [Q02](#q02), [Q12](#q12)
-- **Answer:** none yet
+  [ADR 0008](adr/0008-file-safety-and-saving.md), [Q02](#q02), [Q12](#q12), [Q18](#q18)
+- **Answer:** `io.github.kerembas.ferman` on every platform. It has no hyphen or underscore, so the
+  same form works as the macOS `CFBundleIdentifier`, the Linux application id and a D-Bus or Flatpak
+  id. The Flutter projects are created with the organisation `io.github.kerembas` and the project
+  name `ferman`.
+  - **Note for M5 (Flathub).** Flathub verifies an `io.github.<user>` id against the GitHub account
+    `<user>`. The repository's account is `KEREM-BAS`, not `kerembas`, so publishing on Flathub would
+    need a GitHub account or organisation named `kerembas`, or a domain-based id for the Flatpak.
+    This is raised again with the Linux packaging part of [Q12](#q12) before M5.
 
 <a id="q02"></a>
 
@@ -168,14 +180,21 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     later.
   - M1 checks these against the minimums of Flutter 3.47.7 and of the PDFium binaries. Where
     Flutter needs more, its minimum wins and this entry is updated.
-- **Meanwhile:** the proposal. If M1 step 2 starts before an answer, the platform projects use it
-  with a [BACKLOG.md](BACKLOG.md) entry until this question is final.
-- **Needed by:** M1 step 2 (deployment targets; the proposal is used if there is no answer). Final
-  before M5.
-- **Status:** Open
+- **Meanwhile:** superseded by the answer.
+- **Needed by:** M1 step 2 (deployment targets and the CI matrix).
+- **Status:** Answered on 2026-10-15
 - **Related:** [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
-  [ADR 0018](adr/0018-native-file-pickers.md), [G15](DESIGN_GAPS.md#g15), [Q12](#q12)
-- **Answer:** none yet
+  [ADR 0018](adr/0018-native-file-pickers.md), [G15](DESIGN_GAPS.md#g15), [Q12](#q12), [Q18](#q18)
+- **Answer:** the proposal.
+  - macOS 12 Monterey or later, one universal build (arm64 and x86_64). The deployment target is
+    12.0.
+  - Windows 10 22H2 and Windows 11, on x64 and arm64.
+  - Linux, best effort: glibc-based distributions from Ubuntu 22.04 on. CI builds on Ubuntu 22.04 as
+    well as the current runner to prove the floor.
+  - M1 step 2 checks these against the minimums of Flutter 3.47.7 and the PDFium binaries. If either
+    needs more, its minimum wins and this entry says so. Builds that the development container and CI
+    cannot run (arm64 apps, Windows 10) are recorded as pending owner checks in
+    [PROGRESS.md](PROGRESS.md).
 
 <a id="q04"></a>
 
@@ -194,14 +213,15 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   (c) HarfBuzz itself through C bindings, the most mature option, at the cost of a C dependency and
   build work on three systems.
 - **Proposal:** (a), as [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) describes.
-- **Meanwhile:** the brief's rustybuzz stands. The shaper sits behind one internal interface, so a
-  switch touches one module. cargo-deny does not ban rustybuzz unless you approve.
-- **Needed by:** M1 step 1, which sets the ferman-fonts dependencies and the cargo-deny bans. M3 at
-  the latest, when shaping is first used.
-- **Status:** Open
+- **Meanwhile:** superseded by the answer.
+- **Needed by:** M1 step 1, which sets the ferman-fonts dependencies and the cargo-deny bans.
+- **Status:** Answered on 2026-10-15
 - **Related:** [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
   [ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md), [DEPENDENCIES.md](DEPENDENCIES.md)
-- **Answer:** none yet
+- **Answer:** (a), harfrust. [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) is Accepted.
+  harfrust is pinned exactly and added when shaping is first used (M3). rustybuzz is never a direct
+  dependency: from M1 step 1, `deny.toml` bans it except as krilla's wrapper
+  (`{ crate = "rustybuzz", wrappers = ["krilla"] }`).
 
 <a id="q05"></a>
 
@@ -217,13 +237,13 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Options:** (a) eight tabs as drawn; (b) seven tabs as the design system constant says, with the
   Tools items moved somewhere no board draws, such as a menu or other modes.
 - **Proposal:** (a).
-- **Meanwhile:** eight tabs. Later-phase Tools items are visible but disabled with "Available in a
-  future version".
+- **Meanwhile:** superseded by the answer.
 - **Needed by:** M1 step 8 (app shell).
-- **Status:** Open
+- **Status:** Answered on 2026-10-15
 - **Related:** [G09](DESIGN_GAPS.md#g09),
   [ADR 0011](adr/0011-flutter-state-navigation-components.md)
-- **Answer:** none yet
+- **Answer:** (a), eight mode tabs as drawn, including Tools. Later-phase Tools items are visible but
+  disabled with "Available in a future version". [G09](DESIGN_GAPS.md#g09) is Decided.
 
 <a id="q06"></a>
 
@@ -282,7 +302,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Needed by:** M2 (open dialog); M3 (Save as).
 - **Status:** Open
 - **Related:** [ADR 0018](adr/0018-native-file-pickers.md), [G25](DESIGN_GAPS.md#g25),
-  [G26](DESIGN_GAPS.md#g26), [G28](DESIGN_GAPS.md#g28), [Q12](#q12)
+  [G26](DESIGN_GAPS.md#g26), [G28](DESIGN_GAPS.md#g28), [Q12](#q12), [Q18](#q18)
 - **Answer:** none yet
 
 <a id="q08"></a>
@@ -308,15 +328,21 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Options:** bundle each group or not; for group 2, system fonts only or optional font packs.
 - **Proposal:** bundle groups 1, 3 and 4 as unmodified upstream files with their licences; CJK from
   system fonts, with no font packs.
-- **Meanwhile:** Hebrew, Hindi and CJK use system fonts. No handwriting fonts ship, so typed
-  signatures wait while drawn and image signatures work. Missing-glyph step 3 offers embedded fonts,
-  installed fonts and the bundled Plex families.
-- **Needed by:** M1 step 5 (groups 1 and 2), M3 (group 4), M4 (group 3).
-- **Status:** Open
-- **Related:** [ADR 0013](adr/0013-fonts-and-icons.md) (proposed in part),
+- **Meanwhile:** for the open groups 3 and 4: no handwriting fonts ship, so typed signatures wait
+  while drawn and image signatures work; missing-glyph step 3 offers embedded fonts, installed fonts
+  and the bundled Plex families.
+- **Needed by:** M1 step 5 (groups 1 and 2, answered), M3 (group 4), M4 (group 3).
+- **Status:** Answered in part on 2026-10-15 (groups 1 and 2). Groups 3 and 4 stay Open.
+- **Related:** [ADR 0013](adr/0013-fonts-and-icons.md) (Accepted),
   [ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md), [G06](DESIGN_GAPS.md#g06),
   [G07](DESIGN_GAPS.md#g07), [G08](DESIGN_GAPS.md#g08)
-- **Answer:** none yet
+- **Answer:**
+  - Group 1: bundle **IBM Plex Sans Hebrew** and **IBM Plex Sans Devanagari** (IBM releases 1.1.0,
+    400, 500 and 600), as unmodified TTFs with their OFL-1.1 licence files, from M1 step 5.
+    [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted in full.
+  - Group 2: Japanese, Korean and Chinese use system fonts, with no font packs.
+  - Groups 3 (handwriting faces, needed by M4) and 4 (similar fonts for missing glyphs, needed by
+    M3) are still open.
 
 <a id="q09"></a>
 
@@ -440,12 +466,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
     GNOME (libadwaita) style, matching the custom title bars on macOS and Windows; (b) the system's
     own decorations, with Ferman's tab, mode and tool rows below them.
 - **Proposal:** Flatpak on Flathub plus an AppImage for M5; chrome (a).
-- **Meanwhile:** chrome (b) with a [BACKLOG.md](BACKLOG.md) entry. No packaging before M5.
-- **Needed by:** M1 step 8 (chrome); M5 (packaging).
-- **Status:** Open
+- **Meanwhile:** for the open packaging part: no packaging before M5.
+- **Needed by:** M1 step 8 (chrome, answered); M5 (packaging).
+- **Status:** Answered in part on 2026-10-15 (window chrome). The packaging formats stay Open until
+  M5.
 - **Related:** [G15](DESIGN_GAPS.md#g15), [G53](DESIGN_GAPS.md#g53),
   [ADR 0018](adr/0018-native-file-pickers.md), [Q01](#q01), [Q03](#q03), [Q07](#q07)
-- **Answer:** none yet
+- **Answer:** chrome (a): a custom Linux title bar with client-side decorations drawn by Ferman, the
+  caption buttons at the end, Ctrl shortcuts and Cancel on the left in dialogs.
+  [G15](DESIGN_GAPS.md#g15) is Decided. The formats are decided before M5; a Flatpak on Flathub
+  would also need the Flathub id check noted in [Q01](#q01).
 
 <a id="q13"></a>
 
@@ -487,13 +517,15 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   future organisation. Sign-off: (i) required from M1, with a CI check; (ii) welcome but not
   required; (iii) not used.
 - **Proposal:** (a), and sign-off (i).
-- **Meanwhile:** "The Ferman Authors" in the documents. The LICENSE file is the unmodified
-  Apache-2.0 text and needs no name. Sign-off is welcome but not required, and CI does not check it.
-- **Needed by:** M1 (app metadata, About and the sign-off check); final before M5.
-- **Status:** Open
+- **Meanwhile:** for the open sign-off part: sign-off is welcome but not required, and CI does not
+  check it.
+- **Needed by:** M1 (app metadata and About, answered; the sign-off check, open).
+- **Status:** Answered in part on 2026-10-15 (copyright holder). The sign-off part stays Open.
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
   [CONTRIBUTING.md](../CONTRIBUTING.md), [LICENSE](../LICENSE)
-- **Answer:** none yet
+- **Answer:** (a), "Copyright The Ferman Authors", in the app metadata (the macOS bundle and the
+  Windows file properties), About, installers and notice files. The LICENSE file stays the
+  unmodified Apache-2.0 text. Whether every commit must carry a DCO sign-off is not decided yet.
 
 <a id="q15"></a>
 
@@ -573,13 +605,113 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** approve all three as named exceptions (a cargo-deny exception for `libfuzzer-sys`, a
   named skip in the pub licence check for `dbus`, rust-cache pinned by commit SHA), and confirm the
   reading.
-- **Meanwhile:** the stricter reading applies. M1 CI caches with actions/cache (MIT) or not at all,
-  desktop_drop is not added, and the `fuzz/` workspace is not created
+- **Meanwhile:** for the open part 4: the stricter reading applies
   ([DEPENDENCIES.md](DEPENDENCIES.md#1-policy)).
-- **Needed by:** M2, which adds drag and drop and the first fuzz targets (brief §5 asks for
-  cargo-fuzz targets from the first parser). The rust-cache part is wanted in M1; CI works without
-  it.
-- **Status:** Open
+- **Needed by:** M1 (the CI cache) and M2 (drag and drop and the first fuzz targets), all answered.
+  Part 4 blocks nothing while the stricter reading applies.
+- **Status:** Answered in part on 2026-10-15 (parts 1 to 3). Part 4 stays Open.
 - **Related:** [ADR 0016](adr/0016-dependency-licence-policy.md),
   [ADR 0017](adr/0017-testing-and-ci.md), [DEPENDENCIES.md](DEPENDENCIES.md), [Q16](#q16)
+- **Answer:** parts 1 to 3 approved as named exceptions:
+  1. `dbus` (MPL-2.0) through desktop_drop, from M2, unmodified and with its notice and source
+     location in every build that includes desktop_drop. The pub licence check skips `dbus` by name,
+     so any other MPL-2.0 package still fails.
+  2. `libfuzzer-sys` (NCSA) only in the separate `fuzz/` workspace, which never ships, as a
+     cargo-deny exception for that crate. `fuzz/` is created with the first parser in M2.
+  3. Swatinem/rust-cache (LGPL-3.0) in CI only, pinned by commit SHA, never vendored or copied.
+
+  Part 4, the project's reading of "GPL-compatible", is not decided yet. Until it is, the stricter
+  reading applies: no GPL code of any version, no LGPL-only code, and MPL-2.0 only per package after
+  the owner's review.
+
+<a id="q18"></a>
+
+### Q18 · macOS App Sandbox
+
+- **Question:** Should the macOS build keep the App Sandbox entitlement that Flutter's macOS
+  template turns on?
+- **Why it matters:** `flutter create` writes `com.apple.security.app-sandbox` into both macOS
+  entitlement files. Under the sandbox, Ferman can read and write only its own container and the
+  files the user grants: through the system open and save panels, drag and drop, or "Open with".
+  - **File access and saving.** A file opened through the panel is granted on its own, not its
+    folder. The temp file and atomic rename of [ADR 0008](adr/0008-file-safety-and-saving.md) then
+    have to go through the system's replacement directory instead of a temp file next to the
+    document.
+  - **Recent files.** Reopening a recent file after a restart needs a security-scoped bookmark saved
+    when the file was granted ([G28](DESIGN_GAPS.md#g28)).
+  - **Pickers.** Only the system panels can grant access, which ties this to [Q07](#q07) and
+    [ADR 0018](adr/0018-native-file-pickers.md).
+  - **App data.** The app data directory moves into
+    `~/Library/Containers/io.github.kerembas.ferman/`, which is where settings, autosave and
+    recovery files would live.
+  - **Distribution.** The Mac App Store requires the sandbox. The notarized DMG and Homebrew cask of
+    M5 do not.
+- **Options:** (a) keep the sandbox in every macOS build, with bookmarks for recent files and the
+  system replacement directory for atomic saves; (b) turn it off for the Developer ID build (DMG and
+  Homebrew) and keep the hardened runtime, which keeps file access simple but closes the Mac App
+  Store path until it is turned back on; (c) two builds, sandboxed for the Mac App Store and
+  unsandboxed for direct downloads.
+- **Proposal:** (a), if M2 shows that recent files and the atomic save of ADR 0008 work under it;
+  otherwise (b), with the reason recorded.
+- **Meanwhile:** M1 keeps the template's sandbox entitlement on. M1 opens no documents, so nothing
+  depends on the answer yet. The M1 settings file goes to the app support directory that
+  path_provider reports, which lies inside the container while the sandbox is on.
+- **Needed by:** before M2 starts (opening files, recent files, file pickers).
+- **Status:** Open
+- **Related:** [Q07](#q07), [Q01](#q01), [Q03](#q03), [ADR 0008](adr/0008-file-safety-and-saving.md),
+  [ADR 0018](adr/0018-native-file-pickers.md), [G28](DESIGN_GAPS.md#g28),
+  [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)
 - **Answer:** none yet
+
+<a id="q19"></a>
+
+### Q19 · Tile transfer across the bridge
+
+- **Question:** Which path should rendered tiles take from Rust to Dart, now that the default
+  bridge codec copies them?
+- **Why it matters:** The brief asks for 60 fps scrolling and zooming. The M1 benchmark moves 1 MiB
+  in 3.3 ms at best in a profile build in the development container (median 5.9 ms), against a
+  target of 0.2 ms on R1 and R2. The default SSE codec of flutter_rust_bridge 2.13 copies a
+  `Vec<u8>` byte by byte and again on the Dart side, so a zoom step with dozens of tiles would spend
+  its frame on copies. The numbers and the options are in
+  [ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed).
+- **Options:** (a) the Dco codec (`full_dep: true`): generated, no hand-written unsafe code, but
+  codegen needs ffigen and libclang, and the M1 trial needs a fix for a name clash before it
+  compiles; (b) an opaque Rust pixel buffer that Dart reads through a pointer view with a native
+  finalizer: zero copy, but a small hand-written unsafe `extern "C"` surface in ferman-api, an
+  exception to [ADR 0010](adr/0010-error-handling-no-panics.md); (c) a platform texture registry:
+  native code on three systems and a `Texture` widget per tile.
+- **Proposal:** (a) first, measured on R1 and R2 with `flutter drive --profile`; (b) if (a) misses
+  the budget; (c) only if both fail.
+- **Meanwhile:** M1 keeps the default codec. M1 moves no tiles, so nothing depends on the answer
+  yet. Running the profile benchmark on R1 and R2 is an owner check
+  ([PROGRESS.md](PROGRESS.md#measurements)).
+- **Needed by:** before M2 step 3 (tiles and the viewer).
+- **Status:** Open
+- **Related:** [ADR 0009](adr/0009-threading-and-jobs.md), [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
+  [ADR 0010](adr/0010-error-handling-no-panics.md), [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)
+- **Answer:** none yet
+
+<a id="q20"></a>
+
+### Q20 · AI clients through MCP
+
+- **Question:** Should AI assistants such as Claude and ChatGPT be able to work on the documents open
+  in Ferman, with everything the app supports, through the Model Context Protocol (MCP), and how?
+- **Why it matters:** It is a new way into the engine besides the UI and the CLI, and what a connected
+  client reads goes to its provider, which touches the brief's privacy promise (brief §3,
+  [ADR 0015](adr/0015-privacy-and-network.md)). It needs the editing engine (M3) to be useful.
+- **Options:** (a) a server that works on files without the app, like the CLI; (b) a server in the
+  running app, whose edits show live and can be undone; (c) both from one crate.
+- **Proposal:** (b), after M3, off by default, set up from Settings, listed in Settings → Privacy,
+  reachable only from the same computer ([ADR 0019](adr/0019-ai-clients-through-mcp.md)).
+- **Meanwhile:** nothing is built before M4 step 11.
+- **Needed by:** M4 step 11.
+- **Status:** Answered in part on 2026-10-16: the direction; the details marked Proposed in ADR 0019
+  are settled with the owner when the step starts.
+- **Related:** [ADR 0019](adr/0019-ai-clients-through-mcp.md), [ADR 0015](adr/0015-privacy-and-network.md),
+  [G94](DESIGN_GAPS.md#g94), [Q13](#q13)
+- **Answer:** The owner, 2026-10-16: yes, planned after M3. It works with the Ferman app open, locally.
+  In Settings, Ferman gives a connection link for each client it can support (Claude, ChatGPT and
+  others), or opens the client already set up. Anything that turns out to be a problem while building
+  it is asked then.

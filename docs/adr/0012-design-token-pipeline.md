@@ -84,27 +84,91 @@ widgets still never hard-code them.
 ### Output
 
 `app/lib/design/tokens.g.dart`, deterministic and sorted, with a header saying it is generated and must
-not be edited. It contains:
+not be edited. It imports only `package:flutter/animation.dart` and `package:flutter/painting.dart` and
+holds plain `const` value classes named `Ferman*Tokens`, not `ThemeExtension`s. A class whose values
+change in some environment has a `const` constructor, one static instance per variant (in brackets
+below) and an instance `lerp(other, t)` ready for `ThemeExtension.lerp`; the others are static
+constants only. The classes, as built in M1:
 
-- `FermanRamps`: the colour ramps (ink, seal, paper, soot, status, annotation).
-- `FermanColors extends ThemeExtension`: light and dark instances of the semantic UI colours, with
-  `copyWith` and `lerp`.
-- `FermanPageColors`: on-page marks tuned for white paper (edit marks, missing glyph, redaction, search,
-  form fields, diff, OCR, translation, overflow, page background). They **do not change in dark mode**,
-  so they are a separate constant class, not part of the themed extension.
-- `FermanDensity extends ThemeExtension`: desktop and touch instances (control heights, padding, icon
-  sizes, bar heights), chosen by platform, not by `VisualDensity`.
-- `FermanSpacing`, `FermanRadii` and border widths, `FermanShadows` (light and dark, including the focus
-  ring), `FermanMotion` (durations and curves, with a reduced-motion variant that returns zero
-  durations when `MediaQuery.disableAnimationsOf` is true), `FermanZ`, `FermanFonts`,
-  `FermanTypography` (the 10 type roles, default and CJK variants, tabular figures), and the additions'
-  sizes (edit-box label, thumbnail badge, document tab, Windows caption width and close hover, mobile
-  bars).
-- Names: `--` stripped, camelCase, half steps such as `--space-1-5` become `space1_5`, and the colliding
-  prefixes are split by kind (`colors.textPrimary` versus `type.sizeXs`).
+- `FermanRampTokens` (static): the colour ramps (ink, seal, paper, soot, status) and the `annot*`
+  palette.
+- `FermanColorTokens` [`light`, `dark`]: the semantic UI colours, such as `textPrimary`,
+  `iconPrimary`, `borderSubtle`, `pageBorder` and `winCloseHover`.
+- `FermanPageColorTokens` (static): on-page marks tuned for white paper (edit marks, missing glyph,
+  redaction, search, form fields, diff, OCR, translation, overflow, page background). They **do not
+  change in dark mode**, so they are a separate constant class, not part of the themed colours; the
+  run fails if one of them varies in dark.
+- `FermanTypeTokens` (static): `size*`, `leading*`, `height*` (leading divided by size), `weight*`,
+  `tracking*` (em factors), `numericTabular`, `featuresUi`, and the `font*` stacks as
+  `FermanFontStack(family, fallback)`.
+- `FermanTypeRoleTokens` [`standard`, `cjk`]: the 10 type roles as `TextStyle`s with even leading
+  distribution.
+- `FermanSpaceTokens` (static); `FermanDensityTokens` [`desktop`, `touch`]: control heights, padding,
+  icon sizes, the minimum hit size and bar heights, chosen by platform, not by `VisualDensity`.
+- `FermanSizeTokens`, `FermanRadiusTokens` and `FermanBorderTokens` (static), including the additions'
+  sizes (edit-box label, thumbnail badge, document tab, Windows caption width, mobile bars).
+- `FermanElevationTokens` [`light`, `dark`]: `shadow*` as `List<BoxShadow>`.
+- `FermanFocusTokens` [`light`, `dark`]: `focusRing` (shadows), `focusRingInset` (an inside
+  `BorderSide`), `focusOutline` (an outside `BorderSide`) and `focusOffset`.
+- `FermanMotionTokens` [`standard`, `reduced`]: `dur*` durations and `ease*` curves; `reduced` holds
+  the design's reduced-motion values.
+- `FermanZTokens` (static, `int`).
+- `FermanPageFilterTokens` [`standard`, `dim`]: `pageFilter`, a 20-value list for
+  `ColorFilter.matrix` with offsets in 0 to 255; `null` means no filter.
+- `FermanHatchTokens` (static): `redactPending` and `thumbLines`, as `FermanHatch` and
+  `FermanHatchStripe` values from the supplement file.
+- Names: `--` stripped, lowerCamelCase, half steps such as `--space-1-5` become `space1_5`, and fields
+  are sorted with numbers in order (`ink50` before `ink100`). Two renames avoid the colliding prefixes:
+  `--text-<size>` becomes `FermanTypeTokens.size<Size>` and `--type-<role>` becomes
+  `FermanTypeRoleTokens.<role>`.
+- Generated constructors use Dart 3.13's `const new(...)` form, which very_good_analysis 11 requires;
+  callers still write `FermanColorTokens(...)`.
 
-`app/lib/design/theme.dart` (hand-written) wires the extensions into the app's theme for light, dark,
-dim, touch and reduced motion.
+Rules the generator follows, each covered by a test:
+
+- It reads the design's `styles.css` order (fonts, colors, typography, spacing, effects, base), then
+  `fm-additions.css`. `fonts.css` and `base.css` declare no custom properties.
+- Alpha is `alpha × 255` rounded half up, computed exactly on the decimal digits (0.70 → `0xB3`,
+  0.07 → `0x12`).
+- The dim page matrix is composed left to right without clamping between steps. This only affects
+  near-black, which ends at 0 either way.
+- `--font-doc-cjk` and `--font-hand-1` to `--font-hand-3` have no bundled family, so their `family` is
+  `null` and the platform default applies.
+
+`app/lib/design/theme.dart` (hand-written) wraps these classes in `ThemeExtension`s, supplies their
+`copyWith` (the generated classes have none), and wires light, dark, dim, touch, CJK and reduced
+motion into the app's theme. Reduced motion is taken when `MediaQuery.disableAnimationsOf` is true.
+
+The layer, as built in M1 (`theme.dart` exports `app/lib/design/theme/` and `tokens.g.dart`):
+
+- `FermanTheme`, one `ThemeExtension` holding the token sets that vary: `colors`, `elevation` and
+  `focus` (light, dark), `density` (desktop, touch), `motion` (standard, reduced), `pageFilter` (none,
+  dim) and `typography` (named so because `ThemeExtension.type` is the extension's key). Its `copyWith`
+  replaces whole sets; `lerp` interpolates them and switches durations, curves, the filter, families
+  and the brightness at t = 0.5. The constant classes are reached through views with the token names:
+  `space`, `size`, `radius`, `border`, `z`, `ramps`, `pageColors`, `typeScale`, `hatch`
+  (`theme/static_tokens.dart`, kept in step with `tokens.g.dart` by a test).
+- `context.ferman` (`FermanThemeContext`), how widgets read it. Outside `app/lib/design/`, reading a
+  set that varies from its generated constant (`FermanColorTokens.light`, `FermanMotionTokens.standard`,
+  `FermanTheme.dark`, …) fails the `theme-bypass` rule of `s6_literals`.
+- `FermanThemeScope`, inside `MaterialApp.builder`: resolves the theme for the UI locale, reduced motion
+  and the density it is given (the app passes touch on iOS and Android), and sets the base text style
+  (the body role in `textPrimary` with the UI font features) and the icon theme (`textPrimary`, the
+  design's `currentColor`).
+- `FermanTypography`: the ten roles per UI locale; `cjk` roles for ja, ko and zh; every style carries
+  the locale (Han regional forms); the font chain per script from `FermanFontFamilies`: the design's
+  `--font-ui` order, IBM Plex Sans first, for every language but CJK (ar, fa, he and hi included,
+  [G64](../DESIGN_GAPS.md#g64)), and for CJK the system families of [ADR 0013](0013-fonts-and-icons.md)
+  right after Plex Sans. Flutter has no `font-synthesis` switch; naming the CJK families picks real
+  bold faces where the system has them ([G65](../DESIGN_GAPS.md#g65)).
+- `FermanMaterialTheme.light` and `.dark`: the `ThemeData` carrying the extension, with only the
+  colour scheme, canvas, selection, icon theme, UI font and no splashes.
+- `themeModeProvider` (`app/lib/app/theme_mode.dart`): match system, light or dark; `app.dart` maps it
+  to `MaterialApp.themeMode` and animates the switch over `durBase` with `easeOut` from
+  `FermanTheme.motionFor`. Under reduced motion that duration is zero, so the switch is instant; the
+  animation is never turned off with `AnimationStyle.noAnimation`, which would make `MaterialApp`
+  replace `AnimatedTheme` with `Theme` and remount the app below it. The choice is held in memory
+  until the settings store of M1 step 9 persists it.
 
 ### Checks
 
@@ -115,8 +179,10 @@ dim, touch and reduced motion.
 - **CI regenerates `tokens.g.dart` and fails if the committed file differs**
   ([ADR 0017](0017-testing-and-ci.md)).
 - A CI script fails when widget code outside `app/lib/design/` uses literal colours, durations, radii or
-  sizes (for example `Color(0x…)`, `Duration(milliseconds: …)`, `BorderRadius.circular(<number>)`), with
-  a small reviewed allow-list for things like `0` and `1`.
+  sizes (for example `Color(0x…)`, `Duration(milliseconds: …)`, `BorderRadius.circular(<number>)`):
+  `tools/checks` `s6_literals`, over `app/lib/` except `app/lib/design/` and `app/lib/engine/` (engine
+  services, no widgets). Zero is allowed except in colours; other exceptions go in the reviewed
+  allow-list `tools/checks/lib/src/checks/s6_allowlist.dart`, each with a reason.
 
 ### What the pipeline does not invent
 
@@ -143,7 +209,9 @@ where the tokens allow, and the gap stays open until the design adds a set.
 ### Follow-up
 
 - M1: the generator, its tests, `tokens.g.dart`, `theme.dart`, the CI freshness and literal-value checks.
-  Built before the component library ([ADR 0011](0011-flutter-state-navigation-components.md)).
+  Built before the component library ([ADR 0011](0011-flutter-state-navigation-components.md)). The
+  generator, its tests and `tokens.g.dart` exist (phase D2); `theme.dart` with `app/lib/design/theme/`
+  and the literal-value check (`s6_literals`) exist (phase F).
 
 ## Alternatives considered
 

@@ -1,0 +1,91 @@
+# cargo-deny 0.20: licences, bans, advisories and sources for the shipped Rust graph.
+# Policy and reasons: docs/DEPENDENCIES.md (§1 and §7) and docs/adr/0016-dependency-licence-policy.md.
+# Run: cargo deny check
+
+[graph]
+# Desktop first (brief §1). Web and mobile targets are added when phase 5 starts.
+targets = [
+  "aarch64-apple-darwin",
+  "x86_64-apple-darwin",
+  "x86_64-pc-windows-msvc",
+  "aarch64-pc-windows-msvc",
+  "x86_64-unknown-linux-gnu",
+  "aarch64-unknown-linux-gnu",
+  # Phase 5: "wasm32-unknown-unknown", "aarch64-apple-ios", "aarch64-apple-ios-sim",
+  # "aarch64-linux-android", "armv7-linux-androideabi", "x86_64-linux-android",
+]
+all-features = true                # also check optional features, such as ferman-api's `frb`
+
+[licenses]
+confidence-threshold = 0.93
+# The licence check covers the shipped graph only: with include-dev = false, cargo-deny 0.20 skips
+# dev-dependencies here, although bans, advisories and sources still see them (graph.exclude-dev is
+# not set). Dev-dependencies are checked by a second CI run on a copy with include-dev = true:
+#   sed 's/^include-dev = false/include-dev = true/' deny.toml > deny-dev.toml
+#   cargo deny --all-features --config deny-dev.toml check licenses
+include-dev = false                # shipped graph; the dev-dependency CI job uses a copy with include-dev = true
+unused-allowed-license = "allow"
+allow = [
+  "Apache-2.0",
+  "Apache-2.0 WITH LLVM-exception",
+  "MIT",
+  "MIT-0",
+  "BSD-2-Clause",
+  "BSD-3-Clause",
+  "ISC",
+  "Zlib",
+  "0BSD",
+  "BSL-1.0",
+  "CC0-1.0",
+  "Unicode-3.0",                   # ICU4X, unicode-ident
+  "Unicode-DFS-2016",              # older unicode-* crates
+]
+# Never add globally: AGPL-*, GPL-*, LGPL-*, MPL-2.0, EUPL-*, SSPL-1.0, BUSL-1.1, Elastic-2.0,
+# CC-BY-NC-*, PolyForm-Noncommercial-*, Commons-Clause, OFL-1.1.
+# A licence joins this list only through an ADR the owner approves.
+exceptions = [
+  # Approved by the owner (Q17) for the separate fuzz/ workspace only, which never ships.
+  { crate = "libfuzzer-sys", allow = ["NCSA"] },
+  # Per crate, after the owner's review and an entry in DEPENDENCIES.md, for example:
+  # { crate = "option-ext", allow = ["MPL-2.0"] },   # only if dirs or dirs-sys appears
+]
+
+[[licenses.clarify]]
+crate = "allo-isolate"             # from flutter_rust_bridge; crates.io shows "non-standard"
+expression = "Apache-2.0"          # its licence file is the Apache-2.0 text
+# The hash pins the licence text: if a new allo-isolate changes the file, this clarification stops
+# applying and the licence must be checked again (DEPENDENCIES.md §9).
+license-files = [{ path = "LICENSE", hash = 0x0a6d4ed6 }]
+
+[licenses.private]
+ignore = false                     # Ferman's own crates are checked too; each declares Apache-2.0
+
+[bans]
+multiple-versions = "warn"         # expected later: skrifa and read-fonts (subsetter, krilla), rten (ocrs)
+wildcards = "deny"
+allow-wildcard-paths = true        # path dependencies between Ferman's unpublished workspace crates
+deny = [
+  { crate = "mupdf", reason = "AGPL-3.0; MuPDF is excluded by the brief" },
+  { crate = "mupdf-sys", reason = "AGPL-3.0; MuPDF is excluded by the brief" },
+  { crate = "pdfium", reason = "GPL-3.0 wrapper; use pdfium-render" },
+  { crate = "jbig2dec", reason = "GPL-3.0 binding to Artifex jbig2dec (AGPL); PDFium decodes JBIG2" },
+  { crate = "poppler-rs", reason = "links GPL poppler" },
+  { crate = "poppler-sys-rs", reason = "links GPL poppler" },
+  { crate = "magick_rust", reason = "ImageMagick renders PDF through Ghostscript (AGPL)" },
+  { crate = "libheif-sys", reason = "links LGPL-3.0 libheif" },
+  { crate = "ffmpeg-sys-next", reason = "FFmpeg is LGPL or GPL" },
+  # The owner approved harfrust (ADR 0007, Q04). rustybuzz may come in only through krilla (P4).
+  { crate = "rustybuzz", wrappers = ["krilla"], reason = "archived upstream; use harfrust" },
+  # Added with the network gateway in M5 (ADR 0015), for the HTTP client chosen then:
+  # { crate = "<http client>", wrappers = ["ferman-api"], reason = "network only through the gateway" },
+]
+
+[advisories]
+yanked = "deny"
+unmaintained = "workspace"         # fail when a direct dependency is unmaintained
+ignore = []                        # every ignore needs a reason here and a note in DEPENDENCIES.md
+
+[sources]
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]

@@ -33,8 +33,8 @@ tooltip states ([G22](../DESIGN_GAPS.md#g22)), narrow-window behaviour ([G21](..
 a Material date picker in a mobile note ([G55](../DESIGN_GAPS.md#g55)).
 
 Package facts (verified 2026-10-13): flutter_riverpod 3.4.3, riverpod_annotation 4.0.7,
-riverpod_generator 4.0.9, riverpod_lint 3.1.9 (now a native analyzer plugin), go_router 18.0.2,
-very_good_analysis 11.0.0, build_runner 2.16.2. custom_lint 0.8.1 is stale and pins an analyzer version
+riverpod_generator 4.0.9, riverpod_lint 3.1.9 (now a native analyzer plugin), go_router 18.0.2 (M1 uses
+18.1.0), very_good_analysis 11.0.0, build_runner 2.16.2 (2.17 conflicts with riverpod_generator 4.0.9). custom_lint 0.8.1 is stale and pins an analyzer version
 that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
 
 ## Decision
@@ -51,7 +51,11 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   generated bridge code.
 - Data classes use Dart 3 records and sealed classes. freezed is not added unless a clear need appears.
 - Where settings are stored (an engine-side file shared with the CLI, or shared_preferences with its
-  async API) is decided in M1 and recorded in [ARCHITECTURE.md](../ARCHITECTURE.md).
+  async API) is decided in M1 and recorded in [ARCHITECTURE.md](../ARCHITECTURE.md). Decided in M1
+  step 9: a Dart `FileSettingsStore` writes versioned `settings.json` to the app support directory
+  through a temporary file and a rename; neither shared_preferences (it writes outside the app data
+  directory on macOS) nor an engine-side file yet (the CLI reads no settings in M1)
+  ([ARCHITECTURE.md §12](../ARCHITECTURE.md#12-platform-integration)).
 
 ### Navigation
 
@@ -66,12 +70,18 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   SegmentedControl; ToolButton; PageThumbnail; TextEditBox; Dialog; Menu; CommandPalette; Toast; Banner;
   and the rest). Variants are Dart enums with the design's values.
 - Dart class names are the design-system names, as brief §6 asks ("same names"). Files that also need
-  Material import it with a prefix or `hide`, so the names never clash. The `Fm*` shell pieces keep their
+  Material import it with a prefix or `hide`, so the names never clash. The widgets library has its own
+  `Icon` (for font glyphs), so every file that uses Ferman's `Icon` imports `package:flutter/widgets.dart`
+  with `hide Icon`. The `Fm*` shell pieces keep their
   `Fm` names. Data constants become enums or generated data: `FERMAN_MODES` becomes the `FermanMode`
-  enum (with the eight modes below), `ANNOTATION_TOOLS` the `AnnotationTool` enum and `ICON_PATHS` the
-  generated `IconName` enum with its SVG assets ([DESIGN_INVENTORY.md](../DESIGN_INVENTORY.md)).
-- Every value comes from the generated tokens ([ADR 0012](0012-design-token-pipeline.md)). No colour,
-  size, radius or duration is hard-coded in a widget.
+  enum (with the eight modes below), `ANNOTATION_TOOLS` the `AnnotationTool` enum (with the 11 tools the
+  boards draw, [G62](../DESIGN_GAPS.md#g62)) and `ICON_PATHS` the generated `IconName` enum with its
+  path data, which the Icon widget paints ([ADR 0013](0013-fonts-and-icons.md),
+  [DESIGN_INVENTORY.md](../DESIGN_INVENTORY.md)). The props, variants and states of every component are
+  specified in [COMPONENTS.md](../COMPONENTS.md).
+- Every value comes from the generated tokens ([ADR 0012](0012-design-token-pipeline.md)), read through
+  `context.ferman`. No colour, size, radius or duration is hard-coded in a widget (the `s6_literals`
+  check).
 - Every component has a widget test and goldens for each variant and state in light and dark
   ([ADR 0017](0017-testing-and-ci.md)).
 - Interactive components support keyboard focus with the design's focus ring, hover, pressed, disabled
@@ -84,9 +94,9 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
 
 - The shell has **eight mode tabs**, as FmWindow and every desktop and tablet artboard show: View, Edit,
   Comment, Fill & Sign, Organize, Convert, Protect, Tools. The design-system constant `FERMAN_MODES`
-  lists seven and is stale ([G09](../DESIGN_GAPS.md#g09), confirmation asked in
-  [Q05](../QUESTIONS.md#q05)). Later-phase items inside a mode are shown disabled with the
-  future-version tooltip.
+  lists seven and is stale. The owner confirmed the eight tabs on 2026-10-15
+  ([G09](../DESIGN_GAPS.md#g09), [Q05](../QUESTIONS.md#q05)). Later-phase items inside a mode are
+  shown disabled with the future-version tooltip.
 - Mode tabs and sidebar tabs are the design's ModeTabs and SegmentedControl components over an
   `IndexedStack`, so each keeps its state. Open documents are kept in an IndexedStack too.
 - `TabBar` and `TabBarView` are never used.
@@ -103,7 +113,11 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
 - The only proposed exception is OS-native file pickers ([ADR 0018](0018-native-file-pickers.md),
   Proposed).
 - A CI script (`tools/`) fails the build when feature code uses the forbidden APIs above. custom_lint is
-  not used for this.
+  not used for this. In M1 these are the `tools/checks` S6 checks: `s6_forbidden_api` (the APIs above and
+  their close relatives, such as `showAdaptiveDialog`, `showCupertinoSheet`, `showMenu` and `TabBar`,
+  wherever they resolve to Material or Cupertino, and GetX imports, in all of `app/lib/`) and
+  `s6_material_imports` (only `app/lib/design/` and `app/lib/app/app.dart` import Material or
+  Cupertino; nothing re-exports them), with reviewed exceptions in `s6_allowlist.dart`.
 
 ### Forms, keyboard and accessibility
 
@@ -112,12 +126,18 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   per platform (⌘ on macOS, Ctrl on Windows and Linux). Shortcut collisions are checked from one source
   table ([G44](../DESIGN_GAPS.md#g44)).
 - Focus traversal follows reading order; every control has a Semantics label.
-- Custom title bars use window_manager (f6, f6a). Linux chrome is open ([G15](../DESIGN_GAPS.md#g15),
+- Custom title bars use window_manager (f6, f6a). Linux gets a custom title bar too: client-side
+  decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel on the left in
+  dialogs, as the owner decided on 2026-10-15 ([G15](../DESIGN_GAPS.md#g15),
   [Q12](../QUESTIONS.md#q12)).
 
 ### Lints
 
-- very_good_analysis 11 plus riverpod_lint. `flutter analyze` must be clean in CI.
+- very_good_analysis 11 plus riverpod_lint. `flutter analyze` must be clean in CI, and so must
+  `dart analyze --fatal-infos`, because the riverpod_lint 3.1.9 plugin reports only through
+  `dart analyze` (found in M1).
+- very_good_analysis 11 enforces `unnecessary_type_name_in_constructor`, so constructors use Dart 3.13's
+  `new` form (`const new(...)`).
 
 ## Consequences
 

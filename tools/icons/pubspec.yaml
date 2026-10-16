@@ -1,0 +1,19 @@
+name: icons
+description: >-
+  Writes the design's 229 icons as SVG assets, their provenance table, the
+  Lucide licence texts and the generated IconName enum (ADR 0013), and renders
+  docs/COMPONENTS.md from the component spec. Pure Dart; run `dart run` in
+  this directory.
+publish_to: none
+
+environment:
+  sdk: ^3.13.0
+
+dependencies:
+  args: ^2.7.0
+  crypto: ^3.0.7
+  path: ^1.9.1
+
+dev_dependencies:
+  test: ^1.33.0
+  very_good_analysis: ^11.0.0

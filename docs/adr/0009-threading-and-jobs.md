@@ -135,6 +135,101 @@ version check and engine info), so the actor model is built from M2, once approv
 - M3: edit transactions on the actor, reload-per-edit measurement.
 - M4: background task drawer with pause and cancel.
 
+### Tile transfer: M1 measurements and options (Proposed)
+
+The M1 benchmark (`debug_bytes`, the integration test "a 1 MiB byte vector crosses the bridge")
+does not meet the target of 1 MB in under 0.2 ms. No number below comes from R1 or R2:
+
+| Build | Machine | Result for 1 MiB |
+|---|---|---|
+| Debug, one cold call per run, four runs | Development container, Linux x64, Xvfb | 52 to 63 ms |
+| Debug, one cold call | CI runner `macos-15`, run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) | 46 ms |
+| Profile (`flutter drive --profile`), 20 warm calls | Development container, Linux x64, Xvfb | minimum 3.3 ms, median 5.9 ms |
+
+The cause is the codec, not the build mode. With codegen 2.13's default `full_dep: false`, the
+generated glue uses the SSE codec: the Rust side writes the `Vec<u8>` into a serialization buffer one
+byte at a time, and Dart copies it out with `getUint8List`. At the profile rate, one 256 × 256 RGBA
+tile (256 KiB) costs about 0.8 ms, so a zoom step that delivers dozens of tiles would spend the whole
+16 ms frame on copies.
+
+Options, cheapest first:
+
+1. **The Dco codec (`full_dep: true`).** A `Vec<u8>` crosses through `Dart_PostCObject` as external
+   typed data, which should be zero copy. It keeps the generated boundary and adds no hand-written
+   unsafe code. Costs: codegen then needs ffigen (dev dependency, BSD-3-Clause) and libclang (LLVM,
+   Apache-2.0 WITH LLVM-exception) on developer machines and in the CI codegen job. Tried in M1 in a
+   scratch copy: the bindings generated, but the Dart did not compile, because ffigen emits a C
+   struct named `ApiVersion` that clashes with the Dart mirror of the same name. It needs a rename
+   or an FRB setting. Zero copy is not verified yet.
+2. **An opaque pixel buffer read through a pointer view.** The engine keeps each tile's pixels in a
+   Rust buffer and hands Dart a pointer and length. Dart wraps it with `Pointer<Uint8>.asTypedList`
+   and a native finalizer that frees the buffer in Rust. This is zero copy, but it needs a small
+   hand-written `extern "C"` surface in ferman-api outside the generated module. That is an
+   exception to the unsafe-code rule ([ADR 0010](0010-error-handling-no-panics.md)), which the owner
+   must approve.
+3. **A platform texture registry** (the fallback named in M0). The engine renders into pixel buffers
+   registered with Flutter's texture registry: a pixel-buffer texture on Linux and Windows, a
+   `CVPixelBuffer` on macOS. Nothing crosses into Dart, but it needs native code on three systems,
+   one `Texture` widget per tile, and goldens of the canvas then need a test path.
+4. **Keep the copying codec.** It is not recommended, because of the frame cost above.
+
+**Proposed:** try option 1 at the start of M2 step 3, before tiles are built, and measure it on R1
+and R2 with `flutter drive --profile` (the command is in CONTRIBUTING.md). If it misses the budget,
+use option 2, with the owner's approval of its unsafe surface. Use option 3 only if both fail. The
+owner decides, through the approval of this ADR ([Q19](../QUESTIONS.md#q19)); until then, M1 changes
+nothing in the codec.
+
+#### Option 3 in detail: the texture-registry fallback (Proposed)
+
+ROADMAP §5 step 3 asks for the texture-registry fallback to be designed before M2 starts if the
+benchmark misses its budget, which it does. This is that design. It is used only if options 1 and 2
+fail on R1 and R2.
+
+- **What crosses the bridge.** Only small messages: a tile request (document, page, zoom, tile
+  index, texture slot) and a result (slot, version, or a typed error). The pixels never enter Dart.
+- **Pixel buffers.** ferman-render keeps a pool of tile buffers, 256 × 256 device pixels at 4 bytes
+  each (256 KiB), two per texture slot (front and back). The render thread draws a tile into the
+  back buffer with PDFium, then swaps front and back under a short lock and tells the platform side
+  that a new frame is ready. Byte order is the platform's: BGRA on macOS (PDFium's native order) and
+  RGBA on Linux and Windows (PDFium's `FPDF_REVERSE_BYTE_ORDER` render flag, through pdfium-render's
+  render configuration), so no conversion pass runs.
+- **Platform textures.** One texture per slot, registered once and reused for whichever tile the
+  slot shows:
+  - Linux: a subclass of `FlPixelBufferTexture` whose `copy_pixels` returns the front buffer,
+    registered with `fl_texture_registrar_register_texture` and refreshed with
+    `fl_texture_registrar_mark_texture_frame_available`.
+  - Windows: a `flutter::PixelBufferTexture` whose callback returns a `FlutterDesktopPixelBuffer`
+    pointing at the front buffer, with a release callback that unlocks it, registered through the
+    plugin registrar's `TextureRegistrar` and refreshed with `MarkTextureFrameAvailable`.
+  - macOS: an object conforming to `FlutterTexture` whose `copyPixelBuffer` returns a
+    `CVPixelBuffer` (`kCVPixelFormatType_32BGRA`) made from the front buffer with a release callback,
+    registered with `FlutterTextureRegistry` and refreshed with `textureFrameAvailable:`.
+  The three live in the `rust_lib_ferman` plugin (`app/rust_builder/`), beside the code that loads
+  the engine, and the app creates and disposes slots through the plugin's method channel.
+- **Locking and lifetime.** Flutter reads a texture on its raster thread while the render thread
+  draws the next tile. The front buffer is held from `copy_pixels` or `copyPixelBuffer` until the
+  release callback (macOS, Windows) or the next call (Linux); the swap waits for that hold, never
+  the other way round, so the raster thread never blocks on rendering. Disposing a slot unregisters
+  the texture first and frees its buffers only after Flutter's unregister callback.
+- **The engine side.** The platform code reads buffers through a small C surface of ferman-api
+  (acquire the front buffer of a slot, release it), next to the generated bridge. Like option 2, it
+  is hand-written `extern "C"` code outside the generated module, an exception to the unsafe-code
+  rule ([ADR 0010](0010-error-handling-no-panics.md)) that the owner must approve.
+- **The canvas.** The canvas lays out one `Texture(textureId: …)` widget per visible tile, sized in
+  logical pixels for the tile's device pixels. Slots are recycled as tiles leave the viewport; a
+  prefetch margin keeps neighbouring tiles ready. About 60 slots cover a 1440 × 900 window at 2× with
+  a one-tile margin: 60 × 2 × 256 KiB, about 30 MiB, counted in the tile cache's cap (ARCHITECTURE §4.7).
+  Priorities and cancellation stay as in the tile queue above.
+- **Tests.** `flutter test` has no texture registry, and a `Texture` widget paints nothing there, so
+  the canvas has a test path: the fake engine of the widget tests hands the canvas decoded images
+  (`decodeImageFromPixels`) for the same slots, and the canvas goldens use it. The integration test
+  on each system renders one page through the real textures and compares a read-back of the front
+  buffer with a PDFium render of the same tile, pixel for pixel.
+- **Web.** The web target (phase 5) has no platform texture registry; it is decided with the web
+  engine.
+- **Cost.** Native code on three systems, a method channel, the C surface and the test path: about
+  the size of the title bar work of M1 phase H1, against a few lines of codegen settings for option 1.
+
 ## Alternatives considered
 
 - **A mutex around each document model.** Simple, but renders and jobs would contend with typing, and

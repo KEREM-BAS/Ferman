@@ -1,0 +1,22 @@
+name: rust_lib_ferman
+description: "Builds the Ferman Rust engine (crates/ferman-api) with cargokit and bundles it with the app."
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.13.5
+  flutter: 3.47.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+flutter:
+  plugin:
+    platforms:
+      linux:
+        ffiPlugin: true
+      macos:
+        ffiPlugin: true
+      windows:
+        ffiPlugin: true

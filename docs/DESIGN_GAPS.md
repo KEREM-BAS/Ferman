@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-61 entries: 45 Decided, 16 Needs owner, 0 Resolved.
+99 entries: 87 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G99 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 23 | 13 | 10 | 9 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 58 | 13 | 11 | 11 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -75,16 +75,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G03](#g03) | export gap | M1 | Design system export / foundations | Foundation guidelines and specimens missing | Needs owner ([Q11](QUESTIONS.md#q11)) |
 | [G04](#g04) | export gap | M1 | Design system export / iconography | Icon SVGs missing; glyphs exist only as path data | Decided |
 | [G05](#g05) | export gap | M1 | Token pipeline | 31 added tokens and 3 overrides live outside the DS tokens | Decided |
-| [G06](#g06) | export gap | M1 | Fonts | WOFF2 subsets unusable in Flutter; several scripts uncovered | Needs owner ([Q08](QUESTIONS.md#q08)) |
-| [G07](#g07) | export gap | M1 | Fonts / privacy | Fonts loaded from Google Fonts at run time | Needs owner ([Q08](QUESTIONS.md#q08)) |
+| [G06](#g06) | export gap | M1 | Fonts | WOFF2 subsets unusable in Flutter; several scripts uncovered | Decided ([Q08](QUESTIONS.md#q08) groups 1 and 2) |
+| [G07](#g07) | export gap | M1 | Fonts / privacy | Fonts loaded from Google Fonts at run time | Decided ([Q08](QUESTIONS.md#q08) groups 1 and 2) |
 | [G08](#g08) | export gap | M1 | Fonts / licences | No licence texts for fonts or icons | Decided |
-| [G09](#g09) | conflict (internal to design) | M1 | App shell / mode tabs | Artboards show 8 mode tabs; the DS constant lists 7 | Needs owner ([Q05](QUESTIONS.md#q05)) |
+| [G09](#g09) | conflict (internal to design) | M1 | App shell / mode tabs | Artboards show 8 mode tabs; the DS constant lists 7 | Decided ([Q05](QUESTIONS.md#q05)) |
 | [G10](#g10) | missing state | M1 | Shell / tool rows / start / palette / settings | No disabled "Available in a future version" state | Decided |
 | [G11](#g11) | conflict | M2 | Start screen / drag-and-drop | Start screen promises conversion and later tools | Decided |
 | [G12](#g12) | conflict | M1 | First run | Onboarding marks later-phase features as included | Decided |
 | [G13](#g13) | conflict | M1 | First run / About | Licence shown as GPL-3.0, not Apache-2.0 | Decided |
 | [G14](#g14) | missing screen | M4 | About / licences | No third-party notices screen | Decided |
-| [G15](#g15) | missing variant | M1 | App shell / window chrome | No Linux window chrome | Needs owner ([Q12](QUESTIONS.md#q12)) |
+| [G15](#g15) | missing variant | M1 | App shell / window chrome | No Linux window chrome | Decided ([Q12](QUESTIONS.md#q12)) |
 | [G16](#g16) | missing variant | M1 | Windows variants of M1–M4 screens | Windows variants missing for most screens | Decided |
 | [G17](#g17) | missing variant | M1 | Dark theme for M1–M4 screens | Dark variants missing for most screens | Decided |
 | [G18](#g18) | missing variant | M1 | RTL (ar/fa/he) for M1–M4 screens | Right-to-left variants missing for most screens | Decided |
@@ -131,6 +131,44 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G59](#g59) | ambiguity | M2 | Start / sample documents | e-Devlet form shown as 2 pages; the fixture has 1 | Decided |
 | [G60](#g60) | export gap | M1 | Icons | Seven added icons are not from Lucide 0.460.0 | Needs owner ([Q11](QUESTIONS.md#q11)) |
 | [G61](#g61) | conflict | M2 | Search | Accent-insensitive search on by default only for Turkish documents | Decided |
+| [G62](#g62) | conflict | M1 | Comment / annotation tools | The bundle's `ANNOTATION_TOOLS` lists 9 tools; the boards draw 11 | Decided |
+| [G63](#g63) | missing state | M1 | Errors | No message drawn for an internal error | Decided |
+| [G64](#g64) | conflict (internal to design) | M1 | Typography / localization | Arabic, Hebrew and Hindi UI text: which Plex family comes first | Decided |
+| [G65](#g65) | conflict | M1 | Typography / CJK | CJK text: no synthetic bold, which Flutter cannot switch off | Decided |
+| [G66](#g66) | missing state | M1 | Window chrome | Title bar states and gestures the boards do not draw | Decided |
+| [G67](#g67) | conflict (internal to design) | M1 | Window chrome / document tabs | Idle tabs drawn without the spinner and icons their data carries | Decided |
+| [G68](#g68) | conflict (internal to design) | M1 | Window chrome / document tabs and mode bar | Tabs drawn 32 px against `--doctab-h` (28 px) and a 30 px size hint | Decided |
+| [G69](#g69) | conflict (internal to design) | M1 | Comment / annotation tools | Colour swatches: focus hidden when checked, a dimmed group still active, no orange | Decided |
+| [G70](#g70) | missing state | M1 | Window chrome | Placeholder traffic lights and no pressed caption button | Decided |
+| [G71](#g71) | conflict (internal to design) | M1 | Component library: focus | The CSS hides or dims the focus ring of disabled-with-reason controls | Decided |
+| [G72](#g72) | conflict (internal to design) | M1 | Component library: IconButton | Pressed secondary and primary icon buttons: core.css and the state sheet disagree | Decided |
+| [G73](#g73) | ambiguity | M1 | Start / empty state (DropZone) | Dash pattern unspecified; the Open shortcut runs word caps together | Decided |
+| [G74](#g74) | conflict | M1 | Locale formatting / progress | Progress percentages written "N%" in every region | Decided |
+| [G75](#g75) | conflict (internal to design) | M1 | Component library: forms | The cascade lets hover win over the disabled look | Decided |
+| [G76](#g76) | conflict (internal to design) | M1 | Component library: SearchReplaceBar | The browser lets the find bar's rows overflow its end padding | Decided |
+| [G77](#g77) | ambiguity | M1 | Component library: PageThumbnail | Drop-line ends drawn off-centre under border-box; the dim filter also dims the ring | Decided |
+| [G78](#g78) | conflict (internal to design) | M1 | Component library: Menu, Select | The menu check is drawn grey, not in the accent the CSS asks for | Decided |
+| [G79](#g79) | conflict (internal to design) | M1 | Component library: Checkbox, Radio | Disabled checked radio, dark checked hover and disabled indeterminate drawn wrongly | Decided |
+| [G80](#g80) | missing state | M1 | Component library: text fields | No context menu designed; native inputs bring the browser's | Decided |
+| [G81](#g81) | conflict (internal to design) | M1 | Keyboard shortcuts | ⌘1…⌘9 jump against the zoom keys; Delete drawn ⌫ on every system | Decided |
+| [G82](#g82) | conflict (internal to design) | M3 | Keyboard shortcuts | ⌘B and ⌘K mean one thing in the shell and another in the edit box; ⌘D has three meanings | Decided |
+| [G83](#g83) | missing state | M1 | Window chrome / keyboard shortcuts | No keys drawn to minimize, close the window or quit | Decided |
+| [G84](#g84) | conflict (internal to design) | M1 | Window chrome / tool row | FmWindow adds a second line: the tool row is 45 px, not 44 | Decided |
+| [G85](#g85) | missing state | M1 | Mode bar / document tabs | Save and the tab's close button drawn working before saving and closing exist | Decided |
+| [G86](#g86) | missing state | M1 | App shell | Canvas, sidebar and panel with nothing rendered; "+N" named only "+4", in Latin digits | Decided |
+| [G87](#g87) | export gap | M1 | Fonts / key caps | macOS key symbols ⌘ ⌥ ⇧ ⌃ ⌫ ⌦ missing from the bundled Plex fonts | Decided |
+| [G88](#g88) | ambiguity | M1 | Window chrome / title bar content | Which title bar each screen gets in one window | Decided |
+| [G89](#g89) | conflict | M1 | Settings | Settings drawn as its own window, Privacy switches on, a default-app line M1 cannot know | Decided |
+| [G90](#g90) | missing state | M1 | Settings | No state for a settings change that cannot be saved | Decided |
+| [G91](#g91) | ambiguity | M1 | Settings › Language and region | Region picker drawn with three sample regions, named inconsistently | Decided |
+| [G92](#g92) | ambiguity | M1 | Settings › Language and region | Document languages drawn as Turkish and English for every region | Decided |
+| [G93](#g93) | missing variant | M1 | Localization / right to left | Persian and Hebrew: a right-to-left UI with English strings | Decided |
+| [G94](#g94) | missing state | M4 | Settings / AI clients | No board draws the MCP connection settings for AI clients | Decided |
+| [G95](#g95) | missing state | M1 | App shell responsiveness | How tool rows, mode tabs and panels give way in a narrow window | Decided |
+| [G96](#g96) | ambiguity | M1 | Goldens / window chrome / fonts | The native traffic lights and the system font fallback do not exist in `flutter test` | Decided |
+| [G97](#g97) | missing variant | M1 | Golden matrix | Which golden variants have a board, which are built from tokens, and the differences expected against the boards | Decided |
+| [G98](#g98) | missing variant | M1 | Component library: Kbd, DatePicker | Key caps and weekday names in right to left: no board draws them | Decided |
+| [G99](#g99) | missing state | M4 | Keyboard shortcuts | Commands whose keys no M1 control shows | Decided |
 
 ## Entries
 
@@ -156,7 +194,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Design system export / components
 - **Artboards:** none (component library)
 - **Gap or conflict:** Each of the 11 component folders in `_ds/.../components/` (annotations, core, editing, empty, feedback, fill-sign, forms, navigation, overlays, pages, panels) holds only its `.css` file. The manifest names 45 components with `.jsx` source paths, but no `.jsx`, `.d.ts`, `.prompt.md` or `.card.html` file exists for any of them, and all 11 component cards are missing. The template `templates/editor-screen/EditorScreen.dc.html` listed in the manifest is missing too. The component API can still be recovered: `_adherence.oxlintrc.json` keeps the declared prop names for 38 component and subtype names, with 35 enum-value rules (for example Badge tone `neutral|accent|success|warning|danger|edited`), and the transpiled component code in `_ds_bundle.js` is readable.
-- **Decision:** Write the Flutter component spec in M1 from three sources: `_adherence.oxlintrc.json` for props and enums, the transpiled components in `_ds_bundle.js` for behaviour and states, and the component CSS for visuals. The Flutter library keeps the design system's names, variants and states (brief §6). Ask for a re-export with sources, type definitions and cards.
+- **Decision:** Write the Flutter component spec in M1 from three sources: `_adherence.oxlintrc.json` for props and enums, the transpiled components in `_ds_bundle.js` for behaviour and states, and the component CSS for visuals. The Flutter library keeps the design system's names, variants and states (brief §6). Ask for a re-export with sources, type definitions and cards. Carried out in M1: the spec is `app/test/design/component_spec.json`, described and rendered in [COMPONENTS.md](COMPONENTS.md) (56 entries: the 45 manifest components, Field, Popover and Scrim, and the 8 DS additions), with the ambiguities and the decision taken for each.
 - **Status:** Needs owner: [Q11](QUESTIONS.md#q11), design re-export and fixes. The decision above is in force until the owner answers.
 - **Evidence:** Every `components/<group>/` folder holds one file. All 45 `sourcePath` entries and all 11 component cards are missing. The components are exported on `window.FermanDesignSystem_278323` and used live by the boards.
 
@@ -182,7 +220,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Design system export / iconography
 - **Artboards:** none (iconography)
 - **Gap or conflict:** The readme promises `assets/icons/` with "145 Lucide SVGs", but the folder does not exist and there is no `.svg` file anywhere under `design/`. The glyphs exist only as path strings: 145 in `ICON_PATHS` in `_ds_bundle.js` and 84 more in `ds-additions/fm-icons.js`, merged at run time with no overlap, so 229 in total. Index.dc.html still says "Icon set (+64)". The design system draws icons with a 1.5 px stroke (Lucide's own files use 2 px) and rules out an icon font ("No icon font, no PNG icons, no sprite sheet.").
-- **Decision:** Generate one SVG per icon from `ICON_PATHS` and `fm-icons.js`, with a 1.5 px `currentColor` stroke, and ship them as SVG assets, not an icon font. The Lucide ISC licence and the Feather MIT notice ship with them ([ADR 0013](adr/0013-fonts-and-icons.md); provenance in [G60](#g60)).
+- **Decision:** Generate one SVG per icon from `ICON_PATHS` and `fm-icons.js`, with a 1.5 px `currentColor` stroke, and keep them in `app/assets/icons/` as the exported, provenance-tracked set; not an icon font. The app paints the same path data with a `CustomPainter` (path_parsing) rather than loading the SVGs, because flutter_svg and vector_graphics depend on `http`. The Lucide ISC licence and the Feather MIT notice ship with them ([ADR 0013](adr/0013-fonts-and-icons.md); provenance in [G60](#g60)). Carried out in M1 by `tools/icons`: 229 SVGs, the `IconName` enum and `PROVENANCE.md`.
 - **Status:** Decided
 - **Evidence:** Readme lines 41 and 146 promise the folder. `_ds_bundle.js` line 74 opens `ICON_PATHS` with exactly 145 keys; `fm-icons.js` adds 84. Readme lines 147–150 give the 1.5 px stroke and "No icon font, no PNG icons, no sprite sheet."
 
@@ -208,8 +246,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Fonts
 - **Artboards:** `a1-1`
 - **Gap or conflict:** `assets/fonts` holds only 23 WOFF2 unicode-range subsets, and Flutter bundles TTF or OTF, not WOFF2. The IBM Plex Sans subsets are variable fonts (weight axis), so mapping weights 500 and 600 to the "-400-normal" files is correct. No Plex Sans italic is shipped, yet the FontPicker "Not installed" state sets the font name in italic UI text, which would be synthesised. Plex Serif 500 is used once, in mock document text only. Vietnamese (U+1EA0–1EF1) is not covered, although a1-1 lists "Tiếng Việt". The export has no local fonts for 6 of the 21 UI languages (he, hi, ja, ko, zh-Hans, zh-Hant) or for the signature styles `--font-hand-1..3`; those load only from Google Fonts ([G07](#g07)).
-- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans after Plex Sans Arabic in the fallback chain for Latin text inside the Arabic UI. Plex Sans Italic is added only for the drawn FontPicker state. Proposed: also Plex Sans Hebrew and Plex Sans Devanagari. Japanese, Korean and both Chinese scripts use system fonts. The handwriting faces and any further fonts wait for the owner. The design's woff2 subsets are not used.
-- **Status:** Needs owner: [Q08](QUESTIONS.md#q08), fonts to bundle. The decision above is in force until the owner answers.
+- **Decision:** Bundle IBM's unmodified static TTF files, declared per weight ([ADR 0013](adr/0013-fonts-and-icons.md)): Plex Sans 400, 500 and 600 (the complete files cover Latin, Turkish, Vietnamese, Cyrillic and Greek), Plex Serif, Plex Mono and Plex Sans Arabic (which also covers Persian), with Plex Sans first and Plex Sans Arabic after it, the design's `--font-ui` order. (Measured in M1: the Arabic, Hebrew and Devanagari fonts carry ASCII and Latin-1 but not Latin Extended-A or ế; with one of them first, Flutter builds those letters from it as base plus mark with misplaced marks, so every UI language but CJK uses the `--font-ui` order, [ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui), [G64](#g64).) Plex Sans Italic 400 is bundled for the drawn FontPicker state: the design declares no italic Plex Sans face, so the boards show a synthesised oblique there, and the app uses IBM's true italic instead. Plex Sans Hebrew and Plex Sans Devanagari are bundled too, as the owner decided. Japanese, Korean and both Chinese scripts use system fonts, with no font packs. The handwriting faces (M4) and similar fonts for missing glyphs (M3) wait for the open groups 3 and 4 of [Q08](QUESTIONS.md#q08). The design's woff2 subsets are not used.
+- **Status:** Decided. The owner answered [Q08](QUESTIONS.md#q08) groups 1 and 2 on 2026-10-15 (bundle Plex Sans Hebrew and Devanagari; CJK from system fonts). Was Needs owner.
 - **Evidence:** The five `plex-sans-*-400-normal.woff2` files carry fvar, gvar, avar, HVAR and STAT tables. `forms.css` line 128 sets `font-style: italic` on `.fm-fonttrigger--missing`. The latin-ext range jumps from U+1E9F to U+1EF2.
 
 <a id="g07"></a>
@@ -221,9 +259,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Fonts / privacy
 - **Artboards:** `a1-1`, `a5-3`
 - **Gap or conflict:** `fm-additions.css` line 1 imports 13 families from fonts.googleapis.com at run time: IBM Plex Sans JP, KR, Hebrew and Devanagari, Noto Sans SC, Noto Serif JP, Noto Naskh Arabic, EB Garamond, Cormorant Garamond, Crimson Pro, Caveat, Homemade Apple and Dancing Script. None of them is bundled, and every board links this file. Traditional Chinese has no font at all: "繁體中文" falls back to Noto Sans SC, with Simplified glyph forms, or to a system font. Vietnamese is covered by neither the bundled nor the imported fonts. So the a1-1 picker shows the native names for he, hi, ja, ko, zh-Hans, zh-Hant and vi correctly only when online or through system fonts. The handwriting fonts are used in a5-3, FmSettings and the mobile tasks file.
-- **Decision:** The app never fetches fonts at run time and never uses the Google Fonts import ([ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). The bundled Plex families cover Latin (including Turkish and Vietnamese), Cyrillic, Greek, Arabic and Persian. Japanese, Korean and Chinese use system fonts, and every text style carries the UI locale, so Traditional Chinese gets Traditional forms. Hebrew and Hindi use system fonts until the owner approves Plex Sans Hebrew and Devanagari; the handwriting fonts wait for the same answer. The a1-1 picker is tested for every native language name.
-- **Status:** Needs owner: [Q08](QUESTIONS.md#q08), fonts to bundle. The decision above is in force until the owner answers.
-- **Evidence:** No board lacks the `fm-additions.css` link. `tokens/fonts.css` bundles only Plex Sans, Sans Arabic, Serif and Mono. `--font-ui` stops at Noto Sans SC, with no Traditional Chinese family.
+- **Decision:** The app never fetches fonts at run time and never uses the Google Fonts import ([ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). The bundled Plex families cover Latin (including Turkish and Vietnamese), Cyrillic, Greek, Arabic and Persian. Japanese, Korean and Chinese use system fonts, and every text style carries the UI locale, so Traditional Chinese gets Traditional forms. Hebrew and Hindi use the bundled Plex Sans Hebrew and Plex Sans Devanagari. The handwriting fonts and the similar-font faces are bundled only if the owner chooses them in the open groups 3 and 4 of [Q08](QUESTIONS.md#q08); until then none ships. The a1-1 picker is tested for every native language name.
+- **Status:** Decided. The owner answered [Q08](QUESTIONS.md#q08) groups 1 and 2 on 2026-10-15; groups 3 (handwriting, M4) and 4 (similar fonts, M3) stay open in Q08 and do not change this decision. Was Needs owner.
+- **Evidence:** No board lacks the `fm-additions.css` link. `tokens/fonts.css` bundles only Plex Sans, Sans Arabic, Serif and Mono. `--font-ui` stops at Noto Sans SC, with no Traditional Chinese family. M1: `tools/design-refs` serves the 13 families from pinned @fontsource 5.3.0 packages and React, ReactDOM and Babel from npm with SRI hashes matching `design/support.js`, and fails on any other request, so the reference renders are offline too. Glyphs no web font covers fall back to the machine's system fonts, so container and CI renders can differ there; CI renders its own references.
 
 <a id="g08"></a>
 
@@ -247,8 +285,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** App shell / mode tabs
 - **Artboards:** `FmWindow` and every desktop and tablet board with a mode, for example `f4a`, `f6`, `f6a`, `a1-7`, `a1-10`, `a1-11`, `a10-1`, `a11-2`, `a11-7`, `a12-1tr`, `a12-1de`, `a9-8`
 - **Gap or conflict:** FmWindow (`MODE_IDS`) and every desktop and tablet board with a mode show 8 mode tabs: View, Edit, Comment, Fill & Sign, Organize, Convert, Protect, Tools. The design system constant `FERMAN_MODES` in `_ds_bundle.js` and the design system readme list 7, without Tools. The Index and the a12-1de note ("The mode bar fits all eight modes") confirm 8. The Tools row holds Compress, Compare, Accessibility, PDF/A & preflight, Batch actions, Print, Measure, Version history and AI assistant. Compress is also a Start quick tool, a mobile file action and a batch step; Version history has no entry point other than the Tools row (a9-8). The brief does not list the modes.
-- **Decision:** Follow the artboards: 8 mode tabs, including Tools, in the drawn order. `FERMAN_MODES` is stale. Tools items from later phases stay visible but disabled with "Available in a future version". Compress and Version history (M4) work from the Tools row as drawn, and basic Print once [Q10](QUESTIONS.md#q10) confirms M4; Compress also works from Start ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). The owner is asked to confirm.
-- **Status:** Needs owner: [Q05](QUESTIONS.md#q05), eight mode tabs. The decision above is in force until the owner answers.
+- **Decision:** Follow the artboards: 8 mode tabs, including Tools, in the drawn order. `FERMAN_MODES` is stale. Tools items from later phases stay visible but disabled with "Available in a future version". Compress and Version history (M4) work from the Tools row as drawn, and basic Print once [Q10](QUESTIONS.md#q10) confirms M4; Compress also works from Start ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Status:** Decided. The owner confirmed eight mode tabs on 2026-10-15 ([Q05](QUESTIONS.md#q05)). Was Needs owner.
 - **Evidence:** FmWindow.dc.html line 190: `MODE_IDS = ['view','edit','comment','sign','organize','convert','protect','tools']`, labelled Tools, Araçlar, Werkzeuge, أدوات and ツール. `_ds_bundle.js` lines 1785–1813: `FERMAN_MODES` ends at protect.
 
 <a id="g10"></a>
@@ -260,9 +298,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Shell / tool rows / start / palette / settings
 - **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a3-15`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`
 - **Gap or conflict:** The design never uses the words "Available in a future version" and draws no disabled tool button, menu item or segment with a tooltip that gives a reason. The only disabled-with-reason pattern is a3-15 (Bold is unavailable because the font has no bold weight), which is a capability limit. Every later-phase entry point is drawn active: the mode-bar AI icon button (shown when `ai` is set) and the Tools row's "AI assistant" (P4); the Edit row's Add text, Add image, Link, Find & replace and Page marks (P2); the Convert and Protect rows (P2, P3); Digital signature, e-imza and Prepare form in Fill & Sign (P3, P4); the Start quick tools (a1-4, a1-4b, a1-4c); "PDF/A-2b, for archiving" in Save as (a1-11, P4); the OCR offer in a3-11; the a11-2 palette; and the Settings panes a11-1e, a11-1f and a11-1g.
-- **Decision:** Add a disabled state to ToolButton, MenuItem, SegmentedControl segments, Button, palette items and Settings controls, with the design system's disabled styling and the tooltip "Available in a future version" (localised). One feature registry (proposed in [ROADMAP.md](ROADMAP.md)) drives these states, and every disabled entry point gets a [BACKLOG.md](BACKLOG.md) entry (brief §6). Boards showing which items are disabled in each milestone are asked for in the re-export ([Q11](QUESTIONS.md#q11)); until then the registry is the reference.
-- **Status:** Decided
-- **Evidence:** A case-insensitive search for "future version", "coming soon", "not yet", "later version" and "coming in" finds nothing. The DS additions state matrix has no disabled ToolButton, MenuItem or SegmentedControl.
+- **Decision:** Add a disabled state to ToolButton, MenuItem, SegmentedControl segments, Button, palette items and Settings controls, with the design system's disabled styling and the tooltip "Available in a future version" (localised). One feature registry (proposed in [ROADMAP.md](ROADMAP.md)) drives these states, and every disabled entry point gets a [BACKLOG.md](BACKLOG.md) entry (brief §6). Boards showing which items are disabled in each milestone are asked for in the re-export ([Q11](QUESTIONS.md#q11)); until then the registry is the reference. The Start action cards (FmStart `actions`) have no design-system component. Disabled, a card keeps its frame: the raised fill, the subtle border and the small shadow stay, and the hover border does not appear. Inside, the icon tile turns sunken with the disabled icon colour, and the title and description take the disabled text colour; the key cap stays as drawn. A disabled card stays focusable and gives the reason as its tooltip and semantics hint.
+- **Status:** Decided. On 2026-10-16 the disabled Start action card was specified.
+- **Evidence:** A case-insensitive search for "future version", "coming soon", "not yet", "later version" and "coming in" finds nothing. The DS additions state matrix has no disabled ToolButton, MenuItem or SegmentedControl. The Start action card is plain markup in `design/FmStart.dc.html` line 20, with no disabled branch. Implemented in `app/lib/features/start/start_screen.dart` lines 182–311 (M1 phase I3); checked in `app/test/features/start/start_screen_test.dart` line 46.
 
 <a id="g11"></a>
 
@@ -273,9 +311,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Start screen / drag-and-drop
 - **Artboards:** `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-5`, `a1-6`, `a1-12`, `a11-4b`, `a11-5`, `a12-2a`, `a12-2b`
 - **Gap or conflict:** FmStart promises conversion in four strings: "PDFs, or Word, Excel and images to convert" (open), "PDFs open in tabs. Other files are converted to PDF first." (drop), "…Word, Excel and image files are converted to PDF." (empty) and the drop-on-tabs line. The a1-6 dragged-file notes read "Excel · converted to PDF" and "Image · converted to PDF". The quick tools Compress, Convert, Sign, Recognize text (OCR), Protect and Compare are enabled on every Start board: a1-3, a1-4, a1-4b, a1-4c, a1-5, a1-6, a1-12, a11-4b, a11-5, a12-2a and a12-2b. Office conversion, OCR and Compare are phase 3, Protect is phase 2, and Compress and simple signatures are M4. No disabled variant exists.
-- **Decision:** Until conversion ships (P3), the Start copy speaks of PDFs only (for example "PDF files open in tabs"), and a dropped non-PDF file gets the unsupported-file state ([G28](#g28)), with conversion marked "Available in a future version". The quick tools stay visible as drawn and are disabled with the same tooltip until their milestone. The design's strings return when their features ship.
-- **Status:** Decided
-- **Evidence:** FmStart.dc.html line 58 (the German and Arabic strings carry the same promise); lines 107–110 hold the a1-6 notes; lines 22–24 always render the quick tools as enabled Buttons.
+- **Decision:** Until conversion ships (P3), the Start copy speaks of PDFs only (for example "PDF files open in tabs"), and a dropped non-PDF file gets the unsupported-file state ([G28](#g28)), with conversion marked "Available in a future version". The quick tools stay visible as drawn and are disabled with the same tooltip until their milestone. The design's strings return when their features ship. On the M1 start screen (a1-5) the Open file… card says "PDF files", and the drop area says "or open one from your computer.", the shorter subtitle the German and Arabic strings already use.
+- **Status:** Decided. On 2026-10-16 the M1 start-screen copy was specified.
+- **Evidence:** FmStart.dc.html line 58 (the German and Arabic strings carry the same promise); lines 107–110 hold the a1-6 notes; lines 22–24 always render the quick tools as enabled Buttons. The German and Arabic `emptySub` (lines 59 and 60) stop after the open clause: "oder eine Datei von Ihrem Computer öffnen." and "أو افتح ملفًا من جهازك.". Implemented in `app/lib/features/start/start_screen.dart` lines 60–66 and 142–151, with the keys `startOpenFileDescription` and `startDropSubtitle` (`app/lib/l10n/app_en.arb` lines 903 and 963) (M1 phase I3).
 
 <a id="g12"></a>
 
@@ -284,11 +322,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M1
 - **Area:** First run
-- **Artboards:** `a1-2c`, `a11-5`
-- **Gap or conflict:** a1-2c ("Free forever, nothing locked") shows 10 feature tiles with the same green check, whose accessible label is "Included"; the word is not visible text. The headline says "Every feature is included, with no trial, no subscription and no paid tier." Seven tiles are later-phase features: Text recognition (OCR), e-imza and digital signatures, Redaction, Convert to and from Office, Compare documents, Batch actions and Accessibility checker. The design has no "coming" tile style. a11-5 also says "nothing locked".
-- **Decision:** The grid follows the build. Features that have shipped keep the check and the "Included" label. The others are shown disabled, in a neutral style, with "Available in a future version" instead of "Included". The headline about no trial, subscription or paid tier stays, because nothing is ever behind a paywall.
-- **Status:** Decided
-- **Evidence:** 01 First run and files.dc.html lines 76–88 and 248–251; line 83 renders every tile with `var(--success-solid)` and `label='Included'`.
+- **Artboards:** `a1-2c`, `a11-5`; the welcome steps `a1-2a` and `a1-2b`
+- **Gap or conflict:** a1-2c ("Free forever, nothing locked") shows 10 feature tiles with the same green check, whose accessible label is "Included"; the word is not visible text. The headline says "Every feature is included, with no trial, no subscription and no paid tier." Seven tiles are later-phase features: Text recognition (OCR), e-imza and digital signatures, Redaction, Convert to and from Office, Compare documents, Batch actions and Accessibility checker. The design has no "coming" tile style. a11-5 also says "nothing locked". a1-2a, the first of the three welcome steps, presents in-place text editing (M3), and its note says the specimen is "a live editing frame, not an illustration".
+- **Decision:** The grid follows the build. Features that have shipped keep the check and the "Included" label. The others are shown disabled, in a neutral style, with "Available in a future version" instead of "Included": the sunken fill, the disabled icon colour, the secondary text colour and a `clock` glyph where the check was, with the reason as the tile's tooltip and in its accessible name. In M1 only the interface languages have shipped; their tile counts the build's translations ("3 interface languages", in the region's digits). A tile's label wraps instead of ending in an ellipsis: two lines fill the drawn 44 px tile, and a label that needs a third line (Turkish and Arabic at narrow widths) makes both tiles of its row grow to the same height. The headline about no trial, subscription or paid tier stays, because nothing is ever behind a paywall. a1-2a joins first run with the editor in M3 ([B087](BACKLOG.md#open)). Until then first run has two welcome steps after the language picker, a1-2b and a1-2c, shown as "1 of 2" and "2 of 2" and announced as "Step 1 of 2" and "Step 2 of 2".
+- **Status:** Decided. On 2026-10-16 the disabled tile was specified, and a1-2a was left out of first run until M3.
+- **Evidence:** 01 First run and files.dc.html lines 76–88 and 248–251; line 83 renders every tile with `var(--success-solid)` and `label='Included'`. Line 60 is the a1-2a note; lines 58, 72 and 86 announce "Step 1 of 3" to "Step 3 of 3". Implemented in `app/lib/features/onboarding/free_step.dart` lines 11–177 and `app/lib/features/onboarding/onboarding_screen.dart` lines 36–38 and 62–63 (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398, 428 and 541.
 
 <a id="g13"></a>
 
@@ -299,9 +337,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** First run / About
 - **Artboards:** `a1-2c`, `a11-5`
 - **Gap or conflict:** a1-2c reads "Licence: GPL-3.0-or-later" and a11-5 About reads "Free and open source under GPL-3.0-or-later. No accounts, no telemetry, nothing locked." The brief says Apache-2.0. The a1-2c note and the Index both flag the licence as a proposal for review.
-- **Decision:** Both screens say Apache-2.0 (brief §1) and change nothing else. a1-2c reads "Licence: Apache-2.0", and a11-5 changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry, nothing locked."
-- **Status:** Decided
-- **Evidence:** 01 First run and files.dc.html line 81 (a1-2c) and line 88 (the note); 11b App.dc.html line 66 (a11-5). "Apache" appears nowhere in `design/`.
+- **Decision:** Both screens say Apache-2.0 (brief §1) and change nothing else. a1-2c reads "Licence: Apache-2.0", and a11-5 changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry, nothing locked." The licence line keeps a1-2c's Source code and Support the project links. They stay visible, disabled with the future-version tooltip ([G10](#g10)), until the app opens web pages (with About, a11-5; [B086](BACKLOG.md#open)).
+- **Status:** Decided. On 2026-10-16 a1-2c's links were kept, disabled until the app opens web pages.
+- **Evidence:** 01 First run and files.dc.html line 81 (a1-2c) and line 88 (the note); 11b App.dc.html line 66 (a11-5). "Apache" appears nowhere in `design/`. a1-2c's licence line is implemented in `app/lib/features/onboarding/free_step.dart` lines 179–210 (`LicenceNote`, key `onboardingFreeLicence`) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` line 541.
 
 <a id="g14"></a>
 
@@ -325,8 +363,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** App shell / window chrome
 - **Artboards:** none drawn; references to mirror: `f6a`, `a1-4c`, `a1-10b`, `a11-1w`
 - **Gap or conflict:** No Linux board exists, and "Linux" appears in no board. The platform prop of FmWindow, FmStart, FmSettings, FmEditPanel and FmDocPanel allows only `mac` and `win`, and FmBoard has no `linux` option. The Linux title bar and caption buttons, the dialog button order, Ctrl shortcuts and file-manager wording ("Show in Files") are undefined.
-- **Decision:** Until the owner decides, Linux uses the system's window decorations, with Ferman's tab, mode and tool rows below them, Ctrl shortcuts, Cancel on the left and the affirmative button on the right in dialogs, and "Show in Files" wording; this has a BACKLOG entry. The proposal for the owner is client-side decorations with the caption buttons at the end, in the GNOME (libadwaita) style. Boards for the main editor (like f6a), Start (like a1-4c), one dialog (like a1-10b) and Settings (like a11-1w) are asked for in the re-export.
-- **Status:** Needs owner: [Q12](QUESTIONS.md#q12), Linux packaging and window chrome. The decision above is in force until the owner answers.
+- **Decision:** Linux gets a custom title bar: client-side decorations drawn by Ferman, matching the custom title bars on macOS and Windows, with the caption buttons at the end in the GNOME (libadwaita) style. Ctrl shortcuts, Cancel on the left and the affirmative button on the right in dialogs, and "Show in Files" wording. Until Linux boards exist, the Linux chrome is built from the Windows chrome of f6a with those changes and recorded in goldens. Boards for the main editor (like f6a), Start (like a1-4c), one dialog (like a1-10b) and Settings (like a11-1w) are asked for in the re-export. Packaging formats are a separate open part of [Q12](QUESTIONS.md#q12), decided before M5.
+- **Status:** Decided. The owner chose the custom title bar on 2026-10-15 ([Q12](QUESTIONS.md#q12), window chrome). Was Needs owner. On 2026-10-16 the Dialog component took over the platform's button order (`DialogButtonOrder`, [COMPONENTS.md](COMPONENTS.md) decision 43): Cancel first on macOS and Linux, last on Windows.
 - **Evidence:** A search of all files for Linux, GNOME, GTK, Ubuntu, Fedora, Flatpak, AppImage, libadwaita, Nautilus and "Show in Files" finds nothing. The Index describes FmWindow as "Desktop shell: macOS and Windows chrome".
 
 <a id="g16"></a>
@@ -338,8 +376,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Windows variants of M1–M4 screens
 - **Artboards:** drawn: `f6`, `f6a`, `a1-4c`, `a11-1w`, `a12-1de`, `a12-2b`, `a12-2d`, `a14-1d`; not drawn on Windows: `a1-8`, `a1-8b`, `a1-10`, `a1-10b`, `a1-11`, `a1-12`, `a11-7`, `a11-7c`, `a11-1e`, `a11-1g`, `a11-1j`
 - **Gap or conflict:** Windows is drawn in f6 (a title-bar strip), f6a, a1-4c, a11-1w, a12-1de, a12-2b and a12-2d (Settings › Language and region, in German); a14-1d reuses Windows chrome in Organize mode inside an Android tablet frame. Not drawn on Windows: any dialog (the button order exists only as text in the a1-10b and f6a notes); the a1-10 tab overflow menu (its data says ⌘7 to ⌘9); View, Comment and Fill modes, and Organize on desktop; missing glyph and overflow; the error states (a11-7 to a11-7c, "Show in Finder"); and Settings panes other than General and Language. a11-1e, a11-1g and a11-1j hard-code "macOS keychain", "this Mac" and ⌘. The Windows General board a11-1w still shows "Preview opens PDFs on this Mac", against its own note.
-- **Decision:** Build the Windows variants from the platform rules in f6 and f6a: caption buttons and corners as drawn, Ctrl shortcuts (Ctrl+7 to Ctrl+9 in the overflow menu), dialog order primary, secondary, then Cancel ("Save", "Don't save", "Cancel" for a1-10b), "Show in Explorer", Windows Credential Manager instead of the macOS keychain in a11-1e, wording that never says "this Mac" on Windows, and a General pane whose default-app text names Windows and opens Windows Settings, as the a11-1w note says. Platform strings come from one table and are never hard-coded. Goldens cover the Windows variant of every screen with platform-specific chrome or copy.
-- **Status:** Decided
+- **Decision:** Build the Windows variants from the platform rules in f6 and f6a: caption buttons and corners as drawn, Ctrl shortcuts (in the a1-10 overflow menu the document jump shows Alt+7 to Alt+9: it moved off Ctrl+1 to Ctrl+9 because Ctrl+1 and Ctrl+2 are zoom keys, [G81](#g81)), dialog order primary, secondary, then Cancel ("Save", "Don't save", "Cancel" for a1-10b), "Show in Explorer", Windows Credential Manager instead of the macOS keychain in a11-1e, wording that never says "this Mac" on Windows, and a General pane whose default-app text names Windows and opens Windows Settings, as the a11-1w note says. Platform strings come from one table and are never hard-coded. Goldens cover the Windows variant of every screen with platform-specific chrome or copy.
+- **Status:** Decided. On 2026-10-16 the overflow-menu keys became Alt+7 to Alt+9 ([G81](#g81)); they were Ctrl+7 to Ctrl+9. On 2026-10-16 the Dialog component took over the button orders this entry names (a1-10b: Save, Don't save, Cancel on Windows; f6a: primary, secondary, Cancel), through its `cancelAction` and `alternateAction` slots, so screens no longer order the buttons.
 - **Evidence:** `platform="win"` appears only in f6, f6a, a1-4c, a11-1w, a12-1de, a12-2b, a12-2d and a14-1d. FmSettings hard-codes "macOS keychain" (line 129), "Nothing leaves this Mac" (line 68) and ⌘ shortcuts (lines 138–145); line 30 holds the General text.
 
 <a id="g17"></a>
@@ -390,9 +428,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** First run / language selection
 - **Artboards:** `a1-1`, `a13-1b`, `a1-2c`, `a11-5`, `a11-1b`; also `a12-1de`, `a12-1ja`, `a12-2b`, `a12-2d`, `a12-1ar`, `a12-2a`, `a12-2c`
 - **Gap or conflict:** a1-1 (desktop) offers all 21 languages as equal choices, and a13-1b (Android, 12 languages) does the same. No translation-status, partial-translation or fallback state is drawn, nor the filter's no-results state, nor the picker after the promised live switch to a right-to-left language. The design claims full coverage: a1-2c says "21 interface languages" and a11-5 says "Translations by volunteers in 21 languages", while M1 ships English, Turkish and Arabic and other languages fall back to English (brief §6). The design also draws German and Japanese UI (a12-1de, a12-1ja, a12-2b, a12-2d). Right-to-left chrome itself is drawn in a12-1ar, a12-2a and a12-2c.
-- **Decision:** The picker lists all 21 languages by their native names. Languages that are not translated yet carry a "Not translated yet" caption and stay selectable; their missing messages fall back to English, and the row links to "Help translate Ferman" ([ADR 0014](adr/0014-localization-and-rtl.md)). Choosing Arabic, Persian or Hebrew mirrors the UI at once. The filter's no-results state uses the empty-state component ([G29](#g29)). The language counts in a1-2c and a11-5 say what that build actually has.
-- **Status:** Decided
-- **Evidence:** The `LANGS` array in 01 First run and files lists 21 entries with no status field. The a1-1 note: "Choosing a language switches the interface live, before Continue." No "not translated", "fallback" or "No results" string exists.
+- **Decision:** The picker lists all 21 languages by their native names. Languages that are not translated yet carry a "Not translated yet" caption and stay selectable; their missing messages fall back to English ([ADR 0014](adr/0014-localization-and-rtl.md)). The picker's footer link, "Help translate Ferman" as a1-1 draws it, stands in for a link on each row. It is disabled with the future-version tooltip ([G10](#g10)) until the translation project exists ([B085](BACKLOG.md#open)). Choosing Arabic, Persian or Hebrew mirrors the UI at once (Persian and Hebrew with the English strings, [G93](#g93)). The filter's no-results state uses the empty-state component ([G29](#g29)) once it exists in M2. Until then it is one centred line in the body style and the secondary text colour, "No language matches “…”.", announced as a live region ([B088](BACKLOG.md#open)). The language counts in a1-2c and a11-5 say what that build actually has.
+- **Status:** Decided. On 2026-10-16 the footer link replaced the per-row links, and a plain line stands in for the empty state until M2.
+- **Evidence:** The `LANGS` array in 01 First run and files lists 21 entries with no status field. The a1-1 note: "Choosing a language switches the interface live, before Continue." No "not translated", "fallback" or "No results" string exists. `design/01 First run and files.dc.html` line 38 draws the footer link ("Missing your language? Help translate Ferman"). Implemented in `app/lib/l10n/app_language.dart` and `app/lib/features/onboarding/language_picker.dart` lines 189–198 (the no-match line) and 302–307 (the footer link) (M1 phase I2).
 
 <a id="g21"></a>
 
@@ -404,7 +442,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-10`, `a12-1de`, `a12-2b`, `a12-2d`, `a2-8a`, `a2-8b`, `a14-1`, `a14-1b`, `a14-1c`, `a14-1d`
 - **Gap or conflict:** No desktop window narrower than 1440 px is drawn. No icon-only tool row with an overflow menu is drawn, mode-tab truncation is not specified, and ModeTabs has no overflow handling; a12-1de only says the mode bar fits all eight modes at 1440 px. Sidebar and panel resize handles and their minimum and maximum widths are not specified; the only resize separator is the split-pane one in a2-8a and a2-8b. What is drawn: German labels wrapping at full width (a12-1de, a12-2b, a12-2d), document tabs shrinking to 112 px with a "+4" overflow (a1-10), collapsed sidebars and panels with the mode row still visible (many boards), and narrower tablet shells (a14-1b at 1032 px, a14-1c at about 683 px, a14-1d at 1280 px). The a14-1 note says the tool row scrolls when it runs out of room, while the 12 Localization rule says labels hide behind their icons.
 - **Decision:** Desktop follows the 12 Localization rule: when the tool row runs out of room, labels hide behind their icons (the tooltip keeps the name), and then the remaining tools move into an overflow menu. Scrolling stays a tablet behaviour (a14-1). Panels collapse before anything overlaps. Mode tabs are checked at the minimum width in English, Turkish, German and Arabic; if they do not fit, they fall back to icons with tooltips. M1 sets a minimum window width (1024 px is proposed in [ROADMAP.md](ROADMAP.md)) and records resize limits for the sidebar and the right panel. Narrow-window boards in English and German are asked for in the re-export.
-- **Status:** Decided
+- **Status:** Decided. M1 builds it as [G95](#g95) records (2026-10-16).
 - **Evidence:** All desktop `fm-root` frames are 1440 × 900. The "Resize panes" separator appears only in a2-8a and a2-8b. The design system ModeTabs source has no overflow logic.
 
 <a id="g22"></a>
@@ -442,9 +480,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** First run privacy
 - **Artboards:** `a1-2b`, `a11-1h`, `a13-16`
 - **Gap or conflict:** a1-2b names "One optional check for updates" as the only network use ("Once a day, sending only the version number") and says "Editing, OCR, signing and conversion need no connection." a11-1h contradicts it: it lists five connections, and its update copy says "sends only the version number and platform". The five are the update check, signature revocation checks when signing or opening a signed file, the timestamp server when signing, downloads you start (OCR language packs, the assistant's model) and your AI provider. Revocation checks are not one of the brief's four uses ([G51](#g51)). a13-16 (mobile, offline) says "Everything works except updates and certificate checks", which contradicts the desktop claim that signing needs no connection.
-- **Decision:** a1-2b lists the brief's four uses: the update check, optional language-pack downloads, optional AI (a local model or your own key) and signature timestamp servers. Each is "off until you use it" except the update check, which can be turned off. The screen links to Settings › Privacy and uses a11-1h's payload wording, "the version number and platform" (endpoint and payload are open in [Q15](QUESTIONS.md#q15)). Revocation lookups are not shown until the owner decides on them ([G51](#g51), [Q06](QUESTIONS.md#q06); [ADR 0015](adr/0015-privacy-and-network.md)).
-- **Status:** Decided
-- **Evidence:** The privacy array in 01 First run and files (rendered in a1-2b); the FmSettings `nets` rows used by a11-1h; the a13-16 banner.
+- **Decision:** a1-2b lists the brief's four uses: the update check, optional language-pack downloads, optional AI (a local model or your own key) and signature timestamp servers. Each is "off until you use it" except the update check, which can be turned off. The screen links to Settings › Privacy and uses a11-1h's payload wording, "the version number and platform" (endpoint and payload are open in [Q15](QUESTIONS.md#q15)). Revocation lookups are not shown until the owner decides on them ([G51](#g51), [Q06](QUESTIONS.md#q06); [ADR 0015](adr/0015-privacy-and-network.md)). In M1 the drawn update row becomes four rows in the same style, after the four facts. "One optional check for updates" reads "Once a day, sending only the version number and platform. You can turn it off." Then "OCR language packs", "AI assistant" and "Signature timestamps" each end "Off until you use it.", with the `download`, `sparkles` and `clock` icons. Under the card, "See every connection in Settings › Privacy" opens Settings › Privacy over the step, and closing it returns to the step.
+- **Status:** Decided. On 2026-10-16 the four rows and the link to Settings › Privacy were specified.
+- **Evidence:** The privacy array in 01 First run and files (rendered in a1-2b); the FmSettings `nets` rows used by a11-1h; the a13-16 banner. Implemented in `app/lib/features/onboarding/privacy_step.dart` lines 44–85 (the rows) and 161–165 (the link) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398 and 483.
 
 <a id="g25"></a>
 
@@ -571,10 +609,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Milestone:** M2
 - **Area:** Locale formatting in English UI
 - **Artboards:** rule: `a11-1b`, `a12-2c`; dates: `a2-7`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a12-2a`, `a2-3b`, `a2-3d`, `a5-5c`; decimals: `a1-2a`, `a3-1b`, `a3-1c`, `a3-3a`, `a3-4`, `a1-9b`, `a12-1ja`, `a13-5`, `a12-1tr`, `a12-1de`, `a9-1`, `a11-6b`
-- **Gap or conflict:** a11-1b states the rule: region formats drive dates and numbers (with the region Türkiye: "13.10.2026", "18.500,50", "10,5 pt"), and a12-2c repeats it. The boards break it with four date styles: "13 Oct 2026, 14:32" (the FmDocPanel on most 02 View boards, a2-7), the US "Oct 12, 2026" (Start a1-4, a1-4b, a1-4c, a1-6), "12/10/2026" (Arabic Start a12-2a) and the region-correct "13.10.2026" (a2-3b, a2-3d, a5-5c). Decimals mix too: "10.5 pt" and "2.4 MB" (a1-2a, a3-1b, a3-1c, a3-3a, a3-4, a1-9b, a12-1ja, a13-5) against "10,5 pt", "1,2 MB" and "24,6 MB" (a12-1tr, a12-1de, a2-3b, a9-1, a11-6b). FmStart dates and the font-size labels in a12-1tr, a12-1de and a12-1ja follow the UI language.
-- **Decision:** Numbers, dates, file sizes, paper sizes and units always follow the region setting (a11-1b), never the UI language ([ADR 0014](adr/0014-localization-and-rtl.md)). Boards that show another format are read as drawn for another region. Goldens fix the region in each test.
-- **Status:** Decided
-- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic).
+- **Gap or conflict:** a11-1b states the rule: region formats drive dates and numbers (with the region Türkiye: "13.10.2026", "18.500,50", "10,5 pt"), and a12-2c repeats it. The boards break it with four date styles: "13 Oct 2026, 14:32" (the FmDocPanel on most 02 View boards, a2-7), the US "Oct 12, 2026" (Start a1-4, a1-4b, a1-4c, a1-6), "١٢/١٠/٢٠٢٦" (Arabic Start a12-2a, Arabic-Indic digits through FmStart's dg()) and the region-correct "13.10.2026" (a2-3b, a2-3d, a5-5c). Decimals mix too: "10.5 pt" and "2.4 MB" (a1-2a, a3-1b, a3-1c, a3-3a, a3-4, a1-9b, a12-1ja, a13-5) against "10,5 pt", "1,2 MB" and "24,6 MB" (a12-1tr, a12-1de, a2-3b, a9-1, a11-6b). FmStart dates and the font-size labels in a12-1tr, a12-1de and a12-1ja follow the UI language.
+- **Decision:** Numbers, dates, file sizes, paper sizes and units always follow the region setting (a11-1b), never the UI language ([ADR 0014](adr/0014-localization-and-rtl.md)). Boards that show another format are read as drawn for another region. Goldens fix the region in each test. Built in M1 (`app/lib/l10n/region.dart`, `format.dart`). The digits come from the region. Both Arabic boards draw Arabic-Indic digits: a12-1ar ("١٠٫٥ pt") and a12-2a, whose dates FmStart converts with dg() (lines 82–87; rendered "١٢/١٠/٢٠٢٦"). They are the Saudi Arabia region, and goldens of the Arabic boards use Saudi Arabia. The United Arab Emirates region writes Latin digits, as CLDR's ar-AE does; no board draws it. Numeric dates follow CLDR `yMd`, so the German region writes "2.10.2026" and "28.9.2026" where a12-2b draws "02.10.2026" and "28.09.2026"; accepted. a12-2a writes Arabic times on a 24-hour clock ("اليوم ١٤:٣٢"); CLDR's ar-SA and ar-EG write "h:mm a" ("٢:٣٢ م"). Times follow CLDR; accepted. US times keep CLDR's U+202F before "PM". The a11-1b week picker draws Monday, Sunday and Saturday; a region whose CLDR first day is Friday (the Maldives) adds a Friday option. Percentages: Turkish CLDR writes "%100", with the sign first, while the boards draw "100%" (no "%100" appears anywhere in `design/`). The app follows CLDR through `RegionFormat.percent`, added in M1: "%100" for Türkiye, "100%" for the United States and "١٠٠٪" for Saudi Arabia, with CLDR's U+061C after the sign. The shell's zoom readouts (the status bar and the View row's zoom menu) and the "100%" zoom option in Settings › General use it ([G74](#g74)). The goldens fix the region per language ([G97](#g97)): Türkiye for Turkish, Saudi Arabia for Arabic, and the United Kingdom for English, whose 24-hour clock and "100%" give FmWindow's "14:32" and "100%" (the United States would write "2:32 PM"); Settings › Language and region uses Türkiye in every language, as a11-1b and a12-2c show.
+- **Status:** Decided. On 2026-10-16 the percentage helper arrived in M1; the entry had left percentages to the zoom field in M2. On 2026-10-16 the golden regions were added.
+- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic, turned into Arabic-Indic digits by dg() at lines 82–87).
 
 <a id="g35"></a>
 
@@ -702,9 +740,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Keyboard shortcuts
 - **Artboards:** `a1-11`, `a11-2`, `a11-3`, `a11-1j`
 - **Gap or conflict:** ⌥⌘S is bound to "Save a copy" (the a1-11 note), "Add signature" (the a11-2 palette and the a11-3 Fill & Sign group) and "Sidebar" (the a11-3 Window group, and the FmWindow sidebar tooltip, ⌥⌘S or Ctrl+Alt+S, on every editor board). The a11-3 cheat sheet lists it twice. a11-1j draws the clash as a reassignment in progress (warning text: ⌥⌘S is already "Show or hide sidebar"), which treats Sidebar as the owner, while a11-2 and a11-3 present Add signature on ⌥⌘S as already assigned. The shortcut data is copied in both 11a Settings and 11b App.
-- **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets a key that is active only in Fill & Sign. Windows and Linux bindings are checked the same way. All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
-- **Status:** Decided
-- **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141.
+- **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets ⇧S on every system, active only in Fill & Sign, beside ⇧D for today's date (a11-3). On Windows and Linux the sidebar keeps Ctrl+Alt+S, as FmWindow draws it, so Save a copy has no key there (a1-11 also offers it as a checkbox in Save as). All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Status:** Decided. On 2026-10-16 the keys were filled in: ⇧S for Add signature, and on Windows and Linux Ctrl+Alt+S stays the sidebar, so Save a copy has no key there.
+- **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141. Implemented in `app/lib/features/shell/shortcuts.dart` (`saveCopy` lines 222–224, `toggleSidebar` lines 300–305, `addSignature` lines 572–577) and checked in `app/test/features/shell/shortcuts_test.dart` lines 143–163 (M1 phase H5).
 
 <a id="g45"></a>
 
@@ -912,7 +950,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** Of the 84 icons added in `ds-additions/fm-icons.js`, 77 match Lucide 0.460.0. Seven do not: bell, grid-2x2 and funnel match Lucide 1.56.0; paperclip matches Lucide 0.469.0 and 0.500.0; expand matches Lucide 0.500.0; file-signature matches Lucide 0.263.0 and 0.300.0 (an older drawing). Only ellipse, a plain SVG ellipse, matches no Lucide release, so 228 of the 229 glyphs are Lucide's work. Index.dc.html says "Icon set (+64)"; the file has 84.
 - **Decision:** Ship the design's exact path data as SVG assets at 1.5 px, because the design is the visual source of truth, with a generated provenance table that gives each icon's source (the Lucide release its geometry matches: 0.460.0, 1.56.0, 0.500.0 or 0.300.0, or "Ferman design" for ellipse alone) and the Lucide ISC and Feather MIT notices ([ADR 0013](adr/0013-fonts-and-icons.md)). The one glyph that matches no release, ellipse, is marked pending in the provenance table until the re-export settles it.
 - **Status:** Needs owner: [Q11](QUESTIONS.md#q11), design re-export and fixes. The decision above is in force until the owner answers.
-- **Evidence:** During the M0 discovery the path data of every added icon was compared with Lucide 0.460.0 and 1.56.0; the M0 review compared the other seven with the lucide-static packages of 0.263.0, 0.300.0, 0.469.0 and 0.500.0, and the result was confirmed against `fm-icons.js`; Index.dc.html still says "+64".
+- **Evidence:** During the M0 discovery the path data of every added icon was compared with Lucide 0.460.0 and 1.56.0; the M0 review compared the other seven with the lucide-static packages of 0.263.0, 0.300.0, 0.469.0 and 0.500.0, and the result was confirmed against `fm-icons.js`; Index.dc.html still says "+64". Confirmed again in M1 by `tools/icons` against the pinned lucide-static npm tarballs (`tools/icons/lucide_matches.json`).
 
 <a id="g61"></a>
 
@@ -926,3 +964,524 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The option is on by default for every document, whatever its language. The checkbox stays as drawn, so people can turn it off. The last sentence of its description becomes "On by default." M2 acceptance tests the default settings: "muller" finds "Müller" in `mietvertrag-de`, and "istanbul" finds "İSTANBUL" in `kira-tr`.
 - **Status:** Decided
 - **Evidence:** 02 View.dc.html line 116 (a2-4a): the checkbox with `default-checked` and the description "On by default for Turkish documents."; brief §7, M2.
+
+<a id="g62"></a>
+
+### G62 · The bundle's annotation-tool list is stale
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Comment / annotation tools (component library)
+- **Artboards:** `a4-1` and every board that shows the Comment tool row through `FmWindow`
+- **Gap or conflict:** The bundle's `ANNOTATION_TOOLS` constant, the default `tools` of AnnotationTools, lists 9 tools: Select, Highlight, Underline, Strikethrough, Note, "Text box", Draw, Shapes (with the `square` icon) and Stamp. `FmWindow` passes its own list of 11 to AnnotationTools, and that is what the boards draw: it adds Callout (C) and Measure (M, with a menu), labels the text tool "Text" and draws Shapes with the `shapes` icon.
+- **Decision:** The `AnnotationTool` enum follows the drawing (11 tools, in FmWindow's order, labels, icons and keys), as `FermanMode` does for the mode tabs ([G09](#g09)). The stale constant is not copied. Tools that do not work yet are disabled with the future-version tooltip ([G10](#g10)).
+- **Status:** Decided
+- **Evidence:** `_ds_bundle.js` lines 2218–2270 (`ANNOTATION_TOOLS`, 9 entries); `FmWindow.dc.html` lines 233–237 (`annotTools`, 11 entries) and line 86, which passes them as `tools`; `04 Comment.dc.html` (a4-1). Found while writing the component spec ([COMPONENTS.md](COMPONENTS.md)).
+
+<a id="g63"></a>
+
+### G63 · No message drawn for an internal error
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Errors
+- **Artboards:** `a1-9b` (the pattern to follow)
+- **Gap or conflict:** The engine's `Internal` error kind (a bug, or a panic caught at the API boundary) needs a message in the user's language, with the message key `errorInternal` ([ARCHITECTURE.md §8.2](ARCHITECTURE.md#82-mapping-to-apierror)). No board draws one. a1-9b draws only the damaged-file error with "Copy technical details".
+- **Decision:** A generic message in the style of a1-9b, with no error code in the sentence: "Something went wrong inside Ferman. Copy the technical details to report the problem.", with the "Copy technical details" action. The ARB entries (`errorInternal` in `app_en.arb` and `app_tr.arb`, with a translator description) are added with the first error strings; the Turkish text goes through native review like every other string.
+- **Status:** Decided
+- **Evidence:** `MessageKey::INTERNAL` in `crates/ferman-api/src/facade/error.rs`; no board in `design/` draws a generic internal-error message.
+
+<a id="g64"></a>
+
+### G64 · Arabic, Hebrew and Hindi UI text: which Plex family comes first
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Typography / localization
+- **Artboards:** `a12-2a`, `a12-2c`
+- **Gap or conflict:** The Arabic boards inherit `.fm-root`'s `--type-body`, which uses `--font-ui`: IBM Plex Sans first, then Plex Sans Arabic, Hebrew and Devanagari, so Latin letters, digits and spaces in Arabic UI text come from Plex Sans. The design system also defines `--font-arabic` (`typography.css:7`) with Plex Sans Arabic first; it appears once, on a mock translated document page in 03c, and no UI board uses it. The M0 version of [ARCHITECTURE.md §11.5](ARCHITECTURE.md#115-fonts-in-the-ui) put Plex Sans Arabic first for ar and fa, Plex Sans Hebrew first for he and Plex Sans Devanagari first for hi. Measured in M1: the three script fonts lack İ, ş and ế but carry I, s, ê and the combining marks U+0307, U+0327 and U+0301, so with one of them first Flutter builds those letters from it as base plus mark. Plex Sans Devanagari misplaces all three marks; Plex Sans Arabic and Hebrew place İ and ş correctly but set the acute of ế beside the circumflex.
+- **Decision:** Every UI language but CJK uses the design's `--font-ui` order, IBM Plex Sans first, ar, fa, he and hi included, as the Arabic boards do. Arabic, Persian, Hebrew and Devanagari text renders pixel-identically either way (checked at 11 to 40 px, with digits and punctuation); only the Latin letters, digits and punctuation inside those UIs come from Plex Sans, and a wrapped line that holds only digits or punctuation takes Plex Sans's line metrics, as in the browser. `--font-arabic` is not used for UI text. Implemented in `FermanFontFamilies.uiChain` (`app/lib/design/theme/typography.dart`); ARCHITECTURE §11.5 and [ADR 0013](adr/0013-fonts-and-icons.md) record the chains. Revisit if the step 11 goldens for a12-2a and a12-2c differ visibly from their references.
+- **Status:** Decided
+- **Evidence:** `--font-ui` and `--font-arabic` in `design/_ds/…/tokens/typography.css` lines 6–7, `--font-ui` in `design/ds-additions/fm-additions.css` line 48; the `dir="rtl"` boards in `design/12 Localization.dc.html`, which never use `--font-arabic`; `--font-arabic` in `design/03c Edit review and translate.dc.html`. M1: the mark placement in `app/test/goldens/script_coverage_golden_test.dart` and its golden `script_coverage.png`.
+
+<a id="g65"></a>
+
+### G65 · CJK text: no synthetic bold, which Flutter cannot switch off
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Typography / CJK
+- **Artboards:** none (a CSS rule)
+- **Gap or conflict:** `fm-additions.css` sets `font-synthesis: none` for `[lang|="ja"]`, `zh` and `ko`. Flutter has no such switch; when a system CJK font lacks the requested weight, the engine may embolden the regular face.
+- **Decision:** The CJK roles keep the design's weights and no role is italic. For ja, ko, zh-Hans and zh-Hant the theme names the ADR 0013 system families right after IBM Plex Sans (Hiragino Sans, Yu Gothic UI, Noto Sans CJK JP; Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR; PingFang SC, Microsoft YaHei UI, Noto Sans CJK SC; PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC), so real bold faces are picked where the system has them. Remaining synthesis is checked by hand with the step 5 CJK samples on R1, R2 and Linux.
+- **Status:** Decided
+- **Evidence:** `design/ds-additions/fm-additions.css` lines 55–56; `FermanFontFamilies` in `app/lib/design/theme/typography.dart`.
+
+<a id="g66"></a>
+
+### G66 · Title bar states and gestures the boards do not draw
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Window chrome
+- **Artboards:** every board drawn with `FmWindow`; f6 and f6a (caption buttons)
+- **Gap or conflict:** FmWindow draws the title bar of an active, unmaximized window. It draws no maximized (restore) caption button and has no "Restore" string, no inactive window, no macOS full screen, and it does not say what dragging or double-clicking the bar does or where a window without the system title bar resizes from its top edge.
+- **Decision:** A maximized window shows the restore glyph (two overlapping squares: the `copy` icon mirrored horizontally, so the front square sits at the bottom left, as Windows draws it; mirrored with the bar in right to left) named "Restore", with the operating system's own word in Turkish ("Geri yükle") and Arabic ("استعادة"), pending the native-speaker review like every string. The caption buttons keep the arrow cursor, as native caption buttons do (FmWindow line 33 sets no cursor). An inactive window keeps the active colours. In macOS full screen, where the system owns the traffic lights, the light slot gives way to the 8 px gap the Windows bar has. The bar's empty space moves the window once a pressed pointer moves (a trackpad scroll never does); a double-click there, counted with the system's double-click interval and distance, does what the system does (macOS: the "Double-click a window's title bar to" setting; Windows and Linux: maximize or restore, [B009](BACKLOG.md#open) for desktop settings on Linux). On Windows the top strip of the window, over the caption buttons too, is the top resize edge while the window is not maximized, as on a native title bar.
+- **Status:** Decided. On 2026-10-16 the restore glyph was described exactly (the mirrored `copy` icon) and the arrow cursor was added.
+- **Evidence:** `design/FmWindow.dc.html` lines 17–34 (header), line 33 (caption buttons, no `cursor`) and line 184 (`minimize`, `maximize`, `closeWin`; no restore); `design/00 Fixes.dc.html` f6 and f6a. Implemented in M1 phase H1 ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).
+
+<a id="g67"></a>
+
+### G67 · Idle document tabs with a spinner or a custom icon
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Window chrome / document tabs
+- **Artboards:** the DS additions sheet (document tabs and window chrome); `a1-7`, `a1-8`, `a1-8b`, `a1-9`, `a1-9b` (on the active tab only)
+- **Gap or conflict:** FmWindow builds every tab with its loading state and icon (line 213). Its active-tab markup draws the 12 px Spinner "Opening" while the tab loads and the tab's icon otherwise (line 23), but its idle-tab markup has no spinner and hard-codes the `file-text` icon (line 24). The DS additions sheet passes idle tabs that are loading ("İmar planı açıklama raporu.pdf") and locked ("Maaş bordrosu Eylül 2026.pdf", `lock`) (line 156), and its caption lists loading (spinner), locked and repaired among the tab states (line 65), yet it renders them as plain idle tabs. The product boards draw loading, locked, repaired and broken tabs only as the active tab (`01 First run and files` lines 255–262).
+- **Decision:** The tab data and the caption win: an idle tab shows the 12 px Spinner while it loads and its own icon (`lock`, `wrench`, `file-x`) otherwise, as the active tab does. The unsaved dot and the empty close-button space of idle tabs stay as drawn.
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 23 (active tab: Spinner or `tab.icon`), 24 (idle tab: `name="file-text"`) and 213 (`tabList`, with `loading` and `icon` for every tab); `design/DS additions.dc.html` lines 65 (caption) and 156 (`tabStates`); `design/01 First run and files.dc.html` lines 255–262. Implemented in `app/lib/design/components/additions/document_tab.dart` (M1 phase G).
+
+<a id="g68"></a>
+
+### G68 · Tab heights: the drawn 32 px against `--doctab-h` and a size hint
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Window chrome / document tabs and mode bar
+- **Artboards:** every board drawn with `FmWindow`; `f6`, `f6a`
+- **Gap or conflict:** The token `--doctab-h` is 28 px, and the Index describes the document tabs as "28–32 px". FmWindow draws the active tab 32 px tall and the idle tab as a 32 px box that holds a 28 px row 4 px above its bottom. The tab list sits in the 38 px title bar above its 1 px bottom border with `padding-top: 6px`, which leaves 31 px for the 32 px tabs, so they overflow the padding by 1 px; the active tab reaches 1 px further down to cover the border (`margin-bottom: -1px`). The mode bar imports ModeTabs with a 30 px size hint, but its CSS makes the track 32 px: a 26 px tab (`--control-h-sm`) plus 2 px of padding and a 1 px border on each side.
+- **Decision:** The markup and the CSS win. The active tab and the idle tab's box are 32 px tall, and the idle row is 28 px, which is what `--doctab-h` describes; the idle boxes start 5 px below the top of the title bar, where the 1 px overflow puts them. The ModeTabs track is 32 px: a `hint-size` only sizes the board tool's placeholder.
+- **Status:** Decided
+- **Evidence:** `design/ds-additions/fm-additions.css` line 19 (`--doctab-h: 28px`); `design/Index.dc.html` line 102; `design/FmWindow.dc.html` lines 17 (title bar and its border), 21 (`padding-top:6px`), 23 (active tab), 24 (idle tab) and 38 (`hint-size="640px,30px"`); `design/_ds/…/tokens/spacing.css` lines 23 (`--control-h-sm`) and 33 (`--titlebar-h`); `design/_ds/…/components/navigation/navigation.css` lines 4–8. Implemented in `app/lib/design/components/additions/document_tab.dart` (`DocumentTab`, `DocumentTabStrip`) and `app/lib/design/components/navigation/mode_tabs.dart` (M1 phase G).
+
+<a id="g69"></a>
+
+### G69 · Annotation colour swatches: focus, the disabled group and orange
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Comment / annotation tools (component library)
+- **Artboards:** `a4-1` and every board that shows the Comment tool row through `FmWindow`
+- **Gap or conflict:** Three points of the AnnotationTools colour group disagree. (1) `.fm-annot-color:focus-visible` puts the focus ring in place of the swatch's rings, but the checked rule comes later with the same specificity, so a focused checked swatch shows its checked rings and no focus ring. (2) When the active tool is not coloured, the bundle dims the group to 0.4 opacity and marks it `aria-disabled`, yet the swatches stay Tab stops and a click still changes the colour. (3) The annotation palette has orange (`--annot-orange`, the Highlight colours), but the AnnotationTools palette lists only yellow, green, blue, pink, red and ink; with orange as the colour no swatch is checked, and the active tool's swatch falls back to yellow.
+- **Decision:** (1) Focus wins: a focused swatch shows the focus ring whether it is checked or not ([G22](#g22)). (2) A group dimmed for an uncoloured tool is disabled in behaviour too: its swatches are skipped by Tab and the arrow keys and ignore clicks; with a reason ([G10](#g10)) they stay focusable and show it. (3) The tool's swatch shows the real colour, orange included; no swatch is checked, and the first swatch is the group's Tab stop.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/annotations/annotations.css` lines 39–44; `design/_ds/…/_ds_bundle.js` line 19 (`orange` in the Highlight `COLORS`), lines 2271–2295 (`PALETTE`, no orange), 2320 (the swatch's fallback `|| PALETTE[0]`), 2338–2341 (`aria-disabled` and the opacity on the group) and 2352 (each swatch's `onClick`); `design/_ds/…/tokens/colors.css` line 77 (`--annot-orange`). Implemented in `app/lib/design/components/annotations/annotation_tools.dart` (M1 phase G).
+
+<a id="g70"></a>
+
+### G70 · Window controls: the macOS light slot and the pressed caption button
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Window chrome
+- **Artboards:** every board drawn with `FmWindow`; `f6`, `f6a`
+- **Gap or conflict:** FmWindow draws the window controls as markup. On macOS it paints three placeholder traffic lights (decorative, 12 px, 8 px apart, with `padding-inline: 14px 12px`), which the app cannot use: the real lights belong to the system. On Windows it draws the 46 px caption buttons with a hover tint and the red close hover, but no pressed state. Linux is not drawn ([G15](#g15)).
+- **Decision:** On macOS the title bar keeps a 78 × 38 px slot at its start (the drawn padding, three lights and two gaps, by the height of the title bar), empty in the app: the window integration places the native lights in it. Goldens and the component gallery paint the design's placeholder lights there. On Windows a pressed minimize or maximize button shows `--surface-pressed`, and a pressed close button keeps the red of its hover with the white glyph. Linux uses the Windows caption buttons until GNOME and KDE boards exist ([G15](#g15), [B015](BACKLOG.md#open)). The restore glyph, the cursor and the other title-bar states are [G66](#g66).
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 18 (the placeholder lights, `aria-hidden`), 19 (the 8 px start gap on Windows) and 33 (the caption buttons: `style-hover` only); `design/ds-additions/fm-additions.css` lines 23–24 (`--win-caption-w`, `--win-close-hover`); `design/_ds/…/tokens/spacing.css` line 33 (`--titlebar-h: 38px`). Implemented in `app/lib/design/components/additions/window_chrome.dart` (M1 phase G) and the window integration ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)).
+
+<a id="g71"></a>
+
+### G71 · Disabled-with-reason controls: the design hides or dims their focus ring
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: focus
+- **Artboards:** none draws a focused disabled control; the DS additions "Interactive states" sheet draws the disabled states
+- **Gap or conflict:** [G10](#g10) keeps a control that is disabled with a reason focusable, so its reason can be read, and [G22](#g22) gives every focusable control the focus ring. The CSS assumes a disabled control never has focus: `.fm-btn:disabled` and `.fm-iconbtn:disabled` set `box-shadow: none`, which would remove the ring that `:focus-visible` adds, and the bundle's 0.4 opacity on a disabled AnnotationTools colour group would dim a focused swatch's ring with it.
+- **Decision:** A focused disabled-with-reason control shows the full focus ring over its disabled look: buttons and icon buttons keep the ring despite `box-shadow: none`, and a disabled colour group is dimmed swatch by swatch under the ring ([COMPONENTS.md](COMPONENTS.md) decision 26). Plain disabled controls cannot take focus, so the CSS rule still holds for them.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/core/core.css` lines 11 and 50 (`:focus-visible`), 32 and 57 (`:disabled`, `box-shadow: none`); `design/_ds/…/_ds_bundle.js` lines 2339–2341 (the colour group's opacity). Implemented in `app/lib/design/components/core/button.dart`, `core/icon_button.dart` and `annotations/annotation_tools.dart` (M1 phase G).
+
+<a id="g72"></a>
+
+### G72 · Pressed secondary and primary icon buttons: core.css and the state sheet disagree
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: IconButton
+- **Artboards:** none draws a pressed icon button; the DS additions "Interactive states" sheet draws its other states
+- **Gap or conflict:** In `core.css`, `.fm-iconbtn:active` sets `--surface-pressed`, but `.fm-iconbtn--secondary:hover` and `.fm-iconbtn--primary:hover` come later with the same specificity, and a pressed button is also hovered, so a pressed secondary or primary icon button shows its hover fill. The forced-state harness of the state sheet gives every icon button `--surface-pressed` when it forces the active state.
+- **Decision:** The `core.css` cascade wins, since it is what the components run: a pressed ghost icon button shows `--surface-pressed`, a pressed secondary one the hover tint over the raised surface, and a pressed primary one `--accent-hover`. The harness is documentation only, and the state sheet draws no pressed icon button.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/core/core.css` lines 49 (`:active`), 52 and 54 (`--secondary:hover`, `--primary:hover`); `design/ds-additions/fm-additions.css` lines 89 (the harness, "for state sheets only") and 96 (`[data-fm-force="active"] … .fm-iconbtn`); `design/DS additions.dc.html` lines 98–103 (the icon-button row of the state sheet). Implemented in `app/lib/design/components/core/icon_button.dart` (M1 phase G).
+
+<a id="g73"></a>
+
+### G73 · Drop zone: the dashed border and the Open shortcut
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Start / empty state (DropZone)
+- **Artboards:** `a1-5`
+- **Gap or conflict:** The drop zone's border is `1.5px dashed`; CSS leaves the dash pattern to the browser, and Flutter has no dashed border. The Open button shows its shortcut after the label as `shortcut.join('')`, which suits the macOS symbols ("⌘O") but runs word caps together: FmStart passes `Ctrl`, `O` on Windows, which the bundle writes "CtrlO", while the f6a note writes Windows shortcuts with a plus ("Ctrl+K, Ctrl+Z, Ctrl+Y, Ctrl+H").
+- **Decision:** The border is painted with 3 px dashes and 2 px gaps, as Chromium draws the 1.5 px dashed border in the `a1-5` render; the over state stays solid. The shortcut joins symbol caps without a separator ("⌘O") and puts a plus between word caps ("Ctrl+O").
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/empty/empty.css` lines 5 (`border: 1.5px dashed`) and 8 (`--over`, solid); `design/_ds/…/_ds_bundle.js` line 791 (`shortcut.join('')`); `design/FmStart.dc.html` lines 38 (`shortcut="{{ openKeys }}"`) and 106 (`openKeys`); `design/00 Fixes.dc.html` line 131 (f6a). Implemented in `app/lib/design/components/empty/drop_zone.dart` (M1 phase G).
+
+<a id="g74"></a>
+
+### G74 · Progress percentages: the bundle writes "N%" in every region
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Locale formatting / progress
+- **Artboards:** `a9-5b` (batch progress, "43%"), and every progress bar that shows its value
+- **Gap or conflict:** ProgressBar writes its percentage as the number followed by "%", whatever the region. [G34](#g34) makes numbers follow the region setting: Turkish CLDR writes the sign first ("%43"), and the Saudi Arabia region writes Arabic-Indic digits.
+- **Decision:** The screen formats the percentage for the region and passes it to ProgressBar as `valueText`; without it the bar shows "N%". The semantics value stays the number from 0 to 100. `RegionFormat.percent` writes the region's form; it arrived in M1 with the first screens that show a percentage: the shell's status bar and zoom menu, and the "100%" zoom option in Settings › General ([G34](#g34)).
+- **Status:** Decided. On 2026-10-16 the helper arrived in M1, not with the zoom field in M2.
+- **Evidence:** `design/_ds/…/_ds_bundle.js` lines 874 (`pct`) and 882 (`pct, "%"`); `design/09b Tools.dc.html` line 50 (`a9-5b`, `show-value`). Implemented in `app/lib/design/components/feedback/progress_bar.dart` (M1 phase G). `RegionFormat.percent` is in `app/lib/l10n/format.dart` lines 106–124, used by `app/lib/features/shell/shell_status_bar.dart` line 131, `app/lib/features/shell/shell_tool_rows.dart` lines 126 and 168 and `app/lib/features/settings/general_pane.dart` line 160; checked in `app/test/l10n/format_test.dart` line 303.
+
+<a id="g75"></a>
+
+### G75 · Disabled form controls: the cascade lets hover win
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Field, TextField, NumberStepper, Select, Checkbox, Radio
+- **Artboards:** none hovers a disabled control; the DS additions "Interactive states" sheet draws disabled controls at rest
+- **Gap or conflict:** `.fm-input:hover` (specificity 0,2,0) beats `.fm-input--disabled` (0,1,0), so a disabled field under the pointer takes the strong border. `.fm-check:hover .fm-check__input` (0,3,0, and its dark variant at 0,4,0) beats `.fm-check__input:disabled` and `:disabled:checked`, so a disabled checkbox or radio under the pointer takes the hover border.
+- **Decision:** Disabled controls show no hover: a disabled field keeps the subtle border and a disabled checkbox or radio keeps its disabled look, as native disabled controls do and as their not-allowed cursor says.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 17 (`.fm-input:hover`), 22 (`.fm-input--disabled`), 46–47 (`.fm-check:hover`) and 52–53 (`:disabled`, `:disabled:checked`). Implemented in `app/lib/design/components/forms/field.dart`, `checkbox.dart` and `radio.dart` (M1 phase G).
+
+<a id="g76"></a>
+
+### G76 · Find bar: the rows overflow the end padding in the browser
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: SearchReplaceBar
+- **Artboards:** `a2-4a`, `a3-7`
+- **Gap or conflict:** `.fm-search` is a 440 px grid with 6 px padding and one implicit `auto` column. Chromium sizes that column to the find row's min-content, and the bare `<input>` keeps its default width (`size=20`), which `min-width: 0` on `.fm-input` does not remove. The rows come out 436 px wide instead of 428 px, so they and the notice run over the 6 px end padding and end about 2 px past the bar's edge. In the renders the find field is 247 px wide and the replace field 257 px.
+- **Decision:** Follow the CSS as written: the rows fill the 428 px content box, so the find and replace fields are 8 px narrower than in the renders, and the close button and the notice end 6 px inside the bar. Goldens differ from `build/design-refs/a2-4a.png` and `a3-7.png` by exactly that.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/editing/editing.css` lines 37–39 (`.fm-search`, its rows, `flex: 1` fields); `design/_ds/…/components/forms/forms.css` lines 9–12 (`.fm-input`, `min-width: 0`); measured in `build/design-refs/a3-7.png` (bar x 720–1160, find field 756–1003, notice 726–1161). Implemented in `app/lib/design/components/editing/search_replace_bar.dart` (M1 phase G).
+
+<a id="g77"></a>
+
+### G77 · Page thumbnail: the drop line's round ends and the reach of the dim filter
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Component library: PageThumbnail
+- **Artboards:** none draws a drop indicator or a dimmed thumbnail; `pages.css` is the only reference
+- **Gap or conflict:** (1) The round ends of the drop line are `6px` square with a `2px` border, and their offsets (`top: -4px` on a 2 px line, `-6px` along it) centre them on the line only under content-box sizing; `.fm-root` sets border-box, so the CSS draws a 6 px end 2 px off the line's centre. (2) `filter: var(--page-filter)` on `.fm-thumb__page` dims everything that element paints, including its own `box-shadow`: the hairline, the 2 px accent ring of a selected page and `--shadow-sm`.
+- **Decision:** (1) The widget draws the 10 px end the CSS offsets centre on the line, reaching 6 px past the line's ends, with the 2 px accent border and the panel-coloured centre. (2) The filter dims the page, its marker and its badges; the outer ring and shadow stay at full strength, so a selected thumbnail keeps the same accent ring under the dim page setting.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/pages/pages.css` lines 12 (`filter: var(--page-filter)`), 20 (the selected ring), 29–30 (the drop line and its ends) and 33–38 (their offsets); `design/_ds/…/tokens/base.css` line 12 (`box-sizing: border-box`). Implemented in `app/lib/design/components/pages/page_thumbnail.dart` (M1 phase G).
+
+<a id="g78"></a>
+
+### G78 · Menu check: the CSS asks for the accent, the render draws it grey
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Menu and the Select list
+- **Artboards:** `a2-2` (the zoom menu, "100%" checked) and every menu with a checked item
+- **Gap or conflict:** `.fm-menu__check` sets `color: var(--text-accent)` on the span around the check, but `.fm-menu__item svg` (`--icon-secondary`) matches the check's own `<svg>` and wins, as do the danger and disabled `svg` rules; the icon strokes with `currentColor`. The render draws a grey check (about `#7A766E` in `build/design-refs/a2-2.png`, antialiased paper-600), not the accent.
+- **Decision:** The render wins: the check takes the row's icon colour (secondary, danger on a danger row, disabled on a disabled row). The Select list, which reuses the Menu look ([COMPONENTS.md](COMPONENTS.md) decision 8), does the same.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/overlays/overlays.css` lines 34, 37 and 39 (the `svg` colours) and 41 (`.fm-menu__check`); `design/_ds/…/_ds_bundle.js` line 2662 (`fm-menu__check`). Implemented in `app/lib/design/components/overlays/menu.dart` and `forms/select.dart` (M1 phase G).
+
+<a id="g79"></a>
+
+### G79 · Checkbox and radio: three states the cascade draws wrongly
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Component library: Checkbox, Radio
+- **Artboards:** none draws these states; the DS additions "Interactive states" sheet draws enabled and disabled checkboxes and radios at rest
+- **Gap or conflict:** (1) `.fm-radio .fm-check__input:checked` comes after `.fm-check__input:disabled:checked` with the same specificity (0,3,0), so a disabled checked radio is drawn as an enabled one, in the accent. (2) In dark, `[data-theme="dark"] .fm-check:hover .fm-check__input` (0,4,0) beats the checked radio's accent border, so a checked radio under the pointer takes the soot border; in light the checked rule comes later and keeps the accent. (3) `.fm-check__input:disabled` comes after `.fm-check__input.is-indeterminate` with the same specificity, and `:disabled:checked` does not match an indeterminate box, so a disabled indeterminate box is sunken with its white minus barely visible on it.
+- **Decision:** (1) A disabled checked radio takes the checkbox's disabled-checked strong grey. (2) A checked radio keeps its accent border under the pointer in both themes. (3) A disabled indeterminate box takes the disabled-checked look with its minus.
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 46–47 (hover), 48 (checked and indeterminate), 51 (the mark), 52–53 (`:disabled`, `:disabled:checked`) and 59 (the checked radio). Implemented in `app/lib/design/components/forms/checkbox.dart` and `radio.dart` (M1 phase G).
+
+<a id="g80"></a>
+
+### G80 · Text fields: no context menu is designed
+
+- **Type:** missing state
+- **Milestone:** M1, with the menu in M2
+- **Area:** Component library: TextField, NumberStepper and the pickers' search fields; PdfFormField text fields
+- **Artboards:** none draws a context menu on a field
+- **Gap or conflict:** The design's fields are native `<input>` elements, which bring the browser's context menu (Cut, Copy, Paste, Select all). Flutter's text input shows none unless the app builds one, and the Material and Cupertino toolbars are not used ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
+- **Decision:** In M1 a right click on a field opens nothing; cut, copy, paste and select all work from the keyboard. A context menu built from the design-system Menu, with the platform's items, order and shortcuts, comes in M2 with the first screens that edit text in fields ([B017](BACKLOG.md#open)).
+- **Status:** Decided
+- **Evidence:** `design/_ds/…/components/forms/forms.css` lines 24–27 (`.fm-input__control`, a native input). Implemented in `app/lib/design/components/forms/field_input.dart` (M1 phase G).
+
+<a id="g81"></a>
+
+### G81 · Shortcut table: the document jump and the Delete key
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Keyboard shortcuts
+- **Artboards:** `a1-10`, `a2-2`, `a6-1`, `a11-3`, `a14-1d`
+- **Gap or conflict:** Two keys clash in the design. (1) The a1-10 note says "⌘1…⌘9 jump" to the open documents, and its overflow menu shows ⌘7, ⌘8 and ⌘9. But a2-2's zoom menu binds Actual size to ⌘1 and Fit width to ⌘2. (2) FmWindow writes the Organize Delete tool's key as `del: ['⌫']`, outside its `K()` helper, so a Windows board would show ⌫ too. The a11-3 cheat sheet lists "Delete pages" with ⌫. The a14-1d hardware-keyboard list, which uses the Ctrl conventions, writes "Delete" with Del.
+- **Decision:** (1) Zoom keeps ⌘1 and ⌘2 (Ctrl+1 and Ctrl+2 on Windows and Linux). The document jump takes ⌥⌘1 to ⌥⌘9 on macOS and Alt+1 to Alt+9 on Windows and Linux. In M1 it moves between the shell's placeholder documents. The a1-10 overflow menu shows the same keys when it is built in M2 ([G16](#g16)). (2) Delete pages shows ⌫ on macOS and Del on Windows and Linux. Each system also accepts the other key: forward delete on macOS, Backspace on Windows and Linux. The keys are bound in Organize only, while the page grid has focus. The re-export is asked to correct the a1-10 note and menu, and to put `k.del` in `K()`.
+- **Status:** Decided
+- **Evidence:** `design/01 First run and files.dc.html` lines 178 (the a1-10 note) and 266–268 (the menu's ⌘7 to ⌘9); `design/02 View.dc.html` line 227 (a2-2 `zoomMenu`: Fit width ⌘2, Fit page ⌘0, Actual size ⌘1); `design/FmWindow.dc.html` lines 200 (`K`) and 205 (`del: ['⌫']`); `design/11b App.dc.html` line 145 (a11-3, "Delete pages" ⌫); `design/14 Tablet and web.dc.html` line 133 (a14-1d, "Delete" Del). Implemented in `app/lib/features/shell/shortcuts.dart` (`document1` to `document9` lines 246–298, `actualSize` and `fitWidth` lines 370–380, `deletePages` lines 614–621) and `app/lib/features/shell/shell_commands.dart` lines 49–68 (M1 phase H5); checked in `app/test/features/shell/shortcuts_test.dart` lines 138–139, 165–177 and 438, and `app/test/features/shell/shell_screen_test.dart` line 549.
+
+<a id="g82"></a>
+
+### G82 · Shortcut table: the edit box's keys and dialog keys stay out of it
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M3
+- **Area:** Keyboard shortcuts
+- **Artboards:** `a2-3a`, `a3-1c`, `a1-10b`, `a2-7`, and every board that shows the Outline tab
+- **Gap or conflict:** ⌘B has two meanings. FmSidebar puts ⌘B (Ctrl+B) on Add bookmark, and the a2-3a note says "⌘B adds a bookmark at the current view". The edit box uses ⌘B for Bold, with ⌘I and ⌘U (FmEditPanel, a3-1c). a3-1c also puts ⌘K on Add link, which is the command palette's key in FmWindow. Dialogs bring keys of their own: in a1-10b ⌘D is "Don't save", while ⌘D is Duplicate in Organize. The a2-7 note opens with "⌘D.", the way other notes open with their command's key (a1-11 "⇧⌘S.", a2-4a "⌘F.", a2-5a "⌘L."), so Document properties takes ⌘D as well: a third meaning beside Duplicate in Organize and "Don't save" in a1-10b.
+- **Decision:** The shell's one table holds the commands of the window and its modes. In M1 it keeps ⌘B for Add bookmark and ⌘K for the command palette in every mode, as FmSidebar and FmWindow draw them. The edit box's formatting keys (⌘B, ⌘I, ⌘U, and ⌘K for Add link) and dialog accelerators such as a1-10b's ⌘D are not in the table. They belong to those components, and their clash with the table is settled when the edit box is built in M3 (Add link in P2). The table has no Document properties command yet; a2-7's ⌘D, which clashes with Duplicate in Organize, is settled when that dialog is built in M2.
+- **Status:** Decided
+- **Evidence:** `design/FmSidebar.dc.html` lines 20 (Add bookmark with `kBookmark`) and 171 (`kBookmark`: ⌘B, Ctrl+B); `design/02 View.dc.html` lines 90 (the a2-3a note), 120 and 140 (the a2-4a and a2-5a notes, "⌘F." and "⌘L.") and 180 (the a2-7 note, "⌘D."); `design/FmEditPanel.dc.html` line 71 (⌘B, ⌘I, ⌘U); `design/03a Edit text.dc.html` lines 50 (a3-1c, Add link with `kK`) and 159 (`kB`, `kI`, `kU`, `kK`); `design/FmWindow.dc.html` lines 30 (Search with `k.palette`) and 202 (`palette`: ⌘K); `design/01 First run and files.dc.html` lines 188 (the a1-10b note) and 211 (the a1-11 note, "⇧⌘S."); `design/11b App.dc.html` line 145 (Duplicate ⌘D). Implemented in `app/lib/features/shell/shortcuts.dart` lines 175–178 (the rule), 180–184 (`commandPalette`), 394–398 (`addBookmark`, every mode) and 593–598 (`duplicatePages`, Organize only) (M1 phase H5).
+
+<a id="g83"></a>
+
+### G83 · Window keys the boards do not draw
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Window chrome / keyboard shortcuts
+- **Artboards:** none draws them; `a11-3` lists the Window group without them
+- **Gap or conflict:** No board shows a key to minimize the window, close it or quit Ferman. The a11-3 cheat sheet's Window group lists only Next document, Sidebar, Panel and Close document, and FmWindow's key table has no window commands.
+- **Decision:** The window commands use each system's own keys and live in the one shortcut table: ⌘M (minimize) and ⌘Q (quit) on macOS, Alt+F4 (close the window) on Windows and Linux, and Ctrl+Q (quit) on Linux. Windows has no quit or minimize key in the table, and macOS has no close-window key, since ⌘W closes the document. The window frame binds these keys on every screen: first run, the start screen, Settings and the editor. Nothing is bound where the system draws the window. Close and quit both close the window, as the caption buttons do; on macOS the app ends with its last window. On macOS ⌘Q closes the window through this binding; the native main menu, which also lists Quit ⌘Q and Minimize ⌘M, is not relied on. Asking about unsaved documents before closing follows [G40](#g40). Settings, an in-window surface in M1, also closes with the table's Close document keys (⌘W, Ctrl+W; [G89](#g89)).
+- **Status:** Decided
+- **Evidence:** A search of `design/` for ⌘Q, ⌘M, Alt+F4 and Ctrl+Q finds nothing. `design/11b App.dc.html` line 147 (a11-3, the Window group); `design/FmWindow.dc.html` lines 201–206 (`k`). Implemented in `app/lib/features/shell/shortcuts.dart` lines 662–673 (the commands) and 720–727 (`windowCommands`), `app/lib/features/shell/shell_commands.dart` lines 102–173 (`WindowCommandScope`), `app/lib/app/window_frame.dart` lines 18–20 and 37–40 and `app/lib/features/settings/settings_screen.dart` lines 241–246 (M1 phase H5); the macOS runner ends the app with its last window (`app/macos/Runner/AppDelegate.swift` lines 6–8, from the Flutter template), and its native main menu lists Quit ⌘Q and Minimize ⌘M (`app/macos/Runner/Base.lproj/MainMenu.xib` lines 61 and 305, from the template too); checked in `app/test/app/window_frame_test.dart` lines 451, 470 and 505, and `app/test/features/shell/shell_route_test.dart` line 131.
+
+<a id="g84"></a>
+
+### G84 · The tool row is 45 px: FmWindow adds a second line
+
+- **Type:** conflict (internal to design)
+- **Milestone:** M1
+- **Area:** Window chrome / tool row
+- **Artboards:** every board drawn with `FmWindow` in a mode; measured in `a2-1b`, `a2-2`, `a3-1d`, `a4-1`, `a6-1`
+- **Gap or conflict:** The Toolbar is `--toolbar-h` (44 px) tall with its own 1 px bottom line, under border-box. FmWindow wraps the tool rows in a box with a second 1 px bottom line. So the boards draw a 45 px tool row with a 2 px line, against `--toolbar-h` and the ROADMAP's "tool row 44 px". In the renders of a2-1b, a2-2, a3-1d and a6-1, rows 121 and 122 are both line, and the sidebar, canvas and panel start at y = 123. In Comment mode the AnnotationTools row and the Show comments switch share the box, so in a4-1 the upper line stops where the switch begins (x = 1289) and the lower line runs to the window's edge.
+- **Decision:** The markup wins. The tool row is the 44 px Toolbar plus the box's 1 px line, 45 px in all, in every mode, with a4-1's shorter upper line in Comment mode. At 1440 × 900 the sidebar, canvas and panel start at y = 123 and are 751 px tall. [ROADMAP.md §5](ROADMAP.md#5-m1-foundations) step 8 asks for a 44 px tool row and for every difference to be recorded here: the Toolbar is that 44 px, and the box's line is the difference this entry records.
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 46 (the box, `border-bottom:1px solid var(--border-subtle)`), 48 (the View Toolbar, `hint-size="100%,44px"`) and 86 (the Comment row: AnnotationTools in a `flex:1` box, the switch outside it); `design/_ds/…/components/navigation/navigation.css` line 43 (`.fm-toolbar--bar`: `height: var(--toolbar-h)`, `border-bottom`); `design/_ds/…/tokens/spacing.css` line 35 (`--toolbar-h: 44px`); `design/_ds/…/tokens/base.css` line 12 (border-box); `design/_ds/…/_ds_bundle.js` line 2304 (AnnotationTools, `variant = 'bar'`); measured in `build/design-refs/a2-1b.png`, `a2-2.png`, `a3-1d.png`, `a4-1.png` and `a6-1.png`; the sizes criterion of ROADMAP.md §5 step 8. Implemented in `app/lib/features/shell/shell_tool_rows.dart` lines 16–18 and 36–46, and lines 374–411 for Comment (M1 phase H3); checked in `app/test/features/shell/shell_screen_test.dart` lines 49 and 62–70.
+
+<a id="g85"></a>
+
+### G85 · Save and the tab's close button before saving and closing exist
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Mode bar / document tabs
+- **Artboards:** every board drawn with `FmWindow`; `f4`, `f4b`
+- **Gap or conflict:** FmWindow draws Save enabled while the document has unsaved changes, and disabled with "No changes to save" in every other state (`saveDisabled`, line 227; the f4b note says the same for a saved document, while f4's table keeps Save enabled for "Couldn't save", [G41](#g41)). It draws the active clean tab with an enabled close button, "Close document" with ⌘W. Saving comes in M3 and closing documents in M2, so in M1 both would offer something that does nothing. No board draws either control disabled for that reason.
+- **Decision:** Both stay where they are drawn. Save is disabled with "No changes to save" when the active document has no unsaved changes, as FmWindow and the f4b note draw it. While it has unsaved changes, Save is disabled with the future-version tooltip ([G10](#g10)) until saving exists in M3 ([B031](BACKLOG.md#open)). In M1 every state but unsaved counts as clean, as FmWindow's `saveDisabled` does; the error state follows [G41](#g41) once saving exists. The tab's dot, Save and the status bar follow the same document, so they always agree. The active clean tab's close button is drawn, disabled with the future-version tooltip, until closing documents exists in M2 ([B029](BACKLOG.md#open)). An unsaved tab shows its dot instead, as drawn.
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 23 (the active tab's close button, `shortcut="{{ k.close }}"`), 42 (Save, `disabled="{{ saveDisabled }}"`, `title="{{ saveTip }}"`), 184 (`saveTipOff: 'No changes to save'`) and 227 (`saveDisabled`, `saveTip`); `design/00 Fixes.dc.html` lines 85 (the f4b note, inside the f4 section) and 88–91 (f4's table of save states). Implemented in `app/lib/features/shell/shell_mode_bar.dart` lines 15–18 and 91–97, `app/lib/features/shell/shell_title_bar.dart` lines 24–26 and 183–204, and `DocumentTab.closeDisabledReason` in `app/lib/design/components/additions/document_tab.dart` lines 35–41, 101–105 and 282–298 (M1 phase H2); checked in `app/test/features/shell/shell_screen_test.dart` lines 261 and 591–592.
+
+<a id="g86"></a>
+
+### G86 · Shell areas with nothing to show yet
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** App shell: canvas, sidebar, right panel, title bar, status bar
+- **Artboards:** every board drawn with `FmWindow`; `a1-10` ("+N"); `a3-14` (the status-bar language)
+- **Gap or conflict:** Every board draws the shell with a rendered document: pages on the canvas, a filled sidebar tab and the FmDocPanel sections (File, Fonts in this document, Security). In M1 no page renders (M2), so these areas have nothing to show, and no board draws them empty. Two drawn details are incomplete too. The "+N" overflow button (a1-10) is a ghost Button whose only text is `'+' + tabsMore`, so its only name is "+4", which says nothing to a screen reader, and its digits stay Latin where FmWindow turns the page and zoom digits Arabic-Indic. FmWindow's strings hold `more: '{n} more'`, which no markup uses. The status bar's language slot (`statusLang`) is drawn once, in a3-14, with the language of the selected text block.
+- **Decision:** (1) **Canvas:** its surface with a quiet empty state in the centre: the `file-text` glyph at `--icon-lg` in the secondary icon colour, over "Available in a future version" in the caption style and the tertiary text colour ([B069](BACKLOG.md#open)). It is a focus stop named "Document pages" and has focus when the shell opens, so the table's keys work at once. Its inset focus ring ([G22](#g22)) shows after a key press on it or when Tab returns to it, not for the launch focus: no board draws a ring around the document area. (2) **Sidebar:** the tabs switch. The heading shows the tab's name, the placeholder document's page count on Pages, and the tab's buttons disabled with the future-version tooltip. The tab body stays empty until M2, where [G29](#g29)'s EmptyState covers empty tabs ([B065](BACKLOG.md#open)). (3) **Right panel:** only its 40 px heading, "Document" ("Edit" in Edit mode), with More disabled. The sections come with an open document in M2 ([B068](BACKLOG.md#open)). (4) **"+N":** the visible text is "+" and the count, in the region's digits ([G34](#g34)). Its accessible name is FmWindow's "{n} more" ("3 more"). It is disabled with the future-version tooltip until the menu exists in M2 ([B028](BACKLOG.md#open)). (5) **Status-bar language:** left out in M1. The slot shows with the M3 editor, when the selected block's language is known (a3-14, [B072](BACKLOG.md#open)).
+- **Status:** Decided
+- **Evidence:** `design/FmWindow.dc.html` lines 26 (the "+N" Button), 166 (the canvas slot), 170 (the language slot), 184 (`more: '{n} more'`), 199 and 242 (`digits()` on the page and zoom text), 212 (a board that passes no tabs still gets an open document), 224 (`overflowLabel: '+' + (p.tabsMore || 0)`) and 243 (`statusLang`); `design/FmDocPanel.dc.html` lines 17 (the 40 px heading) and 21–25 (the sections); `design/01 First run and files.dc.html` line 171 (a1-10, `tabs-more="{{ 4 }}"`); `design/03c Edit review and translate.dc.html` line 149 (a3-14, `status-lang="English (United Kingdom) · spelling"`). Implemented in `app/lib/features/shell/shell_canvas.dart` lines 9–21 and 70–110, `shell_sidebar.dart` lines 18–21 and 145–153, `shell_panel.dart` lines 12–16, 28–31 and 71–80, `shell_title_bar.dart` lines 106–121, `shell_status_bar.dart` lines 21–22 and 139–152 (`shell_screen.dart` line 71 passes no language), and the keys `shellCanvas`, `shellMoreDocuments` and `shellMoreDocumentsBadge` in `app/lib/l10n/app_en.arb` (M1 phases H2 and H4); checked in `app/test/features/shell/shell_screen_test.dart` lines 596–597, 745, 765, 790 and 820.
+
+<a id="g87"></a>
+
+### G87 · macOS key symbols missing from the bundled fonts
+
+- **Type:** export gap
+- **Milestone:** M1
+- **Area:** Fonts / key caps
+- **Artboards:** every macOS board that shows a shortcut, in tooltips, `Kbd` and menus; for example `a1-5`, `a2-2`, `a11-3`
+- **Gap or conflict:** The macOS key caps use ⌘ (U+2318), ⌥ (U+2325), ⇧ (U+21E7), ⌃ (U+2303), ⌫ (U+232B) and ⌦ (U+2326). Kbd sets them in `--font-ui`, whose IBM Plex faces have none of these glyphs, so the browser draws them from the system fonts at the end of the stack (`system-ui`, `-apple-system`, `'Segoe UI'`). The references do the same. The app bundles only the Plex files and drops the system families from the stack ([ADR 0013](adr/0013-fonts-and-icons.md)). None of the 18 bundled TTF files (Plex Sans, Serif, Mono, Sans Arabic, Sans Hebrew and Sans Devanagari) maps any of the six code points (as [G06](#g06) found for several scripts). All of them map the arrows (U+2190 to U+2193) and the minus sign (U+2212) that the table also uses.
+- **Decision:** The Plex files stay unmodified (OFL-1.1, Reserved Font Name), and no symbol font is added. On macOS, the only system whose caps use these symbols, Flutter's own fallback draws them from a system font, as ADR 0013 provides for characters the bundle does not cover; the design's stack does the same through `system-ui`. Windows and Linux never show them: the table writes Ctrl, Alt, Shift and Del there. In M1 the symbols show in the Search button's ⌘K, in the tooltips of enabled controls (the sidebar and panel toggles, Settings), on the start screen's cards and drop zone (⌘O, ⌘N) and on the entries of a narrow tool row's "More tools" menu; a disabled control's tooltip shows its reason instead of its keys, while a disabled menu entry keeps its caps, greyed, as native menus do. `flutter test` renders with Flutter's test fonts and no system fallback on every system, and the goldens run on Linux only, so a macOS variant rendered in a test draws a box for each of these caps (a test screenshot of the macOS shell shows a box before the K of Search). This is a test artefact, not what users see. The goldens get real glyphs from DejaVu Sans Mono, a system font of the Linux runner that only the tests load and append to the UI font chains ([G96](#g96)); the app never names it. ↵ (U+21B5), the table's cap for Enter, is missing too; no command uses Enter yet.
+- **Status:** Decided. On 2026-10-16 phase K1 settled the goldens: DejaVu Sans Mono in tests only ([G96](#g96)); before, the macOS goldens waited for K1.
+- **Evidence:** `design/_ds/…/components/core/core.css` line 60 (`.fm-kbd`, `var(--font-ui)`); `design/ds-additions/fm-additions.css` line 48 (`--font-ui`, ending in `system-ui, -apple-system, 'Segoe UI', sans-serif`); `design/FmWindow.dc.html` lines 202–205 (the caps); `tools/design-refs/README.md`, section "Deterministic output" (glyphs that no web font covers fall back to the system's fonts); the `cmap` tables of `app/assets/fonts/*/*.ttf`, read on 2026-10-16. Implemented in `app/lib/features/shell/shortcuts.dart` lines 98–137 (the caps), `app/lib/design/components/core/kbd.dart` lines 79–88 (Kbd uses the body font chain) and `app/lib/design/tokens.g.dart` lines 863–872 (the dropped families) (M1 phases F, G and H5).
+
+<a id="g88"></a>
+
+### G88 · Title bar content: the start screen's home header, a bare bar for first run and Settings
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Window chrome / title bar content
+- **Artboards:** `a1-5`, `a1-3`, `a1-1`, `a1-2a`, `a1-2b`, `a1-2c`, `a11-1`
+- **Gap or conflict:** The boards draw each screen as a window of its own. The start screen (FmStart) uses FmWindow's home header: the active "Ferman" tab, the open documents as idle tabs (two in FmStart's default data), "+" Open file, Search with ⌘K and Settings with ⌘,. a1-5 and a1-3 pass no tabs. First run (a1-1, a1-2a to a1-2c) and Settings (FmSettings, a11-1) use the bare header. The app shows these screens in one window under one title bar, so the bar's content has to follow the screen. The boards do not say what the bar shows when Settings opens over another screen.
+- **Decision:** The title bar's content follows the route. The start screen shows a1-5's home header: the "Ferman" tab, no document tabs until documents open in M2, "+" and Search disabled with the future-version tooltip ([G10](#g10); [B018](BACKLOG.md#open), [B030](BACKLOG.md#open)), and Settings, which opens Settings (⌘, or Ctrl+,). On the start screen only Settings' keys work: the table's other keys have no handler there, so they do nothing and pass through (`ShellCommandScope` with `home`), and the cards show their keys from the same table. First run and Settings keep the bare bar their boards draw. Settings is a route inside the main window in M1 ([G89](#g89), ARCHITECTURE.md §12), so opening it over the start screen or the editor makes the bar bare too, and closing it brings the header back. The editor (in M1 only at `/debug/shell`) shows the house button "Home" and its documents.
+- **Status:** Decided
+- **Evidence:** `design/FmStart.dc.html` lines 16 (`FmWindow … home="{{ true }}"`) and 93 (two sample tabs by default); `design/01 First run and files.dc.html` lines 45 (a1-3) and 107 (a1-5), both `tabs="{{ noTabs }}"`, line 240 (`noTabs: []`), and lines 30, 52, 64 and 78 (a1-1, a1-2a, a1-2b and a1-2c, `bare`); `design/FmSettings.dc.html` line 16 (`bare`); `design/FmWindow.dc.html` lines 20 (the home tab or the house button), 27 ("+"), 30 (Search) and 31 (Settings). Implemented in `app/lib/app/router.dart` lines 57–76, `app/lib/features/shell/shell_title_bar.dart` lines 14–35 and 49–53, `app/lib/features/shell/shell_commands.dart` lines 35–38 and 46, and `app/lib/features/start/start_screen.dart` lines 57–71 (M1 phases H2, H5 and I3); checked in `app/test/features/shell/shell_route_test.dart` lines 51, 87, 115 and 182.
+
+<a id="g89"></a>
+
+### G89 · Settings in M1: a surface in the main window, the Privacy switches and the default-app line
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Settings: the window, Privacy, General
+- **Artboards:** `a11-1`, `a11-1w`, `a11-1h`, `a1-3`; the added close control applies to every built Settings pane (`a11-1b`, `a12-2c`, `a12-2d`)
+- **Gap or conflict:** Three things the boards draw cannot hold in M1. (1) a11-1 draws Settings in its own window ("Settings open in their own window (⌘,)"), under FmWindow's bare title bar with its own traffic lights or caption buttons, which are the only way to close it. M1 opens no second window: Flutter 3.47.7 has no stable desktop multi-window support ([ROADMAP.md §5](ROADMAP.md#5-m1-foundations) step 9; [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)), so Settings shows inside the main window, whose caption buttons close the whole app. (2) a11-1h draws four of the five network switches on: Check for updates, Signature checks, Timestamps and Downloads you start. Your AI provider is off. Nothing connects in M1: the update check comes in M5, language packs and timestamps in P3, and AI in P4 ([ADR 0015](adr/0015-privacy-and-network.md)); revocation lookups wait for the owner ([G51](#g51)). [G24](#g24), [G51](#g51) and [G52](#g52) cover which rows are listed, not their state. (3) The General pane says "Preview opens PDFs on this Mac." on both systems ([G16](#g16)). Naming the current default app needs the system lookup that comes with "Make Ferman the default…" in M2 (a1-3).
+- **Decision:** (1) **Close control:** Settings is a window-styled surface inside the main window: the route `/settings` (`/settings/<pane>`), pushed over the screen it opens from, under the bare title bar ([G88](#g88)), with the 240 px pane list at the start. The surface adds an X icon button named "Close settings", 12 px from the top and end edges of the pane, with Esc in its tooltip. Esc and the shortcut table's Close document keys, ⌘W on macOS and Ctrl+W on Windows and Linux, close it too ([G83](#g83)). Closing returns to the screen below, or to the start screen when Settings was opened directly. The caption buttons still close the app. Real windows follow later (ARCHITECTURE.md §12, [B090](BACKLOG.md#open)). (2) **Privacy switches:** Privacy is a skeleton in M1. All five switches show off and are disabled with the future-version tooltip ([G10](#g10)), and so is "Show network activity…" ([B084](BACKLOG.md#open)). The pane never claims a connection the app does not make. Each switch takes its ADR 0015 default when its feature ships: the update check on, the others off until used. "Signature checks" stays disabled until the owner decides ([G51](#g51), [B083](BACKLOG.md#open)). (3) **Default-app line:** until the lookup exists, the line says what the button does, in a1-3's words: "Ferman can be the app that opens when you double-click a PDF." On Windows it adds "Windows lets you choose it in Settings › Default apps.", following the a11-1w and a1-3 notes ([G16](#g16)). The button is disabled with the future-version tooltip ([B080](BACKLOG.md#open)). The design's line, naming the app that opens PDFs now, returns with the lookup in M2.
+- **Status:** Decided
+- **Evidence:** `design/11a Settings.dc.html` lines 28 (the a11-1 note), 29 (the a11-1w note) and 36 (the a11-1h note); `design/FmSettings.dc.html` lines 16 (`FmWindow … bare`), 17–23 (the pane list and the pane, with no close control), 30 (the default-app line) and 134 (`nets`, `on: true` on four rows); `design/FmWindow.dc.html` lines 18 (the traffic lights) and 33 (the Windows caption buttons); `design/01 First run and files.dc.html` lines 45 (a1-3, "Ferman can be the app that opens when you double-click a PDF.") and 46 (its note on Windows). Implemented in `app/lib/features/settings/settings_screen.dart` lines 17–35, 72–80 and 227–246, `app/lib/app/router.dart` lines 24–27 and 88–103, `app/lib/features/shell/shortcuts.dart` lines 232–238 (`closeDocument`), `app/lib/features/settings/privacy_pane.dart` lines 16–19 and 107–122, and `app/lib/features/settings/general_pane.dart` lines 24–28 and 178–214, with the keys `settingsClose`, `settingsDefaultApp` and `settingsDefaultAppWindows` (`app/lib/l10n/app_en.arb` lines 987, 1123 and 1127) (M1 phases H5 and I4); checked in `app/test/features/settings/settings_screen_test.dart` lines 145, 169, 289, 344 and 662.
+
+<a id="g90"></a>
+
+### G90 · Settings: a change that cannot be saved
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** Settings: storing the settings
+- **Artboards:** none draws it; it can show on every built pane (`a11-1`, `a11-1b`, `a11-1h`)
+- **Gap or conflict:** Changes in Settings apply at once, and there is no Save button (a11-1 note). When the settings file cannot be written, the change still applies for the session, but no board says how Settings tells the person. FmSettings and the 11a boards draw no error. The design's warning Banners are bars for app events, such as a11-7b's "changed on disk" and a11-7c's XFA form.
+- **Decision:** Settings shows a warning Banner, the box variant with the warning tone's icon, at the top of the pane above its heading: "Your settings couldn't be saved." over "This change applies until you close Ferman.", with Dismiss. The change stays in force for the session. The Banner stays while other panes show, and goes when a later change is stored or on Dismiss. First run reports no failure yet ([B089](BACKLOG.md#open)): a language choice that cannot be stored still switches the UI, and when the end of first run cannot be stored, first run shows again at the next launch.
+- **Status:** Decided
+- **Evidence:** `design/11a Settings.dc.html` line 28 (the a11-1 note: "Changes apply immediately; there is no Save button."); `design/FmSettings.dc.html` lines 22–23 (the pane starts with its heading); `design/11b App.dc.html` lines 103 and 106 (a11-7b, a `bar` Banner in the warning tone) and 111 and 114 (a11-7c); `design/_ds/…/_ds_bundle.js` lines 831–860 (Banner: `variant = 'box'`, the warning icon, the Dismiss icon button). Implemented in `app/lib/features/settings/settings_save_failure.dart` lines 9–43, `app/lib/features/settings/settings_screen.dart` lines 38–40 and 202–211, `app/lib/features/settings/general_pane.dart` lines 73–81 and `app/lib/features/settings/language_region_pane.dart` lines 70–73, with the keys `settingsSaveFailedTitle`, `settingsSaveFailedMessage` and `settingsSaveFailedDismiss` (`app/lib/l10n/app_en.arb` lines 991–999); first run in `app/lib/features/onboarding/language_picker.dart` lines 138–140 and `app/lib/features/onboarding/onboarding_screen.dart` lines 78–89 (M1 phases I2 and I4); checked in `app/test/features/settings/settings_screen_test.dart` line 218.
+
+<a id="g91"></a>
+
+### G91 · Region formats: which regions the picker offers, and how they are named and ordered
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Settings › Language and region: region formats
+- **Artboards:** `a11-1b`, `a12-2c`, `a12-2d`
+- **Gap or conflict:** a11-1b's Region formats picker, set to Türkiye, holds three sample regions: Türkiye, Deutschland and United States. Only Türkiye is translated: "Türkei" in German (a12-2d) and "تركيا (Türkiye)" in Arabic (a12-2c). "Deutschland" and "United States" stay in their own languages in every UI language, so the English board shows one own name and two English names. The design does not say which regions the picker offers, how their names read in each UI language, in what order they come, or how a person goes back to the system's region.
+- **Decision:** The picker offers the 45 regions of `Region.all`, plus the system's region and the stored one when either is outside that list. Each region shows its name in the UI language, followed by its own name in parentheses when the two differ. This generalises a12-2c's "تركيا (Türkiye)": English shows "Türkiye", "Germany (Deutschland)" and "United States", Turkish "Almanya (Deutschland)". The names are CLDR 48 territory names in English, Turkish and Arabic; other UI languages take the English names, as their UI does. A code CLDR does not name shows as the code. The list follows the UI language's alphabetical order: CLDR 48 collation for English, Turkish and Arabic (Turkish puts Çekya between Brezilya and Danimarka), the English order for other languages. There is no separate "match system" item. Choosing the system's region stores no region, so the formats follow the system again, also when its region changes.
+- **Status:** Decided
+- **Evidence:** `design/FmSettings.dc.html` lines 37 (the region Select, `default-value="tr"`) and 112 (`regions`: Türkiye, "Türkei" in German, "تركيا (Türkiye)" in Arabic; "Deutschland" and "United States" in every language); `design/12 Localization.dc.html` line 96 (a12-2c, `lang="ar"`). Implemented in `app/lib/l10n/region_names.dart` lines 1–55 (the CLDR 48 / ICU 78.3 / Node.js 24.22.0 provenance, `regionDisplayName`, `sortRegionCodes`), 63–772 (the names) and 774–1554 (the orders), `app/lib/l10n/region.dart` lines 155–205 (`Region.all`) and `app/lib/features/settings/language_region_pane.dart` lines 30–38 and 162–203 (M1 phase I4); the script that generated the tables is not in the repository yet ([B092](BACKLOG.md#open)); checked in `app/test/l10n/locale_providers_test.dart` lines 267–345 and `app/test/features/settings/settings_screen_test.dart` lines 600 and 622.
+
+<a id="g92"></a>
+
+### G92 · Document languages: the list before anyone can change it
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Settings › Language and region: document languages
+- **Artboards:** `a11-1b`, `a12-2c`, `a12-2d`
+- **Gap or conflict:** a11-1b draws the document languages as two accent badges, Turkish and English, and an Add button. The badges are fixed data: always Turkish and English, only translated into the UI language ("Türkisch" and "Englisch" in German, a12-2d; "التركية" and "الإنجليزية" in Arabic, a12-2c), and every Language board uses the Türkiye region. The design does not say where the list starts for another region. Nothing uses the list in M1: text recognition, spell-check and hyphenation come later (a11-1b note).
+- **Decision:** Until a person can change the list, its Add button is disabled with the future-version tooltip ([G10](#g10), [B081](BACKLOG.md#open)), and the badges show the list the app would start from: the language of the region's formats when the app has a name for it, then English. Türkiye gives Turkish and English, as a11-1b and a12-2c draw it. Saudi Arabia, Egypt and the United Arab Emirates give Arabic and English. A region whose language is English or has no name in the app, such as Germany or the United States, gives English alone. The names are UI strings in the UI language. The badges change with the region setting at once, as the examples do.
+- **Status:** Decided
+- **Evidence:** `design/FmSettings.dc.html` lines 36 (the badges `t.tr` and `t.en`, and Add) and 91–93 (`tr` and `en` in English, German and Arabic); `design/11a Settings.dc.html` line 30 (the a11-1b note); `design/12 Localization.dc.html` line 96 (a12-2c: "Region formats still follow Türkiye because that is the chosen region"). Implemented in `app/lib/features/settings/language_region_pane.dart` lines 25–29 and 127–160 (M1 phase I4); checked in `app/test/features/settings/settings_screen_test.dart` lines 552, 576 and 585.
+
+<a id="g93"></a>
+
+### G93 · Persian and Hebrew: a right-to-left UI with English strings
+
+- **Type:** missing variant
+- **Milestone:** M1
+- **Area:** Localization / right to left
+- **Artboards:** `a1-1`, `a11-1b`; right to left drawn only in Arabic: `a12-1ar`, `a12-2a`, `a12-2c`
+- **Gap or conflict:** Persian and Hebrew appear only as rows in the language pickers; no Persian or Hebrew screen is drawn ([G18](#g18)). [G20](#g20) has them mirror the UI at once and show English until they are translated, and M1 translates neither. So the app needs a right-to-left UI with English strings, which no board draws: every right-to-left board is Arabic, with Arabic strings. Flutter takes the direction from the strings' locale, so English would stay left to right.
+- **Decision:** The UI's direction follows the chosen language, not the language of its strings. This keeps the outcome [ADR 0014](adr/0014-localization-and-rtl.md) asks for (right to left for ar, fa and he), but takes the direction from the chosen language (`AppLanguage.textDirection`) rather than the strings' locale, which is English for Persian and Hebrew until their ARB files exist. Persian and Hebrew mirror the whole UI at once, as Arabic does ([G18](#g18)), while their strings fall back to English ([G20](#g20)). This holds in first run as soon as the row is chosen (a1-1 note), in Settings, and at launch when either is the system's language. The strings keep English type and casing; numbers, dates and units follow the region ([G34](#g34)). In the pickers each language's own name keeps its script and direction. The other untranslated languages stay left to right. Inside the mirrored UI each English string is wrapped in a left-to-right isolate, so it keeps its own order and sits at the start of its line: without it "1 of 2" would read "of 2 1" and "Open file…" "…Open file". When a translation ships, its strings replace the English ones and nothing else changes.
+- **Status:** Decided
+- **Evidence:** `design/01 First run and files.dc.html` lines 234 (the فارسی and עברית rows, `rtl`) and 41 (the a1-1 note: "Choosing a language switches the interface live, before Continue."); `design/12 Localization.dc.html` line 96 (a12-2c, the only right-to-left Settings board, in Arabic). Implemented in `app/lib/app/app.dart` lines 14–18, 47 and 75–81 (`Directionality` in the `MaterialApp.router` builder, above every route), `app/lib/l10n/app_language.dart` lines 103–129 (`textDirection`, `isolatesFallbackStrings`, `uiLocale`) and `app/lib/l10n/locale_providers.dart` lines 70–82 (`appLocale`) (M1 phases I2 and I4); checked in `app/test/app/app_test.dart` lines 67–105, `app/test/features/onboarding/onboarding_test.dart` line 355 and `app/test/features/settings/settings_screen_test.dart` line 380. The isolates come from `IsolatedFallbackLocalizations` (`app/lib/l10n/isolated_fallback.g.dart`, generated by `tools/l10n`), installed by `app/lib/app/app.dart` when `AppLanguage.isolatesFallbackStrings` (`app/lib/l10n/app_language.dart`), and checked in `app/test/l10n/isolated_fallback_test.dart`.
+
+<a id="g94"></a>
+
+### G94 · AI clients through MCP: no board draws the connection settings
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Settings / AI clients
+- **Artboards:** none; nearest: `a11-1g` (Ferman's own AI assistant pane), `a11-1h` (Privacy, "Your AI provider")
+- **Gap or conflict:** The owner decided on 2026-10-16 that AI clients such as Claude and ChatGPT can work in the running app through a local MCP server, set up from Settings with a connection link or a one-click setup ([ADR 0019](adr/0019-ai-clients-through-mcp.md), [Q20](QUESTIONS.md#q20)). No board draws that section, the notice shown while a client is connected, the client's name on its edits in the review list, or the Privacy row for connected clients. The drawn AI boards (a10-1 to a10-2b, a11-1g) are Ferman's own assistant, a different feature (P4).
+- **Decision:** Built in M4 step 11 from the existing Settings components: a section that lists the supported clients, each with its connection link or setup button and its state, and a switch that stops the server; a Privacy row per connected client; a quiet notice in the window while one is connected. A board is asked for in the re-export; until then the layout is recorded here when it is built.
+- **Status:** Decided
+- **Evidence:** No board in `design/` mentions MCP or connecting an outside assistant. `design/11a Settings.dc.html` (a11-1g, a11-1h) draws Ferman's own assistant and "Your AI provider". Built in M4 step 11 ([ROADMAP.md](ROADMAP.md#8-m4-rest-of-phase-1)).
+
+<a id="g95"></a>
+
+### G95 · Narrow windows in M1: how the tool row, the mode tabs and the panels give way
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** App shell responsiveness
+- **Artboards:** none narrower than 1440 px ([G21](#g21)); the tool rows of every mode in FmWindow
+- **Gap or conflict:** [G21](#g21) decides the principle (labels hide behind their icons, then tools move into an overflow menu; panels collapse before anything overlaps; mode tabs fall back to icons when they do not fit; a minimum window width) but no board draws any of it: not the order, not the overflow button, not what its menu lists, not which panel goes first.
+- **Decision:** (1) A tool row frees space one item at a time, from the end: first the hints that have no menu entry (the Organize hint), then the labels of inline tools, which hide behind their icons (the name stays the tooltip and the accessible name), then tools move into the overflow menu, and last the actions after the spacer (Dark reading mode, Mark edited text, Review edits, Apply redactions) and the colour group of the Comment row. Show comments never moves. (2) The overflow button, "More tools" with the `ellipsis` icon and no caret, takes the place of the first item that moved, before the spacer, and mirrors in right to left. It is in the row's arrow-key order and opens with Enter, Space or ArrowDown. (3) Its menu lists exactly the moved items, in row order, with dividers where the row had a separator or the spacer: toggles as checkable items with their state, disabled items with their reason, the zoom select and the segmented controls as submenus with the current choice checked, Review edits with its count ("Review edits (3)", the number written for the region), the colours as a "Color" submenu once every tool has moved; tools that have their own menu appear as plain items ([B093](BACKLOG.md#open)). (4) A focused tool that moves into the menu hands focus to the overflow button, which hands it back to that tool when it returns, never out of an open menu. An item that moves into the menu closes the popover it had open (a select's list), which does not reopen. (5) Mode tabs fall back to icons all together, only when the labelled strip does not fit; the label is then the tooltip, after the usual delay and closed by Escape, and stays the accessible name; if even the icons do not fit, the strip scrolls. (6) A panel steps aside when the canvas would drop below 640 px (Proposed): the right panel first, as the document is the hero; then the panel opened last stays. A panel that stepped aside stays open and comes back when there is room; its toggle and shortcut show what is visible and bring it back, and the other panel steps aside. Below the width where a panel fits beside the canvas on its own (904 px for the right panel, 856 for the sidebar; only on the web and narrow tablets) its toggle is disabled with "Make the window wider to show this panel". (7) The window's minimum size is 1024 × 640 px; the width is Proposed in [ROADMAP.md](ROADMAP.md) (960 px would also allow half-screen snapping on a 1920 px display, with only German-length mode labels falling back to icons; the owner's choice), and 640 px fits a 1280 × 720 screen with the taskbar. At 1024 px every row fits with some labels hidden and the overflow menu is not needed; the right panel steps aside. (8) Document tabs keep their 112 px minimum (a1-10) down to the desktop minimum; "+N" is unchanged until M2 counts it from the width ([B028](BACKLOG.md#open)). (9) A stacked tool button at touch density is 52 px tall: the CSS fixes it at 48 px and touch raises `--icon-lg` from 20 to 24 px, so the button grows by the same 4 px. (10) A disabled tool whose label has hidden shows its reason as its tooltip, as every disabled control does ([G10](#g10)); its name stays in the accessible name and the menu ([B095](BACKLOG.md#open)).
+- **Status:** Decided. The 1024 px minimum and the 640 px canvas minimum are Proposed.
+- **Evidence:** `design/FmWindow.dc.html` lines 46–100 (the tool rows); [G21](#g21). Implemented in `app/lib/design/components/navigation/toolbar.dart` (the overflow), `label_collapse.dart`, `mode_tabs.dart` and `tool_button.dart` (`stackedHeightFor`), `annotations/annotation_tools.dart`, `forms/popover.dart` (`PopoverAnchorVisibility`), `core/tooltip.dart` (`focused`), `app/lib/features/shell/shell_state.dart` (`ShellPanels`), `shell_tool_rows.dart`, `shell_mode_bar.dart`, `shell_canvas.dart`, `app/lib/design/window_metrics.dart` and `app/lib/app/desktop_window.dart` (`setMinimumSize`) (M1 phase H6); checked in `app/test/design/components/navigation/toolbar_overflow_test.dart`, `label_collapse_test.dart`, `mode_tabs_test.dart` and `app/test/features/shell/shell_narrow_test.dart`.
+
+<a id="g96"></a>
+
+### G96 · Window goldens: the native traffic lights and the system font fallback
+
+- **Type:** ambiguity
+- **Milestone:** M1
+- **Area:** Goldens / window chrome / fonts
+- **Artboards:** every macOS board, which draws the traffic lights inside FmWindow (for example `a1-1`, `a1-5`, `a2-1b`, `a11-1`, `a12-1ar`); the key caps of `a1-5` and `a2-1b`; the CJK language names of `a1-1`
+- **Gap or conflict:** The boards draw the macOS traffic lights as part of the window: 12 px circles in #FF5F57, #FEBC2E and #28C840 with a 0.5 px inner ring of rgba(0,0,0,.25), 8 px apart, 14 px from the leading edge. In the app they are the real native buttons, which the Swift runner places beside Ferman's title bar (G15, phase H1). The boards also draw the macOS key symbols with the browser's system font fallback (no `--font-ui` web font has them), and the Japanese, Korean and Chinese language names of a1-1 in the design's `--font-ui` web fonts, IBM Plex Sans JP and KR and Noto Sans SC, which the app does not bundle. The app leaves both to the user's system ([ADR 0013](adr/0013-fonts-and-icons.md), [G87](#g87)). `flutter test` has neither a native window nor a system font fallback, so a whole-window golden would show an empty slot where the lights sit and boxes for those characters.
+- **Decision:** Test-only stand-ins, never in the app. macOS window goldens paint simulated traffic lights over the view (`app/test/helpers/traffic_lights.dart`) at the layout `TitleBar` sends to the native side, repeating the Swift layout (centred in the 37 px above the title bar line, mirrored right to left with close at the end), in FmWindow's colours in both themes; `app/test/goldens/traffic_lights_test.dart` pins the geometry in both directions. For the characters, `app/test/flutter_test_config.dart` loads DejaVu Sans Mono and Noto Sans CJK JP from the Linux runner's `fonts-dejavu-core` and `fonts-noto-cjk` and appends them to every UI font chain through the test-only `FermanFontFamilies.debugExtraFallback`; CI fails when either package changes version, and a golden that shows such a character fails when its font is missing. Expected differences: the goldens' ⌘ is DejaVu's, smaller and lighter than in the references, which take it from Inter through the container's fontconfig, and the CJK names are Noto Sans CJK JP Regular where a1-1 draws IBM Plex Sans JP and KR and Noto Sans SC at a medium weight, a different typeface as well as a different weight. On a Mac both come from the system's own fonts, and where the real lights sit is the owner's hardware check (ROADMAP §5 step 8). Windows and Linux goldens show Ferman's own caption buttons, which the app draws itself. The component goldens also load DejaVu Serif (fonts-dejavu-core) under the names Georgia and Times New Roman, the system fonts the FontPicker sample's "On this device" list names (`systemFontStandIns` in `app/test/helpers/component_golden.dart`), and fail any golden whose text uses a font family the run has not loaded.
+- **Status:** Decided.
+- **Evidence:** `design/FmWindow.dc.html` line 18 (the lights); `design/ds-additions/fm-additions.css` line 48 (`--font-ui`: the Plex CJK and Noto Sans SC web fonts, then the system families); `app/macos/Runner/MainFlutterWindow.swift` (the native layout, phase H1). Implemented in `app/test/helpers/traffic_lights.dart`, `app/test/helpers/fonts.dart`, `app/test/helpers/window_golden.dart` and `app/lib/design/theme/typography.dart` (the hook), with the tests `app/test/goldens/traffic_lights_test.dart`, `app/test/goldens/test_fonts_test.dart` and `app/test/design/theme/typography_test.dart` (M1 phase K1); the component goldens in `app/test/helpers/component_golden.dart` and `app/test/goldens/components_golden_test.dart` (M1 phase L).
+
+<a id="g97"></a>
+
+### G97 · The golden matrix: drawn variants, variants built from tokens, and expected differences
+
+- **Type:** missing variant
+- **Milestone:** M1
+- **Area:** Golden matrix
+- **Artboards:** compared: `f6`, `f6a`, `a1-1`, `a1-2b`, `a1-2c`, `a1-5`, `a11-1`, `a11-1w`, `a11-1b`, `a11-1h`, `a12-2a`, `a12-2c`, `a2-1b`, `a3-1d`, `a12-1tr`, `a12-1ar`; not compared (German): `a12-2b`, `a12-2d`; nearest drawn modes: `a2-9`, `a4-1`, `a4-1d`, `a5-1`, `a5-1d`, `a6-1`, `a7-1`, `a8-1`, `a9-1`
+- **Gap or conflict:** ROADMAP §5 step 11 asks for goldens of the language picker, welcome steps 2 and 3, the empty start screen, Settings General and Language and region, and the shell in eight modes with macOS and Windows chrome, each in light and dark × en, tr and ar. The matrix adds Settings General with Windows chrome (a11-1w) and the Privacy pane, the third built pane of Settings, as the brief asks goldens of every implemented screen: 144 goldens. The boards draw only some of these variants, and those they draw often show states M1 cannot reach (an open document, recent files, unsaved edits).
+- **Decision:** Every golden is built from the tokens and the ARB files; a board, where one exists, is the reference the comparison report scores it against ([ARCHITECTURE §13.5](ARCHITECTURE.md#135-flutter-tests)). The variants with no board are built from tokens as G16 (Windows), G17 (dark), G18 (right to left) and G19 (Turkish) decide:
+
+  | Screen (goldens) | Drawn | Built from tokens, no board |
+  |---|---|---|
+  | Language picker (6) | `a1-1` macOS light en | dark; tr; ar |
+  | Welcome step 2 (6) | `a1-2b` macOS light en | dark; tr; ar |
+  | Welcome step 3 (6) | `a1-2c` macOS light en | dark; tr; ar |
+  | Empty start (6) | `a1-5` macOS light en; `a12-2a` macOS light ar (with recent files, M2) | dark (`a1-4b` is the dark start with recent files, M2); tr |
+  | Settings General, macOS (6) | `a11-1` light en | dark; tr; ar |
+  | Settings General, Windows (6) | `a11-1w` light en | dark; tr; ar |
+  | Settings Language and region (6) | `a11-1b` macOS light en; `a12-2c` macOS light ar | dark; tr |
+  | Settings Privacy (6) | `a11-1h` macOS light en (its switches drawn on; M1 shows them off and disabled, [G89](#g89)) | dark; tr; ar |
+  | Shell, macOS (48) | light en: View `a2-1b`, Edit `a3-1a` to `a3-1c`, Comment `a4-1`, Fill & Sign `a5-1`, Organize `a6-1`, Convert `a7-1`, Protect `a8-1`, Tools `a9-1`; dark en: View `a2-9` (with the Dark reading mode on, P2, B040), Edit `a3-1d`, Comment `a4-1d`, Fill & Sign `a5-1d`; Edit tr `a12-1tr`; Edit ar `a12-1ar` | dark Organize, Convert, Protect, Tools; tr and ar in every mode but Edit |
+  | Shell, Windows (48) | Edit light en `f6a` (and the strip of `f6`); dark: only a title bar and mode bar strip in the DS additions sheet | every other mode; dark (whole window); tr; ar |
+
+  The shell goldens show the editor at `/debug/shell` with its placeholder documents, so the drawn modes are the nearest states, not the same document; the report compares a2-1b, a3-1d, f6, f6a, a12-1tr and a12-1ar with the canvas masked ([B098](BACKLOG.md#open)). Regions: Türkiye for Turkish, Saudi Arabia for Arabic and the United Kingdom for English, and Türkiye for Language and region in every language ([G34](#g34)). During first run only the theme is stored, so language and region come from the system locale (en-GB, tr-TR, ar-SA), as at a first launch.
+
+  Differences the report shows and that are expected in M1, each from a decision recorded elsewhere:
+  - Every screen: controls for later milestones are disabled with the future-version tooltip where the boards draw them enabled ([G10](#g10), [G11](#g11)): the start cards, quick tools and drop-zone buttons, Search, most Settings panes and options, the shell's tools and Save, and the links (Help translate, Source code, Support the project). Headings sit about 1 px lower than in the references; body rows line up within a pixel.
+  - `a1-1`: the app focuses the search field at launch (accent border and caret) where the board draws a focus ring on Türkçe; 18 rows add "Not translated yet" ([G20](#g20)); the CJK names differ in weight ([G96](#g96)).
+  - `a1-2b`: "1 of 2" against "2 of 3", eight facts against five and two dots against three ([G24](#g24)).
+  - `a1-2c`: "2 of 2"; nine tiles show the clock and only "3 interface languages" is ticked ([G12](#g12)); the licence reads Apache-2.0 ([G13](#g13)).
+  - `a1-5`: the shorter start copy of [G11](#g11) ("PDF files", and a drop-area subtitle without conversion), so the drop zone's content is one line shorter: the icon and heading sit about 10 px lower, the buttons and the privacy note about 10 px higher.
+  - `a12-2a`: the board is the start with recent files (M2), masked below the quick tools; the Arabic card descriptions fit on one line, so the cards are shorter.
+  - `a11-1`, `a11-1w`: the stored theme shows Light or Dark where the board shows Match system; the default-app line and the close button follow [G89](#g89), and the Windows text wraps, making that card about 10 px taller.
+  - `a11-1b`, `a12-2c`: the closest pairs; in Arabic the example rows sit 1 to 3 px lower.
+  - `a11-1h`: the switches are off and disabled where the board draws four of them on ([G89](#g89)), and "Show network activity…" is disabled.
+  - Shell (`a2-1b`, `a3-1d`, `f6`, `f6a`, `a12-1tr`, `a12-1ar`): no page, thumbnails or document panel before M2 ([G86](#g86)); five placeholder tabs plus "+3" against three; the placeholder document is saved, where the Edit boards show unsaved edits (Save enabled, a dot on the tab, Review edits 3); "Page 1 of 3" against a2-1b's "Page 2 of 3". `a2-9` is not compared: it draws the Dark reading mode on with the page inverted, which M1 keeps disabled (B040) and paper-white ([G17](#g17)).
+- **Status:** Decided.
+- **Evidence:** `app/test/goldens/screens_golden_test.dart` and `shell_golden_test.dart` (the matrix, with the board ids in the test names), `tools/design-refs/compare-map.json` (the pairs, crops, masks and notes), `build/design-compare/report.md` from `node tools/design-refs compare` (M1 phases K1 and K2).
+
+<a id="g98"></a>
+
+### G98 · Key caps and weekday names in right to left
+
+- **Type:** missing variant
+- **Milestone:** M1
+- **Area:** Component library: Kbd, DatePicker
+- **Artboards:** `a12-1ar` (the title bar's "K ⌘"); no board draws a Kbd with a bracket or arrow, a menu, a tooltip or a DatePicker in right to left ([G18](#g18))
+- **Gap or conflict:** The right-to-left component goldens showed two things no board decides. A `Kbd` cap took the paragraph direction, so a mirrored character flipped: "⌘]" read "[ ⌘", naming the wrong key. And the DatePicker took intl's short weekday names, which for Arabic are the whole day names ("الخميس"), too wide for a day column, so one broke mid-word.
+- **Decision:** A cap is one key and reads left to right in every UI direction, so its glyph is never mirrored; the row of caps follows the UI direction, as a12-1ar draws "K ⌘" ([COMPONENTS.md](COMPONENTS.md) decision 45). The DatePicker uses the language's short weekday names unless one of them is longer than four characters, and then the narrow names: one letter each in Arabic (ح ن ث ر خ ج س) and Persian, a letter with geresh in Hebrew, while English, Turkish and French keep their short names (decision 46). Arabic boards of a menu with shortcuts and of the DatePicker are asked for in the re-export.
+- **Status:** Decided.
+- **Evidence:** `design/FmWindow.dc.html` (the Search caps), drawn mirrored in `build/design-refs/a12-1ar.png`; intl 0.20.3's Arabic `STANDALONESHORTWEEKDAYS` and `STANDALONENARROWWEEKDAYS`. Implemented in `app/lib/design/components/core/kbd.dart` and `app/lib/design/components/additions/date_picker.dart` (M1 phase L); checked in `app/test/design/components/core/kbd_test.dart`, `app/test/design/components/additions/date_picker_test.dart` and the `component_Kbd`, `component_Tooltip`, `component_Menu` and `component_DatePicker` right-to-left goldens.
+
+<a id="g99"></a>
+
+### G99 · Commands whose keys no M1 control shows
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Keyboard shortcuts
+- **Artboards:** `a11-3` (the shortcut table), `a11-1j`, `a11-2` (the palette), `FmWindow` (the tool rows and their key hints)
+- **Gap or conflict:** The shortcut table has commands that no control of the M1 shell shows with its keys: the cheat sheet itself; Create PDF in the Convert row, Duplicate and Extract in Organize, Find & redact in Protect, and Date and Sign in Fill & Sign, which FmWindow draws without keys; Save (a Button, which shows no keys) and Save as and Save a copy (no control); moving between documents; Find, Go to page and reading mode; the Show comments switch (a Switch has no keys); form-field navigation; the page grid's keys; and the window's own commands (the caption buttons and traffic lights give their names without keys, as native windows do). The Fit width, Fit page and Actual size keys have controls whose keys M1 cannot show yet (B034).
+- **Decision:** Tools show the keys FmWindow gives them and no others. The keys of every other command are listed by the command palette (B030) and the cheat sheet (B076); until then they work from the keyboard where their feature exists. `app/test/features/shell/shortcut_caps_test.dart` walks every control of the shell on the three systems, checks that each shows exactly its command's keys, and keeps the list of key-only commands (`_keysOnly`) and of those shown from M2 (`_shownFromM2`).
+- **Status:** Decided.
+- **Evidence:** `design/FmWindow.dc.html` lines 93, 95, 110, 111, 133 and 141 (Date, Sign, Duplicate, Extract, Create PDF and Find & redact, without `shortcut`) and 140 (Redact, with it). Implemented in `app/lib/features/shell/shell_tool_rows.dart` (M1 phase L).

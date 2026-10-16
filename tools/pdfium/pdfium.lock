@@ -1,0 +1,24 @@
+# PDFium prebuilt binaries pinned for Ferman (ADR 0004, docs/DEPENDENCIES.md section 5.1).
+# Source: bblanchon/pdfium-binaries, plain build (no V8, no XFA).
+# Read by tools/pdfium/fetch.sh; the format is described in tools/pdfium/README.md.
+#
+#   tag      <release tag>
+#   version  <Chromium version from the archive's VERSION file>
+#   url      <release download base; "/pdfium-<id>.tgz" is appended>
+#   archive  <id> <SHA-256 of the .tgz> <library path inside the archive> <SHA-256 of the library>
+#
+# PDFium has no runtime version API, so the tag recorded here is the version pin.
+# mac-univ holds the mac-x64 and mac-arm64 libraries unchanged as its two slices
+# (fetch.sh checks this whenever it unpacks mac-univ).
+
+tag chromium/7881
+version 151.0.7881.0
+url https://github.com/bblanchon/pdfium-binaries/releases/download/chromium%2F7881
+
+archive mac-arm64   52e94ca5aa8847934330daf3f8150c190682c5ca93831468794f8b90d4392e40 lib/libpdfium.dylib 1bc45b15466b34cef96641ce25c77a876e70010c6b114f909dda2f5325fc5bd7
+archive mac-x64     6dedf83990e0e3d6b7c93c9e7589c5a126b0ae14b7464d76120cff7a26afb18b lib/libpdfium.dylib 4eaad6c3e8d786cf6f66a45d7d014edf5c65f372f98c3070e66595ebb50e43d9
+archive mac-univ    df451a413c3609585e84a4a91110a9bc889cff05fe3b2db0ed817c9e90c3f7d3 lib/libpdfium.dylib 3858ed6a6e785d87402287bcafbcea9e5777718c8a64ce266fed78ed1fbdfdae
+archive win-x64     73cc0de638ac2095e7445bf56a38200a5b7c7ca0e9f4ba144598f2457377ac08 bin/pdfium.dll 79d4676b656cfb1abcea88f9ade3b4b0826c5200382db5f4ec72a636c598c118
+archive win-arm64   d3035d4d2cacac6ecd1a2ece197a3d702a1b2a58466276b9f870b8cb278a9d84 bin/pdfium.dll 267a6f08a9c854d9949754a53b7630f23c0b67de5c7ca273b6abf178b49158c2
+archive linux-x64   1470e21b8b4a3b4ad7f85684e2da11d94f3b69a86d81dee11b9b6709d927ac1d lib/libpdfium.so f728930966f503652b92acc89b9374a2eeca00ce42e26dccd3e4b5c5161b2d64
+archive linux-arm64 ee7f7b7d5468958336a818c1cd580bdd20972846b7377b13f9a923d92d1d4674 lib/libpdfium.so 6252fce3da45e7f0dc5b27f4d4e1a1456ca3f7734cdb04f927967df772127478

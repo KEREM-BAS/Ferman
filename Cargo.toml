@@ -1,0 +1,76 @@
+# Ferman engine workspace: seven crates with the dependency graph of docs/ARCHITECTURE.md §2.2.
+# Every dependency is listed with its licence in docs/DEPENDENCIES.md, updated in the same change.
+
+[workspace]
+members = ["crates/*"]
+resolver = "3"
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+# The floor set by the planned dependencies (docs/DEPENDENCIES.md §6). The pinned toolchain in
+# rust-toolchain.toml (1.99.0) is what builds Ferman.
+rust-version = "1.88"
+license = "Apache-2.0"
+publish = false
+authors = ["The Ferman Authors"]
+repository = "https://github.com/KEREM-BAS/Ferman"
+
+[workspace.dependencies]
+# Ferman crates: unpublished path dependencies without a version requirement (deny.toml sets
+# allow-wildcard-paths), so a version bump touches only [workspace.package].
+ferman-core = { path = "crates/ferman-core" }
+ferman-fonts = { path = "crates/ferman-fonts" }
+ferman-text = { path = "crates/ferman-text" }
+ferman-render = { path = "crates/ferman-render" }
+ferman-ops = { path = "crates/ferman-ops" }
+# default-features = false here, so a member can opt out of defaults (edition 2024 requires it).
+ferman-api = { path = "crates/ferman-api", default-features = false }
+
+# Shipped dependencies.
+thiserror = "2.0.21"
+tracing = "0.1.44"
+serde = { version = "1.0.229", features = ["derive"] }
+serde_json = "1.0.154"
+clap = { version = "4.6.7", features = ["derive", "string"] }
+# The crate, the Dart package and flutter_rust_bridge_codegen must be exactly the same version.
+flutter_rust_bridge = "=2.13.0"
+# Pinned exactly: PDFium (tools/pdfium, tag chromium/7881) and pdfium-render move together, in one
+# commit (ADR 0004). Default features off: no `image` until pages render (M2), and the API level is
+# named instead of `pdfium_latest`, so a pdfium-render update cannot move it silently.
+pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
+# Replies from the render thread: a oneshot future that async API functions await without blocking.
+futures-channel = "0.3.34"
+
+# Dev and test only; never in the shipped graph.
+insta = "1.49.0"
+proptest = "1.12.0"
+
+[workspace.lints.rust]
+# Every public item is documented. A warning here; CI turns it into an error with -D warnings.
+missing_docs = "warn"
+# flutter_rust_bridge's #[frb] attribute expands to cfg_attr(frb_expand, …); codegen sets that cfg
+# when it expands the crate. Declared here as FRB's own templates do (a member cannot add lints next
+# to `workspace = true`).
+unexpected_cfgs = { level = "warn", check-cfg = ["cfg(frb_expand)"] }
+# unsafe_code is deliberately not set here: each crate root carries #![forbid(unsafe_code)], except
+# ferman-api, which uses #![deny(unsafe_code)] so the FRB-generated module can be allowed (ADR 0010).
+# unreachable_pub is not enabled: the FRB-generated module in ferman-api is full of `pub` items in a
+# private module and would need its own exemption, for little gain in a workspace of unpublished crates.
+
+[workspace.lints.clippy]
+# No panics in library code (ADR 0010). Tests may unwrap and expect (clippy.toml).
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+# Leftover debugging output; logs go through tracing and stay on the device.
+dbg_macro = "deny"
+# println!/eprintln! panic when the stream is closed; write through std::io and handle the error.
+print_stdout = "deny"
+print_stderr = "deny"
+
+[profile.release]
+# ADR 0010: ferman-api catches panics at its entry points as a last resort, which needs unwinding.
+panic = "unwind"

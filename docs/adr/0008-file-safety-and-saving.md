@@ -95,9 +95,11 @@ that shows the banner earlier is proposed in [ARCHITECTURE.md](../ARCHITECTURE.m
 ### Autosave journal and recovery
 
 - Recovery data lives in the **app data directory**, never next to the user's file
-  ([brief §3](../BRIEF.md)): `~/Library/Application Support/<bundle id>/Recovery/` on macOS,
-  `%LOCALAPPDATA%\Ferman\Recovery\` on Windows, `$XDG_STATE_HOME/ferman/recovery/` on Linux. The final
-  folder name depends on the bundle identifier ([Q01](../QUESTIONS.md#q01)).
+  ([brief §3](../BRIEF.md)): `~/Library/Application Support/io.github.kerembas.ferman/Recovery/` on
+  macOS, `%LOCALAPPDATA%\Ferman\Recovery\` on Windows, `$XDG_STATE_HOME/ferman/recovery/` on Linux.
+  The bundle identifier is `io.github.kerembas.ferman` ([Q01](../QUESTIONS.md#q01)); while the macOS
+  App Sandbox is on ([Q18](../QUESTIONS.md#q18)), the macOS path lies inside
+  `~/Library/Containers/io.github.kerembas.ferman/Data/`.
 - Every commit appends a checksummed record of the changed objects to a journal. While there are unsaved
   changes, a full snapshot of the pending incremental section is written every minute with the same
   atomic sequence (the a11-1c switch turns this off). Replay is pure data and does not depend on fonts or
@@ -167,4 +169,4 @@ the temp file of a save and files the user asks for.
   [ADR 0018](0018-native-file-pickers.md)
 - Artboards f4, f4a, f4b, a1-9, a1-10b, a1-11, a1-12, a8-2c, a8-3, a9-8, a11-1c, a11-7, a11-7b, a11-7c
 - [G40](../DESIGN_GAPS.md#g40), [G41](../DESIGN_GAPS.md#g41), [G43](../DESIGN_GAPS.md#g43),
-  [G57](../DESIGN_GAPS.md#g57), [Q01](../QUESTIONS.md#q01)
+  [G57](../DESIGN_GAPS.md#g57), [Q01](../QUESTIONS.md#q01), [Q18](../QUESTIONS.md#q18)

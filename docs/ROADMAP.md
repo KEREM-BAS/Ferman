@@ -1,6 +1,7 @@
 # Ferman roadmap
 
-Status: Milestone 0 is complete and waits for the owner's approval. No application code exists yet.
+Status: Milestone 0 is complete and approved (2026-10-15). Milestone 1 is in progress on the branch
+`m1-foundations`, with a draft pull request to `main` (opened once phase B is pushed).
 
 This document details the roadmap in [brief](BRIEF.md) §7 and covers brief §8 item 4. For every
 milestone it gives the goal, the scope from the brief, the deliverables, the artboards it covers,
@@ -14,7 +15,7 @@ and the exit checks.
 - One milestone at a time (brief §9). A milestone starts only after the previous one is accepted.
 
 Related: [architecture](ARCHITECTURE.md) · [design inventory](DESIGN_INVENTORY.md) ·
-[design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) ·
+[component spec](COMPONENTS.md) · [design gaps](DESIGN_GAPS.md) · [dependencies](DEPENDENCIES.md) · [questions](QUESTIONS.md) ·
 [backlog](BACKLOG.md) · [progress](PROGRESS.md) · [ADRs](adr/README.md)
 
 ## Contents
@@ -92,12 +93,12 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 
 | Code | Name | Goal in one line | Status | Boards | Needs first |
 |---|---|---|---|---|---|
-| M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete, pending owner approval | 0 | — |
-| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Not started | 13 | M0 approval; [Q01](QUESTIONS.md#q01) and [Q03](QUESTIONS.md#q03) wanted (a marked placeholder and the proposal are allowed) |
-| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q17](QUESTIONS.md#q17) (desktop_drop and `fuzz/`) |
-| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q04](QUESTIONS.md#q04), [Q07](QUESTIONS.md#q07), [Q09](QUESTIONS.md#q09) |
-| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3 |
-| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q15](QUESTIONS.md#q15) |
+| M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
+| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete, pending owner approval | 13 | M0 approval (given 2026-10-15) |
+| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q18](QUESTIONS.md#q18) (macOS App Sandbox) |
+| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4, [Q09](QUESTIONS.md#q09) |
+| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 |
+| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging), [Q15](QUESTIONS.md#q15) |
 | P2 | Phase 2 | Add text and images, find and replace, page marks, redaction, hidden information | Not started | 18 | M5 |
 | P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; [Q06](QUESTIONS.md#q06), [Q16](QUESTIONS.md#q16) |
 | P4 | Phase 4 | Form authoring, PDF/A and preflight, PDF/UA tools, batch, translation, local AI | Not started | 17 | P3 |
@@ -147,7 +148,9 @@ flowchart LR
 ### 3.1 Working rhythm
 
 From brief §9: plan the milestone in [PROGRESS.md](PROGRESS.md), implement, test, update the docs,
-commit in small Conventional Commits, push, then stop with a summary for the owner. Ask the owner
+commit in small Conventional Commits, push, then stop with a summary for the owner. The owner added
+a limit on 2026-10-16: at most 15 to 20 commits per pull request, so work is committed and pushed in
+checked batches, and the owner is told when a pull request is ready to merge. Ask the owner
 before changing an architectural decision, adding a dependency with an unusual licence, touching
 `design/`, or deleting work someone else created. Put open questions in [QUESTIONS.md](QUESTIONS.md)
 and continue with the safest option.
@@ -156,8 +159,9 @@ and continue with the safest option.
 
 - [ ] **S1 CI green** on macOS, Windows and Linux: `cargo fmt --all --check`,
   `cargo clippy --workspace --all-targets -- -D warnings`, `cargo test --workspace`,
-  `cargo deny check`, `flutter analyze` with zero issues, `flutter test`, and the desktop build for
-  each system.
+  `cargo deny check`, `flutter analyze` and `dart analyze --fatal-infos` with zero issues (the
+  riverpod_lint analyzer plugin reports only through `dart analyze`), `flutter test`, and the desktop
+  build for each system.
 - [ ] **S2 Rust quality**: no `unwrap`, `expect`, `panic`, `todo` or `unimplemented` in library code
   (Clippy lints denied outside tests); `thiserror` errors; every public item documented; unit and
   integration tests for new code ([ADR 0010](adr/0010-error-handling-no-panics.md)).
@@ -196,14 +200,15 @@ and continue with the safest option.
   listed. Nothing is silently skipped.
 - [ ] **E6** [QUESTIONS.md](QUESTIONS.md), [DEPENDENCIES.md](DEPENDENCIES.md) and the commands in
   [CLAUDE.md](../CLAUDE.md) are current.
-- [ ] **E7** Work is committed in small Conventional Commits and pushed; CI is green on the pushed
-  branch.
+- [ ] **E7** Work is committed in Conventional Commits, at most 15 to 20 per pull request (from M2,
+  the owner's rule of 2026-10-16), and pushed; CI is green on the pushed branch.
 - [ ] **E8** A short summary goes to the owner. The next milestone waits for the owner's go-ahead.
 
 ## 4. M0: discovery and plan
 
-**Status:** Complete, pending owner approval. **Boards:** none; this milestone produced the
-inventory.
+**Status:** Complete. The owner approved M0 on 2026-10-15: pull request #1 was merged into `main`
+(merge commit `fe99894`) and the owner gave the go-ahead for M1. **Boards:** none; this milestone
+produced the inventory.
 
 ### Goal
 
@@ -221,12 +226,12 @@ without writing application code (brief §8).
 | [docs/BRIEF.md](BRIEF.md) | the owner's brief, verbatim |
 | [docs/DESIGN_INVENTORY.md](DESIGN_INVENTORY.md) | all 223 boards mapped to feature, milestone and engine capability; tokens, components, icons, fonts, flows, fixes, sample documents; missing screens and states |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | crates, API boundary, threading, data flow, text editing pipeline, file safety, errors, security, privacy, localization, platform integration, testing strategy, performance budgets, risks |
-| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part) |
+| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part; the owner accepted 0007 and 0013 on 2026-10-15) |
 | docs/ROADMAP.md | this document |
 | [docs/PROGRESS.md](PROGRESS.md) | milestone checklist and session log |
 | [docs/DEPENDENCIES.md](DEPENDENCIES.md) | licence policy, planned dependencies per milestone with versions and licences, bundled assets, proposed `deny.toml` |
 | [docs/DESIGN_GAPS.md](DESIGN_GAPS.md) | 61 verified gaps and conflicts, G01 to G61 (G61 from the review of the documents), each with the option chosen |
-| [docs/QUESTIONS.md](QUESTIONS.md) | 17 questions for the owner, Q01 to Q17 |
+| [docs/QUESTIONS.md](QUESTIONS.md) | 17 questions for the owner, Q01 to Q17 (Q18 was added in M1) |
 | [docs/BACKLOG.md](BACKLOG.md) | entry format only; empty until M1 disables its first feature |
 | [CLAUDE.md](../CLAUDE.md), [.claude/rules/rust.md](../.claude/rules/rust.md), [.claude/rules/flutter.md](../.claude/rules/flutter.md) | session rules, repo map, definition of done; path-scoped Rust and Flutter rules |
 | [README.md](../README.md), [LICENSE](../LICENSE), [CONTRIBUTING.md](../CONTRIBUTING.md), [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md), [SECURITY.md](../SECURITY.md), [THIRD_PARTY_NOTICES.md](../THIRD_PARTY_NOTICES.md), `.gitignore` | community files; Apache-2.0 licence text; licence texts for the third-party material inside `design/` |
@@ -249,27 +254,40 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 
 ### Exit checks
 
-- [ ] Committed and pushed; summary and questions sent to the owner (brief §8 item 7).
-- [ ] The owner approves M0. No application code is written before that.
+- [x] Committed and pushed; summary and questions sent to the owner (brief §8 item 7). Evidence:
+  pull request #1 from `m0-plan`, merged into `main` as `fe99894`.
+- [x] The owner approves M0. No application code is written before that. Evidence: the merge of
+  pull request #1 (`fe99894`) and the owner's go-ahead on 2026-10-15.
 - [ ] The owner answers at least [Q01](QUESTIONS.md#q01) bundle identifier, [Q02](QUESTIONS.md#q02)
-  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01 and Q03 are
-  wanted before M1 step 2; until then a marked placeholder (Q01) and the proposal (Q03) are used.
-  Both are final before M5; Q02 is needed before M5.
-- [ ] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
+  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01
+  (`io.github.kerembas.ferman`) and Q03 were answered on 2026-10-15. Q02 is still open; it is needed
+  before M5, so this box stays open until then.
+- [x] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
   0008, and the licence exceptions in [Q17](QUESTIONS.md#q17) are approved, changed or rejected, or
-  carried into M1 as open questions with the safest option in force.
+  carried into M1 as open questions with the safest option in force. Evidence: on 2026-10-15 the owner
+  accepted ADR 0007 ([Q04](QUESTIONS.md#q04)) and the Hebrew and Devanagari part of ADR 0013
+  ([Q08](QUESTIONS.md#q08)) and approved Q17 parts 1 to 3. ADR 0009, ADR 0018, the Proposed details
+  and Q17 part 4 are carried into M1 unapproved, with the safest option in force
+  ([PROGRESS.md](PROGRESS.md#adr-status)).
 - [ ] The owner enables GitHub private vulnerability reporting, which [SECURITY.md](../SECURITY.md)
   and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) rely on (see
-  [PROGRESS.md](PROGRESS.md#owner-actions)).
+  [PROGRESS.md](PROGRESS.md#owner-actions)). Not known to be done on 2026-10-15.
 
 ## 5. M1: foundations
 
-**Status:** Not started. **Needs first:** owner approval of M0; [Q01](QUESTIONS.md#q01) bundle
-identifier and [Q03](QUESTIONS.md#q03) minimum OS versions are wanted before step 2 (until then a
-marked placeholder and the proposal are used; both are final before M5); [Q08](QUESTIONS.md#q08)
-before Hebrew and Devanagari fonts ship in step 5; [Q12](QUESTIONS.md#q12) before the Linux title
-bar in step 8; [Q17](QUESTIONS.md#q17) for the Swatinem/rust-cache CI action (until then
-actions/cache or no cache); [Q14](QUESTIONS.md#q14) for the copyright line.
+**Status:** Complete, pending owner approval (2026-10-16). Built on the branch `m1-foundations`
+with pull request #2 to `main`; the plan, its phases and the session log are in
+[PROGRESS.md](PROGRESS.md#m1-plan). Every box below that a test, a CI run or a measurement can prove
+is ticked with its evidence; the open ones wait on the owner: Proposed items to approve, checks on
+R1, R2 and arm64 hardware, and native-speaker review ([BACKLOG.md](BACKLOG.md) B100).
+**Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
+the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
+[Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
+[Q05](QUESTIONS.md#q05) eight mode tabs, [Q08](QUESTIONS.md#q08) Plex Sans Hebrew and Devanagari,
+[Q12](QUESTIONS.md#q12) the custom Linux title bar, [Q14](QUESTIONS.md#q14) "Copyright The Ferman
+Authors" and [Q17](QUESTIONS.md#q17) Swatinem/rust-cache. Still open and not blocking M1:
+[Q11](QUESTIONS.md#q11) design re-export, the sign-off part of Q14, and [Q18](QUESTIONS.md#q18)
+macOS App Sandbox (the template's sandbox stays on in M1).
 
 ### Goal
 
@@ -289,9 +307,11 @@ the bridge, and is built and tested by green CI on all three systems. It opens n
   `deny.toml`, `.github/workflows/` CI on macOS, Windows and Linux.
 - Flutter app in `app/` for macOS, Windows, Linux and web, wired to `ferman-api` through
   flutter_rust_bridge 2.13.0.
-- `tools/tokens` and the generated `app/lib/design/tokens.g.dart` with `ThemeExtension`s;
-  `tools/icons` with 229 SVG icons; IBM Plex fonts with licence files; `tools/design-refs`;
-  `tools/pdfium` with the pinned PDFium binaries.
+- `tools/tokens` and the generated `app/lib/design/tokens.g.dart` (plain `Ferman*Tokens` value
+  classes), wrapped in `ThemeExtension`s by `app/lib/design/theme.dart`; `tools/icons` with the 229
+  design icons (SVG assets with provenance, and path data the Icon widget paints); IBM Plex fonts with
+  licence files (`tools/fonts`); `tools/design-refs`; `tools/pdfium` with the pinned PDFium binaries;
+  `tools/checks` with the repository checks CI runs.
 - The Ferman component library in `app/lib/design/components/`, 1:1 with the design system (same
   names, variants and states, [ADR 0011](adr/0011-flutter-state-navigation-components.md)).
 - The app shell, first-run screens, the empty start screen and the settings skeleton.
@@ -328,38 +348,44 @@ Notes on these boards:
 - All seven crates exist with the module layout of [ARCHITECTURE.md §2.3](ARCHITECTURE.md#23-crates-in-detail),
   the workspace lint set, crate docs and at least one test each.
 - `ferman-api`: the pure-Rust facade plus the `frb` feature. Two calls: `api_version()` (the only
-  synchronous call) and an async `engine_info()` that returns versions and build profile.
+  synchronous call) and an async `engine_info()` that returns the app and API versions, the build
+  profile and the PDFium status.
 - `ApiError { kind, message_key, details }` skeleton and `catch_unwind` at the boundary
-  ([ADR 0010](adr/0010-error-handling-no-panics.md)).
+  ([ADR 0010](adr/0010-error-handling-no-panics.md)). `message_key` comes from the closed
+  `MessageKey` type (a newtype with constants and `MessageKey::ALL`); `details` is an
+  `Option<String>` of structural facts in M1.
 - `ferman-cli`: `ferman --version` and `ferman info --json`, both through the facade.
-- `ferman-render`: a skeleton render thread that loads PDFium and reports its version
-  ([ADR 0009](adr/0009-threading-and-jobs.md)). No PDF parsing or rendering yet.
+- `ferman-render`: a skeleton render thread that loads PDFium and reports that it is loaded, with
+  the pinned build tag ([ADR 0009](adr/0009-threading-and-jobs.md)). PDFium has no runtime version
+  API, so the tag comes from the pin. No PDF parsing or rendering yet.
 
 ### New dependencies
 
-Versions and licences were verified on 2026-10-13; [DEPENDENCIES.md](DEPENDENCIES.md) is the record.
+Versions and licences were verified on 2026-10-13 and re-checked when each dependency was added (pub.dev
+licences re-checked on 2026-10-15); [DEPENDENCIES.md](DEPENDENCIES.md) is the record.
 
 | Kind | Dependency | Licence | Notes |
 |---|---|---|---|
-| Rust | flutter_rust_bridge `=2.13.0` | MIT | crate, Dart package and codegen must be the same version; allo-isolate needs a cargo-deny clarify entry |
-| Rust | thiserror 2.0, tracing 0.1 and tracing-subscriber | MIT OR Apache-2.0; MIT | errors and local logs |
-| Rust (dev) | proptest 1.12, insta 1.49 | MIT OR Apache-2.0; Apache-2.0 | property and snapshot tests |
-| Rust | argument parser for ferman-cli | to check | chosen and licence-checked in step 1 |
+| Rust | flutter_rust_bridge `=2.13.0` | MIT | crate, Dart package and codegen must be the same version; allo-isolate needs a cargo-deny clarify entry (hash `0x0a6d4ed6`) |
+| Rust | thiserror 2.0.21, tracing 0.1.44 | MIT OR Apache-2.0; MIT | errors and local logs; tracing-subscriber is added with the first log output |
+| Rust | serde 1.0.229 (derive), serde_json 1.0.154 | MIT OR Apache-2.0 | `engine_info` serialisation; `ferman info --json` |
+| Rust | clap 4.6.7 (derive, string) | MIT OR Apache-2.0 | ferman-cli argument parser, chosen in step 1 |
+| Rust (dev) | insta 1.49.0, proptest 1.12.0 | Apache-2.0; MIT OR Apache-2.0 | snapshot and property tests; proptest is pinned in the workspace table and enters `Cargo.lock` with its first use |
 | Rust | pdfium-render 0.9.4 | MIT OR Apache-2.0 | default features off; `pdfium_7881` and `thread_safe` on |
-| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881`, non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
-| Dart | flutter_riverpod 3.4, riverpod_annotation 4, riverpod_generator 4, build_runner 2.16 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)) |
-| Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin; custom_lint is not used |
-| Dart | go_router 18, very_good_analysis 11 | BSD-3-Clause; MIT | navigation; lints |
-| Dart | intl 0.20, flutter_localizations (SDK) | BSD-3-Clause | gen-l10n, dates and numbers |
-| Dart | window_manager 0.5, flutter_svg 2.3, path_provider 2.1 | MIT; MIT; BSD-3-Clause | custom title bars; icons; app directories |
-| Dart (dev) | alchemist 0.14, mocktail 1.0 | MIT | goldens (golden_toolkit is discontinued); mocks |
+| Rust | futures-channel 0.3.34 | MIT OR Apache-2.0 | oneshot replies from the render thread (M1 step 3); requests use `std::sync::mpsc` until M2 |
+| Binary | PDFium from bblanchon/pdfium-binaries, tag `chromium/7881` (151.0.7881.0), non-V8, non-XFA | BSD-3-Clause AND Apache-2.0, plus bundled third-party notices | SHA-256 pinned per archive and per library in `tools/pdfium/pdfium.lock`; the archive's `licenses/` folder (PDFium's own licence in `licenses/pdfium.txt`) and the packager's MIT `LICENSE` ship with the app |
+| Dart | flutter_riverpod 3.4.3, riverpod_annotation 4.0.7, riverpod_generator 4.0.9, build_runner 2.16.2 | MIT; BSD-3-Clause | state with code generation ([ADR 0011](adr/0011-flutter-state-navigation-components.md)); build_runner 2.17 conflicts with riverpod_generator 4.0.9 |
+| Dart | riverpod_lint 3.1.9 | MIT | analyzer plugin in `analysis_options.yaml`, reported by `dart analyze`; custom_lint is not used |
+| Dart | go_router 18.1.0, very_good_analysis 11.0.0 | BSD-3-Clause; MIT | navigation; lints |
+| Dart | intl 0.20.3, flutter_localizations (SDK) | BSD-3-Clause | gen-l10n, dates and numbers |
+| Dart | window_manager 0.5.2, path_parsing 1.1.0, path_provider 2.1.6 | MIT; MIT; BSD-3-Clause | custom title bars; icon path data for the Icon painter; app directories. flutter_svg is not used: it and vector_graphics depend on `http` ([DEPENDENCIES.md](DEPENDENCIES.md#4-rejected)) |
+| Dart (dev) | alchemist 0.14.1, mocktail 1.0.5 | MIT | goldens (golden_toolkit is discontinued); mocks |
 | Dart | flutter_rust_bridge 2.13.0 | MIT | Dart side of the bridge |
-| Dart | shared_preferences 2.5 | BSD-3-Clause | only if step 9 chooses it for settings |
-| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24 LTS, Playwright 1.64, cargo-deny 0.20, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0 | various permissive | never shipped |
-| CI | actions/checkout, dtolnay/rust-toolchain, subosito/flutter-action, EmbarkStudios/cargo-deny-action, and a Cargo cache: Swatinem/rust-cache only if [Q17](QUESTIONS.md#q17) approves its LGPL-3.0 licence, otherwise actions/cache (MIT) or none | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
-| Assets | IBM Plex TTFs | OFL-1.1 | unmodified files, Reserved Font Name "Plex" ([ADR 0013](adr/0013-fonts-and-icons.md)) |
-| Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for non-Lucide glyphs |
-| Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, the font families the export loads from Google Fonts | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0 | vendored for `tools/design-refs`; licences checked before vendoring; never in the app |
+| Tools | Rust 1.99.0, Flutter 3.47.7 / Dart 3.13.5, Node 24.22.0 LTS, playwright-core 1.56.1, cargo-deny 0.20.2, very_good_cli 1.5, flutter_rust_bridge_codegen 2.13.0, cargo-expand 1.0.127; the Dart tool packages' args, path, yaml, crypto and test; vendored cargokit (from the flutter_rust_bridge 2.13.0 template) and its build tool's pub packages | various permissive | never shipped; why playwright-core is pinned to 1.56.1 is in step 6 |
+| CI | actions/checkout, subosito/flutter-action, EmbarkStudios/cargo-deny-action, Swatinem/rust-cache for the Cargo cache (approved in [Q17](QUESTIONS.md#q17)), actions/setup-node and actions/upload-artifact for the design references and golden failures, actions/cache for the PDFium archives and the codegen tools; the Rust toolchain comes from `rustup toolchain install` | MIT or MIT OR Apache-2.0; rust-cache is LGPL-3.0 | pinned by commit SHA; rust-cache runs only in CI and is never distributed |
+| Assets | IBM Plex TTFs (18 files in six families) | OFL-1.1 | unmodified files, Reserved Font Name "Plex", SHA-256 pinned in `tools/fonts/fonts.lock` ([ADR 0013](adr/0013-fonts-and-icons.md)) |
+| Assets | the design's icon path data | Lucide ISC, Feather MIT | provenance table for every glyph; the two Lucide licence files ship |
+| Tool only | React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0, 13 @fontsource 5.3.0 font packages, pixelmatch 7.2.0, pngjs 7.0.0 | MIT; fonts OFL-1.1, Homemade Apple Apache-2.0; pixelmatch ISC | npm packages pinned in the `tools/design-refs` lockfile and served locally; never in the app |
 
 ### Steps
 
@@ -381,40 +407,136 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
 `allow` cannot override `forbid`. This is the documented exception that
 [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md) allows.
 
-- [ ] `cargo build`, `cargo test`, `cargo fmt --all --check` and
+- [x] `cargo build`, `cargo test`, `cargo fmt --all --check` and
   `cargo clippy --workspace --all-targets -- -D warnings` pass on macOS, Windows and Linux in CI.
-- [ ] `cargo deny check` passes for licences, bans, advisories and sources. The bans list holds
+  Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): jobs Rust (ubuntu-24.04, macos-15, windows-2025), with clippy and tests with and without the
+  `frb` feature; `cargo fmt --all --check` runs once, in the Linux job, because formatting does not
+  depend on the system.
+- [x] `cargo deny check` passes for licences, bans, advisories and sources. The bans list holds
   `pdfium` (GPL-3.0), `mupdf`, `mupdf-sys`, `jbig2dec`, the poppler bindings, `magick_rust`,
-  `libheif-sys` and `ffmpeg-sys-next`. `rustybuzz` is banned outside krilla's wrapper only if the
-  owner approves ADR 0007; until then the brief's rustybuzz stays allowed.
-- [ ] The workspace declares `rust-version` and the toolchain file pins 1.99.0; CI reads the
-  toolchain from the file.
-- [ ] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
-  the crate roots).
+  `libheif-sys`, `ffmpeg-sys-next`, and `rustybuzz` except as krilla's wrapper
+  (`{ crate = "rustybuzz", wrappers = ["krilla"] }`; [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
+  accepted on 2026-10-15). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): job cargo-deny, with the dev-dependency licence run.
+- [x] The workspace declares `rust-version` and the toolchain file pins 1.99.0; CI reads the
+  toolchain from the file. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): `rust-version = "1.88"` in `Cargo.toml`, `rust-toolchain.toml`
+  pins 1.99.0, and each Rust job runs "Install the toolchain from rust-toolchain.toml".
+- [x] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
+  the crate roots). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `unsafe_roots` check in the "Repository checks" step.
 - [ ] **Proposed:** a script reads `cargo metadata` and fails on any crate edge not allowed by
-  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph).
-- [ ] `ferman --version` prints the app version and API version on all three systems.
-- [ ] Every GitHub Action is pinned by commit SHA.
+  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph). Implemented; the box waits for the
+  owner's approval of the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): `tools/checks` `crate_graph`
+  (`tools/checks/lib/src/checks/crate_graph.dart`, `f0e2c06`) prints "PASS crate_graph" in the
+  "Repository checks" step of the job "Repository checks and tools". It runs `cargo metadata
+  --format-version 1 --no-deps` and fails on any edge between Ferman crates that ARCHITECTURE.md
+  §2.2 does not allow, dev-dependency edges included. It also enforces the single-door rule
+  (`flutter_rust_bridge` only in ferman-api, `pdfium-render` only in ferman-render), keeps
+  criterion, insta and proptest as dev-only, makes ferman-cli use the facade only, and keeps FRB
+  optional. Its tests in `tools/checks/test/crate_graph_test.dart` ("accepts the documented graph",
+  "flags an edge that is not in the graph", "flags dev-dependency edges too", "flags a crate that is
+  not in the graph", "reads a real workspace through cargo metadata") pass in the "Dart tools
+  (checks, tokens, icons, l10n)" step of the same job. The check has been in the "Repository checks"
+  step since run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head
+  `18c7471`).
+- [x] `ferman --version` prints the app version and API version on all three systems. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the
+  "CLI smoke test" step of the three Rust jobs.
+- [x] Every GitHub Action is pinned by commit SHA. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `action_pins` check in the "Repository
+  checks" step.
+
+Progress (2026-10-15, development container): the workspace, the seven crate skeletons,
+`rust-toolchain.toml`, `clippy.toml`, `deny.toml` (cargo-deny 0.20.2: advisories, bans, licences and
+sources ok), ferman-cli (`--version`, `info --json`, with clap 4.6) and `tests/corpus/README.md` exist,
+and fmt, clippy and the workspace tests pass. `tools/checks` runs the repository checks: action pins,
+ARB parity, untracked build output, the crate graph (Proposed), `design/` unchanged, FRB versions, the
+pub deny list (Proposed), unsafe roots and version sync. `.github/workflows/ci.yml` runs them with the
+Rust jobs on three systems and cargo-deny; the toolchain comes from `rustup toolchain install`, which
+reads `rust-toolchain.toml`. The first full CI run, [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) on pull request #2, was green on all three
+systems and evidences every box except the Proposed crate-graph check, which stays open until the
+owner approves it.
 
 #### Step 2. Flutter app skeleton
 
 Deliverables: `app/` with macOS, Windows, Linux and web targets; `analysis_options.yaml` with
 very_good_analysis 11 and the riverpod_lint plugin; Riverpod code generation; go_router routes for
-start, document and settings; gen-l10n with `app_en.arb`; bundle identifier from Q01 and minimum OS
-versions from Q03 in the platform projects (a marked placeholder plus a BACKLOG entry while either
-question is open).
+start, document and settings; gen-l10n with `app_en.arb`; the bundle identifier
+`io.github.kerembas.ferman` ([Q01](QUESTIONS.md#q01)) and the minimum OS versions of
+[Q03](QUESTIONS.md#q03) in the platform projects: macOS deployment target 12.0 with a universal
+(arm64 and x86_64) build, Windows 10 22H2 and Windows 11 on x64 and arm64, Linux best effort on
+Ubuntu 22.04 or later (glibc). The macOS App Sandbox entitlement of the Flutter template stays on
+until the owner answers [Q18](QUESTIONS.md#q18), before M2.
 
-- [ ] `flutter analyze` reports zero issues and `flutter test` passes on all three systems.
-- [ ] `flutter build macos`, `flutter build windows` and `flutter build linux` succeed in CI, and a
-  smoke integration test starts each build and finds the root widget.
-- [ ] CI pins Flutter 3.47.7; `pubspec.yaml` requires Dart 3.13.5 or later.
-- [ ] CI runs build_runner and fails if any generated file differs from the committed one.
-- [ ] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md.
+- [x] `flutter analyze` and `dart analyze --fatal-infos` report zero issues and `flutter test`
+  passes on all three systems. Both analyzers run: the riverpod_lint 3.1.9 plugin reports only
+  through `dart analyze`. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the Analyze and Test steps of the jobs Flutter (ubuntu-24.04,
+  macos-15, windows-2025). Passed at `18c7471` (run 38802741500); failed at `41613ea` and `1554fb2`;
+  green again in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the Analyze and Test steps of the three Flutter jobs.
+- [x] `flutter build macos`, `flutter build windows` and `flutter build linux` succeed in CI, and a
+  smoke integration test starts each build and finds the root widget. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the "Desktop build" and
+  integration-test steps of the three Flutter jobs (`app/integration_test/app_test.dart` finds
+  `FermanApp`). Passed at `18c7471` (run 38802741500); at `41613ea` the macOS and Windows jobs stopped
+  before the build, and at `7914bfc` (run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341)) the macOS integration test found no engine
+  library (fixed in `b9b14ec`); green again in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "Desktop build" and the
+  integration tests of the three Flutter jobs.
+- [x] CI pins Flutter 3.47.7; `pubspec.yaml` requires Dart 3.13.5 or later. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): `FLUTTER_VERSION:
+  3.47.7` for subosito/flutter-action in every Flutter job; `sdk: ^3.13.5` in `app/pubspec.yaml`.
+- [ ] The platform projects carry the bundle identifier and the Q03 minimums, and CI also builds the
+  Linux app on Ubuntu 22.04 to prove the floor. arm64 app builds and Windows 10 are checked by the
+  owner (pending owner checks in [PROGRESS.md](PROGRESS.md#pending-owner-checks)). Implemented,
+  pending owner check (B100). Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): "Universal app for macOS 12.0 (Q03)" in Flutter (macos-15) logs
+  "Ferman.app/Contents/MacOS/Ferman: x86_64 arm64; minimum macOS 12.0 12.0", and the same for
+  `rust_lib_ferman.framework` and `libpdfium.dylib`; "Linux build on Ubuntu 22.04 (Q03 minimum)"
+  builds the floor; the platform projects carry `io.github.kerembas.ferman`. The owner runs the
+  x86_64 slice, Windows and Linux on arm64, and Windows 10 22H2.
+- [x] CI runs build_runner and fails if any generated file differs from the committed one. Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15):
+  job "Generated Flutter code is current" (gen-l10n and build_runner, then `git diff --exit-code`).
+- [x] `very_good packages check licenses` passes with the allow-list in DEPENDENCIES.md. Run
+  [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`) passed the "Dart licence check" step of the Linux Flutter job, but
+  that step checked the direct dependencies only. Since `52603cb` the step runs the full command of
+  [DEPENDENCIES.md §8](DEPENDENCIES.md#8-dart-licence-check) (direct, dev and transitive dependencies,
+  the §8 allow-list), and it passed in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the "Dart licence check" step
+  of the Linux Flutter job (107 packages).
 - [ ] **Proposed:** CI fails if `pubspec.lock` contains a package from the network deny list: HTTP
-  clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs
-  ([ADR 0015](adr/0015-privacy-and-network.md)).
+  clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs ([ADR
+  0015](adr/0015-privacy-and-network.md)). Implemented; the box waits for the owner's approval of
+  the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): `tools/checks` `pub_denylist`
+  (`tools/checks/lib/src/checks/pub_denylist.dart`, `f0e2c06`) prints "PASS pub_denylist" in the
+  "Repository checks" step of the job "Repository checks and tools". It fails on any direct or
+  transitive entry in `app/pubspec.lock` that matches `http`, `dio`, `google_fonts`, `firebase*`,
+  `sentry*`, `*analytics*`, `*crashlytics*`, `amplitude*` or `mixpanel*`. Its map of transitive
+  exceptions is empty. Its tests in `tools/checks/test/pub_denylist_test.dart` ("fails for each
+  denied package", "accepts an approved exception only as a transitive dependency", "passes for a
+  lock file without denied packages", "deniedPattern") pass in the "Dart tools (checks, tokens,
+  icons, l10n)" step. The check has been in the "Repository checks" step since run
+  [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`).
 - [ ] **Proposed:** CI compiles the web target with the engine stubbed, so the web path stays
-  buildable until phase 5.
+  buildable until phase 5. Implemented; the box waits for the owner's approval of the Proposed item.
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16): the step "Web build (kept buildable until phase 5;
+  Proposed)" (`flutter build web --release`) of the job Flutter (ubuntu-24.04). The engine is
+  stubbed through the conditional export in `app/lib/engine/engine_start.dart`: under
+  `dart.library.js_interop` it exports `startEngine` from `engine_service_web.dart`, which throws
+  `EngineUnavailableException(EngineUnavailableReason.unsupportedPlatform)`. So
+  `engine_service_frb.dart`, the only file outside `app/lib/bridge/` that imports the bridge, stays
+  out of the web build. Settings use `app/lib/settings/settings_store_web.dart` through the
+  conditional export in `app/lib/settings/settings_start.dart`. `bootstrap()` turns the exception
+  into `UnavailableEngineService`; its unit test "UnavailableEngineService throws the reason on
+  every call" (`app/test/engine/engine_models_test.dart`) passes in the Test step of the three
+  Flutter jobs.
+
+Progress: the app skeleton is committed (`23a09c3`): `flutter create` for macOS, Windows, Linux and
+web with the bundle identifier, macOS 12.0, the copyright line, very_good_analysis 11 with the
+riverpod_lint plugin, Riverpod code generation, go_router, gen-l10n (en, tr, ar) and the window setup.
+flutter_svg was dropped in `246d6df`, because it and vector_graphics depend on `http`, which the pub
+deny list forbids. The Flutter CI jobs, the codegen check and the Ubuntu 22.04 floor build (phase C4)
+ran green in [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500). The box for the platform projects stays open: the floor build passed, but the
+arm64 builds and Windows 10 are owner checks. The two Proposed boxes wait for the owner. Boxes ticked
+at `18c7471` were unticked when a later head failed or the evidence changed; they are ticked again
+with the next green run on the latest head.
 
 #### Step 3. flutter_rust_bridge wiring
 
@@ -422,21 +544,97 @@ Deliverables: FRB 2.13.0 codegen configured to scan only the `frb` module of `fe
 `app/lib/bridge/` (generated, never edited) and `app/lib/engine/` (the only Dart code that imports
 the bridge); an API version check at start-up; `tools/pdfium` and the skeleton render thread.
 
-- [ ] The Rust crate, the Dart package and the codegen are all 2.13.0; a CI check compares the three.
-- [ ] CI regenerates the bindings and fails if they differ from the committed ones.
-- [ ] ferman-api builds with the `frb` feature on and off, and a CI check fails on any
-  `allow(unsafe_code)` outside the FRB-generated module (step 1).
-- [ ] An integration test on each system calls `engine_info()` from Dart and gets the expected
-  values.
-- [ ] A panic in a test-only Rust call reaches Dart as an error and the app keeps running.
+- [x] The Rust crate, the Dart package and the codegen are all 2.13.0; a CI check compares the three.
+  Evidence: CI run [38824955001](https://github.com/KEREM-BAS/Ferman/actions/runs/38824955001) (pull request #2, head `0d2b562`, 2026-10-15): `tools/checks`
+  `frb_versions` (crate and Dart package) in the repository checks, and "The code generator has the
+  bridge crate's version" (`dcdf8a3`) in the codegen job.
+- [x] CI regenerates the bindings and fails if they differ from the committed ones. Evidence: CI run
+  [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): job "Generated Flutter code is current" (`flutter_rust_bridge_codegen generate` and
+  `cargo fmt -p ferman-api`, then `git diff --exit-code`).
+- [x] ferman-api builds with the `frb` feature on and off, and a CI check fails on any
+  `allow(unsafe_code)` outside the FRB-generated module (step 1). Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15):
+  the Clippy and Test steps with and without `--features frb` in the three Rust jobs, and
+  `tools/checks` `unsafe_roots` in the repository checks.
+- [x] An integration test on each system calls `engine_info()` from Dart and gets the expected
+  values. Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the integration tests of the three Flutter jobs
+  (`app/integration_test/app_test.dart`, "reports the versions, and the bundled PDFium is loaded").
+- [x] A panic in a test-only Rust call reaches Dart as an error and the app keeps running. Evidence:
+  CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "a panic in Rust reaches Dart as an error and the engine keeps working" in
+  the debug-build integration tests of the three Flutter jobs.
 - [ ] Zero-copy check: a 1 MB byte vector crosses from Rust to Dart in under 0.2 ms on R1 and R2
   ([ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)). If it does not, the texture-registry fallback
-  is designed and recorded in [ADR 0009](adr/0009-threading-and-jobs.md) before M2 starts.
-- [ ] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
-- [ ] `tools/pdfium` downloads `chromium/7881` for macOS (arm64 and x64, combined universal), Windows
+  is designed and recorded in [ADR 0009](adr/0009-threading-and-jobs.md) before M2 starts. Pending
+  owner check (B100): the R1 and R2 profile measurement. Every recorded number misses 0.2 ms
+  (PROGRESS.md "Measurements", ARCHITECTURE.md §3.4), so the texture-registry fallback is designed
+  in [ADR
+  0009](adr/0009-threading-and-jobs.md#option-3-in-detail-the-texture-registry-fallback-proposed)
+  (`44cfe93`); the ADR is Proposed and the path is the owner's choice in [Q19](QUESTIONS.md#q19).
+- [x] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
+  Evidence: `tools/checks` `bridge_imports` (`4b8c5c3`, with fixture tests), passing in the
+  repository checks of CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15).
+- [x] `tools/pdfium` downloads `chromium/7881` for macOS (arm64 and x64, combined universal), Windows
   (x64, arm64) and Linux (x64, arm64), checks a pinned SHA-256 per archive, and fails on a mismatch.
-- [ ] The skeleton render thread loads the bundled PDFium on all three systems in CI, and
-  `engine_info()` reports its version.
+  Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): "PDFium archives (SHA-256 and licence files)" in the repository
+  checks (`selftest.sh`, with its mismatch cases, then `fetch.sh --all` and `--verify`), and the
+  self-test again on macOS and Linux in the Rust jobs.
+- [x] The skeleton render thread loads the bundled PDFium on all three systems in CI, and
+  `engine_info()` reports `loaded = true`, proven by a real PDFium call after binding, together with
+  the pinned build tag `chromium/7881`. PDFium has no runtime version API, so the tag is the pin
+  recorded with `tools/pdfium`, not a value read from the library. Evidence: CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15):
+  the integration tests of the three Flutter jobs assert `PdfiumState.loaded` and `chromium/7881`
+  with PDFium bundled in the app, and the Rust jobs' `ferman info --json --pdfium` reports `loaded`.
+
+Progress (2026-10-15, development container): `tools/pdfium` exists (phase D1). `fetch.sh` pins the
+SHA-256 of all seven archives and of the library inside each (`pdfium.lock`), uses upstream's
+universal macOS archive after checking its two slices against the thin libraries, checks the licence
+files against the committed copies, and passes its 13-case self-test. Its box is ticked once CI runs
+it on the three systems. Phases E1 and E2 (wave 2) added the render
+thread and the facade: ferman-render binds PDFium once per process, from an absolute path, on its own
+thread, and reports `Loaded { tag: "chromium/7881" }` only after a real PDFium call; ferman-api has
+the lazy global `Engine`, async `engine_info()`, the test-only `debug_panic` and `debug_bytes`, and
+the `frb` mirrors; `ferman info --json --pdfium <path>` reports `loaded`. The tests that need PDFium
+are ignored by default and pass with an absolute `FERMAN_PDFIUM_PATH` (7 in the development
+container). CI runs them on the three systems: the first run,
+[38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054) (head `41613ea`), passed on
+Linux and Windows and failed on macOS, where `fetch.sh --platform mac-univ` rejected the library as
+"not a universal Mach-O library". `9393190` fixed that: `fetch.sh` reads the header with tail, head,
+`od -tx1` and bash arithmetic instead of `od -j` and awk, and CI runs `tools/pdfium/selftest.sh` in the
+Rust jobs on macOS and Linux; run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341) (head `7914bfc`) passed the PDFium tests on the
+three systems.
+
+Phase E3 (`0ae4f29`, `1554fb2`, `4b8c5c3`, `16eae39`) wired the bridge. `app/flutter_rust_bridge.yaml`
+scans only `crate::frb` with the `frb` feature (`add_mod_to_lib: false`); the bindings are committed in
+`app/lib/bridge/` and `crates/ferman-api/src/frb_generated.rs`. The FFI plugin `rust_lib_ferman`
+(`app/rust_builder/`) builds ferman-api through cargokit, vendored from the flutter_rust_bridge 2.13.0
+template with two marked patches (the pinned toolchain; the library name with `_`). `app/lib/engine/`
+holds `EngineService`, `FrbEngineService` with the API-version check at start-up, a web stub, a fake
+for tests and the Riverpod providers; `bootstrap()` starts the engine and falls back to
+`UnavailableEngineService`, so the app still opens. Since `b9b14ec` the engine library is opened by
+absolute path beside the executable, because the bridge's default macOS loader found no library in
+run 38822085341. `app/integration_test/app_test.dart` checks the API version, `engine_info()`, the
+panic path and the 1 MiB byte transfer through the bridge; `app/test_driver/integration_test.dart`
+runs it in profile mode with `flutter drive --profile` (`be0a04b`). Profile builds carry the bridge
+since `ba9f6d2` (`crates/ferman-api/cargokit.yaml` lists debug, profile and release). The CI codegen
+job regenerates the bindings and fails on any diff, and `tools/checks` `bridge_imports` fails on any
+import of the bridge outside `app/lib/engine/`. Run 38822085341 passed the integration test on Linux and Windows; on macOS it found no engine
+library, which `b9b14ec` fixed.
+
+Phase E4 (`3e7bf8e`, `52603cb`) bundles PDFium: the Linux and Windows CMake files install the fetched
+library into the bundle and stop at configure time when it is missing, and the macOS Runner target's
+Bundle Framework phase copies it into `Contents/Frameworks`. The integration test asserts
+`PdfiumState.loaded` and the tag `chromium/7881`, and the Ubuntu 22.04 job checks that the bundle
+holds PDFium and that the release engine exports `frb_get_rust_content_hash` (`99a75e1`). CI run
+[38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15) was green in every job on the three systems, with the bundled PDFium loaded through
+the bridge in all three integration tests.
+
+The 1 MiB transfer misses its target: 52–63 ms in a debug build and a 3,310 µs minimum (5,915 µs
+median, 20 warm calls) in a profile build, both in the development container, and 46 ms in a debug
+build on the macOS CI runner. The default SSE codec copies the bytes. The Dco codec
+(`full_dep: true`) was tried in a scratch copy and its Dart did not compile (a name clash). The
+options and a proposal are recorded in
+[ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed), and
+the owner decides in [Q19](QUESTIONS.md#q19); the zero-copy box stays open until R1 and R2 are
+measured.
 
 #### Step 4. Token generator
 
@@ -446,61 +644,297 @@ Deliverables: `tools/tokens` ([ADR 0012](adr/0012-design-token-pipeline.md)) rea
 with `ThemeExtension`s for light, dark, page dim, touch density, reduced motion and the CJK type
 overrides.
 
-- [ ] All 269 unique token names are generated: colours (132 in `:root`, 48 dark, 1 dim),
-  typography (41), spacing (34, plus 12 touch), effects (31, plus 5 dark and 4 reduced-motion), and
+- [x] All 269 unique token names are generated: colours (132 in `:root`, 48 dark, 1 dim), typography
+  (41), spacing (34, plus 12 touch), effects (31, plus 5 dark and 4 reduced-motion), and
   `fm-additions.css` (31 new tokens, 3 overrides, 5 CJK leading overrides, 1 dark). A test counts
-  them against the CSS sources.
-- [ ] Every mapping issue in [DESIGN_INVENTORY.md §6](DESIGN_INVENTORY.md#6-design-system) has a
+  them against the CSS sources. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "hold the declarations ROADMAP step 4 and ADR 0012 list" (parses the CSS
+  and counts per file and environment: colors.css 132 light / 48 dark / 1 dim, typography.css 41,
+  spacing.css 34 + 12 touch, effects.css 31 + 5 dark + 4 reduced motion, fm-additions.css 34 light
+  (31 new + 3 overrides) / 5 CJK / 1 dark, 348 declarations) and "define 269 unique names: 238 in
+  the design system and 31 new in the additions, which also override 3" (overrides edit-changed,
+  edit-changed-bg, font-ui) in `tools/tokens/test/cascade_test.dart`, "every token name becomes
+  exactly one field" in `tools/tokens/test/model_test.dart` and "documents every token by its CSS
+  name" in `tools/tokens/test/generator_test.dart`, run by the step "Dart tools (checks, tokens,
+  icons, l10n)" of the "Repository checks and tools" job.
+- [x] Every mapping issue in [DESIGN_INVENTORY.md §6](DESIGN_INVENTORY.md#6-design-system) has a
   documented rule and a test: rgba overlays, multi-layer shadows with rings, the two-layer focus
   ring, cubic-bezier easings, the CSS `font` shorthand, `var()` chains, `--page-filter` as a colour
-  matrix, hatch patterns, and kebab-case name collisions (`--text-*`, `--icon-*`).
-- [ ] Two runs give byte-identical output; CI fails if `tokens.g.dart` is stale.
-- [ ] Light, dark and "match system" switch at run time without a restart; when the OS asks for
-  reduced motion, durations come from the reduced-motion tokens (widget test).
-- [ ] The S6 literal check is active: a colour, size, radius or duration literal in widget code
-  outside `app/lib/design/` fails CI.
+  matrix, hatch patterns, and kebab-case name collisions (`--text-*`, `--icon-*`). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the rules are documented in `tools/tokens/README.md` ("Inputs" for
+  `supplement.yaml` hatches, "Pipeline" for per-environment `var()` resolution, "Mapping rules",
+  "Output naming") and in the ADR 0012 "Value mapping" table. Tests in `tools/tokens/test/`: rgba:
+  the group "alphaByte rounds alpha × 255 half up, exactly" (`color_test.dart`) and "semantic
+  colours per theme" (`model_test.dart`). Multi-layer shadows with rings: "reverse the layer order
+  and turn rings into spread" (`mappers_test.dart`) and "shadows: multiple layers, rings, negative
+  spread and inset" (`classifier_test.dart`). Two-layer and inset focus ring: "shadows and the focus
+  ring" (`model_test.dart`) and "an inset ring becomes an inside border" (`mappers_test.dart`).
+  Easings: "cubic" (`mappers_test.dart`) and "motion" (`model_test.dart`). `font` shorthand: "the
+  font shorthand" (`classifier_test.dart`) and "font shorthand keeps bundled families and a height
+  ratio" (`mappers_test.dart`). `var()` chains: "resolves chains" and "resolves after merging, so
+  inherited chains see overrides" (`resolver_test.dart`). `--page-filter`: "the dim page filter
+  composes left to right" (`color_matrix_test.dart`) and "the dim page filter" (`model_test.dart`).
+  Hatches: "maps hard stops to stripes" (`supplement_test.dart`) and "hatches from the supplement"
+  (`model_test.dart`). Kebab collisions: the group "name collisions" (`model_test.dart`) with
+  "--text-* colours and sizes land in different classes", "--icon-* colours and sizes land in
+  different classes" and "--border-* colours and widths land in different classes". All run in the
+  step "Dart tools (checks, tokens, icons, l10n)" of the "Repository checks and tools" job.
+- [x] Two runs give byte-identical output; CI fails if `tokens.g.dart` is stale. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "is deterministic: two runs are byte-identical", "matches the committed
+  app/lib/design/tokens.g.dart" (group "generateTokens") and "--check fails on a stale file and
+  leaves it alone" (group "runTokensCli") in `tools/tokens/test/generator_test.dart`, run by the
+  step "Dart tools (checks, tokens, icons, l10n)", and `dart run bin/tokens.dart --check` in the
+  step "Generated files are current (tokens, icons, component spec, isolated fallback)" of the
+  "Repository checks and tools" job.
+- [x] Light, dark and "match system" switch at run time without a restart; when the OS asks for
+  reduced motion, durations come from the reduced-motion tokens (widget test). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the widget tests "light, dark and match system switch live, without a
+  restart" (the same root Navigator state stays mounted while the mode goes dark, light and system,
+  and system follows platform brightness), "reduced motion: zero durations and an instant switch"
+  (`FermanMotionTokens.reduced`, all four durations `Duration.zero` with `disableAnimations`),
+  "standard motion when the system does not reduce it" and "turning reduced motion on and off keeps
+  the app mounted" in `app/test/design/theme/app_theme_test.dart`, run by the step "Test (goldens on
+  Linux only)" of the "Flutter (ubuntu-24.04)", "Flutter (macos-15)" and "Flutter (windows-2025)"
+  jobs.
+- [x] The S6 literal check is active: a colour, size, radius or duration literal in widget code
+  outside `app/lib/design/` fails CI. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the `tools/checks` check `s6_literals`
+  (`tools/checks/lib/src/checks/s6_literals.dart`, registered in `tools/checks/lib/src/runner.dart`;
+  rules color, material-color, duration, radius, insets, size, font-size and theme-bypass over
+  `app/lib/` outside `app/lib/design/` and `app/lib/engine/`, which holds no widgets; the reviewed
+  allowlist `s6Allowlist` in `s6_allowlist.dart` is empty) passes in the step "Repository checks" of
+  the "Repository checks and tools" job. Its fixture tests in
+  `tools/checks/test/s6_literals_test.dart` include "fails on literals in feature code and passes in
+  the design system", "skips the design system and the engine services" and the groups "color",
+  "duration", "radius", "insets", "size", "font-size" and "theme-bypass". They run in the step "Dart
+  tools (checks, tokens, icons, l10n)".
+
+Progress (2026-10-15, development container): `tools/tokens` and the generated `tokens.g.dart` exist.
+Its 125 tests count the tokens per file and environment against the CSS sources (348 declarations, 269
+unique names: 238 from the design system, 31 new), check each mapping rule, determinism and
+`dart run tokens --check`. Phase F added the theme layer: `app/lib/design/theme.dart` and
+`app/lib/design/theme/` (`FermanTheme`, `context.ferman`, `FermanThemeScope`, `FermanMaterialTheme`,
+`FermanTypography`), `themeModeProvider` (`app/lib/app/theme_mode.dart`, in memory until step 9) and
+`app/lib/app/app.dart`. `app/test/design/theme/app_theme_test.dart` switches light, dark and match
+system while the app runs, and turns reduced motion on and off, with the same router and navigator
+mounted throughout; reduced motion gives zero durations and an instant switch. 67 theme tests pass.
+The S6 checks (`s6_literals`, `s6_forbidden_api`, `s6_directional`, `s6_casing`,
+`s6_material_imports`) run in `tools/checks` with 83 fixture tests and pass on the repository. The
+boxes are ticked once a green CI run covers these tests.
 
 #### Step 5. Fonts and icons
 
 Deliverables ([ADR 0013](adr/0013-fonts-and-icons.md)): `app/assets/fonts/` with IBM's unmodified
-static TTFs (Plex Sans 400/500/600, Plex Serif, Plex Mono and Plex Sans Arabic, plus Plex Sans
-Hebrew and Plex Sans Devanagari if Q08 approves them) and an OFL text per family;
+static TTFs (Plex Sans 400/500/600, Plex Serif, Plex Mono, Plex Sans Arabic, Plex Sans Hebrew and
+Plex Sans Devanagari; the last two approved in [Q08](QUESTIONS.md#q08) on 2026-10-15) and an OFL
+text per family;
 `app/assets/icons/` with 229 SVGs written by `tools/icons` from `ICON_PATHS` and `fm-icons.js`, a
-provenance table, and the Lucide ISC and Feather MIT notices; LicenseRegistry entries for every
-bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)).
+provenance table, and the Lucide ISC and Feather MIT notices; the generated `IconName` enum and path
+data, which the Icon widget paints with a `CustomPainter` through path_parsing (the SVG files stay as
+the exported, provenance-tracked set and are not loaded at run time; flutter_svg is not used because
+it and vector_graphics depend on `http`, which the network deny list forbids); LicenseRegistry entries
+for every bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_GAPS.md#g06)).
 
-- [ ] Each font file's SHA-256 equals the IBM upstream release file it came from (recorded in
-  DEPENDENCIES.md). No bundled font is subset, renamed or modified.
-- [ ] A coverage test reads each font's cmap: Plex Sans covers Latin including Turkish and
-  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian. A golden of
-  "İMZALA ğ ş ı · Tiếng Việt · Русский · Ελληνικά · العربية · فارسی" shows no fallback glyphs.
+- [x] Each font file's SHA-256 equals the IBM upstream release file it came from (recorded in
+  DEPENDENCIES.md and `tools/fonts/fonts.lock`, checked by `tools/fonts/fetch.sh
+  --verify-committed`). No bundled font is subset, renamed or modified. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the step "Bundled fonts (unmodified IBM files)" of the "Repository checks
+  and tools" job runs `bash tools/fonts/selftest.sh` (a changed byte, a missing font, an extra file
+  and a reworded licence each fail) and `bash tools/fonts/fetch.sh --verify-committed`. The second
+  fails on any committed file whose SHA-256 differs from `tools/fonts/fonts.lock` and on any file
+  the lock does not pin. The release zip SHA-256 values are in DEPENDENCIES.md §5.2, and the per-TTF
+  values are the `font` lines of `fonts.lock`. Measurement, development container, 2026-10-16: the
+  six upstream IBM/plex release zips (`@ibm/plex-sans@1.1.0`, `plex-serif@2.0.0`, `plex-mono@2.5.0`,
+  `plex-sans-arabic@1.1.0`, `plex-sans-hebrew@1.1.0`, `plex-sans-devanagari@1.1.0`) hash to the
+  pinned zip values. All 18 TTFs in their `fonts/complete/ttf/` folders, under the same file names,
+  hash to the `fonts.lock` values and equal the committed files in `app/assets/fonts/`.
+- [x] A coverage test reads each font's cmap: Plex Sans covers Latin including Turkish and
+  Vietnamese, Cyrillic and Greek; Plex Sans Arabic covers Arabic and Persian; Plex Sans Hebrew
+  covers Hebrew; Plex Sans Devanagari covers Devanagari (`tools/fonts/coverage.py`). A golden of
+  "İMZALA ğ ş ı · Tiếng Việt · Русский · Ελληνικά · العربية · فارسی · עברית · हिन्दी" shows no
+  fallback glyphs. Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): the step "Bundled fonts (unmodified IBM files, script coverage)" of the
+  "Repository checks and tools" job runs `python3 -I tools/fonts/coverage.py`, which reads every
+  committed font's cmap and requires Basic Latin, the Latin-1 letters, Turkish, Vietnamese, Cyrillic
+  and Greek in Plex Sans, Arabic and Persian in Plex Sans Arabic, Hebrew in Plex Sans Hebrew and
+  Devanagari in Plex Sans Devanagari. The golden "the bundled fonts cover every script of the sample
+  without fallback glyphs" (`app/test/goldens/script_coverage_golden_test.dart`) passes in the
+  Flutter (ubuntu-24.04) job of CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
 - [ ] Japanese, Korean, Simplified and Traditional Chinese samples render with the system fonts of
   ADR 0013 and the right locale per text style, checked by hand on R1, R2 and a Linux machine and
-  recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms, [G07](DESIGN_GAPS.md#g07)).
-- [ ] Exactly 229 icons are generated; a test fails if the count or any path differs from the design
+  recorded in PROGRESS.md (Traditional Chinese must not show Simplified forms,
+  [G07](DESIGN_GAPS.md#g07)). Implemented, pending owner check (B100). Evidence (implementation; the
+  hand check is pending): CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "CJK puts the system families of ADR 0013 after Plex Sans" (Hiragino Sans,
+  Yu Gothic UI, Noto Sans CJK JP; Apple SD Gothic Neo, Malgun Gothic, Noto Sans CJK KR; PingFang SC,
+  Microsoft YaHei UI, Noto Sans CJK SC; PingFang TC, Microsoft JhengHei UI, Noto Sans CJK TC),
+  "every role carries the UI locale" (including `ja` and `zh-Hant`), "CJK takes the CJK roles:
+  taller leading on five roles" and "Traditional Chinese falls back to the TC families" (zh_TW has
+  PingFang TC and no PingFang SC; zh_CN has Noto Sans CJK SC and no Noto Sans CJK TC) in
+  `app/test/design/theme/typography_test.dart` at `b358281`, and "the app resolves the type roles
+  for the UI locale" in `app/test/design/theme/app_theme_test.dart`, run by the step "Test (goldens
+  on Linux only)" of the three Flutter jobs. The hand check on R1, R2 and Linux is listed as pending
+  in PROGRESS.md step 5.
+- [x] Exactly 229 icons are generated; a test fails if the count or any path differs from the design
   source. The provenance table names the matching Lucide release (0.460.0, 1.56.0, 0.500.0 or
   0.300.0) for each of the 84 added glyphs, and "Ferman design" for ellipse alone
-  ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)).
-- [ ] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
-  the icons the design flips.
+  ([G04](DESIGN_GAPS.md#g04), [G60](DESIGN_GAPS.md#g60)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "the design has exactly 229 icons: 145 in ICON_PATHS, 84 added", "the
+  reader agrees with an independent line-by-line extraction", "every generated SVG holds the source
+  markup byte for byte" and "a changed count fails loudly" in
+  `tools/icons/test/design_icons_test.dart`. "the enum has one value per icon, in name order" and
+  "enum values and SVG files are in sync" in `tools/icons/test/enum_test.dart`. "has one case per
+  icon, in name order" and "compiles and round-trips to the design markup" (group
+  "icon_data.g.dart") in `tools/icons/test/icon_data_test.dart`. "sources agree with G60 and ADR
+  0013" (222 at Lucide 0.460.0; bell, funnel and grid-2x2 at 1.56.0; expand and paperclip at
+  0.500.0; file-signature at 0.300.0; ellipse alone as Ferman design) and "the provenance table
+  names every icon and the licence files" in `tools/icons/test/provenance_test.dart`. All run in the
+  step "Dart tools (checks, tokens, icons, l10n)". `dart run icons --check` runs in the step
+  "Generated files are current (tokens, icons, component spec, isolated fallback)" of the
+  "Repository checks and tools" job. Measurement, development container, 2026-10-16: `dart run icons
+  --check --lucide <dir>` recomputed provenance from the four pinned lucide-static tarballs and
+  reported 'Icons are up to date (229 SVGs, 6 other files)'.
+- [x] Icons draw with a 1.5 px stroke as the DS specifies, and mirror in right-to-left exactly for
+  the 8 icons the design flips: arrow-left, arrow-right, chevron-left, chevron-right, undo-2,
+  redo-2, skip-back and skip-forward (a `tools/icons` test re-reads the design files for this list).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16): "defaults to the design-system 1.5 in viewBox units"
+  (group "Icon stroke"), "exactly the eight glyphs the design flips are directional", "directional
+  glyphs mirror in right to left only", "other glyphs never mirror by default" and "a mirrored glyph
+  is the left-to-right one flipped" (group "Icon mirroring") in
+  `app/test/design/icons/icon_test.dart`, and "takes the stroke width in viewBox units" in
+  `app/test/design/icons/icon_painter_test.dart`. These run in the step "Test (goldens on Linux
+  only)" of the three Flutter jobs. In `tools/icons/test/directional_test.dart`, "every icon the
+  design flips with a literal name is directional" and "the only directional icon flipped through
+  data is arrow-left" re-read `design/*.dc.html` and `_ds_bundle.js`. "exactly the directional icons
+  carry the flag" (`tools/icons/test/enum_test.dart`) checks the eight names. These run in the step
+  "Dart tools (checks, tokens, icons, l10n)".
 - [ ] **Proposed** (the step 2 network deny list): the app never fetches fonts; CI fails if
-  `pubspec.lock` contains google_fonts or another font downloader.
-- [ ] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
-  ([G08](DESIGN_GAPS.md#g08)).
+  `pubspec.lock` contains google_fonts or another font downloader. Implemented; the box waits for
+  the owner's approval of the Proposed item. Evidence (implementation; the criterion is Proposed):
+  CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
+  #2, head `b358281`, 2026-10-16): the `tools/checks` check `pub_denylist`
+  (`tools/checks/lib/src/checks/pub_denylist.dart`: `http`, `dio`, `google_fonts`, `firebase*`,
+  `sentry*`, `*analytics*`, `*crashlytics*`, `amplitude*` and `mixpanel*` in `app/pubspec.lock`;
+  `transitiveExceptions` empty) passes in the step "Repository checks" of the "Repository checks and
+  tools" job. Its tests "fails for each denied package" (google_fonts as a direct dependency and
+  http as a transitive one both fail) and "passes for a lock file without denied packages"
+  (`tools/checks/test/pub_denylist_test.dart`) run in the step "Dart tools (checks, tokens, icons,
+  l10n)". The fonts ship as assets declared in `app/pubspec.yaml`, checked by "the bundled families
+  are declared in pubspec.yaml" in `app/test/design/theme/typography_test.dart`.
+- [x] Every bundled licence text appears through Flutter's LicenseRegistry (widget test)
+  ([G08](DESIGN_GAPS.md#g08)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "lists every licence asset of pubspec.yaml, once", "covers the PDFium
+  archive, the six Plex families and Lucide" (16 + 6 + 2 texts) and "points at files that exist and
+  are not empty" (group "bundledLicenses"), and "makes LicenseRegistry yield every bundled licence
+  text" and "shows the OFL, ISC and MIT texts by name" (group "registerLicenses"), in
+  `app/test/app/licenses_test.dart`. These are flutter_test tests under `TestWidgetsFlutterBinding`,
+  reading the assets through `rootBundle`, run by the step "Test (goldens on Linux only)" of the
+  three Flutter jobs. `bootstrap()` calls `registerLicenses()` (`app/lib/app/bootstrap.dart`).
+
+Progress (2026-10-15, development container): the 18 TTFs and 6 licence files are in
+`app/assets/fonts/`, pinned in `tools/fonts/fonts.lock`; `fetch.sh --verify-committed`, the 18-case
+self-test and `coverage.py` pass. `tools/icons` wrote the 229 SVGs, `PROVENANCE.md`, the two Lucide
+licence files and `icon_name.g.dart`; its 73 tests check the count, every path against a separate
+extraction of the design source, the provenance and the directional list. The boxes are ticked once CI
+runs these checks; phase F added the Icon widget and its painter (widget tests for size, colour,
+stroke, mirroring and semantics; all 229 icons paint), the LicenseRegistry entries with their test,
+and the script-coverage and icon goldens in `app/test/goldens/`, generated in the development
+container. They match on the CI Linux runner (the Flutter Linux job of
+[38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The script-coverage
+golden showed that a script font first in the chain misplaces the marks of İ, ş and ế, so every UI
+language but CJK uses the design's `--font-ui` order, IBM Plex Sans first ([G64](DESIGN_GAPS.md#g64)).
 
 #### Step 6. Design references
 
-Deliverables: `tools/design-refs` on Node 24 and Playwright 1.64 with a lockfile; vendored React
-18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0 and the fonts the export loads at run time, each with
-its licence; one PNG per board in `build/design-refs/` (gitignored).
+Deliverables: `tools/design-refs` on Node 24.22.0 LTS and playwright-core 1.56.1 with a lockfile;
+React 18.3.1, ReactDOM 18.3.1, Babel standalone 7.29.0 and the fonts the export loads at run time
+(npm @fontsource packages), pinned in that lockfile, each with its licence, and served from local
+copies; one PNG per board in `build/design-refs/` (gitignored).
 
-- [ ] All 223 boards render, one PNG per board id, captured from the element that carries
-  `data-fm-artboard`; the DS additions sheet renders too. A count check fails if an id is missing.
-- [ ] The run is offline: requests for unpkg.com and fonts.googleapis.com are answered from the
-  vendored copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)).
-- [ ] Two runs on the same machine give pixel-identical PNGs.
-- [ ] Nothing under `design/` changes (CI checks `git diff --stat -- design/` is empty).
-- [ ] None of the vendored files ends up in an app build (CI scans the build output).
+playwright-core is pinned to 1.56.1, not the newest release, because its browser revision
+(Chromium 1194) is the browser preinstalled in the development container, where the Playwright CDN
+is blocked. CI uses the same revision, so local and CI renders come from the same browser
+([DEPENDENCIES.md](DEPENDENCIES.md#23-tools-never-shipped)). CI does not run the Playwright installer, which
+also downloads Playwright's ffmpeg build (LGPL-2.1) with every Chromium: it downloads the revision
+1194 headless shell directly with `tools/design-refs/fetch-chromium.sh` (its SHA-256, `d745c721…c91f`,
+is pinned from the first CI download on 2026-10-15) and passes its path to the renderer with
+`--chromium`.
+
+Capture rule: only the boards built on FmBoard carry `data-fm-artboard`, so it is not the capture
+key. Each of the 214 product boards is captured from the first `.fm-root` inside the element with the
+id `<id>`, or from that element itself when it carries `.fm-root` (the seven sidebar boards `a2-3p`
+to `a2-3x`). The nine fix boards `f1` to `f6a` are captured as the whole element with the id: the
+`section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and `f6a` (inside the sections
+`f4` and `f6`). Every board is rendered on its own freshly loaded page.
+
+- [x] All 223 boards render, one PNG per board id, captured by the rule above; the DS additions
+  sheet renders too. A count check fails if an id is missing. Evidence: design-references run
+  [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885) (manual, head
+  `c9475fb`, 2026-10-16), step "Render every board, twice": "rendered 224 of 224 board(s) in 247.7 s
+  (chromium 141.0.7390.37)", the 223 boards and the DS additions sheet. The count check's failure
+  path: "the count check names each requested board without a PNG and fails the run" in
+  `tools/design-refs/test/outcome.test.mjs`, in the step "Design-reference tool tests" of CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16).
+- [x] The run is offline: requests for unpkg.com and fonts.googleapis.com are answered from the
+  local copies, and any other non-local request fails the run ([G07](DESIGN_GAPS.md#g07)). Evidence:
+  design-references run [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885)
+  (manual, head `c9475fb`, 2026-10-16): "served locally: 896 script(s), 896 font stylesheet(s), 6273
+  font file(s)", with no blocked request, for all 224 renders. The failure path: "a blocked request
+  to another host fails the run, even when every board has its PNG"
+  (`tools/design-refs/test/outcome.test.mjs`) and the router's "aborts and records every other
+  request" (`test/router.test.mjs`), in the step "Design-reference tool tests" of CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16).
+- [x] Two runs on the same machine give pixel-identical PNGs. Evidence: design-references run
+  [38892774885](https://github.com/KEREM-BAS/Ferman/actions/runs/38892774885) (manual, head
+  `c9475fb`, 2026-10-16), step "Render every board, twice" (`node index.mjs --twice`): "twice: all
+  224 PNG(s) identical (second render 240.0 s)" on the ubuntu-24.04 runner; pull requests render the
+  M1 boards twice the same way.
+- [x] Nothing under `design/` changes (CI checks `git diff --stat -- design/` is empty). Evidence:
+  CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
+  #2, head `b358281`, 2026-10-16). The "Base commit for the design/ check" step sets `CHECKS_BASE`
+  to the pull request's base commit (`fe99894`, main). The `tools/checks` `design_untouched` check
+  (`tools/checks/lib/src/checks/design_untouched.dart`) then reports "PASS design_untouched" in the
+  "Repository checks" step: it runs `git diff --name-only <base> -- design/` and lists untracked
+  files under `design/`. Its fixture tests "fails when a tracked file changed", "fails when a change
+  was committed after the base", "fails when a file was deleted" and "fails on an untracked file"
+  (`tools/checks/test/design_untouched_test.dart`) pass in the "Dart tools (checks, tokens, icons,
+  l10n)" step. The renderer also refuses output inside `design/` ("--out guard: inside design/ or
+  not", `tools/design-refs/test/cli.test.mjs`), and its server refuses writes ("refuses writes",
+  `tools/design-refs/test/server.test.mjs`); both pass in the "Design-reference tool tests" step.
+- [x] None of the design-reference files (runtime scripts, fonts, `design/` content) ends up in an
+  app build (CI scans the build output). Evidence: CI run
+  [38897156948](https://github.com/KEREM-BAS/Ferman/actions/runs/38897156948) (pull request #2, head
+  `97963ff`, 2026-10-16): the steps "No design files in the app build" (Flutter on ubuntu-24.04,
+  macos-15 and windows-2025; macOS logs "PASS
+  ../../app/build/macos/Build/Products/Release/Ferman.app: 83 files, none from the design export")
+  and "No design files in the web build" (ubuntu-24.04) run `tools/checks/bin/scan_bundle.dart`,
+  which fails on the design export's file names, React and Babel scripts by name or licence header,
+  any woff or woff2 font or `@fontsource` path, and SHA-256 copies of any file under `design/`. Its
+  tests are in `tools/checks/test/scan_bundle_test.dart` ("finds a copy of a design file under any
+  name", "compares with the real design export"), in the step "Dart tools (checks, tokens, icons,
+  l10n)".
+
+Progress (2026-10-15, development container, 4 CPUs): `tools/design-refs` rendered all 224 PNGs (223
+boards and the DS additions sheet) with the count check, offline, with 0 blocked requests and 0
+missing files; six full renders and `--twice` runs gave identical SHA-256 for every PNG. The first
+three boxes are ticked once the design-reference workflow reproduces this in CI. The `design/` check
+runs in CI through `tools/checks`. The build-output scan does not exist yet; it is added to the app
+build job, and its box stays open until then.
 
 #### Step 7. Component library
 
@@ -509,24 +943,90 @@ manifest, plus the internal Field, Popover and Scrim; the data constants `ICON_P
 `ANNOTATION_TOOLS` become the generated `IconName`, `FermanMode` and `AnnotationTool` enums) and the DS additions as widgets (FmNumber, document tabs,
 window chrome, thumbnail badges and legend, date-picker popover, mention list, status-bar save
 indicator); a component spec of props, variants and states taken from `_ds_bundle.js` and
-`_adherence.oxlintrc.json` ([G02](DESIGN_GAPS.md#g02)); a debug-only gallery route for review.
+`_adherence.oxlintrc.json` ([G02](DESIGN_GAPS.md#g02)), written in M1 as
+`app/test/design/component_spec.json` and [COMPONENTS.md](COMPONENTS.md) (56 entries, tier 1 for the
+components the M1 boards draw); a debug-only gallery route for review. The `AnnotationTool` enum
+follows the drawing (11 tools), not the stale `ANNOTATION_TOOLS` constant (9;
+[G62](DESIGN_GAPS.md#g62)).
 
-- [ ] Every component exists under its design-system name (Button, IconButton, ToolButton and so on;
+- [x] Every component exists under its design-system name (Button, IconButton, ToolButton and so on;
   the `Fm*` shell building blocks and `FmNumber` keep their `Fm` names), with every variant and
   state in the spec ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). A test walks the
-  spec and fails on anything missing.
-- [ ] Widget tests cover every state, including focus-visible ([G22](DESIGN_GAPS.md#g22)) and a
+  spec and fails on anything missing. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): the `component_spec` check
+  (`tools/checks/lib/src/checks/component_spec.dart`) passes in the "Repository checks" step. It
+  walks `app/test/design/component_spec.json` against `app/lib/design/` and fails on a missing
+  component, prop, item type, item field, enum value or value of a variant no enum prop carries; its
+  fixture tests ("reports a missing item type and a missing item field", "reports a missing value of
+  a variant without an enum prop", `tools/checks/test/component_spec_test.dart`) run in the step
+  "Dart tools (checks, tokens, icons, l10n)". The states are proven by the widget tests of the next
+  box. Names: the design-system names, and the `Fm*` building blocks keep theirs, as ADR 0011 says:
+  `FmWindow`, `FmSidebar`, `FmDocPanel`, `FmStart`, `FmSettings` and `FmNumber` (`efc2b26`).
+- [x] Widget tests cover every state, including focus-visible ([G22](DESIGN_GAPS.md#g22)) and a
   disabled state with the tooltip "Available in a future version" for Button, IconButton,
-  ToolButton, menu items and SegmentedControl options ([G10](DESIGN_GAPS.md#g10)).
-- [ ] Goldens for every component in light and dark, and in right-to-left for directional ones.
-- [ ] Keyboard and screen readers: every interactive component is reachable with Tab, works with the
+  ToolButton, menu items and SegmentedControl options ([G10](DESIGN_GAPS.md#g10)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. Every
+  component's test file covers the states of its spec entry, focus-visible included ("NumberStepper
+  focus-visible: Tab reaches the field; the box shows the focus border and the 1 px field ring, over
+  the hover border", "FmNumber hover: the strong border on the box (.fm-input:hover)"). The
+  future-version tooltip: the Button, IconButton, ToolButton and Menu tests, and "a segment disabled
+  with the future-version reason: the arrow keys focus it, and the reason shows as its tooltip after
+  the delay and in semantics" and "… shows it on hover after the delay"
+  (`app/test/design/components/navigation/segmented_control_test.dart`).
+- [x] Goldens for every component in light and dark, and in right-to-left for directional ones.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16), Flutter (ubuntu-24.04), step "Test (goldens on Linux
+  only)": `app/test/goldens/components_golden_test.dart` writes 206 goldens, every section of the
+  component gallery (57) in light and dark, and the 46 sections with directional content in the
+  Arabic right-to-left preview too (`component_<Entry>_<light|dark>[_rtl].png`); symmetric
+  components, page content and the icon grid are listed in `noRtlGolden` with their reasons
+  (ARCHITECTURE.md §13.5).
+- [x] Keyboard and screen readers: every interactive component is reachable with Tab, works with the
   keys its role implies (Enter, Space, arrows, Esc), and has a Semantics label (widget tests)
-  ([G23](DESIGN_GAPS.md#g23)).
-- [ ] Dialogs, menus, popovers, tooltips and toasts are components from this library; the S6 check is
-  active for `showDialog`, `AlertDialog`, `SimpleDialog`, `CupertinoAlertDialog`, `TabBarView` and
-  GetX.
-- [ ] Components that need the engine later (SignaturePad, Stamp, PdfFormField, CommandPalette and
-  others) are complete visually, with every state, and take their data through parameters.
+  ([G23](DESIGN_GAPS.md#g23)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. Every
+  interactive component has a test that reaches it with a real Tab key between a leading and a
+  trailing stop (`app/test/design/components/keyboard_reach.dart`), for example "Select Tab reaches
+  the box, and Enter then opens the list; a plain disabled select is skipped", "Checkbox Tab reaches
+  the checkbox, and Space then toggles" and "PdfFormField keyboard Tab and Shift+Tab move between
+  the fields of a form, every type in turn"; CommandPalette and Menu take focus on open
+  ("CommandPalette no Tab stop of its own …", "Menu Tab and Shift+Tab close an open menu, from a
+  submenu too …"). Keys: Space on the ColorPicker and FontPicker triggers, ArrowUp in FontPicker,
+  ArrowLeft in both directions on the DocumentTabStrip and the SignaturePad mode control, Escape
+  closing the Select, ColorPicker and Menu popovers. Labels: each test file's semantics assertions,
+  and "names every control" in `app/test/features/shell/shell_screen_test.dart`. Real screen readers
+  are a pending owner check (B100).
+- [x] Dialogs, menus, popovers, tooltips and toasts are components from this library; the S6 check
+  is active for `showDialog`, `AlertDialog`, `SimpleDialog`, `CupertinoAlertDialog`, `TabBarView`
+  and GetX. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), "Repository checks" step: "PASS s6_forbidden_api" and "PASS
+  s6_material_imports", with the reviewed allow-list `s6Allowlist` empty
+  (`tools/checks/lib/src/checks/s6_allowlist.dart`). `s6_forbidden_api`
+  (`tools/checks/lib/src/checks/s6_forbidden_api.dart`) forbids showDialog, AlertDialog,
+  SimpleDialog, CupertinoAlertDialog, TabBarView, TabBar, SnackBar, PopupMenuButton, showMenu,
+  Material's Tooltip and Dialog, and other Material or Cupertino overlays, plus GetX imports.
+  `s6_material_imports` allows Material only in `app/lib/design/` and `app/lib/app/app.dart`. Their
+  fixture tests "every forbidden name when Material is imported" (group "api"), "imports of GetX"
+  (group "getx") and "fails on Material dialogs anywhere, the design system included"
+  (`tools/checks/test/s6_forbidden_api_test.dart`), and "allows the design system and app.dart only"
+  (`tools/checks/test/s6_material_imports_test.dart`), pass in the "Dart tools (checks, tokens,
+  icons, l10n)" step. The library's own Dialog, Menu, Popover, Tooltip and Toast have widget tests
+  in `app/test/design/components/overlays/dialog_test.dart`, `overlays/menu_test.dart`,
+  `forms/popover_test.dart`, `core/tooltip_test.dart` and `feedback/toast_test.dart`, which pass in
+  the three Flutter jobs.
+- [x] Components that need the engine later (SignaturePad, Stamp, PdfFormField, CommandPalette and
+  others) are complete visually, with every state, and take their data through parameters. Evidence:
+  CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request
+  #2, head `54d2ef9`, 2026-10-16): the tier-2 components draw every state the gallery forces, in the
+  component goldens of the previous boxes (`component_SignaturePad_*`, `component_Stamp_*`,
+  `component_PdfFormField_*`, `component_CommandPalette_*` and the rest), with state tests in their
+  test files; they take their data through parameters and item types (SignatureValue, NoteReply,
+  CommandItem, RecentFile), which the `component_spec` check walks, and nothing in `app/lib/design/`
+  imports the engine.
 
 #### Step 8. App shell
 
@@ -534,32 +1034,155 @@ Deliverables: `app/lib/features/shell/` with the title bar, document tab strip, 
 row per mode, sidebar, canvas placeholder, right panel and status bar, built from `FmWindow`
 ([G01](DESIGN_GAPS.md#g01)); one shortcut table bound through `Shortcuts` and `Actions`.
 
-- [ ] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px, sidebar
-  216 px, right panel 264 px, status bar 26 px. Goldens line up with the references for `f6` and
-  `f6a` (Windows) and with the chrome of `a2-1b` and `a3-1d` (macOS); every difference is fixed or
-  recorded in DESIGN_GAPS.md.
-- [ ] Eight mode tabs in the designed order: View, Edit, Comment, Fill & Sign, Organize, Convert,
-  Protect, Tools ([G09](DESIGN_GAPS.md#g09), [Q05](QUESTIONS.md#q05)). Mode tabs and sidebar tabs are
-  custom segmented controls over an `IndexedStack`; a widget test shows each mode keeps its state
-  when the user switches away and back.
-- [ ] Every tool in every tool row is visible as drawn. Tools that do not work yet are disabled with
-  the future-version tooltip and listed in BACKLOG.md (S9).
-- [ ] Document tabs show the active, idle, unsaved, loading and "+N" overflow states with placeholder
-  data, and "+" opens nothing yet (disabled with the tooltip until M2).
+- [x] Sizes match `FmWindow` at 1440 × 900: title bar 38 px, mode bar 40 px, tool row 44 px (45 px
+  with FmWindow's second 1 px line, [G84](DESIGN_GAPS.md#g84)), sidebar 216 px, right panel 264 px,
+  status bar 26 px. Goldens line up with the references for `f6` and `f6a` (Windows) and with the
+  chrome of `a2-1b` and `a3-1d` (macOS); every difference is fixed or recorded in DESIGN_GAPS.md.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16): "matches FmWindow sizes at 1440 × 900"
+  (`app/test/features/shell/shell_screen_test.dart`, group "layout") in the three Flutter jobs. The
+  goldens `shell_edit_win_light_en`, `shell_edit_mac_light_en`, `shell_view_mac_light_en` and
+  `shell_edit_mac_dark_en` are lined up with f6 (both strips), f6a, a2-1b and a3-1d, canvas masked,
+  in the report of design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16) (3.4 to 4.5 % differing pixels; a3-1d 10.7 % with its document); each
+  difference is fixed or recorded in [G84](DESIGN_GAPS.md#g84) and [G97](DESIGN_GAPS.md#g97).
+- [x] Eight mode tabs in the designed order: View, Edit, Comment, Fill & Sign, Organize, Convert,
+  Protect, Tools ([G09](DESIGN_GAPS.md#g09), [Q05](QUESTIONS.md#q05)). Mode tabs and sidebar tabs
+  are custom segmented controls over an `IndexedStack`; a widget test shows each mode keeps its
+  state when the user switches away and back. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs, in
+  `app/test/features/shell/shell_screen_test.dart`. "shows the eight modes in the designed order"
+  (group "mode bar") checks that `ModeTabs.modes` is `FermanMode.values` and that View, Edit,
+  Comment, Fill & Sign, Organize, Convert, Protect and Tools run left to right. "switches modes and
+  keeps each mode's state" checks that each mode's tool row in the `IndexedStack` is still the same
+  mounted element after a switch away and back. "the sidebar tabs switch over an IndexedStack"
+  (group "sidebar, canvas, panel and status bar") checks the `SegmentedControl<SidebarTab>` and that
+  the Pages page keeps its element after a switch away and back. The `s6_forbidden_api` check
+  (`tools/checks/lib/src/checks/s6_forbidden_api.dart`, registered in
+  `tools/checks/lib/src/runner.dart`) rejects Material's `TabBar` and `TabBarView`. It runs in step
+  "Repository checks" of the "Repository checks and tools" job.
+- [x] Every tool in every tool row is visible as drawn. Tools that do not work yet are disabled with
+  the future-version tooltip and listed in BACKLOG.md (S9). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs: "draw every
+  tool of FmWindow, in order" and "disable every tool with the future-version tooltip" in
+  `app/test/features/shell/shell_screen_test.dart` (group "tool rows"). The first compares every
+  item of the eight rows, including separators, spacers, switches, menu carets and icon-only tools,
+  with FmWindow's markup in order. The second checks that every item, and every AnnotationTools tool
+  and colour, is disabled with "Available in a future version". Each tool has a row in BACKLOG.md.
+  View: B033 to B038 and B040. Edit: B041 to B049. Comment: B050, B051, and B014 for the Shapes,
+  Stamp and Measure menus. Fill & Sign: B052 to B055 and B024. Organize: B056 and B020. Convert:
+  B019, B021, B023 and B025. Protect: B026 and B057 to B059. Tools: B022, B027, B032, B051 and B060
+  to B064. FmWindow's field navigation (Previous field, Next field) is drawn only when the document
+  has fields, and B052 records that it is not shown.
+- [x] Document tabs show the active, idle, unsaved, loading and "+N" overflow states with
+  placeholder data, and "+" opens nothing yet (disabled with the tooltip until M2). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs: "shows the
+  house button, the document tabs and their states" in
+  `app/test/features/shell/shell_screen_test.dart` (group "title bar"). It checks five placeholder
+  tabs: one active, three idle, one unsaved and one loading. It also checks "+3", named "3 more",
+  and that both "Open file" (+) and the +3 button are disabled with the future-version reason. In
+  `app/test/design/components/additions/document_tab_test.dart`, the tests "active: 32 px on the
+  panel surface, open at the bottom, strong name, 1 px over the border below", "idle: a 28 px
+  rounded row in the secondary colour that tints on hover", "unsaved: a 7 px dot replaces the close
+  button and is read after the name" and "loading: the spinner replaces the icon, and screen readers
+  hear its status inside the tab" run in the same step.
 - [ ] Windows: caption buttons 46 px wide, close turns red on hover, window corners 8 px, the area
   between the tabs and Search drags the window, and snap layouts appear on hover over maximize on
-  Windows 11 (checked by hand on R2 and recorded).
-- [ ] macOS: traffic lights sit where the design puts them; full screen works.
-- [ ] Linux: the title bar follows the answer to Q12. Until then, native decorations plus a BACKLOG
-  entry; the proposal is client-side decorations with caption buttons at the end, Ctrl shortcuts and
-  Cancel-left dialog order ([G15](DESIGN_GAPS.md#g15)).
-- [ ] Every action in the shortcut table appears in its tooltip and menu as ⌘, ⌥, ⇧ on macOS and
+  Windows 11 (checked by hand on R2 and recorded). Implemented, pending owner check (B100).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter
+  jobs. In `app/test/design/components/additions/window_chrome_test.dart`: "Windows: three 46 px
+  caption buttons, 38 px tall, after a 4 px gap, with the drawn glyphs", and "close turns #C42B1C
+  with a white glyph on hover, in both themes". In `app/test/app/window_frame_test.dart`, which uses
+  a Windows window: "a drag on the empty space moves the window" (group "moving the window"),
+  "reports the maximize button for the snap layouts, and gives the area back when it goes" and
+  "draws the hover and press the native side reports" (group "Windows"). In
+  `app/test/features/shell/shell_screen_test.dart`: "leaves the space between the tabs and Search to
+  move the window", which runs on a Linux window over the TitleBar code that Windows shares
+  (`window_frame.dart`, `case WindowPlatform.win || WindowPlatform.linux`). The native snap-layout
+  hook (`app/windows/runner/title_bar.cpp`, which returns HTMAXBUTTON) builds in step "Desktop
+  build" of Flutter (windows-2025), and that runner also passed "Integration test (macOS and
+  Windows)".
+- [ ] macOS: traffic lights sit where the design puts them; full screen works. Implemented, pending
+  owner check (B100). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs. In
+  `app/test/app/window_frame_test.dart` (group "macOS"): "keeps the traffic-light slot at the start
+  and places the native lights in it" (a 78 px slot, lights 14 px from the leading edge, 12 px wide,
+  8 px apart, in the 37 px bar), "puts the lights at the right edge in right to left" and "drops the
+  slot in full screen, where the system owns the lights". In
+  `app/test/design/components/additions/window_chrome_test.dart`: "macOS: an empty 78 px slot for
+  the native lights" and "macOS placeholder lights: three 12 px circles 8 px apart, decorative". In
+  `app/test/app/platform_window_test.dart`: "sends the traffic-light layout". In
+  `app/test/app/desktop_window_test.dart`: "follows maximize and full-screen events", which follows
+  window_manager's full-screen events and runs on a Windows window. The native placement in
+  `app/macos/Runner/MainFlutterWindow.swift` (`setTrafficLightLayout`) builds and starts in steps
+  "Desktop build" and "Integration test (macOS and Windows)" of Flutter (macos-15).
+- [ ] Linux: a custom title bar, as the owner decided in [Q12](QUESTIONS.md#q12): client-side
+  decorations drawn by Ferman, caption buttons at the end, Ctrl shortcuts and Cancel-left dialog
+  order; the window drags and resizes from the drawn areas ([G15](DESIGN_GAPS.md#g15)). The look on
+  GNOME and KDE is a pending owner check. Implemented, pending owner check (B100). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs.
+  `app/test/app/desktop_window_test.dart`: "TargetPlatform.linux draws the linux title bar".
+  `app/test/app/window_frame_test.dart`: "draws the caption buttons at the end, without snap
+  layouts" (group "Linux"), and "runs the window keys on any screen: Alt+F4 and Ctrl+Q on Linux"
+  (group "WindowFrame"). `app/test/design/components/additions/window_chrome_test.dart`: "Linux
+  reuses the Windows layout (G15)". `app/test/features/shell/shortcuts_test.dart`: "has no duplicate
+  binding on linux", "shows ⌘ ⌥ ⇧ ⌃ on macOS and Ctrl Alt Shift elsewhere", and "Ctrl+Alt+S and
+  Ctrl+Alt+P toggle the sidebar and the panel on Linux".
+  `app/test/features/shell/shell_screen_test.dart`: "leaves the space between the tabs and Search to
+  move the window", on a Linux window. The Linux app builds and starts in steps "Desktop build" and
+  "Integration test (Linux, under Xvfb)" of Flutter (ubuntu-24.04). Cancel-left dialog order:
+  "Dialog button order: Cancel before the affirmative button on macOS and Linux; on Windows …"
+  (`app/test/design/components/overlays/dialog_test.dart`) in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16). Resizing from the window's edges and the look on GNOME and KDE are the
+  owner's to check.
+- [x] Every action in the shortcut table appears in its tooltip and menu as ⌘, ⌥, ⇧ on macOS and
   Ctrl, Alt, Shift on Windows and Linux. A test fails on any duplicate binding per platform; the ⌥⌘S
-  collision is resolved before this step ([G44](DESIGN_GAPS.md#g44)).
-- [ ] Focus moves in visual order: title bar, mode bar, tool row, sidebar, canvas, right panel,
-  status bar (widget test). Every control has a Semantics label.
+  collision is resolved before this step ([G44](DESIGN_GAPS.md#g44)). Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): "<mac|windows|linux>: every control bound to a command shows exactly its
+  keys, or its reason while disabled, and every command with a control is found" and "… every
+  overflow-menu entry shows exactly its command’s keys, and its reason as its tooltip"
+  (`app/test/features/shell/shortcut_caps_test.dart`), with "has no duplicate binding on <platform>"
+  and the ⌥⌘S checks in `app/test/features/shell/shortcuts_test.dart`, in the three Flutter jobs.
+  Commands no M1 control shows wait for the palette and the cheat sheet ([G99](DESIGN_GAPS.md#g99),
+  B030, B076).
+- [x] Focus moves in visual order: title bar, mode bar, tool row, sidebar, canvas, right panel,
+  status bar (widget test). Every control has a Semantics label. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the three Flutter jobs, group
+  "accessibility" of `app/test/features/shell/shell_screen_test.dart`. "focus moves title bar, mode
+  bar, tool row, sidebar, canvas, panel, status bar" presses Tab from the Home button and expects
+  the regions in `ShellRegion.values` order (titleBar, modeBar, toolRow, sidebar, canvas, panel,
+  statusBar), then back to the title bar. "names every control" walks the semantics tree in every
+  mode and every sidebar tab. It fails on any button, focusable, toggle or checkable node that has
+  no label, tooltip or value.
 - [ ] **Proposed:** at a minimum window width of 1024 px nothing overlaps; the tool row collapses to
-  icons with an overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)).
+  icons with an overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)). Implemented; the
+  box waits for the owner's approval of the Proposed item. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16); the tests came in with `c5fda08`, and run
+  [38883084870](https://github.com/KEREM-BAS/Ferman/actions/runs/38883084870) was green at that
+  head. Step "Test (goldens on Linux only)" of the three Flutter jobs runs these tests in
+  `app/test/features/shell/shell_narrow_test.dart` (group "narrow windows (G21)"): "English: from
+  1440 to 1024 px every mode fits without overflow; labels hide from the end, the right panel steps
+  aside and the mode tabs keep their labels", plus its Turkish, Arabic and German-length-labels
+  variants. They run at 1440, 1280, 1152 and 1024 px, and at 1024 × 640. They check for no
+  exceptions, every tool inside its Toolbar, labels hiding from the end, the panel gone below 216 +
+  264 + 640 px, a canvas at least 640 px wide, and document tabs at least their minimum width. The
+  group "the tool rows’ overflow menu" has "<mode>: lists exactly the items out of the row, disabled
+  with the future-version reason, toggles with their state" for each of the eight modes, at a row
+  width of 240 px. In `app/test/app/desktop_window_test.dart`: "asks the window for the shell’s
+  minimum size at start-up: 1024 × 640 (G21; the width Proposed)" and "at the minimum width either
+  side panel fits beside the canvas". `applyWindowLimits` is called in `app/lib/app/bootstrap.dart`
+  line 57.
 
 #### Step 9. Start screen and settings skeleton
 
@@ -568,33 +1191,96 @@ Deliverables: `features/onboarding` (`a1-1`, `a1-2b`, `a1-2c`), `features/start`
 region panes, a Privacy skeleton, the other panes present and disabled); settings storage, chosen
 in this step and recorded in ARCHITECTURE.md as [ADR 0011](adr/0011-flutter-state-navigation-components.md)
 asks (shared_preferences with its async API, or a settings file owned by the Rust core so the CLI and
-later platforms share it).
+later platforms share it). Chosen in phase I1: a versioned JSON file in the app support directory,
+written by Dart through a temporary file and a rename
+([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); shared_preferences was not chosen
+([DEPENDENCIES.md §4](DEPENDENCIES.md#4-rejected)).
 
-- [ ] The start screen matches `a1-5` and `a12-2a` in goldens. Open file…, Create PDF, Combine files,
-  Scan to PDF, the quick tools and the drop strip are visible and disabled with the tooltip until
-  their milestones ([G11](DESIGN_GAPS.md#g11)).
-- [ ] The language picker (`a1-1`) lists all 21 languages. English, Turkish and Arabic are complete;
+- [x] The start screen matches `a1-5` and `a12-2a` in goldens. Open file…, Create PDF, Combine
+  files, Scan to PDF, the quick tools and the drop strip are visible and disabled with the tooltip
+  until their milestones ([G11](DESIGN_GAPS.md#g11)). Evidence: the goldens `start_mac_light_en` and
+  `start_mac_light_ar` pass in Flutter (ubuntu-24.04) of CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), and design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16) lines them up with a1-5 (1.1 % differing pixels) and a12-2a (2.2 %, recent
+  files masked), the differences recorded in [G11](DESIGN_GAPS.md#g11) and
+  [G97](DESIGN_GAPS.md#g97). "shows the actions, quick tools and drop area of a1-5" and "every entry
+  point is disabled with the reason (G10)" in `app/test/features/start/start_screen_test.dart`.
+- [x] The language picker (`a1-1`) lists all 21 languages. English, Turkish and Arabic are complete;
   the others carry the "Not translated yet" state chosen in [G20](DESIGN_GAPS.md#g20). Choosing
-  Arabic switches the whole UI to right-to-left at once.
-- [ ] `a1-2b` lists the four network uses with "off until you use it" for all but the update check,
+  Arabic switches the whole UI to right-to-left at once. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)". Group "language picker (a1-1)" in
+  `app/test/features/onboarding/onboarding_test.dart` has three tests. "lists the 21 languages by
+  their own names" finds every `AppLanguage` endonym and exactly 18 "Not translated yet". "choosing
+  العربية mirrors the whole UI at once" checks right to left and that the first column moves right.
+  "choosing a language without a translation keeps English".
+  `app/test/l10n/locale_providers_test.dart` has "lists the 21 languages of a1-1 with en, tr and ar
+  translated" (21 values; translated: en, tr, ar). Completeness: the `arb_parity` check
+  (`tools/checks/lib/src/checks/arb_parity.dart`, step "Repository checks") covers Turkish, and
+  "app_ar.arb has every key of app_en.arb and no other" and "gen-l10n found no untranslated Arabic
+  or Turkish message" in `app/test/l10n/arb_files_test.dart` cover Arabic.
+- [x] `a1-2b` lists the four network uses with "off until you use it" for all but the update check,
   and links to Settings → Privacy ([G24](DESIGN_GAPS.md#g24)). `a1-2c` says Apache-2.0
   ([G13](DESIGN_GAPS.md#g13)) and marks unshipped features as coming in a future version
-  ([G12](DESIGN_GAPS.md#g12)).
-- [ ] Settings shows the 11 panes of `a11-1`. General: Theme (Match system, Light, Dark) works live
-  and persists across restarts. Language and region (`a11-1b`): app language en, tr or ar; region
+  ([G12](DESIGN_GAPS.md#g12)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), tests in `app/test/features/onboarding/onboarding_test.dart`. Group
+  "privacy step (a1-2b)" has two tests. "lists the facts and the four network uses (G24)" checks the
+  rows One optional check for updates, OCR language packs, AI assistant and Signature timestamps;
+  the update check reads "… You can turn it off." and exactly three texts contain "Off until you use
+  it." "links to Settings › Privacy and comes back to the step" opens Settings showing "Ferman
+  collects nothing.", the Privacy pane statement. Group "free step (a1-2c)" has "says Apache-2.0 and
+  never marks later features Included": Apache-2.0, no GPL, and every feature tile except "3
+  interface languages" announced as "…, Available in a future version".
+- [x] Settings shows the 11 panes of `a11-1`. General: Theme (Match system, Light, Dark) works live
+  and persists across restarts. Language and region (`a11-1b`): app language en, tr or ar (the
+  picker lists all 21 languages, the others in English for now, [G20](DESIGN_GAPS.md#g20)); region
   formats with live examples ("13.10.2026", "10,5 pt" for Türkiye). The Windows variant matches
   `a11-1w`, right-to-left matches `a12-2c`. Options that need later milestones are disabled with the
-  tooltip.
-- [ ] Settings → Privacy shows the four network uses of brief §3, each disabled with the tooltip
+  tooltip. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16), `app/test/features/settings/settings_screen_test.dart`: "lists the 11
+  panes; only the built ones are enabled", "the theme switches at once and persists", "the stored
+  theme is there after a restart", "later options are drawn and disabled", "choosing Türkçe switches
+  the app at once", "lists the 21 languages, untranslated ones marked (G20)" and "choosing a region
+  changes the examples and defaults"; the goldens `settings_general_win_light_en` and
+  `settings_language_mac_light_ar` are lined up with a11-1w (0.7 %) and a12-2c (1.0 %) in the report
+  of design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
+- [x] Settings → Privacy shows the four network uses of brief §3, each disabled with the tooltip
   until its milestone ([ADR 0015](adr/0015-privacy-and-network.md)). The drawn "Signature checks"
   row stays visible but disabled until the owner decides [Q06](QUESTIONS.md#q06)
-  ([G51](DESIGN_GAPS.md#g51)).
-- [ ] Settings are stored only in the app data directory; nothing leaves the device.
-- [ ] Settings opens as its own window if desktop multi-window is stable in Flutter 3.47.7, otherwise
+  ([G51](DESIGN_GAPS.md#g51)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): "lists the network uses, each off and disabled" in group "Privacy
+  (a11-1h)" of `app/test/features/settings/settings_screen_test.dart`. It finds the rows Check for
+  updates, Timestamps, Downloads you start and Your AI provider (the four network uses; per
+  `app_en.arb`, Downloads you start is "OCR language packs and the assistant’s model") and the drawn
+  Signature checks row. It asserts that all five switches are off, disabled and carry "Available in
+  a future version", and that "Show network activity…" has the same reason.
+- [x] Settings are stored only in the app data directory; nothing leaves the device. Evidence: CI
+  run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2,
+  head `54d2ef9`, 2026-10-16): "the settings store lives in the app support directory the app’s
+  store asks only for the app support directory, and a save writes only settings.json there, through
+  its temporary file" and "no settings code can reach the network no file under lib/settings/ or
+  lib/features/settings/ imports a network or browser library or names a network class"
+  (`app/test/settings/settings_on_device_test.dart`), with the `pub_denylist` check, in the three
+  Flutter jobs and the repository checks.
+- [x] Settings opens as its own window if desktop multi-window is stable in Flutter 3.47.7, otherwise
   as a window-styled surface ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)); the
-  choice is recorded.
-- [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and R2
-  (tracked, not gated).
+  choice is recorded. Evidence: Flutter 3.47.7's windowing API is not stable, so Settings is a
+  window-styled surface at `/settings` (ARCHITECTURE.md §12, [G89](DESIGN_GAPS.md#g89), BACKLOG
+  B090); `app/test/features/settings/settings_screen_test.dart` and
+  `app/test/features/shell/shell_route_test.dart`.
+- [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and
+  R2 (tracked, not gated). Implemented, pending owner check: the start screen this budget times is
+  built and tested (`app/test/features/start/start_screen_test.dart`, CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628)), and `bootstrap()`
+  loads the settings before `runApp`. No measurement exists. PROGRESS.md "Pending owner checks"
+  lists "the start-screen budget (step 9)" among the R1 and R2 hardware checks.
 
 #### Step 10. Localization en, tr and ar, right to left, locale-aware casing
 
@@ -604,45 +1290,168 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
 **Proposed:** a pseudo-locale for text expansion.
 
 - [ ] `app_tr.arb` has every key of `app_en.arb` (CI key-parity check), reviewed by a native Turkish
-  speaker.
+  speaker. Implemented, pending owner check. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). The `arb_parity` check (`tools/checks/lib/src/checks/arb_parity.dart`,
+  registered in `tools/checks/lib/src/runner.dart`) passes in step "Repository checks" of job
+  "Repository checks and tools". It checks that every key of `app_en.arb` is in `app_tr.arb`, that
+  there are no extra keys, and that no Turkish value repeats the English outside the reviewed list.
+  Its tests in `tools/checks/test/arb_parity_test.dart`, "fails when Turkish misses a key or has an
+  extra one" and "fails when Turkish repeats the English text of a key", run in step "Dart tools
+  (checks, tokens, icons, l10n)". `app/test/l10n/arb_files_test.dart` adds "Arabic and Turkish use
+  the placeholders of the English message". The native Turkish review (gate S5) is a pending owner
+  check in PROGRESS.md.
 - [ ] Arabic exists for every M1 string, taken from the design's Arabic boards where they have it
   (`a12-2a`, `a12-2c`) and reviewed by a native speaker. Missing translations fall back to English
-  and are listed in BACKLOG.md. Other languages fall back to English.
-- [ ] Casing tests: Turkish `upper("imzala")` gives "İMZALA", `upper("ılık")` gives "ILIK",
-  `lower("İSTANBUL")` gives "istanbul" and `lower("I")` gives "ı"; English keeps "i" ↔ "I". The cases
-  are checked against a table derived from Unicode SpecialCasing.
-- [ ] Numbers, dates, paper sizes and units follow the region setting, never the UI language: with an
-  English UI and the Türkiye region a test sees "13.10.2026 · 14:32" and "10,5 pt"
-  ([G34](DESIGN_GAPS.md#g34)).
-- [ ] Right to left: the S6 directional check is active; directional icons mirror and the others do
-  not; the canvas placeholder is never mirrored (widget test).
+  and are listed in BACKLOG.md. Other languages fall back to English. Implemented, pending owner
+  check (B100). Evidence (partial): CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). Group "ROADMAP §5 step 10: Arabic exists for every M1 string" in
+  `app/test/l10n/arb_files_test.dart`: "app_ar.arb has every key of app_en.arb and no other",
+  "Arabic repeats the English text only for names, symbols and formats", "gen-l10n found no
+  untranslated Arabic or Turkish message" and "languages without a translation show the English
+  strings". The design copy is spot-checked by "right to left mirrors the order (a12-2a)" in
+  `app/test/features/start/start_screen_test.dart` and "document languages in Arabic match a12-2c"
+  and "choosing العربية mirrors the settings" in
+  `app/test/features/settings/settings_screen_test.dart`. The design's own text: "Arabic is the
+  design’s own text where the Arabic boards draw it (a12-2a, a12-2c)"
+  (`app/test/l10n/arb_files_test.dart`, 54 strings) in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16). The native Arabic review (gate S5) is the owner's.
+- [x] Casing tests: Turkish `upper("imzala")` gives "İMZALA", `upper("ılık")` gives "ILIK",
+  `lower("İSTANBUL")` gives "istanbul" and `lower("I")` gives "ı"; English keeps "i" ↔ "I". The
+  cases are checked against a table derived from Unicode SpecialCasing. Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16), step "Test (goldens on Linux only)" of the Flutter jobs on the three
+  systems. In `app/test/l10n/casing_test.dart`, group "ROADMAP §5 step 10" has "Turkish upper and
+  lower case" (upper("imzala") = "İMZALA", upper("ılık") = "ILIK", lower("İSTANBUL") = "istanbul",
+  lower("I") = "ı") and "English keeps i and I as a pair". Group "SpecialCasing-15.0.0.txt" has
+  "every unconditional mapping, in every language" (103 lines) and "every conditional mapping, with
+  its context" (16 lines), together the 119 data lines of the Unicode file.
+  `app/test/l10n/casing_icu_test.dart` has "matches ICU on context- and language-dependent strings".
+- [x] Numbers, dates, paper sizes and units follow the region setting, never the UI language: with
+  an English UI and the Türkiye region a test sees "13.10.2026 · 14:32" and "10,5 pt"
+  ([G34](DESIGN_GAPS.md#g34)). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). In `app/test/l10n/region_formats_screen_test.dart`, group "ROADMAP §5 step
+  10: formats follow the region, never the UI language (G34)": "an English UI with the Türkiye
+  region sees "13.10.2026 · 14:32" and "10,5 pt" in Settings › Language and region" and "a Turkish
+  UI with the United States region keeps US formats". Paper sizes and units: "the region default
+  paper in the region default unit" in `app/test/l10n/format_test.dart`; "formats for the region,
+  not the UI language (G34)" and "the United States defaults to Letter, inches and Sunday" in
+  `app/test/l10n/locale_providers_test.dart`; and, in
+  `app/test/features/settings/settings_screen_test.dart`, "choosing a region changes the examples
+  and defaults" (an English UI that picks Türkiye gets A4) and "paper, units and week store
+  overrides only when they differ".
+- [x] Right to left: the S6 directional check is active; directional icons mirror and the others do
+  not; the canvas placeholder is never mirrored (widget test). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16). The `s6_directional` check
+  (`tools/checks/lib/src/checks/s6_directional.dart`, registered in
+  `tools/checks/lib/src/runner.dart`) passes in step "Repository checks", and its fixture tests in
+  `tools/checks/test/s6_directional_test.dart` run in step "Dart tools (checks, tokens, icons,
+  l10n)". Group "Icon mirroring" in `app/test/design/icons/icon_test.dart` has "exactly the eight
+  glyphs the design flips are directional", "directional glyphs mirror in right to left only" and
+  "other glyphs never mirror by default". "<code>: <screen> lays out from the right, directional
+  icons mirrored" in group "ROADMAP §5 step 10: right to left" of
+  `app/test/l10n/rtl_screens_test.dart` runs over the seven `M1Screen` screens (the language picker,
+  both welcome steps, the start screen and Settings General, Language and region and Privacy) in ar,
+  fa and he. "the canvas is never mirrored: in right to left its subtree runs left to right and its
+  glyph is not flipped (ADR 0014)" is in group "layout" of
+  `app/test/features/shell/shell_screen_test.dart`.
 - [ ] **Proposed:** every M1 screen renders in a pseudo-locale with strings 40% longer without
   clipping or overflow errors. This stands in for the German boards `a12-2b` and `a12-2d`.
-- [ ] UI translations are bundled with the app and never downloaded ([G52](DESIGN_GAPS.md#g52)).
-- [ ] The ARB files are ready for community translation through Weblate: every key has a
-  description for translators. Setting up the Weblate project is a BACKLOG entry until the owner
-  creates it.
+  Implemented; the box waits for the owner's approval of the Proposed item. Evidence: CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16): group "every M1 screen in the pseudo-locale fits (Proposed)" in
+  `app/test/l10n/pseudo_locale_test.dart` (the seven M1 screens at 1440 × 900 and 1024 × 768) and
+  "the shell in every mode at <1440 × 900|1024 × 768>, <mac|win>" in
+  `app/test/l10n/pseudo_locale_shell_test.dart`, failing on any overflow or text that does not fit.
+- [x] UI translations are bundled with the app and never downloaded ([G52](DESIGN_GAPS.md#g52)).
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16). Group "ROADMAP §5 step 10 and G52: UI translations are
+  bundled" in `app/test/l10n/arb_files_test.dart`: "the generated localizations are app code, one
+  file per ARB file" (no deferred loading), "each language loads at once, from the app itself" (a
+  `SynchronousFuture`) and "no localization or formatting code can reach the network or the file
+  system". The `pub_denylist` check (`tools/checks/lib/src/checks/pub_denylist.dart`, step
+  "Repository checks") keeps HTTP clients out of `app/pubspec.lock`.
+- [x] The ARB files are ready for community translation through Weblate: every key has a description
+  for translators. Setting up the Weblate project is a BACKLOG entry until the owner creates it.
+  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
+  request #2, head `b358281`, 2026-10-16). Group "ROADMAP §5 step 10: ready for translators
+  (Weblate)" in `app/test/l10n/arb_files_test.dart`: "every English message has a description for
+  translators", "every placeholder is declared, with its type" and "gen-l10n requires the metadata
+  of every message" (`required-resource-attributes: true`). Setting up the Weblate project is
+  BACKLOG row B085, which says it "is an owner action and stays in this row until the owner creates
+  it".
+
+Progress (2026-10-15, development container): phase F4 added the casing utility `LocaleCasing`
+(`app/lib/l10n/casing.dart`) and the region formats `Region` and `RegionFormat`
+(`app/lib/l10n/region.dart`, `format.dart`), with 79 tests in `app/test/l10n/`: the casing cases of
+the box above, every SpecialCasing-15.0.0 line, a 160-string ICU fixture, CLDR 48 formats for the 45
+listed regions in both load orders of flutter_localizations, and an English UI with the Türkiye
+region. `bootstrap()` loads the region formats with `initializeRegionFormats()`. The region provider
+and the a11-1b picker come with step 9; the ARB work and the right-to-left checks with phase J. The
+casing and region boxes are ticked once a green CI run covers these tests.
 
 #### Step 11. Golden matrix
 
-- [ ] Goldens exist for the language picker, welcome steps 2 and 3, the empty start screen, the shell
-  in each of the eight modes with macOS and with Windows chrome, and Settings General and Language and
-  region, each in light and dark × en, tr and ar, with the real bundled fonts.
-- [ ] Goldens are generated and compared on the Linux CI runner only; other runners run the widget
-  tests without goldens ([ARCHITECTURE.md §13.5](ARCHITECTURE.md#135-flutter-tests)).
-- [ ] A comparison report lines up each golden with its reference (`f6`, `f6a`, `a1-1`, `a1-2b`,
+- [x] Goldens exist for the language picker, welcome steps 2 and 3, the empty start screen, the
+  shell in each of the eight modes with macOS and with Windows chrome, and Settings General and
+  Language and region, each in light and dark × en, tr and ar, with the real bundled fonts.
+  Evidence: CI run [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull
+  request #2, head `54d2ef9`, 2026-10-16), Flutter (ubuntu-24.04), step "Test (goldens on Linux
+  only)": `app/test/goldens/screens_golden_test.dart` and `shell_golden_test.dart`, 144 goldens at
+  1440 × 900: the language picker, welcome steps 2 and 3, the empty start screen, Settings General
+  (macOS and Windows), Language and region and Privacy, and the shell in each of the eight modes
+  with macOS and Windows chrome, each in light and dark × en, tr and ar, with the bundled fonts
+  ([G96](DESIGN_GAPS.md#g96), [G97](DESIGN_GAPS.md#g97)).
+- [x] Goldens are generated and compared on the Linux CI runner only; other runners run the widget
+  tests without goldens ([ARCHITECTURE.md §13.5](ARCHITECTURE.md#135-flutter-tests)). Evidence: the
+  step "Test (goldens on Linux only)" of `.github/workflows/ci.yml` runs `flutter test` on Linux and
+  `flutter test --exclude-tags golden` on macOS and Windows, and every golden passes `skip:
+  !isGoldenHost` (`app/test/helpers/golden_config.dart`); all three jobs green in CI run
+  [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
+  `54d2ef9`, 2026-10-16).
+- [x] A comparison report lines up each golden with its reference (`f6`, `f6a`, `a1-1`, `a1-2b`,
   `a1-2c`, `a1-5`, `a11-1`, `a11-1w`, `a11-1b`, `a12-2a`, `a12-2b`, `a12-2c`, `a12-2d`) and posts a
   perceptual difference score in the pull request. A person reviews it; in M1 it is not a gate.
-- [ ] Screens with no drawn dark, Windows, Turkish or right-to-left variant are built from tokens, and
-  each such screen is noted in DESIGN_GAPS.md ([G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17),
-  [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)).
+  Evidence: design-references run
+  [38912838553](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838553) (pull request #2, head
+  `54d2ef9`, 2026-10-16): `node tools/design-refs compare` lined up 19 pairs (17 compared, the
+  German a12-2b and a12-2d listed as not compared, B097) and posted the report, with pixelmatch and
+  1 − SSIM scores, as the pull request's comparison comment; informative, not a gate.
+- [x] Screens with no drawn dark, Windows, Turkish or right-to-left variant are built from tokens,
+  and each such screen is noted in DESIGN_GAPS.md ([G16](DESIGN_GAPS.md#g16),
+  [G17](DESIGN_GAPS.md#g17), [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)). Evidence:
+  [G97](DESIGN_GAPS.md#g97) lists, screen by screen, which golden variants a board draws and which
+  are built from tokens, under the rules of [G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17),
+  [G18](DESIGN_GAPS.md#g18) and [G19](DESIGN_GAPS.md#g19).
 
 ### Acceptance criteria
 
-- [ ] Steps 1 to 11 accepted.
-- [ ] Standard gates S1 to S9 (S3 starts in M2).
-- [ ] A fresh clone builds, tests and runs on macOS, Windows and Linux using only the commands in
-  CLAUDE.md.
+- [ ] Steps 1 to 11 accepted. Every box of steps 1 to 11 that a test, a CI run or a measurement can
+  prove is ticked with its evidence. The open ones wait on the owner: the Proposed items (the crate
+  graph, the pub deny list, the web build, the font deny list, the 1024 px minimum width, the start
+  budget and the pseudo-locale), the checks on R1, R2 and arm64 hardware, and native-speaker review
+  (B100).
+- [ ] Standard gates S1 to S9 (S3 starts in M2). S1 (CI run
+  [38916384485](https://github.com/KEREM-BAS/Ferman/actions/runs/38916384485) (pull request #2, head
+  `f41d789`, 2026-10-16)), S2 (the workspace's Clippy lints and `missing_docs`, denied in CI), S4
+  ([G97](DESIGN_GAPS.md#g97) and the component goldens), S6 (the `s6_*` checks), S7 (cargo-deny and
+  the Dart licence check) and S9 (the last exit check) are met. S5 waits on the native-speaker
+  review of Turkish and Arabic, and S8 on the R1 and R2 measurements (B100); S3 starts in M2.
+- [x] A fresh clone builds, tests and runs on macOS, Windows and Linux using only the commands in
+  CLAUDE.md. Evidence: a fresh clone of `m1-foundations` at `f41d789` (2026-10-16, development
+  container, Linux x64) ran every command of CLAUDE.md's Commands list, 30 in all: Rust fmt, clippy
+  with and without the bridge feature, tests with and without PDFium, cargo-deny and the CLI;
+  Flutter analyze, the whole test suite, regenerating the goldens, build_runner and the bridge
+  codegen with no change; the Linux and web builds, the integration test under Xvfb and its profile
+  run; the Dart licence check, `check_all`, the build scan, the token, icon, l10n and component-spec
+  generators with no change, the font and PDFium checks, and the design-reference tests, render and
+  comparison; the tree was clean at the end. On macOS and Windows CI runs the same commands from a
+  fresh checkout: CI run [38916384485](https://github.com/KEREM-BAS/Ferman/actions/runs/38916384485)
+  (pull request #2, head `f41d789`, 2026-10-16).
 
 ### Design gaps to settle in M1
 
@@ -654,24 +1463,52 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
 - Shell and components: [G09](DESIGN_GAPS.md#g09) eighth mode, [G10](DESIGN_GAPS.md#g10)
   future-version state, [G21](DESIGN_GAPS.md#g21) narrow windows, [G22](DESIGN_GAPS.md#g22) tooltips
   and focus, [G23](DESIGN_GAPS.md#g23) app accessibility, [G44](DESIGN_GAPS.md#g44) ⌥⌘S collision
-  (decided here because the shell tooltips show it).
+  (decided here because the shell tooltips show it), [G62](DESIGN_GAPS.md#g62) annotation-tool list
+  (found in M1).
+- Components (found in M1): [G67](DESIGN_GAPS.md#g67) idle document tabs,
+  [G68](DESIGN_GAPS.md#g68) tab heights, [G69](DESIGN_GAPS.md#g69) annotation colour swatches,
+  [G71](DESIGN_GAPS.md#g71) focus ring on disabled-with-reason controls,
+  [G72](DESIGN_GAPS.md#g72) pressed icon buttons, [G73](DESIGN_GAPS.md#g73) drop-zone border and
+  shortcut.
 - Variants: [G15](DESIGN_GAPS.md#g15) Linux, [G16](DESIGN_GAPS.md#g16) Windows,
   [G17](DESIGN_GAPS.md#g17) dark, [G18](DESIGN_GAPS.md#g18) right to left,
   [G19](DESIGN_GAPS.md#g19) Turkish.
 - Copy and first run: [G11](DESIGN_GAPS.md#g11) start screen promises, [G12](DESIGN_GAPS.md#g12)
   "Included", [G13](DESIGN_GAPS.md#g13) licence, [G20](DESIGN_GAPS.md#g20) language picker states,
   [G24](DESIGN_GAPS.md#g24) network claims, [G34](DESIGN_GAPS.md#g34) locale formats,
-  [G52](DESIGN_GAPS.md#g52) bundled translations.
+  [G52](DESIGN_GAPS.md#g52) bundled translations, [G63](DESIGN_GAPS.md#g63) internal-error message
+  and [G74](DESIGN_GAPS.md#g74) progress percentages (found in M1).
+- Typography (found in M1): [G64](DESIGN_GAPS.md#g64) UI font order, [G65](DESIGN_GAPS.md#g65) CJK
+  synthetic bold.
+- Window chrome (found in M1): [G66](DESIGN_GAPS.md#g66) title bar states and gestures,
+  [G70](DESIGN_GAPS.md#g70) window controls.
 
 ### Exit checks
 
 E1 to E8, plus:
 
-- [ ] CLAUDE.md lists the real build, test, codegen, token and design-reference commands.
-- [ ] The measured bridge numbers from step 3 are in ARCHITECTURE.md §3.4 and PROGRESS.md.
-- [ ] The PDFium tag and archive hashes are in DEPENDENCIES.md.
-- [ ] Every M1 tool, menu item and quick tool that is disabled has a BACKLOG.md entry naming its
-  milestone.
+- [x] CLAUDE.md lists the real build, test, codegen, token and design-reference commands. Evidence:
+  CLAUDE.md's Commands list holds the build (Cargo, `flutter build <linux|windows|macos>`, `flutter
+  build web`, `flutter run`), test, codegen (build_runner, the bridge, gen-l10n and `tools/l10n`),
+  token, icon and design-reference commands, and each ran on the fresh clone of the acceptance
+  criteria.
+- [x] The measured bridge numbers from step 3 are in ARCHITECTURE.md §3.4 and PROGRESS.md. Evidence:
+  [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles) and [PROGRESS.md](PROGRESS.md#measurements)
+  record every bridge number with the machine it came from: debug and profile builds in the
+  development container (the profile run of the fresh clone at `f41d789`: minimum 4,570 µs, median
+  8,726 µs for 1 MiB) and debug builds on the CI runners. None comes from R1 or R2; that measurement
+  is a pending owner check (B100), and the fallback is designed in ADR 0009.
+- [x] The PDFium tag and archive hashes are in DEPENDENCIES.md. Evidence:
+  [DEPENDENCIES.md §5.1](DEPENDENCIES.md#51-pdfium) (tag `chromium/7881`, archive and library SHA-256
+  for all seven archives, matching `tools/pdfium/pdfium.lock`).
+- [x] Every M1 tool, menu item and quick tool that is disabled has a BACKLOG.md entry naming its
+  milestone. Evidence: a check of `app/lib` at `f41d789` (2026-10-16) found 144 controls disabled
+  for a future version, 96 in the shell, 13 on the start screen, 12 in first run and 23 in Settings,
+  each with an open [BACKLOG.md](BACKLOG.md) row that names its target milestone, and no row naming
+  a control that is gone; "disable every tool with the future-version tooltip"
+  (`app/test/features/shell/shell_screen_test.dart`) and "every entry point is disabled with the
+  reason (G10)" (`app/test/features/start/start_screen_test.dart`) keep the shell and the start
+  screen so.
 
 ## 6. M2: open and view
 
@@ -680,17 +1517,19 @@ E1 to E8, plus:
 - M1 accepted.
 - Approval of [ADR 0009](adr/0009-threading-and-jobs.md), threading and jobs. The render thread, the
   tile queue and the document actors are built on it. ADR 0009 is Proposed and has no question of its
-  own; it is reviewed with M0. If it is not approved when M1 ends, only the brief's rule applies
-  (nothing heavy on the UI thread), and M2 stops for the owner's decision before step 1.
+  own; it was not approved at the M0 go-ahead and is carried through M1. If it is not approved when
+  M1 ends, only the brief's rule applies (nothing heavy on the UI thread), and M2 stops for the
+  owner's decision before step 1.
 - [Q07](QUESTIONS.md#q07), native pickers. ADR 0018 is Proposed. If the owner has not answered when
   M2 starts, "Open file…" and ⌘O or Ctrl+O use the OS-native open picker as the safest option
   ([brief §9](BRIEF.md)), as ADR 0018, Q07 and [G26](DESIGN_GAPS.md#g26) say, and the M2 summary
   flags it for approval. Drag and drop, recent files and "Open with" work alongside it.
-- [Q17](QUESTIONS.md#q17), licence exceptions. desktop_drop (which pulls MPL-2.0 `dbus` on every
-  platform) and the `fuzz/` workspace (NCSA `libfuzzer-sys`) are added only after the owner approves
-  them. If Q17 is still open when M2 starts, drag and drop uses another permissively licensed package
-  or a platform channel, and the fuzz criterion waits for the answer with a BACKLOG entry, flagged in
-  the M2 summary.
+- [Q18](QUESTIONS.md#q18), the macOS App Sandbox. It decides how macOS reaches the files the user
+  opens, how recent files reopen (security-scoped bookmarks) and where the atomic save puts its temp
+  file. M1 keeps the template's sandbox on; the owner is asked before M2 starts.
+- Licence exceptions are settled: the owner approved desktop_drop with its MPL-2.0 `dbus` dependency
+  and the `fuzz/` workspace with NCSA `libfuzzer-sys` on 2026-10-15 ([Q17](QUESTIONS.md#q17)), so
+  both are added in M2 as named exceptions.
 - [Q13](QUESTIONS.md#q13), document JavaScript policy. The non-V8 PDFium build already runs no
   scripts.
 
@@ -775,8 +1614,8 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 | Rust | unicode-normalization 0.1, unicode-segmentation 1.13, unicode-bidi 0.3 | MIT OR Apache-2.0 | search folding, word boundaries, logical order for right-to-left text |
 | Rust | icu_casemap 2.3, icu_collator 2.3 | Unicode-3.0 | Turkish-aware search folding; locale sorting of recent files; binary size checked |
 | Rust (dev) | criterion 0.8, tempfile 3.27 | Apache-2.0 OR MIT; MIT OR Apache-2.0 | benchmarks; test files |
-| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, pending [Q17](QUESTIONS.md#q17) |
-| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); added only if [Q17](QUESTIONS.md#q17) approves it, and its notice then ships in every build |
+| Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, approved in [Q17](QUESTIONS.md#q17) |
+| Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); approved in [Q17](QUESTIONS.md#q17); its notice ships in every build and the pub licence check skips `dbus` by name |
 
 ### Steps
 
@@ -938,10 +1777,8 @@ E1 to E8, plus:
 
 ## 7. M3: edit text core
 
-**Status:** Not started. **Needs first:** M2 accepted; [Q04](QUESTIONS.md#q04) shaper (until the
-owner approves [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), the brief's rustybuzz stands,
-behind one internal trait so a switch touches one module); [Q09](QUESTIONS.md#q09) missing-glyph
-default; [Q08](QUESTIONS.md#q08) similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
+**Status:** Not started. **Needs first:** M2 accepted; [Q09](QUESTIONS.md#q09) missing-glyph
+default; [Q08](QUESTIONS.md#q08) group 4, similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
 for the Save as location picker (if it is still open, "Other location…" hands off to the OS-native
 save picker as the safest option, as ADR 0018 and G26 say, and the M3 summary flags it; see step 8).
 
@@ -1007,7 +1844,8 @@ new text" is P2.
   incremental writer matching the original cross-reference form; full rewrite; safe write; external
   change detection; recovery journal ([ARCHITECTURE.md §6.1](ARCHITECTURE.md#61-content-stream-interpreter-ferman-core),
   [§7](ARCHITECTURE.md#7-file-safety)).
-- **ferman-fonts:** shaping (rustybuzz per the brief, or harfrust if ADR 0007 is approved),
+- **ferman-fonts:** shaping with harfrust ([ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md),
+  accepted in [Q04](QUESTIONS.md#q04)),
   subsetting (subsetter), system fonts (fontdb), coverage per shaped glyph, metric comparison for the
   similar-font ranking, the registry of fonts bundled with the app, embedding permissions (OS/2
   `fsType`), ToUnicode and CMap writing, glyph and shaping caches (brief §3).
@@ -1026,7 +1864,7 @@ new text" is P2.
 
 | Kind | Dependency | Licence | Notes |
 |---|---|---|---|
-| Rust | rustybuzz 0.20 per the brief, or harfrust 0.14 if ADR 0007 is approved | MIT | rustybuzz is archived upstream; harfrust shares read-fonts 0.45 with skrifa 0.48 |
+| Rust | harfrust 0.14 ([ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md), accepted) | MIT | pinned exactly; shares read-fonts 0.45 with skrifa 0.48; rustybuzz stays banned as a direct dependency |
 | Rust | subsetter 0.2.6 | MIT OR Apache-2.0 | its `variable-fonts` feature pulls a second fontations copy; keep it off unless needed |
 | Rust | fontdb 0.24 | MIT | system font discovery; brings ttf-parser transitively (not used directly) |
 | Rust | a UAX #14 line breaker | to check | chosen and licence-checked in step 5 |
@@ -1268,8 +2106,8 @@ states, [G43](DESIGN_GAPS.md#g43) saving settings, [G44](DESIGN_GAPS.md#g44) sho
 
 E1 to E8, plus:
 
-- [ ] ADRs 0005, 0006 and 0008 match the implementation; ADR 0007 is approved or the brief's
-  rustybuzz is in place.
+- [ ] ADRs 0005, 0006, 0007 and 0008 match the implementation; harfrust is the shaper and no direct
+  rustybuzz dependency exists.
 - [ ] The Turkish, Arabic and CJK cases the brief requires (E01 to E03, E09, E12) pass. Any other
   case that cannot reach zero diff is fixed, or its block becomes "not editable" with a reason and a
   BACKLOG entry. No case is skipped or passed silently.
@@ -1277,9 +2115,10 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) handwriting fonts
-for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
-Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print.
+**Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) group 3, handwriting
+fonts for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
+Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print; the Proposed
+details of [ADR 0019](adr/0019-ai-clients-through-mcp.md) for step 11 ([Q20](QUESTIONS.md#q20)).
 
 ### Goal
 
@@ -1300,6 +2139,8 @@ app frame (command palette, toasts, background tasks, full settings).
 - Organize, Comment and Fill & Sign modes; Compress and Version history in Tools mode.
 - Command palette, keyboard cheat sheet, toasts, background task drawer.
 - All Settings panes, the licences and third-party notices screen, basic system print (Proposed).
+- A local MCP server for AI clients in the running app, set up from Settings
+  ([ADR 0019](adr/0019-ai-clients-through-mcp.md), the owner's decision of 2026-10-16).
 
 ### Artboards covered
 
@@ -1351,8 +2192,9 @@ privacy rows for features that do not exist yet in `a11-1h`.
 |---|---|---|---|
 | Rust | image 0.25 | MIT OR Apache-2.0 | default features off; png, jpeg, tiff, webp and gif only (avoids the unmaintained `paste` crate) |
 | Rust | cargo-about 0.9 (tool) | MIT OR Apache-2.0 | third-party notices for the licences screen ([G14](DESIGN_GAPS.md#g14)); every release in M5 bundles its output |
-| Fonts | handwriting fonts for typed signatures, if Q08 approves (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
+| Fonts | handwriting fonts for typed signatures, if Q08 group 3 approves them (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
 | Dart or platform | a printing package or platform channel | to check | chosen and licence-checked in step 9 |
+| Rust | an MCP SDK (the official `rmcp`, or a small JSON-RPC layer of our own) | to check | chosen and licence-checked in step 11 ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
 
 ### Steps
 
@@ -1376,6 +2218,14 @@ privacy rows for features that do not exist yet in `a11-1h`.
 9. **Basic system print** (`a9-6`, Proposed), handing the document to the OS print dialog.
 10. **Thumbnail badges** for comments, fields and signatures (`f5`); bookmark and metadata editing and
     "Attach a file" (`a2-3a`, `a2-7`, `a2-3b`) if M3 did not ship them.
+11. **AI clients through MCP** ([ADR 0019](adr/0019-ai-clients-through-mcp.md), [Q20](QUESTIONS.md#q20)):
+    a local MCP server in the running app, off by default. Settings lists the supported clients
+    (Claude, ChatGPT and others that can reach a local server) with a connection link or a one-click
+    setup and a switch that stops it ([G94](DESIGN_GAPS.md#g94)); Settings → Privacy lists connected
+    clients. The client works on the documents open in Ferman through `ferman-api`: its changes are
+    edit transactions, shown at once, listed in the edit review and undoable. The Proposed details of
+    the ADR (transport, pairing, the first tools, saving) are settled with the owner when this step
+    starts.
 
 ### Acceptance criteria
 
@@ -1419,6 +2269,11 @@ privacy rows for features that do not exist yet in `a11-1h`.
   the count against `cargo metadata` and `pubspec.lock`.
 - [ ] Print (Proposed): the OS print dialog opens with the document, and "Use system dialog…" is one
   click away.
+- [ ] AI clients (ADR 0019): with the switch on, a supported client connects from the same computer
+  only, lists the open documents, reads a page's text and makes an edit that shows at once, appears
+  in the edit review under the client's name and is undone by one undo; with the switch off nothing
+  answers. Nothing listens on the network (a test checks the open sockets), and Settings → Privacy
+  lists the connected client.
 - [ ] Goldens for every M4 screen and every Settings pane in light and dark × en, tr and ar (S4).
 - [ ] Standard gates S1 to S9; fuzz targets added for every new parser (annotation appearance
   streams, form field values and formats, image decoding entry points).
@@ -1429,7 +2284,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
 [G46](DESIGN_GAPS.md#g46) comment states, [G47](DESIGN_GAPS.md#g47) form and signature states,
 [G48](DESIGN_GAPS.md#g48) compress and history states, [G49](DESIGN_GAPS.md#g49) palette, toast and
 task states, [G50](DESIGN_GAPS.md#g50) settings variants, [G51](DESIGN_GAPS.md#g51) revocation lookups
-in Privacy, [G52](DESIGN_GAPS.md#g52) language packs in Privacy, [G33](DESIGN_GAPS.md#g33) basic print.
+in Privacy, [G52](DESIGN_GAPS.md#g52) language packs in Privacy, [G33](DESIGN_GAPS.md#g33) basic print,
+[G94](DESIGN_GAPS.md#g94) AI client settings.
 
 ### Exit checks
 
@@ -1443,11 +2299,17 @@ E1 to E8, plus:
 
 ## 9. M5: release pipeline
 
-**Status:** Not started. **Needs first:** M4 accepted; [Q01](QUESTIONS.md#q01) bundle identifier
-(final), [Q02](QUESTIONS.md#q02) code-signing publisher name, [Q03](QUESTIONS.md#q03) minimum OS
-versions, [Q12](QUESTIONS.md#q12) Linux packaging, [Q14](QUESTIONS.md#q14) copyright holder,
-[Q15](QUESTIONS.md#q15) update-check endpoint and payload. The owner provides the Apple Developer ID,
-notarization credentials and a Windows code-signing certificate.
+**Status:** Not started. **Needs first:** M4 accepted; [Q02](QUESTIONS.md#q02) code-signing
+publisher name, [Q12](QUESTIONS.md#q12) Linux packaging formats, [Q15](QUESTIONS.md#q15)
+update-check endpoint and payload. The owner provides the Apple Developer ID, notarization
+credentials and a Windows code-signing certificate. Already answered: [Q01](QUESTIONS.md#q01) bundle
+identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03) minimum OS versions and
+[Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors".
+
+**Flathub note.** Flathub verifies an `io.github.<user>` id against the GitHub account `<user>`. The
+repository's account is `KEREM-BAS`, not `kerembas`, so a Flatpak on Flathub needs a `kerembas`
+account or organisation on GitHub, or a domain-based id. This is decided with the packaging part of
+Q12.
 
 ### Goal
 
@@ -1468,7 +2330,7 @@ manifests.
   notarized and stapled; PDFium signed inside the bundle.
 - Windows: installer for x64 and arm64 (format chosen in this milestone), Authenticode signed with a
   timestamp, registering the PDF ProgID and "Open with"; PDFium signed.
-- Linux, best effort: formats per [Q12](QUESTIONS.md#q12).
+- Linux, best effort: formats per [Q12](QUESTIONS.md#q12) (see the Flathub note above).
 - The network gateway in `ferman-api` (`net` module) with the update check, the network activity log
   and the per-purpose switches ([ARCHITECTURE.md §10.2](ARCHITECTURE.md#102-one-gateway)).
 - Auto-update with signed update packages; Homebrew cask and winget manifests.
@@ -1485,7 +2347,7 @@ manifests.
 
 `a11-5` changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry,
 nothing locked." ([G13](DESIGN_GAPS.md#g13)); names the copyright holder from
-[Q14](QUESTIONS.md#q14) (proposed: "The Ferman Authors"), and its "Licences" button opens the M4
+[Q14](QUESTIONS.md#q14) ("The Ferman Authors"), and its "Licences" button opens the M4
 notices screen.
 
 ### Engine capabilities and crates
@@ -1510,7 +2372,7 @@ notices screen.
   installers, the Linux packages chosen in Q12, SHA-256 checksums, release notes and the third-party
   notices.
 - [ ] macOS: `spctl --assess` and `stapler validate` pass on a clean macOS virtual machine for the
-  minimum supported version from Q03; the app and `libpdfium.dylib` carry the Developer ID signature.
+  minimum supported version from Q03 (macOS 12); the app and `libpdfium.dylib` carry the Developer ID signature.
 - [ ] Windows: `signtool verify /pa` passes for the installer, `ferman.exe` and `pdfium.dll`; the
   installer registers the ProgID so "Open with" and double-click work, and uninstalls cleanly.
 - [ ] About shows the version and the commit the tag points to; "Copy version info" copies both.
@@ -1988,8 +2850,8 @@ risk first bites.
 | **lopdf API churn**: breaking releases almost monthly | H | M | pin `=0.45`; wrap it inside ferman-core; upgrade on purpose, with the corpus as the safety net | M2 | [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md) |
 | **Font licensing**: the Plex Reserved Font Name forbids shipping modified or subset Plex files; installed fonts may forbid embedding (`fsType`); handwriting fonts and CJK fonts carry their own terms; glyph lists, AFM metrics and CMaps need checks | M | H | ship IBM's unmodified files with OFL texts; respect `fsType` in missing-glyph step 2 and say why; bundle handwriting fonts only after [Q08](QUESTIONS.md#q08); check every data file's licence before adding it; list everything in the licences screen | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06), [G08](DESIGN_GAPS.md#g08) |
 | **Fontations churn**: skrifa and read-fonts are pre-1.0 and break every few weeks; harfrust, subsetter and krilla pin different versions, so two copies end up in the binary with handles that cannot be shared | H | M | pin exact versions; upgrade skrifa, read-fonts, the shaper, subsetter and krilla together; keep the shaper behind one trait; cargo-deny warns on duplicates | M2 | [DEPENDENCIES.md](DEPENDENCIES.md), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
-| **Shaper**: the brief names rustybuzz, which is archived upstream | H | M | ADR 0007 proposes harfrust; the shaper trait makes the switch one module | M3 | [Q04](QUESTIONS.md#q04) |
-| **CJK fonts size and coverage**: Japanese, Korean, Simplified and Traditional Chinese fonts add tens of megabytes each; some Linux systems have none installed | H | M | system fonts per ADR 0013, with the right locale per text style; detect missing coverage and say so instead of showing empty boxes; optional font packs only if the owner chooses them in [Q08](QUESTIONS.md#q08) | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G07](DESIGN_GAPS.md#g07) |
+| **Shaper**: the brief names rustybuzz, which is archived upstream; its successor harfrust is pre-1.0 | H | M | ADR 0007 accepted (harfrust); exact pin and joint upgrades with the font stack; rustybuzz banned except through krilla; the shaper trait keeps it in one module | M3 | [Q04](QUESTIONS.md#q04), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
+| **CJK fonts size and coverage**: Japanese, Korean, Simplified and Traditional Chinese fonts add tens of megabytes each; some Linux systems have none installed | H | M | system fonts per ADR 0013, with the right locale per text style; detect missing coverage and say so instead of showing empty boxes; no font packs, as the owner decided in [Q08](QUESTIONS.md#q08) group 2 | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G07](DESIGN_GAPS.md#g07) |
 | **Code signing and notarization**: needs an Apple Developer ID, notarization credentials, a Windows certificate and the publisher name; a new publisher has no SmartScreen reputation; the third-party PDFium binaries are unsigned | M | H | answer [Q02](QUESTIONS.md#q02) early; set up accounts before M5; a signing dry run in M4 with a test certificate; sign PDFium with the app; secrets in a protected CI environment | M5 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **PDFium supply chain**: weekly third-party builds, unsigned | M | H | pinned tag and SHA-256 per archive; non-V8, non-XFA build; licences folder shipped | M2 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Bridge performance**: zero-copy tile transfer and executor behaviour not measured yet | M | M | M1 step 3 benchmark; texture-registry fallback | M1 | [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles) |
@@ -1997,10 +2859,11 @@ risk first bites.
 | **Zero pixel diff in rare cases**: anti-aliasing at the region edge or shared resources make an edit touch pixels outside its box | M | H | the documented 2-pixel margin (Proposed); copy-on-write for shared resources; a case that cannot reach zero becomes "not editable" with a reason, never a silent pass | M3 | [ADR 0005](adr/0005-block-scoped-text-editing.md) |
 | **Text model errors** on complex layouts: wrong blocks mean wrong edits | M | H | ground truth for generated files; hand-labelled real-world files; conservative editability; every mismatch becomes a case | M3 | [ARCHITECTURE.md §6.4](ARCHITECTURE.md#64-text-model) |
 | **IME and caret on a custom canvas**: CJK composition and dead keys break | M | M | `DeltaTextInputClient` from the first prototype; CJK and Turkish input in integration tests | M3 | [ARCHITECTURE.md §6.12](ARCHITECTURE.md#612-the-ui-side-of-editing) |
-| **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback; native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
+| **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback, which M1 uses for Settings (real windows: [BACKLOG.md](BACKLOG.md) B090); native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; ask for a re-export ([Q11](QUESTIONS.md#q11)) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
-| **Owner decisions pending**: Q01 to Q17 and the Proposed ADRs (0007, 0009, 0013 in part, 0018) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
-| **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | M | M | ask before adding (brief §9); actions/cache or no cache meanwhile; desktop_drop and `fuzz/` added only after approval; if declined, another package or a platform channel for drag and drop | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
+| **Owner decisions pending**: the open questions (Q02, Q06, Q07, Q09 to Q11, Q13, Q15, Q16, Q18 and the open parts of Q08, Q12, Q14 and Q17) and the Proposed ADRs (0009, 0018, and the Proposed details in 0003, 0004, 0006 and 0008) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
+| **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | L | M | approved by the owner on 2026-10-15 as named exceptions only: the `dbus` notice ships with every build, the pub check skips `dbus` by name, `libfuzzer-sys` only in `fuzz/`, rust-cache only in CI and pinned by SHA; any new exception is asked again (brief §9) | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
+| **macOS App Sandbox**: the Flutter template turns it on; it changes file access, recent files and the atomic save | M | M | keep it on in M1, where no files open; ask before M2; bookmarks and the system replacement directory if it stays on | M2 | [Q18](QUESTIONS.md#q18) |
 | **OCR engine**: ocrs recognises Latin only and its model licence is unclear | H | M | decide [Q16](QUESTIONS.md#q16) before phase 3; Tesseract is the fallback | P3 | [Q16](QUESTIONS.md#q16) |
 | **Signature crates**: cms 0.3 is only a release candidate; rsa has an unpatched timing advisory | M | M | wait for cms 0.3.0 or pin the release candidate after review; sign through PKCS#11 or the OS keystore; rsa for verification only | P3 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Office conversion**: fidelity and the licences of any converter | H | M | an ADR before phase 3; fidelity report lists what was lost | P3 | — |

@@ -1,0 +1,470 @@
+# Ferman CI: repository checks, tools, Rust and Flutter on macOS, Windows and Linux.
+# Every action is pinned by commit SHA (tools/checks action_pins).
+name: CI
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  CARGO_TERM_COLOR: always
+  FLUTTER_VERSION: 3.47.7
+  VERY_GOOD_CLI_VERSION: 1.5.0
+
+jobs:
+  repo-checks:
+    name: Repository checks and tools
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Base commit for the design/ check
+        shell: bash
+        run: |
+          if [ "${{ github.event_name }}" = "pull_request" ]; then
+            echo "CHECKS_BASE=${{ github.event.pull_request.base.sha }}" >> "$GITHUB_ENV"
+          elif [ -n "${{ github.event.before }}" ] && [ "${{ github.event.before }}" != "0000000000000000000000000000000000000000" ]; then
+            echo "CHECKS_BASE=${{ github.event.before }}" >> "$GITHUB_ENV"
+          else
+            echo "CHECKS_BASE=HEAD~1" >> "$GITHUB_ENV"
+          fi
+      - name: Dart tools (checks, tokens, icons, l10n)
+        shell: bash
+        run: |
+          set -euo pipefail
+          for t in checks tokens icons l10n; do
+            echo "::group::tools/$t"
+            (cd "tools/$t" && dart pub get --enforce-lockfile && dart format --output=none --set-exit-if-changed . && dart analyze --fatal-infos && dart test)
+            echo "::endgroup::"
+          done
+      - name: Repository checks
+        working-directory: tools/checks
+        run: dart run bin/check_all.dart --root ../..
+      - name: Generated files are current (tokens, icons, component spec, isolated fallback, translation table)
+        shell: bash
+        run: |
+          set -euo pipefail
+          (cd tools/tokens && dart run bin/tokens.dart --check)
+          (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
+          (cd tools/l10n && dart run l10n --check && dart run l10n:review_table --check)
+      - name: Cache the PDFium archives
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium archives (SHA-256 and licence files)
+        shell: bash
+        run: |
+          bash tools/pdfium/selftest.sh
+          bash tools/pdfium/fetch.sh --all
+          bash tools/pdfium/fetch.sh --all --verify --check-licenses
+      - name: Bundled fonts (unmodified IBM files, script coverage)
+        shell: bash
+        run: |
+          bash tools/fonts/selftest.sh
+          bash tools/fonts/fetch.sh --verify-committed
+          python3 -I tools/fonts/coverage.py
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: tools/design-refs/.nvmrc
+      - name: Design-reference tool tests
+        working-directory: tools/design-refs
+        run: |
+          npm ci
+          npm test
+
+  rust:
+    name: Rust (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, macos-15, windows-2025]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 30
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        run: git config --system core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        shell: bash
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Format
+        if: runner.os == 'Linux'
+        run: cargo fmt --all --check
+      - name: Clippy
+        run: cargo clippy --workspace --all-targets --locked -- -D warnings
+      - name: Clippy (ferman-api with the bridge feature)
+        run: cargo clippy -p ferman-api --features frb --all-targets --locked -- -D warnings
+      - name: Test
+        run: cargo test --workspace --locked
+      - name: Test (ferman-api with the bridge feature)
+        run: cargo test -p ferman-api --features frb --locked
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: Tests that need PDFium
+        shell: bash
+        run: |
+          set -euo pipefail
+          case "$RUNNER_OS" in
+            Linux) id=linux-x64; lib=lib/libpdfium.so ;;
+            macOS) id=mac-univ; lib=lib/libpdfium.dylib ;;
+            Windows) id=win-x64; lib=bin/pdfium.dll ;;
+          esac
+          # The fetch script's own tests, with this system's tools (BSD ones on macOS).
+          if [ "$RUNNER_OS" != "Windows" ]; then bash tools/pdfium/selftest.sh; fi
+          bash tools/pdfium/fetch.sh --platform "$id"
+          root="$PWD"
+          if [ "$RUNNER_OS" = "Windows" ]; then root="$(cygpath -m "$PWD")"; fi
+          export FERMAN_PDFIUM_PATH="$root/build/pdfium/$id/$lib"
+          cargo test --workspace --locked -- --ignored
+          cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
+          grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
+      - name: CLI smoke test
+        shell: bash
+        run: |
+          out="$(cargo run -q --locked -p ferman-cli -- --version)"
+          echo "$out"
+          [[ "$out" =~ ^ferman\ [0-9]+\.[0-9]+\.[0-9]+\ \(api\ [0-9]+\.[0-9]+\)$ ]]
+
+  deny:
+    name: cargo-deny
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          command: check
+      - name: Licence config that includes dev-dependencies
+        run: |
+          sed 's/^include-dev = false/include-dev = true/' deny.toml > deny-dev.toml
+          grep -q '^include-dev = true' deny-dev.toml
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          arguments: --all-features --config deny-dev.toml
+          command: check
+          command-arguments: licenses
+
+  codegen:
+    name: Generated Flutter code is current
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - name: Install the toolchain from rust-toolchain.toml
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - name: Cache the bridge code generator
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: |
+            ~/.cargo/bin/flutter_rust_bridge_codegen
+            ~/.cargo/bin/cargo-expand
+          key: frb-codegen-2.13.0-cargo-expand-1.0.127-${{ runner.os }}
+      - name: Install the bridge code generator
+        run: |
+          command -v flutter_rust_bridge_codegen || cargo install --locked flutter_rust_bridge_codegen@2.13.0
+          command -v cargo-expand || cargo install --locked cargo-expand@1.0.127
+      - name: The code generator has the bridge crate's version
+        shell: bash
+        run: |
+          # tools/checks frb_versions compares the crate and the Dart package; this compares
+          # the code generator with the crate.
+          want=$(sed -n 's/^flutter_rust_bridge = "=\(.*\)"$/\1/p' Cargo.toml)
+          got=$(flutter_rust_bridge_codegen --version)
+          echo "crate $want; $got"
+          test -n "$want"
+          test "$got" = "flutter_rust_bridge_codegen $want"
+      - name: Regenerate and compare
+        working-directory: app
+        shell: bash
+        run: |
+          set -euo pipefail
+          flutter pub get --enforce-lockfile
+          flutter gen-l10n
+          (cd ../tools/l10n && dart pub get --enforce-lockfile && dart run l10n && dart run l10n:review_table)
+          dart run build_runner build
+          dart format lib/l10n/gen
+          flutter_rust_bridge_codegen generate
+          cargo fmt -p ferman-api
+          git diff --exit-code
+          test -z "$(git status --porcelain)"
+
+  flutter:
+    name: Flutter (${{ matrix.os }})
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux
+          - os: macos-15
+            target: macos
+          - os: windows-2025
+            target: windows
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+        shell: bash
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: git config --system core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux desktop build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev xvfb
+      - name: System fonts for the goldens (test only, never bundled)
+        if: runner.os == 'Linux'
+        run: |
+          # DejaVu Sans Mono draws the macOS key symbols and Noto Sans CJK the
+          # language picker's CJK names in the goldens, standing in for the
+          # system font fallback flutter test lacks (G87); DejaVu Serif stands
+          # in for Georgia and Times New Roman in the FontPicker component
+          # golden (G96). A new version
+          # would move pixels, so fail here with the reason rather than in
+          # the golden comparison.
+          sudo apt-get install -y -q fonts-dejavu-core fonts-noto-cjk
+          expected="fonts-dejavu-core 2.37-8
+          fonts-noto-cjk 1:20230817+repack1-3"
+          actual="$(dpkg-query -W -f='${Package} ${Version}\n' fonts-dejavu-core fonts-noto-cjk)"
+          if [ "$actual" != "$expected" ]; then
+            echo "::error::The golden fonts changed version: $actual. Regenerate the goldens and update this step and app/test/helpers/fonts.dart."
+            exit 1
+          fi
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle (the desktop build fails without it)
+        working-directory: .
+        run: |
+          case "$RUNNER_OS" in
+            Linux) id=linux-x64 ;;
+            macOS) id=mac-univ ;;
+            Windows) id=win-x64 ;;
+          esac
+          bash tools/pdfium/fetch.sh --platform "$id"
+      - name: Analyze (flutter analyze, and dart analyze for the riverpod_lint plugin)
+        run: |
+          flutter analyze
+          dart analyze --fatal-infos
+      - name: Format
+        if: runner.os == 'Linux'
+        run: dart format --output=none --set-exit-if-changed lib test integration_test
+      - name: Test (goldens on Linux only)
+        run: |
+          if [ "$RUNNER_OS" = "Linux" ]; then
+            flutter test
+          else
+            flutter test --exclude-tags golden
+          fi
+      - name: Upload golden failures
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: golden-failures
+          path: app/test/**/failures/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Dart licence check
+        if: runner.os == 'Linux'
+        run: |
+          dart pub global activate very_good_cli "$VERY_GOOD_CLI_VERSION"
+          # The command of docs/DEPENDENCIES.md section 8.
+          very_good packages check licenses \
+            --dependency-type=direct-main,direct-dev,transitive \
+            --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
+      - name: Web build (kept buildable until phase 5; Proposed)
+        if: runner.os == 'Linux'
+        run: flutter build web --release
+      - name: No design files in the web build
+        if: runner.os == 'Linux'
+        working-directory: tools/checks
+        run: |
+          # The design export, its runtime scripts and fonts, and copies of any
+          # file under design/ (tools/checks/lib/src/bundle_scan.dart).
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. ../../app/build/web
+      - name: Desktop build
+        run: flutter build ${{ matrix.target }} --release
+      - name: Universal app for macOS 12.0 (Q03)
+        if: runner.os == 'macOS'
+        run: |
+          set -euo pipefail
+          app=build/macos/Build/Products/Release/Ferman.app
+          if [ ! -d "$app" ]; then
+            echo "::error::No release app at app/$app"
+            ls build/macos/Build/Products/Release || true
+            exit 1
+          fi
+          plist="$app/Contents/Info.plist"
+          status=0
+          fail() { echo "::error::$1"; status=1; }
+          # Every failure reports itself and the step goes on, so one bad file
+          # never ends the step without an error or hides the next one.
+          bins=()
+          if name="$(plutil -extract CFBundleExecutable raw "$plist")"; then
+            exe="$app/Contents/MacOS/$name"
+            bins+=("$exe")
+          else
+            exe=
+            fail "app/$plist has no CFBundleExecutable"
+          fi
+          bins+=("$app/Contents/Frameworks/rust_lib_ferman.framework/rust_lib_ferman")
+          bins+=("$app/Contents/Frameworks/libpdfium.dylib")
+          # The minimum macOS of each slice: LC_BUILD_VERSION minos, or
+          # LC_VERSION_MIN_MACOSX version in older binaries.
+          minos() {
+            if xcrun --find vtool >/dev/null 2>&1; then
+              xcrun vtool -show-build "$1"
+            else
+              otool -arch all -l "$1"
+            fi | awk '$1 == "cmd" { cmd = $2 }
+              cmd == "LC_BUILD_VERSION" && $1 == "minos" { print $2 }
+              cmd == "LC_VERSION_MIN_MACOSX" && $1 == "version" { print $2 }'
+          }
+          if ! min_plist="$(plutil -extract LSMinimumSystemVersion raw "$plist")"; then
+            fail "app/$plist has no LSMinimumSystemVersion"
+          elif [ "$min_plist" != "12.0" ]; then
+            fail "LSMinimumSystemVersion is $min_plist, not 12.0"
+          fi
+          version_re='^[0-9]+(\.[0-9]+){0,2}$'
+          for bin in "${bins[@]}"; do
+            if [ ! -f "$bin" ]; then
+              fail "app/$bin is missing from the app bundle"
+              continue
+            fi
+            # One universal build: both slices in every binary.
+            if ! archs="$(lipo -archs "$bin")"; then
+              fail "app/$bin: lipo -archs cannot read it"
+              continue
+            fi
+            for arch in x86_64 arm64; do
+              case " $archs " in
+                *" $arch "*) ;;
+                *) fail "app/$bin is not universal: lipo -archs gives '$archs', no $arch" ;;
+              esac
+            done
+            if ! versions="$(minos "$bin")"; then
+              fail "app/$bin: cannot read its load commands"
+              continue
+            fi
+            count="$(printf '%s\n' "$versions" | grep -c . || true)"
+            if [ "$count" -lt 2 ]; then
+              fail "app/$bin: $count minimum macOS version(s) found, expected one per slice"
+              continue
+            fi
+            # The app targets exactly 12.0; a library it loads may not need anything newer.
+            while IFS= read -r v; do
+              # Only a plain version number reaches the arithmetic: anything
+              # else fails here instead of aborting the loop.
+              if [[ ! $v =~ $version_re ]]; then
+                fail "app/$bin: unreadable minimum macOS '$v'"
+                continue
+              fi
+              IFS=. read -r major minor _ <<< "$v"
+              n=$((10#$major * 100 + 10#${minor:-0}))
+              if [ "$bin" = "$exe" ] && [ "$n" -ne 1200 ]; then
+                fail "app/$bin targets macOS $v, not 12.0"
+              elif [ "$n" -gt 1200 ]; then
+                fail "app/$bin needs macOS $v, newer than the app's 12.0"
+              fi
+            done <<< "$(printf '%s\n' "$versions" | sort -u)"
+            echo "app/$bin: $archs; minimum macOS $(printf '%s\n' "$versions" | paste -sd ' ' -)"
+          done
+          exit "$status"
+      - name: No design files in the app build
+        working-directory: tools/checks
+        run: |
+          case "$RUNNER_OS" in
+            Linux) out=build/linux/x64/release/bundle ;;
+            macOS) out=build/macos/Build/Products/Release/Ferman.app ;;
+            Windows) out=build/windows/x64/runner/Release ;;
+            *) echo "::error::No release output known for $RUNNER_OS"; exit 1 ;;
+          esac
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. "../../app/$out"
+      - name: Integration test (Linux, under Xvfb)
+        if: runner.os == 'Linux'
+        run: xvfb-run -a flutter test integration_test -d linux
+      - name: Integration test (macOS and Windows)
+        if: runner.os != 'Linux'
+        run: flutter test integration_test -d ${{ matrix.target }}
+
+  linux-floor:
+    name: Linux build on Ubuntu 22.04 (Q03 minimum)
+    runs-on: ubuntu-22.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Linux desktop build dependencies
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle
+        working-directory: .
+        run: bash tools/pdfium/fetch.sh --platform linux-x64
+      - run: flutter build linux --release
+      - name: The bundle holds the engine, with the bridge, and PDFium
+        run: |
+          lib=build/linux/x64/release/bundle/lib
+          test -f "$lib/libpdfium.so"
+          # cargokit builds the frb feature only for the modes listed in
+          # crates/ferman-api/cargokit.yaml.
+          nm -D "$lib/libferman_api.so" | grep -q frb_get_rust_content_hash

@@ -1,0 +1,38 @@
+[package]
+name = "ferman-api"
+description = "The only crate the Ferman UI calls: a pure-Rust facade plus the flutter_rust_bridge surface."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+authors.workspace = true
+repository.workspace = true
+
+[lib]
+# rlib for ferman-cli and tests; cdylib (Linux, Windows) and staticlib (macOS) are what cargokit
+# builds for the Flutter app (app/rust_builder).
+crate-type = ["rlib", "cdylib", "staticlib"]
+
+[features]
+default = []
+# The Dart bridge surface (the `frb` module). On in the app build; off for ferman-cli and the
+# integration tests, which call the facade directly (ADR 0003).
+frb = ["dep:flutter_rust_bridge"]
+
+[dependencies]
+ferman-core.workspace = true
+ferman-fonts.workspace = true
+ferman-text.workspace = true
+ferman-render.workspace = true
+ferman-ops.workspace = true
+thiserror.workspace = true
+tracing.workspace = true
+serde.workspace = true
+flutter_rust_bridge = { workspace = true, optional = true }
+
+[dev-dependencies]
+serde_json.workspace = true
+
+[lints]
+workspace = true

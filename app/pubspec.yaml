@@ -1,0 +1,126 @@
+name: ferman
+description: "Ferman, a free and open-source PDF editor."
+publish_to: 'none'
+# Keep in sync with [workspace.package] version in the root Cargo.toml
+# (tools/checks version_sync).
+version: 0.1.0+1
+
+environment:
+  sdk: ^3.13.5
+  flutter: 3.47.7
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+  flutter_riverpod: ^3.4.3
+  flutter_rust_bridge: 2.13.0
+  go_router: ^18.1.0
+  intl: ^0.20.3
+  path_parsing: ^1.1.0
+  path_provider: ^2.1.6
+  riverpod_annotation: ^4.0.7
+  rust_lib_ferman:
+    path: rust_builder
+  window_manager: ^0.5.2
+
+dev_dependencies:
+  alchemist: ^0.14.1
+  build_runner: ^2.16.2
+  flutter_driver:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  mocktail: ^1.0.5
+  riverpod_generator: ^4.0.9
+  very_good_analysis: ^11.0.0
+
+flutter:
+  generate: true
+  uses-material-design: false
+
+  # Licence texts shown through LicenseRegistry. Files are listed one by one
+  # because Flutter bundles every file of a listed folder (including stray
+  # OS metadata files).
+  assets:
+    - assets/licenses/pdfium/LICENSE
+    - assets/licenses/pdfium/abseil.txt
+    - assets/licenses/pdfium/agg23.txt
+    - assets/licenses/pdfium/fast_float.txt
+    - assets/licenses/pdfium/freetype.txt
+    - assets/licenses/pdfium/icu.txt
+    - assets/licenses/pdfium/lcms.txt
+    - assets/licenses/pdfium/libjpeg_turbo.ijg
+    - assets/licenses/pdfium/libjpeg_turbo.md
+    - assets/licenses/pdfium/libopenjpeg.txt
+    - assets/licenses/pdfium/libpng.txt
+    - assets/licenses/pdfium/libtiff.txt
+    - assets/licenses/pdfium/llvm-libc.txt
+    - assets/licenses/pdfium/pdfium.txt
+    - assets/licenses/pdfium/simdutf.txt
+    - assets/licenses/pdfium/zlib.txt
+    - assets/fonts/ibm-plex-sans/LICENSE.txt
+    - assets/fonts/ibm-plex-serif/LICENSE.txt
+    - assets/fonts/ibm-plex-mono/LICENSE.txt
+    - assets/fonts/ibm-plex-sans-arabic/LICENSE.txt
+    - assets/fonts/ibm-plex-sans-hebrew/LICENSE.txt
+    - assets/fonts/ibm-plex-sans-devanagari/LICENSE.txt
+    - assets/icons/LICENSE-lucide-0.460.0.txt
+    - assets/icons/LICENSE-lucide-1.56.0.txt
+
+  # IBM's unmodified static TTFs (OFL-1.1, Reserved Font Name "Plex"); see
+  # tools/fonts and docs/adr/0013-fonts-and-icons.md.
+  fonts:
+    - family: IBM Plex Sans
+      fonts:
+        - asset: assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-sans/IBMPlexSans-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/ibm-plex-sans/IBMPlexSans-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm-plex-sans/IBMPlexSans-SemiBold.ttf
+          weight: 600
+    - family: IBM Plex Serif
+      fonts:
+        - asset: assets/fonts/ibm-plex-serif/IBMPlexSerif-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-serif/IBMPlexSerif-Italic.ttf
+          weight: 400
+          style: italic
+        - asset: assets/fonts/ibm-plex-serif/IBMPlexSerif-SemiBold.ttf
+          weight: 600
+    - family: IBM Plex Mono
+      fonts:
+        - asset: assets/fonts/ibm-plex-mono/IBMPlexMono-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-mono/IBMPlexMono-Medium.ttf
+          weight: 500
+    - family: IBM Plex Sans Arabic
+      fonts:
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-SemiBold.ttf
+          weight: 600
+    - family: IBM Plex Sans Hebrew
+      fonts:
+        - asset: assets/fonts/ibm-plex-sans-hebrew/IBMPlexSansHebrew-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-sans-hebrew/IBMPlexSansHebrew-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm-plex-sans-hebrew/IBMPlexSansHebrew-SemiBold.ttf
+          weight: 600
+    - family: IBM Plex Sans Devanagari
+      fonts:
+        - asset: assets/fonts/ibm-plex-sans-devanagari/IBMPlexSansDevanagari-Regular.ttf
+          weight: 400
+        - asset: assets/fonts/ibm-plex-sans-devanagari/IBMPlexSansDevanagari-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/ibm-plex-sans-devanagari/IBMPlexSansDevanagari-SemiBold.ttf
+          weight: 600

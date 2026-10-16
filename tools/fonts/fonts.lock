@@ -1,0 +1,50 @@
+# IBM Plex fonts bundled with Ferman (ADR 0013, docs/DEPENDENCIES.md section 5.2).
+# Read by tools/fonts/fetch.sh; the format is described in tools/fonts/README.md.
+#
+#   url      <release zip URL; {package} and {version} are filled in>
+#   package  <package> <version> <SHA-256 of the release zip>
+#   license  <package> LICENSE.txt <SHA-256 of the file as released, with CRLF line endings>
+#   font     <package> <file name> <SHA-256 of the file as released>
+#
+# Each file is taken from ibm-<package>/LICENSE.txt or ibm-<package>/fonts/complete/ttf/
+# inside the zip and installed unmodified in app/assets/fonts/ibm-<package>/.
+# Weights follow the design system's @font-face set (tokens/fonts.css) plus the italic
+# UI text of the font picker's missing state (forms.css); see tools/fonts/README.md.
+
+url https://github.com/IBM/plex/releases/download/%40ibm%2F{package}%40{version}/ibm-{package}.zip
+
+package plex-sans 1.1.0 fb365d910566e6d199cc2c15579a7dd9a267128e18431a394ed81f1970c69200
+license plex-sans LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-sans IBMPlexSans-Regular.ttf 975dcda37d80f038dcd143c22e33ca2d97a0cc5a929aace1c749153b0fe1afa5
+font    plex-sans IBMPlexSans-Italic.ttf a9c6ef9942c49e49d11e11a6dacc0b3a087978757e9b22a06b8ac22a6400fb15
+font    plex-sans IBMPlexSans-Medium.ttf 331c8639d7598b2cde62a911a71db195e30cb655cd6bdf2e324a7e984955f907
+font    plex-sans IBMPlexSans-SemiBold.ttf a20caf8286023a6a7a85e40b1d2a4ae9fc3e3b1f9eda8f4c542dd4986af67bb1
+
+package plex-serif 2.0.0 c006b095c47b919c6c8d78319e9e628745033f5db94507c1c9dfe4b35dd51f1e
+license plex-serif LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-serif IBMPlexSerif-Regular.ttf 6c490ccd38e856c674e0d163f3f40742a75058b7b935998dbfbc1745ba54e474
+font    plex-serif IBMPlexSerif-Italic.ttf d28aa63cf618439712d6b459c5649af1d6d789cb911994f2357f1ce44128f163
+font    plex-serif IBMPlexSerif-SemiBold.ttf 857edeaaff0f3913f4dfaf6bc0e9c89ef73e475429cf63d6a3cb5d1022a213d5
+
+package plex-mono 2.5.0 6d23f01257663d8cc49a0d64c22ced630b79e0e2a0ac08a0da86e9a38bbc481c
+license plex-mono LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-mono IBMPlexMono-Regular.ttf 7c6fbddca4b700be918f5f6183d9bd4464fa427fe435f0b480d77fe2bb8c5a43
+font    plex-mono IBMPlexMono-Medium.ttf 98fbd727aae340b236955879dabed4d991aac9e8e90b3b2a67ce4a59221cc97c
+
+package plex-sans-arabic 1.1.0 f03915581aea37d82792c188b08064023a73494d679b8e19f85f5971db714013
+license plex-sans-arabic LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-sans-arabic IBMPlexSansArabic-Regular.ttf 8e0f1046c736bf939d4939ee3ae0116acf61cbcd6592deae7656761627080981
+font    plex-sans-arabic IBMPlexSansArabic-Medium.ttf eef162792cf2a6ba5af7943af9f86843b1286ab67aaf615c18c07fd8e97a4a90
+font    plex-sans-arabic IBMPlexSansArabic-SemiBold.ttf 1d4ab8b6ebadbb9d85f2ecdcb7cb0bb672420a8ff3388ab4f69d7b98056562aa
+
+package plex-sans-hebrew 1.1.0 d7d490b8a767b972a7f361055fdcf60ad7cb7c270b38ff1bf859562a021369fd
+license plex-sans-hebrew LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-sans-hebrew IBMPlexSansHebrew-Regular.ttf 98cd8ca13fef47fb57c20faed17a346639bb418b7abeb096fd9693ea3eecc445
+font    plex-sans-hebrew IBMPlexSansHebrew-Medium.ttf acecc14c42eb520254699450d4de991dec423e70583bdaef8bb1e8ef0d9b6185
+font    plex-sans-hebrew IBMPlexSansHebrew-SemiBold.ttf 7d90b813182ef463b1e7cf8515699e94946003c6e3b2d0ceebc1825c4fc5b955
+
+package plex-sans-devanagari 1.1.0 effc4a35b2908c80806c97a4d5033e63f437611d17a3e09b237edd5c33d8ac94
+license plex-sans-devanagari LICENSE.txt 7e6b2818edbd8f6a01ae80641cc8f16a51080d08fb4e532be3a0b6f74adb07da
+font    plex-sans-devanagari IBMPlexSansDevanagari-Regular.ttf f3d82e82797c8cd29e9171f32174ed5ee1a88e132d1baafbe21237c42320304b
+font    plex-sans-devanagari IBMPlexSansDevanagari-Medium.ttf ebdc1e1394b801279a6b54e17784e4cf08cbd438e4be70b58fd94db5370527b1
+font    plex-sans-devanagari IBMPlexSansDevanagari-SemiBold.ttf d3f1aaeb0f0895246967f0d643938c832e1fcd799f4a7b4d681f526fc2af5b04

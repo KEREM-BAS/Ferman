@@ -66,8 +66,14 @@ pub struct ApiError {
 }
 ```
 
-- `message_key` values come from one `MessageKey` enum in the engine. A CI test checks that every key
-  exists in `app_en.arb` and `app_tr.arb`.
+- `message_key` values come from one closed `MessageKey` type in the engine (a newtype with constants
+  and `MessageKey::ALL`; keys are lowerCamelCase ARB keys, as gen-l10n requires). A CI test checks that
+  every key exists in `app_en.arb` and `app_tr.arb`; it arrives with the first error strings in the ARB
+  files (M1 step 10).
+- In M1, `details` is an `Option<String>` of structural facts. The message parameters and the
+  retryable flag are added with the first call that needs them. A caught panic gets the fixed details
+  "panic at the API boundary": its payload is free text from any crate and can hold document text, so
+  it never reaches `details` or the release log.
 - The UI formats the sentence from the key and its parameters in the user's language. Error codes never
   appear in the sentence. The technical string is shown only behind "Details" or "Copy technical details"
   (a1-9b).

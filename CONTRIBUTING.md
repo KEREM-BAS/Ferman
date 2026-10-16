@@ -12,7 +12,7 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 4. [Workflow](#workflow)
 5. [Licensing of contributions](#licensing-of-contributions)
 6. [Dependencies](#dependencies)
-7. [Development setup (planned for Milestone 1)](#development-setup-planned-for-milestone-1)
+7. [Development setup](#development-setup)
 8. [Quality bar](#quality-bar)
 9. [Text-editing changes](#text-editing-changes)
 10. [Translations](#translations)
@@ -22,9 +22,10 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 
 ## Project status
 
-Ferman is at **Milestone 0: discovery and planning**. The repository holds the design export and the
-planning documents. There is no application code yet, and none is written until the maintainer
-approves the plan. Milestone 1 then sets up the workspace, the app and CI.
+Ferman is at **Milestone 1: foundations**, complete and waiting for the maintainer's approval. The
+maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the Rust workspace, the
+Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI,
+on the branch `m1-foundations` (pull request #2); the app opens no PDFs until Milestone 2.
 
 What helps most right now:
 
@@ -34,8 +35,8 @@ What helps most right now:
 - Tell us about freely licensed PDFs that would make good test files (see
   [Reporting bugs](#reporting-bugs) for what we can accept).
 
-Please do not open pull requests with application code yet. They cannot be reviewed until the
-workspace and CI exist.
+Please wait with pull requests for application code until Milestone 1 is merged into `main`, so
+changes can be reviewed against a stable base.
 
 ## Before you start
 
@@ -126,8 +127,7 @@ Ferman is licensed under the [Apache License 2.0](LICENSE).
   without any additional terms or conditions. Contributions offered under other terms are not
   accepted.
 - **No contributor licence agreement.** You keep the copyright in your contribution. The project's
-  copyright line is "The Ferman Authors", which is waiting for the maintainer's confirmation
-  ([Q14](docs/QUESTIONS.md#q14)).
+  copyright line is "Copyright The Ferman Authors" ([Q14](docs/QUESTIONS.md#q14)).
 - Submit only work you have the right to submit. Do not copy code from projects whose licences are
   not compatible (see [Dependencies](#dependencies)) or from proprietary SDKs.
 
@@ -147,9 +147,10 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
 - **Permissive licences only**, such as MIT, Apache-2.0, BSD, ISC and Zlib. The brief allows
   "permissive or GPL-compatible" licences; because Ferman is Apache-2.0, that rules out GPL code of any
   version. MPL-2.0 is allowed only for an unmodified dependency, after review. This reading of
-  "GPL-compatible" is the project's; the maintainer is asked to confirm it in
-  [Q17](docs/QUESTIONS.md#q17), together with the first MPL-2.0 case and two CI and fuzzing
-  exceptions.
+  "GPL-compatible" is the project's. The maintainer approved three named exceptions on 2026-10-15
+  (MPL-2.0 `dbus` through desktop_drop, NCSA `libfuzzer-sys` in `fuzz/` only, LGPL-3.0
+  Swatinem/rust-cache in CI only), and the reading itself is still to be confirmed
+  ([Q17](docs/QUESTIONS.md#q17)).
 - **Never** AGPL, GPL, LGPL as the only licence, non-commercial licences, or code with no clear
   licence. **Never** MuPDF, Ghostscript, poppler or xpdf, including tools that call them. Tools that
   run only in CI and are never distributed are reviewed separately
@@ -165,10 +166,11 @@ The full policy is in [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md#1-policy) and
   files, unmodified: never subset, rename or convert the files we ship. Embedding a subset of a font
   into a user's PDF is document embedding, which OFL-1.1 allows.
 
-## Development setup (planned for Milestone 1)
+## Development setup
 
-Nothing below works yet. Milestone 1 creates the workspace and the app, fixes the exact commands and
-updates this section.
+The commands below build, test and check everything Milestone 1 made. At the end of Milestone 1 each
+one ran on a fresh clone on Linux, and CI runs them on macOS and Windows; [CLAUDE.md](CLAUDE.md#commands)
+keeps the same list for coding sessions.
 
 **Toolchain**
 
@@ -178,31 +180,71 @@ updates this section.
 - **Flutter** 3.47.7 stable, which includes Dart 3.13.5, with desktop support for your system and the
   platform tools Flutter needs: Xcode on macOS, Visual Studio with the C++ desktop workload on
   Windows, the GTK development packages and a C++ toolchain on Linux.
-- **Node.js** 24 LTS, for the tools only (the design-reference renderer). Node is never part of the
-  app.
-- **cargo-deny**, and **flutter_rust_bridge_codegen** 2.13.0. The codegen, the Rust crate and the Dart
-  package must be the same version.
-- **PDFium** comes from a script in `tools/pdfium` that downloads the pinned prebuilt binaries and
-  checks their SHA-256.
+- **Node.js** 24.22.0 LTS, for the tools only (the design-reference renderer, pinned to
+  playwright-core 1.56.1 and its Chromium revision 1194). Node is never part of the app.
+- **cargo-deny**, **flutter_rust_bridge_codegen** 2.13.0 and **cargo-expand** 1.0.127, which the
+  codegen needs. The codegen, the Rust crate and the Dart package must be the same version.
+- **PDFium** comes from `tools/pdfium/fetch.sh`, which downloads the pinned prebuilt binaries and
+  checks their SHA-256. Desktop builds bundle it, so run
+  `bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>` before the first
+  `flutter build` or integration test; on Linux and Windows the build stops with a message naming
+  that command when the library is missing. The IBM Plex fonts are committed; `tools/fonts/fetch.sh`
+  re-fetches and checks them.
+- **Goldens** are generated and compared on Linux only. They need two Ubuntu font packages that stand
+  in for the system font fallback `flutter test` lacks: `sudo apt-get install fonts-dejavu-core
+  fonts-noto-cjk` (CI pins their versions).
 
-**Commands (planned)**
+**Commands**
 
 ```sh
 # Rust
 cargo fmt --all --check
 cargo clippy --workspace --all-targets -- -D warnings
+cargo clippy -p ferman-api --features frb --all-targets -- -D warnings
 cargo test --workspace
 cargo deny check
+cargo run -p ferman-cli -- --version                # ferman 0.1.0 (api 0.1); also: info --json
+# Tests that need PDFium: run tools/pdfium/fetch.sh first; the path must be absolute
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --workspace -- --ignored
 
-# Flutter
-(cd app && flutter analyze && flutter test)
-(cd app && dart run build_runner build --delete-conflicting-outputs)   # Riverpod and other codegen
-flutter_rust_bridge_codegen generate                                  # bridge bindings
-(cd app && very_good packages check licenses)                         # Dart licence check
+# Flutter (both analyzers: the riverpod_lint plugin reports only through dart analyze)
+(cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
+(cd app && flutter test --exclude-tags golden)            # on macOS and Windows: goldens are Linux only
+(cd app && flutter test --update-goldens --tags golden)   # regenerate goldens, on Linux only
+(cd app && dart run build_runner build)                   # Riverpod and other codegen
+(cd app && very_good packages check licenses)             # Dart licence check (flags: docs/DEPENDENCIES.md §8)
+
+# Desktop builds and the integration test bundle PDFium: fetch it for your system first
+bash tools/pdfium/fetch.sh --platform linux-x64     # or win-x64, mac-univ
+(cd app && flutter build linux --release)           # or windows, macos
+(cd app && flutter run -d linux)                    # or windows, macos
+(cd app && flutter build web --release)             # the web build, with the engine stubbed
+(cd app && flutter test integration_test -d linux)  # the engine through the bridge; on Linux under xvfb-run -a
+# The same test in profile mode, for the bridge timing (use your system for -d)
+(cd app && flutter drive --profile -d linux --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)
 
 # Tools
+(cd tools/checks && dart run bin/check_all.dart --root ../..)   # the repository checks CI runs
+(cd tools/checks && dart run bin/scan_bundle.dart --root ../.. ../../app/build/web)   # no design file in a build
 (cd tools/tokens && dart run)        # design tokens → app/lib/design/tokens.g.dart
-node tools/design-refs               # renders every artboard to build/design-refs/
+(cd tools/icons && dart run)         # design icons → app/assets/icons and the IconName enum
+(cd tools/l10n && dart run)          # after flutter gen-l10n: the isolated fallback strings
+(cd tools/l10n && dart run l10n:review_table)   # after an ARB change: docs/TRANSLATION_REVIEW.md
+(cd tools/icons && dart run icons:component_spec)   # docs/COMPONENTS.md from the component spec
+tools/fonts/fetch.sh --verify-committed && python3 -I tools/fonts/coverage.py   # font hashes and script coverage
+(cd tools/design-refs && npm ci && npm test)
+node tools/design-refs --only @m1    # renders the M1 boards to build/design-refs/ (all boards without --only)
+node tools/design-refs compare       # goldens against the references → build/design-compare/report.md
+```
+
+The bridge bindings (`app/lib/bridge/` and `crates/ferman-api/src/frb_generated.rs`) are generated by
+flutter_rust_bridge_codegen 2.13.0, which needs cargo-expand 1.0.127. After a change to the `frb`
+module of `ferman-api`, regenerate and format them; CI fails if the committed bindings differ:
+
+```sh
+cargo install --locked flutter_rust_bridge_codegen@2.13.0
+cargo install --locked cargo-expand@1.0.127
+(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api
 ```
 
 Generated files (`tokens.g.dart`, the bridge bindings and other `*.g.dart` files) are never edited by
@@ -223,7 +265,7 @@ From [brief §5](docs/BRIEF.md#5-quality-bar) and [§6](docs/BRIEF.md#6-flutter-
 
 **Flutter**
 
-- very_good_analysis lints, and `flutter analyze` with zero issues.
+- very_good_analysis lints, and `flutter analyze` and `dart analyze --fatal-infos` with zero issues.
 - Widget tests for every component and screen.
 - Golden tests for every implemented screen in **light and dark × en, tr and ar**, with the real
   bundled fonts loaded. Goldens use alchemist and are compared with the design-reference renders.
@@ -266,7 +308,12 @@ pixel-diff tests:
 
 - **English is the source** (`app_en.arb`). **Turkish is complete**: a pull request that adds or
   changes a UI string updates Turkish too, and CI checks that the keys match.
-- Arabic exists for every string in the goldens, written or reviewed by a person.
+- Arabic exists for every string in the goldens.
+- The Turkish and Arabic strings of Milestone 1 wait for a native speaker's review: every string,
+  in English, Turkish and Arabic with the note for translators, is in
+  [docs/TRANSLATION_REVIEW.md](docs/TRANSLATION_REVIEW.md), with how to send corrections. A pull
+  request that changes an ARB file regenerates that table (`dart run l10n:review_table` in
+  `tools/l10n/`); CI fails when it is stale.
 - Other languages fall back to English until they are translated. Community translation will run
   through **Weblate** (planned, after Milestone 1); this section will explain how to join.
 - **Never machine-translate silently.** Machine output may enter only as a suggestion that a person
