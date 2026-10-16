@@ -209,7 +209,7 @@ jobs:
           set -euo pipefail
           flutter pub get --enforce-lockfile
           flutter gen-l10n
-          dart run build_runner build --delete-conflicting-outputs
+          dart run build_runner build
           dart format lib/l10n/gen
           flutter_rust_bridge_codegen generate
           cargo fmt -p ferman-api

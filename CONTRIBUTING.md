@@ -206,7 +206,7 @@ FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --w
 (cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
 (cd app && flutter test --exclude-tags golden)            # on macOS and Windows: goldens are Linux only
 (cd app && flutter test --update-goldens --tags golden)   # regenerate goldens, on Linux only
-(cd app && dart run build_runner build --delete-conflicting-outputs)   # Riverpod and other codegen
+(cd app && dart run build_runner build)   # Riverpod and other codegen
 (cd app && very_good packages check licenses)                         # Dart licence check
 
 # Desktop builds and the integration test bundle PDFium: fetch it for your system first

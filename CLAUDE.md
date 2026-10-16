@@ -62,7 +62,7 @@ cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: 
 (cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
 (cd app && flutter test --exclude-tags golden)                        # macOS and Windows: goldens are Linux only
 (cd app && flutter test --update-goldens --tags golden)               # regenerate goldens (Linux only)
-(cd app && dart run build_runner build --delete-conflicting-outputs)   # Riverpod and other codegen
+(cd app && dart run build_runner build)   # Riverpod and other codegen
 (cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
