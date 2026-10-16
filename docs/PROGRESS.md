@@ -185,8 +185,13 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   `tools/checks` `arb_parity` now fails when a Turkish value repeats the English one, unless the key
   is on its reviewed list (names, file formats, paper sizes). Arabic, Persian and Hebrew switch the
   UI to right to left at once; Persian and Hebrew show English strings until they are translated
-  ([G93](DESIGN_GAPS.md#g93)). Phase J2 (the right-to-left, region-format and pseudo-locale tests)
-  is pending.
+  ([G93](DESIGN_GAPS.md#g93)). Phase J2 added the acceptance tests of step 10
+  ([ARCHITECTURE.md §13.5](ARCHITECTURE.md#135-flutter-tests)): Arabic and placeholder parity,
+  descriptions for translators, region formats in a real screen, every M1 screen mirrored in
+  Arabic, Persian and Hebrew, bundled localizations, and the Proposed pseudo-locale at 140 % on
+  every M1 screen at 1440 × 900 and 1024 × 768. They found the first-run feature tiles cutting off
+  their labels (now wrapping, [G12](DESIGN_GAPS.md#g12)) and English strings reordering inside the
+  mirrored Persian and Hebrew UI (fix in progress).
 - [ ] Step 11. Golden matrix
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the

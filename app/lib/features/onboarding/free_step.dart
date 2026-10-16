@@ -60,7 +60,8 @@ class FeatureGrid extends ConsumerWidget {
   /// The grid.
   const new({super.key});
 
-  /// A tile's height (`height: 44px`).
+  /// A tile's height (`height: 44px`), the least height: a label longer
+  /// than two lines makes its row taller.
   static const double tileHeight = 44;
 
   /// A tile's side padding (`padding: 0 14px`).
@@ -98,12 +99,17 @@ class FeatureGrid extends ConsumerWidget {
       spacing: gap,
       children: [
         for (var i = 0; i < features.length; i += 2)
-          Row(
-            spacing: gap,
-            children: [
-              for (final feature in features.skip(i).take(2))
-                Expanded(child: _FeatureTile(feature, label(feature))),
-            ],
+          // The two tiles of a row stay as tall as each other, as the
+          // board's grid row keeps them, when a long label grows one.
+          IntrinsicHeight(
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: gap,
+              children: [
+                for (final feature in features.skip(i).take(2))
+                  Expanded(child: _FeatureTile(feature, label(feature))),
+              ],
+            ),
           ),
       ],
     );
@@ -125,10 +131,14 @@ class _FeatureTile extends StatelessWidget {
     final state = shipped
         ? l10n.onboardingFeatureIncluded
         : futureVersionReason(context);
+    // The label wraps, as the board's `flex: 1` span does: two lines still
+    // fit the 44 px tile; a longer label (in a narrow window or a longer
+    // language) makes the tile taller instead of being cut off.
     final tile = Container(
-      height: FeatureGrid.tileHeight,
-      padding: const EdgeInsetsDirectional.symmetric(
+      constraints: const BoxConstraints(minHeight: FeatureGrid.tileHeight),
+      padding: EdgeInsetsDirectional.symmetric(
         horizontal: FeatureGrid.tilePaddingX,
+        vertical: theme.space.space0_5,
       ),
       decoration: BoxDecoration(
         color: shipped ? colors.surfaceRaised : colors.surfaceSunken,
@@ -148,8 +158,6 @@ class _FeatureTile extends StatelessWidget {
           Expanded(
             child: Text(
               label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
               style: theme.typography.body.copyWith(
                 color: shipped ? colors.textPrimary : colors.textSecondary,
               ),
