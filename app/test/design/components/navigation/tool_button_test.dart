@@ -1,6 +1,7 @@
 import 'package:ferman/design/components/core/kbd.dart';
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/future_version.dart';
+import 'package:ferman/design/components/navigation/label_collapse.dart';
 import 'package:ferman/design/components/navigation/tool_button.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
@@ -153,6 +154,41 @@ void main() {
       expect(
         tester.getTopLeft(find.text('Hand')).dy,
         greaterThan(tester.getBottomLeft(find.byType(Icon)).dy),
+      );
+    });
+
+    testWidgets('stacked at touch density: 52 px tall for the 24 px icon, '
+        'nothing overflows', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          FermanThemeScope(
+            touch: true,
+            child: ToolButton(
+              icon: IconName.highlighter,
+              label: 'Highlight',
+              layout: ToolButtonLayout.stacked,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(tester.getSize(_box).height, 52);
+      expect(
+        ToolButton.stackedHeightFor(FermanTheme.light.density),
+        ToolButton.stackedHeight,
+      );
+      expect(_icon(tester, IconName.highlighter).size, 24);
+      expect(tester.getSize(_box).width, greaterThanOrEqualTo(56));
+      // Icon and label inside the 1 px border and 4 px padding.
+      final box = tester.getRect(_box).deflate(1 + 4);
+      expect(
+        tester.getRect(find.byType(Icon)).top,
+        greaterThanOrEqualTo(box.top),
+      );
+      expect(
+        tester.getRect(find.text('Highlight')).bottom,
+        lessThanOrEqualTo(box.bottom),
       );
     });
 
@@ -536,6 +572,105 @@ void main() {
         tester.getCenter(find.byType(Icon)).dx,
         greaterThan(tester.getCenter(find.text('Hand')).dx),
       );
+    });
+    testWidgets('in a toolbar that hides its label (G21): icon only, 30 px '
+        'wide, the label as tooltip with the shortcut and as the name', (
+      tester,
+    ) async {
+      final handle = tester.ensureSemantics();
+      await tester.pumpWidget(
+        componentHost(
+          CollapsedLabelScope(
+            hidden: true,
+            child: ToolButton(
+              icon: IconName.hand,
+              label: 'Hand',
+              shortcut: const ['H'],
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+      expect(tester.getSize(_box), const Size(30, 30));
+      expect(find.text('Hand'), findsNothing);
+      expect(
+        tester.getSemantics(find.bySemanticsLabel('Hand')),
+        isSemantics(label: 'Hand', tooltip: 'Hand', isButton: true),
+      );
+      await _hover(tester, _box);
+      expect(find.text('Hand'), findsOneWidget);
+      expect(find.byType(Kbd), findsOneWidget);
+      handle.dispose();
+    });
+
+    testWidgets('a tool with a menu keeps its caret when its label hides', (
+      tester,
+    ) async {
+      await tester.pumpWidget(
+        componentHost(
+          CollapsedLabelScope(
+            hidden: true,
+            child: ToolButton(
+              icon: IconName.shapes,
+              label: 'Shapes',
+              hasMenu: true,
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+      // 16 px icon, 4 px, 12 px caret, no padding.
+      expect(tester.getSize(_box).width, 16 + 4 + 12 + 2);
+      expect(find.text('Shapes'), findsNothing);
+      expect(_icon(tester, IconName.chevronDown).size, 12);
+    });
+
+    testWidgets('given less width than its label needs, it draws icon-only '
+        'at once', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          SizedBox(
+            width: 30,
+            child: ToolButton(
+              icon: IconName.hand,
+              label: 'A long label',
+              onPressed: () {},
+            ),
+          ),
+        ),
+      );
+      expect(tester.takeException(), isNull);
+      expect(
+        tester
+            .renderObject<RenderCollapsibleLabel>(find.byType(CollapsibleLabel))
+            .isCompact,
+        isTrue,
+      );
+      final icon = tester.getRect(find.byType(Icon));
+      expect(icon.center.dx, closeTo(tester.getRect(_box).center.dx, 0.01));
+    });
+
+    testWidgets('reports the full and the icon-only width as its intrinsic '
+        'widths, also while the label is hidden', (tester) async {
+      Widget button({required bool hidden}) => componentHost(
+        CollapsedLabelScope(
+          hidden: hidden,
+          child: ToolButton(
+            icon: IconName.hand,
+            label: 'Hand',
+            onPressed: () {},
+          ),
+        ),
+      );
+      await tester.pumpWidget(button(hidden: false));
+      final full = tester.getSize(_box).width;
+      final box = tester.renderObject<RenderBox>(find.byType(ToolButton));
+      expect(box.getMaxIntrinsicWidth(30), full);
+      expect(box.getMinIntrinsicWidth(30), 30);
+      await tester.pumpWidget(button(hidden: true));
+      final hidden = tester.renderObject<RenderBox>(find.byType(ToolButton));
+      expect(hidden.getMaxIntrinsicWidth(30), full);
+      expect(hidden.getMinIntrinsicWidth(30), 30);
     });
   });
 }

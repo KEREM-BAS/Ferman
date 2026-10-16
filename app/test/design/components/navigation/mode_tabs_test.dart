@@ -2,9 +2,12 @@ import 'dart:ui' show SemanticsRole, Tristate;
 
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/navigation/ferman_mode.dart';
+import 'package:ferman/design/components/navigation/label_collapse.dart';
 import 'package:ferman/design/components/navigation/mode_tabs.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
@@ -58,6 +61,18 @@ class _HostState extends State<_Host> {
   );
 }
 
+/// The box of the tab of the mode labelled [label], also while the tabs
+/// show only icons (G21).
+Finder _tabBox(String label) {
+  final index = _labels.values.toList().indexOf(label);
+  return find
+      .descendant(
+        of: find.byType(ModeTabs),
+        matching: find.byType(AnimatedContainer),
+      )
+      .at(index);
+}
+
 BoxDecoration _tabDecoration(WidgetTester tester, String label) {
   final container = find.ancestor(
     of: find.text(label),
@@ -85,7 +100,8 @@ void main() {
       for (final label in _labels.values) {
         expect(find.text(label), findsOneWidget);
       }
-      expect(find.byType(Icon), findsNothing);
+      // The icons wait, undrawn, for a strip too narrow for the labels.
+      expect(find.byType(Icon).hitTestable(), findsNothing);
     });
 
     testWidgets('segmented track and tabs use the navigation.css tokens', (
@@ -256,12 +272,11 @@ void main() {
       await tester.pumpWidget(
         componentHost(const SizedBox(width: 240, child: _Host())),
       );
-      Rect tab(String label) => tester.getRect(
-        find.ancestor(
-          of: find.text(label),
-          matching: find.byType(AnimatedContainer),
-        ),
-      );
+      await tester.pump();
+      // Too narrow even for the icons (G21): the tabs show their icons and
+      // the strip scrolls.
+      expect(find.text('Tools'), findsNothing);
+      Rect tab(String label) => tester.getRect(_tabBox(label));
       final viewport = tester.getRect(find.byType(Scrollable));
       expect(tab('Tools').left, greaterThan(viewport.right));
       await focusFirstTabStop(tester);
@@ -407,6 +422,178 @@ void main() {
         matching: find.byType(AnimatedContainer),
       );
       expect(tester.getSize(tab).height, 44);
+    });
+    group('narrow (G21)', () {
+      Widget strip(ValueListenable<double> width, {TextDirection? direction}) =>
+          componentHost(
+            ValueListenableBuilder<double>(
+              valueListenable: width,
+              builder: (context, value, _) =>
+                  SizedBox(width: value, child: const _Host()),
+            ),
+            textDirection: direction,
+            size: const Size(1200, 400),
+          );
+
+      bool iconsOnly(WidgetTester tester) => tester
+          .renderObjectList<RenderCollapsibleLabel>(
+            find.descendant(
+              of: find.byType(ModeTabs),
+              matching: find.byType(CollapsibleLabel),
+            ),
+          )
+          .every((label) => label.isCompact);
+
+      /// The width of the labelled strip, its track included.
+      Future<double> labelledWidth(
+        WidgetTester tester,
+        ValueNotifier<double> width,
+      ) async {
+        width.value = 1100;
+        await tester.pump();
+        await tester.pump();
+        return tester.getRect(_tabBox('Tools')).right -
+            tester.getRect(find.byType(ModeTabs)).left +
+            // The 2 px padding and the 1 px border after the last tab.
+            3;
+      }
+
+      testWidgets('the tabs fall back to icons, with the labels as tooltips, '
+          'only when the labels do not fit, and come back when they do', (
+        tester,
+      ) async {
+        final width = ValueNotifier<double>(1100);
+        await tester.pumpWidget(strip(width));
+        final fits = await labelledWidth(tester, width);
+        width.value = fits;
+        await tester.pump();
+        await tester.pump();
+        expect(iconsOnly(tester), isFalse);
+        expect(find.text('Comment'), findsOneWidget);
+        expect(find.byType(Icon).hitTestable(), findsNothing);
+
+        width.value = fits - 1;
+        await tester.pump();
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(iconsOnly(tester), isTrue);
+        expect(find.text('Comment'), findsNothing);
+        expect(find.byType(Icon).hitTestable(), findsNWidgets(8));
+        // Every tab still names its mode.
+        final handle = tester.ensureSemantics();
+        expect(find.bySemanticsLabel('Comment'), findsOneWidget);
+        handle.dispose();
+        // The icons fit: nothing scrolls.
+        final track = tester.getRect(find.byType(ModeTabs));
+        expect(tester.getRect(_tabBox('Tools')).right, lessThan(track.right));
+
+        final mouse = await tester.createGesture(kind: PointerDeviceKind.mouse);
+        await mouse.addPointer(location: Offset.zero);
+        addTearDown(mouse.removePointer);
+        await mouse.moveTo(tester.getCenter(_tabBox('Comment')));
+        await tester.pump(const Duration(milliseconds: 450));
+        await tester.pumpAndSettle();
+        expect(find.text('Comment'), findsOneWidget);
+        await mouse.moveTo(Offset.zero);
+        await tester.pumpAndSettle();
+
+        width.value = 1100;
+        await tester.pump();
+        await tester.pump();
+        expect(iconsOnly(tester), isFalse);
+        expect(find.text('Comment'), findsOneWidget);
+      });
+
+      testWidgets('keyboard focus shows the tooltip of an icon-only tab after '
+          'the delay, Escape closes it, and the focused tab keeps its focus '
+          'when the strip collapses', (tester) async {
+        final width = ValueNotifier<double>(1100);
+        await tester.pumpWidget(strip(width));
+        final fits = await labelledWidth(tester, width);
+        await focusFirstTabStop(tester);
+        final node = FocusManager.instance.primaryFocus;
+        expect(node?.debugLabel, 'ModeTabs edit');
+        width.value = fits - 40;
+        await tester.pump();
+        await tester.pump();
+        expect(iconsOnly(tester), isTrue);
+        expect(FocusManager.instance.primaryFocus, same(node));
+        // The focused tab's tooltip names it, after the tooltip's delay.
+        await tester.pump(const Duration(milliseconds: 300));
+        expect(find.text('Edit'), findsNothing);
+        await tester.pump(const Duration(milliseconds: 200));
+        await tester.pumpAndSettle();
+        expect(find.text('Edit'), findsOneWidget);
+        // Escape closes it; the tab keeps its focus.
+        await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+        await tester.pumpAndSettle();
+        expect(find.text('Edit'), findsNothing);
+        expect(FocusManager.instance.primaryFocus, same(node));
+        await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+        await tester.pump();
+        await tester.pump(const Duration(milliseconds: 500));
+        await tester.pumpAndSettle();
+        expect(focusLabel, 'ModeTabs comment');
+        expect(find.text('Comment'), findsOneWidget);
+        width.value = 1100;
+        await tester.pump();
+        await tester.pump();
+        expect(focusLabel, 'ModeTabs comment');
+      });
+
+      testWidgets('the strip can be measured: intrinsic widths and dry layout '
+          'match the laid-out tabs, labelled or icon-only', (tester) async {
+        final width = ValueNotifier<double>(1100);
+        await tester.pumpWidget(strip(width));
+        final labelled = await labelledWidth(tester, width);
+        await tester.pumpWidget(
+          componentHost(
+            const IntrinsicWidth(child: _Host()),
+            size: const Size(1200, 400),
+          ),
+        );
+        await tester.pump();
+        expect(tester.takeException(), isNull);
+        expect(tester.getSize(find.byType(ModeTabs)).width, labelled);
+        expect(iconsOnly(tester), isFalse);
+        final box = tester.renderObject<RenderBox>(find.byType(ModeTabs));
+        final height = tester.getSize(find.byType(ModeTabs)).height;
+        expect(box.getMaxIntrinsicWidth(height), labelled);
+        expect(
+          box.getDryLayout(BoxConstraints(maxWidth: 1100, maxHeight: height)),
+          Size(labelled, height),
+        );
+        // Too narrow for the labels: the icons' width.
+        final narrow = box.getDryLayout(
+          BoxConstraints(maxWidth: labelled - 1, maxHeight: height),
+        );
+        expect(narrow.width, box.getMinIntrinsicWidth(height));
+        expect(narrow.width, lessThan(labelled));
+        width.value = narrow.width;
+        await tester.pumpWidget(strip(width));
+        await tester.pump();
+        await tester.pump();
+        expect(iconsOnly(tester), isTrue);
+        expect(tester.getSize(find.byType(ModeTabs)).width, narrow.width);
+      });
+
+      testWidgets('right to left: the icon-only tabs mirror, View at the '
+          'right', (tester) async {
+        final width = ValueNotifier<double>(1100);
+        await tester.pumpWidget(strip(width, direction: TextDirection.rtl));
+        final strip0 = tester.getRect(find.byType(ModeTabs));
+        width.value = 300;
+        await tester.pump();
+        await tester.pump();
+        expect(iconsOnly(tester), isTrue);
+        final track = tester.getRect(find.byType(ModeTabs));
+        expect(track.width, lessThan(strip0.width));
+        expect(
+          tester.getRect(_tabBox('View')).left,
+          greaterThan(tester.getRect(_tabBox('Tools')).right),
+        );
+        expect(tester.getRect(_tabBox('View')).right, track.right - 3);
+      });
     });
   });
 }

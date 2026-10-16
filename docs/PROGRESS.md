@@ -16,12 +16,12 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 |---|---|
 | Milestone | **M1, foundations: in progress.** Started on 2026-10-15 on the branch `m1-foundations`, with draft pull request #2 to `main` |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | Phase G10 (the component gallery, and how goldens draw the macOS key symbols, [G87](DESIGN_GAPS.md#g87)), phase H6 (narrow windows, Proposed), phase J2 (right-to-left, region-format and pseudo-locale tests), phase K (the golden matrix and its comparison with the design references) and phase L (closing M1); see the [M1 plan](#m1-plan) |
+| Next | Phase K (the golden matrix, with how goldens draw the macOS key symbols, [G87](DESIGN_GAPS.md#g87), and its comparison with the design references), then phase L (closing M1: a fresh-clone dry run, the exit checks, the M1 summary); see the [M1 plan](#m1-plan) |
 | Application code | committed on `m1-foundations`: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton) and phase J1 (Turkish complete and Arabic for every M1 string, pending native review) |
 | Questions | 20 entries: 4 answered (Q01, Q03, Q04, Q05), 5 answered in part (Q08, Q12, Q14, Q17, Q20), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006, 0008 and 0019; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 94 recorded: 82 Decided, 12 Needs owner, 0 Resolved (G62 to G94 found in M1) |
-| Backlog | 91 open and 1 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings; B003 (parsing region numbers) shipped in M1 |
+| Design gaps | 95 recorded: 83 Decided, 12 Needs owner, 0 Resolved (G62 to G95 found in M1) |
+| Backlog | 94 open and 2 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-16 |
 
@@ -150,7 +150,7 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   every spec component with its variants, sizes and forced states, previewed in light, dark or dim,
   standard or touch density, reduced motion, either direction and en, tr or ar; a test fails when a
   spec component has no gallery section. It found an inline TaskProgress overflowing a narrow slot
-  (fixed) and a stacked ToolButton 2 px too tall at touch density (its fix comes with H6).
+  (fixed) and a stacked ToolButton 2 px too tall at touch density (fixed in H6: 52 px at touch).
 - [ ] Step 8. App shell. Phase H1, the title bars: the native parts are in `1a39443` (macOS
   light placement, Windows snap layouts, the Linux header bar), and CI run
   [38831554960](https://github.com/KEREM-BAS/Ferman/actions/runs/38831554960) built and ran them on
@@ -167,7 +167,12 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   bar and one shortcut table with its collision test ([G81](DESIGN_GAPS.md#g81) to
   [G87](DESIGN_GAPS.md#g87)); a review confirmed 19 findings, all fixed or recorded. The disabled
   controls are B018 to B092 in [BACKLOG.md](BACKLOG.md). The shell is reachable at `/debug/shell`
-  until M2 opens documents. H6 (narrow windows) is Proposed and pending.
+  until M2 opens documents. Phase H6 built narrow windows ([G95](DESIGN_GAPS.md#g95)): tool rows hide
+  labels and then move tools into "More tools", mode tabs fall back to icons, side panels step aside
+  before the canvas drops below 640 px, and the window's minimum is 1024 × 640 px (the width
+  Proposed); the canvas never mirrors. An adversarial review confirmed 8 findings in H6 (focus
+  return, the plan keyed by index, a popover left open, a lost count, a tooltip without its delay,
+  relayout on colour animations, intrinsic sizes, toggles that did nothing), all fixed with tests.
 - [ ] Step 9. Start screen and settings skeleton. Phase I1 committed the settings store
   (`a2f1988`): `settings.json` in the app support directory through a temporary file and a rename,
   loaded before the first frame; the theme choice persists across restarts (22 tests). Phases I2 to

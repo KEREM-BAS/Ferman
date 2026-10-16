@@ -46,6 +46,7 @@ class ShellCommandScope extends ConsumerWidget {
     if (home) return {ShellCommand.settings: ?onOpenSettings};
     final documents = ref.read(shellDocumentsProvider.notifier);
     final count = ref.read(shellDocumentsProvider).documents.length;
+    final panels = ref.read(shellPanelsProvider);
     const jumps = [
       ShellCommand.document1,
       ShellCommand.document2,
@@ -58,10 +59,14 @@ class ShellCommandScope extends ConsumerWidget {
       ShellCommand.document9,
     ];
     return {
-      ShellCommand.toggleSidebar: () =>
-          ref.read(shellSidebarOpenProvider.notifier).toggle(),
-      ShellCommand.togglePanel: () =>
-          ref.read(shellPanelOpenProvider.notifier).toggle(),
+      // Like the mode bar's toggles: a panel that stepped aside in a narrow
+      // window comes back; one that cannot fit even alone leaves its keys
+      // unbound (G21).
+      if (panels.sidebarAvailable)
+        ShellCommand.toggleSidebar: () =>
+            toggleShellSide(ref, ShellSide.sidebar),
+      if (panels.panelAvailable)
+        ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
       ShellCommand.settings: ?onOpenSettings,
       if (count > 1) ShellCommand.nextDocument: documents.activateNext,
       for (var i = 0; i < jumps.length && i < count; i++)
@@ -73,8 +78,12 @@ class ShellCommandScope extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final platform = ref.watch(shortcutPlatformProvider);
     final mode = ref.watch(shellModeProvider);
-    // Rebuild the handlers when the documents change.
-    if (!home) ref.watch(shellDocumentsProvider);
+    // Rebuild the handlers when the documents or the panels' room change.
+    if (!home) {
+      ref
+        ..watch(shellDocumentsProvider)
+        ..watch(shellPanelsProvider);
+    }
     return Actions(
       actions: {
         ShellCommandIntent: ShellCommandAction(

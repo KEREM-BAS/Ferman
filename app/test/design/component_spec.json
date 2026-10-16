@@ -1035,6 +1035,15 @@
           "default": false,
           "notes": "Leaves message out of the child's semantics, for a child that puts it on its own semantics node (FermanInteractive).",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "focused",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "Keyboard focus that the child holds on a focus node above this tooltip's own focus listener (a tab, whose tooltip sits inside its semantics node, G21).",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -4013,6 +4022,15 @@
           "default": null,
           "omitReason": "CSS hook.",
           "declared": true
+        },
+        {
+          "ds": null,
+          "dart": "overflowLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The name and tooltip of the overflow button and the name of its menu, the localized \"More tools\" (G21); null gives the bar no overflow menu.",
+          "declared": false
         }
       ],
       "itemTypes": [],
@@ -5345,6 +5363,15 @@
           "required": false,
           "default": null,
           "notes": "Called with a tool that has a menu when ArrowDown asks for the menu; null falls back to selecting the tool.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "overflowLabel",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "The name of the overflow button of a narrow row, the localized \"More tools\" (G21); null gives the row no overflow menu.",
           "declared": false
         }
       ],

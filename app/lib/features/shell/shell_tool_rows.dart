@@ -21,6 +21,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// disabled with the future-version tooltip (G10); each one's milestone is
 /// in docs/BACKLOG.md. The tool each mode starts with (FmWindow `tool`:
 /// Select, Edit text, Highlight, Fill fields, Redact) is drawn on.
+///
+/// **Narrow windows** (G21): every row is a `Toolbar` bar that hides the
+/// Organize hint, then its tool labels from the end, then moves items into
+/// its "More tools" menu (`ShellLabels.moreTools`). The zoom menu and the
+/// segmented controls are listed there as submenus of their choices, the
+/// labelled buttons (Review edits, Apply redactions) as items; the items
+/// after a row's spacer move last. At the 1024 px minimum every row fits
+/// with labels hidden, in English, Turkish, Arabic and German-length text.
 class ShellToolRows extends ConsumerWidget {
   /// The tool rows.
   const new({super.key});
@@ -124,8 +132,30 @@ class _ViewTools extends ConsumerWidget {
     final future = futureVersionReason(context);
     // The region writes the percentage: "%100" for Türkiye (G34).
     String percent(int value) => bidiIsolate(format.percent(value));
+    // The zoom menu and the segmented controls move into a narrow row's
+    // overflow menu as submenus of their choices (G21).
+    MenuItem choices(
+      String label,
+      List<(String, String, IconName?)> options, {
+      String? checked,
+    }) => MenuItem(
+      id: label,
+      label: label,
+      disabled: true,
+      disabledReason: future,
+      submenu: [
+        for (final (value, name, icon) in options)
+          MenuItem(
+            id: value,
+            label: name,
+            icon: icon,
+            checked: value == checked,
+          ),
+      ],
+    );
     return Toolbar(
       semanticLabel: l10n.shellViewTools,
+      overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
@@ -155,20 +185,27 @@ class _ViewTools extends ConsumerWidget {
           label: l10n.shellZoomOut,
           shortcut: ShellCommand.zoomOut.caps(platform),
         ),
-        SizedBox(
-          width: zoomWidth,
-          child: Select<String>(
-            size: FieldSize.sm,
-            semanticLabel: l10n.shellZoom,
-            value: '100',
-            disabled: true,
-            disabledReason: future,
-            options: [
-              for (final step in zoomSteps)
-                SelectOption(value: '$step', label: percent(step)),
-              SelectOption(value: 'fit-width', label: l10n.shellFitWidth),
-              SelectOption(value: 'fit-page', label: l10n.shellFitPage),
-            ],
+        ToolbarItem(
+          menuItem: choices(l10n.shellZoom, [
+            for (final step in zoomSteps) ('$step', percent(step), null),
+            ('fit-width', l10n.shellFitWidth, null),
+            ('fit-page', l10n.shellFitPage, null),
+          ], checked: '100'),
+          child: SizedBox(
+            width: zoomWidth,
+            child: Select<String>(
+              size: FieldSize.sm,
+              semanticLabel: l10n.shellZoom,
+              value: '100',
+              disabled: true,
+              disabledReason: future,
+              options: [
+                for (final step in zoomSteps)
+                  SelectOption(value: '$step', label: percent(step)),
+                SelectOption(value: 'fit-width', label: l10n.shellFitWidth),
+                SelectOption(value: 'fit-page', label: l10n.shellFitPage),
+              ],
+            ),
           ),
         ),
         _futureIcon(
@@ -177,57 +214,72 @@ class _ViewTools extends ConsumerWidget {
           label: l10n.shellZoomIn,
           shortcut: ShellCommand.zoomIn.caps(platform),
         ),
-        SegmentedControl<String?>(
-          semanticLabel: l10n.shellFit,
-          value: null,
-          disabled: true,
-          disabledReason: future,
-          options: [
-            SegmentOption(
-              value: 'width',
-              icon: IconName.arrowLeftRight,
-              tooltip: l10n.shellFitWidth,
-            ),
-            SegmentOption(
-              value: 'page',
-              icon: IconName.maximize,
-              tooltip: l10n.shellFitPage,
-            ),
-            SegmentOption(
-              value: 'actual',
-              icon: IconName.scan,
-              tooltip: l10n.shellActualSize,
-            ),
-          ],
+        ToolbarItem(
+          menuItem: choices(l10n.shellFit, [
+            ('width', l10n.shellFitWidth, IconName.arrowLeftRight),
+            ('page', l10n.shellFitPage, IconName.maximize),
+            ('actual', l10n.shellActualSize, IconName.scan),
+          ]),
+          child: SegmentedControl<String?>(
+            semanticLabel: l10n.shellFit,
+            value: null,
+            disabled: true,
+            disabledReason: future,
+            options: [
+              SegmentOption(
+                value: 'width',
+                icon: IconName.arrowLeftRight,
+                tooltip: l10n.shellFitWidth,
+              ),
+              SegmentOption(
+                value: 'page',
+                icon: IconName.maximize,
+                tooltip: l10n.shellFitPage,
+              ),
+              SegmentOption(
+                value: 'actual',
+                icon: IconName.scan,
+                tooltip: l10n.shellActualSize,
+              ),
+            ],
+          ),
         ),
         const ToolbarSeparator(),
-        SegmentedControl<String>(
-          semanticLabel: l10n.shellPageLayout,
-          value: 'scroll',
-          disabled: true,
-          disabledReason: future,
-          options: [
-            SegmentOption(
-              value: 'single',
-              icon: IconName.fileText,
-              tooltip: l10n.shellLayoutSingle,
-            ),
-            SegmentOption(
-              value: 'scroll',
-              icon: IconName.arrowUpDown,
-              tooltip: l10n.shellLayoutContinuous,
-            ),
-            SegmentOption(
-              value: 'two',
-              icon: IconName.columns2,
-              tooltip: l10n.shellLayoutTwoPage,
-            ),
-            SegmentOption(
-              value: 'book',
-              icon: IconName.bookOpen,
-              tooltip: l10n.shellLayoutBook,
-            ),
-          ],
+        ToolbarItem(
+          menuItem: choices(l10n.shellPageLayout, [
+            ('single', l10n.shellLayoutSingle, IconName.fileText),
+            ('scroll', l10n.shellLayoutContinuous, IconName.arrowUpDown),
+            ('two', l10n.shellLayoutTwoPage, IconName.columns2),
+            ('book', l10n.shellLayoutBook, IconName.bookOpen),
+          ], checked: 'scroll'),
+          child: SegmentedControl<String>(
+            semanticLabel: l10n.shellPageLayout,
+            value: 'scroll',
+            disabled: true,
+            disabledReason: future,
+            options: [
+              SegmentOption(
+                value: 'single',
+                icon: IconName.fileText,
+                tooltip: l10n.shellLayoutSingle,
+              ),
+              SegmentOption(
+                value: 'scroll',
+                icon: IconName.arrowUpDown,
+                tooltip: l10n.shellLayoutContinuous,
+              ),
+              SegmentOption(
+                value: 'two',
+                icon: IconName.columns2,
+                tooltip: l10n.shellLayoutTwoPage,
+              ),
+              SegmentOption(
+                value: 'book',
+                icon: IconName.bookOpen,
+                tooltip: l10n.shellLayoutBook,
+              ),
+            ],
+          ),
         ),
         const ToolbarSeparator(),
         _future(
@@ -276,6 +328,7 @@ class _EditTools extends ConsumerWidget {
     final future = futureVersionReason(context);
     return Toolbar(
       semanticLabel: l10n.shellEditTools,
+      overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
@@ -348,20 +401,38 @@ class _EditTools extends ConsumerWidget {
           disabled: true,
           disabledReason: future,
         ),
-        // `<div style="width:8px">`, between the toolbar's 2 px gaps.
-        SizedBox(width: theme.space.space2),
-        Button(
-          variant: ButtonVariant.ghost,
-          size: ButtonSize.sm,
-          icon: IconName.listChecks,
-          disabledReason: future,
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            spacing: theme.space.space1_5,
-            children: [
-              Text(l10n.shellReviewEdits),
-              Badge(label: format.integer(edits), tone: BadgeTone.edited),
-            ],
+        ToolbarItem(
+          // The count the row's badge shows stays in the menu entry; the
+          // region writes the number (G34).
+          menuItem: MenuItem(
+            id: 'review-edits',
+            label: l10n.shellReviewEditsCount(
+              bidiIsolate(format.integer(edits)),
+            ),
+            icon: IconName.listChecks,
+            disabled: true,
+            disabledReason: future,
+          ),
+          // `<div style="width:8px">` and the toolbar's 2 px gap after it,
+          // part of the item so it leaves the row with the button.
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(
+              start: theme.space.space2 + theme.space.space0_5,
+            ),
+            child: Button(
+              variant: ButtonVariant.ghost,
+              size: ButtonSize.sm,
+              icon: IconName.listChecks,
+              disabledReason: future,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                spacing: theme.space.space1_5,
+                children: [
+                  Text(l10n.shellReviewEdits),
+                  Badge(label: format.integer(edits), tone: BadgeTone.edited),
+                ],
+              ),
+            ),
           ),
         ),
       ],
@@ -392,6 +463,7 @@ class _CommentTools extends ConsumerWidget {
               for (final tool in AnnotationTool.values) tool: future,
             },
             colorsDisabledReason: future,
+            overflowLabel: l10n.moreTools,
           ),
         ),
         Padding(
@@ -422,6 +494,7 @@ class _SignTools extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     return Toolbar(
       semanticLabel: l10n.shellFillSignTools,
+      overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
@@ -499,6 +572,7 @@ class _OrganizeTools extends ConsumerWidget {
     final platform = ref.watch(shortcutPlatformProvider);
     return Toolbar(
       semanticLabel: l10n.shellOrganizeTools,
+      overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
@@ -595,6 +669,7 @@ class _ConvertTools extends StatelessWidget {
         _future(context, icon: icon, label: label, active: false);
     return Toolbar(
       semanticLabel: l10n.shellConvertTools,
+      overflowLabel: l10n.moreTools,
       children: [
         tool(IconName.fileType, l10n.shellConvertWord),
         tool(IconName.fileSpreadsheet, l10n.shellConvertExcel),
@@ -623,6 +698,7 @@ class _ProtectTools extends ConsumerWidget {
     final platform = ref.watch(shortcutPlatformProvider);
     return Toolbar(
       semanticLabel: l10n.shellProtectTools,
+      overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
@@ -658,12 +734,22 @@ class _ProtectTools extends ConsumerWidget {
           active: false,
         ),
         const ToolbarSpacer(),
-        Button(
-          variant: ButtonVariant.danger,
-          size: ButtonSize.sm,
-          icon: IconName.eyeOff,
-          disabledReason: futureVersionReason(context),
-          child: Text(l10n.shellApplyRedactions),
+        ToolbarItem(
+          menuItem: MenuItem(
+            id: 'apply-redactions',
+            label: l10n.shellApplyRedactions,
+            icon: IconName.eyeOff,
+            danger: true,
+            disabled: true,
+            disabledReason: futureVersionReason(context),
+          ),
+          child: Button(
+            variant: ButtonVariant.danger,
+            size: ButtonSize.sm,
+            icon: IconName.eyeOff,
+            disabledReason: futureVersionReason(context),
+            child: Text(l10n.shellApplyRedactions),
+          ),
         ),
       ],
     );
@@ -690,6 +776,7 @@ class _ToolsTools extends ConsumerWidget {
         );
     return Toolbar(
       semanticLabel: l10n.shellModeTools,
+      overflowLabel: l10n.moreTools,
       children: [
         tool(IconName.minimize2, l10n.shellToolCompress),
         tool(IconName.gitCompare, l10n.shellToolCompare),

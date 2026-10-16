@@ -381,6 +381,18 @@ built; the ones that need a design answer are also listed for the lead to record
     button is the core small ghost IconButton (`x`), named by `closeLabel`, which `onClose` requires
     (decision 20); Escape in an inline dialog calls `onClose` too.
 
+42. **Narrow rows and tabs.** No board draws a narrow window ([G21](DESIGN_GAPS.md#g21)), so the
+    behaviour is Ferman's ([G95](DESIGN_GAPS.md#g95)). `Toolbar` follows the width it is given:
+    hints without a menu entry hide, then inline `ToolButton` labels hide behind their icons from the
+    end, then items move into an overflow menu (`overflowLabel`, the design-system Menu in a Popover)
+    from the end, and the items after the spacer move last; items stay in the tree, so state and
+    focus survive a resize, and an item that leaves the row closes the popover it opened
+    (`PopoverAnchorVisibility`). `ToolbarItem` gives an item its menu entry. `ModeTabs` falls back to
+    icons all together, only when the labelled strip does not fit, with the label as the tooltip
+    (through the new `Tooltip.focused`, after the usual delay) and the accessible name; it keeps its
+    intrinsic sizes and dry layout. `AnnotationTools` moves its colour group last. A stacked
+    `ToolButton` grows by the touch icon's extra 4 px (`stackedHeightFor`).
+
 ## Reference (generated)
 
 <!-- BEGIN GENERATED COMPONENT REFERENCE: tools/icons, dart run icons:component_spec -->
@@ -733,6 +745,7 @@ Drawn in: 00 Fixes, DS additions.
 | `children` | yes | `child` | `Widget` (required) |  |  |  |
 | — |  | `hovered` | `bool` | `false` |  | Hover the platform reports for the child while Flutter does not see the pointer (the Windows maximize button). |
 | — |  | `excludeFromSemantics` | `bool` | `false` |  | Leaves message out of the child's semantics, for a child that puts it on its own semantics node (FermanInteractive). |
+| — |  | `focused` | `bool` | `false` |  | Keyboard focus that the child holds on a focus node above this tooltip's own focus listener (a tab, whose tooltip sits inside its semantics node, G21). |
 
 Variants (side): `top`, `bottom`, `left`, `right`.
 
@@ -1579,6 +1592,7 @@ Drawn in: 02 View, 03a Edit text, 04 Comment, FmWindow.
 | `children` | yes | `children` | `List<Widget>` (required) |  |  |  |
 | `className` | yes | — | `n/a` |  |  | Omitted: CSS hook. |
 | `style` | yes | — | `n/a` |  |  | Omitted: CSS hook. |
+| — |  | `overflowLabel` | `String?` |  |  | The name and tooltip of the overflow button and the name of its menu, the localized "More tools" (G21); null gives the bar no overflow menu. |
 
 Variants (variant): `bar`, `floating`.
 
@@ -1966,6 +1980,7 @@ Drawn in: FmWindow.
 | — |  | `colorsSemanticLabel` | `String` (required) |  |  | The accessible name of the colour group, the localized "Color". |
 | — |  | `colorLabelOf` | `String Function(AnnotationColor color)` (required) |  |  | The localized name of a colour, its accessible name (the design names ink Black). |
 | — |  | `onToolMenuRequested` | `ValueChanged<AnnotationTool>?` |  |  | Called with a tool that has a menu when ArrowDown asks for the menu; null falls back to selecting the tool. |
+| — |  | `overflowLabel` | `String?` |  |  | The name of the overflow button of a narrow row, the localized "More tools" (G21); null gives the row no overflow menu. |
 
 Item type `AnnotationTool` → `AnnotationTool` (declared in the lint config):
 

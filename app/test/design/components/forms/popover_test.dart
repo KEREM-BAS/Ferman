@@ -252,5 +252,73 @@ void main() {
       expect(rtlSection.right - rtlLabel.right, 10);
       expect(rtlLabel.top - rtlSection.top, 8);
     });
+    testWidgets('an open popover whose anchor leaves the screen hides and '
+        'asks to be dismissed once; it does not reopen by itself (G21)', (
+      tester,
+    ) async {
+      var dismissed = 0;
+      var visible = true;
+      var open = true;
+      late StateSetter update;
+      await tester.pumpWidget(
+        host(
+          StatefulBuilder(
+            builder: (context, setState) {
+              update = setState;
+              return PopoverAnchorVisibility(
+                visible: visible,
+                child: popover(
+                  open: open,
+                  onDismiss: () {
+                    dismissed++;
+                    setState(() => open = false);
+                  },
+                ),
+              );
+            },
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(contentKey), findsOneWidget);
+      update(() => visible = false);
+      await tester.pumpAndSettle();
+      expect(find.byKey(contentKey), findsNothing);
+      expect(dismissed, 1);
+      update(() => visible = true);
+      await tester.pumpAndSettle();
+      expect(find.byKey(contentKey), findsNothing);
+      expect(dismissed, 1);
+    });
+
+    testWidgets('a popover opened while its anchor is hidden shows nothing', (
+      tester,
+    ) async {
+      var dismissed = 0;
+      await tester.pumpWidget(
+        host(
+          PopoverAnchorVisibility(
+            visible: false,
+            child: popover(open: false, onDismiss: () => dismissed++),
+          ),
+        ),
+      );
+      await tester.pumpWidget(
+        host(
+          PopoverAnchorVisibility(
+            visible: false,
+            child: popover(open: true, onDismiss: () => dismissed++),
+          ),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(find.byKey(contentKey), findsNothing);
+      expect(
+        PopoverAnchorVisibility.isVisible(
+          tester.element(find.byKey(anchorKey)),
+        ),
+        isFalse,
+      );
+    });
   });
 }

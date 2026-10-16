@@ -45,7 +45,10 @@ enum TooltipSide {
 ///
 /// [open] forces the bubble open or closed for goldens and the state sheet;
 /// null follows hover and focus. [hovered] adds a hover that only the
-/// platform sees (the Windows maximize button).
+/// platform sees (the Windows maximize button), and [focused] keyboard
+/// focus on a node above the tooltip's own listener (an icon-only mode
+/// tab); both open the bubble after the delay and close on Escape like
+/// the tooltip's own hover and focus.
 ///
 /// For screen readers [message] is the child's tooltip.
 class Tooltip extends StatefulWidget {
@@ -58,6 +61,7 @@ class Tooltip extends StatefulWidget {
     this.side = TooltipSide.bottom,
     this.open,
     this.hovered = false,
+    this.focused = false,
     this.delay = defaultDelay,
     this.excludeFromSemantics = false,
   });
@@ -93,6 +97,11 @@ class Tooltip extends StatefulWidget {
   /// prop.
   final bool hovered;
 
+  /// Keyboard focus that the child holds on a focus node above this
+  /// tooltip's own focus listener (a tab, whose tooltip sits inside its
+  /// semantics node, G21). Not a design-system prop.
+  final bool focused;
+
   /// How long the pointer or focus stays before the bubble opens.
   final Duration delay;
 
@@ -121,6 +130,7 @@ class Tooltip extends StatefulWidget {
         FlagProperty('open', value: open, ifTrue: 'open', ifFalse: 'closed'),
       )
       ..add(FlagProperty('hovered', value: hovered, ifTrue: 'hovered'))
+      ..add(FlagProperty('focused', value: focused, ifTrue: 'focused'))
       ..add(
         DiagnosticsProperty<Duration>(
           'delay',
@@ -138,18 +148,23 @@ class _TooltipState extends State<Tooltip> {
   bool _focused = false;
   bool _shown = false;
 
-  bool get _wanted => widget.open ?? (_hovered || widget.hovered || _focused);
+  bool get _wanted =>
+      widget.open ?? (_hovered || widget.hovered || _focused || widget.focused);
 
   @override
   void initState() {
     super.initState();
-    if ((widget.open ?? false) || widget.hovered) _updateAfterFrame();
+    if ((widget.open ?? false) || widget.hovered || widget.focused) {
+      _updateAfterFrame();
+    }
   }
 
   @override
   void didUpdateWidget(Tooltip oldWidget) {
     super.didUpdateWidget(oldWidget);
-    if (widget.open != oldWidget.open || widget.hovered != oldWidget.hovered) {
+    if (widget.open != oldWidget.open ||
+        widget.hovered != oldWidget.hovered ||
+        widget.focused != oldWidget.focused) {
       _updateAfterFrame();
     }
   }

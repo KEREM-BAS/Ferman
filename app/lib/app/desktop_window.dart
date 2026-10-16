@@ -4,6 +4,7 @@ import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/app/window_setup.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart'
     show WindowPlatform;
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/painting.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -87,9 +88,22 @@ abstract class DesktopWindow {
   /// [PlatformWindowChannel.setMaximizeButtonRect]).
   Future<void> setMaximizeButtonRect(Rect? rect);
 
+  /// Keeps the window at least [size] large, in logical pixels: the user
+  /// cannot resize it smaller. [applyWindowLimits] asks for the shell's
+  /// minimum at start-up.
+  Future<void> setMinimumSize(Size size);
+
   /// Stops listening to the window.
   void dispose();
 }
+
+/// Asks [window] for the smallest size the shell supports,
+/// [WindowMetrics.minimumSize] (1024 × 640, the width **Proposed**; G21).
+/// `bootstrap()` calls it at start-up, once the window has started. Where
+/// the app draws no window of its own (the web, mobile) the request does
+/// nothing.
+Future<void> applyWindowLimits(DesktopWindow window) =>
+    window.setMinimumSize(WindowMetrics.minimumSize);
 
 /// The window where the app draws no title bar of its own: the web and
 /// mobile, and widget tests that do not ask for a desktop window.
@@ -136,6 +150,9 @@ class NoDesktopWindow implements DesktopWindow {
 
   @override
   Future<void> setMaximizeButtonRect(Rect? rect) async {}
+
+  @override
+  Future<void> setMinimumSize(Size size) async {}
 
   @override
   void dispose() {
@@ -229,6 +246,9 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
   @override
   Future<void> setMaximizeButtonRect(Rect? rect) =>
       _channel.setMaximizeButtonRect(rect);
+
+  @override
+  Future<void> setMinimumSize(Size size) => windowManager.setMinimumSize(size);
 
   @override
   void dispose() {

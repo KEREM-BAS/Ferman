@@ -47,11 +47,13 @@ Future<EngineService> _startEngine() async {
   }
 }
 
-/// Hides the system title bar on the desktop so Ferman draws its own, or
-/// returns a window without one on the web and mobile.
+/// Hides the system title bar on the desktop so Ferman draws its own and
+/// asks for the shell's minimum window size, or returns a window without a
+/// title bar of its own on the web and mobile.
 Future<DesktopWindow> _startDesktopWindow() async {
   final window = WindowManagerDesktopWindow.forCurrentPlatform();
   if (window == null) return NoDesktopWindow();
   await window.start();
+  await applyWindowLimits(window);
   return window;
 }

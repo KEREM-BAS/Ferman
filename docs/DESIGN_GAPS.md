@@ -62,11 +62,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-94 entries: 82 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G94 were found in M1.
+95 entries: 83 Decided, 12 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided. G62 to G95 were found in M1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 54 | 13 | 11 | 10 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 55 | 13 | 11 | 10 | 1 | 1 | 2 | 1 | 1 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -164,6 +164,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G92](#g92) | ambiguity | M1 | Settings › Language and region | Document languages drawn as Turkish and English for every region | Decided |
 | [G93](#g93) | missing variant | M1 | Localization / right to left | Persian and Hebrew: a right-to-left UI with English strings | Decided |
 | [G94](#g94) | missing state | M4 | Settings / AI clients | No board draws the MCP connection settings for AI clients | Decided |
+| [G95](#g95) | missing state | M1 | App shell responsiveness | How tool rows, mode tabs and panels give way in a narrow window | Decided |
 
 ## Entries
 
@@ -437,7 +438,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-10`, `a12-1de`, `a12-2b`, `a12-2d`, `a2-8a`, `a2-8b`, `a14-1`, `a14-1b`, `a14-1c`, `a14-1d`
 - **Gap or conflict:** No desktop window narrower than 1440 px is drawn. No icon-only tool row with an overflow menu is drawn, mode-tab truncation is not specified, and ModeTabs has no overflow handling; a12-1de only says the mode bar fits all eight modes at 1440 px. Sidebar and panel resize handles and their minimum and maximum widths are not specified; the only resize separator is the split-pane one in a2-8a and a2-8b. What is drawn: German labels wrapping at full width (a12-1de, a12-2b, a12-2d), document tabs shrinking to 112 px with a "+4" overflow (a1-10), collapsed sidebars and panels with the mode row still visible (many boards), and narrower tablet shells (a14-1b at 1032 px, a14-1c at about 683 px, a14-1d at 1280 px). The a14-1 note says the tool row scrolls when it runs out of room, while the 12 Localization rule says labels hide behind their icons.
 - **Decision:** Desktop follows the 12 Localization rule: when the tool row runs out of room, labels hide behind their icons (the tooltip keeps the name), and then the remaining tools move into an overflow menu. Scrolling stays a tablet behaviour (a14-1). Panels collapse before anything overlaps. Mode tabs are checked at the minimum width in English, Turkish, German and Arabic; if they do not fit, they fall back to icons with tooltips. M1 sets a minimum window width (1024 px is proposed in [ROADMAP.md](ROADMAP.md)) and records resize limits for the sidebar and the right panel. Narrow-window boards in English and German are asked for in the re-export.
-- **Status:** Decided
+- **Status:** Decided. M1 builds it as [G95](#g95) records (2026-10-16).
 - **Evidence:** All desktop `fm-root` frames are 1440 × 900. The "Resize panes" separator appears only in a2-8a and a2-8b. The design system ModeTabs source has no overflow logic.
 
 <a id="g22"></a>
@@ -1388,3 +1389,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** Built in M4 step 11 from the existing Settings components: a section that lists the supported clients, each with its connection link or setup button and its state, and a switch that stops the server; a Privacy row per connected client; a quiet notice in the window while one is connected. A board is asked for in the re-export; until then the layout is recorded here when it is built.
 - **Status:** Decided
 - **Evidence:** No board in `design/` mentions MCP or connecting an outside assistant. `design/11a Settings.dc.html` (a11-1g, a11-1h) draws Ferman's own assistant and "Your AI provider". Built in M4 step 11 ([ROADMAP.md](ROADMAP.md#8-m4-rest-of-phase-1)).
+
+<a id="g95"></a>
+
+### G95 · Narrow windows in M1: how the tool row, the mode tabs and the panels give way
+
+- **Type:** missing state
+- **Milestone:** M1
+- **Area:** App shell responsiveness
+- **Artboards:** none narrower than 1440 px ([G21](#g21)); the tool rows of every mode in FmWindow
+- **Gap or conflict:** [G21](#g21) decides the principle (labels hide behind their icons, then tools move into an overflow menu; panels collapse before anything overlaps; mode tabs fall back to icons when they do not fit; a minimum window width) but no board draws any of it: not the order, not the overflow button, not what its menu lists, not which panel goes first.
+- **Decision:** (1) A tool row frees space one item at a time, from the end: first the hints that have no menu entry (the Organize hint), then the labels of inline tools, which hide behind their icons (the name stays the tooltip and the accessible name), then tools move into the overflow menu, and last the actions after the spacer (Dark reading mode, Mark edited text, Review edits, Apply redactions) and the colour group of the Comment row. Show comments never moves. (2) The overflow button, "More tools" with the `ellipsis` icon and no caret, takes the place of the first item that moved, before the spacer, and mirrors in right to left. It is in the row's arrow-key order and opens with Enter, Space or ArrowDown. (3) Its menu lists exactly the moved items, in row order, with dividers where the row had a separator or the spacer: toggles as checkable items with their state, disabled items with their reason, the zoom select and the segmented controls as submenus with the current choice checked, Review edits with its count ("Review edits (3)", the number written for the region), the colours as a "Color" submenu once every tool has moved; tools that have their own menu appear as plain items ([B093](BACKLOG.md#open)). (4) A focused tool that moves into the menu hands focus to the overflow button, which hands it back to that tool when it returns, never out of an open menu. An item that moves into the menu closes the popover it had open (a select's list), which does not reopen. (5) Mode tabs fall back to icons all together, only when the labelled strip does not fit; the label is then the tooltip, after the usual delay and closed by Escape, and stays the accessible name; if even the icons do not fit, the strip scrolls. (6) A panel steps aside when the canvas would drop below 640 px (Proposed): the right panel first, as the document is the hero; then the panel opened last stays. A panel that stepped aside stays open and comes back when there is room; its toggle and shortcut show what is visible and bring it back, and the other panel steps aside. Below the width where a panel fits beside the canvas on its own (904 px for the right panel, 856 for the sidebar; only on the web and narrow tablets) its toggle is disabled with "Make the window wider to show this panel". (7) The window's minimum size is 1024 × 640 px; the width is Proposed in [ROADMAP.md](ROADMAP.md) (960 px would also allow half-screen snapping on a 1920 px display, with only German-length mode labels falling back to icons; the owner's choice), and 640 px fits a 1280 × 720 screen with the taskbar. At 1024 px every row fits with some labels hidden and the overflow menu is not needed; the right panel steps aside. (8) Document tabs keep their 112 px minimum (a1-10) down to the desktop minimum; "+N" is unchanged until M2 counts it from the width ([B028](BACKLOG.md#open)). (9) A stacked tool button at touch density is 52 px tall: the CSS fixes it at 48 px and touch raises `--icon-lg` from 20 to 24 px, so the button grows by the same 4 px. (10) A disabled tool whose label has hidden shows its reason as its tooltip, as every disabled control does ([G10](#g10)); its name stays in the accessible name and the menu ([B095](BACKLOG.md#open)).
+- **Status:** Decided. The 1024 px minimum and the 640 px canvas minimum are Proposed.
+- **Evidence:** `design/FmWindow.dc.html` lines 46–100 (the tool rows); [G21](#g21). Implemented in `app/lib/design/components/navigation/toolbar.dart` (the overflow), `label_collapse.dart`, `mode_tabs.dart` and `tool_button.dart` (`stackedHeightFor`), `annotations/annotation_tools.dart`, `forms/popover.dart` (`PopoverAnchorVisibility`), `core/tooltip.dart` (`focused`), `app/lib/features/shell/shell_state.dart` (`ShellPanels`), `shell_tool_rows.dart`, `shell_mode_bar.dart`, `shell_canvas.dart`, `app/lib/design/window_metrics.dart` and `app/lib/app/desktop_window.dart` (`setMinimumSize`) (M1 phase H6); checked in `app/test/design/components/navigation/toolbar_overflow_test.dart`, `label_collapse_test.dart`, `mode_tabs_test.dart` and `app/test/features/shell/shell_narrow_test.dart`.

@@ -414,6 +414,18 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellMore => 'Diğer';
 
   @override
+  String get shellMoreTools => 'Diğer araçlar';
+
+  @override
+  String shellReviewEditsCount(String count) {
+    return 'Düzenlemeleri incele ($count)';
+  }
+
+  @override
+  String get shellWindowTooNarrow =>
+      'Bu paneli göstermek için pencereyi genişletin';
+
+  @override
   String get shellAttachFile => 'Dosya ekle';
 
   @override

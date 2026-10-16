@@ -26,6 +26,12 @@ import 'package:flutter/widgets.dart';
 ///
 /// The popover's semantics come from [child] (a dialog or a list, per
 /// use).
+///
+/// While a [PopoverAnchorVisibility] above it says the anchor is hidden (a
+/// toolbar item that moved into the overflow menu, G21), the popover
+/// shows nothing, and if it was open it calls [onDismiss] once, so its
+/// owner closes it instead of leaving it floating over nothing. It does
+/// not reopen by itself when the anchor shows again.
 class Popover extends StatefulWidget {
   /// Anchors [child] to [anchor].
   const new({
@@ -98,6 +104,23 @@ class _PopoverState extends State<Popover> {
     debugLabel: 'Popover',
   );
 
+  /// Whether the anchor is on screen ([PopoverAnchorVisibility]).
+  bool _anchorVisible = true;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final visible = PopoverAnchorVisibility.isVisible(context);
+    if (visible == _anchorVisible) return;
+    _anchorVisible = visible;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      _sync();
+      // An open popover whose anchor left the screen closes.
+      if (!_anchorVisible && widget.open) widget.onDismiss?.call();
+    });
+  }
+
   /// The tap-region group of the anchor and the popover.
   final Object _group = Object();
 
@@ -119,9 +142,10 @@ class _PopoverState extends State<Popover> {
 
   void _sync() {
     if (!mounted) return;
-    if (widget.open && !_portal.isShowing) {
+    final show = widget.open && _anchorVisible;
+    if (show && !_portal.isShowing) {
       _portal.show();
-    } else if (!widget.open && _portal.isShowing) {
+    } else if (!show && _portal.isShowing) {
       _portal.hide();
     }
   }
@@ -197,6 +221,31 @@ class _PopoverState extends State<Popover> {
       ),
     );
   }
+}
+
+/// Tells the [Popover]s below it whether their anchor is on screen. A
+/// `Toolbar` puts one around each item: an item that moves into the
+/// overflow menu (G21) stays in the tree, unpainted, and the popovers it
+/// opened (a select's list, a picker) close instead of floating over
+/// nothing. Not a design-system component.
+class PopoverAnchorVisibility extends InheritedWidget {
+  /// Says whether the anchors in [child] are [visible].
+  const new({required this.visible, required super.child, super.key});
+
+  /// Whether the anchors are on screen.
+  final bool visible;
+
+  /// Whether the anchors around [context] are on screen; true without a
+  /// [PopoverAnchorVisibility] above.
+  static bool isVisible(BuildContext context) =>
+      context
+          .dependOnInheritedWidgetOfExactType<PopoverAnchorVisibility>()
+          ?.visible ??
+      true;
+
+  @override
+  bool updateShouldNotify(PopoverAnchorVisibility oldWidget) =>
+      visible != oldWidget.visible;
 }
 
 /// Carries the tap-region group of a [Popover] to its content.

@@ -7,6 +7,7 @@ import 'package:ferman/design/components/foundation/interactive.dart';
 import 'package:ferman/design/components/navigation/roving_focus.dart';
 import 'package:ferman/design/components/navigation/tool_button.dart';
 import 'package:ferman/design/components/navigation/toolbar.dart';
+import 'package:ferman/design/components/overlays/menu.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -46,6 +47,16 @@ import 'package:flutter/widgets.dart';
 /// move and check (radio-group pattern; not in the bundle), with only the
 /// checked colour a Tab stop. A tool with a menu ([AnnotationTool.hasMenu])
 /// asks for it with ArrowDown through [onToolMenuRequested].
+///
+/// **Narrow windows** (G21): as in every [Toolbar] bar, the tool labels
+/// hide behind their icons from the end, then the tools move into the
+/// overflow menu named [overflowLabel] ("More tools"), from the end. The
+/// colour group stays in the row until every tool has moved; then it
+/// moves too, as a "Color" submenu ([colorsSemanticLabel]) of the colours
+/// with the current one checked, disabled with [colorsDisabledReason] when
+/// the group is. A tool in the menu shows its shortcut, is checked when it
+/// is the active tool and keeps its disabled reason; its own menu
+/// ([AnnotationTool.hasMenu]) is not offered there yet.
 class AnnotationTools extends StatefulWidget {
   /// The tool row for [tools], with [tool] active and [color] current.
   const new({
@@ -64,6 +75,7 @@ class AnnotationTools extends StatefulWidget {
     this.disabledReasons = const {},
     this.colorsDisabledReason,
     this.onToolMenuRequested,
+    this.overflowLabel,
   });
 
   /// The active tool.
@@ -114,6 +126,11 @@ class AnnotationTools extends StatefulWidget {
   /// Called with a tool that has a menu when ArrowDown asks for the menu;
   /// null falls back to selecting the tool. Not a design-system prop.
   final ValueChanged<AnnotationTool>? onToolMenuRequested;
+
+  /// The name of the overflow button of a narrow row, the localized "More
+  /// tools" (G21); null gives the row no overflow menu. Not a
+  /// design-system prop.
+  final String? overflowLabel;
 
   /// The colours of the colour group, in order (the bundle's `PALETTE`).
   static const List<AnnotationColor> palette = [
@@ -182,13 +199,34 @@ class AnnotationTools extends StatefulWidget {
           colorsDisabledReason,
           defaultValue: null,
         ),
-      );
+      )
+      ..add(StringProperty('overflowLabel', overflowLabel, defaultValue: null));
   }
 }
 
 class _AnnotationToolsState extends State<AnnotationTools> {
   bool _toolEnabled(AnnotationTool tool) =>
       widget.onToolChanged != null && !widget.disabledReasons.containsKey(tool);
+
+  /// The colour group as an overflow-menu entry: a submenu of the colours
+  /// with the current one checked (G21).
+  MenuItem _colorsMenuItem(bool disabled) {
+    final enabled = !disabled && widget.onColorChanged != null;
+    return MenuItem(
+      id: 'colors',
+      label: widget.colorsSemanticLabel,
+      disabled: !enabled,
+      disabledReason: enabled ? null : widget.colorsDisabledReason,
+      submenu: [
+        for (final color in AnnotationTools.palette)
+          MenuItem(
+            id: color.name,
+            label: widget.colorLabelOf(color),
+            checked: color == widget.color,
+          ),
+      ],
+    );
+  }
 
   KeyEventResult _onKey(FocusNode _, KeyEvent event) {
     if (event is! KeyDownEvent) return KeyEventResult.ignored;
@@ -214,6 +252,8 @@ class _AnnotationToolsState extends State<AnnotationTools> {
     final onToolChanged = widget.onToolChanged;
     final onMenu = widget.onToolMenuRequested;
     final active = widget.tool;
+    final colorsDisabled =
+        widget.colorsDisabledReason != null || !active.colored;
     return Focus(
       canRequestFocus: false,
       includeSemantics: false,
@@ -222,6 +262,7 @@ class _AnnotationToolsState extends State<AnnotationTools> {
       child: Toolbar(
         variant: widget.variant,
         semanticLabel: widget.semanticLabel,
+        overflowLabel: widget.overflowLabel,
         children: [
           for (final tool in widget.tools)
             ToolButton(
@@ -247,13 +288,23 @@ class _AnnotationToolsState extends State<AnnotationTools> {
                   : null,
             ),
           const ToolbarSeparator(),
-          _ColorGroup(
-            value: widget.color,
-            onChanged: widget.onColorChanged,
-            semanticLabel: widget.colorsSemanticLabel,
-            labelOf: widget.colorLabelOf,
-            disabled: widget.colorsDisabledReason != null || !active.colored,
-            disabledReason: widget.colorsDisabledReason,
+          // The colours stay until every tool has moved into the menu.
+          ToolbarItem(
+            overflow: ToolbarOverflow.late,
+            menuItem: _colorsMenuItem(colorsDisabled),
+            onMenuSelected: (item) {
+              for (final color in AnnotationTools.palette) {
+                if (item.id == color.name) widget.onColorChanged?.call(color);
+              }
+            },
+            child: _ColorGroup(
+              value: widget.color,
+              onChanged: widget.onColorChanged,
+              semanticLabel: widget.colorsSemanticLabel,
+              labelOf: widget.colorLabelOf,
+              disabled: colorsDisabled,
+              disabledReason: widget.colorsDisabledReason,
+            ),
           ),
         ],
       ),

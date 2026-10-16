@@ -414,6 +414,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellMore => 'More';
 
   @override
+  String get shellMoreTools => 'More tools';
+
+  @override
+  String shellReviewEditsCount(String count) {
+    return 'Review edits ($count)';
+  }
+
+  @override
+  String get shellWindowTooNarrow => 'Make the window wider to show this panel';
+
+  @override
   String get shellAttachFile => 'Attach a file';
 
   @override

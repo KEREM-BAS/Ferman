@@ -7,9 +7,10 @@ import 'package:flutter/foundation.dart';
 
 /// A [DesktopWindow] for tests: draws the title bar of [platform] and
 /// records every command in [calls], every traffic-light layout in
-/// [trafficLightLayouts] and every maximize-button rectangle in
-/// [maximizeButtonRects]. Tests change [stateNotifier] and
-/// [maximizeButtonNotifier] to play the system's part.
+/// [trafficLightLayouts], every maximize-button rectangle in
+/// [maximizeButtonRects] and every minimum size in [minimumSizes]. Tests
+/// change [stateNotifier] and [maximizeButtonNotifier] to play the system's
+/// part.
 class FakeDesktopWindow implements DesktopWindow {
   /// A window with Ferman's title bar for [platform] (null: none).
   new(this.platform);
@@ -25,6 +26,9 @@ class FakeDesktopWindow implements DesktopWindow {
 
   /// The rectangles sent with [setMaximizeButtonRect].
   final List<Rect?> maximizeButtonRects = [];
+
+  /// The sizes sent with [setMinimumSize].
+  final List<Size> minimumSizes = [];
 
   /// The window state the title bar sees.
   final ValueNotifier<DesktopWindowState> stateNotifier = ValueNotifier(
@@ -69,6 +73,9 @@ class FakeDesktopWindow implements DesktopWindow {
   @override
   Future<void> setMaximizeButtonRect(Rect? rect) async =>
       maximizeButtonRects.add(rect);
+
+  @override
+  Future<void> setMinimumSize(Size size) async => minimumSizes.add(size);
 
   @override
   void dispose() {

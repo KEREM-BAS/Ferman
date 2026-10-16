@@ -2,6 +2,7 @@ import 'dart:ui' show CheckedState, Tristate;
 
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/design/icons/icon_painter.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
@@ -115,6 +116,49 @@ void main() {
       expect(
         tester.getCenter(iconButton('إظهار الشريط الجانبي أو إخفاؤه')).dx,
         greaterThan(1400),
+      );
+    });
+    testWidgets('the canvas is never mirrored: in right to left its subtree '
+        'runs left to right and its glyph is not flipped (ADR 0014)', (
+      tester,
+    ) async {
+      await pumpShell(
+        tester,
+        shellHost(window: window, locale: const Locale('ar')),
+      );
+      final canvas = find.byType(ShellCanvas);
+      expect(Directionality.of(tester.element(canvas)), TextDirection.rtl);
+      final glyph = find.descendant(of: canvas, matching: find.byType(Icon));
+      expect(tester.widget<Icon>(glyph).name, IconName.fileText);
+      // The canvas content runs with its own left-to-right geometry.
+      expect(Directionality.of(tester.element(glyph)), TextDirection.ltr);
+      final painter =
+          tester
+                  .widget<CustomPaint>(
+                    find.descendant(
+                      of: glyph,
+                      matching: find.byType(CustomPaint),
+                    ),
+                  )
+                  .painter!
+              as IconPainter;
+      expect(painter.mirror, isFalse);
+      // No mirroring transform between the canvas and its content.
+      final transforms = tester.widgetList<Transform>(
+        find.descendant(of: canvas, matching: find.byType(Transform)),
+      );
+      for (final transform in transforms) {
+        expect(transform.transform.storage[0], isNot(lessThan(0)));
+      }
+      // The placeholder's copy keeps the UI's direction.
+      final copy = tester.widget<Text>(
+        find.descendant(of: canvas, matching: find.byType(Text)),
+      );
+      expect(copy.textDirection, TextDirection.rtl);
+      // And the canvas sits between the mirrored panels, the sidebar right.
+      expect(
+        tester.getRect(canvas).right,
+        tester.getRect(find.byType(ShellSidebar)).left,
       );
     });
   });
@@ -317,9 +361,11 @@ void main() {
         .widgetList(
           find.descendant(
             of: find.byKey(ShellToolRows.keyOf(mode), skipOffstage: false),
+            // Not the overflow button "More tools", which is out of the
+            // row while every tool fits (G21).
             matching: find.byWidgetPredicate(
               (widget) =>
-                  widget is ToolButton ||
+                  (widget is ToolButton && widget.label != 'More tools') ||
                   widget is IconButton ||
                   widget is ToolbarSeparator ||
                   widget is ToolbarSpacer ||

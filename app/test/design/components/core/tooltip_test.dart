@@ -62,6 +62,26 @@ void main() {
       expect(find.text('Maximize'), findsNothing);
     });
 
+    testWidgets('focus the owner reports (an icon-only tab) opens it after '
+        'the delay; Escape hides it until the focus changes', (tester) async {
+      Widget tooltip({required bool focused}) => componentHost(
+        Tooltip(message: 'Comment', focused: focused, child: target),
+      );
+      await tester.pumpWidget(tooltip(focused: false));
+      await tester.pumpWidget(tooltip(focused: true));
+      await tester.pump(const Duration(milliseconds: 400));
+      expect(find.text('Comment'), findsNothing);
+      await tester.pump(const Duration(milliseconds: 60));
+      await tester.pumpAndSettle();
+      expect(find.text('Comment'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.text('Comment'), findsNothing);
+      await tester.pumpWidget(tooltip(focused: false));
+      await tester.pumpAndSettle();
+      expect(find.text('Comment'), findsNothing);
+    });
+
     testWidgets('a platform hover present from the start opens it too', (
       tester,
     ) async {

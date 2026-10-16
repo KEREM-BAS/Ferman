@@ -22,14 +22,22 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// `--statusbar-h` (26). The mode bar's toggles show and hide the sidebar
 /// and the panel.
 ///
+/// **Narrow windows** (G21, phase H6): the shell follows the width it is
+/// laid out at, never the platform. The side panels step aside before the
+/// canvas gets narrower than `WindowMetrics.canvasMinWidth` ([ShellPanels]:
+/// the right panel first, unless the user opened it last); the tool rows
+/// hide labels and move tools into their overflow menu (`Toolbar`); the
+/// mode tabs fall back to icons when their labels do not fit (`ModeTabs`).
+/// The width is recorded in `shellWidthProvider` after each layout, for
+/// the toggles' shortcuts.
+///
 /// Focus moves in the drawn order: title bar, mode bar, tool row, sidebar,
 /// canvas, right panel, status bar ([ShellRegion]). The canvas has focus
 /// when the shell opens. The shortcut table's keys work anywhere in it
 /// ([ShellCommandScope]).
 ///
 /// M1 reaches it only at `/debug/shell`, with placeholder documents; the
-/// start screen stays at `/`. Narrow windows (G21, phase H6) are not
-/// handled yet.
+/// start screen stays at `/`.
 class ShellScreen extends ConsumerWidget {
   /// The shell.
   const new({super.key, this.onOpenSettings});
@@ -43,34 +51,58 @@ class ShellScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final sidebarOpen = ref.watch(shellSidebarOpenProvider);
     final panelOpen = ref.watch(shellPanelOpenProvider);
+    final preferred = ref.watch(shellPanelPreferenceProvider);
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
-      child: FocusTraversalGroup(
-        policy: OrderedTraversalPolicy(),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ShellRegion.modeBar.wrap(const ShellModeBar()),
-            ShellRegion.toolRow.wrap(const ShellToolRows()),
-            Expanded(
-              child: Row(
+      child: LayoutBuilder(
+        builder: (context, constraints) {
+          final width = constraints.maxWidth;
+          final shown = ShellPanels.resolve(
+            width: width.isFinite ? width : null,
+            sidebarOpen: sidebarOpen,
+            panelOpen: panelOpen,
+            preferred: preferred,
+          );
+          if (width.isFinite && ref.read(shellWidthProvider) != width) {
+            // Not during the build: providers change between frames.
+            WidgetsBinding.instance.addPostFrameCallback((_) {
+              if (context.mounted) {
+                ref.read(shellWidthProvider.notifier).measured(width);
+              }
+            });
+          }
+          return ShellPanelsScope(
+            panels: shown,
+            child: FocusTraversalGroup(
+              policy: OrderedTraversalPolicy(),
+              child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  if (sidebarOpen)
-                    ShellRegion.sidebar.wrap(const ShellSidebar()),
+                  ShellRegion.modeBar.wrap(const ShellModeBar()),
+                  ShellRegion.toolRow.wrap(const ShellToolRows()),
                   Expanded(
-                    // Keyed, so the canvas keeps its state and focus when
-                    // the sidebar before it hides or shows.
-                    key: _canvasSlot,
-                    child: ShellRegion.canvas.wrap(const ShellCanvas()),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
+                      children: [
+                        if (shown.sidebar)
+                          ShellRegion.sidebar.wrap(const ShellSidebar()),
+                        Expanded(
+                          // Keyed, so the canvas keeps its state and focus
+                          // when the sidebar before it hides or shows.
+                          key: _canvasSlot,
+                          child: ShellRegion.canvas.wrap(const ShellCanvas()),
+                        ),
+                        if (shown.panel)
+                          ShellRegion.panel.wrap(const ShellPanel()),
+                      ],
+                    ),
                   ),
-                  if (panelOpen) ShellRegion.panel.wrap(const ShellPanel()),
+                  ShellRegion.statusBar.wrap(const ShellStatusBar()),
                 ],
               ),
             ),
-            ShellRegion.statusBar.wrap(const ShellStatusBar()),
-          ],
-        ),
+          );
+        },
       ),
     );
   }

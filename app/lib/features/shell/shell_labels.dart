@@ -45,6 +45,10 @@ extension ShellLabels on AppLocalizations {
     AnnotationColor.ink => shellColorBlack,
   };
 
+  /// The name and tooltip of the overflow button of a narrow tool row and
+  /// the name of its menu (G21): "More tools".
+  String get moreTools => shellMoreTools;
+
   /// The name of the sidebar tab [tab] (FmSidebar `tabOptions`).
   String sidebarTabLabel(SidebarTab tab) => switch (tab) {
     SidebarTab.pages => shellSidebarPages,

@@ -898,6 +898,24 @@ abstract class AppLocalizations {
   /// **'More'**
   String get shellMore;
 
+  /// Tool row: tooltip and screen-reader name of the "…" button that appears when the window is too narrow for every tool, and the name of the menu it opens with the tools that do not fit (G21).
+  ///
+  /// In en, this message translates to:
+  /// **'More tools'**
+  String get shellMoreTools;
+
+  /// Tool row: the Review edits button as an entry of the "More tools" menu of a narrow window (G21), with the number of edits waiting for review (the row shows it as a badge). {count} is already formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Review edits ({count})'**
+  String shellReviewEditsCount(String count);
+
+  /// Mode bar: tooltip and screen-reader hint of the sidebar or right-panel toggle when the window is too narrow for that panel beside the document, even on its own (G21; reachable on the web and narrow tablets, below the 1024 px desktop minimum). The toggle is disabled while this shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Make the window wider to show this panel'**
+  String get shellWindowTooNarrow;
+
   /// Sidebar Attachments tab: tooltip and screen-reader name of the + button that embeds a file in the PDF (FmSidebar).
   ///
   /// In en, this message translates to:

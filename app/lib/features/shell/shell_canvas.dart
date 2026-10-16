@@ -18,7 +18,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// when Tab brings focus back to it. The shortcut
 /// table's canvas keys (`ShortcutScope.canvas`: page turns, form fields,
 /// the page grid) are bound here. The canvas is never mirrored in right to
-/// left.
+/// left: its subtree runs with a left-to-right [Directionality], as pages
+/// keep their own geometry (ADR 0014), while the placeholder's copy keeps
+/// the UI's direction.
 class ShellCanvas extends ConsumerStatefulWidget {
   /// The canvas.
   const new({super.key});
@@ -59,6 +61,9 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final mode = ref.watch(shellModeProvider);
+    // The UI's direction, for the placeholder's copy inside the canvas's
+    // own left-to-right geometry.
+    final uiDirection = Directionality.of(context);
     return Shortcuts(
       shortcuts: ShellCommand.shortcutsFor(
         platform,
@@ -82,28 +87,32 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
           child: FocusRing(
             visible: _highlight && !_launchFocus,
             style: FocusRingStyle.inset,
-            child: ColoredBox(
-              color: theme.colors.surfaceCanvas,
-              child: Center(
-                child: Semantics(
-                  container: true,
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: theme.space.space2,
-                    children: [
-                      Icon(
-                        IconName.fileText,
-                        size: theme.density.iconLg,
-                        color: theme.colors.iconSecondary,
-                      ),
-                      Text(
-                        futureVersionReason(context),
-                        textAlign: TextAlign.center,
-                        style: theme.typography.caption.copyWith(
-                          color: theme.colors.textTertiary,
+            child: Directionality(
+              textDirection: TextDirection.ltr,
+              child: ColoredBox(
+                color: theme.colors.surfaceCanvas,
+                child: Center(
+                  child: Semantics(
+                    container: true,
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      spacing: theme.space.space2,
+                      children: [
+                        Icon(
+                          IconName.fileText,
+                          size: theme.density.iconLg,
+                          color: theme.colors.iconSecondary,
                         ),
-                      ),
-                    ],
+                        Text(
+                          futureVersionReason(context),
+                          textAlign: TextAlign.center,
+                          textDirection: uiDirection,
+                          style: theme.typography.caption.copyWith(
+                            color: theme.colors.textTertiary,
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
                 ),
               ),

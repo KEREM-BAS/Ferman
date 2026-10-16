@@ -26,8 +26,11 @@ class ShellModeBar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final mode = ref.watch(shellModeProvider);
-    final sidebarOpen = ref.watch(shellSidebarOpenProvider);
-    final panelOpen = ref.watch(shellPanelOpenProvider);
+    // What the shell shows: a panel that stepped aside in a narrow window
+    // reads as off, and its toggle brings it back (G21).
+    final shown =
+        ShellPanelsScope.maybeOf(context) ??
+        ref.watch<ShellPanels>(shellPanelsProvider);
     final aiOn = ref.watch(shellAiEnabledProvider);
     final active = ref.watch(shellDocumentsProvider).active;
     final future = futureVersionReason(context);
@@ -54,13 +57,20 @@ class ShellModeBar extends ConsumerWidget {
             icon: IconName.panelLeft,
             label: l10n.shellToggleSidebar,
             size: IconButtonSize.sm,
-            active: sidebarOpen,
+            active: shown.sidebar,
             shortcut: ShellCommand.toggleSidebar.caps(platform),
-            onPressed: () =>
-                ref.read(shellSidebarOpenProvider.notifier).toggle(),
+            // Too narrow for the sidebar beside the document: disabled with
+            // the reason (G21, G22).
+            disabledReason: shown.sidebarAvailable
+                ? null
+                : l10n.shellWindowTooNarrow,
+            onPressed: shown.sidebarAvailable
+                ? () => toggleShellSide(ref, ShellSide.sidebar, shown: shown)
+                : null,
           ),
-          // The tabs take the room they need and scroll when the bar is too
-          // narrow; the rest of the room is FmWindow's `flex: 1` spacer.
+          // The tabs take the room they need, fall back to icons when their
+          // labels do not fit and scroll when even the icons do not (G21);
+          // the rest of the room is FmWindow's `flex: 1` spacer.
           Flexible(
             child: Align(
               alignment: AlignmentDirectional.centerStart,
@@ -84,9 +94,14 @@ class ShellModeBar extends ConsumerWidget {
             icon: IconName.panelRight,
             label: l10n.shellTogglePanel,
             size: IconButtonSize.sm,
-            active: panelOpen,
+            active: shown.panel,
             shortcut: ShellCommand.togglePanel.caps(platform),
-            onPressed: () => ref.read(shellPanelOpenProvider.notifier).toggle(),
+            disabledReason: shown.panelAvailable
+                ? null
+                : l10n.shellWindowTooNarrow,
+            onPressed: shown.panelAvailable
+                ? () => toggleShellSide(ref, ShellSide.panel, shown: shown)
+                : null,
           ),
           Button(
             variant: ButtonVariant.primary,

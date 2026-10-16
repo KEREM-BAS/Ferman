@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
+import 'package:ferman/design/components/navigation/label_collapse.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -21,11 +22,14 @@ enum ToolButtonLayout {
 /// `ToolButton.jsx`).
 ///
 /// It shows an [icon] and its [label] ([layout] side by side or stacked),
-/// or only the icon when [showLabel] is false. A tool that can be on or off
-/// passes [active] (the design's `aria-pressed`): on draws the accent fill;
-/// null means the button is not a toggle. [hasMenu] adds a small caret for
-/// a tool with a menu, and [swatch] a 14 × 3 colour bar near the bottom
-/// (the current annotation colour).
+/// or only the icon when [showLabel] is false. In a `Toolbar` that runs out
+/// of room an inline button hides its label behind its icon (G21): it is
+/// drawn as when [showLabel] is false, and its tooltip gives the label.
+/// Given less width than its label needs, it does the same. A tool that
+/// can be on or off passes [active] (the design's `aria-pressed`): on draws
+/// the accent fill; null means the button is not a toggle. [hasMenu] adds a
+/// small caret for a tool with a menu, and [swatch] a 14 × 3 colour bar
+/// near the bottom (the current annotation colour).
 ///
 /// **Tooltip** (G22): the label and the platform [shortcut] as key caps,
 /// shown when the button is icon-only or has a shortcut; tool-button
@@ -105,8 +109,17 @@ class ToolButton extends StatelessWidget {
   /// The focus node; one is created when null. Not a design-system prop.
   final FocusNode? focusNode;
 
-  /// `.fm-toolbtn--stacked` `height: 48px`.
+  /// `.fm-toolbtn--stacked` `height: 48px`, drawn for the 20 px icon of
+  /// the desktop density (`--icon-lg`). The design gives the touch density
+  /// no stacked height; there `--icon-lg` is 24 px, so the button grows by
+  /// the same 4 px to 52 px ([stackedHeightFor]), keeping its 2 px of slack
+  /// instead of overflowing.
   static const double stackedHeight = 48;
+
+  /// The stacked height at [density]: [stackedHeight], taller by as much as
+  /// the density's `--icon-lg` exceeds the desktop's (52 px at touch).
+  static double stackedHeightFor(FermanDensityTokens density) =>
+      stackedHeight + density.iconLg - FermanDensityTokens.desktop.iconLg;
 
   /// `.fm-toolbtn--stacked` `min-width: 56px`.
   static const double stackedMinWidth = 56;
@@ -138,8 +151,6 @@ class ToolButton extends StatelessWidget {
 
   bool get _enabled => !disabled && onPressed != null;
 
-  bool get _iconOnly => !showLabel;
-
   static const SingleActivator _menuKey = SingleActivator(
     LogicalKeyboardKey.arrowDown,
   );
@@ -156,29 +167,40 @@ class ToolButton extends StatelessWidget {
   }
 
   @override
-  Widget build(BuildContext context) => Focus(
-    // Always there, whether or not ArrowDown applies, so the tree keeps its
-    // shape and the button keeps its state and focus when [disabled],
-    // [onPressed] or [hasMenu] change.
-    canRequestFocus: false,
-    skipTraversal: true,
-    includeSemantics: false,
-    onKeyEvent: _onKey,
-    child: FermanInteractive(
-      focusNode: focusNode,
-      onPressed: onPressed,
-      disabled: disabled,
-      disabledReason: disabledReason,
-      toggled: active,
-      tooltip: _iconOnly || shortcut != null ? label : null,
-      tooltipShortcut: shortcut,
-      semanticLabel: label,
-      builder: (context, states, _) =>
-          ExcludeSemantics(child: _visual(context, states)),
-    ),
-  );
+  Widget build(BuildContext context) {
+    // A narrow toolbar hides the label of an inline tool (G21).
+    final hidden =
+        layout == ToolButtonLayout.inline && CollapsedLabelScope.of(context);
+    final iconOnly = !showLabel || hidden;
+    return Focus(
+      // Always there, whether or not ArrowDown applies, so the tree keeps
+      // its shape and the button keeps its state and focus when [disabled],
+      // [onPressed] or [hasMenu] change.
+      canRequestFocus: false,
+      skipTraversal: true,
+      includeSemantics: false,
+      onKeyEvent: _onKey,
+      child: FermanInteractive(
+        focusNode: focusNode,
+        onPressed: onPressed,
+        disabled: disabled,
+        disabledReason: disabledReason,
+        toggled: active,
+        tooltip: iconOnly || shortcut != null ? label : null,
+        tooltipShortcut: shortcut,
+        semanticLabel: label,
+        builder: (context, states, _) => ExcludeSemantics(
+          child: _visual(context, states, labelHidden: hidden),
+        ),
+      ),
+    );
+  }
 
-  Widget _visual(BuildContext context, Set<WidgetState> states) {
+  Widget _visual(
+    BuildContext context,
+    Set<WidgetState> states, {
+    required bool labelHidden,
+  }) {
     final theme = context.ferman;
     final colors = theme.colors;
     final density = theme.density;
@@ -233,18 +255,22 @@ class ToolButton extends StatelessWidget {
         ],
       );
     } else {
+      // A hidden label is passed as text, so the toolbar still knows the
+      // full width; the padding is part of the row, because the icon-only
+      // button has none.
       final gap = theme.space.space1_5;
-      content = Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          if (glyph != null)
-            Icon(glyph, size: density.iconMd, color: iconColor),
-          if (glyph != null && text != null) SizedBox(width: gap),
-          ?text,
-          if (caret != null && (glyph != null || text != null))
-            SizedBox(width: gap - caretOverlap),
-          ?caret,
-        ],
+      final hideLabel = labelHidden && glyph != null;
+      content = CollapsibleLabel(
+        compact: hideLabel,
+        leading: glyph == null
+            ? null
+            : Icon(glyph, size: density.iconMd, color: iconColor),
+        label: hideLabel ? null : text,
+        hiddenLabel: hideLabel && showLabel ? label : null,
+        trailing: caret,
+        fullPadding: theme.space.space2,
+        gap: gap,
+        trailingGap: gap - caretOverlap,
       );
     }
     final style = stacked
@@ -259,18 +285,14 @@ class ToolButton extends StatelessWidget {
         : DefaultTextStyle.of(context).style
               .merge(theme.typography.body)
               .copyWith(color: foreground);
-    final EdgeInsetsDirectional padding;
-    if (stacked) {
-      padding = EdgeInsetsDirectional.symmetric(
-        horizontal: stackedPaddingX,
-        vertical: theme.space.space1,
-      );
-    } else if (_iconOnly) {
-      padding = EdgeInsetsDirectional.zero;
-    } else {
-      padding = EdgeInsetsDirectional.symmetric(horizontal: theme.space.space2);
-    }
-    final height = stacked ? stackedHeight : density.controlHMd;
+    // The inline row carries its own padding (CollapsibleLabel).
+    final padding = stacked
+        ? EdgeInsetsDirectional.symmetric(
+            horizontal: stackedPaddingX,
+            vertical: theme.space.space1,
+          )
+        : EdgeInsetsDirectional.zero;
+    final height = stacked ? stackedHeightFor(density) : density.controlHMd;
     final minWidth = stacked ? stackedMinWidth : density.controlHMd;
     final color = swatch;
     return FocusRing(

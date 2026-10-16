@@ -453,6 +453,16 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get shellMore => isolate(super.shellMore);
 
   @override
+  String get shellMoreTools => isolate(super.shellMoreTools);
+
+  @override
+  String shellReviewEditsCount(String count) =>
+      isolate(super.shellReviewEditsCount(count));
+
+  @override
+  String get shellWindowTooNarrow => isolate(super.shellWindowTooNarrow);
+
+  @override
   String get shellAttachFile => isolate(super.shellAttachFile);
 
   @override

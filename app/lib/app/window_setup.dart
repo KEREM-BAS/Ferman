@@ -12,12 +12,12 @@ bool get isDesktop =>
       _ => false,
     };
 
-/// Sets the initial and minimum window size on desktop. Does nothing on the
-/// web. The custom title bars arrive with the app shell (M1 step 8).
+/// Sets the initial window size and the title on desktop. Does nothing on
+/// the web. The minimum size goes through the `DesktopWindow` once it has
+/// started (`applyWindowLimits`).
 Future<void> setUpWindow() async {
   if (!isDesktop) return;
   await windowManager.ensureInitialized();
-  await windowManager.setMinimumSize(WindowMetrics.minimumSize);
   await windowManager.setSize(WindowMetrics.initialSize);
   await windowManager.setTitle(WindowMetrics.title);
 }

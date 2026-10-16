@@ -1,8 +1,11 @@
 import 'package:ferman/design/components/additions/save_indicator.dart';
 import 'package:ferman/design/components/navigation/ferman_mode.dart';
 import 'package:ferman/design/icons/icon.dart';
+import 'package:ferman/design/tokens.g.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
-import 'package:flutter/foundation.dart';
+import 'package:flutter/widgets.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'shell_state.g.dart';
@@ -24,26 +27,246 @@ class ShellMode extends _$ShellMode {
   }
 }
 
-/// Whether the sidebar is shown, as `shellSidebarOpenProvider` (FmWindow
-/// `sidebar`, open by default).
+/// Whether the user keeps the sidebar open, as `shellSidebarOpenProvider`
+/// (FmWindow `sidebar`, open by default). A narrow window can still leave
+/// it out ([ShellPanels]).
 @riverpod
 class ShellSidebarOpen extends _$ShellSidebarOpen {
   @override
   bool build() => true;
 
-  /// Shows the sidebar when it is hidden and hides it when it is shown.
+  /// Opens the sidebar when it is closed and closes it when it is open.
   void toggle() => state = !state;
+
+  /// Opens the sidebar.
+  void open() => state = true;
+
+  /// Closes the sidebar.
+  void close() => state = false;
 }
 
-/// Whether the right panel is shown, as `shellPanelOpenProvider` (FmWindow
-/// `panel`, open by default).
+/// Whether the user keeps the right panel open, as `shellPanelOpenProvider`
+/// (FmWindow `panel`, open by default). A narrow window can still leave it
+/// out ([ShellPanels]).
 @riverpod
 class ShellPanelOpen extends _$ShellPanelOpen {
   @override
   bool build() => true;
 
-  /// Shows the panel when it is hidden and hides it when it is shown.
+  /// Opens the panel when it is closed and closes it when it is open.
   void toggle() => state = !state;
+
+  /// Opens the panel.
+  void open() => state = true;
+
+  /// Closes the panel.
+  void close() => state = false;
+}
+
+/// The two side panels of the shell.
+enum ShellSide {
+  /// The sidebar, on the start side.
+  sidebar,
+
+  /// The right panel, on the end side.
+  panel,
+}
+
+/// The side panel the user opened last, as `shellPanelPreferenceProvider`:
+/// when the window has room for only one of the open panels, this one
+/// stays (G21). The sidebar at first, so the right panel steps aside
+/// first.
+@riverpod
+class ShellPanelPreference extends _$ShellPanelPreference {
+  @override
+  ShellSide build() => ShellSide.sidebar;
+
+  /// Keeps [side] when there is room for only one panel.
+  void prefer(ShellSide side) {
+    if (side == state) return;
+    state = side;
+  }
+}
+
+/// The width the shell was last laid out at, as `shellWidthProvider`, or
+/// null before its first layout. `ShellScreen` measures it after each
+/// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
+/// from it. Kept alive, so it outlasts the frames nobody watches it.
+@Riverpod(keepAlive: true)
+class ShellWidth extends _$ShellWidth {
+  @override
+  double? build() => null;
+
+  /// Records the measured [width].
+  void measured(double width) {
+    if (width == state) return;
+    state = width;
+  }
+}
+
+/// Which side panels the shell shows: the ones the user keeps open, as long
+/// as the canvas keeps [WindowMetrics.canvasMinWidth] beside them (G21).
+///
+/// Panels collapse before anything overlaps. When both are open and only
+/// one fits, the one the user opened last stays and the other steps aside
+/// (the right panel first by default: the document is the hero); when
+/// even that one does not fit, the other is tried; at the narrowest none
+/// shows. A panel that steps aside stays open: it comes back as soon as
+/// there is room, when the window widens or the other panel closes.
+///
+/// A panel that does not fit even on its own (the right panel below 904 px,
+/// the sidebar below 856: the web and narrow tablets, below the desktop
+/// minimum) is unavailable: its toggle and shortcut are disabled with the
+/// reason, and its open state waits for a wider window.
+@immutable
+final class ShellPanels {
+  /// The sidebar shown or not, and the right panel, and whether each could
+  /// show on its own.
+  const new({
+    required this.sidebar,
+    required this.panel,
+    this.sidebarAvailable = true,
+    this.panelAvailable = true,
+  });
+
+  /// The panels shown in a shell [width] wide (null: not laid out yet,
+  /// every open panel shows) with the sidebar and the panel open or not
+  /// and [preferred] kept first.
+  factory resolve({
+    required double? width,
+    required bool sidebarOpen,
+    required bool panelOpen,
+    required ShellSide preferred,
+  }) {
+    if (width == null) {
+      return ShellPanels(sidebar: sidebarOpen, panel: panelOpen);
+    }
+    const canvas = WindowMetrics.canvasMinWidth;
+    double widthOf(ShellSide side) => switch (side) {
+      ShellSide.sidebar => FermanSizeTokens.sidebarW,
+      ShellSide.panel => FermanSizeTokens.panelW,
+    };
+    bool fits(Iterable<ShellSide> sides) =>
+        sides.fold(canvas, (sum, side) => sum + widthOf(side)) <= width;
+    final open = [
+      if (sidebarOpen) ShellSide.sidebar,
+      if (panelOpen) ShellSide.panel,
+    ];
+    var shown = <ShellSide>[];
+    if (fits(open)) {
+      shown = open;
+    } else {
+      // The preferred panel first, then the other; one at most.
+      final order = [...open]
+        ..sort((a, b) => (a == preferred ? 0 : 1) - (b == preferred ? 0 : 1));
+      for (final side in order) {
+        if (fits([side])) {
+          shown = [side];
+          break;
+        }
+      }
+    }
+    return ShellPanels(
+      sidebar: shown.contains(ShellSide.sidebar),
+      panel: shown.contains(ShellSide.panel),
+      sidebarAvailable: fits([ShellSide.sidebar]),
+      panelAvailable: fits([ShellSide.panel]),
+    );
+  }
+
+  /// Whether the sidebar shows.
+  final bool sidebar;
+
+  /// Whether the right panel shows.
+  final bool panel;
+
+  /// Whether the sidebar fits beside the canvas on its own.
+  final bool sidebarAvailable;
+
+  /// Whether the right panel fits beside the canvas on its own.
+  final bool panelAvailable;
+
+  /// Whether [side] fits beside the canvas on its own: its toggle works.
+  bool available(ShellSide side) => switch (side) {
+    ShellSide.sidebar => sidebarAvailable,
+    ShellSide.panel => panelAvailable,
+  };
+
+  /// Whether [side] shows.
+  bool shows(ShellSide side) => switch (side) {
+    ShellSide.sidebar => sidebar,
+    ShellSide.panel => panel,
+  };
+
+  @override
+  bool operator ==(Object other) =>
+      other is ShellPanels &&
+      other.sidebar == sidebar &&
+      other.panel == panel &&
+      other.sidebarAvailable == sidebarAvailable &&
+      other.panelAvailable == panelAvailable;
+
+  @override
+  int get hashCode =>
+      Object.hash(sidebar, panel, sidebarAvailable, panelAvailable);
+
+  @override
+  String toString() =>
+      'ShellPanels(sidebar: $sidebar, panel: $panel, '
+      'available: $sidebarAvailable, $panelAvailable)';
+}
+
+/// The side panels the shell shows at the width it is laid out at, for the
+/// mode bar's toggles, which show and switch them ([toggleShellSide]).
+class ShellPanelsScope extends InheritedWidget {
+  /// Gives [panels] to [child].
+  const new({required this.panels, required super.child, super.key});
+
+  /// The panels shown.
+  final ShellPanels panels;
+
+  /// The panels the shell around [context] shows, or null outside one.
+  static ShellPanels? maybeOf(BuildContext context) =>
+      context.dependOnInheritedWidgetOfExactType<ShellPanelsScope>()?.panels;
+
+  @override
+  bool updateShouldNotify(ShellPanelsScope oldWidget) =>
+      panels != oldWidget.panels;
+}
+
+/// The side panels shown at the shell's last measured width, as
+/// `shellPanelsProvider` ([ShellPanels.resolve]).
+@riverpod
+ShellPanels shellPanels(Ref ref) => ShellPanels.resolve(
+  width: ref.watch(shellWidthProvider),
+  sidebarOpen: ref.watch(shellSidebarOpenProvider),
+  panelOpen: ref.watch(shellPanelOpenProvider),
+  preferred: ref.watch(shellPanelPreferenceProvider),
+);
+
+/// What the sidebar and panel toggles and their shortcuts do (G21): a
+/// panel that shows closes; one that does not (closed, or stepped aside in
+/// a narrow window) opens and becomes the one kept, so the other steps
+/// aside when there is room for only one. A panel that does not fit even
+/// on its own is left as it is ([ShellPanels.available]; its toggle is
+/// disabled). [shown] is what the shell shows now; null reads
+/// [shellPanelsProvider].
+void toggleShellSide(WidgetRef ref, ShellSide side, {ShellPanels? shown}) {
+  // The type argument keeps `??` from asking for a nullable value.
+  final panels = shown ?? ref.read<ShellPanels>(shellPanelsProvider);
+  if (!panels.available(side)) return;
+  final opens = !panels.shows(side);
+  switch ((side, opens)) {
+    case (ShellSide.sidebar, true):
+      ref.read(shellSidebarOpenProvider.notifier).open();
+    case (ShellSide.sidebar, false):
+      ref.read(shellSidebarOpenProvider.notifier).close();
+    case (ShellSide.panel, true):
+      ref.read(shellPanelOpenProvider.notifier).open();
+    case (ShellSide.panel, false):
+      ref.read(shellPanelOpenProvider.notifier).close();
+  }
+  if (opens) ref.read(shellPanelPreferenceProvider.notifier).prefer(side);
 }
 
 /// The tabs of the sidebar, in the drawn order (FmSidebar `tabOptions`).

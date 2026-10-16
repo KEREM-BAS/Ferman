@@ -1,13 +1,18 @@
 import 'dart:async';
 import 'dart:io' show Platform;
+import 'dart:math' as math;
 
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
+import 'package:ferman/design/tokens.g.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:window_manager/window_manager.dart' show windowManager;
+
+import '../helpers/fake_desktop_window.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
@@ -169,6 +174,16 @@ void main() {
       );
     });
 
+    test('keeps the window at least the minimum size through '
+        'window_manager', () async {
+      final window = await started(WindowPlatform.win);
+      await window.setMinimumSize(const Size(1024, 640));
+      expect(methods(), ['setMinimumSize']);
+      final arguments = windowManagerCalls.single.arguments as Map;
+      expect(arguments['width'], 1024);
+      expect(arguments['height'], 640);
+    });
+
     test('a slow refresh never overwrites a newer event', () async {
       final window = await started(WindowPlatform.win);
       final answer = Completer<Object?>();
@@ -282,8 +297,31 @@ void main() {
       await window.startDragging();
       await window.titleBarDoubleClicked();
       await window.setMaximizeButtonRect(null);
+      await window.setMinimumSize(const Size(1024, 640));
       expect(windowManagerCalls, isEmpty);
       expect(fermanCalls, isEmpty);
+    });
+  });
+
+  group('applyWindowLimits', () {
+    test('asks the window for the shell’s minimum size at start-up: 1024 × '
+        '640 (G21; the width Proposed)', () async {
+      final window = FakeDesktopWindow(WindowPlatform.win);
+      addTearDown(window.dispose);
+      await applyWindowLimits(window);
+      expect(window.minimumSizes, [WindowMetrics.minimumSize]);
+      expect(WindowMetrics.minimumSize, const Size(1024, 640));
+      expect(WindowMetrics.minimumWidth, 1024);
+    });
+
+    test('at the minimum width either side panel fits beside the canvas', () {
+      expect(
+        WindowMetrics.minimumWidth,
+        greaterThanOrEqualTo(
+          WindowMetrics.canvasMinWidth +
+              math.max(FermanSizeTokens.sidebarW, FermanSizeTokens.panelW),
+        ),
+      );
     });
   });
 }

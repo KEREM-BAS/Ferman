@@ -7,6 +7,7 @@ import 'package:ferman/design/components/foundation/focus_ring.dart';
 import 'package:ferman/design/components/foundation/future_version.dart';
 import 'package:ferman/design/components/navigation/tool_button.dart';
 import 'package:ferman/design/components/navigation/toolbar.dart';
+import 'package:ferman/design/components/overlays/menu.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart';
@@ -52,6 +53,8 @@ class _Host extends StatefulWidget {
     this.toolsInert = false,
     this.colorsInert = false,
     this.tools = AnnotationTool.values,
+    this.width = 1200,
+    this.overflowLabel,
   });
 
   final AnnotationTool tool;
@@ -64,6 +67,8 @@ class _Host extends StatefulWidget {
   final bool toolsInert;
   final bool colorsInert;
   final List<AnnotationTool> tools;
+  final double width;
+  final String? overflowLabel;
 
   @override
   State<_Host> createState() => _HostState();
@@ -75,8 +80,9 @@ class _HostState extends State<_Host> {
 
   @override
   Widget build(BuildContext context) => SizedBox(
-    width: 1200,
+    width: widget.width,
     child: AnnotationTools(
+      overflowLabel: widget.overflowLabel,
       semanticLabel: 'Comment tools',
       colorsSemanticLabel: 'Color',
       toolLabelOf: (tool) => _toolLabels[tool]!,
@@ -558,6 +564,98 @@ void main() {
         isSemantics(hasToggledState: true, isToggled: true),
       );
       handle.dispose();
+    });
+    testWidgets('in a narrow row the tools move into "More tools" from the '
+        'end, with their shortcut and state, and the colours stay (G21)', (
+      tester,
+    ) async {
+      final tools = <AnnotationTool>[];
+      await tester.pumpWidget(
+        componentHost(
+          _Host(width: 360, overflowLabel: 'More tools', onTool: tools.add),
+          size: const Size(1000, 600),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      bool shown(Finder finder) => finder.hitTestable().evaluate().isNotEmpty;
+      Finder tool(String label) => find.byWidgetPredicate(
+        (widget) => widget is ToolButton && widget.label == label,
+      );
+      for (final label in _colorLabels.values) {
+        if (label == 'Orange') continue;
+        expect(shown(_swatch(label)), isTrue, reason: label);
+      }
+      final moved = [
+        for (final label in _toolLabels.values)
+          if (!shown(tool(label))) label,
+      ];
+      final labels = _toolLabels.values.toList();
+      expect(moved, isNotEmpty);
+      expect(moved, labels.sublist(labels.length - moved.length));
+      expect(shown(tool('More tools')), isTrue);
+
+      await tester.tap(tool('More tools'));
+      await tester.pumpAndSettle();
+      final menu = tester.widget<Menu>(find.byType(Menu));
+      expect(menu.items.map((item) => item.label), moved);
+      final measure = menu.items.last;
+      expect(measure.label, 'Measure');
+      expect(measure.shortcut, ['M']);
+      expect(measure.checked, isFalse);
+      expect(measure.icon, AnnotationTool.measure.icon);
+
+      await tester.tap(
+        find.descendant(of: find.byType(Menu), matching: find.text('Measure')),
+      );
+      await tester.pumpAndSettle();
+      expect(tools, [AnnotationTool.measure]);
+      await tester.tap(tool('More tools'));
+      await tester.pumpAndSettle();
+      expect(tester.widget<Menu>(find.byType(Menu)).items.last.checked, isTrue);
+    });
+
+    testWidgets('when every tool has moved, the colours move too, as a Color '
+        'submenu with the current colour checked', (tester) async {
+      final colors = <AnnotationColor>[];
+      await tester.pumpWidget(
+        componentHost(
+          _Host(width: 90, overflowLabel: 'More tools', onColor: colors.add),
+          size: const Size(1000, 600),
+        ),
+      );
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(
+        find.byWidgetPredicate(
+          (widget) => widget is ToolButton && widget.label == 'More tools',
+        ),
+      );
+      await tester.pumpAndSettle();
+      final items = tester.widget<Menu>(find.byType(Menu)).items;
+      expect(items.map((item) => item.separator ? '—' : item.label), [
+        ..._toolLabels.values,
+        '—',
+        'Color',
+      ]);
+      final color = items.last;
+      expect(color.submenu?.map((item) => item.label), [
+        'Yellow',
+        'Green',
+        'Blue',
+        'Pink',
+        'Red',
+        'Black',
+      ]);
+      expect(color.submenu?.first.checked, isTrue);
+      expect(color.submenu?[1].checked, isFalse);
+      await tester.tap(
+        find.descendant(of: find.byType(Menu), matching: find.text('Color')),
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Blue'));
+      await tester.pumpAndSettle();
+      expect(colors, [AnnotationColor.blue]);
     });
   });
 }
