@@ -2937,7 +2937,7 @@
       },
       "notes": [
         "Swatches are Tab stops in the bundle; a grid with arrow keys would be kinder but is not drawn.",
-        "The eyedropper button (pipette, \"Pick a color from the page\") needs the engine (M3)."
+        "The eyedropper button (pipette, \"Pick a color from the page\") needs the engine (M3).", "The popover is a focus scope; a keyboard open focuses the selected swatch, a click open focuses the popover itself, and after a click open a click outside leaves the trigger without focus (decision 38, G22)."
       ]
     },
     {
@@ -3275,7 +3275,7 @@
       },
       "notes": [
         "The bundle makes rows Tab stops with no arrow keys; Flutter adds Up and Down in the list, the listbox pattern the roles imply.",
-        "Never substitute silently (ADR 0006): the missing-font note says which font is shown instead."
+        "Never substitute silently (ADR 0006): the missing-font note says which font is shown instead.", "The popover is a focus scope; after a click open, a click outside or on a font leaves the trigger without focus; Escape returns it (decision 38, G22)."
       ]
     },
     {
@@ -7500,7 +7500,7 @@
         "properties": ["scopesRoute", "namesRoute", "textField", "selected (active option)"]
       },
       "notes": [
-        "Matching lowercases with the Turkish locale in the bundle (toLocaleLowerCase(\"tr\")); Flutter matches with the casing rules of the app locale (ARCHITECTURE §11.2)."
+        "Matching lowercases with the Turkish locale in the bundle (toLocaleLowerCase(\"tr\")); Flutter matches with the casing rules of the app locale (ARCHITECTURE §11.2).", "aria-activedescendant becomes a polite announcement of the active row on arrow moves; the list scrolls only when the active row is out of view (decision 37).", "Modal like Dialog: root Overlay, ModalScope, its own overlay for popups, shown only while its route is current (decision 41)."
       ]
     },
     {
@@ -7674,7 +7674,7 @@
       },
       "notes": [
         "Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.",
-        "Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).", "onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).", "Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; inline ones do neither."
+        "Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).", "onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).", "Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; popups inside them open in the modal layer's own overlay; a modal shows only while its route is current (hidden, it keeps its state and stops counting); inline ones do none of this (decision 41)."
       ]
     },
     {

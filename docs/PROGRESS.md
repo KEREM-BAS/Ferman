@@ -16,12 +16,12 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 |---|---|
 | Milestone | **M1, foundations: in progress.** Started on 2026-10-15 on the branch `m1-foundations`, with draft pull request #2 to `main` |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | Wave 3, phase G: the component library. The foundations, Kbd and Tooltip are committed (G1); the component groups follow (G2 to G9), then the spec walker and the gallery (G10); see the [M1 plan](#m1-plan). Run [38824955001](https://github.com/KEREM-BAS/Ferman/actions/runs/38824955001) (head `0d2b562`) was green on the three systems, so every box of ROADMAP step 3 but the zero-copy one is ticked; that one waits for the owner ([Q19](QUESTIONS.md#q19)) and the R1 and R2 measurement |
-| Application code | committed on `m1-foundations` (head `7e7b455`): phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase I1 (the settings store), phase G1 and the four component groups with the review fixes of A and C, and phase H1 (Ferman's own title bar on every desktop screen) |
+| Next | Phase G10 (the component gallery, and how goldens draw the macOS key symbols, [G87](DESIGN_GAPS.md#g87)), phase H6 (narrow windows, Proposed), phase J2 (right-to-left, region-format and pseudo-locale tests), phase K (the golden matrix and its comparison with the design references) and phase L (closing M1); see the [M1 plan](#m1-plan) |
+| Application code | committed on `m1-foundations`: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton) and phase J1 (Turkish complete and Arabic for every M1 string, pending native review) |
 | Questions | 19 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006 and 0008; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 74 recorded: 62 Decided, 12 Needs owner, 0 Resolved (G62 to G74 found in M1) |
-| Backlog | 15 open: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B015 from the component library; M1 adds the disabled shell and settings items as it builds them |
+| Design gaps | 93 recorded: 81 Decided, 12 Needs owner, 0 Resolved (G62 to G93 found in M1) |
+| Backlog | 91 open and 1 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings; B003 (parsing region numbers) shipped in M1 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-16 |
 
@@ -132,36 +132,61 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
   phase G0). Phase G1 committed the foundations (`b2a22af`): `FermanInteractive` (states,
   activation, disabled with a reason), `FocusRing`, `FermanForcedStates`, `FermanAnchoredLayout`,
   `Kbd`, `Tooltip` and the localized "Available in a future version" (`093dfd0`), with 45 widget
-  tests. The four component groups exist and are committed: A (buttons, feedback, the drop zone and
-  the panel section; `d2211d7`), B (forms, the popover, the overlays, the date picker, the mention
-  list and FmNumber; `4374b53`), C (navigation, the annotation tools, document tabs, window
-  controls and the save indicator; `e7176e5`) and D (the page thumbnail, the editing marks and
-  boxes, the annotation marks, the form field, the signature pad, the comment card and the thumbnail
-  badges; `4e4eebf`). Groups A and C were reviewed and fixed
-  (`0d9ccb5`, `7e7b455`), and their spec additions, decisions 20 to 29 in
-  [COMPONENTS.md](COMPONENTS.md#ambiguities-and-decisions), G67 to G74 and B010 to B015 are recorded;
-  groups B and D are under review. The spec walker (`tools/checks` `component_spec`) runs in
-  `check_all`, which now has 16 checks. The component gallery (G10) is pending.
+  tests. The four component groups are committed: A (buttons, feedback, the drop zone and the panel
+  section; `d2211d7`), B (forms, the popover, the overlays, the date picker, the mention list and
+  FmNumber; `4374b53`), C (navigation, the annotation tools, document tabs, window controls and the
+  save indicator; `e7176e5`) and D (the page thumbnail, the editing marks and boxes, the annotation
+  marks, the form field, the signature pad, the comment card and the thumbnail badges; `4e4eebf`).
+  Each group had an adversarial review and its confirmed findings fixed: A (21, `0d9ccb5`), C (32,
+  `7e7b455`), D (39, `1ac9344`) and B (64, `567da58`). A second check of the riskiest B fixes found
+  11 regressions, all fixed (`505653d`): popups inside modals, modals left over a pushed route,
+  number parsing and picker focus. Every group's Flutter-only parameters are in the spec, with
+  decisions 20 to 41 in [COMPONENTS.md](COMPONENTS.md#ambiguities-and-decisions), G67 to G80 and
+  B010 to B017. The spec walker (`tools/checks` `component_spec`) runs in `check_all` (16 checks).
+  CI runs [38852612065](https://github.com/KEREM-BAS/Ferman/actions/runs/38852612065),
+  [38855104204](https://github.com/KEREM-BAS/Ferman/actions/runs/38855104204) and
+  [38861303299](https://github.com/KEREM-BAS/Ferman/actions/runs/38861303299) were green on the
+  three systems. The component gallery (G10) is pending.
 - [ ] Step 8. App shell. Phase H1, the title bars: the native parts are in `1a39443` (macOS
   light placement, Windows snap layouts, the Linux header bar), and CI run
   [38831554960](https://github.com/KEREM-BAS/Ferman/actions/runs/38831554960) built and ran them on
   the three systems. The Flutter side hides the system title bar at start-up and frames every
   screen with Ferman's own (`TitleBar` in `WindowFrame`, [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)):
-  drag and double-click, the caption buttons, the snap-layout area and the Windows top resize edge;
-  28 widget tests, and the integration test sees the title bar. A review of H1 confirmed 9
-  findings: 8 are fixed (`1d50128`, `7e7b455`), among them double-clicks counted with the system's
-  interval and distance, which every runner reports, no window move on a trackpad scroll, and no
-  system title bar flashing at launch on macOS; CI run
-  [38842860407](https://github.com/KEREM-BAS/Ferman/actions/runs/38842860407) built and ran them on
-  the three systems. The last finding (dialogs above the title bar) comes with the review fixes of
-  group B. H2 to H6 follow.
+  drag and double-click, the caption buttons, the snap-layout area and the Windows top resize edge.
+  A review of H1 confirmed 9 findings, all fixed (`1d50128`, `7e7b455`, `567da58`): among them
+  double-clicks counted with the system's interval and distance, no window move on a trackpad
+  scroll, no system title bar flashing at launch on macOS, and modals above the title bar (the root
+  overlay, with the title bar giving the snap-layout area back while a modal is open). Phases H2 to
+  H5 built the shell (`app/lib/features/shell/`): the title-bar content per screen
+  ([G88](DESIGN_GAPS.md#g88)), the eight mode tabs over an `IndexedStack`, the tool rows of every
+  mode with their future features disabled, the sidebar, the canvas, the right panel, the status
+  bar and one shortcut table with its collision test ([G81](DESIGN_GAPS.md#g81) to
+  [G87](DESIGN_GAPS.md#g87)); a review confirmed 19 findings, all fixed or recorded. The disabled
+  controls are B018 to B092 in [BACKLOG.md](BACKLOG.md). The shell is reachable at `/debug/shell`
+  until M2 opens documents. H6 (narrow windows) is Proposed and pending.
 - [ ] Step 9. Start screen and settings skeleton. Phase I1 committed the settings store
   (`a2f1988`): `settings.json` in the app support directory through a temporary file and a rename,
-  loaded before the first frame; the theme choice now persists across restarts (22 tests). The
-  decision is recorded in [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration).
-- [ ] Step 10. Localization en, tr and ar, right to left, locale-aware casing — casing (`LocaleCasing`)
-  and region-format utilities (`Region`, `RegionFormat`) with tests done; region provider and a11-1b
-  picker pending
+  loaded before the first frame; the theme choice persists across restarts (22 tests). Phases I2 to
+  I4 built first run (the language picker of a1-1 with all 21 languages, a1-2b with the four
+  network uses, a1-2c with Apache-2.0 and the unshipped features marked), the start screen of a1-5
+  (its entry points disabled until their milestones) and Settings with its 11 panes (General,
+  Language and region and Privacy built, the others present and disabled). Settings is a
+  window-styled surface inside the main window, because Flutter 3.47.7 has no stable desktop
+  multi-window support ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration),
+  [G89](DESIGN_GAPS.md#g89), B090); a failed save shows a warning ([G90](DESIGN_GAPS.md#g90)); the
+  region picker lists every CLDR territory, named in the UI language and in its own
+  ([G91](DESIGN_GAPS.md#g91)). A review confirmed 43 findings, all fixed or recorded. Goldens come
+  with step 11.
+- [ ] Step 10. Localization en, tr and ar, right to left, locale-aware casing. Casing
+  (`LocaleCasing`) and region formats (`Region`, `RegionFormat`, with percentages) are done, and the
+  region follows the region setting, not the UI language ([G34](DESIGN_GAPS.md#g34)). Phase J1:
+  Turkish is complete and Arabic covers every M1 string (297 keys); every string waits for a
+  native speaker (gate S5, [pending owner checks](#pending-owner-checks)).
+  `tools/checks` `arb_parity` now fails when a Turkish value repeats the English one, unless the key
+  is on its reviewed list (names, file formats, paper sizes). Arabic, Persian and Hebrew switch the
+  UI to right to left at once; Persian and Hebrew show English strings until they are translated
+  ([G93](DESIGN_GAPS.md#g93)). Phase J2 (the right-to-left, region-format and pseudo-locale tests)
+  is pending.
 - [ ] Step 11. Golden matrix
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the
@@ -367,6 +392,16 @@ Taken by the lead within the approved architecture, reversible, and listed in th
   ([ARCHITECTURE.md §3.9](ARCHITECTURE.md#39-versioning)).
 - **One integration-test file:** Linux desktop cannot launch the app a second time for a second file,
   so every integration test lives in `app/integration_test/app_test.dart`.
+- **Settings inside the main window:** Flutter 3.47.7's windowing API is not stable, so Settings is a
+  window-styled surface at `/settings` with its own close button, Esc and ⌘W
+  ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration), [G89](DESIGN_GAPS.md#g89), B090).
+- **Modals in the root overlay:** modal dialogs and the command palette cover Ferman's title bar
+  too, and the title bar gives the Windows snap-layout area back while one is open
+  ([COMPONENTS.md](COMPONENTS.md) decision 41).
+- **Turkish values that repeat the English fail `arb_parity`,** unless the key is on the check's
+  reviewed list with its reason, so English copied in as a stand-in cannot pass for a translation.
+- **Persian and Hebrew mirror the UI** with English strings: the direction follows the chosen
+  language, not the locale of the strings ([G93](DESIGN_GAPS.md#g93), ARCHITECTURE §11.4).
 
 ### Honest recording
 
@@ -380,10 +415,13 @@ Taken by the lead within the approved architecture, reversible, and listed in th
 
 Checks this environment cannot do. Each is ticked only with the owner's result.
 
-- [ ] Native-speaker review of the Turkish and Arabic strings (gate S5, step 10).
+- [ ] Native-speaker review of the Turkish and Arabic strings (gate S5, step 10). Every string in
+  `app/lib/l10n/app_tr.arb` and `app_ar.arb` (297 keys). The M1 summary carries a review table (key,
+  English, Turkish, Arabic, where the translation came from, the translator's note).
 - [ ] R1 and R2 hardware checks: macOS traffic lights (placement in left to right and right to left,
   after resizing and in and out of full screen) and the title-bar double-click setting; Windows 11
-  snap layouts on hover over maximize, its hover and press, and the top resize edge; CJK system fonts with the right regional forms (step 5); the bridge zero-copy
+  snap layouts on hover over maximize, its hover and press, and the top resize edge, both giving way
+  to the scrim while a dialog is open; CJK system fonts with the right regional forms (step 5); the bridge zero-copy
   timing (step 3, in profile mode: `flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart` from `app/`); the start-screen
   budget (step 9).
 - [ ] arm64 app builds: the arm64 slice of the macOS universal app on Apple silicon, Windows on arm64
@@ -453,4 +491,4 @@ Newest last. One row per session.
 | 2026-10-15 | M1 | Wave 1. Committed the app skeleton (`23a09c3`) and the switch from flutter_svg to path_parsing (`246d6df`). Built in the working tree, each with passing tests in the development container: the Rust workspace with the seven crate skeletons, ferman-cli and `deny.toml`; `tools/checks`; `tools/tokens` and `tokens.g.dart`; `tools/pdfium` and `tools/fonts` with the 18 IBM Plex TTFs and the PDFium licence files; `tools/icons` with the 229 SVGs, `IconName`, the provenance table and the component spec ([COMPONENTS.md](COMPONENTS.md)); `tools/design-refs` (224 PNGs offline, identical over six full renders); the first CI workflow. Reviews corrected the capture rule (the fix boards `f4a`, `f4b` and `f6a` are `div`s), dropped flutter_svg (`http`), kept the Playwright installer out of CI (LGPL ffmpeg), and added G62 and G63. The docs, CLAUDE.md commands and DEPENDENCIES rows now describe what exists. Committed by phase (A: `946e50d`, `8c6150a`; B: `249d76b` to `f0e2c06`; D: `993bb16` to `879b5e7`; CI: `0096014`), pushed, and draft pull request #2 opened. The first CI run was cancelled by the next push; the Chromium hash was then pinned from the first design-reference run, and CI downloads the PDFium archives before verifying them. CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`) was green in all ten jobs on Ubuntu, macOS and Windows, so the evidenced boxes of ROADMAP §5 steps 1 and 2 are ticked. `design/` unchanged. | `23a09c3`, `246d6df`, `946e50d` to `0096014`, `9b7fcec`, `18c7471`, `19c4beb` |
 | 2026-10-15 | M1 | Wave 2 (phases E1, E2 and F1 to F4), each part reviewed and fixed before its commit: the render thread binds PDFium on its own thread and reports it loaded only after a real call; the engine facade with async `engine_info()` and the test-only debug calls, with the facade hidden from bridge codegen and `Box::pin` instead of `pin!`; the S6 checks in `tools/checks`; the theme layer over the tokens with a live theme switch and reduced motion; the Icon widget, the licence registry and the first two goldens; locale-aware casing and region formats; CI runs the PDFium tests on three systems and goldens on Linux only. The script-coverage golden showed misplaced marks with a script font first, so every UI language but CJK uses `--font-ui` (G64); G65 recorded; G34 corrected (both Arabic boards draw Arabic-Indic digits); five BACKLOG rows; the docs updated. CI run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054) (head `41613ea`) failed on macOS (the PDFium fetch in the Rust job) and on macOS and Windows (the golden test files do not load under `--exclude-tags golden`); Linux passed, goldens included. Fixing it comes first. `design/` unchanged. | `41b80c5`, `0e52fc5`, `27f9e9e`, `9750c83`, `8e1a891`, `069d3f2`, `41613ea` |
 | 2026-10-15 | M1 | Wave 2, phases E3 and E4, and the red CI. The red run 38819082054 was fixed: `fetch.sh` reads the Mach-O header without `od -j` and awk arithmetic, which failed with the BSD tools on macOS, and CI runs `tools/pdfium/selftest.sh` in the Rust jobs on macOS and Linux (`9393190`); every golden test passes `skip: !isGoldenHost`, so macOS and Windows declare no golden test (`7914bfc`); `app/analysis_options.yaml` leaves the vendored cargokit build tool out, after run 38821129509 reported 51 issues there (`a704ce2`). Phase E3: flutter_rust_bridge 2.13.0 through cargokit (the `rust_lib_ferman` FFI plugin, two marked patches), the generated bindings, the engine services and providers with the start-up API-version check and a web stub, and the one-file integration test (`0ae4f29`); the CI codegen check with cached flutter_rust_bridge_codegen 2.13.0 and cargo-expand 1.0.127 (`1554fb2`); the `bridge_imports` check, the 15th in `tools/checks` (`4b8c5c3`); the cargokit patches listed in the rust_builder README (`16eae39`). Run [38822085341](https://github.com/KEREM-BAS/Ferman/actions/runs/38822085341) (head `7914bfc`) was green in every job but Flutter (macos-15): the build worked through CocoaPods, with Flutter's warning that `rust_lib_ferman` does not support Swift Package Manager (B007), but the integration test found no engine library, because the bridge's default macOS loader looks for `ferman_api.framework`. The app now opens the engine library by absolute path beside the executable (`b9b14ec`). Phase E4: PDFium bundled in the app on each system, with the integration test asserting `loaded` and `chromium/7881`; CI fetches PDFium before the desktop builds and runs the full Dart licence check (`3e7bf8e`, `52603cb`). Verified on Linux in the development container: the bundle holds the pinned `libpdfium.so`, the 5 integration tests pass, and the 1 MiB bridge transfer measured 52–63 ms in a debug build, far over the 0.2 ms target; the codec decision is open. Profile builds shipped the engine without the bridge (the app reported `libraryMissing`, undefined symbol `frb_get_rust_content_hash`) because `cargokit.yaml` listed only debug and release; it now lists all three modes (`ba9f6d2`), and the Ubuntu 22.04 job checks the export with `nm -D` (`99a75e1`). The transfer test now times 20 warm calls, and `app/test_driver/integration_test.dart` with flutter_driver runs it in profile mode (`be0a04b`): minimum 3,310 µs, median 5,915 µs in the container, still far over the target. Run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (head `52603cb`) was green in every job on the three systems, the full Dart licence check (107 packages), the 22.04 bundle check and PDFium loaded in all three integration tests included, so ROADMAP step 2 boxes 1, 2 and 6 were ticked again and step 3's evidenced boxes were ticked. The Dco codec (`full_dep: true`) was tried in a scratch worktree; its Dart did not compile, so the options and a proposal went into ADR 0009 and the decision became Q19. CI now also compares the codegen's version with the crate (`dcdf8a3`). The PR description lost an attribution footer that CLAUDE.md forbids. The docs record these changes: DEPENDENCIES (the codegen tools, cargokit and its build tool, `rust_lib_ferman`, flutter_driver, jni), BACKLOG B006 and B007, the Turkish percent form in G34. `design/` unchanged. | `0ae4f29`, `1554fb2`, `9393190`, `a704ce2`, `7914bfc`, `4b8c5c3`, `16eae39`, `b9b14ec`, `3e7bf8e`, `52603cb`, `ba9f6d2`, `be0a04b`, `99a75e1`, `dcdf8a3` |
-| 2026-10-16 | M1 | Wave 3, phase G, and phase H1. Component agents built groups A, B, C and D under the component spec, each verified (format, both analyzers, tests, `tools/checks`) and committed by the lead; the spec walker passes for all 56 spec components and runs in `check_all` (16 checks). Adversarial reviews of A (21 confirmed findings) and C (32) were fixed and pushed; their spec additions, decisions 20 to 29, G67 to G74 and B010 to B015 recorded. A forced-open Tooltip that waited for an unrelated frame was fixed. Phase H1: the Flutter title bar (`WindowFrame`, `TitleBar`, `DesktopWindow` over window_manager and the `ferman/window` channel) on every route, the Windows top resize edge, the macOS double-click setting; its review's fixes followed. CI failures fixed on the way: a stale `router.g.dart` hash (the generated-code check), and a host-dependent test expectation (window_manager asks `isFullScreen` before a drag on Windows; `bc0842d`'s message blamed a leaked refresh, `9e66c95` corrects it). The container restarted once mid-wave; the work in the tree survived, two review workflows were re-run and the stopped agents resumed. CI run [38842860407](https://github.com/KEREM-BAS/Ferman/actions/runs/38842860407) (head `7e7b455`) is green on the three systems. In progress: the reviews of B and D, the shell (H2 to H5) and the onboarding, start and settings screens (I2 to I4). `design/` unchanged. | `914e1d3` to `7e7b455` |
+| 2026-10-16 | M1 | Wave 3 (phase G) and wave 4 (phases H1 to H5, I2 to I4) with phase J1. Component agents built groups A, B, C and D under the component spec; each group had an adversarial review (A 21, B 64, C 32, D 39 confirmed findings) whose fixes were verified (format, both analyzers, the whole suite, `tools/checks`) in a clean worktree of HEAD and committed by the lead; a second check of the riskiest B fixes found 11 regressions (popups inside modals, modals left over a pushed route, number parsing, picker focus), all fixed. The spec walker passes for all 56 spec components and runs in `check_all` (16 checks); decisions 20 to 41, G67 to G80 and B010 to B017 recorded. Phase H1: Ferman's own title bar on every route, the Windows top resize edge and snap layouts, the macOS double-click setting, modals above the title bar; its review's 9 findings fixed. Phases H2 to H5: the shell with its eight modes, tool rows, sidebar, canvas, panel, status bar and one shortcut table; phases I2 to I4: first run, the start screen and Settings (a window-styled surface). Reviews of the shell (19) and the screens (43) were fixed or recorded: G81 to G93, B018 to B092, ARCHITECTURE §2.5, §11 and §12, DEPENDENCIES (shared_preferences not chosen; the region-name table). Phase J1: Turkish complete and Arabic for every M1 string (297 keys, pending native review), and `arb_parity` rejects Turkish that repeats the English. CI failures fixed on the way: a stale `router.g.dart` hash, and a host-dependent test expectation (window_manager asks `isFullScreen` before a drag on Windows; `bc0842d`'s message blamed a leaked refresh, `9e66c95` corrects it). The container restarted once; the work in the tree survived. CI runs on `7e7b455`, `2b81a0a`, `1ac9344`, `23e1696`, `408e11e` and `505653d` were green on the three systems. `design/` unchanged. | `914e1d3` to the head of this push |

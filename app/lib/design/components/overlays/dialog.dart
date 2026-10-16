@@ -59,24 +59,22 @@ enum DialogSize {
 /// `--dur-slow`.
 ///
 /// **Modal.** Unless [inline], a dialog is shown while [open] in the root
-/// [Overlay] (through an [OverlayPortal] at
-/// [OverlayChildLocation.rootOverlay]; no Material
-/// route), centred over a [Scrim] that covers the whole window, the title
-/// bar included, wherever the dialog sits in the tree; [ModalScope] counts
-/// it while it shows. Tooltips, popovers and menus in the dialog open in
-/// the modal layer's own overlay, above the box. The dialog shows only
-/// while its route is the current one and its tickers run: under a route
-/// pushed above its own (or in a hidden tab) it hides and stops counting,
-/// keeping its state, and shows again with focus inside when that route
-/// goes. It is modal: screen readers see only the dialog,
-/// focus is trapped inside it (Tab and Shift+Tab cycle), and focus goes on
-/// open to a child that asks for `autofocus` (the bundle's
-/// `data-autofocus`), else to the first focusable control in the body,
-/// else to the dialog itself (which shows no ring), and returns on close
-/// to where it was. With [onClose], Escape and a pointer down on the scrim
-/// call it; [closeLabel] names the scrim as a dismiss target. [inline]
-/// draws the box in place, without scrim, modality or trap (boards and the
-/// gallery); Escape inside it still calls [onClose].
+/// [Overlay] (through an [OverlayPortal] at [OverlayChildLocation.rootOverlay];
+/// no Material route), centred over a [Scrim] that covers the whole window, the
+/// title bar included, wherever the dialog sits in the tree; [ModalScope]
+/// counts it while it shows. Tooltips, popovers and menus in the dialog open in
+/// the modal layer's own overlay, above the box. The dialog shows only while
+/// its route is the current one and its tickers run (an ancestor [TickerMode]
+/// that mutes them hides it too): under a route pushed above its own it hides
+/// and stops counting, keeping its state, and shows again with focus inside
+/// when that route goes. It is modal: screen readers see only the dialog, focus
+/// is trapped inside it (Tab and Shift+Tab cycle), and focus goes on open to a
+/// child that asks for `autofocus` (the bundle's `data-autofocus`), else to the
+/// first focusable control in the body, else to the dialog itself (which shows
+/// no ring), and returns on close to where it was. With [onClose], Escape and a
+/// pointer down on the scrim call it; [closeLabel] names the scrim as a dismiss
+/// target. [inline] draws the box in place, without scrim, modality or trap
+/// (boards and the gallery); Escape inside it still calls [onClose].
 ///
 /// **Slots.** The footer buttons are widgets the screen composes.
 ///

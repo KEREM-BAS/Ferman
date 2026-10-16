@@ -86,9 +86,10 @@ class CommandItem {
 /// bar included; [ModalScope] counts it while it shows. The reason
 /// tooltips open in the modal layer's own overlay, above the palette. The
 /// palette shows only while its route is the current one and its tickers
-/// run: under a route pushed above its own (or in a hidden tab) it hides
-/// and stops counting, keeping its query, and shows again with focus in
-/// the field when that route goes. Screen readers see only the palette,
+/// run (an ancestor [TickerMode] that mutes them hides it too): under a
+/// route pushed above its own it hides and stops counting, keeping its
+/// query, and shows again with focus in the field when that route
+/// goes. Screen readers see only the palette,
 /// and the search field takes focus. A pointer down on the scrim calls
 /// [onClose]. [inline] draws it in place (boards, the gallery).
 ///

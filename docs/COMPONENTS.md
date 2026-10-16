@@ -233,19 +233,19 @@ built; the ones that need a design answer are also listed for the lead to record
 20. **Labels come from the caller.** The bundle carries English copy: DS `label` defaults ("Mode",
     "Loading"), the DropZone `COPY` strings and footnote, hard-coded names ("Comment tools", "Color",
     "Dismiss", "Cancel", "Pause", "Resume") and the `label` of every `FERMAN_MODES` and
-    `ANNOTATION_TOOLS` entry. Components hold no English strings, so each becomes a caller
-    parameter: a required `String` (`ModeTabs.semanticLabel`, `AnnotationTools.semanticLabel` and
-    `colorsSemanticLabel`, `DocumentTab.unsavedLabel` and `closeLabel`, the four `WindowChrome`
-    labels, `SaveIndicator.label`); a label that is required, by assertion, whenever its button shows
-    (`Banner.dismissLabel`, `Toast.closeLabel`, the `TaskProgress` Cancel, Pause and Resume labels); a
-    nullable text that is not shown when null (the DropZone copy; `Spinner.semanticLabel`, whose null
-    makes the spinner decorative); or a `*LabelOf` callback for enum values (`ModeTabs.labelOf`,
-    `AnnotationTools.toolLabelOf` and `colorLabelOf`). `FermanMode` and `AnnotationTool` carry no
-    label, so their item field `label` has `dart: null`. A widget that carries copy is built by the
-    caller and passed in (`DocumentTab.spinner`, the Spinner "Opening"). `SaveIndicator` takes
-    `savedLabel` and `region` to put the saved time, formatted with `RegionFormat.time`, inside the
-    localized text ([G34](DESIGN_GAPS.md#g34)). The design's English stays in the spec, as the DS
-    `default` and in the notes, as the source for the ARB files.
+    `ANNOTATION_TOOLS` entry. Components hold no English strings, so each becomes a caller parameter: a
+    required `String` (`ModeTabs.semanticLabel`, `AnnotationTools.semanticLabel` and
+    `colorsSemanticLabel`, `DocumentTab.unsavedLabel` and `closeLabel`, the four `WindowChrome` labels,
+    `SaveIndicator.label`); a label that is required, by assertion, whenever its button shows
+    (`Banner.dismissLabel`, `Toast.closeLabel`, `Dialog.closeLabel`, the `TaskProgress` Cancel, Pause
+    and Resume labels); a nullable text that is not shown when null (the DropZone copy;
+    `Spinner.semanticLabel`, whose null makes the spinner decorative); or a `*LabelOf` callback for enum
+    values (`ModeTabs.labelOf`, `AnnotationTools.toolLabelOf` and `colorLabelOf`). `FermanMode` and
+    `AnnotationTool` carry no label, so their item field `label` has `dart: null`. A widget that carries
+    copy is built by the caller and passed in (`DocumentTab.spinner`, the Spinner "Opening").
+    `SaveIndicator` takes `savedLabel` and `region` to put the saved time, formatted with
+    `RegionFormat.time`, inside the localized text ([G34](DESIGN_GAPS.md#g34)). The design's English
+    stays in the spec, as the DS `default` and in the notes, as the source for the ARB files.
 21. **How notices are announced.** The design's `role="status"` notices (Banner info, success and
     neutral; every Toast but danger; TaskProgress; SaveIndicator; a labelled Spinner) are polite live
     regions. Its alerts (a danger Toast; a danger or warning Banner: `role="alert"`,
@@ -334,6 +334,52 @@ built; the ones that need a design answer are also listed for the lead to record
 35. **Replace that is not available.** With `replaceDisabledReason`, the find bar keeps the
     disclosure, the replace field and both Replace buttons visible and disabled with the reason
     ("Available in a future version" until replace ships in P2).
+
+36. **Select's open list.** The bundle restyles a native `<select>`, whose list is a listbox. Flutter
+    has no listbox role, so the open list is a menu named by the field's label, with radio menu
+    items, the chosen one checked; the box stays a button that reports expanded and the value. A click
+    on the box only opens or closes the list (`FermanInteractive.onTap`); Enter and Space choose the
+    highlighted option. The highlight is brought into view on either side of the list as the arrow
+    keys, Home and End move it, and End or Home with no option to rest on does nothing. The check
+    takes the Menu check's colour ([G78](DESIGN_GAPS.md#g78)).
+37. **CommandPalette's active row.** The bundle points `aria-activedescendant` at the active row.
+    Flutter has no active descendant, so the arrow keys send a polite announcement of the row's label
+    with its reason or hint where the platform supports announcements (not on Android); hover
+    announces nothing. The list scrolls only when the active row is out of view, and then lands
+    6 px clear of the edge (`CommandPalette.revealMargin`), as the bundle does; scrollables outside
+    the palette never move. A disabled command shows its reason while it is the active row.
+38. **Picker popovers and focus.** The ColorPicker and FontPicker popovers are focus scopes of
+    their own: Tab, Shift+Tab and the arrow keys stay inside, and Escape closes the popover and
+    puts focus back on the trigger. The bundle lets Tab leave in page order, which would leave an
+    open popover behind. Opening from the keyboard focuses the selected swatch (the first one when
+    none is selected); FontPicker's search field takes focus however it opens, as the bundle's
+    `autoFocus` does. A click that opens the ColorPicker puts focus on the popover itself, so no
+    swatch and not the trigger shows the focus ring; after a click opened either popover, a click
+    outside or a click on a choice leaves the trigger without focus, so a pointer never leaves a
+    focus ring behind ([G22](DESIGN_GAPS.md#g22)).
+39. **Reading typed numbers.** `NumberStepper.parse` reads what a user types in a field of a region
+    (B003): either decimal separator in every region, the region's digits, Arabic-Indic and ASCII
+    digits, and the grouping the field itself shows. When the decimal separator is certain (the
+    Arabic decimal sign, both "." and ",", or a single mark that is not the region's group
+    separator), groups may have any length, so deleting or inserting a digit in a grouped value
+    still reads ("1.34,5" is 134.5 for Germany). Otherwise grouping must be well formed, and a
+    reading that may be 1000 times off ("1234.567" for Türkiye, "1,234,56" for the United States)
+    is not a number. A draft that is not a number is dropped and the field shows its value again.
+    The doc comment of `parse` states every rule.
+40. **Space toggles, Enter does not.** Checkbox, Radio and Switch toggle with Space only, as native
+    controls do, so Enter reaches the app's shortcuts, such as a dialog's default button
+    (`FermanInteractive.activateOnEnter: false`). PdfFormField's checkbox and radio do the same
+    (decision 34).
+41. **Modals over the title bar.** A modal Dialog or CommandPalette opens in the root Overlay, so its
+    scrim covers the custom title bar too, as a sheet covers a native window; it counts in
+    `ModalScope` while it shows, and the title bar then gives the Windows maximize button's
+    snap-layout area back to Flutter, so the scrim takes the pointer there as everywhere else. Popups
+    inside the modal (tooltips, popovers, menus) open in the modal layer's own overlay, above it. A
+    modal shows only while its route is current: under a route pushed above its own it hides, keeps
+    its state and stops counting, and it shows again with focus inside when that route goes; closed
+    while hidden, it leaves focus where it is. Inline instances do none of this. Dialog's close
+    button is the core small ghost IconButton (`x`), named by `closeLabel`, which `onClose` requires
+    (decision 20); Escape in an inline dialog calls `onClose` too.
 
 ## Reference (generated)
 
@@ -1201,6 +1247,7 @@ Notes:
 
 - Swatches are Tab stops in the bundle; a grid with arrow keys would be kinder but is not drawn.
 - The eyedropper button (pipette, "Pick a color from the page") needs the engine (M3).
+- The popover is a focus scope; a keyboard open focuses the selected swatch, a click open focuses the popover itself, and after a click open a click outside leaves the trigger without focus (decision 38, G22).
 
 #### FontPicker
 
@@ -1282,6 +1329,7 @@ Notes:
 
 - The bundle makes rows Tab stops with no arrow keys; Flutter adds Up and Down in the list, the listbox pattern the roles imply.
 - Never substitute silently (ADR 0006): the missing-font note says which font is shown instead.
+- The popover is a focus scope; after a click open, a click outside or on a font leaves the trigger without focus; Escape returns it (decision 38, G22).
 
 #### Popover
 
@@ -2550,6 +2598,8 @@ Semantics: role dialog "Command palette" with a combobox and a listbox of option
 Notes:
 
 - Matching lowercases with the Turkish locale in the bundle (toLocaleLowerCase("tr")); Flutter matches with the casing rules of the app locale (ARCHITECTURE §11.2).
+- aria-activedescendant becomes a polite announcement of the active row on arrow moves; the list scrolls only when the active row is out of view (decision 37).
+- Modal like Dialog: root Overlay, ModalScope, its own overlay for popups, shown only while its route is current (decision 41).
 
 #### Dialog
 
@@ -2600,7 +2650,7 @@ Notes:
 - Never showDialog, AlertDialog or the Material Dialog (ADR 0011); shown through Ferman routes or OverlayPortal.
 - Footer button order follows the platform: on macOS and Linux Cancel comes before the affirmative button at the end (G15); on Windows primary, secondary, then Cancel (G16).
 - onClose shows the close button, a small ghost core IconButton (x) named by closeLabel, which is required with onClose (decision 20).
-- Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; inline ones do neither.
+- Modal instances open in the root Overlay, above the title bar, and count in ModalScope while shown; popups inside them open in the modal layer's own overlay; a modal shows only while its route is current (hidden, it keeps its state and stops counting); inline ones do none of this (decision 41).
 
 #### Menu
 
