@@ -72,6 +72,7 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 | [0016](0016-dependency-licence-policy.md) | Dependency licence policy | Accepted (brief); three licence exceptions approved (owner, [Q17](../QUESTIONS.md#q17), 2026-10-15) |
 | [0017](0017-testing-and-ci.md) | Testing and continuous integration | Accepted (brief) |
 | [0018](0018-native-file-pickers.md) | OS-native file pickers | **Proposed** |
+| [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted: the direction (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16); details Proposed |
 
 ## Waiting for the owner
 
@@ -86,3 +87,4 @@ ADR 0013 ([Q08](../QUESTIONS.md#q08)) and the three licence exceptions in ADR 00
 | [0009](0009-threading-and-jobs.md) | Document actors, immutable revisions, one PDFium render thread, tile queue, job pool | no question; not approved at the M0 go-ahead, so carried into M1 | Only the brief's rule applies: no rendering or heavy work on the UI thread. |
 | [0016](0016-dependency-licence-policy.md) | The project's reading of "GPL-compatible" (no GPL code of any version, no LGPL-only code, MPL-2.0 only per package after review). The three licence exceptions were approved on 2026-10-15. | [Q17](../QUESTIONS.md#q17), part 4 | The stricter reading applies. |
 | [0018](0018-native-file-pickers.md) | OS-native open, save and folder pickers as the only exception to the custom-dialog rule | [Q07](../QUESTIONS.md#q07) | M1 builds no file picker. If M2 starts before an answer, the OS picker is used as the safest option (brief §9) and flagged again in each milestone summary. |
+| [0019](0019-ai-clients-through-mcp.md) | Proposed details: transport and pairing (`ferman mcp` over standard input and output, a local socket and a token), the first tools and saving only after the user confirms, the `ferman-mcp` crate and its SDK, what the window shows while a client is connected | [Q20](../QUESTIONS.md#q20) | Nothing is built before M4 step 11; the details are settled with the owner when it starts. |

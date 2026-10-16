@@ -18,9 +18,9 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
 | Next | Phase G10 (the component gallery, and how goldens draw the macOS key symbols, [G87](DESIGN_GAPS.md#g87)), phase H6 (narrow windows, Proposed), phase J2 (right-to-left, region-format and pseudo-locale tests), phase K (the golden matrix and its comparison with the design references) and phase L (closing M1); see the [M1 plan](#m1-plan) |
 | Application code | committed on `m1-foundations`: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton) and phase J1 (Turkish complete and Arabic for every M1 string, pending native review) |
-| Questions | 19 entries: 4 answered (Q01, Q03, Q04, Q05), 4 answered in part (Q08, Q12, Q14, Q17), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
-| Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006 and 0008; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 93 recorded: 81 Decided, 12 Needs owner, 0 Resolved (G62 to G93 found in M1) |
+| Questions | 20 entries: 4 answered (Q01, Q03, Q04, Q05), 5 answered in part (Q08, Q12, Q14, Q17, Q20), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
+| Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006, 0008 and 0019; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
+| Design gaps | 94 recorded: 82 Decided, 12 Needs owner, 0 Resolved (G62 to G94 found in M1) |
 | Backlog | 91 open and 1 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings; B003 (parsing region numbers) shipped in M1 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
 | Last updated | 2026-10-16 |
@@ -335,6 +335,11 @@ Given with the M0 go-ahead and recorded in [QUESTIONS.md](QUESTIONS.md):
 - No AI attribution in commits or in pull request titles and bodies.
 - New [Q18](QUESTIONS.md#q18): the macOS App Sandbox stays on in M1, as Flutter's template sets it;
   the owner is asked before M2.
+- [Q20](QUESTIONS.md#q20), 2026-10-16, during M1: AI clients such as Claude and ChatGPT will work on
+  the documents open in Ferman through a local MCP server, after M3 (ROADMAP M4 step 11). The app
+  stays open and does the work locally; Settings gives a connection link for each supported client,
+  or opens it already set up. [ADR 0019](adr/0019-ai-clients-through-mcp.md) is Accepted for the
+  direction; its Proposed details (transport, pairing, tools, saving) are asked when the step starts.
 
 ### Still Proposed in M1
 
@@ -459,6 +464,7 @@ the ADRs that changed status here.
 | [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Proposed | the owner's review; M2 stops before step 1 without it |
 | [0013 fonts and icons](adr/0013-fonts-and-icons.md) | Accepted: brief parts, plus Plex Sans Hebrew and Devanagari (owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | — |
 | [0018 native file pickers](adr/0018-native-file-pickers.md) | Proposed | [Q07](QUESTIONS.md#q07) |
+| [0019 AI clients through MCP](adr/0019-ai-clients-through-mcp.md) | Accepted: the direction (owner, [Q20](QUESTIONS.md#q20), 2026-10-16); details Proposed | the details, with the owner, when M4 step 11 starts |
 | [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief), each with one Proposed detail | the owner's review (not approved at the M0 go-ahead) |
 | [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief), with one Proposed detail (`fsType`) | [Q09](QUESTIONS.md#q09) |
 | [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions approved on 2026-10-15; the reading of "GPL-compatible" open | [Q17](QUESTIONS.md#q17) part 4 |

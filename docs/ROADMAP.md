@@ -1520,7 +1520,8 @@ E1 to E8, plus:
 
 **Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) group 3, handwriting
 fonts for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
-Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print.
+Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print; the Proposed
+details of [ADR 0019](adr/0019-ai-clients-through-mcp.md) for step 11 ([Q20](QUESTIONS.md#q20)).
 
 ### Goal
 
@@ -1541,6 +1542,8 @@ app frame (command palette, toasts, background tasks, full settings).
 - Organize, Comment and Fill & Sign modes; Compress and Version history in Tools mode.
 - Command palette, keyboard cheat sheet, toasts, background task drawer.
 - All Settings panes, the licences and third-party notices screen, basic system print (Proposed).
+- A local MCP server for AI clients in the running app, set up from Settings
+  ([ADR 0019](adr/0019-ai-clients-through-mcp.md), the owner's decision of 2026-10-16).
 
 ### Artboards covered
 
@@ -1594,6 +1597,7 @@ privacy rows for features that do not exist yet in `a11-1h`.
 | Rust | cargo-about 0.9 (tool) | MIT OR Apache-2.0 | third-party notices for the licences screen ([G14](DESIGN_GAPS.md#g14)); every release in M5 bundles its output |
 | Fonts | handwriting fonts for typed signatures, if Q08 group 3 approves them (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
 | Dart or platform | a printing package or platform channel | to check | chosen and licence-checked in step 9 |
+| Rust | an MCP SDK (the official `rmcp`, or a small JSON-RPC layer of our own) | to check | chosen and licence-checked in step 11 ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
 
 ### Steps
 
@@ -1617,6 +1621,14 @@ privacy rows for features that do not exist yet in `a11-1h`.
 9. **Basic system print** (`a9-6`, Proposed), handing the document to the OS print dialog.
 10. **Thumbnail badges** for comments, fields and signatures (`f5`); bookmark and metadata editing and
     "Attach a file" (`a2-3a`, `a2-7`, `a2-3b`) if M3 did not ship them.
+11. **AI clients through MCP** ([ADR 0019](adr/0019-ai-clients-through-mcp.md), [Q20](QUESTIONS.md#q20)):
+    a local MCP server in the running app, off by default. Settings lists the supported clients
+    (Claude, ChatGPT and others that can reach a local server) with a connection link or a one-click
+    setup and a switch that stops it ([G94](DESIGN_GAPS.md#g94)); Settings → Privacy lists connected
+    clients. The client works on the documents open in Ferman through `ferman-api`: its changes are
+    edit transactions, shown at once, listed in the edit review and undoable. The Proposed details of
+    the ADR (transport, pairing, the first tools, saving) are settled with the owner when this step
+    starts.
 
 ### Acceptance criteria
 
@@ -1660,6 +1672,11 @@ privacy rows for features that do not exist yet in `a11-1h`.
   the count against `cargo metadata` and `pubspec.lock`.
 - [ ] Print (Proposed): the OS print dialog opens with the document, and "Use system dialog…" is one
   click away.
+- [ ] AI clients (ADR 0019): with the switch on, a supported client connects from the same computer
+  only, lists the open documents, reads a page's text and makes an edit that shows at once, appears
+  in the edit review under the client's name and is undone by one undo; with the switch off nothing
+  answers. Nothing listens on the network (a test checks the open sockets), and Settings → Privacy
+  lists the connected client.
 - [ ] Goldens for every M4 screen and every Settings pane in light and dark × en, tr and ar (S4).
 - [ ] Standard gates S1 to S9; fuzz targets added for every new parser (annotation appearance
   streams, form field values and formats, image decoding entry points).
@@ -1670,7 +1687,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
 [G46](DESIGN_GAPS.md#g46) comment states, [G47](DESIGN_GAPS.md#g47) form and signature states,
 [G48](DESIGN_GAPS.md#g48) compress and history states, [G49](DESIGN_GAPS.md#g49) palette, toast and
 task states, [G50](DESIGN_GAPS.md#g50) settings variants, [G51](DESIGN_GAPS.md#g51) revocation lookups
-in Privacy, [G52](DESIGN_GAPS.md#g52) language packs in Privacy, [G33](DESIGN_GAPS.md#g33) basic print.
+in Privacy, [G52](DESIGN_GAPS.md#g52) language packs in Privacy, [G33](DESIGN_GAPS.md#g33) basic print,
+[G94](DESIGN_GAPS.md#g94) AI client settings.
 
 ### Exit checks
 

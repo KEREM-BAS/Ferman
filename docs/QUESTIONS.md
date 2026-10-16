@@ -84,6 +84,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q17](#q17) | Approve three licence exceptions and the reading of "GPL-compatible" | M1 (CI cache); M2 | Answered in part 2026-10-15: parts 1 to 3 approved; part 4 open |
 | [Q18](#q18) | macOS App Sandbox | before M2 | Open |
 | [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Open |
+| [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered in part 2026-10-16: yes, after M3, live in the running app, set up from Settings; details open |
 
 ## Questions
 
@@ -690,3 +691,27 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Related:** [ADR 0009](adr/0009-threading-and-jobs.md), [ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md),
   [ADR 0010](adr/0010-error-handling-no-panics.md), [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles)
 - **Answer:** none yet
+
+<a id="q20"></a>
+
+### Q20 · AI clients through MCP
+
+- **Question:** Should AI assistants such as Claude and ChatGPT be able to work on the documents open
+  in Ferman, with everything the app supports, through the Model Context Protocol (MCP), and how?
+- **Why it matters:** It is a new way into the engine besides the UI and the CLI, and what a connected
+  client reads goes to its provider, which touches the brief's privacy promise (brief §3,
+  [ADR 0015](adr/0015-privacy-and-network.md)). It needs the editing engine (M3) to be useful.
+- **Options:** (a) a server that works on files without the app, like the CLI; (b) a server in the
+  running app, whose edits show live and can be undone; (c) both from one crate.
+- **Proposal:** (b), after M3, off by default, set up from Settings, listed in Settings → Privacy,
+  reachable only from the same computer ([ADR 0019](adr/0019-ai-clients-through-mcp.md)).
+- **Meanwhile:** nothing is built before M4 step 11.
+- **Needed by:** M4 step 11.
+- **Status:** Answered in part on 2026-10-16: the direction; the details marked Proposed in ADR 0019
+  are settled with the owner when the step starts.
+- **Related:** [ADR 0019](adr/0019-ai-clients-through-mcp.md), [ADR 0015](adr/0015-privacy-and-network.md),
+  [G94](DESIGN_GAPS.md#g94), [Q13](#q13)
+- **Answer:** The owner, 2026-10-16: yes, planned after M3. It works with the Ferman app open, locally.
+  In Settings, Ferman gives a connection link for each client it can support (Claude, ChatGPT and
+  others), or opens the client already set up. Anything that turns out to be a problem while building
+  it is asked then.
