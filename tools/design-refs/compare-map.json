@@ -36,7 +36,7 @@
     {
       "board": "a1-2b",
       "golden": "welcome_privacy_mac_light_en.png",
-      "note": "Welcome step 2 of 3. The app lists all four network uses (G24) where the board names only the update check, so the rows are expected to differ."
+      "note": "The privacy welcome step, macOS, light, English. Since export 519d42a the board lists the four network uses (G24) and links to Settings › Privacy, as the app does. The board is step 2 of 3 of the finished product, with Skip and three progress dots; the M1 app has two steps until a1-2a ships in M3, so its counter reads 1 of 2 with two dots (a1-2c-m1), and those are expected to differ."
     },
     {
       "board": "a1-2c",

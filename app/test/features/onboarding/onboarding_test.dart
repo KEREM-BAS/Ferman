@@ -1,6 +1,7 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
+import 'package:ferman/features/onboarding/onboarding_link.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/onboarding/privacy_step.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
@@ -482,6 +483,33 @@ void main() {
           find.text('See every connection in Settings › Privacy'),
         ),
         isSemantics(isLink: true, isButton: false, hasTapAction: true),
+      );
+    });
+
+    testWidgets('the settings link ends in an arrow, as a1-2b draws it', (
+      tester,
+    ) async {
+      await pumpFermanApp(tester, settings: _firstRun);
+      await openPrivacy(tester);
+      final link = find.ancestor(
+        of: find.text('See every connection in Settings › Privacy'),
+        matching: find.byType(OnboardingLink),
+      );
+      final arrow = tester.widget<Icon>(
+        find.descendant(of: link, matching: find.byType(Icon)),
+      );
+      expect(arrow.name, IconName.arrowRight);
+      expect(arrow.size, OnboardingLink.trailingIconSize);
+      // After the text: to its right in left-to-right English.
+      expect(
+        tester.getTopLeft(find.byWidget(arrow)).dx,
+        greaterThan(
+          tester
+              .getTopRight(
+                find.text('See every connection in Settings › Privacy'),
+              )
+              .dx,
+        ),
       );
     });
 

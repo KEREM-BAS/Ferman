@@ -1,6 +1,7 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/icons/icon_painter.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
+import 'package:ferman/features/onboarding/onboarding_link.dart';
 import 'package:ferman/features/onboarding/privacy_step.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
 import 'package:ferman/features/settings/general_pane.dart';
@@ -217,8 +218,16 @@ void _expectLayout(
           find.text(l10n.onboardingBack),
           'Skip, Back',
         );
-        // The arrow follows Next's label (and points the way on).
-        before(find.text(step.nextLabel), icon(IconName.arrowRight), 'arrow');
+        // The arrow follows Next's label (and points the way on), and the
+        // settings link's arrow follows the link's text (a1-2b).
+        Finder arrowOf(Finder label, Type type) => find.descendant(
+          of: find.ancestor(of: label, matching: find.byType(type)).first,
+          matching: icon(IconName.arrowRight),
+        );
+        final next = find.text(step.nextLabel);
+        before(next, arrowOf(next, Button), 'arrow');
+        final link = find.text(l10n.onboardingPrivacySettingsLink);
+        before(link, arrowOf(link, OnboardingLink), 'link arrow');
         before(
           find.descendant(
             of: find.byType(PrivacyFacts),
@@ -333,8 +342,9 @@ void main() {
           _expectLayout(tester, screen, direction);
           final directional = _expectIconMirroring(tester, direction);
           if (screen == M1Screen.privacyStep) {
-            // Next's arrow-right: the one directional glyph of M1's screens.
-            expect(directional, 1);
+            // The arrow-right of Next and of the settings link: the only
+            // directional glyphs of M1's screens.
+            expect(directional, 2);
           }
         });
       }

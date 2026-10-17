@@ -172,7 +172,7 @@ each M1 build board is compared in English, Turkish and Arabic.
 | `f6-win` | `shell_edit_win_light_en` | board 0, 318, 1440 × 79; golden top 79 rows | Fix 6's Windows strip. |
 | `f6a` | `shell_edit_win_light_en` | board 0, 45, 1440 × 900; canvas masked | The Windows editor window, Edit mode. |
 | `a1-1` | `language_picker_mac_light_en` | | Language picker, macOS, light, English. |
-| `a1-2b` | `welcome_privacy_mac_light_en` | | Welcome step 2 (G24 changes the rows). |
+| `a1-2b` | `welcome_privacy_mac_light_en` | | The privacy welcome step (the app's 1 of 2 against the board's 2 of 3). |
 | `a1-2c` | none | | Superseded by `a1-2c-m1`. |
 | `a1-2c-m1`, `-tr`, `-ar` | `welcome_free_mac_light_<en\|tr\|ar>` | | Welcome step 2 of 2, M1 build (G12, G13). |
 | `a1-5` | none | | Superseded by `a1-5-m1`. |

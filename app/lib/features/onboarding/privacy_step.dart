@@ -158,10 +158,12 @@ class PrivacyFacts extends StatelessWidget {
       spacing: theme.space.space3,
       children: [
         card,
+        // a1-2b: `font: var(--type-body-strong)`, an arrow after the text.
         OnboardingLink(
           label: l10n.onboardingPrivacySettingsLink,
-          style: theme.typography.body,
+          style: theme.typography.bodyStrong,
           onPressed: onOpenPrivacySettings,
+          trailingIcon: IconName.arrowRight,
         ),
       ],
     );
