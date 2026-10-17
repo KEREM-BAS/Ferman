@@ -14,7 +14,7 @@
 <script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
 </helmet>
 <div id="{{ bid }}" style="display:grid;gap:14px;align-content:start;justify-items:start">
-<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;max-width:{{ w }}"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">{{ num }}</span><span style="font:600 26px/1.2 var(--font-ui);color:var(--text-primary)">{{ title }}</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">{{ metaText }}</span></div>
+<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap;max-width:{{ w }}"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">{{ num }}</span><span style="font:600 26px/1.2 var(--font-ui);color:var(--text-primary)">{{ title }}</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">{{ metaText }}</span><sc-for list="{{ tagList }}" as="g" hint-placeholder-count="0"><span style="align-self:center;font:600 13px/1 var(--font-mono);padding:5px 8px;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)">{{ g }}</span></sc-for><sc-if value="{{ hasSwitch }}"><span style="align-self:center"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Board language" value="{{ gl }}" options="{{ glOpts }}" on-change="{{ onGl }}" hint-size="150px,26px"></x-import></span></sc-if></div>
 <div class="fm-root" data-fm-artboard="" data-theme="{{ theme }}" lang="{{ lang }}" dir="{{ dir }}" data-density="{{ density }}" style="position:relative;flex:none;width:{{ w }};height:{{ h }};border-radius:{{ radius }};overflow:{{ ov }};box-shadow:{{ shadow }};background:{{ bg }}">{{ children }}</div>
 <sc-if value="{{ hasNote }}"><p style="margin:0;max-width:{{ noteW }};font:400 16px/1.55 var(--font-ui);color:var(--text-secondary);text-wrap:pretty">{{ note }}</p></sc-if>
 </div>
@@ -37,7 +37,7 @@ class Component extends DCLogic {
       bid: p.bid, num: p.num, title: p.title, metaText, theme, lang: p.lang || 'en', dir: p.dir || 'ltr', density: p.density || (kind === 'bare' ? 'touch' : undefined),
       w, h, radius: kind === 'bare' ? '0' : (plat === 'win' ? '8px' : '10px'), ov: kind === 'bare' ? 'visible' : 'hidden', shadow,
       bg: kind === 'panel' ? 'var(--surface-canvas)' : (kind === 'bare' ? 'transparent' : 'var(--surface-panel)'),
-      hasNote: !!p.note, note: p.note, noteW: p.noteW ? p.noteW + 'px' : w
+      hasNote: !!p.note, note: p.note, tagList: p.tags || [], hasSwitch: !!p.onGl, gl: p.gl, glOpts: p.glOpts, onGl: p.onGl, noteW: p.noteW ? p.noteW + 'px' : w
     };
   }
 }

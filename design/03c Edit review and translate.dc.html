@@ -57,7 +57,7 @@
 </aside>
 </dc-import></div>
 <p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">In Edit mode the pointer over a scan says what is missing instead of silently doing nothing. The thumbnail carries the warning badge. OCR options and progress continue in 7.5.</p></div>
-<div id="a3-12" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.12</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Review all edits</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span></div>
+<div id="a3-12" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:baseline;gap:14px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.12</span><span style="font:600 26px/1.2 var(--font-ui)">Edit — Review all edits</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">macOS · Light</span><span style="font:600 13px/1 var(--font-mono);padding:5px 8px;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)">G42</span><span style="font:600 13px/1 var(--font-mono);padding:5px 8px;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)">G35</span></div>
 <div class="fm-root" data-theme="light" lang="en" style="position:relative;width:1440px;height:900px;border-radius:10px;overflow:hidden;box-shadow:0 0 0 1px rgba(0,0,0,.14),0 24px 60px -12px rgba(20,19,17,.35)">
 <dc-import name="FmWindow" platform="mac" mode="edit" save="unsaved" tabs="{{ tabs3 }}" edit-count="{{ 5 }}" hint-size="100%,100%">
 <dc-import name="FmSidebar" doc="kira" tab="pages" current="{{ 1 }}" hint-size="216px,100%"></dc-import>
@@ -71,7 +71,20 @@
 <div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="rotate-ccw" hint-size="90px,26px">Revert all…</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-output" hint-size="120px,26px">Export list…</x-import></div>
 </aside>
 </dc-import></div>
-<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Opened from “Review edits” in the tool row. Every change is a row with where, when, before and after; Go to selects it on the page, Revert undoes just that change. Kept warnings (an overflow) are listed with the edits so they can’t be forgotten before sending.</p></div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">Opened from “Review edits” in the tool row. Every change is a row with where, when, before and after; Go to selects it on the page, Revert undoes just that change. Kept warnings (an overflow) are listed with the edits so they can’t be forgotten before sending. G42 · G35 · A signed document adds a signature row at the top once a change has invalidated it. The list covers this session and clears when the document closes (f4b); earlier sessions are in Version history. The new-text-box row needs Add text (P2), so M3 goldens use an M3 edit there. Empty and confirm states: <a href="#a3-12b">3.12b</a>.</p></div>
+</div>
+<div style="display:flex;gap:64px;align-items:flex-start">
+<div id="a3-12b" style="display:grid;gap:14px;align-content:start"><div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;max-width:1440px"><span style="font:600 18px/1 var(--font-mono);color:var(--text-tertiary)">3.12b</span><span style="font:600 26px/1.2 var(--font-ui)">Review edits — empty, revert all, dependent edits</span><span style="font:400 18px/1 var(--font-ui);color:var(--text-secondary)">Light · {{ L.name }}</span><span style="font:600 13px/1 var(--font-mono);padding:5px 8px;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)">G42</span><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" label="Board language" value="{{ gl }}" options="{{ glOpts }}" on-change="{{ setGl }}" hint-size="150px,26px"></x-import></div>
+<div class="fm-root" data-theme="light" lang="{{ L.lang }}" dir="{{ L.dir }}" style="position:relative;width:1440px;height:860px;box-sizing:border-box;padding:40px;border-radius:10px;background:var(--surface-canvas);box-shadow:0 0 0 1px var(--border-subtle);display:flex;gap:48px;justify-content:center;align-items:flex-start">
+<div style="display:grid;gap:10px"><span lang="en" dir="ltr" style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">NOTHING TO REVIEW</span><aside aria-label="{{ S.rv }}" style="width:320px;height:760px;flex:none;display:flex;flex-direction:column;background:var(--surface-panel);border-radius:8px;overflow:hidden;box-shadow:0 0 0 1px var(--border-subtle)">
+<div style="display:flex;align-items:center;gap:8px;height:40px;padding-inline:12px 6px;border-bottom:1px solid var(--border-subtle)"><span style="font:var(--type-panel-title)">{{ S.rv }}</span><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.IconButton" icon="x" label="{{ S.close }}" size="xs" hint-size="22px,22px"></x-import></div>
+<div style="padding:8px 10px;border-bottom:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.SegmentedControl" full-width="{{ true }}" label="Show" value="all" options="{{ filtersL }}" hint-size="100%,26px"></x-import></div>
+<div style="flex:1;display:grid;align-content:start;justify-items:center;gap:8px;padding:48px 24px 0;text-align:center"><span style="width:40px;height:40px;display:grid;place-items:center;border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="list-checks" size="{{ 20 }}" hint-size="20px,20px"></x-import></span><span style="font:var(--type-body-strong)">{{ S.emptyTitle }}</span><span style="font:var(--type-caption);color:var(--text-secondary);text-wrap:pretty">{{ S.emptyBody }}</span></div>
+<div style="display:flex;gap:8px;padding:10px 12px;border-top:1px solid var(--border-subtle)"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" variant="ghost" icon="rotate-ccw" disabled="{{ true }}" hint-size="90px,26px">{{ S.revertAll }}</x-import><span style="flex:1"></span><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="file-output" disabled="{{ true }}" hint-size="120px,26px">{{ S.exportL }}</x-import></div>
+</aside></div>
+<div style="display:grid;gap:40px;align-content:start"><div style="display:grid;gap:10px"><span lang="en" dir="ltr" style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">REVERT ALL…</span><div style="display:block"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="rotate-ccw" title="{{ S.raTitle }}" description="{{ S.raDesc }}" actions="{{ actRevertAll }}" hint-size="480px,220px"></x-import></div></div><div style="display:grid;gap:10px"><span lang="en" dir="ltr" style="font:var(--type-label);color:var(--text-tertiary);letter-spacing:var(--tracking-label)">REVERT, WITH AN EDIT THAT DEPENDS ON IT</span><div style="display:block"><x-import component-from-global-scope="FermanDesignSystem_278323.Dialog" inline="{{ true }}" icon="rotate-ccw" title="{{ S.rdTitle }}" description="{{ S.rdDesc }}" actions="{{ actRevertDep }}" hint-size="480px,220px"></x-import></div></div></div>
+</div>
+<p style="margin:0;max-width:1440px;font:400 16px/1.55 var(--font-ui);color:var(--text-secondary)">G42 · The empty list uses the shared EmptyState (G29), with Revert all and Export list disabled. Revert all asks first and stays undoable until the document closes. Reverting an edit that a later edit builds on names the later one and reverts both, or neither.</p></div>
 </div>
 </section>
 
@@ -167,9 +180,26 @@
 const h = React.createElement;
 const Btn = (p) => h(window.FermanDesignSystem_278323.Button, p);
 const btns = (...list) => h(React.Fragment, null, ...list.map((b, i) => h(Btn, Object.assign({ key: i, size: 'sm' }, b[1] || {}), b[0])));
+const GL = { en: { lang: 'en', dir: 'ltr', name: 'English', fs: 'en' }, tr: { lang: 'tr', dir: 'ltr', name: 'Türkçe', fs: 'tr' }, ar: { lang: 'ar', dir: 'rtl', name: 'العربية', fs: 'ar' } };
+const readGl = () => { try { return localStorage.getItem('fm-gap-lang') || 'en'; } catch (e) { return 'en'; } };
+const GS = {
+  en: { rv: 'Review edits', close: 'Close review', filters: ['All', 'Text', 'Fonts', 'Warnings'], emptyTitle: 'No edits yet', emptyBody: 'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.', revertAll: 'Revert all…', exportL: 'Export list…', raTitle: 'Revert all 5 edits?', raDesc: '“Kira sözleşmesi.pdf” goes back to how it was when you opened it at 13:41. Undo brings the edits back until you close the document.', raBtn: 'Revert 5 edits', cancel: 'Cancel', rdTitle: 'Also revert the edit that depends on it?', rdDesc: '“(on dokuz bin beş yüz TL)” was typed into the sentence after this change. Reverting “18.500 TL → 19.500 TL” removes it too.', rdBtn: 'Revert both' },
+  tr: { rv: 'Düzenlemeleri incele', close: 'İncelemeyi kapat', filters: ['Tümü', 'Metin', 'Yazı tipleri', 'Uyarılar'], emptyTitle: 'Henüz düzenleme yok', emptyBody: 'Bu oturumda yaptığınız değişiklikler burada görünür. Liste belgeyi kapattığınızda temizlenir; önceki oturumlar Sürüm geçmişi’nde.', revertAll: 'Tümünü geri al…', exportL: 'Listeyi dışa aktar…', raTitle: '5 düzenlemenin tümü geri alınsın mı?', raDesc: '“Kira sözleşmesi.pdf”, saat 13:41’de açtığınızdaki hâline döner. Belgeyi kapatana kadar Geri al ile düzenlemeleri geri getirebilirsiniz.', raBtn: '5 düzenlemeyi geri al', cancel: 'İptal', rdTitle: 'Buna bağlı düzenleme de geri alınsın mı?', rdDesc: '“(on dokuz bin beş yüz TL)” bu değişiklikten sonra aynı cümleye yazıldı. “18.500 TL → 19.500 TL” geri alınırsa o da kaldırılır.', rdBtn: 'İkisini de geri al' },
+  ar: { rv: 'مراجعة التعديلات', close: 'إغلاق المراجعة', filters: ['الكل', 'النص', 'الخطوط', 'التحذيرات'], emptyTitle: 'لا توجد تعديلات بعد', emptyBody: 'تظهر هنا التغييرات التي تجريها في هذه الجلسة. تُمسح القائمة عند إغلاق المستند، والجلسات السابقة في سجل الإصدارات.', revertAll: 'التراجع عن الكل…', exportL: 'تصدير القائمة…', raTitle: 'هل تريد التراجع عن التعديلات الخمسة كلها؟', raDesc: 'يعود «Kira sözleşmesi.pdf» إلى ما كان عليه عند فتحه الساعة ١٣:٤١. يمكنك استعادة التعديلات بالأمر «تراجع» حتى تغلق المستند.', raBtn: 'التراجع عن ٥ تعديلات', cancel: 'إلغاء', rdTitle: 'هل تريد أيضًا التراجع عن التعديل المعتمد عليه؟', rdDesc: 'كُتب «(on dokuz bin beş yüz TL)» في الجملة بعد هذا التغيير. التراجع عن «18.500 TL → 19.500 TL» يزيله أيضًا.', rdBtn: 'التراجع عن كليهما' }
+};
 class Component extends DCLogic {
+  state = { gl: readGl() };
   renderVals() {
+    const gl = GS[this.state.gl] ? this.state.gl : 'en';
+    const S = GS[gl];
+    const gv = {
+      gl, L: GL[gl], S, glOpts: [{ value: 'en', label: 'EN' }, { value: 'tr', label: 'TR' }, { value: 'ar', label: 'AR' }],
+      setGl: (v) => { try { localStorage.setItem('fm-gap-lang', v); } catch (e) {} this.setState({ gl: v }); },
+      filtersL: S.filters.map((l, i) => ({ value: ['all', 'text', 'fonts', 'warn'][i], label: l })),
+      actRevertAll: btns([S.cancel], [S.raBtn, { variant: 'primary' }]), actRevertDep: btns([S.cancel], [S.rdBtn, { variant: 'primary' }])
+    };
     const E = [
+      ['signature', 'var(--warning-solid)', 'Page 3 · signature', '14:02', '', 'Mert Kaya’s signature is no longer valid', 'var(--warning-border)'],
       ['type', 'var(--edit-mark)', 'Page 1 · Madde 4 · text', '14:02', '18.500 TL', '19.500 TL', 'var(--accent)'],
       ['type', 'var(--edit-mark)', 'Page 1 · Madde 4 · text', '14:04', '', '(on dokuz bin beş yüz TL)', 'var(--border-subtle)'],
       ['type', 'var(--icon-secondary)', 'Page 1 · Madde 6 · font', '14:10', 'Garamond Premier Pro', 'EB Garamond (whole block)', 'var(--border-subtle)'],
@@ -177,6 +207,7 @@ class Component extends DCLogic {
       ['triangle-alert', 'var(--warning-solid)', 'Page 1 · Madde 4 · kept warning', '14:24', '', '1 line hidden — overflow kept', 'var(--warning-border)']
     ];
     return {
+      ...gv,
       tabsScan: [{ name: 'Kira sözleşmesi.pdf' }, { name: 'Kira artış bildirimi (tarama).pdf', active: true }],
       actOcr: btns(['Not now', { variant: 'ghost' }], ['Recognize text…', { variant: 'primary', icon: 'scan-text' }]),
       ocrPages: [{ value: 'this', label: 'This page' }, { value: 'all', label: 'All 3 scanned pages' }],

@@ -22,7 +22,7 @@
 <x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Fonts in this document" hint-size="100%,150px">
 <sc-for list="{{ fonts }}" as="f" hint-placeholder-count="3"><div style="display:grid;gap:2px"><div style="display:flex;align-items:center;gap:8px;font:var(--type-body)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="type" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import><span style="flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ f.name }}</span><x-import component-from-global-scope="FermanDesignSystem_278323.Badge" tone="{{ f.tone }}" hint-size="64px,18px">{{ f.status }}</x-import></div><sc-if value="{{ f.hasNote }}"><span style="font:var(--type-caption);color:var(--text-tertiary);padding-inline-start:22px">{{ f.note }}</span></sc-if></div></sc-for>
 </x-import>
-<sc-if value="{{ isView }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Security" hint-size="100%,90px"><div style="display:grid;gap:6px;font:var(--type-caption)"><span style="display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock-open" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>No password</span><span style="display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="badge-check" size="{{ 14 }}" color="var(--success-solid)" hint-size="14px,14px"></x-import>1 valid signature, page 3</span></div></x-import></sc-if>
+<sc-if value="{{ isView }}"><x-import component-from-global-scope="FermanDesignSystem_278323.PanelSection" title="Security" hint-size="100%,90px"><div style="display:grid;gap:6px;font:var(--type-caption)"><span style="display:flex;gap:8px;align-items:center"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="lock-open" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>No password</span><span style="display:flex;gap:8px;align-items:center"><sc-if value="{{ sigValid }}" hint-placeholder-val="{{ true }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="badge-check" size="{{ 14 }}" color="var(--success-solid)" hint-size="14px,14px"></x-import>1 valid signature, page 3</sc-if><sc-if value="{{ sigNeutral }}"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="signature" size="{{ 14 }}" color="var(--icon-secondary)" hint-size="14px,14px"></x-import>1 signature, page 3</sc-if></span></div></x-import></sc-if>
 </div>
 </aside>
 </x-dc>
@@ -32,7 +32,7 @@ class Component extends DCLogic {
     const p = this.props;
     const kind = p.kind || 'view';
     return {
-      isEdit: kind === 'edit', isView: kind === 'view', title: kind === 'edit' ? 'Edit' : 'Document',
+      isEdit: kind === 'edit', isView: kind === 'view', sigNeutral: !!p.sigNeutral, sigValid: !p.sigNeutral, title: kind === 'edit' ? 'Edit' : 'Document',
       altKey: p.platform === 'win' ? ['Alt'] : ['⌥'],
       fonts: [
         { name: 'IBM Plex Serif', status: 'Embedded', tone: 'neutral', hasNote: false },
