@@ -1,8 +1,8 @@
 # ADR 0020: Test corpus and its generators
 
-- **Status:** Proposed
+- **Status:** Accepted (owner, with the M2 plan, 2026-10-17)
 - **Date:** 2026-10-17
-- **Approval:** none yet (part of the M2 plan, which the owner approves before M2 starts)
+- **Approval:** the owner, on 2026-10-17, with the M2 plan ([PROGRESS.md](../PROGRESS.md#m2-plan))
 - **Supersedes:** none
 - **Superseded by:** none
 

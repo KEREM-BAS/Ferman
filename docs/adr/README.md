@@ -74,8 +74,8 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 | [0017](0017-testing-and-ci.md) | Testing and continuous integration | Accepted (brief) |
 | [0018](0018-native-file-pickers.md) | OS-native file pickers | Accepted (owner, [Q07](../QUESTIONS.md#q07), 2026-10-16) |
 | [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16): the direction, then the details |
-| [0020](0020-test-corpus.md) | Test corpus and its generators | Proposed (part of the M2 plan) |
-| [0021](0021-open-from-the-os.md) | Opening files from the operating system | Proposed (part of the M2 plan) |
+| [0020](0020-test-corpus.md) | Test corpus and its generators | Accepted (owner, with the M2 plan, 2026-10-17) |
+| [0021](0021-open-from-the-os.md) | Opening files from the operating system | Accepted (owner, with the M2 plan, 2026-10-17) |
 
 ## Waiting for the owner
 
@@ -90,5 +90,7 @@ detail of [ADR 0010](0010-error-handling-no-panics.md) where the copied crash lo
 folder, folder names and file names with placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md) section
 8.4).
 
-Waiting, with the M2 plan: ADR 0020 (the test corpus) and ADR 0021 (opening files from the operating
-system), and the **Proposed:** details the plan adds to ADRs 0008, 0009 and 0010.
+Approved with the M2 plan on 2026-10-17: ADR 0020 (the test corpus), ADR 0021 (opening files from
+the operating system), and the details the plan adds to ADRs 0008, 0009 and 0010. Still waiting:
+memory-mapping files over 256 MB ([Q21](../QUESTIONS.md#q21)), which ADR 0008 leaves to that
+question.

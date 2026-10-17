@@ -1,8 +1,8 @@
 # Ferman roadmap
 
-Status: Milestones 0 and 1 are complete and approved (2026-10-15 and 2026-10-16). Milestone 2 has
-not started: phase 0, the design sync, is pull request #3 from `m2-open-and-view`, and the
-[M2 plan](PROGRESS.md#m2-plan) waits for the owner's approval, which is the go-ahead for M2.
+Status: Milestones 0 and 1 are complete and approved (2026-10-15 and 2026-10-16). The owner approved
+the [M2 plan](PROGRESS.md#m2-plan) on 2026-10-17, the go-ahead for Milestone 2: phase 0, the design
+sync, is pull request #3 from `m2-open-and-view`, and M2 follows as pull request #4.
 
 This document details the roadmap in [brief](BRIEF.md) §7 and covers brief §8 item 4. For every
 milestone it gives the goal, the scope from the brief, the deliverables, the artboards it covers,
@@ -101,7 +101,7 @@ generated is the Proposed [ADR 0020](adr/0020-test-corpus.md), part of the M2 pl
 |---|---|---|---|---|---|
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
 | M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete (approved 2026-10-16) | 18 | M0 approval (given 2026-10-15) |
-| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 43 | M1 (approved 2026-10-16); the owner's approval of the [M2 plan](PROGRESS.md#m2-plan). [ADR 0009](adr/0009-threading-and-jobs.md) is Accepted and [Q07](QUESTIONS.md#q07), [Q13](QUESTIONS.md#q13), [Q18](QUESTIONS.md#q18) and [Q19](QUESTIONS.md#q19) are answered (2026-10-16) |
+| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Approved, starting | 43 | M1 (approved 2026-10-16); the [M2 plan](PROGRESS.md#m2-plan), approved by the owner on 2026-10-17. [ADR 0009](adr/0009-threading-and-jobs.md) is Accepted and [Q07](QUESTIONS.md#q07), [Q13](QUESTIONS.md#q13), [Q18](QUESTIONS.md#q18) and [Q19](QUESTIONS.md#q19) are answered (2026-10-16) |
 | M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 41 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4 and [Q09](QUESTIONS.md#q09) are answered (2026-10-16) |
 | M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
 | M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; the owner's signing accounts and certificates; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging) and [Q15](QUESTIONS.md#q15) are answered (2026-10-16) |
@@ -1549,10 +1549,10 @@ E1 to E8, plus:
 
 ## 6. M2: open and view
 
-**Status:** Not started. Phase 0, the design sync, is pull request #3 from `m2-open-and-view`; M2
-itself will be pull request #4 from the same branch. The plan is in [PROGRESS.md](PROGRESS.md#m2-plan).
-Items marked **Proposed (M2 plan)** below are decisions of that plan; they wait for the owner's
-approval of the plan, which is the go-ahead for M2.
+**Status:** Approved, starting. Phase 0, the design sync, is pull request #3 from `m2-open-and-view`;
+M2 itself is pull request #4 from the same branch. The plan is in [PROGRESS.md](PROGRESS.md#m2-plan),
+approved by the owner on 2026-10-17. Items marked **Proposed (M2 plan)** below are decisions of that
+plan and were approved with it, except the items still Proposed at the M2 review, Q21 and strace.
 
 **Needs first:**
 
