@@ -556,15 +556,15 @@ void main() {
       // G12: only the interface languages have shipped.
       expect(find.text('3 interface languages'), findsOneWidget);
       expect(
-        find.bySemanticsLabel('3 interface languages, Included'),
+        find.bySemanticsLabel('3 interface languages. Included'),
         findsOneWidget,
       );
       expect(
-        find.bySemanticsLabel(RegExp(r', Available in a future version$')),
+        find.bySemanticsLabel(RegExp(r'\. Available in a future version$')),
         findsNWidgets(WelcomeFeature.values.length - 1),
       );
       expect(
-        find.bySemanticsLabel(RegExp('Redaction, Included')),
+        find.bySemanticsLabel(RegExp(r'Redaction\. Included')),
         findsNothing,
       );
       expect(

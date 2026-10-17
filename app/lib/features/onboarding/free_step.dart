@@ -8,7 +8,7 @@ import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// A feature tile of the last first-run step (a1-2c), and whether this
+/// A feature tile of the last first-run step (a1-2c-m1), and whether this
 /// version has the feature.
 ///
 /// G12: only features that have shipped keep the green check and its
@@ -54,7 +54,7 @@ enum WelcomeFeature {
   final bool shipped;
 }
 
-/// The feature grid of the last first-run step, board a1-2c: ten tiles in
+/// The feature grid of the last first-run step, board a1-2c-m1: ten tiles in
 /// two columns, each with an icon, the feature and its state (G12).
 class FeatureGrid extends ConsumerWidget {
   /// The grid.
@@ -64,7 +64,7 @@ class FeatureGrid extends ConsumerWidget {
   /// than two lines makes its row taller.
   static const double tileHeight = 44;
 
-  /// A tile's side padding (`padding: 0 14px`).
+  /// A tile's side padding (`padding: 6px 14px` in a1-2c-m1).
   static const double tilePaddingX = 14;
 
   /// The check's stroke (`stroke-width="2"`).
@@ -138,7 +138,7 @@ class _FeatureTile extends StatelessWidget {
       constraints: const BoxConstraints(minHeight: FeatureGrid.tileHeight),
       padding: EdgeInsetsDirectional.symmetric(
         horizontal: FeatureGrid.tilePaddingX,
-        vertical: theme.space.space0_5,
+        vertical: theme.space.space1_5,
       ),
       decoration: BoxDecoration(
         color: shipped ? colors.surfaceRaised : colors.surfaceSunken,
@@ -174,9 +174,12 @@ class _FeatureTile extends StatelessWidget {
         ],
       ),
     );
+    // The accessible name is the label and the state as two sentences, as
+    // a1-2c-m1's `aria-label` reads ("Text recognition (OCR). Available in a
+    // future version").
     return Semantics(
       container: true,
-      label: '$label, $state',
+      label: '$label. $state',
       child: ExcludeSemantics(
         child: shipped ? tile : Tooltip(message: state, child: tile),
       ),

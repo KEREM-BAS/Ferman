@@ -280,7 +280,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startToolOcr` | Recognize text (OCR) | Metni tanı (OCR) | التعرّف على النص (OCR) | Quick-tool button on the start screen: make scanned text selectable (a1-5). OCR is optical character recognition. |
 | `startToolProtect` | Protect | Koru | حماية | Quick-tool button on the start screen: passwords and permissions (a1-5). |
 | `startToolCompare` | Compare | Karşılaştır | مقارنة | Quick-tool button on the start screen: compare two versions of a document (a1-5). |
-| `startDropTitle` | Drop a PDF here | PDF'yi buraya bırakın | أفلت ملف PDF هنا | Headline of the drop area of the empty start screen (a1-5, FmStart emptyTitle). |
+| `startDropTitle` | Drop a PDF here | PDF’yi buraya bırakın | أفلت ملف PDF هنا | Headline of the drop area of the empty start screen (a1-5, FmStart emptyTitle). |
 | `startDropSubtitle` | or open one from your computer. | veya bilgisayarınızdan bir PDF açın. | أو افتح ملفًا من جهازك. | Text under Drop a PDF here on the empty start screen (a1-5). Speaks of PDFs only until conversion exists (design gap G11). |
 | `startDropFootnote` | Files stay on this device. Ferman never uploads them. | Dosyalar bu cihazda kalır. Ferman onları hiçbir yere yüklemez. | تبقى الملفات على هذا الجهاز. | Note at the bottom of the drop area of the empty start screen (a1-5, FmStart emptyFoot). |
 | `startOpenPdf` | Open a PDF | PDF aç | فتح ملف PDF | Main button of the drop area of the empty start screen (a1-5, DropZone). |
@@ -341,7 +341,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsNetAiProvider` | Your AI provider | Yapay zekâ sağlayıcınız | مزوّد الذكاء الاصطناعي الخاص بك | A network use in Settings › Privacy (a11-1h). |
 | `settingsNetAiProviderDescription` | Only if you add your own API key. Off. | Yalnızca kendi API anahtarınızı eklerseniz. Kapalı. | فقط إذا أضفت مفتاح API الخاص بك. معطّل. | Description of Your AI provider in Settings › Privacy (a11-1h). |
 | `settingsNetworkActivity` | Show network activity… | Ağ etkinliğini göster… | عرض نشاط الشبكة… | Button in Settings › Privacy that lists the connections Ferman made (a11-1h). |
-| `regionFormats` | Region formats | Bölgesel biçim | تنسيقات المنطقة | Label of the region select in Settings › Language and region: the region drives dates, numbers, paper size, units and the first day of the week (a11-1b, FmSettings t.region). |
+| `regionFormats` | Region formats | Bölge biçimleri | تنسيقات المنطقة | Label of the region select in Settings › Language and region: the region drives dates, numbers, paper size, units and the first day of the week (a11-1b, FmSettings t.region). |
 | `regionPaperSize` | Paper size | Kâğıt boyutu | حجم الورق | Label in Settings › Language and region (a11-1b, FmSettings t.paper). |
 | `regionPaperA4` | A4 | A4 | A4 | The ISO A4 paper size (a11-1b). Usually kept as A4. |
 | `regionPaperLetter` | Letter | Letter | Letter | The US Letter paper size (a11-1b). |
