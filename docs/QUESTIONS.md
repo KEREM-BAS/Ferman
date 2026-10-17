@@ -10,7 +10,7 @@ Brief §8 asks Milestone 0 to end with at least three questions: the bundle iden
 versions ([Q03](#q03)). The others came up during discovery and planning. The owner answered the
 first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
 [Q19](#q19) after the M1 bridge benchmark. The owner answered every remaining question on
-2026-10-16, when M1 was merged.
+2026-10-16, when M1 was merged. [Q21](#q21) came up while planning M2 and is open.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -86,6 +86,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q18](#q18) | macOS App Sandbox | before M2 | Answered 2026-10-16: keep the sandbox if M2 shows it works, else off for the Developer ID build |
 | [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Answered 2026-10-16: the Dco codec first, then the pointer view, then textures |
 | [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered 2026-10-16: after M3, live in the running app, set up from Settings; details as proposed |
+| [Q21](#q21) | Memory-mapping the private snapshot of a file over 256 MB (an `unsafe` exception) | M2 step 2 | Open |
 
 ## Questions
 
@@ -767,3 +768,30 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   The details (2026-10-16): the owner approved the Proposed details of [ADR
   0019](adr/0019-ai-clients-through-mcp.md) as written, together with the other Proposed items of
   M1. Anything that changes when M4 step 11 starts goes back to the owner.
+
+### Q21 · Memory-mapping large files
+
+- **Question:** May ferman-core memory-map the private snapshot of a file over 256 MB through one
+  reviewed `memmap2` call site, an exception to the no-`unsafe` rule?
+- **Why it matters:** The owner approved on 2026-10-16 that files above 256 MB are copied to a private
+  snapshot in the cache directory and mapped from there ([ADR 0008](adr/0008-file-safety-and-saving.md),
+  [ARCHITECTURE.md §5.1](ARCHITECTURE.md#51-open)). Mapping a file is `unsafe` in Rust: the compiler
+  cannot rule out that another process changes the file while it is mapped. Every crate but ferman-api
+  forbids `unsafe` code, and any further exception is a documented, reviewed one
+  ([ADR 0010](adr/0010-error-handling-no-panics.md)). Without a mapping, a 2 GB file costs 2 GB of
+  memory while it is open; with one, the operating system pages it in as needed.
+- **Options:** (a) allow one `unsafe` call to `memmap2::Mmap::map` in a small module of ferman-core,
+  on the snapshot only (never the user's file), with the reason in a `// SAFETY:` comment, its own
+  `allow(unsafe_code)` entry in the check that fails on any other, and the snapshot opened read-only
+  in a directory only Ferman writes; (b) no mapping: read every file into an owned buffer, and refuse
+  files larger than the memory limit with a clear message (`ResourceLimit`).
+- **Proposal:** (a). The snapshot is Ferman's own private copy, so the reason mapping is unsafe (someone
+  else changing the file) does not arise in practice.
+- **Meanwhile:** (b) without the refusal: M2 reads every file into an owned buffer, as the approved
+  rule does below 256 MB, and records the open question in BACKLOG. Files over 256 MB open, using
+  more memory.
+- **Needed by:** M2 step 2 (the open path), or the M2 review at the latest.
+- **Status:** Open
+- **Related:** [ADR 0008](adr/0008-file-safety-and-saving.md), [ADR 0010](adr/0010-error-handling-no-panics.md),
+  [ARCHITECTURE.md §5.1](ARCHITECTURE.md#51-open), [.claude/rules/rust.md](../.claude/rules/rust.md)
+- **Answer:** none yet

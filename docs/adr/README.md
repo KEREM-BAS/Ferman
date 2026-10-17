@@ -74,6 +74,8 @@ Milestones are written M0 to M5 and phases P2 to P5, as in the [roadmap](../ROAD
 | [0017](0017-testing-and-ci.md) | Testing and continuous integration | Accepted (brief) |
 | [0018](0018-native-file-pickers.md) | OS-native file pickers | Accepted (owner, [Q07](../QUESTIONS.md#q07), 2026-10-16) |
 | [0019](0019-ai-clients-through-mcp.md) | AI clients through a local MCP server | Accepted (owner, [Q20](../QUESTIONS.md#q20), 2026-10-16): the direction, then the details |
+| [0020](0020-test-corpus.md) | Test corpus and its generators | Proposed (part of the M2 plan) |
+| [0021](0021-open-from-the-os.md) | Opening files from the operating system | Proposed (part of the M2 plan) |
 
 ## Waiting for the owner
 
@@ -83,7 +85,10 @@ ADR 0013 ([Q08](../QUESTIONS.md#q08)) and the three licence exceptions in ADR 00
 (with the order of the tile-transfer options, [Q19](../QUESTIONS.md#q19)), ADR 0018
 ([Q07](../QUESTIONS.md#q07)), the details of ADR 0019 ([Q20](../QUESTIONS.md#q20)), the Proposed
 details of ADRs 0003, 0004, 0006 ([Q09](../QUESTIONS.md#q09)) and 0008, and the reading of
-"GPL-compatible" in ADR 0016 ([Q17](../QUESTIONS.md#q17), part 4). Still waiting: the Proposed
-detail of [ADR 0010](0010-error-handling-no-panics.md), where the copied crash log replaces the home
+"GPL-compatible" in ADR 0016 ([Q17](../QUESTIONS.md#q17), part 4). Approved on 2026-10-17: the
+detail of [ADR 0010](0010-error-handling-no-panics.md) where the copied crash log replaces the home
 folder, folder names and file names with placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md) section
-8.4); it was not among the items approved on 2026-10-16.
+8.4).
+
+Waiting, with the M2 plan: ADR 0020 (the test corpus) and ADR 0021 (opening files from the operating
+system), and the **Proposed:** details the plan adds to ADRs 0008, 0009 and 0010.
