@@ -8281,13 +8281,13 @@
           "name": "locked",
           "trigger": "prop",
           "prop": "icon",
-          "refs": [{"file": "FirstRun", "line": 257, "text": "icon: 'lock' }]"}]
+          "refs": [{"file": "FirstRun", "line": 394, "text": "icon: 'lock' }]"}]
         },
         {
           "name": "repaired",
           "trigger": "prop",
           "prop": "icon",
-          "refs": [{"file": "FirstRun", "line": 259, "text": "icon: 'wrench' }]"}]
+          "refs": [{"file": "FirstRun", "line": 396, "text": "icon: 'wrench' }]"}]
         },
         {
           "name": "overflow",

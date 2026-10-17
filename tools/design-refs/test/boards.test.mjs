@@ -4,7 +4,15 @@ import path from 'node:path';
 import { test } from 'node:test';
 import { fileURLToPath } from 'node:url';
 
-import { EXPECTED_BOARD_COUNT, loadBoards, scanDesign, selectorFor, validateBoards } from '../boards.mjs';
+import {
+  CAPTURE_OVERRIDES,
+  EXPECTED_BOARD_COUNT,
+  loadBoards,
+  scanDesign,
+  selectorFor,
+  unionBox,
+  validateBoards,
+} from '../boards.mjs';
 
 const TOOL_DIR = path.dirname(path.dirname(fileURLToPath(import.meta.url)));
 const DESIGN_DIR = path.join(TOOL_DIR, '..', '..', 'design');
@@ -14,7 +22,10 @@ test('boards.json matches the design files', async () => {
   const scanned = await scanDesign(DESIGN_DIR);
   assert.deepEqual(validateBoards(list, scanned), []);
   assert.equal(list.boards.length, EXPECTED_BOARD_COUNT);
-  assert.equal(list.boards.filter((b) => b.capture === 'element').length, 9);
+  assert.equal(list.boards.filter((b) => b.capture === 'element').length, 10, '9 fix boards and a12-0');
+  for (const [id, capture] of Object.entries(CAPTURE_OVERRIDES)) {
+    assert.equal(list.boards.find((b) => b.id === id)?.capture, capture, id);
+  }
   for (const b of [...list.boards, ...list.pages]) assert.ok(existsSync(path.join(DESIGN_DIR, b.file)), b.file);
 });
 
@@ -47,6 +58,19 @@ test('validation reports missing, extra and moved boards', () => {
 test('capture selectors follow the capture rule', () => {
   assert.equal(selectorFor({ id: 'f4a', capture: 'element' }), '[id="f4a"]');
   assert.equal(selectorFor({ id: 'a2-3p', capture: 'fm-root' }), '[id="a2-3p"].fm-root, [id="a2-3p"] .fm-root');
+  assert.equal(selectorFor({ id: 'a2-3m', capture: 'fm-roots' }), '[id="a2-3m"] .fm-root');
   assert.equal(selectorFor({ id: 'ds-additions', capture: 'page' }), '#dc-root .fm-root');
   assert.throws(() => selectorFor({ id: 'x', capture: 'other' }), /unknown capture mode/);
+});
+
+test('the union box holds every box', () => {
+  assert.deepEqual(unionBox([{ x: 10, y: 5, width: 216, height: 752 }]), { x: 10, y: 5, width: 216, height: 752 });
+  assert.deepEqual(
+    unionBox([
+      { x: 10, y: 5, width: 216, height: 752 },
+      { x: 254, y: 5, width: 216, height: 700 },
+      { x: 498, y: 0, width: 216, height: 760 },
+    ]),
+    { x: 10, y: 0, width: 704, height: 760 },
+  );
 });

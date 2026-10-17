@@ -3,6 +3,11 @@ import 'package:checks/src/text.dart';
 
 /// `design/` is read-only: nothing in it differs from the base ref, and no
 /// untracked file has been added to it (CLAUDE.md, ROADMAP step 6).
+///
+/// CI passes the pull request's base, so every change that arrives as a pull
+/// request is checked. On a push to main the base is HEAD itself: the owner's
+/// design exports are the only changes to `design/` that land on main
+/// directly.
 final class DesignUntouchedCheck implements Check {
   /// Creates the check.
   const new();

@@ -6,8 +6,8 @@
 import { readdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-/** Number of boards in the export: 9 fix boards in "00 Fixes" and 214 product boards. */
-export const EXPECTED_BOARD_COUNT = 223;
+/** Number of boards in the export: 9 fix boards in "00 Fixes" and 244 product boards. */
+export const EXPECTED_BOARD_COUNT = 253;
 
 /** Section files hold the boards: "00 Fixes.dc.html" to "15 Flows.dc.html". */
 const SECTION_FILE = /^\d\d[a-z]? .+\.dc\.html$/;
@@ -24,9 +24,18 @@ const BOARD_ID_ATTR = /\sb?id="([af]\d[^"]*)"/g;
  * - `element`: the element with the id itself (fix boards f1 to f6a; f1 to f6 are sections).
  * - `fm-root`: the board frame, the first `.fm-root` inside the element with the id, or that
  *   element itself when it carries `.fm-root` (the seven sidebar boards a2-3p to a2-3x).
+ * - `fm-roots`: every `.fm-root` inside the element with the id, clipped to the box around all of
+ *   them (a2-3m draws six sidebars side by side).
  * - `page`: the first `.fm-root` of the page (the DS additions sheet, which has no board id).
  */
-export const CAPTURE_MODES = ['element', 'fm-root', 'page'];
+export const CAPTURE_MODES = ['element', 'fm-root', 'fm-roots', 'page'];
+
+/**
+ * Product boards that the default rule (`fm-root`) does not fit, with the mode they need:
+ * a12-0 is a table of region formats with no `.fm-root` frame, and a2-3m draws six sidebar
+ * frames side by side. Applied by scanDesign, so `--write-boards` reproduces them.
+ */
+export const CAPTURE_OVERRIDES = Object.freeze({ 'a12-0': 'element', 'a2-3m': 'fm-roots' });
 
 /**
  * Returns the CSS selector whose first match is screenshotted for [board].
@@ -40,6 +49,8 @@ export function selectorFor(board) {
       return `[id="${board.id}"]`;
     case 'fm-root':
       return `[id="${board.id}"].fm-root, [id="${board.id}"] .fm-root`;
+    case 'fm-roots':
+      return `[id="${board.id}"] .fm-root`;
     case 'page':
       return '#dc-root .fm-root';
     default:
@@ -48,9 +59,22 @@ export function selectorFor(board) {
 }
 
 /**
+ * The smallest box holding every box in [boxes], in the same `{x, y, width, height}` form.
+ *
+ * @param {Array<{x: number, y: number, width: number, height: number}>} boxes
+ */
+export function unionBox(boxes) {
+  const left = Math.min(...boxes.map((b) => b.x));
+  const top = Math.min(...boxes.map((b) => b.y));
+  const right = Math.max(...boxes.map((b) => b.x + b.width));
+  const bottom = Math.max(...boxes.map((b) => b.y + b.height));
+  return { x: left, y: top, width: right - left, height: bottom - top };
+}
+
+/**
  * Scans the section files in [designDir] and returns every board in file order, then document
  * order: `{id, file, capture}`. Fix boards (`f…`) are captured as the element, product boards
- * (`a…`) by their `.fm-root` frame.
+ * (`a…`) by their `.fm-root` frame, except those in CAPTURE_OVERRIDES.
  *
  * @param {string} designDir
  * @returns {Promise<Array<{id: string, file: string, capture: string}>>}
@@ -62,7 +86,8 @@ export async function scanDesign(designDir) {
     const html = await readFile(path.join(designDir, file), 'utf8');
     for (const match of html.matchAll(BOARD_ID_ATTR)) {
       const id = match[1];
-      boards.push({ id, file, capture: id.startsWith('f') ? 'element' : 'fm-root' });
+      const capture = CAPTURE_OVERRIDES[id] ?? (id.startsWith('f') ? 'element' : 'fm-root');
+      boards.push({ id, file, capture });
     }
   }
   return boards;

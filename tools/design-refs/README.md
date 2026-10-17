@@ -22,7 +22,7 @@ the browser of playwright-core 1.56.1.
 export FERMAN_CHROMIUM="$(tools/design-refs/fetch-chromium.sh)"
 # The development container already has it in /opt/pw-browsers, which is found on its own.
 
-node tools/design-refs                            # all 223 boards + the DS additions sheet
+node tools/design-refs                            # all 253 boards + the DS additions sheet
 node tools/design-refs --only @m1                 # the 18 M1 boards
 node tools/design-refs --only a1-1,a11-1 --twice  # render twice, fail unless identical
 node tools/design-refs --list                     # ids, capture mode, file; the sets
@@ -259,15 +259,16 @@ node index.mjs compare                              # then the report, appended 
 
 ## What is captured
 
-`boards.json` lists the 223 boards in file and document order, each with its design file and
+`boards.json` lists the 253 boards in file and document order, each with its design file and
 capture mode, plus the DS additions sheet as one extra page and the named sets. Every run checks it
 against a fresh scan of the design files (`id="f…"`/`id="a…"` on a board element, or `bid="a…"`
 passed to FmBoard) and stops if they disagree; a re-export needs `--write-boards`.
 
 | Mode | Boards | What is screenshotted |
 |---|---|---|
-| `element` | the 9 fix boards `f1` to `f6a` in `00 Fixes` | the element with the id: the whole `section#fN` for `f1` to `f6`; the `div` with the id for `f4a`, `f4b` and `f6a`, which sit inside the sections `f4` and `f6` |
-| `fm-root` | the 214 product boards | the first `.fm-root` inside the element with the id, which is the board frame; for the seven sidebar boards `a2-3p` to `a2-3x` the element with the id is itself the `.fm-root` |
+| `element` | the 9 fix boards `f1` to `f6a` in `00 Fixes`, and `a12-0` | the element with the id: the whole `section#fN` for `f1` to `f6`; the `div` with the id for `f4a`, `f4b` and `f6a`, which sit inside the sections `f4` and `f6`; for `a12-0`, the region-format table, which has no `.fm-root` frame |
+| `fm-root` | 242 product boards | the first `.fm-root` inside the element with the id, which is the board frame; for the seven sidebar boards `a2-3p` to `a2-3x` the element with the id is itself the `.fm-root` |
+| `fm-roots` | `a2-3m` | every `.fm-root` inside the element with the id, clipped to the box around all of them (six empty-state sidebars side by side, 1436 × 752) |
 | `page` | the DS additions sheet (`ds-additions.png`) | the page's outer `.fm-root` |
 
 The fix sections stretch to the width of the widest section on their page, so `f1` to `f6a` are

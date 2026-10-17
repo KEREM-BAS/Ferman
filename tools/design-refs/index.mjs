@@ -13,7 +13,7 @@ import pixelmatch from 'pixelmatch';
 import { chromium } from 'playwright-core';
 import { PNG } from 'pngjs';
 
-import { loadBoards, scanDesign, selectorFor, validateBoards, writeBoards } from './boards.mjs';
+import { loadBoards, scanDesign, selectorFor, unionBox, validateBoards, writeBoards } from './boards.mjs';
 import { LAUNCH_ARGS, expectedShell, resolveChromium, unexpectedPageErrors } from './browser.mjs';
 import { USAGE, UsageError, isInsideDir, parseCli, selectTargets } from './cli.mjs';
 import { compareMain } from './compare.mjs';
@@ -114,28 +114,37 @@ async function captureBoard(page, board) {
     const ids = await page.locator(`[id="${board.id}"]`).count();
     if (ids !== 1) throw new Error(`${ids} elements have id "${board.id}"; expected 1`);
   }
-  const target = page.locator(selectorFor(board)).first();
-  if ((await target.count()) === 0) throw new Error(`nothing matches ${selectorFor(board)}`);
-  const problems = await target.evaluate((el) => {
-    const checks = [
-      ['.sc-placeholder', 'unresolved component placeholder'],
-      ['.sc-placeholder-error', 'component load error'],
-      ['.sc-logic-error', 'component logic error'],
-      ['.sc-interp.sc-missing, .sc-interp.sc-unresolved', 'unresolved template value'],
-    ];
-    return checks
-      .map(([selector, label]) => [el.querySelectorAll(selector).length, label])
-      .filter(([n]) => n > 0)
-      .map(([n, label]) => `${n} × ${label}`);
-  });
-  if (problems.length > 0) throw new Error(problems.join(', '));
-  // Clip to the element's box in document coordinates, rounded the way Chromium snaps boxes to
-  // pixels, so a 1440 × 900 frame at a fractional offset gives a 1440 × 900 PNG (an element
-  // screenshot would round outwards and add a row of the page around it).
-  const box = await target.evaluate((el) => {
-    const r = el.getBoundingClientRect();
-    return { x: r.left + window.scrollX, y: r.top + window.scrollY, width: r.width, height: r.height };
-  });
+  const matches = page.locator(selectorFor(board));
+  const count = await matches.count();
+  if (count === 0) throw new Error(`nothing matches ${selectorFor(board)}`);
+  // `fm-roots` takes every match; the other modes take the first.
+  const targets = board.capture === 'fm-roots' ? await matches.all() : [matches.first()];
+  for (const target of targets) {
+    const problems = await target.evaluate((el) => {
+      const checks = [
+        ['.sc-placeholder', 'unresolved component placeholder'],
+        ['.sc-placeholder-error', 'component load error'],
+        ['.sc-logic-error', 'component logic error'],
+        ['.sc-interp.sc-missing, .sc-interp.sc-unresolved', 'unresolved template value'],
+      ];
+      return checks
+        .map(([selector, label]) => [el.querySelectorAll(selector).length, label])
+        .filter(([n]) => n > 0)
+        .map(([n, label]) => `${n} × ${label}`);
+    });
+    if (problems.length > 0) throw new Error(problems.join(', '));
+  }
+  // Clip to the box in document coordinates (around every target for `fm-roots`), rounded the
+  // way Chromium snaps boxes to pixels, so a 1440 × 900 frame at a fractional offset gives a
+  // 1440 × 900 PNG (an element screenshot would round outwards and add a row of the page).
+  const boxes = [];
+  for (const target of targets) {
+    boxes.push(await target.evaluate((el) => {
+      const r = el.getBoundingClientRect();
+      return { x: r.left + window.scrollX, y: r.top + window.scrollY, width: r.width, height: r.height };
+    }));
+  }
+  const box = unionBox(boxes);
   const x = Math.round(box.x);
   const y = Math.round(box.y);
   const clip = { x, y, width: Math.round(box.x + box.width) - x, height: Math.round(box.y + box.height) - y };
