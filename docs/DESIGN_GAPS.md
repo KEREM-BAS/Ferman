@@ -15,7 +15,8 @@ Related: [design inventory](DESIGN_INVENTORY.md) · [questions](QUESTIONS.md) ·
 
 ## How this file works
 
-- **`design/` is read-only.** No gap is fixed by editing the design. Where an entry asks for new or corrected boards, that is a request to the designer. The owner chose on 2026-10-16 ([Q11](QUESTIONS.md#q11)): the missing files come with the next design-system export, corrected or new boards come for the riskiest gaps, and the decisions here stand until a board replaces them; an entry a new board settles becomes Resolved.
+- **`design/` is read-only.** No gap is fixed by editing the design. Where an entry asks for new or corrected boards, that is a request to the designer. The owner chose on 2026-10-16 ([Q11](QUESTIONS.md#q11)): the missing files come with the next design-system export, corrected or new boards come for the riskiest gaps, and the decisions here stand until a board replaces them; an entry a new board settles becomes Resolved. An entry a board settles only in part stays Decided, and its status says which part the board draws and what is still undrawn. Where a board draws something other than the behaviour the entry chose, the entry keeps its decision for that difference and says so. The first such export arrived on 2026-10-17 as commit 519d42a.
+- **Evidence and exports.** Evidence describes the export the text was checked against: text written before 2026-10-17 cites the lines of the export that was in `design/` during M0 and M1, and what that export did not draw; text added on 2026-10-17 cites export 519d42a, which moved many lines and draws some of what was missing.
 - **Visuals follow the artboards, behaviour follows the brief.** When an entry decides something the design does not draw, Ferman builds it from existing design-system components and patterns, and the goldens record the result.
 - **One decision per entry.** The decision is what the app does. If it depends on the owner, the status says so and links the question; the decision is still in force meanwhile, so work does not wait.
 - **Milestone** is the milestone by which the entry must be settled. Some decisions apply earlier, as the entry says. Each milestone's exit check E4 in [ROADMAP.md](ROADMAP.md) requires its entries to be decided or resolved.
@@ -62,11 +63,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-99 entries: 99 Decided, 0 Needs owner, 0 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1.
+110 entries: 88 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G110 were found while planning M2.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 58 | 13 | 11 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 23 | 11 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Resolved | 4 | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -79,10 +81,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G07](#g07) | export gap | M1 | Fonts / privacy | Fonts loaded from Google Fonts at run time | Decided ([Q08](QUESTIONS.md#q08) groups 1 and 2) |
 | [G08](#g08) | export gap | M1 | Fonts / licences | No licence texts for fonts or icons | Decided |
 | [G09](#g09) | conflict (internal to design) | M1 | App shell / mode tabs | Artboards show 8 mode tabs; the DS constant lists 7 | Decided ([Q05](QUESTIONS.md#q05)) |
-| [G10](#g10) | missing state | M1 | Shell / tool rows / start / palette / settings | No disabled "Available in a future version" state | Decided |
-| [G11](#g11) | conflict | M2 | Start screen / drag-and-drop | Start screen promises conversion and later tools | Decided |
-| [G12](#g12) | conflict | M1 | First run | Onboarding marks later-phase features as included | Decided |
-| [G13](#g13) | conflict | M1 | First run / About | Licence shown as GPL-3.0, not Apache-2.0 | Decided |
+| [G10](#g10) | missing state | M1 | Shell / tool rows / start / palette / settings | No disabled "Available in a future version" state | Decided; partly resolved (the M1 and M2 build boards) |
+| [G11](#g11) | conflict | M2 | Start screen / drag-and-drop | Start screen promises conversion and later tools | Resolved (`a1-4-m2`, `a1-5-m1`, `a1-9c`) |
+| [G12](#g12) | conflict | M1 | First run | Onboarding marks later-phase features as included | Resolved (`a1-2c-m1`) |
+| [G13](#g13) | conflict | M1 | First run / About | Licence shown as GPL-3.0, not Apache-2.0 | Resolved (`a1-2c`, `a11-5`, `a1-2c-m1`) |
 | [G14](#g14) | missing screen | M4 | About / licences | No third-party notices screen | Decided |
 | [G15](#g15) | missing variant | M1 | App shell / window chrome | No Linux window chrome | Decided ([Q12](QUESTIONS.md#q12)) |
 | [G16](#g16) | missing variant | M1 | Windows variants of M1–M4 screens | Windows variants missing for most screens | Decided |
@@ -93,27 +95,27 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G21](#g21) | missing state | M1 | App shell responsiveness | Narrow windows and pane resizing not drawn | Decided |
 | [G22](#g22) | missing state | M1 | Component library: tooltips, shortcuts, focus | Tooltip shortcuts and focus states mostly undrawn | Decided |
 | [G23](#g23) | ambiguity | M1 | App accessibility | App accessibility scope and high contrast undefined | Decided |
-| [G24](#g24) | conflict | M1 | First run privacy | Onboarding lists only the update check as network use | Decided |
-| [G25](#g25) | missing screen | M2 | Open: Open with / OS dialog / cold launch | Opening files from the OS not drawn | Decided ([Q07](QUESTIONS.md#q07)) |
-| [G26](#g26) | ambiguity | M2 | Dialogs | Native or custom file pickers not specified | Decided ([Q07](QUESTIONS.md#q07)) |
-| [G27](#g27) | missing state | M2 | Encrypted / permission-restricted PDFs | Restricted and certificate-encrypted PDFs not drawn | Decided |
-| [G28](#g28) | missing state | M2 | Open errors | Unsupported, read-only and missing files not drawn | Decided |
-| [G29](#g29) | missing state | M2 | Sidebar and search | Empty sidebar tabs and search states not drawn | Decided |
-| [G30](#g30) | missing state | M2 | Rendering / zoom | Tile loading, zoom and Go to page states not drawn | Decided |
-| [G31](#g31) | missing state | M2 | Signatures sidebar | Signatures shown as valid before validation exists | Decided |
-| [G32](#g32) | ambiguity | M2 | RTL documents: spread/book/organize order | Page order for right-to-left documents undefined | Decided |
+| [G24](#g24) | conflict | M1 | First run privacy | Onboarding lists only the update check as network use | Resolved (`a1-2b`) |
+| [G25](#g25) | missing screen | M2 | Open: Open with / OS dialog / cold launch | Opening files from the OS not drawn | Resolved (`a1-13`) |
+| [G26](#g26) | ambiguity | M2 | Dialogs | Native or custom file pickers not specified | Resolved (`a1-13`, `a1-11b`, `a1-9e`) |
+| [G27](#g27) | missing state | M2 | Encrypted / permission-restricted PDFs | Restricted and certificate-encrypted PDFs not drawn | Resolved (`a2-10a`, `a2-10b`) |
+| [G28](#g28) | missing state | M2 | Open errors | Unsupported, read-only and missing files not drawn | Resolved (`a1-9c` to `a1-9f`) |
+| [G29](#g29) | missing state | M2 | Sidebar and search | Empty sidebar tabs and search states not drawn | Decided; partly resolved (`a2-3m`, `a2-4c`, `a2-4d`) |
+| [G30](#g30) | missing state | M2 | Rendering / zoom | Tile loading, zoom and Go to page states not drawn | Decided; partly resolved (`a2-13`) |
+| [G31](#g31) | missing state | M2 | Signatures sidebar | Signatures shown as valid before validation exists | Resolved (`a2-14`, `a1-4-m2`) |
+| [G32](#g32) | ambiguity | M2 | RTL documents: spread/book/organize order | Page order for right-to-left documents undefined | Decided; partly resolved (`a2-15`) |
 | [G33](#g33) | ambiguity | M2 | Roadmap mapping | Drawn features with no milestone in the brief's roadmap | Decided ([Q10](QUESTIONS.md#q10)) |
-| [G34](#g34) | conflict | M2 | Locale formatting in English UI | Dates and numbers mix four locale styles | Decided |
-| [G35](#g35) | missing screen | M3 | Edit: signed-document warning | No warning before editing a signed document | Decided |
-| [G36](#g36) | ambiguity (resolved) | M3 | Edit: missing glyph | Missing glyph: the design substitutes a similar font by default | Decided ([Q09](QUESTIONS.md#q09)) |
-| [G37](#g37) | missing state | M3 | Edit: missing glyph | Missing-glyph steps and outcomes not drawn | Decided |
-| [G38](#g38) | missing state | M3 | Edit: overflow | Overflow results not drawn | Decided |
-| [G39](#g39) | missing state | M3 | Edit: non-editable content | Text that cannot be edited has no state | Decided |
-| [G40](#g40) | missing state | M3 | Save / atomic save | Most save failures not drawn | Decided |
-| [G41](#g41) | conflict | M3 | Save button states | Save disabled in the error state | Decided |
-| [G42](#g42) | missing state | M3 | Edit review list | Review list has no empty, confirm or signature states | Decided |
-| [G43](#g43) | missing state | M3 | Settings › Editing | No saving options in Settings › Editing | Decided |
-| [G44](#g44) | conflict | M3 | Keyboard shortcuts | ⌥⌘S bound to three commands | Decided |
+| [G34](#g34) | conflict | M2 | Locale formatting in English UI | Dates and numbers mix four locale styles | Resolved (`a12-0`) |
+| [G35](#g35) | missing screen | M3 | Edit: signed-document warning | No warning before editing a signed document | Resolved (`a3-16a`, `a3-16b`, `a3-12`) |
+| [G36](#g36) | ambiguity (resolved) | M3 | Edit: missing glyph | Missing glyph: the design substitutes a similar font by default | Resolved (`a3-3a`, `a3-17`) |
+| [G37](#g37) | missing state | M3 | Edit: missing glyph | Missing-glyph steps and outcomes not drawn | Resolved (`a3-17`) |
+| [G38](#g38) | missing state | M3 | Edit: overflow | Overflow results not drawn | Resolved (`a3-18`) |
+| [G39](#g39) | missing state | M3 | Edit: non-editable content | Text that cannot be edited has no state | Decided; partly resolved (`a3-19`) |
+| [G40](#g40) | missing state | M3 | Save / atomic save | Most save failures not drawn | Resolved (`a11-7d` to `a11-7f`) |
+| [G41](#g41) | conflict | M3 | Save button states | Save disabled in the error state | Resolved (`a11-7`, `a1-9d`) |
+| [G42](#g42) | missing state | M3 | Edit review list | Review list has no empty, confirm or signature states | Resolved (`a3-12`, `a3-12b`) |
+| [G43](#g43) | missing state | M3 | Settings › Editing | No saving options in Settings › Editing | Resolved (`a11-1c`) |
+| [G44](#g44) | conflict | M3 | Keyboard shortcuts | ⌥⌘S bound to three commands | Resolved (`a11-1j`, `a11-2`, `a11-3`) |
 | [G45](#g45) | missing screen | M4 | Organize | Insert, replace and extract dialogs not drawn | Decided |
 | [G46](#g46) | missing state | M4 | Comments and annotations | Comment states and commenter name not drawn | Decided |
 | [G47](#g47) | missing state | M4 | Form filling / simple signatures | Finish, clear and empty Sign states not drawn | Decided |
@@ -128,9 +130,9 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G56](#g56) | conflict | P3 | Scan to PDF | Local-network scanner discovery and phone pairing | Decided ([Q06](QUESTIONS.md#q06)) |
 | [G57](#g57) | conflict | P2 | Edit images (crop) | Image crop says hidden content is removed | Decided |
 | [G58](#g58) | ambiguity | P3 | Flows | Flow B's e-imza steps drawn on the wrong document | Decided |
-| [G59](#g59) | ambiguity | M2 | Start / sample documents | e-Devlet form shown as 2 pages; the fixture has 1 | Decided |
+| [G59](#g59) | ambiguity | M2 | Start / sample documents | e-Devlet form shown as 2 pages; the fixture has 1 | Resolved (`a1-4-m2`) |
 | [G60](#g60) | export gap | M1 | Icons | Seven added icons are not from Lucide 0.460.0 | Decided ([Q11](QUESTIONS.md#q11)) |
-| [G61](#g61) | conflict | M2 | Search | Accent-insensitive search on by default only for Turkish documents | Decided |
+| [G61](#g61) | conflict | M2 | Search | Accent-insensitive search on by default only for Turkish documents | Resolved (`a2-4a`) |
 | [G62](#g62) | conflict | M1 | Comment / annotation tools | The bundle's `ANNOTATION_TOOLS` lists 9 tools; the boards draw 11 | Decided |
 | [G63](#g63) | missing state | M1 | Errors | No message drawn for an internal error | Decided |
 | [G64](#g64) | conflict (internal to design) | M1 | Typography / localization | Arabic, Hebrew and Hindi UI text: which Plex family comes first | Decided |
@@ -158,7 +160,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G86](#g86) | missing state | M1 | App shell | Canvas, sidebar and panel with nothing rendered; "+N" named only "+4", in Latin digits | Decided |
 | [G87](#g87) | export gap | M1 | Fonts / key caps | macOS key symbols ⌘ ⌥ ⇧ ⌃ ⌫ ⌦ missing from the bundled Plex fonts | Decided |
 | [G88](#g88) | ambiguity | M1 | Window chrome / title bar content | Which title bar each screen gets in one window | Decided |
-| [G89](#g89) | conflict | M1 | Settings | Settings drawn as its own window, Privacy switches on, a default-app line M1 cannot know | Decided |
+| [G89](#g89) | conflict | M1 | Settings | Settings drawn as its own window, Privacy switches on, a default-app line M1 cannot know | Resolved (`a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`) |
 | [G90](#g90) | missing state | M1 | Settings | No state for a settings change that cannot be saved | Decided |
 | [G91](#g91) | ambiguity | M1 | Settings › Language and region | Region picker drawn with three sample regions, named inconsistently | Decided |
 | [G92](#g92) | ambiguity | M1 | Settings › Language and region | Document languages drawn as Turkish and English for every region | Decided |
@@ -169,6 +171,17 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G97](#g97) | missing variant | M1 | Golden matrix | Which golden variants have a board, which are built from tokens, and the differences expected against the boards | Decided |
 | [G98](#g98) | missing variant | M1 | Component library: Kbd, DatePicker | Key caps and weekday names in right to left: no board draws them | Decided |
 | [G99](#g99) | missing state | M4 | Keyboard shortcuts | Commands whose keys no M1 control shows | Decided |
+| [G100](#g100) | missing state | M2 | Open / document scripts | No board tells the user that a document contains scripts | Decided |
+| [G101](#g101) | missing state | M2 | Start / errors | No board draws the engine or PDFium being unavailable | Decided |
+| [G102](#g102) | missing state | M2 | Open / the two parsers | No notice drawn for lopdf and PDFium disagreeing | Decided |
+| [G103](#g103) | missing variant | M2 | Default PDF app | The default-app prompt is drawn for macOS; Windows and Linux cannot act before M5 | Decided |
+| [G104](#g104) | ambiguity | M2 | Open / large files / thumbnails | Where a1-7's progressive open begins; thumbnails drawn waiting for indexing | Decided |
+| [G105](#g105) | missing state | M2 | Drag and drop | Drops on a document window not drawn; Combine and the page-grid insert are M4 | Decided |
+| [G106](#g106) | missing screen | M2 | Restricted PDFs | The owner-password unlock dialog is not drawn | Decided |
+| [G107](#g107) | missing variant | M2 | File actions / platform wording | "Show in Finder" drawn on macOS only; no Linux label | Decided |
+| [G108](#g108) | conflict | M1 | Settings | M1 build boards draw the M2 controls of General and every pane enabled | Decided |
+| [G109](#g109) | missing state | M2 | Start / recent files | No placeholder for a recent file that needs a password | Decided |
+| [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
 
 ## Entries
 
@@ -296,11 +309,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M1
 - **Area:** Shell / tool rows / start / palette / settings
-- **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a3-15`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`
+- **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a3-15`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`; drawn disabled in export 519d42a: `a1-2c-m1`, `a1-5-m1`, `a1-4-m2`, `a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`, `a1-9c`, `a1-11b`, `a2-3m` and the View row of the M2 boards
 - **Gap or conflict:** The design never uses the words "Available in a future version" and draws no disabled tool button, menu item or segment with a tooltip that gives a reason. The only disabled-with-reason pattern is a3-15 (Bold is unavailable because the font has no bold weight), which is a capability limit. Every later-phase entry point is drawn active: the mode-bar AI icon button (shown when `ai` is set) and the Tools row's "AI assistant" (P4); the Edit row's Add text, Add image, Link, Find & replace and Page marks (P2); the Convert and Protect rows (P2, P3); Digital signature, e-imza and Prepare form in Fill & Sign (P3, P4); the Start quick tools (a1-4, a1-4b, a1-4c); "PDF/A-2b, for archiving" in Save as (a1-11, P4); the OCR offer in a3-11; the a11-2 palette; and the Settings panes a11-1e, a11-1f and a11-1g.
 - **Decision:** Add a disabled state to ToolButton, MenuItem, SegmentedControl segments, Button, palette items and Settings controls, with the design system's disabled styling and the tooltip "Available in a future version" (localised). One feature registry (approved by the owner on 2026-10-16; [ROADMAP.md](ROADMAP.md)) drives these states, and every disabled entry point gets a [BACKLOG.md](BACKLOG.md) entry (brief §6). Boards showing which items are disabled in each milestone are asked for in the re-export ([Q11](QUESTIONS.md#q11)); until then the registry is the reference. The Start action cards (FmStart `actions`) have no design-system component. Disabled, a card keeps its frame: the raised fill, the subtle border and the small shadow stay, and the hover border does not appear. Inside, the icon tile turns sunken with the disabled icon colour, and the title and description take the disabled text colour; the key cap stays as drawn. A disabled card stays focusable and gives the reason as its tooltip and semantics hint.
-- **Status:** Decided. On 2026-10-16 the disabled Start action card was specified.
-- **Evidence:** A case-insensitive search for "future version", "coming soon", "not yet", "later version" and "coming in" finds nothing. The DS additions state matrix has no disabled ToolButton, MenuItem or SegmentedControl. The Start action card is plain markup in `design/FmStart.dc.html` line 20, with no disabled branch. Implemented in `app/lib/features/start/start_screen.dart` lines 182–311 (M1 phase I3); checked in `app/test/features/start/start_screen_test.dart` line 46.
+- **Status:** Decided; partly resolved on 2026-10-17 by export 519d42a. Its boards draw the disabled state with "Available in a future version" on the start cards, quick tools and drop-area buttons (a1-5-m1, a1-4-m2), with the card styling this entry specifies; on the welcome tiles (a1-2c-m1); on the default-app button, the Privacy switches and "Show network activity…" (a11-1-m1, a11-1w-m1, a11-1h-m1); on Split view, Read aloud, Present and Dark reading mode in the View row of the nine M2 boards that draw it (FmWindow's new `future` list); on Convert to PDF… (a1-9c), PDF/A-2b in Save as (a1-11b) and the OCR action in Search (a2-3m). Still undrawn: the rows of the other modes (FmWindow can disable each of their tools except the Organize row's, but no board does), menu items, palette items (a11-2), segmented-control segments, the mode bar's AI icon button, and the Settings navigation and search field, which the M1 build boards draw enabled ([G108](#g108)). The feature registry stays the reference for those. On 2026-10-16 the disabled Start action card was specified.
+- **Evidence:** A case-insensitive search for "future version", "coming soon", "not yet", "later version" and "coming in" finds nothing. The DS additions state matrix has no disabled ToolButton, MenuItem or SegmentedControl. The Start action card is plain markup in `design/FmStart.dc.html` line 20, with no disabled branch. Implemented in `app/lib/features/start/start_screen.dart` lines 182–311 (M1 phase I3); checked in `app/test/features/start/start_screen_test.dart` line 46. In 519d42a: `design/FmStart.dc.html` lines 20–22 and 38 (the disabled card, quick tools and drop-area buttons) and 82–107 (`gated`); `design/FmWindow.dc.html` line 212 (`future`, read by a `disabled` on every tool but those of the Organize row, lines 107–113); `design/01 First run and files.dc.html` lines 102, 123 and 137 (the a1-2c-m1, a1-4-m2 and a1-5-m1 notes) and 362 (`viewFuture`); `design/02 View.dc.html` line 320 (`viewFuture`).
 
 <a id="g11"></a>
 
@@ -309,11 +322,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M2
 - **Area:** Start screen / drag-and-drop
-- **Artboards:** `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-5`, `a1-6`, `a1-12`, `a11-4b`, `a11-5`, `a12-2a`, `a12-2b`
+- **Artboards:** `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-5`, `a1-6`, `a1-12`, `a11-4b`, `a11-5`, `a12-2a`, `a12-2b`; resolved by `a1-4-m2`, `a1-5-m1` and `a1-9c` (export 519d42a)
 - **Gap or conflict:** FmStart promises conversion in four strings: "PDFs, or Word, Excel and images to convert" (open), "PDFs open in tabs. Other files are converted to PDF first." (drop), "…Word, Excel and image files are converted to PDF." (empty) and the drop-on-tabs line. The a1-6 dragged-file notes read "Excel · converted to PDF" and "Image · converted to PDF". The quick tools Compress, Convert, Sign, Recognize text (OCR), Protect and Compare are enabled on every Start board: a1-3, a1-4, a1-4b, a1-4c, a1-5, a1-6, a1-12, a11-4b, a11-5, a12-2a and a12-2b. Office conversion, OCR and Compare are phase 3, Protect is phase 2, and Compress and simple signatures are M4. No disabled variant exists.
-- **Decision:** Until conversion ships (P3), the Start copy speaks of PDFs only (for example "PDF files open in tabs"), and a dropped non-PDF file gets the unsupported-file state ([G28](#g28)), with conversion marked "Available in a future version". The quick tools stay visible as drawn and are disabled with the same tooltip until their milestone. The design's strings return when their features ship. On the M1 start screen (a1-5) the Open file… card says "PDF files", and the drop area says "or open one from your computer.", the shorter subtitle the German and Arabic strings already use.
-- **Status:** Decided. On 2026-10-16 the M1 start-screen copy was specified.
-- **Evidence:** FmStart.dc.html line 58 (the German and Arabic strings carry the same promise); lines 107–110 hold the a1-6 notes; lines 22–24 always render the quick tools as enabled Buttons. The German and Arabic `emptySub` (lines 59 and 60) stop after the open clause: "oder eine Datei von Ihrem Computer öffnen." and "أو افتح ملفًا من جهازك.". Implemented in `app/lib/features/start/start_screen.dart` lines 60–66 and 142–151, with the keys `startOpenFileDescription` and `startDropSubtitle` (`app/lib/l10n/app_en.arb` lines 903 and 963) (M1 phase I3).
+- **Decision:** Until conversion ships (P3), the Start copy speaks of PDFs only (for example "PDF files open in tabs"), and a dropped non-PDF file gets the unsupported-file state ([G28](#g28)), with conversion marked "Available in a future version". The quick tools stay visible as drawn and are disabled with the same tooltip until their milestone. The design's strings return when their features ship. On the M1 start screen (a1-5) the Open file… card says "PDF files", and the drop area says "or open one from your computer.", the shorter subtitle the German and Arabic strings already use. **Where the boards stop:** a1-6 still draws the finished product while files are dragged over the window ("Excel · converted to PDF", and "The Excel file and the image are converted to PDF first." under "Open in 3 tabs"). Under this decision the tabs target keeps only "Each file opens on its own.", the shorter line the Turkish, German and Arabic strings already use. **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** until conversion ships, a file that isn't a PDF shows the note "Can't open yet" with the future-version tooltip while it is dragged (ROADMAP §6 step 6).
+- **Status:** Resolved on 2026-10-17 by export 519d42a. The M1 and M2 build boards draw this decision: a1-5-m1 has "PDF files" on Open file… and "or open one from your computer." in the drop area, with every card, quick tool and drop-area button disabled; a1-4-m2 has the drop strip "PDF files open in tabs.", Create PDF and Combine files disabled until M4, Scan to PDF until P3 and every quick tool until its milestone; a1-9c draws a dropped Excel file as an error tab with "That file isn't a PDF." and Convert to PDF… disabled until P3. Was Decided; on 2026-10-16 the M1 start-screen copy was specified.
+- **Evidence:** FmStart.dc.html line 58 (the German and Arabic strings carry the same promise); lines 107–110 hold the a1-6 notes; lines 22–24 always render the quick tools as enabled Buttons. The German and Arabic `emptySub` (lines 59 and 60) stop after the open clause: "oder eine Datei von Ihrem Computer öffnen." and "أو افتح ملفًا من جهازك.". Implemented in `app/lib/features/start/start_screen.dart` lines 60–66 and 142–151, with the keys `startOpenFileDescription` and `startDropSubtitle` (`app/lib/l10n/app_en.arb` lines 903 and 963) (M1 phase I3). In 519d42a: `design/01 First run and files.dc.html` lines 119–123 (a1-4-m2), 133–137 (a1-5-m1) and 192–196 (a1-9c); `design/FmStart.dc.html` lines 59–62 (`openSubPdf`, `dropSubPdf` and `emptySubPdf` in English, Turkish and Arabic, and `dropTabsSub` in each language), 84 (the PDF-only strings when `gated`) and 114–118 (a1-6's `dragged` notes, unchanged).
 
 <a id="g12"></a>
 
@@ -322,11 +335,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M1
 - **Area:** First run
-- **Artboards:** `a1-2c`, `a11-5`; the welcome steps `a1-2a` and `a1-2b`
+- **Artboards:** `a1-2c`, `a11-5`; the welcome steps `a1-2a` and `a1-2b`; resolved by `a1-2c-m1` (export 519d42a)
 - **Gap or conflict:** a1-2c ("Free forever, nothing locked") shows 10 feature tiles with the same green check, whose accessible label is "Included"; the word is not visible text. The headline says "Every feature is included, with no trial, no subscription and no paid tier." Seven tiles are later-phase features: Text recognition (OCR), e-imza and digital signatures, Redaction, Convert to and from Office, Compare documents, Batch actions and Accessibility checker. The design has no "coming" tile style. a11-5 also says "nothing locked". a1-2a, the first of the three welcome steps, presents in-place text editing (M3), and its note says the specimen is "a live editing frame, not an illustration".
 - **Decision:** The grid follows the build. Features that have shipped keep the check and the "Included" label. The others are shown disabled, in a neutral style, with "Available in a future version" instead of "Included": the sunken fill, the disabled icon colour, the secondary text colour and a `clock` glyph where the check was, with the reason as the tile's tooltip and in its accessible name. In M1 only the interface languages have shipped; their tile counts the build's translations ("3 interface languages", in the region's digits). A tile's label wraps instead of ending in an ellipsis: two lines fill the drawn 44 px tile, and a label that needs a third line (Turkish and Arabic at narrow widths) makes both tiles of its row grow to the same height. The headline about no trial, subscription or paid tier stays, because nothing is ever behind a paywall. a1-2a joins first run with the editor in M3 ([B087](BACKLOG.md#open)). Until then first run has two welcome steps after the language picker, a1-2b and a1-2c, shown as "1 of 2" and "2 of 2" and announced as "Step 1 of 2" and "Step 2 of 2".
-- **Status:** Decided. On 2026-10-16 the disabled tile was specified, and a1-2a was left out of first run until M3.
-- **Evidence:** 01 First run and files.dc.html lines 76–88 and 248–251; line 83 renders every tile with `var(--success-solid)` and `label='Included'`. Line 60 is the a1-2a note; lines 58, 72 and 86 announce "Step 1 of 3" to "Step 3 of 3". Implemented in `app/lib/features/onboarding/free_step.dart` lines 11–177 and `app/lib/features/onboarding/onboarding_screen.dart` lines 36–38 and 62–63 (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398, 428 and 541.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-2c-m1, the M1 build of this step, draws the decision. It reads "2 of 2", announced "Step 2 of 2"; only "3 interface languages" keeps the check and "Included"; every other tile has the sunken fill, the disabled icon colour, the secondary text colour and a clock where the check was, with "Available in a future version" as its tooltip and in its accessible name ("label. Available in a future version"); labels wrap and a row grows to its taller tile. Its note has a1-2b read "1 of 2" until the editor ships in M3. a1-2c stays the finished product. Was Decided; on 2026-10-16 the disabled tile was specified, and a1-2a was left out of first run until M3.
+- **Evidence:** 01 First run and files.dc.html lines 76–88 and 248–251; line 83 renders every tile with `var(--success-solid)` and `label='Included'`. Line 60 is the a1-2a note; lines 58, 72 and 86 announce "Step 1 of 3" to "Step 3 of 3". Implemented in `app/lib/features/onboarding/free_step.dart` lines 11–177 and `app/lib/features/onboarding/onboarding_screen.dart` lines 36–38 and 62–63 (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398, 428 and 541. In 519d42a: `design/01 First run and files.dc.html` lines 90–102 (a1-2c-m1: the tiles at line 97, the note at line 102) and 356 (`tilesM1`, with the accessible name `label + '. ' + S.future`).
 
 <a id="g13"></a>
 
@@ -335,11 +348,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M1
 - **Area:** First run / About
-- **Artboards:** `a1-2c`, `a11-5`
+- **Artboards:** `a1-2c`, `a11-5`; also `a1-2c-m1` (export 519d42a)
 - **Gap or conflict:** a1-2c reads "Licence: GPL-3.0-or-later" and a11-5 About reads "Free and open source under GPL-3.0-or-later. No accounts, no telemetry, nothing locked." The brief says Apache-2.0. The a1-2c note and the Index both flag the licence as a proposal for review.
 - **Decision:** Both screens say Apache-2.0 (brief §1) and change nothing else. a1-2c reads "Licence: Apache-2.0", and a11-5 changes only the licence: "Free and open source under Apache-2.0. No accounts, no telemetry, nothing locked." The licence line keeps a1-2c's Source code and Support the project links. They stay visible, disabled with the future-version tooltip ([G10](#g10)), until the app opens web pages (with About, a11-5; [B086](BACKLOG.md#open)).
-- **Status:** Decided. On 2026-10-16 a1-2c's links were kept, disabled until the app opens web pages.
-- **Evidence:** 01 First run and files.dc.html line 81 (a1-2c) and line 88 (the note); 11b App.dc.html line 66 (a11-5). "Apache" appears nowhere in `design/`. a1-2c's licence line is implemented in `app/lib/features/onboarding/free_step.dart` lines 179–210 (`LicenceNote`, key `onboardingFreeLicence`) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` line 541.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-2c reads "Licence: Apache-2.0", and a11-5 "Free and open source under Apache-2.0. No accounts, no telemetry, nothing locked."; both notes say nothing else changes. a1-2c-m1 draws Source code and Support the project visible and disabled with the future-version tooltip until the app opens web pages. Was Decided; on 2026-10-16 a1-2c's links were kept, disabled until the app opens web pages.
+- **Evidence:** 01 First run and files.dc.html line 81 (a1-2c) and line 88 (the note); 11b App.dc.html line 66 (a11-5). Before 519d42a, "Apache" appeared nowhere in `design/`. a1-2c's licence line is implemented in `app/lib/features/onboarding/free_step.dart` lines 179–210 (`LicenceNote`, key `onboardingFreeLicence`) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` line 541. In 519d42a: `design/01 First run and files.dc.html` lines 81 and 89 (a1-2c and its note) and 95 (a1-2c-m1's licence line, the links with `aria-disabled` and the future-version title); `design/11b App.dc.html` lines 63 (the a11-5 note) and 66.
 
 <a id="g14"></a>
 
@@ -481,8 +494,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-2b`, `a11-1h`, `a13-16`
 - **Gap or conflict:** a1-2b names "One optional check for updates" as the only network use ("Once a day, sending only the version number") and says "Editing, OCR, signing and conversion need no connection." a11-1h contradicts it: it lists five connections, and its update copy says "sends only the version number and platform". The five are the update check, signature revocation checks when signing or opening a signed file, the timestamp server when signing, downloads you start (OCR language packs, the assistant's model) and your AI provider. Revocation checks are not one of the brief's four uses ([G51](#g51)). a13-16 (mobile, offline) says "Everything works except updates and certificate checks", which contradicts the desktop claim that signing needs no connection.
 - **Decision:** a1-2b lists the brief's four uses: the update check, optional language-pack downloads, optional AI (a local model or your own key) and signature timestamp servers. Each is "off until you use it" except the update check, which can be turned off. The screen links to Settings › Privacy and uses a11-1h's payload wording, "the version number and platform" (the endpoint and payload were settled on 2026-10-16 in [Q15](QUESTIONS.md#q15)). Revocation lookups, allowed on 2026-10-16 and off until first use ([G51](#g51), [Q06](QUESTIONS.md#q06); [ADR 0015](adr/0015-privacy-and-network.md)), join the list when phase 3 builds them. In M1 the drawn update row becomes four rows in the same style, after the four facts. "One optional check for updates" reads "Once a day, sending only the version number and platform. You can turn it off." Then "OCR language packs", "AI assistant" and "Signature timestamps" each end "Off until you use it.", with the `download`, `sparkles` and `clock` icons. Under the card, "See every connection in Settings › Privacy" opens Settings › Privacy over the step, and closing it returns to the step.
-- **Status:** Decided. On 2026-10-16 the four rows and the link to Settings › Privacy were specified.
-- **Evidence:** The privacy array in 01 First run and files (rendered in a1-2b); the FmSettings `nets` rows used by a11-1h; the a13-16 banner. Implemented in `app/lib/features/onboarding/privacy_step.dart` lines 44–85 (the rows) and 161–165 (the link) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398 and 483.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-2b now draws the four facts, then the four network rows as decided ("Once a day, sending only the version number and platform. You can turn it off.", then OCR language packs, AI assistant and Signature timestamps, each "Off until you use it.", with the `download`, `sparkles` and `clock` icons), and under the card the link "See every connection in Settings › Privacy". Its note says revocation lookups are not listed "until the owner decides (G51)"; the owner allowed them on 2026-10-16 ([Q06](QUESTIONS.md#q06)), and this entry's reason stands: they join the list when phase 3 builds them. Was Decided; on 2026-10-16 the four rows and the link to Settings › Privacy were specified.
+- **Evidence:** The privacy array in 01 First run and files (rendered in a1-2b); the FmSettings `nets` rows used by a11-1h; the a13-16 banner. Implemented in `app/lib/features/onboarding/privacy_step.dart` lines 44–85 (the rows) and 161–165 (the link) (M1 phase I2); checked in `app/test/features/onboarding/onboarding_test.dart` lines 398 and 483. In 519d42a: `design/01 First run and files.dc.html` lines 62–74 (a1-2b: the link at line 70, the note at line 74) and 376–383 (the eight rows).
 
 <a id="g25"></a>
 
@@ -491,11 +504,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing screen
 - **Milestone:** M2
 - **Area:** Open: Open with / OS dialog / cold launch
-- **Artboards:** `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a1-7`, `a11-1`, `a11-1w`, `a11-3`, `a13-13`
+- **Artboards:** `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a1-7`, `a11-1`, `a11-1w`, `a11-3`, `a13-13`; resolved by `a1-13` (export 519d42a)
 - **Gap or conflict:** Drag and drop (a1-6), recent files (a1-4, a1-4b, a1-4c) and the default-app prompt (a1-3, a11-1, a11-1w) are drawn. The desktop design never shows a file arriving from the OS (a double-click in Finder or Explorer, "Open with", the Dock or the taskbar) into a running instance, a file that is already open, a cold launch straight into a document, or the ⌘O open dialog, although ⌘O is on the a11-3 cheat sheet. Step 1 of flow A (`fa`, "Double-click in Finder, drop on the window, or ⌘O from Start") links to a1-4, a Start screen. The only spec is a note on mobile a13-13: "Open in Ferman" from Mail or Files "lands here as a new tab in the reader".
 - **Decision:** A file from the OS opens as a new active tab in the running instance (one instance per user), as a13-13 describes and a1-7 draws for a new tab. A file that is already open focuses its tab instead of opening twice. A cold launch with a file skips Start and opens the document. The open dialog behind ⌘O or Ctrl+O and Start's "Open file…" is the OS-native picker of [ADR 0018](adr/0018-native-file-pickers.md), Accepted on 2026-10-16 ([Q07](QUESTIONS.md#q07)). M1 built no picker; M2 builds the native open picker. Drag and drop, recent files and "open with" work alongside it. Boards for these states are asked for in the re-export.
-- **Status:** Decided. The owner answered [Q07](QUESTIONS.md#q07) on 2026-10-16: OS-native pickers for opening, the save location and folders, with the a1-11 sheet handing off for "Other location…"; [ADR 0018](adr/0018-native-file-pickers.md) is Accepted, so the native pickers are the plan, not an interim. Was Needs owner.
-- **Evidence:** No board contains "Open with", "already open", "NSOpenPanel", "IFileDialog", "portal" or "cold". 15 Flows, flow A step 1, links to a1-4.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-13 draws ⌘O, "Open file…" and "Open a PDF" handing off to the system open panel (NSOpenPanel, IFileOpenDialog or the Linux desktop portal, asking for PDF files and allowing several at once), each chosen file opening as a new active tab, and its note states the rest of this decision: a file sent from Finder, Explorer or the file manager opens the same way in the running window, one instance per user; a file already open focuses its tab; a cold launch with a file skips Start. Its note still says "pending Q07"; the owner answered Q07 on 2026-10-16. Was Decided; the owner answered [Q07](QUESTIONS.md#q07) on 2026-10-16: OS-native pickers for opening, the save location and folders, with the a1-11 sheet handing off for "Other location…"; [ADR 0018](adr/0018-native-file-pickers.md) is Accepted, so the native pickers are the plan, not an interim. Was Needs owner before that.
+- **Evidence:** No board contains "Open with", "already open", "NSOpenPanel", "IFileDialog", "portal" or "cold". 15 Flows, flow A step 1, links to a1-4. In 519d42a: `design/01 First run and files.dc.html` lines 220–224 (a1-13: the panel placeholder at line 222, the note at line 224).
 
 <a id="g26"></a>
 
@@ -504,11 +517,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** ambiguity
 - **Milestone:** M2
 - **Area:** Dialogs
-- **Artboards:** `a1-11`, `a6-2`, `a7-2`, `a9-6`, `a13-13`, `a13-1c`
+- **Artboards:** `a1-11`, `a6-2`, `a7-2`, `a9-6`, `a13-13`, `a13-1c`; resolved by `a1-13`, `a1-11b` and `a1-9e` (export 519d42a)
 - **Gap or conflict:** a1-11 draws a custom Ferman "Save as" sheet with a File name field and a "Where" dropdown ("Belgeler › Ev", "Masaüstü", "Other location…") above the format options. Nothing says whether "Other location…", "Choose a folder…" (a6-2 Split, a7-2 Convert batch) or the ⌘O open command use the OS-native picker or a custom one, and the open dialog behind Start's "Open file…" is not drawn. The design already hands off to the OS elsewhere: print has "Use system dialog…" (a9-6), mobile sharing uses the system share sheet (a13-13), and a13-1c explains the camera permission before the system prompt. The brief requires custom popup dialogs (§6).
 - **Decision:** Accepted in [ADR 0018](adr/0018-native-file-pickers.md) on 2026-10-16 ([Q07](QUESTIONS.md#q07)): OS-native pickers are the only exception to the custom-dialog rule, for opening a file, choosing a save location and choosing a folder, because sandboxed builds and portals need them. a1-11 stays a Ferman sheet with File name, Where and the format options; "Other location…" hands off to the native save picker, and the sheet then shows the chosen folder. M1 built no picker. M2 builds the native open picker, M3 the native save-location handoff from a1-11, and the folder picker comes in the later milestone that needs one.
-- **Status:** Decided. The owner answered [Q07](QUESTIONS.md#q07) on 2026-10-16: OS-native pickers for opening, the save location and folders, with the a1-11 sheet handing off for "Other location…"; [ADR 0018](adr/0018-native-file-pickers.md) is Accepted, so the native pickers are the plan, not an interim. Was Needs owner.
-- **Evidence:** a1-11 `whereOptions`. No board and no design system text sets a rule for file pickers. The a9-6 note: "On macOS the system dialog is one click away".
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-13 draws the open command handing off to the system open panel; a1-11b draws the a1-11 sheet after "Other location…" handed off to the system save panel, with the chosen folder (Projeler › 2026) in Where and in the copy line, and notes that M3 brings saving; a1-9e's "Locate…" opens the system open panel too. No board draws "Choose a folder…" (a6-2, a7-2) handing off, which [ADR 0018](adr/0018-native-file-pickers.md) already settles. Was Decided; the owner answered [Q07](QUESTIONS.md#q07) on 2026-10-16: OS-native pickers for opening, the save location and folders, with the a1-11 sheet handing off for "Other location…"; ADR 0018 is Accepted, so the native pickers are the plan, not an interim. Was Needs owner before that.
+- **Evidence:** a1-11 `whereOptions`. No board and no design system text sets a rule for file pickers. The a9-6 note: "On macOS the system dialog is one click away". In 519d42a: `design/01 First run and files.dc.html` lines 205–209 (a1-9e), 220–224 (a1-13), 284–304 (a1-11b, its note at line 304) and 369 (`whereChosen`).
 
 <a id="g27"></a>
 
@@ -517,11 +530,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M2
 - **Area:** Encrypted / permission-restricted PDFs
-- **Artboards:** `a1-8`, `a1-8b`, `a2-7`, `a8-1`, `a8-4`, `a11-7c`
+- **Artboards:** `a1-8`, `a1-8b`, `a2-7`, `a8-1`, `a8-4`, `a11-7c`; resolved by `a2-10a` and `a2-10b` (export 519d42a)
 - **Gap or conflict:** Only the user (open) password is drawn (a1-8, a1-8b), plus the author's side of permissions (a8-1) and the unrestricted case (a8-4 "No usage restrictions"; the a2-7 Summary line "Security: No password · 1 signature"). Not drawn: opening an owner-password or permission-restricted PDF (a banner, Edit, Comment and Fill disabled with the reason, an optional unlock), opening a certificate-encrypted PDF, and the a2-7 Security tab, which is defined in `propTabs` and mentioned in the a2-7 note but never shown.
-- **Decision:** A restricted document opens with a banner that names the restriction. Tools the permissions forbid are disabled, and their tooltip gives the reason (for example "The author doesn't allow editing"); "Unlock with owner password…" lifts the restriction. The a2-7 Security tab follows the layout of the drawn Summary tab and lists the encryption method and each permission. A certificate-encrypted PDF gets the open-error state ([G28](#g28)) with a plain reason until certificate support arrives with the phase 3 signature work; that has a BACKLOG entry.
-- **Status:** Decided
-- **Evidence:** No board contains "restricted" or "owner password". a2-7 draws only `SegmentedControl value="summary"`. FmWindow has no restricted state.
+- **Decision:** A restricted document opens with a banner that names the restriction. Tools the permissions forbid are disabled, and their tooltip gives the reason (for example "The author doesn't allow editing"); "Unlock with owner password…" lifts the restriction. The a2-7 Security tab follows the layout of the drawn Summary tab and lists the encryption method and each permission. A certificate-encrypted PDF gets the open-error state ([G28](#g28)) with a plain reason until certificate support arrives with the phase 3 signature work; that has a BACKLOG entry. A mode or tool the permissions forbid shows the future-version tooltip until it ships (Edit in M3) and the author's reason from then on, as the a2-10a note says. The unlock dialog itself is not drawn ([G106](#g106)).
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a2-10a draws a restricted document opening with an info Banner ("The author restricted this document." / "You can read and print it. Editing, comments and form filling are turned off.") and "Unlock with owner password…", a shield on the tab, and the tooltip "The author doesn't allow editing"; its note sends a certificate-encrypted PDF to a1-9b's open-error state until P3. a2-10b draws the Security tab in the Summary tab's layout: the encryption method, whether a password is needed to open, and each of eight permissions, Allowed in green and Not allowed in neutral. Was Decided.
+- **Evidence:** No board contains "restricted" or "owner password". a2-7 draws only `SegmentedControl value="summary"`. FmWindow has no restricted state. In 519d42a: `design/02 View.dc.html` lines 238–246 (a2-10a, the tooltip at line 244), 247–260 (a2-10b) and 311 (`PERM`).
 
 <a id="g28"></a>
 
@@ -530,11 +543,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M2
 - **Area:** Open errors
-- **Artboards:** drawn: `a1-7`, `a1-9`, `a1-9b`, `a11-7`, `a11-7b`, `a11-7c`; related: `a1-4`, `a1-5`, `a1-6`, `a13-16b`, `a14-2b`
+- **Artboards:** drawn: `a1-7`, `a1-9`, `a1-9b`, `a11-7`, `a11-7b`, `a11-7c`; related: `a1-4`, `a1-5`, `a1-6`, `a13-16b`, `a14-2b`; resolved by `a1-9c`, `a1-9d`, `a1-9e` and `a1-9f` (export 519d42a)
 - **Gap or conflict:** Drawn: damaged and repaired (a1-9), damaged and unrecoverable (a1-9b), XFA (a11-7c), disk full (a11-7) and changed on disk (a11-7b); a large file opens with progress (a1-7). Not drawn: a truly unsupported file type (for example .zip or .pages; the DropZone error variant `.fm-drop--error` is never used), a read-only or permission-denied file on open, a recent file that was moved or deleted (web a14-2b "Choose again…" is the only analogue), and an out-of-memory failure (mobile a13-16b only warns about memory use). Office and image files are not drawn as errors: a1-5, a1-6 and the FmStart strings promise to convert them on open, while the design system readme's voice table says "That file isn't a PDF. To edit a Word or image file, convert it first."
-- **Decision:** An unsupported file, and an Office or image file until conversion ships in P3, gets an error tab and the DropZone error variant with the voice line "That file isn't a PDF.", conversion marked "Available in a future version" ([G11](#g11)). A read-only or permission-denied file opens read-only with FmWindow `save="readonly"`, as in a11-7c (a lock and "Read-only" in the status bar). A missing recent file offers "Remove from list" and "Locate…". An out-of-memory or similar failure closes that document's tab with a plain message and keeps the rest of the app running ([ADR 0010](adr/0010-error-handling-no-panics.md)).
-- **Status:** Decided
-- **Evidence:** The FmStart strings; FmWindow `save="readonly"` appears only in a11-7c; the DropZone `.fm-drop--error` variant is unused.
+- **Decision:** An unsupported file, and an Office or image file until conversion ships in P3, gets an error tab and the DropZone error variant with the voice line "That file isn't a PDF.", conversion marked "Available in a future version" ([G11](#g11)). A read-only or permission-denied file opens read-only with FmWindow `save="readonly"`, as in a11-7c (a lock and "Read-only" in the status bar). A missing recent file offers "Remove from list" and "Locate…". An out-of-memory or similar failure closes that document's tab with a plain message and keeps the rest of the app running ([ADR 0010](adr/0010-error-handling-no-panics.md)). **Where the M2 build differs from the boards:** a1-9d's "Save a copy…" and a1-9's "Save repaired copy…" need the writer, which arrives in M3, so they stay visible and disabled with the future-version tooltip until then ([G10](#g10)). **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** a1-9f's promise holds where the engine sees the shortage coming, through its limits and reservations checked before allocating; memory running out inside PDFium cannot be caught.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a1-9c draws a file that isn't a PDF as an error tab (the file's name with the `file-x` icon) with the DropZone error variant, "That file isn't a PDF.", Open another file… and Show in Finder, and Convert to PDF… disabled until P3; a1-9d draws a read-only file opening read-only as in a11-7c, with a lock on the tab, Read-only in the status bar, Save disabled with the tooltip "Read-only" and a Banner that says why; a1-9e draws a missing recent file with "Remove from list" and "Locate…"; a1-9f draws an out-of-memory failure that closes only its tab, with a danger Toast and Try again. Was Decided.
+- **Evidence:** The FmStart strings; FmWindow `save="readonly"` appears only in a11-7c; the DropZone `.fm-drop--error` variant is unused. In 519d42a: `design/01 First run and files.dc.html` lines 192–196 (a1-9c), 197–204 (a1-9d), 205–209 (a1-9e), 210–217 (a1-9f) and 329 (their English strings); `design/FmWindow.dc.html` line 229 (`saveTip`: "Read-only").
 
 <a id="g29"></a>
 
@@ -543,11 +556,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M2
 - **Area:** Sidebar and search
-- **Artboards:** `a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3d`, `a2-3e`, `a2-3x`, `a2-4a`, `a2-4b`, `a1-7`, `a3-11`, `a7-5`, `a7-5b`, `a11-1f`, `a8-2c`
+- **Artboards:** `a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3d`, `a2-3e`, `a2-3x`, `a2-4a`, `a2-4b`, `a1-7`, `a3-11`, `a7-5`, `a7-5b`, `a11-1f`, `a8-2c`; partly resolved by `a2-3m`, `a2-4c` and `a2-4d` (export 519d42a)
 - **Gap or conflict:** The sidebar tabs (a2-3p, a2-3o, a2-3b, a2-3c, a2-3d, a2-3e, a2-3x) are drawn only with content. FmSidebar's data is hard-coded and has no empty branch, so there is no empty outline, attachments, layers or signatures state. Search (a2-4a, a2-4b) has no "No results" state and no state for a search that is still running; a1-7 covers only the indexing before search turns on for a large file. The no-text-layer case is drawn only in Edit (a3-11, "No text on this page yet · Recognize text to edit"), not in Search. The design system has no EmptyState component (`components/empty` holds only DropZone). OCR is fully drawn (a3-11, a7-5, a7-5b, a11-1f), but it is a phase 3 feature.
 - **Decision:** Specify one EmptyState component from design-system tokens (icon, title, one line, optional action) and use it for every empty sidebar tab, for search with no results, and for the language filter ([G20](#g20)). A long search shows progress and Cancel in the find bar, following the a1-7 indexing pattern. A page without text says so in Search, and its OCR action is disabled with "Available in a future version" until P3 (brief §7: OCR is phase 3).
-- **Status:** Decided
-- **Evidence:** Every sidebar board uses `FmSidebar doc="kira"`. The only "0 matches" is on a8-2c, where it confirms a redaction. `components/empty` holds DropZone only.
+- **Status:** Decided; partly resolved on 2026-10-17 by export 519d42a. a2-3m specifies the EmptyState (a 40 px sunken icon tile, a title, one line, an optional action) and draws it for the empty Outline, Attachments, Layers and Signatures tabs, for Search with no result ("No results for “depozito”") and for Search in a document without text ("No text to search", with Recognize text (OCR) disabled with the future-version tooltip). a2-4c draws a long search with its progress under the find bar (the page reached, a bar, Cancel) while the matches found so far are counted and highlighted; a2-4d draws the find bar's "No results" with what was searched and where to look next. Still undrawn: the empty task drawer and the language filter with no match ([G20](#g20)), which the a2-3m note names as uses of the same EmptyState.
+- **Evidence:** Every sidebar board uses `FmSidebar doc="kira"`. The only "0 matches" is on a8-2c, where it confirms a redaction. `components/empty` holds DropZone only. In 519d42a: `design/02 View.dc.html` lines 105–107 (a2-3m, six sidebars and the note), 134–140 (a2-4c) and 141–148 (a2-4d); `design/FmSidebar.dc.html` lines 98–101 (`ESS`, the empty-state strings).
 
 <a id="g30"></a>
 
@@ -556,11 +569,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M2
 - **Area:** Rendering / zoom
-- **Artboards:** `a2-1a`, `a2-1c`, `a2-1d`, `a2-2`, `a1-7`, `a6-5`, `a11-1`, `a11-2`, `a11-3`, `a13-16`
+- **Artboards:** `a2-1a`, `a2-1c`, `a2-1d`, `a2-2`, `a1-7`, `a6-5`, `a11-1`, `a11-2`, `a11-3`, `a13-16`; partly resolved by `a2-13` (export 519d42a)
 - **Gap or conflict:** Drawn: Fit page (a2-1a), spread and book at 55 % (a2-1c, a2-1d) and the zoom menu (a2-2: Fit width ⌘2, Fit page ⌘0, Actual size ⌘1). Not drawn: tiles loading or sharpening while zooming or scrolling, a page that fails to render, and the Fit width and Actual size selected states, although Fit width is the default zoom in Settings › General (a11-1). a1-7's "Rendering page 2" spinner page is the only per-page placeholder, and only during the large-file open; mobile a13-16 notes that "the rest load while you read". Go to page exists only as a shortcut (⌘G, a11-3), a palette group (a11-2) and a note (a6-5); the status-bar page indicator is static text.
 - **Decision:** Tiles draw a low-resolution version first and sharpen in place, without layout shift ([ADR 0009](adr/0009-threading-and-jobs.md)). A page that fails to render shows a placeholder with a plain message and a retry, and the rest of the document keeps working. The status-bar page indicator becomes an editable field that ⌘G or Ctrl+G focuses and that accepts page labels, as a6-5 describes. The zoom control shows Fit width and Actual size when selected.
-- **Status:** Decided
-- **Evidence:** FmWindow's `fit` prop is only ever `"page"`. Settings › General defaults Zoom to `fitw`. The status-bar page text is a plain span.
+- **Status:** Decided; partly resolved on 2026-10-17 by export 519d42a. a2-13 draws low-resolution tiles sharpening in place without layout shift (the lower part of page 2), a page that failed to render with a placeholder ("Ferman couldn't draw page 3.", "Something on this page can't be read. The rest of the document works as usual.") and Try again, Fit width selected in the Fit control and named in the zoom field while the status bar shows the zoom it gives, and the status bar's page field, which ⌘G or Ctrl+G focuses and which takes page numbers and labels. Actual size's selected state is still undrawn.
+- **Evidence:** FmWindow's `fit` prop is only ever `"page"`. Settings › General defaults Zoom to `fitw`. The status-bar page text is a plain span. In 519d42a: `design/02 View.dc.html` lines 263–270 (a2-13: `fit="width"`, `page-edit`, the note at line 270); `design/FmWindow.dc.html` lines 169 and 244 (`pageEdit`).
 
 <a id="g31"></a>
 
@@ -569,11 +582,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M2
 - **Area:** Signatures sidebar
-- **Artboards:** `a2-3d`, `a2-1a`, `a2-1b`, `a2-1c`, `a2-1d`, `a2-2`, `a2-3a`, `a2-4a`, `a2-4b`, `a2-6`, `a2-7`, `a2-9`, `a1-4`, `a1-4b`, `a1-4c`, `a13-2`, `a13-3b`, `a8-4`, `a5-7`, `a5-7e`, `a11-1e`
+- **Artboards:** `a2-3d`, `a2-1a`, `a2-1b`, `a2-1c`, `a2-1d`, `a2-2`, `a2-3a`, `a2-4a`, `a2-4b`, `a2-6`, `a2-7`, `a2-9`, `a1-4`, `a1-4b`, `a1-4c`, `a13-2`, `a13-3b`, `a8-4`, `a5-7`, `a5-7e`, `a11-1e`; resolved by `a2-14` and `a1-4-m2` (export 519d42a)
 - **Gap or conflict:** Signature validation is phase 3, but every signature surface shows a checked result: the Signatures tab a2-3d ("Valid. The document hasn't changed since it was signed.", "e-imza · 13.10.2026 11:04"); the View doc panel ("1 valid signature, page 3", green) on nearly every 02 View board (a2-1a to a2-9); the green "Signed" badge on Start and on mobile (a1-4, a1-4b, a1-4c, a13-2, a13-3b); and "2 valid signatures" in a8-4. a5-7 to a5-7e show validation states only, and a11-1e offers revocation checks when opening signed files. No board shows a signature that is present but not checked, which is all that M2 to M5 can show.
 - **Decision:** Until P3, signatures appear in a neutral state, with no validity colour or check icon. The Signatures tab shows the signer's name as written in the file and "Signature checking is available in a future version". The doc panel says "1 signature, page 3", and file lists use the neutral signature chip. P3 replaces the neutral state with the drawn validation states.
-- **Status:** Decided
-- **Evidence:** FmSidebar.dc.html line 153; FmDocPanel.dc.html line 25 (badge-check in `--success-solid`). The Index defines `R='ready'` and `P='planned'`, and no board uses P.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a2-14 draws the Signatures tab with the signer's entry in the neutral state (the `signature` icon in the secondary icon colour, "Signature checking is available in a future version.") and the document panel's "1 signature, page 3" with no green and no check; a1-4-m2 draws the neutral Signed chip, with the `signature` icon and no green, on the signed recent file. The other boards keep drawing the validated states of P3. Was Decided.
+- **Evidence:** FmSidebar.dc.html line 153; FmDocPanel.dc.html line 25 (badge-check in `--success-solid`). The Index defines `R='ready'` and `P='planned'`, and no board uses P. In 519d42a: `design/02 View.dc.html` lines 271–279 (a2-14); `design/FmSidebar.dc.html` lines 99 (`sigFuture`) and 186 (`sigNeutral`); `design/FmDocPanel.dc.html` line 25 (`sigNeutral`: "1 signature, page 3"); `design/FmStart.dc.html` lines 76 (`signedNeutral`) and 89.
 
 <a id="g32"></a>
 
@@ -582,11 +595,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** ambiguity
 - **Milestone:** M2
 - **Area:** RTL documents: spread/book/organize order
-- **Artboards:** `a2-1c`, `a2-1d`, `a6-1`, `a6-1b`, `a9-6b`, `a12-1ar`, `a12-2a`, `a12-3b`, `a13-10`
+- **Artboards:** `a2-1c`, `a2-1d`, `a6-1`, `a6-1b`, `a9-6b`, `a12-1ar`, `a12-2a`, `a12-3b`, `a13-10`; partly resolved by `a2-15` (export 519d42a)
 - **Gap or conflict:** Spread and booklet order already follow the document's own direction: the a2-1c note ("In right-to-left documents the spread starts from the right"), a9-6b binding and a12-3b swiping; a12-1ar keeps the Turkish page unmirrored. Still open: (1) whether "document direction" comes from `/ViewerPreferences/Direction` or from the content language; (2) the right-to-left book layout (cover position, first spread), because a2-1d is left-to-right only and no right-to-left document is drawn in any layout; (3) whether the Organize grid (a6-1, a6-1b; mobile a13-10) and the thumbnail order flow right to left under an Arabic UI, as the Start file grid does in a12-2a; (4) page content staying unmirrored in those views.
 - **Decision:** Spread and book order follow the document's `/ViewerPreferences/Direction` only (`/R2L` puts the first page on the right). With no entry the order is left to right, the PDF default; it never follows the UI language or a guessed script. In book layout a right-to-left document mirrors the cover rule of a2-1d. The Organize grid and thumbnail order follow the UI direction, as the Start grid does, and page content is never mirrored ([ADR 0014](adr/0014-localization-and-rtl.md)). The test corpus gets a right-to-left Arabic document for goldens.
-- **Status:** Decided
-- **Evidence:** 02 View.dc.html line 53 (the a2-1c note); 09b line 91 ("Binding follows the document direction"); the a12-2a note ("Grid flows right to left").
+- **Status:** Decided; partly resolved on 2026-10-17 by export 519d42a. a2-15 draws a two-page spread of an Arabic document whose `/ViewerPreferences/Direction` is `/R2L`: page 1 on the right and page 2 on its left, in every interface language, and its note settles point (1) as this entry does: the order follows only that entry, left to right without it, never the UI language. Still undrawn: the right-to-left book layout and the Organize grid and thumbnails of a right-to-left document; the a2-15 note states this entry's decision for them (the cover stands alone on the left, mirroring a2-1d; the grid and thumbnails follow the interface direction; page content is never mirrored).
+- **Evidence:** 02 View.dc.html line 53 (the a2-1c note); 09b line 91 ("Binding follows the document direction"); the a12-2a note ("Grid flows right to left"). In 519d42a: `design/02 View.dc.html` lines 280–286 (a2-15: `layout="two"`, the pages at line 283, the note at line 286) and 66 (the a2-1d note: "The cover stands alone on the right").
 
 <a id="g33"></a>
 
@@ -608,11 +621,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M2
 - **Area:** Locale formatting in English UI
-- **Artboards:** rule: `a11-1b`, `a12-2c`; dates: `a2-7`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a12-2a`, `a2-3b`, `a2-3d`, `a5-5c`; decimals: `a1-2a`, `a3-1b`, `a3-1c`, `a3-3a`, `a3-4`, `a1-9b`, `a12-1ja`, `a13-5`, `a12-1tr`, `a12-1de`, `a9-1`, `a11-6b`
+- **Artboards:** rule: `a11-1b`, `a12-2c`, and `a12-0` (export 519d42a), which resolves this entry; dates: `a2-7`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a12-2a`, `a2-3b`, `a2-3d`, `a5-5c`; decimals: `a1-2a`, `a3-1b`, `a3-1c`, `a3-3a`, `a3-4`, `a1-9b`, `a12-1ja`, `a13-5`, `a12-1tr`, `a12-1de`, `a9-1`, `a11-6b`
 - **Gap or conflict:** a11-1b states the rule: region formats drive dates and numbers (with the region Türkiye: "13.10.2026", "18.500,50", "10,5 pt"), and a12-2c repeats it. The boards break it with four date styles: "13 Oct 2026, 14:32" (the FmDocPanel on most 02 View boards, a2-7), the US "Oct 12, 2026" (Start a1-4, a1-4b, a1-4c, a1-6), "١٢/١٠/٢٠٢٦" (Arabic Start a12-2a, Arabic-Indic digits through FmStart's dg()) and the region-correct "13.10.2026" (a2-3b, a2-3d, a5-5c). Decimals mix too: "10.5 pt" and "2.4 MB" (a1-2a, a3-1b, a3-1c, a3-3a, a3-4, a1-9b, a12-1ja, a13-5) against "10,5 pt", "1,2 MB" and "24,6 MB" (a12-1tr, a12-1de, a2-3b, a9-1, a11-6b). FmStart dates and the font-size labels in a12-1tr, a12-1de and a12-1ja follow the UI language.
 - **Decision:** Numbers, dates, file sizes, paper sizes and units always follow the region setting (a11-1b), never the UI language ([ADR 0014](adr/0014-localization-and-rtl.md)). Boards that show another format are read as drawn for another region. Goldens fix the region in each test. Built in M1 (`app/lib/l10n/region.dart`, `format.dart`). The digits come from the region. Both Arabic boards draw Arabic-Indic digits: a12-1ar ("١٠٫٥ pt") and a12-2a, whose dates FmStart converts with dg() (lines 82–87; rendered "١٢/١٠/٢٠٢٦"). They are the Saudi Arabia region, and goldens of the Arabic boards use Saudi Arabia. The United Arab Emirates region writes Latin digits, as CLDR's ar-AE does; no board draws it. Numeric dates follow CLDR `yMd`, so the German region writes "2.10.2026" and "28.9.2026" where a12-2b draws "02.10.2026" and "28.09.2026"; accepted. a12-2a writes Arabic times on a 24-hour clock ("اليوم ١٤:٣٢"); CLDR's ar-SA and ar-EG write "h:mm a" ("٢:٣٢ م"). Times follow CLDR; accepted. US times keep CLDR's U+202F before "PM". The a11-1b week picker draws Monday, Sunday and Saturday; a region whose CLDR first day is Friday (the Maldives) adds a Friday option. Percentages: Turkish CLDR writes "%100", with the sign first, while the boards draw "100%" (no "%100" appears anywhere in `design/`). The app follows CLDR through `RegionFormat.percent`, added in M1: "%100" for Türkiye, "100%" for the United States and "١٠٠٪" for Saudi Arabia, with CLDR's U+061C after the sign. The shell's zoom readouts (the status bar and the View row's zoom menu) and the "100%" zoom option in Settings › General use it ([G74](#g74)). The goldens fix the region per language ([G97](#g97)): Türkiye for Turkish, Saudi Arabia for Arabic, and the United Kingdom for English, whose 24-hour clock and "100%" give FmWindow's "14:32" and "100%" (the United States would write "2:32 PM"); Settings › Language and region uses Türkiye in every language, as a11-1b and a12-2c show.
-- **Status:** Decided. On 2026-10-16 the percentage helper arrived in M1; the entry had left percentages to the zoom field in M2. On 2026-10-16 the golden regions were added, and the owner kept the United Kingdom for the English goldens.
-- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic, turned into Arabic-Indic digits by dg() at lines 82–87).
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a12-0, "Region formats, from CLDR", tabulates this decision for Türkiye, the United Kingdom, the United States, Germany, Saudi Arabia and the United Arab Emirates (date, time, number, percent and font size), marks Türkiye, the United Kingdom and Saudi Arabia as the Turkish, English and Arabic golden regions, and its note repeats the rules: the region, never the interface language; digits from the region; CLDR `yMd` dates ("2.10.2026" for Germany); CLDR times ("٢:٣٢ م", the narrow space before "PM"); "%100" for Türkiye, which FmWindow's zoom field and status bar now use; other formats on the boards read as drawn for another region. Was Decided; on 2026-10-16 the percentage helper arrived in M1 (the entry had left percentages to the zoom field in M2), the golden regions were added, and the owner kept the United Kingdom for the English goldens.
+- **Evidence:** FmSettings.dc.html line 95 (the a11-1b examples); FmStart lines 66–72 ("Oct 12, 2026" in English, "12.10.2026" in German, "12/10/2026" in Arabic, turned into Arabic-Indic digits by dg() at lines 82–87). In 519d42a: `design/12 Localization.dc.html` line 39 (a12-0, a table without the board-language switch, which ROADMAP §6 step 6 makes the oracle of the M2 `RegionFormat` tests); `design/FmWindow.dc.html` line 219 (`pct`).
 
 <a id="g35"></a>
 
@@ -621,11 +634,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing screen
 - **Milestone:** M3
 - **Area:** Edit: signed-document warning
-- **Artboards:** edits on a signed file: `a3-1a`, `a3-1b`, `a3-1c`, `a3-2`, `a3-3a`, `a3-4`, `f4a`, `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja`; signature facts: `a2-3p`, `a2-3d`, `a5-5c`, `a5-6d`; scattered copy: `a9-1`, `a9-5`, `a9-5b`, `a6-3`, `a4-5b`, `a3-13a`, `a8-4`, `a5-7`, `a5-7e`, `a13-11`; no policy in `a3-12`, `a11-1c`, `a11-1e`
+- **Artboards:** resolved by `a3-16a`, `a3-16b` and the signature row of `a3-12` (export 519d42a); edits on a signed file: `a3-1a`, `a3-1b`, `a3-1c`, `a3-2`, `a3-3a`, `a3-4`, `f4a`, `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja`; signature facts: `a2-3p`, `a2-3d`, `a5-5c`, `a5-6d`; scattered copy: `a9-1`, `a9-5`, `a9-5b`, `a6-3`, `a4-5b`, `a3-13a`, `a8-4`, `a5-7`, `a5-7e`, `a13-11`; no policy in `a3-12`, `a11-1c`, `a11-1e`
 - **Gap or conflict:** No board draws a warning before the first edit of a signed document; Edit, Comment, Fill and Save have no such state, and a3-12 has no signature row. The tab edited in a3-1a to a3-4, f4a and a12-1tr, a12-1de, a12-1ar and a12-1ja is "Kira sözleşmesi.pdf", which the View doc panel lists with "1 valid signature, page 3" and whose page-3 thumbnail carries the signature badge (a2-3p, a3-4). The two valid signatures in a5-5c belong to a separate copy, "Kira sözleşmesi — imzalı.pdf" (a5-6d). Signature-consequence copy exists but is scattered and never covers ordinary editing: the a9-1 note (compress, not drawn), a9-5 and a9-5b (batch), a6-3 (combine), a4-5b (flatten), a3-13a ("signatures kept"), a8-4 and flow C (redact), a5-7 and a5-7e (after the fact), and a13-11.
 - **Decision:** Brief §4 requires the warning. Before the first change to a signed document the engine asks for confirmation ([ADR 0005](adr/0005-block-scoped-text-editing.md)), and the UI shows a custom dialog that says how many signatures will become invalid and offers "Edit a copy" (default), "Edit anyway" and "Cancel". After "Edit anyway", a persistent banner says the signatures are no longer valid. The same check runs before the first change in Comment, Fill, Organize and Save, and the notice says what that change does to the signatures (for example, filling fields that a certification allows keeps it valid). The review list gets a signature row ([G42](#g42)). It is built from the design system's Dialog and Banner; boards are asked for in the re-export.
-- **Status:** Decided
-- **Evidence:** No "Edit a copy" or "Edit anyway" copy exists. FmDocPanel.dc.html lines 21–25; a3-4 `thumbsWarn` marks page 3 `{fields:true, signed:true}`; 15 Flows line 78 (flow C's branch "The file is signed" links to a8-4).
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a3-16a draws the dialog before the first change ("Edit a signed document?", how many signatures the change invalidates and by whom, Edit a copy as the default with Enter, Edit anyway, Cancel with Esc, and where the copy opens); a3-16b draws the warning Banner that stays after Edit anyway, with Review edits, and the page-3 thumbnail's warning badge; a3-12 adds the signature row at the top of the review list. The a3-16a note names the same check before the first change in Comment, Fill & Sign and Organize and before saving a repaired file, where this entry said Save; the board's reading holds, because an ordinary save follows a change that was already confirmed. It also says no setting turns the check off ([G43](#g43)). Was Decided.
+- **Evidence:** No "Edit a copy" or "Edit anyway" copy exists. FmDocPanel.dc.html lines 21–25; a3-4 `thumbsWarn` marks page 3 `{fields:true, signed:true}`; 15 Flows line 78 (flow C's branch "The file is signed" links to a8-4). In 519d42a: `design/03a Edit text.dc.html` lines 153–162 (a3-16a) and 163–171 (a3-16b); `design/03c Edit review and translate.dc.html` lines 60–74 (a3-12 and its note) and 202 (the signature row).
 
 <a id="g36"></a>
 
@@ -634,11 +647,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** ambiguity (resolved)
 - **Milestone:** M3
 - **Area:** Edit: missing glyph
-- **Artboards:** `a3-3a`, `a3-3b`, `f2`, `a11-1c`, `a13-5c`
+- **Artboards:** `a3-3a`, `a3-3b`, `f2`, `a11-1c`, `a13-5c`; resolved by the `a3-3a` note and `a3-17` (export 519d42a)
 - **Gap or conflict:** The design is not silent. It says so once (FmEditPanel and f2: "This font has no ‘ğ’. Ferman will use a similar font for this character."), marks the glyph with an amber wavy underline and a page warning badge, and offers "Choose a font…", "Keep as is" and the a3-3b picker. a11-1c also offers "Ask each time" and "Keep the original font and mark the character". The open point: the default (a11-1c "Use a similar font and say so", the FmEditPanel and f2 copy, a13-5c and flow A) applies a similar font at once and skips the brief's middle step, taking the glyph from the same font installed on the system and re-subsetting it. That step is only implied by the f2 note (the `warning` prop "is reserved for fonts that are not installed") and is never drawn; the a3-3b installed group shows only other families.
 - **Decision:** Three steps in the brief's order ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)): (1) use the embedded glyph if it is present; (2) if the same font is installed, take the glyph from it, re-subset, embed it as a new font resource for the edited runs, and say so once; (3) otherwise follow the design's flow as drawn: the a11-1c default "Use a similar font and say so", marked once, with "Choose a font…" and "Keep as is", and "Ask each time" available in Settings. Nothing is ever substituted silently. The owner confirmed this default on 2026-10-16 ([Q09](QUESTIONS.md#q09)).
-- **Status:** Decided. The owner confirmed the default, "Use a similar font and say so", and the `fsType` detail of ADR 0006 on 2026-10-16 ([Q09](QUESTIONS.md#q09)). Was Needs owner.
-- **Evidence:** FmEditPanel.dc.html line 44; 00 Fixes lines 45–53; FmSettings.dc.html line 44 (the a11-1c radios, first one checked); 15 Flows line 54; 03a lines 163–174 (the a3-3b groups).
+- **Status:** Resolved on 2026-10-17 by export 519d42a: the a3-3a note now says a3-3a is step 3 (the embedded glyph is missing and the same font isn't installed), and a3-17 draws step 2: "Character added from this computer", "Ferman took ‘ğ’ from Garamond Premier Pro installed on this computer and added it to the document's font.", with the three steps in the brief's order in its note. Was Decided; the owner confirmed the default, "Use a similar font and say so", and the `fsType` detail of ADR 0006 on 2026-10-16 ([Q09](QUESTIONS.md#q09)). Was Needs owner before that.
+- **Evidence:** FmEditPanel.dc.html line 44; 00 Fixes lines 45–53; FmSettings.dc.html line 44 (the a11-1c radios, first one checked); 15 Flows line 54; 03a lines 163–174 (the a3-3b groups). In 519d42a: `design/03a Edit text.dc.html` lines 83 (the a3-3a note) and 174–176 (a3-17 and its note).
 
 <a id="g37"></a>
 
@@ -647,11 +660,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Edit: missing glyph
-- **Artboards:** `a3-3a`, `a3-3b`, `a13-5c`, `a3-12`, `a11-6`, `f5`, `a11-1c`, `a2-7`, `a3-7`, `a3-9`
+- **Artboards:** `a3-3a`, `a3-3b`, `a13-5c`, `a3-12`, `a11-6`, `f5`, `a11-1c`, `a2-7`, `a3-7`, `a3-9`; resolved by `a3-17` (export 519d42a)
 - **Gap or conflict:** The warning (a3-3a, and a13-5c on mobile) and the picker (a3-3b) are the only full missing-glyph screens. Some later pieces exist: a3-12 has a font-substitution row ("Madde 6 · font: Garamond Premier Pro → EB Garamond (whole block)") with a Fonts filter, a11-6 has a "Font substituted" toast, the f5 thumbnail tooltip covers a kept warning, a11-1c has the policy setting, a2-7's font list notes that typing ‘ğ’ needs a substitute, and a3-3b has a scope control ("Missing characters only" or "Whole block"). Not drawn: (a) step 2, where the same font (Garamond Premier Pro) is installed and the glyph is re-subset from it; (b) no font covers the character; (c) the font's licence forbids embedding; (d) the page after substitution, in either scope; (e) missing glyphs in find-and-replace text (a3-7) or in table cells (a3-9).
 - **Decision:** Built from the a3-3a callout pattern with new copy ([ADR 0006](adr/0006-font-pipeline-and-missing-glyphs.md)): (a) step 2 says once where the glyph came from (for example "Ferman took ‘ğ’ from Garamond Premier Pro on this computer"); (b) when no font covers the character, the callout says so and offers only "Choose a font…" and "Keep as is"; (c) fonts whose `fsType` forbids embedding are listed with the reason and skipped; accepted with [Q09](QUESTIONS.md#q09) on 2026-10-16: text set in an embedded font whose OS/2 `fsType` allows at most preview and print does not reuse its embedded glyphs, so step 2 runs only if the installed copy allows embedding, and otherwise step 3, with the reason shown; (d) substituted characters keep the f2 marking, in the scope chosen; (e) find and replace (P2) and table cells use the same flow. Every case lands in the review list. Boards are asked for in the re-export.
-- **Status:** Decided
-- **Evidence:** 03a lines 162–174: every alternative in a3-3b shows "Full Turkish" and none has a licence flag. FmEditPanel has only `glyph` and `noGlyph` booleans. 11b line 162 holds the toast.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a3-17 draws the panel callouts for (a) step 2 ("Character added from this computer"), (b) no font with the character ("No font has this character", offering only Choose a font… and Keep as is) and (c) a licence that allows only preview and print ("This font can't be embedded", going on to a similar font), and its note states (d) and (e) as decided here: the f2 marking in the scope chosen in a3-3b, every case in Review edits, and the same flow for find and replace and table cells. Was Decided.
+- **Evidence:** 03a lines 162–174: every alternative in a3-3b shows "Full Turkish" and none has a licence flag. FmEditPanel has only `glyph` and `noGlyph` booleans. 11b line 162 holds the toast. In 519d42a: `design/03a Edit text.dc.html` lines 174–176 (a3-17 and its note); `design/FmEditPanel.dc.html` line 73 (the new `callout` prop).
 
 <a id="g38"></a>
 
@@ -660,11 +673,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Edit: overflow
-- **Artboards:** `a3-4`, `a13-5c`, `a3-12`, `f5`
+- **Artboards:** `a3-4`, `a13-5c`, `a3-12`, `f5`; resolved by `a3-18` (export 519d42a)
 - **Gap or conflict:** a3-4 (and a13-5c on mobile) draws only the choice, with FmEditPanel's "Extend block by 1 line", "Tighten spacing slightly (−0.6%)" and "Keep and warn". "Keep and warn" is partly shown afterwards: a3-12 lists "kept warning — 1 line hidden — overflow kept", and page 1's warning badge appears by default on every board of the rental contract. Not drawn: the result of Extend block, the result of Tighten spacing, Extend colliding with the IBAN line below, tightening that is not enough, and the on-page kept-warning marker after the choice.
 - **Decision:** As [ADR 0005](adr/0005-block-scoped-text-editing.md) says. Extend block grows the frame and is disabled, with the reason, when it would overlap other content such as the IBAN line. Tighten spacing slightly stays within a small cap and is disabled, with the reason, when that is not enough. Keep and warn loses no text: lines that do not fit are clipped to the frame, and the `--overflow-mark` with "+1 line hidden" stays on the page, with the thumbnail badge and the review-list row. Result boards are asked for in the re-export.
-- **Status:** Decided
-- **Evidence:** a3-4 renders `FmEditPanel overflow=true`. FmSidebar line 105 sets `warn:true` on page 1. No board shows an extended or tightened block.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a3-18 draws the three results (the frame extended by one line into free space; character spacing tightened by −0.6% inside the small cap; the line kept, clipped, with "+1 line hidden") and the panel with a choice that can't apply: Extend block disabled with "The IBAN line sits right below this block." under it, and Tighten spacing slightly disabled with "Even the tightest allowed spacing leaves 1 line over.". Its note adds that the page snippets keep the document's own direction in every interface language. Was Decided.
+- **Evidence:** a3-4 renders `FmEditPanel overflow=true`. FmSidebar line 105 sets `warn:true` on page 1. No board shows an extended or tightened block. In 519d42a: `design/03a Edit text.dc.html` lines 111 (the a3-4 note, pointing to a3-18) and 177–179 (a3-18 and its note).
 
 <a id="g39"></a>
 
@@ -673,11 +686,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Edit: non-editable content
-- **Artboards:** `a3-11`, `a8-1`, `a8-4`, `a2-7`, `a11-7c`
+- **Artboards:** `a3-11`, `a8-1`, `a8-4`, `a2-7`, `a11-7c`; partly resolved by `a3-19` (export 519d42a)
 - **Gap or conflict:** The only drawn treatment of content that cannot be edited is the scanned page in a3-11: a not-allowed cursor, the tooltip "No text on this page yet · Recognize text to edit", a banner and a panel. Nothing is drawn for Type3 or outlined glyphs, text inside form XObjects, content streams that cannot be parsed, documents whose permissions forbid editing, or files that are read-only on disk. a11-7c's read-only state is the XFA case in View mode, not feedback in Edit mode.
 - **Decision:** Reuse the a3-11 pattern for every case: a not-allowed cursor on hover, an inverse tooltip with the reason, and a panel callout. Reasons include text drawn as vector paths rather than glyphs, content the engine cannot parse or rewrite safely (for example a form XObject shared with other pages that cannot be split), editing forbidden by the document's permissions ([G27](#g27)) and a file that is read-only on disk ([G28](#g28)). On scanned pages the OCR action stays disabled with "Available in a future version" until P3. An edit case that cannot pass the zero-pixel-difference test becomes "not editable" with a reason instead of being attempted.
-- **Status:** Decided
-- **Evidence:** No board mentions Type3, outlined text, XObjects or editing restrictions. 03c lines 34 and 45 hold the a3-11 cursor and tooltip.
+- **Status:** Decided; partly resolved on 2026-10-17 by export 519d42a. a3-19 draws one reason, text drawn as vector shapes: the inverse tooltip with a lock ("This text is drawn as shapes, so it can't be edited") and the panel callout "This text can't be edited", reusing a3-11's pattern, and its note repeats this decision, the zero-pixel-difference rule included. The other reasons (content the engine can't parse or rewrite safely such as a shared form XObject, editing forbidden by the permissions, a file read-only on disk) are named only in that note and are still undrawn.
+- **Evidence:** No board mentions Type3, outlined text, XObjects or editing restrictions. 03c lines 34 and 45 hold the a3-11 cursor and tooltip. In 519d42a: `design/03a Edit text.dc.html` lines 182–190 (a3-19 and its note).
 
 <a id="g40"></a>
 
@@ -686,11 +699,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Save / atomic save
-- **Artboards:** `f4`, `f4a`, `f4b`, `a11-6`, `a11-7`, `a11-7b`, `a11-7c`, `a1-10b`, `a1-12`, `a11-4`
+- **Artboards:** `f4`, `f4a`, `f4b`, `a11-6`, `a11-7`, `a11-7b`, `a11-7c`, `a1-10b`, `a1-12`, `a11-4`; resolved by `a11-7d`, `a11-7e` and `a11-7f` (export 519d42a)
 - **Gap or conflict:** Drawn: the save states (f4, f4a, f4b), disk full (a11-7, the f4 toast and the a11-6 toast), changed on disk with unsaved edits (a11-7b), and FmWindow `save="readonly"` (a11-7c: XFA, a lock and "Read-only" in the status bar). Not drawn: a read-only or permission-denied destination on save, the atomic rename failing, a file locked by another app, a network drive disappearing, quitting with several unsaved documents (a1-10b covers one document; the a11-4 note mentions restoring unsaved documents after an update restart), and crash recovery when the original changed on disk (a1-12 says outright that the files haven't changed).
 - **Decision:** One family of save errors that reuses the a11-7 layout ([ADR 0008](adr/0008-file-safety-and-saving.md)). Each failure (read-only or permission denied, locked by another app, rename failed, volume gone) says what happened, keeps the edits and offers "Try again" and "Save as…". The read-only tab state follows a11-7c. Quitting with unsaved documents shows one dialog that lists them, built from a1-10b. Recovery checks the original's recorded hash and shows a conflict state in a1-12 if the original changed.
-- **Status:** Decided
-- **Evidence:** 11b line 96 (a11-7, `save="error"`) and line 112 (a11-7c, `save="readonly"`). The a1-12 caption: "Restored documents open as unsaved; the files on disk haven’t changed." 15 Flows lists only "Disk full while saving".
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a11-7d draws the family in a11-7's layout (permission denied, locked by another app, couldn't replace the original, drive disconnected), each saying the edits are kept and offering Try again and Save as…, with the unsaved dot kept and "Couldn't save" in the status bar; a11-7e draws quitting with three unsaved documents, built from a1-10b (one checked row per document, Save and quit, Quit without saving, Cancel, and the Windows button order); a11-7f draws recovery when an original changed after its copy (the hash recorded with the copy, a "Changed on disk" badge, the restored version opening under a new name so neither is overwritten). Was Decided.
+- **Evidence:** 11b line 96 (a11-7, `save="error"`) and line 112 (a11-7c, `save="readonly"`). The a1-12 caption: "Restored documents open as unsaved; the files on disk haven’t changed." 15 Flows lists only "Disk full while saving". In 519d42a: `design/11b App.dc.html` lines 119 (a11-7d), 120–126 (a11-7e), 127–130 (a11-7f) and 143–147 (their strings).
 
 <a id="g41"></a>
 
@@ -699,11 +712,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M3
 - **Area:** Save button states
-- **Artboards:** `f4`, `a11-7`
+- **Artboards:** `f4`, `a11-7`; resolved by FmWindow and the notes of `a11-7` and `a1-9d` (export 519d42a)
 - **Gap or conflict:** f4's state table shows "Couldn't save" with Save enabled, but FmWindow computes `saveDisabled: save !== 'unsaved'` and sets the tooltip to "No changes to save" for every state except unsaved. So a11-7, rendered with `save="error"`, shows a disabled Save with that tooltip, while the tab shows the unsaved dot and the dialog offers "Try again" and "Save somewhere else…".
 - **Decision:** Follow f4, the binding fix: Save stays enabled in the error state so the user can retry. It is disabled only when saved, saving or read-only, and its tooltip matches the state.
-- **Status:** Decided
-- **Evidence:** 00 Fixes line 91: the "Couldn't save" row has no `disabled` prop, while "Saved" has `disabled={{ true }}`. FmWindow.dc.html line 227.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: FmWindow now disables Save only when saved, saving or read-only, with "No changes to save" or "Read-only" as its tooltip, so a11-7 (`save="error"`) shows Save enabled, as its new note says; a1-9d shows the read-only Save with the tooltip "Read-only". Was Decided.
+- **Evidence:** 00 Fixes line 91: the "Couldn't save" row has no `disabled` prop, while "Saved" has `disabled={{ true }}`. FmWindow.dc.html line 227. In 519d42a: `design/FmWindow.dc.html` line 229 (`saveDisabled`, `saveTip`); `design/11b App.dc.html` line 95 (the a11-7 note); `design/01 First run and files.dc.html` line 204 (the a1-9d note).
 
 <a id="g42"></a>
 
@@ -712,11 +725,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Edit review list
-- **Artboards:** `a3-12`, `f4b`, `a3-5a`
+- **Artboards:** `a3-12`, `f4b`, `a3-5a`; resolved by `a3-12b` and the changed `a3-12` (export 519d42a)
 - **Gap or conflict:** a3-12 shows only the populated list (5 rows). It has no empty state, no confirmation for "Revert all…" (only the button) and no conflict when reverting an edit that another edit depends on. There is no signed-document row, and no edit-time signature warning exists anywhere ([G35](#g35)). The list already has a font-substitution row and a kept-overflow warning row, with All, Text, Fonts and Warnings filters. The f4b note says edit marks stay until the document is closed; what happens after reopening is not stated. The "Page 1 · new text box" row needs Add text (a3-5a), which is phase 2.
 - **Decision:** Add an empty state (EmptyState, [G29](#g29)), a confirmation dialog for "Revert all…", a notice when a revert would also undo edits that depend on it, and a signed-document row ([G35](#g35)). The list covers the current session and clears when the document closes, as f4b says; earlier sessions are reached through version history (M4). In M3 the new-text-box row cannot occur, so M3 goldens use an M3 edit type in its place.
-- **Status:** Decided
-- **Evidence:** The 03c script's `E[]` rows; footer buttons "Revert all…" and "Export list…". No "no edits" or "nothing to review" string exists.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a3-12b draws the empty list with the shared EmptyState ("No edits yet") and Revert all and Export list disabled, the confirmation for Revert all… ("Revert all 5 edits?", undoable until the document closes), and the notice for an edit that a later edit builds on ("Also revert the edit that depends on it?", Revert both); a3-12 gains the signature row at the top ("Mert Kaya's signature is no longer valid"), and its note states the session scope with earlier sessions in Version history and the M3 goldens' stand-in for the new-text-box row. Was Decided.
+- **Evidence:** The 03c script's `E[]` rows; footer buttons "Revert all…" and "Export list…". No "no edits" or "nothing to review" string exists. In 519d42a: `design/03c Edit review and translate.dc.html` lines 60–74 (a3-12 and its note), 77–87 (a3-12b and its note) and 201–202 (`E`, with the signature row).
 
 <a id="g43"></a>
 
@@ -725,11 +738,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** missing state
 - **Milestone:** M3
 - **Area:** Settings › Editing
-- **Artboards:** `a11-1c`, `a1-12`, `a11-7`, `a3-4`, `a11-1e`
+- **Artboards:** `a11-1c`, `a1-12`, `a11-7`, `a3-4`, `a11-1e`; resolved by the changed `a11-1c` (export 519d42a)
 - **Gap or conflict:** a11-1c has "Keep versions" (30 days next to the file, 7 days, Don't keep versions) and "Save a recovery copy every minute", so recovery can be turned off. Not drawn: any explanation or choice of incremental versus full saving (incremental is the default and keeps signatures), a recovery interval, the recovery-copy location (a1-12 says only that Ferman "kept a copy of each on this device", and a11-7 names the copy without a path), a default for overflow, and a preference for the signed-document warning (a11-1e has only the revocation switch).
 - **Decision:** Add a "Saving" group to a11-1c in its existing style. It explains that changes are saved at the end of the file by default (faster, and signatures stay intact), offers "Optimize and clean" as an explicit command that warns before it breaks signatures and is never the default, and shows where recovery copies are kept, with "Show in Finder" or "Show in Explorer" ([ADR 0008](adr/0008-file-safety-and-saving.md)). The interval stays at one minute, as drawn. There is no overflow default and no signed-warning preference: overflow is chosen per edit (a3-4), and the signed-document warning always shows (brief §4).
-- **Status:** Decided
-- **Evidence:** FmSettings.dc.html lines 41–48 (the Editing pane). No board contains "incremental", "end of the file" or "rewrite the whole".
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a11-1c now draws the Saving group: "Changes are added to the end of the file" ("Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean."), Optimize and clean as a command-palette action that is never used on its own and warns first when signatures would become invalid, and Recovery copies with the folder (`~/Library/Application Support/Ferman/Recovery`, `%LOCALAPPDATA%\Ferman\Recovery` on Windows) and Show in Finder or Show in Explorer ([G107](#g107)). Its note keeps the one-minute interval, no overflow default and no switch for the signed-document warning. Was Decided.
+- **Evidence:** FmSettings.dc.html lines 41–48 (the Editing pane). No board contains "incremental", "end of the file" or "rewrite the whole". In 519d42a: `design/FmSettings.dc.html` lines 48 (the Saving group) and 127 (`recPath`, `showIn`); `design/11a Settings.dc.html` line 33 (the a11-1c note).
 
 <a id="g44"></a>
 
@@ -738,11 +751,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M3
 - **Area:** Keyboard shortcuts
-- **Artboards:** `a1-11`, `a11-2`, `a11-3`, `a11-1j`
+- **Artboards:** `a1-11`, `a11-2`, `a11-3`, `a11-1j`; resolved by the changed `a11-1j`, `a11-2` and `a11-3` and FmWindow (export 519d42a)
 - **Gap or conflict:** ⌥⌘S is bound to "Save a copy" (the a1-11 note), "Add signature" (the a11-2 palette and the a11-3 Fill & Sign group) and "Sidebar" (the a11-3 Window group, and the FmWindow sidebar tooltip, ⌥⌘S or Ctrl+Alt+S, on every editor board). The a11-3 cheat sheet lists it twice. a11-1j draws the clash as a reassignment in progress (warning text: ⌥⌘S is already "Show or hide sidebar"), which treats Sidebar as the owner, while a11-2 and a11-3 present Add signature on ⌥⌘S as already assigned. The shortcut data is copied in both 11a Settings and 11b App.
 - **Decision:** ⌥⌘S stays "Save a copy", the only one of the three tied to saving. Sidebar moves to ⌃⌘S, the usual macOS key for showing a sidebar. Add signature gets ⇧S on every system, active only in Fill & Sign, beside ⇧D for today's date (a11-3). On Windows and Linux the sidebar keeps Ctrl+Alt+S, as FmWindow draws it, so Save a copy has no key there (a1-11 also offers it as a checkbox in Save as). All shortcuts come from one table, and a test fails on any duplicate per platform. M1 already applies this, because the shell tooltips show the Sidebar shortcut ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
-- **Status:** Decided. On 2026-10-16 the keys were filled in: ⇧S for Add signature, and on Windows and Linux Ctrl+Alt+S stays the sidebar, so Save a copy has no key there.
-- **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141. Implemented in `app/lib/features/shell/shortcuts.dart` (`saveCopy` lines 222–224, `toggleSidebar` lines 300–305, `addSignature` lines 572–577) and checked in `app/test/features/shell/shortcuts_test.dart` lines 143–163 (M1 phase H5).
+- **Status:** Resolved on 2026-10-17 by export 519d42a: FmWindow's sidebar tooltip is ⌃⌘S (Ctrl+Alt+S on Windows); the a11-2 palette gives Add signature ⇧S; the a11-3 cheat sheet lists Save a copy ⌥⌘S, Sidebar ⌃⌘S and Add signature ⇧S once each; a11-1j draws recording ⌥⌘S for Add signature with the warning "⌥⌘S is already “Save a copy”. Press Enter to reassign it, Esc to keep ⇧S.", and its note repeats this decision, the Windows and Linux keys and the duplicate test included. Was Decided; on 2026-10-16 the keys were filled in: ⇧S for Add signature, and on Windows and Linux Ctrl+Alt+S stays the sidebar, so Save a copy has no key there.
+- **Evidence:** 01 First run and files line 211; 11b App lines 134, 144 and 147; FmWindow.dc.html line 203; FmSettings.dc.html line 141. Implemented in `app/lib/features/shell/shortcuts.dart` (`saveCopy` lines 222–224, `toggleSidebar` lines 300–305, `addSignature` lines 572–577) and checked in `app/test/features/shell/shortcuts_test.dart` lines 143–163 (M1 phase H5). In 519d42a: `design/FmWindow.dc.html` line 203 (`sidebar`: ⌃⌘S, Ctrl+Alt+S); `design/11b App.dc.html` lines 28 and 36 (the a11-2 and a11-3 notes) and 183–190 (the cheat-sheet groups); `design/FmSettings.dc.html` line 162 (the a11-1j recording row); `design/11a Settings.dc.html` line 41 (the a11-1j note).
 
 <a id="g45"></a>
 
@@ -933,11 +946,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** ambiguity
 - **Milestone:** M2
 - **Area:** Start / sample documents
-- **Artboards:** none; `FmStart` and `DocForm`
+- **Artboards:** none; `FmStart` and `DocForm`; resolved in `FmStart` and the `a1-4-m2` note (export 519d42a)
 - **Gap or conflict:** FmStart lists "Adres değişikliği formu.pdf" as 2 pages, but the DocForm fixture footer reads "1 / 1".
 - **Decision:** The corpus fixture is a one-page form (`form-aks1-tr`), and recent-file metadata in the app always comes from the real file.
-- **Status:** Decided
-- **Evidence:** Found during the M0 discovery and confirmed against the FmStart recent-file data and the DocForm footer.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: FmStart lists the e-Devlet form with 1 page on every Start board, and the a1-4-m2 note says "The e-Devlet form lists 1 page, as the file has." Was Decided.
+- **Evidence:** Found during the M0 discovery and confirmed against the FmStart recent-file data and the DocForm footer. In 519d42a: `design/FmStart.dc.html` line 68; `design/01 First run and files.dc.html` line 123 (the a1-4-m2 note).
 
 <a id="g60"></a>
 
@@ -959,11 +972,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M2
 - **Area:** Search
-- **Artboards:** `a2-4a`; search results: `a2-4b`, `a2-3e`
+- **Artboards:** `a2-4a`, resolved by its change in export 519d42a; search results: `a2-4b`, `a2-3e`
 - **Gap or conflict:** Brief §7 M2 requires search that is "diacritic-insensitive, İ/ı aware". The a2-4a search options draw the checkbox "Ignore accents and dotted/dotless i", checked, with the description "“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default for Turkish documents." That implies the option is off by default for other documents, so a German or English document would open with search that is sensitive to accents, and "muller" would not find "Müller".
 - **Decision:** The option is on by default for every document, whatever its language. The checkbox stays as drawn, so people can turn it off. The last sentence of its description becomes "On by default." M2 acceptance tests the default settings: "muller" finds "Müller" in `mietvertrag-de`, and "istanbul" finds "İSTANBUL" in `kira-tr`.
-- **Status:** Decided
-- **Evidence:** 02 View.dc.html line 116 (a2-4a): the checkbox with `default-checked` and the description "On by default for Turkish documents."; brief §7, M2.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: a2-4a's description ends "On by default.", and its note says ignoring accents is on by default for every document, whatever its language: "muller" finds "Müller" in a German file, "istanbul" finds "İSTANBUL". Was Decided.
+- **Evidence:** 02 View.dc.html line 116 (a2-4a): the checkbox with `default-checked` and the description "On by default for Turkish documents."; brief §7, M2. In 519d42a: `design/02 View.dc.html` lines 119 (the checkbox) and 123 (the note).
 
 <a id="g62"></a>
 
@@ -1323,11 +1336,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Type:** conflict
 - **Milestone:** M1
 - **Area:** Settings: the window, Privacy, General
-- **Artboards:** `a11-1`, `a11-1w`, `a11-1h`, `a1-3`; the added close control applies to every built Settings pane (`a11-1b`, `a12-2c`, `a12-2d`)
+- **Artboards:** `a11-1`, `a11-1w`, `a11-1h`, `a1-3`; the added close control applies to every built Settings pane (`a11-1b`, `a12-2c`, `a12-2d`); resolved by `a11-1-m1`, `a11-1w-m1` and `a11-1h-m1` (export 519d42a)
 - **Gap or conflict:** Three things the boards draw cannot hold in M1. (1) a11-1 draws Settings in its own window ("Settings open in their own window (⌘,)"), under FmWindow's bare title bar with its own traffic lights or caption buttons, which are the only way to close it. M1 opens no second window: Flutter 3.47.7 has no stable desktop multi-window support ([ROADMAP.md §5](ROADMAP.md#5-m1-foundations) step 9; [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)), so Settings shows inside the main window, whose caption buttons close the whole app. (2) a11-1h draws four of the five network switches on: Check for updates, Signature checks, Timestamps and Downloads you start. Your AI provider is off. Nothing connects in M1: the update check comes in M5, language packs and timestamps in P3, and AI in P4 ([ADR 0015](adr/0015-privacy-and-network.md)); revocation lookups come in phase 3, allowed on 2026-10-16 and off until first use ([G51](#g51)). [G24](#g24), [G51](#g51) and [G52](#g52) cover which rows are listed, not their state. (3) The General pane says "Preview opens PDFs on this Mac." on both systems ([G16](#g16)). Naming the current default app needs the system lookup that comes with "Make Ferman the default…" in M2 (a1-3).
 - **Decision:** (1) **Close control:** Settings is a window-styled surface inside the main window: the route `/settings` (`/settings/<pane>`), pushed over the screen it opens from, under the bare title bar ([G88](#g88)), with the 240 px pane list at the start. The surface adds an X icon button named "Close settings", 12 px from the top and end edges of the pane, with Esc in its tooltip. Esc and the shortcut table's Close document keys, ⌘W on macOS and Ctrl+W on Windows and Linux, close it too ([G83](#g83)). Closing returns to the screen below, or to the start screen when Settings was opened directly. The caption buttons still close the app. Real windows follow later (ARCHITECTURE.md §12, [B090](BACKLOG.md#open)). (2) **Privacy switches:** Privacy is a skeleton in M1. All five switches show off and are disabled with the future-version tooltip ([G10](#g10)), and so is "Show network activity…" ([B084](BACKLOG.md#open)). The pane never claims a connection the app does not make. Each switch takes its ADR 0015 default when its feature ships: the update check on, the others off until used. "Signature checks" stays disabled until phase 3 builds the revocation lookups, which the owner allowed on 2026-10-16 ([G51](#g51), [B083](BACKLOG.md#open)). (3) **Default-app line:** until the lookup exists, the line says what the button does, in a1-3's words: "Ferman can be the app that opens when you double-click a PDF." On Windows it adds "Windows lets you choose it in Settings › Default apps.", following the a11-1w and a1-3 notes ([G16](#g16)). The button is disabled with the future-version tooltip ([B080](BACKLOG.md#open)). The design's line, naming the app that opens PDFs now, returns with the lookup in M2.
-- **Status:** Decided
-- **Evidence:** `design/11a Settings.dc.html` lines 28 (the a11-1 note), 29 (the a11-1w note) and 36 (the a11-1h note); `design/FmSettings.dc.html` lines 16 (`FmWindow … bare`), 17–23 (the pane list and the pane, with no close control), 30 (the default-app line) and 134 (`nets`, `on: true` on four rows); `design/FmWindow.dc.html` lines 18 (the traffic lights) and 33 (the Windows caption buttons); `design/01 First run and files.dc.html` lines 45 (a1-3, "Ferman can be the app that opens when you double-click a PDF.") and 46 (its note on Windows). Implemented in `app/lib/features/settings/settings_screen.dart` lines 17–35, 72–80 and 227–246, `app/lib/app/router.dart` lines 24–27 and 88–103, `app/lib/features/shell/shortcuts.dart` lines 232–238 (`closeDocument`), `app/lib/features/settings/privacy_pane.dart` lines 16–19 and 107–122, and `app/lib/features/settings/general_pane.dart` lines 24–28 and 178–214, with the keys `settingsClose`, `settingsDefaultApp` and `settingsDefaultAppWindows` (`app/lib/l10n/app_en.arb` lines 987, 1123 and 1127) (M1 phases H5 and I4); checked in `app/test/features/settings/settings_screen_test.dart` lines 145, 169, 289, 344 and 662.
+- **Status:** Resolved on 2026-10-17 by export 519d42a: the M1 build boards draw all three parts. a11-1-m1 draws Settings as a window-styled surface pushed over the screen below, with the Close settings button 12 px from the pane's top and end edges and Esc in its tooltip, closed by Esc and ⌘W too, and the default-app line in a1-3's words with the button disabled and its future-version tooltip; a11-1w-m1 adds "Windows lets you choose it in Settings › Default apps." and Ctrl+W; a11-1h-m1 draws the five switches off and disabled, and "Show network activity…" disabled. The a11-1h-m1 note keeps Signature checks disabled "until the owner decides on revocation lookups (G51, Q06)"; the owner allowed them on 2026-10-16, and this entry's reason stands: the switch stays disabled until phase 3 builds them. These boards also draw General's M2 controls and every pane of the navigation enabled, which the app does not follow ([G108](#g108)). Was Decided.
+- **Evidence:** `design/11a Settings.dc.html` lines 28 (the a11-1 note), 29 (the a11-1w note) and 36 (the a11-1h note); `design/FmSettings.dc.html` lines 16 (`FmWindow … bare`), 17–23 (the pane list and the pane, with no close control), 30 (the default-app line) and 134 (`nets`, `on: true` on four rows); `design/FmWindow.dc.html` lines 18 (the traffic lights) and 33 (the Windows caption buttons); `design/01 First run and files.dc.html` lines 45 (a1-3, "Ferman can be the app that opens when you double-click a PDF.") and 46 (its note on Windows). Implemented in `app/lib/features/settings/settings_screen.dart` lines 17–35, 72–80 and 227–246, `app/lib/app/router.dart` lines 24–27 and 88–103, `app/lib/features/shell/shortcuts.dart` lines 232–238 (`closeDocument`), `app/lib/features/settings/privacy_pane.dart` lines 16–19 and 107–122, and `app/lib/features/settings/general_pane.dart` lines 24–28 and 178–214, with the keys `settingsClose`, `settingsDefaultApp` and `settingsDefaultAppWindows` (`app/lib/l10n/app_en.arb` lines 987, 1123 and 1127) (M1 phases H5 and I4); checked in `app/test/features/settings/settings_screen_test.dart` lines 145, 169, 289, 344 and 662. In 519d42a: `design/11a Settings.dc.html` lines 29, 30 and 39 (a11-1-m1, a11-1w-m1 and a11-1h-m1 with their notes); `design/FmSettings.dc.html` lines 22 (Close settings, shown when `gated`), 30 and 126 (the default-app line and its disabled button) and 154 (every switch off when `gated`).
 
 <a id="g90"></a>
 
@@ -1403,8 +1416,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** App shell responsiveness
 - **Artboards:** none narrower than 1440 px ([G21](#g21)); the tool rows of every mode in FmWindow
 - **Gap or conflict:** [G21](#g21) decides the principle (labels hide behind their icons, then tools move into an overflow menu; panels collapse before anything overlaps; mode tabs fall back to icons when they do not fit; a minimum window width) but no board draws any of it: not the order, not the overflow button, not what its menu lists, not which panel goes first.
-- **Decision:** (1) A tool row frees space one item at a time, from the end: first the hints that have no menu entry (the Organize hint), then the labels of inline tools, which hide behind their icons (the name stays the tooltip and the accessible name), then tools move into the overflow menu, and last the actions after the spacer (Dark reading mode, Mark edited text, Review edits, Apply redactions) and the colour group of the Comment row. Show comments never moves. (2) The overflow button, "More tools" with the `ellipsis` icon and no caret, takes the place of the first item that moved, before the spacer, and mirrors in right to left. It is in the row's arrow-key order and opens with Enter, Space or ArrowDown. (3) Its menu lists exactly the moved items, in row order, with dividers where the row had a separator or the spacer: toggles as checkable items with their state, disabled items with their reason, the zoom select and the segmented controls as submenus with the current choice checked, Review edits with its count ("Review edits (3)", the number written for the region), the colours as a "Color" submenu once every tool has moved; tools that have their own menu appear as plain items ([B093](BACKLOG.md#open)). (4) A focused tool that moves into the menu hands focus to the overflow button, which hands it back to that tool when it returns, never out of an open menu. An item that moves into the menu closes the popover it had open (a select's list), which does not reopen. (5) Mode tabs fall back to icons all together, only when the labelled strip does not fit; the label is then the tooltip, after the usual delay and closed by Escape, and stays the accessible name; if even the icons do not fit, the strip scrolls. (6) A panel steps aside when the canvas would drop below 640 px (Proposed): the right panel first, as the document is the hero; then the panel opened last stays. A panel that stepped aside stays open and comes back when there is room; its toggle and shortcut show what is visible and bring it back, and the other panel steps aside. Below the width where a panel fits beside the canvas on its own (904 px for the right panel, 856 for the sidebar; only on the web and narrow tablets) its toggle is disabled with "Make the window wider to show this panel". (7) The window's minimum size is 1024 × 640 px; the owner approved the width on 2026-10-16 (960 px would also have allowed half-screen snapping on a 1920 px display, with only German-length mode labels falling back to icons), and 640 px fits a 1280 × 720 screen with the taskbar. At 1024 px every row fits with some labels hidden and the overflow menu is not needed; the right panel steps aside. (8) Document tabs keep their 112 px minimum (a1-10) down to the desktop minimum; "+N" is unchanged until M2 counts it from the width ([B028](BACKLOG.md#open)). (9) A stacked tool button at touch density is 52 px tall: the CSS fixes it at 48 px and touch raises `--icon-lg` from 20 to 24 px, so the button grows by the same 4 px. (10) A disabled tool whose label has hidden shows its reason as its tooltip, as every disabled control does ([G10](#g10)); its name stays in the accessible name and the menu ([B095](BACKLOG.md#open)).
-- **Status:** Decided. The owner approved the 1024 px minimum width on 2026-10-16; the 640 px canvas minimum stays Proposed.
+- **Decision:** (1) A tool row frees space one item at a time, from the end: first the hints that have no menu entry (the Organize hint), then the labels of inline tools, which hide behind their icons (the name stays the tooltip and the accessible name), then tools move into the overflow menu, and last the actions after the spacer (Dark reading mode, Mark edited text, Review edits, Apply redactions) and the colour group of the Comment row. Show comments never moves. (2) The overflow button, "More tools" with the `ellipsis` icon and no caret, takes the place of the first item that moved, before the spacer, and mirrors in right to left. It is in the row's arrow-key order and opens with Enter, Space or ArrowDown. (3) Its menu lists exactly the moved items, in row order, with dividers where the row had a separator or the spacer: toggles as checkable items with their state, disabled items with their reason, the zoom select and the segmented controls as submenus with the current choice checked, Review edits with its count ("Review edits (3)", the number written for the region), the colours as a "Color" submenu once every tool has moved; tools that have their own menu appear as plain items ([B093](BACKLOG.md#open)). (4) A focused tool that moves into the menu hands focus to the overflow button, which hands it back to that tool when it returns, never out of an open menu. An item that moves into the menu closes the popover it had open (a select's list), which does not reopen. (5) Mode tabs fall back to icons all together, only when the labelled strip does not fit; the label is then the tooltip, after the usual delay and closed by Escape, and stays the accessible name; if even the icons do not fit, the strip scrolls. (6) A panel steps aside when the canvas would drop below 640 px (approved by the owner on 2026-10-17): the right panel first, as the document is the hero; then the panel opened last stays. A panel that stepped aside stays open and comes back when there is room; its toggle and shortcut show what is visible and bring it back, and the other panel steps aside. Below the width where a panel fits beside the canvas on its own (904 px for the right panel, 856 for the sidebar; only on the web and narrow tablets) its toggle is disabled with "Make the window wider to show this panel". (7) The window's minimum size is 1024 × 640 px; the owner approved the width on 2026-10-16 (960 px would also have allowed half-screen snapping on a 1920 px display, with only German-length mode labels falling back to icons), and 640 px fits a 1280 × 720 screen with the taskbar. At 1024 px every row fits with some labels hidden and the overflow menu is not needed; the right panel steps aside. (8) Document tabs keep their 112 px minimum (a1-10) down to the desktop minimum; "+N" is unchanged until M2 counts it from the width ([B028](BACKLOG.md#open)). (9) A stacked tool button at touch density is 52 px tall: the CSS fixes it at 48 px and touch raises `--icon-lg` from 20 to 24 px, so the button grows by the same 4 px. (10) A disabled tool whose label has hidden shows its reason as its tooltip, as every disabled control does ([G10](#g10)); its name stays in the accessible name and the menu ([B095](BACKLOG.md#open)).
+- **Status:** Decided. The owner approved the 1024 px minimum width on 2026-10-16 and the 640 px canvas minimum on 2026-10-17; the canvas minimum was Proposed until then.
 - **Evidence:** `design/FmWindow.dc.html` lines 46–100 (the tool rows); [G21](#g21). Implemented in `app/lib/design/components/navigation/toolbar.dart` (the overflow), `label_collapse.dart`, `mode_tabs.dart` and `tool_button.dart` (`stackedHeightFor`), `annotations/annotation_tools.dart`, `forms/popover.dart` (`PopoverAnchorVisibility`), `core/tooltip.dart` (`focused`), `app/lib/features/shell/shell_state.dart` (`ShellPanels`), `shell_tool_rows.dart`, `shell_mode_bar.dart`, `shell_canvas.dart`, `app/lib/design/window_metrics.dart` and `app/lib/app/desktop_window.dart` (`setMinimumSize`) (M1 phase H6); checked in `app/test/design/components/navigation/toolbar_overflow_test.dart`, `label_collapse_test.dart`, `mode_tabs_test.dart` and `app/test/features/shell/shell_narrow_test.dart`.
 
 <a id="g96"></a>
@@ -1457,7 +1470,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
   - `a11-1b`, `a12-2c`: the closest pairs; in Arabic the example rows sit 1 to 3 px lower.
   - `a11-1h`: the switches are off and disabled where the board draws four of them on ([G89](#g89)), and "Show network activity…" is disabled.
   - Shell (`a2-1b`, `a3-1d`, `f6`, `f6a`, `a12-1tr`, `a12-1ar`): no page, thumbnails or document panel before M2 ([G86](#g86)); five placeholder tabs plus "+3" against three; the placeholder document is saved, where the Edit boards show unsaved edits (Save enabled, a dot on the tab, Review edits 3); "Page 1 of 3" against a2-1b's "Page 2 of 3". `a2-9` is not compared: it draws the Dark reading mode on with the page inverted, which M1 keeps disabled (B040) and paper-white ([G17](#g17)).
-- **Status:** Decided.
+- **Status:** Decided. On 2026-10-17 the comparison moved to the M1 build boards of export 519d42a: the pairs of `a1-2c`, `a1-5`, `a11-1`, `a11-1w` and `a11-1h` now use `a1-2c-m1`, `a1-5-m1`, `a11-1-m1`, `a11-1w-m1` and `a11-1h-m1`, each also in Turkish and Arabic, and the superseded boards are not compared. `tools/design-refs/compare-map.json` records the differences expected against the new boards; the list above still describes the earlier pairs.
 - **Evidence:** `app/test/goldens/screens_golden_test.dart` and `shell_golden_test.dart` (the matrix, with the board ids in the test names), `tools/design-refs/compare-map.json` (the pairs, crops, masks and notes), `build/design-compare/report.md` from `node tools/design-refs compare` (M1 phases K1 and K2).
 
 <a id="g98"></a>
@@ -1485,3 +1498,146 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** Tools show the keys FmWindow gives them and no others. The keys of every other command are listed by the command palette (B030) and the cheat sheet (B076); until then they work from the keyboard where their feature exists. `app/test/features/shell/shortcut_caps_test.dart` walks every control of the shell on the three systems, checks that each shows exactly its command's keys, and keeps the list of key-only commands (`_keysOnly`) and of those shown from M2 (`_shownFromM2`).
 - **Status:** Decided.
 - **Evidence:** `design/FmWindow.dc.html` lines 93, 95, 110, 111, 133 and 141 (Date, Sign, Duplicate, Extract, Create PDF and Find & redact, without `shortcut`) and 140 (Redact, with it). Implemented in `app/lib/features/shell/shell_tool_rows.dart` (M1 phase L).
+
+<a id="g100"></a>
+
+### G100 · Scripts in a document: no board draws the notice
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Open / document scripts
+- **Artboards:** none draws it; the copy comes from `a8-4` (Security report) and `a8-3` (Remove hidden information); the banner slot of `a1-9`, `a1-9d` and `a2-10a`
+- **Gap or conflict:** The owner confirmed on 2026-10-16 that Ferman never runs document JavaScript and tells the user when a document contains scripts ([Q13](QUESTIONS.md#q13)). No board draws that notice, in the window or in Document properties. The design speaks of scripts only where they are removed: in Protect (P2), a8-4's finding "JavaScript blocked" ("1 script runs when this file is opened. Ferman never runs scripts; other apps might.") and a8-3's row "A script that runs when the file opens. Ferman never runs it."; and in PDF/A-2b (P4), a1-11's option and a9-4's "Removed 1 script".
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** the engine finds the scripts in its structure scan at open, and the document opens with an info Banner in the banner slot above the page, in the bar variant of a1-9 and a2-10a, with the `shield-check` icon a8-4 gives that finding. Its title says how many scripts the file has ("This document contains 1 script."), its text is a8-4's sentence "Ferman never runs scripts; other apps might.", and it has Dismiss. Document properties lists the scripts in a row of its Advanced tab, which no board draws, in a8-3's words. Nothing offers to run a script; removing them stays in Protect (a8-3, a8-4).
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/08 Protect.dc.html` lines 106 (the a8-4 note: "JavaScript is never run; Ferman says it blocked it."), 161 (a8-3's JavaScript row) and 168 (a8-4's finding); `design/09a Tools.dc.html` lines 114 and 160 (a9-4's `pdfaFixes`); `design/01 First run and files.dc.html` lines 175 (a1-9's Banner), 201 (a1-9d's) and 265 (a1-11's PDF/A-2b option); `design/02 View.dc.html` line 242 (a2-10a's). No board shows a scripts notice in the window. [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules) keeps scripts from running.
+
+<a id="g101"></a>
+
+### G101 · Engine or PDFium unavailable: no board draws the error
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Start / errors
+- **Artboards:** none draws it; nearest: `a1-9b` (an open error), `a1-4-m2` and `a1-5` (the start screen it shows on), and the warning Banner of [G90](#g90)
+- **Gap or conflict:** When the engine library does not load or speaks an API version the app does not accept, `bootstrap()` installs `UnavailableEngineService` (M1), so the app still opens ([ARCHITECTURE.md §3.9](ARCHITECTURE.md#39-versioning)). When PDFium is missing or broken, the engine still starts and reports it in `PdfiumStatus`. ARCHITECTURE §3.9 and §12 and ROADMAP §6 step 1 promise "an error screen instead of crashing" for both. No board draws it.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** the start screen shows a warning Banner, the box variant, at the top of its content, as Settings shows its warning ([G90](#g90)): "Ferman can't open PDF files right now." over "A part of Ferman is missing or doesn't match this version. Installing Ferman again fixes this.", with "Copy technical details" as in [G63](#g63). Open file…, the drop area, recent files and ⌘O or Ctrl+O are disabled with the Banner's title as their reason; Settings and the rest of the app keep working. The web build, whose engine is stubbed until phase 5 (`unsupportedPlatform`), keeps the future-version state instead.
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `app/lib/app/bootstrap.dart` line 42 (`_startEngine`); `app/lib/engine/engine_service.dart` lines 19–27 (`libraryMissing`, `apiMismatch`, `unsupportedPlatform`) and 49 (`UnavailableEngineService`); `crates/ferman-api/src/facade/engine.rs` lines 62–66 ("Starting never fails"); [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) ("If the library is missing, Ferman shows an error screen instead of crashing."); ROADMAP §6 step 1. No board in `design/` draws an engine or PDFium failure.
+
+<a id="g102"></a>
+
+### G102 · lopdf and PDFium disagree: no notice drawn
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Open / the two parsers
+- **Artboards:** none draws it; the read-only state of `a1-9d` (and `a11-7c`)
+- **Gap or conflict:** When both parsers open a file but disagree on its structure (the page count or page sizes), the document opens read-only with a notice: approved by the owner on 2026-10-16 ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), [ARCHITECTURE.md §5.1](ARCHITECTURE.md#51-open) step 6). No board draws the notice. The nearest drawn states are a1-9d (a file read-only on disk) and a1-9 (a repaired file).
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** the document opens in a1-9d's read-only state: the lock on its tab, Read-only in the status bar and Save disabled with the tooltip "Read-only". An info Banner in the bar variant says why: "Ferman opened “name” read-only." over "Parts of this file don't match each other, which can mean it is damaged. You can read it as usual." It offers no action in M2: repair is a full rewrite to a new file, which needs the writer of M3.
+- **Status:** Decided; the behaviour was approved on 2026-10-16, and the notice is Proposed with the M2 plan.
+- **Evidence:** `docs/adr/0004-lopdf-model-pdfium-renderer.md` lines 78–80 (the approval); ARCHITECTURE.md §5.1 step 6 and §5.2; `design/01 First run and files.dc.html` lines 197–204 (a1-9d). ROADMAP §6 step 2 tests it with a crafted file.
+
+<a id="g103"></a>
+
+### G103 · Default PDF app on Windows and Linux
+
+- **Type:** missing variant
+- **Milestone:** M2
+- **Area:** Default PDF app
+- **Artboards:** `a1-3`, `a11-1`, `a11-1w`, `a11-1-m1`, `a11-1w-m1`
+- **Gap or conflict:** a1-3 draws the macOS prompt ("Open PDFs with Ferman?", "macOS asks you to confirm the change.", "Opens PDFs now: Preview → Ferman"), and its note says that on Windows the button opens Settings › Default apps, "because Windows doesn't let apps change this themselves". Windows lists there only apps registered for PDF files, which the installer of M5 does. Nothing is drawn for Linux, where the choice needs the desktop file that packaging installs (M5, [Q12](QUESTIONS.md#q12)). a11-1-m1 and a11-1w-m1 draw the M1 line and a disabled button ([G89](#g89)).
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** on macOS the button works from M2: the line names the app that opens PDFs now, as a11-1 draws it, and the button asks the system (`NSWorkspace`, macOS 12 and later), which asks the user, as a1-3 says. On Windows the button opens Settings › Default apps (`ms-settings:defaultapps`) only once Ferman is registered for PDF files, which the M5 installer does; until then it stays disabled with "Available in a future version" and the line keeps a11-1w-m1's wording. On Linux it stays disabled the same way until packaging (M5), and the line keeps a11-1-m1's wording. The first-run prompt a1-3 shows only where the button can act ([B080](BACKLOG.md#open)).
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/01 First run and files.dc.html` lines 43–46 (a1-3 and its note); `design/11a Settings.dc.html` lines 29 and 30 (a11-1-m1, a11-1w-m1); `design/FmSettings.dc.html` lines 30 (the line and the button) and 126 (`defaultLine`).
+
+<a id="g104"></a>
+
+### G104 · Progressive open: where a1-7's rules begin, and thumbnails
+
+- **Type:** ambiguity
+- **Milestone:** M2
+- **Area:** Open / large files / thumbnails
+- **Artboards:** `a1-7`; related: `a2-3p` (thumbnails)
+- **Gap or conflict:** a1-7 draws a 2,400-page file opening with a progress card and the banner "You can read while Ferman finishes. Search, thumbnails and editing turn on when all 2,400 pages are indexed.", and [ARCHITECTURE.md §5.1](ARCHITECTURE.md#51-open) applies that to every file. The Proposed thumbnail budget asks for the first 12 thumbnails within 300 ms after the first page ([ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets)). Thumbnails come from the render thread, that is PDFium, and need nothing from lopdf's index (§5.3). The design does not say at what size an open becomes a1-7's progressive open.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** thumbnails render from PDFium once the first page is visible, without waiting for indexing; search waits for the index, and so does editing from M3. Above the progressive-open threshold, Proposed as more than 1,000 pages or an indexing estimate over 2 s (taken after 1 s of indexing), a1-7 applies as drawn: the progress card, the banner, the sidebar closed, and search and thumbnails turning on when indexing ends. The thumbnail budget is measured on `long-500`, below the threshold. The threshold is presented at the M2 review.
+- **Status:** Decided; the decision and the threshold are Proposed with the M2 plan.
+- **Evidence:** `design/01 First run and files.dc.html` lines 145–155 (a1-7: `sidebar="{{ false }}"`, the TaskProgress, and the Banner at line 152); ARCHITECTURE.md §5.1 step 5, §5.3 ("Thumbnails come from the render thread.") and §14 (the thumbnail strip budget).
+
+<a id="g105"></a>
+
+### G105 · Drop targets in a document window
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Drag and drop
+- **Artboards:** `a1-6`; related: `a1-4-m2`, `a6-1`
+- **Gap or conflict:** a1-6 draws files dragged over the start screen ("Drop files anywhere in this window") with two targets, "Open in 3 tabs" and "Combine into one PDF", and its note says that dropping onto an open document's page grid inserts pages instead (6.1). No board draws files dragged over a document window or its tab strip. Combining files waits for M4 (a1-4-m2: "Create PDF and Combine files wait for M4"), and so does Organize's page grid.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** in M2 the start screen (the whole window, as a1-6 draws) and a document window (its canvas and its tab strip) take drops, with a1-6's overlay and per-file notes; each PDF opens in a new tab, and a file that isn't a PDF follows [G11](#g11) and [G28](#g28). a1-6's "Combine into one PDF" target stays visible and disabled with "Available in a future version" until M4, and inserting pages by a drop on the page grid comes with Organize in M4 ([B104](BACKLOG.md#open)).
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/01 First run and files.dc.html` lines 123 (the a1-4-m2 note) and 130–132 (a1-6 and its note); `design/FmStart.dc.html` lines 41–52 (the drag-over overlay) and 59 (`drop`, `dropTabs`, `dropCombine`).
+
+<a id="g106"></a>
+
+### G106 · The owner-password unlock dialog is not drawn
+
+- **Type:** missing screen
+- **Milestone:** M2
+- **Area:** Restricted PDFs
+- **Artboards:** `a2-10a`, `a2-10b` (the "Unlock with owner password…" buttons); `a1-8`, `a1-8b` (the layout reused)
+- **Gap or conflict:** a2-10a's banner and a2-10b's dialog footer offer "Unlock with owner password…", and the a2-10a note says it "lifts the restriction for this session". The dialog it opens is not drawn. a1-8 and a1-8b draw only the password a file needs to open.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** the dialog reuses a1-8's document-modal Dialog with the `key-round` icon of a2-10b's button: the title "Unlock with owner password", the description "Enter the owner password for “name”. Ferman forgets it when you close the file.", a password field labelled "Owner password" with "Show password", and Cancel and Unlock. A wrong password shows a1-8b's error, with the keyboard hint and no lockout. The right one removes the banner, and the modes and tools it allows take the state of their milestone ([G27](#g27)); reopening the file brings the restriction back.
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/02 View.dc.html` lines 242 (a2-10a's Banner with `actUnlock`), 246 (its note) and 254 (a2-10b's `unlockBtn`); `design/01 First run and files.dc.html` lines 156–167 (a1-8, a1-8b).
+
+<a id="g107"></a>
+
+### G107 · "Show in" buttons: the label on each system
+
+- **Type:** missing variant
+- **Milestone:** M2
+- **Area:** File actions / platform wording
+- **Artboards:** `a1-9b`, `a1-9c`, `a11-7c`, `a11-1c`; later phases: `a5-6d`, `a7-3`, `a8-2c`, `a9-4`
+- **Gap or conflict:** Every "Show in" button the boards render is the macOS one, "Show in Finder": a1-9b, a1-9c, a11-7c and the recovery-copy row of a11-1c ("Finder’da göster" and "إظهار في Finder" in a1-9c's Turkish and Arabic variants), and the later-phase results of a5-6d, a7-3, a8-2c and a9-4. Only FmSettings carries another system's label: "Show in Explorer" for that row on Windows, which no board renders. Nothing names the Linux label.
+- **Decision:** macOS shows "Show in Finder", as drawn. Windows shows "Show in Explorer", FmSettings' label, which [G43](#g43) already uses. **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** Linux shows "Show in folder" and opens the folder that holds the file in the desktop's file manager. Each label is its own string, translated like the drawn ones.
+- **Status:** Decided; the Linux label is Proposed with the M2 plan.
+- **Evidence:** `design/01 First run and files.dc.html` lines 187 (a1-9b) and 329, 336 and 343 (`showIn` in English, Turkish and Arabic, a1-9c); `design/11b App.dc.html` lines 114 and 213 (`actXfa`, a11-7c); `design/FmSettings.dc.html` line 127 (`showIn`: "Show in Explorer" on Windows, "Show in Finder" otherwise); `design/Wording for app strings.md` line 32.
+
+<a id="g108"></a>
+
+### G108 · M1 build Settings boards draw the M2 controls and every pane enabled
+
+- **Type:** conflict
+- **Milestone:** M1
+- **Area:** Settings: General and the pane list
+- **Artboards:** `a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`; the finished panes `a11-1`, `a11-1w`, `a11-1h`
+- **Gap or conflict:** The M1 build boards of export 519d42a disable only what their notes name: the default-app button (a11-1-m1, a11-1w-m1), and the five network switches and "Show network activity…" (a11-1h-m1). They draw General's M2 controls enabled (PDF pages in dark theme, Page layout for new documents, Zoom, Reopen documents from last time), every pane of the Settings navigation enabled, and the search field above it. In M1 those controls do nothing, only General, Language and region and Privacy are built, and searching Settings comes in M4 ([B073](BACKLOG.md#open)).
+- **Decision:** The brief's rule for unfinished features outranks the board: what is not implemented yet stays visible as designed, disabled, with "Available in a future version" ([G10](#g10)). The app keeps those General controls disabled until they work: M2 step 3 enables Paper white and Dimmed, the page layout, the zoom and reopening, and Dark reading mode waits for P2 ([G33](#g33)). The panes not built yet stay disabled in the navigation until their milestone, and so does the search field. Everything else follows the boards, and their comparison pairs expect this difference ([G97](#g97)).
+- **Status:** Decided
+- **Evidence:** `design/FmSettings.dc.html` lines 19 (the search field, with no `disabled`), 20 (the pane list, with no disabled branch), 26–29 (the General controls, with no `disabled`) and 30 (only the button takes `disabled="{{ gated }}"`); `design/11a Settings.dc.html` lines 29, 30 and 39 (the three boards and their notes). Implemented in `app/lib/features/settings/general_pane.dart` lines 14–22 and 107–198 and `app/lib/features/settings/settings_screen.dart` lines 33–35 and 268–288 (`_NavRow`) (M1 phase I4); `tools/design-refs/compare-map.json` (the a11-1-m1, a11-1w-m1 and a11-1h-m1 pairs).
+
+<a id="g109"></a>
+
+### G109 · A recent file that needs a password: no preview
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Start / recent files
+- **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-4-m2`, `a12-2a`; the lock of `a1-8`
+- **Gap or conflict:** Every recent file on the Start boards shows a page preview, and none needs a password; a1-8's payslip, which does, is not in the list. A preview of such a file cannot be drawn without its password, and keeping one would store an image of protected content on disk.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** Ferman renders and stores no preview of a file that needs a password to open. Its card keeps the page shape in paper white with the `lock` icon centred where the page image would be, the icon a1-8's tab carries, and the rest of the card follows the boards. A file with only an owner password opens without one (a2-10a) and gets its preview as usual.
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/FmStart.dc.html` lines 25 and 29 (the pinned and recent cards with their page previews) and 65–74 (the recent files, none of them encrypted); `design/01 First run and files.dc.html` lines 158 and 394 (a1-8's `tabsLocked`, with the `lock` icon); ROADMAP §6 step 6 ("no preview is stored for a document that needs a password").
+
+<a id="g110"></a>
+
+### G110 · Search results from comments, form fields and bookmarks
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Search
+- **Artboards:** `a2-4a` (Look in), `a2-4b`, `a2-3e`
+- **Gap or conflict:** a2-4a's "Look in" offers Page text and Comments, both on by default, Form fields and Bookmarks. a2-4b and a2-3e show the results in the sidebar grouped by page ("Page 1", with its count), and every result drawn is page text. Nothing shows where a match in a comment, a form field or a bookmark title goes or how it is told apart, and a bookmark sits on no page.
+- **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** results stay grouped by page, as a2-3e draws. A comment or a form field belongs to the page it is on, and a bookmark to the page it opens. Inside a group, page text comes first in reading order, then comments, fields and bookmarks, each with an icon before its snippet: `message-square` and `text-cursor-input`, the badges of the Pages thumbnails, and `bookmark` from the design system's icon set. The kind (comment, form field, bookmark) is part of the result's accessible name. A bookmark that opens no page is listed after the last page.
+- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Evidence:** `design/02 View.dc.html` lines 100 (a2-3e), 119 (the a2-4a options) and 124–131 (a2-4b); `design/FmSidebar.dc.html` lines 30–31 and 43–44 (the Pages badges and their legend: `message-square` for comments, `text-cursor-input` for form fields) and 166–176 (`results`: page groups of page text only).
