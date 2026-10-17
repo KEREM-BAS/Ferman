@@ -33,18 +33,36 @@ test('rejects bad options as usage errors', () => {
 test('selects boards by id and set, in boards.json order', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
   const m1 = selectTargets(list, ['@m1']);
-  assert.equal(m1.length, 18);
+  // 23 boards, 5 of them (the M1 build boards) also in Turkish and Arabic.
+  assert.equal(m1.length, 33);
   const order = [...list.boards, ...list.pages].map((b) => b.id);
   assert.deepEqual(
-    m1.map((b) => b.id),
+    [...new Set(m1.map((t) => t.board))],
     order.filter((id) => list.sets.m1.includes(id)),
   );
   assert.deepEqual(
     selectTargets(list, ['ds-additions', 'a1-1']).map((b) => b.id),
     ['a1-1', 'ds-additions'],
   );
-  assert.equal(selectTargets(list, []).length, list.boards.length + list.pages.length);
+  // A board id brings its variants, a variant id only itself.
+  assert.deepEqual(
+    selectTargets(list, ['a1-9c']).map((t) => t.id),
+    ['a1-9c', 'a1-9c.tr', 'a1-9c.ar'],
+  );
+  assert.deepEqual(
+    selectTargets(list, ['a1-9c.ar', 'a1-1']).map((t) => [t.id, t.board, t.lang]),
+    [
+      ['a1-1', 'a1-1', undefined],
+      ['a1-9c.ar', 'a1-9c', 'ar'],
+    ],
+  );
+  assert.equal(selectTargets(list, ['@langs']).length, 3 * list.sets.langs.length);
+  assert.equal(selectTargets(list, ['@m2']).filter((t) => t.lang === undefined).length, 43);
+  const variants = list.boards.reduce((n, b) => n + (b.langs?.length ?? 0), 0);
+  assert.equal(variants, 58);
+  assert.equal(selectTargets(list, []).length, list.boards.length + variants + list.pages.length);
   assert.throws(() => selectTargets(list, ['a0-0']), UsageError);
+  assert.throws(() => selectTargets(list, ['a1-1.tr']), UsageError);
   assert.throws(() => selectTargets(list, ['@nope']), UsageError);
 });
 

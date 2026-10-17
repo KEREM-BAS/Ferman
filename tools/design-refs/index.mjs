@@ -13,7 +13,19 @@ import pixelmatch from 'pixelmatch';
 import { chromium } from 'playwright-core';
 import { PNG } from 'pngjs';
 
-import { loadBoards, scanDesign, selectorFor, unionBox, validateBoards, writeBoards } from './boards.mjs';
+import {
+  LANG_KEY,
+  domId,
+  expandTargets,
+  expectedLang,
+  langsSet,
+  loadBoards,
+  scanDesign,
+  selectorFor,
+  unionBox,
+  validateBoards,
+  writeBoards,
+} from './boards.mjs';
 import { LAUNCH_ARGS, expectedShell, resolveChromium, unexpectedPageErrors } from './browser.mjs';
 import { USAGE, UsageError, isInsideDir, parseCli, selectTargets } from './cli.mjs';
 import { compareMain } from './compare.mjs';
@@ -108,11 +120,14 @@ async function waitForPage(page) {
   });
 }
 
-/** Screenshots one board and returns its PNG. Throws when the board is missing or incomplete. */
+/**
+ * Screenshots one board (or one language variant of it) and returns its PNG. Throws when the
+ * board is missing or incomplete, or shows another language than the target's.
+ */
 async function captureBoard(page, board) {
   if (board.capture !== 'page') {
-    const ids = await page.locator(`[id="${board.id}"]`).count();
-    if (ids !== 1) throw new Error(`${ids} elements have id "${board.id}"; expected 1`);
+    const ids = await page.locator(`[id="${domId(board)}"]`).count();
+    if (ids !== 1) throw new Error(`${ids} elements have id "${domId(board)}"; expected 1`);
   }
   const matches = page.locator(selectorFor(board));
   const count = await matches.count();
@@ -134,6 +149,15 @@ async function captureBoard(page, board) {
     });
     if (problems.length > 0) throw new Error(problems.join(', '));
   }
+  // The board-language switch sets `lang` on the board's frame (or an element around it); a
+  // variant whose language did not take would otherwise pass as a copy of the English board.
+  const lang = expectedLang(board);
+  if (lang !== null) {
+    for (const target of targets) {
+      const shown = await target.evaluate((el) => el.closest('[lang]')?.getAttribute('lang') ?? null);
+      if (shown !== lang) throw new Error(`the board shows lang ${JSON.stringify(shown)}, expected "${lang}"`);
+    }
+  }
   // Clip to the box in document coordinates (around every target for `fm-roots`), rounded the
   // way Chromium snaps boxes to pixels, so a 1440 × 900 frame at a fractional offset gives a
   // 1440 × 900 PNG (an element screenshot would round outwards and add a row of the page).
@@ -153,7 +177,9 @@ async function captureBoard(page, board) {
 }
 
 /**
- * Renders one board on a freshly loaded page and writes `<id>.png` into outDir.
+ * Renders one board on a freshly loaded page and writes `<id>.png` into outDir; a language
+ * variant (expandTargets) seeds the board-language switch before the page loads and writes
+ * `<id>.<lang>.png`.
  *
  * Every board gets its own page, and its screenshot is the first one taken there. Repeated
  * full-page screenshots on one page do not always give the same pixels (a3-15 flips between two
@@ -182,6 +208,11 @@ async function renderBoard(browser, router, origin, board, outDir) {
   });
   try {
     await router.install(context, (v) => problems.push(`blocked request ${v.url} (${v.reason})`));
+    if (board.lang !== undefined) {
+      // The section page reads the key when its components are created, so it is set before any
+      // page script runs. Each target has a fresh context, so the setting never reaches another.
+      await context.addInitScript(([key, lang]) => window.localStorage.setItem(key, lang), [LANG_KEY, board.lang]);
+    }
     const page = await context.newPage();
     page.on('pageerror', (error) => pageErrors.push(message(error)));
     page.on('response', (response) => {
@@ -277,12 +308,13 @@ async function comparePasses(first, second, firstDir, secondDir, diffDir) {
 }
 
 /**
- * Writes <out>/manifest.json: size and SHA-256 of every PNG, for comparisons. Entries for boards
+ * Writes <out>/manifest.json: size and SHA-256 of every PNG, for comparisons, one entry per
+ * render target (a language variant has its own, with `board` and `lang`). Entries for targets
  * not rendered this time are kept from the previous manifest while their PNG still exists, so a
- * --only run updates the manifest of a full run instead of replacing it. A board that failed
+ * --only run updates the manifest of a full run instead of replacing it. A target that failed
  * this time has no PNG any more, so its entry goes.
  */
-async function writeManifest(outDir, allBoards, pass) {
+async function writeManifest(outDir, allTargets, pass) {
   const file = path.join(outDir, 'manifest.json');
   const entries = new Map();
   try {
@@ -290,10 +322,11 @@ async function writeManifest(outDir, allBoards, pass) {
   } catch {
     // No previous manifest, or an unreadable one: start afresh.
   }
-  for (const { id, file: source, capture, width, height, sha256: hash } of pass.results.values()) {
-    entries.set(id, { id, file: source, capture, width, height, sha256: hash });
+  for (const { id, board, lang, file: source, capture, width, height, sha256: hash } of pass.results.values()) {
+    const variant = lang === undefined ? {} : { board, lang };
+    entries.set(id, { id, ...variant, file: source, capture, width, height, sha256: hash });
   }
-  const boards = allBoards
+  const boards = allTargets
     .filter((b) => entries.has(b.id) && (pass.results.has(b.id) || existsSync(path.join(outDir, `${b.id}.png`))))
     .map((b) => entries.get(b.id));
   const manifest = {
@@ -318,8 +351,9 @@ async function main() {
   const scanned = await scanDesign(DESIGN_DIR);
   if (options.writeBoards) {
     const current = await loadBoards(BOARDS_FILE);
-    await writeBoards(BOARDS_FILE, { ...current, boards: scanned });
-    log(`boards.json: ${scanned.length} boards from ${new Set(scanned.map((b) => b.file)).size} design files`);
+    await writeBoards(BOARDS_FILE, { ...current, boards: scanned, sets: { ...current.sets, langs: langsSet(scanned) } });
+    const variants = scanned.reduce((n, b) => n + (b.langs?.length ?? 0), 0);
+    log(`boards.json: ${scanned.length} boards from ${new Set(scanned.map((b) => b.file)).size} design files, ${variants} language variants`);
     return 0;
   }
   const list = await loadBoards(BOARDS_FILE);
@@ -330,9 +364,12 @@ async function main() {
     return 1;
   }
   if (options.list) {
-    for (const b of [...list.boards, ...list.pages]) log(`${b.id.padEnd(14)}${b.capture.padEnd(9)}${b.file}`);
+    for (const b of [...list.boards, ...list.pages]) {
+      log(`${b.id.padEnd(14)}${b.capture.padEnd(9)}${b.file}${b.langs ? `  (also ${b.langs.join(', ')})` : ''}`);
+    }
     for (const [name, ids] of Object.entries(list.sets)) log(`@${name}: ${ids.join(' ')}`);
-    log(`${list.boards.length} boards, ${list.pages.length} page(s)`);
+    const variants = expandTargets(list.boards).length - list.boards.length;
+    log(`${list.boards.length} boards, ${variants} language variants, ${list.pages.length} page(s)`);
     return 0;
   }
 
@@ -352,7 +389,7 @@ async function main() {
         ? `browser: ${chromiumExe.executablePath} (from ${chromiumExe.source})`
         : `browser: ${chromiumExe.source} (not found: ${chromiumExe.tried.join(', ') || 'no candidate on this platform'})`,
     );
-    log(`rendering ${targets.length} board(s) with ${options.jobs} job(s) into ${options.out}`);
+    log(`rendering ${targets.length} board(s) and variant(s) with ${options.jobs} job(s) into ${options.out}`);
 
     const diffDir = path.join(options.out, '_diffs');
     const secondDir = path.join(options.out, '_second');
@@ -383,7 +420,7 @@ async function main() {
       pass.results.delete(id);
       await rm(path.join(options.out, `${id}.png`), { force: true });
     }
-    await writeManifest(options.out, [...list.boards, ...list.pages], pass);
+    await writeManifest(options.out, expandTargets([...list.boards, ...list.pages]), pass);
 
     // Count check: one PNG per requested board, or the run fails.
     const { missing, error: countError } = countCheck(targets, pass.results);

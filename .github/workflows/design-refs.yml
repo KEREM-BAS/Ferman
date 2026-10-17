@@ -1,14 +1,17 @@
 # Renders the design boards to PNG (tools/design-refs) as the reference for the app's goldens.
-# Pull requests render the M1 boards; a manual run renders every board twice and checks that the
-# two runs are identical. Then the committed goldens are compared with the references
-# (`node index.mjs compare`): the report goes to the step summary and, on pull requests from this
-# repository, to one pull-request comment; the scores are informative and never fail the job. The browser is fetched by tools/design-refs/fetch-chromium.sh, never by
-# the Playwright installer (which would also download an LGPL ffmpeg build).
+# Pull requests render the M1 and M2 boards with their language variants, twice, and check that
+# the two runs are identical; a manual run renders every board and variant twice. Then the
+# committed goldens are compared with the references (`node index.mjs compare`): the report goes
+# to the step summary and, on pull requests from this repository, to one pull-request comment; the
+# scores are informative and never fail the job. The browser is fetched by
+# tools/design-refs/fetch-chromium.sh, never by the Playwright installer (which would also
+# download an LGPL ffmpeg build).
 name: Design references
 
 on:
   pull_request:
     paths:
+      - design/**
       - tools/design-refs/**
       - app/lib/**
       - app/test/**
@@ -46,9 +49,9 @@ jobs:
         run: |
           exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")
           echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-      - name: Render the M1 boards
+      - name: Render the M1 and M2 boards, twice
         if: github.event_name == 'pull_request'
-        run: node index.mjs --only @m1 --twice
+        run: node index.mjs --only @m1,@m2 --twice
       - name: Render every board, twice
         if: github.event_name == 'workflow_dispatch'
         run: node index.mjs --twice
