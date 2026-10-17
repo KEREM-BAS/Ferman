@@ -80,9 +80,10 @@
 </sc-for>
 </div>
 </sc-if>
+<sc-if value="{{ es.solo }}"><div style="flex:1;display:grid;align-content:start;justify-items:center;gap:8px;padding:36px 18px 0;text-align:center"><span style="width:40px;height:40px;display:grid;place-items:center;border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ es.icon }}" size="{{ 20 }}" hint-size="20px,20px"></x-import></span><span style="font:var(--type-body-strong);color:var(--text-primary);text-wrap:balance">{{ es.title }}</span><span style="font:var(--type-caption);color:var(--text-secondary);text-wrap:pretty">{{ es.body }}</span><sc-if value="{{ es.hasAction }}"><span style="position:relative;display:inline-flex;margin-top:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="{{ es.actionIcon }}" disabled="{{ es.actionOff }}" hint-size="160px,26px">{{ es.action }}</x-import><sc-if value="{{ es.actionOff }}"><span role="tooltip" class="fm-tooltip fm-tooltip--bottom">{{ es.future }}</span></sc-if></span></sc-if></div></sc-if>
 <sc-if value="{{ tabs.search }}">
 <div style="flex:1;overflow:hidden;display:flex;flex-direction:column;min-height:0">
-<div style="padding:0 8px 8px;display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" default-value="{{ query }}" aria-label="Search in document" hint-size="100%,26px"></x-import><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ searchSummary }}</span></div>
+<div style="padding:0 8px 8px;display:grid;gap:6px"><x-import component-from-global-scope="FermanDesignSystem_278323.TextField" size="sm" icon="search" default-value="{{ query }}" aria-label="Search in document" hint-size="100%,26px"></x-import><sc-if value="{{ hasSummary }}" hint-placeholder-val="{{ true }}"><span style="font:var(--type-caption);color:var(--text-tertiary)">{{ searchSummary }}</span></sc-if></div><sc-if value="{{ es.inSearch }}"><div style="flex:1;display:grid;align-content:start;justify-items:center;gap:8px;padding:36px 18px 0;text-align:center"><span style="width:40px;height:40px;display:grid;place-items:center;border-radius:var(--radius-md);background:var(--surface-sunken);color:var(--icon-secondary)"><x-import component-from-global-scope="FermanDesignSystem_278323.Icon" name="{{ es.icon }}" size="{{ 20 }}" hint-size="20px,20px"></x-import></span><span style="font:var(--type-body-strong);color:var(--text-primary);text-wrap:balance">{{ es.title }}</span><span style="font:var(--type-caption);color:var(--text-secondary);text-wrap:pretty">{{ es.body }}</span><sc-if value="{{ es.hasAction }}"><span style="position:relative;display:inline-flex;margin-top:4px"><x-import component-from-global-scope="FermanDesignSystem_278323.Button" size="sm" icon="{{ es.actionIcon }}" disabled="{{ es.actionOff }}" hint-size="160px,26px">{{ es.action }}</x-import><sc-if value="{{ es.actionOff }}"><span role="tooltip" class="fm-tooltip fm-tooltip--bottom">{{ es.future }}</span></sc-if></span></sc-if></div></sc-if>
 <div style="flex:1;overflow:hidden;padding:0 6px;display:grid;align-content:start;gap:2px">
 <sc-for list="{{ results }}" as="r" hint-placeholder-count="6">
 <sc-if value="{{ r.head }}"><div style="display:flex;justify-content:space-between;padding:8px 6px 2px;font:var(--type-label);color:var(--text-tertiary)"><span>{{ r.label }}</span><span style="font-variant-numeric:tabular-nums">{{ r.count }}</span></div></sc-if>
@@ -94,6 +95,11 @@
 </aside>
 </x-dc>
 <script type="text/x-dc" data-dc-script data-props="{&quot;$preview&quot;:{&quot;width&quot;:216,&quot;height&quot;:760},&quot;tab&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;pages&quot;,&quot;outline&quot;,&quot;attachments&quot;,&quot;layers&quot;,&quot;signatures&quot;,&quot;search&quot;],&quot;default&quot;:&quot;pages&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;doc&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;kira&quot;,&quot;fatura&quot;,&quot;ekstre&quot;,&quot;form&quot;,&quot;tez&quot;,&quot;cv&quot;,&quot;nda&quot;,&quot;scan&quot;],&quot;default&quot;:&quot;kira&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;current&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:1,&quot;tsType&quot;:&quot;number&quot;},&quot;lang&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;en&quot;,&quot;tr&quot;,&quot;de&quot;,&quot;ar&quot;,&quot;ja&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;},&quot;legend&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;outlineEdit&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:-1,&quot;tsType&quot;:&quot;number&quot;},&quot;thumbs&quot;:{&quot;editor&quot;:null,&quot;tsType&quot;:&quot;object[]&quot;},&quot;query&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;kira&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const ESS = {
+  en: { future: 'Available in a future version', sigFuture: 'Signature checking is available in a future version.', outline: ['list-tree', 'No bookmarks', 'This document has no outline. Add a bookmark to mark a place you want to come back to.'], attachments: ['paperclip', 'No attachments', 'Files embedded in this PDF appear here.'], layers: ['layers', 'No layers', 'This document has no layers to show or hide.'], signatures: ['signature', 'No signatures', 'This document isn’t signed and has no signature fields.'], nomatch: ['search', 'No results for “{q}”', 'Ferman searched all 3 pages, ignoring accents and dotted/dotless i.'], notext: ['scan-text', 'No text to search', 'These pages are scanned images. Recognizing text makes them searchable.', 'Recognize text (OCR)'] },
+  tr: { future: 'Gelecek bir sürümde sunulacak', sigFuture: 'İmza denetimi gelecek bir sürümde sunulacak.', outline: ['list-tree', 'Yer işareti yok', 'Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin.'], attachments: ['paperclip', 'Ek yok', 'Bu PDF’ye gömülü dosyalar burada görünür.'], layers: ['layers', 'Katman yok', 'Bu belgede gösterilip gizlenebilecek katman yok.'], signatures: ['signature', 'İmza yok', 'Bu belge imzalı değil ve imza alanı içermiyor.'], nomatch: ['search', '“{q}” için sonuç yok', 'Ferman 3 sayfanın tamamında aradı; aksanlar ve noktalı/noktasız i yok sayıldı.'], notext: ['scan-text', 'Aranacak metin yok', 'Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.', 'Metni tanı (OCR)'] },
+  ar: { future: 'متاح في إصدار قادم', sigFuture: 'التحقق من التوقيعات متاح في إصدار قادم.', outline: ['list-tree', 'لا توجد إشارات مرجعية', 'لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.'], attachments: ['paperclip', 'لا توجد مرفقات', 'تظهر هنا الملفات المضمّنة في ملف PDF هذا.'], layers: ['layers', 'لا توجد طبقات', 'لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.'], signatures: ['signature', 'لا توجد توقيعات', 'هذا المستند غير موقّع ولا يحتوي على حقول توقيع.'], nomatch: ['search', 'لا نتائج لـ«{q}»', 'بحث Ferman في الصفحات الثلاث كلها، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة.'], notext: ['scan-text', 'لا يوجد نص للبحث فيه', 'هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث.', 'التعرّف على النص (OCR)'] }
+};
 const SB = {
   en: { sidebar: 'Sidebar', pages: 'Pages', outline: 'Outline', attachments: 'Attachments', layers: 'Layers', signatures: 'Signatures', search: 'Search results', legend: 'What the page badges mean', page: 'Page' },
   tr: { sidebar: 'Kenar çubuğu', pages: 'Sayfalar', outline: 'Yer işaretleri', attachments: 'Ekler', layers: 'Katmanlar', signatures: 'İmzalar', search: 'Arama sonuçları', legend: 'Sayfa rozetlerinin anlamı', page: 'Sayfa' },
@@ -119,7 +125,10 @@ class Component extends DCLogic {
     const ar = lang === 'ar';
     const dg = (s) => ar ? String(s).replace(/[0-9]/g, (d) => '٠١٢٣٤٥٦٧٨٩'[d]) : String(s);
     const tab = p.tab || 'pages';
-    const tabs = { pages: tab === 'pages', outline: tab === 'outline', attachments: tab === 'attachments', layers: tab === 'layers', signatures: tab === 'signatures', search: tab === 'search' };
+    const st = p.state || '';
+    const E = ESS[lang] || ESS.en;
+    const solo = st === 'empty' && tab !== 'search' && tab !== 'pages';
+    const tabs = { pages: tab === 'pages', outline: tab === 'outline' && !solo, attachments: tab === 'attachments' && !solo, layers: tab === 'layers' && !solo, signatures: tab === 'signatures' && !solo, search: tab === 'search' };
     const doc = p.doc || 'kira';
     const cur = p.current || 1;
     const src = p.thumbs || DOCS[doc] || DOCS.kira;
@@ -166,15 +175,19 @@ class Component extends DCLogic {
       { item: true, pre: '…yeni ', hit: 'kira', post: ' döneminde uygulanacak…', bg: 'transparent' }
     ];
     const titles = { pages: t.pages, outline: t.outline, attachments: t.attachments, layers: t.layers, signatures: t.signatures, search: t.search };
-    const counts = { pages: dg(totals[doc] || src.length), outline: '', attachments: '3', layers: '4', signatures: '2', search: '7' };
+    const counts = solo || (tab === 'search' && st) ? { pages: dg(totals[doc] || src.length), outline: '', attachments: '', layers: '', signatures: '', search: '' } : { pages: dg(totals[doc] || src.length), outline: '', attachments: dg('3'), layers: dg('4'), signatures: dg('2'), search: dg('7') };
     return {
       t, tab, tabs, title: titles[tab], count: counts[tab], legend: !!p.legend, kBookmark: p.platform === 'win' ? ['Ctrl', 'B'] : ['⌘', 'B'],
       tabOptions: [
         { value: 'pages', icon: 'files', title: t.pages }, { value: 'outline', icon: 'list-tree', title: t.outline }, { value: 'attachments', icon: 'paperclip', title: t.attachments },
         { value: 'layers', icon: 'layers', title: t.layers }, { value: 'signatures', icon: 'signature', title: t.signatures }, { value: 'search', icon: 'search', title: t.search }
       ],
-      thumbs, outline, attachments, layers, sigs, query, results,
-      searchSummary: '7 matches on 2 pages · Turkish-aware: “kira” also finds “KİRA”'
+      thumbs, outline, attachments, layers, query,
+      sigs: p.sigNeutral ? sigs.map((g, i) => i === 0 ? Object.assign({}, g, { icon: 'signature', iconColor: 'var(--icon-secondary)', status: E.sigFuture }) : g) : sigs,
+      results: tab === 'search' && (st === 'nomatch' || st === 'notext') ? [] : results,
+      searchSummary: '7 matches on 2 pages · Turkish-aware: “kira” also finds “KİRA”',
+      hasSummary: !(tab === 'search' && (st === 'nomatch' || st === 'notext')),
+      es: (() => { const key = solo ? tab : (tab === 'search' && (st === 'nomatch' || st === 'notext') ? st : ''); const e = key ? E[key] : null; return { solo, inSearch: !solo && !!e, icon: e ? e[0] : 'info', title: e ? e[1].replace('{q}', query) : '', body: e ? e[2] : '', hasAction: !!(e && e[3]), action: e && e[3], actionIcon: 'scan-text', actionOff: true, future: E.future }; })()
     };
   }
 }
