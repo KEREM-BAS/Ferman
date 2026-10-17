@@ -201,7 +201,8 @@ and continue with the safest option.
 - [ ] **E6** [QUESTIONS.md](QUESTIONS.md), [DEPENDENCIES.md](DEPENDENCIES.md) and the commands in
   [CLAUDE.md](../CLAUDE.md) are current.
 - [ ] **E7** Work is committed in Conventional Commits, at most 15 to 20 per pull request (from M2,
-  the owner's rule of 2026-10-16), and pushed; CI is green on the pushed branch.
+  the owner's rule of 2026-10-16), each with a DCO sign-off by its author (from M2,
+  [Q14](QUESTIONS.md#q14); the `dco_signoff` check), and pushed; CI is green on the pushed branch.
 - [ ] **E8** A short summary goes to the owner. The next milestone waits for the owner's go-ahead.
 
 ## 4. M0: discovery and plan

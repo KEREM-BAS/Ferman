@@ -131,13 +131,15 @@ Ferman is licensed under the [Apache License 2.0](LICENSE).
 - Submit only work you have the right to submit. Do not copy code from projects whose licences are
   not compatible (see [Dependencies](#dependencies)) or from proprietary SDKs.
 
-**Sign-off (the project's proposal, waiting for the maintainer's decision; see
-[Q14](docs/QUESTIONS.md#q14)).** We propose that every commit is signed off to certify the
+**Sign-off (required; the maintainer's decision of 2026-10-16, [Q14](docs/QUESTIONS.md#q14)).**
+Every commit is signed off to certify the
 [Developer Certificate of Origin](https://developercertificate.org/): that you wrote the change, or
 otherwise have the right to submit it under the project's licence. Use `git commit -s`. It adds a
-`Signed-off-by:` line with the name and email address from your git configuration; GitHub's no-reply
-address works if you prefer not to publish yours. Until the maintainer decides, sign-off is welcome
-but not required.
+`Signed-off-by:` line with the name and email address from your git configuration, which must be
+the commit's author; GitHub's no-reply address works if you prefer not to publish yours. CI checks
+every commit of a pull request (merge commits aside) with the `dco_signoff` check of
+`tools/checks`. To add missing sign-offs to your own branch, run `git rebase --signoff origin/main`
+and force-push it.
 
 ## Dependencies
 
