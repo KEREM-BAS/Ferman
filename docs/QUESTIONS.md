@@ -769,6 +769,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   0019](adr/0019-ai-clients-through-mcp.md) as written, together with the other Proposed items of
   M1. Anything that changes when M4 step 11 starts goes back to the owner.
 
+<a id="q21"></a>
+
 ### Q21 · Memory-mapping large files
 
 - **Question:** May ferman-core memory-map the private snapshot of a file over 256 MB through one

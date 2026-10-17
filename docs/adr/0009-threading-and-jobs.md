@@ -3,7 +3,9 @@
 - **Status:** Accepted (owner, 2026-10-16)
 - **Date:** 2026-10-14
 - **Approval:** the owner, on 2026-10-16, with the other Proposed items of M1; the order of the
-  tile-transfer options through [Q19](../QUESTIONS.md#q19)
+  tile-transfer options through [Q19](../QUESTIONS.md#q19). The details marked **Proposed** below
+  (the tile format and the render-only appendix) are part of the
+  [M2 plan](../PROGRESS.md#m2-plan) and wait for the owner's approval of it.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -67,10 +69,23 @@ later need is shown; the network gateway in M5 is decided with its own dependenc
   drops the old one after in-flight tiles finish.
 - Each page has a **render key**: a hash over the versions of the page object and everything its content,
   resources and annotation appearances reach. Pages whose key did not change keep their tiles.
+- **Proposed** with the M2 plan: **layer visibility through a render-only appendix.** PDFium has no
+  public call to show or hide an optional-content group, and pdfium-render 0.9.4 exposes none. To
+  show or hide a layer (a2-3c), ferman-core builds an in-memory incremental section after the
+  snapshot's bytes that changes only the group's state in the default configuration, and the render
+  thread loads that document through the same reader, as for a revision. The original bytes stay an
+  exact prefix. Only the pages that use the group get new render keys. The appendix is never written
+  to disk, never becomes a revision on the undo stack and never reaches a save; it is also the first
+  piece of the M3 incremental writer.
 
 ### Prioritised, cancellable tile queue
 
 - Tiles are 512 × 512 device pixels at quarter-octave zoom buckets.
+- **Proposed** with the M2 plan: every tile that crosses to Dart is 512 × 512 in PDFium's BGRA byte
+  order, which Flutter takes as `PixelFormat.bgra8888` (1 MiB for a full tile). The 256 × 256
+  buffers and the per-platform byte order of option 3 below apply only if that fallback is ever
+  used. If a platform rejects `bgra8888` in the integration test, tiles switch to RGBA through
+  PDFium's `FPDF_REVERSE_BYTE_ORDER` render flag (pdfium-render's `set_reverse_byte_order`).
 - Priority classes, highest first: visible tiles (nearest the viewport centre first), prefetch in the
   scroll direction, visible thumbnails, other thumbnails, background renders.
 - Each `request_tiles` call replaces the view's wanted set and carries a generation number. Queued
@@ -151,9 +166,9 @@ does not meet the target of 1 MB in under 0.2 ms. No number below comes from R1 
 
 The cause is the codec, not the build mode. With codegen 2.13's default `full_dep: false`, the
 generated glue uses the SSE codec: the Rust side writes the `Vec<u8>` into a serialization buffer one
-byte at a time, and Dart copies it out with `getUint8List`. At the profile rate, one 256 × 256 RGBA
-tile (256 KiB) costs about 0.8 ms, so a zoom step that delivers dozens of tiles would spend the whole
-16 ms frame on copies.
+byte at a time, and Dart copies it out with `getUint8List`. At the profile rate, one 512 × 512 BGRA
+tile (1 MiB, the tile of the queue above) costs 3.3 to 5.9 ms, so a zoom step that delivers a few
+tiles would already spend the whole 16 ms frame on copies.
 
 Options, cheapest first:
 
@@ -254,5 +269,5 @@ fail on R1 and R2.
 - [ARCHITECTURE.md](../ARCHITECTURE.md), sections 3.4, 3.7 and 4
 - [ADR 0003](0003-crate-layout-and-api-boundary.md), [ADR 0004](0004-lopdf-model-pdfium-renderer.md),
   [ADR 0008](0008-file-safety-and-saving.md), [ADR 0010](0010-error-handling-no-panics.md)
-- Artboards a1-7, a2-4a, a11-1k, a11-6b
+- Artboards a1-7, a2-3c, a2-4a, a11-1k, a11-6b
 - [G30](../DESIGN_GAPS.md#g30), [G49](../DESIGN_GAPS.md#g49)

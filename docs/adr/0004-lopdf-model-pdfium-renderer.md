@@ -66,8 +66,9 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 ### PDFium only turns bytes into pixels
 
 - ferman-render uses pdfium-render 0.9.4 with `default-features = false` and the features
-  `pdfium_7881`, `thread_safe` and `image_025`. It binds to the library at run time
-  (`bind_to_library`) from a path the app passes in.
+  `pdfium_7881` and `thread_safe`. It binds to the library at run time (`bind_to_library`) from a
+  path the app passes in. **Proposed** with the M2 plan: `image_025` stays off, because tiles take
+  the bitmap's bytes through `PdfBitmap::as_raw_bytes`, which no feature gates.
 - PDFium never writes, never saves and never edits. Ferman does not call PDFium's page-editing or save
   functions. After a change, the render thread loads the revised bytes (original bytes plus the
   in-memory incremental update) as a new PDFium document and swaps it in

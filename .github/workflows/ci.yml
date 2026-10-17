@@ -318,7 +318,7 @@ jobs:
           very_good packages check licenses \
             --dependency-type=direct-main,direct-dev,transitive \
             --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
-      - name: Web build (kept buildable until phase 5; Proposed)
+      - name: Web build (kept buildable until phase 5)
         if: runner.os == 'Linux'
         run: flutter build web --release
       - name: No design files in the web build

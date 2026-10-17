@@ -22,21 +22,22 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 
 ## Project status
 
-Ferman is at **Milestone 1: foundations**, complete and waiting for the maintainer's approval. The
-maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the Rust workspace, the
-Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI,
-on the branch `m1-foundations` (pull request #2); the app opens no PDFs until Milestone 2.
+Ferman is between **Milestone 1: foundations** and **Milestone 2: open and view**. The maintainer
+approved the plan (Milestone 0) on 2026-10-15 and Milestone 1 on 2026-10-16: the Rust workspace, the
+Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI
+are in `main`. The app opens no PDFs until Milestone 2, whose plan waits for the maintainer's
+approval.
 
 What helps most right now:
 
 - Read the documents and open an issue when something is wrong, missing or unclear.
-- Comment on the open questions in [docs/QUESTIONS.md](docs/QUESTIONS.md) and the Proposed ADRs in
-  [docs/adr/](docs/adr/README.md).
+- Comment on the open question in [docs/QUESTIONS.md](docs/QUESTIONS.md) (Q21), the Proposed ADRs
+  in [docs/adr/](docs/adr/README.md) and the [plan for Milestone 2](docs/PROGRESS.md#m2-plan).
 - Tell us about freely licensed PDFs that would make good test files (see
   [Reporting bugs](#reporting-bugs) for what we can accept).
 
-Please wait with pull requests for application code until Milestone 1 is merged into `main`, so
-changes can be reviewed against a stable base.
+Please wait with pull requests for application code until Milestone 2 has started, so changes can
+be reviewed against the engine API it adds.
 
 ## Before you start
 

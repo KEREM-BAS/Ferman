@@ -2,9 +2,10 @@ import 'dart:convert';
 
 import 'package:checks/src/check.dart';
 
-/// **Proposed** (ROADMAP M1 step 1): the Ferman crates depend on each other
-/// only along the edges of ARCHITECTURE.md §2.2, and the crates that keep a
-/// third-party library behind one door are the only ones that use it.
+/// Approved by the owner on 2026-10-16 (ROADMAP M1 step 1): the Ferman
+/// crates depend on each other only along the edges of ARCHITECTURE.md
+/// §2.2, and the crates that keep a third-party library behind one door are
+/// the only ones that use it.
 ///
 /// Reads `cargo metadata --format-version 1 --no-deps`, so it needs cargo
 /// but no network.

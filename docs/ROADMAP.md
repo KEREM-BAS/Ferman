@@ -289,7 +289,7 @@ merged into `main` (merge commit `aa7ad21`); the plan, its phases and the sessio
 [PROGRESS.md](PROGRESS.md#m1-plan). Every box below that a test, a CI run or a measurement can prove
 is ticked with its evidence; the open ones wait on the owner's checks on R1, R2 and arm64 hardware
 and on native-speaker review ([BACKLOG.md](BACKLOG.md) B100). The Proposed items were approved on
-2026-10-16, as each of their boxes now says.
+2026-10-16 (the 640 px canvas minimum on 2026-10-17), and their boxes are ticked.
 **Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
 the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
 [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
@@ -443,7 +443,7 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
   pins 1.99.0, and each Rust job runs "Install the toolchain from rust-toolchain.toml".
 - [x] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
   the crate roots). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `unsafe_roots` check in the "Repository checks" step.
-- [ ] A script reads `cargo metadata` and fails on any crate edge not allowed by
+- [x] A script reads `cargo metadata` and fails on any crate edge not allowed by
   [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph). Implemented, and approved by the owner
   on 2026-10-16 (it was Proposed). Evidence: CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
@@ -520,7 +520,7 @@ files and the atomic save work under it.
   [DEPENDENCIES.md §8](DEPENDENCIES.md#8-dart-licence-check) (direct, dev and transitive dependencies,
   the §8 allow-list), and it passed in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the "Dart licence check" step
   of the Linux Flutter job (107 packages).
-- [ ] CI fails if `pubspec.lock` contains a package from the network deny list: HTTP clients, font
+- [x] CI fails if `pubspec.lock` contains a package from the network deny list: HTTP clients, font
   downloaders such as google_fonts, analytics and crash-reporting SDKs ([ADR
   0015](adr/0015-privacy-and-network.md)). Implemented, and approved by the owner on 2026-10-16 (it
   was Proposed). Evidence: CI run
@@ -535,7 +535,7 @@ files and the atomic save work under it.
   lock file without denied packages", "deniedPattern") pass in the "Dart tools (checks, tokens,
   icons, l10n)" step. The check has been in the "Repository checks" step since run
   [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`).
-- [ ] CI compiles the web target with the engine stubbed, so the web path stays buildable until
+- [x] CI compiles the web target with the engine stubbed, so the web path stays buildable until
   phase 5. Implemented, and approved by the owner on 2026-10-16 (it was Proposed). Evidence: CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
   `b358281`, 2026-10-16): the step "Web build (kept buildable until phase 5; Proposed)" (`flutter
@@ -843,7 +843,7 @@ for every bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_G
   data is arrow-left" re-read `design/*.dc.html` and `_ds_bundle.js`. "exactly the directional icons
   carry the flag" (`tools/icons/test/enum_test.dart`) checks the eight names. These run in the step
   "Dart tools (checks, tokens, icons, l10n)".
-- [ ] The step 2 network deny list: the app never fetches fonts; CI fails if `pubspec.lock` contains
+- [x] The step 2 network deny list: the app never fetches fonts; CI fails if `pubspec.lock` contains
   google_fonts or another font downloader. Implemented, and approved by the owner on 2026-10-16 with
   the deny list (it was Proposed). Evidence (implementation; the criterion was Proposed):
   CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
@@ -1195,7 +1195,7 @@ row per mode, sidebar, canvas placeholder, right panel and status bar, built fro
   statusBar), then back to the title bar. "names every control" walks the semantics tree in every
   mode and every sidebar tab. It fails on any button, focusable, toggle or checkable node that has
   no label, tooltip or value.
-- [ ] At a minimum window width of 1024 px nothing overlaps; the tool row collapses to icons with an
+- [x] At a minimum window width of 1024 px nothing overlaps; the tool row collapses to icons with an
   overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)). Implemented, and approved by the
   owner: the 1024 px width on 2026-10-16 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) on
   2026-10-17 (both were Proposed). Evidence: CI run
@@ -1392,7 +1392,7 @@ a pseudo-locale for text expansion (Proposed, approved by the owner on 2026-10-1
   fa and he. "the canvas is never mirrored: in right to left its subtree runs left to right and its
   glyph is not flipped (ADR 0014)" is in group "layout" of
   `app/test/features/shell/shell_screen_test.dart`.
-- [ ] Every M1 screen renders in a pseudo-locale with strings 40% longer without clipping or
+- [x] Every M1 screen renders in a pseudo-locale with strings 40% longer without clipping or
   overflow errors. This stands in for the German boards `a12-2b` and `a12-2d`. Implemented, and
   approved by the owner on 2026-10-16 (it was Proposed). Evidence: CI run
   [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
@@ -1699,6 +1699,21 @@ document panel ("1 signature, page 3") and as the neutral Signed chip of `a1-4-m
 | Rust (dev) | criterion 0.8, tempfile 3.27 | Apache-2.0 OR MIT; MIT OR Apache-2.0 | benchmarks; test files |
 | Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, approved in [Q17](QUESTIONS.md#q17) |
 | Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); approved in [Q17](QUESTIONS.md#q17); its notice ships in every build and the pub licence check skips `dbus` by name |
+
+**Proposed (M2 plan)**, added to [DEPENDENCIES.md](DEPENDENCIES.md) with their exact versions, and
+checked by cargo-deny or the pub licence check, in the commit that adds each:
+
+| Kind | Dependency | Licence | Notes |
+|---|---|---|---|
+| Rust | zeroize | Apache-2.0 OR MIT | passwords wiped from memory after unlock |
+| Rust | flate2, weezl | MIT OR Apache-2.0 | Flate and LZW stream filters as direct dependencies, with the decoded-size limits of [ARCHITECTURE.md §9.1](ARCHITECTURE.md#91-resource-limits) |
+| Rust (CLI) | png | MIT OR Apache-2.0 | `ferman render` writes PNG files |
+| Fuzz | arbitrary | MIT OR Apache-2.0 | structured fuzz inputs, `fuzz/` only |
+| Corpus | harfrust, subsetter, aes, cbc, rc4, md-5 | MIT; MIT OR Apache-2.0 | `tools/corpus` only, never shipped ([ADR 0020](adr/0020-test-corpus.md)); the ciphers only if lopdf cannot write encryption |
+| Dart (dev) | ffigen | BSD-3-Clause | the Dco codec of the bridge ([Q19](QUESTIONS.md#q19)); checked to bring no `http` |
+| Test data | Noto Sans CJK, the Adobe Glyph List | OFL-1.1; BSD-3-Clause | pinned by hash, never shipped |
+| CI | libclang-dev | Apache-2.0 WITH LLVM-exception | ffigen's codegen; a CI package, never shipped |
+| CI | strace | LGPL-2.1-or-later | the no-network check; a CI tool, never shipped or linked, but LGPL, so the owner is asked before it is added, as for rust-cache in [Q17](QUESTIONS.md#q17); without it the check uses a network namespace instead |
 
 ### Steps
 
@@ -2142,7 +2157,7 @@ arrives with those modes in M4; find and replace uses `a3-17`'s flow in P2.
   save picker, and the sheet then shows the chosen folder (`a1-11b`, [G26](DESIGN_GAPS.md#g26),
   [ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)). The
   "PDF/A-2b, for archiving" and "Optimized for web" formats stay disabled with the future-version
-  tooltip.
+  tooltip, although a1-11b draws "Optimized for web" enabled ([G111](DESIGN_GAPS.md#g111)).
 - [ ] "Optimize and clean" writes a full rewrite without earlier revisions or unreferenced objects and
   warns first on signed documents. Saving a repaired document (`a1-9`) always writes a full rewrite to
   a new file.

@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-110 entries: 88 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G110 were found while planning M2.
+111 entries: 89 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -182,6 +182,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G108](#g108) | conflict | M1 | Settings | M1 build boards draw the M2 controls of General and every pane enabled | Decided |
 | [G109](#g109) | missing state | M2 | Start / recent files | No placeholder for a recent file that needs a password | Decided |
 | [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
+| [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
 
 ## Entries
 
@@ -1641,3 +1642,17 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** results stay grouped by page, as a2-3e draws. A comment or a form field belongs to the page it is on, and a bookmark to the page it opens. Inside a group, page text comes first in reading order, then comments, fields and bookmarks, each with an icon before its snippet: `message-square` and `text-cursor-input`, the badges of the Pages thumbnails, and `bookmark` from the design system's icon set. The kind (comment, form field, bookmark) is part of the result's accessible name. A bookmark that opens no page is listed after the last page.
 - **Status:** Decided; the decision is Proposed with the M2 plan.
 - **Evidence:** `design/02 View.dc.html` lines 100 (a2-3e), 119 (the a2-4a options) and 124–131 (a2-4b); `design/FmSidebar.dc.html` lines 30–31 and 43–44 (the Pages badges and their legend: `message-square` for comments, `text-cursor-input` for form fields) and 166–176 (`results`: page groups of page text only).
+
+<a id="g111"></a>
+
+### G111 · Save as: "Optimized for web" drawn enabled
+
+- **Type:** conflict
+- **Milestone:** M3
+- **Area:** Saving
+- **Artboards:** `a1-11`, `a1-11b`
+- **Gap or conflict:** a1-11 and a1-11b (export 519d42a) draw Save as with three formats: "PDF", "PDF/A-2b, for archiving" and "Optimized for web" ("The first page opens before the whole file downloads. Images are compressed to 150 ppi."). a1-11b draws only PDF/A-2b disabled, which reads as "Optimized for web" being available when Save as ships in M3. ROADMAP §7 step 8 keeps both disabled. Writing a linearized file with downsampled images needs the image pipeline that arrives with Compress in M4, beyond M3's writer (incremental update and the full rewrite).
+- **Decision:** "Optimized for web" stays visible and disabled with "Available in a future version" until M4, when Compress brings the image pipeline; PDF/A-2b stays disabled until P4. The decision is looked at again when M3 is planned: if linearizing without image changes fits M3, the format could ship then with its description shortened to the first sentence.
+- **Status:** Decided.
+- **Evidence:** `design/01 First run and files.dc.html` line 266 (a1-11's three format radios) and line 297 (a1-11b: only PDF/A-2b carries `disabled`); [ROADMAP.md §7](ROADMAP.md) step 8.
+

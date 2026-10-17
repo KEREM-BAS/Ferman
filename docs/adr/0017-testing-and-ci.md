@@ -2,7 +2,10 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §4, §5 and §9
+- **Approval:** brief §4, §5 and §9. The checks Proposed in M1 (the crate graph, the pub deny list,
+  the web stub build and the pseudo-locale tests) were approved by the owner on 2026-10-16. The fuzz
+  durations and the benchmark budgets below stay **Proposed** with the
+  [M2 plan](../PROGRESS.md#m2-plan).
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -42,16 +45,17 @@ On every pull request and on `main`, on **macOS (arm64), Windows (x64) and Linux
 
 | Job | Steps |
 |---|---|
-| Rust | `cargo fmt --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace`; the tests that need PDFium (`#[ignore]` by default) with `cargo test --workspace -- --ignored` against the pinned library for the runner's platform (`tools/pdfium/fetch.sh`, an absolute `FERMAN_PDFIUM_PATH`), then `ferman info --json --pdfium`, which must report `loaded`, on all three systems; **proposed:** dependency-graph check ([ADR 0003](0003-crate-layout-and-api-boundary.md)) |
+| Rust | `cargo fmt --check`; `cargo clippy --workspace --all-targets -- -D warnings`; `cargo test --workspace`; the tests that need PDFium (`#[ignore]` by default) with `cargo test --workspace -- --ignored` against the pinned library for the runner's platform (`tools/pdfium/fetch.sh`, an absolute `FERMAN_PDFIUM_PATH`), then `ferman info --json --pdfium`, which must report `loaded`, on all three systems |
 | Licences and advisories | `cargo deny check` (licences, bans, advisories, sources), plus a dev-dependency run; pub licence check with very_good_cli ([ADR 0016](0016-dependency-licence-policy.md)) |
-| Repository checks (Linux) | `tools/checks` (`dart run bin/check_all.dart`): the repository rules CI enforces, among them `design/` unchanged against the pull request's base and every commit of the pull request signed off by its author (`dco_signoff`, [Q14](../QUESTIONS.md#q14)) ([ARCHITECTURE.md §2.4](../ARCHITECTURE.md#24-tools-corpus-and-fuzzing)) |
+| Repository checks (Linux) | `tools/checks` (`dart run bin/check_all.dart`): the repository rules CI enforces, among them the crate graph (`crate_graph`, [ADR 0003](0003-crate-layout-and-api-boundary.md)) and the pub network deny list (`pub_denylist`, [ADR 0015](0015-privacy-and-network.md)), both approved on 2026-10-16, `design/` unchanged against the pull request's base and every commit of the pull request signed off by its author (`dco_signoff`, [Q14](../QUESTIONS.md#q14)) ([ARCHITECTURE.md §2.4](../ARCHITECTURE.md#24-tools-corpus-and-fuzzing)) |
 | Generated code | regenerate FRB bindings, `tokens.g.dart`, l10n and icon assets; fail on any diff; check that FRB's crate, package and codegen versions match |
 | Flutter | `flutter analyze` (the brief's check) and `dart analyze --fatal-infos` (the riverpod_lint 3.1.9 plugin reports only there); `flutter test` (widget tests everywhere; goldens on Linux only, below); project checks for forbidden APIs, literal design values, left-or-right layout APIs and direct `toUpperCase` ([ADR 0011](0011-flutter-state-navigation-components.md), [ADR 0012](0012-design-token-pipeline.md), [ADR 0014](0014-localization-and-rtl.md)) |
-| Desktop build | `flutter build macos`, `flutter build windows`, `flutter build linux` with the native engine and the pinned PDFium |
-| Fuzz smoke (Linux) | a short run of every fuzz target |
+| Desktop build | `flutter build macos`, `flutter build windows`, `flutter build linux` with the native engine and the pinned PDFium; on Linux also `flutter build web` with the engine stubbed, so the web path stays buildable until phase 5 (approved on 2026-10-16) |
+| Fuzz smoke (Linux) | a short run of every fuzz target (**Proposed** with the M2 plan: 60 s per target) |
 | Benchmarks (Linux) | criterion benchmarks compared with stored baselines |
 
-A nightly workflow runs longer fuzzing sessions (Linux and macOS) and the full corpus suite.
+A nightly workflow runs longer fuzzing sessions (Linux and macOS; **Proposed** with the M2 plan: 1 h
+per target, one job per target) and the full corpus suite.
 
 **Pinning and hygiene:**
 
@@ -109,8 +113,10 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
   text), scanned pages, signed files and a file changed after signing. Flow B acceptance tests use the
   e-Devlet form fixture ([G58](../DESIGN_GAPS.md#g58)).
 - **Real-world files** under free licences, covering the producers in brief §5.
-- Small files are committed; larger ones are fetched by `tools/corpus` with pinned hashes (the size
-  threshold is set in [ARCHITECTURE.md](../ARCHITECTURE.md) section 2.4).
+- Small files are committed; larger ones are produced by `tools/corpus` and checked against pinned
+  hashes (the size threshold is set in [ARCHITECTURE.md](../ARCHITECTURE.md) section 2.4; the
+  generators, the 1 MB threshold and the first wave are **Proposed** in
+  [ADR 0020](0020-test-corpus.md) with the M2 plan).
 
 ### Flutter tests
 
@@ -139,11 +145,15 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
   SHA-256 (pinned from the first CI download on 2026-10-15) and passes its path to the renderer. The renderer runs offline: the React and Babel runtime
   scripts and the fonts come from npm packages pinned in its lockfile and are served locally, and all
   other network requests fail the run, so the design's Google Fonts import never loads.
-- Capture rule: each of the 214 product boards is captured from the first `.fm-root` inside the
-  element with the id `<id>`, or from that element itself when it carries `.fm-root` (the seven
-  sidebar boards `a2-3p` to `a2-3x`). The nine fix boards `f1` to `f6a` are captured as the whole
-  element with the id: the `section` for `f1` to `f6`, and the nested `div` for `f4a`, `f4b` and
-  `f6a` (inside the sections `f4` and `f6`). Every board is rendered on its own freshly loaded page.
+- Capture rule (export `519d42a`, 253 boards): 242 of the 244 product boards are captured from the
+  first `.fm-root` inside the element with the id `<id>`, or from that element itself when it
+  carries `.fm-root` (the seven sidebar boards `a2-3p` to `a2-3x`). `a2-3m` is captured as the box
+  around all six of its sidebar frames, and the region-format table `a12-0`, which has no
+  `.fm-root`, as the whole element with the id. The nine fix boards `f1` to `f6a` are captured as
+  the whole element with the id: the `section` for `f1` to `f6`, and the nested `div` for `f4a`,
+  `f4b` and `f6a` (inside the sections `f4` and `f6`). The 29 boards with the design's
+  board-language switch are also rendered in Turkish and Arabic (58 variants). Every board and
+  variant is rendered on its own freshly loaded page.
 - A comparison script lines up each golden with its artboard and reports a perceptual difference score.
   In M1 the score is reviewed by a person in the pull request, not used as a gate; a gate is considered
   once the scores are understood.
@@ -155,7 +165,10 @@ difference images as artifacts. `ferman verify-edit` runs one case locally.
 - The brief's three budgets are measured on reference hardware before each milestone sign-off
   ([ARCHITECTURE.md](../ARCHITECTURE.md) section 14). CI runners are slower and have no GPU, so CI
   compares against stored baselines with a calibration factor and fails on sustained regressions (from
-  M2).
+  M2). **Proposed** ([ARCHITECTURE.md](../ARCHITECTURE.md) section 14, with the M2 plan): each CI
+  budget is the reference budget times a calibration factor measured per runner type, provisional
+  until R1 numbers exist, and a benchmark more than 15% slower than its baseline for three runs in a
+  row fails the job.
 
 ## Consequences
 

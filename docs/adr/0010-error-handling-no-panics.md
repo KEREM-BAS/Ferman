@@ -2,7 +2,9 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §5
+- **Approval:** brief §5. The crash-log placeholders below, Proposed until then, were approved by the
+  owner on 2026-10-17. The out-of-memory note marked **Proposed** is part of the
+  [M2 plan](../PROGRESS.md#m2-plan) and waits for the owner's approval of it.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -92,6 +94,14 @@ pub struct ApiError {
   all open documents.
 - Crashes inside PDFium (C++) cannot be caught. The defences are the pinned binary, fuzzing, the recovery
   journal and the helper-process fallback ([ADR 0009](0009-threading-and-jobs.md)).
+- **Proposed** with the M2 plan: **out of memory.** Rust aborts the whole process when an allocation
+  fails, and `catch_unwind` cannot stop that. a1-9f promises that only the failing document's tab
+  closes, so the engine checks before it allocates: large buffers (the file, decoded streams, tiles)
+  are reserved with `try_reserve`, and the limits of [ARCHITECTURE.md](../ARCHITECTURE.md) section 9.1
+  refuse oversized work up front. A shortage found this way becomes `ApiError` with kind
+  `ResourceLimit` and the message key `errorOutOfMemory`; the document closes and the others keep
+  working. Memory running out inside PDFium, or in a small allocation that no check covers, cannot be
+  caught and still ends the app; the recovery journal is the defence there.
 
 ### Logs stay local
 
@@ -102,8 +112,9 @@ pub struct ApiError {
   log anywhere.
 - Nothing is uploaded. "Copy crash log" (a1-12) and "Show log files" (a11-1k) are the only ways a log
   leaves Ferman, and both are the user's own action ([ADR 0015](0015-privacy-and-network.md)).
-  **Proposed:** the copied crash log replaces the home folder, folder names and file names with
-  placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md) section 8.4).
+  **Approved by the owner on 2026-10-17** (Proposed until then): the copied crash log replaces the
+  home folder, folder names and file names with placeholders ([ARCHITECTURE.md](../ARCHITECTURE.md)
+  section 8.4).
 
 ### Dart side
 
@@ -148,4 +159,4 @@ pub struct ApiError {
 - [ADR 0003](0003-crate-layout-and-api-boundary.md), [ADR 0008](0008-file-safety-and-saving.md),
   [ADR 0009](0009-threading-and-jobs.md), [ADR 0014](0014-localization-and-rtl.md),
   [ADR 0015](0015-privacy-and-network.md), [ADR 0017](0017-testing-and-ci.md)
-- Artboards a1-8b, a1-9b, a1-12, a11-1k, a11-7, a11-7b
+- Artboards a1-8b, a1-9b, a1-9f, a1-12, a11-1k, a11-7, a11-7b
