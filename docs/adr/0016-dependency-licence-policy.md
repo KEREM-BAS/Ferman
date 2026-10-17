@@ -2,9 +2,9 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §1, §3 and §9. The three licence exceptions below were approved by the owner on
-  2026-10-15 ([Q17](../QUESTIONS.md#q17), parts 1 to 3); the reading of "GPL-compatible" (part 4) is
-  still open.
+- **Approval:** brief §1, §3 and §9. The three licence exceptions below were approved by the owner
+  on 2026-10-15 ([Q17](../QUESTIONS.md#q17), parts 1 to 3); the reading of "GPL-compatible" (part 4)
+  was confirmed on 2026-10-16.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -28,9 +28,8 @@ Enforce with cargo-deny and list every dependency with its licence in docs/DEPEN
   product, with a notice and an offer of their source.
 
 So in practice the rule is: **permissive licences, plus MPL-2.0 for unmodified dependencies after the
-owner's review**. This reading of "GPL-compatible" is the project's, not the brief's wording;
-[Q17](../QUESTIONS.md#q17) (part 4, still open) asks the owner to confirm it, and until then this
-stricter reading applies.
+owner's review**. This reading of "GPL-compatible" is the project's, not the brief's wording; the
+owner confirmed it on 2026-10-16 ([Q17](../QUESTIONS.md#q17), part 4).
 The dependency check of 2026-10-13 found that the planned Rust graph (about 356 runtime crates) uses
 only MIT, Apache-2.0, BSD-2-Clause, BSD-3-Clause, ISC, Zlib and Unicode-3.0, or offers one of them
 inside an OR expression. Two anomalies: `allo-isolate` (from flutter_rust_bridge) declares its
@@ -176,7 +175,7 @@ the third-party notices screen ([G14](../DESIGN_GAPS.md#g14)).
 - Some useful libraries are out of reach (MuPDF, poppler, Ghostscript, LGPL codecs). Ferman relies on
   PDFium and Rust crates instead.
 - The policy is stricter than a literal reading of "GPL-compatible". That is deliberate: it keeps the
-  brief's Apache-2.0 licence intact. The owner is asked to confirm it in Q17 (part 4, open) and can
+  brief's Apache-2.0 licence intact. The owner confirmed it on 2026-10-16 (Q17, part 4) and can
   relax it through an ADR.
 - Licence checks need maintenance: clarify hashes, exceptions and the Dart skip list change with
   upgrades.

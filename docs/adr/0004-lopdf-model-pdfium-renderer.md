@@ -2,7 +2,8 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §3
+- **Approval:** brief §3. The read-only open below, Proposed in M0, was approved by the owner on
+  2026-10-16.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -65,8 +66,9 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 ### PDFium only turns bytes into pixels
 
 - ferman-render uses pdfium-render 0.9.4 with `default-features = false` and the features
-  `pdfium_7881`, `thread_safe` and `image_025`. It binds to the library at run time
-  (`bind_to_library`) from a path the app passes in.
+  `pdfium_7881` and `thread_safe`. It binds to the library at run time (`bind_to_library`) from a
+  path the app passes in. **Proposed** with the M2 plan: `image_025` stays off, because tiles take
+  the bitmap's bytes through `PdfBitmap::as_raw_bytes`, which no feature gates.
 - PDFium never writes, never saves and never edits. Ferman does not call PDFium's page-editing or save
   functions. After a change, the render thread loads the revised bytes (original bytes plus the
   in-memory incremental update) as a new PDFium document and swaps it in
@@ -74,9 +76,9 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 - Ferman's own interpreter builds the text model ([ADR 0005](0005-block-scoped-text-editing.md)).
   PDFium's text functions may be used in tests as a cross-check, never as the model.
 - On open, PDFium supplies the page count and page sizes so the first page can render while lopdf is
-  still parsing (a1-7). Editing, search and thumbnails turn on when the model is ready. **Proposed:**
-  if the two parsers disagree on structure (page count or page sizes), the document opens read-only
-  with a notice ([ARCHITECTURE.md](../ARCHITECTURE.md) section 5.1).
+  still parsing (a1-7). Editing, search and thumbnails turn on when the model is ready. **Approved
+  by the owner on 2026-10-16:** if the two parsers disagree on structure (page count or page sizes),
+  the document opens read-only with a notice ([ARCHITECTURE.md](../ARCHITECTURE.md) section 5.1).
 - Selection, edit marks, search highlights and other overlays are drawn by Flutter on top of the
   tiles. They are never rendered into the PDF.
 
@@ -111,14 +113,14 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 - PDFium's fidelity and speed for rendering, including scans, CID fonts and damaged files.
 - Clear licences: MIT, Apache-2.0 and BSD-3-Clause, with attribution-only obligations for PDFium's
   bundled libraries.
-- With no V8 in the build, document JavaScript cannot run. That matches the design ("Ferman never runs
-  it" in a8-3, "JavaScript blocked" in the a8-4 security report) and the proposed policy in
-  [Q13](../QUESTIONS.md#q13).
+- With no V8 in the build, document JavaScript cannot run. That matches the design ("Ferman never
+  runs it" in a8-3, "JavaScript blocked" in the a8-4 security report) and the policy the owner
+  confirmed in [Q13](../QUESTIONS.md#q13) on 2026-10-16.
 
 ### Negative
 
 - **Two parsers, two in-memory copies.** Memory is higher, and the two can disagree on damaged files.
-  Disagreement opens the file read-only (proposed, above); repair is always a full rewrite to a new
+  Disagreement opens the file read-only (approved, above); repair is always a full rewrite to a new
   file.
 - **PDFium is not thread-safe.** All rendering goes through one thread
   ([ADR 0009](0009-threading-and-jobs.md)). If M2 measurements show that is too slow, helper processes
@@ -130,10 +132,10 @@ form shown read-only (a11-7c), and document properties with font embedding statu
   100 ms edit-to-render budget; it is measured in M3.
 - **lopdf churn.** Monthly breaking releases mean deliberate, tested upgrades.
 - **No XFA.** XFA-only forms open read-only with an explanation (a11-7c).
-- **Optional content (layers).** The layers tab, proposed for M2 ([Q10](../QUESTIONS.md#q10)), needs
-  per-layer visibility at render time. How PDFium exposes optional-content configurations through
-  pdfium-render is verified in M2; if it is not enough, the engine sets the visibility in the in-memory
-  revision before rendering.
+- **Optional content (layers).** The layers tab, in M2 ([Q10](../QUESTIONS.md#q10), 2026-10-16),
+  needs per-layer visibility at render time. How PDFium exposes optional-content configurations
+  through pdfium-render is verified in M2; if it is not enough, the engine sets the visibility in
+  the in-memory revision before rendering.
 - **Web (P5).** PDFium's WebAssembly build is experimental. hayro is the candidate fallback.
 
 ### Follow-up

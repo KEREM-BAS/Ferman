@@ -98,10 +98,10 @@ abstract class DesktopWindow {
 }
 
 /// Asks [window] for the smallest size the shell supports,
-/// [WindowMetrics.minimumSize] (1024 × 640, the width **Proposed**; G21).
-/// `bootstrap()` calls it at start-up, once the window has started. Where
-/// the app draws no window of its own (the web, mobile) the request does
-/// nothing.
+/// [WindowMetrics.minimumSize] (1024 × 640; the width approved by the owner
+/// on 2026-10-16, G21). `bootstrap()` calls it at start-up, once the window
+/// has started. Where the app draws no window of its own (the web, mobile)
+/// the request does nothing.
 Future<void> applyWindowLimits(DesktopWindow window) =>
     window.setMinimumSize(WindowMetrics.minimumSize);
 

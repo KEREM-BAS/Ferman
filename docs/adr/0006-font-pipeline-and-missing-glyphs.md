@@ -2,7 +2,8 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §3 and §4
+- **Approval:** brief §3 and §4. The `fsType` detail below, Proposed in M0, was approved by the
+  owner on 2026-10-16 ([Q09](../QUESTIONS.md#q09)).
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -87,9 +88,9 @@ joining form and lack another.
 announced with the "Font substituted" toast (a11-6) when it happens outside the panel, for example in a
 batch of changes. Bold and italic are never synthesised.
 
-The default follows the design. The owner is asked to confirm it in [Q09](../QUESTIONS.md#q09). If no
-font covers the character, the callout says so and the only choices are "Choose a font…" and "Keep as
-is" (state to draw, [G37](../DESIGN_GAPS.md#g37)).
+The default follows the design; the owner confirmed it on 2026-10-16 ([Q09](../QUESTIONS.md#q09)).
+If no font covers the character, the callout says so and the only choices are "Choose a font…" and
+"Keep as is" (state to draw, [G37](../DESIGN_GAPS.md#g37)).
 
 ### Fonts that restrict embedding
 
@@ -107,14 +108,13 @@ Installed fonts carry embedding permissions in the OS/2 table (`fsType`). Ferman
 Where bits 1, 2 and 3 are combined, the least restrictive one applies, as the OpenType specification
 says.
 
-**Proposed** (asked with [Q09](../QUESTIONS.md#q09)): the same restriction applies to fonts already
-embedded in the document. When an embedded font program carries an OS/2 table whose `fsType` allows at
-most preview and print (bit 1, or bit 2 without bit 3), editing text set in that font does not reuse
-the embedded glyphs (step 1). Step 2 applies only if the installed copy allows embedding under the table
-above; otherwise the flow goes to step 3, with the reason shown. The rest of the document stays
-editable, and text in other fonts is not affected. The rule reads only the OS/2 table, so programs
-without one (bare CFF, Type1, Type3) are not restricted by it. Text editing starts in M3, so the
-owner's answer is needed by then.
+**Approved by the owner on 2026-10-16** ([Q09](../QUESTIONS.md#q09)): the same restriction applies
+to fonts already embedded in the document. When an embedded font program carries an OS/2 table whose
+`fsType` allows at most preview and print (bit 1, or bit 2 without bit 3), editing text set in that
+font does not reuse the embedded glyphs (step 1). Step 2 applies only if the installed copy allows
+embedding under the table above; otherwise the flow goes to step 3, with the reason shown. The rest
+of the document stays editable, and text in other fonts is not affected. The rule reads only the
+OS/2 table, so programs without one (bare CFF, Type1, Type3) are not restricted by it.
 
 The "embedding forbidden" state is not drawn yet ([G37](../DESIGN_GAPS.md#g37)).
 
@@ -122,9 +122,9 @@ The "embedding forbidden" state is not drawn yet ([G37](../DESIGN_GAPS.md#g37)).
 
 The a3-3b group "SIMILAR FONTS INCLUDED WITH FERMAN" needs a small set of bundled document fonts
 with licences that allow embedding (the board shows Cormorant Garamond and Crimson Pro). The UI fonts
-(IBM Plex) qualify. Which other families ship, and their licences, is decided with the font bundling
-questions in [ADR 0013](0013-fonts-and-icons.md) and [Q08](../QUESTIONS.md#q08). Until then, step 3 uses
-embedded fonts, installed fonts and the bundled IBM Plex families.
+(IBM Plex) qualify. The owner approved Cormorant Garamond and Crimson Pro (OFL-1.1) for this group
+on 2026-10-16 ([Q08](../QUESTIONS.md#q08) group 4); they ship from M3 as the unmodified upstream
+files with their licences, beside the IBM Plex families ([ADR 0013](0013-fonts-and-icons.md)).
 
 ## Consequences
 
@@ -159,7 +159,7 @@ embedded fonts, installed fonts and the bundled IBM Plex families.
   resource, but subsetters renumber glyphs, so every other run using that font would have to be
   re-encoded. That breaks the block-scoped rule.
 - **Always ask** (make "Ask each time" the default). Safe, but slower for the common case. The design
-  chose "say so" as the default; we follow it and ask the owner to confirm.
+  chose "say so" as the default; we follow it, and the owner confirmed it on 2026-10-16.
 - **Ignore `fsType`.** Simpler, but it would make Ferman embed fonts their licences forbid.
 
 ## References

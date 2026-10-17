@@ -46,7 +46,7 @@ export const EXIT = { ok: 0, failure: 1, usage: 64, noInput: 66 };
 /** An input that cannot be read at all: the map, or the folder of references. */
 export class InputError extends Error {}
 
-const PAIR_KEYS = new Set(['id', 'board', 'golden', 'notCompared', 'crop', 'cropSource', 'goldenCrop', 'masks', 'note']);
+const PAIR_KEYS = new Set(['id', 'board', 'lang', 'golden', 'notCompared', 'crop', 'cropSource', 'goldenCrop', 'masks', 'note']);
 const PAIR_ID = /^[a-z0-9][a-z0-9-]*$/;
 
 /** Fill of masked pixels in the diff image: grey diagonal stripes. */
@@ -82,15 +82,28 @@ const sameSize = (a, b) => a.width === b.width && a.height === b.height;
 const size = (s) => `${s.width} × ${s.height}`;
 
 /**
- * Checks a parsed compare map and returns it normalised: every pair with its `id` (the board id
- * unless given) and `masks` (empty unless given).
+ * The reference PNG of a pair: `<board>.png`, or `<board>.<lang>.png` for a language variant.
+ *
+ * @param {{board: string, lang?: string}} pair
+ */
+export function refName(pair) {
+  return pair.lang === undefined ? `${pair.board}.png` : `${pair.board}.${pair.lang}.png`;
+}
+
+/**
+ * Checks a parsed compare map and returns it normalised: every pair with its `id` (the board id,
+ * `<board>-<lang>` for a language variant, unless given) and `masks` (empty unless given).
+ *
+ * A pair's `lang` picks a language variant of a board with the board-language switch. On such a
+ * board the golden's language must be the reference's: `lang`, or English without it.
  *
  * @param {any} data the parsed JSON
- * @param {{boardIds: Set<string>}} known the board ids of boards.json
+ * @param {{boardIds: Set<string>, boardLangs?: Map<string, string[]>}} known the board ids of
+ *   boards.json, and the variant languages of each board that has any
  * @returns {{goldenSize: {width: number, height: number}, pairs: Array<object>}}
  * @throws {InputError} listing every problem
  */
-export function validateMap(data, { boardIds }) {
+export function validateMap(data, { boardIds, boardLangs = new Map() }) {
   const problems = [];
   if (typeof data !== 'object' || data === null || Array.isArray(data)) throw new InputError('the map must be a JSON object');
   const goldenSize = data.goldenSize;
@@ -100,14 +113,20 @@ export function validateMap(data, { boardIds }) {
   const pairs = [];
   const ids = new Set();
   for (const [index, raw] of (Array.isArray(data.pairs) ? data.pairs : []).entries()) {
-    const where = `pairs[${index}]${typeof raw?.board === 'string' ? ` (${raw.id ?? raw.board})` : ''}`;
+    const defaultId = typeof raw?.lang === 'string' ? `${raw.board}-${raw.lang}` : raw?.board;
+    const where = `pairs[${index}]${typeof raw?.board === 'string' ? ` (${raw.id ?? defaultId})` : ''}`;
     if (typeof raw !== 'object' || raw === null || Array.isArray(raw)) {
       problems.push(`${where} must be an object`);
       continue;
     }
     for (const key of Object.keys(raw)) if (!PAIR_KEYS.has(key)) problems.push(`${where}: unknown key "${key}"`);
-    const pair = { ...raw, id: raw.id ?? raw.board, masks: raw.masks ?? [] };
+    const pair = { ...raw, id: raw.id ?? defaultId, masks: raw.masks ?? [] };
     if (typeof raw.board !== 'string' || !boardIds.has(raw.board)) problems.push(`${where}: unknown board id ${JSON.stringify(raw.board)}`);
+    const langs = boardLangs.get(raw.board) ?? [];
+    if (raw.lang !== undefined && !langs.includes(raw.lang)) {
+      const offered = langs.length > 0 ? `its variants are ${langs.join(', ')}` : 'it has no language variants';
+      problems.push(`${where}: board ${raw.board} has no ${JSON.stringify(raw.lang)} variant (${offered})`);
+    }
     if (typeof pair.id !== 'string' || !PAIR_ID.test(pair.id)) problems.push(`${where}: the id must match ${PAIR_ID}`);
     else if (ids.has(pair.id)) problems.push(`${where}: duplicate id "${pair.id}" (give each pair of one board its own "id")`);
     ids.add(pair.id);
@@ -123,8 +142,11 @@ export function validateMap(data, { boardIds }) {
       pairs.push(pair);
       continue;
     }
-    if (typeof raw.golden !== 'string' || !GOLDEN_NAME.test(raw.golden)) {
+    const goldenMatch = typeof raw.golden === 'string' ? GOLDEN_NAME.exec(raw.golden) : null;
+    if (goldenMatch === null) {
       problems.push(`${where}: golden ${JSON.stringify(raw.golden)} is not <screen>_<mac|win>_<light|dark>_<en|tr|ar>.png`);
+    } else if (langs.length > 0 && goldenMatch[4] !== (raw.lang ?? 'en')) {
+      problems.push(`${where}: the golden is in ${goldenMatch[4]} but the reference ${refName(pair)} is in ${raw.lang ?? 'en'}`);
     }
     // A rectangle with a problem of its own is not measured against the others.
     const valid = {};
@@ -169,7 +191,7 @@ export function validateMap(data, { boardIds }) {
  * Reads and checks a compare map.
  *
  * @param {string} file
- * @param {{boardIds: Set<string>}} known
+ * @param {{boardIds: Set<string>, boardLangs?: Map<string, string[]>}} known
  */
 export async function loadMap(file, known) {
   let data;
@@ -439,7 +461,7 @@ export async function runComparison(map, { refsDir, goldensDir, outDir, threshol
       rows.push({ pair, result: 'not compared' });
       continue;
     }
-    const refFile = path.join(refsDir, `${pair.board}.png`);
+    const refFile = path.join(refsDir, refName(pair));
     const goldenFile = path.join(goldensDir, pair.golden);
     const missing = [!existsSync(refFile) && 'reference', !existsSync(goldenFile) && 'golden'].filter(Boolean);
     if (missing.length > 0) {
@@ -447,7 +469,7 @@ export async function runComparison(map, { refsDir, goldensDir, outDir, threshol
       continue;
     }
     try {
-      let ref = await load(refFile).catch((e) => Promise.reject(new Error(`reference ${pair.board}.png: ${e.message}`)));
+      let ref = await load(refFile).catch((e) => Promise.reject(new Error(`reference ${refName(pair)}: ${e.message}`)));
       let golden = await load(goldenFile).catch((e) => Promise.reject(new Error(`golden: ${e.message}`)));
       if (!pair.goldenCrop && !sameSize(golden, map.goldenSize)) {
         throw new Error(`the golden is ${size(golden)}, not ${size(map.goldenSize)}`);
@@ -537,7 +559,7 @@ export function renderReport(rows, context) {
     lines.push(
       `| ${[
         code(pair.id),
-        code(pair.board),
+        code(pair.lang === undefined ? pair.board : `${pair.board}.${pair.lang}`),
         pair.golden ? code(pair.golden) : '–',
         result,
         s ? `${percent(s.diffShare)} (${s.differing.toLocaleString('en-US')} px)` : '–',
@@ -652,7 +674,11 @@ export async function compareMain(argv, { repoDir, toolDir, log = console.log, e
     if (existsSync(options.goldens) && isInsideDir(options.out, options.goldens)) throw new UsageError('--out must not be inside the goldens folder');
 
     const list = await loadBoards(path.join(toolDir, 'boards.json'));
-    const map = await loadMap(options.map, { boardIds: new Set([...list.boards, ...list.pages].map((b) => b.id)) });
+    const all = [...list.boards, ...list.pages];
+    const map = await loadMap(options.map, {
+      boardIds: new Set(all.map((b) => b.id)),
+      boardLangs: new Map(all.filter((b) => b.langs).map((b) => [b.id, b.langs])),
+    });
     if (!existsSync(options.refs)) {
       throw new InputError(`no references in ${options.refs}: render them first (node tools/design-refs --only @m1)`);
     }

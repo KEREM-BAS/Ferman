@@ -6,6 +6,8 @@ import os from 'node:os';
 import path from 'node:path';
 import { parseArgs } from 'node:util';
 
+import { expandTargets } from './boards.mjs';
+
 export class UsageError extends Error {}
 
 export function defaultJobs() {
@@ -15,12 +17,14 @@ export function defaultJobs() {
 export const USAGE = `Usage: node tools/design-refs [options]
        node tools/design-refs compare [options]
 
-Renders design boards to <out>/<id>.png, offline. \`compare\` lines the app's goldens up with
+Renders design boards to <out>/<id>.png, offline, and each language variant of a board with the
+board-language switch to <out>/<id>.<lang>.png. \`compare\` lines the app's goldens up with
 those renders and writes a report (node tools/design-refs compare --help).
 
 Options:
-  --only <ids>       render only these ids (comma-separated, repeatable); @<set> expands a set
-                     from boards.json (@m1), ds-additions is the DS additions sheet
+  --only <ids>       render only these ids (comma-separated, repeatable): a board id renders the
+                     board and its language variants, <id>.<lang> one variant; @<set> expands a
+                     set from boards.json (@m1, @m2, @langs); ds-additions is the DS additions sheet
   --out <dir>        output directory (default: build/design-refs in the repository)
   --twice            render a second time in a fresh browser and fail unless every PNG is identical
   --jobs <n>         boards rendered in parallel (default: ${defaultJobs()})
@@ -78,29 +82,34 @@ export function parseCli(argv, { defaultOut }) {
 }
 
 /**
- * Resolves --only into board entries, in the order of boards.json.
+ * Resolves --only into render targets (expandTargets), in the order of boards.json. A board id,
+ * given or from a set, selects the board and its language variants; a variant id (`a1-9c.tr`)
+ * selects that variant alone.
  *
- * @param {{boards: Array<{id: string}>, pages: Array<{id: string}>, sets: Record<string, string[]>}} list
+ * @param {{boards: Array<{id: string, langs?: string[]}>, pages: Array<{id: string}>, sets: Record<string, string[]>}} list
  * @param {string[]} only
  */
 export function selectTargets(list, only) {
-  const all = [...list.boards, ...list.pages];
+  const all = expandTargets([...list.boards, ...list.pages]);
   if (only.length === 0) return all;
   const wanted = new Set();
   const unknown = [];
+  const add = (id) => {
+    const hits = all.filter((t) => t.id === id || (t.board === id && t.lang !== undefined));
+    hits.forEach((t) => wanted.add(t.id));
+    return hits.length > 0;
+  };
   for (const token of only) {
     if (token.startsWith('@')) {
       const set = list.sets[token.slice(1)];
-      if (set) set.forEach((id) => wanted.add(id));
+      if (set) set.forEach(add);
       else unknown.push(token);
-    } else if (all.some((b) => b.id === token)) {
-      wanted.add(token);
-    } else {
+    } else if (!add(token)) {
       unknown.push(token);
     }
   }
   if (unknown.length > 0) throw new UsageError(`unknown board id or set: ${unknown.join(', ')} (see --list)`);
-  return all.filter((b) => wanted.has(b.id));
+  return all.filter((t) => wanted.has(t.id));
 }
 
 /**

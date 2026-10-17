@@ -1,9 +1,9 @@
 //! The render thread: one dedicated thread that owns PDFium.
 //!
 //! PDFium is not thread-safe, so every PDFium call runs on this thread (docs/ARCHITECTURE.md §4.4,
-//! ADR 0009, Proposed). pdfium-render's `thread_safe` feature stays on as a second guard. Callers
-//! send requests over a channel and get each reply through a oneshot future, so an async API
-//! function awaits the answer without blocking a thread.
+//! ADR 0009). pdfium-render's `thread_safe` feature stays on as a second guard. Callers send
+//! requests over a channel and get each reply through a oneshot future, so an async API function
+//! awaits the answer without blocking a thread.
 //!
 //! In M1 the thread loads PDFium and answers one request: its status. Rendering arrives in M2.
 

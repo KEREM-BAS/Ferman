@@ -5,8 +5,8 @@ and other private documents. We take security reports seriously and are grateful
 
 ## Supported versions
 
-Ferman has no released versions yet. The project is at Milestone 1 (foundations), so there is nothing
-to install and nothing to patch.
+Ferman has no released versions yet. Milestone 1 (foundations) is complete and Milestone 2 (open and
+view) is planned, so there is nothing to install and nothing to patch.
 
 Once releases exist, the latest release gets security fixes. Older releases do not, so please update
 to the latest release before you report.
@@ -54,9 +54,9 @@ In scope:
 - **Malicious or malformed PDFs** that make Ferman crash, hang or use memory without limit.
 - **Memory safety issues**, for example in `unsafe` Rust, at the boundary between the engine and the
   app, or in the PDFium build that Ferman ships.
-- **Code execution** of any kind. Ferman is designed never to run document JavaScript (policy to be
-  confirmed in [Q13](docs/QUESTIONS.md#q13)) and never to run launch actions, so any way to make it do
-  so is in scope.
+- **Code execution** of any kind. Ferman never runs document JavaScript (confirmed by the maintainer
+  in [Q13](docs/QUESTIONS.md#q13)) and never runs launch actions, so any way to make it do so is in
+  scope.
 - **File corruption on save**: anything that makes Ferman damage or lose a user's file, change bytes
   it should have kept in an incremental save, or leave a partly written file in place of the original.
 - **Privacy leaks**, such as unexpected network access: any connection that Settings → Privacy does

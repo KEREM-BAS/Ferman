@@ -10,10 +10,14 @@ Conflicts and gaps, each with the decision taken, are in [DESIGN_GAPS.md](DESIGN
 questions for the owner are in [QUESTIONS.md](QUESTIONS.md). The delivery plan is in
 [ROADMAP.md](ROADMAP.md) and the engine design in [ARCHITECTURE.md](ARCHITECTURE.md).
 
-The large tables in sections 5 to 9 were generated from a read-only pass over the export that covered
-all 223 boards, and are included as generated. They keep the wording of that pass, so an absolute
-path in them such as `/home/user/Ferman/design/...` means `design/...` in this repository. If the
-design is re-exported ([Q11](QUESTIONS.md#q11)), regenerate them rather than editing rows by hand.
+The large tables in sections 5 to 9 were generated from a read-only pass over the first export, which
+covered all of its 223 boards, and are included as generated. They keep the wording of that pass, so
+an absolute path in them such as `/home/user/Ferman/design/...` means `design/...` in this
+repository. The owner's export 519d42a ([Q11](QUESTIONS.md#q11)) added 30 boards, for 253 in all,
+and changed the notes or copy of 13 others and of seven building blocks. The 30 new rows were written
+by hand from the boards, their captions and their copy, in the shape of the generated rows, and the
+rows of the changed boards were corrected where the change shows. After a further re-export,
+regenerate the tables rather than editing rows by hand.
 
 ## Contents
 
@@ -37,9 +41,14 @@ design is re-exported ([Q11](QUESTIONS.md#q11)), regenerate them rather than edi
   Files that share a number share the section: 03a, 03b and 03c are all section 3, and the same
   holds for 05a/05b, 09a/09b, 11a/11b and 13a/13b. Some suffixes name what varies: `a2-3p` is the
   Pages tab, `a11-1w` is Windows, `a12-1tr` is the Turkish UI.
+- A `-m1` or `-m2` suffix names a milestone build: `a1-2c-m1` is `a1-2c` as the M1 build shows it,
+  and `a1-4-m2` is `a1-4` in the M2 build. The board without the suffix stays the finished product.
+  `a12-0` is the region-format table at the top of `12 Localization`.
 - `fa` to `fd` are the four flows in `15 Flows`.
-- `G01` to `G61` are entries in [DESIGN_GAPS.md](DESIGN_GAPS.md), linked as `DESIGN_GAPS.md#g07`.
-  `Q01` to `Q17` are entries in [QUESTIONS.md](QUESTIONS.md).
+- `G01` onwards are entries in [DESIGN_GAPS.md](DESIGN_GAPS.md), linked as `DESIGN_GAPS.md#g07`.
+  `Q01` onwards are entries in [QUESTIONS.md](QUESTIONS.md). The boards that export 519d42a added or
+  changed for a design gap print its G id as a tag beside their title, except the sidebar tab cards,
+  which print no title of their own.
 
 **Printed labels.** The id is the board's HTML anchor. The canvas prints its own label above each
 board, and the board notes cite that label (for example "Review edits (3.12)"). For most boards the
@@ -50,6 +59,9 @@ two match, but not for all of them, so look a board up by its id:
   no label of their own.
 - 40 boards have no variant letter in the id but print "a": `a1-4` is printed 1.4a, `a5-8` is 5.8a
   and `a13-16` is 13.16a.
+- The M1 builds print the label of the board they build: `a1-2c-m1` prints 1.2c, `a1-5-m1` 1.5,
+  `a11-1-m1` 11.1a, `a11-1w-m1` 11.1b and `a11-1h-m1` 11.1i. `a1-4-m2` prints 1.4d. `a12-0` prints
+  no number, only its title; the Index calls it 12.0.
 - 17 boards print a different letter:
 
 | Ids | Printed | Boards |
@@ -98,7 +110,7 @@ application code.
 
 | Path | What it holds |
 |---|---|
-| `00 Fixes.dc.html` to `14 Tablet and web.dc.html` | 21 section files with 223 artboards: 9 fix boards in `00 Fixes` and 214 product boards in the 20 files `01` to `14`. See section 3. |
+| `00 Fixes.dc.html` to `14 Tablet and web.dc.html` | 21 section files with 253 artboards: 9 fix boards in `00 Fixes` and 244 product boards in the 20 files `01` to `14`. See section 3. |
 | [`15 Flows.dc.html`](../design/15%20Flows.dc.html) | Four user journeys, `fa` to `fd`. Each step links to an artboard. See section 9. |
 | [`Index.dc.html`](../design/Index.dc.html) | Table of contents with a status badge per row. |
 | [`DS additions.dc.html`](../design/DS%20additions.dc.html) | Documentation sheet for 26 additions: patched and new components, tokens, type additions and state matrices. It defines no tokens itself. |
@@ -109,6 +121,15 @@ application code.
 | [`_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/`](../design/_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/) | The design system: `tokens/` (6 CSS files), `components/` (11 group folders, CSS only), `assets/fonts/` (23 WOFF2 files), `styles.css`, `readme.md`, `_ds_manifest.json`, `_adherence.oxlintrc.json` (declared props and enum values) and `_ds_bundle.js` (compiled components, the icon paths and the unexported desktop kit). |
 | `shots/` | 84 preview images captured while the design was made. They are 924 × 540 JPEG data despite the `.png` extension, and they cover only part of the sections. They are not a reference set: M1 renders every artboard into `build/design-refs/` with Playwright (brief §2). |
 | [`support.js`](../design/support.js) | The design runtime. It loads React 18.3.1, ReactDOM 18.3.1 and Babel standalone 7.29.0 from unpkg.com each time a page opens. |
+| [`Wording for app strings.md`](../design/Wording%20for%20app%20strings.md) | Added by export 519d42a. The strings added or changed on that export's boards, per section file and building block, in English, Turkish and Arabic. Rows marked **ARB** reuse an existing key's text; the others are new wording for the native-speaker review. It also lists three changes to existing strings: the typographic apostrophe in the Turkish `startDropTitle`, the percent sign first in Turkish (%100, [G34](DESIGN_GAPS.md#g34)) and the shortcut table of [G44](DESIGN_GAPS.md#g44). |
+| [`github.md`](../design/github.md) | Added by export 519d42a. The design session's sync note: the repository and branch, the time of the last sync, what the session updated (the gap pass, the Turkish and Arabic copy, the Start gating) and a map from the gap boards to the repository files they follow. |
+| [`docs/TRANSLATION_REVIEW.md`](../design/docs/TRANSLATION_REVIEW.md) | Added by export 519d42a. An unchanged copy of this repository's [TRANSLATION_REVIEW.md](TRANSLATION_REVIEW.md) as of the M1 merge (aa7ad21), from which the boards took their Turkish and Arabic copy. |
+| [`uploads/fulldoc-1792178724997-r3sp.md`](../design/uploads/fulldoc-1792178724997-r3sp.md) | Added by export 519d42a. An unchanged copy of this repository's [DESIGN_GAPS.md](DESIGN_GAPS.md) as of the M1 merge (aa7ad21), before the owner's answers of 2026-10-16 were recorded (f7e04dc). |
+
+**Notes, not references.** The four Markdown files of export 519d42a are notes and wording sources.
+They draw nothing, so they are not visual references: the boards are. The app never reads them.
+Strings from `Wording for app strings.md` reach the app only through the ARB files, as reviewed
+suggestions. The two copies are older than this repository's own files, which stay the reference.
 
 **Not in the export.** Brief §2 cites `design/ui_kits/desktop/index.html` as an example. That file
 does not exist, and there is no `ui_kits/` folder anywhere in `design/` ([G01](DESIGN_GAPS.md#g01)). The desktop kit
@@ -116,7 +137,10 @@ survives only as compiled, readable code inside `_ds_bundle.js`. Until a re-expo
 reference is `FmWindow`, `FmStart`, `FmSidebar`, `FmEditPanel` and `FmSettings`. Also missing:
 component sources, type definitions and cards ([G02](DESIGN_GAPS.md#g02)); the `guidelines/` foundation cards,
 `thumbnail.html` and `SKILL.md` ([G03](DESIGN_GAPS.md#g03)); the icon SVGs ([G04](DESIGN_GAPS.md#g04)); and every licence text ([G08](DESIGN_GAPS.md#g08)).
-Section 10 lists all export gaps.
+Section 10 lists all export gaps. Export 519d42a brought boards for the design gaps but none of these
+files, and left `_ds/`, `ds-additions/`, `shots/`, `15 Flows` and the `Doc*` files unchanged. The
+owner's answer to [Q11](QUESTIONS.md#q11) expects the missing files with the next design-system
+export.
 
 **Canvas conventions.**
 
@@ -126,37 +150,51 @@ Section 10 lists all export gaps.
 - Tablets run the desktop shell at touch density; the iPad portrait board is 1032 px wide.
 - Document pages are 794 × 1123, which is A4 at 96 dpi.
 - Every artboard sits in an `FmBoard` frame that sets `data-theme`, `lang`, `dir` and `data-density`,
-  so theme, language, direction and density are explicit per board.
+  so theme, language, direction and density are explicit per board. The exception is `a12-0`, a
+  table with no frame. On the boards with the language switch, `lang` and `dir` follow the switch.
 - Section files open as a pan-and-zoom canvas.
 
-**Index status.** The Index header reads 223 ready and 0 planned. Its 223 rows are 219 artboards plus
+**Index status.** The Index header reads 253 ready and 0 planned. Its 253 rows are 249 artboards plus
 the 4 flows. The files hold 4 more artboard ids that the Index does not list (`f4`, `f6`, `a2-3o`,
-`a2-3x`), so the files also hold 223 artboards. Every Index link, all 34 flow links and the link to
+`a2-3x`), so the files also hold 253 artboards. Every Index link, all 34 flow links and the link to
 the additions sheet resolve. A few resolve to the wrong content: flow B's e-imza steps are drawn on
 the rental contract instead of the e-Devlet form ([G58](DESIGN_GAPS.md#g58)), and flow C's "Send" and "The file is
-signed" steps link to boards that do not show those states.
+signed" steps link to boards that do not show those states. Export 519d42a added a "Design gaps
+pass" card to the Index: the boards changed or added for DESIGN_GAPS.md carry their G id as a tag
+(G10–G13, G24–G44, G59, G61, G82, G89), a milestone build ("M1 build", "M2 build") sits next to the
+drawn board, which stays the shipped state, and the new boards share one EN · TR · AR switch across
+the files.
 
-**Coverage.** Each board has one platform, theme and UI language:
+**Coverage.** Each board has one platform and one theme. All but 29 boards have one UI language. The
+29 are the boards of export 519d42a except `a12-0`: they carry a board-language switch for English,
+Turkish and Arabic, and `tools/design-refs` renders each of them three times, as `<id>.png`,
+`<id>.tr.png` and `<id>.ar.png` (58 language variants).
 
 | Platform | Boards | Theme | Boards | UI language | Boards |
 |---|---|---|---|---|---|
-| macOS | 139 | Light | 204 | English | 210 |
-| Windows | 7 | Dark | 18 | Arabic (right to left) | 6 |
-| Linux | 0 | Light and dark | 1 | Turkish | 3 |
-| iOS | 23 | | | German | 3 |
-| Android | 20 | | | Japanese | 1 |
-| Tablet | 4 | | | Persian, Hebrew | 0 |
-| Web | 3 | | | | |
-| Spec sheet | 27 | | | | |
+| macOS | 162 | Light | 234 | English | 211 |
+| Windows | 8 | Dark | 18 | English, Turkish and Arabic (switch) | 29 |
+| Linux | 0 | Light and dark | 1 | Arabic (right to left) | 6 |
+| iOS | 23 | | | Turkish | 3 |
+| Android | 20 | | | German | 3 |
+| Tablet | 4 | | | Japanese | 1 |
+| Web | 3 | | | Persian, Hebrew | 0 |
+| Spec sheet | 33 | | | | |
 
-A spec sheet is a component or panel drawn on its own, without a window. The 27 include the eight
+A spec sheet is a component or panel drawn on its own, without a window. The 33 include the eight
 bare dialogs (`a5-3b`, `a5-3c`, `a5-5b`, `a5-6b`, `a5-6c`, `a5-6d`, `a5-6e`, `a9-4`), which the
 design labels "Dialog · light" and draws over a scrim with no window chrome. The tables call them
-"Dialog (spec sheet)". The UI language is the language of the chrome and the notes: `f3` is English,
-although its page specimens are Turkish text.
+"Dialog (spec sheet)". Six spec sheets came with export 519d42a: the six empty sidebars of `a2-3m`,
+the edit panels of `a3-17`, the page snippets and panels of `a3-18`, the review panel and dialogs of
+`a3-12b`, the four save errors of `a11-7d` and the region-format table `a12-0`. The UI language is
+the language of the chrome and the notes: `f3` is English, although its page specimens are Turkish
+text. The language switch changes the chrome and the copy; the captions stay in English and the
+documents keep their own language and direction.
 
 Linux is not drawn at all ([G15](DESIGN_GAPS.md#g15)). Windows, dark, right-to-left and Turkish coverage is thin for the
-screens that M1 to M4 ship ([G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17), [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)).
+screens that M1 to M4 ship ([G16](DESIGN_GAPS.md#g16), [G17](DESIGN_GAPS.md#g17), [G18](DESIGN_GAPS.md#g18), [G19](DESIGN_GAPS.md#g19)). The 29 switchable boards add Turkish and
+right-to-left Arabic for the M1 builds and the new M2 and M3 states. They add one Windows board
+(`a11-1w-m1`) and no dark board.
 
 ## 3. Section overview
 
@@ -165,11 +203,11 @@ One row per section file. "Milestones" counts the boards in the file by primary 
 | File | Title | Artboards | Milestones |
 |---|---|---|---|
 | [`00 Fixes`](../design/00%20Fixes.dc.html) | Fixes to the current editor kit | 9 | M1 2 · M2 1 · M3 6 |
-| [`01 First run and files`](../design/01%20First%20run%20and%20files.dc.html) | First run, start and file handling | 19 | M1 4 · M2 11 · M3 4 |
-| [`02 View`](../design/02%20View.dc.html) | View mode | 22 | M2 15 · M3 1 · P2 5 · P4 1 |
-| [`03a Edit text`](../design/03a%20Edit%20text.dc.html) | Edit mode — text | 9 | M3 9 |
+| [`01 First run and files`](../design/01%20First%20run%20and%20files.dc.html) | First run, start and file handling | 28 | M1 6 · M2 17 · M3 5 |
+| [`02 View`](../design/02%20View.dc.html) | View mode | 30 | M2 23 · M3 1 · P2 5 · P4 1 |
+| [`03a Edit text`](../design/03a%20Edit%20text.dc.html) | Edit mode — text | 14 | M3 14 |
 | [`03b Edit content`](../design/03b%20Edit%20content.dc.html) | Edit mode — content | 10 | M3 2 · M4 1 · P2 7 |
-| [`03c Edit review and translate`](../design/03c%20Edit%20review%20and%20translate.dc.html) | Edit mode — scans, review, translation, languages | 5 | M3 2 · P3 1 · P4 2 |
+| [`03c Edit review and translate`](../design/03c%20Edit%20review%20and%20translate.dc.html) | Edit mode — scans, review, translation, languages | 6 | M3 3 · P3 1 · P4 2 |
 | [`04 Comment`](../design/04%20Comment.dc.html) | Comment mode | 9 | M4 8 · P4 1 |
 | [`05a Fill`](../design/05a%20Fill.dc.html) | Fill & Sign — filling forms | 9 | M4 9 |
 | [`05b Sign`](../design/05b%20Sign.dc.html) | Fill & Sign — digital signatures and forms | 15 | P3 13 · P4 2 |
@@ -179,37 +217,38 @@ One row per section file. "Milestones" counts the boards in the file by primary 
 | [`09a Tools`](../design/09a%20Tools.dc.html) | Tools — compress, compare, accessibility, standards | 7 | M4 1 · P3 2 · P4 4 |
 | [`09b Tools`](../design/09b%20Tools.dc.html) | Tools — batch, print, measure, history | 8 | M4 2 · P4 3 · P5 3 |
 | [`10 AI assistant`](../design/10%20AI%20assistant.dc.html) | AI assistant | 3 | P4 3 |
-| [`11a Settings`](../design/11a%20Settings.dc.html) | Settings | 12 | M1 3 · M3 1 · M4 5 · M5 1 · P3 1 · P4 1 |
-| [`11b App`](../design/11b%20App.dc.html) | App-level | 10 | M2 1 · M3 2 · M4 4 · M5 3 |
-| [`12 Localization`](../design/12%20Localization.dc.html) | Localization validation | 13 | M1 4 · M3 4 · P5 5 |
+| [`11a Settings`](../design/11a%20Settings.dc.html) | Settings | 15 | M1 6 · M3 1 · M4 5 · M5 1 · P3 1 · P4 1 |
+| [`11b App`](../design/11b%20App.dc.html) | App-level | 13 | M2 1 · M3 5 · M4 4 · M5 3 |
+| [`12 Localization`](../design/12%20Localization.dc.html) | Localization validation | 14 | M1 4 · M2 1 · M3 4 · P5 5 |
 | [`13a Mobile core`](../design/13a%20Mobile%20core.dc.html) | Mobile — start, files, reading, editing | 20 | P5 20 |
 | [`13b Mobile tasks`](../design/13b%20Mobile%20tasks.dc.html) | Mobile — sign, scan, organize, protect, share | 18 | P5 18 |
 | [`14 Tablet and web`](../design/14%20Tablet%20and%20web.dc.html) | Tablet and web | 7 | P5 7 |
-| **Total** | | **223** | |
+| **Total** | | **253** | |
 
 The other files are not artboards: `15 Flows` (4 flows), `DS additions` (26 additions), `Index`, the
-15 `Fm*` building blocks and the 5 `Doc*` sample documents.
+15 `Fm*` building blocks, the 5 `Doc*` sample documents and the four Markdown notes of export 519d42a
+(section 2).
 
 ## 4. Milestones
 
 Counts are primary milestones, so each board is counted once.
 
-| Code | Scope in brief §7 | Boards | Proposed | What the boards cover |
+| Code | Scope in brief §7 | Boards | Set by Q10 | What the boards cover |
 |---|---|---|---|---|
 | M0 | Discovery and plan (docs only) | 0 | 0 | No boards. This inventory is part of M0. |
-| M1 | Foundations | 13 | 0 | Windows chrome and the shell (`f6`, `f6a`), the language picker and two welcome screens, the empty Start screen, the Settings skeleton (General on macOS and Windows, Language and region) and the Arabic and German Start and Settings boards that check localization and right to left. |
-| M2 | Open and view | 28 | 1 | The default-app prompt, Start with recent files, drag and drop, a large file, password unlock, repair, tab overflow, the four page layouts and zoom, the sidebar tabs (pages, outline, attachments, layers, search results), find, document properties, the XFA notice and the thumbnail badge legend. |
-| M3 | Edit text core | 31 | 0 | Hover, caret, selection and reflow; the text-block panel; missing glyph and font substitution; overflow; table-aware, per-block-language and vertical Japanese editing; undo history and the review list; fixes `f1` to `f4b`; Save as, closing with unsaved changes, crash recovery, disk-full and changed-on-disk errors; Settings → Editing; the Signatures tab used by the signed-document warning; the editor in Turkish, German, Arabic and Japanese. |
+| M1 | Foundations | 18 | 0 | Windows chrome and the shell (`f6`, `f6a`), the language picker and two welcome screens, the empty Start screen, the Settings skeleton (General on macOS and Windows, Language and region) and the Arabic and German Start and Settings boards that check localization and right to left; the M1 builds of the last welcome step, the empty Start screen, Settings General on macOS and Windows and Settings Privacy (`a1-2c-m1`, `a1-5-m1`, `a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`). |
+| M2 | Open and view | 43 | 1 | The default-app prompt, Start with recent files and its M2 build, drag and drop, the system open panel, a large file, password unlock, repair, open errors (not a PDF, read-only, a missing recent file, out of memory), tab overflow, the four page layouts and zoom, tiles that sharpen, a page that fails to render and Go to page, right-to-left spreads, the sidebar tabs (pages, outline, attachments, layers, search results) and their empty states, find with a long search and no results, document properties with the Security tab, restricted PDFs, signatures before validation, the XFA notice, the thumbnail badge legend and the region-format table. |
+| M3 | Edit text core | 41 | 0 | Hover, caret, selection and reflow; the text-block panel; missing glyph and font substitution, and every outcome of the missing-glyph steps; overflow, its results and the choices that cannot apply; text that cannot be edited; the warning before editing a signed document and its banner; table-aware, per-block-language and vertical Japanese editing; undo history and the review list with its empty and confirm states; fixes `f1` to `f4b`; Save as, also with a folder from the system panel, closing with unsaved changes, quitting with several, crash recovery, also when the original changed, disk-full, changed-on-disk and the other save errors; Settings → Editing; the Signatures tab used by the signed-document warning; the editor in Turkish, German, Arabic and Japanese. |
 | M4 | Rest of phase 1 | 36 | 1 | Comment mode, form filling and simple signatures, Organize, links, Compress, basic print, version history, the command palette and shortcuts, toasts, the task drawer and the remaining Settings panes. |
 | M5 | Release pipeline | 4 | 0 | Settings → Updates, the update-ready banner, What's new and About. |
-| P2 | Phase 2 | 18 | 5 | Adding text and images, find and replace, watermark, header and footer, Bates numbering, page background, redaction with verification, removing hidden information, passwords and the security report, plus the proposed viewer extras: presentation, reading mode, split view and inverted dark reading. |
+| P2 | Phase 2 | 18 | 5 | Adding text and images, find and replace, watermark, header and footer, Bates numbering, page background, redaction with verification, removing hidden information, passwords and the security report, plus the viewer extras placed by Q10: presentation, reading mode, split view and inverted dark reading. |
 | P3 | Phase 3 | 23 | 0 | OCR, conversion, scan to PDF, certificate signatures, Turkish e-imza, signature validation, compare and Settings → Text recognition. |
-| P4 | Phase 4 | 17 | 3 | Form authoring, PDF/A and preflight, accessibility tools, batch actions, in-place translation and the local AI assistant, plus the proposed read aloud and measuring. |
+| P4 | Phase 4 | 17 | 3 | Form authoring, PDF/A and preflight, accessibility tools, batch actions, in-place translation and the local AI assistant, plus read aloud and measuring, placed by Q10. |
 | P5 | Phase 5 | 53 | 0 | Print production (booklet, poster, separations), the web app, tablets, and the iOS and Android apps with their Arabic and Turkish checks. |
-| | **Total** | **223** | **10** | |
+| | **Total** | **253** | **10** | |
 
-**Proposed milestones.** Ten boards show features the roadmap does not name. Their milestones are
-proposals that wait for the owner ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md#g33)):
+**Milestones set by Q10.** Ten boards show features the roadmap does not name. The owner accepted the
+proposed milestones on 2026-10-16 ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md#g33)):
 
 - layers (`a2-3c`) → M2, because layer visibility is part of rendering;
 - presentation (`a2-5a`), reading mode (`a2-5b`), split view (`a2-8a`, `a2-8b`) and inverted dark
@@ -218,9 +257,8 @@ proposals that wait for the owner ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md
 - basic system print (`a9-6`) → M4.
 
 Booklet (`a9-6b`), poster (`a9-6c`) and separations (`a9-6d`) go to P5, where the brief puts print
-production; [Q10](QUESTIONS.md#q10) asks the owner to confirm that too. Mobile night mode and read
-aloud (`a13-4d`) and iPad split view (`a14-1c`) go to P5 with the mobile and tablet apps;
-[Q10](QUESTIONS.md#q10) asks the owner to confirm.
+production. Mobile night mode and read aloud (`a13-4d`) and iPad split view (`a14-1c`) go to P5 with
+the mobile and tablet apps. The owner confirmed both with [Q10](QUESTIONS.md#q10).
 
 A few more drawn features are not named in the roadmap and take the nearest roadmap item. They are
 part of [Q10](QUESTIONS.md#q10) as well:
@@ -237,18 +275,24 @@ tooltip "Available in a future version" and an entry in [BACKLOG.md](BACKLOG.md)
 
 ### Decisions that change or confirm what the boards show
 
-- **Licence.** `a1-2c` and `a11-5` say GPL-3.0-or-later. The app says Apache-2.0, as the brief
-  requires ([G13](DESIGN_GAPS.md#g13)).
+- **Licence.** `a1-2c` and `a11-5` said GPL-3.0-or-later. Export 519d42a changed both to Apache-2.0,
+  as the brief requires, and `a1-2c-m1` says Apache-2.0 too ([G13](DESIGN_GAPS.md#g13)).
 - **Later-phase features.** `a1-2c` marks every feature as included, and Start shows the later quick
   tools as active. In the app, features that have not shipped are shown disabled with the tooltip
-  "Available in a future version", not as "Included" ([G10](DESIGN_GAPS.md#g10), [G11](DESIGN_GAPS.md#g11), [G12](DESIGN_GAPS.md#g12)).
-- **Network uses.** `a1-2b` names only the update check. The app's onboarding lists all four uses the
-  brief allows (the update check, optional language-pack downloads, the optional AI assistant and
-  signature timestamp servers) and points to Settings → Privacy ([G24](DESIGN_GAPS.md#g24)).
+  "Available in a future version", not as "Included" ([G10](DESIGN_GAPS.md#g10), [G11](DESIGN_GAPS.md#g11), [G12](DESIGN_GAPS.md#g12)). Export 519d42a draws this
+  in its milestone builds: `a1-2c-m1` keeps the check only on the interface-languages tile, and
+  `a1-5-m1` and `a1-4-m2` disable every card and quick tool whose feature has not shipped.
+- **Network uses.** `a1-2b` named only the update check. Export 519d42a adds the other three uses the
+  brief allows (OCR language packs, the AI assistant and signature timestamps, each off until used)
+  and a link to Settings → Privacy. The app's onboarding lists all four and points to Settings →
+  Privacy ([G24](DESIGN_GAPS.md#g24)).
 - **Extra network uses.** OCSP/CRL revocation lookups (`a11-1h` and the signing boards) and
-  local-network scanner discovery and phone pairing (`a7-4`) are not in the brief. They are not
-  enabled until the owner decides ([Q06](QUESTIONS.md#q06)). If they are built, each is off until first use and listed
-  in Settings → Privacy ([G51](DESIGN_GAPS.md#g51), [G56](DESIGN_GAPS.md#g56)).
+  local-network scanner discovery and phone pairing (`a7-4`) are not in the brief. The owner decided
+  on 2026-10-16 ([Q06](QUESTIONS.md#q06)): revocation lookups are allowed, off until first use, with their own switch in
+  Settings → Privacy and an entry in the network log (phase 3); Scan to PDF offers only the scanners
+  the operating system provides, with no local-network discovery and no phone pairing ([G51](DESIGN_GAPS.md#g51), [G56](DESIGN_GAPS.md#g56)).
+  The captions of `a1-2b` and `a11-1h-m1` still leave revocation out "until the owner decides"; they
+  predate the answer.
 - **Mode tabs.** The app has the eight modes the artboards draw: View, Edit, Comment, Fill & Sign,
   Organize, Convert, Protect, Tools. The DS constant `FERMAN_MODES` lists seven and is stale
   ([G09](DESIGN_GAPS.md#g09), [Q05](QUESTIONS.md#q05)). The brief does not enumerate the modes.
@@ -259,17 +303,21 @@ tooltip "Available in a future version" and an entry in [BACKLOG.md](BACKLOG.md)
   if it is installed (take the glyph, re-subset, embed and say so), then the design's similar-font
   flow ([G36](DESIGN_GAPS.md#g36), [Q09](QUESTIONS.md#q09)).
 - **Formats.** Numbers, dates, paper sizes and units follow the region setting, never the UI language
-  ([G34](DESIGN_GAPS.md#g34)).
-- **Search.** `a2-4a` draws "Ignore accents and dotted/dotless i" as on by default for Turkish
-  documents only. The app turns it on by default for every document, as brief §7 requires, and the
-  description ends "On by default." ([G61](DESIGN_GAPS.md#g61)).
+  ([G34](DESIGN_GAPS.md#g34)). Export 519d42a draws the rule as the region-format table `a12-0` (from CLDR, with the
+  region the goldens use for each language) and reads boards that show another format as drawn for
+  another region.
+- **Search.** `a2-4a` drew "Ignore accents and dotted/dotless i" as on by default for Turkish
+  documents only. Since export 519d42a it is on by default for every document, as brief §7 requires,
+  and the description ends "On by default." ([G61](DESIGN_GAPS.md#g61)).
 
 ## 5. Artboards
 
 Each row gives the id, the screen (title, then platform · theme · UI language), the feature and the
 states drawn, the milestone and the engine capability. **Bold** is the primary milestone; the text
 after the dash is nuance, such as parts that land in another milestone. Boards whose milestone text
-starts with "proposed" show features the roadmap does not name and wait for [Q10](QUESTIONS.md#q10).
+starts with "proposed" show features the roadmap does not name; the owner accepted those milestones
+with [Q10](QUESTIONS.md#q10). The rows of the 30 boards that export 519d42a added give `en, tr, ar` as the UI language
+when the board carries the language switch, and link the design gaps the board answers.
 
 ### 00 · Fixes to the current editor kit
 
@@ -289,33 +337,42 @@ Source: `design/00 Fixes.dc.html` · 9 artboards. Six problems found in the edit
 
 ### 01 · First run, start and file handling
 
-Source: `design/01 First run and files.dc.html` · 19 artboards. Desktop, 1440 × 900. Language and onboarding, the start screen in light, dark and Windows, and every state a file can arrive in: large, locked, damaged, many at once, unsaved, restored.
+Source: `design/01 First run and files.dc.html` · 28 artboards. Desktop, 1440 × 900. Language and onboarding, the start screen in light, dark and Windows, and every state a file can arrive in: large, locked, damaged, many at once, unsaved, restored. Export 519d42a added nine boards with the EN/TR/AR switch: the M1 builds of the last welcome step and the empty Start screen, the M2 build of Start, four open errors (not a PDF, read-only, a missing recent file, out of memory), the system open panel and Save as with a folder chosen in the system panel.
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
 | `a1-1` | First run — Language picker<br>macOS · light · en | First-run app language selection (21 languages, native names, RTL rows)<br>*States:* English preselected as system language; keyboard focus ring on Türkçe; 2-column radiogroup of 21 languages; ar/fa/he rows dir=rtl | **M1** | ui-only, platform |
 | `a1-3` | First run — Default PDF app<br>macOS · light · en | Offer to become the default PDF handler (file association)<br>*States:* prompt shown once after onboarding; Opens PDFs now: Preview → Ferman; "Don't ask again" unchecked | **M2** | platform |
 | `a1-2a` | Welcome 1 of 3 — Edit any PDF like a document<br>macOS · light · en | Onboarding step 1: in-place text editing pitch with live editing specimen (Turkish contract)<br>*States:* step 1 of 3; TextEditBox editing with caret, edited PageMark on "19.500 TL", meta "IBM Plex Serif · 10.5 pt" | **M3** | ui-only, ferman-text, ferman-fonts |
-| `a1-2b` | Welcome 2 of 3 — Everything stays on your device<br>macOS · light · en | Onboarding step 2: privacy facts (local files, offline, no account, no telemetry, optional update check)<br>*States:* step 2 of 3; 5 privacy rows | **M1** | ui-only |
-| `a1-2c` | Welcome 3 of 3 — Free forever, nothing locked<br>macOS · light · en | Onboarding step 3: free/open-source statement, licence, included-features grid<br>*States:* step 3 of 3, no Skip; 10 features each with green 'Included' check | **M1** | ui-only |
-| `a1-4` | Start — Recent documents, grid<br>macOS · light · en | Start screen: actions, quick tools, drop strip, pinned, recent grid with badges<br>*States:* Home tab active (wordmark) + 2 doc tabs; 3 pinned; 10 recents with Edited/Form/Signed/Scanned badges; grid view, sort Last opened | **M2** | ferman-render, ferman-core, platform, ui-only |
+| `a1-2b` | Welcome 2 of 3 — Everything stays on your device<br>macOS · light · en | Onboarding step 2: privacy facts (local files, offline, no account, no telemetry) and the network uses: the optional update check, then OCR language packs, the AI assistant and signature timestamps, each off until used ([G24](DESIGN_GAPS.md#g24), since 519d42a)<br>*States:* step 2 of 3; 8 rows; link 'See every connection in Settings › Privacy' | **M1** — reads "1 of 2" until the editor ships in M3 (`a1-2c-m1`) | ui-only |
+| `a1-2c` | Welcome 3 of 3 — Free forever, nothing locked<br>macOS · light · en | Onboarding step 3: free/open-source statement, licence (Apache-2.0 since 519d42a, [G13](DESIGN_GAPS.md#g13)), included-features grid<br>*States:* step 3 of 3, no Skip; 10 features each with green 'Included' check | **M1** — through its M1 build `a1-2c-m1`; this board stays the finished product, and each tile gets its check when its feature ships ([G12](DESIGN_GAPS.md#g12)) | ui-only |
+| `a1-2c-m1` | Welcome 2 of 2 — Free forever, M1 build<br>macOS · light · en, tr, ar | The M1 build of `a1-2c`: the same step with only the shipped feature included ([G10](DESIGN_GAPS.md#g10), [G12](DESIGN_GAPS.md#g12), [G13](DESIGN_GAPS.md#g13))<br>*States:* step 2 of 2 (announced "Step 2 of 2"); licence Apache-2.0; Source code and Support the project disabled until the app opens web pages; '3 interface languages' tile with the green check; the other 9 tiles disabled with a clock, the future-version tooltip shown on the focused Text recognition tile; labels wrap; Back, Start using Ferman | **M1** | ui-only |
+| `a1-4` | Start — Recent documents, grid<br>macOS · light · en | Start screen: actions, quick tools, drop strip, pinned, recent grid with badges<br>*States:* Home tab active (wordmark) + 2 doc tabs; 3 pinned; 10 recents with Edited/Form/Signed/Scanned badges; grid view, sort Last opened | **M2** — through its M2 build `a1-4-m2`; this board stays the finished product | ferman-render, ferman-core, platform, ui-only |
 | `a1-4b` | Start — Recent documents, grid<br>macOS · dark · en | Start screen grid in dark theme<br>*States:* dark theme; same content as 1.4a | **M2** | ferman-render, ui-only |
 | `a1-4c` | Start — Recent documents, list<br>Windows · light · en | Start screen recent list view with columns<br>*States:* list view; columns Name, Location, Pages, Last opened, badge; Ctrl shortcuts | **M2** | ferman-core, platform, ui-only |
-| `a1-5` | Start — Empty state<br>macOS · light · en | Empty start screen with drop zone<br>*States:* no recents, no pins, no tabs; DropZone with open/create and ⌘O | **M1** | ui-only, platform |
+| `a1-4-m2` | Start — Recent documents, M2 build<br>macOS · light · en, tr, ar | The M2 build of `a1-4`: opening and dropping PDFs work, everything later is disabled ([G10](DESIGN_GAPS.md#g10), [G11](DESIGN_GAPS.md#g11), [G31](DESIGN_GAPS.md#g31), [G59](DESIGN_GAPS.md#g59))<br>*States:* Open file… enabled; Create PDF, Combine files and Scan to PDF disabled (tooltip on Create PDF); all six quick tools disabled; drop strip 'PDF files open in tabs.'; neutral Signed chip with no check and no green; e-Devlet form listed as 1 page | **M2** — Create PDF and Combine files M4, Scan to PDF P3; the green Signed badge with P3 validation | ferman-render, ferman-core, platform, ui-only |
+| `a1-5` | Start — Empty state<br>macOS · light · en | Empty start screen with drop zone<br>*States:* no recents, no pins, no tabs; DropZone with open/create and ⌘O | **M1** — through its M1 build `a1-5-m1`; this board stays the finished product, which opens files from M2 | ui-only, platform |
 | `a1-6` | Start — Files dragged over the window<br>macOS · light · en | Multi-file drag-and-drop with two targets: open in tabs vs combine<br>*States:* 3 files dragged (PDF, .xlsx, .jpg); "Open in 3 tabs" target under pointer (accent ring); per-file handling notes | **M2** | platform, ferman-ops, jobs |
+| `a1-5-m1` | Start — Empty state, M1 build<br>macOS · light · en, tr, ar | The M1 build of `a1-5`: no file picker yet, so every entry point is visible and disabled ([G10](DESIGN_GAPS.md#g10), [G11](DESIGN_GAPS.md#g11))<br>*States:* no recents, no pins, no tabs; all four action cards, the quick tools and the drop-area buttons disabled with the future-version tooltip and accessible hint (shown on the focused Open file card); disabled card keeps frame and small shadow, sunken icon tile, key cap kept; copy speaks of PDF files only ('PDF files', 'or open one from your computer.') | **M1** | ui-only |
 | `a1-7` | Opening a large file<br>macOS · light · en | Progressive open of a 2,400-page PDF with read-while-indexing<br>*States:* tab loading spinner; page 1 rendered, page 2 spinner; TaskProgress 35% with Cancel; info banner; status bar mirrors task; sidebar hidden | **M2** | ferman-core, ferman-render, ferman-text, jobs |
 | `a1-8` | Password-protected PDF — Unlock<br>macOS · light · en | Password unlock for encrypted PDF<br>*States:* locked tab with lock icon; password field autofocused; Show password unchecked | **M2** | ferman-core |
 | `a1-8b` | Password-protected PDF — Wrong password<br>macOS · light · en | Wrong password error with Turkish keyboard hint<br>*States:* field error, attempt kept selected; no lockout | **M2** | ferman-core |
 | `a1-9` | Damaged PDF — Repaired<br>macOS · light · en | Auto-repair notice with plain-language repair list<br>*States:* tab with wrench icon, unsaved; banner bar with Details / Save repaired copy…; "What Ferman repaired" popover: xref rebuilt, non-embedded font substituted | **M2** | ferman-core, ferman-fonts, ferman-render |
 | `a1-9b` | Damaged PDF — Can’t be opened<br>macOS · light · en | Unrecoverable file error (truncated download)<br>*States:* tab with file-x icon; error with cause, actions, mono technical details | **M2** | ferman-core, platform |
+| `a1-9c` | Not a PDF — error tab<br>macOS · light · en, tr, ar | A file that is not a PDF (an Excel file here) opens as an error tab with the DropZone error variant and the voice line "That file isn't a PDF." ([G28](DESIGN_GAPS.md#g28), [G11](DESIGN_GAPS.md#g11))<br>*States:* active tab 'Ek-1 Demirbaş listesi.xlsx' with file-x icon; Open another file… (primary); Show in Finder; Convert to PDF… disabled with the future-version tooltip; Word, Excel and image files get this state until conversion ships | **M2** — conversion P3 | ferman-core, platform |
+| `a1-9d` | Read-only file<br>macOS · light · en, tr, ar | A read-only or permission-denied file opens read-only, as in `a11-7c` ([G28](DESIGN_GAPS.md#g28), [G41](DESIGN_GAPS.md#g41))<br>*States:* lock on the tab; info banner '"Kira sözleşmesi.pdf" is read-only.' with Save a copy…; Read-only in the status bar; Save disabled with the tooltip 'Read-only'; later View tools disabled | **M2** — Save a copy… needs saving, so M3 | ferman-core, platform, ferman-render |
+| `a1-9e` | Recent file is missing<br>macOS · light · en, tr, ar | Opening a recent file that was moved, renamed or deleted ([G28](DESIGN_GAPS.md#g28), [G26](DESIGN_GAPS.md#g26))<br>*States:* dialog over the M2 Start screen naming the file and where it was; Remove from list; Locate… (primary) opens the system open panel and updates the recent entry; nothing else changes on disk | **M2** | platform, ui-only |
+| `a1-9f` | Out of memory — one tab closed<br>macOS · light · en, tr, ar | A document that runs out of memory or fails beyond recovery closes only its own tab ([G28](DESIGN_GAPS.md#g28), [ADR 0010](adr/0010-error-handling-no-panics.md))<br>*States:* the large file's tab gone, two tabs left; danger toast '"İmar planı açıklama raporu.pdf" was closed' at the bottom end of the canvas, above the status bar, with Try again (reopens the file); other documents keep working | **M2** | ferman-core, ferman-render, ui-only |
+| `a1-13` | Open file — system open panel<br>macOS · light · en, tr, ar | ⌘O, "Open file…" and "Open a PDF" hand off to the system open panel; files from the OS open in the running window ([G25](DESIGN_GAPS.md#g25), [G26](DESIGN_GAPS.md#g26))<br>*States:* placeholder for the panel over the M2 Start screen (NSOpenPanel, IFileOpenDialog or the Linux desktop portal, in the system's language; PDF files, several at once); the caption adds: each file opens as a new active tab, one instance per user, a file already open focuses its tab, a cold launch with a file skips Start | **M2** — the caption's "pending Q07" predates the answer of 2026-10-16 ([ADR 0018](adr/0018-native-file-pickers.md) is Accepted) | platform |
 | `a1-10` | Many documents — tab overflow<br>macOS · light · en | Document tab overflow (+4 menu) and tab navigation<br>*States:* 6 visible tabs shrunk, "+4"; menu open with shortcuts ⌘7–⌘9; unsaved markers | **M2** | ui-only, platform |
 | `a1-10b` | Close with unsaved changes<br>macOS · light · en | Unsaved-changes prompt on close<br>*States:* macOS button order: Don't save \| Cancel, Save (default) | **M3** | ferman-core, ui-only |
 | `a1-11` | Save as — formats and options<br>macOS · light · en | Save as with format choice (PDF, PDF/A-2b, web-optimized) and options<br>*States:* PDF selected; Save as a copy unchecked; Include comments checked; Remove edit history checked | **M3** | ferman-core, ferman-ops, ferman-fonts, platform |
 | `a1-12` | Crash recovery — restored documents<br>macOS · light · en | Crash recovery of autosaved unsaved documents<br>*States:* 2 documents listed, both checked; Discard / Open 2 documents; Copy crash log | **M3** | ferman-core, platform |
+| `a1-11b` | Save as — folder chosen in the system panel<br>macOS · light · en, tr, ar | "Other location…" in Where hands off to the system save panel; afterwards the sheet shows the chosen folder ([G26](DESIGN_GAPS.md#g26), [G10](DESIGN_GAPS.md#g10))<br>*States:* file name 'Kira sözleşmesi — son hâli.pdf'; Where = the chosen folder, named in the copy line too; format PDF selected, PDF/A-2b disabled with the reason in its line, Optimized for web; Save as a copy unchecked; Include comments and Remove edit history checked | **M3** — PDF/A-2b P4 | ferman-core, platform |
 
 ### 02 · View mode
 
-Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every sidebar tab, search with Turkish-aware matching, presentation and reading modes, read aloud, document properties, split view and dark reading mode. All 22 artboards are lang=en: the seven sidebar tab cards (a2-3p to a2-3x) are 1:1 spec sheets and the other 15 are macOS. All are light except the dark sidebar panel (a2-3x), presentation (black surround) and dark reading (a2-9).
+Source: `design/02 View.dc.html` · 30 artboards. Page layouts, zoom, every sidebar tab, search with Turkish-aware matching, presentation and reading modes, read aloud, document properties, split view and dark reading mode. The 22 artboards of the first export are lang=en: the seven sidebar tab cards (a2-3p to a2-3x) are 1:1 spec sheets and the other 15 are macOS. All are light except the dark sidebar panel (a2-3x), presentation (black surround) and dark reading (a2-9). Export 519d42a added eight light boards with the EN/TR/AR switch: the empty sidebar tabs (a2-3m, six sidebars side by side, a spec sheet), a long search and no results (a2-4c, a2-4d), restricted PDFs and the Security tab (a2-10a, a2-10b), rendering states and Go to page (a2-13), signatures before validation (a2-14) and a right-to-left spread (a2-15), all macOS but a2-3m.
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
@@ -329,11 +386,14 @@ Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every side
 | `a2-3o` | Sidebar — Outline tab (1:1)<br>Spec sheet · light · en | Outline of the rental contract (Madde 1–8, nested 4.1/4.2)<br>*States:* current row tinted (Madde 4); expanded parent | **M2** | ferman-core |
 | `a2-3b` | Sidebar — Attachments tab (1:1)<br>Spec sheet · light · en | Embedded file list with save-as; attach-a-file action<br>*States:* 3 attachments (xlsx, jpg, pdf) | **M2** — 'Attach a file' is unlisted in the roadmap (writes the file, so M3 or later) | ferman-core, platform |
 | `a2-3c` | Sidebar — Layers tab (1:1)<br>Spec sheet · light · en | Optional content layers with show/hide and locked state<br>*States:* visible; hidden (Filigran — TASLAK); locked (İmzalar) | **M2** — proposed: layers (OCG) visibility is part of rendering | ferman-core, ferman-render |
-| `a2-3d` | Sidebar — Signatures tab (1:1)<br>Spec sheet · light · en | Signature list with validity sentence and empty signature field<br>*States:* valid e-imza signature; empty signature field (page 3) | **M3** — (detect and list signatures for the signed-document warning); validity statement needs P3 signature validation | ferman-core, ferman-ops |
+| `a2-3d` | Sidebar — Signatures tab (1:1)<br>Spec sheet · light · en | Signature list with validity sentence and empty signature field<br>*States:* valid e-imza signature; empty signature field (page 3) | **M3** — (detect and list signatures for the signed-document warning); validity statement needs P3 signature validation; until then the tab shows the neutral state of `a2-14` (M2) | ferman-core, ferman-ops |
 | `a2-3e` | Sidebar — Search results tab (1:1)<br>Spec sheet · light · en | Search results grouped by page with snippets<br>*States:* 7 matches on 2 pages; current result tinted; whole-word miss example | **M2** | ferman-text |
 | `a2-3x` | Sidebar — Outline rename, dark (1:1)<br>Spec sheet · dark · en | Outline inline rename in dark theme<br>*States:* outline-edit=3 (Madde 4 row as TextField); dark | **M2** — (outline, dark theme from M1); rename needs save, so M3 | ferman-core |
-| `a2-4a` | Search — Find bar with options<br>macOS · light · en | Find bar with match options and Turkish-aware accent/dotted-i folding<br>*States:* query 'kira', 1 of 7; matches highlighted (current orange, others yellow); Ignore accents on; Look in: Page text + Comments on | **M2** — find/replace bar's replace is P2; the accent option is on by default for every document ([G61](DESIGN_GAPS.md#g61)) | ferman-text, ferman-core |
+| `a2-3m` | Sidebar — Empty tabs and searches with no result<br>Spec sheet · light · en, tr, ar | One EmptyState for every empty sidebar tab and search state: a 40 px sunken icon tile, a title, one line, an optional action ([G29](DESIGN_GAPS.md#g29), [G10](DESIGN_GAPS.md#g10))<br>*States:* six sidebars side by side: Outline, Attachments, Layers and Signatures empty; Search with no result for 'depozito'; Search on scanned pages with no text layer, Recognize text (OCR) disabled with the future-version tooltip | **M2** — OCR P3 | ferman-core, ferman-text, ui-only |
+| `a2-4a` | Search — Find bar with options<br>macOS · light · en | Find bar with match options and Turkish-aware accent/dotted-i folding<br>*States:* query 'kira', 1 of 7; matches highlighted (current orange, others yellow); Ignore accents on; Look in: Page text + Comments on | **M2** — find/replace bar's replace is P2; the accent option is on by default for every document, as the board says since 519d42a ([G61](DESIGN_GAPS.md#g61)) | ferman-text, ferman-core |
 | `a2-4b` | Search — All results, grouped by page<br>macOS · light · en | Show all results in sidebar, grouped by page<br>*States:* sidebar tab=search; current result tinted; matches highlighted on page | **M2** | ferman-text |
+| `a2-4c` | Search — still searching a long file<br>macOS · light · en, tr, ar | A search that takes more than a moment shows its progress under the find bar, as the large-file open does in `a1-7` ([G29](DESIGN_GAPS.md#g29))<br>*States:* 2,400-page file, query 'otopark', 1 of 38 so far; 'Searching · page 840 of 2,400', 'Matches appear as they're found.', progress bar, Cancel (Esc); matches found so far highlighted, so ↵ already works; sidebar and panel hidden | **M2** | ferman-text, jobs |
+| `a2-4d` | Search — no results<br>macOS · light · en, tr, ar | No results says what was searched and how, and offers the next place to look ([G29](DESIGN_GAPS.md#g29))<br>*States:* query 'depozito' kept selected; count 'No results' in the danger text colour; 'Ferman searched all 3 pages, ignoring accents and dotted/dotless i. Comments and form fields weren't searched.'; action Also search comments and fields | **M2** | ferman-text |
 | `a2-5a` | Presentation mode, full screen<br>macOS · dark · en | Full-screen presentation with auto-hiding control bar<br>*States:* page 1 / 3; control bar visible | **P2** — proposed: viewer extras after phase 1 (presentation mode) | ferman-render, platform |
 | `a2-5b` | Reading mode, chrome hidden<br>macOS · light · en | Reading mode hides tabs, tool rows, sidebar, panel and status bar<br>*States:* bare window; floating reading toolbar visible | **P2** — proposed: viewer extras after phase 1 (reading mode) | ui-only, ferman-render |
 | `a2-6` | Read aloud<br>macOS · light · en | Text-to-speech with sentence highlighting, speed and voice<br>*States:* playing (Pause shown); Sentence 9 of 31; speed 1×; voice Yelda · Türkçe | **P4** — proposed: read aloud grouped with accessibility tools | ferman-text, platform |
@@ -341,10 +401,15 @@ Source: `design/02 View.dc.html` · 22 artboards. Page layouts, zoom, every side
 | `a2-8a` | Split view — same document, two places<br>macOS · light · en | Split view of one document (page 1 and page 3) with independent zoom<br>*States:* tool=split; left pane active (accent outline); right panel hidden | **P2** — proposed: viewer extras after phase 1 (split view) | ferman-render, ui-only |
 | `a2-8b` | Split view — two documents<br>macOS · light · en | Split view of two open documents with per-pane document picker<br>*States:* sidebar and panel hidden; right pane active; Scroll together off | **P2** — proposed: viewer extras after phase 1 (split view) | ferman-render, ui-only |
 | `a2-9` | Dark reading mode — inverted page<br>macOS · dark · en | Dark reading: page inverted with hue kept, images and signatures re-inverted<br>*States:* dark theme; dark-reading switch on; annotations visible | **P2** — proposed: viewer extras after phase 1 (inverted dark reading) | ferman-render |
+| `a2-10a` | Restricted PDF — permissions<br>macOS · light · en, tr, ar | A document with an owner password or permission flags opens with a banner that names the restriction ([G27](DESIGN_GAPS.md#g27))<br>*States:* tab with shield icon; banner 'The author restricted this document.' ('You can read and print it. Editing, comments and form filling are turned off.') with Unlock with owner password…; forbidden modes and tools disabled with the reason ('The author doesn't allow editing'); a certificate-encrypted PDF gets the open error of `a1-9b` | **M2** — the reason tooltip on the Edit tab from M3 (the future-version tooltip before); certificate encryption P3 | ferman-core, ui-only |
+| `a2-10b` | Document properties — Security tab<br>macOS · light · en, tr, ar | The Security tab of `a2-7`, in the Summary tab's layout ([G27](DESIGN_GAPS.md#g27))<br>*States:* Encryption 'AES-256 · owner password'; Password to open 'None'; 8 permissions, each a badge: Allowed (green, check) for printing (high quality), copying and screen-reader access, Not allowed (neutral) for the other five; Unlock with owner password… and Done | **M2** | ferman-core |
+| `a2-13` | Rendering — tiles sharpening, a page that failed, Go to page<br>macOS · light · en, tr, ar | Tiles draw at low resolution first and sharpen in place; a page that fails to render keeps the rest of the document working ([G30](DESIGN_GAPS.md#g30))<br>*States:* continuous scroll; lower part of page 2 still sharpening, no layout shift; page 3 placeholder 'Ferman couldn't draw page 3.' with Try again; Fit width selected and named in the zoom field, status bar 113%; page field focused for editing (⌘G / Ctrl+G, numbers and labels) | **M2** | ferman-render, ui-only |
+| `a2-14` | Signatures before signature checking ships<br>macOS · light · en, tr, ar | Until P3 a signature appears in a neutral state, with no green and no check ([G31](DESIGN_GAPS.md#g31))<br>*States:* Signatures tab with the signer's name as written in the file and 'Signature checking is available in a future version.'; document panel '1 signature, page 3' (drawn in English only); page 3; file lists use the neutral Signed chip of `a1-4-m2` | **M2** — P3 replaces it with the validation states of `a5-7` to `a5-7e` | ferman-core, ui-only |
+| `a2-15` | Two-page spread — right-to-left document<br>macOS · light · en, tr, ar | Spread order follows only the document's /ViewerPreferences/Direction, never the UI language ([G32](DESIGN_GAPS.md#g32))<br>*States:* Arabic annual report, 12 pages, /R2L; two-page spread at 55%, fit page; page 1 on the right, page 2 on its left in every UI language; sidebar and panel hidden; in book layout a right-to-left cover stands alone on the left; Organize grid and thumbnails follow the UI direction | **M2** | ferman-core, ferman-render |
 
 ### 03 · Edit mode — text
 
-Source: `design/03a Edit text.dc.html` · 9 artboards. The core of Ferman: click into any paragraph and edit it like a document. Covers hover, caret, selection and reflow, the text-block panel, missing glyphs and font substitution, overflow, and vertical Japanese. Continued in 03b · Edit mode — content (Review edits 3.12 lives there).
+Source: `design/03a Edit text.dc.html` · 14 artboards. The core of Ferman: click into any paragraph and edit it like a document. Covers hover, caret, selection and reflow, the text-block panel, missing glyphs and font substitution, overflow, and vertical Japanese. Continued in 03b · Edit mode — content (Review edits 3.12 is in 03c). Export 519d42a added a section 3.16 – 3.19 with five light boards with the EN/TR/AR switch: the signed-document warning and its banner, the missing-glyph outcomes, overflow results and text that can't be edited (macOS, except the spec sheets a3-17 and a3-18).
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
@@ -353,10 +418,15 @@ Source: `design/03a Edit text.dc.html` · 9 artboards. The core of Ferman: click
 | `a3-1c` | Edit — Selecting words inside a block<br>macOS · light · en | Word selection inside an editing block with a floating format bar<br>*States:* selection (ink 26%); floating toolbar open; edited run marked | **M3** — bar: highlight/comment = M4; add link, find & replace = P2 | ferman-text (selection, run styling), ferman-fonts (bold/italic face lookup), ferman-ops (link/highlight/comment annotations), ui-only (floating bar) |
 | `a3-1d` | Edit — Main editor<br>macOS · dark · en | Edit mode main editor in dark theme with a selected block<br>*States:* dark theme; block p4 selected; edited marks; meta in margin | **M3** — dark theme from M1 | ui-only (dark tokens), ferman-render (page not inverted) |
 | `a3-2` | Edit — Selected text block, all properties<br>macOS · light · en | Text-block properties panel: font, size, colour (document colours first), B/I/U, alignment, spacing, position/size (mm), language with spell-check and hyphenat…<br>*States:* block selected; colour picker open (document colours); Position and size section open | **M3** — spell-check/hyphenation could slip to M4 | ferman-text (paragraph attrs, spacing, alignment, geometry, spell/hyphenation), ferman-fonts (document + system font list), ferman-core (colour extraction, content-stream write), ui-only (panel) |
-| `a3-3a` | Edit — Missing glyph<br>macOS · light · en | Typed character (‘ğ’) missing from the embedded subset font: inline warning plus panel callout<br>*States:* missing-glyph warning; amber wavy underline on ‘ğ’; frame meta tab amber and flipped below; font field icon-only warning; page-1 thumbnail warning badge | **M3** | ferman-fonts (coverage check, substitution, subsetting), ferman-text (run marking), ferman-render (thumbnail badge) |
+| `a3-3a` | Edit — Missing glyph<br>macOS · light · en | Typed character (‘ğ’) missing from the embedded subset font: inline warning plus panel callout<br>*States:* missing-glyph warning; amber wavy underline on ‘ğ’; frame meta tab amber and flipped below; font field icon-only warning; page-1 thumbnail warning badge | **M3** — step 3 of the missing-glyph chain; the other outcomes are in `a3-17` ([G36](DESIGN_GAPS.md#g36)) | ferman-fonts (coverage check, substitution, subsetting), ferman-text (run marking), ferman-render (thumbnail badge) |
 | `a3-3b` | Edit — Font substitution picker<br>macOS · light · en | 'Choose a font for this block' picker: embedded / installed / bundled similar fonts with coverage badges, a Turkish preview string and a closest-match ranking<br>*States:* dialog open; scope = Whole block; 'Closest match' row selected (EB Garamond); current font flagged 'No ‘ğ’ ‘Ğ’' | **M3** | ferman-fonts (embedded font enumeration, system fonts, bundled fonts, metric matching, coverage), ferman-core (embed new font), ferman-text (reflow preview, apply to N blocks) |
-| `a3-4` | Edit — Text no longer fits<br>macOS · light · en | Overflow: the edited paragraph needs one more line than its frame; three resolution choices in the panel<br>*States:* overflow warning; third line faded under amber dashed edge; margin status '+1 line hidden'; page-1 thumbnail warn badge | **M3** | ferman-text (overflow detection, reflow, tracking adjust), ferman-core (content-stream write), ui-only (status chip, banner) |
+| `a3-4` | Edit — Text no longer fits<br>macOS · light · en | Overflow: the edited paragraph needs one more line than its frame; three resolution choices in the panel<br>*States:* overflow warning; third line faded under amber dashed edge; margin status '+1 line hidden'; page-1 thumbnail warn badge | **M3** — results and the choices that can't apply are in `a3-18` ([G38](DESIGN_GAPS.md#g38)) | ferman-text (overflow detection, reflow, tracking adjust), ferman-core (content-stream write), ui-only (status chip, banner) |
 | `a3-15` | Edit — Vertical text (縦書き) in a Japanese letter<br>macOS · light · en | Editing vertical Japanese text: right-to-left columns, tate-chu-yoko, kinsoku, vertical punctuation; custom text-block panel<br>*States:* vertical block editing; horizontal caret moving down column; edited date run; bold/italic disabled with reason; direction = vertical | **M3** — vertical CJK editing is not explicit in the roadmap; candidate to defer | ferman-text (vertical writing mode, kinsoku, tate-chu-yoko, caret), ferman-fonts (vert/vrt2 features, CJK font coverage) |
+| `a3-16a` | Edit — Signed document, before the first change<br>macOS · light · en, tr, ar | Before the first change to a signed document the engine asks, and the UI says how many signatures the change invalidates ([G35](DESIGN_GAPS.md#g35))<br>*States:* dialog 'Edit a signed document?' (1 signature, by Mert Kaya on 13.10.2026); Edit a copy (default, Enter; opens 'Kira sözleşmesi (copy).pdf' in a new tab), Edit anyway, Cancel (Esc); nothing edited yet; no setting turns it off | **M3** — the same check before the first change in Comment, Fill & Sign and Organize arrives with those modes (M4) | ferman-core (signature detection, copy), ferman-text, ui-only |
+| `a3-16b` | Edit — After "Edit anyway"<br>macOS · light · en, tr, ar | After Edit anyway, a banner stays above the page while the document is open ([G35](DESIGN_GAPS.md#g35))<br>*States:* banner 'The signature in this document is no longer valid.' ('Saving keeps the signature, but it will show as invalid.') with Review edits; tab unsaved; page-3 thumbnail with the signature and warning badges; Review edits gets a signature row (`a3-12`) | **M3** | ferman-core, ferman-render (thumbnail badge), ui-only |
+| `a3-17` | Missing glyph — the outcomes the panel reports<br>Spec sheet · light · en, tr, ar | The steps of the missing-glyph chain in the brief's order, as edit-panel callouts ([G37](DESIGN_GAPS.md#g37), [G36](DESIGN_GAPS.md#g36))<br>*States:* step 2, same font installed ('Character added from this computer': ‘ğ’ taken from Garamond Premier Pro, re-subset and embedded, said once); no font has the character (‘ǧ’; only Choose a font… and Keep as is); licence forbids embedding (preview-and-print font never re-embedded; a similar font is used and Ferman says so) | **M3** — find and replace uses the same flow in P2 | ferman-fonts (system fonts, fsType, re-subsetting, coverage), ferman-text |
+| `a3-18` | Overflow — results, and choices that can't apply<br>Spec sheet · light · en, tr, ar | What each overflow choice does, and when Extend or Tighten is disabled ([G38](DESIGN_GAPS.md#g38))<br>*States:* extended by 1 line (frame grew into free space, nothing moved); spacing tightened −0.6% (within the cap, frame unchanged); kept with a warning ('+1 line hidden', clipped, marked on the page, the thumbnail and in Review edits); Extend block disabled ('The IBAN line sits right below this block.'); Tighten spacing disabled ('Even the tightest allowed spacing leaves 1 line over.'); snippets in the document's own direction | **M3** | ferman-text (overflow detection, collision check, tracking cap), ferman-core (content-stream write) |
+| `a3-19` | Edit — Text that can't be edited<br>macOS · light · en, tr, ar | Every kind of text Ferman can't safely rewrite reuses the scanned-page pattern of `a3-11` ([G39](DESIGN_GAPS.md#g39))<br>*States:* heading drawn as vector shapes; not-allowed cursor with the inverse tooltip 'This text is drawn as shapes, so it can't be edited'; panel callout 'This text can't be edited'; the caption also names shared form XObjects, unparsable content, permissions ([G27](DESIGN_GAPS.md#g27)), read-only files ([G28](DESIGN_GAPS.md#g28)) and edits that can't pass the zero-pixel-difference test | **M3** | ferman-text (editability check, hit testing), ferman-core (content-stream interpreter), ferman-render (pixel-difference check) |
 
 ### 03b · Edit mode — content
 
@@ -377,12 +447,13 @@ Source: `design/03b Edit content.dc.html` · 10 artboards. Text boxes, images, l
 
 ### 03c · Edit mode — scans, review, translation, languages
 
-Source: `design/03c Edit review and translate.dc.html` · 5 artboards. What happens when a page is only an image, how every edit can be reviewed and reverted, in-place translation that keeps the layout (including a change of writing direction), and documents that mix languages.
+Source: `design/03c Edit review and translate.dc.html` · 6 artboards. What happens when a page is only an image, how every edit can be reviewed and reverted, in-place translation that keeps the layout (including a change of writing direction), and documents that mix languages. Export 519d42a added `a3-12b`, the review list's empty and confirm states, as a light spec sheet with the EN/TR/AR switch.
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
 | `a3-11` | Edit — Scanned page: run OCR to edit<br>macOS · light · en | Edit mode on an image-only (scanned) page: explains the missing text and offers on-device OCR to make it editable or searchable<br>*States:* image-only page in Edit mode, cursor not-allowed; info bar banner over the canvas with Not now / Recognize text…; pointer hint tooltip on the scan; thumbnail warning badge (FmSidebar doc=scan); OCR panel default: Turkis… | **P3** — (OCR); the image-only page detection and pointer hint are needed in M3 Edit mode, with the OCR buttons disabled ('Available in a future version') unt… | ferman-text (detect page with no text layer, hit testing), jobs (async on-device OCR with progress), ferman-fonts (matching font for 'Editable text' result), ferman-ops (replace image with text / add invisible text layer), ferman-render (thumbnail warning badge), ferman-core (save) |
-| `a3-12` | Edit — Review all edits<br>macOS · light · en | Edit review list: every change with where, when, before/after, plus Go to and Revert for each, filter, Revert all and Export list<br>*States:* review panel open from the tool-row 'Review edits' button (badge 5); filter = All; first row selected (accent border) and selected on page (DocKira sel=p4); kept-warning row (overflow) in warning style; save=unsaved | **M3** | ferman-text (edit journal, revert a single edit even when it isn't the last), ferman-fonts (font substitution records listed as edits), ferman-core (incremental save of the edit set), ui-only (list, filter, Go to, export) |
+| `a3-12` | Edit — Review all edits<br>macOS · light · en | Edit review list: every change with where, when, before/after, plus Go to and Revert for each, filter, Revert all and Export list<br>*States:* review panel open from the tool-row 'Review edits' button (badge 5); filter = All; first row selected (accent border) and selected on page (DocKira sel=p4); kept-warning row (overflow) in warning style; save=unsaved; since 519d42a a signature row at the top ('Mert Kaya’s signature is no longer valid', [G35](DESIGN_GAPS.md#g35), [G42](DESIGN_GAPS.md#g42)) | **M3** — the list covers this session; earlier sessions are in version history (M4); the new-text-box row needs Add text (P2), so M3 goldens use an M3 edit | ferman-text (edit journal, revert a single edit even when it isn't the last), ferman-fonts (font substitution records listed as edits), ferman-core (incremental save of the edit set), ui-only (list, filter, Go to, export) |
+| `a3-12b` | Review edits — empty, revert all, dependent edits<br>Spec sheet · light · en, tr, ar | The review list's empty state and its two confirmations ([G42](DESIGN_GAPS.md#g42))<br>*States:* empty list with the shared EmptyState ('No edits yet'; the list clears when the document closes, earlier sessions are in Version history), Revert all… and Export list… disabled; 'Revert all 5 edits?' (undoable until the document closes) with Revert 5 edits; 'Also revert the edit that depends on it?' with Revert both | **M3** | ferman-text (edit journal, dependencies between edits), ui-only |
 | `a3-13a` | Translate — Turkish → Arabic, side by side<br>macOS · light · en | On-device in-place translation that keeps layout, with left-to-right → right-to-left direction change, font fallback and per-page accept<br>*States:* side-by-side original/preview; preview blocks tinted (--translated-mark), preview page with accent border; RTL switch on, keep-numbers switch on; Page 1 accepted, Pages 2–3 pending with Accept; LTR runs (IDs, dates, IBA… | **P4** | jobs (on-device translation model run, progress/cancel), ferman-text (block reflow, bidi direction flip, number/IBAN isolation), ferman-fonts (Arabic coverage check, announced Noto Naskh fallback, shaping, subsetting), ferman-core (write translation as new PDF; keep signatures page), ferman-render (preview) |
 | `a3-13b` | Translate — English → German, longer text<br>macOS · light · en | Translation overflow handling: German expansion reflowed with hyphenation, blocks that still overflow marked '+1 line' with resolution choices<br>*States:* warning banner '2 blocks don’t fit'; two overflowing blocks clipped with overflow underline and amber '+1 line' tags; page list: Page 1 needs room, Pages 2–4 fit; save=saved, pages=4 | **P4** — reuses the M3 overflow machinery | jobs (translation model), ferman-text (reflow, German hyphenation, overflow detection per block), ferman-fonts (size reduction, metrics), ferman-core (save new PDF) |
 | `a3-14` | Edit — Turkish thesis with an English quote, language per block<br>macOS · light · en | Language per block in mixed-language documents: detected on open, margin language tags, spell-check and hyphenation per block language, status-bar language<br>*States:* English quote block selected (TextEditBox selected, meta below); TR/EN margin tags shown ('Show block languages' on); Turkish misspelling 'kiracınnın' with wavy red underline; status bar 'English (United Kingdom) · spel… | **M3** — (block language, spell-check and hyphenation in the edit panel); writing lang into the PDF structure tags is P4 (PDF/UA) | ferman-text (per-block language detection, spell-check, language-aware hyphenation/reflow), ferman-core (write /Lang into the structure tree), ferman-fonts, ui-only (margin tags, status-bar language, View menu toggle) |
@@ -521,46 +592,53 @@ Source: `design/10 AI assistant.dc.html` · 3 artboards. Optional and off by def
 
 ### 11a · Settings
 
-Source: `design/11a Settings.dc.html` · 12 artboards. "Every settings pane, on macOS and Windows. App-level screens continue in 11b." One section, 12 FmBoard artboards. Each wraps <FmSettings pane=...>, a separate window (FmWindow bare=true, mode="", status=false) with a 240px pane list (title "Settings", search field, 11 panes) and a content column up to 760px wide. Every artboard is light, en, ltr; all are macOS except a11-1w (Windows 11). Pane contents and copy live in FmSettings.dc.html, not in this file. The trailing data script in 11a holds only leftovers that nothing here renders.
+Source: `design/11a Settings.dc.html` · 15 artboards. "Every settings pane, on macOS and Windows. App-level screens continue in 11b." One section, 15 FmBoard artboards. Each wraps <FmSettings pane=...>, a separate window (FmWindow bare=true, mode="", status=false) with a 240px pane list (title "Settings", search field, 11 panes) and a content column up to 760px wide. The 12 artboards of the first export are light, en, ltr; all are macOS except a11-1w (Windows 11). Export 519d42a added three M1 builds with the EN/TR/AR switch (a11-1-m1, a11-1w-m1 on Windows 11, a11-1h-m1): they pass FmSettings gated="m1", which adds the Close settings button ([G89](DESIGN_GAPS.md#g89)) and disables the default-app button, the network switches and Show network activity, while General's M2 controls and the other panes stay drawn enabled ([G108](DESIGN_GAPS.md#g108)). Pane contents and copy live in FmSettings.dc.html, not in this file. The trailing data script in 11a holds the board-language switch and the G tags; the rest are leftovers that nothing here renders.
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
-| `a11-1` | Settings — General<br>macOS · light · en | Settings window shell and General pane: theme, how PDF pages look in dark theme, defaults for new documents, reopen last session, default PDF app<br>*States:* Theme=Match system; Pages in dark=Paper white; Layout=Continuous scroll; Zoom=Fit width; Reopen documents on; Preview is the default PDF app | **M1** — (settings skeleton, theme); layout/zoom defaults, reopen, default app, dimmed/dark page modes M2 | ui-only, platform, ferman-render |
-| `a11-1w` | Settings — General<br>Windows · light · en | General pane on Windows: caption buttons, Ctrl shortcuts, default-app handoff to Windows Settings<br>*States:* same values as a11-1 | **M1** — M2 for the default-app handoff | ui-only, platform |
+| `a11-1` | Settings — General<br>macOS · light · en | Settings window shell and General pane: theme, how PDF pages look in dark theme, defaults for new documents, reopen last session, default PDF app<br>*States:* Theme=Match system; Pages in dark=Paper white; Layout=Continuous scroll; Zoom=Fit width; Reopen documents on; Preview is the default PDF app | **M1** — (settings skeleton, theme); layout/zoom defaults, reopen, default app, dimmed/dark page modes M2; the M1 build is `a11-1-m1`, and this board stays the finished product | ui-only, platform, ferman-render |
+| `a11-1-m1` | Settings — General, M1 build<br>macOS · light · en, tr, ar | The M1 build of `a11-1`: Settings as a window-styled surface pushed over the screen it opens from ([G89](DESIGN_GAPS.md#g89), [G10](DESIGN_GAPS.md#g10))<br>*States:* Close settings button 12 px from the pane's top and end edges (Esc, ⌘W), returning to the screen below or to Start; traffic lights still close the app; default-app line 'Ferman can be the app that opens when you double-click a PDF.' with Make Ferman the default… disabled and the future-version tooltip; theme, dark-page radios, layout, zoom and Reopen drawn enabled | **M1** — the default-app button M2; by the brief's rule for unfinished features, the app keeps the dark-page, layout, zoom and Reopen controls and the panes not built yet disabled until they work ([G108](DESIGN_GAPS.md#g108)) | ui-only, platform |
+| `a11-1w-m1` | Settings — General, Windows, M1 build<br>Windows · light · en, tr, ar | The M1 build of `a11-1w` ([G89](DESIGN_GAPS.md#g89), [G10](DESIGN_GAPS.md#g10); the caption cites [G16](DESIGN_GAPS.md#g16))<br>*States:* as `a11-1-m1` with Windows caption buttons, which close the app; the default-app line adds 'Windows lets you choose it in Settings › Default apps.'; Close settings is Ctrl+W or Esc | **M1** — as `a11-1-m1`; on Windows the default-app handoff needs Ferman registered for PDF files, which the M5 installer does, so the button stays disabled until then ([G103](DESIGN_GAPS.md#g103), Proposed with the M2 plan) | ui-only, platform |
+| `a11-1w` | Settings — General<br>Windows · light · en | General pane on Windows: caption buttons, Ctrl shortcuts, default-app handoff to Windows Settings<br>*States:* same values as a11-1 | **M1** — M2 for the default-app handoff; the M1 build is `a11-1w-m1`, and this board stays the finished product | ui-only, platform |
 | `a11-1b` | Settings — Language and region<br>macOS · light · en | App language (switches live), document languages, region formats (paper, units, first day of week) with a live preview<br>*States:* App language=English; Document languages=Turkish, English; Region=Türkiye; Paper=A4; Units=mm; Week starts Monday | **M1** — (l10n, locale-aware formats); document-language use by OCR/hyphenation P3/M3 | ui-only, ferman-text |
-| `a11-1c` | Settings — Editing<br>macOS · light · en | Edit marking preview, policy for a font missing a character, font for new text, version retention, reflow, recovery copies<br>*States:* Mark edited text on (PageMark preview "19.500 TL"); Missing character=Use a similar font and say so; New text font=Match the text around it; Keep versions=30 days, next to the file; Reflow on; Recovery copy every minute… | **M3** — (edit marks, missing-glyph policy, reflow, recovery); Keep versions M4; Font for new text P2 | ferman-text, ferman-fonts, ferman-core |
+| `a11-1c` | Settings — Editing<br>macOS · light · en | Edit marking preview, policy for a font missing a character, font for new text, version retention, reflow, recovery copies; since 519d42a a Saving group ([G43](DESIGN_GAPS.md#g43))<br>*States:* Mark edited text on (PageMark preview "19.500 TL"); Missing character=Use a similar font and say so; New text font=Match the text around it; Keep versions=30 days, next to the file; Reflow on; Recovery copy every minute…; Saving: changes added to the end of the file, Optimize and clean as the only full rewrite, the recovery-copy folder with Show in Finder | **M3** — (edit marks, missing-glyph policy, reflow, recovery); Keep versions M4; Font for new text P2 | ferman-text, ferman-fonts, ferman-core |
 | `a11-1d` | Settings — Fonts<br>macOS · light · en | Installed-font browser with a Turkish test string and script-coverage chips read from the font files<br>*States:* Filter=Covers Turkish; 6 rows: IBM Plex Serif and IBM Plex Sans Arabic (bundled), EB Garamond, Georgia, Noto Serif JP, Hiragino Mincho ProN (no TR) | **M4** — (pane); coverage and system-font engine from M3 | ferman-fonts |
 | `a11-1e` | Settings — Signatures and certificates<br>macOS · light · en | Saved signatures, certificate list with validity, e-imza PKCS#11 driver, timestamp server, online revocation check<br>*States:* 3 saved signatures (Typed, Drawn, Initials); certs: NES smart card valid, keychain valid, email cert expired (danger); Driver=Find automatically; TSA=TÜRKSERT Zaman Damgası; Revocation check on | **M4** — (saved simple signatures); certificates, PKCS#11, TSA, revocation P3 | ferman-ops, platform |
 | `a11-1f` | Settings — Text recognition<br>macOS · light · en | OCR language packs (installed or downloadable, with sizes) and the policy for scanned pages<br>*States:* installed: Türkçe 14 MB, English 12 MB, Deutsch 14 MB (Remove); downloadable: العربية 22 MB, 日本語 38 MB, Русский 18 MB, Français 13 MB (Download); Scanned pages=Offer to recognize text | **P3** | jobs, ferman-text |
 | `a11-1g` | Settings — AI assistant<br>macOS · light · en | AI assistant on/off, local model vs your own API key, delete the model, clear chat history<br>*States:* Assistant on; Runs on this computer selected; Model downloaded | **P4** | jobs, ferman-text |
-| `a11-1h` | Settings — Privacy<br>macOS · light · en | No-telemetry statement, every network use with its own switch, link to a network activity log<br>*States:* Updates on; Signature checks on; Timestamps on; Downloads you start on; Your AI provider off | **M4** — (pane); entries arrive with M5 updates, P3 OCR/TSA/revocation, P4 AI | ui-only, platform |
+| `a11-1h` | Settings — Privacy<br>macOS · light · en | No-telemetry statement, every network use with its own switch, link to a network activity log<br>*States:* Updates on; Signature checks on; Timestamps on; Downloads you start on; Your AI provider off | **M4** — (pane); entries arrive with M5 updates, P3 OCR/TSA/revocation, P4 AI; the M1 build is `a11-1h-m1`, and this board stays the finished product | ui-only, platform |
+| `a11-1h-m1` | Settings — Privacy, M1 build<br>macOS · light · en, tr, ar | The M1 build of `a11-1h`: nothing connects in M1, and the pane never claims a connection the app doesn't make ([G89](DESIGN_GAPS.md#g89), [G10](DESIGN_GAPS.md#g10), [G51](DESIGN_GAPS.md#g51))<br>*States:* Close settings button; all five switches off and disabled with the future-version tooltip (shown on the first); Show network activity… disabled; each switch takes its default when its feature ships (the update check on in M5, the others off until used) | **M1** — the caption keeps Signature checks disabled "until the owner decides"; [Q06](QUESTIONS.md#q06) was answered on 2026-10-16 (off until first use, phase 3) | ui-only |
 | `a11-1i` | Settings — Updates<br>macOS · light · en | Update status, Check now, daily check toggle, auto-download, Stable/Beta channel, release notes<br>*States:* Up to date (success callout); Daily check on; Auto-download off; Channel=Stable | **M5** | platform |
-| `a11-1j` | Settings — Keyboard shortcuts<br>macOS · light · en | Shortcut list searchable by name or keypress, presets (Ferman / Like Acrobat / Like Preview), recording with conflict detection<br>*States:* Preset=Ferman (default); row recording a new shortcut with a conflict warning; unassigned row (Apply redactions) | **M4** | ui-only |
+| `a11-1j` | Settings — Keyboard shortcuts<br>macOS · light · en | Shortcut list searchable by name or keypress, presets (Ferman / Like Acrobat / Like Preview), recording with conflict detection<br>*States:* Preset=Ferman (default); row recording a new shortcut with a conflict warning; unassigned row (Apply redactions); since 519d42a ⌥⌘S belongs to Save a copy, the sidebar is ⌃⌘S and Add signature ⇧S, from one shortcut table ([G44](DESIGN_GAPS.md#g44)) | **M4** | ui-only |
 | `a11-1k` | Settings — Advanced<br>macOS · light · en | GPU rendering, page cache, thumbnail generation, developer PDF object inspector, settings import/export, logs, reset<br>*States:* GPU on; Page cache=1 GB; Thumbnails=Make as needed; Inspector off | **M4** | ferman-render, ferman-core, ui-only |
 
 ### 11b · App-level
 
-Source: `design/11b App.dc.html` · 10 artboards. The command palette, shortcuts, updates, About, toasts, the background task drawer, and the errors people actually meet. Settings are in 11a.
+Source: `design/11b App.dc.html` · 13 artboards. The command palette, shortcuts, updates, About, toasts, the background task drawer, and the errors people actually meet. Settings are in 11a. Export 519d42a added three light boards with the EN/TR/AR switch: the family of save errors (a11-7d, a spec sheet), quitting with several unsaved documents (a11-7e) and crash recovery when the original changed (a11-7f).
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
-| `a11-2` | Command palette — Commands, pages, files, settings<br>macOS · light · en | ⌘K command palette with grouped results (Commands, Pages, Recent files, Settings), query 'imza'<br>*States:* query typed 'imza' with results in 4 groups; first item with shortcut ⌥⌘S; doc unsaved/edited behind scrim | **M4** | ui-only, ferman-text, ferman-core |
-| `a11-3` | Keyboard shortcuts — Cheat sheet<br>macOS · light · en | ⌘/ keyboard shortcut cheat sheet, grouped by mode, searchable<br>*States:* default list, 8 groups (General, Navigate, Edit, Comment, Fill & Sign, Organize, Protect, Window) | **M4** | ui-only |
+| `a11-2` | Command palette — Commands, pages, files, settings<br>macOS · light · en | ⌘K command palette with grouped results (Commands, Pages, Recent files, Settings), query 'imza'<br>*States:* query typed 'imza' with results in 4 groups; first item Add signature with shortcut ⇧S (⌥⌘S until 519d42a, [G44](DESIGN_GAPS.md#g44)); doc unsaved/edited behind scrim | **M4** | ui-only, ferman-text, ferman-core |
+| `a11-3` | Keyboard shortcuts — Cheat sheet<br>macOS · light · en | ⌘/ keyboard shortcut cheat sheet, grouped by mode, searchable<br>*States:* default list, 8 groups (General, Navigate, Edit, Comment, Fill & Sign, Organize, Protect, Window); since 519d42a the shell's one table: Save a copy ⌥⌘S, Sidebar ⌃⌘S, Add signature ⇧S, Add bookmark ⌘B ([G44](DESIGN_GAPS.md#g44), [G82](DESIGN_GAPS.md#g82)) | **M4** | ui-only |
 | `a11-4` | Update ready<br>macOS · light · en | Update-ready one-line banner<br>*States:* update downloaded, ready to install; doc saved | **M5** | platform, ferman-core |
 | `a11-4b` | What’s new<br>macOS · light · en | What's new release-notes dialog for Ferman 1.5<br>*States:* 5 grouped change items + Fixed row | **M5** | ui-only |
-| `a11-5` | About Ferman<br>macOS · light · en | About dialog: version/build, licence, contribute links, credits<br>*States:* default | **M5** | ui-only, platform |
+| `a11-5` | About Ferman<br>macOS · light · en | About dialog: version/build, licence (Apache-2.0 since 519d42a, [G13](DESIGN_GAPS.md#g13)), contribute links, credits<br>*States:* default | **M5** | ui-only, platform |
 | `a11-6` | Toasts<br>Spec sheet · light+dark · en | Toast notifications in four tones<br>*States:* success 'Saved'; neutral '3 pages deleted' + Undo; warning 'Font substituted' + Review; danger 'Couldn’t save' + Save as…; light; dark | **M4** | ui-only |
 | `a11-6b` | Background task drawer<br>macOS · light · en | Background task drawer opened from status-bar task indicator<br>*States:* running (OCR 22%) with pause/cancel; paused batch with resume; done compress with Show; error convert; status bar inline task progress | **M4** | jobs, ferman-ops |
-| `a11-7` | Error — Out of disk space<br>macOS · light · en | Save failed: disk full error dialog with recovery-copy reassurance<br>*States:* save=error in status bar; edited document | **M3** | ferman-core, platform |
+| `a11-7` | Error — Out of disk space<br>macOS · light · en | Save failed: disk full error dialog with recovery-copy reassurance<br>*States:* save=error in status bar; edited document; Save stays enabled for a retry ([G40](DESIGN_GAPS.md#g40), [G41](DESIGN_GAPS.md#g41), since 519d42a) | **M3** | ferman-core, platform |
 | `a11-7b` | Error — File changed on disk<br>macOS · light · en | External modification detected while document has unsaved edits<br>*States:* unsaved, 3 edits; warning banner | **M3** | platform, ferman-core |
 | `a11-7c` | Unsupported — XFA form<br>macOS · light · en | Unsupported XFA form: shows fallback page, read-only, explanation panel<br>*States:* read-only; tab icon file-x; thumbnail warning badge; fallback 'Please wait…' page | **M2** | ferman-core, ferman-render, platform |
+| `a11-7d` | Save errors — the family<br>Spec sheet · light · en, tr, ar | Every save failure reuses the `a11-7` layout: what happened, that the edits are kept, Try again and Save as… ([G40](DESIGN_GAPS.md#g40))<br>*States:* four dialogs 'Couldn't save "Kira sözleşmesi.pdf"': permission denied; locked by another app; couldn't replace the original (the temporary file was written, the original is unchanged); drive disconnected ('Ortak'); the caption adds that the tab keeps its unsaved dot and the status bar says Couldn't save | **M3** | ferman-core (temporary file and atomic rename), platform |
+| `a11-7e` | Quit with several unsaved documents<br>macOS · light · en, tr, ar | Quitting with unsaved changes in more than one document asks once, built from `a1-10b` ([G40](DESIGN_GAPS.md#g40))<br>*States:* dialog 'Save changes to 3 documents before quitting?', one checked row per document (3 edits, 2 comments, 1 edit); Quit without saving at the start, Cancel, Save and quit; any failure stops the quit and shows its error; Windows orders Save and quit, Quit without saving, Cancel | **M3** | ferman-core, ui-only |
+| `a11-7f` | Crash recovery — the original changed<br>macOS · light · en, tr, ar | Ferman records each original's hash with its recovery copy; an original that changed opens the restored version under a new name ([G40](DESIGN_GAPS.md#g40))<br>*States:* the `a1-12` dialog over Start, 2 documents checked; 'e-Arşiv fatura 4187.pdf' with the warning badge 'Changed on disk' and the note that it opens as 'e-Arşiv fatura 4187 (recovered).pdf'; the matching row restores as in `a1-12`; Discard, Open 2 documents | **M3** | ferman-core (recovery hash), platform |
 
 ### 12 · Localization validation
 
-Source: `design/12 Localization.dc.html` · 13 artboards. The same editor state in Turkish, German, Arabic and Japanese, and the start screen in Arabic and German. The shell is built with logical properties, so Arabic mirrors the chrome while the PDF page keeps its own direction. It opens with an unnumbered "Rules applied everywhere" block: a locale formats table (en-US, tr, de, ar, ja, en-UK showing date/time, number, paper, units and font size), a "Turkish capitals" card (lang="tr" uppercase is correct, English rules are shown as wrong) and a "Long labels" rule (+40% expansion).
+Source: `design/12 Localization.dc.html` · 14 artboards. The same editor state in Turkish, German, Arabic and Japanese, and the start screen in Arabic and German. The shell is built with logical properties, so Arabic mirrors the chrome while the PDF page keeps its own direction. It opens with an unnumbered "Rules applied everywhere" block: a locale formats table (en-US, tr, de, ar, ja, en-UK showing date/time, number, paper, units and font size), a "Turkish capitals" card (lang="tr" uppercase is correct, English rules are shown as wrong) and a "Long labels" rule (+40% expansion). Export 519d42a ends the block with the board `a12-0`, a region-format table from CLDR without a frame or a language switch.
 
 | ID | Screen | Feature and states shown | Milestone | Engine capability |
 |---|---|---|---|---|
+| `a12-0` | Region formats, from CLDR<br>Spec sheet · light · en | Numbers, dates, file sizes, paper sizes, units and percentages follow the region in Settings › Language and region, never the UI language ([G34](DESIGN_GAPS.md#g34))<br>*States:* six regions with date (2 Oct), time, number, percent and font size: Türkiye tr-TR (the Turkish goldens; 02.10.2026, 18.500,5, %100), United Kingdom en-GB (the English goldens), United States en-US (2:32 PM), Germany de-DE (2.10.2026, 100 %), Saudi Arabia ar-SA (the Arabic goldens; Arabic-Indic digits), United Arab Emirates ar-AE (Latin digits); boards that show another format are read as drawn for another region | **M2** — the Turkish percent sign first in the zoom field and status bar; region formats and the region per golden language exist from M1 | ui-only |
 | `a12-1tr` | Editor — Türkçe<br>macOS · light · tr | Main editor in Edit mode, localized to Turkish (shell, sidebar, edit panel, locale number formats)<br>*States:* Edit mode; paragraph p4 selected and edited; unsaved (dot on tab + status); 3 doc tabs (tabs3); Pages sidebar tab, page 1 of 3; redo disabled | **M3** — l10n infra + tr strings M1 | ui-only, ferman-text, ferman-fonts, ferman-render |
 | `a12-1de` | Editor — Deutsch<br>Windows · light · de | Main editor in Edit mode in German: stress test for the longest labels<br>*States:* Edit mode; p4 selected/edited; unsaved; 3 tabs; Windows caption buttons; Ctrl shortcuts | **M3** — de locale not assigned in roadmap | ui-only, ferman-text, ferman-fonts, ferman-render |
 | `a12-1ar` | Editor — العربية, full right-to-left<br>macOS · light · ar · RTL | Main editor in Edit mode in Arabic, full RTL chrome mirroring over an LTR Turkish PDF<br>*States:* Edit mode; p4 selected/edited; unsaved; 3 tabs; mirrored chrome; Arabic-Indic digits | **M3** — RTL/ar l10n M1 | ui-only, ferman-text, ferman-fonts, ferman-render |
@@ -1305,7 +1383,7 @@ Counts: Custom-property declarations, verified by parsing every block. colors.cs
 - cubic-bezier easing: --ease-out maps to Cubic(0.2, 0, 0, 1), --ease-in-out to Cubic(0.4, 0, 0.2, 1) (identical to Curves.fastOutSlowIn), and --ease-exit to Cubic(0.4, 0, 1, 1). Durations in ms map to Duration(milliseconds: n). The reduced-motion media block sets all four to 0.
 - Font shorthand --type-* ('weight size/line-height family-var'): expand nested var() first, then parse into TextStyle(fontWeight, fontSize, height: leading/size, fontFamily, fontFamilyFallback). CSS line-height distributes half-leading evenly, so set leadingDistribution: TextLeadingDistribution.even (or TextHeightBehavior) to match vertical centring. --type-wordmark uses unitless line-height '1', so height is 1.0. The CJK overrides use literal px leading (20/18/16px) instead of --leading-* vars.
 - Font-family stacks: CSS lists become fontFamily (first entry) plus fontFamilyFallback (the rest). Drop CSS generic and system keywords (system-ui, -apple-system, 'Segoe UI', sans-serif, serif, monospace, ui-monospace, cursive, 'SF Mono', Menlo, Consolas, Georgia, 'Times New Roman') or map them to platform defaults. Use the fm-additions --font-ui, which overrides typography.css (cascade order). Every family must be declared in pubspec.yaml with matching names.
-- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import is never used and nothing is loaded at run time (no google_fonts package, no deferred download; [ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). Plex Sans Hebrew and Devanagari are bundled ([Q08](QUESTIONS.md#q08)); the handwriting faces and the similar-font candidates are bundled as unmodified files only if Q08 groups 3 and 4 approve them; CJK uses system fonts. No Plex Mono 600 face exists.
+- Font files: all self-hosted fonts are woff2, which Flutter does not reliably load as bundled assets (TTF/OTF only). Fetch TTF/OTF equivalents. IBM Plex Sans 500 and 600 reference the 400 woff2 file (a variable-wght Google Fonts build with font-stretch 100%), so either bundle the variable TTF and pass FontVariation('wght', w), or bundle static weights. unicode-range subsetting has no Flutter equivalent; the fallback chain does that job. The remote Google Fonts @import is never used and nothing is loaded at run time (no google_fonts package, no deferred download; [ADR 0013](adr/0013-fonts-and-icons.md), [ADR 0015](adr/0015-privacy-and-network.md)). Plex Sans Hebrew and Devanagari are bundled ([Q08](QUESTIONS.md#q08)); the handwriting faces (M4) and the similar-font candidates (M3) are bundled as unmodified files with their licences (Q08 groups 3 and 4, answered on 2026-10-16); CJK uses system fonts. No Plex Mono 600 face exists.
 - var() chains: semantic tokens point to ramps (1 level). Type roles point to weight/size/leading/font (1-2 levels). --sheet-radius points to --radius-xl. --focus-* point to --surface-raised/--border-focus and then to ramps (2 levels). --shadow-page points to --page-border. --edit-changed (additions) points to --ink-600. Resolve recursively with a cycle guard, AFTER merging each environment (light, dark = light + dark block, touch, cjk), so inherited chains pick up dark values. Emitting resolved constants is better than runtime lookups. Optionally keep the alias in a doc comment.
 - @kind annotations: the trailing '/* @kind other */' (on --page-filter in both blocks, --dur-* including the reduced-motion copies, --ease-*, --z-*) and '/* @kind font */' (on --numeric-tabular, --features-ui) are DS-tooling type hints. They are the only explicit typing. Every other token's type must be inferred from its value pattern (#hex/rgba means colour; Npx means dimension; Nms means duration; cubic-bezier means curve; quoted list means font stack; 'w s/l f' means font shorthand; plain integer means weight or z-index). Strip the @kind text from doc comments and use it as a classifier override.
 - Unit-less and odd values: --space-0: 0 and --tracking-normal: 0 (unitless zero); --weight-* 400/500/600 map to FontWeight.w400/w500/w600; --z-* are ints with no Flutter z-index (they inform Overlay/Stack ordering only); --radius-full: 999px means a pill (use StadiumBorder or BorderRadius.circular(999)); --border-width-strong: 1.5px is fractional; --tracking-tight -0.01em and --tracking-label 0.02em are em-relative, so letterSpacing = em * fontSize (for example 11px * 0.02 = 0.22) and must be computed per TextStyle; --line-height '1' is unitless in wordmark.
@@ -1388,13 +1466,13 @@ because no M1 board draws them.
 | `Stamp` | annotations | `Stamp` | M4 |  |
 | `PdfFormField` | fill-sign | `PdfFormField` | M4 |  |
 | `SignaturePad` | fill-sign | `SignaturePad` | M4 |  |
-| `Toast` | feedback | `Toast` | M3 | The save-failure toast (`f4`); the toast stack follows in M4 (`a11-6`). |
+| `Toast` | feedback | `Toast` | M2 | The out-of-memory toast (`a1-9f`, since export 519d42a); the save-failure toast (`f4`) in M3; the toast stack follows in M4 (`a11-6`). |
 | `Banner` | feedback | `Banner` | M2 |  |
-| `ProgressBar` | feedback | `ProgressBar` | M4 | Required-fields progress in the Form panel. |
+| `ProgressBar` | feedback | `ProgressBar` | M2 | A long search's progress under the find bar (`a2-4c`, since export 519d42a); required-fields progress in the Form panel in M4. |
 | `Spinner` | feedback | `Spinner` | M2 |  |
 | `TaskProgress` | feedback | `TaskProgress` | M2 | Inline variant in the status bar while a large file is indexed (`a1-7`). |
 | `DropZone` | empty | `DropZone` | M1 | Start empty state (`a1-5`). The DS has no general empty state ([G29](DESIGN_GAPS.md#g29)). |
-| `Dialog` | overlays | `Dialog` | M2 | Custom popup; never a Material or Cupertino dialog (brief §6). OS file pickers are the proposed exception ([ADR 0018](adr/0018-native-file-pickers.md)). |
+| `Dialog` | overlays | `Dialog` | M2 | Custom popup; never a Material or Cupertino dialog (brief §6). OS file pickers are the only exception ([ADR 0018](adr/0018-native-file-pickers.md), accepted with [Q07](QUESTIONS.md#q07) on 2026-10-16). |
 | `Menu` | overlays | `Menu` | M2 |  |
 | `CommandPalette` | overlays | `CommandPalette` | M4 |  |
 | `Field (internal)` | internal | `Field` | M1 | Shared label, hint, error and input box for every field. |
@@ -1412,8 +1490,8 @@ because no M1 board draws them.
 | `FmNumber` | `FmNumber` | M3 | Locale-aware number field, formatted from the region setting. |
 | Date picker (inline in `DocForm`) | `DatePicker` | M4 | Custom popup, also on mobile, where a note asks for the Material picker ([G55](DESIGN_GAPS.md#g55)). |
 | Mention list and comment card (inline in `FmComments`) | `MentionList`, `CommentCard` | M4 | |
-| Disabled with reason (gap) | state of `ToolButton`, `Menu` items and `SegmentedControl` | M1 | Tooltip "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). |
-| Empty state (gap) | `EmptyState` | M2 | Sidebar tabs, search and lists ([G29](DESIGN_GAPS.md#g29)). |
+| Disabled with reason (gap) | state of `ToolButton`, `Menu` items and `SegmentedControl` | M1 | Tooltip "Available in a future version" ([G10](DESIGN_GAPS.md#g10)). Drawn since export 519d42a on the milestone builds, for example `a1-5-m1` and `a1-2c-m1`. |
+| Empty state (gap) | `EmptyState` | M2 | Sidebar tabs, search and lists ([G29](DESIGN_GAPS.md#g29)). Drawn since export 519d42a in `a2-3m`: a 40 px sunken icon tile, a title, one line and an optional action. |
 
 #### Building blocks in the app
 
@@ -1425,9 +1503,9 @@ because no M1 board draws them.
 | `FmDocPanel` | Right panel with the document summary and the Edit help. | M1 for the frame (the `FmDocPanel` class, `app/lib/features/shell/shell_panel.dart`: the title and More), M2 for the sections |
 | `FmFormPanel` | Right panel for forms. | M4 |
 | `FmComments` | Right panel for comments. | M4 |
-| `FmSigCard` | Signature validation card. | P3; a neutral "not checked" row is needed from M2 ([G31](DESIGN_GAPS.md#g31)) |
-| `FmStart` | Start screen. | M1; recent files in M2 |
-| `FmSettings` | Settings window with 11 panes. | M1 for the skeleton, M4 for all panes |
+| `FmSigCard` | Signature validation card. | P3; a neutral "not checked" row is needed from M2 ([G31](DESIGN_GAPS.md#g31)); `a2-14` draws that state in the Signatures tab |
+| `FmStart` | Start screen. Its `gated` prop (export 519d42a) draws the M1 and M2 builds (`a1-5-m1`, `a1-4-m2`). | M1; recent files in M2 |
+| `FmSettings` | Settings window with 11 panes. Its `gated` prop (export 519d42a) draws the M1 builds (`a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`). | M1 for the skeleton, M4 for all panes |
 | `FmNumber` | The `FmNumber` component. | M3 |
 | `FmBoard` | Artboard frame used by the design-reference renderer. Not shipped. | M1 (tools) |
 | `FmPhone` | Phone frame. Its bars define the mobile shell. | P5 |
@@ -1695,8 +1773,9 @@ approved by the owner on 2026-10-15.
   Vietnamese text renders correctly inside Arabic, Persian, Hebrew and Hindi UI
   ([G64](DESIGN_GAPS.md#g64)).
 - The signature handwriting fonts (`--font-hand-1` to `-3`: Caveat, Homemade Apple, Dancing Script)
-  are an open question ([Q08](QUESTIONS.md#q08) group 3). If they ship, each ships with its licence: Homemade Apple is
-  Apache-2.0, the others OFL-1.1.
+  ship for typed signatures in M4, and Cormorant Garamond and Crimson Pro ship as similar fonts for
+  missing glyphs in M3 ([Q08](QUESTIONS.md#q08) groups 3 and 4, answered on 2026-10-16). Each ships
+  unmodified with its licence: Homemade Apple is Apache-2.0, the others OFL-1.1.
 - Golden tests load the real fonts (brief §5).
 
 ## 9. Fixes, flows and sample documents
@@ -1712,8 +1791,9 @@ required step.
 **Sample documents.** The `Doc*` files and the documents named on the boards are drawn pages, not
 PDFs. Each one implies a PDF for the test corpus in `tests/corpus/`, generated or freely licensed,
 with provenance in `tests/corpus/README.md` (brief §5). All names, IBANs and ID numbers in them are
-fictitious. Two data issues: flow B's e-imza steps are drawn on the rental contract ([G58](DESIGN_GAPS.md#g58)), and
-Start lists the e-Devlet form as 2 pages while the fixture has 1 ([G59](DESIGN_GAPS.md#g59)).
+fictitious. One data issue remains: flow B's e-imza steps are drawn on the rental contract ([G58](DESIGN_GAPS.md#g58)).
+Start listed the e-Devlet form as 2 pages while the fixture has 1 ([G59](DESIGN_GAPS.md#g59)); since export 519d42a
+`FmStart` lists it as 1 page on every Start board.
 
 | Fix | Binding rule |
 |---|---|
@@ -1775,14 +1855,14 @@ Start lists the e-Devlet form as 2 pages while the fixture has 1 ([G59](DESIGN_G
 
 - DocKira.dc.html: Turkish residential rental contract 'Kira sözleşmesi.pdf' (KONUT KİRA SÖZLEŞMESİ No 2026/0412, 13.10.2026). 3 A4 pages, Madde 1-10 plus a signature page, IBM Plex Serif 10.5 pt justified. Fictitious T.C. Kimlik Nos 35712648950 / 41239876516, IBAN TR12 0006 4000 0011 2345 6789 01, e-mails and phones. Madde 4 rent edit 18.500 -> 19.500 TL with the IBAN line directly below; Madde 6 in a subset font with no 'ğ'. Lists Ek-1 Demirbaş listesi.xlsx and Ek-2 Tapu fotokopisi; the sidebar also shows Kimlik fotokopisi.pdf. Implied corpus PDF: 3-page Turkish contract with subset-embedded fonts, one subset deliberately missing 'ğ' (missing-glyph path), a tight frame above the IBAN line (overflow), a 'KİRA' title for Turkish i/İ search folding, three embedded file attachments (xlsx, jpg, pdf), signature fields on page 3, PII for redaction. Derived variants: 'Kira sözleşmesi — imzalı.pdf' (PAdES/qualified signature with TÜRKSERT-style timestamp); 'Kira sözleşmesi — imzalı (2).pdf' (incremental update after signing -> 'changed after signing'); 'Kira sözleşmesi (eski).pdf' (repairable: broken xref, 48 objects, 3 pages, page 3 references non-embedded TimesNewRomanPSMT); 'Kira sözleşmesi.docx' / 'Kira sözleşmesi taslak.docx' (conversion and version-history origin); 'Kira sözleşmesi — yorumlu.pdf' (with comments/annotations).
 - DocEkstre.dc.html: Turkish bank statement 'Hesap ekstresi Eylül 2026.pdf' (Boğaziçi Bankası, Kadıköy Şubesi, 01-30.09.2026). 2 pages; a transaction table (Tarih/Açıklama/Tutar/Bakiye, Turkish number format such as 12.430,15) and customer block with T.C. Kimlik No 41239876516, IBAN TR33 0006 1005 1978 6457 8413 26, address and phone. Implied corpus PDF: 2-page statement with real text (not an image) containing checksum-valid TCKN, IBAN, phone and e-mail patterns, plus metadata/hidden content (author, comments, old incremental versions). It tests pattern redaction, verified removal in 'Hesap ekstresi Eylül 2026 — karartılmış.pdf' (re-read shows no recoverable text) and hidden-information removal.
-- DocForm.dc.html: e-Devlet 'T.C. Yerleşim Yeri Adresi Beyan Formu' (Adres Kayıt Sistemi, Form AKS-1, Başvuru No 2026-0047812, verification code AKS-7F3K-91QD), file 'Adres değişikliği formu.pdf'. The fixture is 1 page; FmStart says 2 pages, which is inconsistent. 20 fields, 15 required: text (tc_kimlik_no, adi, soyadi, telefon, eposta, mahalle, cadde_sokak, dis_kapi_no, ic_kapi_no, hane_kisi_sayisi), date GG.AA.YYYY (dogum_tarihi, tasinma_tarihi, beyan_tarihi), radio group (cinsiyet), dropdowns (medeni_hal, il, ilce), checkboxes (beyan_dogruluk, beyan_kurum) and a signature field (imza). Implied corpus PDF: AcroForm with exactly these field types, names, required flags, date format and number-range validation actions, and a defined tab order. A flat non-interactive twin is needed for 'Fill anything' (a5-4) and 'Prepare form — fields found' (a5-8b), and a signed copy for e-imza tests.
+- DocForm.dc.html: e-Devlet 'T.C. Yerleşim Yeri Adresi Beyan Formu' (Adres Kayıt Sistemi, Form AKS-1, Başvuru No 2026-0047812, verification code AKS-7F3K-91QD), file 'Adres değişikliği formu.pdf'. The fixture is 1 page; FmStart said 2 pages until export 519d42a, which lists 1. 20 fields, 15 required: text (tc_kimlik_no, adi, soyadi, telefon, eposta, mahalle, cadde_sokak, dis_kapi_no, ic_kapi_no, hane_kisi_sayisi), date GG.AA.YYYY (dogum_tarihi, tasinma_tarihi, beyan_tarihi), radio group (cinsiyet), dropdowns (medeni_hal, il, ilce), checkboxes (beyan_dogruluk, beyan_kurum) and a signature field (imza). Implied corpus PDF: AcroForm with exactly these field types, names, required flags, date format and number-range validation actions, and a defined tab order. A flat non-interactive twin is needed for 'Fill anything' (a5-4) and 'Prepare form — fields found' (a5-8b), and a signed copy for e-imza tests.
 - DocCv.dc.html: Turkish CV 'Zeynep Arslan — Özgeçmiş.pdf' (Kıdemli Muhasebe Uzmanı, İzmir). 1 page: header, photo image at top-right, sections DENEYİM, EĞİTİM, DİLLER with bullet lists. Props drive reading-order badges, accessibility issues (image without alt text, low-contrast line, untagged list) and image selection. Implied corpus PDF: an untagged 1-page CV with an embedded raster photo, a low-contrast text run and visual-only lists. It feeds the accessibility checker (a9-3/a9-3b), image crop (a3-5b) and 'Fill anything' on a flat page.
 - DocPlan.dc.html: Turkish floor plan 'Kat planı — Daire 5.pdf' (Moda Cad. No 18, Kadıköy; scale 1:75; sheet A-01; rooms SALON 35,1 m², YATAK ODASI 25,9 m², MUTFAK 10,6 m², ANTRE 10,8 m², BANYO 7,4 m²; dimensions 12,00 / 10,80). Implied corpus PDF: a vector drawing page with a known 1:75 scale (optionally a /Measure viewport dictionary). It tests distance, area and perimeter measurement and calibration (a4-1c, a9-7).
 - e-Arşiv invoice 'e-Arşiv fatura 4187.pdf' (inline in 03b a3-9, not a Doc* fixture): Defne Kırtasiye ve Ofis Ürünleri Ltd. Şti., No DKO2026000004187, 13.10.2026, buyer Yılmaz Mimarlık, VKN numbers, line-item table with columns A-F (Sıra, Mal/Hizmet, Miktar, Birim fiyat, KDV %20, Tutar), Turkish amounts. 1 page. Implied corpus PDF: 1-page invoice with a real column/table layout, right-aligned numeric columns and dependent totals. It tests column-aware editing and flagging of dependent amounts; it also appears in tabs, crash recovery and conversion queues.
 - Master's thesis 'Yüksek lisans tezi — Elif Şahin.pdf' (Kentsel Dönüşüm Sürecinde Kiracı Hakları): 64 pages, Turkish with an English block quote, a deliberate misspelling 'kiracınnın', and nested outline Özet ve içindekiler / 1. Giriş / 2. Kentsel dönüşüm ve kiracılık / 3. Bulgular / 4. Sonuç / Kaynakça. Implied corpus PDF: a 64-page tagged PDF with nested bookmarks, page labels, per-block /Lang (tr and en). It tests outline (a2-3a), split by chapter (a6-2), search speed, per-block language and spell-check (a3-14), plus OCR/conversion queues.
 - English: 'Mutual NDA — Northwind.pdf' (Northwind Analytics Ltd. and Kaya Mimarlık A.Ş., 2 October 2026), 4 pages, marked signed in Start. Implied corpus PDF: 4-page English contract with a digital signature, for validation states and English -> German translation with text expansion and German hyphenation (a3-13b).
 - German: 'Mietvertrag Berlin.pdf', 6 pages (recent files). Implied corpus PDF: 6-page German contract with umlauts and ß, for diacritic-insensitive search, German hyphenation/reflow and German UI validation.
-- Arabic: 'التقرير السنوي 2025.pdf' (Annual report 2025), 12 pages (recent files); a3-13a also previews the rental contract translated Turkish -> Arabic. Implied corpus PDF: 12-page RTL Arabic document with shaped text, mixed LTR numbers/IBAN (bidi isolation), embedded Arabic font. It tests rendering, search and editing in RTL.
+- Arabic: 'التقرير السنوي 2025.pdf' (Annual report 2025), 12 pages (recent files); a3-13a also previews the rental contract translated Turkish -> Arabic. Implied corpus PDF: 12-page RTL Arabic document with shaped text, mixed LTR numbers/IBAN (bidi isolation), embedded Arabic font. It tests rendering, search and editing in RTL. Since export 519d42a, a2-15 draws its first two pages as a right-to-left spread, so the PDF also needs /ViewerPreferences/Direction /R2L.
 - Japanese: '見積書_2026-10.pdf' (quotation), 2 pages, marked scanned. Implied corpus PDF: image-only Japanese scan for Japanese OCR (38 MB pack proposal). Also '賃貸借契約更新のご案内.pdf' (lease-renewal letter to アイシェ・ユルマズ from 株式会社モダ不動産, a3-15). Implied corpus PDF: vertical-writing (縦書き) CJK text with an embedded Japanese font, an upright tate-chu-yoko '19' and kinsoku line breaking.
 - Scanned Turkish letter 'Kira artış bildirimi (tarama).pdf' (Kaya Gayrimenkul Yönetimi, 06.10.2026, rent increase to 19.500 TL), 3 pages per the OCR queue ('Recognizing page 2 of 3'). Implied corpus PDF: image-only 3-page scan with Turkish text for scanned-page detection (a3-11), Turkish auto-detect OCR, words-to-check (a7-5b) and batch OCR.
 - Password-protected payslip 'Maaş bordrosu Eylül 2026.pdf' (unlock a1-8/a1-8b, wrong-password example 'eylul2026', Protect a8-1). Implied corpus PDF: encrypted PDF (user password, AES-256) whose correct password contains Turkish ı/ş/ü characters, to test the Turkish keyboard-layout hint.
@@ -1791,14 +1871,19 @@ Start lists the e-Devlet form as 2 pages while the fixture has 1 ([G59](DESIGN_G
 - XFA form 'Vize başvuru formu.pdf' (a11-7c). Implied corpus PDF: dynamic XFA-only form for the unsupported-XFA notice.
 - Flat form 'Otomatik ödeme talimatı.pdf' (05a/05b 'Fill anything' and Prepare form). Implied corpus PDF: non-interactive form-looking page with no AcroForm, for click-anywhere fill and automatic field detection.
 - Organize/combine inputs: 'Kimlik fotokopisi.pdf' (2 pages, 340 KB), 'Tapu fotokopisi.jpg', 'Ek-1 Demirbaş listesi.xlsx', combined output 'Kira dosyası — tam.pdf'. Implied corpus: mixed-format inputs (PDF, JPG, XLSX) for combine-with-conversion and attachment extraction.
+- Boards of export 519d42a imply a few more inputs: a restricted variant of the rental contract (owner password, AES-256, no password to open; printing at high quality, copying and screen-reader access allowed, the other five permissions not) for a2-10a and a2-10b; a read-only copy for a1-9d; a signed copy whose page 3 holds Mert Kaya's signature of 13.10.2026 for a2-14, a3-16a and a3-16b; a page PDFium cannot draw for a2-13; a heading drawn as vector shapes for a3-19; a search in the 2,400-page file with many matches for 'otopark' for a2-4c; and the Excel attachment 'Ek-1 Demirbaş listesi.xlsx' opened on its own for a1-9c.
 
 ## 10. Missing screens and states
 
-Every gap of type missing screen, missing state or missing variant, plus the export gaps, grouped by
-the milestone that needs them. Each line names the affected boards and links to the entry in
-[DESIGN_GAPS.md](DESIGN_GAPS.md), which records the option chosen. Where a state is not drawn, the
-app builds it from DS components in the design's voice, as the entry describes (brief §2). Phases 2
-to 5 have no entries of these types yet; their boards are checked again when each phase is planned.
+Every gap of type missing screen, missing state or missing variant that the M0 inventory recorded
+(G01 to G61), plus the export gaps, grouped by the milestone that needs them. Each line names the
+affected boards and links to the entry in [DESIGN_GAPS.md](DESIGN_GAPS.md), which records the option
+chosen. Where a state is not drawn, the app builds it from DS components in the design's voice, as
+the entry describes (brief §2). Phases 2 to 5 have no entries of these types yet; their boards are
+checked again when each phase is planned. Entries of these types added after M0 (G63 onwards) are
+listed only in DESIGN_GAPS.md. Export 519d42a drew many of these screens and states. Each line below
+names the boards that now draw them and says what is still not drawn; the entry in DESIGN_GAPS.md
+keeps the decision and its status.
 
 ### Export gaps (all affect M1)
 
@@ -1814,34 +1899,34 @@ to 5 have no entries of these types yet; their boards are checked again when eac
 
 ### M1 Foundations
 
-- [G10](DESIGN_GAPS.md#g10) Missing state. No "Available in a future version" disabled state with a tooltip anywhere in the design. Boards: the `FmWindow` tool rows (Edit, Convert, Protect, Fill & Sign, Tools) and AI button, `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`.
+- [G10](DESIGN_GAPS.md#g10) Missing state. No "Available in a future version" disabled state with a tooltip anywhere in the design. Boards: the `FmWindow` tool rows (Edit, Convert, Protect, Fill & Sign, Tools) and AI button, `a1-4`, `a1-4b`, `a1-4c`, `a1-11`, `a3-11`, `a11-2`, `a11-1e`, `a11-1f`, `a11-1g`. Drawn in 519d42a: the M1 builds `a1-2c-m1`, `a1-5-m1`, `a11-1-m1`, `a11-1w-m1` and `a11-1h-m1`, the M2 build `a1-4-m2`, Convert to PDF… in `a1-9c`, PDF/A-2b in `a1-11b` and the OCR action in `a2-3m`; `FmWindow` gained a `future` list that draws later tools disabled, as on the new View boards.
 - [G15](DESIGN_GAPS.md#g15) Missing variant. No Linux artboard; the `platform` prop allows only `mac` and `win`. Needed at least: the Linux versions of `f6a`, `a1-4c`, `a1-10b` and `a11-1w`.
-- [G16](DESIGN_GAPS.md#g16) Missing variant. Windows is drawn only in `f6`, `f6a`, `a1-4c`, `a11-1w`, `a12-1de`, `a12-2b`, `a12-2d`. Missing: the dialogs (`a1-8`, `a1-8b`, `a1-10b`, `a1-11`, `a1-12`, `a11-7`), the tab overflow menu (`a1-10`), View, Comment, Fill and Organize modes, and most Settings panes (`a11-1e`, `a11-1g`, `a11-1j` hard-code macOS wording).
+- [G16](DESIGN_GAPS.md#g16) Missing variant. Windows is drawn only in `f6`, `f6a`, `a1-4c`, `a11-1w`, `a12-1de`, `a12-2b`, `a12-2d`. Missing: the dialogs (`a1-8`, `a1-8b`, `a1-10b`, `a1-11`, `a1-12`, `a11-7`), the tab overflow menu (`a1-10`), View, Comment, Fill and Organize modes, and most Settings panes (`a11-1e`, `a11-1g`, `a11-1j` hard-code macOS wording). Export 519d42a adds `a11-1w-m1`, and the caption of `a11-7e` gives the Windows button order in words.
 - [G17](DESIGN_GAPS.md#g17) Missing variant. Dark is drawn only in `a1-4b`, `a2-3x`, `a2-5a`, `a2-9`, `a3-1d`, `a4-1d`, `a5-1d`, `a11-6`; `a5-2b` states that on-page field colours are theme-invariant but is drawn in light only. Missing: onboarding (`a1-1` to `a1-3`), the dialogs (`a1-8` to `a1-12`), Settings (`a11-1` and its panes), `a3-3a`, `a3-3b`, `a3-4`, `a3-12`, Organize (`a6-1` to `a6-5`), `a11-2`, `a11-6b`, the errors (`a11-7`, `a11-7b`, `a11-7c`), a dark View-mode window (`a2-1a` to `a2-1d`) and the Dimmed page option.
-- [G18](DESIGN_GAPS.md#g18) Missing variant. Desktop right-to-left is drawn only in `a12-1ar`, `a12-2a`, `a12-2c`. Missing: the dialogs, `a1-10`, `a2-1c`, `a2-1d`, sidebar tabs other than Pages, `a2-4a`, `a3-3a`, `a3-4`, `a3-12`, `a11-2`, `a11-6`, `a11-6b`, Windows caption buttons in right to left, and any Persian or Hebrew screen.
-- [G19](DESIGN_GAPS.md#g19) Missing variant. Turkish UI is drawn only in `a12-1tr` (desktop) and `a12-3d`, `a12-3e` (mobile). `FmStart` and `FmSettings` have no `tr` option, no Turkish dialog exists, and no Turkish all-caps label such as "İMZALA" appears in the UI chrome.
+- [G18](DESIGN_GAPS.md#g18) Missing variant. Desktop right-to-left is drawn only in `a12-1ar`, `a12-2a`, `a12-2c`. Missing: the dialogs, `a1-10`, `a2-1c`, `a2-1d`, sidebar tabs other than Pages, `a2-4a`, `a3-3a`, `a3-4`, `a3-12`, `a11-2`, `a11-6`, `a11-6b`, Windows caption buttons in right to left, and any Persian or Hebrew screen. Export 519d42a adds an Arabic variant of its 29 switchable boards (section 2), among them Save as (`a1-11b`), sidebar tabs (`a2-3m`, `a2-14`), dialogs (`a1-9e`, `a3-16a`, `a3-12b`, `a11-7d`, `a11-7e`, `a11-7f`) and a Windows board in right to left (`a11-1w-m1`). The boards named above (`a1-10`, `a2-1c`, `a2-1d`, `a2-4a`, `a3-3a`, `a3-4`, `a3-12`, `a11-2`, `a11-6`, `a11-6b`) and the first export's dialogs are still drawn left to right only, and Persian and Hebrew are still not drawn.
+- [G19](DESIGN_GAPS.md#g19) Missing variant. Turkish UI is drawn only in `a12-1tr` (desktop) and `a12-3d`, `a12-3e` (mobile). `FmStart` and `FmSettings` have no `tr` option, no Turkish dialog exists, and no Turkish all-caps label such as "İMZALA" appears in the UI chrome. Export 519d42a adds a Turkish variant of its 29 switchable boards, gives `FmStart` and `FmSettings` a `tr` option, and draws Turkish dialogs (`a1-9e`, `a1-11b`, `a3-16a`, `a3-12b`, `a11-7d`, `a11-7e`, `a11-7f`) and the Turkish capitals heading "İZİNLER" in `a2-10b`.
 - [G20](DESIGN_GAPS.md#g20) Missing state. Language picker (`a1-1`, `a13-1b`): no translation status or fallback state, no filter state without results, no state after choosing a right-to-left language. `a1-2c` and `a11-5` claim 21 languages.
 - [G21](DESIGN_GAPS.md#g21) Missing state. No shell narrower than 1440 px: no icon-only tool row with overflow, no mode-tab truncation, no sidebar or panel resize handles or limits. Partial references: `a12-1de`, `a1-10`, `a14-1b`, `a14-1c`, `a14-1d`.
-- [G22](DESIGN_GAPS.md#g22) Missing state. No focus state for ToolButton, ModeTabs, document tabs, SegmentedControl, sidebar rows or the canvas text block, and no product tooltip with a shortcut (only the DS additions specimen). Focus is drawn in `a1-1`, `a5-2b`, `f5`, `a9-7`.
+- [G22](DESIGN_GAPS.md#g22) Missing state. No focus state for ToolButton, ModeTabs, document tabs, SegmentedControl, sidebar rows or the canvas text block, and no product tooltip with a shortcut (only the DS additions specimen). Focus is drawn in `a1-1`, `a5-2b`, `f5`, `a9-7`, and since 519d42a on a feature tile of `a1-2c-m1` and an action card of `a1-5-m1`.
 
 ### M2 Open and view
 
-- [G25](DESIGN_GAPS.md#g25) Missing screen. A file arriving from the OS (double-click, Open with, Dock or taskbar) into a running instance, a file that is already open, a cold launch into a document, and the open dialog. Flow `fa` step 1 points to `a1-4`; `a13-13` has the only related note. See [ADR 0018](adr/0018-native-file-pickers.md) (proposed, [Q07](QUESTIONS.md#q07)).
-- [G27](DESIGN_GAPS.md#g27) Missing state. Opening an owner-password or permission-restricted PDF, or a certificate-encrypted one, and the Security tab of `a2-7`. Related boards: `a1-8`, `a1-8b`, `a8-1`, `a8-4`.
-- [G28](DESIGN_GAPS.md#g28) Missing state. Open errors: an unsupported file type, a read-only or permission-denied file, a moved or deleted recent file (`a1-4`), running out of memory. `a1-5` and `a1-6` promise conversion on open, which arrives only in P3 ([G11](DESIGN_GAPS.md#g11)).
-- [G29](DESIGN_GAPS.md#g29) Missing state. Empty states for every sidebar tab (`a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3d`, `a2-3e`), search with no results or still running (`a2-4a`, `a2-4b`), and a page without a text layer in search. The DS has no empty-state component.
-- [G30](DESIGN_GAPS.md#g30) Missing state. Tiles loading while zooming or scrolling, a page that fails to render, Fit width and Actual size selected, and go-to-page entry in the status bar. Related boards: `a2-1a`, `a2-1c`, `a2-1d`, `a2-2`, `a1-7`.
-- [G31](DESIGN_GAPS.md#g31) Missing state. A signature that is present but not checked, needed until P3 validation. Boards: `a2-3d`, the document panel in `a2-1a` to `a2-9`, the badges in `a1-4`, `a13-2`, `a13-3b`, and `a8-4`.
+- [G25](DESIGN_GAPS.md#g25) Missing screen. A file arriving from the OS (double-click, Open with, Dock or taskbar) into a running instance, a file that is already open, a cold launch into a document, and the open dialog. Flow `fa` step 1 points to `a1-4`; `a13-13` has the only related note. See [ADR 0018](adr/0018-native-file-pickers.md) (Accepted with [Q07](QUESTIONS.md#q07) on 2026-10-16). Drawn in 519d42a: `a1-13`, the hand-off to the system open panel. Its caption describes a file from the OS, a file already open and a cold launch, which are not drawn.
+- [G27](DESIGN_GAPS.md#g27) Missing state. Opening an owner-password or permission-restricted PDF, or a certificate-encrypted one, and the Security tab of `a2-7`. Related boards: `a1-8`, `a1-8b`, `a8-1`, `a8-4`. Drawn in 519d42a: `a2-10a` (the banner, the disabled tools with their reason, Unlock with owner password…) and `a2-10b` (the Security tab). The owner-password dialog and the certificate-encrypted error are described, not drawn.
+- [G28](DESIGN_GAPS.md#g28) Missing state. Open errors: an unsupported file type, a read-only or permission-denied file, a moved or deleted recent file (`a1-4`), running out of memory. `a1-5` and `a1-6` promise conversion on open, which arrives only in P3 ([G11](DESIGN_GAPS.md#g11)). Drawn in 519d42a: `a1-9c` (not a PDF), `a1-9d` (read-only), `a1-9e` (a missing recent file) and `a1-9f` (out of memory). `a1-5-m1` and `a1-4-m2` speak of PDF files only; `a1-6` still promises conversion.
+- [G29](DESIGN_GAPS.md#g29) Missing state. Empty states for every sidebar tab (`a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3d`, `a2-3e`), search with no results or still running (`a2-4a`, `a2-4b`), and a page without a text layer in search. The DS has no empty-state component. Drawn in 519d42a: one EmptyState in `a2-3m` (empty Outline, Attachments, Layers and Signatures tabs, Search with no result and with no text layer), the running search `a2-4c` and the no-results find bar `a2-4d`. The caption of `a2-3m` gives the same EmptyState to the task drawer and the language filter, which are not drawn.
+- [G30](DESIGN_GAPS.md#g30) Missing state. Tiles loading while zooming or scrolling, a page that fails to render, Fit width and Actual size selected, and go-to-page entry in the status bar. Related boards: `a2-1a`, `a2-1c`, `a2-1d`, `a2-2`, `a1-7`. Drawn in 519d42a: `a2-13` (tiles sharpening, a failed page with Try again, Fit width selected, the page field focused by ⌘G). Actual size selected is not drawn.
+- [G31](DESIGN_GAPS.md#g31) Missing state. A signature that is present but not checked, needed until P3 validation. Boards: `a2-3d`, the document panel in `a2-1a` to `a2-9`, the badges in `a1-4`, `a13-2`, `a13-3b`, and `a8-4`. Drawn in 519d42a: `a2-14` (the neutral Signatures tab, and the document panel in English only) and the neutral Signed chip of `a1-4-m2`. The other boards named above still show validated signatures, the state P3 ships.
 
 ### M3 Edit text core
 
-- [G35](DESIGN_GAPS.md#g35) Missing screen. The warning before the first edit of a signed document, its persistent banner and a row in the review list. Boards that edit the signed contract without it: `a3-1a`, `a3-1b`, `a3-1c`, `a3-2`, `a3-3a`, `a3-4`, `f4a`, `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja`; `a3-12` has no signature row.
-- [G37](DESIGN_GAPS.md#g37) Missing state. The missing-glyph chain beyond `a3-3a`, `a3-3b` and `a13-5c`: step 2 (the same font installed, glyph re-subset), no font covers the character, the font's licence forbids embedding, the result on the page after substitution, and missing glyphs in replacement text (`a3-7`) or table cells (`a3-9`).
-- [G38](DESIGN_GAPS.md#g38) Missing state. Overflow results (`a3-4`, `a13-5c`): after "Extend block", after "Tighten spacing slightly", Extend colliding with the line below, tightening not being enough, and the marker on the page after "Keep and warn".
-- [G39](DESIGN_GAPS.md#g39) Missing state. Text that cannot be edited: Type3 or outlined glyphs, form XObjects, unparsable content streams, editing forbidden by permissions, a read-only file. Only the scanned-page case (`a3-11`) is drawn.
-- [G40](DESIGN_GAPS.md#g40) Missing state. Save failures: a read-only or permission-denied destination, the atomic rename failing, a file locked by another app, a lost network drive, quitting with several unsaved documents, recovery after the original changed. Drawn: `f4`, `f4a`, `f4b`, `a11-7`, `a11-7b`, `a1-10b`, `a1-12`.
-- [G42](DESIGN_GAPS.md#g42) Missing state. Review list (`a3-12`): empty state, the "Revert all…" confirmation, reverting an edit another edit depends on, a signed-document row, and whether the list survives reopening.
-- [G43](DESIGN_GAPS.md#g43) Missing state. Settings → Editing (`a11-1c`): incremental versus full save, recovery interval and location, an overflow default and a signed-document warning preference.
+- [G35](DESIGN_GAPS.md#g35) Missing screen. The warning before the first edit of a signed document, its persistent banner and a row in the review list. Boards that edit the signed contract without it: `a3-1a`, `a3-1b`, `a3-1c`, `a3-2`, `a3-3a`, `a3-4`, `f4a`, `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja`; `a3-12` has no signature row. Drawn in 519d42a: the warning `a3-16a`, the banner `a3-16b` and the signature row in `a3-12`. The boards named above still edit the signed contract without the warning.
+- [G37](DESIGN_GAPS.md#g37) Missing state. The missing-glyph chain beyond `a3-3a`, `a3-3b` and `a13-5c`: step 2 (the same font installed, glyph re-subset), no font covers the character, the font's licence forbids embedding, the result on the page after substitution, and missing glyphs in replacement text (`a3-7`) or table cells (`a3-9`). Drawn in 519d42a: `a3-17` (step 2, no font, licence forbids embedding). Its caption describes the result after a substitution and the same flow in replacement text and table cells, which are not drawn.
+- [G38](DESIGN_GAPS.md#g38) Missing state. Overflow results (`a3-4`, `a13-5c`): after "Extend block", after "Tighten spacing slightly", Extend colliding with the line below, tightening not being enough, and the marker on the page after "Keep and warn". Drawn in 519d42a: all five in `a3-18`.
+- [G39](DESIGN_GAPS.md#g39) Missing state. Text that cannot be edited: Type3 or outlined glyphs, form XObjects, unparsable content streams, editing forbidden by permissions, a read-only file. Only the scanned-page case (`a3-11`) is drawn. Drawn in 519d42a: `a3-19`, with text drawn as vector shapes; its caption lists the other reasons, which are not drawn.
+- [G40](DESIGN_GAPS.md#g40) Missing state. Save failures: a read-only or permission-denied destination, the atomic rename failing, a file locked by another app, a lost network drive, quitting with several unsaved documents, recovery after the original changed. Drawn: `f4`, `f4a`, `f4b`, `a11-7`, `a11-7b`, `a1-10b`, `a1-12`, and since 519d42a `a11-7d` (permission denied, locked, rename failed, drive disconnected), `a11-7e` (quitting with several unsaved documents) and `a11-7f` (recovery after the original changed).
+- [G42](DESIGN_GAPS.md#g42) Missing state. Review list (`a3-12`): empty state, the "Revert all…" confirmation, reverting an edit another edit depends on, a signed-document row, and whether the list survives reopening. Drawn in 519d42a: `a3-12b` (the empty state and both confirmations) and the signature row in `a3-12`, whose note says the list covers the current session and clears when the document closes.
+- [G43](DESIGN_GAPS.md#g43) Missing state. Settings → Editing (`a11-1c`): incremental versus full save, recovery interval and location, an overflow default and a signed-document warning preference. Drawn in 519d42a: the Saving group in `a11-1c` (incremental save, Optimize and clean, the recovery folder; the interval stays one minute). Its note says there is no overflow default and no switch for the signed-document warning.
 
 ### M4 Rest of phase 1
 
@@ -1851,7 +1936,7 @@ to 5 have no entries of these types yet; their boards are checked again when eac
 - [G47](DESIGN_GAPS.md#g47) Missing state. Forms and simple signatures: the Finish dialog, the Clear form confirmation, a notice for signed or certified forms, an empty Sign menu, the result of an imported-image signature (`a5-3c`), field navigation across pages. Boards: `a5-1`, `a5-2`, `a5-3d`.
 - [G48](DESIGN_GAPS.md#g48) Missing state. Compress (`a9-1`): progress, cancel, the result in context, the signed-file warning. Version history (`a9-8`): restore confirmation, empty first-save state, storage failure.
 - [G49](DESIGN_GAPS.md#g49) Missing state. Command palette (`a11-2`): empty, no-match and disabled items. Toasts (`a11-6`): placement and stacking in the window. Task drawer (`a11-6b`): empty state and cancel confirmation.
-- [G50](DESIGN_GAPS.md#g50) Missing variant. Settings (`a11-1`, `a11-1b` to `a11-1k`) exist only in light, macOS and English, apart from `a11-1w`, `a12-2c`, `a12-2d`: no dark, Turkish or Linux version, no search results or no-match state, no network activity log (`a11-1h`), reset confirmation (`a11-1k`) or import error, and no AI key entry states (`a10-2`, `a11-1g`).
+- [G50](DESIGN_GAPS.md#g50) Missing variant. Settings (`a11-1`, `a11-1b` to `a11-1k`) exist only in light, macOS and English, apart from `a11-1w`, `a12-2c`, `a12-2d`: no dark, Turkish or Linux version, no search results or no-match state, no network activity log (`a11-1h`), reset confirmation (`a11-1k`) or import error, and no AI key entry states (`a10-2`, `a11-1g`). Export 519d42a adds Turkish and Arabic for General and Privacy through the M1 builds `a11-1-m1`, `a11-1w-m1` and `a11-1h-m1`.
 
 ### M5 Release pipeline
 
@@ -1861,4 +1946,10 @@ to 5 have no entries of these types yet; their boards are checked again when eac
 
 The conflicts ([G09](DESIGN_GAPS.md#g09), [G11](DESIGN_GAPS.md#g11), [G12](DESIGN_GAPS.md#g12), [G13](DESIGN_GAPS.md#g13), [G24](DESIGN_GAPS.md#g24), [G34](DESIGN_GAPS.md#g34), [G41](DESIGN_GAPS.md#g41), [G44](DESIGN_GAPS.md#g44), [G51](DESIGN_GAPS.md#g51), [G54](DESIGN_GAPS.md#g54), [G55](DESIGN_GAPS.md#g55), [G56](DESIGN_GAPS.md#g56), [G57](DESIGN_GAPS.md#g57) and [G61](DESIGN_GAPS.md#g61)) and the ambiguities ([G23](DESIGN_GAPS.md#g23), [G26](DESIGN_GAPS.md#g26), [G32](DESIGN_GAPS.md#g32), [G33](DESIGN_GAPS.md#g33), [G36](DESIGN_GAPS.md#g36), [G52](DESIGN_GAPS.md#g52), [G58](DESIGN_GAPS.md#g58) and [G59](DESIGN_GAPS.md#g59)) are in
 [DESIGN_GAPS.md](DESIGN_GAPS.md), each with the decision taken. Questions for the owner are in
-[QUESTIONS.md](QUESTIONS.md).
+[QUESTIONS.md](QUESTIONS.md). Export 519d42a draws several of these decisions: the milestone builds
+for G11 and G12 (`a1-2c-m1`, `a1-5-m1`, `a1-4-m2`, `a1-9c`), Apache-2.0 for G13 (`a1-2c`, `a11-5`),
+the four network uses for G24 (`a1-2b`), the system panels for G26 (`a1-9e`, `a1-13`, `a1-11b`), the
+right-to-left spread for G32 (`a2-15`), the region-format table for G34 (`a12-0`), the missing-glyph
+steps for G36 (`a3-3a`, `a3-17`), Save disabled only when saved, saving or read-only for G41
+(`a1-9d`, `a11-7`), one shortcut table for G44 (`a11-1j`, `a11-2`, `a11-3`), the
+1-page e-Devlet form for G59 (`FmStart`) and the accent default for G61 (`a2-4a`).

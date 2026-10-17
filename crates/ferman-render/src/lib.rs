@@ -15,7 +15,7 @@
 //!
 //! # Modules
 //!
-//! The layout follows docs/ARCHITECTURE.md §2.3 and the threading model of ADR 0009 (Proposed).
+//! The layout follows docs/ARCHITECTURE.md §2.3 and the threading model of ADR 0009.
 //!
 //! - `thread` (M1 step 3): [`RenderThread`], the dedicated thread that owns PDFium. It binds the
 //!   library at run time from the path in [`RenderConfig`] (pdfium-render 0.9.4, API level

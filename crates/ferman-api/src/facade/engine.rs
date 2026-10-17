@@ -1,7 +1,7 @@
 //! The engine: the long-lived parts behind the API, started once per process.
 //!
 //! In M1 the engine owns one part, the render thread of ferman-render, which loads PDFium. The
-//! document actors and the job pool join it in M2 (ADR 0009, Proposed).
+//! document actors and the job pool join it in M2 (ADR 0009).
 
 use std::ffi::OsString;
 use std::future::Future;

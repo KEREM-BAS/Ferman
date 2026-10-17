@@ -22,8 +22,9 @@ the browser of playwright-core 1.56.1.
 export FERMAN_CHROMIUM="$(tools/design-refs/fetch-chromium.sh)"
 # The development container already has it in /opt/pw-browsers, which is found on its own.
 
-node tools/design-refs                            # all 223 boards + the DS additions sheet
-node tools/design-refs --only @m1                 # the 18 M1 boards
+node tools/design-refs                            # all 253 boards, 58 language variants, the DS additions sheet
+node tools/design-refs --only @m1                 # the 23 M1 boards, 5 of them also in Turkish and Arabic
+node tools/design-refs --only a1-9c.ar            # one language variant
 node tools/design-refs --only a1-1,a11-1 --twice  # render twice, fail unless identical
 node tools/design-refs --list                     # ids, capture mode, file; the sets
 node tools/design-refs compare                    # goldens against references: build/design-compare/
@@ -31,20 +32,22 @@ node tools/design-refs compare                    # goldens against references: 
 
 | Option | Meaning |
 |---|---|
-| `--only <ids>` | Render only these ids: comma-separated, repeatable. `@m1` expands the M1 set from `boards.json`; `ds-additions` is the DS additions sheet. |
+| `--only <ids>` | Render only these ids: comma-separated, repeatable. A board id renders the board and its [language variants](#language-variants), `<id>.<lang>` one variant. `@m1`, `@m2` and `@langs` expand the sets of `boards.json` (see [What is captured](#what-is-captured)); `ds-additions` is the DS additions sheet. |
 | `--out <dir>` | Output directory. Default: `build/design-refs` in the repository, whatever the working directory. Refused inside `design/`, also through a symlink, and regardless of case on a case-insensitive filesystem (macOS, Windows): the check compares real paths (of the nearest existing folder when `<dir>` does not exist yet). |
 | `--twice` | Render the same boards again in a freshly launched browser and fail unless every PNG has the same SHA-256. For a board that differs, both renders and a pixel diff go to `<out>/_diffs/<id>.first.png`, `.second.png` and `.diff.png`. |
 | `--jobs <n>` | Boards rendered in parallel. Default: the number of CPUs, at most 4. The output does not depend on it. |
 | `--chromium <path>` | The Chromium executable to launch. See [The browser](#the-browser). |
-| `--write-boards` | Regenerate `boards.json` from the design files (after a re-export), keeping its sets. |
+| `--write-boards` | Regenerate `boards.json` from the design files (after a re-export), keeping the sets `m1` and `m2` and rewriting `langs`. |
 
-Output: `<out>/<id>.png` for each board and `<out>/manifest.json` with every PNG's size and
-SHA-256, the playwright-core and Chromium versions, and the viewport. A `--only` run updates the
+Output: `<out>/<id>.png` for each board, `<out>/<id>.<lang>.png` for each language variant, and
+`<out>/manifest.json` with every PNG's size and SHA-256 (a variant's entry also names its `board`
+and `lang`), the playwright-core and Chromium versions, and the viewport. A `--only` run updates the
 manifest entries of the boards it rendered and keeps the others.
 
 A board fails, and leaves no PNG, when:
 
 - its element is missing, not unique, or still shows a runtime placeholder or error (below);
+- it has a language switch and shows another language than the one requested (below);
 - its page throws an uncaught error (Playwright's `pageerror`), unless an entry in
   `ALLOWED_PAGE_ERRORS` in `browser.mjs` covers it; each entry names the boards, a pattern and
   the reason the board is still complete, and the list is empty today;
@@ -148,7 +151,8 @@ window at 1440 × 900 and a device pixel ratio of 1, named
 | Field | Meaning |
 |---|---|
 | `board` | A board id of `boards.json`; its reference is `<refs>/<board>.png`. |
-| `id` | The pair's name in the report and its image names. Default: the board id; required when a board has two pairs (`f6-mac`, `f6-win`). |
+| `lang` | A language variant of a board with the language switch (`tr`, `ar`); the reference is then `<refs>/<board>.<lang>.png`. On such a board the golden must be in the reference's language: `lang`, or English without it. |
+| `id` | The pair's name in the report and its image names. Default: the board id, or `<board>-<lang>` with `lang`; required when a board has two pairs in one language (`f6-mac`, `f6-win`). |
 | `golden` | The golden's file name, or none with `notCompared`. |
 | `notCompared` | Why the board has no golden. |
 | `crop` | `{x, y, width, height}`: the part of the board render to compare. Needs `cropSource`. |
@@ -157,9 +161,10 @@ window at 1440 × 900 and a device pixel ratio of 1, named
 | `masks` | `[{label, x, y, width, height}]` in the compared frame (after cropping): areas neither score counts. |
 | `note` | What a reviewer should know: what the board shows and which differences are expected. |
 
-Every run checks the map (unknown keys, unknown boards, golden names, rectangle sizes, masks inside
-the frame) and stops with exit code 66 on a problem. The tests check that it names every board of
-the `@m1` set, and only boards of that set, which CI renders.
+Every run checks the map (unknown keys, unknown boards and variants, golden names and languages,
+rectangle sizes, masks inside the frame) and stops with exit code 66 on a problem. The tests check
+that it names every board of the `@m1` set, and only boards of that set, which CI renders, and that
+each M1 build board is compared in English, Turkish and Arabic.
 
 | Pair | Golden | Crop and masks | Why |
 |---|---|---|---|
@@ -167,11 +172,15 @@ the `@m1` set, and only boards of that set, which CI renders.
 | `f6-win` | `shell_edit_win_light_en` | board 0, 318, 1440 × 79; golden top 79 rows | Fix 6's Windows strip. |
 | `f6a` | `shell_edit_win_light_en` | board 0, 45, 1440 × 900; canvas masked | The Windows editor window, Edit mode. |
 | `a1-1` | `language_picker_mac_light_en` | | Language picker, macOS, light, English. |
-| `a1-2b` | `welcome_privacy_mac_light_en` | | Welcome step 2 (G24 changes the rows). |
-| `a1-2c` | `welcome_free_mac_light_en` | | Welcome step 3 (G12, G13 change the texts). |
-| `a1-5` | `start_mac_light_en` | | The empty start screen. |
-| `a11-1` | `settings_general_mac_light_en` | | Settings General, macOS. |
-| `a11-1w` | `settings_general_win_light_en` | | Settings General, Windows chrome. |
+| `a1-2b` | `welcome_privacy_mac_light_en` | | The privacy welcome step (the app's 1 of 2 against the board's 2 of 3). |
+| `a1-2c` | none | | Superseded by `a1-2c-m1`. |
+| `a1-2c-m1`, `-tr`, `-ar` | `welcome_free_mac_light_<en\|tr\|ar>` | | Welcome step 2 of 2, M1 build (G12, G13). |
+| `a1-5` | none | | Superseded by `a1-5-m1`. |
+| `a1-5-m1`, `-tr`, `-ar` | `start_mac_light_<en\|tr\|ar>` | | The empty start screen, M1 build. |
+| `a11-1` | none | | Superseded by `a11-1-m1`. |
+| `a11-1-m1`, `-tr`, `-ar` | `settings_general_mac_light_<en\|tr\|ar>` | | Settings General, macOS, M1 build (G108). |
+| `a11-1w` | none | | Superseded by `a11-1w-m1`. |
+| `a11-1w-m1`, `-tr`, `-ar` | `settings_general_win_light_<en\|tr\|ar>` | | Settings General, Windows chrome, M1 build (G108). |
 | `a11-1b` | `settings_language_mac_light_en` | | Settings Language and region (region Türkiye). |
 | `a12-2a` | `start_mac_light_ar` | rows 232 to 899 masked | Start in Arabic; the board's recent files are M2. |
 | `a12-2b` | none | | German board: no German golden in M1. |
@@ -181,7 +190,8 @@ the `@m1` set, and only boards of that set, which CI renders.
 | `a3-1d` | `shell_edit_mac_dark_en` | canvas masked | The macOS chrome, dark (ROADMAP step 8). |
 | `a12-1tr` | `shell_edit_mac_light_tr` | canvas masked | The macOS chrome in Turkish, Edit mode. |
 | `a12-1ar` | `shell_edit_mac_light_ar` | canvas masked (mirrored, 264, 123) | The macOS chrome in Arabic, right to left, Edit mode. |
-| `a11-1h` | `settings_privacy_mac_light_en` | | Settings Privacy (the switches are off and disabled in M1, G89). |
+| `a11-1h` | none | | Superseded by `a11-1h-m1`. |
+| `a11-1h-m1`, `-tr`, `-ar` | `settings_privacy_mac_light_<en\|tr\|ar>` | | Settings Privacy, M1 build: the switches off and disabled (G89). |
 
 The canvas mask is 960 × 751 at 216, 123: FmWindow's canvas between the sidebar (216 px) and the
 right panel (264 px), below the title bar, mode bar and tool row (38 + 40 + 45 px) and above the
@@ -253,22 +263,45 @@ npm ci
 npx playwright-core install-deps chromium-headless-shell   # system libraries and fonts (apt)
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-node index.mjs --only @m1 --twice                   # pull requests; a manual run renders every board twice
+node index.mjs --only @m1,@m2 --twice               # pull requests; a manual run renders every board twice
 node index.mjs compare                              # then the report, appended to the step summary
 ```
 
 ## What is captured
 
-`boards.json` lists the 223 boards in file and document order, each with its design file and
+`boards.json` lists the 253 boards in file and document order, each with its design file and
 capture mode, plus the DS additions sheet as one extra page and the named sets. Every run checks it
 against a fresh scan of the design files (`id="f…"`/`id="a…"` on a board element, or `bid="a…"`
 passed to FmBoard) and stops if they disagree; a re-export needs `--write-boards`.
 
+The sets:
+
+- `m1`: 23 boards. The 13 M1 artboards of ROADMAP §5, the five boards compared for the shell and
+  the languages (`a2-1b`, `a3-1d`, `a12-1tr`, `a12-1ar`, `a11-1h`), and the five M1 build boards of
+  export 519d42a (`a1-2c-m1`, `a1-5-m1`, `a11-1-m1`, `a11-1w-m1`, `a11-1h-m1`). With their language
+  variants, 33 PNGs.
+- `m2`: the 43 M2 boards of ROADMAP §6.
+- `langs`: the 29 boards with the language switch, written by `--write-boards` and checked on every
+  run.
+
 | Mode | Boards | What is screenshotted |
 |---|---|---|
-| `element` | the 9 fix boards `f1` to `f6a` in `00 Fixes` | the element with the id: the whole `section#fN` for `f1` to `f6`; the `div` with the id for `f4a`, `f4b` and `f6a`, which sit inside the sections `f4` and `f6` |
-| `fm-root` | the 214 product boards | the first `.fm-root` inside the element with the id, which is the board frame; for the seven sidebar boards `a2-3p` to `a2-3x` the element with the id is itself the `.fm-root` |
+| `element` | the 9 fix boards `f1` to `f6a` in `00 Fixes`, and `a12-0` | the element with the id: the whole `section#fN` for `f1` to `f6`; the `div` with the id for `f4a`, `f4b` and `f6a`, which sit inside the sections `f4` and `f6`; for `a12-0`, the region-format table, which has no `.fm-root` frame |
+| `fm-root` | 242 product boards | the first `.fm-root` inside the element with the id, which is the board frame; for the seven sidebar boards `a2-3p` to `a2-3x` the element with the id is itself the `.fm-root` |
+| `fm-roots` | `a2-3m` | every `.fm-root` inside the element with the id, clipped to the box around all of them (six empty-state sidebars side by side, 1436 × 752) |
 | `page` | the DS additions sheet (`ds-additions.png`) | the page's outer `.fm-root` |
+
+### Language variants
+
+The boards of export 519d42a, all but `a12-0`, carry a board-language switch (EN, TR, AR) in their
+caption. A board whose markup, from its id to the next board's, binds `setGl` gets `"langs":
+["tr", "ar"]` in `boards.json`: 29 boards, 58 variants. The plain render is English, as the page
+loads by default; each variant renders on its own fresh page whose `localStorage` key
+`fm-gap-lang`, which the section page reads when it creates its components, is set to the
+language by an init script before any page script runs. The capture then checks that the board's
+frame (or the nearest element around it with a `lang` attribute) carries the requested language,
+`en` for the plain render, so a switch that did not take fails the board instead of passing as an
+English copy.
 
 The fix sections stretch to the width of the widest section on their page, so `f1` to `f6a` are
 3468 px wide with empty space on the right. A board whose element is missing, is not unique, or
@@ -303,7 +336,10 @@ still holds a runtime placeholder or error (`.sc-placeholder`, `.sc-logic-error`
 
 Two runs on the same machine give byte-identical PNGs, whichever boards are selected and however
 many jobs run. Measured: four full renders (4, 3, 3 and 4 jobs) gave identical SHA-256 for all
-224 PNGs, and a `--only` render of 10 boards matched the full render. To get there:
+224 PNGs, and a `--only` render of 10 boards matched the full render. After export 519d42a, a
+`--twice` render of all 312 PNGs (253 boards, 58 language variants and the DS additions sheet, 4 jobs,
+with the Flutter golden suite running on the same machine) was identical, and a `--only` render of 5
+boards with their 10 variants matched it. To get there:
 
 - Every board is rendered on a freshly loaded page and its screenshot is the first one taken
   there. Repeated full-page screenshots on one page did not always give the same pixels (`a3-15`

@@ -4,7 +4,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 
 /// An inline text link of the first-run screens (the boards' `<a>`: the
 /// link colour, underlined), such as "Help translate Ferman" (a1-1) or
-/// "Source code" (a1-2c).
+/// "Source code" (a1-2c), with an optional [trailingIcon] after the text
+/// ("See every connection in Settings › Privacy →", a1-2b).
 ///
 /// With [onPressed] null it is disabled with [disabledReason] (G10): the
 /// disabled text colour, still focusable, the reason as tooltip and
@@ -19,6 +20,7 @@ class OnboardingLink extends StatelessWidget {
     super.key,
     this.onPressed,
     this.disabledReason,
+    this.trailingIcon,
   });
 
   /// The link text.
@@ -32,6 +34,13 @@ class OnboardingLink extends StatelessWidget {
 
   /// Why the link is disabled (G10).
   final String? disabledReason;
+
+  /// An icon after the text, in the link colour and not underlined (a1-2b:
+  /// `arrow-right`, 14 px, 6 px after the text, mirrored right to left).
+  final IconName? trailingIcon;
+
+  /// The trailing icon's size (`size="{{ 14 }}"`).
+  static const double trailingIconSize = 14;
 
   @override
   Widget build(BuildContext context) => FermanInteractive(
@@ -47,6 +56,15 @@ class OnboardingLink extends StatelessWidget {
           : states.contains(WidgetState.hovered)
           ? colors.accentHover
           : colors.textLink;
+      final text = Text(
+        label,
+        style: style.copyWith(
+          color: color,
+          decoration: TextDecoration.underline,
+          decorationColor: color,
+        ),
+      );
+      final icon = trailingIcon;
       // Not a container: the link flag joins the control's own node, which
       // keeps the label, the reason and the tap.
       return Semantics(
@@ -57,14 +75,16 @@ class OnboardingLink extends StatelessWidget {
             Radius.circular(theme.radius.radiusXs),
           ),
           child: ExcludeSemantics(
-            child: Text(
-              label,
-              style: style.copyWith(
-                color: color,
-                decoration: TextDecoration.underline,
-                decorationColor: color,
-              ),
-            ),
+            child: icon == null
+                ? text
+                : Row(
+                    mainAxisSize: MainAxisSize.min,
+                    spacing: theme.space.space1_5,
+                    children: [
+                      Flexible(child: text),
+                      Icon(icon, size: trailingIconSize, color: color),
+                    ],
+                  ),
           ),
         ),
       );

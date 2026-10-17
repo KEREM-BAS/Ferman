@@ -1,7 +1,8 @@
 # Ferman roadmap
 
-Status: Milestone 0 is complete and approved (2026-10-15). Milestone 1 is in progress on the branch
-`m1-foundations`, with a draft pull request to `main` (opened once phase B is pushed).
+Status: Milestones 0 and 1 are complete and approved (2026-10-15 and 2026-10-16). The owner approved
+the [M2 plan](PROGRESS.md#m2-plan) on 2026-10-17, the go-ahead for Milestone 2: phase 0, the design
+sync, is pull request #3 from `m2-open-and-view`, and M2 follows as pull request #4.
 
 This document details the roadmap in [brief](BRIEF.md) §7 and covers brief §8 item 4. For every
 milestone it gives the goal, the scope from the brief, the deliverables, the artboards it covers,
@@ -44,9 +45,12 @@ brief's phases 2 to 5. Step numbers inside a milestone give the order of work.
 **Status values.** Not started · In progress · Complete, pending owner approval · Complete.
 
 **Artboards.** Ids are the ones in [DESIGN_INVENTORY.md](DESIGN_INVENTORY.md#5-artboards). Each of
-the 223 boards (214 artboards plus 9 fix boards) is listed under exactly one milestone: its primary
+the 253 boards (244 artboards plus 9 fix boards) is listed under exactly one milestone: its primary
 milestone. A board can show parts that land later. The inventory row says which, and those parts stay
-visible but disabled until they ship.
+visible but disabled until they ship. The owner's design export `519d42a` (2026-10-17) added 30 of
+the boards. A `-m1` or `-m2` suffix names a milestone build: `a1-5-m1` is `a1-5` as M1 ships it,
+while the board without the suffix stays the finished product. 29 of the new boards switch between
+English, Turkish and Arabic, and `tools/design-refs` renders each of them in all three.
 
 **Acceptance criteria** are checklists. Each item must be provable by a test, a CI job or a recorded
 measurement. A box is ticked only with a link to that evidence (exit check E1). The standard gates
@@ -59,8 +63,10 @@ class, 8 GB, NVMe SSD). Both are **Proposed**. Flutter numbers come from profile
 from release builds.
 
 **Corpus files** used in the criteria have working names. The final names, licences and SHA-256 sums
-live in `tests/corpus/README.md` (created in M2). Generated files come from `tools/corpus` and mirror
-the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-fixes-flows-and-sample-documents)).
+live in `tests/corpus/README.md` (the file exists since M1; the first files come in M2). Generated
+files come from `tools/corpus` and mirror the design's sample documents
+([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-fixes-flows-and-sample-documents)); how they are
+generated is the Proposed [ADR 0020](adr/0020-test-corpus.md), part of the M2 plan.
 
 | Working name | What it is | Source in the design |
 |---|---|---|
@@ -94,16 +100,16 @@ the design's sample documents ([DESIGN_INVENTORY.md §9](DESIGN_INVENTORY.md#9-f
 | Code | Name | Goal in one line | Status | Boards | Needs first |
 |---|---|---|---|---|---|
 | M0 | Discovery and plan | Inventory the design, fix the architecture, plan the work (docs only) | Complete (approved 2026-10-15) | 0 | — |
-| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete, pending owner approval | 13 | M0 approval (given 2026-10-15) |
-| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Not started | 28 | M1; approval of [ADR 0009](adr/0009-threading-and-jobs.md) (otherwise M2 stops for a decision before step 1); [Q07](QUESTIONS.md#q07); [Q18](QUESTIONS.md#q18) (macOS App Sandbox) |
-| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 31 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4, [Q09](QUESTIONS.md#q09) |
-| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 |
-| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging), [Q15](QUESTIONS.md#q15) |
+| M1 | Foundations | An empty Ferman shell that matches the design, talks to the engine, and is built by green CI on three systems | Complete (approved 2026-10-16) | 18 | M0 approval (given 2026-10-15) |
+| M2 | Open and view | Open any PDF safely and view, navigate and search it fast | Approved, starting | 43 | M1 (approved 2026-10-16); the [M2 plan](PROGRESS.md#m2-plan), approved by the owner on 2026-10-17. [ADR 0009](adr/0009-threading-and-jobs.md) is Accepted and [Q07](QUESTIONS.md#q07), [Q13](QUESTIONS.md#q13), [Q18](QUESTIONS.md#q18) and [Q19](QUESTIONS.md#q19) are answered (2026-10-16) |
+| M3 | Edit text core | Click any text and edit it; save without ever corrupting the file | Not started | 41 | M2; [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08) group 4 and [Q09](QUESTIONS.md#q09) are answered (2026-10-16) |
+| M4 | Rest of phase 1 | Organize, comment, fill, sign simply, compress and the full app frame | Not started | 36 | M3; [Q08](QUESTIONS.md#q08) group 3 is answered (2026-10-16) |
+| M5 | Release pipeline | Signed, notarized, updatable releases on GitHub, Homebrew and winget | Not started | 4 | M4; the owner's signing accounts and certificates; [Q02](QUESTIONS.md#q02), [Q12](QUESTIONS.md#q12) (packaging) and [Q15](QUESTIONS.md#q15) are answered (2026-10-16) |
 | P2 | Phase 2 | Add text and images, find and replace, page marks, redaction, hidden information | Not started | 18 | M5 |
-| P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; [Q06](QUESTIONS.md#q06), [Q16](QUESTIONS.md#q16) |
+| P3 | Phase 3 | OCR, conversion, certificate signatures, e-imza, validation, compare | Not started | 23 | P2; the OCR engine, chosen at the start of phase 3 ([Q16](QUESTIONS.md#q16)); [Q06](QUESTIONS.md#q06) is answered (2026-10-16) |
 | P4 | Phase 4 | Form authoring, PDF/A and preflight, PDF/UA tools, batch, translation, local AI | Not started | 17 | P3 |
 | P5 | Phase 5 | Print production, plugins, then web, then tablet and mobile | Not started | 53 | P4 |
-| | | | | **223** | |
+| | | | | **253** | |
 
 The milestones run in this order. The dotted edges show which capability each later milestone takes
 from an earlier one, so a slip in one place shows where it lands.
@@ -184,8 +190,9 @@ and continue with the safest option.
   [ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets) defines one.
 - [ ] **S9 Honest UI**: every entry point that does not work yet is visible exactly as designed,
   disabled, with the tooltip "Available in a future version", and has an entry in
-  [BACKLOG.md](BACKLOG.md). **Proposed:** one feature registry in Dart drives these disabled states,
-  and a CI script checks that every disabled feature in it has a BACKLOG entry.
+  [BACKLOG.md](BACKLOG.md). One feature registry in Dart drives these disabled states, and a CI
+  script checks that every disabled feature in it has a BACKLOG entry (approved by the owner on
+  2026-10-16; built as the first M2 commit, part of the [M2 plan](PROGRESS.md#m2-plan)).
 
 ### 3.3 Standard exit checks
 
@@ -201,7 +208,8 @@ and continue with the safest option.
 - [ ] **E6** [QUESTIONS.md](QUESTIONS.md), [DEPENDENCIES.md](DEPENDENCIES.md) and the commands in
   [CLAUDE.md](../CLAUDE.md) are current.
 - [ ] **E7** Work is committed in Conventional Commits, at most 15 to 20 per pull request (from M2,
-  the owner's rule of 2026-10-16), and pushed; CI is green on the pushed branch.
+  the owner's rule of 2026-10-16), each with a DCO sign-off by its author (from M2,
+  [Q14](QUESTIONS.md#q14); the `dco_signoff` check), and pushed; CI is green on the pushed branch.
 - [ ] **E8** A short summary goes to the owner. The next milestone waits for the owner's go-ahead.
 
 ## 4. M0: discovery and plan
@@ -224,9 +232,9 @@ without writing application code (brief §8).
 | File | Content |
 |---|---|
 | [docs/BRIEF.md](BRIEF.md) | the owner's brief, verbatim |
-| [docs/DESIGN_INVENTORY.md](DESIGN_INVENTORY.md) | all 223 boards mapped to feature, milestone and engine capability; tokens, components, icons, fonts, flows, fixes, sample documents; missing screens and states |
+| [docs/DESIGN_INVENTORY.md](DESIGN_INVENTORY.md) | all 223 boards of the export of the time mapped to feature, milestone and engine capability (253 since export `519d42a`); tokens, components, icons, fonts, flows, fixes, sample documents; missing screens and states |
 | [docs/ARCHITECTURE.md](ARCHITECTURE.md) | crates, API boundary, threading, data flow, text editing pipeline, file safety, errors, security, privacy, localization, platform integration, testing strategy, performance budgets, risks |
-| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part; the owner accepted 0007 and 0013 on 2026-10-15) |
+| [docs/adr/](adr/README.md) | index, template and ADRs 0001 to 0018; decisions from the brief are "Accepted (brief)", new ones are "Proposed" (0007, 0009, 0018, and 0013 in part; the owner accepted 0007 and 0013 on 2026-10-15, and 0009 and 0018 on 2026-10-16) |
 | docs/ROADMAP.md | this document |
 | [docs/PROGRESS.md](PROGRESS.md) | milestone checklist and session log |
 | [docs/DEPENDENCIES.md](DEPENDENCIES.md) | licence policy, planned dependencies per milestone with versions and licences, bundled assets, proposed `deny.toml` |
@@ -243,7 +251,8 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
 
 - [x] BRIEF.md holds the brief verbatim, sections 1 to 9.
 - [x] Every one of the 223 boards appears in DESIGN_INVENTORY.md with a primary milestone; missing
-  screens and states are flagged and linked to DESIGN_GAPS.md.
+  screens and states are flagged and linked to DESIGN_GAPS.md. (The 30 boards of export `519d42a`
+  were added to the inventory on 2026-10-17, for 253.)
 - [x] ARCHITECTURE.md covers crates, API boundary, threading, data flow, file safety, error handling,
   testing strategy and performance budgets (brief §8 item 3), with ADRs for the main decisions.
 - [x] This roadmap gives every milestone acceptance criteria (brief §7).
@@ -258,36 +267,37 @@ fill them with the verified M0 findings instead. BACKLOG.md stays an empty templ
   pull request #1 from `m0-plan`, merged into `main` as `fe99894`.
 - [x] The owner approves M0. No application code is written before that. Evidence: the merge of
   pull request #1 (`fe99894`) and the owner's go-ahead on 2026-10-15.
-- [ ] The owner answers at least [Q01](QUESTIONS.md#q01) bundle identifier, [Q02](QUESTIONS.md#q02)
-  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Q01
-  (`io.github.kerembas.ferman`) and Q03 were answered on 2026-10-15. Q02 is still open; it is needed
-  before M5, so this box stays open until then.
+- [x] The owner answers at least [Q01](QUESTIONS.md#q01) bundle identifier, [Q02](QUESTIONS.md#q02)
+  code-signing publisher name and [Q03](QUESTIONS.md#q03) minimum OS versions. Evidence:
+  [QUESTIONS.md](QUESTIONS.md#summary): Q01 (`io.github.kerembas.ferman`) and Q03 were answered on
+  2026-10-15, and Q02 on 2026-10-16 (one publisher name on both platforms).
 - [x] Proposed ADRs (0007, 0009, 0013 in part, 0018), the Proposed details in 0003, 0004, 0006 and
   0008, and the licence exceptions in [Q17](QUESTIONS.md#q17) are approved, changed or rejected, or
   carried into M1 as open questions with the safest option in force. Evidence: on 2026-10-15 the owner
   accepted ADR 0007 ([Q04](QUESTIONS.md#q04)) and the Hebrew and Devanagari part of ADR 0013
   ([Q08](QUESTIONS.md#q08)) and approved Q17 parts 1 to 3. ADR 0009, ADR 0018, the Proposed details
   and Q17 part 4 are carried into M1 unapproved, with the safest option in force
-  ([PROGRESS.md](PROGRESS.md#adr-status)).
+  ([PROGRESS.md](PROGRESS.md#adr-status)); the owner approved all of them on 2026-10-16.
 - [ ] The owner enables GitHub private vulnerability reporting, which [SECURITY.md](../SECURITY.md)
   and [CODE_OF_CONDUCT.md](../CODE_OF_CONDUCT.md) rely on (see
   [PROGRESS.md](PROGRESS.md#owner-actions)). Not known to be done on 2026-10-15.
 
 ## 5. M1: foundations
 
-**Status:** Complete, pending owner approval (2026-10-16). Built on the branch `m1-foundations`
-with pull request #2 to `main`; the plan, its phases and the session log are in
+**Status:** Complete, approved by the owner on 2026-10-16: pull request #2 from `m1-foundations`
+merged into `main` (merge commit `aa7ad21`); the plan, its phases and the session log are in
 [PROGRESS.md](PROGRESS.md#m1-plan). Every box below that a test, a CI run or a measurement can prove
-is ticked with its evidence; the open ones wait on the owner: Proposed items to approve, checks on
-R1, R2 and arm64 hardware, and native-speaker review ([BACKLOG.md](BACKLOG.md) B100).
+is ticked with its evidence; the open ones wait on the owner's checks on R1, R2 and arm64 hardware
+and on native-speaker review ([BACKLOG.md](BACKLOG.md) B100). The Proposed items were approved on
+2026-10-16 (the 640 px canvas minimum on 2026-10-17), and their boxes are ticked.
 **Needs first:** owner approval of M0, given on 2026-10-15. The questions M1 needed were answered
 the same day: [Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`,
 [Q03](QUESTIONS.md#q03) minimum OS versions, [Q04](QUESTIONS.md#q04) harfrust,
 [Q05](QUESTIONS.md#q05) eight mode tabs, [Q08](QUESTIONS.md#q08) Plex Sans Hebrew and Devanagari,
 [Q12](QUESTIONS.md#q12) the custom Linux title bar, [Q14](QUESTIONS.md#q14) "Copyright The Ferman
-Authors" and [Q17](QUESTIONS.md#q17) Swatinem/rust-cache. Still open and not blocking M1:
-[Q11](QUESTIONS.md#q11) design re-export, the sign-off part of Q14, and [Q18](QUESTIONS.md#q18)
-macOS App Sandbox (the template's sandbox stays on in M1).
+Authors" and [Q17](QUESTIONS.md#q17) Swatinem/rust-cache. Open during M1, not blocking it, and
+answered on 2026-10-16, after the M1 merge: [Q11](QUESTIONS.md#q11) design re-export, the sign-off
+part of Q14, and [Q18](QUESTIONS.md#q18) macOS App Sandbox (the template's sandbox stayed on in M1).
 
 ### Goal
 
@@ -321,25 +331,36 @@ the bridge, and is built and tested by green CI on all three systems. It opens n
 ### Artboards covered
 
 - **00 Fixes** (2): `f6`, `f6a`
-- **01 First run and files** (4): `a1-1`, `a1-2b`, `a1-2c`, `a1-5`
-- **11a Settings** (3): `a11-1`, `a11-1w`, `a11-1b`
+- **01 First run and files** (6): `a1-1`, `a1-2b`, `a1-2c`, `a1-2c-m1`, `a1-5`, `a1-5-m1`
+- **11a Settings** (6): `a11-1`, `a11-1-m1`, `a11-1w-m1`, `a11-1w`, `a11-1b`, `a11-1h-m1`
 - **12 Localization** (4): `a12-2a`, `a12-2b`, `a12-2c`, `a12-2d`
 
-13 boards.
+18 boards, 5 of them M1 builds that came after the M1 merge.
 
 Notes on these boards:
 
+- The five M1 build boards came with the owner's export `519d42a` on 2026-10-17: `a1-2c-m1`,
+  `a1-5-m1`, `a11-1-m1`, `a11-1w-m1` and `a11-1h-m1` draw `a1-2c`, `a1-5`, `a11-1`, `a11-1w` and
+  `a11-1h` (an M4 board) as the M1 build ships them, each also in Turkish and Arabic. They are the
+  M1 build references of those boards: phase 0 of M2 moved the comparison pairs of the M1 goldens to
+  them, with Turkish and Arabic pairs, and the finished boards stay the product. They draw what M1
+  already built ([G12](DESIGN_GAPS.md#g12), [G13](DESIGN_GAPS.md#g13), [G89](DESIGN_GAPS.md#g89));
+  phase 0 matched the rest: the feature tiles' padding and accessible names on the last welcome step,
+  and two Turkish strings. Where `a11-1-m1` and `a11-1w-m1` draw General's M2 controls enabled, the
+  app keeps them disabled until M2 step 3 enables them ([G108](DESIGN_GAPS.md#g108)). The evidence
+  below predates these boards and was not redone.
 - `a12-2b` and `a12-2d` are German. German is not translated in M1; brief §6 says other languages
   fall back to English until volunteers translate them. These boards serve as text-expansion
   references (step 10).
 - `a1-2a` (welcome, step 1 of 3) is an M3 board because its specimen shows live editing. M1 builds
   the onboarding frame with steps 2 and 3; the first-run flow goes from the language picker to step 2
   until M3 adds step 1.
-- Copy that changes in the app: `a1-2c` and `a11-5` say GPL-3.0; the app says Apache-2.0
+- Copy that changes in the app: `a1-2c` and `a11-5` said GPL-3.0; the app says Apache-2.0
   ([G13](DESIGN_GAPS.md#g13)). `a1-2c` marks every feature as included; features that have not
   shipped are shown as coming in a future version, not "Included" ([G12](DESIGN_GAPS.md#g12)).
-  `a1-2b` names only the update check; the app lists all four network uses the brief allows
-  ([G24](DESIGN_GAPS.md#g24)).
+  `a1-2b` named only the update check; the app lists all four network uses the brief allows
+  ([G24](DESIGN_GAPS.md#g24)). Export `519d42a` changed `a1-2c`, `a11-5` and `a1-2b` to match, and
+  `a1-2c-m1` draws the M1 tiles, so G12, G13 and G24 are resolved.
 - The macOS editor shell has no M1 board of its own. Its chrome is checked against `FmWindow` as drawn
   in `a2-1b` (light) and `a3-1d` (dark), with the canvas masked.
 
@@ -422,9 +443,9 @@ Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api.
   pins 1.99.0, and each Rust job runs "Install the toolchain from rust-toolchain.toml".
 - [x] Every crate root except ferman-api forbids unsafe code, and ferman-api denies it (CI check of
   the crate roots). Evidence: CI run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`, 2026-10-15): the `unsafe_roots` check in the "Repository checks" step.
-- [ ] **Proposed:** a script reads `cargo metadata` and fails on any crate edge not allowed by
-  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph). Implemented; the box waits for the
-  owner's approval of the Proposed item. Evidence: CI run
+- [x] A script reads `cargo metadata` and fails on any crate edge not allowed by
+  [ARCHITECTURE.md §2.2](ARCHITECTURE.md#22-dependency-graph). Implemented, and approved by the owner
+  on 2026-10-16 (it was Proposed). Evidence: CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
   `b358281`, 2026-10-16): `tools/checks` `crate_graph`
   (`tools/checks/lib/src/checks/crate_graph.dart`, `f0e2c06`) prints "PASS crate_graph" in the
@@ -453,7 +474,7 @@ pub deny list (Proposed), unsafe roots and version sync. `.github/workflows/ci.y
 Rust jobs on three systems and cargo-deny; the toolchain comes from `rustup toolchain install`, which
 reads `rust-toolchain.toml`. The first full CI run, [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) on pull request #2, was green on all three
 systems and evidences every box except the Proposed crate-graph check, which stays open until the
-owner approves it.
+owner approves it. (Both Proposed checks were approved on 2026-10-16.)
 
 #### Step 2. Flutter app skeleton
 
@@ -464,7 +485,8 @@ start, document and settings; gen-l10n with `app_en.arb`; the bundle identifier
 [Q03](QUESTIONS.md#q03) in the platform projects: macOS deployment target 12.0 with a universal
 (arm64 and x86_64) build, Windows 10 22H2 and Windows 11 on x64 and arm64, Linux best effort on
 Ubuntu 22.04 or later (glibc). The macOS App Sandbox entitlement of the Flutter template stays on
-until the owner answers [Q18](QUESTIONS.md#q18), before M2.
+in M1. The owner answered [Q18](QUESTIONS.md#q18) on 2026-10-16: it stays on if M2 shows that recent
+files and the atomic save work under it.
 
 - [x] `flutter analyze` and `dart analyze --fatal-infos` report zero issues and `flutter test`
   passes on all three systems. Both analyzers run: the riverpod_lint 3.1.9 plugin reports only
@@ -498,10 +520,10 @@ until the owner answers [Q18](QUESTIONS.md#q18), before M2.
   [DEPENDENCIES.md §8](DEPENDENCIES.md#8-dart-licence-check) (direct, dev and transitive dependencies,
   the §8 allow-list), and it passed in CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15): the "Dart licence check" step
   of the Linux Flutter job (107 packages).
-- [ ] **Proposed:** CI fails if `pubspec.lock` contains a package from the network deny list: HTTP
-  clients, font downloaders such as google_fonts, analytics and crash-reporting SDKs ([ADR
-  0015](adr/0015-privacy-and-network.md)). Implemented; the box waits for the owner's approval of
-  the Proposed item. Evidence: CI run
+- [x] CI fails if `pubspec.lock` contains a package from the network deny list: HTTP clients, font
+  downloaders such as google_fonts, analytics and crash-reporting SDKs ([ADR
+  0015](adr/0015-privacy-and-network.md)). Implemented, and approved by the owner on 2026-10-16 (it
+  was Proposed). Evidence: CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
   `b358281`, 2026-10-16): `tools/checks` `pub_denylist`
   (`tools/checks/lib/src/checks/pub_denylist.dart`, `f0e2c06`) prints "PASS pub_denylist" in the
@@ -513,12 +535,12 @@ until the owner answers [Q18](QUESTIONS.md#q18), before M2.
   lock file without denied packages", "deniedPattern") pass in the "Dart tools (checks, tokens,
   icons, l10n)" step. The check has been in the "Repository checks" step since run
   [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (head `18c7471`).
-- [ ] **Proposed:** CI compiles the web target with the engine stubbed, so the web path stays
-  buildable until phase 5. Implemented; the box waits for the owner's approval of the Proposed item.
-  Evidence: CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull
-  request #2, head `b358281`, 2026-10-16): the step "Web build (kept buildable until phase 5;
-  Proposed)" (`flutter build web --release`) of the job Flutter (ubuntu-24.04). The engine is
-  stubbed through the conditional export in `app/lib/engine/engine_start.dart`: under
+- [x] CI compiles the web target with the engine stubbed, so the web path stays buildable until
+  phase 5. Implemented, and approved by the owner on 2026-10-16 (it was Proposed). Evidence: CI run
+  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
+  `b358281`, 2026-10-16): the step "Web build (kept buildable until phase 5; Proposed)" (`flutter
+  build web --release`) of the job Flutter (ubuntu-24.04). The engine is stubbed through the
+  conditional export in `app/lib/engine/engine_start.dart`: under
   `dart.library.js_interop` it exports `startEngine` from `engine_service_web.dart`, which throws
   `EngineUnavailableException(EngineUnavailableReason.unsupportedPlatform)`. So
   `engine_service_frb.dart`, the only file outside `app/lib/bridge/` that imports the bridge, stays
@@ -534,9 +556,9 @@ riverpod_lint plugin, Riverpod code generation, go_router, gen-l10n (en, tr, ar)
 flutter_svg was dropped in `246d6df`, because it and vector_graphics depend on `http`, which the pub
 deny list forbids. The Flutter CI jobs, the codegen check and the Ubuntu 22.04 floor build (phase C4)
 ran green in [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500). The box for the platform projects stays open: the floor build passed, but the
-arm64 builds and Windows 10 are owner checks. The two Proposed boxes wait for the owner. Boxes ticked
-at `18c7471` were unticked when a later head failed or the evidence changed; they are ticked again
-with the next green run on the latest head.
+arm64 builds and Windows 10 are owner checks. The two Proposed boxes waited for the owner, who
+approved both on 2026-10-16. Boxes ticked at `18c7471` were unticked when a later head failed or the
+evidence changed; they are ticked again with the next green run on the latest head.
 
 #### Step 3. flutter_rust_bridge wiring
 
@@ -568,7 +590,8 @@ the bridge); an API version check at start-up; `tools/pdfium` and the skeleton r
   (PROGRESS.md "Measurements", ARCHITECTURE.md §3.4), so the texture-registry fallback is designed
   in [ADR
   0009](adr/0009-threading-and-jobs.md#option-3-in-detail-the-texture-registry-fallback-proposed)
-  (`44cfe93`); the ADR is Proposed and the path is the owner's choice in [Q19](QUESTIONS.md#q19).
+  (`44cfe93`). The owner accepted ADR 0009 and answered [Q19](QUESTIONS.md#q19) on 2026-10-16: the
+  Dco codec first, then the pointer view, then textures.
 - [x] A CI import check fails if any file outside `app/lib/engine/` imports `app/lib/bridge/`.
   Evidence: `tools/checks` `bridge_imports` (`4b8c5c3`, with fixture tests), passing in the
   repository checks of CI run [38823480726](https://github.com/KEREM-BAS/Ferman/actions/runs/38823480726) (pull request #2, head `52603cb`, 2026-10-15).
@@ -633,8 +656,8 @@ build on the macOS CI runner. The default SSE codec copies the bytes. The Dco co
 (`full_dep: true`) was tried in a scratch copy and its Dart did not compile (a name clash). The
 options and a proposal are recorded in
 [ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed), and
-the owner decides in [Q19](QUESTIONS.md#q19); the zero-copy box stays open until R1 and R2 are
-measured.
+the owner decided in [Q19](QUESTIONS.md#q19) on 2026-10-16 (the Dco codec first, tried at the start of
+M2 step 3); the zero-copy box stays open until R1 and R2 are measured.
 
 #### Step 4. Token generator
 
@@ -820,9 +843,9 @@ for every bundled asset. The design's woff2 subsets are not used ([G06](DESIGN_G
   data is arrow-left" re-read `design/*.dc.html` and `_ds_bundle.js`. "exactly the directional icons
   carry the flag" (`tools/icons/test/enum_test.dart`) checks the eight names. These run in the step
   "Dart tools (checks, tokens, icons, l10n)".
-- [ ] **Proposed** (the step 2 network deny list): the app never fetches fonts; CI fails if
-  `pubspec.lock` contains google_fonts or another font downloader. Implemented; the box waits for
-  the owner's approval of the Proposed item. Evidence (implementation; the criterion is Proposed):
+- [x] The step 2 network deny list: the app never fetches fonts; CI fails if `pubspec.lock` contains
+  google_fonts or another font downloader. Implemented, and approved by the owner on 2026-10-16 with
+  the deny list (it was Proposed). Evidence (implementation; the criterion was Proposed):
   CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
   #2, head `b358281`, 2026-10-16): the `tools/checks` check `pub_denylist`
   (`tools/checks/lib/src/checks/pub_denylist.dart`: `http`, `dio`, `google_fonts`, `firebase*`,
@@ -935,6 +958,14 @@ missing files; six full renders and `--twice` runs gave identical SHA-256 for ev
 three boxes are ticked once the design-reference workflow reproduces this in CI. The `design/` check
 runs in CI through `tools/checks`. The build-output scan does not exist yet; it is added to the app
 build job, and its box stays open until then.
+
+After M1 (phase 0 of M2, 2026-10-17): the owner's export `519d42a` has 253 boards. The tool captures
+`a12-0`, a table with no `.fm-root`, as its element, and `a2-3m` as the box around its six sidebars;
+it renders the 29 boards with the board-language switch also as `<id>.tr.png` and `<id>.ar.png` (58
+variants), and gains the sets `@m1` (23 boards), `@m2` (the 43 M2 boards) and `@langs`. A `--twice`
+render of all 312 PNGs (253 boards, 58 variants and the DS additions sheet) in the development
+container was identical ([tools/design-refs/README.md](../tools/design-refs/README.md)). The boxes
+above keep their M1 evidence.
 
 #### Step 7. Component library
 
@@ -1164,9 +1195,10 @@ row per mode, sidebar, canvas placeholder, right panel and status bar, built fro
   statusBar), then back to the title bar. "names every control" walks the semantics tree in every
   mode and every sidebar tab. It fails on any button, focusable, toggle or checkable node that has
   no label, tooltip or value.
-- [ ] **Proposed:** at a minimum window width of 1024 px nothing overlaps; the tool row collapses to
-  icons with an overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)). Implemented; the
-  box waits for the owner's approval of the Proposed item. Evidence: CI run
+- [x] At a minimum window width of 1024 px nothing overlaps; the tool row collapses to icons with an
+  overflow menu and the panels collapse ([G21](DESIGN_GAPS.md#g21)). Implemented, and approved by the
+  owner: the 1024 px width on 2026-10-16 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) on
+  2026-10-17 (both were Proposed). Evidence: CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
   `b358281`, 2026-10-16); the tests came in with `c5fda08`, and run
   [38883084870](https://github.com/KEREM-BAS/Ferman/actions/runs/38883084870) was green at that
@@ -1252,10 +1284,10 @@ written by Dart through a temporary file and a rename
   `54d2ef9`, 2026-10-16).
 - [x] Settings → Privacy shows the four network uses of brief §3, each disabled with the tooltip
   until its milestone ([ADR 0015](adr/0015-privacy-and-network.md)). The drawn "Signature checks"
-  row stays visible but disabled until the owner decides [Q06](QUESTIONS.md#q06)
-  ([G51](DESIGN_GAPS.md#g51)). Evidence: CI run
-  [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request #2, head
-  `b358281`, 2026-10-16): "lists the network uses, each off and disabled" in group "Privacy
+  row stays visible but disabled until revocation lookups arrive in phase 3, off until first use, as
+  the owner decided in [Q06](QUESTIONS.md#q06) on 2026-10-16 ([G51](DESIGN_GAPS.md#g51)). Evidence:
+  CI run [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628) (pull request
+  #2, head `b358281`, 2026-10-16): "lists the network uses, each off and disabled" in group "Privacy
   (a11-1h)" of `app/test/features/settings/settings_screen_test.dart`. It finds the rows Check for
   updates, Timestamps, Downloads you start and Your AI provider (the four network uses; per
   `app_en.arb`, Downloads you start is "OCR language packs and the assistant’s model") and the drawn
@@ -1275,9 +1307,10 @@ written by Dart through a temporary file and a rename
   window-styled surface at `/settings` (ARCHITECTURE.md §12, [G89](DESIGN_GAPS.md#g89), BACKLOG
   B090); `app/test/features/settings/settings_screen_test.dart` and
   `app/test/features/shell/shell_route_test.dart`.
-- [ ] **Proposed budget:** the start screen is interactive within 1.5 s of process start on R1 and
-  R2 (tracked, not gated). Implemented, pending owner check: the start screen this budget times is
-  built and tested (`app/test/features/start/start_screen_test.dart`, CI run
+- [ ] Budget: the start screen is interactive within 1.5 s of process start on R1 and R2 (tracked,
+  not gated; the budget was Proposed and approved on 2026-10-16, while R1 and R2 themselves stay
+  Proposed). Implemented, pending owner check: the start screen this budget times is built and
+  tested (`app/test/features/start/start_screen_test.dart`, CI run
   [38885652628](https://github.com/KEREM-BAS/Ferman/actions/runs/38885652628)), and `bootstrap()`
   loads the settings before `runApp`. No measurement exists. PROGRESS.md "Pending owner checks"
   lists "the start-screen budget (step 9)" among the R1 and R2 hardware checks.
@@ -1287,7 +1320,7 @@ written by Dart through a temporary file and a rename
 Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (source), `app_tr.arb`
 (complete), `app_ar.arb`; the casing utility in `app/lib/l10n/`
 ([ARCHITECTURE.md §11.2](ARCHITECTURE.md#112-locale-aware-casing)); region-based formatting;
-**Proposed:** a pseudo-locale for text expansion.
+a pseudo-locale for text expansion (Proposed, approved by the owner on 2026-10-16).
 
 - [ ] `app_tr.arb` has every key of `app_en.arb` (CI key-parity check), reviewed by a native Turkish
   speaker. Implemented, pending owner check. Evidence: CI run
@@ -1359,9 +1392,9 @@ Deliverables ([ADR 0014](adr/0014-localization-and-rtl.md)): `app_en.arb` (sourc
   fa and he. "the canvas is never mirrored: in right to left its subtree runs left to right and its
   glyph is not flipped (ADR 0014)" is in group "layout" of
   `app/test/features/shell/shell_screen_test.dart`.
-- [ ] **Proposed:** every M1 screen renders in a pseudo-locale with strings 40% longer without
-  clipping or overflow errors. This stands in for the German boards `a12-2b` and `a12-2d`.
-  Implemented; the box waits for the owner's approval of the Proposed item. Evidence: CI run
+- [x] Every M1 screen renders in a pseudo-locale with strings 40% longer without clipping or
+  overflow errors. This stands in for the German boards `a12-2b` and `a12-2d`. Implemented, and
+  approved by the owner on 2026-10-16 (it was Proposed). Evidence: CI run
   [38912838538](https://github.com/KEREM-BAS/Ferman/actions/runs/38912838538) (pull request #2, head
   `54d2ef9`, 2026-10-16): group "every M1 screen in the pseudo-locale fits (Proposed)" in
   `app/test/l10n/pseudo_locale_test.dart` (the seven M1 screens at 1440 × 900 and 1024 × 768) and
@@ -1431,10 +1464,10 @@ casing and region boxes are ticked once a green CI run covers these tests.
 ### Acceptance criteria
 
 - [ ] Steps 1 to 11 accepted. Every box of steps 1 to 11 that a test, a CI run or a measurement can
-  prove is ticked with its evidence. The open ones wait on the owner: the Proposed items (the crate
-  graph, the pub deny list, the web build, the font deny list, the 1024 px minimum width, the start
-  budget and the pseudo-locale), the checks on R1, R2 and arm64 hardware, and native-speaker review
-  (B100).
+  prove is ticked with its evidence. The open ones: the items that were Proposed (the crate graph,
+  the pub deny list, the web build, the font deny list, the 1024 px minimum width, the start budget
+  and the pseudo-locale), which the owner approved on 2026-10-16; the checks on R1, R2 and arm64
+  hardware; and native-speaker review (B100).
 - [ ] Standard gates S1 to S9 (S3 starts in M2). S1 (CI run
   [38916384485](https://github.com/KEREM-BAS/Ferman/actions/runs/38916384485) (pull request #2, head
   `f41d789`, 2026-10-16)), S2 (the workspace's Clippy lints and `missing_docs`, denied in CI), S4
@@ -1482,6 +1515,10 @@ casing and region boxes are ticked once a green CI run covers these tests.
   synthetic bold.
 - Window chrome (found in M1): [G66](DESIGN_GAPS.md#g66) title bar states and gestures,
   [G70](DESIGN_GAPS.md#g70) window controls.
+- After the M1 merge: export `519d42a` resolved [G12](DESIGN_GAPS.md#g12),
+  [G13](DESIGN_GAPS.md#g13), [G24](DESIGN_GAPS.md#g24) and [G89](DESIGN_GAPS.md#g89) and draws
+  [G10](DESIGN_GAPS.md#g10) in part; [G108](DESIGN_GAPS.md#g108), found then, records that the app
+  keeps disabled the Settings controls and panes that the M1 build boards draw enabled.
 
 ### Exit checks
 
@@ -1512,26 +1549,42 @@ E1 to E8, plus:
 
 ## 6. M2: open and view
 
-**Status:** Not started. **Needs first:**
+**Status:** Approved, starting. Phase 0, the design sync, is pull request #3 from `m2-open-and-view`;
+M2 itself is pull request #4 from the same branch. The plan is in [PROGRESS.md](PROGRESS.md#m2-plan),
+approved by the owner on 2026-10-17. Items marked **Proposed (M2 plan)** below are decisions of that
+plan and were approved with it, except the items still Proposed at the M2 review, Q21 and strace.
 
-- M1 accepted.
-- Approval of [ADR 0009](adr/0009-threading-and-jobs.md), threading and jobs. The render thread, the
-  tile queue and the document actors are built on it. ADR 0009 is Proposed and has no question of its
-  own; it was not approved at the M0 go-ahead and is carried through M1. If it is not approved when
-  M1 ends, only the brief's rule applies (nothing heavy on the UI thread), and M2 stops for the
-  owner's decision before step 1.
-- [Q07](QUESTIONS.md#q07), native pickers. ADR 0018 is Proposed. If the owner has not answered when
-  M2 starts, "Open file…" and ⌘O or Ctrl+O use the OS-native open picker as the safest option
-  ([brief §9](BRIEF.md)), as ADR 0018, Q07 and [G26](DESIGN_GAPS.md#g26) say, and the M2 summary
-  flags it for approval. Drag and drop, recent files and "Open with" work alongside it.
-- [Q18](QUESTIONS.md#q18), the macOS App Sandbox. It decides how macOS reaches the files the user
-  opens, how recent files reopen (security-scoped bookmarks) and where the atomic save puts its temp
-  file. M1 keeps the template's sandbox on; the owner is asked before M2 starts.
-- Licence exceptions are settled: the owner approved desktop_drop with its MPL-2.0 `dbus` dependency
-  and the `fuzz/` workspace with NCSA `libfuzzer-sys` on 2026-10-15 ([Q17](QUESTIONS.md#q17)), so
-  both are added in M2 as named exceptions.
-- [Q13](QUESTIONS.md#q13), document JavaScript policy. The non-V8 PDFium build already runs no
-  scripts.
+**Needs first:**
+
+- [x] M1 accepted: approved on 2026-10-16, pull request #2 merged into `main` (merge commit
+  `aa7ad21`).
+- [x] [ADR 0009](adr/0009-threading-and-jobs.md), threading and jobs: Accepted on 2026-10-16. The
+  render thread, the tile queue and the document actors are built on it.
+- [x] [Q07](QUESTIONS.md#q07), native pickers: answered on 2026-10-16. "Open file…" and ⌘O or Ctrl+O
+  use the OS-native open picker, and [ADR 0018](adr/0018-native-file-pickers.md) is Accepted
+  ([G26](DESIGN_GAPS.md#g26)). Drag and drop, recent files and "Open with" work alongside it.
+- [x] [Q18](QUESTIONS.md#q18), the macOS App Sandbox: answered on 2026-10-16. The sandbox stays on if
+  M2 shows that security-scoped bookmarks for recent files and atomic writes through the system's
+  replacement directory work under it; otherwise the Developer ID build drops it, with the reason
+  recorded. **Proposed (M2 plan):** M2 builds both, the bookmarks in recent files and the
+  replacement-directory write in "Save attachment as…"; CI proves them inside its container, the
+  owner on a Mac with files granted through the panel, and the decision is taken at the M2 review.
+- [x] Licence exceptions: the owner approved desktop_drop with its MPL-2.0 `dbus` dependency and the
+  `fuzz/` workspace with NCSA `libfuzzer-sys` on 2026-10-15, and confirmed the stricter reading of
+  "GPL-compatible" on 2026-10-16 ([Q17](QUESTIONS.md#q17)), so both are added in M2 as named
+  exceptions.
+- [x] [Q13](QUESTIONS.md#q13), document JavaScript: answered on 2026-10-16. Ferman never runs
+  document scripts, which the non-V8 PDFium build cannot run anyway, and tells the user when a
+  document contains them ([G100](DESIGN_GAPS.md#g100), the notice **Proposed (M2 plan)**).
+- [x] [Q19](QUESTIONS.md#q19), tile transfer, needed before step 3: answered on 2026-10-16. The Dco
+  codec first, measured on R1 and R2; the pointer view only if it misses, with the owner's approval
+  of its unsafe surface; textures only if both fail.
+- [x] [Q11](QUESTIONS.md#q11), the design re-export: answered on 2026-10-16, and the owner's export
+  `519d42a` arrived on 2026-10-17. Phase 0 synced the design references, the documents and the
+  app's M1 screens with it.
+- [ ] The owner approves the [M2 plan](PROGRESS.md#m2-plan), which is the go-ahead for M2.
+- Open, not blocking the start: [Q21](QUESTIONS.md#q21), whether the private snapshot of a file over
+  256 MB may be memory-mapped. Until it is answered, M2 reads every file into an owned buffer.
 
 ### Goal
 
@@ -1558,23 +1611,48 @@ Turkish, and document properties, in several tabs at once.
   search jobs.
 - Viewer, sidebar, find bar, start screen with recent files, open from every source, tabs, document
   properties.
-- `tests/corpus/` with `README.md` (provenance) and `tools/corpus` generators.
+- The feature registry of S9 and its BACKLOG check (approved on 2026-10-16), built first (see Steps).
+- `tests/corpus/` with `README.md` (provenance) and `tools/corpus` generators. **Proposed (M2 plan,
+  [ADR 0020](adr/0020-test-corpus.md)):** the generators are a Rust workspace of their own, built on
+  lopdf, harfrust and subsetter, deterministic, and cross-checked by PDFium; no qpdf or pyHanko in M2.
+- Every commit carries a DCO sign-off by its author ([Q14](QUESTIONS.md#q14)), checked in CI by the
+  `tools/checks` check `dco_signoff` on pull requests (E7).
 
 ### Artboards covered
 
 - **00 Fixes** (1): `f5`
-- **01 First run and files** (11): `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-6`, `a1-7`, `a1-8`, `a1-8b`, `a1-9`, `a1-9b`, `a1-10`
-- **02 View** (15): `a2-1a`, `a2-1b`, `a2-1c`, `a2-1d`, `a2-2`, `a2-3a`, `a2-3p`, `a2-3o`, `a2-3b`, `a2-3c` (proposed), `a2-3e`, `a2-3x`, `a2-4a`, `a2-4b`, `a2-7`
+- **01 First run and files** (17): `a1-3`, `a1-4`, `a1-4b`, `a1-4c`, `a1-4-m2`, `a1-6`, `a1-7`, `a1-8`, `a1-8b`, `a1-9`, `a1-9b`, `a1-9c`, `a1-9d`, `a1-9e`, `a1-9f`, `a1-13`, `a1-10`
+- **02 View** (23): `a2-1a`, `a2-1b`, `a2-1c`, `a2-1d`, `a2-2`, `a2-3a`, `a2-3p`, `a2-3o`, `a2-3b`, `a2-3c`, `a2-3e`, `a2-3x`, `a2-3m`, `a2-4a`, `a2-4b`, `a2-4c`, `a2-4d`, `a2-7`, `a2-10a`, `a2-10b`, `a2-13`, `a2-14`, `a2-15`
 - **11b App** (1): `a11-7c`
+- **12 Localization** (1): `a12-0`
 
-28 boards, 1 of them with a proposed milestone ([Q10](QUESTIONS.md#q10)).
+43 boards. `a2-3c` (layers) is here because the owner accepted the proposed milestone on 2026-10-16
+([Q10](QUESTIONS.md#q10)). The owner's export `519d42a` added 15 of them: the M2 build of the start
+screen (`a1-4-m2`), the open errors and the system open panel (`a1-9c` to `a1-9f`, `a1-13`), the
+empty sidebar tabs and search states (`a2-3m`, `a2-4c`, `a2-4d`), restricted documents (`a2-10a`,
+`a2-10b`), rendering states (`a2-13`), signatures before checking (`a2-14`), right-to-left spreads
+(`a2-15`) and the region-format table (`a12-0`). All of them but `a12-0` are drawn in English,
+Turkish and Arabic. `a12-0` is a table, not a window: it is the test oracle for region formats
+(step 6).
 
 Parts of these boards that land later stay visible and disabled: bookmark rename and add (`a2-3a`,
 `a2-3x`) and metadata editing (`a2-7`) need saving and come in M3 if time allows, otherwise M4;
-"Attach a file" (`a2-3b`) is proposed for M4; replace in the find bar (`a2-4a`) is P2; thumbnail
-badges arrive with their features (`f5`: edited and warning in M3, comments, fields and signatures in
-M4); "Save repaired copy…" (`a1-9`) needs the writer from M3. The Signatures tab lists signatures in
-the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is checked in M3.
+"Attach a file" (`a2-3b`) comes in M4 ([Q10](QUESTIONS.md#q10)); replace in the find bar (`a2-4a`)
+is P2; thumbnail badges arrive with their features (`f5`: edited and warning in M3, comments, fields
+and signatures in M4). "Save repaired copy…" (`a1-9`) and "Save a copy…" (`a1-9d`) need the writer
+from M3 ([G28](DESIGN_GAPS.md#g28)). Convert to PDF… (`a1-9c`) and Recognize text (OCR) in the
+empty Search tab (`a2-3m`) wait for P3. On the M2 start screen (`a1-4-m2`), Create PDF and Combine
+files wait for M4, Scan to PDF for P3 and each quick tool for its milestone
+([G11](DESIGN_GAPS.md#g11)); `a1-6`'s "Combine into one PDF" target waits for M4 (**Proposed (M2
+plan)**, [G105](DESIGN_GAPS.md#g105)). On a restricted document (`a2-10a`), the reason "The author
+doesn't allow editing" shows on the Edit tab once Edit ships in M3, with the future-version tooltip
+before; a certificate-encrypted PDF gets the open error of `a1-9b` until P3. The default-app button
+(`a1-3`, `a11-1`) works on macOS in M2; on Windows it waits for the registration the M5 installer
+does, and on Linux for packaging in M5 (**Proposed (M2 plan)**, [G103](DESIGN_GAPS.md#g103)).
+Signatures show in the neutral pre-P3 state that `a2-14` draws: in the Signatures tab, in the
+document panel ("1 signature, page 3") and as the neutral Signed chip of `a1-4-m2`
+([G31](DESIGN_GAPS.md#g31)). P3 replaces it with the validation states of `a5-7`; the full board
+`a2-3d` is checked in M3.
 
 ### Engine capabilities and crates
 
@@ -1584,7 +1662,10 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   (page tree and inheritance, page labels, outlines, attachments, optional content, AcroForm and XFA
   detection, signatures and DocMDP permissions); repair by object scan; the `Limits` struct
   ([ARCHITECTURE.md §9.1](ARCHITECTURE.md#91-resource-limits)); content-stream lexer and interpreter
-  with operator spans, used here for extraction.
+  with operator spans, used here for extraction. The owner approved on 2026-10-16 that files above
+  256 MB are copied to a private snapshot in the cache directory and mapped from there; mapping needs
+  an `unsafe` call, which [Q21](QUESTIONS.md#q21) asks about, and until it is answered M2 reads every
+  file, large ones too, into an owned buffer.
 - **ferman-fonts:** encoding tables, glyph names to Unicode, CMap and ToUnicode parsing with
   `usecmap`, a minimal Type1 parser for built-in encodings, font program reading through skrifa and
   read-fonts for the reverse cmap lookup.
@@ -1600,8 +1681,10 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   Damaged, Unsupported, ResourceLimit).
 - **Platform:** file associations and "Open with" on macOS; a file path on the command line on Windows
   and Linux (the Windows ProgID is registered by the installer in M5); forwarding a second launch to
-  the running instance; native open picker ([ADR 0018](adr/0018-native-file-pickers.md); the safest
-  option while [Q07](QUESTIONS.md#q07) is open); drag and drop; default-app prompt.
+  the running instance (**Proposed (M2 plan)**, [ADR 0021](adr/0021-open-from-the-os.md): a named
+  mutex and pipe on Windows, GApplication's D-Bus uniqueness on Linux); native open picker
+  ([ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)); drag and drop;
+  default-app prompt.
 
 ### New dependencies
 
@@ -1617,14 +1700,36 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 | Fuzz | cargo-fuzz 0.13, libfuzzer-sys 0.4 | MIT OR Apache-2.0; libfuzzer-sys adds NCSA | separate `fuzz/` workspace, never shipped; NCSA for that crate only, approved in [Q17](QUESTIONS.md#q17) |
 | Dart | desktop_drop 0.8, file_selector 1.1 | Apache-2.0; BSD-3-Clause | desktop_drop pulls dbus (MPL-2.0) on every platform (used only on Linux at run time); approved in [Q17](QUESTIONS.md#q17); its notice ships in every build and the pub licence check skips `dbus` by name |
 
+**Proposed (M2 plan)**, added to [DEPENDENCIES.md](DEPENDENCIES.md) with their exact versions, and
+checked by cargo-deny or the pub licence check, in the commit that adds each:
+
+| Kind | Dependency | Licence | Notes |
+|---|---|---|---|
+| Rust | zeroize | Apache-2.0 OR MIT | passwords wiped from memory after unlock |
+| Rust | flate2, weezl | MIT OR Apache-2.0 | Flate and LZW stream filters as direct dependencies, with the decoded-size limits of [ARCHITECTURE.md §9.1](ARCHITECTURE.md#91-resource-limits) |
+| Rust (CLI) | png | MIT OR Apache-2.0 | `ferman render` writes PNG files |
+| Fuzz | arbitrary | MIT OR Apache-2.0 | structured fuzz inputs, `fuzz/` only |
+| Corpus | harfrust, subsetter, aes, cbc, rc4, md-5 | MIT; MIT OR Apache-2.0 | `tools/corpus` only, never shipped ([ADR 0020](adr/0020-test-corpus.md)); the ciphers only if lopdf cannot write encryption |
+| Dart (dev) | ffigen | BSD-3-Clause | the Dco codec of the bridge ([Q19](QUESTIONS.md#q19)); checked to bring no `http` |
+| Test data | Noto Sans CJK, the Adobe Glyph List | OFL-1.1; BSD-3-Clause | pinned by hash, never shipped |
+| CI | libclang-dev | Apache-2.0 WITH LLVM-exception | ffigen's codegen; a CI package, never shipped |
+| CI | strace | LGPL-2.1-or-later | the no-network check; a CI tool, never shipped or linked, but LGPL, so the owner is asked before it is added, as for rust-cache in [Q17](QUESTIONS.md#q17); without it the check uses a network namespace instead |
+
 ### Steps
+
+Before step 1: the feature registry of S9 (approved on 2026-10-16) is the first M2 commit
+(**Proposed (M2 plan)**). Every disabled entry point names its feature in one Dart registry, and a
+CI check fails when an unavailable feature has no open BACKLOG row or an available one still has
+one.
 
 #### Step 1. PDFium and the render thread
 
 - [ ] PDFium is bundled in the macOS, Windows and Linux builds next to the app as
   [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) describes.
 - [ ] The library loads from the bundled location on all three systems; if it is missing, the app
-  shows an error screen instead of crashing (integration test).
+  shows an error screen instead of crashing (integration test). **Proposed (M2 plan):** the error is
+  the warning Banner of [G101](DESIGN_GAPS.md#g101) on the start screen, with the open actions
+  disabled and the rest of the app working.
 - [ ] Rendering is deterministic: the same page with the same settings gives byte-identical pixels in
   ten runs on each system. The pixel-diff acceptance in M3 depends on this.
 - [ ] All PDFium calls happen on the render thread; a stress test with three views requesting tiles
@@ -1633,18 +1738,34 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 #### Step 2. Open path and structure
 
 - [ ] Every corpus file opens or fails with the designed state: healthy files fully;
-  `kira-tr-damaged` as Repaired with the list of fixes (`a1-9`); `truncated` with the can't-open
-  state, likely cause and technical details (`a1-9b`); `xfa-visa` read-only with the XFA notice
-  (`a11-7c`).
+  `kira-tr-damaged` as Repaired with the list of fixes (`a1-9`), its "Save repaired copy…" visible
+  and disabled with the future-version tooltip until the writer arrives in M3
+  ([G28](DESIGN_GAPS.md#g28)); `truncated` with the can't-open state, likely cause and technical
+  details (`a1-9b`); `xfa-visa` read-only with the XFA notice (`a11-7c`). A file that isn't a PDF
+  opens as an error tab with the drop zone's error variant and "That file isn't a PDF." (`a1-9c`):
+  Open another file… and Show in Finder, with Convert to PDF… disabled until P3
+  ([G107](DESIGN_GAPS.md#g107) names the Windows and Linux labels).
 - [ ] `payslip-aes256` asks for its password (`a1-8`); the wrong password "eylul2026" shows the
   Turkish keyboard hint with no lockout (`a1-8b`); the right password opens it. RC4 40, RC4 128 and
   AES-128 corpus files open too. Passwords are wiped from memory after key derivation and never
   logged (test).
 - [ ] When lopdf and PDFium disagree on page count or page sizes, the document opens read-only with a
-  notice (**Proposed**, test with a crafted file).
-- [ ] An owner-password restricted file opens with a banner, Edit, Comment and Fill disabled with the
-  reason, and an optional owner-password unlock ([G27](DESIGN_GAPS.md#g27)); a read-only file on disk
-  opens with a read-only banner and Save as only ([G28](DESIGN_GAPS.md#g28)).
+  notice (approved by the owner on 2026-10-16, [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md);
+  test with a crafted file). **Proposed (M2 plan):** it takes `a1-9d`'s read-only state with the
+  notice of [G102](DESIGN_GAPS.md#g102).
+- [ ] An owner-password restricted file opens as `a2-10a` draws it: a banner that names the
+  restriction, the modes and tools the permissions forbid disabled with the reason (on the Edit tab
+  once Edit ships in M3, the future-version tooltip before), and "Unlock with owner password…", which
+  lifts the restriction for the session ([G27](DESIGN_GAPS.md#g27); its dialog is
+  [G106](DESIGN_GAPS.md#g106), **Proposed (M2 plan)**). A read-only or permission-denied file on disk
+  opens read-only as `a1-9d` draws it: a lock on the tab, Read-only in the status bar, Save disabled
+  with the tooltip "Read-only", and a banner whose "Save a copy…" stays disabled until the M3 writer
+  ([G28](DESIGN_GAPS.md#g28)).
+- [ ] A document that runs out of memory closes only its own tab, with `a1-9f`'s toast and Try again,
+  and the other documents keep working ([ADR 0010](adr/0010-error-handling-no-panics.md),
+  [G28](DESIGN_GAPS.md#g28)). **Proposed (M2 plan):** this holds where the engine sees the shortage
+  coming, through its limits and reservations checked before allocating; memory running out inside
+  PDFium cannot be caught.
 - [ ] Every limit in ARCHITECTURE.md §9.1 has a test that crosses it and gets `ResourceLimit`, not a
   hang or a crash.
 
@@ -1655,15 +1776,22 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   `app/lib/engine/`.
 - [ ] Layouts: single page, continuous, two-page spread and book with a cover (`a2-1a` to `a2-1d`).
   Spread and book order follow the document's `/ViewerPreferences/Direction`, never the UI language
-  ([G32](DESIGN_GAPS.md#g32)).
+  ([G32](DESIGN_GAPS.md#g32)): with `/R2L`, page 1 sits on the right and page 2 on its left in every
+  interface language, and in book layout a right-to-left cover stands alone on the left (`a2-15`).
 - [ ] Zoom: fit page, fit width, actual size, 50 to 400% steps, marquee zoom, ⌘ or Ctrl with the
   scroll wheel and pinch (`a2-2`). While a sharp tile is missing, the best lower bucket or the
-  thumbnail is shown scaled; a page that fails to render shows an error tile ([G30](DESIGN_GAPS.md#g30)).
-- [ ] Status bar: page entry ("Page 3 of 64" accepts a typed number or page label), zoom field, inline
-  task progress.
-- [ ] Settings → General gains the default layout and zoom, "Reopen documents", the default-app prompt
-  and the "Paper white" and "Dimmed" page options (`a11-1`); "Dark reading mode" stays disabled until
-  P2.
+  thumbnail is shown scaled and sharpens in place with no layout shift; a page that fails to render
+  shows a placeholder with a plain message and Try again, and the rest of the document keeps working
+  (`a2-13`, [G30](DESIGN_GAPS.md#g30)).
+- [ ] Status bar: page entry ("Page 3 of 64" accepts a typed number or page label; ⌘G or Ctrl+G
+  focuses it, `a2-13`), zoom field, inline task progress. With a fit mode, the tool row's zoom field
+  names the mode and the status bar shows the zoom it gives (Fit width and 113% in `a2-13`).
+- [ ] Settings → General enables the default layout and zoom, "Reopen documents" and the "Paper
+  white" and "Dimmed" page options (`a11-1`). The M1 build keeps them disabled, although `a11-1-m1`
+  draws them enabled ([G108](DESIGN_GAPS.md#g108)). "Dark reading mode" stays disabled until P2.
+  **Proposed (M2 plan), [G103](DESIGN_GAPS.md#g103):** the default-app line and button work on
+  macOS; on Windows the line keeps `a11-1w-m1`'s wording and on Linux `a11-1-m1`'s, and the button
+  stays disabled until the M5 installer registers Ferman (Windows) or packaging installs it (Linux).
 
 #### Step 4. Sidebar
 
@@ -1673,14 +1801,16 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   (`a2-3o`, `a2-3a`, `a2-3x`).
 - [ ] Attachments: list with name, size and date; "Save attachment as…" writes the embedded file to a
   location the user picks through the native save picker (`a2-3b`,
-  [ADR 0018](adr/0018-native-file-pickers.md)); if Q07 is still open, this follows the same brief §9
-  interim as the open picker and the M2 summary flags it. Embedded files are never opened
-  automatically.
-- [ ] Layers (Proposed for M2): optional content groups listed with show and hide; hiding a layer
-  re-renders without it (`a2-3c`).
-- [ ] Signatures: each signature listed with signer and page, without a validity colour
+  [ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)). Embedded files
+  are never opened automatically. **Proposed (M2 plan):** the write is atomic, and under the macOS
+  sandbox it goes through the system's replacement directory, the mechanism
+  [Q18](QUESTIONS.md#q18) asks M2 to prove.
+- [ ] Layers (in M2 since [Q10](QUESTIONS.md#q10)): optional content groups listed with show and
+  hide; hiding a layer re-renders without it (`a2-3c`).
+- [ ] Signatures: each signature in the neutral state `a2-14` draws: the signer's name as written in
+  the file, the page, no green and no check, and the line that checking comes in a future version
   ([G31](DESIGN_GAPS.md#g31)).
-- [ ] Empty states for every tab ([G29](DESIGN_GAPS.md#g29)).
+- [ ] Empty states for every tab, from one EmptyState component (`a2-3m`, [G29](DESIGN_GAPS.md#g29)).
 
 #### Step 5. Text extraction and search
 
@@ -1696,40 +1826,64 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
   "İSTANBUL" in `kira-tr` ([G61](DESIGN_GAPS.md#g61)).
 - [ ] Arabic words in `report-ar` and German words with ß in `mietvertrag-de` are found.
 - [ ] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
-  moves results to the sidebar grouped by page with snippets (`a2-4b`, `a2-3e`); no-results,
-  still-searching and no-text-layer states exist ([G29](DESIGN_GAPS.md#g29)).
+  moves results to the sidebar grouped by page with snippets (`a2-4b`, `a2-3e`). The search states
+  exist ([G29](DESIGN_GAPS.md#g29)): still searching, with the page reached, a bar, Cancel (Esc) and
+  matches counted and highlighted as they come in (`a2-4c`); no results, saying what was searched and
+  how, with "No results" in the danger text colour and the query kept selected (`a2-4d`); and no text
+  layer, with OCR disabled until P3 (`a2-3m`).
 - [ ] "Look in" (`a2-4a`) offers Page text and Comments (both on by default), Form fields and
   Bookmarks; each scope searches only its own content: the page text, the contents of annotations
-  already in the file, form field values, and bookmark titles.
+  already in the file, form field values, and bookmark titles. **Proposed (M2 plan):** results from
+  comments, fields and bookmarks join the group of their page ([G110](DESIGN_GAPS.md#g110)).
 - [ ] **Proposed budget:** first match on `long-500` in under 200 ms and all matches counted in under
   1 s once indexed; indexing at least 100 pages per second.
 
 #### Step 6. Files, tabs and properties
 
-- [ ] "Open file…" and ⌘O or Ctrl+O show the OS-native open picker, filtered to PDF
-  ([G26](DESIGN_GAPS.md#g26), [ADR 0018](adr/0018-native-file-pickers.md)). If
-  [Q07](QUESTIONS.md#q07) is still open, this is the safest option (brief §9), and the M2 summary
-  flags it for approval.
-- [ ] Drag and drop onto the start screen and the tab strip opens each PDF in a tab (`a1-6`); a
-  non-PDF file shows "Can't open yet" with the future-version tooltip ([G11](DESIGN_GAPS.md#g11),
-  [G28](DESIGN_GAPS.md#g28)).
+- [ ] "Open file…", "Open a PDF" and ⌘O or Ctrl+O show the OS-native open picker, filtered to PDF,
+  with several files at once; each chosen file opens as a new active tab (`a1-13`,
+  [G26](DESIGN_GAPS.md#g26), [ADR 0018](adr/0018-native-file-pickers.md), Accepted with
+  [Q07](QUESTIONS.md#q07)).
+- [ ] Drag and drop onto the start screen (the whole window) opens each PDF in a new tab (`a1-6`).
+  **Proposed (M2 plan), [G105](DESIGN_GAPS.md#g105):** so does a drop onto a document window (its
+  canvas or its tab strip), which no board draws, and `a1-6`'s "Combine into one PDF" target stays
+  visible and disabled until M4. **Proposed (M2 plan):** a file that isn't a PDF shows the note
+  "Can't open yet" with the future-version tooltip while it is dragged, and once it arrives it gets
+  `a1-9c`'s error tab ([G11](DESIGN_GAPS.md#g11), [G28](DESIGN_GAPS.md#g28)).
 - [ ] "Open with" and double-click: macOS open-document events and a command-line path on Windows and
   Linux open a tab in the running instance; a second launch forwards its paths; a file already open
-  focuses its tab ([G25](DESIGN_GAPS.md#g25)).
-- [ ] Recent files: grid and list (`a1-4`, `a1-4b`, `a1-4c`), pinned files, search, sort with Turkish
-  collation, "Clear list", stored only on this device; a moved or deleted file shows "Remove from
-  list" and "Locate…" ([G28](DESIGN_GAPS.md#g28)); no preview is stored for encrypted documents
-  (**Proposed**).
-- [ ] Default-app prompt (`a1-3`): macOS asks the system, which asks the user; Windows opens Settings →
-  Default apps.
+  focuses its tab; a cold launch with a file skips Start and opens the document (`a1-13`,
+  [G25](DESIGN_GAPS.md#g25)). **Proposed (M2 plan, [ADR 0021](adr/0021-open-from-the-os.md)):**
+  Windows forwards through a named pipe per user, and Linux through GApplication's D-Bus uniqueness,
+  with every launch its own instance when there is no session bus.
+- [ ] Recent files: grid and list (`a1-4`, `a1-4b`, `a1-4c`) and the M2 build of the start screen
+  (`a1-4-m2`), pinned files, search, sort with Turkish collation, "Clear list", stored only on this
+  device; a moved or deleted file opens `a1-9e`'s dialog with "Remove from list" and "Locate…", which
+  opens the system open panel and updates the entry ([G28](DESIGN_GAPS.md#g28)). **Proposed (M2
+  plan):** no preview is stored for a document that needs a password ([G109](DESIGN_GAPS.md#g109)),
+  and the list is a Dart store in the app support directory whose entries carry macOS
+  security-scoped bookmarks ([ADR 0021](adr/0021-open-from-the-os.md)).
+- [ ] Default-app prompt (`a1-3`): macOS asks the system, which asks the user. **Proposed (M2 plan),
+  [G103](DESIGN_GAPS.md#g103):** on Windows the button opens Settings → Default apps only once
+  Ferman is registered for PDF files, which the M5 installer does, and on Linux it waits for
+  packaging in M5; until then it is disabled with the future-version tooltip, and the first-run
+  prompt shows only where the button can act.
 - [ ] Large files: `imar-2400` shows page 1 at once, then the indexing card and banner ("Page 840 of
   2,400 · about 20 seconds left"); search and thumbnails turn on when indexing ends (editing joins
-  them in M3); Cancel closes the tab (`a1-7`).
+  them in M3); Cancel closes the tab (`a1-7`). **Proposed (M2 plan), [G104](DESIGN_GAPS.md#g104):**
+  this applies above the progressive-open threshold (more than 1,000 pages, or an indexing estimate
+  over 2 s); below it, thumbnails come from PDFium without waiting for indexing.
 - [ ] Tabs: 20 documents open at once; the overflow menu works (`a1-10`); each tab keeps its scroll,
   zoom, sidebar tab and search after switching (IndexedStack test).
 - [ ] Document properties (`a2-7`): Summary, Fonts (embedded, subset, not embedded with the font shown
-  instead) and Security (encryption and permissions, [G27](DESIGN_GAPS.md#g27)); dates in the region
-  format ([G34](DESIGN_GAPS.md#g34)).
+  instead) and Security in the Summary tab's layout: the encryption method, whether a password is
+  needed to open, and each permission, Allowed in green and Not allowed neutral (`a2-10b`,
+  [G27](DESIGN_GAPS.md#g27)). **Proposed (M2 plan):** a document with scripts says so in an info
+  banner and in a properties row ([G100](DESIGN_GAPS.md#g100)).
+- [ ] Dates, numbers and percentages follow the region, never the UI language
+  ([G34](DESIGN_GAPS.md#g34)): the `RegionFormat` tests (`app/lib/l10n/format.dart`) take the six
+  regions of `a12-0` (tr-TR, en-GB, en-US, de-DE, ar-SA, ar-AE) as their oracle, and the zoom field
+  and the status bar write the Turkish percent sign first (%100).
 
 ### Acceptance criteria
 
@@ -1761,8 +1915,20 @@ the neutral pre-P3 form ([G31](DESIGN_GAPS.md#g31)); its full board `a2-3d` is c
 [G28](DESIGN_GAPS.md#g28) open errors, [G29](DESIGN_GAPS.md#g29) empty sidebar and search states,
 [G30](DESIGN_GAPS.md#g30) tile loading and zoom states, [G31](DESIGN_GAPS.md#g31) unchecked
 signatures, [G32](DESIGN_GAPS.md#g32) right-to-left document order, [G33](DESIGN_GAPS.md#g33) layers
-(proposed for M2), [G34](DESIGN_GAPS.md#g34) locale formats, [G59](DESIGN_GAPS.md#g59) form page
-count, [G61](DESIGN_GAPS.md#g61) accent-insensitive search by default.
+(in M2 since [Q10](QUESTIONS.md#q10)), [G34](DESIGN_GAPS.md#g34) locale formats,
+[G59](DESIGN_GAPS.md#g59) form page count, [G61](DESIGN_GAPS.md#g61) accent-insensitive search by
+default.
+
+Export `519d42a` resolved G11, G25 to G28, G31, G34, G59 and G61, and drew G29, G30 and G32 in part.
+Found while planning M2, with decisions **Proposed (M2 plan)** (for G102 the notice, for G107 the
+Linux label): [G100](DESIGN_GAPS.md#g100) scripts
+notice, [G101](DESIGN_GAPS.md#g101) engine or PDFium unavailable, [G102](DESIGN_GAPS.md#g102) the two
+parsers disagree, [G103](DESIGN_GAPS.md#g103) default app on Windows and Linux,
+[G104](DESIGN_GAPS.md#g104) progressive-open threshold, [G105](DESIGN_GAPS.md#g105) drop targets,
+[G106](DESIGN_GAPS.md#g106) owner-password unlock dialog, [G107](DESIGN_GAPS.md#g107) "Show in"
+labels, [G109](DESIGN_GAPS.md#g109) a recent file that needs a password,
+[G110](DESIGN_GAPS.md#g110) search results outside the page text. [G108](DESIGN_GAPS.md#g108)
+(the controls `a11-1-m1` draws enabled) is an M1 entry that M2 step 3 closes.
 
 ### Exit checks
 
@@ -1777,10 +1943,12 @@ E1 to E8, plus:
 
 ## 7. M3: edit text core
 
-**Status:** Not started. **Needs first:** M2 accepted; [Q09](QUESTIONS.md#q09) missing-glyph
-default; [Q08](QUESTIONS.md#q08) group 4, similar fonts shipped beyond IBM Plex; [Q07](QUESTIONS.md#q07)
-for the Save as location picker (if it is still open, "Other location…" hands off to the OS-native
-save picker as the safest option, as ADR 0018 and G26 say, and the M3 summary flags it; see step 8).
+**Status:** Not started. **Needs first:** M2 accepted. The questions M3 needs were answered on
+2026-10-16: [Q09](QUESTIONS.md#q09) missing-glyph default (the design's "Use a similar font and say
+so", with step 2 always tried first, and the `fsType` rule); [Q08](QUESTIONS.md#q08) group 4, similar
+fonts shipped beyond IBM Plex (Cormorant Garamond and Crimson Pro); [Q07](QUESTIONS.md#q07), the Save
+as location picker ("Other location…" hands off to the OS-native save panel, as
+[ADR 0018](adr/0018-native-file-pickers.md) and [G26](DESIGN_GAPS.md#g26) say; see step 8).
 
 ### Goal
 
@@ -1816,24 +1984,37 @@ and CJK cases. Design: [ADR 0005](adr/0005-block-scoped-text-editing.md),
 ### Artboards covered
 
 - **00 Fixes** (6): `f1`, `f2`, `f3`, `f4`, `f4a`, `f4b`
-- **01 First run and files** (4): `a1-2a`, `a1-10b`, `a1-11`, `a1-12`
+- **01 First run and files** (5): `a1-2a`, `a1-10b`, `a1-11`, `a1-12`, `a1-11b`
 - **02 View** (1): `a2-3d`
-- **03a Edit text** (9): `a3-1a`, `a3-1b`, `a3-1c`, `a3-1d`, `a3-2`, `a3-3a`, `a3-3b`, `a3-4`, `a3-15`
+- **03a Edit text** (14): `a3-1a`, `a3-1b`, `a3-1c`, `a3-1d`, `a3-2`, `a3-3a`, `a3-3b`, `a3-4`, `a3-15`, `a3-16a`, `a3-16b`, `a3-17`, `a3-18`, `a3-19`
 - **03b Edit content** (2): `a3-9`, `a3-10`
-- **03c Edit review and translate** (2): `a3-12`, `a3-14`
+- **03c Edit review and translate** (3): `a3-12`, `a3-12b`, `a3-14`
 - **11a Settings** (1): `a11-1c`
-- **11b App** (2): `a11-7`, `a11-7b`
+- **11b App** (5): `a11-7`, `a11-7b`, `a11-7d`, `a11-7e`, `a11-7f`
 - **12 Localization** (4): `a12-1tr`, `a12-1de`, `a12-1ar`, `a12-1ja`
 
-31 boards.
+41 boards.
 
 Notes: `a12-1de` and `a12-1ja` check layout and font fallback; their UI strings fall back to English
 until volunteers translate them. `a3-15` (vertical Japanese) is in M3 as a candidate to defer
 ([Q10](QUESTIONS.md#q10)); if it is deferred, vertical blocks are not editable and say why. In
 `a3-1c`, highlight, comment and "Add link" arrive with annotations and links in M4 (`a3-6`), and
-find and replace is P2; spell-check and hyphenation in `a3-2` and `a3-14` may move to M4. `a2-3d`
-shows signatures without a validity colour until P3. `a11-1c`: "Keep versions" is M4 and "Font for
-new text" is P2.
+find and replace is P2; spell-check and hyphenation in `a3-2` and `a3-14` may move to M4. Until P3,
+`a2-3d`'s Signatures tab shows the neutral state of `a2-14` (M2). `a11-1c`: "Keep versions" is M4 and
+"Font for new text" is P2.
+
+The owner's export `519d42a` added 10 of these boards, each drawn in English, Turkish and Arabic:
+text that can't be edited (`a3-19`, step 1, [G39](DESIGN_GAPS.md#g39)); overflow results and the
+choices that can't apply (`a3-18`, step 5, [G38](DESIGN_GAPS.md#g38)); the outcomes of the
+missing-glyph steps (`a3-17`, step 6, [G36](DESIGN_GAPS.md#g36), [G37](DESIGN_GAPS.md#g37)); Save as
+with a folder from the system panel and the family of save errors (`a1-11b`, `a11-7d`, step 8,
+[G26](DESIGN_GAPS.md#g26), [G40](DESIGN_GAPS.md#g40)); quitting with several unsaved documents and
+recovery when the original changed (`a11-7e`, `a11-7f`, step 9, [G40](DESIGN_GAPS.md#g40)); the
+warning before the first change to a signed document and the banner after "Edit anyway" (`a3-16a`,
+`a3-16b`, step 10, [G35](DESIGN_GAPS.md#g35)); and the review list's empty state and confirmations
+(`a3-12b`, step 11, [G42](DESIGN_GAPS.md#g42)). Parts that land later: PDF/A-2b in `a1-11b` is P4;
+the signed-document check before the first change in Comment, Fill & Sign and Organize (`a3-16a`)
+arrives with those modes in M4; find and replace uses `a3-17`'s flow in P2.
 
 ### Engine capabilities and crates
 
@@ -1973,10 +2154,10 @@ new text" is P2.
   14:32"), Couldn't save with Save still enabled for a retry ([G41](DESIGN_GAPS.md#g41)).
 - [ ] Save as (`a1-11`) collects the file name, location and options in a Ferman sheet; choosing a
   drawn location in "Where" saves without a picker. "Other location…" hands off to the OS-native
-  save picker, and the sheet then shows the chosen folder ([G26](DESIGN_GAPS.md#g26),
-  [ADR 0018](adr/0018-native-file-pickers.md)); if [Q07](QUESTIONS.md#q07) is still open, this is
-  the safest option (brief §9) and the M3 summary flags it. The "PDF/A-2b, for archiving" and
-  "Optimized for web" formats stay disabled with the future-version tooltip.
+  save picker, and the sheet then shows the chosen folder (`a1-11b`, [G26](DESIGN_GAPS.md#g26),
+  [ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)). The
+  "PDF/A-2b, for archiving" and "Optimized for web" formats stay disabled with the future-version
+  tooltip, although a1-11b draws "Optimized for web" enabled ([G111](DESIGN_GAPS.md#g111)).
 - [ ] "Optimize and clean" writes a full rewrite without earlier revisions or unreferenced objects and
   warns first on signed documents. Saving a repaired document (`a1-9`) always writes a full rewrite to
   a new file.
@@ -2100,7 +2281,8 @@ designed, [G37](DESIGN_GAPS.md#g37) missing-glyph chain states, [G38](DESIGN_GAP
 outcomes, [G39](DESIGN_GAPS.md#g39) text that cannot be edited, [G40](DESIGN_GAPS.md#g40) save
 failures, [G41](DESIGN_GAPS.md#g41) Save in the error state, [G42](DESIGN_GAPS.md#g42) review list
 states, [G43](DESIGN_GAPS.md#g43) saving settings, [G44](DESIGN_GAPS.md#g44) shortcut collision
-(confirmed for Save a copy), [G54](DESIGN_GAPS.md#g54) overflow labels.
+(confirmed for Save a copy), [G54](DESIGN_GAPS.md#g54) overflow labels. Export `519d42a` resolved
+G35 to G38 and G40 to G44, and drew G39 in part.
 
 ### Exit checks
 
@@ -2115,10 +2297,13 @@ E1 to E8, plus:
 
 ## 8. M4: rest of phase 1
 
-**Status:** Not started. **Needs first:** M3 accepted; [Q08](QUESTIONS.md#q08) group 3, handwriting
-fonts for typed signatures; [Q06](QUESTIONS.md#q06) for the drawn "Signature checks" row in Settings →
-Privacy (visible but disabled until then); [Q10](QUESTIONS.md#q10) basic system print; the Proposed
-details of [ADR 0019](adr/0019-ai-clients-through-mcp.md) for step 11 ([Q20](QUESTIONS.md#q20)).
+**Status:** Not started. **Needs first:** M3 accepted. The owner's answers M4 needs came on
+2026-10-16: [Q08](QUESTIONS.md#q08) group 3, the handwriting fonts for typed signatures (Caveat,
+Dancing Script and Homemade Apple, bundled); [Q06](QUESTIONS.md#q06), revocation lookups allowed,
+off until first use, so the drawn "Signature checks" row in Settings → Privacy stays visible but
+disabled until phase 3 builds them; [Q10](QUESTIONS.md#q10), basic system print in M4; and the
+details of [ADR 0019](adr/0019-ai-clients-through-mcp.md) for step 11 ([Q20](QUESTIONS.md#q20)),
+approved as written, with anything that changes when step 11 starts going back to the owner.
 
 ### Goal
 
@@ -2138,7 +2323,8 @@ app frame (command palette, toasts, background tasks, full settings).
   ([ARCHITECTURE.md §2.3](ARCHITECTURE.md#ferman-ops)).
 - Organize, Comment and Fill & Sign modes; Compress and Version history in Tools mode.
 - Command palette, keyboard cheat sheet, toasts, background task drawer.
-- All Settings panes, the licences and third-party notices screen, basic system print (Proposed).
+- All Settings panes, the licences and third-party notices screen, basic system print
+  ([Q10](QUESTIONS.md#q10)).
 - A local MCP server for AI clients in the running app, set up from Settings
   ([ADR 0019](adr/0019-ai-clients-through-mcp.md), the owner's decision of 2026-10-16).
 
@@ -2149,11 +2335,12 @@ app frame (command palette, toasts, background tasks, full settings).
 - **05a Fill** (9): `a5-1`, `a5-1d`, `a5-2`, `a5-2b`, `a5-3`, `a5-3b`, `a5-3c`, `a5-3d`, `a5-4`
 - **06 Organize** (6): `a6-1`, `a6-1b`, `a6-2`, `a6-3`, `a6-4`, `a6-5`
 - **09a Tools** (1): `a9-1`
-- **09b Tools** (2): `a9-6` (proposed), `a9-8`
+- **09b Tools** (2): `a9-6` ([Q10](QUESTIONS.md#q10)), `a9-8`
 - **11a Settings** (5): `a11-1d`, `a11-1e`, `a11-1h`, `a11-1j`, `a11-1k`
 - **11b App** (4): `a11-2`, `a11-3`, `a11-6`, `a11-6b`
 
-36 boards, 1 of them with a proposed milestone ([Q10](QUESTIONS.md#q10)).
+36 boards, 1 of them placed here by [Q10](QUESTIONS.md#q10) (the owner accepted the proposed
+milestones on 2026-10-16).
 
 Parts that land later stay disabled with the future-version tooltip: scanner and camera import in
 `a6-1` (P3, with Scan to PDF); Word and Excel input in `a6-3` (P3); certificates, PKCS#11, timestamp
@@ -2192,7 +2379,7 @@ privacy rows for features that do not exist yet in `a11-1h`.
 |---|---|---|---|
 | Rust | image 0.25 | MIT OR Apache-2.0 | default features off; png, jpeg, tiff, webp and gif only (avoids the unmaintained `paste` crate) |
 | Rust | cargo-about 0.9 (tool) | MIT OR Apache-2.0 | third-party notices for the licences screen ([G14](DESIGN_GAPS.md#g14)); every release in M5 bundles its output |
-| Fonts | handwriting fonts for typed signatures, if Q08 group 3 approves them (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
+| Fonts | handwriting fonts for typed signatures, approved in Q08 group 3 (Caveat, Dancing Script, Homemade Apple) | OFL-1.1; Homemade Apple Apache-2.0 | unmodified upstream files with their licences |
 | Dart or platform | a printing package or platform channel | to check | chosen and licence-checked in step 9 |
 | Rust | an MCP SDK (the official `rmcp`, or a small JSON-RPC layer of our own) | to check | chosen and licence-checked in step 11 ([ADR 0019](adr/0019-ai-clients-through-mcp.md)) |
 
@@ -2215,7 +2402,8 @@ privacy rows for features that do not exist yet in `a11-1h`.
 8. **Full settings** (`a11-1d`, `a11-1e`, `a11-1h`, `a11-1j`, `a11-1k`, the rest of `a11-1` and
    `a11-1c`), dark, Turkish and Linux variants ([G50](DESIGN_GAPS.md#g50)), and the licences screen
    ([G14](DESIGN_GAPS.md#g14)).
-9. **Basic system print** (`a9-6`, Proposed), handing the document to the OS print dialog.
+9. **Basic system print** (`a9-6`, [Q10](QUESTIONS.md#q10)), handing the document to the OS print
+   dialog.
 10. **Thumbnail badges** for comments, fields and signatures (`f5`); bookmark and metadata editing and
     "Attach a file" (`a2-3a`, `a2-7`, `a2-3b`) if M3 did not ship them.
 11. **AI clients through MCP** ([ADR 0019](adr/0019-ai-clients-through-mcp.md), [Q20](QUESTIONS.md#q20)):
@@ -2223,9 +2411,9 @@ privacy rows for features that do not exist yet in `a11-1h`.
     (Claude, ChatGPT and others that can reach a local server) with a connection link or a one-click
     setup and a switch that stops it ([G94](DESIGN_GAPS.md#g94)); Settings → Privacy lists connected
     clients. The client works on the documents open in Ferman through `ferman-api`: its changes are
-    edit transactions, shown at once, listed in the edit review and undoable. The Proposed details of
-    the ADR (transport, pairing, the first tools, saving) are settled with the owner when this step
-    starts.
+    edit transactions, shown at once, listed in the edit review and undoable. The owner approved the
+    ADR's details (transport, pairing, the first tools, saving) on 2026-10-16; anything that changes
+    when this step starts goes back to the owner.
 
 ### Acceptance criteria
 
@@ -2259,16 +2447,16 @@ privacy rows for features that do not exist yet in `a11-1h`.
   be paused, resumed and cancelled, and cancelling leaves no partial output.
 - [ ] Settings → Privacy lists the four network uses from brief §3, each disabled until its
   milestone. The drawn "Signature checks" row (`a11-1h`) and the revocation switch in `a11-1e` stay
-  visible but disabled, with no network access, until the owner decides [Q06](QUESTIONS.md#q06)
-  ([G51](DESIGN_GAPS.md#g51)). No row is added for local-network discovery
-  ([G52](DESIGN_GAPS.md#g52), [G56](DESIGN_GAPS.md#g56)).
+  visible but disabled, with no network access, until phase 3 builds revocation lookups, off until
+  first use, as the owner decided in [Q06](QUESTIONS.md#q06) ([G51](DESIGN_GAPS.md#g51)). No row is
+  added for local-network discovery ([G52](DESIGN_GAPS.md#g52), [G56](DESIGN_GAPS.md#g56)).
 - [ ] No M4 build makes a network connection (outbound traffic blocked and logged in an automated run
   through every screen).
 - [ ] The licences screen lists every Rust crate (from cargo-about), every Dart package, the PDFium
   `licenses/` folder and the packager's MIT notice, every font and the icon notices; a test checks
   the count against `cargo metadata` and `pubspec.lock`.
-- [ ] Print (Proposed): the OS print dialog opens with the document, and "Use system dialog…" is one
-  click away.
+- [ ] Print ([Q10](QUESTIONS.md#q10)): the OS print dialog opens with the document, and "Use system
+  dialog…" is one click away.
 - [ ] AI clients (ADR 0019): with the switch on, a supported client connects from the same computer
   only, lists the open documents, reads a page's text and makes an edit that shows at once, appears
   in the edit review under the client's name and is undone by one undo; with the switch off nothing
@@ -2299,17 +2487,19 @@ E1 to E8, plus:
 
 ## 9. M5: release pipeline
 
-**Status:** Not started. **Needs first:** M4 accepted; [Q02](QUESTIONS.md#q02) code-signing
-publisher name, [Q12](QUESTIONS.md#q12) Linux packaging formats, [Q15](QUESTIONS.md#q15)
-update-check endpoint and payload. The owner provides the Apple Developer ID, notarization
-credentials and a Windows code-signing certificate. Already answered: [Q01](QUESTIONS.md#q01) bundle
-identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03) minimum OS versions and
-[Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors".
+**Status:** Not started. **Needs first:** M4 accepted. The owner provides the Apple Developer ID,
+notarization credentials and a Windows code-signing certificate. Already answered:
+[Q01](QUESTIONS.md#q01) bundle identifier `io.github.kerembas.ferman`, [Q03](QUESTIONS.md#q03)
+minimum OS versions and [Q14](QUESTIONS.md#q14) "Copyright The Ferman Authors" (2026-10-15), and on
+2026-10-16 [Q02](QUESTIONS.md#q02) code-signing publisher name (one name on both platforms),
+[Q12](QUESTIONS.md#q12) Linux packaging formats (a Flatpak on Flathub and an AppImage) and
+[Q15](QUESTIONS.md#q15) update-check endpoint and payload (a signed manifest served from GitHub, the
+release files on GitHub Releases).
 
 **Flathub note.** Flathub verifies an `io.github.<user>` id against the GitHub account `<user>`. The
 repository's account is `KEREM-BAS`, not `kerembas`, so a Flatpak on Flathub needs a `kerembas`
-account or organisation on GitHub, or a domain-based id. This is decided with the packaging part of
-Q12.
+account or organisation on GitHub, or a domain-based id. The owner's packaging answer to Q12 keeps
+this check open; it is settled before the Flatpak is submitted.
 
 ### Goal
 
@@ -2330,7 +2520,8 @@ manifests.
   notarized and stapled; PDFium signed inside the bundle.
 - Windows: installer for x64 and arm64 (format chosen in this milestone), Authenticode signed with a
   timestamp, registering the PDF ProgID and "Open with"; PDFium signed.
-- Linux, best effort: formats per [Q12](QUESTIONS.md#q12) (see the Flathub note above).
+- Linux, best effort: a Flatpak on Flathub and an AppImage, as the owner chose in
+  [Q12](QUESTIONS.md#q12) (see the Flathub note above).
 - The network gateway in `ferman-api` (`net` module) with the update check, the network activity log
   and the per-purpose switches ([ARCHITECTURE.md §10.2](ARCHITECTURE.md#102-one-gateway)).
 - Auto-update with signed update packages; Homebrew cask and winget manifests.
@@ -2410,8 +2601,8 @@ E1 to E8, plus:
 
 ## 10. Phase 2: editing content and protecting documents
 
-**Status:** Not started. **Needs first:** phase 1 signed off; [Q10](QUESTIONS.md#q10) for the
-viewer extras proposed here.
+**Status:** Not started. **Needs first:** phase 1 signed off. The owner placed the viewer extras here
+on 2026-10-16 ([Q10](QUESTIONS.md#q10)).
 
 ### Goal
 
@@ -2424,23 +2615,24 @@ watermarks, headers, footers and Bates numbers, and remove information for real,
 > verification, remove hidden information.
 
 Nearest-roadmap additions (part of [Q10](QUESTIONS.md#q10)): page background (`a3-8d`), passwords and
-permissions (`a8-1`) and the security report (`a8-4`). Proposed viewer extras: presentation, reading
-mode, split view and inverted dark reading.
+permissions (`a8-1`) and the security report (`a8-4`). Viewer extras placed here by Q10:
+presentation, reading mode, split view and inverted dark reading.
 
 ### Deliverables
 
 Add text and add image tools; image crop and properties; find and replace with per-match preview;
 watermark, header and footer, Bates numbering and page background; redaction (mark text, areas and
 patterns, review, apply, verify); remove hidden information; password protection and permissions;
-the security report; the proposed viewer extras.
+the security report; the viewer extras.
 
 ### Artboards covered
 
-- **02 View** (5): `a2-5a` (proposed), `a2-5b` (proposed), `a2-8a` (proposed), `a2-8b` (proposed), `a2-9` (proposed)
+- **02 View** (5): `a2-5a`, `a2-5b`, `a2-8a`, `a2-8b`, `a2-9` (all [Q10](QUESTIONS.md#q10))
 - **03b Edit content** (7): `a3-5a`, `a3-5b`, `a3-7`, `a3-8a`, `a3-8b`, `a3-8c`, `a3-8d`
 - **08 Protect** (6): `a8-1`, `a8-2`, `a8-2b`, `a8-2c`, `a8-3`, `a8-4`
 
-18 boards, 5 of them with a proposed milestone ([Q10](QUESTIONS.md#q10)).
+18 boards, 5 of them placed here by [Q10](QUESTIONS.md#q10) (the owner accepted the proposed
+milestones on 2026-10-16).
 
 ### Engine capabilities and crates
 
@@ -2467,12 +2659,12 @@ the security report; the proposed viewer extras.
   comments, attachments, JavaScript (listed, never run), hidden layers, content clipped or outside
   the page, form data; it lists what it found before removing anything.
 - **Passwords and permissions** (`a8-1`): AES-256 encryption with an open password and permissions.
-- **Viewer extras (Proposed):** presentation (`a2-5a`), reading mode (`a2-5b`), split view with two
-  views of one document or two documents (`a2-8a`, `a2-8b`), and inverted dark reading (`a2-9`, the
-  "Dark reading mode" option in `a11-1`). As `a2-9` draws it, the page is inverted with
-  `invert(0.9) hue-rotate(180deg)`, photos and signatures are re-inverted to their real colours, and
-  the filter is never applied when printing or saving. This filter is not a token: `--page-filter`
-  belongs to the "Dimmed" option, which dims the page without inverting it (M2).
+- **Viewer extras ([Q10](QUESTIONS.md#q10)):** presentation (`a2-5a`), reading mode (`a2-5b`),
+  split view with two views of one document or two documents (`a2-8a`, `a2-8b`), and inverted dark
+  reading (`a2-9`, the "Dark reading mode" option in `a11-1`). As `a2-9` draws it, the page is
+  inverted with `invert(0.9) hue-rotate(180deg)`, photos and signatures are re-inverted to their real
+  colours, and the filter is never applied when printing or saving. This filter is not a token:
+  `--page-filter` belongs to the "Dimmed" option, which dims the page without inverting it (M2).
 
 ### New dependencies
 
@@ -2499,9 +2691,9 @@ through [DEPENDENCIES.md](DEPENDENCIES.md) with a licence check.
   its permissions are reported correctly by `a2-7` Security.
 - [ ] Every redaction and hidden-information case also passes on the real-world set (Word, LaTeX,
   scanned and form files).
-- [ ] Dark reading mode (Proposed, `a2-9`): pages show inverted, images and signatures keep their
-  real colours, and a file saved or printed while it is on is byte-identical to one saved or printed
-  with it off.
+- [ ] Dark reading mode ([Q10](QUESTIONS.md#q10), `a2-9`): pages show inverted, images and
+  signatures keep their real colours, and a file saved or printed while it is on is byte-identical to
+  one saved or printed with it off.
 - [ ] Goldens for every P2 screen in light and dark × en, tr and ar; standard gates S1 to S9; fuzz
   targets for every new parser.
 
@@ -2517,9 +2709,12 @@ E1 to E8.
 
 ## 11. Phase 3: OCR, conversion, certificate signatures and compare
 
-**Status:** Not started. **Needs first:** phase 2 accepted; [Q16](QUESTIONS.md#q16) OCR engine;
-[Q06](QUESTIONS.md#q06) OCSP and CRL lookups and local-network discovery; an ADR on the Office
-conversion approach and its licences.
+**Status:** Not started. **Needs first:** phase 2 accepted; the OCR engine, chosen at the start of
+phase 3 after a fresh check of ocrs and other engines, with Tesseract and Leptonica as the fallback
+([Q16](QUESTIONS.md#q16), answered on 2026-10-16); an ADR on the Office conversion approach and its
+licences. [Q06](QUESTIONS.md#q06) was answered on 2026-10-16: OCSP and CRL lookups are allowed, off
+until first use, with their own switch and an entry in the network activity log; there is no
+local-network discovery.
 
 ### Goal
 
@@ -2548,9 +2743,10 @@ an overlay; Settings → Text recognition and the certificate parts of Settings 
 
 23 boards.
 
-The local-network parts of `a7-4` (Wi-Fi scanner discovery and phone pairing) are not built until the
-owner decides [Q06](QUESTIONS.md#q06); if they are, each is off until first use and listed in
-Settings → Privacy ([G56](DESIGN_GAPS.md#g56)). The phone-camera source also needs the mobile app (P5).
+The local-network parts of `a7-4` (Wi-Fi scanner discovery and phone pairing) are not built: the
+owner decided in [Q06](QUESTIONS.md#q06) that Scan to PDF offers only the scanners the operating
+system provides, and pairing is reconsidered with the mobile apps in phase 5
+([G56](DESIGN_GAPS.md#g56)). The phone-camera source also needs the mobile app (P5).
 
 ### Engine capabilities and crates
 
@@ -2566,8 +2762,9 @@ Settings → Privacy ([G56](DESIGN_GAPS.md#g56)). The phone-camera source also n
 - **e-imza:** PKCS#11 through cryptoki, loading the vendor module the user installed; PIN sent only to
   the card; tries left shown; card and reader detection (`a5-6` to `a5-6e`).
 - **Validation:** chain building, integrity of the signed byte range, changes after signing, timestamp
-  checks; revocation only if Q06 allows it, otherwise the result says that revocation was not checked
-  (`a5-7` to `a5-7e`). Replaces the neutral signature state of [G31](DESIGN_GAPS.md#g31).
+  checks; revocation through OCSP and CRL, off until first use as [Q06](QUESTIONS.md#q06) allows, and
+  when it is off the result says that revocation was not checked (`a5-7` to `a5-7e`). Replaces the
+  neutral signature state of [G31](DESIGN_GAPS.md#g31).
 - **Compare:** text differences from the M3 text model and visual differences from renders, side by
   side and overlay (`a9-2`, `a9-2b`); used by "Changed after signing" and Version history.
 
@@ -2579,7 +2776,7 @@ Settings → Privacy ([G56](DESIGN_GAPS.md#g56)). The phone-camera source also n
 | Rust | x509-cert 0.3, der 0.8, spki 0.8 | Apache-2.0 OR MIT | certificates and chains |
 | Rust | cryptoki 0.12 | Apache-2.0 | PKCS#11; vendor middleware is installed by the user, never redistributed |
 | Rust | rsa 0.9 | MIT OR Apache-2.0 | verification only, because of the unpatched Marvin advisory (RUSTSEC-2023-0071); private keys stay on tokens or in the OS keystore |
-| Rust or native | ocrs 0.13 with rten 0.26, or Tesseract with Leptonica | MIT OR Apache-2.0; Apache-2.0 and BSD-2-Clause | decided by [Q16](QUESTIONS.md#q16): ocrs is a Latin-only preview with an unclear model licence |
+| Rust or native | ocrs 0.13 with rten 0.26, or Tesseract with Leptonica | MIT OR Apache-2.0; Apache-2.0 and BSD-2-Clause | chosen at the start of phase 3 ([Q16](QUESTIONS.md#q16)): ocrs is a Latin-only preview with an unclear model licence; Tesseract is the fallback |
 | Rust | Office format readers and writers | to check | chosen in the conversion ADR |
 | CI only | a software PKCS#11 token for tests (for example SoftHSM2) | to check | never shipped |
 
@@ -2644,20 +2841,21 @@ device.
 > Phase 4: form authoring, PDF/A and preflight, accessibility (PDF/UA) tools, batch actions, in-place
 > translation, local AI assistant.
 
-Proposed additions: read aloud and measuring ([Q10](QUESTIONS.md#q10)).
+Additions placed here by [Q10](QUESTIONS.md#q10): read aloud and measuring.
 
 ### Artboards covered
 
-- **02 View** (1): `a2-6` (proposed)
+- **02 View** (1): `a2-6` ([Q10](QUESTIONS.md#q10))
 - **03c Edit review and translate** (2): `a3-13a`, `a3-13b`
-- **04 Comment** (1): `a4-1c` (proposed)
+- **04 Comment** (1): `a4-1c` ([Q10](QUESTIONS.md#q10))
 - **05b Sign** (2): `a5-8`, `a5-8b`
 - **09a Tools** (4): `a9-3`, `a9-3b`, `a9-4`, `a9-4b`
-- **09b Tools** (3): `a9-5`, `a9-5b`, `a9-7` (proposed)
+- **09b Tools** (3): `a9-5`, `a9-5b`, `a9-7` ([Q10](QUESTIONS.md#q10))
 - **10 AI assistant** (3): `a10-1`, `a10-2`, `a10-2b`
 - **11a Settings** (1): `a11-1g`
 
-17 boards, 3 of them with a proposed milestone ([Q10](QUESTIONS.md#q10)).
+17 boards, 3 of them placed here by [Q10](QUESTIONS.md#q10) (the owner accepted the proposed
+milestones on 2026-10-16).
 
 ### Engine capabilities and crates
 
@@ -2672,8 +2870,8 @@ Proposed additions: read aloud and measuring ([Q10](QUESTIONS.md#q10)).
   choices as `a3-4` ([G54](DESIGN_GAPS.md#g54)) (`a3-13a`, `a3-13b`).
 - **AI assistant:** off by default; a local model, or the user's own key for a provider the user picks,
   as brief §3 allows (`a10-1`, `a10-2`, `a10-2b`, `a11-1g`).
-- **Proposed:** read aloud with the OS speech engine, no network (`a2-6`); distance, area and scale
-  calibration (`a4-1c`, `a9-7`).
+- Placed here by [Q10](QUESTIONS.md#q10): read aloud (`a2-6`), with the OS speech engine and no
+  network (**Proposed**); distance, area and scale calibration (`a4-1c`, `a9-7`).
 
 ### New dependencies
 
@@ -2702,8 +2900,8 @@ Proposed additions: read aloud and measuring ([Q10](QUESTIONS.md#q10)).
 - [ ] AI: with the assistant off (the default) no AI code path runs and no request is made; with a
   local model it works with networking blocked; with the user's own key, every request is in the
   network activity log and goes only to the provider the user chose.
-- [ ] Measure (Proposed): after calibration on `plan-tr`, distances and areas are within 1% of the
-  drawn values.
+- [ ] Measure ([Q10](QUESTIONS.md#q10)): after calibration on `plan-tr`, distances and areas are
+  within 1% of the drawn values.
 - [ ] Goldens for every P4 screen in light and dark × en, tr and ar; standard gates S1 to S9.
 
 ### Design gaps to settle in phase 4
@@ -2800,12 +2998,12 @@ E1 to E8.
 
 ## 14. Not scheduled yet
 
-The brief's roadmap does not name these drawn features. Each has a **proposed** place that waits for
-the owner ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md#g33)). Until a feature ships, its entry points
-stay visible as designed, disabled, with the tooltip "Available in a future version" and a BACKLOG
-entry.
+The brief's roadmap does not name these drawn features. Each had a proposed place, and the owner
+accepted all of them on 2026-10-16 ([Q10](QUESTIONS.md#q10), [G33](DESIGN_GAPS.md#g33)). Until a
+feature ships, its entry points stay visible as designed, disabled, with the tooltip "Available in a
+future version" and a BACKLOG entry.
 
-| Feature | Boards | Proposed | Why |
+| Feature | Boards | Placed in | Why |
 |---|---|---|---|
 | Layers (optional content) visibility | `a2-3c` | M2 | part of rendering |
 | Presentation mode | `a2-5a` | P2 | viewer extra after phase 1 |
@@ -2835,8 +3033,8 @@ Drawn features that take the nearest roadmap item (also part of [Q10](QUESTIONS.
 | Page background, passwords, security report | `a3-8d`, `a8-1`, `a8-4` | P2 |
 | Font for new text | `a11-1c` | P2 |
 | Scanner and camera import in Organize | `a6-1` | P3, with Scan to PDF |
-| Local-network scanner discovery and phone pairing | `a7-4` | not built until the owner decides [Q06](QUESTIONS.md#q06) |
-| OCSP and CRL revocation lookups | `a11-1h`, `a11-1e`, the signing boards | not enabled until the owner decides [Q06](QUESTIONS.md#q06); the drawn row and switch stay visible but disabled ([G51](DESIGN_GAPS.md#g51)) |
+| Local-network scanner discovery and phone pairing | `a7-4` | not built: Scan to PDF offers only the system's scanners, and pairing is reconsidered with the mobile apps in P5 ([Q06](QUESTIONS.md#q06)) |
+| OCSP and CRL revocation lookups | `a11-1h`, `a11-1e`, the signing boards | P3, off until first use, with their own switch in Settings → Privacy ([Q06](QUESTIONS.md#q06)); until then the drawn row and switch stay visible but disabled ([G51](DESIGN_GAPS.md#g51)) |
 
 ## 15. Risk register
 
@@ -2848,23 +3046,23 @@ risk first bites.
 | **PDFium is not thread-safe** and runs in-process: pdfium-render's `thread_safe` feature is one global lock, throughput is one render thread, and a PDFium crash ends the app | H | H | all calls on one render thread with the lock as a second guard; caches, prefetch, low-resolution placeholders, progressive rendering; helper processes with one PDFium each if M2 measurements demand it; recovery journal for crashes; fuzzing and a pinned binary | M2 | [ADR 0009](adr/0009-threading-and-jobs.md), [ARCHITECTURE.md §4.4](ARCHITECTURE.md#44-pdfium-confinement) |
 | **lopdf and PDFium disagree** on damaged or crafted files, so the user sees content the model does not hold, and an edit lands in the wrong place | M | H | compare page count and sizes at open; read-only on disagreement; repair is always a full rewrite to a new file; damaged real-world files in the corpus; both parse paths fuzzed | M2 | [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), [ARCHITECTURE.md §5.2](ARCHITECTURE.md#52-damaged-restricted-and-unsupported-files) |
 | **lopdf API churn**: breaking releases almost monthly | H | M | pin `=0.45`; wrap it inside ferman-core; upgrade on purpose, with the corpus as the safety net | M2 | [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md) |
-| **Font licensing**: the Plex Reserved Font Name forbids shipping modified or subset Plex files; installed fonts may forbid embedding (`fsType`); handwriting fonts and CJK fonts carry their own terms; glyph lists, AFM metrics and CMaps need checks | M | H | ship IBM's unmodified files with OFL texts; respect `fsType` in missing-glyph step 2 and say why; bundle handwriting fonts only after [Q08](QUESTIONS.md#q08); check every data file's licence before adding it; list everything in the licences screen | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06), [G08](DESIGN_GAPS.md#g08) |
+| **Font licensing**: the Plex Reserved Font Name forbids shipping modified or subset Plex files; installed fonts may forbid embedding (`fsType`); handwriting fonts and CJK fonts carry their own terms; glyph lists, AFM metrics and CMaps need checks | M | H | ship IBM's unmodified files with OFL texts; respect `fsType` in missing-glyph step 2 and say why; bundle only the handwriting and similar fonts the owner approved in [Q08](QUESTIONS.md#q08), as unmodified upstream files; check every data file's licence before adding it; list everything in the licences screen | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G06](DESIGN_GAPS.md#g06), [G08](DESIGN_GAPS.md#g08) |
 | **Fontations churn**: skrifa and read-fonts are pre-1.0 and break every few weeks; harfrust, subsetter and krilla pin different versions, so two copies end up in the binary with handles that cannot be shared | H | M | pin exact versions; upgrade skrifa, read-fonts, the shaper, subsetter and krilla together; keep the shaper behind one trait; cargo-deny warns on duplicates | M2 | [DEPENDENCIES.md](DEPENDENCIES.md), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
 | **Shaper**: the brief names rustybuzz, which is archived upstream; its successor harfrust is pre-1.0 | H | M | ADR 0007 accepted (harfrust); exact pin and joint upgrades with the font stack; rustybuzz banned except through krilla; the shaper trait keeps it in one module | M3 | [Q04](QUESTIONS.md#q04), [ADR 0007](adr/0007-harfrust-instead-of-rustybuzz.md) |
 | **CJK fonts size and coverage**: Japanese, Korean, Simplified and Traditional Chinese fonts add tens of megabytes each; some Linux systems have none installed | H | M | system fonts per ADR 0013, with the right locale per text style; detect missing coverage and say so instead of showing empty boxes; no font packs, as the owner decided in [Q08](QUESTIONS.md#q08) group 2 | M1 | [ADR 0013](adr/0013-fonts-and-icons.md), [G07](DESIGN_GAPS.md#g07) |
-| **Code signing and notarization**: needs an Apple Developer ID, notarization credentials, a Windows certificate and the publisher name; a new publisher has no SmartScreen reputation; the third-party PDFium binaries are unsigned | M | H | answer [Q02](QUESTIONS.md#q02) early; set up accounts before M5; a signing dry run in M4 with a test certificate; sign PDFium with the app; secrets in a protected CI environment | M5 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
+| **Code signing and notarization**: needs an Apple Developer ID, notarization credentials, a Windows certificate and the publisher name; a new publisher has no SmartScreen reputation; the third-party PDFium binaries are unsigned | M | H | the publisher name is settled ([Q02](QUESTIONS.md#q02), answered on 2026-10-16); set up accounts before M5; a signing dry run in M4 with a test certificate; sign PDFium with the app; secrets in a protected CI environment | M5 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
 | **PDFium supply chain**: weekly third-party builds, unsigned | M | H | pinned tag and SHA-256 per archive; non-V8, non-XFA build; licences folder shipped | M2 | [DEPENDENCIES.md](DEPENDENCIES.md) |
-| **Bridge performance**: zero-copy tile transfer and executor behaviour not measured yet | M | M | M1 step 3 benchmark; texture-registry fallback | M1 | [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles) |
+| **Bridge performance**: the default codec copies tiles; the M1 benchmark moved 1 MiB in 3.3 ms at best in a profile build, against a 0.2 ms target, and R1 and R2 are not measured yet | M | M | the Dco codec first, tried at the start of M2 step 3, then the pointer view, then the texture registry, as the owner chose in [Q19](QUESTIONS.md#q19) | M1 | [ARCHITECTURE.md §3.4](ARCHITECTURE.md#34-tiles), [ADR 0009](adr/0009-threading-and-jobs.md) |
 | **Edit-to-render on large files**: one PDFium reload per edit can exceed 100 ms | M | M | reload through a reader without copies; render only changed pages; measure in M3 | M3 | [ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets) |
 | **Zero pixel diff in rare cases**: anti-aliasing at the region edge or shared resources make an edit touch pixels outside its box | M | H | the documented 2-pixel margin (Proposed); copy-on-write for shared resources; a case that cannot reach zero becomes "not editable" with a reason, never a silent pass | M3 | [ADR 0005](adr/0005-block-scoped-text-editing.md) |
 | **Text model errors** on complex layouts: wrong blocks mean wrong edits | M | H | ground truth for generated files; hand-labelled real-world files; conservative editability; every mismatch becomes a case | M3 | [ARCHITECTURE.md §6.4](ARCHITECTURE.md#64-text-model) |
 | **IME and caret on a custom canvas**: CJK composition and dead keys break | M | M | `DeltaTextInputClient` from the first prototype; CJK and Turkish input in integration tests | M3 | [ARCHITECTURE.md §6.12](ARCHITECTURE.md#612-the-ui-side-of-editing) |
 | **Flutter desktop gaps**: multi-window for Settings; Windows 11 snap layouts with custom caption buttons | M | L | window-styled surface as fallback, which M1 uses for Settings (real windows: [BACKLOG.md](BACKLOG.md) B090); native hit-test hook for maximize | M1 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |
-| **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; ask for a re-export ([Q11](QUESTIONS.md#q11)) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
-| **Owner decisions pending**: the open questions (Q02, Q06, Q07, Q09 to Q11, Q13, Q15, Q16, Q18 and the open parts of Q08, Q12, Q14 and Q17) and the Proposed ADRs (0009, 0018, and the Proposed details in 0003, 0004, 0006 and 0008) gate steps | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says, except that M2 stops before step 1 if ADR 0009 is not approved, because its threading model is an architecture change | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
+| **Incomplete design export**: no UI kit, component sources or icon SVGs | H | M | `Fm*` blocks, `_ds_bundle.js` and `_adherence.oxlintrc.json` as the source; the owner's answer to [Q11](QUESTIONS.md#q11): the missing files come with the next design-system export, and boards for the riskiest gaps came with export `519d42a` (2026-10-17) | M1 | [G01](DESIGN_GAPS.md#g01), [G02](DESIGN_GAPS.md#g02), [G04](DESIGN_GAPS.md#g04) |
+| **Owner decisions pending**: Q01 to Q20 are answered, and ADRs 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, the crash-log placeholders of 0010 and the 640 px canvas minimum are approved (2026-10-15 to 2026-10-17). Still open: [Q21](QUESTIONS.md#q21), the [M2 plan](PROGRESS.md#m2-plan) with its Proposed ADRs 0020 and 0021, R1 and R2, the fuzz durations, the cache caps, the progressive-open threshold and the M2 budgets | M | M | each milestone lists the questions and ADRs it needs; work continues with the safest option, as brief §9 says; M2 starts only with the owner's approval of its plan | M1 | [QUESTIONS.md](QUESTIONS.md), [ADR index](adr/README.md) |
 | **Licence exceptions**: MPL-2.0 `dbus` (through desktop_drop, every platform), NCSA `libfuzzer-sys` and LGPL-3.0 Swatinem/rust-cache are outside the allow-list | L | M | approved by the owner on 2026-10-15 as named exceptions only: the `dbus` notice ships with every build, the pub check skips `dbus` by name, `libfuzzer-sys` only in `fuzz/`, rust-cache only in CI and pinned by SHA; any new exception is asked again (brief §9) | M1 | [Q17](QUESTIONS.md#q17), [ADR 0016](adr/0016-dependency-licence-policy.md) |
-| **macOS App Sandbox**: the Flutter template turns it on; it changes file access, recent files and the atomic save | M | M | keep it on in M1, where no files open; ask before M2; bookmarks and the system replacement directory if it stays on | M2 | [Q18](QUESTIONS.md#q18) |
-| **OCR engine**: ocrs recognises Latin only and its model licence is unclear | H | M | decide [Q16](QUESTIONS.md#q16) before phase 3; Tesseract is the fallback | P3 | [Q16](QUESTIONS.md#q16) |
+| **macOS App Sandbox**: the Flutter template turns it on; it changes file access, recent files and the atomic save | M | M | kept on in M1, where no files open; the owner's answer to [Q18](QUESTIONS.md#q18): it stays if M2 shows that bookmarks and the system replacement directory work under it, otherwise the Developer ID build drops it; the [M2 plan](PROGRESS.md#m2-plan) (Proposed) builds both, and the owner checks them on a Mac | M2 | [Q18](QUESTIONS.md#q18) |
+| **OCR engine**: ocrs recognises Latin only and its model licence is unclear | H | M | the engine is chosen at the start of phase 3 after a fresh check ([Q16](QUESTIONS.md#q16), answered on 2026-10-16); Tesseract is the fallback | P3 | [Q16](QUESTIONS.md#q16) |
 | **Signature crates**: cms 0.3 is only a release candidate; rsa has an unpatched timing advisory | M | M | wait for cms 0.3.0 or pin the release candidate after review; sign through PKCS#11 or the OS keystore; rsa for verification only | P3 | [DEPENDENCIES.md](DEPENDENCIES.md) |
 | **Office conversion**: fidelity and the licences of any converter | H | M | an ADR before phase 3; fidelity report lists what was lost | P3 | — |
 | **Web rendering**: PDFium for WebAssembly is experimental | M | M | hayro as the fallback; web is phase 5 | P5 | [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) |

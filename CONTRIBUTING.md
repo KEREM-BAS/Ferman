@@ -22,21 +22,22 @@ translate, test with real-world PDFs, or point out mistakes in the documents.
 
 ## Project status
 
-Ferman is at **Milestone 1: foundations**, complete and waiting for the maintainer's approval. The
-maintainer approved the plan (Milestone 0) on 2026-10-15. Milestone 1 built the Rust workspace, the
-Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI,
-on the branch `m1-foundations` (pull request #2); the app opens no PDFs until Milestone 2.
+Ferman is between **Milestone 1: foundations** and **Milestone 2: open and view**. The maintainer
+approved the plan (Milestone 0) on 2026-10-15 and Milestone 1 on 2026-10-16: the Rust workspace, the
+Flutter app with its shell, first run, start screen and settings skeleton, the design tooling and CI
+are in `main`. The app opens no PDFs until Milestone 2, whose plan waits for the maintainer's
+approval.
 
 What helps most right now:
 
 - Read the documents and open an issue when something is wrong, missing or unclear.
-- Comment on the open questions in [docs/QUESTIONS.md](docs/QUESTIONS.md) and the Proposed ADRs in
-  [docs/adr/](docs/adr/README.md).
+- Comment on the open question in [docs/QUESTIONS.md](docs/QUESTIONS.md) (Q21), the Proposed ADRs
+  in [docs/adr/](docs/adr/README.md) and the [plan for Milestone 2](docs/PROGRESS.md#m2-plan).
 - Tell us about freely licensed PDFs that would make good test files (see
   [Reporting bugs](#reporting-bugs) for what we can accept).
 
-Please wait with pull requests for application code until Milestone 1 is merged into `main`, so
-changes can be reviewed against a stable base.
+Please wait with pull requests for application code until Milestone 2 has started, so changes can
+be reviewed against the engine API it adds.
 
 ## Before you start
 
@@ -131,13 +132,15 @@ Ferman is licensed under the [Apache License 2.0](LICENSE).
 - Submit only work you have the right to submit. Do not copy code from projects whose licences are
   not compatible (see [Dependencies](#dependencies)) or from proprietary SDKs.
 
-**Sign-off (the project's proposal, waiting for the maintainer's decision; see
-[Q14](docs/QUESTIONS.md#q14)).** We propose that every commit is signed off to certify the
+**Sign-off (required; the maintainer's decision of 2026-10-16, [Q14](docs/QUESTIONS.md#q14)).**
+Every commit is signed off to certify the
 [Developer Certificate of Origin](https://developercertificate.org/): that you wrote the change, or
 otherwise have the right to submit it under the project's licence. Use `git commit -s`. It adds a
-`Signed-off-by:` line with the name and email address from your git configuration; GitHub's no-reply
-address works if you prefer not to publish yours. Until the maintainer decides, sign-off is welcome
-but not required.
+`Signed-off-by:` line with the name and email address from your git configuration, which must be
+the commit's author; GitHub's no-reply address works if you prefer not to publish yours. CI checks
+every commit of a pull request (merge commits aside) with the `dco_signoff` check of
+`tools/checks`. To add missing sign-offs to your own branch, run `git rebase --signoff origin/main`
+and force-push it.
 
 ## Dependencies
 

@@ -22,6 +22,7 @@ import {
   meanSsim,
   parseCompareCli,
   readPng,
+  refName,
   renderReport,
   runComparison,
   sideBySide,
@@ -65,9 +66,11 @@ function pattern(width, height) {
 
 const pixel = (img, x, y) => [...img.data.subarray((y * img.width + x) * 4, (y * img.width + x) * 4 + 4)];
 
-async function boardIds() {
+/** What validateMap knows of boards.json: the board ids and the variant languages. */
+async function known() {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
-  return new Set([...list.boards, ...list.pages].map((b) => b.id));
+  const all = [...list.boards, ...list.pages];
+  return { boardIds: new Set(all.map((b) => b.id)), boardLangs: new Map(all.filter((b) => b.langs).map((b) => [b.id, b.langs])) };
 }
 
 let base;
@@ -83,7 +86,7 @@ after(async () => {
 // --- The map --------------------------------------------------------------------------------
 
 test('the map parses and every board in it exists in the design export', async () => {
-  const map = await loadMap(MAP_FILE, { boardIds: await boardIds() });
+  const map = await loadMap(MAP_FILE, await known());
   assert.deepEqual(map.goldenSize, { width: 1440, height: 900 });
   const scanned = new Set((await scanDesign(DESIGN_DIR)).map((b) => b.id));
   for (const pair of map.pairs) assert.ok(scanned.has(pair.board), `${pair.id}: ${pair.board} is not a board of design/`);
@@ -92,30 +95,41 @@ test('the map parses and every board in it exists in the design export', async (
 
 test('the map covers the M1 set, and CI renders every board it names', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
-  const map = await loadMap(MAP_FILE, { boardIds: await boardIds() });
+  const map = await loadMap(MAP_FILE, await known());
   const boards = new Set(map.pairs.map((p) => p.board));
   for (const id of list.sets.m1) assert.ok(boards.has(id), `${id} of @m1 has no pair`);
   for (const id of boards) assert.ok(list.sets.m1.includes(id), `${id} is not in @m1, which CI renders`);
   assert.deepEqual(
     map.pairs.filter((p) => p.notCompared).map((p) => p.board),
-    ['a12-2b', 'a12-2d'],
+    ['a1-2c', 'a1-5', 'a11-1', 'a11-1w', 'a12-2b', 'a12-2d', 'a11-1h'],
   );
-  for (const pair of map.pairs.filter((p) => p.notCompared)) assert.match(pair.notCompared, /German/);
+  for (const pair of map.pairs.filter((p) => p.notCompared)) {
+    assert.match(pair.notCompared, pair.board.startsWith('a12-') ? /German/ : new RegExp(`Superseded by ${pair.board}-m1`));
+  }
+  // Each M1 build board is compared in English, Turkish and Arabic, against the golden in that
+  // language.
+  for (const board of ['a1-2c-m1', 'a1-5-m1', 'a11-1-m1', 'a11-1w-m1', 'a11-1h-m1']) {
+    const pairs = map.pairs.filter((p) => p.board === board);
+    assert.deepEqual(pairs.map((p) => p.lang ?? 'en'), ['en', 'tr', 'ar'], board);
+    for (const pair of pairs) assert.ok(pair.golden.endsWith(`_${pair.lang ?? 'en'}.png`), pair.id);
+  }
 });
 
 test('the map pairs the boards with the goldens drawn from them', async () => {
-  const map = await loadMap(MAP_FILE, { boardIds: await boardIds() });
+  const map = await loadMap(MAP_FILE, await known());
   const golden = Object.fromEntries(map.pairs.map((p) => [p.id, p.golden]));
   assert.equal(golden['a1-1'], 'language_picker_mac_light_en.png');
   assert.equal(golden['a12-2a'], 'start_mac_light_ar.png');
   assert.equal(golden['a12-2c'], 'settings_language_mac_light_ar.png');
-  assert.equal(golden['a11-1w'], 'settings_general_win_light_en.png');
+  assert.equal(golden['a11-1w-m1'], 'settings_general_win_light_en.png');
+  assert.equal(golden['a11-1w-m1-tr'], 'settings_general_win_light_tr.png');
+  assert.equal(golden['a1-2c-m1-ar'], 'welcome_free_mac_light_ar.png');
   assert.equal(golden['f6a'], 'shell_edit_win_light_en.png');
   assert.equal(golden['a2-1b'], 'shell_view_mac_light_en.png');
   assert.equal(golden['a3-1d'], 'shell_edit_mac_dark_en.png');
   assert.equal(golden['a12-1tr'], 'shell_edit_mac_light_tr.png');
   assert.equal(golden['a12-1ar'], 'shell_edit_mac_light_ar.png');
-  assert.equal(golden['a11-1h'], 'settings_privacy_mac_light_en.png');
+  assert.equal(golden['a11-1h-m1'], 'settings_privacy_mac_light_en.png');
   // Right to left, the canvas sits at the other end of the window.
   assert.deepEqual(
     map.pairs.find((p) => p.id === 'a12-1ar').masks.map((m) => [m.x, m.y, m.width, m.height]),
@@ -129,7 +143,7 @@ test('the map pairs the boards with the goldens drawn from them', async () => {
 });
 
 test('map validation reports every problem', async () => {
-  const ids = await boardIds();
+  const ids = (await known()).boardIds;
   const good = { goldenSize: { width: 16, height: 8 }, pairs: [{ board: 'a1-1', golden: 'language_picker_mac_light_en.png' }] };
   assert.equal(validateMap(good, { boardIds: ids }).pairs[0].id, 'a1-1');
   const bad = {
@@ -196,11 +210,49 @@ test('map validation reports every problem', async () => {
   );
 });
 
+test('a pair picks a language variant with lang, and its golden must be in that language', async () => {
+  const k = await known();
+  const size = { width: 16, height: 8 };
+  const good = {
+    goldenSize: size,
+    pairs: [
+      { board: 'a1-5-m1', golden: 'start_mac_light_en.png' },
+      { board: 'a1-5-m1', lang: 'tr', golden: 'start_mac_light_tr.png' },
+      { board: 'a1-5-m1', lang: 'ar', id: 'start-ar', notCompared: 'a reason' },
+    ],
+  };
+  const map = validateMap(good, k);
+  assert.deepEqual(map.pairs.map((p) => p.id), ['a1-5-m1', 'a1-5-m1-tr', 'start-ar']);
+  assert.deepEqual(map.pairs.map(refName), ['a1-5-m1.png', 'a1-5-m1.tr.png', 'a1-5-m1.ar.png']);
+  const bad = {
+    goldenSize: size,
+    pairs: [
+      { board: 'a1-5-m1', id: 'p1', lang: 'de', golden: 'start_mac_light_en.png' },
+      { board: 'a1-5', id: 'p2', lang: 'tr', golden: 'start_mac_light_tr.png' },
+      { board: 'a1-5-m1', id: 'p3', lang: 'tr', golden: 'start_mac_light_ar.png' },
+      { board: 'a1-5-m1', id: 'p4', golden: 'start_mac_light_tr.png' },
+    ],
+  };
+  assert.throws(
+    () => validateMap(bad, k),
+    (error) => {
+      assert.ok(error instanceof InputError);
+      assert.match(error.message, /\(p1\): board a1-5-m1 has no "de" variant \(its variants are tr, ar\)/);
+      assert.match(error.message, /\(p2\): board a1-5 has no "tr" variant \(it has no language variants\)/);
+      assert.match(error.message, /\(p3\): the golden is in ar but the reference a1-5-m1\.tr\.png is in tr/);
+      assert.match(error.message, /\(p4\): the golden is in tr but the reference a1-5-m1\.png is in en/);
+      return true;
+    },
+  );
+  // A board without variants keeps its golden in any language (a12-2a is drawn in Arabic).
+  assert.equal(validateMap({ goldenSize: size, pairs: [{ board: 'a12-2a', golden: 'start_mac_light_ar.png' }] }, k).pairs.length, 1);
+});
+
 test('an unreadable map is an input error', async () => {
   const file = path.join(base, 'broken-map.json');
   await writeFile(file, '{ not json');
-  await assert.rejects(loadMap(file, { boardIds: await boardIds() }), InputError);
-  await assert.rejects(loadMap(path.join(base, 'no-map.json'), { boardIds: await boardIds() }), InputError);
+  await assert.rejects(loadMap(file, await known()), InputError);
+  await assert.rejects(loadMap(path.join(base, 'no-map.json'), await known()), InputError);
 });
 
 // --- Images and scores ----------------------------------------------------------------------
@@ -334,7 +386,7 @@ async function fixture(name) {
   };
   const mapFile = path.join(dir, 'map.json');
   await writeFile(mapFile, JSON.stringify(map));
-  return { dir, refs, goldens, out, mapFile, map: validateMap(map, { boardIds: await boardIds() }) };
+  return { dir, refs, goldens, out, mapFile, map: validateMap(map, await known()) };
 }
 
 test('a run gives one row per pair; missing and broken inputs become rows, not crashes', async () => {
@@ -382,7 +434,7 @@ test('a missing reference and a crop outside the board are reported', async () =
         { board: 'f6', golden: 'shell_edit_win_light_en.png', crop: { x: 20, y: 5, width: 16, height: 8 }, cropSource: 'fixture' },
       ],
     },
-    { boardIds: await boardIds() },
+    await known(),
   );
   const rows = await runComparison(map, { refsDir: f.refs, goldensDir: f.goldens, outDir: f.out });
   assert.equal(rows[0].result, 'missing');
@@ -422,14 +474,17 @@ test('report.md lists every pair with its scores, images and notes', async () =>
 });
 
 test('with the real map and no images every pair is a row: missing or not compared', async () => {
-  const map = await loadMap(MAP_FILE, { boardIds: await boardIds() });
+  const map = await loadMap(MAP_FILE, await known());
   const empty = path.join(base, 'empty');
   await mkdir(empty, { recursive: true });
   const rows = await runComparison(map, { refsDir: empty, goldensDir: path.join(empty, 'none'), outDir: path.join(base, 'empty-out') });
   assert.equal(rows.length, map.pairs.length);
   for (const r of rows) assert.equal(r.result, r.pair.notCompared ? 'not compared' : 'missing', r.pair.id);
   const report = renderReport(rows, { threshold: 0.1, refsLabel: 'r', goldensLabel: 'g', goldenFiles: null });
-  for (const pair of map.pairs) assert.ok(report.includes(`| \`${pair.id}\` | \`${pair.board}\` |`), pair.id);
+  for (const pair of map.pairs) {
+    const ref = pair.lang === undefined ? pair.board : `${pair.board}.${pair.lang}`;
+    assert.ok(report.includes(`| \`${pair.id}\` | \`${ref}\` |`), pair.id);
+  }
 });
 
 // --- The command ----------------------------------------------------------------------------

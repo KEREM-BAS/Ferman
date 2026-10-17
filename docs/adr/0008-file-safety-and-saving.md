@@ -2,7 +2,9 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §3
+- **Approval:** brief §3. The private snapshot below, Proposed in M0, was approved by the owner on
+  2026-10-16. The details marked **Proposed** below (the attachment write path and files over
+  256 MB) are part of the [M2 plan](../PROGRESS.md#m2-plan) and wait for the owner's approval of it.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -33,7 +35,10 @@ The design adds the honest save states and the failure screens:
 Gaps recorded in DESIGN_GAPS.md: save-failure states that are not drawn ([G40](../DESIGN_GAPS.md#g40)),
 the Save button disabled in the error state by the kit's logic ([G41](../DESIGN_GAPS.md#g41)), no
 incremental-versus-full choice in Settings ([G43](../DESIGN_GAPS.md#g43)), and image crop described as
-removing content although saves are incremental ([G57](../DESIGN_GAPS.md#g57)).
+removing content although saves are incremental ([G57](../DESIGN_GAPS.md#g57)). The design export of
+2026-10-17 (`519d42a`) draws the first three as decided: the save errors (a11-7d), quitting with
+several unsaved documents (a11-7e), recovery when the original changed (a11-7f), Save enabled in the
+error state, and the Saving group of a11-1c.
 
 ## Decision
 
@@ -42,8 +47,13 @@ removing content although saves are incremental ([G57](../DESIGN_GAPS.md#g57)).
 1. Never write in place. Every save writes a complete new file and replaces the old one atomically.
 2. Never keep the user's file open or memory-mapped after open. The engine reads it into memory.
    Another app truncating the file must not crash Ferman, and on Windows an open mapping would block the
-   replace. **Proposed:** files above 256 MB are copied to a private snapshot in the cache directory
-   and mapped from there ([ARCHITECTURE.md](../ARCHITECTURE.md) section 5.1).
+   replace. **Approved by the owner on 2026-10-16:** files above 256 MB are copied to a private
+   snapshot in the cache directory and mapped from there ([ARCHITECTURE.md](../ARCHITECTURE.md)
+   section 5.1). **Proposed** with the M2 plan: mapping the snapshot needs one `unsafe` call, an
+   exception to the no-`unsafe` rule ([ADR 0010](0010-error-handling-no-panics.md)) that
+   [Q21](../QUESTIONS.md#q21) asks the owner to allow. Until the owner answers, M2 reads every file
+   into an owned buffer, larger ones too, so a file over 256 MB costs its size in memory while it is
+   open ([BACKLOG.md](../BACKLOG.md) B105).
 3. A failed save leaves the original untouched and deletes the temp file.
 4. Edits are never lost because a save failed. They stay in memory and in the recovery journal.
 
@@ -60,8 +70,20 @@ removing content although saves are incremental ([G57](../DESIGN_GAPS.md#g57)).
 
 Symbolic links are resolved and the target is replaced. Files with several hard links, or owned by
 someone else, are not replaced silently: Ferman offers Save as. Sharing violations on Windows are
-retried briefly, then reported as "locked by another app". A sandboxed macOS build, if there is ever one,
-would use the system's item-replacement directory and `replaceItemAtURL` instead of a sibling temp file.
+retried briefly, then reported as "locked by another app".
+
+The macOS App Sandbox stays on if M2 shows that this sequence and security-scoped bookmarks work
+under it; otherwise the Developer ID build drops it ([Q18](../QUESTIONS.md#q18), answered on
+2026-10-16). Under the sandbox, a file granted through the panel is granted on its own, not its
+folder, so the temp file comes from the system's item-replacement directory on the same volume
+(`FileManager.url(for: .itemReplacementDirectory, …)`) instead of a sibling, and `replaceItemAt`
+(`replaceItemAtURL` in Objective-C) swaps it in. **Proposed** with the M2 plan: the first file
+Ferman writes for the user is an embedded file saved with "Save attachment as…" (a2-3b) in M2, so M2
+builds this path for it: the engine writes the attachment with the steps above; under the sandbox its
+temp file goes to the replacement directory that the platform layer names, and the platform layer
+swaps it in with `replaceItemAt`. CI proves it on paths inside the container and the owner on files
+granted through the panel; the Q18 decision is recorded at the M2 review, and M3 checks the path
+again with the document writer.
 
 ### Incremental by default, full rewrite on request
 
@@ -144,7 +166,9 @@ the temp file of a save and files the user asks for.
 
 ### Follow-up
 
-- M2: open path (read into memory, record hash), read-only and repaired states.
+- M2: open path (read into memory, record hash), read-only and repaired states, and the attachment
+  write path above. "Save repaired copy…" (a1-9) stays visible and disabled until M3 brings the
+  writer (Proposed with the M2 plan, [BACKLOG.md](../BACKLOG.md) B103).
 - M3: save, save as, the incremental writer, the save sequence, external-change detection, the recovery
   journal and a1-12, all a11-7 errors. atomic-write-file is evaluated against the table above; if it
   falls short, ferman-core implements the sequence directly.
@@ -167,6 +191,8 @@ the temp file of a save and files the user asks for.
 - [ADR 0004](0004-lopdf-model-pdfium-renderer.md), [ADR 0005](0005-block-scoped-text-editing.md),
   [ADR 0009](0009-threading-and-jobs.md), [ADR 0010](0010-error-handling-no-panics.md),
   [ADR 0018](0018-native-file-pickers.md)
-- Artboards f4, f4a, f4b, a1-9, a1-10b, a1-11, a1-12, a8-2c, a8-3, a9-8, a11-1c, a11-7, a11-7b, a11-7c
+- Artboards f4, f4a, f4b, a1-9, a1-10b, a1-11, a1-12, a2-3b, a8-2c, a8-3, a9-8, a11-1c, a11-7, a11-7b,
+  a11-7c, a11-7d, a11-7e, a11-7f
 - [G40](../DESIGN_GAPS.md#g40), [G41](../DESIGN_GAPS.md#g41), [G43](../DESIGN_GAPS.md#g43),
-  [G57](../DESIGN_GAPS.md#g57), [Q01](../QUESTIONS.md#q01), [Q18](../QUESTIONS.md#q18)
+  [G57](../DESIGN_GAPS.md#g57), [Q01](../QUESTIONS.md#q01), [Q18](../QUESTIONS.md#q18),
+  [Q21](../QUESTIONS.md#q21)

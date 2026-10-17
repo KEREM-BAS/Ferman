@@ -14,16 +14,16 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 
 | Topic | State |
 |---|---|
-| Milestone | **M1, foundations: complete, pending owner approval** (2026-10-16). Built on the branch `m1-foundations`; pull request #2 to `main` is ready for the owner's review and merge |
+| Milestone | **M1, foundations: complete and approved** (2026-10-16): pull request #2 from `m1-foundations` merged into `main` (merge commit `aa7ad21`). **Phase 0 of M2** (the design sync) is pull request #3 from `m2-open-and-view`. The owner approved the [M2 plan](#m2-plan) on 2026-10-17; M2 itself starts after pull request #3 is merged |
 | Previous | M0 approved on 2026-10-15: pull request #1 merged into `main` (merge commit `fe99894`) and the owner's go-ahead |
-| Next | The owner reviews M1: the [pending owner checks](#pending-owner-checks), the Proposed items listed in the M1 summary and in [ROADMAP.md](ROADMAP.md) §5, and the merge of pull request #2. M2 starts on the owner's go-ahead, with ADR 0009 ([Q19](QUESTIONS.md#q19)), [Q07](QUESTIONS.md#q07) and [Q18](QUESTIONS.md#q18) to settle first (ROADMAP §6) |
-| Application code | committed on `m1-foundations`: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
-| Questions | 20 entries: 4 answered (Q01, Q03, Q04, Q05), 5 answered in part (Q08, Q12, Q14, Q17, Q20), 11 open (Q02, Q06, Q07, Q09, Q10, Q11, Q13, Q15, Q16, Q18, Q19); see [QUESTIONS.md](QUESTIONS.md#summary) |
-| Proposed ADRs | 0009 and 0018; the Proposed details in 0003, 0004, 0006, 0008 and 0019; the reading of "GPL-compatible" in 0016 ([Q17](QUESTIONS.md#q17) part 4) (see [ADR status](#adr-status)) |
-| Design gaps | 99 recorded: 87 Decided, 12 Needs owner, 0 Resolved (G62 to G99 found in M1) |
-| Backlog | 98 open and 2 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1 |
+| Next | The owner merges pull request #3 once CI is green, with a merge commit. Then M2 starts as pull request #4 from the same branch (`git merge --signoff origin/main` first), in a Claude Code session on the owner's computer, beginning with wave W0 and the Dco trial. [Q21](QUESTIONS.md#q21) and strace are asked before anything relies on them |
+| Application code | in `main` since the M1 merge: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
+| Questions | 21 entries: Q01 to Q20 answered (the last ones on 2026-10-16, as proposed, with the release files for macOS, Windows and Linux on GitHub Releases, [Q15](QUESTIONS.md#q15)); [Q21](QUESTIONS.md#q21) (memory-mapping files over 256 MB) open since 2026-10-17; see [QUESTIONS.md](QUESTIONS.md#summary) |
+| Proposed ADRs | none waiting. 0020 (test corpus) and 0021 (opening files from the OS), and the details the M2 plan adds to 0008, 0009 and 0010, were approved with the [M2 plan](#m2-plan) on 2026-10-17. The crash-log placeholders of 0010 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) were approved on 2026-10-17; 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, and the reading of "GPL-compatible" in 0016 on 2026-10-16 (see [ADR status](#adr-status)) |
+| Design gaps | 111 recorded: 89 Decided, 0 Needs owner, 22 Resolved (G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part, and G100 to G111 were found while planning M2) |
+| Backlog | 104 open and 2 done: B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it); B003 (parsing region numbers) and B013 (narrow windows) shipped in M1 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
-| Last updated | 2026-10-16 |
+| Last updated | 2026-10-17 |
 
 ## Owner actions
 
@@ -42,7 +42,7 @@ Things only the owner can do on GitHub. Each is ticked when done.
 | Milestone | Status | Details |
 |---|---|---|
 | M0 Discovery and plan | Complete (approved 2026-10-15) | [ROADMAP.md](ROADMAP.md), section 4 |
-| M1 Foundations | Complete, pending owner approval | [ROADMAP.md](ROADMAP.md), section 5; [M1 plan](#m1-plan) |
+| M1 Foundations | Complete (approved 2026-10-16) | [ROADMAP.md](ROADMAP.md), section 5; [M1 plan](#m1-plan) |
 | M2 Open and view | Not started | [ROADMAP.md](ROADMAP.md), section 6 |
 | M3 Edit text core | Not started | [ROADMAP.md](ROADMAP.md), section 7 |
 | M4 Rest of phase 1 | Not started | [ROADMAP.md](ROADMAP.md), section 8 |
@@ -88,7 +88,7 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 
 - [ ] Step 1. Cargo workspace, crate skeletons, toolchain, cargo-deny, CI matrix. Committed; CI run
   [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) (pull request #2, head `18c7471`) was green on the three systems and
-  evidences every ROADMAP box except the Proposed crate-graph check, which waits for the owner.
+  evidences every ROADMAP box except the crate-graph check (Proposed in M1, approved on 2026-10-16).
 - [ ] Step 2. Flutter app skeleton. Committed with its CI (phase C4); run [38802741500](https://github.com/KEREM-BAS/Ferman/actions/runs/38802741500) was green on the three
   systems, with the Ubuntu 22.04 floor build. Open: the platform-projects box (arm64 builds and
   Windows 10 are owner checks) and the two Proposed boxes.
@@ -234,7 +234,8 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 - [ ] Acceptance criteria, standard gates and exit checks met
 - [ ] [Pending owner checks](#pending-owner-checks) done by the owner, or carried forward with the
   owner's agreement
-- [ ] The owner approves M1
+- [x] The owner approves M1. Evidence: pull request #2 (`m1-foundations`) merged into `main` as
+  `aa7ad21` on 2026-10-16.
 
 ### M2 · Open and view
 
@@ -357,22 +358,33 @@ Given with the M0 go-ahead and recorded in [QUESTIONS.md](QUESTIONS.md):
   Accepted; rustybuzz is banned except as krilla's wrapper from the first `deny.toml`.
 - [Q05](QUESTIONS.md#q05): eight mode tabs, including Tools ([G09](DESIGN_GAPS.md#g09) Decided).
 - [Q08](QUESTIONS.md#q08) groups 1 and 2: Plex Sans Hebrew and Plex Sans Devanagari are bundled; CJK
-  uses system fonts. [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted. Groups 3 and 4 stay open.
+  uses system fonts. [ADR 0013](adr/0013-fonts-and-icons.md) is Accepted. Groups 3 and 4 stayed open
+  (answered 2026-10-16, below).
 - [Q12](QUESTIONS.md#q12): a custom Linux title bar (client-side decorations, caption buttons at the
-  end, Ctrl shortcuts, Cancel-left dialogs; [G15](DESIGN_GAPS.md#g15) Decided). Packaging stays open
-  until M5.
-- [Q14](QUESTIONS.md#q14): "Copyright The Ferman Authors". The sign-off part stays open.
+  end, Ctrl shortcuts, Cancel-left dialogs; [G15](DESIGN_GAPS.md#g15) Decided). Packaging stayed
+  open (answered 2026-10-16, below).
+- [Q14](QUESTIONS.md#q14): "Copyright The Ferman Authors". The sign-off part stayed open (answered
+  2026-10-16, below).
 - [Q17](QUESTIONS.md#q17) parts 1 to 3: Swatinem/rust-cache in CI, `dbus` through desktop_drop (M2),
-  `libfuzzer-sys` in `fuzz/` only. Part 4 stays open, and the stricter reading applies.
+  `libfuzzer-sys` in `fuzz/` only. Part 4 stayed open (answered 2026-10-16, below).
 - Delivery: the `m1-foundations` branch and an early draft pull request, as above.
 - No AI attribution in commits or in pull request titles and bodies.
 - New [Q18](QUESTIONS.md#q18): the macOS App Sandbox stays on in M1, as Flutter's template sets it;
-  the owner is asked before M2.
+  the owner was asked before M2 (answered 2026-10-16, below).
 - [Q20](QUESTIONS.md#q20), 2026-10-16, during M1: AI clients such as Claude and ChatGPT will work on
   the documents open in Ferman through a local MCP server, after M3 (ROADMAP M4 step 11). The app
   stays open and does the work locally; Settings gives a connection link for each supported client,
   or opens it already set up. [ADR 0019](adr/0019-ai-clients-through-mcp.md) is Accepted for the
-  direction; its Proposed details (transport, pairing, tools, saving) are asked when the step starts.
+  direction; its details (transport, pairing, tools, saving) were approved on 2026-10-16, below.
+- 2026-10-16, after the M1 merge: the owner answered every open question as proposed:
+  [Q02](QUESTIONS.md#q02), [Q06](QUESTIONS.md#q06), [Q07](QUESTIONS.md#q07), [Q08](QUESTIONS.md#q08)
+  groups 3 and 4, [Q09](QUESTIONS.md#q09) to [Q13](QUESTIONS.md#q13), [Q14](QUESTIONS.md#q14) (DCO
+  sign-off from M2), [Q15](QUESTIONS.md#q15) (the release files for macOS, Windows and Linux on
+  GitHub Releases), [Q16](QUESTIONS.md#q16), [Q17](QUESTIONS.md#q17) part 4,
+  [Q18](QUESTIONS.md#q18), [Q19](QUESTIONS.md#q19) and the details of [Q20](QUESTIONS.md#q20). The
+  owner also approved every item under [Still Proposed in M1](#still-proposed-in-m1) and kept the
+  United Kingdom region for the English goldens. All [DESIGN_GAPS.md](DESIGN_GAPS.md) entries are
+  now Decided.
 - 2026-10-16, at the end of M1: at most 15 to 20 commits per pull request from M2 on (pull request
   #2 has 92), so work is committed and pushed in checked batches rather than fix by fix; this narrows
   the "small Conventional Commits" of brief §9. Work goes on in cloud sessions, and the owner is told
@@ -381,14 +393,14 @@ Given with the M0 go-ahead and recorded in [QUESTIONS.md](QUESTIONS.md):
 
 ### Still Proposed in M1
 
-Not approved, so built only as reversible tooling, kept marked **Proposed**, and listed in the M1
-summary:
+Approved by the owner on 2026-10-16, when M1 was merged. They were built in M1 only as reversible
+tooling, marked **Proposed**:
 
 - [ADR 0009](adr/0009-threading-and-jobs.md) (threading and jobs) and
   [ADR 0018](adr/0018-native-file-pickers.md) (native pickers; M1 builds no picker).
 - The Proposed details in ADRs 0003, 0004, 0006 and 0008.
 - ROADMAP items marked Proposed: the crate-graph check and the pub deny list (both built as
-  `tools/checks` checks, still Proposed), the web stub build, the feature registry, the pseudo-locale,
+  `tools/checks` checks), the web stub build, the feature registry, the pseudo-locale,
   the 1024 px minimum window width and the 1.5 s start budget.
 
 ### Decisions taken during M1
@@ -493,10 +505,172 @@ Checks this environment cannot do. Each is ticked only with the owner's result.
   CI runner as ROADMAP §5 step 11 asks; the CI Linux runner proves them (the first ones passed in the
   Flutter Linux job of run [38819082054](https://github.com/KEREM-BAS/Ferman/actions/runs/38819082054)). The owner accepts this or asks for
   goldens generated by CI. The English goldens use the United Kingdom region, so the clock reads
-  "14:32" as the boards draw it; the owner may prefer the United States ([G34](DESIGN_GAPS.md#g34)).
+  "14:32" as the boards draw it; the owner kept the United Kingdom on 2026-10-16
+  ([G34](DESIGN_GAPS.md#g34)).
 
 The design gaps to settle in M1 are listed in [ROADMAP.md](ROADMAP.md), section 5, under "Design
 gaps to settle in M1".
+
+## M2 plan
+
+**Approved by the owner on 2026-10-17**, which is the go-ahead for M2. Written from
+[ROADMAP.md](ROADMAP.md) section 6 after the owner's design export (`519d42a`). With the plan,
+every decision the documents mark "Proposed (M2 plan)", "Proposed with the M2 plan" or "part of the M2 plan" was approved with it, except the items under [Still Proposed at the M2 review](#still-proposed-at-the-m2-review), [Q21](QUESTIONS.md#q21) and strace, which still wait for the owner. The individual mentions are reworded in M2's closing documentation commit. The owner chose
+to continue M2 in a Claude Code session on their own computer.
+
+### Delivery
+
+- **Phase 0, pull request #3** from `m2-open-and-view` to `main`: CI on `main` green again after the
+  export (the moved design lines, 253 boards, the `design/` check on pushes), Turkish and Arabic
+  variants of the design references and the `@m1`, `@m2` and `@langs` sets, the app matched to the
+  M1 build boards, the DCO check, and the documents brought in line with the export, the owner's
+  answers and this plan. About 8 commits. The owner merges it with a merge commit.
+- **M2, pull request #4**, from the same branch after pull request #3 is merged (`main` merged in with
+  a sign-off): 18 commits planned, 2 kept for CI fixes, at most 20.
+- Every commit is authored as the owner, signed off ([Q14](QUESTIONS.md#q14), the `dco_signoff`
+  check) and carries no AI attribution. Each wave ends with an adversarial review and one checked,
+  batched push.
+- At most three agents work in `app/` at once. The lead alone writes the shared files: `pubspec.yaml`,
+  the ARB files, the router, the components barrel, `[workspace.dependencies]`, the workflows and
+  `docs/`.
+
+### Architecture
+
+Written into [ARCHITECTURE.md](ARCHITECTURE.md) sections 3 and 4 with the API commit.
+
+- **ferman-core:** `source` (the file read into an owned `Arc<[u8]>` with its SHA-256, never
+  memory-mapped until [Q21](QUESTIONS.md#q21) is answered), `limits`, `filters`, `security`
+  (passwords zeroized), `parse` (lopdf under `catch_unwind` on a thread with a 64 MB stack),
+  `repair`, `structure` (labels, outline, attachments, layers, AcroForm and XFA, signatures, scripts,
+  `/Direction`, fonts), `text_string`, `content`, `snapshot` and a render-only `appendix` for layer
+  visibility, never written to disk.
+- **ferman-render:** requests over crossbeam channels, a priority queue with wanted sets and
+  generations, 512 × 512 BGRA tiles in quarter-octave zoom buckets, LRU tile and page caches,
+  thumbnails, documents loaded from the snapshot bytes without a copy.
+- **ferman-fonts:** encodings, the Adobe Glyph List, CMap and ToUnicode, Type1 built-in encodings,
+  the reverse cmap through skrifa.
+- **ferman-text:** glyph runs, Unicode order, words and lines with bidi, a search index, Turkish and
+  accent folding with icu_casemap, collation with icu_collator.
+- **ferman-api:** one actor per document, views with a tile stream, a rayon job pool and events.
+  Error kinds NotFound, PermissionDenied, PasswordRequired, WrongPassword, Restricted, Damaged,
+  Unsupported, ResourceLimit and Cancelled, with message keys a test checks against the ARB files.
+  Calls: `open`, `unlock`, `unlock_owner`, `close`, `page_info`, `document_info`, `outline`,
+  `attachments`, `save_attachment`, `layers`, `set_layer_visible`, `document_events`, `open_view`,
+  `request_tiles`, `request_thumbnails`, `close_view`, `search`, `cancel_job`, `sort_keys`.
+- **ferman-cli:** `open`, `pages`, `render`, `text`, `search`, with `--timings --json`.
+- **The crate-graph check** gets single-door rules: lopdf, skrifa and read-fonts, icu and rayon each
+  enter through one crate.
+- **Dart:** `app/lib/engine/` (document, view with a `TileTransport` and `ImageDescriptor.raw` for
+  BGRA, search and collation services, each with an FRB implementation, a fake and a web stub);
+  `app/lib/platform/` (pickers through file_selector, drag and drop through desktop_drop, open
+  requests, file access with macOS bookmarks and the replacement directory, the default app,
+  "Show in"); the features `documents/` (replacing the placeholder `ShellDocuments`), `viewer/`, the
+  sidebar tabs and `recents/`; a new EmptyState component.
+
+### Waves
+
+| Wave | Contents | ROADMAP step | Boards |
+|---|---|---|---|
+| W0 | The feature registry (`Feature` enum and a BACKLOG-parity check), approved in M1 | — | — |
+| W1 | `fuzz/` and `tools/corpus` workspaces; the corpus generators with the PDFium oracle test ([ADR 0020](adr/0020-test-corpus.md)); the render thread with tiles, queue and caches; determinism and stress tests; the `first_page` bench; the PDFium-missing banner ([G101](DESIGN_GAPS.md#g101)) | 1 | — |
+| W1 | The open path, limits, security, repair and structure; the two-parser check ([G102](DESIGN_GAPS.md#g102)); 9 fuzz targets | 2 | a1-8, a1-8b, a1-9, a1-9b, a1-9c, a1-9d, a1-9f, a11-7c, a2-10a |
+| W1, lead | **The Dco trial first** (the critical path): `full_dep`, ffigen, the `ApiVersion` rename, measured; if Dco fails or misses the target, stop for the owner ([Q19](QUESTIONS.md#q19) option b) | 3 | — |
+| W2 | The API, actors, views, jobs and bridge; the engine services and fakes; the viewer layouts including right to left, zoom, marquee, pinch and the hand tool; the status-bar page field with ⌘G; the M2 controls of Settings › General | 3 | a2-1a to a2-1d, a2-2, a2-13, a2-15, a11-1 |
+| W2 | The sidebar: EmptyState; Pages with the badge legend; Outline; Attachments with Save as (the replacement-directory atomic write, the experiment [Q18](QUESTIONS.md#q18) asks for); Layers; Signatures in the neutral state | 4 | a2-3a, a2-3p, a2-3o, a2-3b, a2-3c, a2-3x, a2-3m, a2-14, f5 |
+| W3 | Fonts and extraction (4 more fuzz targets, 13 in all); the index and the search job; the find bar, Look in, Show all and the live count; folding tests; search benches | 5 | a2-4a to a2-4d, a2-3e, a2-3m |
+| W3 | The open picker, drag and drop, open events from the OS ([ADR 0021](adr/0021-open-from-the-os.md)), arguments and cold start; recent files (grid, list, pins, search, collation, missing file, bookmarks, thumbnails, no preview when encrypted); reopen; the default-app prompt; progressive open; 20 tabs with overflow and per-document state; properties; the restricted unlock; the scripts banner ([G100](DESIGN_GAPS.md#g100)) | 6 | a1-3, a1-4, a1-4b, a1-4c, a1-4-m2, a1-6, a1-7, a1-9e, a1-10, a1-13, a2-7, a2-10b, a12-0 (as the `RegionFormat` test oracle) |
+| W4 | M2 goldens (light and dark × en, tr and ar, including a dark View window); `@m2` compare pairs; the canvas and recent-files comparisons unmasked (B098); the integration group "M2 budgets"; a no-network strace job; a bench job; closing M2 (E1 to E8) | close | — |
+
+Critical paths: the Dco trial, then the tile API, the canvas and the first-page bench; the corpus,
+then step 2's acceptance, extraction and search; the native open-from-the-OS code starts in W1.
+
+### Commit map
+
+1. the feature registry; 2. the fuzz and corpus workspaces; 3. the corpus; 4. render; 5. core;
+6. the Dco codec; 7. the API; 8. the app's engine services; 9. the viewer; 10. the sidebar;
+11. text; 12. search; 13. open; 14. start and recent files; 15. documents and properties;
+16. goldens; 17. CI, integration tests and budgets; 18. closing documents. Two more are kept for CI
+fixes.
+
+### Decisions in this plan
+
+Each is Proposed with the plan and recorded where the last column says.
+
+| # | Question | Decision | Recorded in |
+|---|---|---|---|
+| 1 | Saving before the writer exists | "Save repaired copy…" (a1-9) and a read-only file's "Save a copy…" (a1-9d) stay visible and disabled until M3, as the unfinished-features rule already requires | BACKLOG B103; ARCHITECTURE §5.2; [G28](DESIGN_GAPS.md#g28) |
+| 2 | Tile size and pixel format | 512 × 512 BGRA; ADR 0009's 256 px RGBA applies only to the texture fallback; if a platform rejects BGRA, `FPDF_REVERSE_BYTE_ORDER` | ADR 0009 |
+| 3 | Thumbnails and indexing | Thumbnails come from PDFium without waiting for indexing; above the progressive-open threshold (more than 1,000 pages, or an indexing estimate over 2 s) a1-7's rules apply | [G104](DESIGN_GAPS.md#g104) |
+| 4 | The scripts notice of [Q13](QUESTIONS.md#q13) has no board | An info banner reusing a8-4's copy, and a row in Properties | [G100](DESIGN_GAPS.md#g100) |
+| 5 | DCO sign-off | Required on every commit from M2, checked on pull requests | ROADMAP E7; CONTRIBUTING |
+| 6 | [Q18](QUESTIONS.md#q18) needs a save, and the writer is M3 | M2 builds bookmarks (recent files) and the replacement-directory write (attachment Save as); CI proves them inside the container, the owner on R1; the decision is taken at the M2 review | ADR 0008 |
+| 7 | An unsupported file | A file that arrives gets a1-9c's error tab; while dragging, the note reads "Can't open yet" | ROADMAP §6 step 6 |
+| 8 | Drop targets | The start screen and the document window or tab strip; a1-6's Combine target and the page-grid insert stay disabled until M4 | [G105](DESIGN_GAPS.md#g105); BACKLOG |
+| 9 | The default app | Works on macOS; on Windows the Settings link only once registered (the M5 installer), on Linux disabled until packaging | [G103](DESIGN_GAPS.md#g103); BACKLOG |
+| 10 | Where recent files live | A Dart `RecentFilesStore`; the engine supplies collation and thumbnails | [ADR 0021](adr/0021-open-from-the-os.md) |
+| 11 | Collation | icu_collator in ferman-text through `sort_keys` (also unblocks B092) | DEPENDENCIES |
+| 12 | The feature registry | The first M2 commit | ROADMAP §6 |
+| 13 | Corpus tooling | A Rust `tools/corpus` workspace, checked by PDFium; no qpdf or pyHanko in M2 | [ADR 0020](adr/0020-test-corpus.md) |
+| 14 | Stale Proposed and open mentions | Swept in phase 0 | — |
+| 15 | Gaps the new boards settle | Resolved or partly resolved in phase 0 | DESIGN_GAPS |
+| 16 | The approved 256 MB snapshot needs an `unsafe` mapping | An owned buffer until the owner answers | [Q21](QUESTIONS.md#q21); BACKLOG |
+| 17 | a1-9f's "one tab closed" on out of memory | Pre-checks with `try_reserve` and the limits; out of memory inside PDFium cannot be caught | ADR 0010 |
+| 18 | a1-9's "shown as IBM Plex Serif" with PDFium's system fonts | Look for a safe route to our font paths in pdfium-render, else record a gap and decide in M3 | risk |
+| 19 | `image_025` in M2 | Not needed; raw bitmap bytes are enough | ARCHITECTURE §2.3 |
+| 20 | Linux forwarding | GApplication D-Bus uniqueness instead of a Unix socket | [ADR 0021](adr/0021-open-from-the-os.md) |
+| 21 | a11-1-m1 draws M2 controls enabled | Disabled until they work, as the unfinished-features rule already requires (M1 does so); M2 step 3 enables them | [G108](DESIGN_GAPS.md#g108) |
+| 22 | PDFium cannot toggle a layer | The render-only appendix in ferman-core | ADR 0009 |
+| 23 | "Show in Finder" on Windows and Linux | "Show in Explorer", the design's own Windows label (FmSettings), and "Show in folder" on Linux | [G107](DESIGN_GAPS.md#g107) |
+| 24 | Text selection with the Select tool | Select is the default pointer in M2; selection and copy arrive with M3's hit testing | BACKLOG |
+
+### New dependencies
+
+Only one needs the owner first: strace (LGPL-2.1-or-later, a CI tool for the no-network check,
+never shipped), asked before it is added, as rust-cache was in [Q17](QUESTIONS.md#q17). Already
+planned in [DEPENDENCIES.md](DEPENDENCIES.md): lopdf, skrifa and
+read-fonts, sha2, rayon, crossbeam-channel, lru, the unicode crates, icu_casemap and icu_collator,
+criterion, tempfile, cargo-fuzz and libfuzzer-sys (NCSA, approved in [Q17](QUESTIONS.md#q17)),
+file_selector, and desktop_drop (with dbus under MPL-2.0, approved; the pub check skips `dbus`). New,
+all MIT or Apache-2.0 or BSD-3-Clause: zeroize; flate2 and weezl as direct dependencies; png for the
+CLI; arbitrary for the fuzz targets; ffigen as a Dart dev dependency, checked to bring no `http`;
+Noto Sans CJK (OFL-1.1, test data only, pinned hash, never shipped) and the Adobe Glyph List
+(BSD-3-Clause); `libclang-dev` as a CI package, never shipped.
+
+### Still Proposed at the M2 review
+
+The R1 and R2 budgets; the fuzz durations (60 s per target on pull requests, 1 h per target nightly);
+the cache caps (25 % of RAM for tiles, 8 loaded pages per document); the progressive-open threshold
+([G104](DESIGN_GAPS.md#g104)); the M2 performance budgets.
+
+### Pending owner checks (M2)
+
+Each gets one command that prints labelled JSON (`flutter drive --profile … --dart-define=FERMAN_CORPUS=…`
+from `app/`, or `ferman open --timings --json`) and links to the CI artefacts.
+
+- [ ] R1 and R2 budgets: first page under 1 s, 60 fps at p99 while scrolling, 12 thumbnails in
+  300 ms, the imar plan's first page under 1.5 s and fully indexed under 25 s, memory under 400 MB,
+  and the Dco transfer under 0.2 ms per MiB.
+- [ ] The macOS sandbox with files granted through the panel: bookmarks after a restart and the
+  `replaceItemAt` save ([Q18](QUESTIONS.md#q18)).
+- [ ] Opening from the OS: double-click, "Open with", the Dock and the taskbar, a second launch on all
+  three systems, cold start; Linux D-Bus uniqueness on GNOME and KDE.
+- [ ] The default-app dialogs; the native pickers; drag and drop from Finder, File Explorer and
+  Nautilus.
+- [ ] Screen readers, fractional display scaling, Windows 10 and arm64.
+- [ ] Native-speaker review of the new Turkish and Arabic strings.
+
+### Risks
+
+- **The Dco codec fails, or ffigen pulls in `http`.** The trial runs first; the `TileTransport` seam
+  and the copying codec remain as a fallback.
+- **Text extraction is deeper than planned.** Generator-controlled inputs and the PDFium cross-check.
+- **lopdf's stack use and panics.** The big-stack thread, `catch_unwind` and fuzzing.
+- **Native open-from-the-OS code on three systems.** Starts in W1.
+- **Out of memory or a crash inside PDFium takes the app down.** Pre-checks; a helper process is
+  assessed only if a budget misses.
+- **CI time.** Separate jobs, a nightly fuzz matrix, design references for `@m1` and `@m2` only.
+- **Large commits under the 20-commit limit.** A review per wave and the commit map in the pull
+  request body.
 
 ## ADR status
 
@@ -507,13 +681,16 @@ the ADRs that changed status here.
 | ADR | Status | Waiting for |
 |---|---|---|
 | [0007 harfrust instead of rustybuzz](adr/0007-harfrust-instead-of-rustybuzz.md) | Accepted (owner, [Q04](QUESTIONS.md#q04), 2026-10-15) | — |
-| [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Proposed | the owner's review; M2 stops before step 1 without it |
+| [0009 threading and jobs](adr/0009-threading-and-jobs.md) | Accepted (owner, 2026-10-16; the tile-transfer order through [Q19](QUESTIONS.md#q19)); the tile wording and the render-only appendix approved with the M2 plan on 2026-10-17 | — |
 | [0013 fonts and icons](adr/0013-fonts-and-icons.md) | Accepted: brief parts, plus Plex Sans Hebrew and Devanagari (owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | — |
-| [0018 native file pickers](adr/0018-native-file-pickers.md) | Proposed | [Q07](QUESTIONS.md#q07) |
-| [0019 AI clients through MCP](adr/0019-ai-clients-through-mcp.md) | Accepted: the direction (owner, [Q20](QUESTIONS.md#q20), 2026-10-16); details Proposed | the details, with the owner, when M4 step 11 starts |
-| [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief), each with one Proposed detail | the owner's review (not approved at the M0 go-ahead) |
-| [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief), with one Proposed detail (`fsType`) | [Q09](QUESTIONS.md#q09) |
-| [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions approved on 2026-10-15; the reading of "GPL-compatible" open | [Q17](QUESTIONS.md#q17) part 4 |
+| [0018 native file pickers](adr/0018-native-file-pickers.md) | Accepted (owner, [Q07](QUESTIONS.md#q07), 2026-10-16) | — |
+| [0019 AI clients through MCP](adr/0019-ai-clients-through-mcp.md) | Accepted (owner, [Q20](QUESTIONS.md#q20), 2026-10-16): the direction, then the details | — |
+| [0020 test corpus](adr/0020-test-corpus.md) | Accepted (owner, with the [M2 plan](#m2-plan), 2026-10-17) | — |
+| [0021 opening files from the OS](adr/0021-open-from-the-os.md) | Accepted (owner, with the [M2 plan](#m2-plan), 2026-10-17) | — |
+| [0010 error handling](adr/0010-error-handling-no-panics.md) | Accepted (brief); the crash-log placeholders approved by the owner on 2026-10-17, and the out-of-memory note with the M2 plan the same day | — |
+| [0003](adr/0003-crate-layout-and-api-boundary.md), [0004](adr/0004-lopdf-model-pdfium-renderer.md), [0008](adr/0008-file-safety-and-saving.md) | Accepted (brief); the Proposed detail of each approved by the owner on 2026-10-16; ADR 0008's new details (the attachment write path, files over 256 MB) approved with the M2 plan on 2026-10-17; memory-mapping waits for [Q21](QUESTIONS.md#q21) | Q21, for memory-mapping |
+| [0006 font pipeline](adr/0006-font-pipeline-and-missing-glyphs.md) | Accepted (brief); the `fsType` detail approved by the owner on 2026-10-16 ([Q09](QUESTIONS.md#q09)) | — |
+| [0016 licence policy](adr/0016-dependency-licence-policy.md) | Accepted (brief); three licence exceptions approved on 2026-10-15; the reading of "GPL-compatible" confirmed on 2026-10-16 ([Q17](QUESTIONS.md#q17) part 4) | — |
 | All others | Accepted (brief) | — |
 
 ## Measurements
@@ -532,15 +709,15 @@ budget that applies to a milestone is measured on R1 and R2 and recorded here
 | 2026-10-16 | M1 | `debug_bytes`: a 1 MiB `Vec<u8>` from Rust to Dart, round trip timed in Dart | under 0.2 ms on R1 and R2, profile or release build | development container, Linux x64, Xvfb, profile build of a fresh clone at `f41d789` (not R1 or R2) | 20 warm calls after one warm-up: minimum 4,570 µs, median 8,726 µs; **does not meet the target** | the fresh-clone run of CLAUDE.md's commands, `flutter drive --profile -d linux …` |
 
 Both results are far over the target, because the transfer copies. With codegen 2.13's default
-`full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one byte
-at a time into a serialisation buffer, and Dart copies it out with `getUint8List`. `full_dep: true`
-(the Dco codec) needs ffigen as a dev dependency and libclang for codegen; tried in a scratch copy, it
-generated bindings whose Dart did not compile (ffigen's C struct `ApiVersion` clashes with the Dart
-mirror). The options (the Dco codec, an opaque pixel buffer read through a pointer view, the texture
-registry) and a proposal are in
-[ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed); the
-owner decides in [Q19](QUESTIONS.md#q19), before M2 step 3. The ROADMAP zero-copy box stays open until
-R1 and R2 are measured.
+`full_dep: false` the generated glue uses the SSE codec: its Rust encoder writes the `Vec<u8>` one
+byte at a time into a serialisation buffer, and Dart copies it out with `getUint8List`. `full_dep:
+true` (the Dco codec) needs ffigen as a dev dependency and libclang for codegen; tried in a scratch
+copy, it generated bindings whose Dart did not compile (ffigen's C struct `ApiVersion` clashes with
+the Dart mirror). The options (the Dco codec, an opaque pixel buffer read through a pointer view,
+the texture registry) and a proposal are in [ADR
+0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed); the owner
+chose in [Q19](QUESTIONS.md#q19) on 2026-10-16: (a) first, measured on R1 and R2 before M2 step 3.
+The ROADMAP zero-copy box stays open until R1 and R2 are measured.
 
 ## Session log
 
@@ -560,3 +737,6 @@ Newest last. One row per session.
 | 2026-10-16 | M1 | Phase L, closing M1. A review of the batch found four minor problems (the spec walker skipped Dart 3.13 factories; the component goldens' Arabic region; the audit count in this log; DejaVu Serif in the Flutter rules), all fixed with a test where code changed. A one-off GitHub GraphQL error failed the comparison comment on `54d2ef9`; one re-run passed and the step now retries, then only warns (`acc4b4d`). The ROADMAP §5 boxes are ticked with their evidence: 67 of 84, the rest waiting on the owner (Proposed items, R1, R2 and arm64 checks, native review; B100). A fresh clone at `f41d789` ran all 30 CLAUDE.md commands on Linux; CLAUDE.md, CONTRIBUTING and README gained the build, run and web commands and the M1 status. A check found all 144 controls disabled for a future version listed in BACKLOG with their milestones. CI runs on `54d2ef9` and `f41d789` were green on the three systems. M1 is complete and waits for the owner's approval; pull request #2 is ready for review. `design/` unchanged. | `f41d789` to the head of this push |
 | 2026-10-16 | M1 | The owner asked for the translation review table in the repository. [TRANSLATION_REVIEW.md](TRANSLATION_REVIEW.md) holds every message in English, Turkish and Arabic with the note for translators, how to review and how to send corrections; the table is generated from the ARB files by `dart run l10n:review_table` (`tools/l10n`), and CI fails when it is stale. The column that said where each translation came from is not carried over: it needed scratch data from phase J1 and was incomplete for the strings of phases F to I. `design/` unchanged. | the head of this push |
 | 2026-10-16 | M1 | The owner set two working rules: at most 15 to 20 commits per pull request from M2 on, pushed in checked batches, and a plain message when a pull request is ready to merge (CLAUDE.md "How to work", ROADMAP §3.1 and E7, the owner decisions above). `design/` unchanged. | the head of this push |
+| 2026-10-16 | M2 prep | The owner merged M1 (pull request #2, `aa7ad21`) and answered every open question as proposed, with the release files for macOS, Windows and Linux on GitHub Releases (Q15), and approved every item under Still Proposed in M1. QUESTIONS.md has all 20 entries answered; the 12 Needs owner entries of DESIGN_GAPS.md are Decided (G01 to G03, G25, G26, G33, G36, G51 to G53, G56, G60); ADRs 0009 and 0018 are Accepted, with the Proposed details of 0003, 0004, 0006, 0008 and 0019 and the reading of "GPL-compatible" in 0016; CLAUDE.md, ROADMAP's M1 status and this file follow. At the owner's request this pass changed only the answers and their status lines: the other mentions in ROADMAP, ARCHITECTURE, DEPENDENCIES, DESIGN_INVENTORY, BACKLOG, the body text of ADRs 0015 and 0017, CONTRIBUTING, SECURITY and the rules files follow in the M2 planning pass, after the owner adds a corrected design export. On the branch `m2-open-and-view`. `design/` unchanged. | the head of this push |
+| 2026-10-17 | M2 phase 0 | The owner approved the crash-log placeholders of ADR 0010 and the 640 px canvas minimum (G95), pushed a corrected design export to `main` (`519d42a`: 253 boards, 30 new, of which five are M1 builds, 15 are for M2 including the region-format table `a12-0` and 10 are for M3; 29 carry an EN/TR/AR switch) and chose a small design-sync pull request before M2: pull request #3. `main` merged in with a sign-off. CI on `main`, red since the export, fixed: two moved design lines in the component spec, the 253 boards with two special captures (`a12-0` as the element, `a2-3m` as the box around its six sidebars), and the `design/` check on pushes, which had flagged the owner's own export. `tools/design-refs` renders the 58 Turkish and Arabic variants and has the sets `@m1`, `@m2` and `@langs`; a full `--twice` render of all 312 PNGs was identical; the comparison pairs moved to the M1 build boards in three languages. The app matched to the new boards: the free step's 6 px tile padding (a two-line Turkish tile is 50 px, as the board measures) and its accessible name, two Turkish strings, and a1-2b's settings link (body-strong, a trailing arrow mirrored right to left); 12 goldens regenerated, 1983 tests pass. The 17th repository check, `dco_signoff`. The documents: an agent workflow (one writer and one adversarial reviewer per group, 47 review findings fixed) synced the inventory, the roadmap and the design gaps (22 resolved, five in part, G100 to G111 new) and swept the approvals through ARCHITECTURE, DEPENDENCIES, BACKLOG (B101 to B106), ADRs 0004, 0008, 0009, 0010, 0015 and 0017, CONTRIBUTING, SECURITY, the rules files and code comments; the six approved M1 boxes are ticked. The M2 plan above, Proposed ADRs 0020 and 0021, and Q21 (memory-mapping) added. CI green on three systems at `70b1ea2`. `design/` unchanged by this work. | `e6e6200` to the head of this push |
+| 2026-10-17 | M2 | The owner approved the M2 plan (the go-ahead for M2) and chose to continue M2 in a Claude Code session on their own computer. Recorded: the plan approved, with every decision it marks Proposed except the items still Proposed at the M2 review, Q21 and strace; ADRs 0020 and 0021 Accepted; the plan's details in ADRs 0008, 0009 and 0010 approved. Pull request #3 waits only on the owner's merge. | the head of this push |

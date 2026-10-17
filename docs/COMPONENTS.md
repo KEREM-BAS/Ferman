@@ -2837,8 +2837,8 @@ States:
 | `unsaved` | prop (`unsaved`) | `FmWindow.dc.html:23` |  |
 | `loading` | prop (`loading`) | `FmWindow.dc.html:23` |  |
 | `closeDisabledWithReason` | prop (`closeDisabledReason`) |  | G10. Tooltip: "Available in a future version". The close button of the active clean tab in the disabled look, the reason as tooltip and semantics hint; it stays focusable and activation does nothing (closing documents arrives in M2). |
-| `locked` | prop (`icon`) | `01 First run and files.dc.html:257` |  |
-| `repaired` | prop (`icon`) | `01 First run and files.dc.html:259` |  |
+| `locked` | prop (`icon`) | `01 First run and files.dc.html:394` |  |
+| `repaired` | prop (`icon`) | `01 First run and files.dc.html:396` |  |
 | `overflow` | data | `FmWindow.dc.html:26` | Ghost sm Button "+N" with a chevron-down; opens the list of the other documents. |
 | `focusVisible` | keyboard |  | G22. Not drawn: inset focus ring as on ModeTabs. |
 

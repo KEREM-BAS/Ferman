@@ -8,7 +8,9 @@ Versions, licences and release dates were checked on 2026-10-13 against crates.i
 upstream repositories. A few items were re-checked on 2026-10-14 or 2026-10-15; they say so. The
 dependencies in use (section 2) come from the lockfiles, and their pub.dev licences were re-checked on
 2026-10-15. The owner's decisions of 2026-10-15 ([Q04](QUESTIONS.md#q04), [Q08](QUESTIONS.md#q08),
-[Q17](QUESTIONS.md#q17)) are recorded in the rows they affect. "First milestone" follows
+[Q17](QUESTIONS.md#q17)) and 2026-10-16 ([Q06](QUESTIONS.md#q06), [Q07](QUESTIONS.md#q07), Q08
+groups 3 and 4, [Q10](QUESTIONS.md#q10), [Q12](QUESTIONS.md#q12), [Q15](QUESTIONS.md#q15),
+[Q16](QUESTIONS.md#q16), Q17 part 4) are recorded in the rows they affect. "First milestone" follows
 the brief's roadmap as detailed in [ROADMAP.md](ROADMAP.md). The dependency research guessed its own
 phases; every row here has been remapped to the roadmap.
 
@@ -45,8 +47,8 @@ Ferman is Apache-2.0 ([brief §1](BRIEF.md)). That narrows "GPL-compatible":
 So in practice: **permissive licences, plus MPL-2.0 for unmodified dependencies after the owner's review.**
 
 This reading of "GPL-compatible" (no GPL-3.0 code, no LGPL-only code) is ours; the brief does not spell
-it out. The owner is asked to confirm it in [Q17](QUESTIONS.md#q17) (part 4, still open). Until the
-owner answers, the stricter reading applies.
+it out. The owner confirmed it on 2026-10-16 ([Q17](QUESTIONS.md#q17) part 4): no GPL code of any
+version, no LGPL-only code, and MPL-2.0 only per package after the owner's review.
 
 **Allowed for code (Rust and Dart):** Apache-2.0, Apache-2.0 WITH LLVM-exception, MIT, MIT-0,
 BSD-2-Clause, BSD-3-Clause, ISC, Zlib, 0BSD, BSL-1.0, CC0-1.0, Unicode-3.0, Unicode-DFS-2016. An OR
@@ -61,7 +63,8 @@ expression is fine when one side is on this list. Examples: `MIT OR Apache-2.0 O
   skipped by name in the pub licence check ([section 8](#8-dart-licence-check)).
 - NCSA for `libfuzzer-sys`, only in the separate `fuzz/` workspace, which never ships. Approved on
   2026-10-15 ([Q17](QUESTIONS.md#q17)); `fuzz/` is created with the first parser in M2.
-- OFL-1.1 (and Apache-2.0 for Homemade Apple, if it ships) for font files only, never as a code licence.
+- OFL-1.1 (and Apache-2.0 for Homemade Apple, which ships for typed signatures from M4,
+  [Q08](QUESTIONS.md#q08) group 3) for font files only, never as a code licence.
 - Tools that run only in CI (for example the LGPL-3.0 Swatinem/rust-cache action). They are never
   distributed, and their code is never vendored or copied. Swatinem/rust-cache was approved on
   2026-10-15 ([Q17](QUESTIONS.md#q17)).
@@ -111,7 +114,7 @@ What M1 has added so far, read from `Cargo.lock`, `app/pubspec.lock`, the tool l
 | serde_json | ferman-cli: `info --json`; ferman-api (dev): the PDFium status JSON test | 1.0.154 | MIT OR Apache-2.0 | ok | M1 | |
 | clap (`derive`, `string`) | ferman-cli argument parser | 4.6.7 | MIT OR Apache-2.0 | ok | M1 | Chosen in M1 step 1. MSRV 1.85. Pulls anstream, anstyle*, clap_lex, strsim and heck (MIT, or MIT OR Apache-2.0). |
 | flutter_rust_bridge (crate) | Rust side of the Dart–Rust bridge, behind ferman-api's optional `frb` feature | `=2.13.0` | MIT | ok | M1 | The crate, the Dart package and the codegen must be the same version ([ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md)); `tools/checks` compares the crate and the Dart package, and the CI codegen job installs the codegen at exactly 2.13.0 (its cache key names the version). 2.14.0-beta.2 exists and is not used. Its default features add about 75 crates, among them tokio 1.53.3, futures 0.3.34, backtrace 0.3.76, allo-isolate 0.1.27 (clarify hash `0x0a6d4ed6`, [section 7](#7-denytoml)), dart-sys 4.1.5, threadpool 1.8.1, anyhow 1.0.104, dashmap 5.5.3 and md-5 0.10.6. MSRV 1.70. |
-| pdfium-render | ferman-render: binds PDFium at run time on the render thread; read-only rasteriser from M2 | `=0.9.4` | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` (checked in the 0.9.4 manifest: `pdfium_latest = ["pdfium_7881"]`, `image_latest = ["image_025"]`; the API level is named so a pdfium-render update cannot move it). `image_025` ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md)) is added with page rendering in M2. Pinned exactly: it moves with the PDFium tag in one commit. Binds with `bind_to_library` from an explicit, absolute path; its bindings are process-wide and never unbound, so ferman-render binds once per process behind a lock. Pulls on the desktop targets: libloading 0.9.0 (ISC, MSRV 1.88), chrono 0.4.45 (default features), iana-time-zone 0.1.65 (Linux, macOS), core-foundation-sys 0.8.7 (macOS), windows-link 0.2.1 (Windows), itertools 0.15.0, either 1.19.0, num-traits 0.2.19, autocfg 1.5.1 (build), bitflags 2.13.2, bytemuck 1.25.2 (Zlib OR Apache-2.0 OR MIT), bytes 1.12.1 (MIT), log 0.4.34, once_cell 1.21.4, maybe-owned 0.3.4, utf16string 0.2.0, vecmath 1.0.0 and piston-float 1.0.1 (MIT); 22 packages are new in `Cargo.lock`. MSRV 1.61. Upgrade check: reusing a binding relies on `Pdfium::default()` taking pdfium-render's reuse branch (`library.rs`). pdfium-render panics if its global lock is poisoned, which ends the render thread (status "failed: the render thread has stopped"). It never calls `FPDF_DestroyLibrary`. |
+| pdfium-render | ferman-render: binds PDFium at run time on the render thread; read-only rasteriser from M2 | `=0.9.4` | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` (checked in the 0.9.4 manifest: `pdfium_latest = ["pdfium_7881"]`, `image_latest = ["image_025"]`; the API level is named so a pdfium-render update cannot move it). **Proposed** with the M2 plan: `image_025` ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md)) stays off, because the tiles take PDFium's bitmap bytes through `PdfBitmap::as_raw_bytes`, which no feature gates. Pinned exactly: it moves with the PDFium tag in one commit. Binds with `bind_to_library` from an explicit, absolute path; its bindings are process-wide and never unbound, so ferman-render binds once per process behind a lock. Pulls on the desktop targets: libloading 0.9.0 (ISC, MSRV 1.88), chrono 0.4.45 (default features), iana-time-zone 0.1.65 (Linux, macOS), core-foundation-sys 0.8.7 (macOS), windows-link 0.2.1 (Windows), itertools 0.15.0, either 1.19.0, num-traits 0.2.19, autocfg 1.5.1 (build), bitflags 2.13.2, bytemuck 1.25.2 (Zlib OR Apache-2.0 OR MIT), bytes 1.12.1 (MIT), log 0.4.34, once_cell 1.21.4, maybe-owned 0.3.4, utf16string 0.2.0, vecmath 1.0.0 and piston-float 1.0.1 (MIT); 22 packages are new in `Cargo.lock`. MSRV 1.61. Upgrade check: reusing a binding relies on `Pdfium::default()` taking pdfium-render's reuse branch (`library.rs`). pdfium-render panics if its global lock is poisoned, which ends the render thread (status "failed: the render thread has stopped"). It never calls `FPDF_DestroyLibrary`. |
 | futures-channel | ferman-render: oneshot replies from the render thread, awaited by async API functions without blocking | 0.3.34 | MIT OR Apache-2.0 | ok | M1 | Default features (`std`). Already in the graph through flutter_rust_bridge's futures 0.3.34. Requests use `std::sync::mpsc`; crossbeam-channel ([section 3.5](#35-concurrency-and-caching)) is not added before M2. MSRV 1.71. |
 | insta (dev) | ferman-cli snapshot test | 1.49.0 | Apache-2.0 | ok | M1 | Pulls console 0.16.6 (MIT), similar 2.7.0 (Apache-2.0) and tempfile 3.27.0 (MIT OR Apache-2.0). MSRV 1.66. |
 
@@ -155,8 +158,8 @@ is a path package and is not counted.
 | flutter_test, integration_test, flutter_driver (dev) | Widget and integration tests; flutter_driver runs the integration test in profile mode | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | flutter_driver was already transitive through integration_test; since `be0a04b` it is a direct dev dependency for `app/test_driver/integration_test.dart` (`flutter drive --profile`). The lockfile changed only its dependency type, so the licence count stays at 107. |
 | riverpod_lint | Riverpod lints | 3.1.9 | MIT | ok | M1 | A native analyzer plugin under `plugins:` in `app/analysis_options.yaml`, not a pubspec dependency, so it is not in `pubspec.lock` and the licence check above does not see it; its licence was checked on pub.dev. No verified publisher. Its diagnostics appear only in `dart analyze`, so CI runs `dart analyze --fatal-infos` as well as `flutter analyze`. |
 
-`http` is not in `app/pubspec.lock`: the pub deny list (`tools/checks` `pub_denylist`, still
-**Proposed**) fails on it, which is why flutter_svg was dropped.
+`http` is not in `app/pubspec.lock`: the pub deny list (`tools/checks` `pub_denylist`, approved by
+the owner on 2026-10-16) fails on it, which is why flutter_svg was dropped.
 
 ### 2.3 Tools (never shipped)
 
@@ -227,9 +230,9 @@ the row then moves to [section 2](#2-in-use-today). MSRV is the minimum Rust ver
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
 | lopdf | Document model: parsing, incremental and full writes. The source of truth | 0.45.0 (2026-09-08) | MIT | ok | M2 | Pin `=0.45`: breaking minor releases come almost monthly (0.41 to 0.45 between June and September 2026). Wrapped inside ferman-core so an upgrade touches one crate. `embed_image` and `async` features off. Pulls aes, cbc, ecb, md-5, sha2 0.11, brotli-decompressor, encoding_rs and stringprep. MSRV 1.88. [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md). |
-| pdfium-render | Safe Rust binding to PDFium, used as a read-only rasteriser | 0.9.4 (2026-09-06) | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` since M1 step 3 ([section 2.1](#21-rust-crates)); `image_025` is added with page rendering in M2. PDFium is not thread-safe: `thread_safe` puts every call behind one global lock, and Ferman also keeps PDFium on one render thread ([ADR 0009](adr/0009-threading-and-jobs.md), Proposed). Binds at run time (`bind_to_library`), because the prebuilt builds are shared libraries only. Never used to edit or save. Not the GPL-3.0 `pdfium` crate. MSRV 1.61. In use since M1 step 3: the render thread binds PDFium and reports it loaded, with the pinned tag, only after a real call; `tools/pdfium` pins a SHA-256 per archive and per library ([section 5.1](#51-pdfium)). Page rendering starts in M2. |
+| pdfium-render | Safe Rust binding to PDFium, used as a read-only rasteriser | 0.9.4 (2026-09-06) | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` since M1 step 3 ([section 2.1](#21-rust-crates)); **Proposed** with the M2 plan: `image_025` stays off, because tiles take PDFium's bitmap bytes through `PdfBitmap::as_raw_bytes`, which needs no feature. PDFium is not thread-safe: `thread_safe` puts every call behind one global lock, and Ferman also keeps PDFium on one render thread ([ADR 0009](adr/0009-threading-and-jobs.md)). Binds at run time (`bind_to_library`), because the prebuilt builds are shared libraries only. Never used to edit or save. Not the GPL-3.0 `pdfium` crate. MSRV 1.61. In use since M1 step 3: the render thread binds PDFium and reports it loaded, with the pinned tag, only after a real call; `tools/pdfium` pins a SHA-256 per archive and per library ([section 5.1](#51-pdfium)). Page rendering starts in M2. |
 | PDFium (prebuilt, bblanchon/pdfium-binaries) | Native renderer loaded by pdfium-render | tag `chromium/7881`; newest tag is `chromium/8100` | BSD-3-Clause AND Apache-2.0; the packager's notice is MIT; plus bundled third-party licences | caution | M1 | Caution is for the notice obligations and the supply chain, not the licence. Details in [section 5.1](#51-pdfium). |
-| image | Raster decode and encode: compress, insert images, OCR input | 0.25.10 (2026-03-10) | MIT OR Apache-2.0 | caution | M4 | `default-features = false` with `png`, `jpeg`, `tiff`, `webp`, `gif` and `rayon`. The defaults pull the AVIF encoder (ravif and rav1e, BSD-2-Clause), exr and the unmaintained `paste` (RUSTSEC-2024-0436). pdfium-render brings `image` with default features off (JPEG only) once its `image_025` feature is turned on with page rendering in M2. MSRV 1.88. |
+| image | Raster decode and encode: compress, insert images, OCR input | 0.25.10 (2026-03-10) | MIT OR Apache-2.0 | caution | M4 | `default-features = false` with `png`, `jpeg`, `tiff`, `webp`, `gif` and `rayon`. The defaults pull the AVIF encoder (ravif and rav1e, BSD-2-Clause), exr and the unmaintained `paste` (RUSTSEC-2024-0436). pdfium-render would bring `image` with default features off (JPEG only) through its `image_025` feature, which stays off (Proposed with the M2 plan); `image` arrives in M4. MSRV 1.88. |
 | hayro | Optional pure-Rust rasteriser: web fallback and cross-checks | 0.8.0 (2026-10-04) | Apache-2.0 OR MIT | ok | P5 | By the krilla author. Does not match PDFium's fidelity yet. Considered only for the web build. |
 
 ### 3.3 Fonts and text
@@ -291,9 +294,9 @@ Simple signatures in M4 are not cryptographic and need none of these.
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| ocrs | On-device text recognition for scans | 0.13.1 (2026-09-13) | MIT OR Apache-2.0 | caution | P3 | Early preview that recognises the Latin alphabet only, so Turkish ğ, ş, ı and İ are unproven and Arabic and CJK are not covered. Models are downloaded separately; they were trained on HierText (CC-BY-SA-4.0) and no licence for the weights is published. Needs the owner's decision ([Q16](QUESTIONS.md#q16)) and a licence review before any model ships or downloads. |
+| ocrs | On-device text recognition for scans | 0.13.1 (2026-09-13) | MIT OR Apache-2.0 | caution | P3 | Early preview that recognises the Latin alphabet only, so Turkish ğ, ş, ı and İ are unproven and Arabic and CJK are not covered. Models are downloaded separately; they were trained on HierText (CC-BY-SA-4.0) and no licence for the weights is published. The engine is chosen at the start of phase 3 after a fresh check ([Q16](QUESTIONS.md#q16), answered on 2026-10-16), with a licence review before any model ships or downloads. |
 | rten | Inference runtime used by ocrs | 0.27.0 (2026-10-02); ocrs 0.13.1 needs 0.26.x | MIT OR Apache-2.0 | ok | P3 | Pin 0.26.x to match ocrs and avoid two copies. 0.27 needs Rust 1.94. Its flatbuffers dependency is Apache-2.0. |
-| Tesseract with Leptonica (alternative) | OCR engine, native | not checked | Apache-2.0; Leptonica BSD-2-Clause | caution | P3 | The fallback if Q16 rules out ocrs. Adds a native build per platform; the licences of language data files are checked before use. |
+| Tesseract with Leptonica (alternative) | OCR engine, native | not checked | Apache-2.0; Leptonica BSD-2-Clause | caution | P3 | The fallback the owner named in Q16 (2026-10-16). Adds a native build per platform; the licences of language data files are checked before use. |
 
 ### 3.10 Dev and test (Rust)
 
@@ -315,7 +318,7 @@ dropped and shared_preferences was not chosen ([section 4](#4-rejected)).
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
 | desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
-| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md) (Proposed, [Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
+| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
 
 ### 3.12 Tooling
@@ -378,13 +381,13 @@ These needs are known. The dependency is picked, and its licence checked, in the
 | File-change notification | M3 | **Proposed** for external-change detection; chosen in M3 step 8. |
 | Adobe Glyph List, standard-14 AFM metrics, predefined CJK CMaps | M3 | Data files. Added only after their licences are checked and listed here. |
 | Independent PDF structure checker for CI, for example qpdf (Apache-2.0) | M3 | **Proposed.** CI only; never shipped. |
-| Similar-font candidates for missing glyphs | M3 | [Q08](QUESTIONS.md#q08) group 4, still open. Any font chosen must allow embedding. |
-| Printing package or platform channel | M4 | Basic system print is proposed for M4 ([Q10](QUESTIONS.md#q10)). |
-| Handwriting fonts for typed signatures | M4 | [Q08](QUESTIONS.md#q08) group 3, still open; see [section 5.2](#52-fonts). |
+| Similar-font candidates for missing glyphs | M3 | Cormorant Garamond and Crimson Pro (OFL-1.1), as a3-3b shows, bundled as unmodified upstream files ([Q08](QUESTIONS.md#q08) group 4, 2026-10-16); see [section 5.2](#52-fonts). Their release and embedding permissions are checked when they are added. |
+| Printing package or platform channel | M4 | Basic system print comes in M4 ([Q10](QUESTIONS.md#q10), accepted on 2026-10-16). |
+| Handwriting fonts for typed signatures | M4 | Caveat, Dancing Script and Homemade Apple ([Q08](QUESTIONS.md#q08) group 3, 2026-10-16); see [section 5.2](#52-fonts). |
 | Regular-expression engine for find and replace patterns | P2 | Only if needed. |
-| HTTP client with TLS for the network gateway | M5 | Uses the OS trust store. Only ferman-api's gateway may depend on it ([ARCHITECTURE.md §10.2](ARCHITECTURE.md#102-one-gateway)). Revocation lookups (OCSP, CRL) and local-network discovery are not enabled until the owner decides ([Q06](QUESTIONS.md#q06)). |
-| Update framework for macOS and Windows | M5 | Endpoint and payload are [Q15](QUESTIONS.md#q15). Update packages are signature-checked. |
-| Signing, notarization and installer tooling; Linux packaging | M5 | CI only. Linux formats are [Q12](QUESTIONS.md#q12). |
+| HTTP client with TLS for the network gateway | M5 | Uses the OS trust store. Only ferman-api's gateway may depend on it ([ARCHITECTURE.md §10.2](ARCHITECTURE.md#102-one-gateway)). Revocation lookups (OCSP, CRL) go through it from phase 3, off until first use; Ferman does no local-network discovery ([Q06](QUESTIONS.md#q06)). |
+| Update framework for macOS and Windows | M5 | Reads a static, signed manifest per channel served from GitHub (Releases or Pages) ([Q15](QUESTIONS.md#q15)). Update packages are signature-checked. |
+| Signing, notarization and installer tooling; Linux packaging | M5 | CI only. Linux formats: a Flatpak on Flathub and an AppImage ([Q12](QUESTIONS.md#q12)). |
 | Office format readers and writers | P3 | Chosen in the conversion ADR. |
 | Software PKCS#11 token for tests, for example SoftHSM2 | P3 | CI only. |
 | PDF/A and PDF/UA validator | P4 | CI only; licence reviewed before use. |
@@ -408,9 +411,9 @@ These needs are known. The dependency is picked, and its licence checked, in the
 | golden_toolkit | pub | 0.15.0 | BSD-3-Clause | Discontinued and unlisted; its SDK constraint is below Dart 3. alchemist replaces it. | review |
 | lucide_icons | pub | 0.257.0 | MIT | Stale (2023), Dart 2 SDK constraint. | review |
 | lucide_icons_flutter | pub | 3.1.25 | MIT | A single-maintainer repackaging as an icon font, with Lucide's default 2 px stroke. The design system says "No icon font, no PNG icons, no sprite sheet." ([ADR 0013](adr/0013-fonts-and-icons.md)). | review |
-| google_fonts | pub | not checked | not checked | Fetches fonts at run time, a network use the brief does not allow ([ADR 0015](adr/0015-privacy-and-network.md)). | **Proposed** pub deny list in CI from M1 step 2 ([section 8](#8-dart-licence-check)) |
+| google_fonts | pub | not checked | not checked | Fetches fonts at run time, a network use the brief does not allow ([ADR 0015](adr/0015-privacy-and-network.md)). | pub deny list in CI since M1 step 2 (`pub_denylist`, approved on 2026-10-16, [section 8](#8-dart-licence-check)) |
 | @ibm/plex npm packages | npm | 6.4.1 | OFL-1.1 | They hold only CSS, SCSS, WOFF and WOFF2 files (no TTF or OTF) and run an IBM telemetry script on install. Fonts come from IBM's GitHub releases instead. | review |
-| flutter_svg, vector_graphics | pub | 2.3.0; 1.2.3 | MIT; BSD-3-Clause | Both depend on `http` (`^1.0.0`) and import `package:http` for their network loaders (`SvgPicture.network`), and the network deny list forbids HTTP clients in the app graph ([ADR 0015](adr/0015-privacy-and-network.md)). Dropped in M1 (`246d6df`, lead decision of 2026-10-15): the icons are painted from generated path data with path_parsing ([section 2.2](#22-dart-and-flutter-packages-app), [ADR 0013](adr/0013-fonts-and-icons.md)). | `tools/checks` `pub_denylist` fails on `http` in `app/pubspec.lock` (**Proposed**) |
+| flutter_svg, vector_graphics | pub | 2.3.0; 1.2.3 | MIT; BSD-3-Clause | Both depend on `http` (`^1.0.0`) and import `package:http` for their network loaders (`SvgPicture.network`), and the network deny list forbids HTTP clients in the app graph ([ADR 0015](adr/0015-privacy-and-network.md)). Dropped in M1 (`246d6df`, lead decision of 2026-10-15): the icons are painted from generated path data with path_parsing ([section 2.2](#22-dart-and-flutter-packages-app), [ADR 0013](adr/0013-fonts-and-icons.md)). | `tools/checks` `pub_denylist` fails on `http` in `app/pubspec.lock` (approved on 2026-10-16) |
 | shared_preferences | pub | 2.5.6 | BSD-3-Clause | The licence is fine, but M1 step 9 chose its own settings file instead. On macOS shared_preferences writes to the user's preferences domain, outside the app data directory. `FileSettingsStore` (`app/lib/settings/settings_store_io.dart`) keeps `AppSettings` as versioned JSON in `settings.json` in the app support directory that path_provider reports, written with dart:io through a temporary file, a flush and a rename ([ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration)). The web build keeps settings in memory until phase 5. | not in `pubspec.yaml`; review |
 | Playwright's ffmpeg build | CDN download | 1011 | LGPL-2.1 | `npx playwright-core install` downloads it with every Chromium, the headless shell included. The renderer never records video, so it is not needed, and an LGPL download is avoided rather than reviewed. | Ferman never runs the Playwright installer; `tools/design-refs/fetch-chromium.sh` downloads only the headless shell |
 | dtolnay/rust-toolchain | GitHub Action | no versioned releases | MIT | Not needed: `rustup toolchain install` reads `rust-toolchain.toml`, so CI has one third-party action fewer. | review |
@@ -507,8 +510,9 @@ Fonts follow [ADR 0013](adr/0013-fonts-and-icons.md). The rules:
 | IBM Plex Sans Hebrew | `@ibm/plex-sans-hebrew@1.1.0` | `d7d490b8a767b972a7f361055fdcf60ad7cb7c270b38ff1bf859562a021369fd` | Regular, Medium, SemiBold; revision 1.003 | OFL-1.1, Reserved Font Name "Plex" | Accepted (owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | M1 |
 | IBM Plex Sans Devanagari | `@ibm/plex-sans-devanagari@1.1.0` | `effc4a35b2908c80806c97a4d5033e63f437611d17a3e09b237edd5c33d8ac94` | Regular, Medium, SemiBold; revision 1.002 | OFL-1.1, Reserved Font Name "Plex" | Accepted (owner, [Q08](QUESTIONS.md#q08), 2026-10-15) | M1 |
 | Japanese, Korean, Simplified and Traditional Chinese | System fonts | n/a | Not bundled: IBM's CJK releases are 73 to 523 MB as zips. No font packs ([Q08](QUESTIONS.md#q08) group 2) | n/a | Accepted (brief; owner, Q08, 2026-10-15) | M1 |
-| Caveat, Dancing Script (typed signatures) | Not chosen | n/a | Unmodified upstream files | OFL-1.1 | Open: [Q08](QUESTIONS.md#q08) group 3 | M4 |
-| Homemade Apple (typed signatures) | Not chosen | n/a | Unmodified upstream file | Apache-2.0 (not OFL) | Open: [Q08](QUESTIONS.md#q08) group 3 | M4 |
+| Caveat, Dancing Script (typed signatures) | Release chosen in M4 | n/a | Unmodified upstream files | OFL-1.1 | Accepted (owner, [Q08](QUESTIONS.md#q08) group 3, 2026-10-16) | M4 |
+| Homemade Apple (typed signatures) | Release chosen in M4 | n/a | Unmodified upstream file | Apache-2.0 (not OFL) | Accepted (owner, [Q08](QUESTIONS.md#q08) group 3, 2026-10-16) | M4 |
+| Cormorant Garamond, Crimson Pro (similar fonts for missing glyphs, a3-3b) | Release chosen in M3 | n/a | Unmodified upstream files; embedding must be allowed | OFL-1.1 | Accepted (owner, [Q08](QUESTIONS.md#q08) group 4, 2026-10-16) | M3 |
 
 The per-TTF SHA-256 values are the `font` lines of `tools/fonts/fonts.lock`. Every pinned version is
 the newest IBM release tag of its package (checked on 2026-10-15).
@@ -619,9 +623,9 @@ very_good packages check licenses \
 # From M2, in the commit that adds desktop_drop (dbus approved in Q17): add --skip-packages=dbus
 ```
 
-**Proposed** for M1 step 2 ([ROADMAP.md](ROADMAP.md)): a second check fails if `pubspec.lock` contains
-an HTTP client, a font downloader such as google_fonts, or an analytics or crash-reporting SDK
-([ADR 0015](adr/0015-privacy-and-network.md)). It exists as `pub_denylist` in `tools/checks`, which
+**Approved by the owner on 2026-10-16** (Proposed for M1 step 2 of [ROADMAP.md](ROADMAP.md) until
+then): a second check fails if `pubspec.lock` contains an HTTP client, a font downloader such as
+google_fonts, or an analytics or crash-reporting SDK ([ADR 0015](adr/0015-privacy-and-network.md)). It exists as `pub_denylist` in `tools/checks`, which
 fails on direct and transitive entries alike (its map of transitive exceptions is empty). It caught
 `http` arriving through flutter_svg, which was then dropped ([section 4](#4-rejected)). It reads only
 `app/pubspec.lock`: the `http` and `github` packages of cargokit's build tool run at build time, never
@@ -636,7 +640,7 @@ ship, and are a known build-time exception.
 | **cms 0.2 versus 0.3 release candidate.** 0.2.3 (2024) uses der 0.7, x509-cert 0.2, spki 0.7 and digest 0.10; the current crates are x509-cert 0.3, der 0.8 and sha2 0.11. | Two RustCrypto stacks in one build, or a release candidate in production. | Wait for cms 0.3.0, or pin the release candidate after review. | P3 |
 | **rsa timing advisory** (RUSTSEC-2023-0071, no fix). | Private-key operations could leak through timing. | rsa for verification only; sign through PKCS#11 (cryptoki), the OS keystore or aws-lc-rs. | P3 |
 | **`image` default features.** They pull ravif, rav1e, exr and the unmaintained `paste`. | Heavier builds; the advisory gate trips. | `default-features = false` with `png`, `jpeg`, `tiff`, `webp`, `gif` and `rayon`. | M4 |
-| **ocrs is Latin-only and its model licence is unclear.** Weights trained on HierText (CC-BY-SA-4.0) with no published licence. | Turkish, Arabic and CJK recognition poor or missing; models we may not be able to ship. | Owner decision in [Q16](QUESTIONS.md#q16) before phase 3; licence review before any model ships; Tesseract with Leptonica is the fallback. | P3 |
+| **ocrs is Latin-only and its model licence is unclear.** Weights trained on HierText (CC-BY-SA-4.0) with no published licence. | Turkish, Arabic and CJK recognition poor or missing; models we may not be able to ship. | The engine is chosen at the start of phase 3 after a fresh check ([Q16](QUESTIONS.md#q16)); licence review before any model ships; Tesseract with Leptonica is the fallback. | P3 |
 | **PDFium tag pinning and SHA verification.** Builds are weekly, third-party and unsigned; the newest tag (8100) is ahead of what pdfium-render 0.9.4 targets (7881). | Supply-chain risk; API mismatches. | Pin `chromium/7881`; verify a SHA-256 per archive in CI; non-V8, non-XFA build; sign with the app in M5; upgrade PDFium and pdfium-render together, in one commit, after the corpus and pixel-diff suite passes. | M1 |
 | **PDFium is not thread-safe and runs in-process.** pdfium-render's `thread_safe` feature is one global lock. | One render thread limits throughput; a PDFium crash ends the app. | One render thread with the lock as a second guard; caches and prefetch; helper processes if M2 measurements demand it ([ADR 0009](adr/0009-threading-and-jobs.md)). | M2 |
 | **lopdf churn.** Breaking releases almost monthly. | Upgrades break the build. | Pin `=0.45`; wrap it inside ferman-core; upgrade on purpose with the corpus as the safety net. | M2 |

@@ -1,5 +1,5 @@
 {
-  "$comment": "Golden-versus-reference pairs for `node tools/design-refs compare` (ROADMAP §5 step 11). Each pair names a board of boards.json (its render is <refs>/<board>.png) and a golden of the M1 matrix (<goldens>/<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png, a whole 1440 × 900 window at 1x), or says why the board is not compared. `crop` cuts the board render, `goldenCrop` the golden; both must give the same size. `masks` are rectangles in the compared frame (after cropping) that neither score counts. Rectangles are whole pixels: x, y, width, height. README.md explains the fields and the scores.",
+  "$comment": "Golden-versus-reference pairs for `node tools/design-refs compare` (ROADMAP §5 step 11). Each pair names a board of boards.json (its render is <refs>/<board>.png; with `lang`, the language variant <refs>/<board>.<lang>.png of a board with the board-language switch, and the golden in that language) and a golden of the M1 matrix (<goldens>/<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png, a whole 1440 × 900 window at 1x), or says why the board is not compared. `crop` cuts the board render, `goldenCrop` the golden; both must give the same size. `masks` are rectangles in the compared frame (after cropping) that neither score counts. Rectangles are whole pixels: x, y, width, height. README.md explains the fields and the scores.",
   "goldenSize": { "width": 1440, "height": 900 },
   "pairs": [
     {
@@ -36,27 +36,91 @@
     {
       "board": "a1-2b",
       "golden": "welcome_privacy_mac_light_en.png",
-      "note": "Welcome step 2 of 3. The app lists all four network uses (G24) where the board names only the update check, so the rows are expected to differ."
+      "note": "The privacy welcome step, macOS, light, English. Since export 519d42a the board lists the four network uses (G24) and links to Settings › Privacy, as the app does. The board is step 2 of 3 of the finished product, with Skip and three progress dots; the M1 app has two steps until a1-2a ships in M3, so its counter reads 1 of 2 with two dots (a1-2c-m1), and those are expected to differ."
     },
     {
       "board": "a1-2c",
+      "notCompared": "Superseded by a1-2c-m1, the M1 build board of export 519d42a: this board draws the finished product, with every feature included and three welcome steps."
+    },
+    {
+      "board": "a1-2c-m1",
       "golden": "welcome_free_mac_light_en.png",
-      "note": "Welcome step 3 of 3. The app says Apache-2.0 instead of GPL-3.0-or-later (G13) and does not mark unshipped features as Included (G12), so those texts are expected to differ."
+      "note": "Welcome step 2 of 2, M1 build, macOS, light, English. Only the interface-languages tile is included; every other tile is disabled (G12), and the licence is Apache-2.0 (G13). The board shows the focus ring and the “Available in a future version” tooltip on Text recognition (OCR); the golden has no focus, so that tile and the tooltip are expected to differ."
+    },
+    {
+      "board": "a1-2c-m1",
+      "lang": "tr",
+      "golden": "welcome_free_mac_light_tr.png",
+      "note": "Welcome step 2 of 2, M1 build, macOS, light, Turkish. Only the interface-languages tile is included; every other tile is disabled (G12), and the licence is Apache-2.0 (G13). The board shows the focus ring and the “Available in a future version” tooltip on Text recognition (OCR); the golden has no focus, so that tile and the tooltip are expected to differ."
+    },
+    {
+      "board": "a1-2c-m1",
+      "lang": "ar",
+      "golden": "welcome_free_mac_light_ar.png",
+      "note": "Welcome step 2 of 2, M1 build, macOS, light, Arabic, right to left. Only the interface-languages tile is included; every other tile is disabled (G12), and the licence is Apache-2.0 (G13). The board shows the focus ring and the “Available in a future version” tooltip on Text recognition (OCR); the golden has no focus, so that tile and the tooltip are expected to differ."
     },
     {
       "board": "a1-5",
+      "notCompared": "Superseded by a1-5-m1, the M1 build board of export 519d42a: this board draws the start screen with every action enabled."
+    },
+    {
+      "board": "a1-5-m1",
       "golden": "start_mac_light_en.png",
-      "note": "The empty start screen with the drop zone, macOS, light, English. Actions and quick tools that need later milestones are disabled in the app (G11)."
+      "note": "The empty start screen, M1 build, macOS, light, English: every action card, quick tool and drop-area button is disabled (G11). The board shows the focus ring and the tooltip on the Open file card; the golden has no focus, so that card and the tooltip are expected to differ."
+    },
+    {
+      "board": "a1-5-m1",
+      "lang": "tr",
+      "golden": "start_mac_light_tr.png",
+      "note": "The empty start screen, M1 build, macOS, light, Turkish: every action card, quick tool and drop-area button is disabled (G11). The board shows the focus ring and the tooltip on the Open file card; the golden has no focus, so that card and the tooltip are expected to differ."
+    },
+    {
+      "board": "a1-5-m1",
+      "lang": "ar",
+      "golden": "start_mac_light_ar.png",
+      "note": "The empty start screen, M1 build, macOS, light, Arabic, right to left: every action card, quick tool and drop-area button is disabled (G11). The board shows the focus ring and the tooltip on the Open file card; the golden has no focus, so that card and the tooltip are expected to differ."
     },
     {
       "board": "a11-1",
+      "notCompared": "Superseded by a11-1-m1, the M1 build board of export 519d42a: this board draws the finished Settings › General pane."
+    },
+    {
+      "board": "a11-1-m1",
       "golden": "settings_general_mac_light_en.png",
-      "note": "Settings, General, macOS, light, English. Options that need later milestones are disabled in the app."
+      "note": "Settings › General, M1 build, macOS, light, English. The board draws the M2 controls (PDF pages in dark theme, page layout, zoom, reopen) and every pane of the navigation enabled, with Match system chosen and no PDF-pages option; the app keeps those controls and the panes not built yet disabled (G108), and the golden runs with the Light theme, so those rows are expected to differ. The board also shows the tooltip of the disabled “Make Ferman the default…” as if hovered."
+    },
+    {
+      "board": "a11-1-m1",
+      "lang": "tr",
+      "golden": "settings_general_mac_light_tr.png",
+      "note": "Settings › General, M1 build, macOS, light, Turkish. The board draws the M2 controls (PDF pages in dark theme, page layout, zoom, reopen) and every pane of the navigation enabled, with Match system chosen and no PDF-pages option; the app keeps those controls and the panes not built yet disabled (G108), and the golden runs with the Light theme, so those rows are expected to differ. The board also shows the tooltip of the disabled “Make Ferman the default…” as if hovered."
+    },
+    {
+      "board": "a11-1-m1",
+      "lang": "ar",
+      "golden": "settings_general_mac_light_ar.png",
+      "note": "Settings › General, M1 build, macOS, light, Arabic, right to left. The board draws the M2 controls (PDF pages in dark theme, page layout, zoom, reopen) and every pane of the navigation enabled, with Match system chosen and no PDF-pages option; the app keeps those controls and the panes not built yet disabled (G108), and the golden runs with the Light theme, so those rows are expected to differ. The board also shows the tooltip of the disabled “Make Ferman the default…” as if hovered."
     },
     {
       "board": "a11-1w",
+      "notCompared": "Superseded by a11-1w-m1, the M1 build board of export 519d42a: this board draws the finished Settings › General pane on Windows."
+    },
+    {
+      "board": "a11-1w-m1",
       "golden": "settings_general_win_light_en.png",
-      "note": "Settings, General, with Windows chrome (caption buttons, no traffic lights); the same values as a11-1."
+      "note": "Settings › General, M1 build, with Windows chrome (caption buttons, no traffic lights), light, English; the default-app line adds where Windows makes the choice. The same differences are expected as for a11-1-m1 (G108)."
+    },
+    {
+      "board": "a11-1w-m1",
+      "lang": "tr",
+      "golden": "settings_general_win_light_tr.png",
+      "note": "Settings › General, M1 build, with Windows chrome (caption buttons, no traffic lights), light, Turkish; the default-app line adds where Windows makes the choice. The same differences are expected as for a11-1-m1 (G108)."
+    },
+    {
+      "board": "a11-1w-m1",
+      "lang": "ar",
+      "golden": "settings_general_win_light_ar.png",
+      "note": "Settings › General, M1 build, with Windows chrome (caption buttons, no traffic lights), light, Arabic, right to left; the default-app line adds where Windows makes the choice. The same differences are expected as for a11-1-m1 (G108)."
     },
     {
       "board": "a11-1b",
@@ -108,8 +172,24 @@
     },
     {
       "board": "a11-1h",
+      "notCompared": "Superseded by a11-1h-m1, the M1 build board of export 519d42a: this board draws Settings › Privacy with four network switches on."
+    },
+    {
+      "board": "a11-1h-m1",
       "golden": "settings_privacy_mac_light_en.png",
-      "note": "Settings, Privacy, macOS, light, English. The board draws four network switches on; M1 shows every switch off and disabled with the future-version tooltip, and Show network activity disabled (G89), so the switches and that button are expected to differ."
+      "note": "Settings › Privacy, M1 build, macOS, light, English: all five switches off and disabled, and Show network activity disabled (G89). The board shows the tooltip on the first switch and draws every pane of the navigation enabled; the golden shows no tooltip and the panes not built yet disabled (G108), so those are expected to differ."
+    },
+    {
+      "board": "a11-1h-m1",
+      "lang": "tr",
+      "golden": "settings_privacy_mac_light_tr.png",
+      "note": "Settings › Privacy, M1 build, macOS, light, Turkish: all five switches off and disabled, and Show network activity disabled (G89). The board shows the tooltip on the first switch and draws every pane of the navigation enabled; the golden shows no tooltip and the panes not built yet disabled (G108), so those are expected to differ."
+    },
+    {
+      "board": "a11-1h-m1",
+      "lang": "ar",
+      "golden": "settings_privacy_mac_light_ar.png",
+      "note": "Settings › Privacy, M1 build, macOS, light, Arabic, right to left: all five switches off and disabled, and Show network activity disabled (G89). The board shows the tooltip on the first switch and draws every pane of the navigation enabled; the golden shows no tooltip and the panes not built yet disabled (G108), so those are expected to differ."
     }
   ]
 }

@@ -1,11 +1,12 @@
 # ADR 0013: Fonts and icons
 
 - **Status:** Accepted. The brief's parts are Accepted (brief); the Plex Sans Hebrew and Devanagari
-  part was accepted by the owner on 2026-10-15 (Q08 groups 1 and 2).
+  part was accepted by the owner on 2026-10-15 (Q08 groups 1 and 2); bundling the handwriting faces
+  and the similar fonts was approved on 2026-10-16 (Q08 groups 3 and 4).
 - **Date:** 2026-10-14
 - **Approval:** brief §2 for the parts marked Accepted (brief), including the icons. Bundling Plex
   Sans Hebrew and Plex Sans Devanagari was approved by the owner on 2026-10-15
-  ([Q08](../QUESTIONS.md#q08), groups 1 and 2).
+  ([Q08](../QUESTIONS.md#q08), groups 1 and 2); groups 3 and 4 on 2026-10-16.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -151,13 +152,14 @@ and the full MIT text. Homemade Apple is Apache-2.0, not OFL.
 
 ### Other fonts the design uses
 
-- **Handwriting faces** for typed signatures (`--font-hand-1..3`: Caveat and Dancing Script under OFL,
-  Homemade Apple under Apache-2.0) are needed for simple signatures in M4. Whether to bundle them is
-  group 3 of [Q08](../QUESTIONS.md#q08), still open. If Homemade Apple ships, its Apache-2.0 licence
+- **Handwriting faces** for typed signatures (`--font-hand-1..3`: Caveat and Dancing Script under
+  OFL, Homemade Apple under Apache-2.0) are needed for simple signatures in M4. They are bundled
+  (group 3 of [Q08](../QUESTIONS.md#q08), approved 2026-10-16); Homemade Apple's Apache-2.0 licence
   ships with it.
 - **Similar fonts for missing glyphs** (the a3-3b group "SIMILAR FONTS INCLUDED WITH FERMAN", drawn
-  with Cormorant Garamond and Crimson Pro) are group 4 of Q08, still open and needed by M3
-  ([ADR 0006](0006-font-pipeline-and-missing-glyphs.md)). Any font chosen must allow embedding.
+  with Cormorant Garamond and Crimson Pro) are group 4 of Q08, bundled (approved 2026-10-16) and
+  needed by M3 ([ADR 0006](0006-font-pipeline-and-missing-glyphs.md)). Any font chosen must allow
+  embedding.
 - **The Google Fonts `@import` is never used.** Ferman never fetches fonts at run time
   ([ADR 0015](0015-privacy-and-network.md)).
 

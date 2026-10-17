@@ -42,7 +42,7 @@ Future<void> _openFreeStep(
 }
 
 void main() {
-  group('feature grid (a1-2c)', () {
+  group('feature grid (a1-2c-m1)', () {
     testWidgets('every tile is 44 px tall in English at the board size', (
       tester,
     ) async {
@@ -52,7 +52,7 @@ void main() {
     });
 
     testWidgets('a label too long for its tile wraps, as the board’s span '
-        'does, instead of being cut off; two lines keep the 44 px tile', (
+        'does, instead of being cut off; its row grows as the board’s does', (
       tester,
     ) async {
       // Turkish at the board size: "Office’e ve Office’ten dönüştürme" is
@@ -69,7 +69,10 @@ void main() {
       );
       expect(label.didExceedMaxLines, isFalse);
       expect(label.size.height, greaterThan(label.text.style!.fontSize! * 2));
-      expect(_tileHeights(tester), everyElement(FeatureGrid.tileHeight));
+      // a1-2c-m1 in Turkish, measured in its render: the row of the
+      // two-line label is 50 px (two lines inside the 6 px padding and the
+      // border), the other rows keep 44 px.
+      expect(_tileHeights(tester), [44, 44, 44, 44, 50, 50, 44, 44, 44, 44]);
       expect(textFitProblems(tester), isEmpty);
     });
 

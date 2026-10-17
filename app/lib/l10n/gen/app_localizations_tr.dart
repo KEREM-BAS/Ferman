@@ -731,7 +731,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startToolCompare => 'Karşılaştır';
 
   @override
-  String get startDropTitle => 'PDF\'yi buraya bırakın';
+  String get startDropTitle => 'PDF’yi buraya bırakın';
 
   @override
   String get startDropSubtitle => 'veya bilgisayarınızdan bir PDF açın.';
@@ -929,7 +929,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get settingsNetworkActivity => 'Ağ etkinliğini göster…';
 
   @override
-  String get regionFormats => 'Bölgesel biçim';
+  String get regionFormats => 'Bölge biçimleri';
 
   @override
   String get regionPaperSize => 'Kâğıt boyutu';

@@ -1,10 +1,10 @@
 import 'package:checks/src/check.dart';
 import 'package:yaml/yaml.dart';
 
-/// **Proposed** (ROADMAP M1 step 2): `app/pubspec.lock` holds no HTTP
-/// client, font downloader, analytics or crash-reporting package, because
-/// the app uses the network only for the four uses the brief allows, through
-/// one gateway (ADR 0015).
+/// Approved by the owner on 2026-10-16 (ROADMAP M1 step 2):
+/// `app/pubspec.lock` holds no HTTP client, font downloader, analytics or
+/// crash-reporting package, because the app uses the network only for the
+/// uses ADR 0015 lists, through one gateway.
 final class PubDenylistCheck implements Check {
   /// Creates the check.
   const new();

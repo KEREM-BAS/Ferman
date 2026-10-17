@@ -2,7 +2,8 @@
 
 - **Status:** Accepted (brief)
 - **Date:** 2026-10-14
-- **Approval:** brief §3
+- **Approval:** brief §3. The CI crate-edge check below, Proposed in M0, was approved by the owner
+  on 2026-10-16.
 - **Supersedes:** none
 - **Superseded by:** none
 
@@ -54,8 +55,9 @@ ferman-fonts ───► no Ferman crate (works on font program bytes; PDF-agno
   need pixels (OCR, the redaction check, visual compare) get them through ferman-api.
 - ferman-core needs glyph widths to move the text matrix. It asks through a trait that ferman-text
   implements, so core holds no font code.
-- **Proposed:** a CI script reads `cargo metadata` and fails on any edge not in this table (from M1,
-  as in [ARCHITECTURE.md](../ARCHITECTURE.md) section 2.2).
+- **Approved by the owner on 2026-10-16** (Proposed until then): a CI script reads `cargo metadata`
+  and fails on any edge not in this table (from M1, as in [ARCHITECTURE.md](../ARCHITECTURE.md)
+  section 2.2).
 
 ### ferman-api is the only boundary
 
@@ -124,9 +126,9 @@ architectural change and needs a Proposed ADR.
 
 ### Follow-up
 
-- M1: workspace skeleton with all seven crates, the proposed dependency check, and the FRB surface
-  `api_version()` and `engine_info()` (plus settings only if M1 step 9 keeps settings in the Rust core,
-  [ROADMAP.md](../ROADMAP.md)). Recent files arrive in M2.
+- M1: workspace skeleton with all seven crates, the dependency check (approved on 2026-10-16), and
+  the FRB surface `api_version()` and `engine_info()` (plus settings only if M1 step 9 keeps
+  settings in the Rust core, [ROADMAP.md](../ROADMAP.md)). Recent files arrive in M2.
 - M2 onward: the API grows feature by feature. The data type sketches in
   [ARCHITECTURE.md](../ARCHITECTURE.md) section 3 settle as they are implemented.
 
