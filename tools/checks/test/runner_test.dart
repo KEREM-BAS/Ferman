@@ -28,6 +28,7 @@ void main() {
     final result = run(['--base', 'base']);
     expect(result.exitCode, exitOk);
     expect(result.output, contains('PASS  design_untouched\n'));
+    expect(result.output, contains('PASS  dco_signoff\n'));
     expect(result.output, contains('PASS  build_untracked\n'));
     expect(
       result.output,
@@ -35,7 +36,7 @@ void main() {
     );
     expect(
       result.output,
-      endsWith('16 checks: 2 passed, 0 failed, 14 skipped\n'),
+      endsWith('17 checks: 3 passed, 0 failed, 14 skipped\n'),
     );
   });
 

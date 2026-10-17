@@ -8,6 +8,7 @@ import 'package:checks/src/checks/bridge_imports.dart';
 import 'package:checks/src/checks/build_untracked.dart';
 import 'package:checks/src/checks/component_spec.dart';
 import 'package:checks/src/checks/crate_graph.dart';
+import 'package:checks/src/checks/dco_signoff.dart';
 import 'package:checks/src/checks/design_untouched.dart';
 import 'package:checks/src/checks/frb_versions.dart';
 import 'package:checks/src/checks/pub_denylist.dart';
@@ -22,6 +23,8 @@ import 'package:checks/src/checks/version_sync.dart';
 /// Every check, in the order the report lists them.
 const List<Check> allChecks = [
   DesignUntouchedCheck(),
+  // Every commit of a pull request is signed off by its author (Q14).
+  DcoSignoffCheck(),
   BuildUntrackedCheck(),
   UnsafeRootsCheck(),
   CrateGraphCheck(),
