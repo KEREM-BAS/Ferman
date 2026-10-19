@@ -36,7 +36,7 @@ ferman/
 ├── fuzz/                  (M2) cargo-fuzz workspace, one target per parser
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
 │   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
-├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); corpus/ (M2)
+├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); app-icons/, corpus/ (M2)
 ├── tests/corpus/          README.md with provenance (M1); test PDFs from M2
 ├── .github/workflows/     CI on macOS, Windows and Linux
 └── build/                 gitignored output, including build/design-refs/
@@ -85,6 +85,7 @@ tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     
 (cd tools/design-refs && npm ci && npm test)
 node tools/design-refs [--only @m1,@m2] [--twice]  # every board → build/design-refs/<id>.png (and <id>.<tr|ar>.png variants), offline
 node tools/design-refs compare                 # goldens vs references → build/design-compare/report.md (informative)
+node tools/app-icons [--check]                 # app icons for macOS, Windows, Linux and the web from design/assets/logo (a headless Chrome renders; --check needs none)
 ```
 
 Each tool's README has the full options and its self-tests. The renderer needs the Chromium 1194 headless shell: the development container has it in `/opt/pw-browsers`; on Linux x64 `tools/design-refs/fetch-chromium.sh` downloads it and prints the path for `--chromium`. Never use the Playwright installer: it also downloads an LGPL ffmpeg build.

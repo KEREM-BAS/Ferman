@@ -90,6 +90,11 @@ jobs:
         run: |
           npm ci
           npm test
+      - name: App icons match the logo export (no browser, no npm packages)
+        working-directory: tools/app-icons
+        run: |
+          npm test
+          node index.mjs --check
 
   rust:
     name: Rust (${{ matrix.os }})

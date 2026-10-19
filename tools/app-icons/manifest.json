@@ -1,0 +1,88 @@
+{
+  "logo": {
+    "favicon.svg": "76faaf7f1ac415834f11749bb788f40b524622123a9582d6599299f7dddd73d0",
+    "ferman-app-icon-1024.svg": "5cfb6695e6377b5fed1e0f76a533d529bf55204c68804ab0a6e0bd5694d115c8",
+    "ferman-app-icon-dark-1024.svg": "3754873fcd5eb8bb16bfb9efd86e77125e89b0fd41317568e8acaf901fc8438c",
+    "ferman-mark-dark.svg": "1fe075dbdf02d5988887289b2f1ad32c7f5aef877112f03b663b3ea44010d21e",
+    "ferman-mark-mono.svg": "7165b5a53ae20dacf49204acc4a49308d6baf2de1c9f1b8ed3ceca9d5a559985",
+    "ferman-mark-small.svg": "7edecf3b048c81ba1db2f6477097c89b2ec1bfd68c1d3e884766387328dce673",
+    "ferman-mark.svg": "a53b4dd06ddc18910a9c3ddad753fd19ec5a9aaabc5566c9fa4a4fb047c193c5"
+  },
+  "renderer": "Google Chrome 155.0.8059.80",
+  "outputs": {
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_16.png": {
+      "sha256": "467bd44ad9e89541e957be987064eea094c2afee0f5a71b52fd4bbceec9e5616",
+      "size": 16
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_32.png": {
+      "sha256": "e6847cba8c3c9eac961f627a471cd217c3cfada72730cdc52d7d000923297a24",
+      "size": 32
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_64.png": {
+      "sha256": "07f53d5b261057bebff8551ad08f2ea2642c8b931244f2f999e91714eaf4f8d0",
+      "size": 64
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_128.png": {
+      "sha256": "c90d913ef6404d20fb7418d2d38439827c1a1060b42d7e997b11028d35a330b7",
+      "size": 128
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_256.png": {
+      "sha256": "b3c9c8109fd0a846f5faf05c9f510c83a321017eff3b860f33506a9f278cbbdd",
+      "size": 256
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_512.png": {
+      "sha256": "8587ae88d8efc067d07e3e455f2e32a473d8c2423c88bf164115a5a270fd687e",
+      "size": 512
+    },
+    "app/macos/Runner/Assets.xcassets/AppIcon.appiconset/app_icon_1024.png": {
+      "sha256": "08cecfaef03af0eb5ec80cc5c0769f12972abf03c2491ba2bcb21e4b8841150a",
+      "size": 1024
+    },
+    "app/windows/runner/resources/app_icon.ico": {
+      "sha256": "0e9e808aafaa536246f5cfafd6b049752e4466959727fe6c57bf0e289b9be91a",
+      "sizes": [
+        16,
+        20,
+        24,
+        32,
+        40,
+        48,
+        64,
+        96,
+        128,
+        256
+      ]
+    },
+    "app/linux/runner/resources/app_icon.png": {
+      "sha256": "a3d29b756c27d5efb36106c87120b7890be791b95660d6bd970bab579a994073",
+      "size": 256
+    },
+    "app/web/favicon.svg": {
+      "sha256": "85d8ace89c6947da3d7086285e1f833a3c5ce40b25a58e996ec2c44c9cfc3184"
+    },
+    "app/web/favicon.png": {
+      "sha256": "62c275a487334ae3da4f5484f95bea0192057598ace671a6e2b8df405a3d3cf0",
+      "size": 32
+    },
+    "app/web/icons/Icon-192.png": {
+      "sha256": "dd5f9c3f706e370b93cd2c950aba43020df251ae74e3433d424427245b493ec6",
+      "size": 192
+    },
+    "app/web/icons/Icon-512.png": {
+      "sha256": "519d92b42fb8c80ae35df0fa5bd7da2a3d02b44c542beb71a2086f5399223179",
+      "size": 512
+    },
+    "app/web/icons/Icon-maskable-192.png": {
+      "sha256": "23076247a415d108f3976dfdc2cc5da99f08b2c1b1ff82ed524daaf0473b9f07",
+      "size": 192
+    },
+    "app/web/icons/Icon-maskable-512.png": {
+      "sha256": "b73685ea0b2162882dc0392b8815e8cf6d8e4479d490657d2b0a62da0357fcb9",
+      "size": 512
+    },
+    "app/web/icons/apple-touch-icon.png": {
+      "sha256": "c231a4e53e6b8f0cc4467297be4904163ccae11a0f75c01c9edd40b6b007896f",
+      "size": 180
+    }
+  }
+}
