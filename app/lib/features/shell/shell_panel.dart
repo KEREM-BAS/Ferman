@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -72,7 +73,9 @@ class FmDocPanel extends ConsumerWidget {
                     icon: IconName.ellipsis,
                     label: l10n.shellMore,
                     size: IconButtonSize.xs,
-                    disabledReason: futureVersionReason(context),
+                    disabledReason: Feature.rightPanelSections.disabledReason(
+                      context,
+                    ),
                   ),
                 ],
               ),

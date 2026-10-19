@@ -192,7 +192,8 @@ and continue with the safest option.
   disabled, with the tooltip "Available in a future version", and has an entry in
   [BACKLOG.md](BACKLOG.md). One feature registry in Dart drives these disabled states, and a CI
   script checks that every disabled feature in it has a BACKLOG entry (approved by the owner on
-  2026-10-16; built as the first M2 commit, part of the [M2 plan](PROGRESS.md#m2-plan)).
+  2026-10-16; built as the first M2 commit, part of the [M2 plan](PROGRESS.md#m2-plan): the `Feature`
+  enum in `app/lib/app/feature_registry.dart` and the `tools/checks` check `feature_registry`).
 
 ### 3.3 Standard exit checks
 
@@ -1720,7 +1721,14 @@ checked by cargo-deny or the pub licence check, in the commit that adds each:
 Before step 1: the feature registry of S9 (approved on 2026-10-16) is the first M2 commit
 (**Proposed (M2 plan)**). Every disabled entry point names its feature in one Dart registry, and a
 CI check fails when an unavailable feature has no open BACKLOG row or an available one still has
-one.
+one. Built in wave W0: the `Feature` enum in `app/lib/app/feature_registry.dart` (68 values, each
+with its BACKLOG row) drives every control disabled for a future version. The registry holds only
+the features that do not work yet, and a feature ships by leaving it, so the compiler lists every
+control still to wire; "an available one still has one" is checked as a value whose row is under
+Done. The 18th repository check, `feature_registry`, also fails on a value that names no control
+and on a screen that passes the future-version reason without the registry (ARCHITECTURE §2.4 and
+§2.5). Keyboard commands of these features stay disabled by having no handler, and their BACKLOG
+rows say "keys only".
 
 #### Step 1. PDFium and the render thread
 

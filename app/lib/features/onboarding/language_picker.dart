@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:ui' show SemanticsRole;
 
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -303,7 +304,8 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
                         OnboardingLink(
                           label: l10n.onboardingLanguageHelpTranslate,
                           style: caption,
-                          disabledReason: futureVersionReason(context),
+                          disabledReason: Feature.communityTranslation
+                              .disabledReason(context),
                         ),
                       ],
                     ),

@@ -17,6 +17,7 @@ export 'src/checks/component_spec.dart';
 export 'src/checks/crate_graph.dart';
 export 'src/checks/dco_signoff.dart';
 export 'src/checks/design_untouched.dart';
+export 'src/checks/feature_registry.dart';
 export 'src/checks/frb_versions.dart';
 export 'src/checks/pub_denylist.dart';
 export 'src/checks/s6_allowlist.dart';

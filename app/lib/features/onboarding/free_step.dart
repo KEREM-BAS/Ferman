@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -13,45 +14,60 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// G12: only features that have shipped keep the green check and its
 /// "Included" label; the others are neutral and say "Available in a future
-/// version" instead. In M1 only the interface languages have shipped.
+/// version" instead, while any of their [features] is in the feature
+/// registry. In M1 only the interface languages have shipped.
 enum WelcomeFeature {
   /// Edit text and images: M3 (text), P2 (images).
-  editing(IconName.filePenLine),
+  editing(
+    IconName.filePenLine,
+    features: {Feature.editingText, Feature.addingImages},
+  ),
 
   /// Text recognition (OCR): P3.
-  ocr(IconName.scanText),
+  ocr(IconName.scanText, features: {Feature.ocr}),
 
   /// Fill and sign forms: M4.
-  fillSign(IconName.signature),
+  fillSign(
+    IconName.signature,
+    features: {Feature.formFilling, Feature.simpleSignatures},
+  ),
 
   /// e-imza and digital signatures: P3.
-  signatures(IconName.usb),
+  signatures(
+    IconName.usb,
+    features: {Feature.certificateSignatures, Feature.eImza},
+  ),
 
   /// Redaction: P2.
-  redaction(IconName.eyeOff),
+  redaction(IconName.eyeOff, features: {Feature.redaction}),
 
   /// Convert to and from Office: P3.
-  convert(IconName.refreshCw),
+  convert(IconName.refreshCw, features: {Feature.convertFromPdf}),
 
   /// Compare documents: P3.
-  compare(IconName.gitCompare),
+  compare(IconName.gitCompare, features: {Feature.compare}),
 
   /// Batch actions: P4.
-  batch(IconName.workflow),
+  batch(IconName.workflow, features: {Feature.batchActions}),
 
   /// Accessibility checker: P4.
-  accessibility(IconName.accessibility),
+  accessibility(IconName.accessibility, features: {Feature.accessibilityTools}),
 
   /// The interface languages: as many as have a translation (G20).
-  languages(IconName.languages, shipped: true);
+  languages(IconName.languages);
 
-  new(this.icon, {this.shipped = false});
+  new(this.icon, {this.features = const {}});
 
   /// The tile's icon (a1-2c `features`).
   final IconName icon;
 
+  /// The features of the registry the tile covers; the tile says
+  /// "Included" only once all of them have shipped and left the registry
+  /// (none for the interface languages, which shipped in M1).
+  final Set<Feature> features;
+
   /// Whether this version has the feature.
-  final bool shipped;
+  bool get shipped => features.isEmpty;
 }
 
 /// The feature grid of the last first-run step, board a1-2c-m1: ten tiles in
@@ -128,9 +144,9 @@ class _FeatureTile extends StatelessWidget {
     final colors = theme.colors;
     final l10n = AppLocalizations.of(context);
     final shipped = feature.shipped;
-    final state = shipped
-        ? l10n.onboardingFeatureIncluded
-        : futureVersionReason(context);
+    final state =
+        feature.features.firstOrNull?.disabledReason(context) ??
+        l10n.onboardingFeatureIncluded;
     // The label wraps, as the board's `flex: 1` span does: two lines still
     // fit the 44 px tile; a longer label (in a narrow window or a longer
     // language) makes the tile taller instead of being cut off.
@@ -198,7 +214,7 @@ class LicenceNote extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final style = WelcomeStep.noteStyle(context);
-    final reason = futureVersionReason(context);
+    final reason = Feature.projectLinks.disabledReason(context);
     const separator = ' · ';
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,

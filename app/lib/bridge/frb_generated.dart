@@ -103,11 +103,10 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     return handler.executeSync(
       SyncTask(
         callFfi: () {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          return pdeCallFfi(generalizedFrbRustBinding, serializer, funcId: 1)!;
+          return wire.wire__crate__frb__api_version();
         },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_api_version,
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_api_version,
           decodeErrorData: null,
         ),
         constMeta: kCrateFrbApiVersionConstMeta,
@@ -125,17 +124,11 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          sse_encode_u_32(len, serializer);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 2,
-            port: port_,
-          );
+          var arg0 = cst_encode_u_32(len);
+          return wire.wire__crate__frb__debug_bytes(port_, arg0);
         },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_list_prim_u_8_strict,
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_list_prim_u_8_strict,
           decodeErrorData: null,
         ),
         constMeta: kCrateFrbDebugBytesConstMeta,
@@ -153,17 +146,11 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 3,
-            port: port_,
-          );
+          return wire.wire__crate__frb__debug_panic(port_);
         },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_unit,
-          decodeErrorData: sse_decode_api_error,
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
         ),
         constMeta: kCrateFrbDebugPanicConstMeta,
         argValues: [],
@@ -180,17 +167,11 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     return handler.executeNormal(
       NormalTask(
         callFfi: (port_) {
-          final serializer = SseSerializer(generalizedFrbRustBinding);
-          pdeCallFfi(
-            generalizedFrbRustBinding,
-            serializer,
-            funcId: 4,
-            port: port_,
-          );
+          return wire.wire__crate__frb__engine_info(port_);
         },
-        codec: SseCodec(
-          decodeSuccessData: sse_decode_engine_info,
-          decodeErrorData: sse_decode_api_error,
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_engine_info,
+          decodeErrorData: dco_decode_api_error,
         ),
         constMeta: kCrateFrbEngineInfoConstMeta,
         argValues: [],
@@ -475,6 +456,48 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   bool sse_decode_bool(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getUint8() != 0;
+  }
+
+  @protected
+  int cst_encode_build_profile(BuildProfile raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_error_kind(ErrorKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_i_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
+  int cst_encode_pdfium_state(PdfiumState raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
+  int cst_encode_u_8(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
+  void cst_encode_unit(void raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
   }
 
   @protected

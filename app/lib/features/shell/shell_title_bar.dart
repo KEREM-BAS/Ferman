@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
@@ -23,11 +24,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///   `DocumentTabStrip` "Open documents", with the "+N" overflow button and
 ///   the "+" button "Open file". Both buttons are disabled with the
 ///   future-version tooltip until M2, and so is the close button of the
-///   active clean tab, until closing documents exists (M2).
+///   active clean tab, until closing documents exists (M2); their reasons
+///   come from the feature registry ([Feature]).
 /// - **Search** (a ghost Button with ⌘K or Ctrl+K, disabled until the
 ///   command palette in M4) and **Settings** (an IconButton with ⌘, or
-///   Ctrl+, that calls [onOpenSettings]; disabled with the future-version
-///   tooltip while that is null).
+///   Ctrl+, that calls [onOpenSettings]).
 ///
 /// The space between the controls moves the window: the content leaves it
 /// empty, so the title bar's own drag area below receives those presses.
@@ -36,11 +37,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 class ShellTitleBarContent extends ConsumerWidget {
   /// The title bar's content.
   const new({
+    required this.onOpenSettings,
     super.key,
     this.homeActive = false,
     this.documents,
     this.onHome,
-    this.onOpenSettings,
   });
 
   /// Whether the start screen shows: the home tab is the active tab.
@@ -55,8 +56,8 @@ class ShellTitleBarContent extends ConsumerWidget {
   /// Shows the start screen; null disables the house button.
   final VoidCallback? onHome;
 
-  /// Opens Settings; null disables the button and its keys.
-  final VoidCallback? onOpenSettings;
+  /// Opens Settings, from the button and its keys.
+  final VoidCallback onOpenSettings;
 
   /// FmWindow's 12 px Spinner "Opening" on a loading tab.
   static const double spinnerSize = 12;
@@ -72,7 +73,6 @@ class ShellTitleBarContent extends ConsumerWidget {
     final documents =
         given ?? ref.watch<ShellDocumentList>(shellDocumentsProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final future = futureVersionReason(context);
     final notifier = ref.read(shellDocumentsProvider.notifier);
 
     final home = Padding(
@@ -99,7 +99,9 @@ class ShellTitleBarContent extends ConsumerWidget {
             active: !homeActive && i == documents.activeIndex,
             l10n: l10n,
             closeShortcut: ShellCommand.closeDocument.caps(platform),
-            closeDisabledReason: future,
+            closeDisabledReason: Feature.closingDocuments.disabledReason(
+              context,
+            ),
             onPressed: given == null ? () => notifier.activate(i) : null,
           ),
       ],
@@ -108,7 +110,7 @@ class ShellTitleBarContent extends ConsumerWidget {
               variant: ButtonVariant.ghost,
               size: ButtonSize.sm,
               iconEnd: IconName.chevronDown,
-              disabledReason: future,
+              disabledReason: Feature.moreDocumentsMenu.disabledReason(context),
               child: Semantics(
                 label: l10n.shellMoreDocuments(format.integer(overflowCount)),
                 child: ExcludeSemantics(
@@ -124,7 +126,7 @@ class ShellTitleBarContent extends ConsumerWidget {
         label: l10n.shellOpenFile,
         size: IconButtonSize.sm,
         shortcut: ShellCommand.open.caps(platform),
-        disabledReason: future,
+        disabledReason: Feature.openFiles.disabledReason(context),
       ),
     );
 
@@ -141,7 +143,7 @@ class ShellTitleBarContent extends ConsumerWidget {
             variant: ButtonVariant.ghost,
             size: ButtonSize.sm,
             icon: IconName.search,
-            disabledReason: future,
+            disabledReason: Feature.commandPalette.disabledReason(context),
             child: Row(
               mainAxisSize: MainAxisSize.min,
               spacing: theme.space.space2,
@@ -158,7 +160,6 @@ class ShellTitleBarContent extends ConsumerWidget {
             size: IconButtonSize.sm,
             shortcut: ShellCommand.settings.caps(platform),
             onPressed: onOpenSettings,
-            disabledReason: onOpenSettings == null ? future : null,
           ),
         ],
       ),
@@ -185,7 +186,7 @@ class ShellTitleBarContent extends ConsumerWidget {
     required bool active,
     required AppLocalizations l10n,
     required List<String>? closeShortcut,
-    required String closeDisabledReason,
+    required String? closeDisabledReason,
     required VoidCallback? onPressed,
   }) => DocumentTab(
     name: document.name,

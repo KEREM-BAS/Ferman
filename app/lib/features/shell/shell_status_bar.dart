@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -17,7 +18,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// and the zoom out and in buttons around "100%", written as the region
 /// writes percentages ("%100" for Türkiye, G34) (shown while the active
 /// document's page count is known; the buttons need a rendered document,
-/// so they are disabled with the future-version tooltip until M2). Then the
+/// so they are disabled with the future-version tooltip until M2, through
+/// the feature registry's [Feature.pageNavigation] and [Feature.zoom]).
+/// Then the
 /// text language of the selection when there is one ([language], FmWindow
 /// `statusLang`; none in M1). At the end, the active document's save state
 /// through `SaveIndicator`, the saved time in the region's format; nothing
@@ -48,19 +51,22 @@ class ShellStatusBar extends ConsumerWidget {
     final document = ref.watch(shellDocumentsProvider).active;
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
-    final future = futureVersionReason(context);
     final pages = document?.pageCount;
     final saveState = document?.saveState;
 
-    IconButton button(IconName icon, String label, ShellCommand command) =>
-        IconButton(
-          icon: icon,
-          label: label,
-          size: IconButtonSize.xs,
-          tooltipSide: TooltipSide.top,
-          shortcut: command.caps(platform),
-          disabledReason: future,
-        );
+    IconButton button(
+      Feature feature,
+      IconName icon,
+      String label,
+      ShellCommand command,
+    ) => IconButton(
+      icon: icon,
+      label: label,
+      size: IconButtonSize.xs,
+      tooltipSide: TooltipSide.top,
+      shortcut: command.caps(platform),
+      disabledReason: feature.disabledReason(context),
+    );
 
     final language = this.language;
     return Container(
@@ -94,11 +100,13 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
+                    Feature.pageNavigation,
                     IconName.chevronUp,
                     l10n.shellPreviousPage,
                     ShellCommand.previousPage,
                   ),
                   button(
+                    Feature.pageNavigation,
                     IconName.chevronDown,
                     l10n.shellNextPage,
                     ShellCommand.nextPage,
@@ -121,6 +129,7 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
+                    Feature.zoom,
                     IconName.minus,
                     l10n.shellZoomOut,
                     ShellCommand.zoomOut,
@@ -132,7 +141,12 @@ class ShellStatusBar extends ConsumerWidget {
                       textAlign: TextAlign.center,
                     ),
                   ),
-                  button(IconName.plus, l10n.shellZoomIn, ShellCommand.zoomIn),
+                  button(
+                    Feature.zoom,
+                    IconName.plus,
+                    l10n.shellZoomIn,
+                    ShellCommand.zoomIn,
+                  ),
                 ],
               ),
             ],

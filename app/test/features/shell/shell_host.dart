@@ -52,7 +52,7 @@ Widget shellHost({
       child: WindowFrame(
         titleBarContent: ShellTitleBarContent(
           onHome: onHome,
-          onOpenSettings: onOpenSettings,
+          onOpenSettings: onOpenSettings ?? () {},
         ),
         child: FmWindow(onOpenSettings: onOpenSettings),
       ),
@@ -175,7 +175,10 @@ Widget titleBarHost({
     SizedBox.fromSize(
       size: artboard,
       child: WindowFrame(
-        titleBarContent: ShellTitleBarContent(homeActive: homeActive),
+        titleBarContent: ShellTitleBarContent(
+          homeActive: homeActive,
+          onOpenSettings: () {},
+        ),
         child: const SizedBox.expand(),
       ),
     ),

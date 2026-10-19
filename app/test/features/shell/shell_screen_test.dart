@@ -697,16 +697,6 @@ void main() {
       expect(opened, 2);
     });
 
-    testWidgets('disables Settings until it has somewhere to go', (
-      tester,
-    ) async {
-      await pumpShell(tester, shellHost(window: window));
-      expect(
-        tester.widget<IconButton>(iconButton('Settings')).disabledReason,
-        futureVersion,
-      );
-    });
-
     testWidgets('leaves the space between the tabs and Search to move the '
         'window', (tester) async {
       await pumpShell(tester, shellHost(window: window));

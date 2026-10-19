@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
@@ -16,7 +17,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Theme (Match system, Light, Dark) works: it restyles the app at once and
 /// is stored (`themeModeProvider`). The rest is drawn as designed and
 /// disabled with "Available in a future version" until its milestone
-/// (G10): PDF pages in dark theme (Paper white and Dimmed in M2, Dark
+/// (G10), through its feature in the feature registry ([Feature]): PDF
+/// pages in dark theme (Paper white and Dimmed in M2, Dark
 /// reading mode in P2), the page layout and zoom for new documents and
 /// reopening documents (M2, with the viewer) and the default PDF app (M2,
 /// a1-3). Their values are the defaults the design draws.
@@ -39,7 +41,6 @@ class GeneralPane extends ConsumerWidget {
     final theme = context.ferman;
     final colors = theme.colors;
     final l10n = AppLocalizations.of(context);
-    final reason = futureVersionReason(context);
     final mode = ref.watch(themeModeProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
 
@@ -87,21 +88,24 @@ class GeneralPane extends ConsumerWidget {
           spacing: theme.space.space2,
           children: [
             Field.labelOf(context, l10n.settingsPageTheme),
-            for (final (value, label, description) in [
+            for (final (value, label, description, feature) in [
               (
                 _PageLook.paper,
                 l10n.settingsPagePaper,
                 l10n.settingsPagePaperDescription,
+                Feature.pageLookInDarkTheme,
               ),
               (
                 _PageLook.dimmed,
                 l10n.settingsPageDimmed,
                 l10n.settingsPageDimmedDescription,
+                Feature.pageLookInDarkTheme,
               ),
               (
                 _PageLook.dark,
                 l10n.settingsPageDark,
                 l10n.settingsPageDarkDescription,
+                Feature.darkReadingMode,
               ),
             ])
               Radio<_PageLook>(
@@ -110,7 +114,7 @@ class GeneralPane extends ConsumerWidget {
                 label: label,
                 description: description,
                 disabled: true,
-                disabledReason: reason,
+                disabledReason: feature.disabledReason(context),
               ),
           ],
         ),
@@ -138,7 +142,7 @@ class GeneralPane extends ConsumerWidget {
                   ),
                 ],
                 disabled: true,
-                disabledReason: reason,
+                disabledReason: Feature.pageLayout.disabledReason(context),
               ),
             ),
             Expanded(
@@ -161,7 +165,7 @@ class GeneralPane extends ConsumerWidget {
                   ),
                 ],
                 disabled: true,
-                disabledReason: reason,
+                disabledReason: Feature.zoom.disabledReason(context),
               ),
             ),
           ],
@@ -172,7 +176,7 @@ class GeneralPane extends ConsumerWidget {
             label: l10n.settingsReopen,
             value: true,
             disabled: true,
-            disabledReason: reason,
+            disabledReason: Feature.reopenDocuments.disabledReason(context),
           ),
         ),
         Container(
@@ -194,7 +198,7 @@ class GeneralPane extends ConsumerWidget {
               ),
               Button(
                 size: ButtonSize.sm,
-                disabledReason: reason,
+                disabledReason: defaultAppFeature.disabledReason(context),
                 child: Text(l10n.settingsMakeDefault),
               ),
             ],
@@ -212,6 +216,15 @@ class GeneralPane extends ConsumerWidget {
         TargetPlatform.windows => l10n.settingsDefaultAppWindows,
         _ => l10n.settingsDefaultApp,
       };
+
+  /// The feature behind the default-app button on the system the app runs
+  /// on: each system makes Ferman the default in its own way and in its
+  /// own milestone (B080, B101, B102).
+  static Feature get defaultAppFeature => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS => Feature.defaultAppMacos,
+    TargetPlatform.windows => Feature.defaultAppWindows,
+    _ => Feature.defaultAppLinux,
+  };
 
   /// The gap between the groups (`gap: 18px`).
   static const double _sectionGap = 18;

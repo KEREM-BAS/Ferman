@@ -22,8 +22,13 @@
 //! unsafe code is allowed, and tools/checks fails on any other `allow(unsafe_code)` (ADR 0010).
 #![deny(unsafe_code)]
 
-// Hidden from flutter_rust_bridge codegen, so it reads only `crate::frb` (see above).
+// Hidden from flutter_rust_bridge codegen, so it reads only `crate::frb` (see above), and from the
+// cbindgen pass of its Dco codec (`full_dep: true`), which reads the whole crate: without the
+// `cbindgen:ignore` line below, the public constant `API_VERSION` made it declare the facade's
+// `ApiVersion` as an opaque C struct, and ffigen turned that into a Dart class that clashes with
+// the mirror of the same name. cbindgen reads only doc attributes for this.
 #[cfg_attr(feature = "frb", flutter_rust_bridge::frb(ignore))]
+#[doc = "cbindgen:ignore"]
 pub mod facade;
 
 #[cfg(feature = "frb")]

@@ -34,9 +34,9 @@ use flutter_rust_bridge::{Handler, IntoIntoDart};
 // Section: boilerplate
 
 flutter_rust_bridge::frb_generated_boilerplate!(
-    default_stream_sink_codec = SseCodec,
-    default_rust_opaque = RustOpaqueMoi,
-    default_rust_auto_opaque = RustAutoOpaqueMoi,
+    default_stream_sink_codec = DcoCodec,
+    default_rust_opaque = RustOpaqueNom,
+    default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1923515533;
@@ -47,29 +47,16 @@ flutter_rust_bridge::frb_generated_default_handler!();
 
 // Section: wire_funcs
 
-fn wire__crate__frb__api_version_impl(
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::SseCodec, _>(
+fn wire__crate__frb__api_version_impl() -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco
+{
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_sync::<flutter_rust_bridge::for_generated::DcoCodec, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "api_version",
             port: None,
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Sync,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
-            transform_result_sse::<_, ()>((move || {
+            transform_result_dco::<_, _, ()>((move || {
                 let output_ok = Ok::<_, ()>(crate::frb::api_version())?;
                 std::result::Result::Ok(output_ok)
             })())
@@ -78,30 +65,18 @@ fn wire__crate__frb__api_version_impl(
 }
 fn wire__crate__frb__debug_bytes_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
+    len: impl CstDecode<u32>,
 ) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "debug_bytes",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            let api_len = <u32>::sse_decode(&mut deserializer);
-            deserializer.end();
+            let api_len = len.cst_decode();
             move |context| async move {
-                transform_result_sse::<_, ()>(
+                transform_result_dco::<_, _, ()>(
                     (move || async move {
                         let output_ok = Ok::<_, ()>(crate::frb::debug_bytes(api_len).await)?;
                         std::result::Result::Ok(output_ok)
@@ -112,31 +87,16 @@ fn wire__crate__frb__debug_bytes_impl(
         },
     )
 }
-fn wire__crate__frb__debug_panic_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+fn wire__crate__frb__debug_panic_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "debug_panic",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| async move {
-                transform_result_sse::<_, crate::frb::ApiError>(
+                transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::debug_panic().await?;
                         std::result::Result::Ok(output_ok)
@@ -147,31 +107,16 @@ fn wire__crate__frb__debug_panic_impl(
         },
     )
 }
-fn wire__crate__frb__engine_info_impl(
-    port_: flutter_rust_bridge::for_generated::MessagePort,
-    ptr_: flutter_rust_bridge::for_generated::PlatformGeneralizedUint8ListPtr,
-    rust_vec_len_: i32,
-    data_len_: i32,
-) {
-    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::SseCodec, _, _, _>(
+fn wire__crate__frb__engine_info_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
             debug_name: "engine_info",
             port: Some(port_),
             mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
         },
         move || {
-            let message = unsafe {
-                flutter_rust_bridge::for_generated::Dart2RustMessageSse::from_wire(
-                    ptr_,
-                    rust_vec_len_,
-                    data_len_,
-                )
-            };
-            let mut deserializer =
-                flutter_rust_bridge::for_generated::SseDeserializer::new(message);
-            deserializer.end();
             move |context| async move {
-                transform_result_sse::<_, crate::frb::ApiError>(
+                transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::engine_info().await?;
                         std::result::Result::Ok(output_ok)
@@ -185,6 +130,58 @@ fn wire__crate__frb__engine_info_impl(
 
 // Section: dart2rust
 
+impl CstDecode<crate::frb::BuildProfile> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::BuildProfile {
+        match self {
+            0 => crate::frb::BuildProfile::Debug,
+            1 => crate::frb::BuildProfile::Release,
+            _ => unreachable!("Invalid variant for BuildProfile: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::ErrorKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::ErrorKind {
+        match self {
+            0 => crate::frb::ErrorKind::InvalidInput,
+            1 => crate::frb::ErrorKind::NotFound,
+            2 => crate::frb::ErrorKind::Unsupported,
+            3 => crate::frb::ErrorKind::Io,
+            4 => crate::frb::ErrorKind::Internal,
+            _ => unreachable!("Invalid variant for ErrorKind: {}", self),
+        }
+    }
+}
+impl CstDecode<i32> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> i32 {
+        self
+    }
+}
+impl CstDecode<crate::frb::PdfiumState> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::PdfiumState {
+        match self {
+            0 => crate::frb::PdfiumState::NotLoaded,
+            1 => crate::frb::PdfiumState::Loaded,
+            2 => crate::frb::PdfiumState::Failed,
+            _ => unreachable!("Invalid variant for PdfiumState: {}", self),
+        }
+    }
+}
+impl CstDecode<u32> for u32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> u32 {
+        self
+    }
+}
+impl CstDecode<u8> for u8 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> u8 {
+        self
+    }
+}
 impl SseDecode for String {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -380,9 +377,6 @@ fn pde_ffi_dispatcher_primary_impl(
 ) {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        2 => wire__crate__frb__debug_bytes_impl(port, ptr, rust_vec_len, data_len),
-        3 => wire__crate__frb__debug_panic_impl(port, ptr, rust_vec_len, data_len),
-        4 => wire__crate__frb__engine_info_impl(port, ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -395,7 +389,6 @@ fn pde_ffi_dispatcher_sync_impl(
 ) -> flutter_rust_bridge::for_generated::WireSyncRust2DartSse {
     // Codec=Pde (Serialization + dispatch), see doc to use other codecs
     match func_id {
-        1 => wire__crate__frb__api_version_impl(ptr, rust_vec_len, data_len),
         _ => unreachable!(),
     }
 }
@@ -724,6 +717,249 @@ mod io {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_io!();
+
+    // Section: dart2rust
+
+    impl CstDecode<String> for *mut wire_cst_list_prim_u_8_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            let vec: Vec<u8> = self.cst_decode();
+            String::from_utf8(vec).unwrap()
+        }
+    }
+    impl CstDecode<crate::frb::ApiError> for wire_cst_api_error {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ApiError {
+            crate::frb::ApiError {
+                kind: self.kind.cst_decode(),
+                message_key: self.message_key.cst_decode(),
+                details: self.details.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::ApiVersion> for wire_cst_api_version {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ApiVersion {
+            crate::frb::ApiVersion {
+                major: self.major.cst_decode(),
+                minor: self.minor.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::CrateVersion> for wire_cst_crate_version {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::CrateVersion {
+            crate::frb::CrateVersion {
+                name: self.name.cst_decode(),
+                version: self.version.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::EngineInfo> for wire_cst_engine_info {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::EngineInfo {
+            crate::frb::EngineInfo {
+                app_version: self.app_version.cst_decode(),
+                api_version: self.api_version.cst_decode(),
+                build_profile: self.build_profile.cst_decode(),
+                crates: self.crates.cst_decode(),
+                pdfium: self.pdfium.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<Vec<crate::frb::CrateVersion>> for *mut wire_cst_list_crate_version {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::CrateVersion> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<u8>> for *mut wire_cst_list_prim_u_8_strict {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            }
+        }
+    }
+    impl CstDecode<crate::frb::PdfiumStatus> for wire_cst_pdfium_status {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PdfiumStatus {
+            crate::frb::PdfiumStatus {
+                state: self.state.cst_decode(),
+                tag: self.tag.cst_decode(),
+                reason: self.reason.cst_decode(),
+            }
+        }
+    }
+    impl NewWithNullPtr for wire_cst_api_error {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                message_key: core::ptr::null_mut(),
+                details: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_api_error {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_api_version {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                major: Default::default(),
+                minor: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_api_version {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_crate_version {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                name: core::ptr::null_mut(),
+                version: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_crate_version {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_engine_info {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                app_version: core::ptr::null_mut(),
+                api_version: Default::default(),
+                build_profile: Default::default(),
+                crates: core::ptr::null_mut(),
+                pdfium: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_engine_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_pdfium_status {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                state: Default::default(),
+                tag: core::ptr::null_mut(),
+                reason: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_pdfium_status {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__api_version()
+    -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__frb__api_version_impl()
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__debug_bytes(port_: i64, len: u32) {
+        wire__crate__frb__debug_bytes_impl(port_, len)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__debug_panic(port_: i64) {
+        wire__crate__frb__debug_panic_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__engine_info(port_: i64) {
+        wire__crate__frb__engine_info_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_crate_version(
+        len: i32,
+    ) -> *mut wire_cst_list_crate_version {
+        let wrap = wire_cst_list_crate_version {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_crate_version>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_prim_u_8_strict(
+        len: i32,
+    ) -> *mut wire_cst_list_prim_u_8_strict {
+        let ans = wire_cst_list_prim_u_8_strict {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_api_error {
+        kind: i32,
+        message_key: *mut wire_cst_list_prim_u_8_strict,
+        details: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_api_version {
+        major: u32,
+        minor: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_crate_version {
+        name: *mut wire_cst_list_prim_u_8_strict,
+        version: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_engine_info {
+        app_version: *mut wire_cst_list_prim_u_8_strict,
+        api_version: wire_cst_api_version,
+        build_profile: i32,
+        crates: *mut wire_cst_list_crate_version,
+        pdfium: wire_cst_pdfium_status,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_crate_version {
+        ptr: *mut wire_cst_crate_version,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_prim_u_8_strict {
+        ptr: *mut u8,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_pdfium_status {
+        state: i32,
+        tag: *mut wire_cst_list_prim_u_8_strict,
+        reason: *mut wire_cst_list_prim_u_8_strict,
+    }
 }
 #[cfg(not(target_family = "wasm"))]
 pub use io::*;
@@ -748,6 +984,222 @@ mod web {
     // Section: boilerplate
 
     flutter_rust_bridge::frb_generated_boilerplate_web!();
+
+    // Section: dart2rust
+
+    impl CstDecode<String> for String {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            self
+        }
+    }
+    impl CstDecode<crate::frb::ApiError> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ApiError {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::ApiError {
+                kind: self_.get(0).cst_decode(),
+                message_key: self_.get(1).cst_decode(),
+                details: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::ApiVersion>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ApiVersion {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::ApiVersion {
+                major: self_.get(0).cst_decode(),
+                minor: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::CrateVersion>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::CrateVersion {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::CrateVersion {
+                name: self_.get(0).cst_decode(),
+                version: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::EngineInfo>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::EngineInfo {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                5,
+                "Expected 5 elements, got {}",
+                self_.length()
+            );
+            crate::frb::EngineInfo {
+                app_version: self_.get(0).cst_decode(),
+                api_version: self_.get(1).cst_decode(),
+                build_profile: self_.get(2).cst_decode(),
+                crates: self_.get(3).cst_decode(),
+                pdfium: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<Vec<crate::frb::CrateVersion>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::CrateVersion> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<u8>> for Box<[u8]> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            self.into_vec()
+        }
+    }
+    impl CstDecode<Option<String>> for Option<String> {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Option<String> {
+            self.map(CstDecode::cst_decode)
+        }
+    }
+    impl CstDecode<crate::frb::PdfiumStatus>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PdfiumStatus {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::PdfiumStatus {
+                state: self_.get(0).cst_decode(),
+                tag: self_.get(1).cst_decode(),
+                reason: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<String> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> String {
+            self.as_string().expect("non-UTF-8 string, or not a string")
+        }
+    }
+    impl CstDecode<crate::frb::BuildProfile>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::BuildProfile {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::ErrorKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ErrorKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<i32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> i32 {
+            self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<Vec<u8>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<u8> {
+            self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
+                .to_vec()
+                .into()
+        }
+    }
+    impl CstDecode<crate::frb::PdfiumState>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::PdfiumState {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<u32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u32 {
+            self.unchecked_into_f64() as _
+        }
+    }
+    impl CstDecode<u8> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u8 {
+            self.unchecked_into_f64() as _
+        }
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__api_version()
+    -> flutter_rust_bridge::for_generated::WireSyncRust2DartDco {
+        wire__crate__frb__api_version_impl()
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__debug_bytes(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        len: u32,
+    ) {
+        wire__crate__frb__debug_bytes_impl(port_, len)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__debug_panic(port_: flutter_rust_bridge::for_generated::MessagePort) {
+        wire__crate__frb__debug_panic_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__engine_info(port_: flutter_rust_bridge::for_generated::MessagePort) {
+        wire__crate__frb__engine_info_impl(port_)
+    }
 }
 #[cfg(target_family = "wasm")]
 pub use web::*;

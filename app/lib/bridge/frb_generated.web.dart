@@ -125,6 +125,98 @@ abstract class FermanBridgeApiImplPlatform
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  String cst_encode_String(String raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw;
+  }
+
+  @protected
+  JSAny cst_encode_api_error(ApiError raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_error_kind(raw.kind),
+      cst_encode_String(raw.messageKey),
+      cst_encode_opt_String(raw.details),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_api_version(ApiVersion raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_u_32(raw.major), cst_encode_u_32(raw.minor)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_crate_version(CrateVersion raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_String(raw.version),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_engine_info(EngineInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.appVersion),
+      cst_encode_api_version(raw.apiVersion),
+      cst_encode_build_profile(raw.buildProfile),
+      cst_encode_list_crate_version(raw.crates),
+      cst_encode_pdfium_status(raw.pdfium),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_crate_version(List<CrateVersion> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_crate_version).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.jsify()!;
+  }
+
+  @protected
+  String? cst_encode_opt_String(String? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_String(raw);
+  }
+
+  @protected
+  JSAny cst_encode_pdfium_status(PdfiumStatus raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_pdfium_state(raw.state),
+      cst_encode_opt_String(raw.tag),
+      cst_encode_opt_String(raw.reason),
+    ].jsify()!;
+  }
+
+  @protected
+  int cst_encode_build_profile(BuildProfile raw);
+
+  @protected
+  int cst_encode_error_kind(ErrorKind raw);
+
+  @protected
+  int cst_encode_i_32(int raw);
+
+  @protected
+  int cst_encode_pdfium_state(PdfiumState raw);
+
+  @protected
+  int cst_encode_u_32(int raw);
+
+  @protected
+  int cst_encode_u_8(int raw);
+
+  @protected
+  void cst_encode_unit(void raw);
+
+  @protected
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
@@ -186,6 +278,18 @@ abstract class FermanBridgeApiImplPlatform
 
 class FermanBridgeWire implements BaseWire {
   FermanBridgeWire.fromExternalLibrary(ExternalLibrary lib);
+
+  JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__frb__api_version() => wasmModule.wire__crate__frb__api_version();
+
+  void wire__crate__frb__debug_bytes(NativePortType port_, int len) =>
+      wasmModule.wire__crate__frb__debug_bytes(port_, len);
+
+  void wire__crate__frb__debug_panic(NativePortType port_) =>
+      wasmModule.wire__crate__frb__debug_panic(port_);
+
+  void wire__crate__frb__engine_info(NativePortType port_) =>
+      wasmModule.wire__crate__frb__engine_info(port_);
 }
 
 @JS('wasm_bindgen')
@@ -193,4 +297,13 @@ external FermanBridgeWasmModule get wasmModule;
 
 @JS()
 @anonymous
-extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {}
+extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
+  external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
+  wire__crate__frb__api_version();
+
+  external void wire__crate__frb__debug_bytes(NativePortType port_, int len);
+
+  external void wire__crate__frb__debug_panic(NativePortType port_);
+
+  external void wire__crate__frb__engine_info(NativePortType port_);
+}

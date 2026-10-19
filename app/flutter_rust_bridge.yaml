@@ -10,3 +10,9 @@ dart_output: lib/bridge/
 dart_entrypoint_class_name: FermanBridge
 add_mod_to_lib: false
 dart_format_line_length: 80
+# The Dco codec (Q19, ADR 0009): a Vec<u8> crosses as external typed data, without a copy. It needs
+# ffigen (a dev dependency) and libclang: Xcode's on macOS, which ffigen finds itself, and
+# Ubuntu's libclang-dev in the CI codegen job, named here because ffigen's own list stops at LLVM 15.
+full_dep: true
+llvm_path:
+  - /usr/lib/llvm-18

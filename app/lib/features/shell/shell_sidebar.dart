@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
@@ -18,7 +19,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The tabs switch; their content needs an open document (M2), so the
 /// content is empty, the Pages heading counts the placeholder document's
 /// pages, and the heading buttons are disabled with the future-version
-/// tooltip.
+/// tooltip of their feature ([Feature]).
 class FmSidebar extends ConsumerWidget {
   /// The sidebar.
   const new({super.key});
@@ -38,32 +39,44 @@ class FmSidebar extends ConsumerWidget {
     final tab = ref.watch(shellSidebarTabProvider);
     final pages = ref.watch(shellDocumentsProvider).active?.pageCount;
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final future = futureVersionReason(context);
     final line = BorderSide(
       color: theme.colors.borderSubtle,
       width: theme.border.borderWidth,
     );
 
-    IconButton button(IconName icon, String label, {List<String>? shortcut}) =>
-        IconButton(
-          icon: icon,
-          label: label,
-          size: IconButtonSize.xs,
-          shortcut: shortcut,
-          disabledReason: future,
-        );
+    IconButton button(
+      Feature feature,
+      IconName icon,
+      String label, {
+      List<String>? shortcut,
+    }) => IconButton(
+      icon: icon,
+      label: label,
+      size: IconButtonSize.xs,
+      shortcut: shortcut,
+      disabledReason: feature.disabledReason(context),
+    );
 
     final buttons = switch (tab) {
-      SidebarTab.pages => [button(IconName.info, l10n.shellPageBadgesLegend)],
+      SidebarTab.pages => [
+        button(
+          Feature.sidebarContents,
+          IconName.info,
+          l10n.shellPageBadgesLegend,
+        ),
+      ],
       SidebarTab.outline => [
         button(
+          Feature.editingBookmarks,
           IconName.plus,
           l10n.shellAddBookmark,
           shortcut: ShellCommand.addBookmark.caps(platform),
         ),
-        button(IconName.ellipsis, l10n.shellMore),
+        button(Feature.editingBookmarks, IconName.ellipsis, l10n.shellMore),
       ],
-      SidebarTab.attachments => [button(IconName.plus, l10n.shellAttachFile)],
+      SidebarTab.attachments => [
+        button(Feature.attachingFiles, IconName.plus, l10n.shellAttachFile),
+      ],
       SidebarTab.layers ||
       SidebarTab.signatures ||
       SidebarTab.search => const <Widget>[],

@@ -10,6 +10,7 @@ import 'package:checks/src/checks/component_spec.dart';
 import 'package:checks/src/checks/crate_graph.dart';
 import 'package:checks/src/checks/dco_signoff.dart';
 import 'package:checks/src/checks/design_untouched.dart';
+import 'package:checks/src/checks/feature_registry.dart';
 import 'package:checks/src/checks/frb_versions.dart';
 import 'package:checks/src/checks/pub_denylist.dart';
 import 'package:checks/src/checks/s6_casing.dart';
@@ -36,6 +37,9 @@ const List<Check> allChecks = [
   BridgeImportsCheck(),
   // Every component of the spec exists with the spec's names (M1 G10).
   ComponentSpecCheck(),
+  // Every control of an unfinished feature goes through the feature
+  // registry, whose values match BACKLOG's open rows (gate S9).
+  FeatureRegistryCheck(),
   // S6: the Flutter conventions of brief §6 in app/lib (ADR 0011, 0012,
   // 0014), with the reviewed exceptions in s6_allowlist.dart.
   S6MaterialImportsCheck(),

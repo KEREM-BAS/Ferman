@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
@@ -15,7 +16,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Save follows the active document (fix 4): with no unsaved changes it is
 /// disabled with "No changes to save" (FmWindow `saveTip`); with unsaved
 /// changes it would save, which comes in M3, so until then it is disabled
-/// with the future-version tooltip.
+/// with the future-version tooltip ([Feature.saving]).
 class ShellModeBar extends ConsumerWidget {
   /// The mode bar.
   const new({super.key});
@@ -33,7 +34,6 @@ class ShellModeBar extends ConsumerWidget {
         ref.watch<ShellPanels>(shellPanelsProvider);
     final aiOn = ref.watch(shellAiEnabledProvider);
     final active = ref.watch(shellDocumentsProvider).active;
-    final future = futureVersionReason(context);
     final unsaved = active?.unsaved ?? false;
     return Container(
       height: theme.density.modebarH,
@@ -88,7 +88,7 @@ class ShellModeBar extends ConsumerWidget {
               label: l10n.shellAiAssistant,
               size: IconButtonSize.sm,
               active: false,
-              disabledReason: future,
+              disabledReason: Feature.aiAssistant.disabledReason(context),
             ),
           IconButton(
             icon: IconName.panelRight,
@@ -107,7 +107,9 @@ class ShellModeBar extends ConsumerWidget {
             variant: ButtonVariant.primary,
             size: ButtonSize.sm,
             icon: IconName.save,
-            disabledReason: unsaved ? future : l10n.shellNoChangesToSave,
+            disabledReason: unsaved
+                ? Feature.saving.disabledReason(context)
+                : l10n.shellNoChangesToSave,
             child: Text(l10n.shellSave),
           ),
         ],

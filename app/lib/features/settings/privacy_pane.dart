@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -39,16 +40,34 @@ class PrivacyPane extends StatelessWidget {
     final colors = theme.colors;
     final typography = theme.typography;
     final l10n = AppLocalizations.of(context);
-    final reason = futureVersionReason(context);
+    // Each use with the feature that will connect: downloads you start
+    // are the OCR language packs first (P3).
     final uses = [
-      (l10n.settingsNetUpdates, l10n.settingsNetUpdatesDescription),
       (
+        Feature.updateCheck,
+        l10n.settingsNetUpdates,
+        l10n.settingsNetUpdatesDescription,
+      ),
+      (
+        Feature.signatureChecks,
         l10n.settingsNetSignatureChecks,
         l10n.settingsNetSignatureChecksDescription,
       ),
-      (l10n.settingsNetTimestamps, l10n.settingsNetTimestampsDescription),
-      (l10n.settingsNetDownloads, l10n.settingsNetDownloadsDescription),
-      (l10n.settingsNetAiProvider, l10n.settingsNetAiProviderDescription),
+      (
+        Feature.certificateSignatures,
+        l10n.settingsNetTimestamps,
+        l10n.settingsNetTimestampsDescription,
+      ),
+      (
+        Feature.ocr,
+        l10n.settingsNetDownloads,
+        l10n.settingsNetDownloadsDescription,
+      ),
+      (
+        Feature.aiAssistant,
+        l10n.settingsNetAiProvider,
+        l10n.settingsNetAiProviderDescription,
+      ),
     ];
 
     return Column(
@@ -82,7 +101,7 @@ class PrivacyPane extends StatelessWidget {
             ],
           ),
         ),
-        for (final (title, description) in uses)
+        for (final (feature, title, description) in uses)
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
             spacing: rowGap,
@@ -108,7 +127,7 @@ class PrivacyPane extends StatelessWidget {
                 value: false,
                 semanticLabel: '$title. $description',
                 disabled: true,
-                disabledReason: reason,
+                disabledReason: feature.disabledReason(context),
               ),
             ],
           ),
@@ -117,7 +136,7 @@ class PrivacyPane extends StatelessWidget {
           child: Button(
             size: ButtonSize.sm,
             icon: IconName.list,
-            disabledReason: reason,
+            disabledReason: Feature.networkActivityLog.disabledReason(context),
             child: Text(l10n.settingsNetworkActivity),
           ),
         ),

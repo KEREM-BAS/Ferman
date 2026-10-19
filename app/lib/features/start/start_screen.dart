@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
@@ -19,8 +20,9 @@ import 'package:go_router/go_router.dart';
 /// dropping them in M2 (no file picker in M1, ADR 0018, Q07), creating and
 /// combining PDFs and compressing in M4, signing in M4 (simple
 /// signatures), protecting in P2, scanning, conversion, text recognition
-/// and compare in P3. The copy speaks of PDFs only until conversion exists
-/// (G11).
+/// and compare in P3. Each control takes its state from its feature in
+/// the feature registry ([Feature]). The copy speaks of PDFs only until
+/// conversion exists (G11).
 ///
 /// The keys come from the shell's shortcut table: ⌘, (Ctrl+, on Windows
 /// and Linux) opens Settings (the a11-1 note) through a
@@ -53,30 +55,33 @@ class FmStart extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final reason = futureVersionReason(context);
     final platform = ref.watch(shortcutPlatformProvider);
     // ⌘O and ⌘N have keys on every system.
     final open = ShellCommand.open.caps(platform)!;
     final actions = [
       (
+        Feature.openFiles,
         IconName.folderOpen,
         l10n.startOpenFile,
         l10n.startOpenFileDescription,
         open,
       ),
       (
+        Feature.createPdf,
         IconName.filePlus2,
         l10n.startCreatePdf,
         l10n.startCreatePdfDescription,
         ShellCommand.createPdf.caps(platform),
       ),
       (
+        Feature.combineAndSplit,
         IconName.merge,
         l10n.startCombineFiles,
         l10n.startCombineFilesDescription,
         null,
       ),
       (
+        Feature.scanToPdf,
         IconName.scan,
         l10n.startScanToPdf,
         l10n.startScanToPdfDescription,
@@ -84,12 +89,12 @@ class FmStart extends ConsumerWidget {
       ),
     ];
     final tools = [
-      (IconName.minimize2, l10n.startToolCompress),
-      (IconName.refreshCw, l10n.startToolConvert),
-      (IconName.signature, l10n.startToolSign),
-      (IconName.scanText, l10n.startToolOcr),
-      (IconName.shield, l10n.startToolProtect),
-      (IconName.gitCompare, l10n.startToolCompare),
+      (Feature.compress, IconName.minimize2, l10n.startToolCompress),
+      (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
+      (Feature.simpleSignatures, IconName.signature, l10n.startToolSign),
+      (Feature.ocr, IconName.scanText, l10n.startToolOcr),
+      (Feature.passwordProtection, IconName.shield, l10n.startToolProtect),
+      (Feature.compare, IconName.gitCompare, l10n.startToolCompare),
     ];
 
     final page = Column(
@@ -101,14 +106,14 @@ class FmStart extends ConsumerWidget {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             spacing: theme.space.space4,
             children: [
-              for (final (icon, title, description, keys) in actions)
+              for (final (feature, icon, title, description, keys) in actions)
                 Expanded(
                   child: _ActionCard(
                     icon: icon,
                     title: title,
                     description: description,
                     shortcut: keys,
-                    disabledReason: reason,
+                    disabledReason: feature.disabledReason(context),
                   ),
                 ),
             ],
@@ -130,11 +135,11 @@ class FmStart extends ConsumerWidget {
                 ),
               ),
             ),
-            for (final (icon, label) in tools)
+            for (final (feature, icon, label) in tools)
               Button(
                 size: ButtonSize.sm,
                 icon: icon,
-                disabledReason: reason,
+                disabledReason: feature.disabledReason(context),
                 child: Text(label),
               ),
           ],
@@ -147,7 +152,9 @@ class FmStart extends ConsumerWidget {
           shortcut: open,
           footnote: l10n.startDropFootnote,
           minHeight: dropMinHeight,
-          disabledReason: reason,
+          // The zone, its drop target and both buttons share one reason
+          // until opening ships (M2 step 6); New blank PDF stays M4.
+          disabledReason: Feature.openFiles.disabledReason(context),
         ),
       ],
     );

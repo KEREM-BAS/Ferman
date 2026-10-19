@@ -196,6 +196,12 @@ jobs:
         run: |
           command -v flutter_rust_bridge_codegen || cargo install --locked flutter_rust_bridge_codegen@2.13.0
           command -v cargo-expand || cargo install --locked cargo-expand@1.0.127
+      - name: libclang for ffigen (the Dco codec, Q19)
+        run: |
+          # app/flutter_rust_bridge.yaml points ffigen at /usr/lib/llvm-18.
+          sudo apt-get update -q
+          sudo apt-get install -y -q libclang-dev
+          test -e /usr/lib/llvm-18/lib/libclang.so
       - name: The code generator has the bridge crate's version
         shell: bash
         run: |

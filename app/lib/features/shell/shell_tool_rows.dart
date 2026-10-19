@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
@@ -18,8 +19,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// is built the same way.
 ///
 /// No tool works without a document, so every tool is visible as drawn and
-/// disabled with the future-version tooltip (G10); each one's milestone is
-/// in docs/BACKLOG.md. The tool each mode starts with (FmWindow `tool`:
+/// disabled with the future-version tooltip (G10), taken from its value in
+/// the feature registry ([Feature]); each one's milestone is in
+/// docs/BACKLOG.md. The tool each mode starts with (FmWindow `tool`:
 /// Select, Edit text, Highlight, Fill fields, Redact) is drawn on.
 ///
 /// **Narrow windows** (G21): every row is a `Toolbar` bar that hides the
@@ -75,10 +77,11 @@ class ShellToolRows extends ConsumerWidget {
   }
 }
 
-/// A tool button whose feature is not built yet: drawn as designed,
+/// A tool button of [feature], which is not built yet: drawn as designed,
 /// disabled with the future-version tooltip.
 ToolButton _future(
   BuildContext context, {
+  required Feature feature,
   required IconName icon,
   required String label,
   bool? active,
@@ -93,12 +96,13 @@ ToolButton _future(
   showLabel: showLabel,
   shortcut: shortcut,
   disabled: true,
-  disabledReason: futureVersionReason(context),
+  disabledReason: feature.disabledReason(context),
 );
 
-/// An icon button whose feature is not built yet.
+/// An icon button of [feature], which is not built yet.
 IconButton _futureIcon(
   BuildContext context, {
+  required Feature feature,
   required IconName icon,
   required String label,
   bool? active,
@@ -109,7 +113,7 @@ IconButton _futureIcon(
   active: active,
   shortcut: shortcut,
   disabled: true,
-  disabledReason: futureVersionReason(context),
+  disabledReason: feature.disabledReason(context),
 );
 
 /// View (FmWindow lines 47–66): Select, Hand, Marquee zoom | zoom out, the
@@ -139,7 +143,8 @@ class _ViewTools extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final future = futureVersionReason(context);
+    final zoom = Feature.zoom.disabledReason(context);
+    final layout = Feature.pageLayout.disabledReason(context);
     // The region writes the percentage: "%100" for Türkiye (G34).
     String percent(int value) => bidiIsolate(format.percent(value));
     // The zoom menu and the segmented controls move into a narrow row's
@@ -149,13 +154,14 @@ class _ViewTools extends ConsumerWidget {
     MenuItem choices(
       String label,
       List<(String, String, IconName?)> options, {
+      required Feature feature,
       String? checked,
       Map<String, ShellCommand> commands = const {},
     }) => MenuItem(
       id: label,
       label: label,
       disabled: true,
-      disabledReason: future,
+      disabledReason: feature.disabledReason(context),
       submenu: [
         for (final (value, name, icon) in options)
           MenuItem(
@@ -173,6 +179,7 @@ class _ViewTools extends ConsumerWidget {
       children: [
         _future(
           context,
+          feature: Feature.selectAndHand,
           icon: IconName.mousePointer2,
           label: l10n.shellToolSelect,
           active: true,
@@ -180,6 +187,7 @@ class _ViewTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.selectAndHand,
           icon: IconName.hand,
           label: l10n.shellToolHand,
           active: false,
@@ -187,6 +195,7 @@ class _ViewTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.zoom,
           icon: IconName.squareDashed,
           label: l10n.shellToolMarqueeZoom,
           active: false,
@@ -195,6 +204,7 @@ class _ViewTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _futureIcon(
           context,
+          feature: Feature.zoom,
           icon: IconName.zoomOut,
           label: l10n.shellZoomOut,
           shortcut: ShellCommand.zoomOut.caps(platform),
@@ -207,6 +217,7 @@ class _ViewTools extends ConsumerWidget {
               ('fit-width', l10n.shellFitWidth, null),
               ('fit-page', l10n.shellFitPage, null),
             ],
+            feature: Feature.zoom,
             checked: '100',
             commands: fitCommands,
           ),
@@ -217,7 +228,7 @@ class _ViewTools extends ConsumerWidget {
               semanticLabel: l10n.shellZoom,
               value: '100',
               disabled: true,
-              disabledReason: future,
+              disabledReason: zoom,
               options: [
                 for (final step in zoomSteps)
                   SelectOption(value: '$step', label: percent(step)),
@@ -229,21 +240,27 @@ class _ViewTools extends ConsumerWidget {
         ),
         _futureIcon(
           context,
+          feature: Feature.zoom,
           icon: IconName.zoomIn,
           label: l10n.shellZoomIn,
           shortcut: ShellCommand.zoomIn.caps(platform),
         ),
         ToolbarItem(
-          menuItem: choices(l10n.shellFit, [
-            ('width', l10n.shellFitWidth, IconName.arrowLeftRight),
-            ('page', l10n.shellFitPage, IconName.maximize),
-            ('actual', l10n.shellActualSize, IconName.scan),
-          ], commands: fitCommands),
+          menuItem: choices(
+            l10n.shellFit,
+            [
+              ('width', l10n.shellFitWidth, IconName.arrowLeftRight),
+              ('page', l10n.shellFitPage, IconName.maximize),
+              ('actual', l10n.shellActualSize, IconName.scan),
+            ],
+            feature: Feature.zoom,
+            commands: fitCommands,
+          ),
           child: SegmentedControl<String?>(
             semanticLabel: l10n.shellFit,
             value: null,
             disabled: true,
-            disabledReason: future,
+            disabledReason: zoom,
             options: [
               SegmentOption(
                 value: 'width',
@@ -265,17 +282,22 @@ class _ViewTools extends ConsumerWidget {
         ),
         const ToolbarSeparator(),
         ToolbarItem(
-          menuItem: choices(l10n.shellPageLayout, [
-            ('single', l10n.shellLayoutSingle, IconName.fileText),
-            ('scroll', l10n.shellLayoutContinuous, IconName.arrowUpDown),
-            ('two', l10n.shellLayoutTwoPage, IconName.columns2),
-            ('book', l10n.shellLayoutBook, IconName.bookOpen),
-          ], checked: 'scroll'),
+          menuItem: choices(
+            l10n.shellPageLayout,
+            [
+              ('single', l10n.shellLayoutSingle, IconName.fileText),
+              ('scroll', l10n.shellLayoutContinuous, IconName.arrowUpDown),
+              ('two', l10n.shellLayoutTwoPage, IconName.columns2),
+              ('book', l10n.shellLayoutBook, IconName.bookOpen),
+            ],
+            feature: Feature.pageLayout,
+            checked: 'scroll',
+          ),
           child: SegmentedControl<String>(
             semanticLabel: l10n.shellPageLayout,
             value: 'scroll',
             disabled: true,
-            disabledReason: future,
+            disabledReason: layout,
             options: [
               SegmentOption(
                 value: 'single',
@@ -303,18 +325,21 @@ class _ViewTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.splitView,
           icon: IconName.columns2,
           label: l10n.shellToolSplitView,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.readAloud,
           icon: IconName.volume2,
           label: l10n.shellToolReadAloud,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.presentation,
           icon: IconName.presentation,
           label: l10n.shellToolPresent,
           shortcut: ShellCommand.present.caps(platform),
@@ -324,7 +349,7 @@ class _ViewTools extends ConsumerWidget {
           value: false,
           label: l10n.shellDarkReadingMode,
           disabled: true,
-          disabledReason: future,
+          disabledReason: Feature.darkReadingMode.disabledReason(context),
         ),
       ],
     );
@@ -344,13 +369,14 @@ class _EditTools extends ConsumerWidget {
     final platform = ref.watch(shortcutPlatformProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final edits = ref.watch(shellDocumentsProvider).active?.editCount ?? 0;
-    final future = futureVersionReason(context);
+    final review = Feature.editReview.disabledReason(context);
     return Toolbar(
       semanticLabel: l10n.shellEditTools,
       overflowLabel: l10n.moreTools,
       children: [
         _future(
           context,
+          feature: Feature.editingText,
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
           active: true,
@@ -358,6 +384,7 @@ class _EditTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.addingTextBoxes,
           icon: IconName.type,
           label: l10n.shellToolAddText,
           active: false,
@@ -365,6 +392,7 @@ class _EditTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.addingImages,
           icon: IconName.image,
           label: l10n.shellToolAddImage,
           active: false,
@@ -372,6 +400,7 @@ class _EditTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.links,
           icon: IconName.link,
           label: l10n.shellToolLink,
           active: false,
@@ -380,6 +409,7 @@ class _EditTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.findAndReplace,
           icon: IconName.replace,
           label: l10n.shellToolFindReplace,
           active: false,
@@ -387,6 +417,7 @@ class _EditTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.pageMarks,
           icon: IconName.droplet,
           label: l10n.shellToolPageMarks,
           active: false,
@@ -397,18 +428,21 @@ class _EditTools extends ConsumerWidget {
         // `IconName.directional`).
         _futureIcon(
           context,
+          feature: Feature.undoAndHistory,
           icon: IconName.undo2,
           label: l10n.shellUndo,
           shortcut: ShellCommand.undo.caps(platform),
         ),
         _futureIcon(
           context,
+          feature: Feature.undoAndHistory,
           icon: IconName.redo2,
           label: l10n.shellRedo,
           shortcut: ShellCommand.redo.caps(platform),
         ),
         _futureIcon(
           context,
+          feature: Feature.undoAndHistory,
           icon: IconName.history,
           label: l10n.shellEditHistory,
           active: false,
@@ -418,7 +452,7 @@ class _EditTools extends ConsumerWidget {
           value: true,
           label: l10n.shellMarkEditedText,
           disabled: true,
-          disabledReason: future,
+          disabledReason: Feature.editMarks.disabledReason(context),
         ),
         ToolbarItem(
           // The count the row's badge shows stays in the menu entry; the
@@ -430,7 +464,7 @@ class _EditTools extends ConsumerWidget {
             ),
             icon: IconName.listChecks,
             disabled: true,
-            disabledReason: future,
+            disabledReason: review,
           ),
           // `<div style="width:8px">` and the toolbar's 2 px gap after it,
           // part of the item so it leaves the row with the button.
@@ -442,7 +476,7 @@ class _EditTools extends ConsumerWidget {
               variant: ButtonVariant.ghost,
               size: ButtonSize.sm,
               icon: IconName.listChecks,
-              disabledReason: future,
+              disabledReason: review,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: theme.space.space1_5,
@@ -468,7 +502,7 @@ class _CommentTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final future = futureVersionReason(context);
+    final comments = Feature.comments.disabledReason(context);
     return Row(
       children: [
         Expanded(
@@ -478,10 +512,15 @@ class _CommentTools extends ConsumerWidget {
             colorsSemanticLabel: l10n.shellColor,
             colorLabelOf: l10n.annotationColorLabel,
             showLabels: true,
+            // Measure is a measure tool of its own (B051), the others are
+            // comments (B050).
             disabledReasons: {
-              for (final tool in AnnotationTool.values) tool: future,
+              for (final tool in AnnotationTool.values)
+                tool: tool == AnnotationTool.measure
+                    ? Feature.measure.disabledReason(context)
+                    : comments,
             },
-            colorsDisabledReason: future,
+            colorsDisabledReason: comments,
             overflowLabel: l10n.moreTools,
           ),
         ),
@@ -494,7 +533,7 @@ class _CommentTools extends ConsumerWidget {
             value: true,
             label: l10n.shellShowComments,
             disabled: true,
-            disabledReason: future,
+            disabledReason: comments,
           ),
         ),
       ],
@@ -517,24 +556,28 @@ class _SignTools extends ConsumerWidget {
       children: [
         _future(
           context,
+          feature: Feature.formFilling,
           icon: IconName.textCursorInput,
           label: l10n.shellToolFillFields,
           active: true,
         ),
         _future(
           context,
+          feature: Feature.formFilling,
           icon: IconName.type,
           label: l10n.shellToolAddText,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.formFilling,
           icon: IconName.squareCheck,
           label: l10n.shellToolCheckmark,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.formFilling,
           icon: IconName.calendar,
           label: l10n.shellToolDate,
           active: false,
@@ -542,6 +585,7 @@ class _SignTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.simpleSignatures,
           icon: IconName.signature,
           label: l10n.shellToolSign,
           active: false,
@@ -549,18 +593,21 @@ class _SignTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.simpleSignatures,
           icon: IconName.penLine,
           label: l10n.shellToolInitials,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.certificateSignatures,
           icon: IconName.badgeCheck,
           label: l10n.shellToolDigitalSignature,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.eImza,
           icon: IconName.usb,
           label: l10n.shellToolEimza,
           active: false,
@@ -568,6 +615,7 @@ class _SignTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.preparingForms,
           icon: IconName.squarePen,
           label: l10n.shellToolPrepareForm,
           active: false,
@@ -595,12 +643,14 @@ class _OrganizeTools extends ConsumerWidget {
       children: [
         _future(
           context,
+          feature: Feature.organizingPages,
           icon: IconName.filePlus2,
           label: l10n.shellToolInsert,
           hasMenu: true,
         ),
         _future(
           context,
+          feature: Feature.organizingPages,
           icon: IconName.rotateCcw,
           label: l10n.shellToolRotateLeft,
           showLabel: false,
@@ -608,20 +658,33 @@ class _OrganizeTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.organizingPages,
           icon: IconName.rotateCw,
           label: l10n.shellToolRotateRight,
           showLabel: false,
           shortcut: ShellCommand.rotateRight.caps(platform),
         ),
-        _future(context, icon: IconName.copy, label: l10n.shellToolDuplicate),
         _future(
           context,
+          feature: Feature.organizingPages,
+          icon: IconName.copy,
+          label: l10n.shellToolDuplicate,
+        ),
+        _future(
+          context,
+          feature: Feature.organizingPages,
           icon: IconName.fileOutput,
           label: l10n.shellToolExtract,
         ),
-        _future(context, icon: IconName.replace, label: l10n.shellToolReplace),
         _future(
           context,
+          feature: Feature.organizingPages,
+          icon: IconName.replace,
+          label: l10n.shellToolReplace,
+        ),
+        _future(
+          context,
+          feature: Feature.organizingPages,
           icon: IconName.trash2,
           label: l10n.shellToolDelete,
           shortcut: ShellCommand.deletePages.caps(platform),
@@ -629,24 +692,28 @@ class _OrganizeTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.combineAndSplit,
           icon: IconName.split,
           label: l10n.shellToolSplit,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.combineAndSplit,
           icon: IconName.merge,
           label: l10n.shellToolCombineFiles,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.organizingPages,
           icon: IconName.crop,
           label: l10n.shellToolCrop,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.organizingPages,
           icon: IconName.hash,
           label: l10n.shellToolPageLabels,
           active: false,
@@ -678,23 +745,40 @@ class _ConvertTools extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    ToolButton tool(IconName icon, String label) =>
-        _future(context, icon: icon, label: label, active: false);
+    ToolButton tool(Feature feature, IconName icon, String label) => _future(
+      context,
+      feature: feature,
+      icon: icon,
+      label: label,
+      active: false,
+    );
     return Toolbar(
       semanticLabel: l10n.shellConvertTools,
       overflowLabel: l10n.moreTools,
       children: [
-        tool(IconName.fileType, l10n.shellConvertWord),
-        tool(IconName.fileSpreadsheet, l10n.shellConvertExcel),
-        tool(IconName.presentation, l10n.shellConvertPowerPoint),
-        tool(IconName.fileImage, l10n.shellConvertImage),
-        tool(IconName.code, l10n.shellConvertHtml),
-        tool(IconName.fileText, l10n.shellConvertText),
-        tool(IconName.hash, l10n.shellConvertMarkdown),
+        tool(Feature.convertFromPdf, IconName.fileType, l10n.shellConvertWord),
+        tool(
+          Feature.convertFromPdf,
+          IconName.fileSpreadsheet,
+          l10n.shellConvertExcel,
+        ),
+        tool(
+          Feature.convertFromPdf,
+          IconName.presentation,
+          l10n.shellConvertPowerPoint,
+        ),
+        tool(
+          Feature.convertFromPdf,
+          IconName.fileImage,
+          l10n.shellConvertImage,
+        ),
+        tool(Feature.convertFromPdf, IconName.code, l10n.shellConvertHtml),
+        tool(Feature.convertFromPdf, IconName.fileText, l10n.shellConvertText),
+        tool(Feature.convertFromPdf, IconName.hash, l10n.shellConvertMarkdown),
         const ToolbarSeparator(),
-        tool(IconName.fileInput, l10n.shellToolCreatePdf),
-        tool(IconName.scan, l10n.shellToolScan),
-        tool(IconName.scanText, l10n.shellToolRecognizeText),
+        tool(Feature.createPdf, IconName.fileInput, l10n.shellToolCreatePdf),
+        tool(Feature.scanToPdf, IconName.scan, l10n.shellToolScan),
+        tool(Feature.ocr, IconName.scanText, l10n.shellToolRecognizeText),
       ],
     );
   }
@@ -715,6 +799,7 @@ class _ProtectTools extends ConsumerWidget {
       children: [
         _future(
           context,
+          feature: Feature.redaction,
           icon: IconName.eyeOff,
           label: l10n.shellToolRedact,
           active: true,
@@ -722,6 +807,7 @@ class _ProtectTools extends ConsumerWidget {
         ),
         _future(
           context,
+          feature: Feature.redaction,
           icon: IconName.fileSearch,
           label: l10n.shellToolFindRedact,
           active: false,
@@ -729,18 +815,21 @@ class _ProtectTools extends ConsumerWidget {
         const ToolbarSeparator(),
         _future(
           context,
+          feature: Feature.passwordProtection,
           icon: IconName.keyRound,
           label: l10n.shellToolPassword,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.removeHiddenInformation,
           icon: IconName.eraser,
           label: l10n.shellToolRemoveHidden,
           active: false,
         ),
         _future(
           context,
+          feature: Feature.securityReport,
           icon: IconName.shieldCheck,
           label: l10n.shellToolSecurityReport,
           active: false,
@@ -753,13 +842,13 @@ class _ProtectTools extends ConsumerWidget {
             icon: IconName.eyeOff,
             danger: true,
             disabled: true,
-            disabledReason: futureVersionReason(context),
+            disabledReason: Feature.redaction.disabledReason(context),
           ),
           child: Button(
             variant: ButtonVariant.danger,
             size: ButtonSize.sm,
             icon: IconName.eyeOff,
-            disabledReason: futureVersionReason(context),
+            disabledReason: Feature.redaction.disabledReason(context),
             child: Text(l10n.shellApplyRedactions),
           ),
         ),
@@ -778,32 +867,46 @@ class _ToolsTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
-    ToolButton tool(IconName icon, String label, {List<String>? shortcut}) =>
-        _future(
-          context,
-          icon: icon,
-          label: label,
-          active: false,
-          shortcut: shortcut,
-        );
+    ToolButton tool(
+      Feature feature,
+      IconName icon,
+      String label, {
+      List<String>? shortcut,
+    }) => _future(
+      context,
+      feature: feature,
+      icon: icon,
+      label: label,
+      active: false,
+      shortcut: shortcut,
+    );
     return Toolbar(
       semanticLabel: l10n.shellModeTools,
       overflowLabel: l10n.moreTools,
       children: [
-        tool(IconName.minimize2, l10n.shellToolCompress),
-        tool(IconName.gitCompare, l10n.shellToolCompare),
-        tool(IconName.accessibility, l10n.shellToolAccessibility),
-        tool(IconName.fileCheck2, l10n.shellToolPdfA),
-        tool(IconName.workflow, l10n.shellToolBatch),
+        tool(Feature.compress, IconName.minimize2, l10n.shellToolCompress),
+        tool(Feature.compare, IconName.gitCompare, l10n.shellToolCompare),
         tool(
+          Feature.accessibilityTools,
+          IconName.accessibility,
+          l10n.shellToolAccessibility,
+        ),
+        tool(Feature.pdfAAndPreflight, IconName.fileCheck2, l10n.shellToolPdfA),
+        tool(Feature.batchActions, IconName.workflow, l10n.shellToolBatch),
+        tool(
+          Feature.printing,
           IconName.printer,
           l10n.shellToolPrint,
           shortcut: ShellCommand.printDocument.caps(platform),
         ),
-        tool(IconName.ruler, l10n.shellToolMeasure),
-        tool(IconName.history, l10n.shellToolVersionHistory),
+        tool(Feature.measure, IconName.ruler, l10n.shellToolMeasure),
+        tool(
+          Feature.versionHistory,
+          IconName.history,
+          l10n.shellToolVersionHistory,
+        ),
         const ToolbarSeparator(),
-        tool(IconName.sparkles, l10n.shellAiAssistant),
+        tool(Feature.aiAssistant, IconName.sparkles, l10n.shellAiAssistant),
       ],
     );
   }

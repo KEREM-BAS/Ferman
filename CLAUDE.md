@@ -63,7 +63,7 @@ cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: 
 (cd app && flutter test --exclude-tags golden)                        # macOS and Windows: goldens are Linux only
 (cd app && flutter test --update-goldens --tags golden)               # regenerate goldens (Linux only, with fonts-dejavu-core and fonts-noto-cjk)
 (cd app && dart run build_runner build)   # Riverpod and other codegen
-(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127)
+(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127; the Dco codec's ffigen needs libclang: Xcode on macOS, libclang-dev on Linux)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
 (cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)
@@ -134,7 +134,7 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5,
 - Icons use the design's exact path data (229 icons), painted by a `CustomPainter` through path_parsing, shipped with the Lucide ISC and Feather MIT notices and a provenance table. No flutter_svg: it and vector_graphics pull in `http`.
 
 **Unfinished features**
-- Features not implemented yet stay visible exactly as designed, disabled, with the tooltip "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md).
+- Features not implemented yet stay visible exactly as designed, disabled, with the tooltip "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md). Each such control names its feature in the registry `Feature` (`app/lib/app/feature_registry.dart`) and takes its reason from it; a feature ships by leaving the registry, and `tools/checks` `feature_registry` keeps the registry and BACKLOG's open rows in step.
 
 **Localization**
 - English is the source; Turkish is complete. Other languages fall back to English until translated. Never machine-translate silently; community translation goes through Weblate.
