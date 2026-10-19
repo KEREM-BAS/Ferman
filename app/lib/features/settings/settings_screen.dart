@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
@@ -32,7 +33,8 @@ import 'package:go_router/go_router.dart';
 ///
 /// Built panes: General, Language and region, Privacy (a skeleton). The
 /// others are listed and disabled with "Available in a future version"
-/// (G10), as is the settings search ("Search filters every pane").
+/// (G10), as is the settings search ("Search filters every pane"), each
+/// through its feature in the feature registry ([Feature]).
 ///
 /// Tab goes through the pane list first (the search, then the panes), then
 /// through the pane, each column as one group in reading order. When a
@@ -155,7 +157,9 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
                   placeholder: l10n.settingsSearch,
                   semanticLabel: l10n.settingsSearch,
                   disabled: true,
-                  disabledReason: futureVersionReason(context),
+                  disabledReason: Feature.settingsSearch.disabledReason(
+                    context,
+                  ),
                 ),
               ),
               for (final pane in SettingsPane.values)
@@ -285,7 +289,7 @@ class _NavRow extends StatelessWidget {
     final l10n = AppLocalizations.of(context);
     return FermanInteractive(
       onPressed: pane.available ? onPressed : null,
-      disabledReason: pane.available ? null : futureVersionReason(context),
+      disabledReason: pane.feature?.disabledReason(context),
       selected: selected,
       semanticLabel: pane.label(l10n),
       builder: (context, states, _) {

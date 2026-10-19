@@ -134,7 +134,7 @@ Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5,
 - Icons use the design's exact path data (229 icons), painted by a `CustomPainter` through path_parsing, shipped with the Lucide ISC and Feather MIT notices and a provenance table. No flutter_svg: it and vector_graphics pull in `http`.
 
 **Unfinished features**
-- Features not implemented yet stay visible exactly as designed, disabled, with the tooltip "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md).
+- Features not implemented yet stay visible exactly as designed, disabled, with the tooltip "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md). Each such control names its feature in the registry `Feature` (`app/lib/app/feature_registry.dart`) and takes its reason from it; a feature ships by leaving the registry, and `tools/checks` `feature_registry` keeps the registry and BACKLOG's open rows in step.
 
 **Localization**
 - English is the source; Turkish is complete. Other languages fall back to English until translated. Never machine-translate silently; community translation goes through Weblate.

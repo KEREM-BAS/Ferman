@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
@@ -78,7 +79,6 @@ class LanguageRegionPane extends ConsumerWidget {
     final colors = theme.colors;
     final typography = theme.typography;
     final l10n = AppLocalizations.of(context);
-    final reason = futureVersionReason(context);
     final uiLanguage = Localizations.localeOf(context).languageCode;
     final language = ref.watch(appLanguageProvider);
     final systemLanguage = ref.watch(systemLanguageProvider);
@@ -150,7 +150,7 @@ class LanguageRegionPane extends ConsumerWidget {
               size: ButtonSize.sm,
               variant: ButtonVariant.ghost,
               icon: IconName.plus,
-              disabledReason: reason,
+              disabledReason: Feature.documentLanguages.disabledReason(context),
               child: Text(l10n.settingsAddDocumentLanguage),
             ),
           ],

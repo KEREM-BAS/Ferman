@@ -1,3 +1,4 @@
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -10,7 +11,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// `<main>` on `--surface-canvas`).
 ///
 /// No PDF renders in M1, so it shows the canvas background and a quiet
-/// empty state: a page glyph and "Available in a future version". It is a
+/// empty state: a page glyph and "Available in a future version", the
+/// reason of [Feature.pageRendering]. It is a
 /// focus stop named "Document pages", focused when the shell opens, so the
 /// shortcut table's keys work at once. The inset focus ring shows once the
 /// keyboard is used there: not for the focus it gets at launch (no board
@@ -64,6 +66,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     // The UI's direction, for the placeholder's copy inside the canvas's
     // own left-to-right geometry.
     final uiDirection = Directionality.of(context);
+    final placeholder = Feature.pageRendering.disabledReason(context);
     return Shortcuts(
       shortcuts: ShellCommand.shortcutsFor(
         platform,
@@ -104,7 +107,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                           color: theme.colors.iconSecondary,
                         ),
                         Text(
-                          futureVersionReason(context),
+                          placeholder,
                           textAlign: TextAlign.center,
                           textDirection: uiDirection,
                           style: theme.typography.caption.copyWith(

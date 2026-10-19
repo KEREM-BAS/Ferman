@@ -80,7 +80,10 @@ open, and [docs/BACKLOG.md](docs/BACKLOG.md) lists work that is deferred.
   language-pack downloads, the optional AI assistant and signature timestamp servers
   ([ADR 0015](docs/adr/0015-privacy-and-network.md)). Anything else needs an approved ADR.
 - A feature that is not built yet stays visible exactly as designed, but disabled, with the tooltip
-  "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md).
+  "Available in a future version" and an entry in [docs/BACKLOG.md](docs/BACKLOG.md). Its controls
+  name the feature in the feature registry (`Feature` in `app/lib/app/feature_registry.dart`) and
+  take their reason from it; a feature ships by leaving the registry, and the repository checks
+  fail when the registry and the backlog disagree.
 
 **Ask the maintainer first** (in an issue) before you:
 
