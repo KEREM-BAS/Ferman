@@ -41,6 +41,23 @@ static void window_method_call_cb(FlMethodChannel* channel,
   }
 }
 
+// Sets the window icon from data/app_icon.png beside the executable (made by
+// tools/app-icons, installed by CMakeLists.txt). Without it the window keeps
+// the desktop's generic icon; a packaged Ferman's .desktop file names its own.
+static void set_window_icon(GtkWindow* window) {
+  g_autofree gchar* executable = g_file_read_link("/proc/self/exe", nullptr);
+  if (executable == nullptr) {
+    return;
+  }
+  g_autofree gchar* directory = g_path_get_dirname(executable);
+  g_autofree gchar* icon =
+      g_build_filename(directory, "data", "app_icon.png", nullptr);
+  g_autoptr(GError) error = nullptr;
+  if (!gtk_window_set_icon_from_file(window, icon, &error)) {
+    g_warning("Could not load the window icon %s: %s", icon, error->message);
+  }
+}
+
 // Called when first Flutter frame received.
 static void first_frame_cb(MyApplication* self, FlView* view) {
   gtk_widget_show(gtk_widget_get_toplevel(GTK_WIDGET(view)));
@@ -64,6 +81,7 @@ static void my_application_activate(GApplication* application) {
   gtk_header_bar_set_show_close_button(header_bar, TRUE);
   gtk_window_set_titlebar(window, GTK_WIDGET(header_bar));
   gtk_window_set_title(window, "Ferman");
+  set_window_icon(window);
 
   gtk_window_set_default_size(window, 1280, 720);
 

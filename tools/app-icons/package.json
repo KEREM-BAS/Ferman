@@ -1,0 +1,16 @@
+{
+  "name": "ferman-app-icons",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Writes Ferman's app icons for macOS, Windows, Linux and the web from the read-only logo export.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "main": "index.mjs",
+  "engines": {
+    "node": ">=24"
+  },
+  "scripts": {
+    "check": "node index.mjs --check",
+    "test": "node --test \"test/*.test.mjs\""
+  }
+}

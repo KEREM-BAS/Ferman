@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-111 entries: 89 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2.
+112 entries: 90 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, and G112 came with the logo export of 2026-10-19.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 23 | 11 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 24 | 11 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -183,6 +183,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G109](#g109) | missing state | M2 | Start / recent files | No placeholder for a recent file that needs a password | Decided |
 | [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
 | [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
+| [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
 
 ## Entries
 
@@ -1656,3 +1657,23 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Status:** Decided.
 - **Evidence:** `design/01 First run and files.dc.html` line 266 (a1-11's three format radios) and line 297 (a1-11b: only PDF/A-2b carries `disabled`); [ROADMAP.md §7](ROADMAP.md) step 8.
 
+<a id="g112"></a>
+
+### G112 · App icons from the logo export
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** App icons
+- **Artboards:** `Ferman Logo.dc.html` (directions `1a`, `1b`, `1c`)
+- **Gap or conflict:** The owner's logo export of 2026-10-19 (`94e596d`) adds a board with three directions and the folder `design/assets/logo/`. The folder holds only direction 1a, "Mühür": the mark, its dark, small and one-colour forms, a 1024 app icon in light and dark, and a favicon. The board shows the icon on mock tiles: macOS (132 px, radius 30, a 96 px mark), iOS light and dark, Android adaptive and themed, Windows and Linux light and dark, a browser tab, and a size test where 32 px and below use the small mark. It does not say:
+  - the file sizes and shapes each platform needs;
+  - the macOS icon's margins and shadow;
+  - which colour a Windows icon takes, since an ICO cannot follow the system theme;
+  - how a favicon follows a dark browser.
+- **Decision:** direction 1a is the logo, since it is the only one exported. `tools/app-icons` draws every desktop and web icon from the export's own paths and colours (the tokens `seal-500`, `seal-300`, `paper-50`, `soot-100`), and 32 px and below use the small mark, as the board's size test does.
+  - **macOS:** Apple's 1024 grid: an 824-point `paper-50` rounded square, 100 points in, radius 185.4. Inside it, the export's 600-point mark at `translate(212 212) scale(6)`, which is the board's 96 px mark in a 132 px tile. The board's radius 30 would scale to 187, so Apple's radius is used. The board's web shadow (8 px down, 18 px blur) is replaced by Apple's template shadow (10 points down, 10 points blur, 30 %), which stays inside the canvas.
+  - **Windows and Linux:** the mark alone on a transparent ground in `seal-500`, with the ring and the F cut out. The board draws them in the tile's colour, so the taskbar shows through. The board's lighter `seal-300` on dark taskbars is not possible in one ICO, so `seal-500` is used everywhere.
+  - **Web:** an SVG favicon with the small mark as one even-odd path. It is `seal-500`, and `seal-300` under `prefers-color-scheme: dark`, as the board's light and dark tabs draw it, with a 32 px PNG fallback. The PWA icons are the mark (`any`) and the edge-to-edge app icon (`maskable`, and the 180 px Apple touch icon). The manifest's colours are `paper-50`.
+  - **Not drawn yet:** the dark and tinted macOS icons need an Icon Composer `.icon` ([B108](BACKLOG.md#open), M5), and the iOS and Android icons wait for those projects ([B107](BACKLOG.md#open), P5).
+- **Status:** Decided.
+- **Evidence:** `design/Ferman Logo.dc.html`, the `DEF` entry `1a` (tile colours per platform) and `sizes()` (the small mark from 32 px down); the seven files of `design/assets/logo/`; `tools/app-icons/README.md`.
