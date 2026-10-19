@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/fonts.css">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/colors.css">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/typography.css">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/spacing.css">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/effects.css">
+<link rel="stylesheet" href="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/tokens/base.css">
+<script src="_ds/ferman-design-system-27832349-21bc-410e-acd5-6ab20d2f87e2/_ds_bundle.js"></script>
+<style>body{margin:0;background:#F0EEEA}a{color:var(--ink-600)}a:hover{color:var(--ink-700)}</style>
+</helmet>
+<section class="fm-root" data-theme="{{ theme }}" lang="tr" style="display:grid;gap:40px;padding:72px;background:var(--surface-canvas);color:var(--text-primary);min-height:100vh;box-sizing:border-box">
+<header style="display:grid;gap:10px;max-width:900px">
+<span style="font:600 14px/1 var(--font-mono);color:var(--text-tertiary)">TUR 1 · LOGO YÖNLERİ</span>
+<h1 style="margin:0;font:600 44px/1.15 var(--font-brand);letter-spacing:-0.01em">Ferman logosu</h1>
+<p style="margin:0;font:400 18px/1.6 var(--font-ui);color:var(--text-secondary);text-wrap:pretty">Üç ayrı fikir. Her biri macOS, iOS, Android, Windows ve web için uyarlandı ve 16 px’e kadar küçültülerek sınandı. Renkler yalnızca tasarım sisteminin mürekkep, mühür ve kâğıt tonlarından geliyor.</p>
+</header>
+<div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start">
+<sc-for list="{{ options }}" as="o" hint-placeholder-count="3">
+<article id="{{ o.id }}" style="width:860px;display:grid;gap:20px;padding:32px;box-sizing:border-box;background:var(--surface-raised);border:1px solid var(--border-subtle);border-radius:12px">
+<div style="display:flex;align-items:baseline;gap:14px;flex-wrap:wrap">
+<span style="font:600 15px/1 var(--font-mono);padding:6px 9px;border-radius:var(--radius-sm);background:var(--accent-subtle);color:var(--text-accent)">{{ o.id }}</span>
+<h2 style="margin:0;font:600 30px/1.2 var(--font-brand)">{{ o.name }}</h2>
+<span style="font:400 17px/1.4 var(--font-ui);color:var(--text-secondary)">{{ o.tag }}</span>
+</div>
+<p style="margin:0;font:400 16px/1.6 var(--font-ui);color:var(--text-secondary);text-wrap:pretty">{{ o.idea }}</p>
+<div style="display:grid;grid-template-columns:400px minmax(0,1fr);gap:16px">
+<div style="position:relative;height:400px;border-radius:10px;display:grid;place-items:center;background:{{ o.heroBg }}">{{ o.hero }}<sc-if value="{{ showGrid }}"><div style="position:absolute;inset:0;display:grid;place-items:center;pointer-events:none">{{ grid }}</div></sc-if></div>
+<div style="display:grid;grid-template-rows:1fr 1fr;gap:16px">
+<div style="border-radius:10px;background:#FFFFFF;border:1px solid var(--border-subtle);display:flex;align-items:center;justify-content:center;gap:16px;color:#1F1D1A">{{ o.lockL }}<span style="font:600 46px/1 var(--font-brand);letter-spacing:-0.01em">Ferman</span></div>
+<div style="border-radius:10px;background:#161615;display:flex;align-items:center;justify-content:center;gap:16px;color:#F2EFEA">{{ o.lockD }}<span style="font:600 46px/1 var(--font-brand);letter-spacing:-0.01em">Ferman</span></div>
+</div>
+</div>
+<div style="display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:16px">
+<div style="display:grid;gap:12px;justify-items:center;padding:20px 12px;border-radius:10px;background:#E8E5DF">
+<div style="width:132px;height:132px;border-radius:30px;display:grid;place-items:center;background:{{ o.macBg }};box-shadow:0 0 0 0.5px rgba(0,0,0,.12),0 8px 18px -6px rgba(20,19,17,.35)">{{ o.mac }}</div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">macOS</span></div>
+<div style="display:grid;gap:12px;justify-items:center;padding:20px 12px;border-radius:10px;background:#E8E5DF">
+<div style="display:flex;gap:14px;align-items:flex-end"><div style="display:grid;gap:6px;justify-items:center"><div style="width:84px;height:84px;border-radius:19px;display:grid;place-items:center;background:{{ o.macBg }};box-shadow:0 0 0 0.5px rgba(0,0,0,.1)">{{ o.ios }}</div><span style="font:400 11px/1 var(--font-ui);color:#1F1D1A">Ferman</span></div><div style="display:grid;gap:6px;justify-items:center"><div style="width:84px;height:84px;border-radius:19px;display:grid;place-items:center;background:#1D1C1B">{{ o.iosDark }}</div><span style="font:400 11px/1 var(--font-ui);color:#57534C">koyu</span></div></div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">iOS · iPadOS</span></div>
+<div style="display:grid;gap:12px;justify-items:center;padding:20px 12px;border-radius:10px;background:#E8E5DF">
+<div style="display:flex;gap:14px;align-items:flex-end"><div style="display:grid;gap:6px;justify-items:center"><div style="width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:{{ o.andBg }};box-shadow:0 1px 3px rgba(0,0,0,.2)">{{ o.and }}</div><span style="font:400 11px/1 var(--font-ui);color:#1F1D1A">uyarlanır</span></div><div style="display:grid;gap:6px;justify-items:center"><div style="width:84px;height:84px;border-radius:50%;display:grid;place-items:center;background:#DCE4F8">{{ o.themed }}</div><span style="font:400 11px/1 var(--font-ui);color:#57534C">temalı</span></div></div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">Android</span></div>
+<div style="display:grid;gap:12px;justify-items:center;padding:20px 12px;border-radius:10px;background:#E8E5DF">
+<div style="display:flex;gap:10px"><div style="width:84px;height:84px;border-radius:8px;display:grid;place-items:center;background:#F3F3F3;box-shadow:0 0 0 1px rgba(0,0,0,.06)">{{ o.winL }}</div><div style="width:84px;height:84px;border-radius:8px;display:grid;place-items:center;background:#202020">{{ o.winD }}</div></div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">Windows · Linux</span></div>
+</div>
+<div style="display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px">
+<div style="display:grid;gap:10px;padding:16px;border-radius:10px;background:#E8E5DF">
+<div style="display:flex;align-items:flex-end;gap:2px"><div style="display:flex;align-items:center;gap:8px;width:220px;height:34px;padding:0 12px;box-sizing:border-box;border-radius:8px 8px 0 0;background:#FFFFFF;font:400 12px/1 var(--font-ui);color:#1F1D1A">{{ o.fav16 }}<span>Ferman — Kira sözleşmesi</span></div><div style="display:flex;align-items:center;gap:8px;width:160px;height:30px;padding:0 12px;box-sizing:border-box;font:400 12px/1 var(--font-ui);color:#57534C">{{ o.fav16 }}<span>Ferman</span></div></div>
+<div style="display:flex;align-items:center;gap:8px;width:220px;height:34px;padding:0 12px;box-sizing:border-box;border-radius:8px 8px 0 0;background:#2E2D2A;font:400 12px/1 var(--font-ui);color:#F2EFEA">{{ o.fav16d }}<span>Ferman — Kira sözleşmesi</span></div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">Web · sekme simgesi</span></div>
+<div style="display:grid;gap:10px;padding:16px;border-radius:10px;background:#FFFFFF;border:1px solid var(--border-subtle)">
+<div style="display:flex;align-items:flex-end;gap:14px"><sc-for list="{{ o.sizes }}" as="z" hint-placeholder-count="6"><div style="display:grid;gap:6px;justify-items:center">{{ z.el }}<span style="font:400 11px/1 var(--font-mono);color:#6F6A62">{{ z.px }}</span></div></sc-for></div>
+<span style="font:500 13px/1 var(--font-ui);color:#1F1D1A">Küçük boyut sınaması</span></div>
+</div>
+</article>
+</sc-for>
+</div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;showGrid&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;},&quot;canvas&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;light&quot;,&quot;dark&quot;],&quot;default&quot;:&quot;light&quot;,&quot;tsType&quot;:&quot;string&quot;}}">
+const h = React.createElement;
+const P = (d, style) => h('path', { d, style });
+const ST = (c, w) => ({ fill: 'none', stroke: c, strokeWidth: w, strokeLinecap: 'round', strokeLinejoin: 'round' });
+const MARKS = {
+  // Mühür: teardrop seal, F cut with a reed-pen bevel
+  a: (c) => [
+    P('M50 4 C60 18 86 36 86 60 A36 36 0 0 1 14 60 C14 36 40 18 50 4 Z', { fill: c.c1 }),
+    P('M50 13.5 C58.2 25 80.4 40 80.4 60 A30.4 30.4 0 0 1 19.6 60 C19.6 40 41.8 25 50 13.5 Z', { fill: 'none', stroke: c.c2, strokeWidth: 1.6 }),
+    P('M38 40 H66 L62 48 H46 V56 H60 L57 63 H46 V78 L38 82 Z', { fill: c.c2 })
+  ],
+  as: (c) => [
+    P('M50 4 C60 18 86 36 86 60 A36 36 0 0 1 14 60 C14 36 40 18 50 4 Z', { fill: c.c1 }),
+    P('M36 38 H68 L63.5 48 H47 V55 H62 L58.5 64 H47 V80 L36 85 Z', { fill: c.c2 })
+  ],
+  // Tuğra: tall stroke F, beyze loop, hançer sweep
+  b: (c) => [
+    P('M20 90 C44 98 76 93 93 70', ST(c.c2, 2.6)),
+    P('M74 50 H42 C24 50 9 58 11 71 C13 83 31 87 44 79 C53 73 53 63 45 60', ST(c.c1, 4.6)),
+    P('M42 92 V30 C42 17 50 9 64 9 H88', ST(c.c1, 9.5)),
+    h('circle', { cx: 92, cy: 70, r: 3.2, style: { fill: c.c3 || c.c2 } })
+  ],
+  bs: (c) => [
+    P('M36 88 V34 C36 20 44 12 58 12 H82', ST(c.c1, 13)),
+    P('M36 52 H68', ST(c.c1, 13))
+  ],
+  // Satır: page with folded corner; F is a text caret (I-beam foot)
+  c: (c) => [
+    P('M26 8 H62 L84 30 V84 Q84 92 76 92 H26 Q18 92 18 84 V16 Q18 8 26 8 Z', { fill: c.c1 }),
+    P('M62 8 V24 Q62 30 68 30 H84 Z', { fill: c.c3 }),
+    P('M29 36 H64 V43 H42 V52 H58 V59 H42 V71 H47 V76 H29 V71 H35 V43 H29 Z', { fill: c.c2 })
+  ],
+  cs: (c) => [
+    P('M24 6 H62 L86 30 V86 Q86 94 78 94 H24 Q16 94 16 86 V14 Q16 6 24 6 Z', { fill: c.c1 }),
+    P('M62 6 V24 Q62 30 68 30 H86 Z', { fill: c.c3 }),
+    P('M30 38 H66 V47 H45 V54 H60 V63 H45 V80 H34 V47 H30 Z', { fill: c.c2 })
+  ]
+};
+const mk = (id, size, c) => h('svg', { viewBox: '0 0 100 100', width: size, height: size, 'aria-hidden': true, style: { display: 'block', flex: 'none' } }, ...MARKS[id](c));
+const GRID = h('svg', { viewBox: '0 0 100 100', width: 300, height: 300, style: { overflow: 'visible' } },
+  ...[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((v) => h('path', { key: 'g' + v, d: `M${v} 0 V100 M0 ${v} H100`, style: { stroke: '#5D7FD6', strokeWidth: 0.25, opacity: 0.7 } })),
+  h('circle', { cx: 50, cy: 50, r: 50, style: { fill: 'none', stroke: '#5D7FD6', strokeWidth: 0.35, opacity: 0.8 } }),
+  h('circle', { cx: 50, cy: 60, r: 36, style: { fill: 'none', stroke: '#E0675A', strokeWidth: 0.35, strokeDasharray: '1.5 1.5' } }));
+const sizes = (s, c) => [96, 64, 48, 32, 24, 16].map((px) => ({ px: px + ' px', el: mk(px <= 32 ? s : s.replace('s', ''), px, c) }));
+const DEF = [
+  { id: '1a', name: 'Mühür', tag: 'Damla biçimli mühür, kalem kesimli F', idea: 'Osmanlı mühürlerinin damla biçimi, bir fermanın altına basılan onay. İçindeki F kamış kalemin eğik kesimiyle bitiyor. Vermilyon yalnızca markada kullanılıyor, arayüzde hiç görünmüyor; bu yüzden simge kalabalık bir Dock’ta da tek başına seçiliyor.',
+    m: 'a', s: 'as', heroBg: '#F7F6F3', hero: { c1: '#B5372A', c2: '#FFFFFF' }, lock: { c1: '#B5372A', c2: '#FFFFFF' }, lockD: { c1: '#B5372A', c2: '#161615' },
+    macBg: '#F7F6F3', mac: { c1: '#B5372A', c2: '#F7F6F3' }, iosDark: { c1: '#E0675A', c2: '#1D1C1B' }, andBg: '#F7F6F3', themed: { c1: '#1A3170', c2: '#DCE4F8' },
+    winL: { c1: '#B5372A', c2: '#F3F3F3' }, winD: { c1: '#E0675A', c2: '#202020' }, favD: { c1: '#E0675A', c2: '#2E2D2A' } },
+  { id: '1b', name: 'Tuğra', tag: 'Tek kalem darbesi, beyze ve hançer', idea: 'Tuğranın yükselen dikey çizgisi F’nin gövdesi, orta kol sola dönüp ilmeğe (beyze) dönüşüyor, alttaki ince çizgi (hançer) bir mühür noktasıyla bitiyor. Büyük boyda imza gibi, küçük boyda süslemeler düşüp yalnızca kalın F kalıyor.',
+    m: 'b', s: 'bs', heroBg: '#213E8E', hero: { c1: '#FFFFFF', c2: '#8BA4E4', c3: '#E0675A' }, lock: { c1: '#213E8E', c2: '#5D7FD6', c3: '#B5372A' }, lockD: { c1: '#F2EFEA', c2: '#8BA4E4', c3: '#E0675A' },
+    macBg: '#213E8E', mac: { c1: '#FFFFFF', c2: '#8BA4E4', c3: '#E0675A' }, iosDark: { c1: '#B8C8F0', c2: '#5D7FD6', c3: '#E0675A' }, andBg: '#213E8E', themed: { c1: '#1A3170', c2: '#5D7FD6', c3: '#1A3170' },
+    winL: { c1: '#213E8E', c2: '#5D7FD6', c3: '#B5372A' }, winD: { c1: '#B8C8F0', c2: '#5D7FD6', c3: '#E0675A' }, favD: { c1: '#B8C8F0', c2: '#5D7FD6' } },
+  { id: '1c', name: 'Satır', tag: 'Kıvrık köşeli sayfa, imleç biçimli F', idea: 'Ürünün vaadi tek simgede: bir PDF sayfası ve içinde yazmaya hazır bir metin imleci. F’nin ayağı imlecin tabanı, üst kolu bir satır. En sade ve en okunaklı yön; 16 px’te bile sayfa ve F ayrı ayrı seçiliyor.',
+    m: 'c', s: 'cs', heroBg: '#2A4DAF', hero: { c1: '#FFFFFF', c2: '#2A4DAF', c3: '#B8C8F0' }, lock: { c1: '#2A4DAF', c2: '#FFFFFF', c3: '#8BA4E4' }, lockD: { c1: '#5D7FD6', c2: '#161615', c3: '#B8C8F0' },
+    macBg: '#2A4DAF', mac: { c1: '#FFFFFF', c2: '#2A4DAF', c3: '#B8C8F0' }, iosDark: { c1: '#3A60C6', c2: '#1D1C1B', c3: '#8BA4E4' }, andBg: '#2A4DAF', themed: { c1: '#1A3170', c2: '#DCE4F8', c3: '#5D7FD6' },
+    winL: { c1: '#2A4DAF', c2: '#FFFFFF', c3: '#8BA4E4' }, winD: { c1: '#5D7FD6', c2: '#202020', c3: '#B8C8F0' }, favD: { c1: '#5D7FD6', c2: '#2E2D2A', c3: '#B8C8F0' } }
+];
+class Component extends DCLogic {
+  renderVals() {
+    const options = DEF.map((d) => ({
+      id: d.id, name: d.name, tag: d.tag, idea: d.idea, heroBg: d.heroBg, macBg: d.macBg, andBg: d.andBg,
+      hero: mk(d.m, 260, d.hero), lockL: mk(d.m, 64, d.lock), lockD: mk(d.m, 64, d.lockD),
+      mac: mk(d.m, 96, d.mac), ios: mk(d.m, 60, d.mac), iosDark: mk(d.m, 60, d.iosDark),
+      and: mk(d.m, 56, d.mac), themed: mk(d.m, 56, d.themed),
+      winL: mk(d.m, 60, d.winL), winD: mk(d.m, 60, d.winD),
+      fav16: mk(d.s, 16, d.lock), fav16d: mk(d.s, 16, d.favD),
+      sizes: sizes(d.s, d.lock)
+    }));
+    return { options, grid: GRID, showGrid: !!this.props.showGrid, theme: this.props.canvas === 'dark' ? 'dark' : 'light' };
+  }
+}
+</script>
+</body>
+</html>
