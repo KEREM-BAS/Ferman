@@ -14,9 +14,18 @@ publish = false
 [workspace]
 
 [dependencies]
+aes = "0.9"
+harfrust = "=0.14.0"
+lopdf = { version = "=0.45.0", default-features = false }
+md-5 = "0.11"
+rc4 = "0.2.0"
 sha2 = "0.11.1"
+skrifa = "=0.48.0"
+stringprep = "0.1.5"
+subsetter = { version = "=0.2.6", default-features = false }
 
 [dev-dependencies]
+pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
 tempfile = "3.27.0"
 
 # The root workspace's lints (a separate workspace cannot inherit them).
@@ -32,3 +41,8 @@ unimplemented = "deny"
 dbg_macro = "deny"
 print_stdout = "deny"
 print_stderr = "deny"
+
+# The generators shape and compress a few thousand pages; optimised dependencies keep `check`
+# and the tests quick in debug builds. Optimisation does not change their output.
+[profile.dev.package."*"]
+opt-level = 3

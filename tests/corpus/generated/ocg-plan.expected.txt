@@ -1,0 +1,20 @@
+12,00
+10,80
+SALON
+35,1 m²
+YATAK ODASI
+25,9 m²
+MUTFAK
+10,6 m²
+ANTRE
+10,8 m²
+BANYO
+7,4 m²
+ÇALIŞMA
+8,1 m²
+KAT PLANI — DAİRE 5
+Moda Cad. No: 18, Kadıköy, İstanbul
+Ölçek 1:75 · Pafta A-01
+Net alan: 97,9 m²
+Çizen: Yılmaz Mimarlık
+Tarih: 13.10.2026

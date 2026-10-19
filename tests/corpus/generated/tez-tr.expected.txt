@@ -1,0 +1,2035 @@
+T.C.
+İSTANBUL ÖRNEK ÜNİVERSİTESİ
+SOSYAL BİLİMLER ENSTİTÜSÜ
+KENT ÇALIŞMALARI ANABİLİM DALI
+KENTSEL DÖNÜŞÜM SÜRECİNDE KİRACI HAKLARI:
+İSTANBUL ÖRNEĞİ
+Yüksek Lisans Tezi
+Zeynep ARSLAN
+Danışman: Doç. Dr. Mehmet ÖZTÜRK
+İSTANBUL, 2026KABUL VE ONAY
+Zeynep ARSLAN tarafından hazırlanan “Kentsel Dönüşüm Sürecinde Kiracı Hakları:
+İstanbul Örneği” başlıklı bu çalışma, 18.09.2026 tarihinde yapılan savunma sınavı
+sonucunda oy birliği ile başarılı bulunarak jürimiz tarafından Yüksek Lisans Tezi
+olarak kabul edilmiştir.
+Doç. Dr. Mehmet ÖZTÜRK (Danışman) · Prof. Dr. Ayşe GÜLER · Dr. Öğr. Üyesi Can
+ŞENER
+iiÖZET
+Bu tez, İstanbul’un üç ilçesinde yürütülen kentsel dönüşüm projelerinde kiracı
+haklarını incelemektedir. Yarı yapılandırılmış görüşmeler, belge incelemesi ve
+çevrim içi bir anketle toplanan veriler, kiracıların dönüşüm kararlarında nadiren
+temsil edildiğini, proje ilanıyla birlikte kiraların hızla arttığını ve dönüşüm
+sonrasında yapılarına dönebilen kiracıların az olduğunu göstermektedir. Tez, erken
+bildirim, tek muhatap ilkesi ve mahalle içinde geçici barınmanın hem
+uyuşmazlıkları hem de yerinden edilmeyi azalttığını savunmakta; kiracıya bildirim,
+itiraz ve tazminat hakları tanıyan yasal düzenlemeler önermektedir.
+Anahtar sözcükler: kentsel dönüşüm, kiracı hakları, yerinden edilme, İstanbul.
+iiiABSTRACT
+This thesis examines the rights of tenants in urban renewal projects in three districts
+of Istanbul. Drawing on semi-structured interviews, document analysis and an
+online survey, it finds that tenants are rarely represented when renewal decisions
+are made, that rents rise quickly once a project is announced, and that few tenants
+return to their buildings afterwards. It argues that early notice, a single point of
+contact and temporary housing within the neighbourhood reduce both conflict and
+displacement, and it proposes changes to the legal framework that would give
+tenants rights of notice, objection and compensation.
+Keywords: urban renewal, tenant rights, displacement, Istanbul.
+ivTEŞEKKÜR
+Bu çalışmanın her aşamasında desteğini esirgemeyen danışmanım Doç. Dr. Mehmet
+Öztürk’e, görüşmelere katılarak deneyimlerini paylaşan kiracılara ve sabırları için
+aileme teşekkür ederim.
+Zeynep Arslan, İstanbul, Eylül 2026
+vİÇİNDEKİLER
+1. GİRİŞ ··· 1
+1.1. Araştırmanın Amacı ··· 1
+1.2. Araştırmanın Önemi ··· 2
+1.3. Yöntem ve Sınırlılıklar ··· 3
+2. KAVRAMSAL ÇERÇEVE ··· 5
+2.1. Kentsel Dönüşüm Kavramı ··· 5
+2.1.1. Tarihsel Gelişim ··· 5
+2.1.2. Yasal Dayanaklar ··· 6
+2.2. Kiracılık ve Barınma Hakkı ··· 7
+3. YÖNTEM ··· 10
+3.1. Araştırma Deseni ··· 10
+3.2. Veri Toplama ve Çözümleme ··· 11
+3.2.1. Görüşmeler ··· 11
+3.2.2. Anket ··· 12
+4. BULGULAR ··· 14
+4.1. Bildirim ve Bilgilendirme ··· 14
+4.2. Kira Artışları ··· 15
+4.3. Geri Dönüş ve Yerinden Edilme ··· 17
+4.3.1. Kadıköy ··· 17
+4.3.2. Üsküdar ··· 18
+4.3.3. Kâğıthane ··· 19
+5. TARTIŞMA ··· 21
+5.1. Bulguların Değerlendirilmesi ··· 21
+5.2. Politika Önerileri ··· 22
+6. SONUÇ VE ÖNERİLER ··· 24
+6.1. Sonuç ··· 24
+6.2. Öneriler ··· 25
+KAYNAKLAR ··· 27
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+Şekiller ve tablolar listesi için bkz. Ek A.
+viŞekiller ve tablolar listesi için bkz. Ek A.
+viiKISALTMALAR
+AFAD: Afet ve Acil Durum Yönetimi Başkanlığı
+İBB: İstanbul Büyükşehir Belediyesi
+TOKİ: Toplu Konut İdaresi Başkanlığı
+TÜFE: Tüketici Fiyat Endeksi
+TÜİK: Türkiye İstatistik Kurumu
+viii1. GİRİŞ
+1.1. Araştırmanın Amacı
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Kira artışlarının
+dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde
+açıkça görülmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini
+resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Hukuki çerçevenin
+kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde güncellenmesi
+önerilmektedir. Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince
+kiracılar için ara konut üretiminde kullanılabilir.
+Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin uyuşmazlıkları belirgin
+biçimde azalttığını göstermektedir. Hukuki çerçevenin kiracıya bildirim, itiraz ve
+tazminat hakları tanıyacak biçimde güncellenmesi önerilmektedir. Bu çalışmada
+İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış açısından
+incelenmiştir. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini
+resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Uluslararası
+örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden
+edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Kira yardımı uygulaması
+kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını güvence
+altına almamaktadır.
+Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait
+olması sayılabilir. Katılımcıların çoğu, süreç boyunca tek bir muhatapla
+görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Kira yardımı uygulaması
+kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını güvence
+altına almamaktadır. Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge
+incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır. Mahalle ağlarının
+dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle
+Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı,
+incelenen projelerde yüzde on beşin altında kalmıştır. Fiyat artışlarının izlenmesi
+için ilçe düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+1Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Kira artışlarının dönüşüm ilanıyla birlikte
+hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+1.2. Araştırmanın Önemi
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü
+ve verilerin tek bir yıla ait olması sayılabilir. Fiyat artışlarının izlenmesi için ilçe
+düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır. Kiracılar,
+dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri
+kiracıların bakış açısından incelenmiştir. Bu bulgular, kiracıların sürece erken
+aşamada dâhil edilmesinin hem sosyal hem de ekonomik maliyetleri düşürdüğüne
+işaret etmektedir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Belediyelerin
+kurduğu danışma masaları, başvuru yapan kiracıların haklarını öğrenmesinde etkili
+olmuştur. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar
+için erişimi güçleştirmektedir. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı,
+özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Yasal düzenlemeler malikin haklarını ayrıntılı
+biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge
+incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır. Görüşmeye katılanların
+önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından
+öğrendiğini belirtmiştir.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Öte yandan bu masaların çalışma saatleri,
+düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Hukuki çerçevenin
+kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde güncellenmesi
+önerilmektedir. Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali
+değil, kurucu bir bileşeni olarak ele alınmalıdır. Görüşmelerde sıkça dile getirilen bir
+başka sorun, taşınma masraflarının tümüyle kiracıya bırakılmasıdır. Uluslararası
+örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden
+edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Uluslararası örnekler, geçici barınma
+2çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde
+sınırladığını ortaya koymaktadır. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Yasal
+düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının konumunu
+büyük ölçüde sözleşme hükümlerine bırakmaktadır.
+1.3. Yöntem ve Sınırlılıklar
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Katılımcıların çoğu, süreç boyunca tek bir muhatapla
+görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Sözleşme sürelerinin
+belirsizliği, kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini
+korumasını zorlaştırmaktadır. Sonuç olarak kiracı hakları, kentsel dönüşüm
+politikalarının tali değil, kurucu bir bileşeni olarak ele alınmalıdır. Yerel
+yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara konut
+üretiminde kullanılabilir. Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki
+etkilerini daha uzun bir zaman diliminde izlemelidir.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Kira artışlarının dönüşüm ilanıyla birlikte
+hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların haklarını
+öğrenmesinde etkili olmuştur. Görüşmelerde sıkça dile getirilen bir başka sorun,
+taşınma masraflarının tümüyle kiracıya bırakılmasıdır. Çalışmanın sınırlılıkları
+arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır. Fiyat artışlarının
+izlenmesi için ilçe düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Yerel yönetimlerin elindeki kamu arazileri, dönüşüm
+süresince kiracılar için ara konut üretiminde kullanılabilir. Görüşmeye katılanların
+önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından
+öğrendiğini belirtmiştir.
+Kentsel dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların
+gündelik hayatını da yeniden biçimlendiren bir süreçtir. Öte yandan bu masaların
+çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Fiyat
+artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi yayımlanması
+yararlı olacaktır. Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince
+kiracılar için ara konut üretiminde kullanılabilir.
+Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Kentsel dönüşüm, yalnızca yapı stokunun
+3yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden biçimlendiren
+bir süreçtir. Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil,
+kurucu bir bileşeni olarak ele alınmalıdır. Gelecekteki araştırmalar, dönüşümün
+kiracılar üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Mahalle
+ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da
+kiracının aynı mahallede kalmasını güvence altına almamaktadır.
+42. KAVRAMSAL ÇERÇEVE
+2.1. Kentsel Dönüşüm Kavramı
+2.1.1. Tarihsel Gelişim
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Yasal düzenlemeler malikin haklarını ayrıntılı
+biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle
+Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir. Kiracılar, dönüşüm
+kararlarının alındığı müzakere masasında çoğu zaman temsil edilmemektedir.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye
+bildirimini resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Hukuki çerçevenin
+kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde güncellenmesi
+önerilmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî
+bir yazıdan önce komşularından öğrendiğini belirtmiştir.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Belediyelerin kurduğu danışma masaları, başvuru
+yapan kiracıların haklarını öğrenmesinde etkili olmuştur. Kira artışlarının dönüşüm
+ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde açıkça
+görülmektedir. Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince
+kiracılar için ara konut üretiminde kullanılabilir. Sözleşme sürelerinin belirsizliği,
+kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini korumasını
+zorlaştırmaktadır. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî
+bir yazıdan önce komşularından öğrendiğini belirtmiştir.
+Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Çalışmanın sınırlılıkları arasında örneklemin
+büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Görüşmelerde sıkça dile
+getirilen bir başka sorun, taşınma masraflarının tümüyle kiracıya bırakılmasıdır.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir.
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Mahalle ağlarının dağılması, yaşlı kiracılar için konut
+kaybından daha ağır bir kayıp olarak tanımlanmıştır. Sonuç olarak kiracı hakları,
+kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele alınmalıdır.
+5Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Kentsel
+dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların gündelik
+hayatını da yeniden biçimlendiren bir süreçtir.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Dönüşüm
+sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin
+altında kalmıştır. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da
+kiracının aynı mahallede kalmasını güvence altına almamaktadır. Kira artışlarının
+dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde
+açıkça görülmektedir.
+2.1.2. Yasal Dayanaklar
+Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin uyuşmazlıkları belirgin
+biçimde azalttığını göstermektedir. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Mahalle ağlarının
+dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan
+kiracılar için erişimi güçleştirmektedir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Çalışmanın sınırlılıkları arasında örneklemin
+büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Gelecekteki araştırmalar,
+dönüşümün kiracılar üzerindeki etkilerini daha uzun bir zaman diliminde
+izlemelidir. Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri
+kiracıların bakış açısından incelenmiştir. Belediyelerin kurduğu danışma masaları,
+başvuru yapan kiracıların haklarını öğrenmesinde etkili olmuştur.
+Kentsel dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların
+gündelik hayatını da yeniden biçimlendiren bir süreçtir. Yasal düzenlemeler malikin
+haklarını ayrıntılı biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme
+hükümlerine bırakmaktadır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Katılımcıların çoğu,
+süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade
+etmiştir. Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde
+sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Uluslararası örnekler, geçici barınma çözümlerinin
+mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya
+6koymaktadır. Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma
+masraflarının tümüyle kiracıya bırakılmasıdır. Mahalle ağlarının dağılması, yaşlı
+kiracılar için konut kaybından daha ağır bir kayıp olarak tanımlanmıştır.
+Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış
+açısından incelenmiştir. Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı
+yapmasını ve çocuklarının okul düzenini korumasını zorlaştırmaktadır. Yasal
+düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının konumunu
+büyük ölçüde sözleşme hükümlerine bırakmaktadır. Dönüşüm sonrasında aynı
+yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin altında kalmıştır.
+Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp
+olarak tanımlanmıştır.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir
+kira endeksi yayımlanması yararlı olacaktır. Kentsel dönüşüm, yalnızca yapı
+stokunun yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden
+biçimlendiren bir süreçtir. Kiracılar, dönüşüm kararlarının alındığı müzakere
+masasında çoğu zaman temsil edilmemektedir.
+2.2. Kiracılık ve Barınma Hakkı
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Uluslararası örnekler, geçici barınma çözümlerinin
+mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya
+koymaktadır. Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri
+kiracıların bakış açısından incelenmiştir. Katılımcıların çoğu, süreç boyunca tek bir
+muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Kira yardımı
+uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını
+güvence altına almamaktadır.
+Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için
+erişimi güçleştirmektedir. Bu bulgular, kiracıların sürece erken aşamada dâhil
+edilmesinin hem sosyal hem de ekonomik maliyetleri düşürdüğüne işaret
+etmektedir. Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının
+tümüyle kiracıya bırakılmasıdır. Fiyat artışlarının izlenmesi için ilçe düzeyinde
+düzenli bir kira endeksi yayımlanması yararlı olacaktır. Görüşmeye katılanların
+önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından
+öğrendiğini belirtmiştir.
+Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de
+ekonomik maliyetleri düşürdüğüne işaret etmektedir. Yerel yönetimlerin elindeki
+kamu arazileri, dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+7bir anket aracılığıyla toplanmıştır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır.
+Housing is not merely a roof over one’s head; it is the place from which people take
+part in the life of their city. When renewal displaces tenants without a fair process, the
+city loses more than buildings. (Hartley, 2019, p. 42)
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Uluslararası örnekler, geçici barınma çözümlerinin mahalle
+içinde sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya
+koymaktadır. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının
+aynı mahallede kalmasını güvence altına almamaktadır. Elde edilen bulgular, şeffaf
+bir bilgilendirme sürecinin uyuşmazlıkları belirgin biçimde azalttığını
+göstermektedir. Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı
+yapmasını ve çocuklarının okul düzenini korumasını zorlaştırmaktadır.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır. Öte yandan bu masaların
+çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Kira
+artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye
+bildirimini resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Hukuki çerçevenin kiracıya bildirim, itiraz ve
+tazminat hakları tanıyacak biçimde güncellenmesi önerilmektedir.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır. Sonuç olarak kiracı
+hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele
+alınmalıdır. Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem
+sosyal hem de ekonomik maliyetleri düşürdüğüne işaret etmektedir. Dönüşüm
+sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin
+altında kalmıştır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Yerel yönetimlerin elindeki kamu arazileri,
+dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir. Çalışmanın
+sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması
+sayılabilir. Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır
+bir kayıp olarak tanımlanmıştır. Belediyelerin kurduğu danışma masaları, başvuru
+yapan kiracıların haklarını öğrenmesinde etkili olmuştur. Dönüşüm sonrasında aynı
+yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin altında kalmıştır.
+Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp
+8olarak tanımlanmıştır. Belediyelerin kurduğu danışma masaları, başvuru yapan
+kiracıların haklarını öğrenmesinde etkili olmuştur. Hukuki çerçevenin kiracıya
+bildirim, itiraz ve tazminat hakları tanıyacak biçimde güncellenmesi önerilmektedir.
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Sonuç olarak kiracı hakları, kentsel dönüşüm
+politikalarının tali değil, kurucu bir bileşeni olarak ele alınmalıdır.
+93. YÖNTEM
+3.1. Araştırma Deseni
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin
+uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Görüşmelerde sıkça dile
+getirilen bir başka sorun, taşınma masraflarının tümüyle kiracıya bırakılmasıdır.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır.
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Öte yandan bu masaların çalışma saatleri, düzenli bir
+işte çalışan kiracılar için erişimi güçleştirmektedir. Kira yardımı uygulaması kısa
+vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını güvence altına
+almamaktadır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir. Belediyelerin kurduğu danışma masaları, başvuru
+yapan kiracıların haklarını öğrenmesinde etkili olmuştur. Araştırmanın verileri yarı
+yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla
+toplanmıştır.
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin
+uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Öte yandan bu masaların
+çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Bu
+bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de
+ekonomik maliyetleri düşürdüğüne işaret etmektedir. Yasal düzenlemeler malikin
+haklarını ayrıntılı biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme
+hükümlerine bırakmaktadır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı,
+özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Bu çalışmada İstanbul’un üç ilçesinde yürütülen
+dönüşüm projeleri kiracıların bakış açısından incelenmiştir. Gelecekteki
+araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir zaman
+diliminde izlemelidir. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini
+resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Çalışmanın
+sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması
+sayılabilir.
+Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Uluslararası örnekler, geçici barınma
+çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde
+10sınırladığını ortaya koymaktadır. Kentsel dönüşüm, yalnızca yapı stokunun
+yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden biçimlendiren
+bir süreçtir. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının
+aynı mahallede kalmasını güvence altına almamaktadır. Sonuç olarak kiracı hakları,
+kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele alınmalıdır.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Kira artışlarının
+dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde
+açıkça görülmektedir. Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları
+tanıyacak biçimde güncellenmesi önerilmektedir. Bu bulgular, kiracıların sürece
+erken aşamada dâhil edilmesinin hem sosyal hem de ekonomik maliyetleri
+düşürdüğüne işaret etmektedir.
+3.2. Veri Toplama ve Çözümleme
+3.2.1. Görüşmeler
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Görüşmelerde
+sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle kiracıya
+bırakılmasıdır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle
+Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir. Dönüşüm sonrasında aynı
+yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin altında kalmıştır.
+Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir.
+Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı
+mahallede kalmasını güvence altına almamaktadır. Görüşmeye katılanların önemli
+bir kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından öğrendiğini
+belirtmiştir. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan
+kiracılar için erişimi güçleştirmektedir. Bu çalışmada İstanbul’un üç ilçesinde
+yürütülen dönüşüm projeleri kiracıların bakış açısından incelenmiştir.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Bu çalışmada İstanbul’un üç ilçesinde yürütülen
+dönüşüm projeleri kiracıların bakış açısından incelenmiştir. Uluslararası örnekler,
+geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli
+ölçüde sınırladığını ortaya koymaktadır. Yerel yönetimlerin elindeki kamu arazileri,
+dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir. Fiyat
+artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi yayımlanması
+11yararlı olacaktır.
+Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı
+mahallede kalmasını güvence altına almamaktadır. Sözleşme sürelerinin belirsizliği,
+kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini korumasını
+zorlaştırmaktadır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında
+çoğu zaman temsil edilmemektedir. Çalışmanın sınırlılıkları arasında örneklemin
+büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Araştırmanın verileri yarı
+yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla
+toplanmıştır. Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha
+ağır bir kayıp olarak tanımlanmıştır.
+Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de
+ekonomik maliyetleri düşürdüğüne işaret etmektedir. Yerel yönetimlerin elindeki
+kamu arazileri, dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir.
+Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının
+konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır. Kira yardımı
+uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını
+güvence altına almamaktadır.
+3.2.2. Anket
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken
+kiracının konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır.
+Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait
+olması sayılabilir. Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali
+değil, kurucu bir bileşeni olarak ele alınmalıdır. Sözleşme sürelerinin belirsizliği,
+kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini korumasını
+zorlaştırmaktadır. Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma
+masraflarının tümüyle kiracıya bırakılmasıdır.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Sözleşme sürelerinin
+belirsizliği, kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini
+korumasını zorlaştırmaktadır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı,
+özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir. Uluslararası
+örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden
+edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Yasal düzenlemeler malikin
+haklarını ayrıntılı biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme
+hükümlerine bırakmaktadır.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Katılımcıların çoğu, süreç boyunca tek bir
+12muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Kira yardımı
+uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını
+güvence altına almamaktadır. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde
+tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin
+tek bir yıla ait olması sayılabilir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Kira
+artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Yerel yönetimlerin elindeki kamu arazileri,
+dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir. Bu çalışmada
+İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış açısından
+incelenmiştir.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde
+tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir. Görüşmeye katılanların önemli bir kısmı, tahliye
+bildirimini resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Kentsel
+dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların gündelik
+hayatını da yeniden biçimlendiren bir süreçtir. Kira yardımı uygulaması kısa vadeli
+bir rahatlama sağlasa da kiracının aynı mahallede kalmasını güvence altına
+almamaktadır.
+134. BULGULAR
+4.1. Bildirim ve Bilgilendirme
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini
+daha uzun bir zaman diliminde izlemelidir. Görüşmeye katılanların önemli bir
+kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından öğrendiğini
+belirtmiştir. Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem
+sosyal hem de ekonomik maliyetleri düşürdüğüne işaret etmektedir.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Dönüşüm
+sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin
+altında kalmıştır. Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından
+daha ağır bir kayıp olarak tanımlanmıştır. Öte yandan bu masaların çalışma saatleri,
+düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Görüşmeye
+katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Bu
+çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış
+açısından incelenmiştir. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve
+verilerin tek bir yıla ait olması sayılabilir.
+Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların haklarını
+öğrenmesinde etkili olmuştur. Mahalle ağlarının dağılması, yaşlı kiracılar için konut
+kaybından daha ağır bir kayıp olarak tanımlanmıştır. Gelecekteki araştırmalar,
+dönüşümün kiracılar üzerindeki etkilerini daha uzun bir zaman diliminde
+izlemelidir. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Yasal düzenlemeler malikin haklarını ayrıntılı
+biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır. Hukuki
+çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Çalışmanın sınırlılıkları arasında örneklemin
+büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Mahalle ağlarının dağılması,
+yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak tanımlanmıştır.
+14Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Katılımcıların çoğu, süreç boyunca tek bir muhatapla
+görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Belediyelerin kurduğu
+danışma masaları, başvuru yapan kiracıların haklarını öğrenmesinde etkili
+olmuştur. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır.
+Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların haklarını
+öğrenmesinde etkili olmuştur. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Bu bulgular,
+kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de ekonomik
+maliyetleri düşürdüğüne işaret etmektedir. Elde edilen bulgular, şeffaf bir
+bilgilendirme sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir.
+Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı
+mahallede kalmasını güvence altına almamaktadır. Öte yandan bu masaların
+çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Yasal
+düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının konumunu
+büyük ölçüde sözleşme hükümlerine bırakmaktadır. Belediyelerin kurduğu danışma
+masaları, başvuru yapan kiracıların haklarını öğrenmesinde etkili olmuştur. Kira
+artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir.
+4.2. Kira Artışları
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır. Fiyat
+artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi yayımlanması
+yararlı olacaktır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen
+projelerde yüzde on beşin altında kalmıştır. Katılımcıların çoğu, süreç boyunca tek
+bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir.
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da
+kiracının aynı mahallede kalmasını güvence altına almamaktadır. Çalışmanın
+sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması
+sayılabilir. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar
+için erişimi güçleştirmektedir. Mahalle ağlarının dağılması, yaşlı kiracılar için konut
+kaybından daha ağır bir kayıp olarak tanımlanmıştır. Fiyat artışlarının izlenmesi için
+ilçe düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+15Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Görüşmelerde sıkça dile getirilen bir başka sorun,
+taşınma masraflarının tümüyle kiracıya bırakılmasıdır. Fiyat artışlarının izlenmesi
+için ilçe düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Belediyelerin kurduğu danışma masaları,
+başvuru yapan kiracıların haklarını öğrenmesinde etkili olmuştur.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Yasal düzenlemeler malikin haklarını ayrıntılı
+biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan
+kiracılar için erişimi güçleştirmektedir. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır.
+Kentsel dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların
+gündelik hayatını da yeniden biçimlendiren bir süreçtir. Bu çalışmada İstanbul’un üç
+ilçesinde yürütülen dönüşüm projeleri kiracıların bakış açısından incelenmiştir.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır. Mahalle ağlarının dağılması, yaşlı kiracılar için konut
+kaybından daha ağır bir kayıp olarak tanımlanmıştır. Kira artışlarının dönüşüm
+ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde açıkça
+görülmektedir.
+Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Çalışmanın sınırlılıkları arasında
+örneklemin büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Mahalle
+ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Katılımcıların
+çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını
+ifade etmiştir. Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini
+daha uzun bir zaman diliminde izlemelidir. Elde edilen bulgular, şeffaf bir
+bilgilendirme sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Uluslararası örnekler, geçici barınma çözümlerinin
+mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya
+koymaktadır. Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil,
+kurucu bir bileşeni olarak ele alınmalıdır. Sözleşme sürelerinin belirsizliği,
+16kiracıların taşınma planı yapmasını ve çocuklarının okul düzenini korumasını
+zorlaştırmaktadır.
+4.3. Geri Dönüş ve Yerinden Edilme
+4.3.1. Kadıköy
+Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış
+açısından incelenmiştir. Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı
+yapmasını ve çocuklarının okul düzenini korumasını zorlaştırmaktadır. Uluslararası
+örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden
+edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Araştırmanın verileri yarı
+yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla
+toplanmıştır. Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini
+daha uzun bir zaman diliminde izlemelidir. Katılımcıların çoğu, süreç boyunca tek
+bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir.
+Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için
+erişimi güçleştirmektedir. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı,
+özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir. Katılımcıların çoğu,
+süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade
+etmiştir. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken
+kiracının konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır.
+Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için
+erişimi güçleştirmektedir. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir
+kira endeksi yayımlanması yararlı olacaktır. Yasal düzenlemeler malikin haklarını
+ayrıntılı biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme
+hükümlerine bırakmaktadır. Sözleşme sürelerinin belirsizliği, kiracıların taşınma
+planı yapmasını ve çocuklarının okul düzenini korumasını zorlaştırmaktadır.
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve
+verilerin tek bir yıla ait olması sayılabilir. Mahalle ağlarının dağılması, yaşlı kiracılar
+için konut kaybından daha ağır bir kayıp olarak tanımlanmıştır. Belediyelerin
+kurduğu danışma masaları, başvuru yapan kiracıların haklarını öğrenmesinde etkili
+olmuştur. Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin
+güven duygusunu artırdığını ifade etmiştir.
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Kiracılar, dönüşüm kararlarının alındığı müzakere
+masasında çoğu zaman temsil edilmemektedir. Görüşmeye katılanların önemli bir
+kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından öğrendiğini
+belirtmiştir. Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem
+sosyal hem de ekonomik maliyetleri düşürdüğüne işaret etmektedir. Kentsel
+17dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların gündelik
+hayatını da yeniden biçimlendiren bir süreçtir. Gelecekteki araştırmalar, dönüşümün
+kiracılar üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir.
+4.3.2. Üsküdar
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin
+uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Katılımcıların çoğu,
+süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade
+etmiştir. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Kira
+artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Belediyelerin kurduğu danışma masaları,
+başvuru yapan kiracıların haklarını öğrenmesinde etkili olmuştur.
+Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde
+on beşin altında kalmıştır. Öte yandan bu masaların çalışma saatleri, düzenli bir işte
+çalışan kiracılar için erişimi güçleştirmektedir. Uluslararası örnekler, geçici barınma
+çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli ölçüde
+sınırladığını ortaya koymaktadır. Bu bulgular, kiracıların sürece erken aşamada dâhil
+edilmesinin hem sosyal hem de ekonomik maliyetleri düşürdüğüne işaret
+etmektedir.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır. Mahalle ağlarının
+dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların
+haklarını öğrenmesinde etkili olmuştur. Kentsel dönüşüm, yalnızca yapı stokunun
+yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden biçimlendiren
+bir süreçtir.
+Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Katılımcıların çoğu, süreç boyunca tek bir
+muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Araştırmanın
+verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi bir anket
+aracılığıyla toplanmıştır. Kentsel dönüşüm, yalnızca yapı stokunun yenilenmesi
+değil, kentte yaşayanların gündelik hayatını da yeniden biçimlendiren bir süreçtir.
+Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Gelecekteki araştırmalar, dönüşümün kiracılar
+18üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir.
+4.3.3. Kâğıthane
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Dönüşüm sonrasında aynı yapıya dönebilen kiracı
+oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Katılımcıların çoğu,
+süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını ifade
+etmiştir. Kentsel dönüşüm, yalnızca yapı stokunun yenilenmesi değil, kentte
+yaşayanların gündelik hayatını da yeniden biçimlendiren bir süreçtir. Bu çalışmada
+İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış açısından
+incelenmiştir. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin
+tek bir yıla ait olması sayılabilir.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Öte yandan bu
+masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi
+güçleştirmektedir. Dönüşüm sonrasında aynı yapıya dönebilen kiracı oranı,
+incelenen projelerde yüzde on beşin altında kalmıştır. Çalışmanın sınırlılıkları
+arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Yasal düzenlemeler malikin haklarını ayrıntılı
+biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır.
+Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan
+kiracılar için erişimi güçleştirmektedir. Kentsel dönüşüm, yalnızca yapı stokunun
+yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden biçimlendiren
+bir süreçtir. Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin
+güven duygusunu artırdığını ifade etmiştir.
+Bu bulgular, kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de
+ekonomik maliyetleri düşürdüğüne işaret etmektedir. Çalışmanın sınırlılıkları
+arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Öte
+yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi
+güçleştirmektedir. Uluslararası örnekler, geçici barınma çözümlerinin mahalle
+içinde sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya
+koymaktadır.
+Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının
+yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Fiyat artışlarının
+izlenmesi için ilçe düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Hukuki çerçevenin kiracıya bildirim, itiraz ve
+19tazminat hakları tanıyacak biçimde güncellenmesi önerilmektedir.
+205. TARTIŞMA
+5.1. Bulguların Değerlendirilmesi
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Katılımcıların çoğu, süreç boyunca tek bir
+muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Dönüşüm
+sonrasında aynı yapıya dönebilen kiracı oranı, incelenen projelerde yüzde on beşin
+altında kalmıştır. Öte yandan bu masaların çalışma saatleri, düzenli bir işte çalışan
+kiracılar için erişimi güçleştirmektedir.
+Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların haklarını
+öğrenmesinde etkili olmuştur. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Kiracılar, dönüşüm
+kararlarının alındığı müzakere masasında çoğu zaman temsil edilmemektedir.
+Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma masraflarının tümüyle
+kiracıya bırakılmasıdır.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Belediyelerin kurduğu danışma masaları, başvuru
+yapan kiracıların haklarını öğrenmesinde etkili olmuştur. Yerel yönetimlerin
+elindeki kamu arazileri, dönüşüm süresince kiracılar için ara konut üretiminde
+kullanılabilir. Kira yardımı uygulaması kısa vadeli bir rahatlama sağlasa da kiracının
+aynı mahallede kalmasını güvence altına almamaktadır. Uluslararası örnekler, geçici
+barınma çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli
+ölçüde sınırladığını ortaya koymaktadır.
+Bu çalışmada İstanbul’un üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış
+açısından incelenmiştir. Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge
+incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır. Sonuç olarak kiracı
+hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele
+alınmalıdır. Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha
+ağır bir kayıp olarak tanımlanmıştır. Görüşmelerde sıkça dile getirilen bir başka
+sorun, taşınma masraflarının tümüyle kiracıya bırakılmasıdır.
+Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının
+konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır. Sonuç olarak kiracı
+hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele
+alınmalıdır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy
+ve Üsküdar örneklerinde açıkça görülmektedir. Fiyat artışlarının izlenmesi için ilçe
+düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin uyuşmazlıkları belirgin
+biçimde azalttığını göstermektedir. Gelecekteki araştırmalar, dönüşümün kiracılar
+21üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Sonuç olarak kiracı
+hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir bileşeni olarak ele
+alınmalıdır. Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak
+biçimde güncellenmesi önerilmektedir.
+Sonuç olarak kiracı hakları, kentsel dönüşüm politikalarının tali değil, kurucu bir
+bileşeni olarak ele alınmalıdır. Öte yandan bu masaların çalışma saatleri, düzenli bir
+işte çalışan kiracılar için erişimi güçleştirmektedir. Kentsel dönüşüm, yalnızca yapı
+stokunun yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden
+biçimlendiren bir süreçtir. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Öte
+yandan bu masaların çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi
+güçleştirmektedir. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde
+tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır.
+Sözleşme sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve
+çocuklarının okul düzenini korumasını zorlaştırmaktadır. Öte yandan bu masaların
+çalışma saatleri, düzenli bir işte çalışan kiracılar için erişimi güçleştirmektedir. Kira
+artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir.
+5.2. Politika Önerileri
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Kira yardımı uygulaması kısa vadeli bir rahatlama
+sağlasa da kiracının aynı mahallede kalmasını güvence altına almamaktadır. Mahalle
+ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle
+Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir.
+Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının
+konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır. Görüşmelerde sıkça
+dile getirilen bir başka sorun, taşınma masraflarının tümüyle kiracıya
+bırakılmasıdır. Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin
+tek bir yıla ait olması sayılabilir. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir.
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Mahalle ağlarının dağılması, yaşlı kiracılar için konut
+22kaybından daha ağır bir kayıp olarak tanımlanmıştır. Bu bulgular, kiracıların sürece
+erken aşamada dâhil edilmesinin hem sosyal hem de ekonomik maliyetleri
+düşürdüğüne işaret etmektedir. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir.
+Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar
+örneklerinde açıkça görülmektedir. Katılımcıların çoğu, süreç boyunca tek bir
+muhatapla görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Kiracılar,
+dönüşüm kararlarının alındığı müzakere masasında çoğu zaman temsil
+edilmemektedir. Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira
+endeksi yayımlanması yararlı olacaktır. Bu çalışmada İstanbul’un üç ilçesinde
+yürütülen dönüşüm projeleri kiracıların bakış açısından incelenmiştir.
+Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven
+duygusunu artırdığını ifade etmiştir. Yerel yönetimlerin elindeki kamu arazileri,
+dönüşüm süresince kiracılar için ara konut üretiminde kullanılabilir. Kira yardımı
+uygulaması kısa vadeli bir rahatlama sağlasa da kiracının aynı mahallede kalmasını
+güvence altına almamaktadır. Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin
+uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Araştırmanın verileri
+yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla
+toplanmıştır.
+Gelecekteki araştırmalar, dönüşümün kiracılar üzerindeki etkilerini daha uzun bir
+zaman diliminde izlemelidir. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde
+tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir. Öte yandan bu masaların çalışma saatleri, düzenli bir
+işte çalışan kiracılar için erişimi güçleştirmektedir.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Gelecekteki araştırmalar, dönüşümün kiracılar
+üzerindeki etkilerini daha uzun bir zaman diliminde izlemelidir. Görüşmeye
+katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Kiracılar, dönüşüm kararlarının alındığı
+müzakere masasında çoğu zaman temsil edilmemektedir.
+Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Dönüşüm sonrasında aynı yapıya dönebilen
+kiracı oranı, incelenen projelerde yüzde on beşin altında kalmıştır. Belediyelerin
+kurduğu danışma masaları, başvuru yapan kiracıların haklarını öğrenmesinde etkili
+olmuştur. Katılımcıların çoğu, süreç boyunca tek bir muhatapla görüşebilmenin
+güven duygusunu artırdığını ifade etmiştir. Araştırmanın verileri yarı yapılandırılmış
+görüşmeler, belge incelemesi ve çevrim içi bir anket aracılığıyla toplanmıştır.
+236. SONUÇ VE ÖNERİLER
+6.1. Sonuç
+Elde edilen bulgular, şeffaf bir bilgilendirme sürecinin uyuşmazlıkları belirgin
+biçimde azalttığını göstermektedir. Bu çalışmada İstanbul’un üç ilçesinde yürütülen
+dönüşüm projeleri kiracıların bakış açısından incelenmiştir. Hukuki çerçevenin
+kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde güncellenmesi
+önerilmektedir. Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma
+masraflarının tümüyle kiracıya bırakılmasıdır. Yasal düzenlemeler malikin haklarını
+ayrıntılı biçimde tanımlarken kiracının konumunu büyük ölçüde sözleşme
+hükümlerine bırakmaktadır.
+Yerel yönetimlerin elindeki kamu arazileri, dönüşüm süresince kiracılar için ara
+konut üretiminde kullanılabilir. Sonuç olarak kiracı hakları, kentsel dönüşüm
+politikalarının tali değil, kurucu bir bileşeni olarak ele alınmalıdır. Katılımcıların
+çoğu, süreç boyunca tek bir muhatapla görüşebilmenin güven duygusunu artırdığını
+ifade etmiştir. Kiracılar, dönüşüm kararlarının alındığı müzakere masasında çoğu
+zaman temsil edilmemektedir.
+Fiyat artışlarının izlenmesi için ilçe düzeyinde düzenli bir kira endeksi
+yayımlanması yararlı olacaktır. Katılımcıların çoğu, süreç boyunca tek bir muhatapla
+görüşebilmenin güven duygusunu artırdığını ifade etmiştir. Bu bulgular, kiracıların
+sürece erken aşamada dâhil edilmesinin hem sosyal hem de ekonomik maliyetleri
+düşürdüğüne işaret etmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye
+bildirimini resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Mahalle
+ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır.
+Araştırmanın verileri yarı yapılandırılmış görüşmeler, belge incelemesi ve çevrim içi
+bir anket aracılığıyla toplanmıştır. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Uluslararası
+örnekler, geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden
+edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır. Bu çalışmada İstanbul’un
+üç ilçesinde yürütülen dönüşüm projeleri kiracıların bakış açısından incelenmiştir.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Kira artışlarının dönüşüm ilanıyla birlikte hızlandığı,
+özellikle Kadıköy ve Üsküdar örneklerinde açıkça görülmektedir. Bu bulgular,
+kiracıların sürece erken aşamada dâhil edilmesinin hem sosyal hem de ekonomik
+maliyetleri düşürdüğüne işaret etmektedir. Kiracılar, dönüşüm kararlarının alındığı
+müzakere masasında çoğu zaman temsil edilmemektedir. Uluslararası örnekler,
+geçici barınma çözümlerinin mahalle içinde sunulmasının yerinden edilmeyi önemli
+24ölçüde sınırladığını ortaya koymaktadır. Fiyat artışlarının izlenmesi için ilçe
+düzeyinde düzenli bir kira endeksi yayımlanması yararlı olacaktır.
+6.2. Öneriler
+Belediyelerin kurduğu danışma masaları, başvuru yapan kiracıların haklarını
+öğrenmesinde etkili olmuştur. Hukuki çerçevenin kiracıya bildirim, itiraz ve
+tazminat hakları tanıyacak biçimde güncellenmesi önerilmektedir. Kira artışlarının
+dönüşüm ilanıyla birlikte hızlandığı, özellikle Kadıköy ve Üsküdar örneklerinde
+açıkça görülmektedir. Görüşmeye katılanların önemli bir kısmı, tahliye bildirimini
+resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir. Kentsel dönüşüm,
+yalnızca yapı stokunun yenilenmesi değil, kentte yaşayanların gündelik hayatını da
+yeniden biçimlendiren bir süreçtir.
+Yasal düzenlemeler malikin haklarını ayrıntılı biçimde tanımlarken kiracının
+konumunu büyük ölçüde sözleşme hükümlerine bırakmaktadır. Görüşmeye
+katılanların önemli bir kısmı, tahliye bildirimini resmî bir yazıdan önce
+komşularından öğrendiğini belirtmiştir. Çalışmanın sınırlılıkları arasında
+örneklemin büyüklüğü ve verilerin tek bir yıla ait olması sayılabilir. Sözleşme
+sürelerinin belirsizliği, kiracıların taşınma planı yapmasını ve çocuklarının okul
+düzenini korumasını zorlaştırmaktadır. Bu çalışmada İstanbul’un üç ilçesinde
+yürütülen dönüşüm projeleri kiracıların bakış açısından incelenmiştir.
+Çalışmanın sınırlılıkları arasında örneklemin büyüklüğü ve verilerin tek bir yıla ait
+olması sayılabilir. Yasal düzenlemeler malikin haklarını ayrıntılı biçimde
+tanımlarken kiracının konumunu büyük ölçüde sözleşme hükümlerine
+bırakmaktadır. Uluslararası örnekler, geçici barınma çözümlerinin mahalle içinde
+sunulmasının yerinden edilmeyi önemli ölçüde sınırladığını ortaya koymaktadır.
+Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp
+olarak tanımlanmıştır. Belediyelerin kurduğu danışma masaları, başvuru yapan
+kiracıların haklarını öğrenmesinde etkili olmuştur. Görüşmeye katılanların önemli
+bir kısmı, tahliye bildirimini resmî bir yazıdan önce komşularından öğrendiğini
+belirtmiştir.
+Hukuki çerçevenin kiracıya bildirim, itiraz ve tazminat hakları tanıyacak biçimde
+güncellenmesi önerilmektedir. Elde edilen bulgular, şeffaf bir bilgilendirme
+sürecinin uyuşmazlıkları belirgin biçimde azalttığını göstermektedir. Mahalle
+ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp olarak
+tanımlanmıştır. Görüşmelerde sıkça dile getirilen bir başka sorun, taşınma
+masraflarının tümüyle kiracıya bırakılmasıdır. Bu bulgular, kiracıların sürece erken
+aşamada dâhil edilmesinin hem sosyal hem de ekonomik maliyetleri düşürdüğüne
+işaret etmektedir.
+Mahalle ağlarının dağılması, yaşlı kiracılar için konut kaybından daha ağır bir kayıp
+25olarak tanımlanmıştır. Belediyelerin kurduğu danışma masaları, başvuru yapan
+kiracıların haklarını öğrenmesinde etkili olmuştur. Kentsel dönüşüm, yalnızca yapı
+stokunun yenilenmesi değil, kentte yaşayanların gündelik hayatını da yeniden
+biçimlendiren bir süreçtir. Görüşmeye katılanların önemli bir kısmı, tahliye
+bildirimini resmî bir yazıdan önce komşularından öğrendiğini belirtmiştir.
+26KAYNAKLAR
+Akın, A. ve Demirtaş, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 11–31.
+Balcı, A. ve Şahin, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 24–44.
+Çelik, A. ve Güneş, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+37–57.
+Demirtaş, A. ve Akın, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 50–70.
+Erdem, A. ve Işık, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 63–83.
+Güneş, A. ve Çelik, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 76–96.
+Hartley, A. ve Lefebvre, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 89–109.
+Işık, A. ve Erdem, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 102–122.
+Karaca, A. ve Yıldız, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 115–135.
+Lefebvre, A. ve Hartley, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 128–148.
+Şahin, A. ve Balcı, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+141–161.
+Yıldız, A. ve Karaca, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 154–174.
+Akın, A. ve Demirtaş, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 167–187.
+Balcı, A. ve Şahin, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 180–200.
+Çelik, A. ve Güneş, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+193–213.
+Demirtaş, A. ve Akın, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 206–226.
+Erdem, A. ve Işık, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 19–39.
+Güneş, A. ve Çelik, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+2718(2), 32–52.
+Hartley, A. ve Lefebvre, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 45–65.
+Işık, A. ve Erdem, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 58–78.
+Karaca, A. ve Yıldız, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 71–91.
+Lefebvre, A. ve Hartley, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 84–104.
+Şahin, A. ve Balcı, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+97–117.
+Yıldız, A. ve Karaca, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 110–130.
+Akın, A. ve Demirtaş, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 123–143.
+Balcı, A. ve Şahin, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 136–156.
+Çelik, A. ve Güneş, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+149–169.
+Demirtaş, A. ve Akın, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 162–182.
+Erdem, A. ve Işık, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 175–195.
+Güneş, A. ve Çelik, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 188–208.
+Hartley, A. ve Lefebvre, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 201–221.
+Işık, A. ve Erdem, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 14–34.
+Karaca, A. ve Yıldız, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 27–47.
+Lefebvre, A. ve Hartley, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 40–60.
+Şahin, A. ve Balcı, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+53–73.
+Yıldız, A. ve Karaca, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 66–86.
+28Akın, A. ve Demirtaş, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 79–99.
+Balcı, A. ve Şahin, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 92–112.
+Çelik, A. ve Güneş, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+105–125.
+Demirtaş, A. ve Akın, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 118–138.
+Erdem, A. ve Işık, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 131–151.
+Güneş, A. ve Çelik, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 144–164.
+Hartley, A. ve Lefebvre, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 157–177.
+Işık, A. ve Erdem, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 170–190.
+Karaca, A. ve Yıldız, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 183–203.
+Lefebvre, A. ve Hartley, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 196–216.
+Şahin, A. ve Balcı, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+209–229.
+Yıldız, A. ve Karaca, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 22–42.
+Akın, A. ve Demirtaş, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 35–55.
+Balcı, A. ve Şahin, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 48–68.
+Çelik, A. ve Güneş, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+61–81.
+Demirtaş, A. ve Akın, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 74–94.
+Erdem, A. ve Işık, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 87–107.
+Güneş, A. ve Çelik, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 100–120.
+Hartley, A. ve Lefebvre, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+2910(3), 113–133.
+Işık, A. ve Erdem, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 126–146.
+Karaca, A. ve Yıldız, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 139–159.
+Lefebvre, A. ve Hartley, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 152–172.
+Şahin, A. ve Balcı, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+165–185.
+Yıldız, A. ve Karaca, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 178–198.
+Akın, A. ve Demirtaş, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 191–211.
+Balcı, A. ve Şahin, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 204–224.
+Çelik, A. ve Güneş, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+17–37.
+Demirtaş, A. ve Akın, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 30–50.
+Erdem, A. ve Işık, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 43–63.
+Güneş, A. ve Çelik, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 56–76.
+Hartley, A. ve Lefebvre, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 69–89.
+Işık, A. ve Erdem, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 82–102.
+Karaca, A. ve Yıldız, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 95–115.
+Lefebvre, A. ve Hartley, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 108–128.
+Şahin, A. ve Balcı, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+121–141.
+Yıldız, A. ve Karaca, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 134–154.
+Akın, A. ve Demirtaş, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 147–167.
+30Balcı, A. ve Şahin, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 160–180.
+Çelik, A. ve Güneş, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+173–193.
+Demirtaş, A. ve Akın, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 186–206.
+Erdem, A. ve Işık, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 199–219.
+Güneş, A. ve Çelik, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 12–32.
+Hartley, A. ve Lefebvre, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 25–45.
+Işık, A. ve Erdem, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 38–58.
+Karaca, A. ve Yıldız, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 51–71.
+Lefebvre, A. ve Hartley, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 64–84.
+Şahin, A. ve Balcı, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+77–97.
+Yıldız, A. ve Karaca, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 90–110.
+Akın, A. ve Demirtaş, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 103–123.
+Balcı, A. ve Şahin, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 116–136.
+Çelik, A. ve Güneş, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+129–149.
+Demirtaş, A. ve Akın, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 142–162.
+Erdem, A. ve Işık, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 155–175.
+Güneş, A. ve Çelik, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 168–188.
+Hartley, A. ve Lefebvre, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 181–201.
+Işık, A. ve Erdem, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+3111(4), 194–214.
+Karaca, A. ve Yıldız, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 207–227.
+Lefebvre, A. ve Hartley, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 20–40.
+Şahin, A. ve Balcı, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+33–53.
+Yıldız, A. ve Karaca, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 46–66.
+Akın, A. ve Demirtaş, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 59–79.
+Balcı, A. ve Şahin, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 72–92.
+Çelik, A. ve Güneş, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+85–105.
+Demirtaş, A. ve Akın, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 98–118.
+Erdem, A. ve Işık, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 111–131.
+Güneş, A. ve Çelik, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 124–144.
+Hartley, A. ve Lefebvre, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 137–157.
+Işık, A. ve Erdem, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 150–170.
+Karaca, A. ve Yıldız, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 163–183.
+Lefebvre, A. ve Hartley, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 176–196.
+Şahin, A. ve Balcı, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+189–209.
+Yıldız, A. ve Karaca, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 202–222.
+Akın, A. ve Demirtaş, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 15–35.
+Balcı, A. ve Şahin, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 28–48.
+32Çelik, A. ve Güneş, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+41–61.
+Demirtaş, A. ve Akın, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 54–74.
+Erdem, A. ve Işık, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 67–87.
+Güneş, A. ve Çelik, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 80–100.
+Hartley, A. ve Lefebvre, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 93–113.
+Işık, A. ve Erdem, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 106–126.
+Karaca, A. ve Yıldız, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 119–139.
+Lefebvre, A. ve Hartley, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 132–152.
+Şahin, A. ve Balcı, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+145–165.
+Yıldız, A. ve Karaca, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 158–178.
+Akın, A. ve Demirtaş, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 171–191.
+Balcı, A. ve Şahin, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 184–204.
+Çelik, A. ve Güneş, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+197–217.
+Demirtaş, A. ve Akın, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 210–230.
+Erdem, A. ve Işık, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 23–43.
+Güneş, A. ve Çelik, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 36–56.
+Hartley, A. ve Lefebvre, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 49–69.
+Işık, A. ve Erdem, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 62–82.
+Karaca, A. ve Yıldız, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+33Dergisi, 12(1), 75–95.
+Lefebvre, A. ve Hartley, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 88–108.
+Şahin, A. ve Balcı, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+101–121.
+Yıldız, A. ve Karaca, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 114–134.
+Akın, A. ve Demirtaş, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 127–147.
+Balcı, A. ve Şahin, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 140–160.
+Çelik, A. ve Güneş, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+153–173.
+Demirtaş, A. ve Akın, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 166–186.
+Erdem, A. ve Işık, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 179–199.
+Güneş, A. ve Çelik, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 192–212.
+Hartley, A. ve Lefebvre, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 205–225.
+Işık, A. ve Erdem, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 18–38.
+Karaca, A. ve Yıldız, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 31–51.
+Lefebvre, A. ve Hartley, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 44–64.
+Şahin, A. ve Balcı, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+57–77.
+Yıldız, A. ve Karaca, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 70–90.
+Akın, A. ve Demirtaş, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 83–103.
+Balcı, A. ve Şahin, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 96–116.
+Çelik, A. ve Güneş, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+109–129.
+34Demirtaş, A. ve Akın, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 122–142.
+Erdem, A. ve Işık, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 135–155.
+Güneş, A. ve Çelik, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 148–168.
+Hartley, A. ve Lefebvre, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 161–181.
+Işık, A. ve Erdem, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 174–194.
+Karaca, A. ve Yıldız, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 187–207.
+Lefebvre, A. ve Hartley, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 200–220.
+Şahin, A. ve Balcı, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+13–33.
+Yıldız, A. ve Karaca, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 26–46.
+Akın, A. ve Demirtaş, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 39–59.
+Balcı, A. ve Şahin, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 52–72.
+Çelik, A. ve Güneş, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+65–85.
+Demirtaş, A. ve Akın, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 78–98.
+Erdem, A. ve Işık, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 91–111.
+Güneş, A. ve Çelik, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 104–124.
+Hartley, A. ve Lefebvre, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 117–137.
+Işık, A. ve Erdem, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 130–150.
+Karaca, A. ve Yıldız, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 143–163.
+Lefebvre, A. ve Hartley, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent
+35ve Toplum Dergisi, 13(2), 156–176.
+Şahin, A. ve Balcı, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+169–189.
+Yıldız, A. ve Karaca, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 182–202.
+Akın, A. ve Demirtaş, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 195–215.
+Balcı, A. ve Şahin, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 208–228.
+Çelik, A. ve Güneş, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+21–41.
+Demirtaş, A. ve Akın, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 34–54.
+Erdem, A. ve Işık, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 47–67.
+Güneş, A. ve Çelik, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 60–80.
+Hartley, A. ve Lefebvre, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 73–93.
+Işık, A. ve Erdem, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 86–106.
+Karaca, A. ve Yıldız, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 99–119.
+Lefebvre, A. ve Hartley, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 112–132.
+Şahin, A. ve Balcı, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+125–145.
+Yıldız, A. ve Karaca, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 138–158.
+Akın, A. ve Demirtaş, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 151–171.
+Balcı, A. ve Şahin, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 164–184.
+Çelik, A. ve Güneş, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+177–197.
+Demirtaş, A. ve Akın, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 190–210.
+36Erdem, A. ve Işık, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 203–223.
+Güneş, A. ve Çelik, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 16–36.
+Hartley, A. ve Lefebvre, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 29–49.
+Işık, A. ve Erdem, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 42–62.
+Karaca, A. ve Yıldız, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 55–75.
+Lefebvre, A. ve Hartley, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 68–88.
+Şahin, A. ve Balcı, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+81–101.
+Yıldız, A. ve Karaca, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 94–114.
+Akın, A. ve Demirtaş, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 107–127.
+Balcı, A. ve Şahin, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 120–140.
+Çelik, A. ve Güneş, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+133–153.
+Demirtaş, A. ve Akın, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 146–166.
+Erdem, A. ve Işık, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 159–179.
+Güneş, A. ve Çelik, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 172–192.
+Hartley, A. ve Lefebvre, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 185–205.
+Işık, A. ve Erdem, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 198–218.
+Karaca, A. ve Yıldız, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 11–31.
+Lefebvre, A. ve Hartley, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 24–44.
+Şahin, A. ve Balcı, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+3737–57.
+Yıldız, A. ve Karaca, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 50–70.
+Akın, A. ve Demirtaş, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 63–83.
+Balcı, A. ve Şahin, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 76–96.
+Çelik, A. ve Güneş, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+89–109.
+Demirtaş, A. ve Akın, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 102–122.
+Erdem, A. ve Işık, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 115–135.
+Güneş, A. ve Çelik, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 128–148.
+Hartley, A. ve Lefebvre, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 141–161.
+Işık, A. ve Erdem, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 154–174.
+Karaca, A. ve Yıldız, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 167–187.
+Lefebvre, A. ve Hartley, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 180–200.
+Şahin, A. ve Balcı, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+193–213.
+Yıldız, A. ve Karaca, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 206–226.
+Akın, A. ve Demirtaş, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 19–39.
+Balcı, A. ve Şahin, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 32–52.
+Çelik, A. ve Güneş, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+45–65.
+Demirtaş, A. ve Akın, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 58–78.
+Erdem, A. ve Işık, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 71–91.
+38Güneş, A. ve Çelik, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 84–104.
+Hartley, A. ve Lefebvre, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 97–117.
+Işık, A. ve Erdem, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 110–130.
+Karaca, A. ve Yıldız, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 123–143.
+Lefebvre, A. ve Hartley, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 136–156.
+Şahin, A. ve Balcı, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+149–169.
+Yıldız, A. ve Karaca, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 162–182.
+Akın, A. ve Demirtaş, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 175–195.
+Balcı, A. ve Şahin, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 188–208.
+Çelik, A. ve Güneş, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+201–221.
+Demirtaş, A. ve Akın, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 14–34.
+Erdem, A. ve Işık, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 27–47.
+Güneş, A. ve Çelik, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 40–60.
+Hartley, A. ve Lefebvre, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 53–73.
+Işık, A. ve Erdem, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 66–86.
+Karaca, A. ve Yıldız, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 79–99.
+Lefebvre, A. ve Hartley, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 92–112.
+Şahin, A. ve Balcı, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+105–125.
+Yıldız, A. ve Karaca, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+39Dergisi, 15(4), 118–138.
+Akın, A. ve Demirtaş, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 131–151.
+Balcı, A. ve Şahin, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 144–164.
+Çelik, A. ve Güneş, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+157–177.
+Demirtaş, A. ve Akın, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 170–190.
+Erdem, A. ve Işık, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 183–203.
+Güneş, A. ve Çelik, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 196–216.
+Hartley, A. ve Lefebvre, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 209–229.
+Işık, A. ve Erdem, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 22–42.
+Karaca, A. ve Yıldız, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 35–55.
+Lefebvre, A. ve Hartley, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 48–68.
+Şahin, A. ve Balcı, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+61–81.
+Yıldız, A. ve Karaca, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 74–94.
+Akın, A. ve Demirtaş, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 87–107.
+Balcı, A. ve Şahin, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 100–120.
+Çelik, A. ve Güneş, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+113–133.
+Demirtaş, A. ve Akın, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 126–146.
+Erdem, A. ve Işık, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 139–159.
+Güneş, A. ve Çelik, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 152–172.
+40Hartley, A. ve Lefebvre, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 165–185.
+Işık, A. ve Erdem, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 178–198.
+Karaca, A. ve Yıldız, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 191–211.
+Lefebvre, A. ve Hartley, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 204–224.
+Şahin, A. ve Balcı, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+17–37.
+Yıldız, A. ve Karaca, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 30–50.
+Akın, A. ve Demirtaş, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 43–63.
+Balcı, A. ve Şahin, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 56–76.
+Çelik, A. ve Güneş, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+69–89.
+Demirtaş, A. ve Akın, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 82–102.
+Erdem, A. ve Işık, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 95–115.
+Güneş, A. ve Çelik, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 108–128.
+Hartley, A. ve Lefebvre, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 121–141.
+Işık, A. ve Erdem, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 134–154.
+Karaca, A. ve Yıldız, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 147–167.
+Lefebvre, A. ve Hartley, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 160–180.
+Şahin, A. ve Balcı, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+173–193.
+Yıldız, A. ve Karaca, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 186–206.
+Akın, A. ve Demirtaş, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+4116(1), 199–219.
+Balcı, A. ve Şahin, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 12–32.
+Çelik, A. ve Güneş, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+25–45.
+Demirtaş, A. ve Akın, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 38–58.
+Erdem, A. ve Işık, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 51–71.
+Güneş, A. ve Çelik, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 64–84.
+Hartley, A. ve Lefebvre, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 77–97.
+Işık, A. ve Erdem, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 90–110.
+Karaca, A. ve Yıldız, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 103–123.
+Lefebvre, A. ve Hartley, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 116–136.
+Şahin, A. ve Balcı, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+129–149.
+Yıldız, A. ve Karaca, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 142–162.
+Akın, A. ve Demirtaş, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 155–175.
+Balcı, A. ve Şahin, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 168–188.
+Çelik, A. ve Güneş, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+181–201.
+Demirtaş, A. ve Akın, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 194–214.
+Erdem, A. ve Işık, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 207–227.
+Güneş, A. ve Çelik, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 20–40.
+Hartley, A. ve Lefebvre, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 33–53.
+42Işık, A. ve Erdem, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 46–66.
+Karaca, A. ve Yıldız, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 59–79.
+Lefebvre, A. ve Hartley, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 72–92.
+Şahin, A. ve Balcı, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+85–105.
+Yıldız, A. ve Karaca, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 98–118.
+Akın, A. ve Demirtaş, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 111–131.
+Balcı, A. ve Şahin, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 124–144.
+Çelik, A. ve Güneş, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+137–157.
+Demirtaş, A. ve Akın, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 150–170.
+Erdem, A. ve Işık, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 163–183.
+Güneş, A. ve Çelik, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 176–196.
+Hartley, A. ve Lefebvre, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 189–209.
+Işık, A. ve Erdem, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 202–222.
+Karaca, A. ve Yıldız, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 15–35.
+Lefebvre, A. ve Hartley, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 28–48.
+Şahin, A. ve Balcı, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+41–61.
+Yıldız, A. ve Karaca, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 54–74.
+Akın, A. ve Demirtaş, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 67–87.
+Balcı, A. ve Şahin, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+4317(2), 80–100.
+Çelik, A. ve Güneş, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+93–113.
+Demirtaş, A. ve Akın, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 106–126.
+Erdem, A. ve Işık, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 119–139.
+Güneş, A. ve Çelik, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 132–152.
+Hartley, A. ve Lefebvre, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 145–165.
+Işık, A. ve Erdem, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 158–178.
+Karaca, A. ve Yıldız, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 171–191.
+Lefebvre, A. ve Hartley, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 184–204.
+Şahin, A. ve Balcı, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+197–217.
+Yıldız, A. ve Karaca, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 210–230.
+Akın, A. ve Demirtaş, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 23–43.
+Balcı, A. ve Şahin, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 36–56.
+Çelik, A. ve Güneş, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+49–69.
+Demirtaş, A. ve Akın, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 62–82.
+Erdem, A. ve Işık, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 75–95.
+Güneş, A. ve Çelik, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 88–108.
+Hartley, A. ve Lefebvre, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 101–121.
+Işık, A. ve Erdem, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 114–134.
+44Karaca, A. ve Yıldız, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 127–147.
+Lefebvre, A. ve Hartley, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 140–160.
+Şahin, A. ve Balcı, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+153–173.
+Yıldız, A. ve Karaca, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 166–186.
+Akın, A. ve Demirtaş, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 179–199.
+Balcı, A. ve Şahin, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 192–212.
+Çelik, A. ve Güneş, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+205–225.
+Demirtaş, A. ve Akın, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 18–38.
+Erdem, A. ve Işık, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 31–51.
+Güneş, A. ve Çelik, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 44–64.
+Hartley, A. ve Lefebvre, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 57–77.
+Işık, A. ve Erdem, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 70–90.
+Karaca, A. ve Yıldız, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 83–103.
+Lefebvre, A. ve Hartley, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 96–116.
+Şahin, A. ve Balcı, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+109–129.
+Yıldız, A. ve Karaca, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 122–142.
+Akın, A. ve Demirtaş, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 135–155.
+Balcı, A. ve Şahin, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 148–168.
+Çelik, A. ve Güneş, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+45161–181.
+Demirtaş, A. ve Akın, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 174–194.
+Erdem, A. ve Işık, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 187–207.
+Güneş, A. ve Çelik, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 200–220.
+Hartley, A. ve Lefebvre, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 13–33.
+Işık, A. ve Erdem, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 26–46.
+Karaca, A. ve Yıldız, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 39–59.
+Lefebvre, A. ve Hartley, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 52–72.
+Şahin, A. ve Balcı, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+65–85.
+Yıldız, A. ve Karaca, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 78–98.
+Akın, A. ve Demirtaş, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 91–111.
+Balcı, A. ve Şahin, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 104–124.
+Çelik, A. ve Güneş, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+117–137.
+Demirtaş, A. ve Akın, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 130–150.
+Erdem, A. ve Işık, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 143–163.
+Güneş, A. ve Çelik, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 156–176.
+Hartley, A. ve Lefebvre, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 169–189.
+Işık, A. ve Erdem, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 182–202.
+Karaca, A. ve Yıldız, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 195–215.
+46Lefebvre, A. ve Hartley, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 208–228.
+Şahin, A. ve Balcı, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+21–41.
+Yıldız, A. ve Karaca, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 34–54.
+Akın, A. ve Demirtaş, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 47–67.
+Balcı, A. ve Şahin, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 60–80.
+Çelik, A. ve Güneş, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+73–93.
+Demirtaş, A. ve Akın, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 86–106.
+Erdem, A. ve Işık, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 99–119.
+Güneş, A. ve Çelik, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 112–132.
+Hartley, A. ve Lefebvre, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 125–145.
+Işık, A. ve Erdem, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 138–158.
+Karaca, A. ve Yıldız, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 151–171.
+Lefebvre, A. ve Hartley, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 164–184.
+Şahin, A. ve Balcı, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+177–197.
+Yıldız, A. ve Karaca, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 190–210.
+Akın, A. ve Demirtaş, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 203–223.
+Balcı, A. ve Şahin, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 16–36.
+Çelik, A. ve Güneş, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+29–49.
+Demirtaş, A. ve Akın, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+47Dergisi, 10(4), 42–62.
+Erdem, A. ve Işık, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 55–75.
+Güneş, A. ve Çelik, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 68–88.
+Hartley, A. ve Lefebvre, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 81–101.
+Işık, A. ve Erdem, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 94–114.
+Karaca, A. ve Yıldız, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 107–127.
+Lefebvre, A. ve Hartley, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 120–140.
+Şahin, A. ve Balcı, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+133–153.
+Yıldız, A. ve Karaca, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 146–166.
+Akın, A. ve Demirtaş, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 159–179.
+Balcı, A. ve Şahin, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 172–192.
+Çelik, A. ve Güneş, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+185–205.
+Demirtaş, A. ve Akın, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 198–218.
+Erdem, A. ve Işık, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 11–31.
+Güneş, A. ve Çelik, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 24–44.
+Hartley, A. ve Lefebvre, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 37–57.
+Işık, A. ve Erdem, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 50–70.
+Karaca, A. ve Yıldız, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 63–83.
+Lefebvre, A. ve Hartley, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 76–96.
+48Şahin, A. ve Balcı, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+89–109.
+Yıldız, A. ve Karaca, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 102–122.
+Akın, A. ve Demirtaş, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 115–135.
+Balcı, A. ve Şahin, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 128–148.
+Çelik, A. ve Güneş, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+141–161.
+Demirtaş, A. ve Akın, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 154–174.
+Erdem, A. ve Işık, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 167–187.
+Güneş, A. ve Çelik, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 180–200.
+Hartley, A. ve Lefebvre, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 193–213.
+Işık, A. ve Erdem, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 206–226.
+Karaca, A. ve Yıldız, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 19–39.
+Lefebvre, A. ve Hartley, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 32–52.
+Şahin, A. ve Balcı, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+45–65.
+Yıldız, A. ve Karaca, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 58–78.
+Akın, A. ve Demirtaş, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 71–91.
+Balcı, A. ve Şahin, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 84–104.
+Çelik, A. ve Güneş, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+97–117.
+Demirtaş, A. ve Akın, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 110–130.
+Erdem, A. ve Işık, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+49Dergisi, 11(1), 123–143.
+Güneş, A. ve Çelik, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 136–156.
+Hartley, A. ve Lefebvre, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+13(3), 149–169.
+Işık, A. ve Erdem, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 162–182.
+Karaca, A. ve Yıldız, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 175–195.
+Lefebvre, A. ve Hartley, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 188–208.
+Şahin, A. ve Balcı, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+201–221.
+Yıldız, A. ve Karaca, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 14–34.
+Akın, A. ve Demirtaş, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 27–47.
+Balcı, A. ve Şahin, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 40–60.
+Çelik, A. ve Güneş, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+53–73.
+Demirtaş, A. ve Akın, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 66–86.
+Erdem, A. ve Işık, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 79–99.
+Güneş, A. ve Çelik, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 92–112.
+Hartley, A. ve Lefebvre, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 105–125.
+Işık, A. ve Erdem, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 118–138.
+Karaca, A. ve Yıldız, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 131–151.
+Lefebvre, A. ve Hartley, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 144–164.
+Şahin, A. ve Balcı, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+157–177.
+50Yıldız, A. ve Karaca, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 170–190.
+Akın, A. ve Demirtaş, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 183–203.
+Balcı, A. ve Şahin, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 196–216.
+Çelik, A. ve Güneş, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+209–229.
+Demirtaş, A. ve Akın, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 22–42.
+Erdem, A. ve Işık, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 35–55.
+Güneş, A. ve Çelik, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 48–68.
+Hartley, A. ve Lefebvre, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 61–81.
+Işık, A. ve Erdem, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 74–94.
+Karaca, A. ve Yıldız, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 87–107.
+Lefebvre, A. ve Hartley, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 100–120.
+Şahin, A. ve Balcı, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+113–133.
+Yıldız, A. ve Karaca, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 126–146.
+Akın, A. ve Demirtaş, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 139–159.
+Balcı, A. ve Şahin, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 152–172.
+Çelik, A. ve Güneş, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+165–185.
+Demirtaş, A. ve Akın, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 178–198.
+Erdem, A. ve Işık, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 191–211.
+Güneş, A. ve Çelik, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+51Toplum Dergisi, 12(2), 204–224.
+Hartley, A. ve Lefebvre, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 17–37.
+Işık, A. ve Erdem, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 14(4), 30–50.
+Karaca, A. ve Yıldız, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 43–63.
+Lefebvre, A. ve Hartley, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 56–76.
+Şahin, A. ve Balcı, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+69–89.
+Yıldız, A. ve Karaca, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 82–102.
+Akın, A. ve Demirtaş, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 95–115.
+Balcı, A. ve Şahin, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 108–128.
+Çelik, A. ve Güneş, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+121–141.
+Demirtaş, A. ve Akın, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 134–154.
+Erdem, A. ve Işık, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 147–167.
+Güneş, A. ve Çelik, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 160–180.
+Hartley, A. ve Lefebvre, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 173–193.
+Işık, A. ve Erdem, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 186–206.
+Karaca, A. ve Yıldız, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 199–219.
+Lefebvre, A. ve Hartley, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 12–32.
+Şahin, A. ve Balcı, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+25–45.
+Yıldız, A. ve Karaca, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 38–58.
+52Akın, A. ve Demirtaş, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 51–71.
+Balcı, A. ve Şahin, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+14(2), 64–84.
+Çelik, A. ve Güneş, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 15(3),
+77–97.
+Demirtaş, A. ve Akın, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 16(4), 90–110.
+Erdem, A. ve Işık, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+17(1), 103–123.
+Güneş, A. ve Çelik, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 18(2), 116–136.
+Hartley, A. ve Lefebvre, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+10(3), 129–149.
+Işık, A. ve Erdem, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 11(4), 142–162.
+Karaca, A. ve Yıldız, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 12(1), 155–175.
+Lefebvre, A. ve Hartley, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 13(2), 168–188.
+Şahin, A. ve Balcı, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 14(3),
+181–201.
+Yıldız, A. ve Karaca, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+15(4), 194–214.
+Akın, A. ve Demirtaş, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+16(1), 207–227.
+Balcı, A. ve Şahin, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 17(2), 20–40.
+Çelik, A. ve Güneş, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 18(3),
+33–53.
+Demirtaş, A. ve Akın, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 10(4), 46–66.
+Erdem, A. ve Işık, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 11(1), 59–79.
+Güneş, A. ve Çelik, B. (2005). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+12(2), 72–92.
+Hartley, A. ve Lefebvre, B. (2008). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+5313(3), 85–105.
+Işık, A. ve Erdem, B. (2011). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+14(4), 98–118.
+Karaca, A. ve Yıldız, B. (2014). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+15(1), 111–131.
+Lefebvre, A. ve Hartley, B. (2017). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 16(2), 124–144.
+Şahin, A. ve Balcı, B. (2020). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 17(3),
+137–157.
+Yıldız, A. ve Karaca, B. (2023). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 18(4), 150–170.
+Akın, A. ve Demirtaş, B. (2005). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 10(1), 163–183.
+Balcı, A. ve Şahin, B. (2008). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+11(2), 176–196.
+Çelik, A. ve Güneş, B. (2011). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 12(3),
+189–209.
+Demirtaş, A. ve Akın, B. (2014). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 13(4), 202–222.
+Erdem, A. ve Işık, B. (2017). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+14(1), 15–35.
+Güneş, A. ve Çelik, B. (2020). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 15(2), 28–48.
+Hartley, A. ve Lefebvre, B. (2023). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+16(3), 41–61.
+Işık, A. ve Erdem, B. (2005). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 17(4), 54–74.
+Karaca, A. ve Yıldız, B. (2008). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 18(1), 67–87.
+Lefebvre, A. ve Hartley, B. (2011). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 10(2), 80–100.
+Şahin, A. ve Balcı, B. (2014). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 11(3),
+93–113.
+Yıldız, A. ve Karaca, B. (2017). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+12(4), 106–126.
+Akın, A. ve Demirtaş, B. (2020). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+13(1), 119–139.
+54Balcı, A. ve Şahin, B. (2023). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 14(2), 132–152.
+Çelik, A. ve Güneş, B. (2005). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 15(3),
+145–165.
+Demirtaş, A. ve Akın, B. (2008). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 16(4), 158–178.
+Erdem, A. ve Işık, B. (2011). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 17(1), 171–191.
+Güneş, A. ve Çelik, B. (2014). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+18(2), 184–204.
+Hartley, A. ve Lefebvre, B. (2017). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+10(3), 197–217.
+Işık, A. ve Erdem, B. (2020). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+11(4), 210–230.
+Karaca, A. ve Yıldız, B. (2023). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+12(1), 23–43.
+Lefebvre, A. ve Hartley, B. (2005). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 13(2), 36–56.
+Şahin, A. ve Balcı, B. (2008). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 14(3),
+49–69.
+Yıldız, A. ve Karaca, B. (2011). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 15(4), 62–82.
+Akın, A. ve Demirtaş, B. (2014). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 16(1), 75–95.
+Balcı, A. ve Şahin, B. (2017). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+17(2), 88–108.
+Çelik, A. ve Güneş, B. (2020). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 18(3),
+101–121.
+Demirtaş, A. ve Akın, B. (2023). Kentsel dönüşüm ve kiracılık. Kent ve Toplum
+Dergisi, 10(4), 114–134.
+Erdem, A. ve Işık, B. (2005). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+11(1), 127–147.
+Güneş, A. ve Çelik, B. (2008). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 12(2), 140–160.
+Hartley, A. ve Lefebvre, B. (2011). Kent hakkı tartışmaları. Kent ve Toplum Dergisi,
+13(3), 153–173.
+Işık, A. ve Erdem, B. (2014). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+55Dergisi, 14(4), 166–186.
+Karaca, A. ve Yıldız, B. (2017). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 15(1), 179–199.
+Lefebvre, A. ve Hartley, B. (2020). Dönüşüm projelerinde katılım. Kent ve Toplum
+Dergisi, 16(2), 192–212.
+Şahin, A. ve Balcı, B. (2023). İstanbul’da kira artışları. Kent ve Toplum Dergisi, 17(3),
+205–225.
+Yıldız, A. ve Karaca, B. (2005). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+18(4), 18–38.
+Akın, A. ve Demirtaş, B. (2008). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+10(1), 31–51.
+Balcı, A. ve Şahin, B. (2011). Konut politikaları üzerine bir değerlendirme. Kent ve
+Toplum Dergisi, 11(2), 44–64.
+Çelik, A. ve Güneş, B. (2014). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 12(3),
+57–77.
+Demirtaş, A. ve Akın, B. (2017). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 13(4), 70–90.
+Erdem, A. ve Işık, B. (2020). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 14(1), 83–103.
+Güneş, A. ve Çelik, B. (2023). Dönüşüm projelerinde katılım. Kent ve Toplum Dergisi,
+15(2), 96–116.
+Hartley, A. ve Lefebvre, B. (2005). İstanbul’da kira artışları. Kent ve Toplum Dergisi,
+16(3), 109–129.
+Işık, A. ve Erdem, B. (2008). Kentsel dönüşüm ve kiracılık. Kent ve Toplum Dergisi,
+17(4), 122–142.
+Karaca, A. ve Yıldız, B. (2011). Geçici konut uygulamaları. Kent ve Toplum Dergisi,
+18(1), 135–155.
+Lefebvre, A. ve Hartley, B. (2014). Konut politikaları üzerine bir değerlendirme. Kent
+ve Toplum Dergisi, 10(2), 148–168.
+Şahin, A. ve Balcı, B. (2017). Kent hakkı tartışmaları. Kent ve Toplum Dergisi, 11(3),
+161–181.
+Yıldız, A. ve Karaca, B. (2020). Barınma hakkı ve yerel yönetimler. Kent ve Toplum
+Dergisi, 12(4), 174–194.
+Akın, A. ve Demirtaş, B. (2023). Mahalle ağları ve yerinden edilme. Kent ve Toplum
+Dergisi, 13(1), 187–207.
+56

@@ -2,15 +2,24 @@
 //! ([ADR 0020](../../../docs/adr/0020-test-corpus.md)).
 //!
 //! Each generator makes `tests/corpus/generated/<name>.pdf` and `<name>.expected.txt` (the expected
-//! text, one page per form feed), byte for byte the same on every run. Files up to
-//! [`COMMIT_LIMIT`] are committed; larger ones are regenerated and checked against the SHA-256 of
-//! their README row. [`check`] proves both, and that every file in `tests/corpus/` has its row.
+//! text, one page per form feed), byte for byte the same on every run. A generator whose PDF
+//! is up to [`COMMIT_LIMIT`] has both files committed; a larger one has neither, and its PDF is
+//! checked against the SHA-256 of its README row. [`check`] proves both, and that every file in
+//! `tests/corpus/` has its row.
 #![forbid(unsafe_code)]
 
+pub mod crypt;
+pub mod docs;
+pub mod font;
+pub mod pdf;
 pub mod readme;
+pub mod sfnt;
+pub mod sources;
+pub mod text;
 
 use readme::Row;
 use sha2::{Digest, Sha256};
+use sources::Sources;
 use std::collections::{BTreeMap, BTreeSet};
 use std::fs;
 use std::path::Path;
@@ -27,6 +36,9 @@ pub const EXPECTED_SUFFIX: &str = ".expected.txt";
 /// Files up to this many bytes are committed (ADR 0020: up to 1 MB).
 pub const COMMIT_LIMIT: usize = 1_000_000;
 
+/// The list of generated files too large to commit, relative to [`CORPUS_DIR`].
+pub const IGNORE_FILE: &str = "generated/.gitignore";
+
 /// What a generator makes.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct Generated {
@@ -36,13 +48,29 @@ pub struct Generated {
     pub expected_text: String,
 }
 
+/// What a reader should do with a generated file. The PDFium oracle test
+/// (`tests/oracle.rs`) holds every generator to it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Expect {
+    /// It opens, with `password` when it has one, with one page per page of the expected text
+    /// and that text, compared without whitespace.
+    Opens {
+        /// The password to open it with.
+        password: Option<&'static str>,
+    },
+    /// It cannot be opened.
+    Fails,
+}
+
 /// A corpus generator.
 #[derive(Debug, Clone, Copy)]
 pub struct Generator {
     /// The file name without extension, such as `kira-tr`.
     pub name: &'static str,
-    /// Makes the files. The same bytes on every call.
-    pub build: fn() -> Result<Generated, String>,
+    /// Makes the files from the repository's fonts. The same bytes on every call.
+    pub build: fn(&Sources) -> Result<Generated, String>,
+    /// What a reader should do with the PDF.
+    pub expect: Expect,
 }
 
 impl Generator {
@@ -59,8 +87,12 @@ impl Generator {
     }
 
     /// The generator's files as (path relative to [`CORPUS_DIR`], bytes).
-    fn outputs(&self) -> Result<[(String, Vec<u8>); 2], String> {
-        let generated = (self.build)().map_err(|err| format!("{}: {err}", self.name))?;
+    ///
+    /// # Errors
+    ///
+    /// The generator's message, prefixed with its name.
+    pub fn outputs(&self, sources: &Sources) -> Result<[(String, Vec<u8>); 2], String> {
+        let generated = (self.build)(sources).map_err(|err| format!("{}: {err}", self.name))?;
         Ok([
             (self.pdf_path(), generated.pdf),
             (self.text_path(), generated.expected_text.into_bytes()),
@@ -68,8 +100,8 @@ impl Generator {
     }
 }
 
-/// Every generator, in the order of the README's rows. The first wave arrives in M2 step 1.
-pub const GENERATORS: &[Generator] = &[];
+/// Every generator, in the order of the README's rows.
+pub const GENERATORS: &[Generator] = docs::GENERATORS;
 
 /// The lowercase hex SHA-256 of `bytes`.
 #[must_use]
@@ -80,17 +112,18 @@ pub fn sha256_hex(bytes: &[u8]) -> String {
         .collect()
 }
 
-/// Writes the files of `generators` under `root`'s corpus that are missing or differ, and
-/// returns their paths relative to [`CORPUS_DIR`].
+/// Writes the files of `generators` under `root`'s corpus that are missing or differ, those too
+/// large to commit included, and returns their paths relative to [`CORPUS_DIR`].
 ///
 /// # Errors
 ///
 /// A message when a generator fails or a file cannot be written.
 pub fn generate(root: &Path, generators: &[Generator]) -> Result<Vec<String>, String> {
     let corpus = root.join(CORPUS_DIR);
+    let sources = Sources::new(root);
     let mut written = Vec::new();
     for generator in generators {
-        for (path, bytes) in generator.outputs()? {
+        for (path, bytes) in generator.outputs(&sources)? {
             let target = corpus.join(&path);
             if fs::read(&target).is_ok_and(|current| current == bytes) {
                 continue;
@@ -110,8 +143,9 @@ pub fn generate(root: &Path, generators: &[Generator]) -> Result<Vec<String>, St
 /// - Every file in `tests/corpus/` but the README has a row, except a generated PDF's expected
 ///   text, which shares the PDF's row; the row's hash is the file's.
 /// - Every row names a file that exists, or one a generator makes above [`COMMIT_LIMIT`].
-/// - Every generator gives the same bytes twice, its PDF has a row, its files up to the limit are
-///   committed as it makes them, and a larger PDF has the hash of its row.
+/// - Every generator gives the same bytes twice and its PDF has a row. When the PDF is up to the
+///   limit, both files are committed as it makes them; when it is larger, the PDF has the hash of
+///   its row and both files are listed in [`IGNORE_FILE`].
 /// - Nothing in `generated/` is a file no generator makes.
 ///
 /// # Errors
@@ -161,14 +195,22 @@ pub fn check(root: &Path, generators: &[Generator]) -> Result<Vec<String>, Strin
         }
     }
 
+    let ignored: BTreeSet<String> = fs::read_to_string(corpus.join(IGNORE_FILE))
+        .unwrap_or_default()
+        .lines()
+        .map(str::trim)
+        .filter(|line| !line.is_empty() && !line.starts_with('#'))
+        .map(|line| format!("{GENERATED_DIR}/{line}"))
+        .collect();
+    let sources = Sources::new(root);
     let mut made = BTreeSet::new();
     for generator in generators {
-        let outputs = generator.outputs()?;
-        if generator.outputs()? != outputs {
+        let outputs = generator.outputs(&sources)?;
+        if generator.outputs(&sources)? != outputs {
             problems.push(format!("{}: two runs made different bytes", generator.name));
         }
-        for (path, bytes) in outputs {
-            check_output(&path, &bytes, &files, &by_file, &mut problems);
+        check_outputs(&outputs, &files, &by_file, &ignored, &mut problems);
+        for (path, _) in outputs {
             made.insert(path);
         }
     }
@@ -190,43 +232,57 @@ pub fn check(root: &Path, generators: &[Generator]) -> Result<Vec<String>, Strin
     Ok(problems)
 }
 
-/// Checks one generated file against the tree and the README.
-fn check_output(
-    path: &str,
-    bytes: &[u8],
+/// Checks a generator's PDF and expected text against the tree, the README and the ignore file.
+fn check_outputs(
+    outputs: &[(String, Vec<u8>); 2],
     files: &BTreeMap<String, Vec<u8>>,
     by_file: &BTreeMap<&str, &Row>,
+    ignored: &BTreeSet<String>,
     problems: &mut Vec<String>,
 ) {
-    let is_text = path.ends_with(EXPECTED_SUFFIX);
-    if !is_text && !by_file.contains_key(path) {
+    let [(pdf_path, pdf), _] = outputs;
+    let row = by_file.get(pdf_path.as_str());
+    if row.is_none() {
         problems.push(format!(
-            "{path}: the generator's PDF has no row in README.md"
+            "{pdf_path}: the generator's PDF has no row in README.md"
         ));
     }
-    if bytes.len() <= COMMIT_LIMIT {
+    if pdf.len() > COMMIT_LIMIT {
+        if let Some(row) = row
+            && row.sha256 != sha256_hex(pdf)
+        {
+            problems.push(format!(
+                "{pdf_path}: the generator makes SHA-256 {}, not README.md line {}",
+                sha256_hex(pdf),
+                row.line
+            ));
+        }
+        for (path, _) in outputs {
+            if !ignored.contains(path) {
+                problems.push(format!(
+                    "{path}: its PDF is over 1 MB, so it belongs in {IGNORE_FILE}"
+                ));
+            }
+        }
+        return;
+    }
+    for (path, bytes) in outputs {
+        if bytes.len() > COMMIT_LIMIT {
+            problems.push(format!(
+                "{path}: {} bytes, too large to commit",
+                bytes.len()
+            ));
+            continue;
+        }
         match files.get(path) {
             None => problems.push(format!(
                 "{path}: not generated; run `cargo run --manifest-path tools/corpus/Cargo.toml -- generate`"
             )),
-            Some(committed) if committed.as_slice() != bytes => problems.push(format!(
+            Some(committed) if committed != bytes => problems.push(format!(
                 "{path}: stale; the generator makes other bytes"
             )),
             Some(_) => {}
         }
-    } else if is_text {
-        problems.push(format!(
-            "{path}: {} bytes, too large to commit",
-            bytes.len()
-        ));
-    } else if let Some(row) = by_file.get(path)
-        && row.sha256 != sha256_hex(bytes)
-    {
-        problems.push(format!(
-            "{path}: the generator makes SHA-256 {}, not README.md line {}",
-            sha256_hex(bytes),
-            row.line
-        ));
     }
 }
 
@@ -273,21 +329,21 @@ mod tests {
 
     const README: &str = "# Test corpus\n\n## Files\n\n| File | Source | Licence | SHA-256 | Covers | Added |\n|---|---|---|---|---|---|\n";
 
-    fn small() -> Result<Generated, String> {
+    fn small(_: &Sources) -> Result<Generated, String> {
         Ok(Generated {
             pdf: b"%PDF-1.7 small".to_vec(),
             expected_text: "Page one\u{c}Page two".to_owned(),
         })
     }
 
-    fn large() -> Result<Generated, String> {
+    fn large(_: &Sources) -> Result<Generated, String> {
         Ok(Generated {
             pdf: vec![b'x'; COMMIT_LIMIT + 1],
             expected_text: "Large".to_owned(),
         })
     }
 
-    fn changing() -> Result<Generated, String> {
+    fn changing(_: &Sources) -> Result<Generated, String> {
         static RUNS: AtomicU8 = AtomicU8::new(0);
         Ok(Generated {
             pdf: vec![RUNS.fetch_add(1, Ordering::Relaxed)],
@@ -298,10 +354,12 @@ mod tests {
     const SMALL: Generator = Generator {
         name: "small",
         build: small,
+        expect: Expect::Opens { password: None },
     };
     const LARGE: Generator = Generator {
         name: "large",
         build: large,
+        expect: Expect::Opens { password: None },
     };
 
     fn row(file: &str, sha256: &str) -> String {
@@ -405,9 +463,14 @@ mod tests {
         assert_eq!(
             problems,
             [
-                "generated/large.expected.txt: not generated; run `cargo run --manifest-path tools/corpus/Cargo.toml -- generate`"
+                "generated/large.pdf: its PDF is over 1 MB, so it belongs in generated/.gitignore",
+                "generated/large.expected.txt: its PDF is over 1 MB, so it belongs in generated/.gitignore",
             ]
         );
+        let ignore = good.path().join(CORPUS_DIR).join(IGNORE_FILE);
+        fs::create_dir_all(ignore.parent().unwrap()).unwrap();
+        fs::write(&ignore, "# too large\nlarge.pdf\nlarge.expected.txt\n").unwrap();
+        assert_eq!(check(good.path(), &[LARGE]).unwrap(), Vec::<String>::new());
         let bad = root(&[row("generated/large.pdf", &"0".repeat(64))]);
         let problems = check(bad.path(), &[LARGE]).unwrap();
         assert!(
@@ -424,6 +487,7 @@ mod tests {
         let changing = Generator {
             name: "changing",
             build: changing,
+            expect: Expect::Fails,
         };
         let problems = check(root.path(), &[changing]).unwrap();
         assert!(problems.contains(&"changing: two runs made different bytes".to_owned()));

@@ -1,0 +1,6 @@
+# Generated files over 1 MB are not committed (ADR 0020): `tools/corpus generate` remakes them and
+# `tools/corpus check` holds the PDF to the SHA-256 of its README row and requires it here.
+long-500.pdf
+long-500.expected.txt
+imar-2400.pdf
+imar-2400.expected.txt

@@ -149,6 +149,8 @@ jobs:
           root="$PWD"
           if [ "$RUNNER_OS" = "Windows" ]; then root="$(cygpath -m "$PWD")"; fi
           export FERMAN_PDFIUM_PATH="$root/build/pdfium/$id/$lib"
+          # The corpus oracle below uses the same library.
+          echo "FERMAN_PDFIUM_PATH=$FERMAN_PDFIUM_PATH" >> "$GITHUB_ENV"
           cargo test --workspace --locked -- --ignored
           cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
           grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
@@ -158,13 +160,23 @@ jobs:
           out="$(cargo run -q --locked -p ferman-cli -- --version)"
           echo "$out"
           [[ "$out" =~ ^ferman\ [0-9]+\.[0-9]+\.[0-9]+\ \(api\ [0-9]+\.[0-9]+\)$ ]]
-      - name: Corpus tool and the corpus check (ADR 0020)
+      - name: Cache the corpus fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/corpus-fonts
+          key: corpus-fonts-${{ hashFiles('tools/corpus/fonts.lock') }}
+      - name: Corpus tool, the corpus check and the PDFium oracle (ADR 0020)
         shell: bash
         run: |
+          set -euo pipefail
+          # The fonts the generators embed that Ferman does not bundle, checked by SHA-256.
+          bash tools/corpus/fetch-fonts.sh
           # A workspace of its own: every corpus file has its README row, generated files are current.
           cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets --locked -- -D warnings
           cargo test --manifest-path tools/corpus/Cargo.toml --locked
           cargo run -q --manifest-path tools/corpus/Cargo.toml --locked -- check
+          # PDFium, a reader independent of lopdf, opens every generated file as its generator says.
+          cargo test --manifest-path tools/corpus/Cargo.toml --locked --test oracle -- --ignored
 
   deny:
     name: cargo-deny

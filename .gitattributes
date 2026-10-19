@@ -28,3 +28,7 @@ app/assets/fonts/**/LICENSE.txt -text
 app/assets/licenses/** -text
 app/assets/icons/LICENSE-*.txt -text
 tools/*/*.lock text eol=lf
+
+# Generated corpus files are compared byte for byte by tools/corpus check, the
+# expected texts too: never normalised (ADR 0020).
+tests/corpus/generated/** -text

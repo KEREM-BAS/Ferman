@@ -1,0 +1,11 @@
+Annual Members’ Meeting 2026
+Registration notice
+The Annual Members’ Meeting of the Harbour Housing Cooperative takes place on Friday,
+20 November 2026, at 18:30 in the community hall, 3 Quay Street.
+Members who wish to attend are asked to register by 13 November 2026. Each member
+may bring one guest. Please tell us in advance if you need step-free access or a sign
+language interpreter.
+The agenda covers the annual report, the accounts for 2025, the election of two board
+members and the proposal to renovate the shared laundry.
+This document contains scripts that check the registration details when it is opened in a
+viewer that runs them.

@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-112 entries: 90 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, and G112 came with the logo export of 2026-10-19.
+113 entries: 91 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, and G113 with the test corpus.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -184,6 +184,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
 | [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
 | [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
+| [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
 
 ## Entries
 
@@ -1677,3 +1678,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
   - **Not drawn yet:** the dark and tinted macOS icons need an Icon Composer `.icon` ([B108](BACKLOG.md#open), M5), and the iOS and Android icons wait for those projects ([B107](BACKLOG.md#open), P5).
 - **Status:** Decided.
 - **Evidence:** `design/Ferman Logo.dc.html`, the `DEF` entry `1a` (tile colours per platform) and `sizes()` (the small mark from 32 px down); the seven files of `design/assets/logo/`; `tools/app-icons/README.md`.
+
+<a id="g113"></a>
+
+### G113 · Madde 6: a font without "ğ" whose text has a "ğ"
+
+- **Type:** conflict
+- **Milestone:** M2 (the corpus file); M3 uses it
+- **Area:** Test corpus / missing glyph
+- **Artboards:** `DocKira` (Madde 6), `a3-3a`, `a3-3b`, `a3-17`
+- **Gap or conflict:** The design sets Madde 6 in a font that lacks "ğ" and "Ğ": a3-3b flags the current font "No ‘ğ’ ‘Ğ’", and in a3-3a typing the "ğ" of "değiştirilemez" is the missing-glyph case. Yet Madde 6's own text, "… Olağan bakım ve küçük onarımlar kiracıya aittir.", already has a "ğ" in that font. A subset made from that text would contain the glyph.
+- **Decision:** `kira-tr` keeps the design's text and sets Madde 6 in EB Garamond, a font Ferman does not bundle. The "ğ" of "Olağan" comes from IBM Plex Serif, the document's body font, the way a producer substitutes a glyph its font lacks. EB Garamond's subsets therefore have no "ğ" or "Ğ", and the missing-glyph path of ROADMAP E02 and E03 is exercised as drawn. The extracted text reads "Olağan" as usual.
+- **Status:** Decided.
+- **Evidence:** `design/DocKira.dc.html` line 35 (Madde 6 in `'EB Garamond'`, and the `glyph` state that adds "değiştirilemez"); `tools/corpus/src/docs/kira.rs` (`borrowed` in the Madde 6 style); `tests/corpus/README.md` (the kira-tr row).

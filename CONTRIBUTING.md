@@ -212,8 +212,10 @@ cargo test --workspace
 cargo deny check
 cargo run -p ferman-cli -- --version                # ferman 0.1.0 (api 0.1); also: info --json
 # The corpus tool and the fuzz targets are workspaces of their own (tools/corpus/README.md, fuzz/README.md)
+bash tools/corpus/fetch-fonts.sh                                      # the fonts the generators need that Ferman does not bundle
 cargo test --manifest-path tools/corpus/Cargo.toml
 cargo run --manifest-path tools/corpus/Cargo.toml --locked -- check   # every corpus file has its README row
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo test --manifest-path tools/corpus/Cargo.toml --test oracle -- --ignored   # PDFium reads every generated file
 cargo clippy --manifest-path fuzz/Cargo.toml --all-targets -- -D warnings
 (cd fuzz && cargo fuzz run <target> -- -max_total_time=60)           # needs cargo-fuzz 0.13.2; Linux or macOS
 # Tests that need PDFium: run tools/pdfium/fetch.sh first; the path must be absolute

@@ -1,0 +1,13 @@
+# Fonts the corpus generators embed that Ferman does not bundle (ADR 0020). Read by
+# tools/corpus/fetch-fonts.sh, which downloads them, and by the generators, which refuse a file
+# whose SHA-256 differs.
+#
+#   file <name in build/corpus-fonts/> <SHA-256> <URL>
+#
+# They go to build/corpus-fonts/ (gitignored): never committed and never shipped. Each is OFL-1.1
+# with no Reserved Font Name, from google/fonts at commit 47d54ca (2026-10-16); its licence file
+# comes with it. The PDFs embed subsets, which OFL-1.1 allows.
+
+# kira-tr Madde 6: a font Ferman does not bundle, for the missing-glyph path (ROADMAP E02, E03).
+file EBGaramond-VF.ttf ef9512f92f6d579e5dc75af59a5a4b1b8b47d2eda89e00b954d44520e5369027 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf
+file EBGaramond-OFL.txt 0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3dbece7dd7 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/ebgaramond/OFL.txt
