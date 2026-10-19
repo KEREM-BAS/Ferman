@@ -3,6 +3,9 @@
 
 [workspace]
 members = ["crates/*"]
+# Workspaces of their own, never shipped: the cargo-fuzz targets (NCSA libfuzzer-sys stays out of this
+# graph) and the corpus generators (ADR 0020).
+exclude = ["fuzz", "tools/corpus"]
 resolver = "3"
 
 [workspace.package]
@@ -41,6 +44,9 @@ flutter_rust_bridge = "=2.13.0"
 pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
 # Replies from the render thread: a oneshot future that async API functions await without blocking.
 futures-channel = "0.3.34"
+# Stream filters in ferman-core: Flate through the pure-Rust miniz_oxide backend, and LZW.
+flate2 = "1.1.10"
+weezl = "0.2.1"
 
 # Dev and test only; never in the shipped graph.
 insta = "1.49.0"

@@ -2,6 +2,7 @@
 paths:
   - "crates/**/*"
   - "fuzz/**/*"
+  - "tools/corpus/**/*"
   - "Cargo.toml"
   - "Cargo.lock"
   - "deny.toml"
@@ -10,7 +11,7 @@ paths:
 
 # Rust rules
 
-These rules apply to the engine crates, the fuzz workspace and the workspace files. Everything in [CLAUDE.md](../../CLAUDE.md) still applies. Background: [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) and the ADRs in [docs/adr/](../../docs/adr/README.md).
+These rules apply to the engine crates, the fuzz and corpus workspaces and the workspace files. Everything in [CLAUDE.md](../../CLAUDE.md) still applies. Background: [ARCHITECTURE.md](../../docs/ARCHITECTURE.md) and the ADRs in [docs/adr/](../../docs/adr/README.md).
 
 ## Toolchain and pinned versions
 
@@ -82,7 +83,7 @@ Brief §4 is the hardest part and must be flawless ([ADR 0005](../../docs/adr/00
 
 - Unit tests next to the code; integration tests in `crates/*/tests/` through public APIs. The full open, edit, save and reopen path is tested through the ferman-api facade.
 - Tests that need the PDFium library are `#[ignore]` by default and run with an absolute `FERMAN_PDFIUM_PATH` (`cargo test --workspace -- --ignored`; cargo runs each test binary from its crate's folder, so a relative path breaks). CI runs them on the three systems. Tests that must not depend on the caller's shell remove `FERMAN_PDFIUM_PATH` first.
-- A cargo-fuzz target for every parser, from the first parser in M2, including third-party parsers reached through our wrappers (lopdf through ferman-core, skrifa and read-fonts through ferman-fonts, image decoders): object lexer and parser, xref and trailer paths (including repair), content-stream lexer and interpreter, stream filters, CMap and ToUnicode, the Type1 parser and font program parsing, encryption, incremental writer round trip, and "open arbitrary bytes" through the facade. Crashes become regression files in the corpus. `fuzz/` is a separate workspace, so `libfuzzer-sys` (NCSA) never ships. Its NCSA exception was approved by the owner on 2026-10-15 ([Q17](../../docs/QUESTIONS.md#q17)) for `fuzz/` only; create `fuzz/` with the first parser in M2.
+- A cargo-fuzz target for every parser, from the first parser in M2, including third-party parsers reached through our wrappers (lopdf through ferman-core, skrifa and read-fonts through ferman-fonts, image decoders): object lexer and parser, xref and trailer paths (including repair), content-stream lexer and interpreter, stream filters, CMap and ToUnicode, the Type1 parser and font program parsing, encryption, incremental writer round trip, and "open arbitrary bytes" through the facade. Crashes become regression files in the corpus. `fuzz/` is a separate workspace, so `libfuzzer-sys` (NCSA) never ships. Its NCSA exception was approved by the owner on 2026-10-15 ([Q17](../../docs/QUESTIONS.md#q17)) for `fuzz/` only. `fuzz/` exists since M2, with the stream filters as the first parser; it builds with the nightly pinned in `fuzz/rust-toolchain.toml`, and its formatting and Clippy use the stable toolchain from the root (`--manifest-path fuzz/Cargo.toml`). Every new parser adds its target and a row in `fuzz/README.md`.
 - Property tests (proptest) for every encoder and decoder: lexer round trip, encode and decode for every encoding, edit then revert gives identical bytes, written incremental updates parse back to the same objects.
 - Every corpus file has its source, licence, SHA-256 and purpose in `tests/corpus/README.md`.
 

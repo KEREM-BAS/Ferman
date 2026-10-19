@@ -1,0 +1,61 @@
+# Ferman's cargo-fuzz targets, one per parser (docs/ARCHITECTURE.md §13.6), and fuzz/README.md.
+# A workspace of its own, excluded from the root one, so libfuzzer-sys (its NCSA part approved for
+# fuzz/ only, Q17) never enters the shipped graph. Built with the nightly of rust-toolchain.toml
+# here: (cd fuzz && cargo fuzz run <target>).
+
+[package]
+name = "ferman-fuzz"
+version = "0.0.0"
+edition = "2024"
+license = "Apache-2.0"
+publish = false
+
+[package.metadata]
+cargo-fuzz = true
+
+[workspace]
+members = ["."]
+
+[dependencies]
+libfuzzer-sys = "0.4.13"
+ferman-core = { path = "../crates/ferman-core" }
+
+[lints.clippy]
+print_stdout = "deny"
+print_stderr = "deny"
+dbg_macro = "deny"
+
+[[bin]]
+name = "filter_ascii_hex"
+path = "fuzz_targets/filter_ascii_hex.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "filter_ascii85"
+path = "fuzz_targets/filter_ascii85.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "filter_lzw"
+path = "fuzz_targets/filter_lzw.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "filter_flate"
+path = "fuzz_targets/filter_flate.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "filter_run_length"
+path = "fuzz_targets/filter_run_length.rs"
+test = false
+doc = false
+bench = false

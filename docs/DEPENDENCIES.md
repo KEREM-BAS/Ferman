@@ -116,20 +116,25 @@ What M1 has added so far, read from `Cargo.lock`, `app/pubspec.lock`, the tool l
 | flutter_rust_bridge (crate) | Rust side of the Dart–Rust bridge, behind ferman-api's optional `frb` feature | `=2.13.0` | MIT | ok | M1 | The crate, the Dart package and the codegen must be the same version ([ADR 0002](adr/0002-rust-engine-flutter-ui-frb.md)); `tools/checks` compares the crate and the Dart package, and the CI codegen job installs the codegen at exactly 2.13.0 (its cache key names the version). 2.14.0-beta.2 exists and is not used. Its default features add about 75 crates, among them tokio 1.53.3, futures 0.3.34, backtrace 0.3.76, allo-isolate 0.1.27 (clarify hash `0x0a6d4ed6`, [section 7](#7-denytoml)), dart-sys 4.1.5, threadpool 1.8.1, anyhow 1.0.104, dashmap 5.5.3 and md-5 0.10.6. MSRV 1.70. |
 | pdfium-render | ferman-render: binds PDFium at run time on the render thread; read-only rasteriser from M2 | `=0.9.4` | MIT OR Apache-2.0 | ok | M1 | `default-features = false` with `pdfium_7881` and `thread_safe` (checked in the 0.9.4 manifest: `pdfium_latest = ["pdfium_7881"]`, `image_latest = ["image_025"]`; the API level is named so a pdfium-render update cannot move it). **Proposed** with the M2 plan: `image_025` ([ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md)) stays off, because the tiles take PDFium's bitmap bytes through `PdfBitmap::as_raw_bytes`, which no feature gates. Pinned exactly: it moves with the PDFium tag in one commit. Binds with `bind_to_library` from an explicit, absolute path; its bindings are process-wide and never unbound, so ferman-render binds once per process behind a lock. Pulls on the desktop targets: libloading 0.9.0 (ISC, MSRV 1.88), chrono 0.4.45 (default features), iana-time-zone 0.1.65 (Linux, macOS), core-foundation-sys 0.8.7 (macOS), windows-link 0.2.1 (Windows), itertools 0.15.0, either 1.19.0, num-traits 0.2.19, autocfg 1.5.1 (build), bitflags 2.13.2, bytemuck 1.25.2 (Zlib OR Apache-2.0 OR MIT), bytes 1.12.1 (MIT), log 0.4.34, once_cell 1.21.4, maybe-owned 0.3.4, utf16string 0.2.0, vecmath 1.0.0 and piston-float 1.0.1 (MIT); 22 packages are new in `Cargo.lock`. MSRV 1.61. Upgrade check: reusing a binding relies on `Pdfium::default()` taking pdfium-render's reuse branch (`library.rs`). pdfium-render panics if its global lock is poisoned, which ends the render thread (status "failed: the render thread has stopped"). It never calls `FPDF_DestroyLibrary`. |
 | futures-channel | ferman-render: oneshot replies from the render thread, awaited by async API functions without blocking | 0.3.34 | MIT OR Apache-2.0 | ok | M1 | Default features (`std`). Already in the graph through flutter_rust_bridge's futures 0.3.34. Requests use `std::sync::mpsc`; crossbeam-channel ([section 3.5](#35-concurrency-and-caching)) is not added before M2. MSRV 1.71. |
+| flate2 | ferman-core: FlateDecode (`filters`) | 1.1.10 | MIT OR Apache-2.0 | ok | M2 | Default features: the pure-Rust miniz_oxide 0.9.1 backend (`MIT OR Zlib OR Apache-2.0`), with crc32fast 1.5.2 (MIT OR Apache-2.0) and simd-adler32 0.3.10 (MIT); no C zlib. Its low-level `Decompress` is used on the raw deflate data after ferman-core checks the zlib header, so the decoded-size limit holds and a wrong Adler-32 is tolerated as PDFium tolerates it. The encoder serves the tests; the M3 writer will use it too. MSRV 1.67. |
+| weezl | ferman-core: LZWDecode (`filters`), with `/EarlyChange` as weezl's TIFF size switch | 0.2.1 | MIT OR Apache-2.0 | ok | M2 | Default features (`std`). Decodes into a bounded buffer per call, so the limit holds. MSRV 1.88. |
+| proptest (dev) | ferman-core: property tests of the filters (round trips, the decoded-size limit) | 1.12.0 | MIT OR Apache-2.0 | ok | M2 | First use of the M1 pin. Pulls bit-set, bit-vec, bitflags, chacha20, core_detect, num-traits, rand, rand_xorshift, regex-syntax, rusty-fork (with quick-error and wait-timeout), tempfile and unarray, all MIT, Apache-2.0 or both; the dev-dependency licence run passes. MSRV 1.88. |
 | insta (dev) | ferman-cli snapshot test | 1.49.0 | Apache-2.0 | ok | M1 | Pulls console 0.16.6 (MIT), similar 2.7.0 (Apache-2.0) and tempfile 3.27.0 (MIT OR Apache-2.0). MSRV 1.66. |
 
 Notable transitive licences: memchr 2.8.3 and byteorder 1.5.0 are `Unlicense OR MIT` (the MIT side
-applies), miniz_oxide 0.8.9 is `MIT OR Zlib OR Apache-2.0`, bytemuck 1.25.2 is
+applies), miniz_oxide 0.8.9 and 0.9.1 are `MIT OR Zlib OR Apache-2.0`, bytemuck 1.25.2 is
 `Zlib OR Apache-2.0 OR MIT`, libloading 0.9.0 is ISC, and unicode-ident 1.0.27 adds Unicode-3.0.
 console_log 1.1.0, android_system_properties 0.1.6, iana-time-zone-haiku 0.1.2 and windows-core
 0.62.2 (with windows-implement, windows-interface, windows-result and windows-strings) are in
 `Cargo.lock` through pdfium-render and chrono but are built for none of the desktop targets.
 `cargo deny check` (0.20.2) passes for advisories, bans, licences and sources, and the dev-dependency
-licence run passes too; pdfium-render's tree needed no `[[licenses.clarify]]` entry. It prints three
-expected warnings: the `libfuzzer-sys` exception and the rustybuzz wrapper are not met yet, and syn
-appears twice (2.0.119 and 3.0.9). Every MSRV in the graph is 1.88 or lower (libloading 0.9.0 is
-exactly 1.88). proptest is pinned in `[workspace.dependencies]` and enters `Cargo.lock` with its
-first use ([section 3.10](#310-dev-and-test-rust)).
+licence run passes too; pdfium-render's tree needed no `[[licenses.clarify]]` entry. It prints four
+expected warnings: the `libfuzzer-sys` exception (met only in `fuzz/`) and the rustybuzz wrapper are
+not met here, syn appears twice (2.0.119 and 3.0.9), and so does miniz_oxide (0.8.9 through
+backtrace from flutter_rust_bridge, 0.9.1 through flate2). Every MSRV in the graph is 1.88 or lower
+(libloading 0.9.0 and weezl 0.2.1 are exactly 1.88). `Cargo.lock` also lists optional crates that
+no enabled feature builds, such as zlib-rs (flate2's other backend) and borsh; `cargo tree` shows
+neither.
 
 ### 2.2 Dart and Flutter packages (app)
 
@@ -167,6 +172,9 @@ the owner on 2026-10-16) fails on it, which is why flutter_svg was dropped.
 | Name | Purpose | Version | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
 | cargo-deny | Licence, ban, advisory and source gate | 0.20.2 | MIT OR Apache-2.0 | ok | M1 | Since 0.18.4, GNU licences are matched strictly; only the allow-list and exceptions apply. The pinned cargo-deny-action bundles the same version. MSRV 1.88. |
+| cargo-fuzz | Builds and runs the fuzz targets in `fuzz/` ([fuzz/README.md](../fuzz/README.md)) | 0.13.2 | MIT OR Apache-2.0 | ok | M2 | `cargo install --locked cargo-fuzz@0.13.2`; the CI fuzz job caches the binary. Runs on the pinned nightly ([section 6](#6-toolchain)). |
+| libfuzzer-sys | The libFuzzer runtime of the fuzz targets, in `fuzz/` only | 0.4.13 | (MIT OR Apache-2.0) AND NCSA | caution | M2 | The NCSA part (LLVM's vendored libFuzzer) is the exception the owner approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)), for this crate in `fuzz/` only. Pulls arbitrary 1.5.0 (MIT OR Apache-2.0) and cc (MIT OR Apache-2.0), which builds libFuzzer's C++ sources. `cargo deny --manifest-path fuzz/Cargo.toml check` passes in CI. The fuzz workspace's own Cargo.lock pins it. |
+| sha2, tempfile (dev) | `tools/corpus`: the SHA-256 of corpus files; temporary corpora in its tests | 0.11.1; 3.27.0 | MIT OR Apache-2.0 | ok | M2 | The corpus tool's own Cargo.lock pins them; `cargo deny --manifest-path tools/corpus/Cargo.toml check` and its dev-dependency licence run pass in CI. sha2 enters the shipped graph separately with ferman-core's fingerprints. |
 | very_good_cli | Licence gate for Dart packages | 1.5.0 | MIT | ok | M1 | `very_good packages check licenses` ([section 8](#8-dart-licence-check)). Needs Dart 3.13. |
 | flutter_rust_bridge_codegen | Generates the bridge bindings (`app/lib/bridge/`, `crates/ferman-api/src/frb_generated.rs`) | 2.13.0 | MIT | ok | M1 | In use since M1 step 3 (`0ae4f29`). `cargo install --locked flutter_rust_bridge_codegen@2.13.0`, matching the runtime crate and package. The CI codegen job installs it, caches the binary (actions/cache, [section 2.4](#24-github-actions)), regenerates the bindings and fails on any diff. MSRV 1.74. |
 | cargo-expand | Expands ferman-api's macros for the codegen | 1.0.127 | MIT OR Apache-2.0 | ok | M1 | flutter_rust_bridge_codegen 2.13.0 calls it. `cargo install --locked cargo-expand@1.0.127`; cached with the codegen in CI. |
@@ -189,7 +197,8 @@ the owner on 2026-10-16) fails on it, which is why flutter_svg was dropped.
 | Google Chrome or Chromium (installed) | Renders the app icons from the logo export (`tools/app-icons`) | the developer's installed browser; the committed icons were rendered with Google Chrome 155.0.8059.80 (recorded in `tools/app-icons/manifest.json`) | BSD-3-Clause (Chromium), plus the licences of its components; Google Chrome's terms | ok | M2 | A browser already on the developer machine, launched headless with `--screenshot`; `--chromium`, `FERMAN_CHROMIUM` or the usual install places pick it. Nothing is downloaded and `tools/app-icons` has no npm dependencies. Only the icons it renders are committed; `--check` (no browser) compares them with the manifest. Never shipped. |
 | lucide-static (npm tarballs 0.300.0, 0.460.0, 0.500.0, 1.56.0) | Icon provenance comparison and the shipped Lucide licence texts | pinned by npm integrity in `tools/icons/lib/src/lucide.dart` | ISC (Feather portions MIT) | ok | M1 | Downloaded with curl to `build/lucide` only with `dart run icons --lucide`; never shipped. Only the two LICENSE files are copied to `app/assets/icons/` ([section 5.3](#53-icons)). |
 
-`tools/pdfium` and `tools/fonts` are bash scripts that use only bash, curl, tar, unzip and the Python
+`fuzz/` and `tools/corpus` are Cargo workspaces of their own, excluded from the root workspace, each
+with its own `Cargo.lock`; nothing in them ships. `tools/pdfium` and `tools/fonts` are bash scripts that use only bash, curl, tar, unzip and the Python
 standard library; they add no dependency. `tools/app-icons` is a Node script with no npm dependencies; it needs only the installed browser above.
 
 ### 2.4 GitHub Actions
@@ -555,7 +564,7 @@ Devanagari text comes from Plex Sans.
 |---|---|---|---|---|
 | Rust stable | 1.99.0 (built 2026-09-28) | MIT OR Apache-2.0 | Engine and CLI | Pinned in `rust-toolchain.toml` (channel 1.99.0, profile minimal, with rustfmt and clippy). CI installs it with `rustup toolchain install`, which reads that file. The M0 container had 1.97.0. |
 | Minimum Rust version (`rust-version`) | 1.88 (set in the workspace `Cargo.toml`) | n/a | Workspace manifest | 1.88 is set by lopdf 0.45, image 0.25.10, ICU4X 2.3, sha2 0.11, proptest 1.12 and cargo-deny 0.20. It rises to 1.92 with krilla 0.8 (P4) and to 1.94 with rten 0.27 (only if ocrs moves to it, P3). The pinned 1.99 toolchain is what builds Ferman; `rust-version` records the floor. |
-| Rust nightly | a pinned date, chosen in M2 | MIT OR Apache-2.0 | cargo-fuzz only | Never used for shipped builds. |
+| Rust nightly | `nightly-2026-10-15` (rustc 1.101.0-nightly, chosen in M2) | MIT OR Apache-2.0 | cargo-fuzz only | Pinned in `fuzz/rust-toolchain.toml`, which rustup reads inside `fuzz/`. Never used for shipped builds; formatting and Clippy of `fuzz/` use the stable 1.99.0. |
 | Flutter | 3.47.7 stable (2026-10-08) | BSD-3-Clause | App | Beta 3.49.0-0.2.pre is not used. |
 | Dart | 3.13.5 (bundled with Flutter 3.47.7) | BSD-3-Clause | App | very_good_analysis 11, riverpod_lint 3.1.9 and very_good_cli 1.5 need Dart 3.13 or later, so Flutter stays at 3.47 or later. |
 | Node.js | 24.22.0 LTS "Krypton" (re-checked 2026-10-15) | MIT | Tools only (`tools/design-refs`) | The M1 pin, used in the development container and in CI. 26.x is the Current line; 22.x is in maintenance. Node is never part of the app. |
@@ -599,7 +608,9 @@ Notes:
   cargo deny --all-features --config deny-dev.toml check licenses
   ```
 
-- From M2, CI also runs `cargo deny check` for the `fuzz/` workspace ([ADR 0017](adr/0017-testing-and-ci.md)).
+- Since M2, CI also runs `cargo deny check` with this file for the `fuzz/` and `tools/corpus` workspaces
+  (`--manifest-path`), and the dev-dependency licence run for `tools/corpus`
+  ([ADR 0017](adr/0017-testing-and-ci.md), [ADR 0020](adr/0020-test-corpus.md)).
 - With `unmaintained = "workspace"`, an unmaintained transitive crate (for example `paste` if `image`
   defaults slipped back in) does not fail CI. Such crates are caught by review and listed in
   [section 9](#9-known-risks).

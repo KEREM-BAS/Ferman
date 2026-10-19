@@ -90,7 +90,7 @@ ferman/
 │   ├── ferman-ops/       organize, annotations, forms, compress, … (splits as it grows)
 │   ├── ferman-api/       the only crate the UI calls: facade + FRB surface
 │   └── ferman-cli/       `ferman` command line on the same facade
-├── fuzz/                 cargo-fuzz workspace, one target per parser (from M2)
+├── fuzz/                 cargo-fuzz workspace, one target per parser (since M2)
 ├── app/                  Flutter app: macos, windows, linux, web now; ios, android later
 ├── tools/
 │   ├── tokens/           design tokens → app/lib/design/tokens.g.dart (ADR 0012)
@@ -135,9 +135,9 @@ Rules:
 
 #### ferman-core
 
-- **Responsibility:** load bytes (with password), lopdf object model, xref repair, decryption and re-encryption on write, structure scan (page tree and inheritance, page labels, outlines, attachments, optional content, AcroForm and XFA detection, signatures and DocMDP permissions), content-stream lexer and interpreter (section 6.1) with a byte span for every operator, revision store (section 4.3), incremental writer, full rewrite, safe write (section 7), recovery journal (section 7.6), resource limits (section 9).
-- **Public surface:** `Document`, `Snapshot`, `RevisionId`, `ObjectStore`, `Interpreter` with `InterpreterSink` and the `TextAdvance` trait (implemented by ferman-text, so core needs no font code), `Operator { name, operands, span }`, `ChangeSet`, `SaveMode`, `safe_write`, `RecoveryJournal`, `Limits`, `CoreError`.
-- **Key dependencies:** lopdf pinned to `=0.45` (breaking releases come almost monthly), sha2, thiserror, tracing. atomic-write-file is under evaluation against section 7.
+- **Responsibility:** load bytes (with password), lopdf object model, xref repair, decryption and re-encryption on write, structure scan (page tree and inheritance, page labels, outlines, attachments, optional content, AcroForm and XFA detection, signatures and DocMDP permissions), content-stream lexer and interpreter (section 6.1) with a byte span for every operator, revision store (section 4.3), incremental writer, full rewrite, safe write (section 7), recovery journal (section 7.6), resource limits (section 9), and the stream filters it decodes itself (ASCIIHex, ASCII85, LZW, Flate and RunLength, with the PNG and TIFF predictors; the image codecs stay with PDFium).
+- **Public surface:** `Document`, `Snapshot`, `RevisionId`, `ObjectStore`, `Interpreter` with `InterpreterSink` and the `TextAdvance` trait (implemented by ferman-text, so core needs no font code), `Operator { name, operands, span }`, `ChangeSet`, `SaveMode`, `safe_write`, `RecoveryJournal`, `Limits` and `LimitKind` (`limits`, since M2), `Filter`, `DecodeParams`, `decode` and `decode_chain` (`filters`, since M2), `CoreError`.
+- **Key dependencies:** lopdf pinned to `=0.45` (breaking releases come almost monthly), sha2, thiserror, tracing, flate2 (on the pure-Rust miniz_oxide) and weezl for the filters. atomic-write-file is under evaluation against section 7.
 
 #### ferman-fonts
 
@@ -187,9 +187,9 @@ Rules:
 - **tools/app-icons** (M2) draws the app icons from the owner's logo export in `design/assets/logo/` ([G112](DESIGN_GAPS.md#g112)). It writes the macOS asset catalog's seven PNGs, the Windows `app_icon.ico` (ten PNG entries from 16 to 256 px), the Linux window icon (`app/linux/runner/resources/app_icon.png`, installed as `data/app_icon.png` and set by the runner) and the web favicon and PWA icons. It is a Node script with no npm dependencies; an installed Chrome or Chromium renders each icon headless at its exact size. `tools/app-icons/manifest.json` records the logo files' and icons' SHA-256, and `--check` compares them without a browser.
 - **tools/pdfium** downloads `chromium/7881` for each platform, checks the pinned SHA-256 of each archive and of the library inside it (`pdfium.lock`), and unpacks the library, its `licenses/` folder (PDFium's own licence is `licenses/pdfium.txt`) and the packager's MIT `LICENSE`. On macOS it uses upstream's universal archive, whose two slices it checks against the pinned thin libraries, so no `lipo` step is needed. In CI the repository-checks job downloads all seven archives first (cached on `pdfium.lock`) and then runs `--verify --check-licenses` over them, because `--verify` checks only archives already in the cache; each Rust job fetches its own platform's library for the PDFium tests.
 - **tools/checks** is a Dart command (`dart run bin/check_all.dart`) with the 18 repository checks CI runs: action pins, ARB parity, untracked build output, the crate graph, `design/` unchanged, the DCO sign-off of every commit after the base by its author (`dco_signoff`, merge commits aside; [Q14](QUESTIONS.md#q14)), FRB versions, the pub deny list, unsafe roots, version sync, `bridge_imports`, `component_spec` (every component of `app/test/design/component_spec.json` exists in `app/lib/design/` as a class or enum of the spec's kind, with every spec prop as a parameter of one of its constructor declarations, default values and calls never counting; every item type, such as MenuItem, SelectOption or SignatureValue, as a class or enum with a parameter for each field; every Dart enum value the props and fields name; and every value of a variant no enum prop carries, such as ThumbnailBadges' badge kinds), `feature_registry` (ROADMAP gate S9: every value of the `Feature` enum in `app/lib/app/feature_registry.dart` reads as `name('B018')` and names a row of [BACKLOG.md](BACKLOG.md)'s Open table that is not also under Done, a row under Done meaning the feature shipped and its value must go; every value is used as `Feature.<name>` by a hand-written file of `app/lib/` other than the gallery; `futureVersionReason` is used only by the registry, the gallery and the component files the check lists with a reason (`componentReasons`), and its string's getter only by `future_version.dart`; BACKLOG rows in fenced blocks do not count), and the five S6 Flutter checks over `app/lib/`: `s6_material_imports`, `s6_forbidden_api`, `s6_literals` (not over `app/lib/design/` or `app/lib/engine/`), `s6_directional` and `s6_casing`, with reviewed exceptions, each with a reason, in `s6_allowlist.dart` ([ADR 0011](adr/0011-flutter-state-navigation-components.md), [ADR 0012](adr/0012-design-token-pipeline.md)). `bridge_imports` scans `app/lib/`, `app/test/` and `app/integration_test/` and fails on any import or export of `package:ferman/bridge/...`, or of a relative URI that resolves into `app/lib/bridge/`, outside `app/lib/engine/`; conditional URIs count too. A second command, `dart run bin/scan_bundle.dart --root ../.. <build folder>...`, needs build output and so is not one of the 18: it fails (exit 1) on any file in a build that comes from the design export or its tooling, by name (`*.dc.html`, `_ds_bundle.js`, `support.js`, `fm-additions.css`, `fm-icons.js`, the React, ReactDOM and Babel scripts), by content (a React or Babel licence header under another name), any `.woff` or `.woff2` file or `@fontsource` path (the app ships only IBM's TTFs), or a SHA-256 equal to any file of 64 bytes or more under `design/`; a missing folder is a usage error (exit 64).
-- **tools/corpus** holds deterministic generators for the design's sample documents (section 13.3) and a fetch script for larger real-world files.
+- **tools/corpus** is a Rust workspace of its own, excluded from the root one and never shipped ([ADR 0020](adr/0020-test-corpus.md)). It holds the deterministic generators for the design's sample documents (section 13.3), a registry that is empty until the first wave, and `check`, which CI runs on the three systems: every file in `tests/corpus/` has its README row with the right SHA-256 (a generated PDF's expected text shares its row), every generator makes the same bytes twice and its committed files are current, and a file over 1 MB is checked by the hash of its row. A fetch script for larger real-world files follows when the first one is listed.
 - **tests/corpus/** holds the PDFs and a README.md with provenance for every file: source, licence, SHA-256 and what it covers. **Proposed** in [ADR 0020](adr/0020-test-corpus.md), with the M2 plan: files up to 1 MB are committed; larger generated ones are regenerated by tools/corpus and checked against a SHA-256 pinned in the README.
-- **fuzz/** holds the cargo-fuzz targets (section 13.6).
+- **fuzz/** holds the cargo-fuzz targets (section 13.6): a workspace of its own on a pinned nightly (`fuzz/rust-toolchain.toml`), so libfuzzer-sys never enters the shipped graph.
 
 ### 2.5 Flutter app layout
 
@@ -836,7 +836,7 @@ PDFs come from strangers. Every byte is untrusted.
 
 ### 9.1 Resource limits
 
-All values are **Proposed** and live in one `Limits` struct, so tests and the CLI can tighten them.
+All values are **Proposed** and live in one `Limits` struct (`ferman_core::limits`, since M2), so tests, the fuzz targets and the CLI can tighten them. A limit that stops the work is `CoreError::ResourceLimit` with its `LimitKind`.
 
 | Limit | Default | Why |
 |---|---|---|
@@ -1052,6 +1052,8 @@ The rule from brief §4: render before and after with PDFium; the pixel differen
 ### 13.6 Fuzz targets
 
 One target per parser, starting with the first parser in M2: object lexer and parser, cross-reference and trailer (including repair), content-stream lexer, interpreter, each stream filter (Flate, LZW, ASCII85, ASCIIHex, RunLength), CMap and ToUnicode, Type1 parser, encryption and password handling, incremental writer round trip, and "open arbitrary bytes" through the facade. CI runs a short session on every pull request and a longer one nightly (**Proposed** with the M2 plan: 60 s per target on pull requests, 1 h per target nightly). Crashes become regression files in the corpus.
+
+Since M2 the targets are `filter_ascii_hex`, `filter_ascii85`, `filter_lzw`, `filter_flate` and `filter_run_length` ([fuzz/README.md](../fuzz/README.md)). LZW and Flate take their `/DecodeParms` from the first four input bytes, so every predictor and every invalid parameter is reachable. Each target checks what every decoder promises: no panic, never more than its 1 MiB decoded-size limit, and only the errors a damaged stream can cause. The pull-request job runs each target for 60 s on Linux; the nightly job comes with M2's CI commit.
 
 ### 13.7 Benchmarks
 

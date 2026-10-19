@@ -1,0 +1,34 @@
+# Deterministic generators for Ferman's test corpus (docs/adr/0020-test-corpus.md) and the check
+# that every corpus file has its README row. A workspace of its own, excluded from the root one;
+# never shipped. Run from the repository root:
+#   cargo run --manifest-path tools/corpus/Cargo.toml --locked -- [generate | check | list]
+
+[package]
+name = "ferman-corpus"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.88"
+license = "Apache-2.0"
+publish = false
+
+[workspace]
+
+[dependencies]
+sha2 = "0.11.1"
+
+[dev-dependencies]
+tempfile = "3.27.0"
+
+# The root workspace's lints (a separate workspace cannot inherit them).
+[lints.rust]
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
