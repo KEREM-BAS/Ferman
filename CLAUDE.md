@@ -63,7 +63,7 @@ cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: 
 (cd app && flutter test --exclude-tags golden)                        # macOS and Windows: goldens are Linux only
 (cd app && flutter test --update-goldens --tags golden)               # regenerate goldens (Linux only, with fonts-dejavu-core and fonts-noto-cjk)
 (cd app && dart run build_runner build)   # Riverpod and other codegen
-(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127)
+(cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127; the Dco codec's ffigen needs libclang: Xcode on macOS, libclang-dev on Linux)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
 (cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)

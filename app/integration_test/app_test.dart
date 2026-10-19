@@ -66,7 +66,9 @@ void main() {
       const length = 1024 * 1024;
       // One warm-up call, then 20 timed ones; the minimum and the median
       // are recorded for ARCHITECTURE §3.4. The 0.2 ms budget applies to a
-      // release build on R1 and R2.
+      // profile or release build on R1 and R2. The bridge uses the Dco
+      // codec (`full_dep: true`, Q19), which hands the bytes over as
+      // external typed data.
       expect(await engine.debugBytesLength(length), length);
       final samples = <int>[];
       for (var i = 0; i < 20; i++) {
@@ -80,7 +82,7 @@ void main() {
       // The measurement goes to the test log; there is no other reporter.
       // ignore: avoid_print
       print(
-        'debug_bytes 1 MiB round trip: min ${samples.first} us, '
+        'debug_bytes 1 MiB round trip (Dco codec): min ${samples.first} us, '
         'median ${samples[samples.length ~/ 2]} us (20 samples)',
       );
     });

@@ -741,6 +741,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   0010](adr/0010-error-handling-no-panics.md), so it is built only with the owner's approval of that
   surface, as [ADR 0009](adr/0009-threading-and-jobs.md) says. ADR 0009 is Accepted with the other
   Proposed items of M1 ([PROGRESS.md](PROGRESS.md#owner-decisions-in-force-2026-10-15)).
+- **Trial, 2026-10-19:** option (a) works and the bridge uses it. The M1 name clash came from the
+  codegen's cbindgen pass reading the facade, now hidden from it. A 1 MiB transfer took 26 µs at
+  the minimum and 73 µs at the median in a profile build on the owner's MacBook Pro (Apple M5 Pro),
+  against 665 µs and 1,053 µs with the old codec; R1 and R2 are still to be measured
+  ([ADR 0009](adr/0009-threading-and-jobs.md#tile-transfer-m1-measurements-and-options-proposed)).
 
 <a id="q20"></a>
 

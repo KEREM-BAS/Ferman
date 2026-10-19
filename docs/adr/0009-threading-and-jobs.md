@@ -196,6 +196,29 @@ M2 step 3, before tiles are built, and measure it on R1 and R2 with `flutter dri
 command is in CONTRIBUTING.md). If it misses the budget, use option 2, with the owner's approval of
 its unsafe surface. Use option 3 only if both fail. M1 changed nothing in the codec.
 
+**The trial, 2026-10-19 (M2 wave W1): option 1 works and is in use.** The codegen runs with
+`full_dep: true` and ffigen 20.1.1, the version flutter_rust_bridge 2.13.0 itself is built with,
+which finds libclang in Xcode on macOS and in `libclang-dev` (`/usr/lib/llvm-18`) on the CI runner.
+The M1 clash had a simpler cause than a missing setting: the codegen's cbindgen pass reads the
+whole crate, the facade's public constant `API_VERSION` made it declare the facade's `ApiVersion`
+as an opaque C struct, and ffigen turned that into a Dart class with the mirror's name. The facade
+module now carries `cbindgen:ignore` beside `frb(ignore)`, so no type is renamed. The generated
+Dart had compiled only in appearance: `flutter analyze` leaves `lib/bridge/` out, so the trial
+analyzed it on its own and built the app. flutter_rust_bridge turns on allo-isolate's `zero-copy`
+feature, so a `Vec<u8>` crosses as external typed data: Dart reads the Rust buffer in place and a
+finalizer frees it, with no copy on either side.
+
+| Build | Machine | Codec | Result for 1 MiB, 20 warm calls |
+|---|---|---|---|
+| Profile (`flutter drive --profile`) | The owner's MacBook Pro, Apple M5 Pro, 48 GB, macOS 26.5 (not R1 or R2) | SSE (before) | minimum 665 µs, median 1,053 µs |
+| Profile | The same Mac | Dco | minimum 26 µs, median 73 µs: **meets the 0.2 ms target** |
+| Debug (`flutter test integration_test -d macos`) | The same Mac | Dco | minimum 5,932 µs, median 6,148 µs (debug builds do not count) |
+
+The numbers time the whole asynchronous call, scheduling included, so the transfer itself is
+smaller still. The budget is set for R1 and R2, which are slower than this Mac, so the profile run
+on R1 and R2 stays an owner check before the tile API depends on the result
+([PROGRESS.md](../PROGRESS.md#pending-owner-checks-m2)); option 2 is needed only if it misses there.
+
 <a id="option-3-in-detail-the-texture-registry-fallback-proposed"></a>
 
 #### Option 3 in detail: the texture-registry fallback
