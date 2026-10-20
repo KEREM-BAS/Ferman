@@ -6,9 +6,12 @@ mod damaged;
 mod files;
 mod forms;
 mod kira;
+mod letter;
 mod long;
 mod payslip;
 mod plan;
+mod report;
+mod scans;
 mod scripts;
 mod tez;
 
@@ -17,6 +20,7 @@ use crate::font::{Face, PdfFont, SimpleFont, StandardFont, Type0Font};
 use crate::pdf::{self, Info, Pdf};
 use crate::sources::{FontFile, Sources};
 use crate::text::{Align, FontKey, Fonts, PageText, Paragraph, Style, expected_text, lay_out};
+use crate::vertical::Vertical;
 use crate::{Expect, Generated, Generator};
 use lopdf::{Dictionary, Object, ObjectId};
 use std::collections::BTreeMap;
@@ -38,9 +42,13 @@ pub const GENERATORS: &[Generator] = &[
     forms::FORM_AKS1_FLAT,
     contracts::MIETVERTRAG_DE,
     contracts::NDA_EN,
+    report::REPORT_AR,
+    letter::LETTER_JA_VERTICAL,
     tez::TEZ_TR,
     plan::OCG_PLAN,
     scripts::JS_OPENACTION,
+    scans::SCAN_TR,
+    scans::QUOTE_JA_SCAN,
     long::LONG_500,
     long::IMAR_2400,
 ];
@@ -57,6 +65,7 @@ pub struct Doc {
     faces: BTreeMap<FontFile, Rc<Face>>,
     word: BTreeMap<FontFile, (FontKey, FontKey)>,
     composite: BTreeMap<FontFile, FontKey>,
+    vertical: BTreeMap<FontFile, FontKey>,
 }
 
 impl Doc {
@@ -69,6 +78,7 @@ impl Doc {
             faces: BTreeMap::new(),
             word: BTreeMap::new(),
             composite: BTreeMap::new(),
+            vertical: BTreeMap::new(),
         }
     }
 
@@ -87,8 +97,14 @@ impl Doc {
                 | FontFile::PlexSerifItalic
                 | FontFile::PlexSerifSemiBold
                 | FontFile::EbGaramond
+                | FontFile::NotoSerifJp
+                | FontFile::NotoSerifJpSemiBold
         );
-        let face = Rc::new(Face::new(sources.font(file)?, serif)?);
+        let mut face = Face::new(sources.font(file)?, serif, file.variations())?;
+        if let Some(name) = file.instance_name() {
+            name.clone_into(&mut face.postscript_name);
+        }
+        let face = Rc::new(face);
         self.faces.insert(file, Rc::clone(&face));
         Ok(face)
     }
@@ -145,6 +161,40 @@ impl Doc {
             }
         };
         Ok(Style::new(key, size))
+    }
+
+    /// Vertical text in `file`: the face as an `Identity-V` font and as an `Identity-H` one for
+    /// upright runs. `tracking` is the space after each cell in thousandths of an em.
+    ///
+    /// # Errors
+    ///
+    /// A message when the font cannot be read.
+    pub fn vertical_style(
+        &mut self,
+        sources: &Sources,
+        file: FontFile,
+        size: f64,
+        tracking: f64,
+    ) -> Result<Vertical, String> {
+        let face = self.face(sources, file)?;
+        let font = match self.vertical.get(&file) {
+            Some(key) => *key,
+            None => {
+                let font = Type0Font::vertical(&mut self.pdf, Rc::clone(&face));
+                let key = self.fonts.add(PdfFont::Type0(font));
+                self.vertical.insert(file, key);
+                key
+            }
+        };
+        let upright = self.composite_style(sources, file, size)?.font;
+        Ok(Vertical {
+            font,
+            upright,
+            size,
+            tracking,
+            color: (0, 0, 0),
+            origin: face.vertical_origin(),
+        })
     }
 
     /// A style in a font that is named but not embedded, with widths from `metrics`.

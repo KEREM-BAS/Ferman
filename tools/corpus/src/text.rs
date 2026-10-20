@@ -5,12 +5,22 @@
 //! Justification is done the two ways producers do it: `Tw` word spacing when the spaces are in
 //! a simple font (Word), and `TJ` adjustments after each space otherwise (LaTeX, any composite
 //! font).
+//!
+//! Right-to-left paragraphs get their levels from the Unicode bidi algorithm (UAX #9); each line
+//! is drawn in visual order, as producers write it, so numbers and Latin words inside Arabic
+//! read left to right. Text without spaces between words (Japanese) breaks at U+200B, which is
+//! not drawn.
 
-use crate::font::{Glyph, PdfFont};
+use crate::font::{Face, Glyph, PdfFont};
 use crate::pdf::{self, Content, Page, Pdf, num};
 use harfrust::{Feature, Tag};
 use lopdf::{Dictionary, Object};
 use std::collections::BTreeSet;
+use std::rc::Rc;
+use unicode_bidi::{Level, ParagraphBidiInfo};
+
+/// A break opportunity that is not drawn, between characters of text without spaces.
+pub const BREAK: char = '\u{200B}';
 
 /// A font's index in [`Fonts`]; its resource name is `/F<index + 1>`.
 pub type FontKey = usize;
@@ -68,29 +78,35 @@ impl Fonts {
         self.list.get(key).is_some_and(PdfFont::two_byte)
     }
 
+    /// The face of `key`.
+    #[must_use]
+    pub fn face(&self, key: FontKey) -> Option<Rc<Face>> {
+        self.list.get(key).map(PdfFont::face)
+    }
+
     fn is_simple(&self, key: FontKey) -> bool {
         self.list.get(key).is_some_and(|font| !font.two_byte())
     }
 
-    /// The glyphs of `text` in `style`: shaped in a composite font, encoded one by one in a
-    /// simple one, with the characters it lacks taken from the style's fallback and the
-    /// characters it borrows from the borrowed font.
+    /// The glyphs of `text` in `style` at bidi `level` (odd for right to left): shaped in a
+    /// composite font, encoded one by one in a simple one, with the characters it lacks taken
+    /// from the style's fallback and the characters it borrows from the borrowed font.
     ///
     /// # Errors
     ///
-    /// A message when a character can be set in no font.
-    pub fn runs(&mut self, style: &Style, text: &str) -> Result<Vec<Run>, String> {
-        let features = if style.ligatures {
-            Vec::new()
-        } else {
-            vec![
-                Feature::new(Tag::new(b"liga"), 0, ..),
-                Feature::new(Tag::new(b"clig"), 0, ..),
-            ]
-        };
+    /// A message when a character can be set in no font, or when right-to-left text is not in
+    /// a composite font.
+    pub fn runs(&mut self, style: &Style, text: &str, level: u8) -> Result<Vec<Run>, String> {
+        let features = style.features();
+        let rtl = level % 2 == 1;
         if let Some(PdfFont::Type0(_)) = self.list.get(style.font) {
-            let glyphs = self.shape(style.font, text, &features)?;
-            return Ok(vec![style.run(style.font, glyphs)]);
+            let glyphs = self.shape(style.font, text, &features, rtl)?;
+            return Ok(vec![style.run(style.font, glyphs, level)]);
+        }
+        if rtl {
+            return Err(format!(
+                "right-to-left text needs a composite font: {text:?}"
+            ));
         }
         let mut runs: Vec<Run> = Vec::new();
         let mut pending = String::new();
@@ -116,8 +132,8 @@ impl Fonts {
             };
             if target != pending_font && !pending.is_empty() {
                 if let Some(key) = pending_font {
-                    let glyphs = self.shape(key, &pending, &features)?;
-                    runs.push(style.run(key, glyphs));
+                    let glyphs = self.shape(key, &pending, &features, false)?;
+                    runs.push(style.run(key, glyphs, 0));
                 }
                 pending.clear();
             }
@@ -125,26 +141,32 @@ impl Fonts {
             match glyph {
                 Some(glyph) => match runs.last_mut() {
                     Some(last) if last.font == style.font => last.glyphs.push(glyph),
-                    _ => runs.push(style.run(style.font, vec![glyph])),
+                    _ => runs.push(style.run(style.font, vec![glyph], 0)),
                 },
                 None => pending.push(c),
             }
         }
         if let Some(key) = pending_font.filter(|_| !pending.is_empty()) {
-            let glyphs = self.shape(key, &pending, &features)?;
-            runs.push(style.run(key, glyphs));
+            let glyphs = self.shape(key, &pending, &features, false)?;
+            runs.push(style.run(key, glyphs, 0));
         }
         Ok(runs)
     }
 
-    fn shape(
+    /// The glyphs of `text` in the composite font `key`, in visual order.
+    ///
+    /// # Errors
+    ///
+    /// A message when `key` is not a composite font or shaping fails.
+    pub fn shape(
         &mut self,
         key: FontKey,
         text: &str,
         features: &[Feature],
+        rtl: bool,
     ) -> Result<Vec<Glyph>, String> {
         match self.list.get_mut(key) {
-            Some(PdfFont::Type0(font)) => font.shape(text, features),
+            Some(PdfFont::Type0(font)) => font.shape(text, features, rtl),
             _ => Err(format!("font {key} is not a composite font")),
         }
     }
@@ -170,6 +192,9 @@ pub struct Style {
     /// A composite font that sets these characters, as a producer does for glyphs its font
     /// lacks.
     pub borrowed: Option<(FontKey, &'static str)>,
+    /// Whether the text is in a right-to-left paragraph: the bidi algorithm orders it, and a
+    /// justified paragraph's last line sits on the right.
+    pub rtl: bool,
 }
 
 impl Style {
@@ -185,16 +210,31 @@ impl Style {
             word_spacing: false,
             char_spacing: 0.0,
             borrowed: None,
+            rtl: false,
         }
     }
 
-    fn run(&self, font: FontKey, glyphs: Vec<Glyph>) -> Run {
+    /// The features the shaper turns off: ligatures, unless the style allows them.
+    #[must_use]
+    pub fn features(&self) -> Vec<Feature> {
+        if self.ligatures {
+            Vec::new()
+        } else {
+            vec![
+                Feature::new(Tag::new(b"liga"), 0, ..),
+                Feature::new(Tag::new(b"clig"), 0, ..),
+            ]
+        }
+    }
+
+    fn run(&self, font: FontKey, glyphs: Vec<Glyph>, level: u8) -> Run {
         Run {
             font,
             size: self.size,
             color: self.color,
             spacing: self.char_spacing,
             glyphs,
+            level,
         }
     }
 
@@ -215,6 +255,15 @@ impl Style {
             ..self.clone()
         }
     }
+
+    /// The same style in a right-to-left paragraph.
+    #[must_use]
+    pub fn right_to_left(&self) -> Self {
+        Self {
+            rtl: true,
+            ..self.clone()
+        }
+    }
 }
 
 /// Glyphs in one font at one size.
@@ -228,8 +277,10 @@ pub struct Run {
     pub color: (u8, u8, u8),
     /// The character spacing in points.
     pub spacing: f64,
-    /// The glyphs.
+    /// The glyphs, in visual order.
     pub glyphs: Vec<Glyph>,
+    /// Its bidi level: 0 in left-to-right text, odd where it reads right to left.
+    pub level: u8,
 }
 
 impl Run {
@@ -283,6 +334,8 @@ pub struct Line {
     items: Vec<Item>,
     /// The largest size on the line.
     pub size: f64,
+    /// Whether it belongs to a right-to-left paragraph.
+    pub rtl: bool,
 }
 
 impl Line {
@@ -292,7 +345,86 @@ impl Line {
         self.items.iter().map(Item::width).sum()
     }
 
-    /// The text of the line.
+    /// The runs in visual order, each with whether it is a space (UAX #9 rule L2: from the
+    /// highest level down to the lowest odd one, every sequence at that level or above is
+    /// reversed). A run's own glyphs are already in visual order.
+    fn visual_runs(&self) -> Vec<(&Run, bool)> {
+        let mut runs: Vec<(&Run, bool)> = Vec::new();
+        for item in &self.items {
+            match item {
+                Item::Word { runs: word, .. } => runs.extend(word.iter().map(|run| (run, false))),
+                Item::Space(run) => runs.push((run, true)),
+            }
+        }
+        let highest = runs.iter().map(|(run, _)| run.level).max().unwrap_or(0);
+        let lowest_odd = runs
+            .iter()
+            .map(|(run, _)| run.level)
+            .filter(|level| level % 2 == 1)
+            .min();
+        if let Some(lowest_odd) = lowest_odd {
+            for level in (lowest_odd..=highest).rev() {
+                let mut index = 0;
+                while index < runs.len() {
+                    if runs[index].0.level < level {
+                        index += 1;
+                        continue;
+                    }
+                    let start = index;
+                    while index < runs.len() && runs[index].0.level >= level {
+                        index += 1;
+                    }
+                    runs[start..index].reverse();
+                }
+            }
+        }
+        runs
+    }
+
+    /// Where the line starts in `width` from `x`, and the space added after each space.
+    fn start_and_extra(&self, x: f64, width: f64, align: Align, last: bool) -> (f64, f64) {
+        let natural = self.width();
+        let spaces = self
+            .items
+            .iter()
+            .filter(|item| matches!(item, Item::Space(_)))
+            .count();
+        match align {
+            Align::Left => (x, 0.0),
+            Align::Center => (x + (width - natural) / 2.0, 0.0),
+            Align::Right => (x + width - natural, 0.0),
+            Align::Justify if (last || spaces == 0) && self.rtl => (x + width - natural, 0.0),
+            Align::Justify if last || spaces == 0 => (x, 0.0),
+            #[allow(clippy::cast_precision_loss)]
+            Align::Justify => (x, (width - natural) / spaces as f64),
+        }
+    }
+
+    /// Every glyph of the line with its pen position, as [`draw_line`] would place it in
+    /// `width` points from `x`: for drawing the line other than in a content stream.
+    #[must_use]
+    pub fn placements(&self, x: f64, width: f64, align: Align, last: bool) -> Vec<Placed> {
+        let (mut pen, extra) = self.start_and_extra(x, width, align, last);
+        let mut placed = Vec::new();
+        for (run, is_space) in self.visual_runs() {
+            for glyph in &run.glyphs {
+                placed.push(Placed {
+                    font: run.font,
+                    gid: glyph.gid,
+                    x: pen,
+                    size: run.size,
+                    color: run.color,
+                });
+                pen += glyph.advance * run.size / 1000.0 + run.spacing;
+            }
+            if is_space {
+                pen += extra;
+            }
+        }
+        placed
+    }
+
+    /// The text of the line, in logical order.
     #[must_use]
     pub fn text(&self) -> String {
         let mut text = String::new();
@@ -306,16 +438,46 @@ impl Line {
     }
 }
 
-/// Breaks `spans` into lines no wider than `width` points, at spaces.
+/// A glyph of a line at its pen position.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Placed {
+    /// Its font.
+    pub font: FontKey,
+    /// The glyph in the font file.
+    pub gid: u16,
+    /// The pen position from the left, in points.
+    pub x: f64,
+    /// The size in points.
+    pub size: f64,
+    /// The fill colour.
+    pub color: (u8, u8, u8),
+}
+
+/// Breaks `spans` into lines no wider than `width` points, at spaces and at [`BREAK`]. The
+/// first span's style says whether the paragraph is right to left.
 ///
 /// # Errors
 ///
 /// A message when a character cannot be set.
 pub fn lay_out(fonts: &mut Fonts, spans: &[Span], width: f64) -> Result<Vec<Line>, String> {
+    let rtl = spans.first().is_some_and(|span| span.style.rtl);
+    // The bidi level of every byte of the paragraph (none for left-to-right text).
+    let levels: Vec<u8> = if rtl {
+        let whole: String = spans.iter().map(|span| span.text.as_str()).collect();
+        ParagraphBidiInfo::new(&whole, Some(Level::rtl()))
+            .levels
+            .iter()
+            .map(Level::number)
+            .collect()
+    } else {
+        Vec::new()
+    };
+    let level_at = |offset: usize| levels.get(offset).copied().unwrap_or(0);
     // Words and spaces in order; a word may cross spans.
     let mut items: Vec<Item> = Vec::new();
     let mut word_runs: Vec<Run> = Vec::new();
     let mut word_text = String::new();
+    let mut offset = 0;
     for span in spans {
         let mut rest = span.text.as_str();
         while !rest.is_empty() {
@@ -327,18 +489,41 @@ pub fn lay_out(fonts: &mut Fonts, spans: &[Span], width: f64) -> Result<Vec<Line
                     });
                 }
                 if !matches!(items.last(), Some(Item::Space(_)) | None) {
-                    let mut runs = fonts.runs(&span.style, " ")?;
+                    let mut runs = fonts.runs(&span.style, " ", level_at(offset))?;
                     if let Some(run) = runs.pop() {
                         items.push(Item::Space(run));
                     }
                 }
+                offset += 1;
                 rest = after;
                 continue;
             }
-            let end = rest.find(' ').unwrap_or(rest.len());
+            if let Some(after) = rest.strip_prefix(BREAK) {
+                if !word_text.is_empty() {
+                    items.push(Item::Word {
+                        runs: std::mem::take(&mut word_runs),
+                        text: std::mem::take(&mut word_text),
+                    });
+                }
+                offset += BREAK.len_utf8();
+                rest = after;
+                continue;
+            }
+            let end = rest.find([' ', BREAK]).unwrap_or(rest.len());
             let piece = &rest[..end];
-            word_runs.extend(fonts.runs(&span.style, piece)?);
+            // One run per bidi level inside the word.
+            let mut start = 0;
+            while start < piece.len() {
+                let level = level_at(offset + start);
+                let stop = piece[start..]
+                    .char_indices()
+                    .find(|(at, _)| level_at(offset + start + at) != level)
+                    .map_or(piece.len(), |(at, _)| start + at);
+                word_runs.extend(fonts.runs(&span.style, &piece[start..stop], level)?);
+                start = stop;
+            }
             word_text.push_str(piece);
+            offset += end;
             rest = &rest[end..];
         }
     }
@@ -370,6 +555,7 @@ pub fn lay_out(fonts: &mut Fonts, spans: &[Span], width: f64) -> Result<Vec<Line
                     lines.push(Line {
                         items: std::mem::take(&mut current),
                         size,
+                        rtl,
                     });
                     current_width = 0.0;
                     pending_space = None;
@@ -388,6 +574,7 @@ pub fn lay_out(fonts: &mut Fonts, spans: &[Span], width: f64) -> Result<Vec<Line
         lines.push(Line {
             items: current,
             size,
+            rtl,
         });
     }
     Ok(lines)
@@ -407,7 +594,8 @@ pub enum Align {
 }
 
 /// Draws `line` with its baseline at `y`, in `width` points from `x`, and returns the fonts it
-/// used. `last` marks a paragraph's last line, which is never justified.
+/// used. `last` marks a paragraph's last line, which is never justified. The runs go in visual
+/// order.
 #[allow(clippy::too_many_arguments)]
 pub fn draw_line(
     content: &mut Content,
@@ -419,20 +607,7 @@ pub fn draw_line(
     last: bool,
     word_spacing: bool,
 ) -> BTreeSet<FontKey> {
-    let natural = line.width();
-    let spaces = line
-        .items
-        .iter()
-        .filter(|item| matches!(item, Item::Space(_)))
-        .count();
-    let (x, extra) = match align {
-        Align::Left => (origin.0, 0.0),
-        Align::Center => (origin.0 + (width - natural) / 2.0, 0.0),
-        Align::Right => (origin.0 + width - natural, 0.0),
-        Align::Justify if last || spaces == 0 => (origin.0, 0.0),
-        #[allow(clippy::cast_precision_loss)]
-        Align::Justify => (origin.0, (width - natural) / spaces as f64),
-    };
+    let (x, extra) = line.start_and_extra(origin.0, width, align, last);
     let use_tw = extra > 0.0
         && word_spacing
         && line.items.iter().all(|item| match item {
@@ -456,12 +631,8 @@ pub fn draw_line(
             array.clear();
         }
     };
-    for item in &line.items {
-        let (runs, is_space) = match item {
-            Item::Word { runs, .. } => (runs.as_slice(), false),
-            Item::Space(run) => (std::slice::from_ref(run), true),
-        };
-        for run in runs {
+    for (run, is_space) in line.visual_runs() {
+        {
             if state != Some((run.font, run.size)) {
                 flush(content, &mut array);
                 content.op(&format!(

@@ -47,23 +47,29 @@ each file covers.
 | `payslip-aes256`, `payslip-rc4-40`, `payslip-rc4-128`, `payslip-aes128` | `docs/payslip.rs` | The payslip of `a1-8`, in the four encryption methods |
 | `xfa-visa`, `form-aks1-tr`, `form-aks1-flat` | `docs/forms.rs` | An XFA-only form; the e-Devlet form of `DocForm` with and without its fields |
 | `mietvertrag-de`, `nda-en` | `docs/contracts.rs` | A German lease; an English NDA with a signature's structure |
+| `report-ar` | `docs/report.rs` | The 12-page Arabic annual report of `a2-15`, right to left |
+| `letter-ja-vertical` | `docs/letter.rs` | The Japanese letter of `a3-15` in vertical text |
 | `tez-tr` | `docs/tez.rs` | A 64-page tagged thesis with an outline and page labels |
 | `ocg-plan` | `docs/plan.rs` | The floor plan of `DocPlan` in layers, with a measuring scale |
 | `js-openaction` | `docs/scripts.rs` | A notice with document JavaScript |
+| `scan-tr`, `quote-ja-scan` | `docs/scans.rs` | Image-only scans: the rent-increase letter of `a3-11` and a Japanese quotation |
 | `long-500`, `imar-2400` | `docs/long.rs` | The long files of the performance budgets (not committed) |
-
-The Arabic report, the Japanese letter and the two scans come in the next commit.
 
 The generators share a small PDF writer:
 
 - **`pdf.rs`:** objects, compressed streams, pages, the information dictionary and a fixed `/ID`,
   on lopdf.
 - **`font.rs`, `sfnt.rs`:** the three kinds of font producers write:
-  - composite `Identity-H` subsets, shaped by harfrust;
+  - composite `Identity-H` and `Identity-V` subsets, shaped by harfrust in the text's direction;
   - simple TrueType WinAnsi subsets, with the `cmap` that subsetter leaves out put back;
   - fonts named but not embedded.
 - **`text.rs`:** lines, justification with `Tw` or `TJ`, page flow, marked content and the expected
-  text.
+  text. Right-to-left paragraphs get their levels from unicode-bidi and each line is drawn in visual
+  order; text without spaces breaks at U+200B.
+- **`vertical.rs`, `kinsoku.rs`:** vertical columns in `Identity-V` fonts, with tate-chu-yoko, and
+  the Japanese line-breaking rules for columns and lines.
+- **`raster.rs`:** the scanner: glyph outlines and rectangles filled into a greyscale bitmap, the
+  page turned slightly, and the image written greyscale with PNG predictors or at one bit per pixel.
 - **`crypt.rs`:** the standard security handler, with seeded initialisation vectors and salts.
 - **`docs/files.rs`:** the attachments: a stored zip for the spreadsheet, and greyscale JPEGs coded
   with DC coefficients only.
@@ -71,8 +77,9 @@ The generators share a small PDF writer:
 ## The fonts
 
 The generators read IBM Plex from `app/assets/fonts/`, pinned by `tools/fonts/fonts.lock`. Fonts
-Ferman does not bundle are listed in [`fonts.lock`](fonts.lock): EB Garamond, OFL-1.1, from
-google/fonts. `fetch-fonts.sh` downloads them into `build/corpus-fonts/` (gitignored); a file already
+Ferman does not bundle are listed in [`fonts.lock`](fonts.lock): EB Garamond and Noto Serif JP, both
+OFL-1.1, from google/fonts. A variable font is used at one instance (`FontFile::variations`): its
+metrics, its shaping and its subset take the same variations, and subsetter instances the subset. `fetch-fonts.sh` downloads them into `build/corpus-fonts/` (gitignored); a file already
 there with the right hash is kept. Every font is checked against its pinned SHA-256 before use, so a
 generator fails rather than make other bytes. The PDFs embed subsets, which the fonts' licences allow.
 CI caches the folder by the hash of `fonts.lock`.
@@ -83,7 +90,8 @@ Each generator writes two files to `tests/corpus/generated/`:
 
 - **`<name>.pdf`:** the document.
 - **`<name>.expected.txt`:** the text a reader should extract, one page per form feed (U+000C), in
-  drawing order. It shares the PDF's row in the README.
+  drawing order and, for right-to-left text, in logical order. It shares the PDF's row in the
+  README. A scan's pages have no text, so its file holds only the form feeds.
 
 The output is the same bytes on every run and every system:
 
@@ -122,6 +130,10 @@ reader independent of lopdf:
 - **A file that should open** opens, with its password when it has one. It has one page per page of
   its expected text, and each page's text equals the expected text once whitespace is removed
   (PDFium inserts its own spaces and line breaks).
+- **A file with right-to-left or vertical text** (`Expect::OpensUnordered`: `report-ar`,
+  `letter-ja-vertical`) has the same characters on each page, in any order. PDFium guesses the order
+  of such text: it reverses the text of Arabic ligature glyphs, moves neutral characters at the edge
+  of numbers and orders vertical columns its own way.
 - **An encrypted file** does not open without its password.
 - **A file that should not open** (`truncated`) does not.
 

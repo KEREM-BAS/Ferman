@@ -1,21 +1,27 @@
 //! Fonts in the generated PDFs, the three kinds real producers write:
 //!
-//! - [`Type0Font`]: a composite font, `Identity-H`, a subset TrueType program (`CIDFontType2`),
-//!   `/W` widths and a `/ToUnicode` CMap. Text is shaped with harfrust, so it has kerning and,
-//!   when the style asks, ligatures.
+//! - [`Type0Font`]: a composite font, `Identity-H` (or `Identity-V` for vertical text, with
+//!   `/W2` and `/DW2`), a subset TrueType program (`CIDFontType2`), `/W` widths and a
+//!   `/ToUnicode` CMap. Text is shaped with harfrust, so it has kerning, Arabic joining and the
+//!   vertical forms and, when the style asks, ligatures.
 //! - [`SimpleFont`]: a simple TrueType font with `/WinAnsiEncoding` and a subset program, as Word
 //!   writes for text inside Windows-1252. subsetter drops the `cmap` table, so a (3,1) one for the
 //!   used characters is put back ([`crate::sfnt`]).
 //! - [`StandardFont`]: a font that is named but not embedded, with `/WinAnsiEncoding` or the
 //!   Windows-1254 `/Differences` that older Turkish files use.
 //!
-//! Subset tags come from the SHA-256 of the glyphs used, so they are stable from run to run.
+//! Subset tags come from the SHA-256 of the glyphs used, so they are stable from run to run. A
+//! variable font is used at one location: its metrics, its shaping and its subset (instanced by
+//! subsetter) all take the same variations.
 
 use crate::pdf::{Pdf, name, real};
 use crate::{sfnt, sha256_hex};
-use harfrust::{Buffer, Feature, ShapeOptions, ShaperFont};
+use harfrust::{Buffer, Direction, Feature, ShapeOptions, ShaperFont};
 use lopdf::{Dictionary, Object, ObjectId, dictionary};
-use skrifa::instance::{LocationRef, Size};
+use skrifa::instance::{Location, Size};
+use skrifa::outline::{DrawSettings, OutlinePen};
+use skrifa::raw::TableProvider;
+use skrifa::raw::types::Tag;
 use skrifa::string::StringId;
 use skrifa::{FontRef, GlyphId, MetadataProvider};
 use std::collections::BTreeMap;
@@ -27,6 +33,9 @@ use subsetter::GlyphRemapper;
 pub struct Face {
     data: Vec<u8>,
     font: harfrust::Font,
+    /// The location in a variable font, and the variations that give it.
+    location: Location,
+    variations: Vec<([u8; 4], f32)>,
     upem: f64,
     /// The PostScript name, such as `IBMPlexSerif`.
     pub postscript_name: String,
@@ -38,6 +47,8 @@ pub struct Face {
     cap_height: f64,
     italic_angle: f64,
     bbox: [f64; 4],
+    /// The vertical origin of a glyph without an outline: the typographic ascender.
+    vertical_origin: f64,
 }
 
 impl std::fmt::Debug for Face {
@@ -55,19 +66,25 @@ pub struct Shaped {
     pub gid: u16,
     /// The byte offset of its cluster in the shaped text.
     pub cluster: usize,
-    /// The horizontal advance the shaper gives it.
+    /// The advance the shaper gives it: horizontal, or downwards in vertical text.
     pub advance: f64,
 }
 
 impl Face {
-    /// Loads a font file. `serif` sets the descriptor's Serif flag.
+    /// Loads a font file at `variations` (axis tag and value; none for a static font). `serif`
+    /// sets the descriptor's Serif flag.
     ///
     /// # Errors
     ///
     /// A message when the file is not a font skrifa and harfrust can read.
-    pub fn new(data: Vec<u8>, serif: bool) -> Result<Self, String> {
+    pub fn new(data: Vec<u8>, serif: bool, variations: &[([u8; 4], f32)]) -> Result<Self, String> {
         let font_ref = FontRef::new(&data).map_err(|err| format!("font: {err}"))?;
-        let metrics = font_ref.metrics(Size::unscaled(), LocationRef::default());
+        let location = font_ref.axes().location(
+            variations
+                .iter()
+                .map(|(tag, value)| (Tag::new(tag), *value)),
+        );
+        let metrics = font_ref.metrics(Size::unscaled(), &location);
         let upem = f64::from(metrics.units_per_em);
         let scale = 1000.0 / upem;
         let postscript_name = font_ref
@@ -77,12 +94,30 @@ impl Face {
             .ok_or("font: no PostScript name")?;
         let attributes = font_ref.attributes();
         let bounds = metrics.bounds.unwrap_or_default();
+        let vertical_origin = font_ref.os2().map_or(f64::from(metrics.ascent), |os2| {
+            f64::from(os2.s_typo_ascender())
+        }) * scale;
+        let font = harfrust::Font::new(data.clone(), 0).ok_or("font: harfrust cannot read it")?;
+        let font = if variations.is_empty() {
+            font
+        } else {
+            font.instance_builder()
+                .variations(variations.iter().map(|(tag, value)| {
+                    harfrust::font::Variation::new(harfrust::Tag::new(tag), *value)
+                }))
+                .build()
+        };
         let face = Self {
             upem,
             postscript_name,
             serif,
             italic: attributes.style != skrifa::attribute::Style::Normal,
-            weight: f64::from(attributes.weight.value()),
+            weight: variations
+                .iter()
+                .find(|(tag, _)| tag == b"wght")
+                .map_or(f64::from(attributes.weight.value()), |(_, value)| {
+                    f64::from(*value)
+                }),
             ascent: f64::from(metrics.ascent) * scale,
             descent: f64::from(metrics.descent) * scale,
             cap_height: f64::from(metrics.cap_height.unwrap_or(metrics.ascent * 0.7)) * scale,
@@ -93,7 +128,10 @@ impl Face {
                 f64::from(bounds.x_max) * scale,
                 f64::from(bounds.y_max) * scale,
             ],
-            font: harfrust::Font::new(data.clone(), 0).ok_or("font: harfrust cannot read it")?,
+            vertical_origin,
+            font,
+            location,
+            variations: variations.to_vec(),
             data,
         };
         Ok(face)
@@ -115,10 +153,84 @@ impl Face {
     pub fn advance(&self, gid: u16) -> f64 {
         self.font_ref()
             .and_then(|font| {
-                font.glyph_metrics(Size::unscaled(), LocationRef::default())
+                font.glyph_metrics(Size::unscaled(), &self.location)
                     .advance_width(GlyphId::new(u32::from(gid)))
             })
             .map_or(0.0, |advance| f64::from(advance) * 1000.0 / self.upem)
+    }
+
+    /// The vertical advance of `gid` and the height of its vertical origin above the baseline,
+    /// in thousandths of an em: from `vmtx` and the glyph's top, as shapers place it; the
+    /// typographic ascender for a glyph without an outline.
+    #[must_use]
+    pub fn vertical(&self, gid: u16) -> (f64, f64) {
+        let scale = 1000.0 / self.upem;
+        let glyph = GlyphId::new(u32::from(gid));
+        let Some(font) = self.font_ref() else {
+            return (1000.0, self.vertical_origin);
+        };
+        let vmtx = font.vmtx().ok();
+        let advance = vmtx
+            .as_ref()
+            .and_then(|vmtx| vmtx.advance(glyph))
+            .map_or(1000.0, |advance| f64::from(advance) * scale);
+        let top = font
+            .glyph_metrics(Size::unscaled(), &self.location)
+            .bounds(glyph)
+            .filter(|bounds| bounds.x_max > bounds.x_min && bounds.y_max > bounds.y_min)
+            .map(|bounds| bounds.y_max);
+        let side_bearing = vmtx.as_ref().and_then(|vmtx| vmtx.side_bearing(glyph));
+        let origin = match (side_bearing, top) {
+            (Some(side_bearing), Some(top)) => (f64::from(side_bearing) + f64::from(top)) * scale,
+            _ => self.vertical_origin,
+        };
+        (advance, origin)
+    }
+
+    /// The vertical origin of a glyph without an outline, in thousandths of an em.
+    #[must_use]
+    pub fn vertical_origin(&self) -> f64 {
+        self.vertical_origin
+    }
+
+    /// Draws the outline of `gid`, in font units, at the face's location. Returns false when
+    /// the glyph has none.
+    pub fn draw_outline(&self, gid: u16, pen: &mut impl OutlinePen) -> bool {
+        let Some(font) = self.font_ref() else {
+            return false;
+        };
+        let glyphs = font.outline_glyphs();
+        glyphs
+            .get(GlyphId::new(u32::from(gid)))
+            .is_some_and(|glyph| {
+                glyph
+                    .draw(
+                        DrawSettings::unhinted(Size::unscaled(), &self.location),
+                        pen,
+                    )
+                    .is_ok()
+            })
+    }
+
+    /// The units per em.
+    #[must_use]
+    pub fn units_per_em(&self) -> f64 {
+        self.upem
+    }
+
+    /// The subset program for `remap`, instanced at the face's location.
+    fn subset(&self, remap: &GlyphRemapper) -> Result<Vec<u8>, String> {
+        let program = if self.variations.is_empty() {
+            subsetter::subset(&self.data, 0, remap)
+        } else {
+            let coordinates: Vec<(subsetter::Tag, f32)> = self
+                .variations
+                .iter()
+                .map(|(tag, value)| (subsetter::Tag::new(tag), *value))
+                .collect();
+            subsetter::subset_with_variations(&self.data, 0, &coordinates, remap)
+        };
+        program.map_err(|err| format!("subsetting {}: {err}", self.postscript_name))
     }
 
     /// The ascent in thousandths of an em.
@@ -127,15 +239,22 @@ impl Face {
         self.ascent
     }
 
-    /// Shapes `text` left to right with `features`.
+    /// Shapes `text` in `direction` with `features`. The glyphs come in visual order: right to
+    /// left text comes last character first.
     ///
     /// # Errors
     ///
     /// A message when harfrust fails.
-    pub fn shape(&self, text: &str, features: &[Feature]) -> Result<Vec<Shaped>, String> {
+    pub fn shape(
+        &self,
+        text: &str,
+        features: &[Feature],
+        direction: Direction,
+    ) -> Result<Vec<Shaped>, String> {
         let shaper = ShaperFont::new(&self.font);
         let mut buffer = Buffer::new();
         buffer.push_str(text);
+        buffer.set_direction(direction);
         buffer.guess_segment_properties();
         harfrust::shape(&shaper, &mut buffer, ShapeOptions::new().features(features))
             .map_err(|err| format!("shaping {text:?}: {err:?}"))?;
@@ -145,10 +264,15 @@ impl Face {
             .iter()
             .zip(buffer.glyph_positions())
             .map(|(info, position)| {
+                let advance = if direction == Direction::TopToBottom {
+                    -position.y_advance
+                } else {
+                    position.x_advance
+                };
                 Ok(Shaped {
                     gid: u16::try_from(info.glyph_id).map_err(|err| err.to_string())?,
                     cluster: usize::try_from(info.cluster).map_err(|err| err.to_string())?,
-                    advance: f64::from(position.x_advance) * scale,
+                    advance: f64::from(advance) * scale,
                 })
             })
             .collect()
@@ -187,15 +311,36 @@ impl Face {
 /// A glyph ready for a content stream.
 #[derive(Debug, Clone, PartialEq)]
 pub struct Glyph {
-    /// The bytes that select it: one for a simple font, two for `Identity-H`.
+    /// The bytes that select it: one for a simple font, two for `Identity-H` and `Identity-V`.
     pub code: Vec<u8>,
-    /// Its width in the font's `/Widths` or `/W`, in thousandths of an em.
+    /// The glyph in the font file (0 for a font that is not embedded).
+    pub gid: u16,
+    /// Its width in the font's `/Widths` or `/W`, or its vertical advance in `/W2`, in
+    /// thousandths of an em.
     pub width: f64,
     /// How far the shaper moves the pen after it; the difference from `width` becomes a `TJ`
     /// adjustment.
     pub advance: f64,
     /// Whether it is a space, which justification may widen.
     pub space: bool,
+}
+
+/// The mirrored form of a bracket (UAX #9 rule L4), for the pairs producers' text has.
+fn mirror(c: char) -> Option<char> {
+    let pair = match c {
+        '(' => ')',
+        ')' => '(',
+        '[' => ']',
+        ']' => '[',
+        '{' => '}',
+        '}' => '{',
+        '<' => '>',
+        '>' => '<',
+        '«' => '»',
+        '»' => '«',
+        _ => return None,
+    };
+    Some(pair)
 }
 
 /// A six-letter subset tag from `seed`.
@@ -239,29 +384,43 @@ fn to_unicode(map: &BTreeMap<Vec<u8>, String>, two_byte: bool) -> Vec<u8> {
     out.into_bytes()
 }
 
-/// A composite font: `Type0`, `Identity-H`, `CIDFontType2` with CIDs equal to the subset's
-/// glyph ids.
+/// A composite font: `Type0`, `Identity-H` or `Identity-V`, `CIDFontType2` with CIDs equal to
+/// the subset's glyph ids.
 #[derive(Debug)]
 pub struct Type0Font {
     face: Rc<Face>,
     /// The font dictionary's object, reserved when the font is made.
     pub id: ObjectId,
+    /// Whether it sets text top to bottom (`Identity-V`).
+    pub vertical: bool,
     remap: GlyphRemapper,
     unicode: BTreeMap<u16, String>,
     widths: BTreeMap<u16, f64>,
-    cache: std::collections::HashMap<(String, usize), Vec<Glyph>>,
+    /// The vertical advance and origin of each CID, for `/W2`.
+    vertical_metrics: BTreeMap<u16, (f64, f64)>,
+    cache: std::collections::HashMap<(String, usize, bool), Vec<Glyph>>,
 }
 
 impl Type0Font {
-    /// A font on `face`, its object reserved in `pdf`.
+    /// A horizontal font on `face`, its object reserved in `pdf`.
     pub fn new(pdf: &mut Pdf, face: Rc<Face>) -> Self {
         Self {
             face,
             id: pdf.reserve(),
+            vertical: false,
             remap: GlyphRemapper::new(),
             unicode: BTreeMap::new(),
             widths: BTreeMap::new(),
+            vertical_metrics: BTreeMap::new(),
             cache: std::collections::HashMap::new(),
+        }
+    }
+
+    /// A vertical font (`Identity-V`) on `face`, its object reserved in `pdf`.
+    pub fn vertical(pdf: &mut Pdf, face: Rc<Face>) -> Self {
+        Self {
+            vertical: true,
+            ..Self::new(pdf, face)
         }
     }
 
@@ -271,55 +430,115 @@ impl Type0Font {
         &self.face
     }
 
-    /// Shapes `text` and returns its glyphs, each mapped to the text of its cluster.
+    /// The face, shared.
+    #[must_use]
+    pub fn shared_face(&self) -> Rc<Face> {
+        Rc::clone(&self.face)
+    }
+
+    /// Shapes `text` and returns its glyphs in visual order, each mapped to the text of its
+    /// cluster. `rtl` shapes a horizontal font right to left; a vertical font always shapes top
+    /// to bottom.
     ///
     /// # Errors
     ///
     /// A message when shaping fails or the face lacks a character (glyph 0).
-    pub fn shape(&mut self, text: &str, features: &[Feature]) -> Result<Vec<Glyph>, String> {
-        let key = (text.to_owned(), features.len());
+    pub fn shape(
+        &mut self,
+        text: &str,
+        features: &[Feature],
+        rtl: bool,
+    ) -> Result<Vec<Glyph>, String> {
+        let key = (text.to_owned(), features.len(), rtl);
         if let Some(glyphs) = self.cache.get(&key) {
             return Ok(glyphs.clone());
         }
-        let glyphs = self.shape_uncached(text, features)?;
+        let glyphs = self.shape_uncached(text, features, rtl)?;
         self.cache.insert(key, glyphs.clone());
         Ok(glyphs)
     }
 
-    fn shape_uncached(&mut self, text: &str, features: &[Feature]) -> Result<Vec<Glyph>, String> {
-        let shaped = self.face.shape(text, features)?;
+    fn shape_uncached(
+        &mut self,
+        text: &str,
+        features: &[Feature],
+        rtl: bool,
+    ) -> Result<Vec<Glyph>, String> {
+        let direction = match (self.vertical, rtl) {
+            (true, _) => Direction::TopToBottom,
+            (false, true) => Direction::RightToLeft,
+            (false, false) => Direction::LeftToRight,
+        };
+        let shaped = self.face.shape(text, features, direction)?;
         let mut clusters: Vec<usize> = shaped.iter().map(|glyph| glyph.cluster).collect();
         clusters.sort_unstable();
         clusters.dedup();
-        let mut seen = std::collections::BTreeSet::new();
+        // The glyphs of each cluster in logical order: right to left output comes reversed.
+        let mut members: BTreeMap<usize, Vec<usize>> = BTreeMap::new();
+        for (index, glyph) in shaped.iter().enumerate() {
+            members.entry(glyph.cluster).or_default().push(index);
+        }
+        let mut texts: Vec<Option<String>> = vec![None; shaped.len()];
+        for (cluster, indices) in &mut members {
+            if direction == Direction::RightToLeft {
+                indices.reverse();
+            }
+            let end = clusters
+                .iter()
+                .find(|start| *start > cluster)
+                .copied()
+                .unwrap_or(text.len());
+            let cluster_text = text.get(*cluster..end).unwrap_or_default();
+            let chars: Vec<char> = cluster_text.chars().collect();
+            if let ([index], [c]) = (indices.as_slice(), chars.as_slice()) {
+                // A bracket the shaper mirrored in right-to-left text maps to the character
+                // its glyph shows, as the font's cmap has it.
+                let shown = mirror(*c)
+                    .filter(|_| direction == Direction::RightToLeft)
+                    .filter(|m| self.face.glyph(*m) == shaped.get(*index).map(|glyph| glyph.gid));
+                if let Some(slot) = texts.get_mut(*index) {
+                    *slot = Some(shown.unwrap_or(*c).to_string());
+                }
+            } else if indices.len() > 1 && indices.len() == chars.len() {
+                // One glyph per character, as a base and its marks.
+                for (index, c) in indices.iter().zip(chars) {
+                    if let Some(slot) = texts.get_mut(*index) {
+                        *slot = Some(c.to_string());
+                    }
+                }
+            } else if let Some(slot) = indices.first().and_then(|index| texts.get_mut(*index)) {
+                *slot = Some(cluster_text.to_owned());
+            }
+        }
         let mut glyphs = Vec::with_capacity(shaped.len());
-        for glyph in shaped {
+        for (glyph, glyph_text) in shaped.into_iter().zip(texts) {
             if glyph.gid == 0 {
                 return Err(format!(
                     "{} has no glyph for {:?}",
                     self.face.postscript_name,
-                    &text[glyph.cluster..]
+                    text.get(glyph.cluster..).unwrap_or_default()
                 ));
             }
             let cid = self.remap.remap(glyph.gid);
-            let end = clusters
-                .iter()
-                .find(|start| **start > glyph.cluster)
-                .copied()
-                .unwrap_or(text.len());
-            let cluster_text = &text[glyph.cluster..end];
-            if seen.insert(glyph.cluster) {
-                self.unicode
-                    .entry(cid)
-                    .or_insert_with(|| cluster_text.to_owned());
+            let space = glyph_text.as_deref() == Some(" ");
+            if let Some(glyph_text) = glyph_text {
+                self.unicode.entry(cid).or_insert(glyph_text);
             }
-            let width = self.face.advance(glyph.gid);
-            self.widths.insert(cid, width);
+            let horizontal = self.face.advance(glyph.gid);
+            self.widths.insert(cid, horizontal);
+            let width = if self.vertical {
+                let metrics = self.face.vertical(glyph.gid);
+                self.vertical_metrics.insert(cid, metrics);
+                metrics.0
+            } else {
+                horizontal
+            };
             glyphs.push(Glyph {
                 code: cid.to_be_bytes().to_vec(),
+                gid: glyph.gid,
                 width,
                 advance: glyph.advance,
-                space: cluster_text == " ",
+                space,
             });
         }
         Ok(glyphs)
@@ -334,8 +553,7 @@ impl Type0Font {
         let gids: Vec<u16> = self.remap.remapped_gids().collect();
         let tag = subset_tag(&format!("{}{gids:?}", self.face.postscript_name));
         let base_font = format!("{tag}+{}", self.face.postscript_name);
-        let program = subsetter::subset(&self.face.data, 0, &self.remap)
-            .map_err(|err| format!("subsetting {}: {err}", self.face.postscript_name))?;
+        let program = self.face.subset(&self.remap)?;
         let length = i64::try_from(program.len()).map_err(|err| err.to_string())?;
         let file = pdf.stream(dictionary! { "Length1" => length }, program);
         let mut descriptor = self.face.descriptor(&base_font, true);
@@ -350,7 +568,7 @@ impl Type0Font {
                     .collect(),
             ));
         }
-        let cid_font = pdf.add(dictionary! {
+        let mut cid_font = dictionary! {
             "Type" => "Font",
             "Subtype" => "CIDFontType2",
             "BaseFont" => name(&base_font),
@@ -362,7 +580,30 @@ impl Type0Font {
             "FontDescriptor" => descriptor,
             "W" => widths,
             "CIDToGIDMap" => "Identity",
-        });
+        };
+        if self.vertical {
+            // The usual default, [880 -1000], and the glyphs that differ from it.
+            let origin = self.face.vertical_origin().round();
+            cid_font.set("DW2", vec![real(origin), real(-1000.0)]);
+            let mut w2 = Vec::new();
+            for (cid, (advance, glyph_origin)) in &self.vertical_metrics {
+                let width = self.widths.get(cid).copied().unwrap_or(0.0);
+                if (advance.round() - 1000.0).abs() > 0.0
+                    || (glyph_origin.round() - origin).abs() > 0.0
+                {
+                    w2.push(Object::Integer(i64::from(*cid)));
+                    w2.push(Object::Array(vec![
+                        real(-advance.round()),
+                        real((width / 2.0).round()),
+                        real(glyph_origin.round()),
+                    ]));
+                }
+            }
+            if !w2.is_empty() {
+                cid_font.set("W2", w2);
+            }
+        }
+        let cid_font = pdf.add(cid_font);
         let map: BTreeMap<Vec<u8>, String> = self
             .unicode
             .iter()
@@ -375,7 +616,7 @@ impl Type0Font {
                 "Type" => "Font",
                 "Subtype" => "Type0",
                 "BaseFont" => name(&base_font),
-                "Encoding" => "Identity-H",
+                "Encoding" => if self.vertical { "Identity-V" } else { "Identity-H" },
                 "DescendantFonts" => vec![Object::Reference(cid_font)],
                 "ToUnicode" => cmap,
             },
@@ -472,6 +713,7 @@ impl SimpleFont {
         let width = self.face.advance(gid);
         Some(Glyph {
             code: vec![code],
+            gid,
             width,
             advance: width,
             space: c == ' ',
@@ -494,8 +736,7 @@ impl SimpleFont {
         let gids: Vec<u16> = remap.remapped_gids().collect();
         let tag = subset_tag(&format!("{}{gids:?}", self.face.postscript_name));
         let base_font = format!("{tag}+{}", self.face.postscript_name);
-        let program = subsetter::subset(&self.face.data, 0, &remap)
-            .map_err(|err| format!("subsetting {}: {err}", self.face.postscript_name))?;
+        let program = self.face.subset(&remap)?;
         let program = sfnt::with_cmap(&program, &cmap)?;
         let length = i64::try_from(program.len()).map_err(|err| err.to_string())?;
         let file = pdf.stream(dictionary! { "Length1" => length }, program);
@@ -586,6 +827,7 @@ impl StandardFont {
         self.used.insert(code, c);
         Some(Glyph {
             code: vec![code],
+            gid: 0,
             width,
             advance: width,
             space: c == ' ',
@@ -665,6 +907,16 @@ impl PdfFont {
     #[must_use]
     pub fn two_byte(&self) -> bool {
         matches!(self, Self::Type0(_))
+    }
+
+    /// The face its glyphs come from, or its metrics for a font that is not embedded.
+    #[must_use]
+    pub fn face(&self) -> Rc<Face> {
+        match self {
+            Self::Type0(font) => font.shared_face(),
+            Self::Simple(font) => Rc::clone(&font.face),
+            Self::Standard(font) => Rc::clone(&font.metrics),
+        }
     }
 
     /// Writes the font's objects.

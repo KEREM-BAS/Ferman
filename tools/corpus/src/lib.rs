@@ -11,11 +11,14 @@
 pub mod crypt;
 pub mod docs;
 pub mod font;
+pub mod kinsoku;
 pub mod pdf;
+pub mod raster;
 pub mod readme;
 pub mod sfnt;
 pub mod sources;
 pub mod text;
+pub mod vertical;
 
 use readme::Row;
 use sha2::{Digest, Sha256};
@@ -58,6 +61,10 @@ pub enum Expect {
         /// The password to open it with.
         password: Option<&'static str>,
     },
+    /// It opens without a password, with one page per page of the expected text and, on each
+    /// page, the same characters in any order: right-to-left and vertical text, which PDFium
+    /// puts in an order of its own (the expected text is in logical order).
+    OpensUnordered,
     /// It cannot be opened.
     Fails,
 }

@@ -11,3 +11,9 @@
 # kira-tr Madde 6: a font Ferman does not bundle, for the missing-glyph path (ROADMAP E02, E03).
 file EBGaramond-VF.ttf ef9512f92f6d579e5dc75af59a5a4b1b8b47d2eda89e00b954d44520e5369027 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf
 file EBGaramond-OFL.txt 0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3dbece7dd7 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/ebgaramond/OFL.txt
+
+# letter-ja-vertical and quote-ja-scan: the Japanese letter of a3-15, which names Noto Serif JP, and
+# the quotation scan. A variable font, instanced at wght 400 (Regular); it has vhea, vmtx and the
+# GSUB vert and vrt2 features for vertical text.
+file NotoSerifJP-VF.ttf 2fd527ba12b6a44ec30d796d633360da0aeba6c5d4af1304ce12bb4dc15a7dfc https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notoserifjp/NotoSerifJP%5Bwght%5D.ttf
+file NotoSerifJP-OFL.txt 5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notoserifjp/OFL.txt

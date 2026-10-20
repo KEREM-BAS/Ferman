@@ -25,8 +25,16 @@ pub enum FontFile {
     PlexSansSemiBold,
     /// IBM Plex Mono Regular.
     PlexMono,
+    /// IBM Plex Sans Arabic Regular, the Arabic report.
+    PlexSansArabic,
+    /// IBM Plex Sans Arabic SemiBold, its headings.
+    PlexSansArabicSemiBold,
     /// EB Garamond, a variable font used at its default (Regular) instance. Fetched.
     EbGaramond,
+    /// Noto Serif JP, a variable font used at `wght` 400 (Regular). Fetched.
+    NotoSerifJp,
+    /// The same file at `wght` 600 (SemiBold), the letter's title.
+    NotoSerifJpSemiBold,
 }
 
 /// Where a font file lives and which lock pins it.
@@ -41,6 +49,30 @@ enum Origin {
 }
 
 impl FontFile {
+    /// The variations a generator uses this font at: none for a static font, or for a
+    /// variable font used at its default instance.
+    #[must_use]
+    pub fn variations(self) -> &'static [([u8; 4], f32)] {
+        const REGULAR: &[([u8; 4], f32)] = &[(*b"wght", 400.0)];
+        const SEMI_BOLD: &[([u8; 4], f32)] = &[(*b"wght", 600.0)];
+        match self {
+            Self::NotoSerifJp => REGULAR,
+            Self::NotoSerifJpSemiBold => SEMI_BOLD,
+            _ => &[],
+        }
+    }
+
+    /// The PostScript name of the instance a generator uses, when it is not the file's own (a
+    /// variable font names its default instance).
+    #[must_use]
+    pub fn instance_name(self) -> Option<&'static str> {
+        match self {
+            Self::NotoSerifJp => Some("NotoSerifJP-Regular"),
+            Self::NotoSerifJpSemiBold => Some("NotoSerifJP-SemiBold"),
+            _ => None,
+        }
+    }
+
     fn origin(self) -> Origin {
         let bundled = |package, file| Origin::Bundled { package, file };
         match self {
@@ -51,8 +83,15 @@ impl FontFile {
             Self::PlexSansMedium => bundled("plex-sans", "IBMPlexSans-Medium.ttf"),
             Self::PlexSansSemiBold => bundled("plex-sans", "IBMPlexSans-SemiBold.ttf"),
             Self::PlexMono => bundled("plex-mono", "IBMPlexMono-Regular.ttf"),
+            Self::PlexSansArabic => bundled("plex-sans-arabic", "IBMPlexSansArabic-Regular.ttf"),
+            Self::PlexSansArabicSemiBold => {
+                bundled("plex-sans-arabic", "IBMPlexSansArabic-SemiBold.ttf")
+            }
             Self::EbGaramond => Origin::Fetched {
                 file: "EBGaramond-VF.ttf",
+            },
+            Self::NotoSerifJp | Self::NotoSerifJpSemiBold => Origin::Fetched {
+                file: "NotoSerifJP-VF.ttf",
             },
         }
     }

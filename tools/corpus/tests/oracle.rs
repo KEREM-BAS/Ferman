@@ -4,6 +4,14 @@
 //! An encrypted file does not open without its password. A file that should not open, does
 //! not.
 //!
+//! A file with right-to-left or vertical text (`Expect::OpensUnordered`) is compared page by
+//! page by its characters, not their order. PDFium recovers the logical order of right-to-left
+//! text from the visual one with a heuristic of its own: it reverses the text of a ligature
+//! glyph (lam-alef reads "ال" for "لا") and moves the neutral characters at the edge of a number
+//! or a Latin run. It reads each vertical column in order but puts the columns in an order of
+//! its own, and an upright run on a line of its own. Ferman's own extraction is held to the
+//! logical order (ROADMAP, M2 step 5).
+//!
 //! Needs PDFium: `tools/pdfium/fetch.sh`, then `FERMAN_PDFIUM_PATH` with the library's absolute
 //! path. `FERMAN_CORPUS_ONLY=<name>` limits the run to one generator.
 #![allow(clippy::unwrap_used, clippy::expect_used)]
@@ -16,6 +24,25 @@ use std::path::Path;
 /// `text` without whitespace.
 fn squeeze(text: &str) -> String {
     text.chars().filter(|c| !c.is_whitespace()).collect()
+}
+
+/// The characters of `text` without whitespace, sorted, with each bracket pair folded into one
+/// character (a mirrored bracket can come out as its partner).
+fn characters(text: &str) -> Vec<char> {
+    let mut chars: Vec<char> = text
+        .chars()
+        .filter(|c| !c.is_whitespace())
+        .map(|c| match c {
+            ')' => '(',
+            ']' => '[',
+            '}' => '{',
+            '>' => '<',
+            '»' => '«',
+            _ => c,
+        })
+        .collect();
+    chars.sort_unstable();
+    chars
 }
 
 /// Where two texts first differ, with some context.
@@ -37,14 +64,15 @@ fn difference(got: &str, expected: &str) -> String {
 }
 
 fn check(pdfium: &Pdfium, expect: Expect, pdf: &[u8], text: &str) -> Result<(), String> {
-    let password = match expect {
+    let (password, ordered) = match expect {
         Expect::Fails => {
             return match pdfium.load_pdf_from_byte_slice(pdf, None) {
                 Ok(_) => Err("PDFium opens it".to_owned()),
                 Err(_) => Ok(()),
             };
         }
-        Expect::Opens { password } => password,
+        Expect::Opens { password } => (password, true),
+        Expect::OpensUnordered => (None, false),
     };
     if password.is_some() && pdfium.load_pdf_from_byte_slice(pdf, None).is_ok() {
         return Err("it opens without its password".to_owned());
@@ -66,6 +94,19 @@ fn check(pdfium: &Pdfium, expect: Expect, pdf: &[u8], text: &str) -> Result<(), 
             .text()
             .map_err(|err| format!("page {}: no text: {err}", index + 1))?
             .all();
+        if !ordered {
+            let (got, want) = (characters(&got), characters(expected[index]));
+            if got != want {
+                let got: String = got.into_iter().collect();
+                let want: String = want.into_iter().collect();
+                return Err(format!(
+                    "page {} (by characters): {}",
+                    index + 1,
+                    difference(&got, &want)
+                ));
+            }
+            continue;
+        }
         let (got, want) = (squeeze(&got), squeeze(expected[index]));
         if got != want {
             return Err(format!("page {}: {}", index + 1, difference(&got, &want)));

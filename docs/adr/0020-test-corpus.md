@@ -93,8 +93,10 @@ Recorded when the first wave was built (2026-10-19); none of these points change
   aes blocks, so cbc is not a direct dependency.
 - **Fonts Ferman does not bundle.** They are fetched by `tools/corpus/fetch-fonts.sh` into
   `build/corpus-fonts/` and checked against `tools/corpus/fonts.lock`; they are never committed.
-  EB Garamond sets kira-tr's Madde 6 ([G113](../DESIGN_GAPS.md#g113)); a Japanese font follows with
-  the Japanese files.
+  EB Garamond sets kira-tr's Madde 6 ([G113](../DESIGN_GAPS.md#g113)). The Japanese files use Noto
+  Serif JP, the font `a3-15` names, from the Noto CJK family the M2 plan approved as test data. It is
+  a variable font, instanced at `wght` 400 and 600 by subsetter's `variable-fonts` feature. The
+  Arabic report uses the bundled IBM Plex Sans Arabic.
 - **Two commits.** The first wave arrives in two commits:
   - the tooling, the Latin and Turkish files, the encrypted and damaged files, and the oracle;
   - report-ar, letter-ja-vertical, scan-tr and quote-ja-scan.
@@ -103,7 +105,14 @@ Recorded when the first wave was built (2026-10-19); none of these points change
   alone is 1.7 MB. Both are listed in `tests/corpus/generated/.gitignore`, which `check` requires.
 - **The oracle.** It lives in `tools/corpus/tests/oracle.rs`, with pdfium-render as a
   dev-dependency, because the generators know each file's password and outcome. It also checks that
-  an encrypted file does not open without its password.
+  an encrypted file does not open without its password. PDFium orders right-to-left and vertical text
+  by heuristics of its own, so report-ar and letter-ja-vertical are compared page by page by their
+  characters. Their expected text stays in logical order, which Ferman's own extraction must give.
+- **Right-to-left, vertical and scanned files.** The text code lays out right-to-left paragraphs
+  with unicode-bidi and draws each line in visual order, as producers do. Vertical text is drawn
+  column by column in `Identity-V` fonts with `/W2`, with tate-chu-yoko and kinsoku. The scans come
+  from a small rasteriser of glyph outlines. Their pages are image only, so their expected text is
+  empty.
 - **Determinism across systems.** The generators never read a clock, never draw random numbers, and
   avoid transcendental floating-point functions, whose last bits can differ between C libraries.
   `.gitattributes` keeps the generated files, the text sidecars included, from line-ending
