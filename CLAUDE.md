@@ -55,6 +55,8 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo clippy -p ferman-api --features frb --all-targets -- -D warnings
 cargo test --workspace
 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --workspace -- --ignored   # tests that need PDFium (tools/pdfium/fetch.sh first; the path must be absolute)
+FERMAN_RENDER_STRESS_SECONDS=600 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo test --release -p ferman-render --test pdfium -- --ignored three_views   # the 10-minute stress run of three views (20 s by default)
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo bench -p ferman-render --bench first_page   # open long-500 and its first tile (tools/corpus generate makes long-500 first)
 cargo deny check
 cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: info --json
 cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path tools/corpus/Cargo.toml   # the corpus tool, a workspace of its own (also fmt, deny)

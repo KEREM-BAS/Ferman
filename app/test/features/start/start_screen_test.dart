@@ -1,9 +1,11 @@
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart' hide Icon;
+import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../onboarding/ferman_app_harness.dart';
@@ -38,6 +40,8 @@ void main() {
       expect(find.text(text), findsOneWidget, reason: text);
     }
     expect(find.byType(DropZone), findsOneWidget);
+    // The engine works, so no warning (G101).
+    expect(find.byType(Banner), findsNothing);
     // G11: no conversion promise until conversion ships.
     expect(find.textContaining('converted'), findsNothing);
     expect(find.textContaining('Word'), findsNothing);
@@ -194,5 +198,133 @@ void main() {
         expect(find.text(text), findsOneWidget, reason: text);
       }
     });
+  });
+
+  group('when the engine cannot open files (G101)', () {
+    const title = 'Ferman can’t open PDF files right now.';
+    const message =
+        'A part of Ferman is missing or doesn’t match this version. '
+        'Installing Ferman again fixes this.';
+    const failed = FakeEngineService(
+      fakeStatus: EngineStatus(
+        appVersion: '0.1.0',
+        apiVersion: kAppApiVersion,
+        isDebugBuild: false,
+        pdfium: PdfiumState.failed,
+        pdfiumReason: 'cannot load the PDFium library: dlopen failed',
+      ),
+    );
+
+    /// The text "Copy technical details" put on the clipboard.
+    Future<String?> copy(WidgetTester tester) async {
+      String? copied;
+      tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+        SystemChannels.platform,
+        (call) async {
+          if (call.method == 'Clipboard.setData') {
+            copied =
+                (call.arguments as Map<Object?, Object?>)['text'] as String?;
+          }
+          return null;
+        },
+      );
+      addTearDown(
+        () => tester.binding.defaultBinaryMessenger.setMockMethodCallHandler(
+          SystemChannels.platform,
+          null,
+        ),
+      );
+      await tester.tap(find.text('Copy technical details'));
+      await tester.pumpAndSettle();
+      return copied;
+    }
+
+    testWidgets('a broken PDFium shows the warning banner first', (
+      tester,
+    ) async {
+      await pumpFermanApp(tester, engine: failed);
+      final banner = tester.widget<Banner>(find.byType(Banner));
+      expect(banner.tone, BannerTone.warning);
+      expect(banner.variant, BannerVariant.box);
+      expect(banner.title, title);
+      expect(find.text(message), findsOneWidget);
+      expect(find.text('Copy technical details'), findsOneWidget);
+      // At the top of the page, above the action cards.
+      expect(
+        tester.getTopLeft(find.byType(Banner)).dy,
+        lessThan(tester.getTopLeft(find.text('Open file…')).dy),
+      );
+    });
+
+    testWidgets('opening takes the banner’s title as its reason', (
+      tester,
+    ) async {
+      await pumpFermanApp(tester, engine: failed);
+      final open = find.bySemanticsLabel('Open file…. PDF files');
+      expect(tester.getSemantics(open).hint, title);
+      expect(
+        tester.widget<DropZone>(find.byType(DropZone)).disabledReason,
+        title,
+      );
+      // Everything else still waits for its milestone.
+      final create = find.bySemanticsLabel(
+        'Create PDF. From a blank page, files or the clipboard',
+      );
+      expect(tester.getSemantics(create).hint, _future);
+    });
+
+    testWidgets('Copy technical details copies the facts', (tester) async {
+      await pumpFermanApp(tester, engine: failed);
+      expect(
+        await copy(tester),
+        'engine: 0.1.0 (API 0.1)\n'
+        'pdfium: failed: cannot load the PDFium library: dlopen failed',
+      );
+    });
+
+    testWidgets('a missing engine library shows it too', (tester) async {
+      await pumpFermanApp(
+        tester,
+        engine: const UnavailableEngineService(
+          EngineUnavailableException(EngineUnavailableReason.libraryMissing),
+        ),
+      );
+      expect(tester.widget<Banner>(find.byType(Banner)).title, title);
+      expect(
+        await copy(tester),
+        'engine: the engine library could not be loaded',
+      );
+    });
+
+    testWidgets('the web build keeps the future-version state', (tester) async {
+      await pumpFermanApp(
+        tester,
+        engine: const UnavailableEngineService(
+          EngineUnavailableException(
+            EngineUnavailableReason.unsupportedPlatform,
+          ),
+        ),
+      );
+      expect(find.byType(Banner), findsNothing);
+      expect(
+        tester.widget<DropZone>(find.byType(DropZone)).disabledReason,
+        _future,
+      );
+    });
+
+    for (final (code, expected) in const [
+      ('tr', 'Ferman şu anda PDF dosyalarını açamıyor.'),
+      ('ar', 'يتعذّر على Ferman فتح ملفات PDF حاليًا.'),
+    ]) {
+      testWidgets('in $code', (tester) async {
+        await pumpFermanApp(
+          tester,
+          settings: AppSettings(onboardingCompleted: true, languageCode: code),
+          engine: failed,
+        );
+        expect(tester.takeException(), isNull);
+        expect(tester.widget<Banner>(find.byType(Banner)).title, expected);
+      });
+    }
   });
 }

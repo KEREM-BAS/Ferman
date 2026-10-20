@@ -743,6 +743,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startNewBlankPdf => 'ملف PDF فارغ جديد';
 
   @override
+  String get startEngineUnavailableTitle =>
+      'يتعذّر على Ferman فتح ملفات PDF حاليًا.';
+
+  @override
+  String get startEngineUnavailableMessage =>
+      'أحد أجزاء Ferman مفقود أو لا يطابق هذا الإصدار. تُصلح إعادة تثبيت Ferman ذلك.';
+
+  @override
+  String get startCopyTechnicalDetails => 'نسخ التفاصيل التقنية';
+
+  @override
   String get settingsTitle => 'الإعدادات';
 
   @override

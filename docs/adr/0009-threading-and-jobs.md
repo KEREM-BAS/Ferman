@@ -151,6 +151,23 @@ Only the brief's rule applied: nothing heavy on the UI thread. M1 needed little 
 - M3: edit transactions on the actor, reload-per-edit measurement.
 - M4: background task drawer with pause and cancel.
 
+### Implementation notes (M2)
+
+Found while building the render thread and its tile queue; none changes the decision above.
+
+- **One render thread holds PDFium at a time.** pdfium-render's `thread_safe` lock covers only part
+  of its bindings (in 0.9.4, 192 of 481 functions run without it, `FPDF_GetPageSizeByIndexF` among
+  them), so it is a partial second guard. ferman-render therefore refuses a second render thread in
+  the same process while the first holds PDFium. The app has one; tests take turns.
+- **Tiles are rendered with a 32-pixel margin**, cut away afterwards: PDFium draws a glyph that
+  crosses the edge of its bitmap differently, which would show as a seam in text at tile edges.
+  With the margin, tiles put together match one render of the page to within two levels of
+  antialiasing ([ARCHITECTURE.md §4.4](../ARCHITECTURE.md#44-pdfium-confinement)).
+- **No progressive rendering.** pdfium-render 0.9.4 exposes PDFium's pause callback only through
+  its raw, unsafe bindings, so a tile always finishes once started. The queue takes every waiting
+  message before each tile and again after it, so a replaced wanted set loses at most the tile in
+  progress.
+
 <a id="tile-transfer-m1-measurements-and-options-proposed"></a>
 
 ### Tile transfer: M1 measurements and options

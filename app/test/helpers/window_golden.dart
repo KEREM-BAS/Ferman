@@ -4,6 +4,8 @@ import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/components/feedback/spinner.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/settings/app_settings.dart';
@@ -172,6 +174,9 @@ Future<void> windowGoldenTest({
         final Widget app = UncontrolledProviderScope(
           container: ProviderContainer.test(
             overrides: [
+              engineServiceProvider.overrideWithValue(
+                const FakeEngineService(),
+              ),
               settingsStoreProvider.overrideWithValue(
                 MemorySettingsStore(settings),
               ),

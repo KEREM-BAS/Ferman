@@ -1474,6 +1474,24 @@ abstract class AppLocalizations {
   /// **'New blank PDF'**
   String get startNewBlankPdf;
 
+  /// Title of the warning banner at the top of the start screen when the engine library or PDFium, the page renderer, is missing or broken (G101). Opening files stays off, with this title as the reason.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t open PDF files right now.'**
+  String get startEngineUnavailableTitle;
+
+  /// Message of the warning banner at the top of the start screen when Ferman cannot open PDF files because a part of the app is missing or broken (G101).
+  ///
+  /// In en, this message translates to:
+  /// **'A part of Ferman is missing or doesn’t match this version. Installing Ferman again fixes this.'**
+  String get startEngineUnavailableMessage;
+
+  /// Button of the start screen’s warning banner (G101): copies the technical facts about the missing or broken part, in English, for a bug report (as a1-9b’s link).
+  ///
+  /// In en, this message translates to:
+  /// **'Copy technical details'**
+  String get startCopyTechnicalDetails;
+
   /// Heading of the settings window and screen-reader name of its pane list (a11-1, FmSettings t.settings).
   ///
   /// In en, this message translates to:

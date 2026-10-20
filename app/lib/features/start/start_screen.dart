@@ -2,11 +2,14 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_problem.dart';
+import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
-import 'package:flutter/widgets.dart' hide Icon;
+import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -29,6 +32,12 @@ import 'package:go_router/go_router.dart';
 /// [ShellCommandScope] for the start screen, and the cards show the
 /// table's ⌘O and ⌘N. The title bar above shows the home header (a1-5),
 /// with the Settings button.
+///
+/// When the engine cannot open PDF files ([engineProblemProvider]: the
+/// engine library is missing or speaks another API version, or PDFium did
+/// not load), a warning banner heads the page with "Copy technical
+/// details", and Open file… and the drop area take the banner's title as
+/// their reason (G101). The rest of the app keeps working.
 class FmStart extends ConsumerWidget {
   /// Creates the start screen.
   const new({super.key});
@@ -56,6 +65,11 @@ class FmStart extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
+    final problem = ref.watch(engineProblemProvider);
+    // Opening waits for its milestone, or for a working engine (G101).
+    final openReason = problem == null
+        ? Feature.openFiles.disabledReason(context)
+        : l10n.startEngineUnavailableTitle;
     // ⌘O and ⌘N have keys on every system.
     final open = ShellCommand.open.caps(platform)!;
     final actions = [
@@ -101,6 +115,7 @@ class FmStart extends ConsumerWidget {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       spacing: gap,
       children: [
+        if (problem != null) _EngineProblemBanner(problem),
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -113,7 +128,9 @@ class FmStart extends ConsumerWidget {
                     title: title,
                     description: description,
                     shortcut: keys,
-                    disabledReason: feature.disabledReason(context),
+                    disabledReason: feature == Feature.openFiles
+                        ? openReason
+                        : feature.disabledReason(context),
                   ),
                 ),
             ],
@@ -154,7 +171,7 @@ class FmStart extends ConsumerWidget {
           minHeight: dropMinHeight,
           // The zone, its drop target and both buttons share one reason
           // until opening ships (M2 step 6); New blank PDF stays M4.
-          disabledReason: Feature.openFiles.disabledReason(context),
+          disabledReason: openReason,
         ),
       ],
     );
@@ -182,6 +199,33 @@ class FmStart extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// The warning banner of G101: the box variant at the top of the page, as
+/// Settings shows its warning (G90), with "Copy technical details" (G63).
+class _EngineProblemBanner extends StatelessWidget {
+  const new(this.problem);
+
+  final EngineProblem problem;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    return Banner(
+      tone: BannerTone.warning,
+      title: l10n.startEngineUnavailableTitle,
+      actions: [
+        Button(
+          size: ButtonSize.sm,
+          icon: IconName.copy,
+          onPressed: () =>
+              Clipboard.setData(ClipboardData(text: problem.technicalDetails)),
+          child: Text(l10n.startCopyTechnicalDetails),
+        ),
+      ],
+      child: Text(l10n.startEngineUnavailableMessage),
     );
   }
 }

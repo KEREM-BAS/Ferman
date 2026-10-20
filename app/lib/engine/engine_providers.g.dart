@@ -100,3 +100,64 @@ final class EngineStatusProvider
 }
 
 String _$engineStatusHash() => r'e77337ecac59c1479576596da617fd6bd66f1a02';
+
+/// What keeps the engine from opening PDF files, or null when it can, while
+/// it starts, and in the web build (G101). The start screen shows it as a
+/// warning banner and disables opening with its title as the reason.
+///
+/// An error counts in every state: Riverpod retries a failed status, and
+/// while it does the status is loading with the error kept.
+
+@ProviderFor(engineProblem)
+final engineProblemProvider = EngineProblemProvider._();
+
+/// What keeps the engine from opening PDF files, or null when it can, while
+/// it starts, and in the web build (G101). The start screen shows it as a
+/// warning banner and disables opening with its title as the reason.
+///
+/// An error counts in every state: Riverpod retries a failed status, and
+/// while it does the status is loading with the error kept.
+
+final class EngineProblemProvider
+    extends $FunctionalProvider<EngineProblem?, EngineProblem?, EngineProblem?>
+    with $Provider<EngineProblem?> {
+  /// What keeps the engine from opening PDF files, or null when it can, while
+  /// it starts, and in the web build (G101). The start screen shows it as a
+  /// warning banner and disables opening with its title as the reason.
+  ///
+  /// An error counts in every state: Riverpod retries a failed status, and
+  /// while it does the status is loading with the error kept.
+  EngineProblemProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'engineProblemProvider',
+        isAutoDispose: true,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$engineProblemHash();
+
+  @$internal
+  @override
+  $ProviderElement<EngineProblem?> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  EngineProblem? create(Ref ref) {
+    return engineProblem(ref);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(EngineProblem? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<EngineProblem?>(value),
+    );
+  }
+}
+
+String _$engineProblemHash() => r'7113bb098fd76300e2e4dd920270cbf0f72532b1';

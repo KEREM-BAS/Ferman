@@ -1,12 +1,20 @@
-//! Binding to the PDFium library: the only module that names pdfium-render.
+//! Binding to the PDFium library, and the one render thread that may use it.
 //!
 //! pdfium-render keeps its bindings in a process-wide static and binds once per process: a second
 //! `bind_to_library` fails, and it never unloads the library. This module serialises binding behind
 //! one lock and remembers which file was bound, so a later render thread in the same process (tests,
 //! or a restarted engine) reuses the binding for the same file and is refused for another one.
+//!
+//! **One render thread uses PDFium at a time.** pdfium-render's `thread_safe` lock covers only part
+//! of its bindings (in 0.9.4, 192 of the 481 functions run without it, `FPDF_GetPageSizeByIndexF`
+//! among them), so two render threads would call into PDFium at once. A render thread therefore
+//! holds the [`Owner`] for as long as it has PDFium, and another one that asks meanwhile is refused
+//! with [`RenderError::PdfiumInUse`]. The app has one render thread per process; tests that start
+//! several take turns.
 
 use std::error::Error;
 use std::path::{Path, PathBuf};
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Mutex, PoisonError};
 
 use pdfium_render::prelude::{Pdfium, PdfiumError};
@@ -16,23 +24,48 @@ use crate::RenderError;
 /// The library file this process bound, canonicalised when possible.
 static BOUND: Mutex<Option<PathBuf>> = Mutex::new(None);
 
+/// Whether a render thread of this process holds PDFium.
+static IN_USE: AtomicBool = AtomicBool::new(false);
+
+/// The right of one render thread to call into PDFium, released when dropped. The render thread
+/// drops it after every document and PDFium itself.
+#[derive(Debug)]
+pub(crate) struct Owner(());
+
+impl Owner {
+    fn claim() -> Result<Self, RenderError> {
+        IN_USE
+            .compare_exchange(false, true, Ordering::AcqRel, Ordering::Acquire)
+            .map(|_| Self(()))
+            .map_err(|_| RenderError::PdfiumInUse)
+    }
+}
+
+impl Drop for Owner {
+    fn drop(&mut self) {
+        IN_USE.store(false, Ordering::Release);
+    }
+}
+
 /// What replaces the library path in error text, so that no path reaches `engine_info()`, which
 /// ends up in bug reports (docs/ARCHITECTURE.md §8.4). The local log keeps the full text.
 const PATH_PLACEHOLDER: &str = "<pdfium library>";
 
-/// Binds the PDFium library at `path` and proves it works with a real call.
+/// Binds the PDFium library at `path` and proves it works with a real call, for a render thread
+/// that holds the [`Owner`] from now on.
 ///
 /// A relative path is made absolute against the current directory first, so the dynamic loader
 /// never searches its library path for a bare file name: the configured file is the one loaded.
 ///
 /// Must run on the render thread: the returned [`Pdfium`] is the thread's own.
-pub(crate) fn load(path: &Path) -> Result<Pdfium, RenderError> {
+pub(crate) fn load(path: &Path) -> Result<(Pdfium, Owner), RenderError> {
     let absolute = std::path::absolute(path).map_err(|err| RenderError::PdfiumLoad {
         reason: format!("the library path cannot be made absolute: {err}"),
     })?;
+    let owner = Owner::claim()?;
     let pdfium = bind(&absolute)?;
     probe(&pdfium, &absolute)?;
-    Ok(pdfium)
+    Ok((pdfium, owner))
 }
 
 /// Binds the library, or reuses this process's binding if it is the same file.
@@ -178,6 +211,18 @@ mod tests {
         struct Outer(#[source] std::io::Error);
         let err = Outer(std::io::Error::other("no such file"));
         assert_eq!(chain(&err), "dlopen failed: no such file");
+    }
+
+    #[test]
+    fn only_one_owner_at_a_time() {
+        // The only test in this binary that claims ownership without a library; the PDFium tests
+        // of `thread` take the same turns through their own lock.
+        let _serial = crate::thread::tests::serial();
+        let owner = Owner::claim().unwrap();
+        assert!(matches!(Owner::claim(), Err(RenderError::PdfiumInUse)));
+        drop(owner);
+        let again = Owner::claim().unwrap();
+        drop(again);
     }
 
     #[test]
