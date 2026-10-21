@@ -18,7 +18,7 @@ members = ["."]
 
 [dependencies]
 libfuzzer-sys = "0.4.13"
-ferman-core = { path = "../crates/ferman-core" }
+ferman-core = { path = "../crates/ferman-core", features = ["fuzzing"] }
 
 [lints.clippy]
 print_stdout = "deny"
@@ -56,6 +56,34 @@ bench = false
 [[bin]]
 name = "filter_run_length"
 path = "fuzz_targets/filter_run_length.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "syntax_object"
+path = "fuzz_targets/syntax_object.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "xref_repair"
+path = "fuzz_targets/xref_repair.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "security_handler"
+path = "fuzz_targets/security_handler.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "open_document"
+path = "fuzz_targets/open_document.rs"
 test = false
 doc = false
 bench = false

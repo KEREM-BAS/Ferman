@@ -39,6 +39,7 @@ use std::io::Cursor;
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 
+use ferman_core::Password;
 use lru::LruCache;
 use pdfium_render::prelude::{
     PdfBitmap, PdfBitmapFormat, PdfDocument, PdfPage, PdfPageIndex, PdfRenderConfig, Pdfium,
@@ -75,11 +76,15 @@ impl<'p> LoadedDocument<'p> {
     pub(crate) fn load(
         pdfium: &'p Pdfium,
         bytes: Arc<[u8]>,
+        password: Option<&Password>,
         loaded_pages: NonZeroUsize,
     ) -> Result<Self, RenderError> {
+        let password = password
+            .map(Password::as_str)
+            .filter(|password| !password.is_empty());
         let document = pdfium
-            .load_pdf_from_reader(Cursor::new(bytes), None)
-            .map_err(open_error)?;
+            .load_pdf_from_reader(Cursor::new(bytes), password)
+            .map_err(|err| open_error(err, password.is_some()))?;
         let pages = document.pages();
         let count = pages.len();
         let mut sizes = Vec::new();
@@ -263,11 +268,15 @@ fn configuration() -> PdfRenderConfig {
         .set_path_smoothing(true)
 }
 
-/// The error for a document PDFium does not open.
-fn open_error(err: PdfiumError) -> RenderError {
+/// The error for a document PDFium does not open, given whether a password was tried.
+fn open_error(err: PdfiumError, with_password: bool) -> RenderError {
     match err {
         PdfiumError::PdfiumLibraryInternalError(PdfiumInternalError::PasswordError) => {
-            RenderError::PasswordRequired
+            if with_password {
+                RenderError::WrongPassword
+            } else {
+                RenderError::PasswordRequired
+            }
         }
         PdfiumError::PdfiumLibraryInternalError(PdfiumInternalError::SecurityError) => {
             RenderError::UnsupportedSecurity

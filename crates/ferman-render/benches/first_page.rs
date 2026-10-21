@@ -112,19 +112,19 @@ fn main() {
         .configure_from_args();
     criterion.bench_function("first_page/open_500_pages", |bench| {
         bench.iter(|| {
-            let document = block_on(thread.open_document(Arc::clone(&bytes))).unwrap();
+            let document = block_on(thread.open_document(Arc::clone(&bytes), None)).unwrap();
             assert_eq!(document.pages.len(), 500);
             block_on(thread.close_document(document.id)).unwrap();
         });
     });
     criterion.bench_function("first_page/open_and_first_tile", |bench| {
         bench.iter(|| {
-            let document = block_on(thread.open_document(Arc::clone(&bytes))).unwrap();
+            let document = block_on(thread.open_document(Arc::clone(&bytes), None)).unwrap();
             render(&thread, document.id, first_tile(0, 0));
             block_on(thread.close_document(document.id)).unwrap();
         });
     });
-    let document = block_on(thread.open_document(Arc::clone(&bytes))).unwrap();
+    let document = block_on(thread.open_document(Arc::clone(&bytes), None)).unwrap();
     criterion.bench_function("first_page/tile_of_a_loaded_page", |bench| {
         bench.iter(|| render(&thread, document.id, first_tile(1, 1)));
     });

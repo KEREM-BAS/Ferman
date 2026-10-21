@@ -1738,10 +1738,16 @@ rows say "keys only".
   shows an error screen instead of crashing (integration test). **Proposed (M2 plan):** the error is
   the warning Banner of [G101](DESIGN_GAPS.md#g101) on the start screen, with the open actions
   disabled and the rest of the app working.
-- [ ] Rendering is deterministic: the same page with the same settings gives byte-identical pixels in
-  ten runs on each system. The pixel-diff acceptance in M3 depends on this.
-- [ ] All PDFium calls happen on the render thread; a stress test with three views requesting tiles
-  concurrently for 10 minutes finishes with no crash and no deadlock.
+- [x] Rendering is deterministic: the same page with the same settings gives byte-identical pixels in
+  ten runs on each system. The pixel-diff acceptance in M3 depends on this. Evidence:
+  `rendering_is_deterministic_in_ten_runs` (`crates/ferman-render/tests/pdfium.rs`, eight corpus
+  files reopened for each run, caches off) passed in CI on macOS, Windows and Linux at `2111baf`.
+- [x] All PDFium calls happen on the render thread; a stress test with three views requesting tiles
+  concurrently for 10 minutes finishes with no crash and no deadlock. Evidence: ferman-render calls
+  PDFium only from its render thread, and one render thread of a process holds PDFium at a time
+  (`library.rs`); `three_views_render_at_once_without_a_crash_or_a_deadlock` passed for 600 s on
+  the owner's Mac with flat memory on 2026-10-20 (PROGRESS, Measurements), and runs for 20 s in CI
+  on the three systems, green at `2111baf`.
 
 #### Step 2. Open path and structure
 

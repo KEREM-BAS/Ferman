@@ -192,6 +192,76 @@ pub fn decode_chain(
     Ok(decoded)
 }
 
+/// The filter chain of a stream dictionary: `/Filter` as a name or an array, with `/DecodeParms`
+/// as a dictionary or an array of dictionaries and nulls.
+///
+/// # Errors
+///
+/// [`CoreError::Unsupported`] for a filter ferman-core does not decode (the image codecs and
+/// `Crypt`), and [`CoreError::Syntax`] for entries of the wrong type.
+pub(crate) fn chain_of(dict: &lopdf::Dictionary) -> Result<Vec<FilterStep>, CoreError> {
+    use lopdf::Object;
+    let names: Vec<&[u8]> = match dict.get(b"Filter") {
+        Err(_) | Ok(Object::Null) => return Ok(Vec::new()),
+        Ok(Object::Name(name)) => vec![name.as_slice()],
+        Ok(Object::Array(items)) => items
+            .iter()
+            .map(|item| item.as_name().map_err(|_| wrong_entry("/Filter")))
+            .collect::<Result<_, _>>()?,
+        Ok(_) => return Err(wrong_entry("/Filter")),
+    };
+    let params: Vec<Option<&lopdf::Dictionary>> = match dict.get(b"DecodeParms") {
+        Err(_) | Ok(Object::Null) => Vec::new(),
+        Ok(Object::Dictionary(params)) => vec![Some(params)],
+        Ok(Object::Array(items)) => items.iter().map(|item| item.as_dict().ok()).collect(),
+        Ok(_) => return Err(wrong_entry("/DecodeParms")),
+    };
+    names
+        .iter()
+        .enumerate()
+        .map(|(index, name)| {
+            let filter = Filter::from_name(name)
+                .ok_or(CoreError::Unsupported(crate::Unsupported::Filter))?;
+            let params = params
+                .get(index)
+                .copied()
+                .flatten()
+                .map(decode_params)
+                .unwrap_or_default();
+            Ok(FilterStep { filter, params })
+        })
+        .collect()
+}
+
+/// `/DecodeParms` as [`DecodeParams`]; entries of the wrong type keep their defaults, and values
+/// out of range are left for [`decode`] to refuse.
+fn decode_params(dict: &lopdf::Dictionary) -> DecodeParams {
+    let get = |key: &[u8], default: u32| {
+        dict.get(key)
+            .ok()
+            .and_then(|value| value.as_i64().ok())
+            .map_or(default, |value| u32::try_from(value).unwrap_or(u32::MAX))
+    };
+    let defaults = DecodeParams::default();
+    DecodeParams {
+        predictor: get(b"Predictor", defaults.predictor),
+        colors: get(b"Colors", defaults.colors),
+        bits_per_component: get(b"BitsPerComponent", defaults.bits_per_component),
+        columns: get(b"Columns", defaults.columns),
+        early_change: get(b"EarlyChange", 1) != 0,
+    }
+}
+
+fn wrong_entry(entry: &'static str) -> CoreError {
+    CoreError::Syntax {
+        offset: 0,
+        problem: match entry {
+            "/Filter" => "a /Filter that is not a name or an array of names",
+            _ => "/DecodeParms that are not a dictionary or an array",
+        },
+    }
+}
+
 /// `data` as an owned buffer, or [`CoreError::OutOfMemory`].
 fn copy(data: &[u8]) -> Result<Vec<u8>, CoreError> {
     let mut out = Vec::new();

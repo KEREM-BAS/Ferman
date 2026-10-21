@@ -19,6 +19,7 @@ use std::sync::Arc;
 use std::thread::{self, JoinHandle};
 
 use crossbeam_channel::{Receiver, Sender, TryRecvError};
+use ferman_core::Password;
 use futures_channel::oneshot;
 use pdfium_render::prelude::Pdfium;
 
@@ -119,6 +120,7 @@ enum Message {
     Status(oneshot::Sender<PdfiumStatus>),
     Open {
         bytes: Arc<[u8]>,
+        password: Option<Password>,
         reply: oneshot::Sender<Result<OpenedDocument, RenderError>>,
     },
     Close {
@@ -188,20 +190,27 @@ impl RenderThread {
     }
 
     /// Loads a document into PDFium from `bytes`, which it reads in place for as long as the
-    /// document is open, and reads its page sizes.
+    /// document is open, and reads its page sizes. An encrypted document needs `password`, which
+    /// is wiped from Ferman's memory once PDFium has it; what PDFium keeps is Q22.
     ///
     /// # Errors
     ///
     /// The future resolves to [`RenderError::PdfiumUnavailable`] without PDFium,
-    /// [`RenderError::PasswordRequired`] for an encrypted document,
+    /// [`RenderError::PasswordRequired`] for an encrypted document without its password,
+    /// [`RenderError::WrongPassword`] for a password that does not open it,
     /// [`RenderError::UnsupportedSecurity`] for a security handler PDFium does not have,
     /// [`RenderError::Damaged`] when PDFium cannot read it, and [`RenderError::ThreadStopped`]
     /// if the thread is no longer running.
     pub fn open_document(
         &self,
         bytes: Arc<[u8]>,
+        password: Option<Password>,
     ) -> impl Future<Output = Result<OpenedDocument, RenderError>> + Send + 'static {
-        let reply = self.ask(|reply| Message::Open { bytes, reply });
+        let reply = self.ask(|reply| Message::Open {
+            bytes,
+            password,
+            reply,
+        });
         async move { flatten(reply?.await) }
     }
 
@@ -398,8 +407,12 @@ impl<'p> State<'p> {
             Message::Status(reply) => {
                 let _ = reply.send(self.status.clone());
             }
-            Message::Open { bytes, reply } => {
-                let opened = self.open(bytes);
+            Message::Open {
+                bytes,
+                password,
+                reply,
+            } => {
+                let opened = self.open(bytes, password.as_ref());
                 if let Err(Ok(unclaimed)) = reply.send(opened) {
                     // Nobody will ever know its id, so nobody could close it.
                     self.close(unclaimed.id);
@@ -438,14 +451,18 @@ impl<'p> State<'p> {
         }
     }
 
-    fn open(&mut self, bytes: Arc<[u8]>) -> Result<OpenedDocument, RenderError> {
+    fn open(
+        &mut self,
+        bytes: Arc<[u8]>,
+        password: Option<&Password>,
+    ) -> Result<OpenedDocument, RenderError> {
         let pdfium = self.pdfium.ok_or_else(|| RenderError::PdfiumUnavailable {
             reason: match &self.status {
                 PdfiumStatus::Failed { reason } => reason.clone(),
                 _ => "PDFium is not loaded".to_owned(),
             },
         })?;
-        let document = LoadedDocument::load(pdfium, bytes, self.loaded_pages)?;
+        let document = LoadedDocument::load(pdfium, bytes, password, self.loaded_pages)?;
         let pages = document.sizes().to_vec();
         let id = DocumentId(self.next_id());
         self.documents.insert(id, document);
@@ -612,7 +629,7 @@ pub(crate) mod tests {
     fn without_pdfium_a_document_does_not_open() {
         let render = RenderThread::start(RenderConfig::default()).unwrap();
         let bytes: Arc<[u8]> = Arc::from(&b"%PDF-1.7\n"[..]);
-        match wait(render.open_document(bytes)) {
+        match wait(render.open_document(bytes, None)) {
             Err(RenderError::PdfiumUnavailable { reason }) => {
                 assert_eq!(reason, "PDFium is not loaded");
             }
@@ -655,7 +672,7 @@ pub(crate) mod tests {
             other => panic!("expected Failed, got {other:?}"),
         }
         // Opening a document says why PDFium is missing, still without the path.
-        match wait(render.open_document(Arc::from(&b"%PDF-1.7\n"[..]))) {
+        match wait(render.open_document(Arc::from(&b"%PDF-1.7\n"[..]), None)) {
             Err(RenderError::PdfiumUnavailable { reason }) => {
                 assert!(!reason.contains("ferman-render-missing"), "{reason}");
             }

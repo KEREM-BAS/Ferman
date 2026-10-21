@@ -10,7 +10,8 @@ Brief §8 asks Milestone 0 to end with at least three questions: the bundle iden
 versions ([Q03](#q03)). The others came up during discovery and planning. The owner answered the
 first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
 [Q19](#q19) after the M1 bridge benchmark. The owner answered every remaining question on
-2026-10-16, when M1 was merged. [Q21](#q21) came up while planning M2 and is open.
+2026-10-16, when M1 was merged. [Q21](#q21) came up while planning M2 and [Q22](#q22) with the
+open path (M2 W1); both are open.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -87,6 +88,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q19](#q19) | Tile transfer across the bridge: which zero-copy path | before M2 step 3 | Answered 2026-10-16: the Dco codec first, then the pointer view, then textures |
 | [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered 2026-10-16: after M3, live in the running app, set up from Settings; details as proposed |
 | [Q21](#q21) | Memory-mapping the private snapshot of a file over 256 MB (an `unsafe` exception) | M2 step 2 | Open |
+| [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Open |
 
 ## Questions
 
@@ -801,4 +803,34 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Status:** Open
 - **Related:** [ADR 0008](adr/0008-file-safety-and-saving.md), [ADR 0010](adr/0010-error-handling-no-panics.md),
   [ARCHITECTURE.md §5.1](ARCHITECTURE.md#51-open), [.claude/rules/rust.md](../.claude/rules/rust.md)
+- **Answer:** none yet
+
+<a id="q22"></a>
+
+### Q22 · The password copy PDFium keeps
+
+- **Question:** ROADMAP §6 step 2 says passwords are wiped from memory after key derivation. Ferman
+  can wipe its own copies but not PDFium's. Is that enough for M2, or should PDFium render an
+  encrypted document from a decrypted copy so that it never gets the password?
+- **Why it matters:** Since M2, ferman-core unlocks and decrypts encrypted documents with its own
+  security handler, and every buffer it derives from the password is wiped when dropped, so the
+  password never reaches lopdf ([ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules)).
+  PDFium, which renders the pages, needs the password as well: pdfium-render copies it into a C
+  string, and PDFium keeps it in its parser while the document is open. Both are freed without being
+  wiped, and Ferman cannot reach them without `unsafe` code. A password reused elsewhere could then be
+  read from a memory dump taken while the document is open, or from freed memory after it closes. The
+  Dart string the password arrives in cannot be wiped either.
+- **Options:** (a) keep PDFium's copy and narrow the criterion to "Ferman's own copies are wiped; the
+  copy PDFium keeps while the document is open, and the UI's string, are not"; (b) give PDFium a
+  decrypted copy written by lopdf in memory (a full rewrite, never on disk), so it gets no password.
+  That costs a second copy of the document in memory, a slower first page for encrypted files (lopdf
+  parses and writes before PDFium sees anything), and PDFium renders lopdf's rewrite instead of the
+  original bytes, which the pixel tests would have to cover.
+- **Proposal:** (a) for M2, with (b) assessed with the writer in M3, when lopdf's rewrite is tested
+  against PDFium anyway.
+- **Meanwhile:** (a): PDFium gets the password; ferman-core and ferman-render wipe theirs.
+- **Needed by:** the M2 review.
+- **Status:** Open
+- **Related:** [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules),
+  [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), ROADMAP §6 step 2
 - **Answer:** none yet

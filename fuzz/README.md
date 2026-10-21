@@ -47,12 +47,24 @@ cargo deny --manifest-path fuzz/Cargo.toml check
 | `filter_lzw` | LZWDecode and its predictors | `/DecodeParms` from the first four bytes, then the data |
 | `filter_flate` | FlateDecode and its predictors | `/DecodeParms` from the first four bytes, then the data |
 | `filter_run_length` | RunLengthDecode | the stream data |
+| `syntax_object` | ferman-core's object parser: a direct object, then an indirect one with its stream | arbitrary bytes |
+| `xref_repair` | cross-reference tables and streams, `/Prev` chains, and repair by scanning | arbitrary bytes, as a file from its `%PDF-` header |
+| `security_handler` | the standard security handler: the encryption dictionary, passwords for revisions 2 to 6, decryption | a length byte, the password, an encryption dictionary, then the data to decrypt |
+| `open_document` | the whole open path: header, cross-reference data, repair, security, lopdf and the structure scan | arbitrary bytes as a file; the password `fuzz` when the first byte is odd |
 
-The checks the targets share are in `src/lib.rs`:
+The filter targets' checks are in `src/lib.rs`:
 
 - the code under test must not panic;
 - it must not decode more than the limit (1 MiB, so a decompression bomb stops quickly);
 - it may fail only with the errors a damaged stream can cause.
+
+The open-path targets call ferman-core's hidden `fuzzing` module, behind the `fuzzing` feature
+that only this workspace enables, with small limits (1 MiB per stream, 64 cross-reference
+sections). Besides not panicking, they may fail with any error but an internal one or running out of
+memory, and `xref_repair` checks that a rebuilt table reads back clean from the flat copy lopdf
+gets. `open_document` runs lopdf too, so it finds lopdf's panics, which ferman-api catches as a
+last resort; a panic found there is reported upstream and worked around in ferman-core where it
+can be. Seed `corpus/open_document` and `corpus/xref_repair` with the PDFs of `tests/corpus/`.
 
 AddressSanitizer and libFuzzer's time and memory limits catch the rest.
 

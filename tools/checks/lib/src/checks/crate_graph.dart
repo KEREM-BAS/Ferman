@@ -34,6 +34,8 @@ final class CrateGraphCheck implements Check {
   static const singleDoor = <String, String>{
     'flutter_rust_bridge': 'ferman-api',
     'pdfium-render': 'ferman-render',
+    // The document model: lopdf objects never leave ferman-core (ADR 0004).
+    'lopdf': 'ferman-core',
   };
 
   /// Crates for tests and benchmarks that must stay dev-dependencies.

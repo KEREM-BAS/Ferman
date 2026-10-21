@@ -16,6 +16,7 @@ use std::thread;
 use std::time::{Duration, Instant};
 
 use crossbeam_channel::{Receiver, RecvTimeoutError, unbounded};
+use ferman_core::Password;
 use ferman_render::{
     DocumentId, FailReason, Item, PageSize, PdfiumStatus, PixelRect, Priority, RenderConfig,
     RenderError, RenderThread, Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent,
@@ -265,10 +266,13 @@ const WHITE: [u8; 4] = [255, 255, 255, 255];
 fn page_sizes_are_as_displayed() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(pdf(&[
-        (200.0, 100.0, 0, RED_CORNER),
-        (200.0, 100.0, 90, RED_CORNER),
-    ])))
+    let document = block_on(render.open_document(
+        pdf(&[
+            (200.0, 100.0, 0, RED_CORNER),
+            (200.0, 100.0, 90, RED_CORNER),
+        ]),
+        None,
+    ))
     .unwrap();
     assert_eq!(
         document.pages,
@@ -283,7 +287,7 @@ fn page_sizes_are_as_displayed() {
             },
         ]
     );
-    let kira = block_on(render.open_document(corpus("kira-tr"))).unwrap();
+    let kira = block_on(render.open_document(corpus("kira-tr"), None)).unwrap();
     assert!(kira.pages.len() > 1);
     for size in &kira.pages {
         assert!((size.width - 595.28).abs() < 0.01, "{size:?}");
@@ -296,10 +300,13 @@ fn page_sizes_are_as_displayed() {
 fn a_tile_is_opaque_bgra_with_the_top_left_first() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(pdf(&[
-        (200.0, 100.0, 0, RED_CORNER),
-        (200.0, 100.0, 90, RED_CORNER),
-    ])))
+    let document = block_on(render.open_document(
+        pdf(&[
+            (200.0, 100.0, 0, RED_CORNER),
+            (200.0, 100.0, 90, RED_CORNER),
+        ]),
+        None,
+    ))
     .unwrap();
     let mut view = View::open(&render, document.id);
     let [upright, turned] = view
@@ -340,7 +347,8 @@ fn tiles_put_together_are_the_whole_page() {
                    0 g BT /F1 37 Tf 380 500 Td (Ferman tiles: seams 512) Tj ET \
                    BT /F1 9 Tf 500 85 Td (small text across the seam at x = 512) Tj ET";
     let render = start(config());
-    let document = block_on(render.open_document(pdf(&[(1000.0, 600.0, 0, content)]))).unwrap();
+    let document =
+        block_on(render.open_document(pdf(&[(1000.0, 600.0, 0, content)]), None)).unwrap();
     let mut view = View::open(&render, document.id);
     let thumbnail = Item::Thumbnail(ThumbnailRequest {
         page: 0,
@@ -375,7 +383,8 @@ fn text_across_tile_edges_has_no_seam() {
             y -= size * 1.13;
             size = if size > 30.0 { 3.0 } else { size * 1.17 };
         }
-        let document = block_on(render.open_document(pdf(&[(side, side, 0, &content)]))).unwrap();
+        let document =
+            block_on(render.open_document(pdf(&[(side, side, 0, &content)]), None)).unwrap();
         let mut view = View::open(&render, document.id);
         let thumbnail = Item::Thumbnail(ThumbnailRequest {
             page: 0,
@@ -417,7 +426,7 @@ fn rendering_is_deterministic_in_ten_runs() {
     ] {
         let mut first: Option<Vec<Rendered>> = None;
         for run in 0..10 {
-            let document = block_on(render.open_document(corpus(name))).unwrap();
+            let document = block_on(render.open_document(corpus(name), None)).unwrap();
             let size = document.pages[0];
             let mut items = all_tiles(size, 0, 0, 2.0);
             // A deep-zoom tile in the middle of the page, and a thumbnail.
@@ -455,31 +464,45 @@ fn the_corpus_opens_as_pdfium_opens_it() {
         "xfa-visa",
         "js-openaction",
     ] {
-        let document = block_on(render.open_document(corpus(name)))
+        let document = block_on(render.open_document(corpus(name), None))
             .unwrap_or_else(|err| panic!("{name}: {err}"));
         assert!(!document.pages.is_empty(), "{name}");
         block_on(render.close_document(document.id)).unwrap();
     }
-    for name in [
-        "payslip-aes256",
-        "payslip-aes128",
-        "payslip-rc4-40",
-        "payslip-rc4-128",
+    for (name, password) in [
+        ("payslip-aes256", "Eylül2026maaşı"),
+        ("payslip-aes128", "bordro2026"),
+        ("payslip-rc4-40", "bordro2026"),
+        ("payslip-rc4-128", "bordro2026"),
     ] {
         assert!(
             matches!(
-                block_on(render.open_document(corpus(name))),
+                block_on(render.open_document(corpus(name), None)),
                 Err(RenderError::PasswordRequired)
             ),
             "{name}"
         );
+        assert!(
+            matches!(
+                block_on(
+                    render.open_document(corpus(name), Some(Password::new("eylul2026".to_owned())))
+                ),
+                Err(RenderError::WrongPassword)
+            ),
+            "{name}"
+        );
+        let document =
+            block_on(render.open_document(corpus(name), Some(Password::new(password.to_owned()))))
+                .unwrap_or_else(|err| panic!("{name}: {err}"));
+        assert_eq!(document.pages.len(), 1, "{name}");
+        block_on(render.close_document(document.id)).unwrap();
     }
     assert!(matches!(
-        block_on(render.open_document(corpus("truncated"))),
+        block_on(render.open_document(corpus("truncated"), None)),
         Err(RenderError::Damaged { .. })
     ));
     assert!(matches!(
-        block_on(render.open_document(Arc::from(&b"this is not a PDF"[..]))),
+        block_on(render.open_document(Arc::from(&b"this is not a PDF"[..]), None)),
         Err(RenderError::Damaged { .. })
     ));
 }
@@ -489,7 +512,8 @@ fn the_corpus_opens_as_pdfium_opens_it() {
 fn items_out_of_range_fail_at_once() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(pdf(&[(200.0, 100.0, 0, RED_CORNER)]))).unwrap();
+    let document =
+        block_on(render.open_document(pdf(&[(200.0, 100.0, 0, RED_CORNER)]), None)).unwrap();
     let mut view = View::open(&render, document.id);
     view.want(
         &render,
@@ -529,7 +553,7 @@ fn a_newer_wanted_set_replaces_the_older_one() {
         tile_cache_bytes: 0,
         ..config()
     });
-    let document = block_on(render.open_document(corpus("tez-tr"))).unwrap();
+    let document = block_on(render.open_document(corpus("tez-tr"), None)).unwrap();
     let mut view = View::open(&render, document.id);
     // Many deep-zoom tiles, then at once a set of one: only the tiles rendered before the second
     // set arrived reach the view, which is one unless the system holds this thread back.
@@ -565,7 +589,7 @@ fn a_newer_wanted_set_replaces_the_older_one() {
 fn cached_bitmaps_are_the_rendered_ones() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(corpus("kira-tr"))).unwrap();
+    let document = block_on(render.open_document(corpus("kira-tr"), None)).unwrap();
     let mut first = View::open(&render, document.id);
     let mut second = View::open(&render, document.id);
     let items = [
@@ -588,7 +612,7 @@ fn cached_bitmaps_are_the_rendered_ones() {
 fn closing_a_document_ends_its_views() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(corpus("kira-tr"))).unwrap();
+    let document = block_on(render.open_document(corpus("kira-tr"), None)).unwrap();
     let mut view = View::open(&render, document.id);
     view.want(&render, visible(&all_tiles(document.pages[0], 0, 0, 2.0)));
     block_on(render.close_document(document.id)).unwrap();
@@ -617,7 +641,7 @@ fn closing_a_document_ends_its_views() {
 fn dropping_the_handle_while_rendering_stops_the_thread() {
     let _serial = serial();
     let render = start(config());
-    let document = block_on(render.open_document(corpus("tez-tr"))).unwrap();
+    let document = block_on(render.open_document(corpus("tez-tr"), None)).unwrap();
     let mut view = View::open(&render, document.id);
     let many: Vec<Item> = (0..30).map(|column| tile(0, 16, 2.0, column, 3)).collect();
     view.want(&render, visible(&many));
@@ -721,8 +745,8 @@ fn three_views_render_at_once_without_a_crash_or_a_deadlock() {
         loaded_pages: 3,
         ..config()
     }));
-    let kira = block_on(render.open_document(corpus("kira-tr"))).unwrap();
-    let report = block_on(render.open_document(corpus("report-ar"))).unwrap();
+    let kira = block_on(render.open_document(corpus("kira-tr"), None)).unwrap();
+    let report = block_on(render.open_document(corpus("report-ar"), None)).unwrap();
     let until = Instant::now() + Duration::from_secs(seconds);
     // Two views of one document and one of another, each from its own thread.
     let clients: Vec<_> = [(kira.clone(), 1), (kira.clone(), 2), (report.clone(), 3)]
@@ -735,7 +759,7 @@ fn three_views_render_at_once_without_a_crash_or_a_deadlock() {
     // Meanwhile documents open and close on the same thread.
     let mut opened = 0;
     while Instant::now() < until {
-        let document = block_on(render.open_document(corpus("scan-tr"))).unwrap();
+        let document = block_on(render.open_document(corpus("scan-tr"), None)).unwrap();
         let mut view = View::open(&render, document.id);
         view.render(&render, &[tile(0, 0, 1.0, 0, 0)]);
         block_on(render.close_document(document.id)).unwrap();

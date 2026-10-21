@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-113 entries: 91 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, and G113 with the test corpus.
+114 entries: 92 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, and G114 with the open path.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -185,6 +185,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
 | [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
 | [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
+| [G114](#g114) | gap | M2 | Open / damaged file | a1-9b's "Expected about 2.4 MB" is known only when the file declares its size | Decided |
 
 ## Entries
 
@@ -1691,3 +1692,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** `kira-tr` keeps the design's text and sets Madde 6 in EB Garamond, a font Ferman does not bundle. The "ğ" of "Olağan" comes from IBM Plex Serif, the document's body font, the way a producer substitutes a glyph its font lacks. EB Garamond's subsets therefore have no "ğ" or "Ğ", and the missing-glyph path of ROADMAP E02 and E03 is exercised as drawn. The extracted text reads "Olağan" as usual.
 - **Status:** Decided.
 - **Evidence:** `design/DocKira.dc.html` line 35 (Madde 6 in `'EB Garamond'`, and the `glyph` state that adds "değiştirilemez"); `tools/corpus/src/docs/kira.rs` (`borrowed` in the Madde 6 style); `tests/corpus/README.md` (the kira-tr row).
+
+<a id="g114"></a>
+
+### G114 · "Expected about 2.4 MB" needs a declared size
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** Open / damaged file
+- **Artboards:** `a1-9b`
+- **Gap or conflict:** a1-9b's technical details read "Expected about 2.4 MB, found 18 KB · last complete object 12 0 obj · no trailer". A file cut off before its end says how long it was meant to be only when it is linearized: the first object's `/L` holds the file length. Any other file, `truncated` (Tarama_0042.pdf) among them, gives no way to know the expected size; an estimate from the page count or the images seen so far would be a guess presented as a fact.
+- **Decision:** The engine's `Diagnosis` carries `expected_size` only from a linearized file's `/L`. Without it, the details leave the "Expected about …" part out and start with what was found: "Found 18 KB · last complete object 12 0 obj · no trailer". The sentence above the details, "The file stops after 18 KB and the rest is missing.", needs no expected size and stays as drawn.
+- **Status:** Decided.
+- **Evidence:** `crates/ferman-core/src/repair.rs` (`Diagnosis`, `Scan::linearized_length`); `crates/ferman-core/tests/corpus.rs` (`the_truncated_scan_cannot_be_opened`); `tools/corpus/src/docs/damaged.rs` (the scan is not linearized).

@@ -34,7 +34,7 @@ Map<String, dynamic> metadata(Map<String, List<Map<String, dynamic>>> crates) {
 
 /// The documented graph of ARCHITECTURE.md §2.2.
 Map<String, List<Map<String, dynamic>>> documentedGraph() => {
-  'ferman-core': [dep('thiserror')],
+  'ferman-core': [dep('thiserror'), dep('lopdf')],
   'ferman-fonts': [dep('thiserror')],
   'ferman-text': [dep('ferman-core'), dep('ferman-fonts')],
   'ferman-render': [dep('ferman-core'), dep('pdfium-render')],
@@ -79,14 +79,16 @@ void main() {
     expect(violations(graph).single, startsWith('ferman-sign: not in the'));
   });
 
-  test('keeps flutter_rust_bridge and pdfium-render behind one door', () {
+  test('keeps flutter_rust_bridge, pdfium-render and lopdf behind one door', () {
     final graph = documentedGraph()
       ..['ferman-text'] = [dep('ferman-core'), dep('flutter_rust_bridge')]
-      ..['ferman-ops'] = [dep('ferman-core'), dep('pdfium-render')];
+      ..['ferman-ops'] = [dep('ferman-core'), dep('pdfium-render')]
+      ..['ferman-render'] = [dep('ferman-core'), dep('lopdf')];
     const frb = 'flutter_rust_bridge';
     const pdfium = 'pdfium-render';
     expect(violations(graph), [
       'ferman-text -> $frb: only ferman-api may depend on $frb',
+      'ferman-render -> lopdf: only ferman-core may depend on lopdf',
       'ferman-ops -> $pdfium: only ferman-render may depend on $pdfium',
     ]);
   });

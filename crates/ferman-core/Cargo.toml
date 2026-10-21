@@ -13,6 +13,18 @@ repository.workspace = true
 thiserror.workspace = true
 flate2.workspace = true
 weezl.workspace = true
+lopdf.workspace = true
+sha2.workspace = true
+md-5.workspace = true
+aes.workspace = true
+rc4.workspace = true
+stringprep.workspace = true
+unicode-normalization.workspace = true
+zeroize.workspace = true
+
+[features]
+# Entry points for the fuzz targets in fuzz/; nothing else enables it.
+fuzzing = []
 
 [dev-dependencies]
 proptest.workspace = true

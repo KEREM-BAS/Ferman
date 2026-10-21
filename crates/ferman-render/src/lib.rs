@@ -132,6 +132,9 @@ pub enum RenderError {
     /// The document is encrypted and PDFium needs its password to open it.
     #[error("the document needs a password")]
     PasswordRequired,
+    /// The password given does not open the document.
+    #[error("the password is wrong")]
+    WrongPassword,
     /// The document's security handler is one PDFium does not have.
     #[error("the document uses a security handler PDFium does not support")]
     UnsupportedSecurity,
