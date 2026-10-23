@@ -48,4 +48,62 @@ void main() {
       expect(status.pdfiumTag, 'chromium/7881');
     },
   );
+
+  test('render items are equal by value, so updates match what was wanted', () {
+    const tile = TileItem(
+      page: 2,
+      zoomBucket: -3,
+      devicePixelRatio: 2,
+      column: 1,
+      row: 4,
+    );
+    expect(
+      tile,
+      const TileItem(
+        page: 2,
+        zoomBucket: -3,
+        devicePixelRatio: 2,
+        column: 1,
+        row: 4,
+      ),
+    );
+    expect(
+      tile,
+      isNot(
+        const TileItem(
+          page: 2,
+          zoomBucket: -3,
+          devicePixelRatio: 2,
+          column: 1,
+          row: 5,
+        ),
+      ),
+    );
+    expect({
+      const ThumbnailItem(page: 0, size: 64),
+    }, contains(const ThumbnailItem(page: 0, size: 64)));
+    expect(
+      const ThumbnailItem(page: 0, size: 64),
+      isNot(const ThumbnailItem(page: 1, size: 64)),
+    );
+  });
+
+  test('the fake opens its documents and no other path', () async {
+    const document = OpenedDocument(
+      id: 7,
+      pages: [PageInfo(width: 595, height: 842)],
+    );
+    const engine = FakeEngineService(documents: {'/a.pdf': document});
+    expect(await engine.open('/a.pdf'), same(document));
+    await expectLater(
+      engine.open('/b.pdf'),
+      throwsA(
+        isA<EngineException>().having(
+          (error) => error.kind,
+          'kind',
+          EngineErrorKind.notFound,
+        ),
+      ),
+    );
+  });
 }

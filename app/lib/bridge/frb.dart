@@ -7,8 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `pdfium_status_dto`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -42,6 +43,58 @@ Future<void> debugPanic() => FermanBridge.instance.api.crateFrbDebugPanic();
 /// See [`facade::debug_bytes`].
 Future<Uint8List> debugBytes({required int len}) =>
     FermanBridge.instance.api.crateFrbDebugBytes(len: len);
+
+/// Opens the PDF at `path`, with `password` if it is encrypted. Without the password an encrypted
+/// file fails with `PasswordRequired`; open it again with the password.
+///
+/// See [`facade::Engine::open`].
+///
+/// # Errors
+///
+/// Returns the facade's error, mirrored.
+Future<OpenedDocument> open({required String path, String? password}) =>
+    FermanBridge.instance.api.crateFrbOpen(path: path, password: password);
+
+/// Closes a document and ends its views.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<void> close({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbClose(document: document);
+
+/// Opens a view of `document`: its first event is `Opened` with the view's handle, then its
+/// tiles and thumbnails as [`request_view`] asks for them.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Stream<ViewEvent> openView({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbOpenView(document: document);
+
+/// Replaces what `view` wants rendered, in priority order. A `generation` no newer than the view's
+/// last one is ignored.
+///
+/// # Errors
+///
+/// `InvalidInput` for a zoom bucket out of range.
+Future<void> requestView({
+  required BigInt view,
+  required BigInt generation,
+  required List<WantedItem> wanted,
+}) => FermanBridge.instance.api.crateFrbRequestView(
+  view: view,
+  generation: generation,
+  wanted: wanted,
+);
+
+/// Closes a view; its stream ends.
+///
+/// # Errors
+///
+/// `Internal` if the render thread has stopped.
+Future<void> closeView({required BigInt view}) =>
+    FermanBridge.instance.api.crateFrbCloseView(view: view);
 
 /// The error every fallible call returns; Dart receives it as an exception.
 class ApiError implements FrbException {
@@ -200,6 +253,95 @@ enum ErrorKind {
   internal,
 }
 
+/// Why an item was not rendered; the UI shows a2-13's placeholder with Try again.
+enum FailReason {
+  /// The document has no such page.
+  noSuchPage,
+
+  /// A zoom, ratio, position or size the page's raster does not have.
+  outOfRange,
+
+  /// PDFium could not load or render the page.
+  pageDamaged,
+
+  /// Memory for the bitmap could not be reserved.
+  outOfMemory,
+
+  /// A bug in Ferman.
+  internal,
+}
+
+/// Whether a [`ViewItem`] is a tile or a thumbnail.
+enum ItemKind {
+  /// A 512-pixel tile of a page at a zoom bucket.
+  tile,
+
+  /// The whole page fitted into a square.
+  thumbnail,
+}
+
+/// A document the engine opened.
+class OpenedDocument {
+  /// Its handle, until [`close`].
+  final BigInt id;
+
+  /// Why it opened read-only, if it did.
+  final ReadOnlyReason? readOnly;
+
+  /// Whether spreads run right to left (`/Direction /R2L`).
+  final bool rightToLeft;
+
+  /// Its pages.
+  final List<PageInfo> pages;
+
+  const OpenedDocument({
+    required this.id,
+    this.readOnly,
+    required this.rightToLeft,
+    required this.pages,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^ readOnly.hashCode ^ rightToLeft.hashCode ^ pages.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OpenedDocument &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          readOnly == other.readOnly &&
+          rightToLeft == other.rightToLeft &&
+          pages == other.pages;
+}
+
+/// One page of an [`OpenedDocument`], in points as displayed.
+class PageInfo {
+  /// The width, after the crop box and `/Rotate`.
+  final double width;
+
+  /// The height, after the crop box and `/Rotate`.
+  final double height;
+
+  /// The page label, such as "iv", when the document has labels.
+  final String? label;
+
+  const PageInfo({required this.width, required this.height, this.label});
+
+  @override
+  int get hashCode => width.hashCode ^ height.hashCode ^ label.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageInfo &&
+          runtimeType == other.runtimeType &&
+          width == other.width &&
+          height == other.height &&
+          label == other.label;
+}
+
 /// Whether PDFium is loaded: the state of a [`PdfiumStatus`].
 enum PdfiumState {
   /// No PDFium library was found or configured.
@@ -237,4 +379,215 @@ class PdfiumStatus {
           state == other.state &&
           tag == other.tag &&
           reason == other.reason;
+}
+
+/// How urgent a wanted item is, highest first (ARCHITECTURE §4.5).
+enum Priority {
+  /// Tiles on screen.
+  visible,
+
+  /// Tiles just off screen.
+  prefetch,
+
+  /// Thumbnails on screen.
+  visibleThumbnail,
+
+  /// Other thumbnails.
+  thumbnail,
+
+  /// Background work.
+  background,
+}
+
+/// Why a document opened read-only (ARCHITECTURE §5.2). In M2 every document is view-only; this is
+/// the reason the UI states.
+enum ReadOnlyReason {
+  /// Ferman repaired it (a1-9), or could not read some of its objects.
+  repaired,
+
+  /// The two parsers see different pages (G102).
+  parsersDisagree,
+
+  /// An XFA-only form (a11-7c).
+  xfaOnly,
+}
+
+/// An event of a view's stream. The stream ends when the view closes, with its document or when
+/// the stream is cancelled.
+class ViewEvent {
+  /// What happened.
+  final ViewEventKind kind;
+
+  /// The view's handle (`Opened`).
+  final BigInt view;
+
+  /// What was asked for (`Rendered`, `Failed`).
+  final ViewItem? item;
+
+  /// The generation of the wanted set this answers.
+  final BigInt generation;
+
+  /// The page's render key when it was rendered.
+  final BigInt renderKey;
+
+  /// Where the pixels sit in the page's raster, in device pixels.
+  final int x;
+
+  /// See `x`.
+  final int y;
+
+  /// The bitmap's width in pixels.
+  final int width;
+
+  /// The bitmap's height in pixels.
+  final int height;
+
+  /// Bytes per row.
+  final int stride;
+
+  /// 8-bit BGRA, opaque; it reaches Dart without a copy (the Dco codec).
+  final Uint8List pixels;
+
+  /// Why it failed (`Failed`).
+  final FailReason? failReason;
+
+  const ViewEvent({
+    required this.kind,
+    required this.view,
+    this.item,
+    required this.generation,
+    required this.renderKey,
+    required this.x,
+    required this.y,
+    required this.width,
+    required this.height,
+    required this.stride,
+    required this.pixels,
+    this.failReason,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      view.hashCode ^
+      item.hashCode ^
+      generation.hashCode ^
+      renderKey.hashCode ^
+      x.hashCode ^
+      y.hashCode ^
+      width.hashCode ^
+      height.hashCode ^
+      stride.hashCode ^
+      pixels.hashCode ^
+      failReason.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ViewEvent &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          view == other.view &&
+          item == other.item &&
+          generation == other.generation &&
+          renderKey == other.renderKey &&
+          x == other.x &&
+          y == other.y &&
+          width == other.width &&
+          height == other.height &&
+          stride == other.stride &&
+          pixels == other.pixels &&
+          failReason == other.failReason;
+}
+
+/// What a [`ViewEvent`] reports.
+enum ViewEventKind {
+  /// The view is open: the first event, with its `view` handle.
+  opened,
+
+  /// A bitmap is ready: `item`, `generation`, `render_key`, the rectangle and the pixels.
+  rendered,
+
+  /// An item could not be rendered: `item`, `generation` and `fail_reason`.
+  failed,
+}
+
+/// Something a view wants rendered: a tile (`zoom_bucket`, `device_pixel_ratio`, `column`, `row`)
+/// or a thumbnail (`size`); the fields of the other kind are 0.
+class ViewItem {
+  /// Tile or thumbnail.
+  final ItemKind kind;
+
+  /// The page, from 0.
+  final int page;
+
+  /// A tile's quarter-octave zoom: the logical zoom is 2^(bucket / 4).
+  final int zoomBucket;
+
+  /// A tile's device pixel ratio, 0.5 to 4.
+  final double devicePixelRatio;
+
+  /// A tile's column on the grid.
+  final int column;
+
+  /// A tile's row on the grid.
+  final int row;
+
+  /// A thumbnail's side in device pixels, 16 to 1,024.
+  final int size;
+
+  const ViewItem({
+    required this.kind,
+    required this.page,
+    required this.zoomBucket,
+    required this.devicePixelRatio,
+    required this.column,
+    required this.row,
+    required this.size,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      page.hashCode ^
+      zoomBucket.hashCode ^
+      devicePixelRatio.hashCode ^
+      column.hashCode ^
+      row.hashCode ^
+      size.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ViewItem &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          page == other.page &&
+          zoomBucket == other.zoomBucket &&
+          devicePixelRatio == other.devicePixelRatio &&
+          column == other.column &&
+          row == other.row &&
+          size == other.size;
+}
+
+/// One entry of a view's wanted set.
+class WantedItem {
+  /// What to render.
+  final ViewItem item;
+
+  /// How urgent it is.
+  final Priority priority;
+
+  const WantedItem({required this.item, required this.priority});
+
+  @override
+  int get hashCode => item.hashCode ^ priority.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is WantedItem &&
+          runtimeType == other.runtimeType &&
+          item == other.item &&
+          priority == other.priority;
 }
