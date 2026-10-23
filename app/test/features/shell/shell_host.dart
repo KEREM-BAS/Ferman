@@ -10,6 +10,7 @@ import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/misc.dart' show Override;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/component_host.dart';
@@ -32,7 +33,8 @@ const String futureVersion = 'Available in a future version';
 /// can narrow and widen the window while the providers and widgets keep
 /// their state ([resizeShell]). [germanLike] replaces the English labels
 /// with [GermanLikeLocalizations], [localizations] with the strings of
-/// another delegate (the pseudo-locale).
+/// another delegate (the pseudo-locale). [overrides] go into the
+/// container too (an engine, for a shell that shows a document).
 Widget shellHost({
   required FakeDesktopWindow window,
   ShortcutPlatform platform = ShortcutPlatform.linux,
@@ -45,6 +47,7 @@ Widget shellHost({
   ValueListenable<Size>? size,
   bool germanLike = false,
   LocalizationsDelegate<AppLocalizations>? localizations,
+  List<Override> overrides = const [],
 }) {
   Widget frame(Size size) {
     final shell = SizedBox.fromSize(
@@ -84,6 +87,7 @@ Widget shellHost({
         initialSettingsProvider.overrideWithValue(
           AppSettings(regionCode: regionCode),
         ),
+        ...overrides,
       ],
     ),
     // The app's default keys (Tab moves focus, Enter activates), which

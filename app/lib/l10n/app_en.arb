@@ -1288,5 +1288,35 @@
   "regionExampleFontSize": "Font size",
   "@regionExampleFontSize": {
     "description": "Row of the examples box: a font size in the region's format (a11-1b)."
+  },
+  "viewerPageFailed": "Ferman couldn’t draw page {page}.",
+  "@viewerPageFailed": {
+    "description": "Canvas: the title of the placeholder of a page that failed to render (a2-13, G30). {page} is the page number, already formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerPageFailedReason": "Something on this page can’t be read. The rest of the document works as usual.",
+  "@viewerPageFailedReason": {
+    "description": "Canvas: the plain reason under the title of a page that failed to render (a2-13)."
+  },
+  "viewerTryAgain": "Try again",
+  "@viewerTryAgain": {
+    "description": "Canvas: the button that renders a failed page again (a2-13)."
+  },
+  "viewerMarqueeZoom": "Release to zoom to {zoom}",
+  "@viewerMarqueeZoom": {
+    "description": "Canvas: the label beside the rectangle of Marquee zoom while it is dragged (a2-2). {zoom} is the zoom it gives, a percentage already formatted for the region, for example 180%.",
+    "placeholders": {
+      "zoom": {
+        "type": "String"
+      }
+    }
+  },
+  "viewerPageNumber": "Page number",
+  "@viewerPageNumber": {
+    "description": "Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G)."
   }
 }

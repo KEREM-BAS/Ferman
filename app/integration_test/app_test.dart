@@ -1,4 +1,6 @@
+import 'dart:async';
 import 'dart:io';
+import 'dart:ui' as ui;
 
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/desktop_window.dart';
@@ -90,8 +92,23 @@ void main() {
       expect(rendered.generation, 1);
       expect(rendered.width, 64);
       expect(rendered.pixels, hasLength(rendered.stride * rendered.height));
-      // An empty page: white and opaque, in BGRA.
-      expect(rendered.pixels.take(4), [255, 255, 255, 255]);
+      // A red page, opaque, in BGRA.
+      expect(rendered.pixels.take(4), [0, 0, 255, 255]);
+      // The canvas decodes the bitmap as BGRA (DocumentView).
+      final decoded = Completer<ui.Image>();
+      ui.decodeImageFromPixels(
+        rendered.pixels,
+        rendered.width,
+        rendered.height,
+        ui.PixelFormat.bgra8888,
+        decoded.complete,
+        rowBytes: rendered.stride,
+      );
+      final image = await decoded.future;
+      addTearDown(image.dispose);
+      expect((image.width, image.height), (rendered.width, rendered.height));
+      final rgba = await image.toByteData();
+      expect(rgba!.buffer.asUint8List(0, 4), [255, 0, 0, 255]);
 
       await engine.close(document.id);
       await expectLater(
@@ -149,13 +166,16 @@ void main() {
   });
 }
 
-/// A one-page PDF of 200 × 100 points with an exact cross-reference table,
-/// written by hand so the test needs no file from outside the app.
+/// A one-page PDF of 200 × 100 points filled red, with an exact
+/// cross-reference table, written by hand so the test needs no file from
+/// outside the app. Red tells BGRA from RGBA.
 String _onePagePdf() {
+  const content = '1 0 0 rg 0 0 200 100 re f';
   const objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R >>',
+    '<< /Length ${content.length} >>\nstream\n$content\nendstream',
   ];
   // ASCII only, so string offsets are byte offsets.
   final pdf = StringBuffer('%PDF-1.7\n');

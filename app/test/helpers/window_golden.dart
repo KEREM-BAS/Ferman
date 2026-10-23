@@ -174,9 +174,7 @@ Future<void> windowGoldenTest({
         final Widget app = UncontrolledProviderScope(
           container: ProviderContainer.test(
             overrides: [
-              engineServiceProvider.overrideWithValue(
-                const FakeEngineService(),
-              ),
+              engineServiceProvider.overrideWithValue(FakeEngineService()),
               settingsStoreProvider.overrideWithValue(
                 MemorySettingsStore(settings),
               ),

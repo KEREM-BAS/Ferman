@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-303 messages in `app_en.arb`; translated: Turkish 303, Arabic 303.
+308 messages in `app_en.arb`; translated: Turkish 308, Arabic 308.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -359,5 +359,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `regionExampleTime` | Time | Saat | الوقت | Row of the examples box: a time in the region's format (a11-1b). |
 | `regionExampleNumber` | Number | Sayı | الرقم | Row of the examples box: a number in the region's format (a11-1b). |
 | `regionExampleFontSize` | Font size | Yazı tipi boyutu | حجم الخط | Row of the examples box: a font size in the region's format (a11-1b). |
+| `viewerPageFailed` | Ferman couldn’t draw page {page}. | Ferman {page}. sayfayı çizemedi. | تعذّر على Ferman عرض الصفحة {page}. | Canvas: the title of the placeholder of a page that failed to render (a2-13, G30). {page} is the page number, already formatted for the region. |
+| `viewerPageFailedReason` | Something on this page can’t be read. The rest of the document works as usual. | Bu sayfadaki bir öğe okunamıyor. Belgenin geri kalanı her zamanki gibi çalışır. | تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد. | Canvas: the plain reason under the title of a page that failed to render (a2-13). |
+| `viewerTryAgain` | Try again | Yeniden dene | إعادة المحاولة | Canvas: the button that renders a failed page again (a2-13). |
+| `viewerMarqueeZoom` | Release to zoom to {zoom} | {zoom} yakınlaştırmak için bırakın | أفلِت للتكبير إلى {zoom} | Canvas: the label beside the rectangle of Marquee zoom while it is dragged (a2-2). {zoom} is the zoom it gives, a percentage already formatted for the region, for example 180%. |
+| `viewerPageNumber` | Page number | Sayfa numarası | رقم الصفحة | Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

@@ -302,5 +302,10 @@
   "regionExampleDate": "Tarih",
   "regionExampleTime": "Saat",
   "regionExampleNumber": "Sayı",
-  "regionExampleFontSize": "Yazı tipi boyutu"
+  "regionExampleFontSize": "Yazı tipi boyutu",
+  "viewerPageFailed": "Ferman {page}. sayfayı çizemedi.",
+  "viewerPageFailedReason": "Bu sayfadaki bir öğe okunamıyor. Belgenin geri kalanı her zamanki gibi çalışır.",
+  "viewerTryAgain": "Yeniden dene",
+  "viewerMarqueeZoom": "{zoom} yakınlaştırmak için bırakın",
+  "viewerPageNumber": "Sayfa numarası"
 }

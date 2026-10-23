@@ -1028,6 +1028,22 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get regionExampleFontSize => isolate(super.regionExampleFontSize);
+
+  @override
+  String viewerPageFailed(String page) => isolate(super.viewerPageFailed(page));
+
+  @override
+  String get viewerPageFailedReason => isolate(super.viewerPageFailedReason);
+
+  @override
+  String get viewerTryAgain => isolate(super.viewerTryAgain);
+
+  @override
+  String viewerMarqueeZoom(String zoom) =>
+      isolate(super.viewerMarqueeZoom(zoom));
+
+  @override
+  String get viewerPageNumber => isolate(super.viewerPageNumber);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

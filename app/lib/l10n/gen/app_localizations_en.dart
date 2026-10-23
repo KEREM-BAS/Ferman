@@ -976,4 +976,24 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get regionExampleFontSize => 'Font size';
+
+  @override
+  String viewerPageFailed(String page) {
+    return 'Ferman couldn’t draw page $page.';
+  }
+
+  @override
+  String get viewerPageFailedReason =>
+      'Something on this page can’t be read. The rest of the document works as usual.';
+
+  @override
+  String get viewerTryAgain => 'Try again';
+
+  @override
+  String viewerMarqueeZoom(String zoom) {
+    return 'Release to zoom to $zoom';
+  }
+
+  @override
+  String get viewerPageNumber => 'Page number';
 }

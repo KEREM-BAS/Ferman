@@ -1,6 +1,8 @@
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_layout.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -10,9 +12,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// [Actions].
 ///
 /// The title bar's content and the screen below it each sit in one, so the
-/// keys work wherever focus is. Commands that work in M1 get a handler:
-/// Settings when [onOpenSettings] is given and, in the editor, the sidebar
-/// and panel toggles and moving between the placeholder documents. On the
+/// keys work wherever focus is. Commands that work get a handler: Settings
+/// when [onOpenSettings] is given and, in the editor, the sidebar and panel
+/// toggles, moving between the placeholder documents and, with a document
+/// open (`viewerProvider`), zoom, the fits, page turns, Go to page and the
+/// View tools. On the
 /// start screen ([home]) only Settings works. Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
 /// Alt+F4, Ctrl+Q) are the window frame's, on every screen
@@ -47,6 +51,7 @@ class ShellCommandScope extends ConsumerWidget {
     final documents = ref.read(shellDocumentsProvider.notifier);
     final count = ref.read(shellDocumentsProvider).documents.length;
     final panels = ref.read(shellPanelsProvider);
+    final viewer = ref.read(viewerProvider.notifier);
     const jumps = [
       ShellCommand.document1,
       ShellCommand.document2,
@@ -71,6 +76,21 @@ class ShellCommandScope extends ConsumerWidget {
       if (count > 1) ShellCommand.nextDocument: documents.activateNext,
       for (var i = 0; i < jumps.length && i < count; i++)
         jumps[i]: () => documents.activate(i),
+      if (ref.read(viewerProvider) != null) ...{
+        ShellCommand.zoomIn: viewer.zoomIn,
+        ShellCommand.zoomOut: viewer.zoomOut,
+        ShellCommand.fitPage: () => viewer.fit(ZoomFit.page),
+        ShellCommand.fitWidth: () => viewer.fit(ZoomFit.width),
+        ShellCommand.actualSize: () => viewer.zoomTo(1),
+        ShellCommand.nextPage: viewer.nextPage,
+        ShellCommand.previousPage: viewer.previousPage,
+        ShellCommand.goToPage: ref
+            .read(pageFieldRequestProvider.notifier)
+            .request,
+        ShellCommand.selectTool: () => viewer.setTool(ViewerTool.select),
+        ShellCommand.handTool: () => viewer.setTool(ViewerTool.hand),
+        ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),
+      },
     };
   }
 
@@ -82,7 +102,8 @@ class ShellCommandScope extends ConsumerWidget {
     if (!home) {
       ref
         ..watch(shellDocumentsProvider)
-        ..watch(shellPanelsProvider);
+        ..watch(shellPanelsProvider)
+        ..watch(viewerProvider.select((view) => view != null));
     }
     return Actions(
       actions: {

@@ -41,7 +41,7 @@ void main() {
   test(
     'FakeEngineService reports the app API version and PDFium loaded',
     () async {
-      const service = FakeEngineService();
+      final service = FakeEngineService();
       expect(service.apiVersion(), kAppApiVersion);
       final status = await service.status();
       expect(status.pdfium, PdfiumState.loaded);
@@ -93,7 +93,7 @@ void main() {
       id: 7,
       pages: [PageInfo(width: 595, height: 842)],
     );
-    const engine = FakeEngineService(documents: {'/a.pdf': document});
+    final engine = FakeEngineService(documents: {'/a.pdf': document});
     expect(await engine.open('/a.pdf'), same(document));
     await expectLater(
       engine.open('/b.pdf'),
