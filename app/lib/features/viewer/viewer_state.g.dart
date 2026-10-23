@@ -53,7 +53,7 @@ final class OpenDocumentProvider
   }
 }
 
-String _$openDocumentHash() => r'929cd058c1b1793cbef4f57c57342fcb7b2d3581';
+String _$openDocumentHash() => r'25ca9871d8c104a440425a66a48e61537ebaa977';
 
 /// The document the canvas shows, as `openDocumentProvider`, or null.
 ///
