@@ -5,8 +5,7 @@ use std::fmt;
 /// What kind of failure an [`ApiError`] reports.
 ///
 /// The UI maps each kind to a design state (docs/ARCHITECTURE.md §8.2). The kinds that only the
-/// later features produce (for example `PasswordRequired` or `DiskFull`) arrive with those
-/// features.
+/// later features produce (for example `Restricted` or `DiskFull`) arrive with those features.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 #[non_exhaustive]
 pub enum ErrorKind {
@@ -14,8 +13,18 @@ pub enum ErrorKind {
     InvalidInput,
     /// A file or handle does not exist (any more).
     NotFound,
-    /// The input uses something Ferman does not support yet.
+    /// The system does not let Ferman read the file (a1-9d).
+    PermissionDenied,
+    /// The document is encrypted and its password is needed (a1-8).
+    PasswordRequired,
+    /// The password does not open the document (a1-8b).
+    WrongPassword,
+    /// The file is damaged beyond repair (a1-9b).
+    Damaged,
+    /// The input is not a PDF, or uses something Ferman does not support yet (a1-9c, a1-9b).
     Unsupported,
+    /// A resource limit stopped the work, or memory a check before allocating found short (a1-9f).
+    ResourceLimit,
     /// Reading or writing failed for a reason without its own kind.
     Io,
     /// A bug in Ferman, including a caught panic. The UI shows a generic message and offers
@@ -30,7 +39,12 @@ impl ErrorKind {
         match self {
             Self::InvalidInput => "invalid_input",
             Self::NotFound => "not_found",
+            Self::PermissionDenied => "permission_denied",
+            Self::PasswordRequired => "password_required",
+            Self::WrongPassword => "wrong_password",
+            Self::Damaged => "damaged",
             Self::Unsupported => "unsupported",
+            Self::ResourceLimit => "resource_limit",
             Self::Io => "io",
             Self::Internal => "internal",
         }
@@ -48,17 +62,49 @@ impl fmt::Display for ErrorKind {
 /// Each key is an ARB key in `app/lib/l10n/app_en.arb` (lowerCamelCase, as gen-l10n requires), so
 /// the sentence is formatted in Dart in the user's language and no localized text leaves the
 /// engine (ADR 0010, ADR 0014). The set is closed: keys are defined here and listed in
-/// [`MessageKey::ALL`]. A CI check that every key exists in `app_en.arb` and `app_tr.arb` does not
-/// exist yet; it will be added when the ARB files gain the error strings (M1 step 10).
+/// [`MessageKey::ALL`]. A CI check that every key exists in `app_en.arb` and `app_tr.arb` arrives
+/// with the error strings in the ARB files, in the commit whose screens show them (M2).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
 pub struct MessageKey(&'static str);
 
 impl MessageKey {
     /// Something went wrong inside Ferman; the message offers "Copy technical details".
     pub const INTERNAL: Self = Self("errorInternal");
+    /// The file is not there (any more).
+    pub const FILE_NOT_FOUND: Self = Self("errorFileNotFound");
+    /// The system does not let Ferman read the file.
+    pub const FILE_PERMISSION_DENIED: Self = Self("errorFilePermissionDenied");
+    /// Reading the file failed.
+    pub const FILE_READ: Self = Self("errorFileRead");
+    /// The file is not a PDF (a1-9c).
+    pub const NOT_PDF: Self = Self("errorNotPdf");
+    /// The document needs its password (a1-8).
+    pub const PASSWORD_REQUIRED: Self = Self("errorPasswordRequired");
+    /// The password is wrong (a1-8b).
+    pub const WRONG_PASSWORD: Self = Self("errorWrongPassword");
+    /// The file is damaged beyond repair (a1-9b).
+    pub const DAMAGED: Self = Self("errorDamaged");
+    /// The file uses something Ferman does not support yet.
+    pub const UNSUPPORTED: Self = Self("errorUnsupported");
+    /// The file is too complex for the resource limits.
+    pub const TOO_COMPLEX: Self = Self("errorTooComplex");
+    /// There was not enough memory for this document (a1-9f).
+    pub const OUT_OF_MEMORY: Self = Self("errorOutOfMemory");
 
     /// Every key the engine can return.
-    pub const ALL: &'static [Self] = &[Self::INTERNAL];
+    pub const ALL: &'static [Self] = &[
+        Self::INTERNAL,
+        Self::FILE_NOT_FOUND,
+        Self::FILE_PERMISSION_DENIED,
+        Self::FILE_READ,
+        Self::NOT_PDF,
+        Self::PASSWORD_REQUIRED,
+        Self::WRONG_PASSWORD,
+        Self::DAMAGED,
+        Self::UNSUPPORTED,
+        Self::TOO_COMPLEX,
+        Self::OUT_OF_MEMORY,
+    ];
 
     /// The ARB key, for example `"errorInternal"`.
     #[must_use]
@@ -122,13 +168,40 @@ fn details_suffix(details: &Option<String>) -> String {
         .unwrap_or_default()
 }
 
-// Engine errors reach the UI as ApiError. Until the engine crates produce errors of their own
-// kinds, everything they report is internal; the mapping grows with them (docs/ARCHITECTURE.md
-// §8.2). The crate errors carry structural context only, so their text can go into `details`.
+// Engine errors reach the UI as ApiError (docs/ARCHITECTURE.md §8.2). The crate errors carry
+// structural context only, so their text can go into `details`.
 
 impl From<ferman_core::CoreError> for ApiError {
     fn from(err: ferman_core::CoreError) -> Self {
-        Self::internal(err.to_string())
+        use ferman_core::CoreError;
+        let (kind, key) = match &err {
+            CoreError::Io { kind } => match kind {
+                std::io::ErrorKind::NotFound => (ErrorKind::NotFound, MessageKey::FILE_NOT_FOUND),
+                std::io::ErrorKind::PermissionDenied => (
+                    ErrorKind::PermissionDenied,
+                    MessageKey::FILE_PERMISSION_DENIED,
+                ),
+                _ => (ErrorKind::Io, MessageKey::FILE_READ),
+            },
+            CoreError::NotPdf { .. } => (ErrorKind::Unsupported, MessageKey::NOT_PDF),
+            CoreError::PasswordRequired => {
+                (ErrorKind::PasswordRequired, MessageKey::PASSWORD_REQUIRED)
+            }
+            CoreError::WrongPassword => (ErrorKind::WrongPassword, MessageKey::WRONG_PASSWORD),
+            CoreError::Damaged(diagnosis) => {
+                // a1-9b's technical details: the diagnosis is structural facts only.
+                return Self::new(ErrorKind::Damaged, MessageKey::DAMAGED)
+                    .with_details(format!("{diagnosis:?}"));
+            }
+            CoreError::Syntax { .. }
+            | CoreError::DamagedStream { .. }
+            | CoreError::InvalidDecodeParams { .. } => (ErrorKind::Damaged, MessageKey::DAMAGED),
+            CoreError::Unsupported(_) => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
+            CoreError::ResourceLimit { .. } => (ErrorKind::ResourceLimit, MessageKey::TOO_COMPLEX),
+            CoreError::OutOfMemory { .. } => (ErrorKind::ResourceLimit, MessageKey::OUT_OF_MEMORY),
+            _ => (ErrorKind::Internal, MessageKey::INTERNAL),
+        };
+        Self::new(kind, key).with_details(err.to_string())
     }
 }
 
@@ -146,7 +219,22 @@ impl From<ferman_text::TextError> for ApiError {
 
 impl From<ferman_render::RenderError> for ApiError {
     fn from(err: ferman_render::RenderError) -> Self {
-        Self::internal(err.to_string())
+        use ferman_render::RenderError;
+        let (kind, key) = match err {
+            RenderError::Core(err) => return err.into(),
+            RenderError::NotFound { .. } => (ErrorKind::NotFound, MessageKey::INTERNAL),
+            RenderError::PasswordRequired => {
+                (ErrorKind::PasswordRequired, MessageKey::PASSWORD_REQUIRED)
+            }
+            RenderError::WrongPassword => (ErrorKind::WrongPassword, MessageKey::WRONG_PASSWORD),
+            RenderError::UnsupportedSecurity => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
+            RenderError::Damaged { .. } => (ErrorKind::Damaged, MessageKey::DAMAGED),
+            RenderError::OutOfMemory { .. } => {
+                (ErrorKind::ResourceLimit, MessageKey::OUT_OF_MEMORY)
+            }
+            _ => (ErrorKind::Internal, MessageKey::INTERNAL),
+        };
+        Self::new(kind, key).with_details(err.to_string())
     }
 }
 
@@ -195,6 +283,54 @@ mod tests {
                 "{key} must be lowerCamelCase"
             );
         }
+    }
+
+    #[test]
+    fn open_errors_get_their_kind_and_message() {
+        use ferman_core::CoreError;
+        for (err, kind, key) in [
+            (
+                CoreError::Io {
+                    kind: std::io::ErrorKind::NotFound,
+                },
+                ErrorKind::NotFound,
+                MessageKey::FILE_NOT_FOUND,
+            ),
+            (
+                CoreError::Io {
+                    kind: std::io::ErrorKind::PermissionDenied,
+                },
+                ErrorKind::PermissionDenied,
+                MessageKey::FILE_PERMISSION_DENIED,
+            ),
+            (
+                CoreError::NotPdf {
+                    kind: ferman_core::FileKind::Zip,
+                },
+                ErrorKind::Unsupported,
+                MessageKey::NOT_PDF,
+            ),
+            (
+                CoreError::PasswordRequired,
+                ErrorKind::PasswordRequired,
+                MessageKey::PASSWORD_REQUIRED,
+            ),
+            (
+                CoreError::WrongPassword,
+                ErrorKind::WrongPassword,
+                MessageKey::WRONG_PASSWORD,
+            ),
+            (
+                CoreError::OutOfMemory { context: "a page" },
+                ErrorKind::ResourceLimit,
+                MessageKey::OUT_OF_MEMORY,
+            ),
+        ] {
+            let err = ApiError::from(err);
+            assert_eq!((err.kind, err.message_key), (kind, key));
+        }
+        let err = ApiError::from(ferman_render::RenderError::WrongPassword);
+        assert_eq!(err.kind, ErrorKind::WrongPassword);
     }
 
     #[test]

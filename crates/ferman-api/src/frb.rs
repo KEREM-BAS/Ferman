@@ -89,8 +89,18 @@ pub enum ErrorKind {
     InvalidInput,
     /// A file or handle does not exist (any more).
     NotFound,
-    /// The input uses something Ferman does not support yet.
+    /// The system does not let Ferman read the file.
+    PermissionDenied,
+    /// The document is encrypted and its password is needed.
+    PasswordRequired,
+    /// The password does not open the document.
+    WrongPassword,
+    /// The file is damaged beyond repair.
+    Damaged,
+    /// The input is not a PDF, or uses something Ferman does not support yet.
     Unsupported,
+    /// A resource limit stopped the work, or memory ran short.
+    ResourceLimit,
     /// Reading or writing failed for a reason without its own kind.
     Io,
     /// A bug in Ferman, including a caught panic.
@@ -204,7 +214,12 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
         kind: match err.kind {
             facade::ErrorKind::InvalidInput => ErrorKind::InvalidInput,
             facade::ErrorKind::NotFound => ErrorKind::NotFound,
+            facade::ErrorKind::PermissionDenied => ErrorKind::PermissionDenied,
+            facade::ErrorKind::PasswordRequired => ErrorKind::PasswordRequired,
+            facade::ErrorKind::WrongPassword => ErrorKind::WrongPassword,
+            facade::ErrorKind::Damaged => ErrorKind::Damaged,
             facade::ErrorKind::Unsupported => ErrorKind::Unsupported,
+            facade::ErrorKind::ResourceLimit => ErrorKind::ResourceLimit,
             facade::ErrorKind::Io => ErrorKind::Io,
             facade::ErrorKind::Internal => ErrorKind::Internal,
         },

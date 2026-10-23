@@ -146,9 +146,14 @@ impl CstDecode<crate::frb::ErrorKind> for i32 {
         match self {
             0 => crate::frb::ErrorKind::InvalidInput,
             1 => crate::frb::ErrorKind::NotFound,
-            2 => crate::frb::ErrorKind::Unsupported,
-            3 => crate::frb::ErrorKind::Io,
-            4 => crate::frb::ErrorKind::Internal,
+            2 => crate::frb::ErrorKind::PermissionDenied,
+            3 => crate::frb::ErrorKind::PasswordRequired,
+            4 => crate::frb::ErrorKind::WrongPassword,
+            5 => crate::frb::ErrorKind::Damaged,
+            6 => crate::frb::ErrorKind::Unsupported,
+            7 => crate::frb::ErrorKind::ResourceLimit,
+            8 => crate::frb::ErrorKind::Io,
+            9 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", self),
         }
     }
@@ -265,9 +270,14 @@ impl SseDecode for crate::frb::ErrorKind {
         return match inner {
             0 => crate::frb::ErrorKind::InvalidInput,
             1 => crate::frb::ErrorKind::NotFound,
-            2 => crate::frb::ErrorKind::Unsupported,
-            3 => crate::frb::ErrorKind::Io,
-            4 => crate::frb::ErrorKind::Internal,
+            2 => crate::frb::ErrorKind::PermissionDenied,
+            3 => crate::frb::ErrorKind::PasswordRequired,
+            4 => crate::frb::ErrorKind::WrongPassword,
+            5 => crate::frb::ErrorKind::Damaged,
+            6 => crate::frb::ErrorKind::Unsupported,
+            7 => crate::frb::ErrorKind::ResourceLimit,
+            8 => crate::frb::ErrorKind::Io,
+            9 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", inner),
         };
     }
@@ -485,9 +495,14 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ErrorKind {
         match self {
             Self::InvalidInput => 0.into_dart(),
             Self::NotFound => 1.into_dart(),
-            Self::Unsupported => 2.into_dart(),
-            Self::Io => 3.into_dart(),
-            Self::Internal => 4.into_dart(),
+            Self::PermissionDenied => 2.into_dart(),
+            Self::PasswordRequired => 3.into_dart(),
+            Self::WrongPassword => 4.into_dart(),
+            Self::Damaged => 5.into_dart(),
+            Self::Unsupported => 6.into_dart(),
+            Self::ResourceLimit => 7.into_dart(),
+            Self::Io => 8.into_dart(),
+            Self::Internal => 9.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -599,9 +614,14 @@ impl SseEncode for crate::frb::ErrorKind {
             match self {
                 crate::frb::ErrorKind::InvalidInput => 0,
                 crate::frb::ErrorKind::NotFound => 1,
-                crate::frb::ErrorKind::Unsupported => 2,
-                crate::frb::ErrorKind::Io => 3,
-                crate::frb::ErrorKind::Internal => 4,
+                crate::frb::ErrorKind::PermissionDenied => 2,
+                crate::frb::ErrorKind::PasswordRequired => 3,
+                crate::frb::ErrorKind::WrongPassword => 4,
+                crate::frb::ErrorKind::Damaged => 5,
+                crate::frb::ErrorKind::Unsupported => 6,
+                crate::frb::ErrorKind::ResourceLimit => 7,
+                crate::frb::ErrorKind::Io => 8,
+                crate::frb::ErrorKind::Internal => 9,
                 _ => {
                     unimplemented!("");
                 }

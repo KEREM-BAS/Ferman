@@ -26,6 +26,7 @@ ferman-fonts.workspace = true
 ferman-text.workspace = true
 ferman-render.workspace = true
 ferman-ops.workspace = true
+futures-channel.workspace = true
 thiserror.workspace = true
 tracing.workspace = true
 serde.workspace = true

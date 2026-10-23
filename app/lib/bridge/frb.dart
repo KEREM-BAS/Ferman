@@ -175,8 +175,23 @@ enum ErrorKind {
   /// A file or handle does not exist (any more).
   notFound,
 
-  /// The input uses something Ferman does not support yet.
+  /// The system does not let Ferman read the file.
+  permissionDenied,
+
+  /// The document is encrypted and its password is needed.
+  passwordRequired,
+
+  /// The password does not open the document.
+  wrongPassword,
+
+  /// The file is damaged beyond repair.
+  damaged,
+
+  /// The input is not a PDF, or uses something Ferman does not support yet.
   unsupported,
+
+  /// A resource limit stopped the work, or memory ran short.
+  resourceLimit,
 
   /// Reading or writing failed for a reason without its own kind.
   io,

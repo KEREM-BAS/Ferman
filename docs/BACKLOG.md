@@ -74,7 +74,8 @@ bars (phase H1), B010 to B017 from the component library (phase G), B018 to B092
 shell, first run, the start screen and Settings (phases H2 to H5 and I2 to I4), and B093 to B096 from
 narrow windows (phase H6), B097 and B098 from the golden comparison (phase K2), and B099 and B100 from closing M1 (phase L).
 B101 to B106 come from the [M2 plan](PROGRESS.md#m2-plan) (phase 0 of M2): they record decisions
-that are Proposed with the plan, and change if the owner decides otherwise.
+that are Proposed with the plan, and change if the owner decides otherwise. B109 comes from the
+API commit of M2.
 
 In "Where it appears disabled", keys in parentheses are the control's keys in the shortcut table
 (`app/lib/features/shell/shortcuts.dart`). They do nothing until the feature ships: a command without
@@ -190,6 +191,7 @@ and Shift for ⇧.
 | B106 | Selecting and copying text with the Select tool | `a2-1a`, `a2-1b` (the View row) | View row › Select (V): the default pointer, which selects no text yet | M3 | **Proposed, part of the M2 plan**: Select works as the default pointer from M2 (B033); text selection and copy need the hit testing of the M3 text model (ARCHITECTURE §3.5). |
 | B107 | App icons for iOS and Android | `Ferman Logo.dc.html` (`1a`: the iOS light and dark tiles, the Android adaptive and themed tiles) | not visible: the iOS and Android projects do not exist yet | P5 | [G112](DESIGN_GAPS.md#g112). `tools/app-icons` draws the desktop and web icons from `design/assets/logo/`. When `app/ios` and `app/android` are created, it gains the iOS 1024 icon in light, dark and tinted forms (the export's `ferman-app-icon-1024.svg` and its dark twin) and the Android adaptive icon (foreground mark, `paper-50` background) with the themed monochrome layer (the board's `#1A3170` on `#DCE4F8`). |
 | B108 | macOS dark and tinted app icons | `Ferman Logo.dc.html` (`1a`) | not visible: macOS shows the light icon in every appearance | M5 | [G112](DESIGN_GAPS.md#g112). The asset catalog's `AppIcon` holds one appearance. macOS 26 takes dark, tinted and clear icons only from an Icon Composer `.icon` file. Built with the release pipeline, when the app is signed and packaged. The light icon stays the fallback for macOS 12 to 15. |
+| B109 | Viewing a file PDFium opens but ferman-core cannot read | `a1-9` (its wording, `save='readonly'`) | not visible: such a file gets the can't-open state of `a1-9b` | when a corpus or user file needs it, at the latest with the M3 writer's repair work | ARCHITECTURE §5.2's row "Damaged, not repairable" opens it view-only. No corpus file has the case (every file ferman-core cannot open, PDFium cannot either), so the API commit of M2 opens a document only when both parsers do. |
 
 ## Done
 
