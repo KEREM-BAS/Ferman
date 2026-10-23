@@ -741,6 +741,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startNewBlankPdf => 'New blank PDF';
 
   @override
+  String get startEngineUnavailableTitle =>
+      'Ferman can’t open PDF files right now.';
+
+  @override
+  String get startEngineUnavailableMessage =>
+      'A part of Ferman is missing or doesn’t match this version. Installing Ferman again fixes this.';
+
+  @override
+  String get startCopyTechnicalDetails => 'Copy technical details';
+
+  @override
   String get settingsTitle => 'Settings';
 
   @override

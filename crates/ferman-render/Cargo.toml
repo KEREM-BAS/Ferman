@@ -15,6 +15,15 @@ thiserror.workspace = true
 tracing.workspace = true
 pdfium-render.workspace = true
 futures-channel.workspace = true
+crossbeam-channel.workspace = true
+lru.workspace = true
+
+[dev-dependencies]
+criterion.workspace = true
+
+[[bench]]
+name = "first_page"
+harness = false
 
 [lints]
 workspace = true

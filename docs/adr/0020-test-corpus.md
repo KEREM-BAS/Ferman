@@ -83,6 +83,41 @@ We will generate most of the corpus with our own deterministic tools and check i
 - M3: edit fixtures for the pixel-diff acceptance test (Turkish, Arabic, CJK).
 - P3: real signatures, possibly with pyHanko.
 
+## Implementation (M2 step 1)
+
+Recorded when the first wave was built (2026-10-19); none of these points changes the decision.
+
+- **Security handler.** lopdf 0.45 can encrypt, but it draws its initialisation vectors and salts
+  from the system's random number generator. So `tools/corpus` has its own handler (`src/crypt.rs`)
+  on the aes, md-5 and rc4 crates, with stringprep for revision 6 passwords. CBC is written out over
+  aes blocks, so cbc is not a direct dependency.
+- **Fonts Ferman does not bundle.** They are fetched by `tools/corpus/fetch-fonts.sh` into
+  `build/corpus-fonts/` and checked against `tools/corpus/fonts.lock`; they are never committed.
+  EB Garamond sets kira-tr's Madde 6 ([G113](../DESIGN_GAPS.md#g113)). The Japanese files use Noto
+  Serif JP, the font `a3-15` names, from the Noto CJK family the M2 plan approved as test data. It is
+  a variable font, instanced at `wght` 400 and 600 by subsetter's `variable-fonts` feature. The
+  Arabic report uses the bundled IBM Plex Sans Arabic.
+- **Two commits.** The first wave arrives in two commits:
+  - the tooling, the Latin and Turkish files, the encrypted and damaged files, and the oracle;
+  - report-ar, letter-ja-vertical, scan-tr and quote-ja-scan.
+- **Names.** The payslip's twins are `payslip-rc4-40`, `payslip-rc4-128` and `payslip-aes128`.
+- **Large files.** A generator whose PDF is over 1 MB commits neither file: long-500's expected text
+  alone is 1.7 MB. Both are listed in `tests/corpus/generated/.gitignore`, which `check` requires.
+- **The oracle.** It lives in `tools/corpus/tests/oracle.rs`, with pdfium-render as a
+  dev-dependency, because the generators know each file's password and outcome. It also checks that
+  an encrypted file does not open without its password. PDFium orders right-to-left and vertical text
+  by heuristics of its own, so report-ar and letter-ja-vertical are compared page by page by their
+  characters. Their expected text stays in logical order, which Ferman's own extraction must give.
+- **Right-to-left, vertical and scanned files.** The text code lays out right-to-left paragraphs
+  with unicode-bidi and draws each line in visual order, as producers do. Vertical text is drawn
+  column by column in `Identity-V` fonts with `/W2`, with tate-chu-yoko and kinsoku. The scans come
+  from a small rasteriser of glyph outlines. Their pages are image only, so their expected text is
+  empty.
+- **Determinism across systems.** The generators never read a clock, never draw random numbers, and
+  avoid transcendental floating-point functions, whose last bits can differ between C libraries.
+  `.gitattributes` keeps the generated files, the text sidecars included, from line-ending
+  conversion.
+
 ## Alternatives considered
 
 - **qpdf and pyHanko.** Mature and permissive, but a C++ and a Python toolchain in CI for files we can

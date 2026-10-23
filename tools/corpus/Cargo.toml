@@ -1,0 +1,49 @@
+# Deterministic generators for Ferman's test corpus (docs/adr/0020-test-corpus.md) and the check
+# that every corpus file has its README row. A workspace of its own, excluded from the root one;
+# never shipped. Run from the repository root:
+#   cargo run --manifest-path tools/corpus/Cargo.toml --locked -- [generate | check | list]
+
+[package]
+name = "ferman-corpus"
+version = "0.0.0"
+edition = "2024"
+rust-version = "1.88"
+license = "Apache-2.0"
+publish = false
+
+[workspace]
+
+[dependencies]
+aes = "0.9"
+harfrust = "=0.14.0"
+lopdf = { version = "=0.45.0", default-features = false }
+md-5 = "0.11"
+rc4 = "0.2.0"
+sha2 = "0.11.1"
+skrifa = "=0.48.0"
+stringprep = "0.1.5"
+subsetter = { version = "=0.2.6", default-features = false, features = ["variable-fonts"] }
+unicode-bidi = { version = "=0.3.18", default-features = false, features = ["hardcoded-data"] }
+
+[dev-dependencies]
+pdfium-render = { version = "=0.9.4", default-features = false, features = ["pdfium_7881", "thread_safe"] }
+tempfile = "3.27.0"
+
+# The root workspace's lints (a separate workspace cannot inherit them).
+[lints.rust]
+missing_docs = "warn"
+
+[lints.clippy]
+unwrap_used = "deny"
+expect_used = "deny"
+panic = "deny"
+todo = "deny"
+unimplemented = "deny"
+dbg_macro = "deny"
+print_stdout = "deny"
+print_stderr = "deny"
+
+# The generators shape and compress a few thousand pages; optimised dependencies keep `check`
+# and the tests quick in debug builds. Optimisation does not change their output.
+[profile.dev.package."*"]
+opt-level = 3

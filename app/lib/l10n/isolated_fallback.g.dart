@@ -785,6 +785,18 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get startNewBlankPdf => isolate(super.startNewBlankPdf);
 
   @override
+  String get startEngineUnavailableTitle =>
+      isolate(super.startEngineUnavailableTitle);
+
+  @override
+  String get startEngineUnavailableMessage =>
+      isolate(super.startEngineUnavailableMessage);
+
+  @override
+  String get startCopyTechnicalDetails =>
+      isolate(super.startCopyTechnicalDetails);
+
+  @override
   String get settingsTitle => isolate(super.settingsTitle);
 
   @override

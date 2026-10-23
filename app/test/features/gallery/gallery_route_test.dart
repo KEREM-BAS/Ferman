@@ -3,6 +3,8 @@ import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/gallery/gallery_screen.dart';
 import 'package:ferman/features/shell/shell_title_bar.dart';
 import 'package:ferman/settings/app_settings.dart';
@@ -26,6 +28,7 @@ void main() {
     useView(tester, artboard);
     final container = ProviderContainer.test(
       overrides: [
+        engineServiceProvider.overrideWithValue(const FakeEngineService()),
         desktopWindowProvider.overrideWithValue(window),
         initialSettingsProvider.overrideWithValue(
           const AppSettings(onboardingCompleted: true),

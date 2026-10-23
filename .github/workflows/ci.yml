@@ -1,4 +1,5 @@
-# Ferman CI: repository checks, tools, Rust and Flutter on macOS, Windows and Linux.
+# Ferman CI: repository checks, tools, Rust (with the corpus tool), a fuzz smoke run and Flutter, on
+# macOS, Windows and Linux.
 # Every action is pinned by commit SHA (tools/checks action_pins).
 name: CI
 
@@ -117,7 +118,9 @@ jobs:
       - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
       - name: Format
         if: runner.os == 'Linux'
-        run: cargo fmt --all --check
+        run: |
+          cargo fmt --all --check
+          cargo fmt --manifest-path tools/corpus/Cargo.toml --check
       - name: Clippy
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Clippy (ferman-api with the bridge feature)
@@ -146,6 +149,8 @@ jobs:
           root="$PWD"
           if [ "$RUNNER_OS" = "Windows" ]; then root="$(cygpath -m "$PWD")"; fi
           export FERMAN_PDFIUM_PATH="$root/build/pdfium/$id/$lib"
+          # The corpus oracle below uses the same library.
+          echo "FERMAN_PDFIUM_PATH=$FERMAN_PDFIUM_PATH" >> "$GITHUB_ENV"
           cargo test --workspace --locked -- --ignored
           cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
           grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
@@ -155,11 +160,28 @@ jobs:
           out="$(cargo run -q --locked -p ferman-cli -- --version)"
           echo "$out"
           [[ "$out" =~ ^ferman\ [0-9]+\.[0-9]+\.[0-9]+\ \(api\ [0-9]+\.[0-9]+\)$ ]]
+      - name: Cache the corpus fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/corpus-fonts
+          key: corpus-fonts-${{ hashFiles('tools/corpus/fonts.lock') }}
+      - name: Corpus tool, the corpus check and the PDFium oracle (ADR 0020)
+        shell: bash
+        run: |
+          set -euo pipefail
+          # The fonts the generators embed that Ferman does not bundle, checked by SHA-256.
+          bash tools/corpus/fetch-fonts.sh
+          # A workspace of its own: every corpus file has its README row, generated files are current.
+          cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets --locked -- -D warnings
+          cargo test --manifest-path tools/corpus/Cargo.toml --locked
+          cargo run -q --manifest-path tools/corpus/Cargo.toml --locked -- check
+          # PDFium, a reader independent of lopdf, opens every generated file as its generator says.
+          cargo test --manifest-path tools/corpus/Cargo.toml --locked --test oracle -- --ignored
 
   deny:
     name: cargo-deny
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
       - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
@@ -174,6 +196,69 @@ jobs:
           arguments: --all-features --config deny-dev.toml
           command: check
           command-arguments: licenses
+      # The fuzz and corpus workspaces, with the same deny.toml (ADR 0017, ADR 0020).
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          manifest-path: fuzz/Cargo.toml
+          command: check
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          manifest-path: tools/corpus/Cargo.toml
+          command: check
+      - uses: EmbarkStudios/cargo-deny-action@3c6349835b2b7b196a839186cb8b78e02f7b5f25 # v2.1.1
+        with:
+          manifest-path: tools/corpus/Cargo.toml
+          arguments: --all-features --config deny-dev.toml
+          command: check
+          command-arguments: licenses
+
+  fuzz:
+    name: Fuzz smoke (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the stable toolchain and the fuzz nightly (each rust-toolchain.toml)
+        run: |
+          rustup toolchain install
+          cd fuzz
+          rustup toolchain install
+          rustup show active-toolchain
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+        with:
+          workspaces: fuzz -> target
+      - name: Cache cargo-fuzz
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ~/.cargo/bin/cargo-fuzz
+          key: cargo-fuzz-0.13.2-${{ runner.os }}
+      - name: Install cargo-fuzz
+        run: command -v cargo-fuzz || cargo install --locked cargo-fuzz@0.13.2
+      - name: Format and Clippy (stable toolchain)
+        run: |
+          cargo fmt --manifest-path fuzz/Cargo.toml --check
+          cargo clippy --manifest-path fuzz/Cargo.toml --all-targets --locked -- -D warnings
+      - name: Every target for 60 s (Proposed with the M2 plan)
+        working-directory: fuzz
+        shell: bash
+        run: |
+          set -euo pipefail
+          cargo fuzz build
+          targets="$(cargo fuzz list)"
+          test -n "$targets"
+          for target in $targets; do
+            echo "::group::$target"
+            cargo fuzz run "$target" -- -max_total_time=60 -rss_limit_mb=2048
+            echo "::endgroup::"
+          done
+      - name: Upload the crashing inputs
+        if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: fuzz-artifacts
+          path: fuzz/artifacts/
+          if-no-files-found: ignore
+          retention-days: 14
 
   codegen:
     name: Generated Flutter code is current

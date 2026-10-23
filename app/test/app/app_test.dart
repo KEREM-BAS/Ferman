@@ -1,5 +1,7 @@
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/router.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
@@ -37,6 +39,7 @@ void main() {
           initialSettingsProvider.overrideWithValue(
             const AppSettings(onboardingCompleted: true),
           ),
+          engineServiceProvider.overrideWithValue(const FakeEngineService()),
         ],
         child: const FermanApp(),
       ),
@@ -55,7 +58,10 @@ void main() {
     tester.platformDispatcher.localesTestValue = systemLocales;
     addTearDown(tester.platformDispatcher.clearLocalesTestValue);
     final container = ProviderContainer(
-      overrides: [initialSettingsProvider.overrideWithValue(settings)],
+      overrides: [
+        initialSettingsProvider.overrideWithValue(settings),
+        engineServiceProvider.overrideWithValue(const FakeEngineService()),
+      ],
     );
     addTearDown(container.dispose);
     await tester.pumpWidget(

@@ -1,0 +1,5 @@
+Lütfen bekleyin…
+Bu belge dinamik bir XFA formudur. Görüntüleyiciniz XFA formlarını desteklemiyorsa
+bu ileti formun içeriğiyle değişmez.
+This document is a dynamic XFA form. If your viewer does not support XFA forms,
+this message is not replaced by the contents of the form.

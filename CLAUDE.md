@@ -24,7 +24,7 @@ ferman/
 ├── CLAUDE.md  README.md  LICENSE  THIRD_PARTY_NOTICES.md  CONTRIBUTING.md  CODE_OF_CONDUCT.md  SECURITY.md  .gitignore
 ├── Cargo.toml  Cargo.lock  rust-toolchain.toml  clippy.toml  deny.toml
 │
-│  Built during M1, phase by phase; fuzz/ comes in M2:
+│  Built during M1, phase by phase; fuzz/ since M2:
 ├── crates/                Rust workspace; all seven crates exist from M1
 │   ├── ferman-core/       document model, parsing/writing (lopdf), content-stream interpreter, incremental save
 │   ├── ferman-render/     page rendering with pdfium-render, tiles, thumbnails, caches
@@ -33,7 +33,7 @@ ferman/
 │   ├── ferman-ops/        organize pages, annotations, forms, watermark, redaction, compress…
 │   ├── ferman-api/        the ONLY crate the UI calls (Rust facade + flutter_rust_bridge surface)
 │   └── ferman-cli/        `ferman` CLI on the same facade
-├── fuzz/                  (M2) cargo-fuzz workspace, one target per parser
+├── fuzz/                  cargo-fuzz workspace on a pinned nightly, one target per parser (M2)
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
 │   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
 ├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); app-icons/, corpus/ (M2)
@@ -55,8 +55,16 @@ cargo clippy --workspace --all-targets -- -D warnings
 cargo clippy -p ferman-api --features frb --all-targets -- -D warnings
 cargo test --workspace
 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so" cargo test --workspace -- --ignored   # tests that need PDFium (tools/pdfium/fetch.sh first; the path must be absolute)
+FERMAN_RENDER_STRESS_SECONDS=600 FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo test --release -p ferman-render --test pdfium -- --ignored three_views   # the 10-minute stress run of three views (20 s by default)
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo bench -p ferman-render --bench first_page   # open long-500 and its first tile (tools/corpus generate makes long-500 first)
 cargo deny check
 cargo run -p ferman-cli -- --version            # ferman 0.1.0 (api 0.1); also: info --json
+cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets -- -D warnings && cargo test --manifest-path tools/corpus/Cargo.toml   # the corpus tool, a workspace of its own (also fmt, deny)
+bash tools/corpus/fetch-fonts.sh   # before the corpus tool's tests, check or generate: the fonts Ferman does not bundle (tools/corpus/fonts.lock)
+cargo run --manifest-path tools/corpus/Cargo.toml --locked -- check   # every corpus file has its README row, generated files are current (also: generate, list)
+FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo test --manifest-path tools/corpus/Cargo.toml --locked --test oracle -- --ignored   # PDFium opens every generated file as its generator says
+cargo clippy --manifest-path fuzz/Cargo.toml --all-targets -- -D warnings && cargo deny --manifest-path fuzz/Cargo.toml check   # the fuzz workspace with the stable toolchain
+(cd fuzz && cargo fuzz run <target> -- -max_total_time=60)   # one fuzz target (pinned nightly, cargo-fuzz 0.13.2; fuzz/README.md lists them)
 
 # Flutter (run both analyzers: riverpod_lint reports only through dart analyze)
 (cd app && flutter analyze && dart analyze --fatal-infos && flutter test)
@@ -90,7 +98,7 @@ node tools/app-icons [--check]                 # app icons for macOS, Windows, L
 
 Each tool's README has the full options and its self-tests. The renderer needs the Chromium 1194 headless shell: the development container has it in `/opt/pw-browsers`; on Linux x64 `tools/design-refs/fetch-chromium.sh` downloads it and prints the path for `--chromium`. Never use the Playwright installer: it also downloads an LGPL ffmpeg build.
 
-Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), Flutter 3.47.7 with Dart 3.13.5, Node 24.22.0 LTS and playwright-core 1.56.1 for the tools.
+Toolchain: Rust 1.99.0 (`rust-toolchain.toml`), and `nightly-2026-10-15` for cargo-fuzz only (`fuzz/rust-toolchain.toml`); Flutter 3.47.7 with Dart 3.13.5; Node 24.22.0 LTS and playwright-core 1.56.1 for the tools.
 
 ## Non-negotiable rules
 

@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-112 entries: 90 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, and G112 came with the logo export of 2026-10-19.
+114 entries: 92 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, and G114 with the open path.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -184,6 +184,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G110](#g110) | missing state | M2 | Search | Comment, field and bookmark results have no drawn place; a2-3e shows page text only | Decided |
 | [G111](#g111) | conflict | M3 | Saving | a1-11b draws "Optimized for web" enabled; it needs M4's image pipeline | Decided |
 | [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
+| [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
+| [G114](#g114) | gap | M2 | Open / damaged file | a1-9b's "Expected about 2.4 MB" is known only when the file declares its size | Decided |
 
 ## Entries
 
@@ -1525,7 +1527,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Gap or conflict:** When the engine library does not load or speaks an API version the app does not accept, `bootstrap()` installs `UnavailableEngineService` (M1), so the app still opens ([ARCHITECTURE.md §3.9](ARCHITECTURE.md#39-versioning)). When PDFium is missing or broken, the engine still starts and reports it in `PdfiumStatus`. ARCHITECTURE §3.9 and §12 and ROADMAP §6 step 1 promise "an error screen instead of crashing" for both. No board draws it.
 - **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** the start screen shows a warning Banner, the box variant, at the top of its content, as Settings shows its warning ([G90](#g90)): "Ferman can't open PDF files right now." over "A part of Ferman is missing or doesn't match this version. Installing Ferman again fixes this.", with "Copy technical details" as in [G63](#g63). Open file…, the drop area, recent files and ⌘O or Ctrl+O are disabled with the Banner's title as their reason; Settings and the rest of the app keep working. The web build, whose engine is stubbed until phase 5 (`unsupportedPlatform`), keeps the future-version state instead.
 - **Status:** Decided; the decision is Proposed with the M2 plan.
-- **Evidence:** `app/lib/app/bootstrap.dart` line 42 (`_startEngine`); `app/lib/engine/engine_service.dart` lines 19–27 (`libraryMissing`, `apiMismatch`, `unsupportedPlatform`) and 49 (`UnavailableEngineService`); `crates/ferman-api/src/facade/engine.rs` lines 62–66 ("Starting never fails"); [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) ("If the library is missing, Ferman shows an error screen instead of crashing."); ROADMAP §6 step 1. No board in `design/` draws an engine or PDFium failure.
+- **Evidence:** `app/lib/app/bootstrap.dart` line 42 (`_startEngine`); `app/lib/engine/engine_service.dart` lines 19–27 (`libraryMissing`, `apiMismatch`, `unsupportedPlatform`) and 49 (`UnavailableEngineService`); `crates/ferman-api/src/facade/engine.rs` lines 62–66 ("Starting never fails"); [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) ("If the library is missing, Ferman shows an error screen instead of crashing."); ROADMAP §6 step 1. No board in `design/` draws an engine or PDFium failure. Implemented in M2 step 1 (wave W1, the render commit): `app/lib/engine/engine_problem.dart` line 7 (`EngineProblem`, with the technical details, which hold no path), `app/lib/engine/engine_providers.dart` line 26 (`engineProblem`, which reads an error in every state because Riverpod retries a failed status), `app/lib/features/start/start_screen.dart` lines 70 (the reason for Open file… and the drop area), 118 and 208 (the Banner with "Copy technical details"), and the keys `startEngineUnavailableTitle`, `startEngineUnavailableMessage` and `startCopyTechnicalDetails` (`app/lib/l10n/app_en.arb` line 996); checked in `app/test/features/start/start_screen_test.dart` line 203 (the group "when the engine cannot open files (G101)", in English, Turkish and Arabic) and `app/test/engine/engine_problem_test.dart`. Recent files and the ⌘O key do not exist yet, so they need no reason until M2 step 6. The integration test with PDFium missing and the goldens of the banner come with M2's CI and goldens commits.
 
 <a id="g102"></a>
 
@@ -1677,3 +1679,29 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
   - **Not drawn yet:** the dark and tinted macOS icons need an Icon Composer `.icon` ([B108](BACKLOG.md#open), M5), and the iOS and Android icons wait for those projects ([B107](BACKLOG.md#open), P5).
 - **Status:** Decided.
 - **Evidence:** `design/Ferman Logo.dc.html`, the `DEF` entry `1a` (tile colours per platform) and `sizes()` (the small mark from 32 px down); the seven files of `design/assets/logo/`; `tools/app-icons/README.md`.
+
+<a id="g113"></a>
+
+### G113 · Madde 6: a font without "ğ" whose text has a "ğ"
+
+- **Type:** conflict
+- **Milestone:** M2 (the corpus file); M3 uses it
+- **Area:** Test corpus / missing glyph
+- **Artboards:** `DocKira` (Madde 6), `a3-3a`, `a3-3b`, `a3-17`
+- **Gap or conflict:** The design sets Madde 6 in a font that lacks "ğ" and "Ğ": a3-3b flags the current font "No ‘ğ’ ‘Ğ’", and in a3-3a typing the "ğ" of "değiştirilemez" is the missing-glyph case. Yet Madde 6's own text, "… Olağan bakım ve küçük onarımlar kiracıya aittir.", already has a "ğ" in that font. A subset made from that text would contain the glyph.
+- **Decision:** `kira-tr` keeps the design's text and sets Madde 6 in EB Garamond, a font Ferman does not bundle. The "ğ" of "Olağan" comes from IBM Plex Serif, the document's body font, the way a producer substitutes a glyph its font lacks. EB Garamond's subsets therefore have no "ğ" or "Ğ", and the missing-glyph path of ROADMAP E02 and E03 is exercised as drawn. The extracted text reads "Olağan" as usual.
+- **Status:** Decided.
+- **Evidence:** `design/DocKira.dc.html` line 35 (Madde 6 in `'EB Garamond'`, and the `glyph` state that adds "değiştirilemez"); `tools/corpus/src/docs/kira.rs` (`borrowed` in the Madde 6 style); `tests/corpus/README.md` (the kira-tr row).
+
+<a id="g114"></a>
+
+### G114 · "Expected about 2.4 MB" needs a declared size
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** Open / damaged file
+- **Artboards:** `a1-9b`
+- **Gap or conflict:** a1-9b's technical details read "Expected about 2.4 MB, found 18 KB · last complete object 12 0 obj · no trailer". A file cut off before its end says how long it was meant to be only when it is linearized: the first object's `/L` holds the file length. Any other file, `truncated` (Tarama_0042.pdf) among them, gives no way to know the expected size; an estimate from the page count or the images seen so far would be a guess presented as a fact.
+- **Decision:** The engine's `Diagnosis` carries `expected_size` only from a linearized file's `/L`. Without it, the details leave the "Expected about …" part out and start with what was found: "Found 18 KB · last complete object 12 0 obj · no trailer". The sentence above the details, "The file stops after 18 KB and the rest is missing.", needs no expected size and stays as drawn.
+- **Status:** Decided.
+- **Evidence:** `crates/ferman-core/src/repair.rs` (`Diagnosis`, `Scan::linearized_length`); `crates/ferman-core/tests/corpus.rs` (`the_truncated_scan_cannot_be_opened`); `tools/corpus/src/docs/damaged.rs` (the scan is not linearized).

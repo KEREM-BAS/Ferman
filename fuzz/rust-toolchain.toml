@@ -1,0 +1,5 @@
+# The nightly that cargo-fuzz needs (sanitizers and -Z flags), for this workspace only. Never used
+# for shipped builds; the engine builds with the stable toolchain of the root rust-toolchain.toml.
+[toolchain]
+channel = "nightly-2026-10-15"
+profile = "minimal"

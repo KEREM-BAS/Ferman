@@ -72,7 +72,11 @@ impl Engine {
         if pdfium_library.is_none() {
             tracing::info!("no PDFium library to load");
         }
-        let render = RenderThread::start(RenderConfig { pdfium_library }).map_err(|err| {
+        let render = RenderThread::start(RenderConfig {
+            pdfium_library,
+            ..RenderConfig::default()
+        })
+        .map_err(|err| {
             tracing::error!(error = %err, "the render thread did not start");
             err.to_string()
         });
@@ -307,14 +311,10 @@ mod tests {
     #[test]
     #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
     fn pdfium_from_the_environment_loads() {
-        // Find reads FERMAN_PDFIUM_PATH, which this test run sets.
-        let engine = engine(PdfiumLibrary::Find);
-        assert_eq!(
-            block_on(engine.pdfium_status()),
-            PdfiumStatus::Loaded {
-                tag: "chromium/7881".to_owned()
-            }
-        );
+        // The global engine starts with PdfiumLibrary::Find, which reads FERMAN_PDFIUM_PATH, set
+        // for this test run. It is the only engine here that loads PDFium: one render thread per
+        // process may hold it (ferman-render refuses a second one at the same time).
+        assert_eq!(EngineConfig::default().pdfium, PdfiumLibrary::Find);
         let info = block_on(engine_info()).unwrap();
         assert_eq!(
             info.pdfium,

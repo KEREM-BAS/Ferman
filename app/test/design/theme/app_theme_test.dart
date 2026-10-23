@@ -1,6 +1,8 @@
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
@@ -15,6 +17,7 @@ Future<ProviderContainer> _pumpApp(WidgetTester tester) async {
   // First run is done, so the router opens the start screen.
   final container = ProviderContainer.test(
     overrides: [
+      engineServiceProvider.overrideWithValue(const FakeEngineService()),
       initialSettingsProvider.overrideWithValue(
         const AppSettings(onboardingCompleted: true),
       ),

@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-300 messages in `app_en.arb`; translated: Turkish 300, Arabic 300.
+303 messages in `app_en.arb`; translated: Turkish 303, Arabic 303.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -285,6 +285,9 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startDropFootnote` | Files stay on this device. Ferman never uploads them. | Dosyalar bu cihazda kalır. Ferman onları hiçbir yere yüklemez. | تبقى الملفات على هذا الجهاز. | Note at the bottom of the drop area of the empty start screen (a1-5, FmStart emptyFoot). |
 | `startOpenPdf` | Open a PDF | PDF aç | فتح ملف PDF | Main button of the drop area of the empty start screen (a1-5, DropZone). |
 | `startNewBlankPdf` | New blank PDF | Yeni boş PDF | ملف PDF فارغ جديد | Second button of the drop area of the empty start screen (a1-5, DropZone). |
+| `startEngineUnavailableTitle` | Ferman can’t open PDF files right now. | Ferman şu anda PDF dosyalarını açamıyor. | يتعذّر على Ferman فتح ملفات PDF حاليًا. | Title of the warning banner at the top of the start screen when the engine library or PDFium, the page renderer, is missing or broken (G101). Opening files stays off, with this title as the reason. |
+| `startEngineUnavailableMessage` | A part of Ferman is missing or doesn’t match this version. Installing Ferman again fixes this. | Ferman’ın bir parçası eksik ya da bu sürümle uyuşmuyor. Ferman’ı yeniden yüklemek bunu düzeltir. | أحد أجزاء Ferman مفقود أو لا يطابق هذا الإصدار. تُصلح إعادة تثبيت Ferman ذلك. | Message of the warning banner at the top of the start screen when Ferman cannot open PDF files because a part of the app is missing or broken (G101). |
+| `startCopyTechnicalDetails` | Copy technical details | Teknik ayrıntıları kopyala | نسخ التفاصيل التقنية | Button of the start screen’s warning banner (G101): copies the technical facts about the missing or broken part, in English, for a bug report (as a1-9b’s link). |
 | `settingsTitle` | Settings | Ayarlar | الإعدادات | Heading of the settings window and screen-reader name of its pane list (a11-1, FmSettings t.settings). |
 | `settingsSearch` | Search settings | Ayarlarda ara | البحث في الإعدادات | Placeholder and screen-reader name of the search field above the settings panes (a11-1). |
 | `settingsClose` | Close settings | Ayarları kapat | إغلاق الإعدادات | Tooltip and screen-reader name of the button that closes settings and returns to where the person was. Settings opens inside the main window in this version. |

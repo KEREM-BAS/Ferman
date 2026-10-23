@@ -17,6 +17,8 @@ import 'dart:math' as math;
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
@@ -328,6 +330,7 @@ Future<void> pumpPseudoApp(
       overrides: [
         settingsStoreProvider.overrideWithValue(MemorySettingsStore(settings)),
         initialSettingsProvider.overrideWithValue(settings),
+        engineServiceProvider.overrideWithValue(const FakeEngineService()),
         if (window != null) desktopWindowProvider.overrideWithValue(window),
       ],
       child: _PseudoApp(localizations),

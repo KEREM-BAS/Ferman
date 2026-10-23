@@ -747,6 +747,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startNewBlankPdf => 'Yeni boş PDF';
 
   @override
+  String get startEngineUnavailableTitle =>
+      'Ferman şu anda PDF dosyalarını açamıyor.';
+
+  @override
+  String get startEngineUnavailableMessage =>
+      'Ferman’ın bir parçası eksik ya da bu sürümle uyuşmuyor. Ferman’ı yeniden yüklemek bunu düzeltir.';
+
+  @override
+  String get startCopyTechnicalDetails => 'Teknik ayrıntıları kopyala';
+
+  @override
   String get settingsTitle => 'Ayarlar';
 
   @override

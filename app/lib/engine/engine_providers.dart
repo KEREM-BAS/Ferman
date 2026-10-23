@@ -1,3 +1,4 @@
+import 'package:ferman/engine/engine_problem.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -14,3 +15,21 @@ EngineService engineService(Ref ref) => throw const EngineUnavailableException(
 @riverpod
 Future<EngineStatus> engineStatus(Ref ref) =>
     ref.watch(engineServiceProvider).status();
+
+/// What keeps the engine from opening PDF files, or null when it can, while
+/// it starts, and in the web build (G101). The start screen shows it as a
+/// warning banner and disables opening with its title as the reason.
+///
+/// An error counts in every state: Riverpod retries a failed status, and
+/// while it does the status is loading with the error kept.
+@riverpod
+EngineProblem? engineProblem(Ref ref) {
+  final status = ref.watch(engineStatusProvider);
+  if (status.error case final Object error) {
+    return EngineProblem.ofError(error);
+  }
+  if (status.value case final EngineStatus value) {
+    return EngineProblem.ofStatus(value);
+  }
+  return null;
+}

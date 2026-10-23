@@ -145,6 +145,28 @@ form shown read-only (a11-7c), and document properties with font embedding statu
 - M2: open, view, tiles, repair path, encrypted files, the two-parser comparison.
 - M3: incremental writer, reload-per-edit measurement.
 
+### Implementation notes (M2)
+
+Within this decision, recorded in [PROGRESS.md](../PROGRESS.md#decisions-taken-during-m2):
+
+- **What lopdf lacks, found in M2.** lopdf 0.45 loads a cross-reference table whose offsets are
+  wrong as a document with no objects, and a password-protected file without its password as a
+  document holding only the encryption dictionary; with a password it copies it into strings it
+  frees without wiping. So ferman-core reads and checks the cross-reference data itself, rebuilds
+  it from a scan when it is broken, decrypts with its own security handler, and hands lopdf a
+  repaired or encrypted file as a copy with one clean table, which lopdf parses object by object.
+  lopdf stays the parser of every object and the model; a healthy unencrypted file is parsed in
+  place ([ARCHITECTURE.md §5.1](../ARCHITECTURE.md#51-open)).
+- **The two-parser comparison.** The model's pages are lopdf's page tree, which requires
+  `/Type /Page`, and their sizes follow PDFium's rule (the inherited crop box clipped to the media
+  box, turned by `/Rotate`); the two agree to 0.05 pt on every corpus file but the one made to
+  differ.
+- **lopdf's own bounds.** It stops nesting at a depth of 100, below `Limits::max_nesting`; an
+  object nested deeper is skipped, which ferman-core reports as unreadable, so the document opens
+  read-only. lopdf's object streams are bounded by `max_decompressed_size`, set to
+  `Limits::max_stream_decoded`.
+- **PDFium still gets the password**, to render; what it keeps is [Q22](../QUESTIONS.md#q22).
+
 ## Alternatives considered
 
 - **MuPDF.** A mature renderer and editor, but AGPL-3.0 (or a commercial licence). Forbidden by the
