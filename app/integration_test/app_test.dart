@@ -1,3 +1,7 @@
+import 'dart:async';
+import 'dart:io';
+import 'dart:ui' as ui;
+
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/platform_window.dart';
@@ -62,6 +66,79 @@ void main() {
       expect((await engine.status()).apiVersion, kAppApiVersion);
     });
 
+    test('opens a PDF, renders its thumbnail and closes it', () async {
+      // The temporary directory, because the sandboxed macOS app may read
+      // only its own container.
+      final dir = await Directory.systemTemp.createTemp('ferman-open');
+      addTearDown(() => dir.delete(recursive: true));
+      final file = File('${dir.path}/one-page.pdf')
+        ..writeAsStringSync(_onePagePdf());
+      final document = await engine.open(file.path);
+      expect(document.readOnly, isNull);
+      expect(document.rightToLeft, isFalse);
+      expect(document.pages, hasLength(1));
+      expect(document.pages.single.width, 200);
+      expect(document.pages.single.height, 100);
+
+      final view = await engine.openView(document.id);
+      const thumbnail = ThumbnailItem(page: 0, size: 64);
+      await engine.requestView(view.id, 1, const [
+        WantedItem(thumbnail, RenderPriority.visibleThumbnail),
+      ]);
+      final update = await view.updates.first;
+      expect(update, isA<RenderedItem>());
+      final rendered = update as RenderedItem;
+      expect(rendered.item, thumbnail);
+      expect(rendered.generation, 1);
+      expect(rendered.width, 64);
+      expect(rendered.pixels, hasLength(rendered.stride * rendered.height));
+      // A red page, opaque, in BGRA.
+      expect(rendered.pixels.take(4), [0, 0, 255, 255]);
+      // The canvas decodes the bitmap as BGRA (DocumentView).
+      final decoded = Completer<ui.Image>();
+      ui.decodeImageFromPixels(
+        rendered.pixels,
+        rendered.width,
+        rendered.height,
+        ui.PixelFormat.bgra8888,
+        decoded.complete,
+        rowBytes: rendered.stride,
+      );
+      final image = await decoded.future;
+      addTearDown(image.dispose);
+      expect((image.width, image.height), (rendered.width, rendered.height));
+      final rgba = await image.toByteData();
+      expect(rgba!.buffer.asUint8List(0, 4), [255, 0, 0, 255]);
+
+      await engine.close(document.id);
+      await expectLater(
+        engine.close(document.id),
+        throwsA(
+          isA<EngineException>().having(
+            (error) => error.kind,
+            'kind',
+            EngineErrorKind.notFound,
+          ),
+        ),
+      );
+    });
+
+    test('a missing file fails with its kind and message key', () async {
+      final missing = '${Directory.systemTemp.path}/ferman-no-such-file.pdf';
+      await expectLater(
+        engine.open(missing),
+        throwsA(
+          isA<EngineException>()
+              .having((error) => error.kind, 'kind', EngineErrorKind.notFound)
+              .having(
+                (error) => error.messageKey,
+                'messageKey',
+                'errorFileNotFound',
+              ),
+        ),
+      );
+    });
+
     test('a 1 MiB byte vector crosses the bridge', () async {
       const length = 1024 * 1024;
       // One warm-up call, then 20 timed ones; the minimum and the median
@@ -87,4 +164,34 @@ void main() {
       );
     });
   });
+}
+
+/// A one-page PDF of 200 × 100 points filled red, with an exact
+/// cross-reference table, written by hand so the test needs no file from
+/// outside the app. Red tells BGRA from RGBA.
+String _onePagePdf() {
+  const content = '1 0 0 rg 0 0 200 100 re f';
+  const objects = [
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
+    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R >>',
+    '<< /Length ${content.length} >>\nstream\n$content\nendstream',
+  ];
+  // ASCII only, so string offsets are byte offsets.
+  final pdf = StringBuffer('%PDF-1.7\n');
+  final offsets = <int>[];
+  for (final (index, object) in objects.indexed) {
+    offsets.add(pdf.length);
+    pdf.write('${index + 1} 0 obj\n$object\nendobj\n');
+  }
+  final xref = pdf.length;
+  pdf.write('xref\n0 ${objects.length + 1}\n0000000000 65535 f \n');
+  for (final offset in offsets) {
+    pdf.write('${offset.toString().padLeft(10, '0')} 00000 n \n');
+  }
+  pdf.write(
+    'trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n'
+    'startxref\n$xref\n%%EOF\n',
+  );
+  return pdf.toString();
 }

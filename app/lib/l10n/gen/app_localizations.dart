@@ -1917,6 +1917,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Font size'**
   String get regionExampleFontSize;
+
+  /// Canvas: the title of the placeholder of a page that failed to render (a2-13, G30). {page} is the page number, already formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t draw page {page}.'**
+  String viewerPageFailed(String page);
+
+  /// Canvas: the plain reason under the title of a page that failed to render (a2-13).
+  ///
+  /// In en, this message translates to:
+  /// **'Something on this page can’t be read. The rest of the document works as usual.'**
+  String get viewerPageFailedReason;
+
+  /// Canvas: the button that renders a failed page again (a2-13).
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get viewerTryAgain;
+
+  /// Canvas: the label beside the rectangle of Marquee zoom while it is dragged (a2-2). {zoom} is the zoom it gives, a percentage already formatted for the region, for example 180%.
+  ///
+  /// In en, this message translates to:
+  /// **'Release to zoom to {zoom}'**
+  String viewerMarqueeZoom(String zoom);
+
+  /// Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G).
+  ///
+  /// In en, this message translates to:
+  /// **'Page number'**
+  String get viewerPageNumber;
 }
 
 class _AppLocalizationsDelegate

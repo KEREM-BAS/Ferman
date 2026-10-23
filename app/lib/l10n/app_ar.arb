@@ -302,5 +302,10 @@
   "regionExampleDate": "التاريخ",
   "regionExampleTime": "الوقت",
   "regionExampleNumber": "الرقم",
-  "regionExampleFontSize": "حجم الخط"
+  "regionExampleFontSize": "حجم الخط",
+  "viewerPageFailed": "تعذّر على Ferman عرض الصفحة {page}.",
+  "viewerPageFailedReason": "تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد.",
+  "viewerTryAgain": "إعادة المحاولة",
+  "viewerMarqueeZoom": "أفلِت للتكبير إلى {zoom}",
+  "viewerPageNumber": "رقم الصفحة"
 }

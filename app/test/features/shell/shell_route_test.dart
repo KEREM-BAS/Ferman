@@ -32,7 +32,7 @@ void main() {
     useArtboardView(tester);
     final container = ProviderContainer.test(
       overrides: [
-        engineServiceProvider.overrideWithValue(const FakeEngineService()),
+        engineServiceProvider.overrideWithValue(FakeEngineService()),
         desktopWindowProvider.overrideWithValue(window),
         initialSettingsProvider.overrideWithValue(settings),
       ],

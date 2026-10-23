@@ -13,6 +13,26 @@ abstract interface class EngineService {
   ///
   /// Throws an [EngineException] when the engine reports an error.
   Future<EngineStatus> status();
+
+  /// Opens the PDF at [path], with [password] if it is encrypted. Without
+  /// the password an encrypted file fails with
+  /// [EngineErrorKind.passwordRequired]; open it again with the password.
+  ///
+  /// Throws an [EngineException] with the kind of the file's problem.
+  Future<OpenedDocument> open(String path, {String? password});
+
+  /// Closes a document and ends its views.
+  Future<void> close(int document);
+
+  /// Opens a view of [document] that renders nothing until [requestView].
+  Future<EngineView> openView(int document);
+
+  /// Replaces what [view] wants rendered, in priority order. A [generation]
+  /// no newer than the view's last one is ignored.
+  Future<void> requestView(int view, int generation, List<WantedItem> wanted);
+
+  /// Closes a view; its updates end.
+  Future<void> closeView(int view);
 }
 
 /// Why the engine could not be used.
@@ -58,4 +78,24 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<EngineStatus> status() async => throw error;
+
+  @override
+  Future<OpenedDocument> open(String path, {String? password}) async =>
+      throw error;
+
+  @override
+  Future<void> close(int document) async => throw error;
+
+  @override
+  Future<EngineView> openView(int document) async => throw error;
+
+  @override
+  Future<void> requestView(
+    int view,
+    int generation,
+    List<WantedItem> wanted,
+  ) async => throw error;
+
+  @override
+  Future<void> closeView(int view) async => throw error;
 }

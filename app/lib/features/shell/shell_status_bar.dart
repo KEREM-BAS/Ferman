@@ -3,10 +3,12 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,10 +19,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// At the start: the previous and next page buttons with "Page 1 of 3",
 /// and the zoom out and in buttons around "100%", written as the region
 /// writes percentages ("%100" for Türkiye, G34) (shown while the active
-/// document's page count is known; the buttons need a rendered document,
-/// so they are disabled with the future-version tooltip until M2, through
-/// the feature registry's [Feature.pageNavigation] and [Feature.zoom]).
-/// Then the
+/// document's page count is known). With a document open
+/// (`viewerProvider`) they work: the page text is a field that a click or
+/// ⌘G (Ctrl+G) opens for a page number or label ([_PageField], a2-13),
+/// and the zoom is the one the view shows, also under a fit. The
+/// placeholder documents keep them disabled with the future-version
+/// tooltip, through the feature registry's [Feature.pageNavigation] and
+/// [Feature.zoom], until documents open (W3). Then the
 /// text language of the selection when there is one ([language], FmWindow
 /// `statusLang`; none in M1). At the end, the active document's save state
 /// through `SaveIndicator`, the saved time in the region's format; nothing
@@ -51,21 +56,36 @@ class ShellStatusBar extends ConsumerWidget {
     final document = ref.watch(shellDocumentsProvider).active;
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
-    final pages = document?.pageCount;
+    final view = ref.watch(
+      viewerProvider.select(
+        (view) => view == null
+            ? null
+            : (
+                page: view.currentPage,
+                count: view.pageSizes.length,
+                zoom: (view.zoom * 100).round(),
+              ),
+      ),
+    );
+    final viewer = ref.read(viewerProvider.notifier);
+    final pages = view?.count ?? document?.pageCount;
     final saveState = document?.saveState;
 
     IconButton button(
       Feature feature,
       IconName icon,
       String label,
-      ShellCommand command,
-    ) => IconButton(
+      ShellCommand command, [
+      VoidCallback? action,
+    ]) => IconButton(
       icon: icon,
       label: label,
       size: IconButtonSize.xs,
       tooltipSide: TooltipSide.top,
       shortcut: command.caps(platform),
-      disabledReason: feature.disabledReason(context),
+      disabled: view != null && action == null,
+      disabledReason: view == null ? feature.disabledReason(context) : null,
+      onPressed: action,
     );
 
     final language = this.language;
@@ -104,23 +124,29 @@ class ShellStatusBar extends ConsumerWidget {
                     IconName.chevronUp,
                     l10n.shellPreviousPage,
                     ShellCommand.previousPage,
+                    view != null && view.page > 0 ? viewer.previousPage : null,
                   ),
                   button(
                     Feature.pageNavigation,
                     IconName.chevronDown,
                     l10n.shellNextPage,
                     ShellCommand.nextPage,
+                    view != null && view.page < view.count - 1
+                        ? viewer.nextPage
+                        : null,
                   ),
                   Padding(
                     padding: EdgeInsetsDirectional.symmetric(
                       horizontal: theme.space.space1,
                     ),
-                    child: Text(
-                      l10n.shellPageOf(
-                        format.integer(1),
-                        format.integer(pages),
-                      ),
-                    ),
+                    child: view != null
+                        ? _PageField(page: view.page, count: view.count)
+                        : Text(
+                            l10n.shellPageOf(
+                              format.integer(1),
+                              format.integer(pages),
+                            ),
+                          ),
                   ),
                 ],
               ),
@@ -133,11 +159,12 @@ class ShellStatusBar extends ConsumerWidget {
                     IconName.minus,
                     l10n.shellZoomOut,
                     ShellCommand.zoomOut,
+                    view == null ? null : viewer.zoomOut,
                   ),
                   ConstrainedBox(
                     constraints: const BoxConstraints(minWidth: zoomTextWidth),
                     child: Text(
-                      bidiIsolate(format.percent(100)),
+                      bidiIsolate(format.percent(view?.zoom ?? 100)),
                       textAlign: TextAlign.center,
                     ),
                   ),
@@ -146,6 +173,7 @@ class ShellStatusBar extends ConsumerWidget {
                     IconName.plus,
                     l10n.shellZoomIn,
                     ShellCommand.zoomIn,
+                    view == null ? null : viewer.zoomIn,
                   ),
                 ],
               ),
@@ -195,5 +223,180 @@ class ShellStatusBar extends ConsumerWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(StringProperty('language', language, defaultValue: null));
+  }
+}
+
+/// The status bar's page text as a field (a2-13, G30): "Page 2 of 3" until
+/// a click or ⌘G (Ctrl+G, `pageFieldRequestProvider`) opens the number
+/// for editing in a small box with the focus border. Enter goes to the
+/// page number or label typed ([pageForInput]) and Escape or leaving the
+/// field keeps the page; either way focus returns where it was.
+class _PageField extends ConsumerStatefulWidget {
+  const new({required this.page, required this.count});
+
+  /// The current page, from 0.
+  final int page;
+
+  /// The number of pages.
+  final int count;
+
+  /// FmWindow's box: `min-width: 34px; height: 18px`.
+  static const double boxWidth = 34;
+  static const double boxHeight = 18;
+
+  @override
+  ConsumerState<_PageField> createState() => _PageFieldState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(IntProperty('page', page))
+      ..add(IntProperty('count', count));
+  }
+}
+
+class _PageFieldState extends ConsumerState<_PageField> {
+  final TextEditingController _text = TextEditingController();
+  final FocusNode _focus = FocusNode(debugLabel: 'PageField');
+  FocusNode? _returnTo;
+  bool _editing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focus.addListener(() {
+      if (!_focus.hasFocus && _editing) setState(() => _editing = false);
+    });
+  }
+
+  @override
+  void dispose() {
+    _text.dispose();
+    _focus.dispose();
+    super.dispose();
+  }
+
+  void _edit() {
+    final format = RegionFormat.forRegion(ref.read(regionProvider).region);
+    _returnTo = FocusManager.instance.primaryFocus;
+    _text
+      ..text = format.integer(widget.page + 1)
+      ..selection = TextSelection(
+        baseOffset: 0,
+        extentOffset: _text.text.length,
+      );
+    setState(() => _editing = true);
+    _focus.requestFocus();
+  }
+
+  void _done({required bool go}) {
+    final view = ref.read(viewerProvider);
+    if (go && view != null) {
+      final page = pageForInput(_text.text, view.document.pages);
+      if (page != null) ref.read(viewerProvider.notifier).goToPage(page);
+    }
+    setState(() => _editing = false);
+    final back = _returnTo;
+    _returnTo = null;
+    if (back != null && back.context != null) {
+      back.requestFocus();
+    } else {
+      _focus.unfocus();
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    ref.listen(pageFieldRequestProvider, (_, _) => _edit());
+    final count = format.integer(widget.count);
+    if (!_editing) {
+      return Semantics(
+        button: true,
+        label: l10n.viewerPageNumber,
+        value: l10n.shellPageOf(format.integer(widget.page + 1), count),
+        excludeSemantics: true,
+        child: MouseRegion(
+          cursor: SystemMouseCursors.text,
+          child: GestureDetector(
+            onTap: _edit,
+            child: Text(
+              l10n.shellPageOf(format.integer(widget.page + 1), count),
+            ),
+          ),
+        ),
+      );
+    }
+    // The text around the number, as FmWindow splits `t.page` at `{p}`.
+    const mark = '\u0000';
+    final parts = l10n.shellPageOf(mark, count).split(mark);
+    final style = DefaultTextStyle.of(context).style
+        .copyWith(color: theme.colors.textPrimary);
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      spacing: theme.space.space1,
+      children: [
+        if (parts.first.trim().isNotEmpty) Text(parts.first.trim()),
+        Container(
+          constraints: const BoxConstraints(
+            minWidth: _PageField.boxWidth,
+            minHeight: _PageField.boxHeight,
+            maxHeight: _PageField.boxHeight,
+          ),
+          padding: EdgeInsetsDirectional.symmetric(
+            horizontal: theme.space.space1,
+          ),
+          alignment: Alignment.center,
+          decoration: BoxDecoration(
+            color: theme.colors.surfaceRaised,
+            borderRadius: BorderRadius.all(
+              Radius.circular(theme.radius.radiusSm),
+            ),
+            border: Border.all(
+              color: theme.colors.borderFocus,
+              width: theme.border.borderWidth,
+            ),
+            boxShadow: [
+              BoxShadow(
+                color: theme.colors.borderFocus,
+                spreadRadius: theme.border.borderWidth,
+              ),
+            ],
+          ),
+          child: IntrinsicWidth(
+            child: Semantics(
+              label: l10n.viewerPageNumber,
+              textField: true,
+              child: Shortcuts(
+                shortcuts: const {
+                  SingleActivator(LogicalKeyboardKey.escape): DismissIntent(),
+                },
+                child: Actions(
+                  actions: {
+                    DismissIntent: CallbackAction<DismissIntent>(
+                      onInvoke: (_) => _done(go: false),
+                    ),
+                  },
+                  child: EditableText(
+                    controller: _text,
+                    focusNode: _focus,
+                    style: style,
+                    textAlign: TextAlign.center,
+                    cursorColor: theme.colors.textPrimary,
+                    backgroundCursorColor: theme.colors.textTertiary,
+                    selectionColor: theme.colors.accentSubtle,
+                    onSubmitted: (_) => _done(go: true),
+                  ),
+                ),
+              ),
+            ),
+          ),
+        ),
+        if (parts.last.trim().isNotEmpty) Text(parts.last.trim()),
+      ],
+    );
   }
 }

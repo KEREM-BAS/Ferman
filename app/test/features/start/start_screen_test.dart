@@ -205,8 +205,8 @@ void main() {
     const message =
         'A part of Ferman is missing or doesn’t match this version. '
         'Installing Ferman again fixes this.';
-    const failed = FakeEngineService(
-      fakeStatus: EngineStatus(
+    final failed = FakeEngineService(
+      fakeStatus: const EngineStatus(
         appVersion: '0.1.0',
         apiVersion: kAppApiVersion,
         isDebugBuild: false,

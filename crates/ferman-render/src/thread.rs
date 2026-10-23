@@ -91,6 +91,13 @@ impl DocumentId {
     pub fn get(self) -> u64 {
         self.0
     }
+
+    /// The id behind a number from [`get`](Self::get), as a handle that crossed the bridge. A
+    /// number that names no open document gives [`RenderError::NotFound`].
+    #[must_use]
+    pub fn from_raw(raw: u64) -> Self {
+        Self(raw)
+    }
 }
 
 /// A view of a document: the canvas, the thumbnail strip, and later split view, compare and
@@ -103,6 +110,13 @@ impl ViewId {
     #[must_use]
     pub fn get(self) -> u64 {
         self.0
+    }
+
+    /// The id behind a number from [`get`](Self::get), as a handle that crossed the bridge. A
+    /// number that names no open view gives [`RenderError::NotFound`].
+    #[must_use]
+    pub fn from_raw(raw: u64) -> Self {
+        Self(raw)
     }
 }
 
