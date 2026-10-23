@@ -79,19 +79,22 @@ void main() {
     expect(violations(graph).single, startsWith('ferman-sign: not in the'));
   });
 
-  test('keeps flutter_rust_bridge, pdfium-render and lopdf behind one door', () {
-    final graph = documentedGraph()
-      ..['ferman-text'] = [dep('ferman-core'), dep('flutter_rust_bridge')]
-      ..['ferman-ops'] = [dep('ferman-core'), dep('pdfium-render')]
-      ..['ferman-render'] = [dep('ferman-core'), dep('lopdf')];
-    const frb = 'flutter_rust_bridge';
-    const pdfium = 'pdfium-render';
-    expect(violations(graph), [
-      'ferman-text -> $frb: only ferman-api may depend on $frb',
-      'ferman-render -> lopdf: only ferman-core may depend on lopdf',
-      'ferman-ops -> $pdfium: only ferman-render may depend on $pdfium',
-    ]);
-  });
+  test(
+    'keeps flutter_rust_bridge, pdfium-render and lopdf behind one door',
+    () {
+      final graph = documentedGraph()
+        ..['ferman-text'] = [dep('ferman-core'), dep('flutter_rust_bridge')]
+        ..['ferman-ops'] = [dep('ferman-core'), dep('pdfium-render')]
+        ..['ferman-render'] = [dep('ferman-core'), dep('lopdf')];
+      const frb = 'flutter_rust_bridge';
+      const pdfium = 'pdfium-render';
+      expect(violations(graph), [
+        'ferman-text -> $frb: only ferman-api may depend on $frb',
+        'ferman-render -> lopdf: only ferman-core may depend on lopdf',
+        'ferman-ops -> $pdfium: only ferman-render may depend on $pdfium',
+      ]);
+    },
+  );
 
   test('requires flutter_rust_bridge to be optional in ferman-api', () {
     final graph = documentedGraph();
