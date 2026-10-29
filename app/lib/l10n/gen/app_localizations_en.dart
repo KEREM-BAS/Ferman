@@ -1166,4 +1166,29 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return 'Ferman searched $_temp0. Comments and form fields weren’t searched.';
   }
+
+  @override
+  String get sidebarSearchField => 'Search in document';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText matches',
+      one: '1 match',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText pages',
+      one: '1 page',
+    );
+    return '$_temp0 on $_temp1';
+  }
 }

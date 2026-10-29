@@ -1189,6 +1189,19 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String findNoneBodyExact(int count, String pages) =>
       isolate(super.findNoneBodyExact(count, pages));
+
+  @override
+  String get sidebarSearchField => isolate(super.sidebarSearchField);
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) => isolate(
+    super.sidebarSearchSummary(matches, matchesText, pages, pagesText),
+  );
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -2,6 +2,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/shell/shell_sidebar_tabs.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_bar.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -103,6 +105,38 @@ void main() {
     await tester.sendKeyEvent(LogicalKeyboardKey.escape);
     await settle(tester);
     expect(find.byType(SearchReplaceBar), findsNothing);
+  });
+
+  testWidgets('Alt+Enter shows every result in the sidebar, grouped by '
+      'page; a click goes to one', (tester) async {
+    await pumpDocument(tester);
+    await controlF(tester);
+    await tester.enterText(find.byType(EditableText).first, 'kira');
+    await settle(tester);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+    await settle(tester);
+    final container = containerOf(tester);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.search);
+    expect(find.byType(SidebarSearch), findsOneWidget);
+    final results = find.descendant(
+      of: find.byType(SidebarSearch),
+      matching: find.textContaining('SÖZLEŞMESİ', findRichText: true),
+    );
+    expect(results, findsNWidgets(2));
+    expect(
+      find.descendant(
+        of: find.byType(SidebarSearch),
+        matching: find.text('PAGE 3'),
+      ),
+      findsOneWidget,
+    );
+    expect(find.text('2 matches on 2 pages'), findsOneWidget);
+    await tester.tap(results.last);
+    await settle(tester);
+    expect(findState(tester).current, 1);
+    expect(container.read(viewerProvider)!.currentPage, 2);
   });
 
   testWidgets('a search that finds nothing says what it searched (a2-4d)', (

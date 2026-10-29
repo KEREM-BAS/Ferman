@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/casing.dart';
@@ -786,6 +787,262 @@ class SidebarSignatures extends ConsumerWidget {
           SizedBox(height: theme.space.space2),
         ],
       ],
+    );
+  }
+}
+
+/// The Search results tab (a2-3e, a2-4b): the query, a summary, and every
+/// match so far grouped by page, its line as a snippet with the match
+/// marked, the current one tinted; a click goes to it. A search that found
+/// nothing shows a2-3m's empty state. It shares `findProvider` with the
+/// find bar, so typing in either searches.
+class SidebarSearch extends ConsumerWidget {
+  /// The results of `findProvider`.
+  const new({super.key});
+
+  /// Characters of the line kept before a match (`…aylık kira`).
+  static const int before = 16;
+
+  /// Characters kept after it.
+  static const int after = 28;
+
+  /// `font: 400 12px/17px var(--font-doc-sample)`.
+  static const double snippetSize = 12;
+
+  /// The snippet's line height.
+  static const double snippetHeight = 17 / 12;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final find = ref.watch(findProvider);
+    final notifier = ref.read(findProvider.notifier);
+    final pages = {for (final match in find.matches) match.page}.length;
+    final field = Padding(
+      padding: EdgeInsetsDirectional.only(
+        start: theme.space.space2,
+        end: theme.space.space2,
+        bottom: theme.space.space2,
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space.space1_5,
+        children: [
+          _QueryField(
+            query: find.query,
+            label: l10n.sidebarSearchField,
+            onChanged: notifier.setQuery,
+          ),
+          if (find.matches.isNotEmpty)
+            Text(
+              l10n.sidebarSearchSummary(
+                find.matches.length,
+                format.integer(find.matches.length),
+                pages,
+                format.integer(pages),
+              ),
+              style: theme.typography.caption.copyWith(
+                color: theme.colors.textTertiary,
+              ),
+            ),
+        ],
+      ),
+    );
+    if (find.done && find.hasQuery && find.matches.isEmpty) {
+      return Column(
+        children: [
+          field,
+          Expanded(
+            child: EmptyState(
+              icon: IconName.search,
+              title: l10n.findNoneTitle(find.query.trim()),
+              body:
+                  (find.options.ignoreAccents
+                  ? l10n.findNoneBody
+                  : l10n.findNoneBodyExact)(
+                    find.pages,
+                    format.integer(find.pages),
+                  ),
+            ),
+          ),
+        ],
+      );
+    }
+    final rows = <Widget>[];
+    for (final (index, match) in find.matches.indexed) {
+      if (index == 0 || find.matches[index - 1].page != match.page) {
+        final count = find.matches.where((m) => m.page == match.page).length;
+        rows.add(
+          Padding(
+            padding: EdgeInsetsDirectional.fromSTEB(
+              theme.space.space1_5,
+              theme.space.space2,
+              theme.space.space1_5,
+              theme.space.space0_5,
+            ),
+            child: Semantics(
+              header: true,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      LocaleCasing.of(
+                        context,
+                      ).upper(l10n.sidebarPage(format.integer(match.page + 1))),
+                      style: theme.typography.label.copyWith(
+                        color: theme.colors.textTertiary,
+                      ),
+                    ),
+                  ),
+                  Text(
+                    format.integer(count),
+                    style: theme.typography.label.copyWith(
+                      color: theme.colors.textTertiary,
+                      fontFeatures: const [ui.FontFeature.tabularFigures()],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      }
+      rows.add(
+        _Result(
+          match: match,
+          current: index == find.current,
+          onPressed: () => notifier.select(index),
+        ),
+      );
+    }
+    return Column(
+      children: [
+        field,
+        Expanded(
+          child: ListView(
+            padding: EdgeInsetsDirectional.symmetric(
+              horizontal: theme.space.space1_5,
+            ),
+            children: rows,
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// The tab's search field, which follows the find bar's query.
+class _QueryField extends StatefulWidget {
+  const new({
+    required this.query,
+    required this.label,
+    required this.onChanged,
+  });
+
+  final String query;
+  final String label;
+  final ValueChanged<String> onChanged;
+
+  @override
+  State<_QueryField> createState() => _QueryFieldState();
+}
+
+class _QueryFieldState extends State<_QueryField> {
+  late final TextEditingController _controller = TextEditingController(
+    text: widget.query,
+  );
+
+  @override
+  void didUpdateWidget(_QueryField old) {
+    super.didUpdateWidget(old);
+    if (widget.query != _controller.text) _controller.text = widget.query;
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) => TextField(
+    size: FieldSize.sm,
+    icon: IconName.search,
+    semanticLabel: widget.label,
+    controller: _controller,
+    onChanged: widget.onChanged,
+  );
+}
+
+/// One result: its line around the match, the match marked.
+class _Result extends StatelessWidget {
+  const new({
+    required this.match,
+    required this.current,
+    required this.onPressed,
+  });
+
+  final SearchMatch match;
+  final bool current;
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.ferman;
+    final line = match.snippet;
+    final start = match.snippetStart.clamp(0, line.length);
+    final end = match.snippetEnd.clamp(start, line.length);
+    final from = (start - SidebarSearch.before).clamp(0, start);
+    final to = (end + SidebarSearch.after).clamp(end, line.length);
+    final pre = '${from > 0 ? '…' : ''}${line.substring(from, start)}';
+    final post = '${line.substring(end, to)}${to < line.length ? '…' : ''}';
+    final style = TextStyle(
+      fontFamily: theme.typography.body.fontFamily,
+      fontFamilyFallback: theme.typography.body.fontFamilyFallback,
+      fontSize: SidebarSearch.snippetSize,
+      height: SidebarSearch.snippetHeight,
+      color: theme.colors.textSecondary,
+    );
+    return FermanInteractive(
+      onPressed: onPressed,
+      selected: current,
+      semanticLabel: line,
+      builder: (context, states, _) => Container(
+        padding: EdgeInsetsDirectional.symmetric(
+          vertical: theme.space.space1_5,
+          horizontal: theme.space.space2,
+        ),
+        decoration: BoxDecoration(
+          color: current
+              ? theme.colors.surfaceSelected
+              : states.contains(WidgetState.hovered)
+              ? theme.colors.surfaceHover
+              : null,
+          borderRadius: BorderRadius.all(
+            Radius.circular(theme.radius.radiusSm),
+          ),
+        ),
+        child: Text.rich(
+          TextSpan(
+            style: style,
+            children: [
+              TextSpan(text: pre),
+              TextSpan(
+                text: line.substring(start, end),
+                style: TextStyle(
+                  background: Paint()..color = theme.pageColors.searchMatch,
+                  color: theme.colors.textPrimary,
+                ),
+              ),
+              TextSpan(text: post),
+            ],
+          ),
+          maxLines: 2,
+          overflow: TextOverflow.ellipsis,
+        ),
+      ),
     );
   }
 }

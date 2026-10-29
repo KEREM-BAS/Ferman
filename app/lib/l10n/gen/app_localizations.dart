@@ -2223,6 +2223,23 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.'**
   String findNoneBodyExact(int count, String pages);
+
+  /// Sidebar › Search results: the field's accessible name (a2-3e).
+  ///
+  /// In en, this message translates to:
+  /// **'Search in document'**
+  String get sidebarSearchField;
+
+  /// Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'{matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}}'**
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  );
 }
 
 class _AppLocalizationsDelegate

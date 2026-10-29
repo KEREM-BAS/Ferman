@@ -133,7 +133,8 @@ class SearchReplaceBarLabels {
 /// and edits are reported through [onQueryChanged] and [onReplaceChanged].
 ///
 /// **Keyboard:** Escape anywhere in the bar calls [onClose]; in the find
-/// field Enter goes to the next match and Shift+Enter to the previous one.
+/// field Enter goes to the next match and Shift+Enter to the previous one;
+/// Alt+Enter is left to the app (a2-4b's Show all).
 ///
 /// For screen readers it is a group named "Find and replace"; the count is
 /// a polite live region and the notice a status; the option toggles are
@@ -341,6 +342,8 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
         key != LogicalKeyboardKey.numpadEnter) {
       return KeyEventResult.ignored;
     }
+    // ⌥↵ is the app's: Show all (a2-4b).
+    if (HardwareKeyboard.instance.isAltPressed) return KeyEventResult.ignored;
     if (HardwareKeyboard.instance.isShiftPressed) {
       widget.onPrevious?.call();
     } else {

@@ -2,11 +2,13 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -57,62 +59,71 @@ class FindBar extends ConsumerWidget {
       panel = _Options(options: options);
     }
     final slow = searched != null && searched >= slowSearch;
-    return SizedBox(
-      width: width,
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.end,
-        spacing: theme.space.space1_5,
-        children: [
-          SearchReplaceBar(
-            key: ValueKey(find.focusRequests),
-            labels: SearchReplaceBarLabels(
-              region: l10n.findRegion,
-              find: l10n.findField,
-              replaceWith: l10n.findReplaceWith,
-              matchCase: l10n.findMatchCase,
-              wholeWord: l10n.findWholeWords,
-              regex: l10n.findRegex,
-              showReplace: l10n.findShowReplace,
-              hideReplace: l10n.findHideReplace,
-              previous: l10n.findPrevious,
-              next: l10n.findNext,
-              close: l10n.windowClose,
-              replace: l10n.shellToolReplace,
-              replaceAll: l10n.findReplaceAll,
-              noResults: l10n.findNoResults,
-              count: (current, total) => l10n.findCount(
-                format.integer(current),
-                format.integer(total),
+    // ⌥↵ shows every result in the sidebar's Search results tab (a2-4b).
+    return CallbackShortcuts(
+      bindings: {
+        const SingleActivator(LogicalKeyboardKey.enter, alt: true): () {
+          ref.read(shellSidebarTabProvider.notifier).select(SidebarTab.search);
+          ref.read(shellSidebarOpenProvider.notifier).open();
+        },
+      },
+      child: SizedBox(
+        width: width,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.end,
+          spacing: theme.space.space1_5,
+          children: [
+            SearchReplaceBar(
+              key: ValueKey(find.focusRequests),
+              labels: SearchReplaceBarLabels(
+                region: l10n.findRegion,
+                find: l10n.findField,
+                replaceWith: l10n.findReplaceWith,
+                matchCase: l10n.findMatchCase,
+                wholeWord: l10n.findWholeWords,
+                regex: l10n.findRegex,
+                showReplace: l10n.findShowReplace,
+                hideReplace: l10n.findHideReplace,
+                previous: l10n.findPrevious,
+                next: l10n.findNext,
+                close: l10n.windowClose,
+                replace: l10n.shellToolReplace,
+                replaceAll: l10n.findReplaceAll,
+                noResults: l10n.findNoResults,
+                count: (current, total) => l10n.findCount(
+                  format.integer(current),
+                  format.integer(total),
+                ),
               ),
+              query: find.query,
+              current: find.matches.isEmpty ? 0 : find.current + 1,
+              total: find.matches.length,
+              matchCase: options.matchCase,
+              wholeWord: options.wholeWords,
+              autofocus: true,
+              replaceDisabledReason: Feature.findAndReplace.disabledReason(
+                context,
+              ),
+              regexDisabledReason: Feature.searchRegex.disabledReason(context),
+              onQueryChanged: notifier.setQuery,
+              onToggleOption: (option, value) => switch (option) {
+                SearchOption.matchCase => notifier.setOptions(
+                  _with(options, matchCase: value),
+                ),
+                SearchOption.wholeWord => notifier.setOptions(
+                  _with(options, wholeWords: value),
+                ),
+                SearchOption.regex => null,
+              },
+              onPrevious: notifier.previous,
+              onNext: notifier.next,
+              // Esc stops a long search first (a2-4c), then closes the bar.
+              onClose: slow ? notifier.cancel : notifier.close,
             ),
-            query: find.query,
-            current: find.matches.isEmpty ? 0 : find.current + 1,
-            total: find.matches.length,
-            matchCase: options.matchCase,
-            wholeWord: options.wholeWords,
-            autofocus: true,
-            replaceDisabledReason: Feature.findAndReplace.disabledReason(
-              context,
-            ),
-            regexDisabledReason: Feature.searchRegex.disabledReason(context),
-            onQueryChanged: notifier.setQuery,
-            onToggleOption: (option, value) => switch (option) {
-              SearchOption.matchCase => notifier.setOptions(
-                _with(options, matchCase: value),
-              ),
-              SearchOption.wholeWord => notifier.setOptions(
-                _with(options, wholeWords: value),
-              ),
-              SearchOption.regex => null,
-            },
-            onPrevious: notifier.previous,
-            onNext: notifier.next,
-            // Esc stops a long search first (a2-4c), then closes the bar.
-            onClose: slow ? notifier.cancel : notifier.close,
-          ),
-          panel,
-        ],
+            panel,
+          ],
+        ),
       ),
     );
   }

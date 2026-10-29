@@ -1544,5 +1544,27 @@
         "type": "String"
       }
     }
+  },
+  "sidebarSearchField": "Search in document",
+  "@sidebarSearchField": {
+    "description": "Sidebar › Search results: the field's accessible name (a2-3e)."
+  },
+  "sidebarSearchSummary": "{matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}}",
+  "@sidebarSearchSummary": {
+    "description": "Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.",
+    "placeholders": {
+      "matches": {
+        "type": "int"
+      },
+      "matchesText": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "int"
+      },
+      "pagesText": {
+        "type": "String"
+      }
+    }
   }
 }

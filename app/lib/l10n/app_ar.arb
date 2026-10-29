@@ -353,5 +353,7 @@
   "findSearching": "جارٍ البحث · الصفحة {page} من {pages}",
   "findNoneTitle": "لا نتائج لـ«{query}»",
   "findNoneBody": "بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج.",
-  "findNoneBodyExact": "بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج."
+  "findNoneBodyExact": "بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج.",
+  "sidebarSearchField": "البحث في المستند",
+  "sidebarSearchSummary": "{matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}}"
 }

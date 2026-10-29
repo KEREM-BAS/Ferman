@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-354 messages in `app_en.arb`; translated: Turkish 354, Arabic 354.
+356 messages in `app_en.arb`; translated: Turkish 356, Arabic 356.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -410,5 +410,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `findNoneTitle` | No results for “{query}” | “{query}” için sonuç yok | لا نتائج لـ«{query}» | No results: the title, with the query as typed (a2-4d). |
 | `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
 | `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
+| `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

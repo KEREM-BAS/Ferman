@@ -1173,4 +1173,29 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return 'Ferman $_temp0 aradı. Yorumlar ve form alanları aranmadı.';
   }
+
+  @override
+  String get sidebarSearchField => 'Belgede ara';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText sayfada',
+      one: '1 sayfada',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText eşleşme',
+      one: '1 eşleşme',
+    );
+    return '$_temp0 $_temp1';
+  }
 }

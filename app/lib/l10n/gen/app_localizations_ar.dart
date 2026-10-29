@@ -1169,4 +1169,33 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return 'بحث Ferman في $_temp0. لم يُبحث في التعليقات وحقول النماذج.';
   }
+
+  @override
+  String get sidebarSearchField => 'البحث في المستند';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText تطابقًا',
+      few: '$matchesText تطابقات',
+      two: 'تطابقان',
+      one: 'تطابق واحد',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText صفحة',
+      few: '$pagesText صفحات',
+      two: 'صفحتين',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0 في $_temp1';
+  }
 }

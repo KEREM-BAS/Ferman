@@ -5,6 +5,7 @@ import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_sidebar_tabs.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -95,7 +96,10 @@ class FmSidebar extends ConsumerWidget {
       SidebarTab.attachments => document?.attachments.length,
       SidebarTab.layers => document?.layers.length,
       SidebarTab.signatures => document?.signatures.length,
-      SidebarTab.outline || SidebarTab.search => null,
+      SidebarTab.search => ref.watch(
+        findProvider.select((find) => find.matches.length),
+      ),
+      SidebarTab.outline => null,
     };
     final count = listed != null && listed > 0 ? format.integer(listed) : null;
 
@@ -178,8 +182,8 @@ class FmSidebar extends ConsumerWidget {
                     KeyedSubtree(
                       key: keyOf(each),
                       child: switch ((document, each)) {
-                        (null, _) ||
-                        (_, SidebarTab.search) => const SizedBox.expand(),
+                        (null, _) => const SizedBox.expand(),
+                        (_, SidebarTab.search) => const SidebarSearch(),
                         (final open?, SidebarTab.pages) => SidebarPages(
                           key: ValueKey(open.id),
                         ),
