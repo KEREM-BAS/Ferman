@@ -79,6 +79,15 @@ pub(crate) enum Token<'a> {
     Keyword(&'a [u8]),
 }
 
+/// One item of a content stream.
+#[derive(Debug, Clone, PartialEq)]
+pub(crate) enum ContentItem<'a> {
+    /// An operand.
+    Operand(Object),
+    /// An operator, such as `Tj`.
+    Operator(&'a [u8]),
+}
+
 /// A lexer over PDF bytes.
 #[derive(Debug, Clone)]
 pub(crate) struct Lexer<'a> {
@@ -426,6 +435,26 @@ impl<'a> Parser<'a> {
         let token = self.lexer.next_token()?.map(|(token, _)| token);
         self.lexer.seek(at);
         Ok(token)
+    }
+
+    /// Moves to `pos`.
+    pub(crate) fn seek(&mut self, pos: usize) {
+        self.lexer.seek(pos);
+    }
+
+    /// The next item of a content stream and where it starts, or `None` at the end: an operand,
+    /// or an operator's keyword.
+    pub(crate) fn content_item(&mut self) -> Result<Option<(ContentItem<'a>, usize)>, CoreError> {
+        let Some((token, start)) = self.lexer.next_token()? else {
+            return Ok(None);
+        };
+        let item = match token {
+            Token::Keyword(word) if !matches!(word, b"true" | b"false" | b"null") => {
+                ContentItem::Operator(word)
+            }
+            token => ContentItem::Operand(self.object_from(token, start, 0)?),
+        };
+        Ok(Some((item, start)))
     }
 
     /// One direct object, with `n g R` read as a reference.

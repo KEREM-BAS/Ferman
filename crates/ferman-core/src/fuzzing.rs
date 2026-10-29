@@ -7,6 +7,7 @@
 use zeroize::Zeroizing;
 
 use crate::CoreError;
+use crate::content;
 use crate::document::{OpenOptions, open};
 use crate::limits::Limits;
 use crate::security::{Decrypter, Params, Password};
@@ -51,6 +52,27 @@ pub fn syntax_object(data: &[u8]) {
         if let Err(err) = result {
             assert!(expected(&err), "the object parser: {err}");
         }
+    }
+}
+
+/// The content-stream lexer: every operator is named, and the spans stay inside the data and in
+/// order.
+pub fn content_lexer(data: &[u8]) {
+    match content::operators(data, &limits()) {
+        Ok(operators) => {
+            let mut last = 0;
+            for operator in &operators {
+                assert!(!operator.name.is_empty(), "an operator without a name");
+                assert!(
+                    last <= operator.span.start
+                        && operator.span.start <= operator.span.end
+                        && operator.span.end <= data.len(),
+                    "a span out of order or past the data"
+                );
+                last = operator.span.end;
+            }
+        }
+        Err(err) => assert!(expected(&err), "the content lexer: {err}"),
     }
 }
 
