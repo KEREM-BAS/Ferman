@@ -63,7 +63,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-114 entries: 92 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, and G114 with the open path.
+115 entries: 93 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, and G115 with search.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
@@ -186,6 +186,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G112](#g112) | gap | M2 | App icons | The logo board draws icons on mock tiles; the platforms need files at fixed sizes and shapes | Decided |
 | [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
 | [G114](#g114) | gap | M2 | Open / damaged file | a1-9b's "Expected about 2.4 MB" is known only when the file declares its size | Decided |
+| [G115](#g115) | gap | M2 | Search | a2-4a draws the search options open under the find bar with nothing that opens them | Decided |
 
 ## Entries
 
@@ -1705,3 +1706,15 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The engine's `Diagnosis` carries `expected_size` only from a linearized file's `/L`. Without it, the details leave the "Expected about …" part out and start with what was found: "Found 18 KB · last complete object 12 0 obj · no trailer". The sentence above the details, "The file stops after 18 KB and the rest is missing.", needs no expected size and stays as drawn.
 - **Status:** Decided.
 - **Evidence:** `crates/ferman-core/src/repair.rs` (`Diagnosis`, `Scan::linearized_length`); `crates/ferman-core/tests/corpus.rs` (`the_truncated_scan_cannot_be_opened`); `tools/corpus/src/docs/damaged.rs` (the scan is not linearized).
+
+<a id="g115"></a>
+
+### G115 · The search options have no opener
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** Search
+- **Artboards:** `a2-4a`, `a2-4c`, `a2-4d`
+- **Gap or conflict:** a2-4a draws a "Search options" group (Match: Match case, Whole words, Regular expression, Ignore accents and dotted/dotless i; Look in: Page text, Comments, Form fields, Bookmarks) open under the find bar, but no control on the bar opens or closes it; the bar's own toggles repeat three of its options. a2-4c and a2-4d put the searching and no-results panels in the same place. Comments is drawn checked by default, though M2 does not search comments yet.
+- **Decision:** The group shows under the bar whenever the bar is open, and a2-4c's progress (a search past its first 25 pages) or a2-4d's no results takes its place. The bar's toggles and the group's checkboxes are the same options. Until comments, form fields and bookmarks are searched (B114), Look in shows Page text checked and the other three unchecked, all four disabled for a future version, so the group never claims a search that does not happen; a2-4d's "Also search comments and fields" is disabled the same way.
+- **Status:** Decided.

@@ -1063,4 +1063,114 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get sidebarEmptySignatureField => 'Boş imza alanı';
+
+  @override
+  String get findRegion => 'Bul ve değiştir';
+
+  @override
+  String get findField => 'Bul';
+
+  @override
+  String get findReplaceWith => 'Şununla değiştir';
+
+  @override
+  String get findMatchCase => 'Büyük/küçük harf duyarlı';
+
+  @override
+  String get findWholeWords => 'Tam sözcükler';
+
+  @override
+  String get findRegex => 'Düzenli ifade';
+
+  @override
+  String get findShowReplace => 'Değiştirmeyi göster';
+
+  @override
+  String get findHideReplace => 'Değiştirmeyi gizle';
+
+  @override
+  String get findPrevious => 'Önceki eşleşme';
+
+  @override
+  String get findNext => 'Sonraki eşleşme';
+
+  @override
+  String get findReplaceAll => 'Tümünü değiştir';
+
+  @override
+  String get findNoResults => 'Sonuç yok';
+
+  @override
+  String get findOptions => 'Arama seçenekleri';
+
+  @override
+  String get findMatch => 'Eşleştirme';
+
+  @override
+  String get findIgnoreAccents => 'Aksanları ve noktalı/noktasız i’yi yok say';
+
+  @override
+  String get findIgnoreAccentsBody =>
+      '“i”; İ, ı ve î’yi bulur; “c”, ç’yi bulur; “kira”, KİRA’yı bulur. Varsayılan olarak açık.';
+
+  @override
+  String get findLookIn => 'Şurada ara';
+
+  @override
+  String get findPageText => 'Sayfa metni';
+
+  @override
+  String get findComments => 'Yorumlar';
+
+  @override
+  String get findFormFields => 'Form alanları';
+
+  @override
+  String get findBookmarks => 'Yer imleri';
+
+  @override
+  String get findSearchingBody => 'Eşleşmeler bulundukça görünür.';
+
+  @override
+  String get findCancel => 'İptal';
+
+  @override
+  String get findNoneAction => 'Yorumlarda ve alanlarda da ara';
+
+  @override
+  String findCount(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String findSearching(String page, String pages) {
+    return 'Aranıyor · sayfa $page / $pages';
+  }
+
+  @override
+  String findNoneTitle(String query) {
+    return '“$query” için sonuç yok';
+  }
+
+  @override
+  String findNoneBody(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfanın tamamında',
+      one: 'tek sayfada',
+    );
+    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.';
+  }
+
+  @override
+  String findNoneBodyExact(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfanın tamamında',
+      one: 'tek sayfada',
+    );
+    return 'Ferman $_temp0 aradı. Yorumlar ve form alanları aranmadı.';
+  }
 }

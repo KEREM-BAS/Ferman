@@ -1056,4 +1056,114 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarEmptySignatureField => 'Empty signature field';
+
+  @override
+  String get findRegion => 'Find and replace';
+
+  @override
+  String get findField => 'Find';
+
+  @override
+  String get findReplaceWith => 'Replace with';
+
+  @override
+  String get findMatchCase => 'Match case';
+
+  @override
+  String get findWholeWords => 'Whole words';
+
+  @override
+  String get findRegex => 'Regular expression';
+
+  @override
+  String get findShowReplace => 'Show replace';
+
+  @override
+  String get findHideReplace => 'Hide replace';
+
+  @override
+  String get findPrevious => 'Previous match';
+
+  @override
+  String get findNext => 'Next match';
+
+  @override
+  String get findReplaceAll => 'Replace all';
+
+  @override
+  String get findNoResults => 'No results';
+
+  @override
+  String get findOptions => 'Search options';
+
+  @override
+  String get findMatch => 'Match';
+
+  @override
+  String get findIgnoreAccents => 'Ignore accents and dotted/dotless i';
+
+  @override
+  String get findIgnoreAccentsBody =>
+      '“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.';
+
+  @override
+  String get findLookIn => 'Look in';
+
+  @override
+  String get findPageText => 'Page text';
+
+  @override
+  String get findComments => 'Comments';
+
+  @override
+  String get findFormFields => 'Form fields';
+
+  @override
+  String get findBookmarks => 'Bookmarks';
+
+  @override
+  String get findSearchingBody => 'Matches appear as they’re found.';
+
+  @override
+  String get findCancel => 'Cancel';
+
+  @override
+  String get findNoneAction => 'Also search comments and fields';
+
+  @override
+  String findCount(String current, String total) {
+    return '$current of $total';
+  }
+
+  @override
+  String findSearching(String page, String pages) {
+    return 'Searching · page $page of $pages';
+  }
+
+  @override
+  String findNoneTitle(String query) {
+    return 'No results for “$query”';
+  }
+
+  @override
+  String findNoneBody(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'all $pages pages',
+      one: 'the only page',
+    );
+    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.';
+  }
+
+  @override
+  String findNoneBodyExact(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'all $pages pages',
+      one: 'the only page',
+    );
+    return 'Ferman searched $_temp0. Comments and form fields weren’t searched.';
+  }
 }

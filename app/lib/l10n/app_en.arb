@@ -1391,5 +1391,158 @@
   "sidebarEmptySignatureField": "Empty signature field",
   "@sidebarEmptySignatureField": {
     "description": "Sidebar › Signatures: the line under an unsigned signature field's name (a2-14)."
+  },
+  "findRegion": "Find and replace",
+  "@findRegion": {
+    "description": "The find bar's accessible name (a2-4a, SearchReplaceBar)."
+  },
+  "findField": "Find",
+  "@findField": {
+    "description": "The find field's placeholder and name (a2-4a)."
+  },
+  "findReplaceWith": "Replace with",
+  "@findReplaceWith": {
+    "description": "The replace field's placeholder; replace comes in P2 (B045)."
+  },
+  "findMatchCase": "Match case",
+  "@findMatchCase": {
+    "description": "Find option and toggle (a2-4a)."
+  },
+  "findWholeWords": "Whole words",
+  "@findWholeWords": {
+    "description": "Find option and toggle (a2-4a)."
+  },
+  "findRegex": "Regular expression",
+  "@findRegex": {
+    "description": "Find option and toggle (a2-4a); disabled for a future version."
+  },
+  "findShowReplace": "Show replace",
+  "@findShowReplace": {
+    "description": "The find bar's disclosure while the replace row is hidden."
+  },
+  "findHideReplace": "Hide replace",
+  "@findHideReplace": {
+    "description": "The find bar's disclosure while the replace row shows."
+  },
+  "findPrevious": "Previous match",
+  "@findPrevious": {
+    "description": "The find bar's previous button (⇧↵)."
+  },
+  "findNext": "Next match",
+  "@findNext": {
+    "description": "The find bar's next button (↵)."
+  },
+  "findReplaceAll": "Replace all",
+  "@findReplaceAll": {
+    "description": "The find bar's Replace all button; P2 (B045)."
+  },
+  "findNoResults": "No results",
+  "@findNoResults": {
+    "description": "The find bar's count when nothing matches (a2-4d), in the danger colour."
+  },
+  "findOptions": "Search options",
+  "@findOptions": {
+    "description": "The group of match options under the find bar (a2-4a)."
+  },
+  "findMatch": "Match",
+  "@findMatch": {
+    "description": "The options group's first heading (a2-4a, shown in capitals)."
+  },
+  "findIgnoreAccents": "Ignore accents and dotted/dotless i",
+  "@findIgnoreAccents": {
+    "description": "Find option, on by default (a2-4a, G61)."
+  },
+  "findIgnoreAccentsBody": "“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.",
+  "@findIgnoreAccentsBody": {
+    "description": "The description under Ignore accents (a2-4a)."
+  },
+  "findLookIn": "Look in",
+  "@findLookIn": {
+    "description": "The options group's second heading (a2-4a, shown in capitals)."
+  },
+  "findPageText": "Page text",
+  "@findPageText": {
+    "description": "Look in: the pages' text (a2-4a)."
+  },
+  "findComments": "Comments",
+  "@findComments": {
+    "description": "Look in: comments already in the file (a2-4a)."
+  },
+  "findFormFields": "Form fields",
+  "@findFormFields": {
+    "description": "Look in: form field values (a2-4a)."
+  },
+  "findBookmarks": "Bookmarks",
+  "@findBookmarks": {
+    "description": "Look in: bookmark titles (a2-4a)."
+  },
+  "findSearchingBody": "Matches appear as they’re found.",
+  "@findSearchingBody": {
+    "description": "Under a long search's progress (a2-4c)."
+  },
+  "findCancel": "Cancel",
+  "@findCancel": {
+    "description": "Stops a long search (a2-4c), also Esc."
+  },
+  "findNoneAction": "Also search comments and fields",
+  "@findNoneAction": {
+    "description": "No results: the action that widens the search (a2-4d)."
+  },
+  "findCount": "{current} of {total}",
+  "@findCount": {
+    "description": "The find bar's count, a polite live region (a2-4a); numbers in the region's format.",
+    "placeholders": {
+      "current": {
+        "type": "String"
+      },
+      "total": {
+        "type": "String"
+      }
+    }
+  },
+  "findSearching": "Searching · page {page} of {pages}",
+  "@findSearching": {
+    "description": "A long search's progress (a2-4c); numbers in the region's format.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "findNoneTitle": "No results for “{query}”",
+  "@findNoneTitle": {
+    "description": "No results: the title, with the query as typed (a2-4d).",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "findNoneBody": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.",
+  "@findNoneBody": {
+    "description": "No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "findNoneBodyExact": "Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.",
+  "@findNoneBodyExact": {
+    "description": "No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
   }
 }

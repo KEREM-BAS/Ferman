@@ -146,6 +146,13 @@ enum Feature {
   /// Find and replace (Edit › Find & replace).
   findAndReplace('B045'),
 
+  /// Regular expressions in search: the find bar's toggle and option.
+  searchRegex('B113'),
+
+  /// Searching comments, form fields and bookmarks: the find bar's Look in
+  /// options and a2-4d's action.
+  searchScopes('B114'),
+
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
   pageMarks('B046'),

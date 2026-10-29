@@ -2049,6 +2049,180 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Empty signature field'**
   String get sidebarEmptySignatureField;
+
+  /// The find bar's accessible name (a2-4a, SearchReplaceBar).
+  ///
+  /// In en, this message translates to:
+  /// **'Find and replace'**
+  String get findRegion;
+
+  /// The find field's placeholder and name (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get findField;
+
+  /// The replace field's placeholder; replace comes in P2 (B045).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with'**
+  String get findReplaceWith;
+
+  /// Find option and toggle (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Match case'**
+  String get findMatchCase;
+
+  /// Find option and toggle (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Whole words'**
+  String get findWholeWords;
+
+  /// Find option and toggle (a2-4a); disabled for a future version.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular expression'**
+  String get findRegex;
+
+  /// The find bar's disclosure while the replace row is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show replace'**
+  String get findShowReplace;
+
+  /// The find bar's disclosure while the replace row shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide replace'**
+  String get findHideReplace;
+
+  /// The find bar's previous button (⇧↵).
+  ///
+  /// In en, this message translates to:
+  /// **'Previous match'**
+  String get findPrevious;
+
+  /// The find bar's next button (↵).
+  ///
+  /// In en, this message translates to:
+  /// **'Next match'**
+  String get findNext;
+
+  /// The find bar's Replace all button; P2 (B045).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all'**
+  String get findReplaceAll;
+
+  /// The find bar's count when nothing matches (a2-4d), in the danger colour.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get findNoResults;
+
+  /// The group of match options under the find bar (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Search options'**
+  String get findOptions;
+
+  /// The options group's first heading (a2-4a, shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Match'**
+  String get findMatch;
+
+  /// Find option, on by default (a2-4a, G61).
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore accents and dotted/dotless i'**
+  String get findIgnoreAccents;
+
+  /// The description under Ignore accents (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.'**
+  String get findIgnoreAccentsBody;
+
+  /// The options group's second heading (a2-4a, shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Look in'**
+  String get findLookIn;
+
+  /// Look in: the pages' text (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Page text'**
+  String get findPageText;
+
+  /// Look in: comments already in the file (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get findComments;
+
+  /// Look in: form field values (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields'**
+  String get findFormFields;
+
+  /// Look in: bookmark titles (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get findBookmarks;
+
+  /// Under a long search's progress (a2-4c).
+  ///
+  /// In en, this message translates to:
+  /// **'Matches appear as they’re found.'**
+  String get findSearchingBody;
+
+  /// Stops a long search (a2-4c), also Esc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get findCancel;
+
+  /// No results: the action that widens the search (a2-4d).
+  ///
+  /// In en, this message translates to:
+  /// **'Also search comments and fields'**
+  String get findNoneAction;
+
+  /// The find bar's count, a polite live region (a2-4a); numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String findCount(String current, String total);
+
+  /// A long search's progress (a2-4c); numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching · page {page} of {pages}'**
+  String findSearching(String page, String pages);
+
+  /// No results: the title, with the query as typed (a2-4d).
+  ///
+  /// In en, this message translates to:
+  /// **'No results for “{query}”'**
+  String findNoneTitle(String query);
+
+  /// No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.'**
+  String findNoneBody(int count, String pages);
+
+  /// No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.'**
+  String findNoneBodyExact(int count, String pages);
 }
 
 class _AppLocalizationsDelegate

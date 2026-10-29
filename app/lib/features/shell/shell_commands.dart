@@ -1,6 +1,7 @@
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/foundation.dart';
@@ -87,6 +88,7 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.goToPage: ref
             .read(pageFieldRequestProvider.notifier)
             .request,
+        ShellCommand.find: ref.read(findProvider.notifier).open,
         ShellCommand.selectTool: () => viewer.setTool(ViewerTool.select),
         ShellCommand.handTool: () => viewer.setTool(ViewerTool.hand),
         ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),
