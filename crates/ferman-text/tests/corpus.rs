@@ -1,13 +1,15 @@
 //! Text extraction on the generated corpus (ROADMAP §6 step 5): every page of every generated file
 //! reads as the generator's source text, after NFC and compared without whitespace, as the PDFium
 //! oracle compares (`tools/corpus/tests/oracle.rs`): spaces and line breaks follow the layout.
+//! And the queries of ROADMAP §6 step 5 find their words with the default options.
 // Test helpers fail loudly.
 #![allow(clippy::panic, clippy::unwrap_used, clippy::expect_used)]
 
 use std::path::PathBuf;
 use std::sync::Arc;
 
-use ferman_core::{OpenOptions, Password, Source, open};
+use ferman_core::{Document, OpenOptions, Password, Source, open};
+use ferman_text::{SearchOptions, find};
 use unicode_normalization::UnicodeNormalization;
 
 /// The encrypted files' passwords, as `tools/corpus` writes them.
@@ -114,4 +116,47 @@ fn every_generated_file_reads_as_its_source_text() {
         failures.len(),
         failures.join("\n")
     );
+}
+
+/// A generated file, opened.
+fn generated(name: &str) -> Document {
+    let path = PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/corpus/generated")
+        .join(format!("{name}.pdf"));
+    let bytes = std::fs::read(path).unwrap();
+    open(
+        &Source::from_bytes(Arc::from(&bytes[..])),
+        &OpenOptions::default(),
+    )
+    .unwrap()
+}
+
+#[test]
+fn the_roadmap_queries_find_their_words() {
+    for (name, query, word) in [
+        ("kira-tr", "kira", "KİRA"),
+        ("kira-tr", "kira", "Kira"),
+        // kira-tr writes the city in title case; the query folds both.
+        ("kira-tr", "istanbul", "İstanbul"),
+        ("tez-tr", "ILIK", "ılık"),
+        ("mietvertrag-de", "muller", "Müller"),
+        ("mietvertrag-de", "gleimstrasse", "Gleimstraße"),
+        ("report-ar", "الاسكان", "الإسكان"),
+    ] {
+        let document = generated(name);
+        let found: Vec<String> = (0..document.page_count())
+            .flat_map(|page| {
+                let text = ferman_text::page_text(&document, page).unwrap();
+                let chars: Vec<char> = text.chars().collect();
+                find(&text, query, &SearchOptions::default())
+                    .into_iter()
+                    .map(|range| chars[range].iter().collect::<String>())
+                    .collect::<Vec<_>>()
+            })
+            .collect();
+        assert!(
+            found.iter().any(|hit| hit == word),
+            "{name}: {query} found {found:?}"
+        );
+    }
 }

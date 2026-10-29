@@ -25,7 +25,8 @@
 //!   `PdfFont`, `GlyphRun` and the `runs` module grow out of it with editing (M3).
 //! - `layout`: `PageText`, `TextBlock` and `Line`; words, lines, blocks, columns, alignment and
 //!   reading order, bidi for right-to-left scripts. Lines in M2, blocks and columns in M3.
-//! - `search`: `SearchIndex`, search text and match quads per page. M2.
+//! - [`search`] (since M2): [`find`] with [`SearchOptions`], folding Turkish case and accents as
+//!   a2-4a and G61 ask; the index and match quads per page follow with the search job.
 //! - `hit`: hit testing and caret stops by `BlockId`. M3.
 //! - `edit`: `Editability`, `EditOp` and `BlockEditor`; line breaking, reflow, re-encoding and
 //!   operator generation with the state invariant. M3.
@@ -35,8 +36,10 @@
 #![forbid(unsafe_code)]
 
 pub mod extract;
+pub mod search;
 
 pub use extract::page_text;
+pub use search::{SearchOptions, find};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

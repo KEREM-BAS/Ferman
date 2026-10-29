@@ -14,8 +14,6 @@ ferman-core.workspace = true
 ferman-fonts.workspace = true
 thiserror.workspace = true
 unicode-bidi.workspace = true
-
-[dev-dependencies]
 unicode-normalization.workspace = true
 
 [lints]
