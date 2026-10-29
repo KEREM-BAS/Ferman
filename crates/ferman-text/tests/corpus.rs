@@ -1,0 +1,117 @@
+//! Text extraction on the generated corpus (ROADMAP §6 step 5): every page of every generated file
+//! reads as the generator's source text, after NFC and compared without whitespace, as the PDFium
+//! oracle compares (`tools/corpus/tests/oracle.rs`): spaces and line breaks follow the layout.
+// Test helpers fail loudly.
+#![allow(clippy::panic, clippy::unwrap_used, clippy::expect_used)]
+
+use std::path::PathBuf;
+use std::sync::Arc;
+
+use ferman_core::{OpenOptions, Password, Source, open};
+use unicode_normalization::UnicodeNormalization;
+
+/// The encrypted files' passwords, as `tools/corpus` writes them.
+const PASSWORDS: [(&str, &str); 4] = [
+    ("payslip-aes128", "bordro2026"),
+    ("payslip-aes256", "Eylül2026maaşı"),
+    ("payslip-rc4-128", "bordro2026"),
+    ("payslip-rc4-40", "bordro2026"),
+];
+
+/// Files that are not about text: `truncated` does not open, and lopdf sees two of
+/// `disagree-pages`'s three pages, which is what that file tests (G102).
+const SKIPPED: [&str; 2] = ["disagree-pages", "truncated"];
+
+/// Pages known to differ (BACKLOG B112): `report-ar` draws a percentage that ends a sentence
+/// ("30%.") with the sign left of the number, and "(IBAN):" in an order that reading the line
+/// back with the bidi algorithm does not undo. A page that starts to match fails the test, so
+/// this list stays true.
+const KNOWN: [(&str, usize); 4] = [
+    ("report-ar", 7),
+    ("report-ar", 8),
+    ("report-ar", 9),
+    ("report-ar", 10),
+];
+
+fn squeeze(text: &str) -> String {
+    text.nfc().filter(|c| !c.is_whitespace()).collect()
+}
+
+#[test]
+fn every_generated_file_reads_as_its_source_text() {
+    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/corpus/generated");
+    let mut names: Vec<String> = std::fs::read_dir(&dir)
+        .unwrap()
+        .filter_map(|entry| {
+            let name = entry.unwrap().file_name().into_string().unwrap();
+            name.strip_suffix(".expected.txt").map(str::to_owned)
+        })
+        .collect();
+    names.sort();
+    assert!(names.len() >= 20, "{names:?}");
+    let mut failures = Vec::new();
+    for name in names
+        .iter()
+        .filter(|name| !SKIPPED.contains(&name.as_str()))
+    {
+        let bytes = std::fs::read(dir.join(format!("{name}.pdf"))).unwrap();
+        let expected = std::fs::read_to_string(dir.join(format!("{name}.expected.txt"))).unwrap();
+        let password = PASSWORDS
+            .iter()
+            .find(|(file, _)| file == name)
+            .map(|(_, password)| Password::new((*password).to_owned()));
+        let options = OpenOptions {
+            password,
+            ..OpenOptions::default()
+        };
+        let Ok(document) = open(&Source::from_bytes(Arc::from(&bytes[..])), &options) else {
+            failures.push(format!("{name}: does not open"));
+            continue;
+        };
+        let pages: Vec<&str> = expected.split('\u{c}').collect();
+        if document.page_count() != pages.len() {
+            failures.push(format!(
+                "{name}: {} pages, {} expected",
+                document.page_count(),
+                pages.len()
+            ));
+            continue;
+        }
+        for (index, want) in pages.iter().enumerate() {
+            let got = ferman_text::page_text(&document, index).unwrap();
+            let (got, want) = (squeeze(&got), squeeze(want));
+            let known = KNOWN.contains(&(name.as_str(), index + 1));
+            if known && got == want {
+                failures.push(format!(
+                    "{name} page {}: matches now; remove it from KNOWN",
+                    index + 1
+                ));
+            }
+            if got != want && !known {
+                let at = got
+                    .chars()
+                    .zip(want.chars())
+                    .take_while(|(a, b)| a == b)
+                    .count();
+                let around = |text: &str| {
+                    text.chars()
+                        .skip(at.saturating_sub(10))
+                        .take(30)
+                        .collect::<String>()
+                };
+                failures.push(format!(
+                    "{name} page {}: differs at character {at}: got «{}», want «{}»",
+                    index + 1,
+                    around(&got),
+                    around(&want)
+                ));
+            }
+        }
+    }
+    assert!(
+        failures.is_empty(),
+        "{} failures:\n{}",
+        failures.len(),
+        failures.join("\n")
+    );
+}

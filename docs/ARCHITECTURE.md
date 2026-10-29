@@ -149,7 +149,7 @@ Rules:
 #### ferman-text
 
 - **Responsibility:** resolve PDF font resources into a `PdfFont` (dictionary, program, encoding, ToUnicode, widths, vertical metrics), implement `TextAdvance` for the interpreter, build glyph runs, map glyphs to Unicode, rebuild words, lines, blocks, columns, alignment and reading order, assign block ids, hit testing, decide editability, run edit operations, line breaking and reflow, bidi, re-encoding, generate a block's replacement operators, resolve missing glyphs and overflow, extract search text, keep the edit journal behind the review list (a3-12).
-- **Public surface:** `PageText`, `TextBlock`, `Line`, `GlyphRun`, `BlockId`, `Editability`, `EditOp`, `BlockEditor`, `MissingGlyphPlan`, `OverflowPlan`, `SearchIndex`, `TextError`.
+- **Public surface:** `PageText`, `TextBlock`, `Line`, `GlyphRun`, `BlockId`, `Editability`, `EditOp`, `BlockEditor`, `MissingGlyphPlan`, `OverflowPlan`, `SearchIndex`, `TextError`. Since commit 11 of M2: `extract::page_text`, a page's text in reading order (lines by baseline in content order, right-to-left lines read back with UAX #9, marks kept with their letters, vertical columns); it implements the interpreter's `TextSink`.
 - **Key dependencies:** ferman-core, ferman-fonts, unicode-bidi, unicode-segmentation, unicode-normalization, icu_casemap (search folding), and a UAX #14 line breaker chosen and licence-checked in M3.
 
 #### ferman-render

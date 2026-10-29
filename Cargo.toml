@@ -62,6 +62,8 @@ rc4 = { version = "0.2.0", features = ["zeroize"] }
 # that is wiped.
 stringprep = "0.1.5"
 unicode-normalization = "0.1.26"
+# The bidi algorithm for right-to-left text (ferman-text), the version stringprep already pulls.
+unicode-bidi = { version = "0.3.18", default-features = false, features = ["hardcoded-data"] }
 # Passwords and keys are wiped from memory when dropped (docs/ARCHITECTURE.md §9.2).
 zeroize = "1.9.1"
 # The render thread's request channel and its caches (ADR 0009). lru without its default hashbrown
