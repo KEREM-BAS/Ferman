@@ -78,6 +78,68 @@ abstract class _$OpenDocument extends $Notifier<OpenedDocument?> {
   }
 }
 
+/// Shows and hides the open document's layers (a2-3c) in every view, as
+/// `layerVisibilityProvider`; null without a document.
+
+@ProviderFor(LayerVisibility)
+final layerVisibilityProvider = LayerVisibilityProvider._();
+
+/// Shows and hides the open document's layers (a2-3c) in every view, as
+/// `layerVisibilityProvider`; null without a document.
+final class LayerVisibilityProvider
+    extends $NotifierProvider<LayerVisibility, LayerState?> {
+  /// Shows and hides the open document's layers (a2-3c) in every view, as
+  /// `layerVisibilityProvider`; null without a document.
+  LayerVisibilityProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'layerVisibilityProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$layerVisibilityHash();
+
+  @$internal
+  @override
+  LayerVisibility create() => LayerVisibility();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(LayerState? value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<LayerState?>(value),
+    );
+  }
+}
+
+String _$layerVisibilityHash() => r'9a104d1550b5e3874052d35897b4be801ac0307e';
+
+/// Shows and hides the open document's layers (a2-3c) in every view, as
+/// `layerVisibilityProvider`; null without a document.
+
+abstract class _$LayerVisibility extends $Notifier<LayerState?> {
+  LayerState? build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<LayerState?, LayerState?>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<LayerState?, LayerState?>,
+              LayerState?,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Asks the status bar's page field for focus (⌘G or Ctrl+G, a2-13): the
 /// count of requests, as `pageFieldRequestProvider`.
 

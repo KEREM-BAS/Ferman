@@ -34,6 +34,7 @@ pub use ferman_core::structure::{
 };
 pub use ferman_core::{Password, Repair, RepairReport, XrefProblem};
 pub use ferman_render::{
-    DocumentId, FailReason, Failed, Item, PageSize, PixelRect, Priority, Rendered,
-    ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted, ZoomBucket,
+    DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
+    Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
+    ZoomBucket,
 };

@@ -50,9 +50,23 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
   final Set<int> _shown = {};
   final Map<int, ui.Image> _images = {};
 
+  /// The pages whose bitmap was drawn before the layers last changed, and
+  /// the render key of that change; each stays until its new one arrives.
+  final Set<int> _stale = {};
+  int _renderKey = 0;
+
   @override
   void initState() {
     super.initState();
+    _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
+    ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
+      _,
+      key,
+    ) {
+      _renderKey = key;
+      _stale.addAll(_images.keys);
+      _scheduleRequest();
+    });
     unawaited(_open());
   }
 
@@ -90,8 +104,11 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
   }
 
   void _receive(ViewUpdate update) {
-    if (update case RenderedItem(item: ThumbnailItem(:final page))) {
-      if (!_shown.contains(page)) return;
+    if (update case RenderedItem(
+      item: ThumbnailItem(:final page),
+      :final renderKey,
+    )) {
+      if (!_shown.contains(page) || renderKey < _renderKey) return;
       ui.decodeImageFromPixels(
         update.pixels,
         update.width,
@@ -105,6 +122,11 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
           setState(() {
             _images[page]?.dispose();
             _images[page] = image;
+            if (renderKey < _renderKey) {
+              _stale.add(page);
+            } else {
+              _stale.remove(page);
+            }
           });
         },
         rowBytes: update.stride,
@@ -120,6 +142,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
 
   void _gone(int page) {
     _shown.remove(page);
+    _stale.remove(page);
     _images.remove(page)?.dispose();
     _scheduleRequest();
   }
@@ -134,7 +157,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
       if (!mounted || view == null) return;
       final wanted = [
         for (final page in _shown.toList()..sort())
-          if (!_images.containsKey(page))
+          if (!_images.containsKey(page) || _stale.contains(page))
             WantedItem(
               ThumbnailItem(page: page, size: previewSize),
               RenderPriority.visibleThumbnail,
@@ -593,8 +616,12 @@ class SidebarLayers extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    final layers = ref.watch(viewerProvider.select((v) => v?.document.layers));
-    if (layers == null) return const SizedBox.shrink();
+    final document = ref.watch(viewerProvider.select((v) => v?.document));
+    final visible = ref.watch(
+      layerVisibilityProvider.select((s) => s?.visible),
+    );
+    if (document == null) return const SizedBox.shrink();
+    final layers = document.layers;
     if (layers.isEmpty) {
       return EmptyState(
         icon: IconName.layers,
@@ -602,58 +629,71 @@ class SidebarLayers extends ConsumerWidget {
         body: l10n.sidebarNoLayersBody,
       );
     }
+    Widget row(int index, Layer layer) {
+      final shown = visible != null && index < visible.length
+          ? visible[index]
+          : layer.visible;
+      // A locked layer's state is the document's to keep (§8.11.4.3).
+      final reason = !document.layersSwitchable
+          ? Feature.layerVisibility.disabledReason(context)
+          : layer.locked
+          ? l10n.sidebarLayerLocked
+          : null;
+      return Container(
+        height: rowHeight,
+        margin: const EdgeInsetsDirectional.only(bottom: SidebarOutline.rowGap),
+        padding: EdgeInsetsDirectional.only(
+          start: theme.space.space1,
+          end: theme.space.space2,
+        ),
+        child: Row(
+          spacing: theme.space.space1_5,
+          children: [
+            IconButton(
+              icon: shown ? IconName.eye : IconName.eyeOff,
+              label: shown ? l10n.sidebarHideLayer : l10n.sidebarShowLayer,
+              size: IconButtonSize.xs,
+              disabledReason: reason,
+              onPressed: reason == null
+                  ? () => unawaited(
+                      ref
+                          .read(layerVisibilityProvider.notifier)
+                          .show(index, visible: !shown),
+                    )
+                  : null,
+            ),
+            Expanded(
+              child: Text(
+                layer.name,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.typography.body.copyWith(
+                  color: shown
+                      ? theme.colors.textPrimary
+                      : theme.colors.textTertiary,
+                ),
+              ),
+            ),
+            if (layer.locked)
+              Icon(
+                IconName.lock,
+                size: lockSize,
+                strokeWidth: lockStroke,
+                color: theme.colors.iconSecondary,
+                semanticLabel: l10n.sidebarLayerLocked,
+              ),
+          ],
+        ),
+      );
+    }
+
     return ListView(
       padding: EdgeInsetsDirectional.symmetric(
         vertical: theme.space.space0_5,
         horizontal: theme.space.space1_5,
       ),
       children: [
-        for (final layer in layers)
-          Container(
-            height: rowHeight,
-            margin: const EdgeInsetsDirectional.only(
-              bottom: SidebarOutline.rowGap,
-            ),
-            padding: EdgeInsetsDirectional.only(
-              start: theme.space.space1,
-              end: theme.space.space2,
-            ),
-            child: Row(
-              spacing: theme.space.space1_5,
-              children: [
-                IconButton(
-                  icon: layer.visible ? IconName.eye : IconName.eyeOff,
-                  label: layer.visible
-                      ? l10n.sidebarHideLayer
-                      : l10n.sidebarShowLayer,
-                  size: IconButtonSize.xs,
-                  disabledReason: Feature.layerVisibility.disabledReason(
-                    context,
-                  ),
-                ),
-                Expanded(
-                  child: Text(
-                    layer.name,
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
-                    style: theme.typography.body.copyWith(
-                      color: layer.visible
-                          ? theme.colors.textPrimary
-                          : theme.colors.textTertiary,
-                    ),
-                  ),
-                ),
-                if (layer.locked)
-                  Icon(
-                    IconName.lock,
-                    size: lockSize,
-                    strokeWidth: lockStroke,
-                    color: theme.colors.iconSecondary,
-                    semanticLabel: l10n.sidebarLayerLocked,
-                  ),
-              ],
-            ),
-          ),
+        for (final (index, layer) in layers.indexed) row(index, layer),
         _Note(
           l10n.sidebarLayersNote,
           padding: EdgeInsetsDirectional.symmetric(

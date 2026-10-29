@@ -1,7 +1,8 @@
 import 'dart:math' as math;
 import 'dart:ui';
 
-import 'package:ferman/engine/engine_models.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -33,6 +34,59 @@ class OpenDocument extends _$OpenDocument {
   void show(OpenedDocument? document) {
     if (document == state) return;
     state = document;
+  }
+}
+
+/// Which layers of the open document show, and the render key showing them
+/// gave every page, as `layerVisibilityProvider`.
+@immutable
+final class LayerState {
+  /// The document's own defaults, before anything changed.
+  const new({required this.visible, this.renderKey = 0});
+
+  /// Whether each of the document's layers shows, in its order.
+  final List<bool> visible;
+
+  /// The render key the engine gave every page when these layers were set:
+  /// a bitmap with an older one shows the layers as they were.
+  final int renderKey;
+}
+
+/// Shows and hides the open document's layers (a2-3c) in every view, as
+/// `layerVisibilityProvider`; null without a document.
+@Riverpod(keepAlive: true)
+class LayerVisibility extends _$LayerVisibility {
+  /// The calls to the engine, one after another, so each starts from the
+  /// state the last one left.
+  Future<void> _queue = Future.value();
+
+  @override
+  LayerState? build() {
+    final document = ref.watch(openDocumentProvider);
+    if (document == null) return null;
+    return LayerState(
+      visible: [for (final layer in document.layers) layer.visible],
+    );
+  }
+
+  /// Shows layer [index] if [visible], hides it otherwise. Completes when
+  /// the views can ask for the new pixels; throws an [EngineException] if
+  /// the engine refuses, and the layer stays as it was.
+  Future<void> show(int index, {required bool visible}) {
+    final next = _queue.then((_) async {
+      final current = state;
+      final document = ref.read(openDocumentProvider);
+      if (current == null || document == null) return;
+      final wanted = [...current.visible]..[index] = visible;
+      final key = await ref
+          .read(engineServiceProvider)
+          .showLayers(document.id, wanted);
+      // The document may have closed meanwhile.
+      if (ref.read(openDocumentProvider)?.id != document.id) return;
+      state = LayerState(visible: wanted, renderKey: key);
+    });
+    _queue = next.catchError((Object _) {});
+    return next;
   }
 }
 

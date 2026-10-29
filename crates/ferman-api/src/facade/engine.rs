@@ -4,12 +4,13 @@
 //! document's PDFium copy (ADR 0009). Opening parses on a thread of its own (`document`); the
 //! document actors, which serialise edits, and the job pool join it with the work that needs them.
 
+use std::collections::HashMap;
 use std::ffi::OsString;
 use std::future::Future;
 use std::path::{Path, PathBuf};
-use std::sync::OnceLock;
+use std::sync::{Mutex, OnceLock};
 
-use ferman_render::{RenderConfig, RenderThread};
+use ferman_render::{DocumentId, RenderConfig, RenderThread};
 
 use super::error::ApiError;
 use super::guard::{guard, guard_async};
@@ -52,6 +53,8 @@ pub struct EngineConfig {
 pub struct Engine {
     /// The render thread, or why it could not start.
     pub(super) render: Result<RenderThread, String>,
+    /// The parsed models of open documents whose layers can be switched (`document`).
+    pub(super) layered: Mutex<HashMap<DocumentId, ferman_core::Document>>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -81,7 +84,10 @@ impl Engine {
             tracing::error!(error = %err, "the render thread did not start");
             err.to_string()
         });
-        Self { render }
+        Self {
+            render,
+            layered: Mutex::default(),
+        }
     }
 
     /// The engine of this process, started with [`EngineConfig::default`] on first use.

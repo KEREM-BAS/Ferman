@@ -161,6 +161,9 @@ pub struct OpenedDocument {
     pub attachments: Vec<Attachment>,
     /// Layers, in the order the document gives them.
     pub layers: Vec<Layer>,
+    /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
+    /// needed a password (Q22).
+    pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
 }
@@ -411,6 +414,21 @@ pub async fn close(document: u64) -> Result<(), ApiError> {
         .map_err(api_error_dto)
 }
 
+/// Shows the layers of `document` whose `visible` is true and hides the others, in the order of
+/// its `layers`, in every view. Returns every page's new render key: tiles and thumbnails with an
+/// older one show the layers as they were.
+///
+/// # Errors
+///
+/// `InvalidInput` without one value per layer, `Unsupported` when the document's layers cannot be
+/// switched (`layers_switchable`), `Internal` when the reload fails.
+pub async fn show_layers(document: u64, visible: Vec<bool>) -> Result<u64, ApiError> {
+    engine()?
+        .show_layers(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
 /// Opens a view of `document`: its first event is `Opened` with the view's handle, then its
 /// tiles and thumbnails as [`request_view`] asks for them.
 ///
@@ -619,6 +637,7 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
                 locked: layer.locked,
             })
             .collect(),
+        layers_switchable: document.layers_switchable,
         signatures: document
             .signatures
             .into_iter()

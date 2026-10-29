@@ -63,6 +63,22 @@ Future<OpenedDocument> open({required String path, String? password}) =>
 Future<void> close({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbClose(document: document);
 
+/// Shows the layers of `document` whose `visible` is true and hides the others, in the order of
+/// its `layers`, in every view. Returns every page's new render key: tiles and thumbnails with an
+/// older one show the layers as they were.
+///
+/// # Errors
+///
+/// `InvalidInput` without one value per layer, `Unsupported` when the document's layers cannot be
+/// switched (`layers_switchable`), `Internal` when the reload fails.
+Future<BigInt> showLayers({
+  required BigInt document,
+  required List<bool> visible,
+}) => FermanBridge.instance.api.crateFrbShowLayers(
+  document: document,
+  visible: visible,
+);
+
 /// Opens a view of `document`: its first event is `Opened` with the view's handle, then its
 /// tiles and thumbnails as [`request_view`] asks for them.
 ///
@@ -359,6 +375,10 @@ class OpenedDocument {
   /// Layers, in the order the document gives them.
   final List<Layer> layers;
 
+  /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
+  /// needed a password (Q22).
+  final bool layersSwitchable;
+
   /// Signature fields.
   final List<Signature> signatures;
 
@@ -370,6 +390,7 @@ class OpenedDocument {
     required this.outline,
     required this.attachments,
     required this.layers,
+    required this.layersSwitchable,
     required this.signatures,
   });
 
@@ -382,6 +403,7 @@ class OpenedDocument {
       outline.hashCode ^
       attachments.hashCode ^
       layers.hashCode ^
+      layersSwitchable.hashCode ^
       signatures.hashCode;
 
   @override
@@ -396,6 +418,7 @@ class OpenedDocument {
           outline == other.outline &&
           attachments == other.attachments &&
           layers == other.layers &&
+          layersSwitchable == other.layersSwitchable &&
           signatures == other.signatures;
 }
 

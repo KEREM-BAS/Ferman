@@ -22,6 +22,8 @@
 //!   ([`repair`]) and security handler ([`security`]) around the lopdf model, §5.1 and §5.2.
 //! - [`structure`]: pages and labels, outline, attachments, layers, forms and XFA, signatures,
 //!   scripts, fonts and document information, and the two-parser check of G102.
+//! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
+//!   renders and nobody saves: [`Document::layer_appendix`] shows and hides layers (ADR 0009).
 //!
 //! # Planned modules
 //!
@@ -37,6 +39,7 @@
 //! - `recovery`: the autosave `RecoveryJournal`, §7.6. M3.
 #![forbid(unsafe_code)]
 
+mod appendix;
 pub mod document;
 pub mod filters;
 #[cfg(feature = "fuzzing")]

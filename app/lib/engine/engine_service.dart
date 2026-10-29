@@ -24,6 +24,15 @@ abstract interface class EngineService {
   /// Closes a document and ends its views.
   Future<void> close(int document);
 
+  /// Shows the layers of [document] whose [visible] is true and hides the
+  /// others, in the order of its [OpenedDocument.layers], in every view.
+  /// Returns every page's new render key: bitmaps with an older one show the
+  /// layers as they were.
+  ///
+  /// Throws an [EngineException] when the document's layers cannot be
+  /// switched ([OpenedDocument.layersSwitchable]).
+  Future<int> showLayers(int document, List<bool> visible);
+
   /// Opens a view of [document] that renders nothing until [requestView].
   Future<EngineView> openView(int document);
 
@@ -85,6 +94,9 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> close(int document) async => throw error;
+
+  @override
+  Future<int> showLayers(int document, List<bool> visible) async => throw error;
 
   @override
   Future<EngineView> openView(int document) async => throw error;

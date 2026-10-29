@@ -31,6 +31,13 @@ class FakeEngineService implements EngineService {
   /// The wanted sets of every [requestView], oldest first.
   final List<List<WantedItem>> requests = [];
 
+  /// The visibilities of every [showLayers], oldest first.
+  final List<List<bool>> layerRequests = [];
+
+  /// Each document's render key, from [showLayers].
+  final Map<int, int> _renderKeys = {};
+  int _lastRenderKey = 0;
+
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
 
@@ -55,6 +62,13 @@ class FakeEngineService implements EngineService {
       if (owner == document) await updates.close();
     }
     _views.removeWhere((_, view) => view.$1 == document);
+  }
+
+  /// Records [visible] and gives every page of [document] a new render key.
+  @override
+  Future<int> showLayers(int document, List<bool> visible) async {
+    layerRequests.add(visible);
+    return _renderKeys[document] = ++_lastRenderKey;
   }
 
   /// A view that answers each wanted item with opaque white pixels of its
@@ -119,7 +133,7 @@ class FakeEngineService implements EngineService {
         RenderedItem(
           item: item,
           generation: generation,
-          renderKey: 0,
+          renderKey: _renderKeys[owner] ?? 0,
           x: item is TileItem ? item.column * 512 : 0,
           y: item is TileItem ? item.row * 512 : 0,
           width: width,

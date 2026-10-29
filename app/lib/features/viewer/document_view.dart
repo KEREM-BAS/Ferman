@@ -26,7 +26,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// shows its thumbnail and any tiles of other buckets, scaled, until its
 /// sharp tiles arrive, so it sharpens in place without moving (G30). A
 /// page that fails to render shows a2-13's placeholder with Try again; the
-/// other pages keep working.
+/// other pages keep working. When layers show or hide, every bitmap goes
+/// stale and is asked for again; each stays until its new one arrives.
 ///
 /// The wheel scrolls, and zooms with ⌘ or Ctrl; a trackpad scrolls and
 /// pinches. With [tools] the View row's pointer tools apply: Hand drags
@@ -68,6 +69,11 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   final Map<RenderItem, ui.Image> _images = {};
   int _bytes = 0;
 
+  /// Bitmaps drawn before the layers last changed, and the render key of
+  /// that change.
+  final Set<RenderItem> _stale = {};
+  int _renderKey = 0;
+
   /// Pages that failed to render, until Try again.
   final Set<int> _failed = {};
 
@@ -92,6 +98,15 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   @override
   void initState() {
     super.initState();
+    _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
+    ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
+      _,
+      key,
+    ) {
+      _renderKey = key;
+      _stale.addAll(_images.keys);
+      _request(force: true);
+    });
     unawaited(_open());
   }
 
@@ -131,9 +146,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     switch (update) {
       case FailedItem(:final item):
         setState(() => _failed.add(item.page));
-      // shortcut: the render key is ignored, as documents do not change
-      // before M3; keep the newest per page then.
-      case RenderedItem(:final item):
+      // A bitmap from before the layers last changed is not shown again.
+      case RenderedItem(:final item, :final renderKey)
+          when renderKey >= _renderKey:
         ui.decodeImageFromPixels(
           update.pixels,
           update.width,
@@ -152,11 +167,19 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
               }
               _images[item] = image;
               _bytes += _sizeOf(image);
+              // The layers may have changed while it decoded.
+              if (renderKey < _renderKey) {
+                _stale.add(item);
+              } else {
+                _stale.remove(item);
+              }
               _evict();
             });
           },
           rowBytes: update.stride,
         );
+      case RenderedItem():
+      // From before the layers last changed: asked for again already.
     }
   }
 
@@ -171,6 +194,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       if (wanted.contains(item)) continue;
       final image = _images.remove(item);
       if (image == null) continue;
+      _stale.remove(item);
       _bytes -= _sizeOf(image);
       image.dispose();
     }
@@ -201,10 +225,11 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     )..removeWhere((entry) => _failed.contains(entry.item.page));
     if (!force && _same(wanted, _wanted)) return;
     _wanted = wanted;
-    // Bitmaps already here are not asked for again.
+    // Bitmaps already here are not asked for again, unless stale.
     final missing = [
       for (final entry in wanted)
-        if (!_images.containsKey(entry.item)) entry,
+        if (!_images.containsKey(entry.item) || _stale.contains(entry.item))
+          entry,
     ];
     unawaited(
       _engine

@@ -42,6 +42,7 @@ final OpenedDocument kira = OpenedDocument(
     Layer(name: 'İmzalar', locked: true),
     Layer(name: 'Filigran — TASLAK', visible: false),
   ],
+  layersSwitchable: true,
   signatures: [
     Signature(
       field: 'KiraVeren.Imza',
@@ -52,6 +53,14 @@ final OpenedDocument kira = OpenedDocument(
     ),
     const Signature(field: 'Kiracı · İmza', page: 2),
   ],
+);
+
+/// A layer the engine cannot switch: a repaired file, or one opened with a
+/// password.
+const OpenedDocument repaired = OpenedDocument(
+  id: 5,
+  pages: [PageInfo(width: 595, height: 842)],
+  layers: [Layer(name: 'Metin')],
 );
 
 /// A page with nothing in the sidebar's lists.
@@ -192,6 +201,60 @@ void main() {
     expect(inSidebar(find.text('Empty signature field')), findsOneWidget);
     // The heading counts the list.
     expect(inSidebar(find.text('2')), findsOneWidget);
+  });
+
+  testWidgets('the eye buttons show and hide layers, and every view asks '
+      'for its pixels again', (tester) async {
+    final engine = await pumpDocument(tester, kira);
+    // The first bitmaps decode outside the fake clock, so they are here
+    // before the change and go stale with it.
+    await tester.runAsync(
+      () => Future<void>.delayed(const Duration(milliseconds: 200)),
+    );
+    await tester.pump();
+    await showTab(tester, SidebarTab.layers);
+    final asked = engine.requests.length;
+
+    await tester.tap(iconButton('Show layer'));
+    await settle(tester);
+    expect(engine.layerRequests, [
+      [true, true, true],
+    ]);
+    expect(iconButton('Show layer'), findsNothing);
+    expect(containerOf(tester).read(layerVisibilityProvider)!.renderKey, 1);
+    final again = engine.requests.skip(asked).toList();
+    // The canvas's tiles, and the Pages tab's three thumbnails.
+    expect(
+      again.expand((wanted) => wanted.map((entry) => entry.item)),
+      contains(isA<TileItem>()),
+    );
+    expect(
+      again.any(
+        (wanted) =>
+            wanted.length == 3 &&
+            wanted.every((entry) => entry.item is ThumbnailItem),
+      ),
+      isTrue,
+    );
+
+    // The locked layer keeps the document's state.
+    final buttons = tester
+        .widgetList<IconButton>(iconButton('Hide layer'))
+        .toList();
+    expect([for (final b in buttons) b.disabledReason], [null, 'Locked', null]);
+    await tester.tap(iconButton('Hide layer').first);
+    await settle(tester);
+    expect(engine.layerRequests.last, [false, true, true]);
+  });
+
+  testWidgets('a document whose layers cannot be switched keeps them as '
+      'they are', (tester) async {
+    await pumpDocument(tester, repaired);
+    await showTab(tester, SidebarTab.layers);
+    expect(
+      tester.widget<IconButton>(iconButton('Hide layer')).disabledReason,
+      futureVersion,
+    );
   });
 
   testWidgets('empty tabs say so with one EmptyState', (tester) async {

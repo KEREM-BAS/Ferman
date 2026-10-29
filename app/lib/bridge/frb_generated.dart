@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 57846370;
+  int get rustContentHash => 1400650419;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -100,6 +100,11 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
+  });
+
+  Future<BigInt> crateFrbShowLayers({
+    required BigInt document,
+    required List<bool> visible,
   });
 }
 
@@ -326,6 +331,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     argNames: ["view", "generation", "wanted"],
   );
 
+  @override
+  Future<BigInt> crateFrbShowLayers({
+    required BigInt document,
+    required List<bool> visible,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_list_bool(visible);
+          return wire.wire__crate__frb__show_layers(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_u_64,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbShowLayersConstMeta,
+        argValues: [document, visible],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbShowLayersConstMeta => const TaskConstMeta(
+    debugName: "show_layers",
+    argNames: ["document", "visible"],
+  );
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -513,6 +546,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<bool> dco_decode_list_bool(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_bool).toList();
+  }
+
+  @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_crate_version).toList();
@@ -558,8 +597,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   OpenedDocument dco_decode_opened_document(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 8)
-      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    if (arr.length != 9)
+      throw Exception('unexpected arr length: expect 9 but see ${arr.length}');
     return OpenedDocument(
       id: dco_decode_u_64(arr[0]),
       readOnly: dco_decode_opt_box_autoadd_read_only_reason(arr[1]),
@@ -568,7 +607,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       outline: dco_decode_list_outline_entry(arr[4]),
       attachments: dco_decode_list_attachment(arr[5]),
       layers: dco_decode_list_layer(arr[6]),
-      signatures: dco_decode_list_signature(arr[7]),
+      layersSwitchable: dco_decode_bool(arr[7]),
+      signatures: dco_decode_list_signature(arr[8]),
     );
   }
 
@@ -978,6 +1018,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<bool> sse_decode_list_bool(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <bool>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_bool(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<CrateVersion> sse_decode_list_crate_version(
     SseDeserializer deserializer,
   ) {
@@ -1072,6 +1124,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_outline = sse_decode_list_outline_entry(deserializer);
     var var_attachments = sse_decode_list_attachment(deserializer);
     var var_layers = sse_decode_list_layer(deserializer);
+    var var_layersSwitchable = sse_decode_bool(deserializer);
     var var_signatures = sse_decode_list_signature(deserializer);
     return OpenedDocument(
       id: var_id,
@@ -1081,6 +1134,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       outline: var_outline,
       attachments: var_attachments,
       layers: var_layers,
+      layersSwitchable: var_layersSwitchable,
       signatures: var_signatures,
     );
   }
@@ -1632,6 +1686,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_bool(List<bool> self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_bool(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
     SseSerializer serializer,
@@ -1723,6 +1786,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_list_outline_entry(self.outline, serializer);
     sse_encode_list_attachment(self.attachments, serializer);
     sse_encode_list_layer(self.layers, serializer);
+    sse_encode_bool(self.layersSwitchable, serializer);
     sse_encode_list_signature(self.signatures, serializer);
   }
 

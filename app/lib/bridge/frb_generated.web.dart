@@ -96,6 +96,9 @@ abstract class FermanBridgeApiImplPlatform
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
+  List<bool> dco_decode_list_bool(dynamic raw);
+
+  @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
 
   @protected
@@ -266,6 +269,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
+
+  @protected
+  List<bool> sse_decode_list_bool(SseDeserializer deserializer);
 
   @protected
   List<CrateVersion> sse_decode_list_crate_version(
@@ -496,6 +502,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_bool(List<bool> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_bool).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_crate_version(List<CrateVersion> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_crate_version).toList().jsify()!;
@@ -548,6 +560,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_outline_entry(raw.outline),
       cst_encode_list_attachment(raw.attachments),
       cst_encode_list_layer(raw.layers),
+      cst_encode_bool(raw.layersSwitchable),
       cst_encode_list_signature(raw.signatures),
     ].jsify()!;
   }
@@ -836,6 +849,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_bool(List<bool> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
     SseSerializer serializer,
@@ -1011,6 +1027,12 @@ class FermanBridgeWire implements BaseWire {
     generation,
     wanted,
   );
+
+  void wire__crate__frb__show_layers(
+    NativePortType port_,
+    JSAny document,
+    JSAny visible,
+  ) => wasmModule.wire__crate__frb__show_layers(port_, document, visible);
 }
 
 @JS('wasm_bindgen')
@@ -1049,5 +1071,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__show_layers(
+    NativePortType port_,
+    JSAny document,
+    JSAny visible,
   );
 }

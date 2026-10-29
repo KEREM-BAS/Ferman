@@ -94,6 +94,9 @@ abstract class FermanBridgeApiImplPlatform
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
+  List<bool> dco_decode_list_bool(dynamic raw);
+
+  @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
 
   @protected
@@ -264,6 +267,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
+
+  @protected
+  List<bool> sse_decode_list_bool(SseDeserializer deserializer);
 
   @protected
   List<CrateVersion> sse_decode_list_crate_version(
@@ -451,6 +457,16 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_attachment(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_attachment(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_bool> cst_encode_list_bool(List<bool> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_bool(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_bool(raw[i]);
     }
     return ans;
   }
@@ -682,6 +698,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.outline = cst_encode_list_outline_entry(apiObj.outline);
     wireObj.attachments = cst_encode_list_attachment(apiObj.attachments);
     wireObj.layers = cst_encode_list_layer(apiObj.layers);
+    wireObj.layers_switchable = cst_encode_bool(apiObj.layersSwitchable);
     wireObj.signatures = cst_encode_list_signature(apiObj.signatures);
   }
 
@@ -921,6 +938,9 @@ abstract class FermanBridgeApiImplPlatform
     List<Attachment> self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_list_bool(List<bool> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_crate_version(
@@ -1231,6 +1251,27 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
           >();
 
+  void wire__crate__frb__show_layers(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_bool> visible,
+  ) {
+    return _wire__crate__frb__show_layers(port_, document, visible);
+  }
+
+  late final _wire__crate__frb__show_layersPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_bool>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__show_layers');
+  late final _wire__crate__frb__show_layers = _wire__crate__frb__show_layersPtr
+      .asFunction<void Function(int, int, ffi.Pointer<wire_cst_list_bool>)>();
+
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_fail_reason(int value) {
     return _cst_new_box_autoadd_fail_reason(value);
   }
@@ -1311,6 +1352,17 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_attachment');
   late final _cst_new_list_attachment = _cst_new_list_attachmentPtr
       .asFunction<ffi.Pointer<wire_cst_list_attachment> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_bool> cst_new_list_bool(int len) {
+    return _cst_new_list_bool(len);
+  }
+
+  late final _cst_new_list_boolPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_list_bool> Function(ffi.Int32)>
+      >('frbgen_ferman_cst_new_list_bool');
+  late final _cst_new_list_bool = _cst_new_list_boolPtr
+      .asFunction<ffi.Pointer<wire_cst_list_bool> Function(int)>();
 
   ffi.Pointer<wire_cst_list_crate_version> cst_new_list_crate_version(int len) {
     return _cst_new_list_crate_version(len);
@@ -1467,6 +1519,13 @@ final class wire_cst_wanted_item extends ffi.Struct {
 
 final class wire_cst_list_wanted_item extends ffi.Struct {
   external ffi.Pointer<wire_cst_wanted_item> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_bool extends ffi.Struct {
+  external ffi.Pointer<ffi.Bool> ptr;
 
   @ffi.Int32()
   external int len;
@@ -1645,6 +1704,9 @@ final class wire_cst_opened_document extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_attachment> attachments;
 
   external ffi.Pointer<wire_cst_list_layer> layers;
+
+  @ffi.Bool()
+  external bool layers_switchable;
 
   external ffi.Pointer<wire_cst_list_signature> signatures;
 }

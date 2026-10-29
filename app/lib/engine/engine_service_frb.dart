@@ -113,6 +113,7 @@ class FrbEngineService implements EngineService {
               locked: layer.locked,
             ),
         ],
+        layersSwitchable: document.layersSwitchable,
         signatures: [
           for (final field in document.signatures)
             Signature(
@@ -133,6 +134,19 @@ class FrbEngineService implements EngineService {
   Future<void> close(int document) async {
     try {
       await bridge.close(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<int> showLayers(int document, List<bool> visible) async {
+    try {
+      final key = await bridge.showLayers(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }

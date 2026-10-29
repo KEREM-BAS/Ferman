@@ -267,6 +267,7 @@ class OpenedDocument {
     this.outline = const [],
     this.attachments = const [],
     this.layers = const [],
+    this.layersSwitchable = false,
     this.signatures = const [],
   });
 
@@ -290,6 +291,10 @@ class OpenedDocument {
 
   /// Its layers, in the order the document gives them.
   final List<Layer> layers;
+
+  /// Whether `EngineService.showLayers` can show and hide them: not for a
+  /// repaired document, or one that needed a password (Q22).
+  final bool layersSwitchable;
 
   /// Its signature fields.
   final List<Signature> signatures;

@@ -1,7 +1,8 @@
 //! Opening the corpus through the facade (ROADMAP §6 step 2, ADR 0004, G102): every file opens,
 //! or fails, with the kind its README row implies; lopdf and PDFium agree on the pages of every
 //! file but `disagree-pages`, made for this check, whose second page lacks `/Type /Page` and which
-//! therefore opens read-only; and a view gets its thumbnail.
+//! therefore opens read-only; a view gets its thumbnail; and showing or hiding a layer changes the
+//! pixels, and changing it back gives the first render again.
 //!
 //! Needs PDFium: `FERMAN_PDFIUM_PATH`, absolute (tools/pdfium/fetch.sh).
 // Test helpers fail loudly.
@@ -12,8 +13,9 @@ use std::sync::{OnceLock, mpsc};
 use std::time::Duration;
 
 use ferman_api::facade::{
-    Agreement, ApiError, Engine, EngineConfig, ErrorKind, Item, OpenedDocument, Password,
-    PdfiumLibrary, Priority, ReadOnly, ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on,
+    Agreement, ApiError, Engine, EngineConfig, ErrorKind, Item, MAX_THUMBNAIL_SIZE, OpenedDocument,
+    Password, PdfiumLibrary, Priority, ReadOnly, Rendered, ThumbnailRequest, ViewEvent, ViewSink,
+    Wanted, block_on,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -175,4 +177,70 @@ fn a_view_gets_what_it_wants_and_ends_with_its_document() {
     assert!(received.recv_timeout(Duration::from_secs(10)).is_err());
     let stale = block_on(engine().close(document.id)).unwrap_err();
     assert_eq!(stale.kind, ErrorKind::NotFound);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn showing_and_hiding_a_layer_renders_the_page_again() {
+    let plan = open("ocg-plan", None).unwrap();
+    assert!(plan.layers_switchable);
+    let defaults: Vec<bool> = plan.layers.iter().map(|layer| layer.visible).collect();
+    // "Tesisat", off by default, holds only lines; "Duvarlar" the walls.
+    assert_eq!(defaults, [true, true, true, true, true, false]);
+    let (events, received) = mpsc::channel();
+    let view = block_on(engine().open_view(plan.id, Box::new(Sink(events)))).unwrap();
+    let mut generation = 0;
+    let mut render = || -> Rendered {
+        generation += 1;
+        let wanted = vec![Wanted {
+            item: Item::Thumbnail(ThumbnailRequest {
+                page: 0,
+                size: MAX_THUMBNAIL_SIZE,
+            }),
+            priority: Priority::VisibleThumbnail,
+        }];
+        engine().request(view, generation, wanted).unwrap();
+        match received.recv_timeout(Duration::from_secs(10)).unwrap() {
+            ViewEvent::Rendered(rendered) => rendered,
+            ViewEvent::Failed(failed) => panic!("{failed:?}"),
+        }
+    };
+    let first = render();
+    assert_eq!(first.render_key, 0);
+    let show =
+        |visible: &[bool]| block_on(engine().show_layers(plan.id, visible.to_vec())).unwrap();
+
+    let key = show(&[true; 6]);
+    let pipes = render();
+    assert_eq!(pipes.render_key, key);
+    assert_ne!(
+        pipes.pixels, first.pixels,
+        "showing Tesisat draws its lines"
+    );
+
+    let again = show(&defaults);
+    assert!(again > key);
+    let back = render();
+    assert_eq!(back.render_key, again);
+    assert_eq!(
+        back.pixels, first.pixels,
+        "the default state renders as the file does"
+    );
+
+    show(&[false, true, true, true, true, false]);
+    assert_ne!(
+        render().pixels,
+        first.pixels,
+        "hiding Duvarlar removes the walls"
+    );
+
+    let wrong = block_on(engine().show_layers(plan.id, vec![true])).unwrap_err();
+    assert_eq!(wrong.kind, ErrorKind::InvalidInput);
+    let kira = open("kira-tr", None).unwrap();
+    assert!(!kira.layers_switchable);
+    let none = block_on(engine().show_layers(kira.id, Vec::new())).unwrap_err();
+    assert_eq!(none.kind, ErrorKind::Unsupported);
+    for document in [plan, kira] {
+        block_on(engine().close(document.id)).unwrap();
+    }
 }

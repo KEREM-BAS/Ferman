@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 57846370;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1400650419;
 
 // Section: executor
 
@@ -250,6 +250,32 @@ fn wire__crate__frb__request_view_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::request_view(api_view, api_generation, api_wanted).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__show_layers_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    visible: impl CstDecode<Vec<bool>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "show_layers",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_visible = visible.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::show_layers(api_document, api_visible).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -613,6 +639,18 @@ impl SseDecode for Vec<crate::frb::Attachment> {
     }
 }
 
+impl SseDecode for Vec<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<bool>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::CrateVersion> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -707,6 +745,7 @@ impl SseDecode for crate::frb::OpenedDocument {
         let mut var_outline = <Vec<crate::frb::OutlineEntry>>::sse_decode(deserializer);
         let mut var_attachments = <Vec<crate::frb::Attachment>>::sse_decode(deserializer);
         let mut var_layers = <Vec<crate::frb::Layer>>::sse_decode(deserializer);
+        let mut var_layersSwitchable = <bool>::sse_decode(deserializer);
         let mut var_signatures = <Vec<crate::frb::Signature>>::sse_decode(deserializer);
         return crate::frb::OpenedDocument {
             id: var_id,
@@ -716,6 +755,7 @@ impl SseDecode for crate::frb::OpenedDocument {
             outline: var_outline,
             attachments: var_attachments,
             layers: var_layers,
+            layers_switchable: var_layersSwitchable,
             signatures: var_signatures,
         };
     }
@@ -1246,6 +1286,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
             self.outline.into_into_dart().into_dart(),
             self.attachments.into_into_dart().into_dart(),
             self.layers.into_into_dart().into_dart(),
+            self.layers_switchable.into_into_dart().into_dart(),
             self.signatures.into_into_dart().into_dart(),
         ]
         .into_dart()
@@ -1669,6 +1710,16 @@ impl SseEncode for Vec<crate::frb::Attachment> {
     }
 }
 
+impl SseEncode for Vec<bool> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <bool>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::CrateVersion> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -1749,6 +1800,7 @@ impl SseEncode for crate::frb::OpenedDocument {
         <Vec<crate::frb::OutlineEntry>>::sse_encode(self.outline, serializer);
         <Vec<crate::frb::Attachment>>::sse_encode(self.attachments, serializer);
         <Vec<crate::frb::Layer>>::sse_encode(self.layers, serializer);
+        <bool>::sse_encode(self.layers_switchable, serializer);
         <Vec<crate::frb::Signature>>::sse_encode(self.signatures, serializer);
     }
 }
@@ -2172,6 +2224,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<bool>> for *mut wire_cst_list_bool {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<bool> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::CrateVersion>> for *mut wire_cst_list_crate_version {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::CrateVersion> {
@@ -2252,6 +2314,7 @@ mod io {
                 outline: self.outline.cst_decode(),
                 attachments: self.attachments.cst_decode(),
                 layers: self.layers.cst_decode(),
+                layers_switchable: self.layers_switchable.cst_decode(),
                 signatures: self.signatures.cst_decode(),
             }
         }
@@ -2447,6 +2510,7 @@ mod io {
                 outline: core::ptr::null_mut(),
                 attachments: core::ptr::null_mut(),
                 layers: core::ptr::null_mut(),
+                layers_switchable: Default::default(),
                 signatures: core::ptr::null_mut(),
             }
         }
@@ -2646,6 +2710,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__show_layers(
+        port_: i64,
+        document: u64,
+        visible: *mut wire_cst_list_bool,
+    ) {
+        wire__crate__frb__show_layers_impl(port_, document, visible)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_fail_reason(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
@@ -2684,6 +2757,15 @@ mod io {
                 <wire_cst_attachment>::new_with_null_ptr(),
                 len,
             ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_bool(len: i32) -> *mut wire_cst_list_bool {
+        let wrap = wire_cst_list_bool {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(Default::default(), len),
             len,
         };
         flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
@@ -2832,6 +2914,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_bool {
+        ptr: *mut bool,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_crate_version {
         ptr: *mut wire_cst_crate_version,
         len: i32,
@@ -2882,6 +2970,7 @@ mod io {
         outline: *mut wire_cst_list_outline_entry,
         attachments: *mut wire_cst_list_attachment,
         layers: *mut wire_cst_list_layer,
+        layers_switchable: bool,
         signatures: *mut wire_cst_list_signature,
     }
     #[repr(C)]
@@ -3141,6 +3230,16 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<bool>> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<bool> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::CrateVersion>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -3229,8 +3328,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                8,
-                "Expected 8 elements, got {}",
+                9,
+                "Expected 9 elements, got {}",
                 self_.length()
             );
             crate::frb::OpenedDocument {
@@ -3241,7 +3340,8 @@ mod web {
                 outline: self_.get(4).cst_decode(),
                 attachments: self_.get(5).cst_decode(),
                 layers: self_.get(6).cst_decode(),
-                signatures: self_.get(7).cst_decode(),
+                layers_switchable: self_.get(7).cst_decode(),
+                signatures: self_.get(8).cst_decode(),
             }
         }
     }
@@ -3638,6 +3738,15 @@ mod web {
         wanted: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__request_view_impl(port_, view, generation, wanted)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__show_layers(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        visible: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__show_layers_impl(port_, document, visible)
     }
 }
 #[cfg(target_family = "wasm")]
