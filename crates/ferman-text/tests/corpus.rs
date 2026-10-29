@@ -160,3 +160,29 @@ fn the_roadmap_queries_find_their_words() {
         );
     }
 }
+
+#[test]
+fn every_character_has_its_box_where_the_page_shows_it() {
+    let document = generated("kira-tr");
+    let layout = ferman_text::extract::page_layout(&document, 0).unwrap();
+    assert_eq!(layout.text.chars().count(), layout.boxes.len());
+    let (width, height) = document.structure().pages[0].size;
+    // The title is the first line, near the top of an A4 page, in displayed points (y down).
+    let [left, top, right, bottom] = layout.boxes[0].unwrap();
+    assert!(
+        left > 0.0 && right < width && left < right,
+        "{left} {right}"
+    );
+    assert!(
+        top > 0.0 && top < bottom && bottom < height / 4.0,
+        "{top} {bottom}"
+    );
+    // Line breaks have no box; every other character of a line of text has one.
+    for (c, area) in layout.text.chars().zip(&layout.boxes) {
+        match c {
+            '\n' => assert!(area.is_none()),
+            ' ' => {}
+            _ => assert!(area.is_some(), "{c:?} has no box"),
+        }
+    }
+}

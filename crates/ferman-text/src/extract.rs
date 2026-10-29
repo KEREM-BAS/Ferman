@@ -23,16 +23,71 @@ use crate::TextError;
 /// The gap, as a share of the font size, from which two glyphs are two words.
 const WORD_GAP: f32 = 0.2;
 
+/// A box `[left, top, right, bottom]`.
+pub type CharBox = [f32; 4];
+
+/// A page's text with the box of every character in displayed points: from the page's top-left
+/// corner as it shows after its crop box and `/Rotate`, y down, as the canvas lays pages out. A
+/// space or line break no glyph drew has no box.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct PageText {
+    /// Lines separated by `\n`, words by spaces.
+    pub text: String,
+    /// One per character of `text`.
+    pub boxes: Vec<Option<CharBox>>,
+}
+
 /// The text of page `index`: lines separated by `\n`, words by spaces.
 ///
 /// # Errors
 ///
 /// [`TextError::Core`] when a limit stops the interpreter.
 pub fn page_text(document: &Document, index: usize) -> Result<String, TextError> {
+    Ok(page_layout(document, index)?.text)
+}
+
+/// The text of page `index` with its characters' boxes.
+///
+/// # Errors
+///
+/// [`TextError::Core`] when a limit stops the interpreter.
+pub fn page_layout(document: &Document, index: usize) -> Result<PageText, TextError> {
     let mut collector = Collector::default();
     document.page_text(index, &mut collector)?;
-    Ok(lines(&collector.glyphs).join("\n"))
+    let page = document.structure().pages.get(index);
+    let mut out = PageText::default();
+    for (n, line) in lines(&collector.glyphs).into_iter().enumerate() {
+        if n > 0 {
+            out.text.push('\n');
+            out.boxes.push(None);
+        }
+        for (c, found) in line {
+            out.text.push(c);
+            out.boxes.push(found.map(|[left, bottom, right, top]| {
+                let Some(page) = page else {
+                    return [left, top, right, bottom];
+                };
+                let corners = [
+                    page.display_point(left, bottom),
+                    page.display_point(right, top),
+                ];
+                let xs = corners.map(|(x, _)| x);
+                let ys = corners.map(|(_, y)| y);
+                [
+                    xs[0].min(xs[1]),
+                    ys[0].min(ys[1]),
+                    xs[0].max(xs[1]),
+                    ys[0].max(ys[1]),
+                ]
+            }));
+        }
+    }
+    Ok(out)
 }
+
+/// A line's characters with the boxes of their glyphs in page space, `[left, bottom, right,
+/// top]`.
+type Line = Vec<(char, Option<CharBox>)>;
 
 /// A font, ready to split strings into codes and give their widths and text.
 struct PdfFont {
@@ -237,7 +292,7 @@ fn apply(m: Matrix, [x, y]: [f32; 2]) -> [f32; 2] {
 }
 
 /// The glyphs as lines in content order.
-fn lines(glyphs: &[Glyph]) -> Vec<String> {
+fn lines(glyphs: &[Glyph]) -> Vec<Line> {
     let mut out: Vec<Vec<&Glyph>> = Vec::new();
     for glyph in glyphs {
         let joins = out.last().and_then(|line| line.last()).is_some_and(|last| {
@@ -258,8 +313,8 @@ fn lines(glyphs: &[Glyph]) -> Vec<String> {
     out.iter().map(|line| words(line)).collect()
 }
 
-/// One line's text, with spaces at word gaps, in logical order.
-fn words(line: &[&Glyph]) -> String {
+/// One line's characters, with spaces at word gaps, in logical order.
+fn words(line: &[&Glyph]) -> Line {
     let rtl = line
         .iter()
         .any(|glyph| glyph.text.chars().any(right_to_left));
@@ -277,7 +332,7 @@ fn words(line: &[&Glyph]) -> String {
     if rtl && !line.iter().any(|glyph| glyph.vertical) {
         units.sort_by(|(_, a), (_, b)| a.start[0].total_cmp(&b.start[0]));
     }
-    let mut visual = String::new();
+    let mut visual: Line = Vec::new();
     let mut previous: Option<&Glyph> = None;
     for (marks, glyph) in &units {
         if let Some(last) = previous {
@@ -286,25 +341,40 @@ fn words(line: &[&Glyph]) -> String {
             } else {
                 glyph.start[0] - last.end[0]
             };
-            let spaced = visual.ends_with(char::is_whitespace)
+            let spaced = visual.last().is_some_and(|(c, _)| c.is_whitespace())
                 || glyph.text.starts_with(char::is_whitespace);
             if !spaced && gap > glyph.size.max(last.size) * WORD_GAP {
-                visual.push(' ');
+                visual.push((' ', None));
             }
         }
         let logical = with_marks(glyph, marks);
+        let area = Some(glyph_box(glyph));
         // A right-to-left unit is reversed here, so reading the line back restores it.
         if logical.chars().any(right_to_left) {
-            visual.extend(logical.chars().rev());
+            visual.extend(logical.chars().rev().map(|c| (c, area)));
         } else {
-            visual.push_str(&logical);
+            visual.extend(logical.chars().map(|c| (c, area)));
         }
         previous = Some(glyph);
     }
     for mark in marks {
-        visual.push_str(&mark.text);
+        let area = Some(glyph_box(mark));
+        visual.extend(mark.text.chars().map(|c| (c, area)));
     }
     if rtl { logical(&visual) } else { visual }
+}
+
+/// The box a glyph covers in page space, `[left, bottom, right, top]`: its advance across, and
+/// from a fifth of its size below the baseline to four fifths above.
+fn glyph_box(glyph: &Glyph) -> CharBox {
+    let [x0, y0] = glyph.start;
+    let [x1, y1] = glyph.end;
+    let size = glyph.size;
+    if glyph.vertical {
+        [x0 - size / 2.0, y0.min(y1), x0 + size / 2.0, y0.max(y1)]
+    } else {
+        [x0.min(x1), y0 - size * 0.2, x0.max(x1), y0 + size * 0.8]
+    }
 }
 
 /// A right-to-left glyph's text in logical order with the marks drawn on it. On a ligature
@@ -353,21 +423,24 @@ fn right_to_left(c: char) -> bool {
     matches!(bidi_class(c), BidiClass::R | BidiClass::AL)
 }
 
-/// A right-to-left line in visual order, read back into logical order, its brackets mirrored at
-/// right-to-left levels.
-fn logical(visual: &str) -> String {
-    let info = BidiInfo::new(visual, Some(Level::rtl()));
-    let mirrored: String = visual
-        .char_indices()
-        .map(|(at, c)| match info.levels.get(at) {
-            Some(level) if level.is_rtl() => mirror(c),
-            _ => c,
-        })
-        .collect();
-    let info = BidiInfo::new(&mirrored, Some(Level::rtl()));
-    info.paragraphs
+/// A right-to-left line in visual order, read back into logical order with each character's box,
+/// its brackets mirrored at right-to-left levels.
+fn logical(visual: &[(char, Option<CharBox>)]) -> Line {
+    let text: String = visual.iter().map(|(c, _)| c).collect();
+    let info = BidiInfo::new(&text, Some(Level::rtl()));
+    let Some(paragraph) = info.paragraphs.first() else {
+        return visual.to_vec();
+    };
+    // Levels per byte, then one per character, with the line rules (L1) applied.
+    let levels = info.reordered_levels_per_char(paragraph, paragraph.range.clone());
+    let chars: Vec<(char, Option<CharBox>)> = visual
         .iter()
-        .map(|paragraph| info.reorder_line(paragraph, paragraph.range.clone()))
+        .zip(&levels)
+        .map(|(&(c, area), level)| (if level.is_rtl() { mirror(c) } else { c }, area))
+        .collect();
+    BidiInfo::reorder_visual(&levels)
+        .into_iter()
+        .filter_map(|at| chars.get(at).copied())
         .collect()
 }
 
@@ -403,6 +476,13 @@ mod tests {
         }
     }
 
+    fn text(lines: Vec<Line>) -> Vec<String> {
+        lines
+            .into_iter()
+            .map(|line| line.into_iter().map(|(c, _)| c).collect())
+            .collect()
+    }
+
     #[test]
     fn glyphs_become_words_and_lines() {
         let glyphs = [
@@ -411,7 +491,7 @@ mod tests {
             glyph("r", 30.0, 700.0),
             glyph("a", 0.0, 680.0),
         ];
-        assert_eq!(lines(&glyphs), ["Ki r", "a"]);
+        assert_eq!(text(lines(&glyphs)), ["Ki r", "a"]);
     }
 
     #[test]
@@ -424,9 +504,9 @@ mod tests {
             .zip(visual)
             .map(|(i, text)| glyph(text, f32::from(i) * 5.0, 0.0))
             .collect();
-        assert_eq!(lines(&glyphs), ["عام 2025 (جديد)"]);
+        assert_eq!(text(lines(&glyphs)), ["عام 2025 (جديد)"]);
         let ligature = [glyph("لا", 0.0, 0.0), glyph("ب", 5.0, 0.0)];
-        assert_eq!(lines(&ligature), ["بلا"]);
+        assert_eq!(text(lines(&ligature)), ["بلا"]);
     }
 
     #[test]
@@ -443,6 +523,6 @@ mod tests {
             column(100.0, 690.0, "啓"),
             column(80.0, 700.0, "秋"),
         ];
-        assert_eq!(lines(&glyphs), ["拝啓", "秋"]);
+        assert_eq!(text(lines(&glyphs)), ["拝啓", "秋"]);
     }
 }

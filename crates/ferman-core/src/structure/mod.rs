@@ -113,6 +113,23 @@ pub struct Page {
     pub(crate) id: ObjectId,
 }
 
+impl Page {
+    /// A point of the page's user space in displayed points: from the top-left corner of the crop
+    /// box as the page shows after `/Rotate`, y down, as PDFium lays the page out.
+    #[must_use]
+    pub fn display_point(&self, x: f32, y: f32) -> (f32, f32) {
+        let crop = &self.crop_box;
+        let (width, height) = (crop.right - crop.left, crop.top - crop.bottom);
+        let (u, v) = (x - crop.left, crop.top - y);
+        match self.rotation {
+            90 => (height - v, u),
+            180 => (width - u, height - v),
+            270 => (v, width - u),
+            _ => (u, v),
+        }
+    }
+}
+
 /// The order of pages in spreads and books (`/ViewerPreferences /Direction`, G32).
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, Default)]
 pub enum Direction {
@@ -630,6 +647,31 @@ pub(crate) mod tests {
 
     fn rect_object(values: [f32; 4]) -> Object {
         Object::Array(values.iter().map(|value| Object::Real(*value)).collect())
+    }
+
+    #[test]
+    fn display_points_follow_the_crop_box_and_the_rotation() {
+        let crop = Rect {
+            left: 10.0,
+            bottom: 20.0,
+            right: 110.0,
+            top: 220.0,
+        };
+        let page = |rotation| Page {
+            index: 0,
+            label: None,
+            media_box: crop,
+            crop_box: crop,
+            rotation,
+            size: (100.0, 200.0),
+            id: (1, 0),
+        };
+        // The crop box's top-left corner, then a point 5 right and 7 down from it.
+        assert_eq!(page(0).display_point(10.0, 220.0), (0.0, 0.0));
+        assert_eq!(page(0).display_point(15.0, 213.0), (5.0, 7.0));
+        assert_eq!(page(90).display_point(15.0, 213.0), (193.0, 5.0));
+        assert_eq!(page(180).display_point(15.0, 213.0), (95.0, 193.0));
+        assert_eq!(page(270).display_point(15.0, 213.0), (7.0, 95.0));
     }
 
     #[test]
