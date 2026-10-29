@@ -19,6 +19,7 @@ members = ["."]
 [dependencies]
 libfuzzer-sys = "0.4.13"
 ferman-core = { path = "../crates/ferman-core", features = ["fuzzing"] }
+ferman-fonts = { path = "../crates/ferman-fonts" }
 
 [lints.clippy]
 print_stdout = "deny"
@@ -84,6 +85,12 @@ bench = false
 [[bin]]
 name = "open_document"
 path = "fuzz_targets/open_document.rs"
+test = false
+doc = false
+
+[[bin]]
+name = "cmap"
+path = "fuzz_targets/cmap.rs"
 test = false
 doc = false
 

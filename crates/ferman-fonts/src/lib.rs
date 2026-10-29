@@ -21,14 +21,18 @@
 //!   and the minimal Type1 parser. M2.
 //! - `encoding`: `Encoding` tables (Standard, WinAnsi, MacRoman, MacExpert, PDFDoc, Symbol,
 //!   ZapfDingbats) and glyph names to Unicode. M2.
-//! - `cmap`: `CMap` and `ToUnicode` parsing with `usecmap` chains and a depth limit (M2), and
-//!   writing (M3).
+//! - `cmap` (since M2): [`CMap`], encoding and ToUnicode CMaps read leniently, with `usecmap`
+//!   recorded for the caller's depth limit; writing in M3.
 //! - `shaping`: the internal `Shaper` trait and `ShapedRun`, with harfrust behind it (ADR 0007), so
 //!   a change of shaper touches one module. M3.
 //! - `subset`: `Subset` through subsetter, respecting embedding permissions (OS/2 `fsType`). M3.
 //! - `system`: `SystemFonts` discovery through fontdb, the bundled-font registry, `Coverage`,
 //!   `FontMatch` and `SimilarFonts`. M3.
 #![forbid(unsafe_code)]
+
+pub mod cmap;
+
+pub use cmap::CMap;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

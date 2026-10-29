@@ -230,10 +230,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "ferman-fonts"
+version = "0.1.0"
+dependencies = [
+ "thiserror",
+]
+
+[[package]]
 name = "ferman-fuzz"
 version = "0.0.0"
 dependencies = [
  "ferman-core",
+ "ferman-fonts",
  "libfuzzer-sys",
 ]
 
