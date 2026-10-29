@@ -66,6 +66,30 @@ void main() {
       expect((await engine.status()).apiVersion, kAppApiVersion);
     });
 
+    test('searches a PDF through the bridge', () async {
+      final dir = await Directory.systemTemp.createTemp('ferman-search');
+      addTearDown(() => dir.delete(recursive: true));
+      final file = File('${dir.path}/text.pdf')
+        ..writeAsStringSync(_onePagePdf(text: 'KIRA bedeli'));
+      final document = await engine.open(file.path);
+      final updates = await engine
+          .search(document.id, 'kira', const SearchOptions())
+          .toList();
+      expect(updates.last, isA<SearchDone>());
+      final matches = updates.whereType<SearchMatches>().single.matches;
+      final found = matches.single;
+      expect(found.page, 0);
+      expect(
+        found.snippet.substring(found.snippetStart, found.snippetEnd),
+        'KIRA',
+      );
+      final rect = found.rects.single;
+      // The text sits 40 points above the bottom of a 100-point page: y down.
+      expect(rect.left, greaterThanOrEqualTo(10));
+      expect(rect.bottom, closeTo(100 - 40 + 12 * 0.2, 0.5));
+      await engine.close(document.id);
+    });
+
     test('opens a PDF, renders its thumbnail and closes it', () async {
       // The temporary directory, because the sandboxed macOS app may read
       // only its own container.
@@ -169,13 +193,23 @@ void main() {
 /// A one-page PDF of 200 × 100 points filled red, with an exact
 /// cross-reference table, written by hand so the test needs no file from
 /// outside the app. Red tells BGRA from RGBA.
-String _onePagePdf() {
-  const content = '1 0 0 rg 0 0 200 100 re f';
-  const objects = [
+/// A red 200 × 100 page, with [text] in Helvetica when given.
+String _onePagePdf({String? text}) {
+  final content =
+      '1 0 0 rg 0 0 200 100 re f'
+      '${text == null ? '' : ' 0 g BT /F1 12 Tf 10 40 Td ($text) Tj ET'}';
+  const page =
+      '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R '
+      '/Resources << /Font << /F1 5 0 R >> >> >>';
+  const font =
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
+      '/Encoding /WinAnsiEncoding >>';
+  final objects = [
     '<< /Type /Catalog /Pages 2 0 R >>',
     '<< /Type /Pages /Kids [3 0 R] /Count 1 >>',
-    '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 200 100] /Contents 4 0 R >>',
+    page,
     '<< /Length ${content.length} >>\nstream\n$content\nendstream',
+    font,
   ];
   // ASCII only, so string offsets are byte offsets.
   final pdf = StringBuffer('%PDF-1.7\n');

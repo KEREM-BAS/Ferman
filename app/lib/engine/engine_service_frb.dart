@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show Rect;
 
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
@@ -221,6 +222,56 @@ class FrbEngineService implements EngineService {
       throw _exception(error);
     }
   }
+
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) => bridge
+      .search(
+        document: BigInt.from(document),
+        query: query,
+        options: bridge.SearchOptions(
+          matchCase: options.matchCase,
+          wholeWords: options.wholeWords,
+          ignoreAccents: options.ignoreAccents,
+        ),
+      )
+      .handleError(
+        (Object error) => throw _exception(error as bridge.ApiError),
+        test: (error) => error is bridge.ApiError,
+      )
+      .map(
+        (event) => switch (event.kind) {
+          bridge.SearchEventKind.started => null,
+          bridge.SearchEventKind.matches => SearchMatches([
+            for (final found in event.matches)
+              SearchMatch(
+                page: found.page,
+                rects: [
+                  for (final rect in found.rects)
+                    Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom),
+                ],
+                snippet: found.snippet,
+                snippetStart: _units(found.snippet, found.snippetStart),
+                snippetEnd: _units(found.snippet, found.snippetEnd),
+              ),
+          ]),
+          bridge.SearchEventKind.progress => SearchProgress(
+            searched: event.searched,
+            pages: event.pages,
+          ),
+          bridge.SearchEventKind.done => SearchDone(cancelled: event.cancelled),
+        },
+      )
+      .where((update) => update != null)
+      .cast<SearchUpdate>();
+
+  /// The UTF-16 offset of the character at [chars] in [text].
+  static int _units(String text, int chars) => text.runes
+      .take(chars)
+      .fold(0, (units, rune) => units + (rune > 0xFFFF ? 2 : 1));
 
   @override
   Future<void> closeView(int view) async {

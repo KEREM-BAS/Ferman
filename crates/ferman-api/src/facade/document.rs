@@ -6,12 +6,13 @@
 //! document ([`Engine::open_view`]) receives its tiles and thumbnails as [`ViewEvent`]s; the view
 //! types are ferman-render's, plain data the UI can mirror. A document does not change in M2, so
 //! the open result also carries the lists the sidebar shows (a2-3o, a2-3b, a2-3c, a2-14).
-//! [`Engine::show_layers`] shows and hides layers through a render-only appendix (ADR 0009); for
-//! that the engine keeps the parsed model of a document with layers until it closes.
+//! [`Engine::show_layers`] shows and hides layers through a render-only appendix (ADR 0009), and
+//! [`Engine::search`] searches its text; for both the engine keeps every open document's parsed
+//! model, with the text of the pages it has read, until the document closes.
 
 use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::{Arc, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread;
 
 use ferman_core::structure::{Agreement, Attachment, Direction, Layer, OutlineItem, Signature};
@@ -52,6 +53,15 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields, shown neutrally until checking arrives (G31).
     pub signatures: Vec<Signature>,
+}
+
+/// An open document's parsed model, kept for its layers and its search.
+#[derive(Debug)]
+pub(super) struct Model {
+    pub(super) document: ferman_core::Document,
+    pub(super) layers_switchable: bool,
+    /// The text of each page once read, for searches after the first.
+    pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
 }
 
 /// One page of an [`OpenedDocument`].
@@ -144,9 +154,14 @@ impl Engine {
                 signatures: structure.signatures.clone(),
                 layers_switchable,
             };
-            if layers_switchable {
-                self.layered()?.insert(rendered.id, model);
-            }
+            self.models()?.insert(
+                rendered.id,
+                Arc::new(Model {
+                    pages: Mutex::new(vec![None; model.page_count()]),
+                    document: model,
+                    layers_switchable,
+                }),
+            );
             Ok(opened)
         })
         .await
@@ -169,11 +184,15 @@ impl Engine {
     ) -> Result<u64, ApiError> {
         guard_async(async move {
             let appendix = {
-                let layered = self.layered()?;
-                let model = layered.get(&document).ok_or_else(|| {
-                    ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
-                        .with_details("no layers to switch")
-                })?;
+                let models = self.models()?;
+                let model = models
+                    .get(&document)
+                    .filter(|model| model.layers_switchable)
+                    .map(|model| &model.document)
+                    .ok_or_else(|| {
+                        ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                            .with_details("no layers to switch")
+                    })?;
                 if visible.len() != model.structure().layers.len() {
                     return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                         .with_details("one visibility per layer"));
@@ -193,7 +212,7 @@ impl Engine {
     /// Returns `NotFound` for a document that is not open.
     pub async fn close(&self, document: DocumentId) -> Result<(), ApiError> {
         guard_async(async {
-            self.layered()?.remove(&document);
+            self.models()?.remove(&document);
             Ok(self.render()?.close_document(document).await?)
         })
         .await
@@ -237,13 +256,13 @@ impl Engine {
         Ok(self.render()?.close_view(view)?)
     }
 
-    /// The parsed models of the open documents whose layers can be switched.
-    fn layered(
+    /// The parsed models of the open documents.
+    pub(super) fn models(
         &self,
-    ) -> Result<MutexGuard<'_, HashMap<DocumentId, ferman_core::Document>>, ApiError> {
-        self.layered
+    ) -> Result<MutexGuard<'_, HashMap<DocumentId, Arc<Model>>>, ApiError> {
+        self.models
             .lock()
-            .map_err(|_poisoned| ApiError::internal("the layer models' lock is poisoned"))
+            .map_err(|_poisoned| ApiError::internal("the models' lock is poisoned"))
     }
 
     /// The render thread, or an internal error saying why it is not running.

@@ -27,6 +27,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<SearchEvent> dco_decode_StreamSink_search_event_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<ViewEvent> dco_decode_StreamSink_view_event_Dco(dynamic raw);
 
   @protected
@@ -52,6 +57,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  SearchOptions dco_decode_box_autoadd_search_options(dynamic raw);
 
   @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
@@ -111,7 +119,13 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> dco_decode_list_page_info(dynamic raw);
 
   @protected
+  List<PageRect> dco_decode_list_page_rect(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<SearchMatch> dco_decode_list_search_match(dynamic raw);
 
   @protected
   List<Signature> dco_decode_list_signature(dynamic raw);
@@ -150,6 +164,9 @@ abstract class FermanBridgeApiImplPlatform
   PageInfo dco_decode_page_info(dynamic raw);
 
   @protected
+  PageRect dco_decode_page_rect(dynamic raw);
+
+  @protected
   PdfDate dco_decode_pdf_date(dynamic raw);
 
   @protected
@@ -163,6 +180,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  SearchEvent dco_decode_search_event(dynamic raw);
+
+  @protected
+  SearchEventKind dco_decode_search_event_kind(dynamic raw);
+
+  @protected
+  SearchMatch dco_decode_search_match(dynamic raw);
+
+  @protected
+  SearchOptions dco_decode_search_options(dynamic raw);
 
   @protected
   Signature dco_decode_signature(dynamic raw);
@@ -198,6 +227,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<SearchEvent> sse_decode_StreamSink_search_event_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<ViewEvent> sse_decode_StreamSink_view_event_Dco(
     SseDeserializer deserializer,
   );
@@ -225,6 +259,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_box_autoadd_read_only_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SearchOptions sse_decode_box_autoadd_search_options(
     SseDeserializer deserializer,
   );
 
@@ -290,7 +329,13 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> sse_decode_list_page_info(SseDeserializer deserializer);
 
   @protected
+  List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer);
 
   @protected
   List<Signature> sse_decode_list_signature(SseDeserializer deserializer);
@@ -333,6 +378,9 @@ abstract class FermanBridgeApiImplPlatform
   PageInfo sse_decode_page_info(SseDeserializer deserializer);
 
   @protected
+  PageRect sse_decode_page_rect(SseDeserializer deserializer);
+
+  @protected
   PdfDate sse_decode_pdf_date(SseDeserializer deserializer);
 
   @protected
@@ -346,6 +394,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  SearchEvent sse_decode_search_event(SseDeserializer deserializer);
+
+  @protected
+  SearchEventKind sse_decode_search_event_kind(SseDeserializer deserializer);
+
+  @protected
+  SearchMatch sse_decode_search_match(SseDeserializer deserializer);
+
+  @protected
+  SearchOptions sse_decode_search_options(SseDeserializer deserializer);
 
   @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
@@ -381,6 +441,21 @@ abstract class FermanBridgeApiImplPlatform
   String cst_encode_AnyhowException(AnyhowException raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  String cst_encode_StreamSink_search_event_Dco(
+    RustStreamSink<SearchEvent> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_search_event,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -444,6 +519,12 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_box_autoadd_read_only_reason(ReadOnlyReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_read_only_reason(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_search_options(SearchOptions raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_search_options(raw);
   }
 
   @protected
@@ -532,9 +613,21 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_page_rect(List<PageRect> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_page_rect).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_search_match(List<SearchMatch> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_search_match).toList().jsify()!;
   }
 
   @protected
@@ -629,6 +722,17 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_page_rect(PageRect raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_f_32(raw.left),
+      cst_encode_f_32(raw.top),
+      cst_encode_f_32(raw.right),
+      cst_encode_f_32(raw.bottom),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_pdf_date(PdfDate raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -647,6 +751,41 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_pdfium_state(raw.state),
       cst_encode_opt_String(raw.tag),
       cst_encode_opt_String(raw.reason),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_search_event(SearchEvent raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_search_event_kind(raw.kind),
+      cst_encode_u_64(raw.search),
+      cst_encode_list_search_match(raw.matches),
+      cst_encode_u_32(raw.searched),
+      cst_encode_u_32(raw.pages),
+      cst_encode_bool(raw.cancelled),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_search_match(SearchMatch raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.page),
+      cst_encode_list_page_rect(raw.rects),
+      cst_encode_String(raw.snippet),
+      cst_encode_u_32(raw.snippetStart),
+      cst_encode_u_32(raw.snippetEnd),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_search_options(SearchOptions raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.matchCase),
+      cst_encode_bool(raw.wholeWords),
+      cst_encode_bool(raw.ignoreAccents),
     ].jsify()!;
   }
 
@@ -744,6 +883,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_read_only_reason(ReadOnlyReason raw);
 
   @protected
+  int cst_encode_search_event_kind(SearchEventKind raw);
+
+  @protected
   int cst_encode_u_16(int raw);
 
   @protected
@@ -761,6 +903,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_AnyhowException(
     AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_search_event_Dco(
+    RustStreamSink<SearchEvent> self,
     SseSerializer serializer,
   );
 
@@ -797,6 +945,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_read_only_reason(
     ReadOnlyReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_search_options(
+    SearchOptions self,
     SseSerializer serializer,
   );
 
@@ -870,8 +1024,17 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_page_info(List<PageInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_search_match(
+    List<SearchMatch> self,
     SseSerializer serializer,
   );
 
@@ -933,6 +1096,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_page_info(PageInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_page_rect(PageRect self, SseSerializer serializer);
+
+  @protected
   void sse_encode_pdf_date(PdfDate self, SseSerializer serializer);
 
   @protected
@@ -949,6 +1115,21 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_event_kind(
+    SearchEventKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_search_match(SearchMatch self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_options(SearchOptions self, SseSerializer serializer);
 
   @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
@@ -1028,6 +1209,20 @@ class FermanBridgeWire implements BaseWire {
     wanted,
   );
 
+  void wire__crate__frb__search(
+    NativePortType port_,
+    JSAny document,
+    String query,
+    JSAny options,
+    String sink,
+  ) => wasmModule.wire__crate__frb__search(
+    port_,
+    document,
+    query,
+    options,
+    sink,
+  );
+
   void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
@@ -1071,6 +1266,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__search(
+    NativePortType port_,
+    JSAny document,
+    String query,
+    JSAny options,
+    String sink,
   );
 
   external void wire__crate__frb__show_layers(

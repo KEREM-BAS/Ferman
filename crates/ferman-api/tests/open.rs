@@ -2,7 +2,8 @@
 //! or fails, with the kind its README row implies; lopdf and PDFium agree on the pages of every
 //! file but `disagree-pages`, made for this check, whose second page lacks `/Type /Page` and which
 //! therefore opens read-only; a view gets its thumbnail; and showing or hiding a layer changes the
-//! pixels, and changing it back gives the first render again.
+//! pixels, and changing it back gives the first render again; and a search streams its matches
+//! and ends, or stops when cancelled.
 //!
 //! Needs PDFium: `FERMAN_PDFIUM_PATH`, absolute (tools/pdfium/fetch.sh).
 // Test helpers fail loudly.
@@ -14,8 +15,8 @@ use std::time::Duration;
 
 use ferman_api::facade::{
     Agreement, ApiError, Engine, EngineConfig, ErrorKind, Item, MAX_THUMBNAIL_SIZE, OpenedDocument,
-    Password, PdfiumLibrary, Priority, ReadOnly, Rendered, ThumbnailRequest, ViewEvent, ViewSink,
-    Wanted, block_on,
+    Password, PdfiumLibrary, Priority, ReadOnly, Rendered, SearchEvent, SearchOptions, SearchSink,
+    ThumbnailRequest, ViewEvent, ViewSink, Wanted, block_on,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -241,6 +242,79 @@ fn showing_and_hiding_a_layer_renders_the_page_again() {
     let none = block_on(engine().show_layers(kira.id, Vec::new())).unwrap_err();
     assert_eq!(none.kind, ErrorKind::Unsupported);
     for document in [plan, kira] {
+        block_on(engine().close(document.id)).unwrap();
+    }
+}
+
+/// A search's events, sent to this test's thread.
+struct Found(mpsc::Sender<SearchEvent>);
+
+impl SearchSink for Found {
+    fn deliver(&mut self, event: SearchEvent) -> bool {
+        self.0.send(event).is_ok()
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_search_streams_its_matches_and_ends() {
+    let kira = open("kira-tr", None).unwrap();
+    let (events, received) = mpsc::channel();
+    let id = engine()
+        .search(
+            kira.id,
+            "kira".to_owned(),
+            SearchOptions::default(),
+            Box::new(Found(events)),
+        )
+        .unwrap();
+    let next = || received.recv_timeout(Duration::from_secs(10)).unwrap();
+    assert_eq!(next(), SearchEvent::Started(id));
+    let mut matches = Vec::new();
+    loop {
+        match next() {
+            SearchEvent::Matches(page) => matches.extend(page),
+            SearchEvent::Progress { searched, pages } => assert!(searched <= pages),
+            SearchEvent::Done { cancelled } => {
+                assert!(!cancelled);
+                break;
+            }
+            SearchEvent::Started(_) => panic!("started twice"),
+        }
+    }
+    let first = &matches[0];
+    assert_eq!(first.page, 0);
+    let snippet: Vec<char> = first.snippet.chars().collect();
+    let range = first.snippet_range.start as usize..first.snippet_range.end as usize;
+    assert_eq!(snippet[range].iter().collect::<String>(), "KİRA");
+    let [left, top, right, bottom] = first.rects[0];
+    let (width, height) = (kira.pages[0].size.width, kira.pages[0].size.height);
+    assert!(
+        0.0 < left && left < right && right < width && 0.0 < top && top < bottom && bottom < height
+    );
+    assert!(matches.len() > 5, "{} matches", matches.len());
+
+    // A cancelled search ends as cancelled, or as done if it was quicker.
+    let long = open("long-500", None).unwrap();
+    let (events, received) = mpsc::channel();
+    let id = engine()
+        .search(
+            long.id,
+            "e".to_owned(),
+            SearchOptions::default(),
+            Box::new(Found(events)),
+        )
+        .unwrap();
+    engine().cancel_search(id);
+    let ended = received
+        .iter()
+        .find_map(|event| match event {
+            SearchEvent::Done { cancelled } => Some(cancelled),
+            _ => None,
+        })
+        .unwrap();
+    assert!(ended || received.try_recv().is_err());
+    for document in [kira, long] {
         block_on(engine().close(document.id)).unwrap();
     }
 }

@@ -17,6 +17,7 @@ mod engine;
 mod error;
 mod guard;
 mod info;
+mod search;
 mod version;
 
 pub use blocking::block_on;
@@ -26,6 +27,7 @@ pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_in
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
+pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
@@ -38,3 +40,4 @@ pub use ferman_render::{
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
     ZoomBucket,
 };
+pub use ferman_text::SearchOptions;

@@ -8,7 +8,8 @@ use std::collections::HashMap;
 use std::ffi::OsString;
 use std::future::Future;
 use std::path::{Path, PathBuf};
-use std::sync::{Mutex, OnceLock};
+use std::sync::atomic::AtomicBool;
+use std::sync::{Arc, Mutex, OnceLock};
 
 use ferman_render::{DocumentId, RenderConfig, RenderThread};
 
@@ -53,8 +54,10 @@ pub struct EngineConfig {
 pub struct Engine {
     /// The render thread, or why it could not start.
     pub(super) render: Result<RenderThread, String>,
-    /// The parsed models of open documents whose layers can be switched (`document`).
-    pub(super) layered: Mutex<HashMap<DocumentId, ferman_core::Document>>,
+    /// The parsed models of the open documents (`document`).
+    pub(super) models: Mutex<HashMap<DocumentId, Arc<super::document::Model>>>,
+    /// The cancel flags of the searches running (`search`).
+    pub(super) searches: Mutex<HashMap<super::search::SearchId, Arc<AtomicBool>>>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -86,7 +89,8 @@ impl Engine {
         });
         Self {
             render,
-            layered: Mutex::default(),
+            models: Mutex::default(),
+            searches: Mutex::default(),
         }
     }
 

@@ -8,8 +8,8 @@ import 'frb_generated.dart';
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -111,6 +111,23 @@ Future<void> requestView({
 /// `Internal` if the render thread has stopped.
 Future<void> closeView({required BigInt view}) =>
     FermanBridge.instance.api.crateFrbCloseView(view: view);
+
+/// Searches `document` for `query`; the stream starts with `Started` and its handle, brings each
+/// page's matches and the progress, and ends after `Done`. Cancelling the stream stops the
+/// search at its next page with matches or progress.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Stream<SearchEvent> search({
+  required BigInt document,
+  required String query,
+  required SearchOptions options,
+}) => FermanBridge.instance.api.crateFrbSearch(
+  document: document,
+  query: query,
+  options: options,
+);
 
 /// The error every fallible call returns; Dart receives it as an exception.
 class ApiError implements FrbException {
@@ -484,6 +501,42 @@ class PageInfo {
           label == other.label;
 }
 
+/// A rectangle on a page in displayed points, y down.
+class PageRect {
+  /// The left edge.
+  final double left;
+
+  /// The top edge.
+  final double top;
+
+  /// The right edge.
+  final double right;
+
+  /// The bottom edge.
+  final double bottom;
+
+  const PageRect({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
+
+  @override
+  int get hashCode =>
+      left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageRect &&
+          runtimeType == other.runtimeType &&
+          left == other.left &&
+          top == other.top &&
+          right == other.right &&
+          bottom == other.bottom;
+}
+
 /// A date as the file writes it, without converting its time zone.
 class PdfDate {
   /// The year.
@@ -597,6 +650,148 @@ enum ReadOnlyReason {
 
   /// An XFA-only form (a11-7c).
   xfaOnly,
+}
+
+/// An event of a search's stream.
+class SearchEvent {
+  /// What happened.
+  final SearchEventKind kind;
+
+  /// The search's handle (`Started`).
+  final BigInt search;
+
+  /// One page's matches (`Matches`).
+  final List<SearchMatch> matches;
+
+  /// Pages read (`Progress`).
+  final int searched;
+
+  /// Pages in the document (`Progress`).
+  final int pages;
+
+  /// Whether it was cancelled (`Done`).
+  final bool cancelled;
+
+  const SearchEvent({
+    required this.kind,
+    required this.search,
+    required this.matches,
+    required this.searched,
+    required this.pages,
+    required this.cancelled,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      search.hashCode ^
+      matches.hashCode ^
+      searched.hashCode ^
+      pages.hashCode ^
+      cancelled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchEvent &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          search == other.search &&
+          matches == other.matches &&
+          searched == other.searched &&
+          pages == other.pages &&
+          cancelled == other.cancelled;
+}
+
+/// What a search event says.
+enum SearchEventKind {
+  /// The search runs: `search` is its handle. The first event.
+  started,
+
+  /// One page's `matches`.
+  matches,
+
+  /// `searched` of `pages` pages read.
+  progress,
+
+  /// It ended; `cancelled` says how. The last event.
+  done,
+}
+
+/// One match of a search.
+class SearchMatch {
+  /// Its page, from 0.
+  final int page;
+
+  /// One rectangle per line it covers.
+  final List<PageRect> rects;
+
+  /// The line it starts on.
+  final String snippet;
+
+  /// Where it starts in the snippet, in characters.
+  final int snippetStart;
+
+  /// Where it ends in the snippet, in characters.
+  final int snippetEnd;
+
+  const SearchMatch({
+    required this.page,
+    required this.rects,
+    required this.snippet,
+    required this.snippetStart,
+    required this.snippetEnd,
+  });
+
+  @override
+  int get hashCode =>
+      page.hashCode ^
+      rects.hashCode ^
+      snippet.hashCode ^
+      snippetStart.hashCode ^
+      snippetEnd.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchMatch &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          rects == other.rects &&
+          snippet == other.snippet &&
+          snippetStart == other.snippetStart &&
+          snippetEnd == other.snippetEnd;
+}
+
+/// How a search matches (a2-4a).
+class SearchOptions {
+  /// Match case.
+  final bool matchCase;
+
+  /// Whole words.
+  final bool wholeWords;
+
+  /// Ignore accents and dotted/dotless i (on by default in the app, G61).
+  final bool ignoreAccents;
+
+  const SearchOptions({
+    required this.matchCase,
+    required this.wholeWords,
+    required this.ignoreAccents,
+  });
+
+  @override
+  int get hashCode =>
+      matchCase.hashCode ^ wholeWords.hashCode ^ ignoreAccents.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchOptions &&
+          runtimeType == other.runtimeType &&
+          matchCase == other.matchCase &&
+          wholeWords == other.wholeWords &&
+          ignoreAccents == other.ignoreAccents;
 }
 
 /// A signature field of an [`OpenedDocument`] (a2-14).

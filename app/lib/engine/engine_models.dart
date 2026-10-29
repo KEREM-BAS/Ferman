@@ -3,6 +3,8 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
+import 'dart:ui' show Rect;
+
 import 'package:flutter/foundation.dart';
 
 /// The API version the app was built against. The engine must report the
@@ -487,4 +489,100 @@ class EngineView {
 
   /// Its rendered and failed items.
   final Stream<ViewUpdate> updates;
+}
+
+/// How a search matches (a2-4a).
+@immutable
+class SearchOptions {
+  /// The defaults: Ignore accents and dotted/dotless i is on for every
+  /// document (G61).
+  const new({
+    this.matchCase = false,
+    this.wholeWords = false,
+    this.ignoreAccents = true,
+  });
+
+  /// Match case.
+  final bool matchCase;
+
+  /// Whole words.
+  final bool wholeWords;
+
+  /// Ignore accents and dotted/dotless i.
+  final bool ignoreAccents;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SearchOptions &&
+      other.matchCase == matchCase &&
+      other.wholeWords == wholeWords &&
+      other.ignoreAccents == ignoreAccents;
+
+  @override
+  int get hashCode => Object.hash(matchCase, wholeWords, ignoreAccents);
+}
+
+/// One match of a search.
+@immutable
+class SearchMatch {
+  /// Creates a match.
+  const new({
+    required this.page,
+    required this.rects,
+    required this.snippet,
+    required this.snippetStart,
+    required this.snippetEnd,
+  });
+
+  /// Its page, from 0.
+  final int page;
+
+  /// One rectangle per line it covers, in the page's displayed points
+  /// (y down).
+  final List<Rect> rects;
+
+  /// The line it starts on.
+  final String snippet;
+
+  /// Where it starts in [snippet], in UTF-16 code units.
+  final int snippetStart;
+
+  /// Where it ends in [snippet], in UTF-16 code units.
+  final int snippetEnd;
+}
+
+/// What a running search reports.
+@immutable
+sealed class SearchUpdate {
+  const new();
+}
+
+/// The matches of one page.
+final class SearchMatches extends SearchUpdate {
+  /// Creates the update.
+  const new(this.matches);
+
+  /// The page's matches, in order.
+  final List<SearchMatch> matches;
+}
+
+/// How far the search has read (a2-4c).
+final class SearchProgress extends SearchUpdate {
+  /// Creates the update.
+  const new({required this.searched, required this.pages});
+
+  /// Pages read.
+  final int searched;
+
+  /// Pages in the document.
+  final int pages;
+}
+
+/// The search ended.
+final class SearchDone extends SearchUpdate {
+  /// Creates the update.
+  const new({this.cancelled = false});
+
+  /// Whether it was cancelled.
+  final bool cancelled;
 }

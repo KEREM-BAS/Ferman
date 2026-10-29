@@ -17,6 +17,7 @@ class FakeEngineService implements EngineService {
     ),
     this.documents = const {},
     this.failingPages = const {},
+    this.searchResults = const {},
   });
 
   /// The status [status] returns.
@@ -27,6 +28,12 @@ class FakeEngineService implements EngineService {
 
   /// Pages whose items fail as damaged.
   final Set<int> failingPages;
+
+  /// What [search] finds, by query: each list is one page's matches.
+  final Map<String, List<List<SearchMatch>>> searchResults;
+
+  /// The queries and options of every [search], oldest first.
+  final List<(String, SearchOptions)> searches = [];
 
   /// The wanted sets of every [requestView], oldest first.
   final List<List<WantedItem>> requests = [];
@@ -69,6 +76,26 @@ class FakeEngineService implements EngineService {
   Future<int> showLayers(int document, List<bool> visible) async {
     layerRequests.add(visible);
     return _renderKeys[document] = ++_lastRenderKey;
+  }
+
+  /// Reports [searchResults] for [query] page by page, then the progress
+  /// over every page and [SearchDone].
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) async* {
+    searches.add((query, options));
+    final pages = documents.values
+        .firstWhere((open) => open.id == document)
+        .pages
+        .length;
+    for (final matches in searchResults[query] ?? const <List<SearchMatch>>[]) {
+      yield SearchMatches(matches);
+    }
+    yield SearchProgress(searched: pages, pages: pages);
+    yield const SearchDone();
   }
 
   /// A view that answers each wanted item with opaque white pixels of its

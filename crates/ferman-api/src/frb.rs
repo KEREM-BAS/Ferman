@@ -342,6 +342,75 @@ pub struct ViewEvent {
     pub fail_reason: Option<FailReason>,
 }
 
+/// How a search matches (a2-4a).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SearchOptions {
+    /// Match case.
+    pub match_case: bool,
+    /// Whole words.
+    pub whole_words: bool,
+    /// Ignore accents and dotted/dotless i (on by default in the app, G61).
+    pub ignore_accents: bool,
+}
+
+/// A rectangle on a page in displayed points, y down.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageRect {
+    /// The left edge.
+    pub left: f32,
+    /// The top edge.
+    pub top: f32,
+    /// The right edge.
+    pub right: f32,
+    /// The bottom edge.
+    pub bottom: f32,
+}
+
+/// One match of a search.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchMatch {
+    /// Its page, from 0.
+    pub page: u32,
+    /// One rectangle per line it covers.
+    pub rects: Vec<PageRect>,
+    /// The line it starts on.
+    pub snippet: String,
+    /// Where it starts in the snippet, in characters.
+    pub snippet_start: u32,
+    /// Where it ends in the snippet, in characters.
+    pub snippet_end: u32,
+}
+
+/// What a search event says.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SearchEventKind {
+    /// The search runs: `search` is its handle. The first event.
+    Started,
+    /// One page's `matches`.
+    Matches,
+    /// `searched` of `pages` pages read.
+    Progress,
+    /// It ended; `cancelled` says how. The last event.
+    Done,
+}
+
+/// An event of a search's stream.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchEvent {
+    /// What happened.
+    pub kind: SearchEventKind,
+    /// The search's handle (`Started`).
+    pub search: u64,
+    /// One page's matches (`Matches`).
+    pub matches: Vec<SearchMatch>,
+    /// Pages read (`Progress`).
+    pub searched: u32,
+    /// Pages in the document (`Progress`).
+    pub pages: u32,
+    /// Whether it was cancelled (`Done`).
+    pub cancelled: bool,
+}
+
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
 ///
@@ -488,6 +557,90 @@ pub async fn close_view(view: u64) -> Result<(), ApiError> {
     engine()?
         .close_view(facade::ViewId::from_raw(view))
         .map_err(api_error_dto)
+}
+
+/// Searches `document` for `query`; the stream starts with `Started` and its handle, brings each
+/// page's matches and the progress, and ends after `Done`. Cancelling the stream stops the
+/// search at its next page with matches or progress.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn search(
+    document: u64,
+    query: String,
+    options: SearchOptions,
+    sink: StreamSink<SearchEvent>,
+) -> Result<(), ApiError> {
+    let options = facade::SearchOptions {
+        match_case: options.match_case,
+        whole_words: options.whole_words,
+        ignore_accents: options.ignore_accents,
+        ..facade::SearchOptions::default()
+    };
+    engine()?
+        .search(
+            facade::DocumentId::from_raw(document),
+            query,
+            options,
+            Box::new(BridgeSearch(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Hands a search's events to its Dart stream.
+struct BridgeSearch(StreamSink<SearchEvent>);
+
+impl facade::SearchSink for BridgeSearch {
+    fn deliver(&mut self, event: facade::SearchEvent) -> bool {
+        let empty = SearchEvent {
+            kind: SearchEventKind::Done,
+            search: 0,
+            matches: Vec::new(),
+            searched: 0,
+            pages: 0,
+            cancelled: false,
+        };
+        let event = match event {
+            facade::SearchEvent::Started(id) => SearchEvent {
+                kind: SearchEventKind::Started,
+                search: id.get(),
+                ..empty
+            },
+            facade::SearchEvent::Matches(matches) => SearchEvent {
+                kind: SearchEventKind::Matches,
+                matches: matches
+                    .into_iter()
+                    .map(|found| SearchMatch {
+                        page: found.page,
+                        rects: found
+                            .rects
+                            .into_iter()
+                            .map(|[left, top, right, bottom]| PageRect {
+                                left,
+                                top,
+                                right,
+                                bottom,
+                            })
+                            .collect(),
+                        snippet: found.snippet,
+                        snippet_start: found.snippet_range.start,
+                        snippet_end: found.snippet_range.end,
+                    })
+                    .collect(),
+                ..empty
+            },
+            facade::SearchEvent::Progress { searched, pages } => SearchEvent {
+                kind: SearchEventKind::Progress,
+                searched,
+                pages,
+                ..empty
+            },
+            facade::SearchEvent::Done { cancelled } => SearchEvent { cancelled, ..empty },
+        };
+        self.0.add(event).is_ok()
+    }
 }
 
 /// The process's engine, started on first use under the panic guard.

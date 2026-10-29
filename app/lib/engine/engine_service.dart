@@ -33,6 +33,15 @@ abstract interface class EngineService {
   /// switched ([OpenedDocument.layersSwitchable]).
   Future<int> showLayers(int document, List<bool> visible);
 
+  /// Searches [document] for [query]: each page's matches as they are found,
+  /// the progress, then [SearchDone]. Cancelling the subscription stops the
+  /// search.
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  );
+
   /// Opens a view of [document] that renders nothing until [requestView].
   Future<EngineView> openView(int document);
 
@@ -97,6 +106,13 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<int> showLayers(int document, List<bool> visible) async => throw error;
+
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) => Stream.error(error);
 
   @override
   Future<EngineView> openView(int document) async => throw error;

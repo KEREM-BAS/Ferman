@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1400650419;
+  int get rustContentHash => -867031509;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -100,6 +100,12 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
+  });
+
+  Stream<SearchEvent> crateFrbSearch({
+    required BigInt document,
+    required String query,
+    required SearchOptions options,
   });
 
   Future<BigInt> crateFrbShowLayers({
@@ -332,6 +338,41 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Stream<SearchEvent> crateFrbSearch({
+    required BigInt document,
+    required String query,
+    required SearchOptions options,
+  }) {
+    final sink = RustStreamSink<SearchEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_String(query);
+            var arg2 = cst_encode_box_autoadd_search_options(options);
+            var arg3 = cst_encode_StreamSink_search_event_Dco(sink);
+            return wire.wire__crate__frb__search(port_, arg0, arg1, arg2, arg3);
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbSearchConstMeta,
+          argValues: [document, query, options, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbSearchConstMeta => const TaskConstMeta(
+    debugName: "search",
+    argNames: ["document", "query", "options", "sink"],
+  );
+
+  @override
   Future<BigInt> crateFrbShowLayers({
     required BigInt document,
     required List<bool> visible,
@@ -363,6 +404,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<SearchEvent> dco_decode_StreamSink_search_event_Dco(
+    dynamic raw,
+  ) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
   }
 
   @protected
@@ -437,6 +486,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ReadOnlyReason dco_decode_box_autoadd_read_only_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_read_only_reason(raw);
+  }
+
+  @protected
+  SearchOptions dco_decode_box_autoadd_search_options(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_search_options(raw);
   }
 
   @protected
@@ -576,9 +631,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<PageRect> dco_decode_list_page_rect(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_page_rect).toList();
+  }
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  List<SearchMatch> dco_decode_list_search_match(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_search_match).toList();
   }
 
   @protected
@@ -682,6 +749,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  PageRect dco_decode_page_rect(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
+    return PageRect(
+      left: dco_decode_f_32(arr[0]),
+      top: dco_decode_f_32(arr[1]),
+      right: dco_decode_f_32(arr[2]),
+      bottom: dco_decode_f_32(arr[3]),
+    );
+  }
+
+  @protected
   PdfDate dco_decode_pdf_date(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -725,6 +806,56 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return ReadOnlyReason.values[raw as int];
+  }
+
+  @protected
+  SearchEvent dco_decode_search_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return SearchEvent(
+      kind: dco_decode_search_event_kind(arr[0]),
+      search: dco_decode_u_64(arr[1]),
+      matches: dco_decode_list_search_match(arr[2]),
+      searched: dco_decode_u_32(arr[3]),
+      pages: dco_decode_u_32(arr[4]),
+      cancelled: dco_decode_bool(arr[5]),
+    );
+  }
+
+  @protected
+  SearchEventKind dco_decode_search_event_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return SearchEventKind.values[raw as int];
+  }
+
+  @protected
+  SearchMatch dco_decode_search_match(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 5)
+      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    return SearchMatch(
+      page: dco_decode_u_32(arr[0]),
+      rects: dco_decode_list_page_rect(arr[1]),
+      snippet: dco_decode_String(arr[2]),
+      snippetStart: dco_decode_u_32(arr[3]),
+      snippetEnd: dco_decode_u_32(arr[4]),
+    );
+  }
+
+  @protected
+  SearchOptions dco_decode_search_options(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return SearchOptions(
+      matchCase: dco_decode_bool(arr[0]),
+      wholeWords: dco_decode_bool(arr[1]),
+      ignoreAccents: dco_decode_bool(arr[2]),
+    );
   }
 
   @protected
@@ -837,6 +968,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RustStreamSink<SearchEvent> sse_decode_StreamSink_search_event_Dco(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<ViewEvent> sse_decode_StreamSink_view_event_Dco(
     SseDeserializer deserializer,
   ) {
@@ -905,6 +1044,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_read_only_reason(deserializer));
+  }
+
+  @protected
+  SearchOptions sse_decode_box_autoadd_search_options(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_search_options(deserializer));
   }
 
   @protected
@@ -1082,10 +1229,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <PageRect>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_page_rect(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <SearchMatch>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_search_match(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -1245,6 +1416,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  PageRect sse_decode_page_rect(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_left = sse_decode_f_32(deserializer);
+    var var_top = sse_decode_f_32(deserializer);
+    var var_right = sse_decode_f_32(deserializer);
+    var var_bottom = sse_decode_f_32(deserializer);
+    return PageRect(
+      left: var_left,
+      top: var_top,
+      right: var_right,
+      bottom: var_bottom,
+    );
+  }
+
+  @protected
   PdfDate sse_decode_pdf_date(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_year = sse_decode_u_16(deserializer);
@@ -1289,6 +1475,62 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return ReadOnlyReason.values[inner];
+  }
+
+  @protected
+  SearchEvent sse_decode_search_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_search_event_kind(deserializer);
+    var var_search = sse_decode_u_64(deserializer);
+    var var_matches = sse_decode_list_search_match(deserializer);
+    var var_searched = sse_decode_u_32(deserializer);
+    var var_pages = sse_decode_u_32(deserializer);
+    var var_cancelled = sse_decode_bool(deserializer);
+    return SearchEvent(
+      kind: var_kind,
+      search: var_search,
+      matches: var_matches,
+      searched: var_searched,
+      pages: var_pages,
+      cancelled: var_cancelled,
+    );
+  }
+
+  @protected
+  SearchEventKind sse_decode_search_event_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return SearchEventKind.values[inner];
+  }
+
+  @protected
+  SearchMatch sse_decode_search_match(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_page = sse_decode_u_32(deserializer);
+    var var_rects = sse_decode_list_page_rect(deserializer);
+    var var_snippet = sse_decode_String(deserializer);
+    var var_snippetStart = sse_decode_u_32(deserializer);
+    var var_snippetEnd = sse_decode_u_32(deserializer);
+    return SearchMatch(
+      page: var_page,
+      rects: var_rects,
+      snippet: var_snippet,
+      snippetStart: var_snippetStart,
+      snippetEnd: var_snippetEnd,
+    );
+  }
+
+  @protected
+  SearchOptions sse_decode_search_options(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_matchCase = sse_decode_bool(deserializer);
+    var var_wholeWords = sse_decode_bool(deserializer);
+    var var_ignoreAccents = sse_decode_bool(deserializer);
+    return SearchOptions(
+      matchCase: var_matchCase,
+      wholeWords: var_wholeWords,
+      ignoreAccents: var_ignoreAccents,
+    );
   }
 
   @protected
@@ -1471,6 +1713,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_search_event_kind(SearchEventKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_u_16(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
@@ -1507,6 +1755,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_StreamSink_search_event_Dco(
+    RustStreamSink<SearchEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_search_event,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
   }
 
   @protected
@@ -1583,6 +1848,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_read_only_reason(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_search_options(
+    SearchOptions self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_search_options(self, serializer);
   }
 
   @protected
@@ -1740,6 +2014,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_page_rect(
+    List<PageRect> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_page_rect(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
     SseSerializer serializer,
@@ -1747,6 +2033,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_search_match(
+    List<SearchMatch> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_search_match(item, serializer);
+    }
   }
 
   @protected
@@ -1890,6 +2188,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_page_rect(PageRect self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_32(self.left, serializer);
+    sse_encode_f_32(self.top, serializer);
+    sse_encode_f_32(self.right, serializer);
+    sse_encode_f_32(self.bottom, serializer);
+  }
+
+  @protected
   void sse_encode_pdf_date(PdfDate self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_16(self.year, serializer);
@@ -1926,6 +2233,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_search_event(SearchEvent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_search_event_kind(self.kind, serializer);
+    sse_encode_u_64(self.search, serializer);
+    sse_encode_list_search_match(self.matches, serializer);
+    sse_encode_u_32(self.searched, serializer);
+    sse_encode_u_32(self.pages, serializer);
+    sse_encode_bool(self.cancelled, serializer);
+  }
+
+  @protected
+  void sse_encode_search_event_kind(
+    SearchEventKind self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_search_match(SearchMatch self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.page, serializer);
+    sse_encode_list_page_rect(self.rects, serializer);
+    sse_encode_String(self.snippet, serializer);
+    sse_encode_u_32(self.snippetStart, serializer);
+    sse_encode_u_32(self.snippetEnd, serializer);
+  }
+
+  @protected
+  void sse_encode_search_options(SearchOptions self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_bool(self.matchCase, serializer);
+    sse_encode_bool(self.wholeWords, serializer);
+    sse_encode_bool(self.ignoreAccents, serializer);
   }
 
   @protected

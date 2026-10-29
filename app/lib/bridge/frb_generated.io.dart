@@ -25,6 +25,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<SearchEvent> dco_decode_StreamSink_search_event_Dco(
+    dynamic raw,
+  );
+
+  @protected
   RustStreamSink<ViewEvent> dco_decode_StreamSink_view_event_Dco(dynamic raw);
 
   @protected
@@ -50,6 +55,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  SearchOptions dco_decode_box_autoadd_search_options(dynamic raw);
 
   @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
@@ -109,7 +117,13 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> dco_decode_list_page_info(dynamic raw);
 
   @protected
+  List<PageRect> dco_decode_list_page_rect(dynamic raw);
+
+  @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<SearchMatch> dco_decode_list_search_match(dynamic raw);
 
   @protected
   List<Signature> dco_decode_list_signature(dynamic raw);
@@ -148,6 +162,9 @@ abstract class FermanBridgeApiImplPlatform
   PageInfo dco_decode_page_info(dynamic raw);
 
   @protected
+  PageRect dco_decode_page_rect(dynamic raw);
+
+  @protected
   PdfDate dco_decode_pdf_date(dynamic raw);
 
   @protected
@@ -161,6 +178,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  SearchEvent dco_decode_search_event(dynamic raw);
+
+  @protected
+  SearchEventKind dco_decode_search_event_kind(dynamic raw);
+
+  @protected
+  SearchMatch dco_decode_search_match(dynamic raw);
+
+  @protected
+  SearchOptions dco_decode_search_options(dynamic raw);
 
   @protected
   Signature dco_decode_signature(dynamic raw);
@@ -196,6 +225,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<SearchEvent> sse_decode_StreamSink_search_event_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<ViewEvent> sse_decode_StreamSink_view_event_Dco(
     SseDeserializer deserializer,
   );
@@ -223,6 +257,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_box_autoadd_read_only_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  SearchOptions sse_decode_box_autoadd_search_options(
     SseDeserializer deserializer,
   );
 
@@ -288,7 +327,13 @@ abstract class FermanBridgeApiImplPlatform
   List<PageInfo> sse_decode_list_page_info(SseDeserializer deserializer);
 
   @protected
+  List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
+
+  @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer);
 
   @protected
   List<Signature> sse_decode_list_signature(SseDeserializer deserializer);
@@ -331,6 +376,9 @@ abstract class FermanBridgeApiImplPlatform
   PageInfo sse_decode_page_info(SseDeserializer deserializer);
 
   @protected
+  PageRect sse_decode_page_rect(SseDeserializer deserializer);
+
+  @protected
   PdfDate sse_decode_pdf_date(SseDeserializer deserializer);
 
   @protected
@@ -344,6 +392,18 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  SearchEvent sse_decode_search_event(SseDeserializer deserializer);
+
+  @protected
+  SearchEventKind sse_decode_search_event_kind(SseDeserializer deserializer);
+
+  @protected
+  SearchMatch sse_decode_search_match(SseDeserializer deserializer);
+
+  @protected
+  SearchOptions sse_decode_search_options(SseDeserializer deserializer);
 
   @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
@@ -381,6 +441,20 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_8_strict>
+  cst_encode_StreamSink_search_event_Dco(RustStreamSink<SearchEvent> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_search_event,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -425,6 +499,16 @@ abstract class FermanBridgeApiImplPlatform
     return wire.cst_new_box_autoadd_read_only_reason(
       cst_encode_read_only_reason(raw),
     );
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_search_options> cst_encode_box_autoadd_search_options(
+    SearchOptions raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_search_options();
+    cst_api_fill_to_wire_search_options(raw, ptr.ref);
+    return ptr;
   }
 
   @protected
@@ -518,12 +602,36 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_page_rect> cst_encode_list_page_rect(
+    List<PageRect> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_page_rect(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_page_rect(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_encode_list_prim_u_8_strict(
     Uint8List raw,
   ) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_search_match> cst_encode_list_search_match(
+    List<SearchMatch> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_search_match(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_search_match(raw[i], ans.ref.ptr[i]);
+    }
     return ans;
   }
 
@@ -649,6 +757,14 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_box_autoadd_search_options(
+    SearchOptions apiObj,
+    ffi.Pointer<wire_cst_search_options> wireObj,
+  ) {
+    cst_api_fill_to_wire_search_options(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_view_item(
     ViewItem apiObj,
     ffi.Pointer<wire_cst_view_item> wireObj,
@@ -724,6 +840,17 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_page_rect(
+    PageRect apiObj,
+    wire_cst_page_rect wireObj,
+  ) {
+    wireObj.left = cst_encode_f_32(apiObj.left);
+    wireObj.top = cst_encode_f_32(apiObj.top);
+    wireObj.right = cst_encode_f_32(apiObj.right);
+    wireObj.bottom = cst_encode_f_32(apiObj.bottom);
+  }
+
+  @protected
   void cst_api_fill_to_wire_pdf_date(
     PdfDate apiObj,
     wire_cst_pdf_date wireObj,
@@ -743,6 +870,41 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.state = cst_encode_pdfium_state(apiObj.state);
     wireObj.tag = cst_encode_opt_String(apiObj.tag);
     wireObj.reason = cst_encode_opt_String(apiObj.reason);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_search_event(
+    SearchEvent apiObj,
+    wire_cst_search_event wireObj,
+  ) {
+    wireObj.kind = cst_encode_search_event_kind(apiObj.kind);
+    wireObj.search = cst_encode_u_64(apiObj.search);
+    wireObj.matches = cst_encode_list_search_match(apiObj.matches);
+    wireObj.searched = cst_encode_u_32(apiObj.searched);
+    wireObj.pages = cst_encode_u_32(apiObj.pages);
+    wireObj.cancelled = cst_encode_bool(apiObj.cancelled);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_search_match(
+    SearchMatch apiObj,
+    wire_cst_search_match wireObj,
+  ) {
+    wireObj.page = cst_encode_u_32(apiObj.page);
+    wireObj.rects = cst_encode_list_page_rect(apiObj.rects);
+    wireObj.snippet = cst_encode_String(apiObj.snippet);
+    wireObj.snippet_start = cst_encode_u_32(apiObj.snippetStart);
+    wireObj.snippet_end = cst_encode_u_32(apiObj.snippetEnd);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_search_options(
+    SearchOptions apiObj,
+    wire_cst_search_options wireObj,
+  ) {
+    wireObj.match_case = cst_encode_bool(apiObj.matchCase);
+    wireObj.whole_words = cst_encode_bool(apiObj.wholeWords);
+    wireObj.ignore_accents = cst_encode_bool(apiObj.ignoreAccents);
   }
 
   @protected
@@ -835,6 +997,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_read_only_reason(ReadOnlyReason raw);
 
   @protected
+  int cst_encode_search_event_kind(SearchEventKind raw);
+
+  @protected
   int cst_encode_u_16(int raw);
 
   @protected
@@ -852,6 +1017,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_AnyhowException(
     AnyhowException self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_StreamSink_search_event_Dco(
+    RustStreamSink<SearchEvent> self,
     SseSerializer serializer,
   );
 
@@ -888,6 +1059,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_read_only_reason(
     ReadOnlyReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_search_options(
+    SearchOptions self,
     SseSerializer serializer,
   );
 
@@ -961,8 +1138,17 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_list_page_info(List<PageInfo> self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_search_match(
+    List<SearchMatch> self,
     SseSerializer serializer,
   );
 
@@ -1024,6 +1210,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_page_info(PageInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_page_rect(PageRect self, SseSerializer serializer);
+
+  @protected
   void sse_encode_pdf_date(PdfDate self, SseSerializer serializer);
 
   @protected
@@ -1040,6 +1229,21 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_event_kind(
+    SearchEventKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_search_match(SearchMatch self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_search_options(SearchOptions self, SseSerializer serializer);
 
   @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
@@ -1251,6 +1455,39 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
           >();
 
+  void wire__crate__frb__search(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> query,
+    ffi.Pointer<wire_cst_search_options> options,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> sink,
+  ) {
+    return _wire__crate__frb__search(port_, document, query, options, sink);
+  }
+
+  late final _wire__crate__frb__searchPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_search_options>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__search');
+  late final _wire__crate__frb__search = _wire__crate__frb__searchPtr
+      .asFunction<
+        void Function(
+          int,
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_search_options>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
   void wire__crate__frb__show_layers(
     int port_,
     int document,
@@ -1306,6 +1543,18 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_read_only_reason =
       _cst_new_box_autoadd_read_only_reasonPtr
           .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_search_options> cst_new_box_autoadd_search_options() {
+    return _cst_new_box_autoadd_search_options();
+  }
+
+  late final _cst_new_box_autoadd_search_optionsPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_search_options> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_search_options');
+  late final _cst_new_box_autoadd_search_options =
+      _cst_new_box_autoadd_search_optionsPtr
+          .asFunction<ffi.Pointer<wire_cst_search_options> Function()>();
 
   ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
     return _cst_new_box_autoadd_u_32(value);
@@ -1414,6 +1663,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_page_info = _cst_new_list_page_infoPtr
       .asFunction<ffi.Pointer<wire_cst_list_page_info> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_page_rect> cst_new_list_page_rect(int len) {
+    return _cst_new_list_page_rect(len);
+  }
+
+  late final _cst_new_list_page_rectPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_page_rect> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_page_rect');
+  late final _cst_new_list_page_rect = _cst_new_list_page_rectPtr
+      .asFunction<ffi.Pointer<wire_cst_list_page_rect> Function(int)>();
+
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
   ) {
@@ -1428,6 +1690,19 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_prim_u_8_strict');
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_search_match> cst_new_list_search_match(int len) {
+    return _cst_new_list_search_match(len);
+  }
+
+  late final _cst_new_list_search_matchPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_search_match> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_search_match');
+  late final _cst_new_list_search_match = _cst_new_list_search_matchPtr
+      .asFunction<ffi.Pointer<wire_cst_list_search_match> Function(int)>();
 
   ffi.Pointer<wire_cst_list_signature> cst_new_list_signature(int len) {
     return _cst_new_list_signature(len);
@@ -1522,6 +1797,17 @@ final class wire_cst_list_wanted_item extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+}
+
+final class wire_cst_search_options extends ffi.Struct {
+  @ffi.Bool()
+  external bool match_case;
+
+  @ffi.Bool()
+  external bool whole_words;
+
+  @ffi.Bool()
+  external bool ignore_accents;
 }
 
 final class wire_cst_list_bool extends ffi.Struct {
@@ -1629,6 +1915,49 @@ final class wire_cst_list_page_info extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_page_rect extends ffi.Struct {
+  @ffi.Float()
+  external double left;
+
+  @ffi.Float()
+  external double top;
+
+  @ffi.Float()
+  external double right;
+
+  @ffi.Float()
+  external double bottom;
+}
+
+final class wire_cst_list_page_rect extends ffi.Struct {
+  external ffi.Pointer<wire_cst_page_rect> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_search_match extends ffi.Struct {
+  @ffi.Uint32()
+  external int page;
+
+  external ffi.Pointer<wire_cst_list_page_rect> rects;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> snippet;
+
+  @ffi.Uint32()
+  external int snippet_start;
+
+  @ffi.Uint32()
+  external int snippet_end;
+}
+
+final class wire_cst_list_search_match extends ffi.Struct {
+  external ffi.Pointer<wire_cst_search_match> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_signature extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> field;
 
@@ -1709,6 +2038,25 @@ final class wire_cst_opened_document extends ffi.Struct {
   external bool layers_switchable;
 
   external ffi.Pointer<wire_cst_list_signature> signatures;
+}
+
+final class wire_cst_search_event extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  @ffi.Uint64()
+  external int search;
+
+  external ffi.Pointer<wire_cst_list_search_match> matches;
+
+  @ffi.Uint32()
+  external int searched;
+
+  @ffi.Uint32()
+  external int pages;
+
+  @ffi.Bool()
+  external bool cancelled;
 }
 
 final class wire_cst_view_event extends ffi.Struct {
