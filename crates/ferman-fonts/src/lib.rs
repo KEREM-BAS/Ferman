@@ -19,8 +19,9 @@
 //!
 //! - `program`: `FontProgram` and `GlyphId`; TrueType and CFF/CFF2 through skrifa and read-fonts,
 //!   and the minimal Type1 parser. M2.
-//! - `encoding`: `Encoding` tables (Standard, WinAnsi, MacRoman, MacExpert, PDFDoc, Symbol,
-//!   ZapfDingbats) and glyph names to Unicode. M2.
+//! - `encoding` (since M2): [`BaseEncoding`] (Standard, WinAnsi, MacRoman), [`SimpleEncoding`]
+//!   with `/Differences`, and glyph names to text ([`glyph_text`]). MacExpert, PDFDoc, Symbol and
+//!   ZapfDingbats follow with the fonts that need them.
 //! - `cmap` (since M2): [`CMap`], encoding and ToUnicode CMaps read leniently, with `usecmap`
 //!   recorded for the caller's depth limit; writing in M3.
 //! - `shaping`: the internal `Shaper` trait and `ShapedRun`, with harfrust behind it (ADR 0007), so
@@ -31,8 +32,10 @@
 #![forbid(unsafe_code)]
 
 pub mod cmap;
+pub mod encoding;
 
 pub use cmap::CMap;
+pub use encoding::{BaseEncoding, SimpleEncoding, glyph_text};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
