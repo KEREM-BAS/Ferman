@@ -996,4 +996,64 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'رقم الصفحة';
+
+  @override
+  String sidebarPage(String page) {
+    return 'الصفحة $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'لا توجد إشارات مرجعية';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.';
+
+  @override
+  String get sidebarNoAttachments => 'لا توجد مرفقات';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'تظهر هنا الملفات المضمّنة في ملف PDF هذا.';
+
+  @override
+  String get sidebarNoLayers => 'لا توجد طبقات';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.';
+
+  @override
+  String get sidebarNoSignatures => 'لا توجد توقيعات';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'هذا المستند غير موقّع ولا يحتوي على حقول توقيع.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة.';
+
+  @override
+  String get sidebarSaveAttachment => 'حفظ المرفق باسم…';
+
+  @override
+  String get sidebarLayersNote =>
+      'تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة.';
+
+  @override
+  String get sidebarHideLayer => 'إخفاء الطبقة';
+
+  @override
+  String get sidebarShowLayer => 'إظهار الطبقة';
+
+  @override
+  String get sidebarLayerLocked => 'مقفلة';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'التحقق من التوقيعات متاح في إصدار قادم.';
+
+  @override
+  String get sidebarEmptySignatureField => 'حقل توقيع فارغ';
 }

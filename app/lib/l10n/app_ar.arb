@@ -307,5 +307,22 @@
   "viewerPageFailedReason": "تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد.",
   "viewerTryAgain": "إعادة المحاولة",
   "viewerMarqueeZoom": "أفلِت للتكبير إلى {zoom}",
-  "viewerPageNumber": "رقم الصفحة"
+  "viewerPageNumber": "رقم الصفحة",
+  "sidebarPage": "الصفحة {page}",
+  "sidebarNoBookmarks": "لا توجد إشارات مرجعية",
+  "sidebarNoBookmarksBody": "لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.",
+  "sidebarNoAttachments": "لا توجد مرفقات",
+  "sidebarNoAttachmentsBody": "تظهر هنا الملفات المضمّنة في ملف PDF هذا.",
+  "sidebarNoLayers": "لا توجد طبقات",
+  "sidebarNoLayersBody": "لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.",
+  "sidebarNoSignatures": "لا توجد توقيعات",
+  "sidebarNoSignaturesBody": "هذا المستند غير موقّع ولا يحتوي على حقول توقيع.",
+  "sidebarAttachmentsNote": "تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة.",
+  "sidebarSaveAttachment": "حفظ المرفق باسم…",
+  "sidebarLayersNote": "تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة.",
+  "sidebarHideLayer": "إخفاء الطبقة",
+  "sidebarShowLayer": "إظهار الطبقة",
+  "sidebarLayerLocked": "مقفلة",
+  "sidebarSignatureCheckingLater": "التحقق من التوقيعات متاح في إصدار قادم.",
+  "sidebarEmptySignatureField": "حقل توقيع فارغ"
 }

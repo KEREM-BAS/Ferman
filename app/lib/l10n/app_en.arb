@@ -1318,5 +1318,78 @@
   "viewerPageNumber": "Page number",
   "@viewerPageNumber": {
     "description": "Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G)."
+  },
+  "sidebarPage": "Page {page}",
+  "@sidebarPage": {
+    "description": "Sidebar: a page thumbnail's accessible name and a signature field's page (a2-3p, a2-14). {page} is the page number formatted for the region, or the page's label such as iv.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "sidebarNoBookmarks": "No bookmarks",
+  "@sidebarNoBookmarks": {
+    "description": "Sidebar › Outline: the title of the empty state when the document has no outline (a2-3m)."
+  },
+  "sidebarNoBookmarksBody": "This document has no outline. Add a bookmark to mark a place you want to come back to.",
+  "@sidebarNoBookmarksBody": {
+    "description": "Sidebar › Outline: the line under the empty state's title (a2-3m)."
+  },
+  "sidebarNoAttachments": "No attachments",
+  "@sidebarNoAttachments": {
+    "description": "Sidebar › Attachments: the title of the empty state (a2-3m)."
+  },
+  "sidebarNoAttachmentsBody": "Files embedded in this PDF appear here.",
+  "@sidebarNoAttachmentsBody": {
+    "description": "Sidebar › Attachments: the line under the empty state's title (a2-3m)."
+  },
+  "sidebarNoLayers": "No layers",
+  "@sidebarNoLayers": {
+    "description": "Sidebar › Layers: the title of the empty state (a2-3m)."
+  },
+  "sidebarNoLayersBody": "This document has no layers to show or hide.",
+  "@sidebarNoLayersBody": {
+    "description": "Sidebar › Layers: the line under the empty state's title (a2-3m)."
+  },
+  "sidebarNoSignatures": "No signatures",
+  "@sidebarNoSignatures": {
+    "description": "Sidebar › Signatures: the title of the empty state (a2-3m)."
+  },
+  "sidebarNoSignaturesBody": "This document isn’t signed and has no signature fields.",
+  "@sidebarNoSignaturesBody": {
+    "description": "Sidebar › Signatures: the line under the empty state's title (a2-3m)."
+  },
+  "sidebarAttachmentsNote": "Attachments open in their own app. Ferman doesn’t run embedded files.",
+  "@sidebarAttachmentsNote": {
+    "description": "Sidebar › Attachments: the note under the list (a2-3b)."
+  },
+  "sidebarSaveAttachment": "Save attachment as…",
+  "@sidebarSaveAttachment": {
+    "description": "Sidebar › Attachments: the download button of an attachment, which saves it where the user picks (a2-3b)."
+  },
+  "sidebarLayersNote": "Hidden layers still print unless you turn off “Print hidden layers” in Print.",
+  "@sidebarLayersNote": {
+    "description": "Sidebar › Layers: the note under the list (a2-3c)."
+  },
+  "sidebarHideLayer": "Hide layer",
+  "@sidebarHideLayer": {
+    "description": "Sidebar › Layers: the eye button of a shown layer (a2-3c)."
+  },
+  "sidebarShowLayer": "Show layer",
+  "@sidebarShowLayer": {
+    "description": "Sidebar › Layers: the eye button of a hidden layer (a2-3c)."
+  },
+  "sidebarLayerLocked": "Locked",
+  "@sidebarLayerLocked": {
+    "description": "Sidebar › Layers: the accessible name of the lock beside a layer whose visibility the document locks (a2-3c)."
+  },
+  "sidebarSignatureCheckingLater": "Signature checking is available in a future version.",
+  "@sidebarSignatureCheckingLater": {
+    "description": "Sidebar › Signatures: the line under a signer's name until signatures are checked (a2-14, design gap G31)."
+  },
+  "sidebarEmptySignatureField": "Empty signature field",
+  "@sidebarEmptySignatureField": {
+    "description": "Sidebar › Signatures: the line under an unsigned signature field's name (a2-14)."
   }
 }

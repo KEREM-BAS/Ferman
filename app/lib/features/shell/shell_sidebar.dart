@@ -2,8 +2,10 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
+import 'package:ferman/features/shell/shell_sidebar_tabs.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -16,10 +18,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// [IndexedStack] (never a `TabBarView`, ADR 0011), the tab's heading with
 /// its count and buttons, and the tab's content.
 ///
-/// The tabs switch; their content needs an open document (M2), so the
-/// content is empty, the Pages heading counts the placeholder document's
-/// pages, and the heading buttons are disabled with the future-version
-/// tooltip of their feature ([Feature]).
+/// With a document open (`viewerProvider`) the tabs show its pages,
+/// outline, attachments, layers and signatures ([SidebarPages] and the
+/// others), each heading counting its list; the contents are keyed by the
+/// document, so another document starts afresh. The shell's placeholder
+/// documents keep the M1 sidebar: empty contents, the Pages heading
+/// counting their pages. The heading buttons are disabled with the
+/// future-version tooltip of their feature ([Feature]); Search results
+/// come with search (W3).
 class FmSidebar extends ConsumerWidget {
   /// The sidebar.
   const new({super.key});
@@ -37,7 +43,10 @@ class FmSidebar extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final tab = ref.watch(shellSidebarTabProvider);
-    final pages = ref.watch(shellDocumentsProvider).active?.pageCount;
+    final document = ref.watch(viewerProvider.select((v) => v?.document));
+    final pages =
+        document?.pages.length ??
+        ref.watch(shellDocumentsProvider).active?.pageCount;
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final line = BorderSide(
       color: theme.colors.borderSubtle,
@@ -81,9 +90,14 @@ class FmSidebar extends ConsumerWidget {
       SidebarTab.signatures ||
       SidebarTab.search => const <Widget>[],
     };
-    final count = tab == SidebarTab.pages && pages != null
-        ? format.integer(pages)
-        : null;
+    final listed = switch (tab) {
+      SidebarTab.pages => pages,
+      SidebarTab.attachments => document?.attachments.length,
+      SidebarTab.layers => document?.layers.length,
+      SidebarTab.signatures => document?.signatures.length,
+      SidebarTab.outline || SidebarTab.search => null,
+    };
+    final count = listed != null && listed > 0 ? format.integer(listed) : null;
 
     return Semantics(
       container: true,
@@ -161,7 +175,23 @@ class FmSidebar extends ConsumerWidget {
                 sizing: StackFit.expand,
                 children: [
                   for (final each in SidebarTab.values)
-                    SizedBox.expand(key: keyOf(each)),
+                    KeyedSubtree(
+                      key: keyOf(each),
+                      child: switch ((document, each)) {
+                        (null, _) ||
+                        (_, SidebarTab.search) => const SizedBox.expand(),
+                        (final open?, SidebarTab.pages) => SidebarPages(
+                          key: ValueKey(open.id),
+                        ),
+                        (final open?, SidebarTab.outline) => SidebarOutline(
+                          key: ValueKey(open.id),
+                        ),
+                        (_, SidebarTab.attachments) =>
+                          const SidebarAttachments(),
+                        (_, SidebarTab.layers) => const SidebarLayers(),
+                        (_, SidebarTab.signatures) => const SidebarSignatures(),
+                      },
+                    ),
                 ],
               ),
             ),

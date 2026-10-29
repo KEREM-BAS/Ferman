@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-308 messages in `app_en.arb`; translated: Turkish 308, Arabic 308.
+325 messages in `app_en.arb`; translated: Turkish 325, Arabic 325.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -364,5 +364,22 @@ The table below is generated from the ARB files by `tools/l10n`
 | `viewerTryAgain` | Try again | Yeniden dene | إعادة المحاولة | Canvas: the button that renders a failed page again (a2-13). |
 | `viewerMarqueeZoom` | Release to zoom to {zoom} | {zoom} yakınlaştırmak için bırakın | أفلِت للتكبير إلى {zoom} | Canvas: the label beside the rectangle of Marquee zoom while it is dragged (a2-2). {zoom} is the zoom it gives, a percentage already formatted for the region, for example 180%. |
 | `viewerPageNumber` | Page number | Sayfa numarası | رقم الصفحة | Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G). |
+| `sidebarPage` | Page {page} | Sayfa {page} | الصفحة {page} | Sidebar: a page thumbnail's accessible name and a signature field's page (a2-3p, a2-14). {page} is the page number formatted for the region, or the page's label such as iv. |
+| `sidebarNoBookmarks` | No bookmarks | Yer işareti yok | لا توجد إشارات مرجعية | Sidebar › Outline: the title of the empty state when the document has no outline (a2-3m). |
+| `sidebarNoBookmarksBody` | This document has no outline. Add a bookmark to mark a place you want to come back to. | Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin. | لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه. | Sidebar › Outline: the line under the empty state's title (a2-3m). |
+| `sidebarNoAttachments` | No attachments | Ek yok | لا توجد مرفقات | Sidebar › Attachments: the title of the empty state (a2-3m). |
+| `sidebarNoAttachmentsBody` | Files embedded in this PDF appear here. | Bu PDF’ye gömülü dosyalar burada görünür. | تظهر هنا الملفات المضمّنة في ملف PDF هذا. | Sidebar › Attachments: the line under the empty state's title (a2-3m). |
+| `sidebarNoLayers` | No layers | Katman yok | لا توجد طبقات | Sidebar › Layers: the title of the empty state (a2-3m). |
+| `sidebarNoLayersBody` | This document has no layers to show or hide. | Bu belgede gösterilip gizlenebilecek katman yok. | لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها. | Sidebar › Layers: the line under the empty state's title (a2-3m). |
+| `sidebarNoSignatures` | No signatures | İmza yok | لا توجد توقيعات | Sidebar › Signatures: the title of the empty state (a2-3m). |
+| `sidebarNoSignaturesBody` | This document isn’t signed and has no signature fields. | Bu belge imzalı değil ve imza alanı içermiyor. | هذا المستند غير موقّع ولا يحتوي على حقول توقيع. | Sidebar › Signatures: the line under the empty state's title (a2-3m). |
+| `sidebarAttachmentsNote` | Attachments open in their own app. Ferman doesn’t run embedded files. | Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz. | تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة. | Sidebar › Attachments: the note under the list (a2-3b). |
+| `sidebarSaveAttachment` | Save attachment as… | Eki farklı kaydet… | حفظ المرفق باسم… | Sidebar › Attachments: the download button of an attachment, which saves it where the user picks (a2-3b). |
+| `sidebarLayersNote` | Hidden layers still print unless you turn off “Print hidden layers” in Print. | Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır. | تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة. | Sidebar › Layers: the note under the list (a2-3c). |
+| `sidebarHideLayer` | Hide layer | Katmanı gizle | إخفاء الطبقة | Sidebar › Layers: the eye button of a shown layer (a2-3c). |
+| `sidebarShowLayer` | Show layer | Katmanı göster | إظهار الطبقة | Sidebar › Layers: the eye button of a hidden layer (a2-3c). |
+| `sidebarLayerLocked` | Locked | Kilitli | مقفلة | Sidebar › Layers: the accessible name of the lock beside a layer whose visibility the document locks (a2-3c). |
+| `sidebarSignatureCheckingLater` | Signature checking is available in a future version. | İmza denetimi gelecek bir sürümde sunulacak. | التحقق من التوقيعات متاح في إصدار قادم. | Sidebar › Signatures: the line under a signer's name until signatures are checked (a2-14, design gap G31). |
+| `sidebarEmptySignatureField` | Empty signature field | Boş imza alanı | حقل توقيع فارغ | Sidebar › Signatures: the line under an unsigned signature field's name (a2-14). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

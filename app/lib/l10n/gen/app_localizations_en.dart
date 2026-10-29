@@ -996,4 +996,64 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'Page number';
+
+  @override
+  String sidebarPage(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'No bookmarks';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'This document has no outline. Add a bookmark to mark a place you want to come back to.';
+
+  @override
+  String get sidebarNoAttachments => 'No attachments';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'Files embedded in this PDF appear here.';
+
+  @override
+  String get sidebarNoLayers => 'No layers';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'This document has no layers to show or hide.';
+
+  @override
+  String get sidebarNoSignatures => 'No signatures';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'This document isn’t signed and has no signature fields.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'Attachments open in their own app. Ferman doesn’t run embedded files.';
+
+  @override
+  String get sidebarSaveAttachment => 'Save attachment as…';
+
+  @override
+  String get sidebarLayersNote =>
+      'Hidden layers still print unless you turn off “Print hidden layers” in Print.';
+
+  @override
+  String get sidebarHideLayer => 'Hide layer';
+
+  @override
+  String get sidebarShowLayer => 'Show layer';
+
+  @override
+  String get sidebarLayerLocked => 'Locked';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'Signature checking is available in a future version.';
+
+  @override
+  String get sidebarEmptySignatureField => 'Empty signature field';
 }

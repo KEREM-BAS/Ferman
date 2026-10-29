@@ -106,6 +106,12 @@ enum Feature {
   /// Attaching files: the Attachments tab's Attach a file.
   attachingFiles('B067'),
 
+  /// Saving an attachment: the Attachments tab's Save attachment as….
+  savingAttachments('B110'),
+
+  /// Showing and hiding layers: the Layers tab's eye buttons.
+  layerVisibility('B111'),
+
   /// The right panel's sections: its More button.
   rightPanelSections('B068'),
 

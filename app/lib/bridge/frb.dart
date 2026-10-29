@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -142,6 +142,32 @@ class ApiVersion {
           runtimeType == other.runtimeType &&
           major == other.major &&
           minor == other.minor;
+}
+
+/// An embedded file of an [`OpenedDocument`] (a2-3b).
+class Attachment {
+  /// Its file name.
+  final String name;
+
+  /// Its size in bytes, when the file gives it.
+  final BigInt? size;
+
+  /// When it was last changed, or else created, when the file gives it.
+  final PdfDate? modified;
+
+  const Attachment({required this.name, this.size, this.modified});
+
+  @override
+  int get hashCode => name.hashCode ^ size.hashCode ^ modified.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Attachment &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          size == other.size &&
+          modified == other.modified;
 }
 
 /// The build profile of the engine library.
@@ -280,6 +306,36 @@ enum ItemKind {
   thumbnail,
 }
 
+/// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
+class Layer {
+  /// Its name.
+  final String name;
+
+  /// Whether the document shows it.
+  final bool visible;
+
+  /// Whether the document locks its visibility.
+  final bool locked;
+
+  const Layer({
+    required this.name,
+    required this.visible,
+    required this.locked,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ visible.hashCode ^ locked.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Layer &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          visible == other.visible &&
+          locked == other.locked;
+}
+
 /// A document the engine opened.
 class OpenedDocument {
   /// Its handle, until [`close`].
@@ -294,16 +350,39 @@ class OpenedDocument {
   /// Its pages.
   final List<PageInfo> pages;
 
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Embedded files, never opened automatically.
+  final List<Attachment> attachments;
+
+  /// Layers, in the order the document gives them.
+  final List<Layer> layers;
+
+  /// Signature fields.
+  final List<Signature> signatures;
+
   const OpenedDocument({
     required this.id,
     this.readOnly,
     required this.rightToLeft,
     required this.pages,
+    required this.outline,
+    required this.attachments,
+    required this.layers,
+    required this.signatures,
   });
 
   @override
   int get hashCode =>
-      id.hashCode ^ readOnly.hashCode ^ rightToLeft.hashCode ^ pages.hashCode;
+      id.hashCode ^
+      readOnly.hashCode ^
+      rightToLeft.hashCode ^
+      pages.hashCode ^
+      outline.hashCode ^
+      attachments.hashCode ^
+      layers.hashCode ^
+      signatures.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -313,7 +392,47 @@ class OpenedDocument {
           id == other.id &&
           readOnly == other.readOnly &&
           rightToLeft == other.rightToLeft &&
-          pages == other.pages;
+          pages == other.pages &&
+          outline == other.outline &&
+          attachments == other.attachments &&
+          layers == other.layers &&
+          signatures == other.signatures;
+}
+
+/// One outline item (bookmark) of an [`OpenedDocument`].
+class OutlineEntry {
+  /// Its title.
+  final String title;
+
+  /// The page it goes to, from 0, when it goes to a page of this document.
+  final int? page;
+
+  /// Its nesting, from 0.
+  final int depth;
+
+  /// Whether the document shows it open.
+  final bool open;
+
+  const OutlineEntry({
+    required this.title,
+    this.page,
+    required this.depth,
+    required this.open,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ page.hashCode ^ depth.hashCode ^ open.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OutlineEntry &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          page == other.page &&
+          depth == other.depth &&
+          open == other.open;
 }
 
 /// One page of an [`OpenedDocument`], in points as displayed.
@@ -340,6 +459,51 @@ class PageInfo {
           width == other.width &&
           height == other.height &&
           label == other.label;
+}
+
+/// A date as the file writes it, without converting its time zone.
+class PdfDate {
+  /// The year.
+  final int year;
+
+  /// The month, 1 to 12.
+  final int month;
+
+  /// The day, 1 to 31.
+  final int day;
+
+  /// The hour, 0 to 23.
+  final int hour;
+
+  /// The minute, 0 to 59.
+  final int minute;
+
+  const PdfDate({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.hour,
+    required this.minute,
+  });
+
+  @override
+  int get hashCode =>
+      year.hashCode ^
+      month.hashCode ^
+      day.hashCode ^
+      hour.hashCode ^
+      minute.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PdfDate &&
+          runtimeType == other.runtimeType &&
+          year == other.year &&
+          month == other.month &&
+          day == other.day &&
+          hour == other.hour &&
+          minute == other.minute;
 }
 
 /// Whether PDFium is loaded: the state of a [`PdfiumStatus`].
@@ -410,6 +574,51 @@ enum ReadOnlyReason {
 
   /// An XFA-only form (a11-7c).
   xfaOnly,
+}
+
+/// A signature field of an [`OpenedDocument`] (a2-14).
+class Signature {
+  /// The field's full name.
+  final String field;
+
+  /// Whether it holds a signature.
+  final bool signed;
+
+  /// The signer's name as the signature writes it.
+  final String? signer;
+
+  /// When it was signed, as the signature writes it.
+  final PdfDate? signedAt;
+
+  /// The page of its widget, from 0.
+  final int? page;
+
+  const Signature({
+    required this.field,
+    required this.signed,
+    this.signer,
+    this.signedAt,
+    this.page,
+  });
+
+  @override
+  int get hashCode =>
+      field.hashCode ^
+      signed.hashCode ^
+      signer.hashCode ^
+      signedAt.hashCode ^
+      page.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Signature &&
+          runtimeType == other.runtimeType &&
+          field == other.field &&
+          signed == other.signed &&
+          signer == other.signer &&
+          signedAt == other.signedAt &&
+          page == other.page;
 }
 
 /// An event of a view's stream. The stream ends when the view closes, with its document or when

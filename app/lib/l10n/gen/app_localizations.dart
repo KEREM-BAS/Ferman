@@ -1947,6 +1947,108 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page number'**
   String get viewerPageNumber;
+
+  /// Sidebar: a page thumbnail's accessible name and a signature field's page (a2-3p, a2-14). {page} is the page number formatted for the region, or the page's label such as iv.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String sidebarPage(String page);
+
+  /// Sidebar › Outline: the title of the empty state when the document has no outline (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks'**
+  String get sidebarNoBookmarks;
+
+  /// Sidebar › Outline: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no outline. Add a bookmark to mark a place you want to come back to.'**
+  String get sidebarNoBookmarksBody;
+
+  /// Sidebar › Attachments: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No attachments'**
+  String get sidebarNoAttachments;
+
+  /// Sidebar › Attachments: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'Files embedded in this PDF appear here.'**
+  String get sidebarNoAttachmentsBody;
+
+  /// Sidebar › Layers: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No layers'**
+  String get sidebarNoLayers;
+
+  /// Sidebar › Layers: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no layers to show or hide.'**
+  String get sidebarNoLayersBody;
+
+  /// Sidebar › Signatures: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No signatures'**
+  String get sidebarNoSignatures;
+
+  /// Sidebar › Signatures: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document isn’t signed and has no signature fields.'**
+  String get sidebarNoSignaturesBody;
+
+  /// Sidebar › Attachments: the note under the list (a2-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments open in their own app. Ferman doesn’t run embedded files.'**
+  String get sidebarAttachmentsNote;
+
+  /// Sidebar › Attachments: the download button of an attachment, which saves it where the user picks (a2-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Save attachment as…'**
+  String get sidebarSaveAttachment;
+
+  /// Sidebar › Layers: the note under the list (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden layers still print unless you turn off “Print hidden layers” in Print.'**
+  String get sidebarLayersNote;
+
+  /// Sidebar › Layers: the eye button of a shown layer (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Hide layer'**
+  String get sidebarHideLayer;
+
+  /// Sidebar › Layers: the eye button of a hidden layer (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Show layer'**
+  String get sidebarShowLayer;
+
+  /// Sidebar › Layers: the accessible name of the lock beside a layer whose visibility the document locks (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get sidebarLayerLocked;
+
+  /// Sidebar › Signatures: the line under a signer's name until signatures are checked (a2-14, design gap G31).
+  ///
+  /// In en, this message translates to:
+  /// **'Signature checking is available in a future version.'**
+  String get sidebarSignatureCheckingLater;
+
+  /// Sidebar › Signatures: the line under an unsigned signature field's name (a2-14).
+  ///
+  /// In en, this message translates to:
+  /// **'Empty signature field'**
+  String get sidebarEmptySignatureField;
 }
 
 class _AppLocalizationsDelegate

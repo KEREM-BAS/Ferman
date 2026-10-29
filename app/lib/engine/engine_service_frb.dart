@@ -88,6 +88,41 @@ class FrbEngineService implements EngineService {
           for (final page in document.pages)
             PageInfo(width: page.width, height: page.height, label: page.label),
         ],
+        outline: [
+          for (final item in document.outline)
+            OutlineEntry(
+              title: item.title,
+              page: item.page,
+              depth: item.depth,
+              open: item.open,
+            ),
+        ],
+        attachments: [
+          for (final file in document.attachments)
+            Attachment(
+              name: file.name,
+              size: file.size?.toInt(),
+              modified: _date(file.modified),
+            ),
+        ],
+        layers: [
+          for (final layer in document.layers)
+            Layer(
+              name: layer.name,
+              visible: layer.visible,
+              locked: layer.locked,
+            ),
+        ],
+        signatures: [
+          for (final field in document.signatures)
+            Signature(
+              field: field.field,
+              signed: field.signed,
+              signer: field.signer,
+              signedAt: _date(field.signedAt),
+              page: field.page,
+            ),
+        ],
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -317,3 +352,8 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
 
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+/// The date as the file writes it, in no time zone, so it shows as written.
+DateTime? _date(bridge.PdfDate? date) => date == null
+    ? null
+    : DateTime(date.year, date.month, date.day, date.hour, date.minute);

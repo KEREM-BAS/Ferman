@@ -4,13 +4,14 @@
 //! [`Engine::open`] reads the file and parses it with ferman-core on a thread of its own, then
 //! loads the same bytes into PDFium and compares the two parsers (ADR 0004). A view of an open
 //! document ([`Engine::open_view`]) receives its tiles and thumbnails as [`ViewEvent`]s; the view
-//! types are ferman-render's, plain data the UI can mirror.
+//! types are ferman-render's, plain data the UI can mirror. A document does not change in M2, so
+//! the open result also carries the lists the sidebar shows (a2-3o, a2-3b, a2-3c, a2-14).
 
 use std::path::PathBuf;
 use std::sync::Arc;
 use std::thread;
 
-use ferman_core::structure::{Agreement, Direction};
+use ferman_core::structure::{Agreement, Attachment, Direction, Layer, OutlineItem, Signature};
 use ferman_core::{OpenOptions, Password, RepairReport, Source};
 use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
 
@@ -36,6 +37,14 @@ pub struct OpenedDocument {
     pub direction: Direction,
     /// Its pages, as PDFium lays them out.
     pub pages: Vec<PageInfo>,
+    /// The outline (bookmarks).
+    pub outline: Vec<OutlineItem>,
+    /// Embedded files and file attachment annotations, never opened automatically.
+    pub attachments: Vec<Attachment>,
+    /// Optional content groups (layers), in the order the document gives them.
+    pub layers: Vec<Layer>,
+    /// Signature fields, shown neutrally until checking arrives (G31).
+    pub signatures: Vec<Signature>,
 }
 
 /// One page of an [`OpenedDocument`].
@@ -117,6 +126,10 @@ impl Engine {
                 read_only,
                 direction: structure.direction,
                 pages,
+                outline: structure.outline.clone(),
+                attachments: structure.attachments.clone(),
+                layers: structure.layers.clone(),
+                signatures: structure.signatures.clone(),
             })
         })
         .await

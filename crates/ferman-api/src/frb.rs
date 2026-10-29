@@ -155,6 +155,79 @@ pub struct OpenedDocument {
     pub right_to_left: bool,
     /// Its pages.
     pub pages: Vec<PageInfo>,
+    /// The outline in reading order, each item followed by its children.
+    pub outline: Vec<OutlineEntry>,
+    /// Embedded files, never opened automatically.
+    pub attachments: Vec<Attachment>,
+    /// Layers, in the order the document gives them.
+    pub layers: Vec<Layer>,
+    /// Signature fields.
+    pub signatures: Vec<Signature>,
+}
+
+/// One outline item (bookmark) of an [`OpenedDocument`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutlineEntry {
+    /// Its title.
+    pub title: String,
+    /// The page it goes to, from 0, when it goes to a page of this document.
+    pub page: Option<u32>,
+    /// Its nesting, from 0.
+    pub depth: u32,
+    /// Whether the document shows it open.
+    pub open: bool,
+}
+
+/// A date as the file writes it, without converting its time zone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PdfDate {
+    /// The year.
+    pub year: u16,
+    /// The month, 1 to 12.
+    pub month: u8,
+    /// The day, 1 to 31.
+    pub day: u8,
+    /// The hour, 0 to 23.
+    pub hour: u8,
+    /// The minute, 0 to 59.
+    pub minute: u8,
+}
+
+/// An embedded file of an [`OpenedDocument`] (a2-3b).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Attachment {
+    /// Its file name.
+    pub name: String,
+    /// Its size in bytes, when the file gives it.
+    pub size: Option<u64>,
+    /// When it was last changed, or else created, when the file gives it.
+    pub modified: Option<PdfDate>,
+}
+
+/// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Layer {
+    /// Its name.
+    pub name: String,
+    /// Whether the document shows it.
+    pub visible: bool,
+    /// Whether the document locks its visibility.
+    pub locked: bool,
+}
+
+/// A signature field of an [`OpenedDocument`] (a2-14).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Signature {
+    /// The field's full name.
+    pub field: String,
+    /// Whether it holds a signature.
+    pub signed: bool,
+    /// The signer's name as the signature writes it.
+    pub signer: Option<String>,
+    /// When it was signed, as the signature writes it.
+    pub signed_at: Option<PdfDate>,
+    /// The page of its widget, from 0.
+    pub page: Option<u32>,
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -527,6 +600,69 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
                 label: page.label,
             })
             .collect(),
+        outline: outline_dto(document.outline),
+        attachments: document
+            .attachments
+            .into_iter()
+            .map(|file| Attachment {
+                name: file.name,
+                size: file.size,
+                modified: file.modified.or(file.created).map(pdf_date_dto),
+            })
+            .collect(),
+        layers: document
+            .layers
+            .into_iter()
+            .map(|layer| Layer {
+                name: layer.name,
+                visible: layer.visible,
+                locked: layer.locked,
+            })
+            .collect(),
+        signatures: document
+            .signatures
+            .into_iter()
+            .map(|signature| Signature {
+                field: signature.field,
+                signed: signature.signed,
+                signer: signature.signer,
+                signed_at: signature.signed_at.map(pdf_date_dto),
+                page: signature.page,
+            })
+            .collect(),
+    }
+}
+
+/// The outline flattened in reading order, without recursion: its depth is the file's.
+fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
+    let mut entries = Vec::new();
+    let mut stack: Vec<(u32, _)> = items.into_iter().rev().map(|item| (0, item)).collect();
+    while let Some((depth, item)) = stack.pop() {
+        let facade::OutlineItem {
+            title,
+            page,
+            open,
+            children,
+        } = item;
+        let next = depth.saturating_add(1);
+        stack.extend(children.into_iter().rev().map(|child| (next, child)));
+        entries.push(OutlineEntry {
+            title,
+            page,
+            depth,
+            open,
+        });
+    }
+    entries
+}
+
+fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {
+    PdfDate {
+        year: date.year,
+        month: date.month,
+        day: date.day,
+        hour: date.hour,
+        minute: date.minute,
     }
 }
 

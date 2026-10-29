@@ -39,13 +39,25 @@ abstract class FermanBridgeApiImplPlatform
   ApiVersion dco_decode_api_version(dynamic raw);
 
   @protected
+  Attachment dco_decode_attachment(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
 
   @protected
+  PdfDate dco_decode_box_autoadd_pdf_date(dynamic raw);
+
+  @protected
   ReadOnlyReason dco_decode_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
   ViewItem dco_decode_box_autoadd_view_item(dynamic raw);
@@ -78,13 +90,28 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind dco_decode_item_kind(dynamic raw);
 
   @protected
+  Layer dco_decode_layer(dynamic raw);
+
+  @protected
+  List<Attachment> dco_decode_list_attachment(dynamic raw);
+
+  @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
+
+  @protected
+  List<Layer> dco_decode_list_layer(dynamic raw);
+
+  @protected
+  List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
 
   @protected
   List<PageInfo> dco_decode_list_page_info(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<Signature> dco_decode_list_signature(dynamic raw);
 
   @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
@@ -99,13 +126,28 @@ abstract class FermanBridgeApiImplPlatform
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
 
   @protected
+  PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
+
+  @protected
   ReadOnlyReason? dco_decode_opt_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
 
   @protected
+  OutlineEntry dco_decode_outline_entry(dynamic raw);
+
+  @protected
   PageInfo dco_decode_page_info(dynamic raw);
+
+  @protected
+  PdfDate dco_decode_pdf_date(dynamic raw);
 
   @protected
   PdfiumState dco_decode_pdfium_state(dynamic raw);
@@ -118,6 +160,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  Signature dco_decode_signature(dynamic raw);
+
+  @protected
+  int dco_decode_u_16(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -161,15 +209,27 @@ abstract class FermanBridgeApiImplPlatform
   ApiVersion sse_decode_api_version(SseDeserializer deserializer);
 
   @protected
+  Attachment sse_decode_attachment(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
 
   @protected
+  PdfDate sse_decode_box_autoadd_pdf_date(SseDeserializer deserializer);
+
+  @protected
   ReadOnlyReason sse_decode_box_autoadd_read_only_reason(
     SseDeserializer deserializer,
   );
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
   ViewItem sse_decode_box_autoadd_view_item(SseDeserializer deserializer);
@@ -202,7 +262,21 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
 
   @protected
+  Layer sse_decode_layer(SseDeserializer deserializer);
+
+  @protected
+  List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
+
+  @protected
   List<CrateVersion> sse_decode_list_crate_version(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<Layer> sse_decode_list_layer(SseDeserializer deserializer);
+
+  @protected
+  List<OutlineEntry> sse_decode_list_outline_entry(
     SseDeserializer deserializer,
   );
 
@@ -211,6 +285,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<Signature> sse_decode_list_signature(SseDeserializer deserializer);
 
   @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
@@ -227,15 +304,30 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  PdfDate? sse_decode_opt_box_autoadd_pdf_date(SseDeserializer deserializer);
+
+  @protected
   ReadOnlyReason? sse_decode_opt_box_autoadd_read_only_reason(
     SseDeserializer deserializer,
   );
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
 
   @protected
+  OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
+
+  @protected
   PageInfo sse_decode_page_info(SseDeserializer deserializer);
+
+  @protected
+  PdfDate sse_decode_pdf_date(SseDeserializer deserializer);
 
   @protected
   PdfiumState sse_decode_pdfium_state(SseDeserializer deserializer);
@@ -248,6 +340,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  Signature sse_decode_signature(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_16(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -315,15 +413,43 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_attachment(Attachment raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_opt_box_autoadd_u_64(raw.size),
+      cst_encode_opt_box_autoadd_pdf_date(raw.modified),
+    ].jsify()!;
+  }
+
+  @protected
   int cst_encode_box_autoadd_fail_reason(FailReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_fail_reason(raw);
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_pdf_date(PdfDate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_pdf_date(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_read_only_reason(ReadOnlyReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_read_only_reason(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_u_32(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_u_64(raw);
   }
 
   @protected
@@ -354,9 +480,37 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_layer(Layer raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_bool(raw.visible),
+      cst_encode_bool(raw.locked),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_attachment(List<Attachment> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_attachment).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_crate_version(List<CrateVersion> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_crate_version).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_layer(List<Layer> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_layer).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_outline_entry(List<OutlineEntry> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_outline_entry).toList().jsify()!;
   }
 
   @protected
@@ -369,6 +523,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_signature(List<Signature> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_signature).toList().jsify()!;
   }
 
   @protected
@@ -385,6 +545,10 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_read_only_reason(raw.readOnly),
       cst_encode_bool(raw.rightToLeft),
       cst_encode_list_page_info(raw.pages),
+      cst_encode_list_outline_entry(raw.outline),
+      cst_encode_list_attachment(raw.attachments),
+      cst_encode_list_layer(raw.layers),
+      cst_encode_list_signature(raw.signatures),
     ].jsify()!;
   }
 
@@ -401,15 +565,44 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_pdf_date(PdfDate? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_pdf_date(raw);
+  }
+
+  @protected
   int? cst_encode_opt_box_autoadd_read_only_reason(ReadOnlyReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_read_only_reason(raw);
   }
 
   @protected
+  int? cst_encode_opt_box_autoadd_u_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_u_64(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_u_64(raw);
+  }
+
+  @protected
   JSAny? cst_encode_opt_box_autoadd_view_item(ViewItem? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_view_item(raw);
+  }
+
+  @protected
+  JSAny cst_encode_outline_entry(OutlineEntry raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.title),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_u_32(raw.depth),
+      cst_encode_bool(raw.open),
+    ].jsify()!;
   }
 
   @protected
@@ -423,12 +616,36 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_pdf_date(PdfDate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_16(raw.year),
+      cst_encode_u_8(raw.month),
+      cst_encode_u_8(raw.day),
+      cst_encode_u_8(raw.hour),
+      cst_encode_u_8(raw.minute),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_pdfium_status(PdfiumStatus raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
       cst_encode_pdfium_state(raw.state),
       cst_encode_opt_String(raw.tag),
       cst_encode_opt_String(raw.reason),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_signature(Signature raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.field),
+      cst_encode_bool(raw.signed),
+      cst_encode_opt_String(raw.signer),
+      cst_encode_opt_box_autoadd_pdf_date(raw.signedAt),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
     ].jsify()!;
   }
 
@@ -514,6 +731,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_read_only_reason(ReadOnlyReason raw);
 
   @protected
+  int cst_encode_u_16(int raw);
+
+  @protected
   int cst_encode_u_32(int raw);
 
   @protected
@@ -547,6 +767,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_api_version(ApiVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_attachment(Attachment self, SseSerializer serializer);
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
@@ -556,10 +779,19 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_box_autoadd_pdf_date(PdfDate self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_read_only_reason(
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_view_item(
@@ -595,8 +827,26 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
 
   @protected
+  void sse_encode_layer(Layer self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_attachment(
+    List<Attachment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_layer(List<Layer> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_outline_entry(
+    List<OutlineEntry> self,
     SseSerializer serializer,
   );
 
@@ -606,6 +856,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_signature(
+    List<Signature> self,
     SseSerializer serializer,
   );
 
@@ -631,10 +887,22 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_pdf_date(
+    PdfDate? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_read_only_reason(
     ReadOnlyReason? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_view_item(
@@ -643,7 +911,13 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
+
+  @protected
   void sse_encode_page_info(PageInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_pdf_date(PdfDate self, SseSerializer serializer);
 
   @protected
   void sse_encode_pdfium_state(PdfiumState self, SseSerializer serializer);
@@ -659,6 +933,12 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_signature(Signature self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_16(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);

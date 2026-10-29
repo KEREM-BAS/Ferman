@@ -80,7 +80,11 @@ void main() {
       ),
       findsNothing,
     );
-    final wanted = engine.requests.last;
+    // The canvas's set: the sidebar's thumbnails come through a view of their
+    // own.
+    final wanted = engine.requests.lastWhere(
+      (wanted) => wanted.any((entry) => entry.item is TileItem),
+    );
     expect(wanted.first.priority, RenderPriority.visible);
     expect(wanted.first.item, isA<TileItem>().having((t) => t.page, 'page', 0));
     expect(

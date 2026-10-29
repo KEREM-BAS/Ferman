@@ -29,7 +29,9 @@ pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
-pub use ferman_core::structure::{Agreement, Direction};
+pub use ferman_core::structure::{
+    Agreement, Attachment, Direction, Layer, OutlineItem, PdfDate, Signature,
+};
 pub use ferman_core::{Password, Repair, RepairReport, XrefProblem};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, PageSize, PixelRect, Priority, Rendered,

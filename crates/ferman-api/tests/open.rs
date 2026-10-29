@@ -111,6 +111,25 @@ fn pages_carry_their_labels() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn the_open_carries_the_sidebar_lists() {
+    let kira = open("kira-tr", None).unwrap();
+    assert_eq!(kira.attachments.len(), 3);
+    assert_eq!(kira.signatures.len(), 2);
+    assert!(kira.signatures.iter().all(|field| !field.signed));
+    let nda = open("nda-en", None).unwrap();
+    assert!(nda.signatures.iter().any(|field| field.signed));
+    let plan = open("ocg-plan", None).unwrap();
+    assert_eq!(plan.layers.len(), 6);
+    assert_eq!(plan.layers.iter().filter(|layer| !layer.visible).count(), 1);
+    let tez = open("tez-tr", None).unwrap();
+    assert!(tez.outline.iter().any(|item| !item.children.is_empty()));
+    for document in [kira, nda, plan, tez] {
+        block_on(engine().close(document.id)).unwrap();
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn files_that_do_not_open_say_why() {
     let kind = |name: &str, password: Option<&str>| open(name, password).unwrap_err().kind;
     assert_eq!(kind("truncated", None), ErrorKind::Damaged);

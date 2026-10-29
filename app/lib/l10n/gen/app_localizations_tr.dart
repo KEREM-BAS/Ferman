@@ -1003,4 +1003,64 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'Sayfa numarası';
+
+  @override
+  String sidebarPage(String page) {
+    return 'Sayfa $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'Yer işareti yok';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin.';
+
+  @override
+  String get sidebarNoAttachments => 'Ek yok';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'Bu PDF’ye gömülü dosyalar burada görünür.';
+
+  @override
+  String get sidebarNoLayers => 'Katman yok';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'Bu belgede gösterilip gizlenebilecek katman yok.';
+
+  @override
+  String get sidebarNoSignatures => 'İmza yok';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'Bu belge imzalı değil ve imza alanı içermiyor.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz.';
+
+  @override
+  String get sidebarSaveAttachment => 'Eki farklı kaydet…';
+
+  @override
+  String get sidebarLayersNote =>
+      'Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır.';
+
+  @override
+  String get sidebarHideLayer => 'Katmanı gizle';
+
+  @override
+  String get sidebarShowLayer => 'Katmanı göster';
+
+  @override
+  String get sidebarLayerLocked => 'Kilitli';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'İmza denetimi gelecek bir sürümde sunulacak.';
+
+  @override
+  String get sidebarEmptySignatureField => 'Boş imza alanı';
 }

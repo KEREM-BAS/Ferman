@@ -170,6 +170,91 @@ class PageInfo {
   final String? label;
 }
 
+/// One outline item (bookmark) of an [OpenedDocument].
+@immutable
+class OutlineEntry {
+  /// Creates an item.
+  const new({
+    required this.title,
+    this.page,
+    this.depth = 0,
+    this.open = false,
+  });
+
+  /// Its title.
+  final String title;
+
+  /// The page it goes to, from 0, when it goes to a page of this document.
+  final int? page;
+
+  /// Its nesting, from 0.
+  final int depth;
+
+  /// Whether the document shows it open.
+  final bool open;
+}
+
+/// An embedded file of an [OpenedDocument] (a2-3b), never opened
+/// automatically.
+@immutable
+class Attachment {
+  /// Creates an attachment.
+  const new({required this.name, this.size, this.modified});
+
+  /// Its file name.
+  final String name;
+
+  /// Its size in bytes, when the file gives it.
+  final int? size;
+
+  /// When it was last changed, or else created, as the file writes it.
+  final DateTime? modified;
+}
+
+/// A layer (optional content group) of an [OpenedDocument] (a2-3c).
+@immutable
+class Layer {
+  /// Creates a layer.
+  const new({required this.name, this.visible = true, this.locked = false});
+
+  /// Its name.
+  final String name;
+
+  /// Whether the document shows it.
+  final bool visible;
+
+  /// Whether the document locks its visibility.
+  final bool locked;
+}
+
+/// A signature field of an [OpenedDocument] (a2-14).
+@immutable
+class Signature {
+  /// Creates a signature field.
+  const new({
+    required this.field,
+    this.signed = false,
+    this.signer,
+    this.signedAt,
+    this.page,
+  });
+
+  /// The field's full name.
+  final String field;
+
+  /// Whether it holds a signature.
+  final bool signed;
+
+  /// The signer's name as the signature writes it.
+  final String? signer;
+
+  /// When it was signed, as the signature writes it.
+  final DateTime? signedAt;
+
+  /// The page of its widget, from 0.
+  final int? page;
+}
+
 /// A document the engine opened.
 @immutable
 class OpenedDocument {
@@ -179,6 +264,10 @@ class OpenedDocument {
     required this.pages,
     this.readOnly,
     this.rightToLeft = false,
+    this.outline = const [],
+    this.attachments = const [],
+    this.layers = const [],
+    this.signatures = const [],
   });
 
   /// Its handle, until it is closed.
@@ -192,6 +281,18 @@ class OpenedDocument {
 
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
+
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Its embedded files.
+  final List<Attachment> attachments;
+
+  /// Its layers, in the order the document gives them.
+  final List<Layer> layers;
+
+  /// Its signature fields.
+  final List<Signature> signatures;
 }
 
 /// Something a view wants rendered: a [TileItem] or a [ThumbnailItem].

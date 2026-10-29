@@ -37,13 +37,25 @@ abstract class FermanBridgeApiImplPlatform
   ApiVersion dco_decode_api_version(dynamic raw);
 
   @protected
+  Attachment dco_decode_attachment(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
 
   @protected
+  PdfDate dco_decode_box_autoadd_pdf_date(dynamic raw);
+
+  @protected
   ReadOnlyReason dco_decode_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  int dco_decode_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
   ViewItem dco_decode_box_autoadd_view_item(dynamic raw);
@@ -76,13 +88,28 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind dco_decode_item_kind(dynamic raw);
 
   @protected
+  Layer dco_decode_layer(dynamic raw);
+
+  @protected
+  List<Attachment> dco_decode_list_attachment(dynamic raw);
+
+  @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
+
+  @protected
+  List<Layer> dco_decode_list_layer(dynamic raw);
+
+  @protected
+  List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
 
   @protected
   List<PageInfo> dco_decode_list_page_info(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<Signature> dco_decode_list_signature(dynamic raw);
 
   @protected
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
@@ -97,13 +124,28 @@ abstract class FermanBridgeApiImplPlatform
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
 
   @protected
+  PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
+
+  @protected
   ReadOnlyReason? dco_decode_opt_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
+
+  @protected
+  BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
 
   @protected
+  OutlineEntry dco_decode_outline_entry(dynamic raw);
+
+  @protected
   PageInfo dco_decode_page_info(dynamic raw);
+
+  @protected
+  PdfDate dco_decode_pdf_date(dynamic raw);
 
   @protected
   PdfiumState dco_decode_pdfium_state(dynamic raw);
@@ -116,6 +158,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  Signature dco_decode_signature(dynamic raw);
+
+  @protected
+  int dco_decode_u_16(dynamic raw);
 
   @protected
   int dco_decode_u_32(dynamic raw);
@@ -159,15 +207,27 @@ abstract class FermanBridgeApiImplPlatform
   ApiVersion sse_decode_api_version(SseDeserializer deserializer);
 
   @protected
+  Attachment sse_decode_attachment(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
 
   @protected
+  PdfDate sse_decode_box_autoadd_pdf_date(SseDeserializer deserializer);
+
+  @protected
   ReadOnlyReason sse_decode_box_autoadd_read_only_reason(
     SseDeserializer deserializer,
   );
+
+  @protected
+  int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
   ViewItem sse_decode_box_autoadd_view_item(SseDeserializer deserializer);
@@ -200,7 +260,21 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
 
   @protected
+  Layer sse_decode_layer(SseDeserializer deserializer);
+
+  @protected
+  List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
+
+  @protected
   List<CrateVersion> sse_decode_list_crate_version(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<Layer> sse_decode_list_layer(SseDeserializer deserializer);
+
+  @protected
+  List<OutlineEntry> sse_decode_list_outline_entry(
     SseDeserializer deserializer,
   );
 
@@ -209,6 +283,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<Signature> sse_decode_list_signature(SseDeserializer deserializer);
 
   @protected
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
@@ -225,15 +302,30 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  PdfDate? sse_decode_opt_box_autoadd_pdf_date(SseDeserializer deserializer);
+
+  @protected
   ReadOnlyReason? sse_decode_opt_box_autoadd_read_only_reason(
     SseDeserializer deserializer,
   );
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
+
+  @protected
+  BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
+
+  @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
 
   @protected
+  OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
+
+  @protected
   PageInfo sse_decode_page_info(SseDeserializer deserializer);
+
+  @protected
+  PdfDate sse_decode_pdf_date(SseDeserializer deserializer);
 
   @protected
   PdfiumState sse_decode_pdfium_state(SseDeserializer deserializer);
@@ -246,6 +338,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  Signature sse_decode_signature(SseDeserializer deserializer);
+
+  @protected
+  int sse_decode_u_16(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_32(SseDeserializer deserializer);
@@ -306,6 +404,14 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_pdf_date> cst_encode_box_autoadd_pdf_date(PdfDate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_pdf_date();
+    cst_api_fill_to_wire_pdf_date(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_read_only_reason(
     ReadOnlyReason raw,
   ) {
@@ -313,6 +419,18 @@ abstract class FermanBridgeApiImplPlatform
     return wire.cst_new_box_autoadd_read_only_reason(
       cst_encode_read_only_reason(raw),
     );
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_box_autoadd_u_32(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_32(cst_encode_u_32(raw));
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint64> cst_encode_box_autoadd_u_64(BigInt raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_64(cst_encode_u_64(raw));
   }
 
   @protected
@@ -326,6 +444,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_attachment> cst_encode_list_attachment(
+    List<Attachment> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_attachment(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_attachment(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_crate_version> cst_encode_list_crate_version(
     List<CrateVersion> raw,
   ) {
@@ -333,6 +463,28 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_crate_version(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_crate_version(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_layer> cst_encode_list_layer(List<Layer> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_layer(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_layer(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_outline_entry> cst_encode_list_outline_entry(
+    List<OutlineEntry> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_outline_entry(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_outline_entry(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -356,6 +508,18 @@ abstract class FermanBridgeApiImplPlatform
     // Codec=Cst (C-struct based), see doc to use other codecs
     final ans = wire.cst_new_list_prim_u_8_strict(raw.length);
     ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_signature> cst_encode_list_signature(
+    List<Signature> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_signature(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_signature(raw[i], ans.ref.ptr[i]);
+    }
     return ans;
   }
 
@@ -388,6 +552,14 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_pdf_date> cst_encode_opt_box_autoadd_pdf_date(
+    PdfDate? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_pdf_date(raw);
+  }
+
+  @protected
   ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_read_only_reason(
     ReadOnlyReason? raw,
   ) {
@@ -395,6 +567,18 @@ abstract class FermanBridgeApiImplPlatform
     return raw == null
         ? ffi.nullptr
         : cst_encode_box_autoadd_read_only_reason(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint32> cst_encode_opt_box_autoadd_u_32(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_32(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint64> cst_encode_opt_box_autoadd_u_64(BigInt? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_64(raw);
   }
 
   @protected
@@ -431,6 +615,24 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_attachment(
+    Attachment apiObj,
+    wire_cst_attachment wireObj,
+  ) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.size = cst_encode_opt_box_autoadd_u_64(apiObj.size);
+    wireObj.modified = cst_encode_opt_box_autoadd_pdf_date(apiObj.modified);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_pdf_date(
+    PdfDate apiObj,
+    ffi.Pointer<wire_cst_pdf_date> wireObj,
+  ) {
+    cst_api_fill_to_wire_pdf_date(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_view_item(
     ViewItem apiObj,
     ffi.Pointer<wire_cst_view_item> wireObj,
@@ -460,6 +662,13 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_layer(Layer apiObj, wire_cst_layer wireObj) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.visible = cst_encode_bool(apiObj.visible);
+    wireObj.locked = cst_encode_bool(apiObj.locked);
+  }
+
+  @protected
   void cst_api_fill_to_wire_opened_document(
     OpenedDocument apiObj,
     wire_cst_opened_document wireObj,
@@ -470,6 +679,21 @@ abstract class FermanBridgeApiImplPlatform
     );
     wireObj.right_to_left = cst_encode_bool(apiObj.rightToLeft);
     wireObj.pages = cst_encode_list_page_info(apiObj.pages);
+    wireObj.outline = cst_encode_list_outline_entry(apiObj.outline);
+    wireObj.attachments = cst_encode_list_attachment(apiObj.attachments);
+    wireObj.layers = cst_encode_list_layer(apiObj.layers);
+    wireObj.signatures = cst_encode_list_signature(apiObj.signatures);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_outline_entry(
+    OutlineEntry apiObj,
+    wire_cst_outline_entry wireObj,
+  ) {
+    wireObj.title = cst_encode_String(apiObj.title);
+    wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
+    wireObj.depth = cst_encode_u_32(apiObj.depth);
+    wireObj.open = cst_encode_bool(apiObj.open);
   }
 
   @protected
@@ -483,6 +707,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_pdf_date(
+    PdfDate apiObj,
+    wire_cst_pdf_date wireObj,
+  ) {
+    wireObj.year = cst_encode_u_16(apiObj.year);
+    wireObj.month = cst_encode_u_8(apiObj.month);
+    wireObj.day = cst_encode_u_8(apiObj.day);
+    wireObj.hour = cst_encode_u_8(apiObj.hour);
+    wireObj.minute = cst_encode_u_8(apiObj.minute);
+  }
+
+  @protected
   void cst_api_fill_to_wire_pdfium_status(
     PdfiumStatus apiObj,
     wire_cst_pdfium_status wireObj,
@@ -490,6 +726,18 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.state = cst_encode_pdfium_state(apiObj.state);
     wireObj.tag = cst_encode_opt_String(apiObj.tag);
     wireObj.reason = cst_encode_opt_String(apiObj.reason);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_signature(
+    Signature apiObj,
+    wire_cst_signature wireObj,
+  ) {
+    wireObj.field = cst_encode_String(apiObj.field);
+    wireObj.signed_ = cst_encode_bool(apiObj.signed);
+    wireObj.signer = cst_encode_opt_String(apiObj.signer);
+    wireObj.signed_at = cst_encode_opt_box_autoadd_pdf_date(apiObj.signedAt);
+    wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
   }
 
   @protected
@@ -570,6 +818,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_read_only_reason(ReadOnlyReason raw);
 
   @protected
+  int cst_encode_u_16(int raw);
+
+  @protected
   int cst_encode_u_32(int raw);
 
   @protected
@@ -603,6 +854,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_api_version(ApiVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_attachment(Attachment self, SseSerializer serializer);
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
@@ -612,10 +866,19 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_box_autoadd_pdf_date(PdfDate self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_read_only_reason(
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_view_item(
@@ -651,8 +914,26 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
 
   @protected
+  void sse_encode_layer(Layer self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_attachment(
+    List<Attachment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_layer(List<Layer> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_outline_entry(
+    List<OutlineEntry> self,
     SseSerializer serializer,
   );
 
@@ -662,6 +943,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_signature(
+    List<Signature> self,
     SseSerializer serializer,
   );
 
@@ -687,10 +974,22 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_pdf_date(
+    PdfDate? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_read_only_reason(
     ReadOnlyReason? self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_32(int? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
   void sse_encode_opt_box_autoadd_view_item(
@@ -699,7 +998,13 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
+
+  @protected
   void sse_encode_page_info(PageInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_pdf_date(PdfDate self, SseSerializer serializer);
 
   @protected
   void sse_encode_pdfium_state(PdfiumState self, SseSerializer serializer);
@@ -715,6 +1020,12 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_signature(Signature self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_u_16(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_32(int self, SseSerializer serializer);
@@ -932,6 +1243,17 @@ class FermanBridgeWire implements BaseWire {
       _cst_new_box_autoadd_fail_reasonPtr
           .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
 
+  ffi.Pointer<wire_cst_pdf_date> cst_new_box_autoadd_pdf_date() {
+    return _cst_new_box_autoadd_pdf_date();
+  }
+
+  late final _cst_new_box_autoadd_pdf_datePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_cst_pdf_date> Function()>>(
+        'frbgen_ferman_cst_new_box_autoadd_pdf_date',
+      );
+  late final _cst_new_box_autoadd_pdf_date = _cst_new_box_autoadd_pdf_datePtr
+      .asFunction<ffi.Pointer<wire_cst_pdf_date> Function()>();
+
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_read_only_reason(int value) {
     return _cst_new_box_autoadd_read_only_reason(value);
   }
@@ -944,6 +1266,28 @@ class FermanBridgeWire implements BaseWire {
       _cst_new_box_autoadd_read_only_reasonPtr
           .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
 
+  ffi.Pointer<ffi.Uint32> cst_new_box_autoadd_u_32(int value) {
+    return _cst_new_box_autoadd_u_32(value);
+  }
+
+  late final _cst_new_box_autoadd_u_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint32> Function(ffi.Uint32)>>(
+        'frbgen_ferman_cst_new_box_autoadd_u_32',
+      );
+  late final _cst_new_box_autoadd_u_32 = _cst_new_box_autoadd_u_32Ptr
+      .asFunction<ffi.Pointer<ffi.Uint32> Function(int)>();
+
+  ffi.Pointer<ffi.Uint64> cst_new_box_autoadd_u_64(int value) {
+    return _cst_new_box_autoadd_u_64(value);
+  }
+
+  late final _cst_new_box_autoadd_u_64Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint64> Function(ffi.Uint64)>>(
+        'frbgen_ferman_cst_new_box_autoadd_u_64',
+      );
+  late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
+      .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
+
   ffi.Pointer<wire_cst_view_item> cst_new_box_autoadd_view_item() {
     return _cst_new_box_autoadd_view_item();
   }
@@ -954,6 +1298,19 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _cst_new_box_autoadd_view_item = _cst_new_box_autoadd_view_itemPtr
       .asFunction<ffi.Pointer<wire_cst_view_item> Function()>();
+
+  ffi.Pointer<wire_cst_list_attachment> cst_new_list_attachment(int len) {
+    return _cst_new_list_attachment(len);
+  }
+
+  late final _cst_new_list_attachmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_attachment> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_attachment');
+  late final _cst_new_list_attachment = _cst_new_list_attachmentPtr
+      .asFunction<ffi.Pointer<wire_cst_list_attachment> Function(int)>();
 
   ffi.Pointer<wire_cst_list_crate_version> cst_new_list_crate_version(int len) {
     return _cst_new_list_crate_version(len);
@@ -967,6 +1324,30 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_crate_version');
   late final _cst_new_list_crate_version = _cst_new_list_crate_versionPtr
       .asFunction<ffi.Pointer<wire_cst_list_crate_version> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_layer> cst_new_list_layer(int len) {
+    return _cst_new_list_layer(len);
+  }
+
+  late final _cst_new_list_layerPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_list_layer> Function(ffi.Int32)>
+      >('frbgen_ferman_cst_new_list_layer');
+  late final _cst_new_list_layer = _cst_new_list_layerPtr
+      .asFunction<ffi.Pointer<wire_cst_list_layer> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_outline_entry> cst_new_list_outline_entry(int len) {
+    return _cst_new_list_outline_entry(len);
+  }
+
+  late final _cst_new_list_outline_entryPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_outline_entry> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_outline_entry');
+  late final _cst_new_list_outline_entry = _cst_new_list_outline_entryPtr
+      .asFunction<ffi.Pointer<wire_cst_list_outline_entry> Function(int)>();
 
   ffi.Pointer<wire_cst_list_page_info> cst_new_list_page_info(int len) {
     return _cst_new_list_page_info(len);
@@ -995,6 +1376,19 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_prim_u_8_strict');
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_signature> cst_new_list_signature(int len) {
+    return _cst_new_list_signature(len);
+  }
+
+  late final _cst_new_list_signaturePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_signature> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_signature');
+  late final _cst_new_list_signature = _cst_new_list_signaturePtr
+      .asFunction<ffi.Pointer<wire_cst_list_signature> Function(int)>();
 
   ffi.Pointer<wire_cst_list_wanted_item> cst_new_list_wanted_item(int len) {
     return _cst_new_list_wanted_item(len);
@@ -1078,6 +1472,38 @@ final class wire_cst_list_wanted_item extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_pdf_date extends ffi.Struct {
+  @ffi.Uint16()
+  external int year;
+
+  @ffi.Uint8()
+  external int month;
+
+  @ffi.Uint8()
+  external int day;
+
+  @ffi.Uint8()
+  external int hour;
+
+  @ffi.Uint8()
+  external int minute;
+}
+
+final class wire_cst_attachment extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
+
+  external ffi.Pointer<ffi.Uint64> size;
+
+  external ffi.Pointer<wire_cst_pdf_date> modified;
+}
+
+final class wire_cst_list_attachment extends ffi.Struct {
+  external ffi.Pointer<wire_cst_attachment> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_crate_version extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
 
@@ -1086,6 +1512,42 @@ final class wire_cst_crate_version extends ffi.Struct {
 
 final class wire_cst_list_crate_version extends ffi.Struct {
   external ffi.Pointer<wire_cst_crate_version> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_layer extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
+
+  @ffi.Bool()
+  external bool visible;
+
+  @ffi.Bool()
+  external bool locked;
+}
+
+final class wire_cst_list_layer extends ffi.Struct {
+  external ffi.Pointer<wire_cst_layer> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_outline_entry extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> title;
+
+  external ffi.Pointer<ffi.Uint32> page;
+
+  @ffi.Uint32()
+  external int depth;
+
+  @ffi.Bool()
+  external bool open;
+}
+
+final class wire_cst_list_outline_entry extends ffi.Struct {
+  external ffi.Pointer<wire_cst_outline_entry> ptr;
 
   @ffi.Int32()
   external int len;
@@ -1103,6 +1565,26 @@ final class wire_cst_page_info extends ffi.Struct {
 
 final class wire_cst_list_page_info extends ffi.Struct {
   external ffi.Pointer<wire_cst_page_info> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_signature extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> field;
+
+  @ffi.Bool()
+  external bool signed_;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> signer;
+
+  external ffi.Pointer<wire_cst_pdf_date> signed_at;
+
+  external ffi.Pointer<ffi.Uint32> page;
+}
+
+final class wire_cst_list_signature extends ffi.Struct {
+  external ffi.Pointer<wire_cst_signature> ptr;
 
   @ffi.Int32()
   external int len;
@@ -1157,6 +1639,14 @@ final class wire_cst_opened_document extends ffi.Struct {
   external bool right_to_left;
 
   external ffi.Pointer<wire_cst_list_page_info> pages;
+
+  external ffi.Pointer<wire_cst_list_outline_entry> outline;
+
+  external ffi.Pointer<wire_cst_list_attachment> attachments;
+
+  external ffi.Pointer<wire_cst_list_layer> layers;
+
+  external ffi.Pointer<wire_cst_list_signature> signatures;
 }
 
 final class wire_cst_view_event extends ffi.Struct {

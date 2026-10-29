@@ -1044,6 +1044,60 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get viewerPageNumber => isolate(super.viewerPageNumber);
+
+  @override
+  String sidebarPage(String page) => isolate(super.sidebarPage(page));
+
+  @override
+  String get sidebarNoBookmarks => isolate(super.sidebarNoBookmarks);
+
+  @override
+  String get sidebarNoBookmarksBody => isolate(super.sidebarNoBookmarksBody);
+
+  @override
+  String get sidebarNoAttachments => isolate(super.sidebarNoAttachments);
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      isolate(super.sidebarNoAttachmentsBody);
+
+  @override
+  String get sidebarNoLayers => isolate(super.sidebarNoLayers);
+
+  @override
+  String get sidebarNoLayersBody => isolate(super.sidebarNoLayersBody);
+
+  @override
+  String get sidebarNoSignatures => isolate(super.sidebarNoSignatures);
+
+  @override
+  String get sidebarNoSignaturesBody => isolate(super.sidebarNoSignaturesBody);
+
+  @override
+  String get sidebarAttachmentsNote => isolate(super.sidebarAttachmentsNote);
+
+  @override
+  String get sidebarSaveAttachment => isolate(super.sidebarSaveAttachment);
+
+  @override
+  String get sidebarLayersNote => isolate(super.sidebarLayersNote);
+
+  @override
+  String get sidebarHideLayer => isolate(super.sidebarHideLayer);
+
+  @override
+  String get sidebarShowLayer => isolate(super.sidebarShowLayer);
+
+  @override
+  String get sidebarLayerLocked => isolate(super.sidebarLayerLocked);
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      isolate(super.sidebarSignatureCheckingLater);
+
+  @override
+  String get sidebarEmptySignatureField =>
+      isolate(super.sidebarEmptySignatureField);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate
