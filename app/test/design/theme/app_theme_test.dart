@@ -17,7 +17,7 @@ Future<ProviderContainer> _pumpApp(WidgetTester tester) async {
   // First run is done, so the router opens the start screen.
   final container = ProviderContainer.test(
     overrides: [
-      engineServiceProvider.overrideWithValue(const FakeEngineService()),
+      engineServiceProvider.overrideWithValue(FakeEngineService()),
       initialSettingsProvider.overrideWithValue(
         const AppSettings(onboardingCompleted: true),
       ),

@@ -27,7 +27,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   Size size = boardSize,
   List<Locale> systemLocales = const [Locale('en', 'US')],
   SettingsStore? store,
-  EngineService engine = const FakeEngineService(),
+  EngineService? engine,
 }) async {
   tester.view
     ..physicalSize = size
@@ -41,7 +41,7 @@ Future<MemorySettingsStore> pumpFermanApp(
       overrides: [
         settingsStoreProvider.overrideWithValue(store ?? memory),
         initialSettingsProvider.overrideWithValue(settings),
-        engineServiceProvider.overrideWithValue(engine),
+        engineServiceProvider.overrideWithValue(engine ?? FakeEngineService()),
       ],
       child: const FermanApp(),
     ),

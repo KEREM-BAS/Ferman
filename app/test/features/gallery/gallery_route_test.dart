@@ -28,7 +28,7 @@ void main() {
     useView(tester, artboard);
     final container = ProviderContainer.test(
       overrides: [
-        engineServiceProvider.overrideWithValue(const FakeEngineService()),
+        engineServiceProvider.overrideWithValue(FakeEngineService()),
         desktopWindowProvider.overrideWithValue(window),
         initialSettingsProvider.overrideWithValue(
           const AppSettings(onboardingCompleted: true),

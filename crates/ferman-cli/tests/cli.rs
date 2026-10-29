@@ -189,3 +189,46 @@ fn no_arguments_print_usage_and_fail() {
         stderr(&output)
     );
 }
+
+fn corpus(name: &str) -> String {
+    format!(
+        "{}/../../tests/corpus/generated/{name}.pdf",
+        env!("CARGO_MANIFEST_DIR")
+    )
+}
+
+#[test]
+fn open_reports_why_a_file_does_not_open() {
+    let output = ferman(&["open", &corpus("no-such-file")]);
+    assert_eq!(output.status.code(), Some(1));
+    assert_eq!(stdout(&output), "");
+    let err = stderr(&output);
+    assert!(err.contains("not_found [errorFileNotFound]"), "{err}");
+    assert!(!err.contains("no-such-file"), "{err}");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn open_prints_pages_and_the_read_only_reason() {
+    let pdfium = pdfium_path();
+    let output = ferman(&["open", &corpus("tez-tr"), "--pdfium", &pdfium]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let text = stdout(&output);
+    assert!(text.starts_with("pages: 64\n1\t"), "{text}");
+    assert!(text.contains(" pt\ti\n"), "{text}");
+
+    let output = ferman(&[
+        "open",
+        &corpus("disagree-pages"),
+        "--json",
+        "--pdfium",
+        &pdfium,
+    ]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let json: serde_json::Value = serde_json::from_str(stdout(&output))
+        .unwrap_or_else(|err| panic!("open --json printed invalid JSON: {err}"));
+    assert_eq!(json["read_only"], "parsers_disagree");
+    assert_eq!(json["direction"], "left_to_right");
+    assert_eq!(json["api_version"]["major"], API_VERSION.major);
+    assert_eq!(json["pages"].as_array().map(Vec::len), Some(3));
+}

@@ -39,7 +39,7 @@ void main() {
           initialSettingsProvider.overrideWithValue(
             const AppSettings(onboardingCompleted: true),
           ),
-          engineServiceProvider.overrideWithValue(const FakeEngineService()),
+          engineServiceProvider.overrideWithValue(FakeEngineService()),
         ],
         child: const FermanApp(),
       ),
@@ -60,7 +60,7 @@ void main() {
     final container = ProviderContainer(
       overrides: [
         initialSettingsProvider.overrideWithValue(settings),
-        engineServiceProvider.overrideWithValue(const FakeEngineService()),
+        engineServiceProvider.overrideWithValue(FakeEngineService()),
       ],
     );
     addTearDown(container.dispose);

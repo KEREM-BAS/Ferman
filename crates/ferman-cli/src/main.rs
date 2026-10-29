@@ -4,9 +4,11 @@
 //! with the `frb` feature off, so it carries no bridge code. Output is human-readable by default
 //! and JSON with `--json`; the JSON carries the API version (docs/ARCHITECTURE.md §2.3).
 //!
-//! M1 has two commands: `ferman --version` and `ferman info [--json] [--pdfium <path>]`. `info`
-//! starts an engine of its own and reports whether PDFium loaded; a missing or broken library is
-//! reported, not an error. Errors print one short line to standard error and exit with status 1;
+//! Commands: `ferman --version`, `ferman info [--json] [--pdfium <path>]` and, since M2,
+//! `ferman open <file> [--json] [--pdfium <path>]`. Each starts an engine of its own. `info`
+//! reports whether PDFium loaded; a missing or broken library is reported, not an error. `open`
+//! prints the pages of a PDF and why it opens read-only, if it does; it takes no password, so an
+//! encrypted file fails with `password_required`. Errors print one short line to standard error and exit with status 1;
 //! argument errors exit with status 2. A failed write, including of `--version` or `--help`, exits
 //! with status 1.
 #![forbid(unsafe_code)]
@@ -17,7 +19,10 @@ use std::path::PathBuf;
 use std::process::ExitCode;
 
 use clap::{CommandFactory, FromArgMatches, Parser, Subcommand};
-use ferman_api::facade::{self, Engine, EngineConfig, EngineInfo, PdfiumLibrary, PdfiumStatus};
+use ferman_api::facade::{
+    self, Direction, Engine, EngineConfig, EngineInfo, OpenedDocument, PdfiumLibrary, PdfiumStatus,
+    ReadOnly,
+};
 
 /// Ferman's engine on the command line.
 #[derive(Debug, Parser)]
@@ -31,6 +36,18 @@ struct Cli {
 enum Command {
     /// Print the engine's versions, build profile and PDFium status.
     Info {
+        /// Print JSON for scripts instead of text.
+        #[arg(long)]
+        json: bool,
+        /// The PDFium library to load. Default: the file named by FERMAN_PDFIUM_PATH, otherwise
+        /// the library bundled next to the executable.
+        #[arg(long, value_name = "PATH")]
+        pdfium: Option<PathBuf>,
+    },
+    /// Open a PDF and print its pages, and why it opens read-only if it does.
+    Open {
+        /// The PDF to open.
+        file: PathBuf,
         /// Print JSON for scripts instead of text.
         #[arg(long)]
         json: bool,
@@ -91,11 +108,8 @@ fn version_text() -> String {
 fn run(cli: &Cli) -> Result<(), Box<dyn Error>> {
     match &cli.command {
         Command::Info { json, pdfium } => {
-            let pdfium = pdfium
-                .clone()
-                .map_or(PdfiumLibrary::Find, PdfiumLibrary::Path);
             // An engine of its own, so `--pdfium` applies; dropping it stops the render thread.
-            let engine = Engine::start(EngineConfig { pdfium });
+            let engine = start(pdfium);
             let info = facade::block_on(engine.info())?;
             drop(engine);
             let mut out = io::stdout().lock();
@@ -106,6 +120,76 @@ fn run(cli: &Cli) -> Result<(), Box<dyn Error>> {
                 write_info_text(&mut out, &info)?;
             }
             out.flush()?;
+        }
+        Command::Open { file, json, pdfium } => {
+            let engine = start(pdfium);
+            // Dropping the engine closes the document.
+            let document = facade::block_on(engine.open(file.clone(), None))?;
+            drop(engine);
+            let mut out = io::stdout().lock();
+            if *json {
+                serde_json::to_writer_pretty(&mut out, &document_json(&document))?;
+                writeln!(out)?;
+            } else {
+                write_document_text(&mut out, &document)?;
+            }
+            out.flush()?;
+        }
+    }
+    Ok(())
+}
+
+/// An engine that loads the PDFium library `--pdfium` names, or finds one.
+fn start(pdfium: &Option<PathBuf>) -> Engine {
+    let pdfium = pdfium
+        .clone()
+        .map_or(PdfiumLibrary::Find, PdfiumLibrary::Path);
+    Engine::start(EngineConfig { pdfium })
+}
+
+/// Why a document opened read-only, as a stable lowercase name.
+fn read_only_name(read_only: Option<&ReadOnly>) -> Option<&'static str> {
+    read_only.map(|reason| match reason {
+        ReadOnly::Repaired(_) => "repaired",
+        ReadOnly::ParsersDisagree(_) => "parsers_disagree",
+        ReadOnly::XfaOnly => "xfa_only",
+    })
+}
+
+fn document_json(document: &OpenedDocument) -> serde_json::Value {
+    let pages: Vec<_> = document
+        .pages
+        .iter()
+        .map(|page| {
+            serde_json::json!({
+                "width": page.size.width,
+                "height": page.size.height,
+                "label": page.label,
+            })
+        })
+        .collect();
+    serde_json::json!({
+        "api_version": facade::api_version(),
+        "read_only": read_only_name(document.read_only.as_ref()),
+        "direction": match document.direction {
+            Direction::LeftToRight => "left_to_right",
+            Direction::RightToLeft => "right_to_left",
+        },
+        "pages": pages,
+    })
+}
+
+fn write_document_text(out: &mut impl Write, document: &OpenedDocument) -> io::Result<()> {
+    writeln!(out, "pages: {}", document.pages.len())?;
+    if let Some(reason) = read_only_name(document.read_only.as_ref()) {
+        writeln!(out, "read-only: {reason}")?;
+    }
+    for (index, page) in document.pages.iter().enumerate() {
+        let number = index.saturating_add(1);
+        let (width, height) = (page.size.width, page.size.height);
+        match &page.label {
+            Some(label) => writeln!(out, "{number}\t{width:.2} x {height:.2} pt\t{label}")?,
+            None => writeln!(out, "{number}\t{width:.2} x {height:.2} pt")?,
         }
     }
     Ok(())

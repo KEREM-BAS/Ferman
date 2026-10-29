@@ -976,4 +976,24 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get regionExampleFontSize => 'حجم الخط';
+
+  @override
+  String viewerPageFailed(String page) {
+    return 'تعذّر على Ferman عرض الصفحة $page.';
+  }
+
+  @override
+  String get viewerPageFailedReason =>
+      'تعذّرت قراءة عنصر في هذه الصفحة. يعمل باقي المستند كالمعتاد.';
+
+  @override
+  String get viewerTryAgain => 'إعادة المحاولة';
+
+  @override
+  String viewerMarqueeZoom(String zoom) {
+    return 'أفلِت للتكبير إلى $zoom';
+  }
+
+  @override
+  String get viewerPageNumber => 'رقم الصفحة';
 }

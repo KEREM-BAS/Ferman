@@ -983,4 +983,24 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get regionExampleFontSize => 'Yazı tipi boyutu';
+
+  @override
+  String viewerPageFailed(String page) {
+    return 'Ferman $page. sayfayı çizemedi.';
+  }
+
+  @override
+  String get viewerPageFailedReason =>
+      'Bu sayfadaki bir öğe okunamıyor. Belgenin geri kalanı her zamanki gibi çalışır.';
+
+  @override
+  String get viewerTryAgain => 'Yeniden dene';
+
+  @override
+  String viewerMarqueeZoom(String zoom) {
+    return '$zoom yakınlaştırmak için bırakın';
+  }
+
+  @override
+  String get viewerPageNumber => 'Sayfa numarası';
 }

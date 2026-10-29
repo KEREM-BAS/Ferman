@@ -729,6 +729,7 @@ dependencies = [
  "ferman-render",
  "ferman-text",
  "flutter_rust_bridge",
+ "futures-channel",
  "serde",
  "serde_json",
  "thiserror",

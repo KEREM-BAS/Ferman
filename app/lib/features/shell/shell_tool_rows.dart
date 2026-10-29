@@ -4,6 +4,8 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_layout.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -119,6 +121,11 @@ IconButton _futureIcon(
 /// View (FmWindow lines 47–66): Select, Hand, Marquee zoom | zoom out, the
 /// zoom menu, zoom in, Fit | Page layout | Split view, Read aloud, Present
 /// … Dark reading mode.
+///
+/// With a document open (`viewerProvider`) the tools, zoom, Fit and Page
+/// layout work: the zoom field names a fit while one is on and shows the
+/// zoom otherwise (a2-13). Without one they stay disabled with their
+/// future-version reason, as M1 drew them, until documents open (W3).
 class _ViewTools extends ConsumerWidget {
   const new();
 
@@ -138,15 +145,72 @@ class _ViewTools extends ConsumerWidget {
     'actual': ShellCommand.actualSize,
   };
 
+  /// The layouts by their values.
+  static const Map<String, PageLayout> layouts = {
+    'single': PageLayout.single,
+    'scroll': PageLayout.continuous,
+    'two': PageLayout.twoPage,
+    'book': PageLayout.book,
+  };
+
+  /// Applies a choice of the zoom menu or the Fit control.
+  static void zoomChoice(Viewer viewer, String value) => switch (value) {
+    'fit-width' || 'width' => viewer.fit(ZoomFit.width),
+    'fit-page' || 'page' => viewer.fit(ZoomFit.page),
+    'actual' => viewer.zoomTo(1),
+    _ => viewer.zoomTo((int.tryParse(value) ?? 100) / 100),
+  };
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final zoom = Feature.zoom.disabledReason(context);
-    final layout = Feature.pageLayout.disabledReason(context);
+    final view = ref.watch(
+      viewerProvider.select(
+        (view) => view == null
+            ? null
+            : (
+                tool: view.tool,
+                zoom: (view.zoom * 100).round(),
+                fit: view.fit,
+                layout: view.layout,
+              ),
+      ),
+    );
+    final viewer = ref.read(viewerProvider.notifier);
+    final live = view != null;
+    final zoom = live ? null : Feature.zoom.disabledReason(context);
+    final layout = live ? null : Feature.pageLayout.disabledReason(context);
+    final tools = live ? null : Feature.selectAndHand.disabledReason(context);
     // The region writes the percentage: "%100" for Türkiye (G34).
     String percent(int value) => bidiIsolate(format.percent(value));
+    final zoomValue = switch (view?.fit) {
+      ZoomFit.width => 'fit-width',
+      ZoomFit.page => 'fit-page',
+      null => '${view?.zoom ?? 100}',
+    };
+    final fitValue = switch (view) {
+      (fit: ZoomFit.width, tool: _, zoom: _, layout: _) => 'width',
+      (fit: ZoomFit.page, tool: _, zoom: _, layout: _) => 'page',
+      (fit: null, zoom: 100, tool: _, layout: _) => 'actual',
+      _ => null,
+    };
+    final layoutValue = switch (view?.layout) {
+      PageLayout.single => 'single',
+      PageLayout.twoPage => 'two',
+      PageLayout.book => 'book',
+      _ => 'scroll',
+    };
+    final zoomOptions = [
+      // A zoom of its own (a pinch, a marquee) shows as the field's value.
+      if (!zoomValue.startsWith('fit') &&
+          !zoomSteps.contains(int.parse(zoomValue)))
+        (zoomValue, percent(int.parse(zoomValue)), null),
+      for (final step in zoomSteps) ('$step', percent(step), null),
+      ('fit-width', l10n.shellFitWidth, null),
+      ('fit-page', l10n.shellFitPage, null),
+    ];
     // The zoom menu and the segmented controls move into a narrow row's
     // overflow menu as submenus of their choices (G21). A choice that is a
     // command of the shortcut table shows its keys, as the zoom menu (a2-2)
@@ -154,14 +218,14 @@ class _ViewTools extends ConsumerWidget {
     MenuItem choices(
       String label,
       List<(String, String, IconName?)> options, {
-      required Feature feature,
+      required String? reason,
       String? checked,
       Map<String, ShellCommand> commands = const {},
     }) => MenuItem(
       id: label,
       label: label,
-      disabled: true,
-      disabledReason: feature.disabledReason(context),
+      disabled: reason != null,
+      disabledReason: reason,
       submenu: [
         for (final (value, name, icon) in options)
           MenuItem(
@@ -173,77 +237,101 @@ class _ViewTools extends ConsumerWidget {
           ),
       ],
     );
+    ToolButton tool(
+      ViewerTool which,
+      IconName icon,
+      String label,
+      ShellCommand command,
+    ) => ToolButton(
+      icon: icon,
+      label: label,
+      active: (view?.tool ?? ViewerTool.select) == which,
+      shortcut: command.caps(platform),
+      disabled: !live,
+      disabledReason: tools,
+      onPressed: live ? () => viewer.setTool(which) : null,
+    );
+    IconButton step(
+      IconName icon,
+      String label,
+      ShellCommand command,
+      VoidCallback action,
+    ) => IconButton(
+      icon: icon,
+      label: label,
+      shortcut: command.caps(platform),
+      disabled: !live,
+      disabledReason: zoom,
+      onPressed: live ? action : null,
+    );
+    void chosen(MenuItem item, void Function(String) apply) {
+      final id = item.id;
+      if (live && id != null) apply(id);
+    }
+
     return Toolbar(
       semanticLabel: l10n.shellViewTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.selectAndHand,
-          icon: IconName.mousePointer2,
-          label: l10n.shellToolSelect,
-          active: true,
-          shortcut: ShellCommand.selectTool.caps(platform),
+        tool(
+          ViewerTool.select,
+          IconName.mousePointer2,
+          l10n.shellToolSelect,
+          ShellCommand.selectTool,
         ),
-        _future(
-          context,
-          feature: Feature.selectAndHand,
-          icon: IconName.hand,
-          label: l10n.shellToolHand,
-          active: false,
-          shortcut: ShellCommand.handTool.caps(platform),
+        tool(
+          ViewerTool.hand,
+          IconName.hand,
+          l10n.shellToolHand,
+          ShellCommand.handTool,
         ),
-        _future(
-          context,
-          feature: Feature.zoom,
+        ToolButton(
           icon: IconName.squareDashed,
           label: l10n.shellToolMarqueeZoom,
-          active: false,
+          active: view?.tool == ViewerTool.marquee,
           shortcut: ShellCommand.marqueeZoom.caps(platform),
+          disabled: !live,
+          disabledReason: zoom,
+          onPressed: live ? () => viewer.setTool(ViewerTool.marquee) : null,
         ),
         const ToolbarSeparator(),
-        _futureIcon(
-          context,
-          feature: Feature.zoom,
-          icon: IconName.zoomOut,
-          label: l10n.shellZoomOut,
-          shortcut: ShellCommand.zoomOut.caps(platform),
+        step(
+          IconName.zoomOut,
+          l10n.shellZoomOut,
+          ShellCommand.zoomOut,
+          viewer.zoomOut,
         ),
         ToolbarItem(
           menuItem: choices(
             l10n.shellZoom,
-            [
-              for (final step in zoomSteps) ('$step', percent(step), null),
-              ('fit-width', l10n.shellFitWidth, null),
-              ('fit-page', l10n.shellFitPage, null),
-            ],
-            feature: Feature.zoom,
-            checked: '100',
+            zoomOptions,
+            reason: zoom,
+            checked: zoomValue,
             commands: fitCommands,
           ),
+          onMenuSelected: (item) =>
+              chosen(item, (value) => zoomChoice(viewer, value)),
           child: SizedBox(
             width: zoomWidth,
             child: Select<String>(
               size: FieldSize.sm,
               semanticLabel: l10n.shellZoom,
-              value: '100',
-              disabled: true,
+              value: zoomValue,
+              disabled: !live,
               disabledReason: zoom,
+              onChanged: live ? (value) => zoomChoice(viewer, value) : null,
               options: [
-                for (final step in zoomSteps)
-                  SelectOption(value: '$step', label: percent(step)),
-                SelectOption(value: 'fit-width', label: l10n.shellFitWidth),
-                SelectOption(value: 'fit-page', label: l10n.shellFitPage),
+                for (final (value, name, _) in zoomOptions)
+                  SelectOption(value: value, label: name),
               ],
             ),
           ),
         ),
-        _futureIcon(
-          context,
-          feature: Feature.zoom,
-          icon: IconName.zoomIn,
-          label: l10n.shellZoomIn,
-          shortcut: ShellCommand.zoomIn.caps(platform),
+        step(
+          IconName.zoomIn,
+          l10n.shellZoomIn,
+          ShellCommand.zoomIn,
+          viewer.zoomIn,
         ),
         ToolbarItem(
           menuItem: choices(
@@ -253,14 +341,22 @@ class _ViewTools extends ConsumerWidget {
               ('page', l10n.shellFitPage, IconName.maximize),
               ('actual', l10n.shellActualSize, IconName.scan),
             ],
-            feature: Feature.zoom,
+            reason: zoom,
+            checked: fitValue,
             commands: fitCommands,
           ),
+          onMenuSelected: (item) =>
+              chosen(item, (value) => zoomChoice(viewer, value)),
           child: SegmentedControl<String?>(
             semanticLabel: l10n.shellFit,
-            value: null,
-            disabled: true,
+            value: fitValue,
+            disabled: !live,
             disabledReason: zoom,
+            onChanged: live
+                ? (value) {
+                    if (value != null) zoomChoice(viewer, value);
+                  }
+                : null,
             options: [
               SegmentOption(
                 value: 'width',
@@ -290,14 +386,24 @@ class _ViewTools extends ConsumerWidget {
               ('two', l10n.shellLayoutTwoPage, IconName.columns2),
               ('book', l10n.shellLayoutBook, IconName.bookOpen),
             ],
-            feature: Feature.pageLayout,
-            checked: 'scroll',
+            reason: layout,
+            checked: layoutValue,
           ),
+          onMenuSelected: (item) => chosen(item, (value) {
+            final chosen = layouts[value];
+            if (chosen != null) viewer.setLayout(chosen);
+          }),
           child: SegmentedControl<String>(
             semanticLabel: l10n.shellPageLayout,
-            value: 'scroll',
-            disabled: true,
+            value: layoutValue,
+            disabled: !live,
             disabledReason: layout,
+            onChanged: live
+                ? (value) {
+                    final chosen = layouts[value];
+                    if (chosen != null) viewer.setLayout(chosen);
+                  }
+                : null,
             options: [
               SegmentOption(
                 value: 'single',
