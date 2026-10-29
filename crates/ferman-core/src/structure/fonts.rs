@@ -41,7 +41,7 @@ pub struct FontUse {
     pub pages: Vec<u32>,
 }
 
-fn kind(name: Option<&[u8]>) -> FontKind {
+pub(crate) fn kind(name: Option<&[u8]>) -> FontKind {
     match name {
         Some(b"Type1") => FontKind::Type1,
         Some(b"MMType1") => FontKind::MultipleMaster,

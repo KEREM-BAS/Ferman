@@ -61,6 +61,8 @@ pub struct Document {
     structure: Structure,
     /// The cross-reference data, which render-only appendices extend.
     xref: Xref,
+    /// The limits it was opened with, which interpreting its pages keeps.
+    pub(crate) limits: Limits,
 }
 
 impl Document {
@@ -164,8 +166,12 @@ impl Document {
         self.structure.pages.len()
     }
 
+    /// The limits it was opened with.
+    pub(crate) fn limits(&self) -> &Limits {
+        &self.limits
+    }
+
     /// The lopdf model; it never leaves ferman-core (ADR 0004).
-    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn model(&self) -> &lopdf::Document {
         &self.model
     }
@@ -353,6 +359,7 @@ pub fn open(source: &Source, options: &OpenOptions) -> Result<Document, CoreErro
         encryption,
         structure,
         xref,
+        limits: limits.clone(),
     })
 }
 

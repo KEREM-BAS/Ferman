@@ -51,6 +51,7 @@ cargo deny --manifest-path fuzz/Cargo.toml check
 | `xref_repair` | cross-reference tables and streams, `/Prev` chains, and repair by scanning | arbitrary bytes, as a file from its `%PDF-` header |
 | `security_handler` | the standard security handler: the encryption dictionary, passwords for revisions 2 to 6, decryption | a length byte, the password, an encryption dictionary, then the data to decrypt |
 | `cmap` | ferman-fonts' CMap reader: codespace, CIDs and ToUnicode text, then splitting and looking up codes | arbitrary bytes as a CMap, and as a string to split |
+| `interpreter` | ferman-core's text interpreter: graphics and text state, shows, forms drawing themselves, the limits | arbitrary bytes as a page's content and as a form it draws |
 | `content_lexer` | ferman-core's content-stream lexer: operators, operands, spans and inline images | arbitrary bytes as a content stream |
 | `open_document` | the whole open path: header, cross-reference data, repair, security, lopdf and the structure scan | arbitrary bytes as a file; the password `fuzz` when the first byte is odd |
 

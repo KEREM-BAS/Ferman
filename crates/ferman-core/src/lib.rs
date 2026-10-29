@@ -22,6 +22,9 @@
 //!   ([`repair`]) and security handler ([`security`]) around the lopdf model, §5.1 and §5.2.
 //! - [`structure`]: pages and labels, outline, attachments, layers, forms and XFA, signatures,
 //!   scripts, fonts and document information, and the two-parser check of G102.
+//! - [`interpret`]: the content interpreter for text: [`Document::page_text`] hands each show
+//!   operator and the fonts it uses, as plain [`FontResource`](interpret::FontResource) data, to a
+//!   [`TextSink`](interpret::TextSink), which returns the displacement (§6.1).
 //! - `content` (private): the content-stream lexer, operators with their operands and byte spans,
 //!   read leniently, with inline images (§6.1).
 //! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
@@ -32,8 +35,8 @@
 //! The layout below follows docs/ARCHITECTURE.md §2.3; each module arrives with the milestone that
 //! needs it.
 //!
-//! - The `Interpreter` with `InterpreterSink` and the `TextAdvance` trait over `content`, §6.1:
-//!   text state in M2, full graphics state in M3.
+//! - The rest of the interpreter (§6.1): clipping, colour, marked content and Type3 glyph
+//!   procedures, M3.
 //! - `revision`: the revision store, `RevisionId` and `ChangeSet`, §4.3. M3.
 //! - `save`: `SaveMode`, the incremental writer, the full rewrite and `safe_write` (temp file,
 //!   flush, verify, atomic rename), §7 and ADR 0008. M3.
@@ -41,14 +44,13 @@
 #![forbid(unsafe_code)]
 
 mod appendix;
-// shortcut: only the fuzz target and the tests read it until the interpreter (commit 11d).
-#[cfg_attr(not(feature = "fuzzing"), allow(dead_code))]
 mod content;
 pub mod document;
 pub mod filters;
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzzing;
+pub mod interpret;
 pub mod limits;
 pub mod repair;
 pub mod security;

@@ -95,6 +95,12 @@ test = false
 doc = false
 
 [[bin]]
+name = "interpreter"
+path = "fuzz_targets/interpreter.rs"
+test = false
+doc = false
+
+[[bin]]
 name = "content_lexer"
 path = "fuzz_targets/content_lexer.rs"
 test = false
