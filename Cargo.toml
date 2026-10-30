@@ -63,7 +63,7 @@ rc4 = { version = "0.2.0", features = ["zeroize"] }
 stringprep = "0.1.5"
 unicode-normalization = "0.1.26"
 # Locale collation (Turkish order) for recent files and font lists (ADR 0021).
-icu_collator = "2.3.1"
+icu_collator = "2.4.0"
 # Parses the BCP 47 tag the collator takes, the version icu_collator resolves.
 icu_locale_core = "2.4.0"
 # The bidi algorithm for right-to-left text (ferman-text), the version stringprep already pulls.

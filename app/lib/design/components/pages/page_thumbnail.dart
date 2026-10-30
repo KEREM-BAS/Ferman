@@ -761,6 +761,40 @@ class _PageThumbnailState extends State<PageThumbnail> {
   }
 }
 
+/// A page's placeholder lines on their own (`.fm-thumb__lines`), for a
+/// page drawn without [PageThumbnail], such as a recent file's card (a1-4):
+/// the striped lines and the heading bar, inset as the thumbnail insets
+/// them, filling its parent.
+class PageLines extends StatelessWidget {
+  /// The lines of an upright page.
+  const new({super.key});
+
+  @override
+  Widget build(BuildContext context) => LayoutBuilder(
+    builder: (context, constraints) {
+      const inset = PageThumbnail.linesInset;
+      final w = constraints.maxWidth;
+      final h = constraints.maxHeight;
+      return Padding(
+        padding: EdgeInsetsDirectional.fromSTEB(
+          inset.start * w,
+          inset.top * h,
+          inset.end * w,
+          inset.bottom * h,
+        ),
+        child: CustomPaint(
+          size: Size.infinite,
+          painter: _LinesPainter(
+            hatch: context.ferman.hatch.thumbLines,
+            heading: PageThumbnail.headingColor,
+            rtl: Directionality.of(context) == TextDirection.rtl,
+          ),
+        ),
+      );
+    },
+  );
+}
+
 /// Paints the placeholder lines: [hatch] stripes down the box and the
 /// heading bar above them at the start side (`.fm-thumb__lines`).
 class _LinesPainter extends CustomPainter {

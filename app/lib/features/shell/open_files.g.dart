@@ -9,8 +9,10 @@ part of 'open_files.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
-/// system open panel, dropped on the window (a1-6) or sent by the system
-/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// system open panel, dropped on the window (a1-6), sent by the system (ADR
+/// 0021) or picked from the recent files, each in a new active tab, or the
+/// tab of a file already open. Each file that opens goes first in the
+/// recent files ([RecentFiles.opened]).
 /// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 
@@ -18,15 +20,19 @@ part of 'open_files.dart';
 final documentOpenerProvider = DocumentOpenerProvider._();
 
 /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
-/// system open panel, dropped on the window (a1-6) or sent by the system
-/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// system open panel, dropped on the window (a1-6), sent by the system (ADR
+/// 0021) or picked from the recent files, each in a new active tab, or the
+/// tab of a file already open. Each file that opens goes first in the
+/// recent files ([RecentFiles.opened]).
 /// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 final class DocumentOpenerProvider
     extends $NotifierProvider<DocumentOpener, OpenProblem?> {
   /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
-  /// system open panel, dropped on the window (a1-6) or sent by the system
-  /// (ADR 0021), each in a new active tab, or the tab of a file already open.
+  /// system open panel, dropped on the window (a1-6), sent by the system (ADR
+  /// 0021) or picked from the recent files, each in a new active tab, or the
+  /// tab of a file already open. Each file that opens goes first in the
+  /// recent files ([RecentFiles.opened]).
   /// Its state is the last file of the latest request that did not open,
   /// which the start screen and the editor show until dismissed (G116).
   DocumentOpenerProvider._()
@@ -56,11 +62,13 @@ final class DocumentOpenerProvider
   }
 }
 
-String _$documentOpenerHash() => r'e3e86bfe2f22faaa2a0d57d53833ce9e023aa4e7';
+String _$documentOpenerHash() => r'814063f9eca6dc8eb9cc5faa2becdce7680da8a1';
 
 /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
-/// system open panel, dropped on the window (a1-6) or sent by the system
-/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// system open panel, dropped on the window (a1-6), sent by the system (ADR
+/// 0021) or picked from the recent files, each in a new active tab, or the
+/// tab of a file already open. Each file that opens goes first in the
+/// recent files ([RecentFiles.opened]).
 /// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 

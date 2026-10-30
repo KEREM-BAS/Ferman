@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-373 messages in `app_en.arb`; translated: Turkish 373, Arabic 373.
+401 messages in `app_en.arb`; translated: Turkish 401, Arabic 401.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -429,5 +429,33 @@ The table below is generated from the ARB files by `tools/l10n`
 | `dropOverlayTabs` | Open in tabs | Sekmelerde aç | فتح في علامات تبويب | Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117). |
 | `dropOverlayTabsDescription` | Each file opens on its own. | Her dosya ayrı açılır. | يُفتح كل ملف على حدة. | Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11). |
 | `dropOverlayCombine` | Combine into one PDF | Tek bir PDF’de birleştir | دمج في ملف PDF واحد | Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104). |
+| `startDropStripTitle` | Drop files anywhere in this window | Dosyaları bu pencerede herhangi bir yere bırakın | أفلت الملفات في أي مكان في هذه النافذة | Title of the drop strip above the recent files (a1-4-m2, FmStart drop). |
+| `startDropStripSubtitle` | PDF files open in tabs. | PDF dosyaları sekmelerde açılır. | تُفتح ملفات PDF في علامات تبويب. | Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11). |
+| `startPinned` | Pinned | Sabitlenenler | المثبّتة | Heading of the pinned files on the start screen (a1-4, FmStart pinned). |
+| `startPin` | Pin | Sabitle | تثبيت | Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118). |
+| `startUnpin` | Unpin | Sabitlemeyi kaldır | إلغاء التثبيت | Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin). |
+| `startRecent` | Recent | Son kullanılanlar | الأخيرة | Heading of the recent files on the start screen (a1-4, FmStart recent). |
+| `startSearchRecent` | Search recent files | Son dosyalarda ara | البحث في الملفات الأخيرة | Placeholder and accessible name of the recent files’ search field (a1-4, FmStart searchRecent). |
+| `startSort` | Sort | Sıralama | الترتيب | Accessible name of the recent files’ sort menu (a1-4, the Select’s aria-label). |
+| `startSortOpened` | Last opened | Son açılma | آخر فتح | Sort option: most recently opened first (a1-4, FmStart sort). |
+| `startSortName` | Name | Ad | الاسم | Sort option and list column: the file name, in the UI language’s order (a1-4, FmStart sort, name). |
+| `startSortLocation` | Location | Konum | الموقع | Sort option and list column: the folder the file is in (a1-4, FmStart sort, where). |
+| `startView` | View | Görünüm | العرض | Accessible name of the grid and list switch of the recent files (a1-4, FmStart view). |
+| `startViewGrid` | Grid | Izgara | شبكة | Tooltip of the grid view of the recent files (a1-4, FmStart grid). |
+| `startViewList` | List | Liste | قائمة | Tooltip of the list view of the recent files (a1-4c, FmStart list). |
+| `startColumnPages` | Pages | Sayfa | الصفحات | Column of the recent files’ list: the page count (a1-4c, FmStart pagesH). |
+| `startColumnOpened` | Last opened | Son açılma | آخر فتح | Column of the recent files’ list: when the file was last opened (a1-4c, FmStart opened). |
+| `startRecentFooter` | Recent files are listed only on this device. | Son dosyalar yalnızca bu cihazda listelenir. | تُعرض الملفات الأخيرة على هذا الجهاز فقط. | Note under the recent files (a1-4, FmStart footer). |
+| `startClearList` | Clear list | Listeyi temizle | مسح القائمة | Link under the recent files that empties the list but for the pinned files (a1-4, FmStart clear). |
+| `startNoRecentMatch` | No recent file matches “{query}”. | “{query}” ile eşleşen son dosya yok. | لا يطابق أي ملف حديث «{query}». | Shown in place of the recent files when the search finds none (not drawn, G118). |
+| `startPages` | {count, plural, =1{1 page} other{{pages} pages}} | {count, plural, other{{pages} sayfa}} | {count, plural, other{{pages} صفحة}} | A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits. |
+| `startOpenedToday` | Today {time} | Bugün {time} | اليوم {time} | When a recent file was opened today, with the region’s time (a1-4, FmStart). |
+| `startOpenedYesterday` | Yesterday {time} | Dün {time} | أمس {time} | When a recent file was opened yesterday, with the region’s time (a1-4, FmStart). |
+| `startBadgeSigned` | Signed | İmzalı | موقّع | Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral). |
+| `startMissingTitle` | “{name}” can’t be found | “{name}” bulunamadı | تعذّر العثور على «{name}» | Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated. |
+| `startMissingDescription` | It was moved, renamed or deleted after you last opened it. It was in {folder}. | Dosya son açılışınızdan sonra taşınmış, yeniden adlandırılmış veya silinmiş. Önceki konumu: {folder}. | نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في {folder}. | Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “\~” for the home folder, isolated. |
+| `startMissingRemove` | Remove from list | Listeden kaldır | إزالة من القائمة | Button of a1-9e that takes the missing file off the recent files (a1-9e, remove). |
+| `startMissingLocate` | Locate… | Bul… | تحديد الموقع… | Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate). |
+| `startMissingClose` | Close | Kapat | إغلاق | Accessible name of a1-9e’s close button, which keeps the file in the list (G118). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

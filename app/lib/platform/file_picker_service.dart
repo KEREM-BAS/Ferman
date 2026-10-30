@@ -9,6 +9,11 @@ abstract interface class FilePickerService {
   /// Shows the system open panel for PDF files, several at once (a1-13),
   /// its filter named [filterLabel]; the chosen paths, none when cancelled.
   Future<List<String>> openPdfs({required String filterLabel});
+
+  /// Shows the system open panel for one PDF file, its filter named
+  /// [filterLabel] ("Locate…" of a1-9e); the chosen path, null when
+  /// cancelled.
+  Future<String?> openPdf({required String filterLabel});
 }
 
 /// The pickers of file_selector: NSOpenPanel on macOS, IFileOpenDialog on
@@ -19,18 +24,22 @@ final class NativeFilePickerService implements FilePickerService {
 
   @override
   Future<List<String>> openPdfs({required String filterLabel}) async {
-    final files = await openFiles(
-      acceptedTypeGroups: [
-        XTypeGroup(
-          label: filterLabel,
-          extensions: const ['pdf'],
-          mimeTypes: const ['application/pdf'],
-          uniformTypeIdentifiers: const ['com.adobe.pdf'],
-        ),
-      ],
-    );
+    final files = await openFiles(acceptedTypeGroups: [_pdf(filterLabel)]);
     return [for (final file in files) file.path];
   }
+
+  @override
+  Future<String?> openPdf({required String filterLabel}) async {
+    final file = await openFile(acceptedTypeGroups: [_pdf(filterLabel)]);
+    return file?.path;
+  }
+
+  static XTypeGroup _pdf(String label) => XTypeGroup(
+    label: label,
+    extensions: const ['pdf'],
+    mimeTypes: const ['application/pdf'],
+    uniformTypeIdentifiers: const ['com.adobe.pdf'],
+  );
 }
 
 /// The pickers, as `filePickerServiceProvider`.

@@ -1259,6 +1259,95 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get dropOverlayCombine => isolate(super.dropOverlayCombine);
+
+  @override
+  String get startDropStripTitle => isolate(super.startDropStripTitle);
+
+  @override
+  String get startDropStripSubtitle => isolate(super.startDropStripSubtitle);
+
+  @override
+  String get startPinned => isolate(super.startPinned);
+
+  @override
+  String get startPin => isolate(super.startPin);
+
+  @override
+  String get startUnpin => isolate(super.startUnpin);
+
+  @override
+  String get startRecent => isolate(super.startRecent);
+
+  @override
+  String get startSearchRecent => isolate(super.startSearchRecent);
+
+  @override
+  String get startSort => isolate(super.startSort);
+
+  @override
+  String get startSortOpened => isolate(super.startSortOpened);
+
+  @override
+  String get startSortName => isolate(super.startSortName);
+
+  @override
+  String get startSortLocation => isolate(super.startSortLocation);
+
+  @override
+  String get startView => isolate(super.startView);
+
+  @override
+  String get startViewGrid => isolate(super.startViewGrid);
+
+  @override
+  String get startViewList => isolate(super.startViewList);
+
+  @override
+  String get startColumnPages => isolate(super.startColumnPages);
+
+  @override
+  String get startColumnOpened => isolate(super.startColumnOpened);
+
+  @override
+  String get startRecentFooter => isolate(super.startRecentFooter);
+
+  @override
+  String get startClearList => isolate(super.startClearList);
+
+  @override
+  String startNoRecentMatch(String query) =>
+      isolate(super.startNoRecentMatch(query));
+
+  @override
+  String startPages(int count, String pages) =>
+      isolate(super.startPages(count, pages));
+
+  @override
+  String startOpenedToday(String time) => isolate(super.startOpenedToday(time));
+
+  @override
+  String startOpenedYesterday(String time) =>
+      isolate(super.startOpenedYesterday(time));
+
+  @override
+  String get startBadgeSigned => isolate(super.startBadgeSigned);
+
+  @override
+  String startMissingTitle(String name) =>
+      isolate(super.startMissingTitle(name));
+
+  @override
+  String startMissingDescription(String folder) =>
+      isolate(super.startMissingDescription(folder));
+
+  @override
+  String get startMissingRemove => isolate(super.startMissingRemove);
+
+  @override
+  String get startMissingLocate => isolate(super.startMissingLocate);
+
+  @override
+  String get startMissingClose => isolate(super.startMissingClose);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

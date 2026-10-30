@@ -25,6 +25,10 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   private var keptPaths: [String] = []
   /// Whether Dart called "ready": later files go out at once as "open".
   private var openReady = false
+  /// The "ferman/files" channel: bookmarks of the files the user granted.
+  private var filesChannel: FlutterMethodChannel?
+  /// The files whose security-scoped access has started this session.
+  private var accessed: Set<String> = []
   private var trafficLights: TrafficLightLayout?
   private var observers: [NSObjectProtocol] = []
   private var appearanceObservation: NSKeyValueObservation?
@@ -72,6 +76,20 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
     }
     self.openChannel = openChannel
     (NSApp.delegate as? FlutterAppDelegate)?.addApplicationLifecycleDelegate(self)
+
+    // Security-scoped bookmarks reach a file again after a restart under the
+    // App Sandbox (Q18, ADR 0021, app/lib/platform/file_access.dart).
+    let filesChannel = FlutterMethodChannel(
+      name: "ferman/files",
+      binaryMessenger: flutterViewController.engine.binaryMessenger)
+    filesChannel.setMethodCallHandler { [weak self] call, result in
+      guard let self else {
+        result(FlutterMethodNotImplemented)
+        return
+      }
+      self.handleFiles(call, result: result)
+    }
+    self.filesChannel = filesChannel
 
     // AppKit lays the title bar out again after these and puts the buttons
     // back at their default place; put them where Ferman's title bar wants
@@ -149,6 +167,56 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
       keptPaths += paths
     }
     return true
+  }
+
+  /// "bookmark" makes a security-scoped bookmark (base64) of a file Ferman
+  /// may read now; "access" resolves one, starts access to its file once
+  /// for the session (shortcut: never stopped, until closing documents
+  /// ships, B029) and answers with its path and, when it went stale, a
+  /// renewed bookmark. Resolving never mounts a volume or shows UI, so a
+  /// file on a server that is not connected is missing at once (a1-9e), as
+  /// is a file in the Trash.
+  private func handleFiles(_ call: FlutterMethodCall, result: FlutterResult) {
+    switch call.method {
+    case "bookmark":
+      guard let path = call.arguments as? String,
+        let data = try? URL(fileURLWithPath: path).bookmarkData(
+          options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil)
+      else {
+        result(nil)
+        return
+      }
+      result(data.base64EncodedString())
+    case "access":
+      guard let text = call.arguments as? String,
+        let data = Data(base64Encoded: text)
+      else {
+        result(nil)
+        return
+      }
+      var stale = false
+      guard
+        let url = try? URL(
+          resolvingBookmarkData: data,
+          options: [.withSecurityScope, .withoutUI, .withoutMounting], relativeTo: nil,
+          bookmarkDataIsStale: &stale),
+        !url.pathComponents.contains(".Trash")
+      else {
+        result(nil)
+        return
+      }
+      if !accessed.contains(url.path), url.startAccessingSecurityScopedResource() {
+        accessed.insert(url.path)
+      }
+      let renewed =
+        stale
+        ? (try? url.bookmarkData(
+          options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil))?
+          .base64EncodedString() : nil
+      result(["path": url.path, "renewed": renewed as Any])
+    default:
+      result(FlutterMethodNotImplemented)
+    }
   }
 
   private func handle(_ call: FlutterMethodCall, result: @escaping FlutterResult) {

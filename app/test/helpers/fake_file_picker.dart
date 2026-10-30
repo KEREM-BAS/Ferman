@@ -17,4 +17,11 @@ final class FakeFilePickerService implements FilePickerService {
     requests.add(filterLabel);
     return picked;
   }
+
+  /// The first of [picked], as the one-file panel answers.
+  @override
+  Future<String?> openPdf({required String filterLabel}) async {
+    requests.add(filterLabel);
+    return picked.isEmpty ? null : picked.first;
+  }
 }

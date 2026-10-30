@@ -9,14 +9,18 @@ import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/start/recent_files_view.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// The start screen with no recent files, board a1-5 (right to left
-/// a12-2a; building block `FmStart.dc.html` with `empty`).
+/// The start screen: with no recent files board a1-5 (right to left
+/// a12-2a; building block `FmStart.dc.html` with `empty`), with some the M2
+/// build of a1-4 (a1-4-m2; a1-4b and a1-4c in its grid and list), where
+/// [RecentFilesView] takes the drop area's place.
 ///
 /// Four action cards (Open file…, Create PDF, Combine files, Scan to PDF),
 /// the quick tools, and the drop area ([DropZone]) with Open a PDF and New
@@ -73,6 +77,7 @@ class FmStart extends ConsumerWidget {
     final openReason = openFilesDisabledReason(context, ref);
     final onOpen = openFiles(context, ref);
     final failed = ref.watch(documentOpenerProvider);
+    final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
     // ⌘O and ⌘N have keys on every system.
     final open = ShellCommand.open.caps(platform)!;
     final actions = [
@@ -166,18 +171,21 @@ class FmStart extends ConsumerWidget {
               ),
           ],
         ),
-        DropZone(
-          title: l10n.startDropTitle,
-          subtitle: l10n.startDropSubtitle,
-          openLabel: l10n.startOpenPdf,
-          createLabel: l10n.startNewBlankPdf,
-          shortcut: open,
-          footnote: l10n.startDropFootnote,
-          minHeight: dropMinHeight,
-          onOpen: onOpen,
-          disabledReason: openReason,
-          createDisabledReason: Feature.createPdf.disabledReason(context),
-        ),
+        if (hasRecent)
+          const RecentFilesView()
+        else
+          DropZone(
+            title: l10n.startDropTitle,
+            subtitle: l10n.startDropSubtitle,
+            openLabel: l10n.startOpenPdf,
+            createLabel: l10n.startNewBlankPdf,
+            shortcut: open,
+            footnote: l10n.startDropFootnote,
+            minHeight: dropMinHeight,
+            onOpen: onOpen,
+            disabledReason: openReason,
+            createDisabledReason: Feature.createPdf.disabledReason(context),
+          ),
       ],
     );
 

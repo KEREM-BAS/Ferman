@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-117 entries: 95 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, and G117 with drag and drop.
+118 entries: 96 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, and G118 with the recent files.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 29 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 30 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -189,6 +189,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G115](#g115) | gap | M2 | Search | a2-4a draws the search options open under the find bar with nothing that opens them | Decided |
 | [G116](#g116) | gap | M2 | Files | The open panel ships before the error tabs and the unlock dialog that show a file that did not open | Decided |
 | [G117](#g117) | conflict | M2 | Drag and drop | a1-6 counts and lists the dragged files, which the app learns only when they are dropped | Decided |
+| [G118](#g118) | missing state | M2 | Start / recent files | No board draws pinning a recent file, a search that finds none, or leaving a1-9e without an answer | Decided |
 
 ## Entries
 
@@ -1746,3 +1747,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The overlay shows a1-6's frame, upload tile, line and both targets without a count: "Drop to open the files" (Turkish "Açmak için dosyaları bırakın", Arabic "أفلت لفتح الملفات") and "Open in tabs", the board's strings with the count taken out, and no row per file. "Open in tabs" keeps the accent ring as the only target that works; "Combine into one PDF" is disabled with the future-version reason as its line, since no tooltip shows during a drag (B104), and a drop anywhere opens the files in tabs. A dropped file that isn't a PDF is reported after the drop as G116 says, until its error tab (B115). The count and the rows come back if the drop package learns to name the files during the drag.
 - **Status:** Decided.
 - **Evidence:** `design/FmStart.dc.html` lines 41–52 (the overlay) and 114–118 (`dragged`); desktop_drop 0.8.4 `lib/src/drop_target.dart` (`DropEventDetails` carries positions only; `DropDoneDetails` the files). Implemented in `app/lib/features/shell/file_drop.dart` (`FileDrop`, `_DropOverlay`); test: `app/test/features/start/open_from_system_test.dart`.
+
+<a id="g118"></a>
+
+### G118 · Pinning, an empty search and a1-9e's way out not drawn
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Start / recent files
+- **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-4-m2`, `a1-9e`
+- **Gap or conflict:** a1-4 draws pinned files with an active pin that unpins them, but nothing that pins a recent file; its search field never shows a search that finds nothing; "Clear list" is drawn without saying what happens to the pinned files; a1-9e's dialog has only "Remove from list" and "Locate…", so a user who wants neither cannot leave it.
+- **Decision:** A recent file's card (and its row in the list) shows a pin button, "Pin" (`pin`, the extra-small ghost IconButton), at its top end while the pointer is over it or the button has focus, so the keyboard reaches it too, and it stays in the semantics tree while hidden; a pinned file shows in the pinned row and stays in the recent files, as the boards list it in both, with its pin active ("Unpin") in both. A search that finds nothing says "No recent file matches “{query}”." in secondary text where the files were. "Clear list" empties the recent files and keeps the pinned ones. a1-9e gets the dialog's close button, Escape and a click on the scrim, which keep the file in the list; its "Locate…" shows the open panel for one file. The grid or list and the sort last for the session; the list keeps at most 50 files that are not pinned. On macOS the bookmark follows a file that was moved or renamed on its volume, so a1-9e shows there for a file that was deleted, moved to the Trash or is on a volume that is not connected (the bookmark is resolved without mounting or asking). Until the page previews come (ADR 0021, B118), every card shows the boards' placeholder page lines; badges show only "Signed" (neutral, from the document's signatures) until forms, scans and edits are known (B118).
+- **Status:** Decided.
+- **Evidence:** `design/FmStart.dc.html` lines 25–30 (the pinned row with `unpin`, the search field, the sort, the grid) and 76 (`BADGES`); `design/01 First run and files.dc.html` lines 205–209 (a1-9e, `actMissing`). Implemented in `app/lib/features/start/recent_files_view.dart` and `app/lib/recent/recent_files.dart`; tests: `app/test/features/start/recent_files_view_test.dart`, `app/test/recent/recent_files_test.dart`.

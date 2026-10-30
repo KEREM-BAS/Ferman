@@ -1257,4 +1257,107 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get dropOverlayCombine => 'Combine into one PDF';
+
+  @override
+  String get startDropStripTitle => 'Drop files anywhere in this window';
+
+  @override
+  String get startDropStripSubtitle => 'PDF files open in tabs.';
+
+  @override
+  String get startPinned => 'Pinned';
+
+  @override
+  String get startPin => 'Pin';
+
+  @override
+  String get startUnpin => 'Unpin';
+
+  @override
+  String get startRecent => 'Recent';
+
+  @override
+  String get startSearchRecent => 'Search recent files';
+
+  @override
+  String get startSort => 'Sort';
+
+  @override
+  String get startSortOpened => 'Last opened';
+
+  @override
+  String get startSortName => 'Name';
+
+  @override
+  String get startSortLocation => 'Location';
+
+  @override
+  String get startView => 'View';
+
+  @override
+  String get startViewGrid => 'Grid';
+
+  @override
+  String get startViewList => 'List';
+
+  @override
+  String get startColumnPages => 'Pages';
+
+  @override
+  String get startColumnOpened => 'Last opened';
+
+  @override
+  String get startRecentFooter =>
+      'Recent files are listed only on this device.';
+
+  @override
+  String get startClearList => 'Clear list';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return 'No recent file matches “$query”.';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'Today $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'Yesterday $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'Signed';
+
+  @override
+  String startMissingTitle(String name) {
+    return '“$name” can’t be found';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'It was moved, renamed or deleted after you last opened it. It was in $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'Remove from list';
+
+  @override
+  String get startMissingLocate => 'Locate…';
+
+  @override
+  String get startMissingClose => 'Close';
 }

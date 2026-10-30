@@ -1264,4 +1264,107 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get dropOverlayCombine => 'Tek bir PDF’de birleştir';
+
+  @override
+  String get startDropStripTitle =>
+      'Dosyaları bu pencerede herhangi bir yere bırakın';
+
+  @override
+  String get startDropStripSubtitle => 'PDF dosyaları sekmelerde açılır.';
+
+  @override
+  String get startPinned => 'Sabitlenenler';
+
+  @override
+  String get startPin => 'Sabitle';
+
+  @override
+  String get startUnpin => 'Sabitlemeyi kaldır';
+
+  @override
+  String get startRecent => 'Son kullanılanlar';
+
+  @override
+  String get startSearchRecent => 'Son dosyalarda ara';
+
+  @override
+  String get startSort => 'Sıralama';
+
+  @override
+  String get startSortOpened => 'Son açılma';
+
+  @override
+  String get startSortName => 'Ad';
+
+  @override
+  String get startSortLocation => 'Konum';
+
+  @override
+  String get startView => 'Görünüm';
+
+  @override
+  String get startViewGrid => 'Izgara';
+
+  @override
+  String get startViewList => 'Liste';
+
+  @override
+  String get startColumnPages => 'Sayfa';
+
+  @override
+  String get startColumnOpened => 'Son açılma';
+
+  @override
+  String get startRecentFooter =>
+      'Son dosyalar yalnızca bu cihazda listelenir.';
+
+  @override
+  String get startClearList => 'Listeyi temizle';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return '“$query” ile eşleşen son dosya yok.';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'Bugün $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'Dün $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'İmzalı';
+
+  @override
+  String startMissingTitle(String name) {
+    return '“$name” bulunamadı';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'Dosya son açılışınızdan sonra taşınmış, yeniden adlandırılmış veya silinmiş. Önceki konumu: $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'Listeden kaldır';
+
+  @override
+  String get startMissingLocate => 'Bul…';
+
+  @override
+  String get startMissingClose => 'Kapat';
 }

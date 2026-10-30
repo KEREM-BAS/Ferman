@@ -2342,6 +2342,174 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Combine into one PDF'**
   String get dropOverlayCombine;
+
+  /// Title of the drop strip above the recent files (a1-4-m2, FmStart drop).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop files anywhere in this window'**
+  String get startDropStripTitle;
+
+  /// Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11).
+  ///
+  /// In en, this message translates to:
+  /// **'PDF files open in tabs.'**
+  String get startDropStripSubtitle;
+
+  /// Heading of the pinned files on the start screen (a1-4, FmStart pinned).
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get startPinned;
+
+  /// Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118).
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get startPin;
+
+  /// Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin).
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get startUnpin;
+
+  /// Heading of the recent files on the start screen (a1-4, FmStart recent).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get startRecent;
+
+  /// Placeholder and accessible name of the recent files’ search field (a1-4, FmStart searchRecent).
+  ///
+  /// In en, this message translates to:
+  /// **'Search recent files'**
+  String get startSearchRecent;
+
+  /// Accessible name of the recent files’ sort menu (a1-4, the Select’s aria-label).
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get startSort;
+
+  /// Sort option: most recently opened first (a1-4, FmStart sort).
+  ///
+  /// In en, this message translates to:
+  /// **'Last opened'**
+  String get startSortOpened;
+
+  /// Sort option and list column: the file name, in the UI language’s order (a1-4, FmStart sort, name).
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get startSortName;
+
+  /// Sort option and list column: the folder the file is in (a1-4, FmStart sort, where).
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get startSortLocation;
+
+  /// Accessible name of the grid and list switch of the recent files (a1-4, FmStart view).
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get startView;
+
+  /// Tooltip of the grid view of the recent files (a1-4, FmStart grid).
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get startViewGrid;
+
+  /// Tooltip of the list view of the recent files (a1-4c, FmStart list).
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get startViewList;
+
+  /// Column of the recent files’ list: the page count (a1-4c, FmStart pagesH).
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get startColumnPages;
+
+  /// Column of the recent files’ list: when the file was last opened (a1-4c, FmStart opened).
+  ///
+  /// In en, this message translates to:
+  /// **'Last opened'**
+  String get startColumnOpened;
+
+  /// Note under the recent files (a1-4, FmStart footer).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent files are listed only on this device.'**
+  String get startRecentFooter;
+
+  /// Link under the recent files that empties the list but for the pinned files (a1-4, FmStart clear).
+  ///
+  /// In en, this message translates to:
+  /// **'Clear list'**
+  String get startClearList;
+
+  /// Shown in place of the recent files when the search finds none (not drawn, G118).
+  ///
+  /// In en, this message translates to:
+  /// **'No recent file matches “{query}”.'**
+  String startNoRecentMatch(String query);
+
+  /// A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{pages} pages}}'**
+  String startPages(int count, String pages);
+
+  /// When a recent file was opened today, with the region’s time (a1-4, FmStart).
+  ///
+  /// In en, this message translates to:
+  /// **'Today {time}'**
+  String startOpenedToday(String time);
+
+  /// When a recent file was opened yesterday, with the region’s time (a1-4, FmStart).
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday {time}'**
+  String startOpenedYesterday(String time);
+
+  /// Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral).
+  ///
+  /// In en, this message translates to:
+  /// **'Signed'**
+  String get startBadgeSigned;
+
+  /// Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” can’t be found'**
+  String startMissingTitle(String name);
+
+  /// Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “~” for the home folder, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'It was moved, renamed or deleted after you last opened it. It was in {folder}.'**
+  String startMissingDescription(String folder);
+
+  /// Button of a1-9e that takes the missing file off the recent files (a1-9e, remove).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from list'**
+  String get startMissingRemove;
+
+  /// Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate).
+  ///
+  /// In en, this message translates to:
+  /// **'Locate…'**
+  String get startMissingLocate;
+
+  /// Accessible name of a1-9e’s close button, which keeps the file in the list (G118).
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get startMissingClose;
 }
 
 class _AppLocalizationsDelegate

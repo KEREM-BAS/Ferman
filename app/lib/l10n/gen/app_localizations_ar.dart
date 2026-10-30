@@ -1267,4 +1267,105 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get dropOverlayCombine => 'دمج في ملف PDF واحد';
+
+  @override
+  String get startDropStripTitle => 'أفلت الملفات في أي مكان في هذه النافذة';
+
+  @override
+  String get startDropStripSubtitle => 'تُفتح ملفات PDF في علامات تبويب.';
+
+  @override
+  String get startPinned => 'المثبّتة';
+
+  @override
+  String get startPin => 'تثبيت';
+
+  @override
+  String get startUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get startRecent => 'الأخيرة';
+
+  @override
+  String get startSearchRecent => 'البحث في الملفات الأخيرة';
+
+  @override
+  String get startSort => 'الترتيب';
+
+  @override
+  String get startSortOpened => 'آخر فتح';
+
+  @override
+  String get startSortName => 'الاسم';
+
+  @override
+  String get startSortLocation => 'الموقع';
+
+  @override
+  String get startView => 'العرض';
+
+  @override
+  String get startViewGrid => 'شبكة';
+
+  @override
+  String get startViewList => 'قائمة';
+
+  @override
+  String get startColumnPages => 'الصفحات';
+
+  @override
+  String get startColumnOpened => 'آخر فتح';
+
+  @override
+  String get startRecentFooter => 'تُعرض الملفات الأخيرة على هذا الجهاز فقط.';
+
+  @override
+  String get startClearList => 'مسح القائمة';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return 'لا يطابق أي ملف حديث «$query».';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages صفحة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'اليوم $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'أمس $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'موقّع';
+
+  @override
+  String startMissingTitle(String name) {
+    return 'تعذّر العثور على «$name»';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'إزالة من القائمة';
+
+  @override
+  String get startMissingLocate => 'تحديد الموقع…';
+
+  @override
+  String get startMissingClose => 'إغلاق';
 }

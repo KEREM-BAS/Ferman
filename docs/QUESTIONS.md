@@ -709,6 +709,13 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   bookmarks for recent files and the system's replacement directory for atomic saves, if M2 shows
   that both work under it. If they do not, (b): the Developer ID build (DMG and Homebrew) drops the
   sandbox and keeps the hardened runtime, with the reason recorded.
+- **M2 experiment, first half (2026-10-30, the owner's MacBook Pro M5 Pro, sandboxed debug
+  build):** security-scoped bookmarks work. A file opened from `~/Documents` through "Open with"
+  was kept with its bookmark (`files.bookmarks.app-scope`); after a restart the recent files opened
+  it through the bookmark, while one kept without a bookmark could not be read ("Ferman can't open").
+  The second half, an atomic save through the system's replacement directory, comes with Save
+  attachment as… (B110, M2 W3), the first write to a file the user chose, and is settled at the M2
+  review.
 
 <a id="q19"></a>
 
