@@ -220,7 +220,7 @@ final class LayerVisibilityProvider
   }
 }
 
-String _$layerVisibilityHash() => r'3a8c30df0b703701fb434540cb15729bd50bb745';
+String _$layerVisibilityHash() => r'8583196ba64e4764ad1eacf68629d069622e7242';
 
 /// Shows and hides the open document's layers (a2-3c) in every view, as
 /// `layerVisibilityProvider`; null without a document.
