@@ -647,7 +647,7 @@ final class ShellDocumentsProvider
   }
 }
 
-String _$shellDocumentsHash() => r'ba3672a8d8be892bd17407f54ebf7c152ea69b10';
+String _$shellDocumentsHash() => r'e161361fb613edc9332d152a66563db0a20d7162';
 
 /// The open documents, as `shellDocumentsProvider`.
 ///

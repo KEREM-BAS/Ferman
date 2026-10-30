@@ -63,12 +63,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-118 entries: 96 Decided, 0 Needs owner, 22 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, and G118 with the recent files.
+119 entries: 96 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, and G119 with the error tabs; G116 was resolved by them.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 30 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
-| Resolved | 4 | 9 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
+| Entries | 59 | 31 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
 |---|---|---|---|---|---|
@@ -187,9 +187,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G113](#g113) | conflict | M2 | Test corpus / missing glyph | Madde 6's font has no "ğ", but its drawn text says "Olağan" | Decided |
 | [G114](#g114) | gap | M2 | Open / damaged file | a1-9b's "Expected about 2.4 MB" is known only when the file declares its size | Decided |
 | [G115](#g115) | gap | M2 | Search | a2-4a draws the search options open under the find bar with nothing that opens them | Decided |
-| [G116](#g116) | gap | M2 | Files | The open panel ships before the error tabs and the unlock dialog that show a file that did not open | Decided |
+| [G116](#g116) | gap | M2 | Files | The open panel ships before the error tabs and the unlock dialog that show a file that did not open | Resolved |
 | [G117](#g117) | conflict | M2 | Drag and drop | a1-6 counts and lists the dragged files, which the app learns only when they are dropped | Decided |
 | [G118](#g118) | missing state | M2 | Start / recent files | No board draws pinning a recent file, a search that finds none, or leaving a1-9e without an answer | Decided |
+| [G119](#g119) | gap | M2 | Files | The error boards draw one example each: other causes, the file manager on Windows and Linux, the unlock dialog's way out and a read-only file before saving are open | Decided |
 
 ## Entries
 
@@ -1732,7 +1733,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-8`, `a1-8b`, `a1-9b`, `a1-9c`, `a1-9d`, `a1-9f`, `a1-13`
 - **Gap or conflict:** a1-13's open panel ships first (W3, commit 13), so people can open PDFs, but the boards draw a file that does not open as its own tab: an unlock dialog over a locked tab (a1-8, a1-8b) and an error tab per kind (a1-9b damaged, a1-9c not a PDF, a1-9d read-only, a1-9f out of memory). Until those are built nothing would say why a chosen file did not open.
 - **Decision:** Until the error tabs and the unlock dialog (B115), a file that does not open is reported where the pick was made, until dismissed or until the next pick. On the start screen a danger `Banner` at the top: a1-9b's title "Ferman can’t open “{name}”" with the name isolated (ADR 0014), for a file that needs a password the line "It needs a password. Opening password-protected PDFs is available in a future version.", "Copy technical details" (G63) and Dismiss. In the editor a danger `Toast` at the bottom end of the canvas, where a1-9f puts its toast, titled "A file didn’t open", with the same title and line as its message, "Copy technical details" as its action and Dismiss; it stays, as errors do (a11-6). The files that opened keep their tabs, and opening from the start screen goes to the editor only when one did.
-- **Status:** Decided.
+- **Status:** Resolved on 2026-10-30 by the error tabs and the unlock dialog (B115, [G119](#g119)): a file that does not open gets its tab, and only a file that runs out of memory or past a limit is still reported where the pick was made. Was Decided.
 - **Evidence:** `app/lib/features/shell/open_files.dart` (`DocumentOpener`), `app/lib/features/shell/open_problem_notice.dart` (`OpenProblemBanner`, `OpenProblemToast`), `app/lib/features/shell/shell_canvas.dart`, `app/test/features/start/open_files_test.dart`. Files dropped on the window (a1-6) and those the system sends (ADR 0021) are reported the same way since W3's second part.
 
 <a id="g117"></a>
@@ -1760,3 +1761,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A recent file's card (and its row in the list) shows a pin button, "Pin" (`pin`, the extra-small ghost IconButton), at its top end while the pointer is over it or the button has focus, so the keyboard reaches it too, and it stays in the semantics tree while hidden; a pinned file shows in the pinned row and stays in the recent files, as the boards list it in both, with its pin active ("Unpin") in both. A search that finds nothing says "No recent file matches “{query}”." in secondary text where the files were. "Clear list" empties the recent files and keeps the pinned ones. a1-9e gets the dialog's close button, Escape and a click on the scrim, which keep the file in the list; its "Locate…" shows the open panel for one file. The grid or list and the sort last for the session; the list keeps at most 50 files that are not pinned. On macOS the bookmark follows a file that was moved or renamed on its volume, so a1-9e shows there for a file that was deleted, moved to the Trash or is on a volume that is not connected (the bookmark is resolved without mounting or asking). Until the page previews come (ADR 0021, B118), every card shows the boards' placeholder page lines; badges show only "Signed" (neutral, from the document's signatures) until forms, scans and edits are known (B118).
 - **Status:** Decided.
 - **Evidence:** `design/FmStart.dc.html` lines 25–30 (the pinned row with `unpin`, the search field, the sort, the grid) and 76 (`BADGES`); `design/01 First run and files.dc.html` lines 205–209 (a1-9e, `actMissing`). Implemented in `app/lib/features/start/recent_files_view.dart` and `app/lib/recent/recent_files.dart`; tests: `app/test/features/start/recent_files_view_test.dart`, `app/test/recent/recent_files_test.dart`.
+
+<a id="g119"></a>
+
+### G119 · Error tabs: what the boards leave open
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** Files
+- **Artboards:** `a1-8`, `a1-8b`, `a1-9b`, `a1-9c`, `a1-9d`, `a1-9f`
+- **Gap or conflict:** The boards draw one example of each state. a1-9b's sentence names the size the file stops at ("stops after 18 KB"), which the engine knows only as a technical fact; a1-9c names the kind of file ("is an Excel file") from its extension; the other reasons a file does not open (not found, no permission, a read error, something unsupported, a bug) have no board. "Show in Finder" is macOS only. a1-8 has no close button and says nothing of Escape. a1-9d's banner says Ferman cannot save changes, but nothing can be saved before M3. a1-9f draws a tab that closes, while the engine fails before any tab exists.
+- **Decision:** a1-9b's page takes every reason but "not a PDF", with a sentence per engine message key: the cause without numbers (a truncated file "stops before its end"), and the numbers in the technical details below it ("expected 2457600 bytes, found 18432 bytes · last complete object 12 0 obj · 12 objects · no trailer"). a1-9c's line does not name the kind of file: "“{name}” isn’t a PDF file. Ferman opens PDF files." Show in Finder is Show in File Explorer on Windows and Show in folder on Linux, disabled for a future version until it works (B119). The unlock dialog has no close button; Cancel closes the locked tab, and the start screen shows when it was the last one. Opening a file whose error tab is open tries it again in that place. a1-9d waits for saving (B120). A file that runs out of memory or past a limit gets no tab and a1-9f's toast in the editor, or a danger banner with the same title, message and Try again on the start screen.
+- **Status:** Decided.
+- **Evidence:** `design/01 First run and files.dc.html` lines 155–215. Implemented in `app/lib/features/shell/open_files.dart`, `app/lib/features/shell/open_problem_tab.dart`, `app/lib/features/shell/open_problem_notice.dart` and `crates/ferman-api/src/facade/error.rs` (`diagnosis_details`); tests: `app/test/features/start/open_files_test.dart`, `crates/ferman-api/tests/open.rs`.

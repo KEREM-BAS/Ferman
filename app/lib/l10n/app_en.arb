@@ -1580,17 +1580,9 @@
       }
     }
   },
-  "openFailedPassword": "It needs a password. Opening password-protected PDFs is available in a future version.",
-  "@openFailedPassword": {
-    "description": "Line of the banner of openFailedTitle when the file is encrypted and needs a password (until the unlock dialog a1-8, B115)."
-  },
   "openFailedDismiss": "Dismiss",
   "@openFailedDismiss": {
     "description": "Accessible name of the close button of the banner of openFailedTitle."
-  },
-  "openFailedToastTitle": "A file didn’t open",
-  "@openFailedToastTitle": {
-    "description": "Title of the editor’s danger toast when one of the files picked together did not open (G116); the message names the file with openFailedTitle."
   },
   "shellSavedOnDeviceUndated": "Saved on this device",
   "@shellSavedOnDeviceUndated": {
@@ -1628,15 +1620,6 @@
   "shellCloseOtherDocuments": "Close other documents…",
   "@shellCloseOtherDocuments": {
     "description": "Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones."
-  },
-  "openFailedToastPassword": "Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version.",
-  "@openFailedToastPassword": {
-    "description": "Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name.",
-    "placeholders": {
-      "name": {
-        "type": "String"
-      }
-    }
   },
   "dropOverlayTitle": "Drop to open the files",
   "@dropOverlayTitle": {
@@ -1802,5 +1785,124 @@
   "startMissingClose": "Close",
   "@startMissingClose": {
     "description": "Accessible name of a1-9e’s close button, which keeps the file in the list (G118)."
+  },
+  "errorInternal": "Something went wrong inside Ferman. Copy the technical details to report it.",
+  "@errorInternal": {
+    "description": "The line of an error tab (a1-9b) for a bug in Ferman."
+  },
+  "errorFileNotFound": "The file isn’t there any more. It may have been moved, renamed or deleted.",
+  "@errorFileNotFound": {
+    "description": "The line of an error tab (a1-9b) for a file that is gone."
+  },
+  "errorFilePermissionDenied": "This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.",
+  "@errorFilePermissionDenied": {
+    "description": "The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119)."
+  },
+  "errorFileRead": "Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.",
+  "@errorFileRead": {
+    "description": "The line of an error tab (a1-9b) when reading the file failed."
+  },
+  "errorNotPdf": "“{name}” isn’t a PDF file. Ferman opens PDF files.",
+  "@errorNotPdf": {
+    "description": "The line of a1-9c’s error tab under openNotPdfTitle. {name} is the file name (G119: the kind of file is not named).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "errorPasswordRequired": "This PDF is password-protected",
+  "@errorPasswordRequired": {
+    "description": "Title of the unlock dialog over a locked tab (a1-8)."
+  },
+  "errorWrongPassword": "That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.",
+  "@errorWrongPassword": {
+    "description": "Error under the password field of the unlock dialog (a1-8b)."
+  },
+  "errorDamaged": "The file is damaged and Ferman can’t repair it. Try getting the file again.",
+  "@errorDamaged": {
+    "description": "The line of an error tab (a1-9b) for a damaged file."
+  },
+  "errorDamagedTruncated": "The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.",
+  "@errorDamagedTruncated": {
+    "description": "The line of a1-9b’s error tab for a truncated file (without the board’s size, G119)."
+  },
+  "errorDamagedEmpty": "The file starts like a PDF, but nothing after that is readable. Try getting the file again.",
+  "@errorDamagedEmpty": {
+    "description": "The line of an error tab (a1-9b) for a file with a PDF header and no objects."
+  },
+  "errorUnsupported": "It uses something Ferman doesn’t support yet, such as encryption with a certificate.",
+  "@errorUnsupported": {
+    "description": "The line of an error tab (a1-9b) for a file Ferman does not support yet (a2-10a: certificate encryption)."
+  },
+  "errorTooComplex": "This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.",
+  "@errorTooComplex": {
+    "description": "Message of a1-9f’s toast when a resource limit stopped the open."
+  },
+  "errorOutOfMemory": "This computer ran out of memory while opening it. Your other documents are open and unchanged.",
+  "@errorOutOfMemory": {
+    "description": "Message of a1-9f’s toast."
+  },
+  "openClosedTitle": "“{name}” was closed",
+  "@openClosedTitle": {
+    "description": "Title of a1-9f’s toast (and the start screen’s banner) when a file ran out of memory or past a limit while opening. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openTryAgain": "Try again",
+  "@openTryAgain": {
+    "description": "Action of a1-9f’s toast: opens the file again."
+  },
+  "openNotPdfTitle": "That file isn’t a PDF.",
+  "@openNotPdfTitle": {
+    "description": "Title of a1-9c’s error tab."
+  },
+  "openAnotherFile": "Open another file…",
+  "@openAnotherFile": {
+    "description": "Primary button of an error tab (a1-9b, a1-9c): shows the open panel."
+  },
+  "openShowInFinder": "Show in Finder",
+  "@openShowInFinder": {
+    "description": "Button of an error tab on macOS (a1-9b, a1-9c)."
+  },
+  "openShowInExplorer": "Show in File Explorer",
+  "@openShowInExplorer": {
+    "description": "Button of an error tab on Windows (a1-9b, a1-9c; G119)."
+  },
+  "openShowInFolder": "Show in folder",
+  "@openShowInFolder": {
+    "description": "Button of an error tab on Linux (a1-9b, a1-9c; G119)."
+  },
+  "openConvertToPdf": "Convert to PDF…",
+  "@openConvertToPdf": {
+    "description": "Disabled button of a1-9c’s error tab until conversion ships (P3)."
+  },
+  "unlockDescription": "Enter the password for “{name}”. Ferman forgets it when you close the file.",
+  "@unlockDescription": {
+    "description": "Description of the unlock dialog (a1-8). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockPassword": "Password",
+  "@unlockPassword": {
+    "description": "Label of the unlock dialog’s field (a1-8)."
+  },
+  "unlockShowPassword": "Show password",
+  "@unlockShowPassword": {
+    "description": "Checkbox of the unlock dialog (a1-8)."
+  },
+  "unlockCancel": "Cancel",
+  "@unlockCancel": {
+    "description": "Button of the unlock dialog (a1-8): closes the locked tab."
+  },
+  "unlockOpen": "Open",
+  "@unlockOpen": {
+    "description": "Primary button of the unlock dialog (a1-8)."
   }
 }

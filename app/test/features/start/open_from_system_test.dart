@@ -5,7 +5,7 @@ import 'package:ferman/app/router.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
-import 'package:ferman/features/shell/open_problem_notice.dart';
+import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
@@ -130,8 +130,8 @@ void main() {
       expect(tabs(tester), ['/docs/kira-tr.pdf', '/docs/nda-en.pdf']);
     });
 
-    testWidgets('a cold launch with a file that does not open stays on '
-        'Start and says so', (tester) async {
+    testWidgets('a cold launch with a file that does not open shows its '
+        'error tab (a1-9b)', (tester) async {
       final requests = FakeOpenRequests(launch: ['/docs/gone.pdf']);
       addTearDown(requests.close);
       await pumpFermanApp(
@@ -140,8 +140,7 @@ void main() {
         openRequests: requests,
       );
       expect(tester.binding.sendFramesToEngine, isTrue);
-      expect(find.byType(FmStart), findsOneWidget);
-      expect(find.byType(OpenProblemBanner), findsOneWidget);
+      expect(find.byType(OpenErrorTab), findsOneWidget);
     });
 
     testWidgets('a later request opens in a new tab, and a file asked for '
@@ -248,7 +247,7 @@ void main() {
       expect(containerOf(tester).read(shellDocumentsProvider).activeIndex, 0);
     });
 
-    testWidgets('a dropped file that does not open is reported', (
+    testWidgets('a dropped file that does not open gets its error tab', (
       tester,
     ) async {
       await pumpFermanApp(
@@ -257,8 +256,7 @@ void main() {
       );
       await dragIn(tester);
       await dropEvent(tester, 'performOperation', ['/docs/notes.txt']);
-      expect(find.byType(FmStart), findsOneWidget);
-      expect(find.byType(OpenProblemBanner), findsOneWidget);
+      expect(find.byType(OpenErrorTab), findsOneWidget);
     });
 
     testWidgets('no drops while the engine cannot open files', (tester) async {

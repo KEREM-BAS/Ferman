@@ -1208,14 +1208,7 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
-  String get openFailedPassword =>
-      'Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.';
-
-  @override
   String get openFailedDismiss => 'Kapat';
-
-  @override
-  String get openFailedToastTitle => 'Bir dosya açılmadı';
 
   @override
   String get shellSavedOnDeviceUndated => 'Bu cihaza kaydedildi';
@@ -1244,11 +1237,6 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get shellCloseOtherDocuments => 'Diğer belgeleri kapat…';
-
-  @override
-  String openFailedToastPassword(String name) {
-    return 'Ferman “$name” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.';
-  }
 
   @override
   String get dropOverlayTitle => 'Açmak için dosyaları bırakın';
@@ -1367,4 +1355,99 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get startMissingClose => 'Kapat';
+
+  @override
+  String get errorInternal =>
+      'Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın.';
+
+  @override
+  String get errorFileNotFound =>
+      'Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın.';
+
+  @override
+  String get errorFileRead =>
+      'Ferman dosyayı bulunduğu diskten okuyamadı. Diskin hâlâ bağlı olduğuna bakıp yeniden deneyin.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '“$name” bir PDF dosyası değil. Ferman PDF dosyalarını açar.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'Bu PDF parolayla korunuyor';
+
+  @override
+  String get errorWrongPassword =>
+      'Bu parola işe yaramadı. Caps Lock’a ve klavye düzenine bakın: Türkçe klavyede ı ile i ayrı tuşlardır.';
+
+  @override
+  String get errorDamaged =>
+      'Dosya bozuk ve Ferman onaramıyor. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'Dosya sonuna gelmeden bitiyor, geri kalanı eksik. Büyük olasılıkla indirilirken ya da kopyalanırken yarıda kesildi. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'Dosya bir PDF gibi başlıyor, ama sonrası okunamıyor. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorUnsupported =>
+      'Ferman’ın henüz desteklemediği bir şey kullanıyor, örneğin sertifikayla şifreleme.';
+
+  @override
+  String get errorTooComplex =>
+      'Bu dosya Ferman’ın güvenlik sınırları içinde açılamayacak kadar karmaşık. Diğer belgeleriniz açık ve değişmedi.';
+
+  @override
+  String get errorOutOfMemory =>
+      'Dosya açılırken bilgisayarın belleği yetmedi. Diğer belgeleriniz açık ve değişmedi.';
+
+  @override
+  String openClosedTitle(String name) {
+    return '“$name” kapatıldı';
+  }
+
+  @override
+  String get openTryAgain => 'Yeniden dene';
+
+  @override
+  String get openNotPdfTitle => 'Bu dosya bir PDF değil.';
+
+  @override
+  String get openAnotherFile => 'Başka bir dosya aç…';
+
+  @override
+  String get openShowInFinder => 'Finder’da göster';
+
+  @override
+  String get openShowInExplorer => 'Dosya Gezgini’nde göster';
+
+  @override
+  String get openShowInFolder => 'Klasörde göster';
+
+  @override
+  String get openConvertToPdf => 'PDF’ye dönüştür…';
+
+  @override
+  String unlockDescription(String name) {
+    return '“$name” dosyasının parolasını girin. Ferman dosyayı kapattığınızda parolayı unutur.';
+  }
+
+  @override
+  String get unlockPassword => 'Parola';
+
+  @override
+  String get unlockShowPassword => 'Parolayı göster';
+
+  @override
+  String get unlockCancel => 'Vazgeç';
+
+  @override
+  String get unlockOpen => 'Aç';
 }

@@ -11,7 +11,9 @@ import 'package:checks/src/text.dart';
 /// in [sameInTurkish] (by default [repositorySameInTurkish]) with the
 /// reason, and an entry that no longer applies fails too. Arabic may be
 /// partial, but every key in `app_ar.arb` exists in English. Keys starting
-/// with `@` are metadata and not compared.
+/// with `@` are metadata and not compared. Every message key the engine
+/// can return (`MessageKey` in [engineKeysFile]) is a key of `app_en.arb`,
+/// so each error has its sentence.
 final class ArbParityCheck implements Check {
   /// Creates the check; [sameInTurkish] replaces the repository's list
   /// (tests).
@@ -19,6 +21,10 @@ final class ArbParityCheck implements Check {
 
   /// The folder of the ARB files, relative to the repository root.
   static const l10nDir = 'app/lib/l10n';
+
+  /// The engine's message keys, each a `Self("…")` constant of
+  /// `MessageKey`, relative to the repository root.
+  static const engineKeysFile = 'crates/ferman-api/src/facade/error.rs';
 
   /// The message keys whose Turkish value may equal the English one, each
   /// with the reason.
@@ -119,6 +125,16 @@ final class ArbParityCheck implements Check {
           else if (trValues[key] != enValues[key])
             listedButTranslated(key),
       ]);
+    final engine = context.file(engineKeysFile);
+    if (engine.existsSync()) {
+      final keys = RegExp(r'Self\("(\w+)"\)')
+          .allMatches(engine.readAsStringSync())
+          .map((match) => match[1]!);
+      problems.addAll([
+        for (final key in sorted(keys.toSet().difference(enKeys)))
+          'app_en.arb is missing the engine message $key ($engineKeysFile)',
+      ]);
+    }
     return CheckResult.from(problems);
   }
 

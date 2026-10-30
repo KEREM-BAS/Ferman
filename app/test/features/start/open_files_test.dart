@@ -5,14 +5,19 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/open_problem_tab.dart';
+import 'package:ferman/features/shell/shell_mode_bar.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/viewer/document_view.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -85,34 +90,203 @@ void main() {
     expect(find.byType(FmWindow), findsOneWidget);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
-  testWidgets('a file that does not open shows a banner on the start screen '
-      '(G116)', (tester) async {
+  testWidgets('a file that does not open gets an error tab (a1-9b); '
+      'opening it again tries again', (tester) async {
+    final documents = <String, OpenedDocument>{'/docs/kira-tr.pdf': kira};
+    final fake = FakeEngineService(documents: documents);
     final picker = FakeFilePickerService(picked: ['/docs/missing.pdf']);
-    await pumpFermanApp(tester, engine: engine(), picker: picker);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FmStart)),
+    );
+    await controlO(tester);
+    expect(find.byType(FmWindow), findsOneWidget);
+    expect(find.byType(OpenErrorTab), findsOneWidget);
+    // The name is isolated, so it keeps its order in a right-to-left UI.
+    expect(find.text('Ferman can’t open “\u2068missing.pdf\u2069”'), findsOne);
+    expect(
+      find.text(
+        'The file isn’t there any more. It may have been moved, renamed or '
+        'deleted.',
+      ),
+      findsOne,
+    );
+    // Only the canvas: no mode bar, sidebar or status bar.
+    expect(find.byType(ShellModeBar), findsNothing);
+    expect(find.byType(ShellStatusBar), findsNothing);
+    final tab = container.read(shellDocumentsProvider).active!;
+    expect(tab.icon, IconName.fileX);
+    expect(tab.error!.kind, EngineErrorKind.notFound);
+    final show = tester.widget<Button>(
+      find.widgetWithText(Button, 'Show in folder'),
+    );
+    expect(show.disabled, isTrue);
+
+    // Open another file… shows the open panel.
+    picker.picked = ['/docs/kira-tr.pdf'];
+    await tester.tap(find.text('Open another file…'));
+    await tester.pumpAndSettle();
+    expect(picker.requests, hasLength(2));
+    // The file is back: opened again, it is tried in its own tab, ahead of
+    // the one opened after it.
+    documents['/docs/missing.pdf'] = nda;
+    picker.picked = ['/docs/missing.pdf'];
+    await controlO(tester);
+    expect([
+      for (final tab in container.read(shellDocumentsProvider).documents)
+        tab.path,
+    ], ['/docs/missing.pdf', '/docs/kira-tr.pdf']);
+    expect(container.read(shellDocumentsProvider).activeIndex, 0);
+    expect(find.byType(OpenErrorTab), findsNothing);
+    expect(find.byType(DocumentView), findsOneWidget);
+    expect(find.byType(ShellModeBar), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('a damaged file shows its cause and technical details '
+      '(a1-9b)', (tester) async {
+    final fake = FakeEngineService(
+      failures: {
+        '/docs/truncated.pdf': const EngineException(
+          kind: EngineErrorKind.damaged,
+          messageKey: 'errorDamagedTruncated',
+          details: '18432 bytes · no trailer',
+        ),
+      },
+    );
+    final picker = FakeFilePickerService(picked: ['/docs/truncated.pdf']);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
+    await controlO(tester);
+    expect(find.textContaining('The file stops before its end'), findsOne);
+    expect(find.text('18432 bytes · no trailer'), findsOne);
+    await tester.tap(find.text('Copy technical details'));
+    await tester.pumpAndSettle();
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets("a file that is not a PDF gets a1-9c's error tab, with "
+      'Convert to PDF… disabled', (tester) async {
+    final fake = FakeEngineService(
+      failures: {
+        '/docs/Ek-1.xlsx': const EngineException(
+          kind: EngineErrorKind.unsupported,
+          messageKey: 'errorNotPdf',
+        ),
+      },
+    );
+    final picker = FakeFilePickerService(picked: ['/docs/Ek-1.xlsx']);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
+    await controlO(tester);
+    final zone = tester.widget<DropZone>(find.byType(DropZone));
+    expect(zone.state, DropZoneState.error);
+    expect(zone.errorTitle, 'That file isn’t a PDF.');
+    expect(
+      zone.errorSubtitle,
+      '“\u2068Ek-1.xlsx\u2069” isn’t a PDF file. Ferman opens PDF files.',
+    );
+    final convert = tester.widget<Button>(
+      find.widgetWithText(Button, 'Convert to PDF…'),
+    );
+    expect(convert.disabled, isTrue);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('a file that needs a password opens as a locked tab with the '
+      'unlock dialog (a1-8, a1-8b)', (tester) async {
+    final fake = FakeEngineService(
+      documents: {'/docs/payslip.pdf': nda},
+      passwords: {'/docs/payslip.pdf': 'Eylül2026maaşı'},
+    );
+    final picker = FakeFilePickerService(picked: ['/docs/payslip.pdf']);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FmStart)),
+    );
+    await controlO(tester);
+    expect(find.byType(UnlockTab), findsOneWidget);
+    expect(find.text('This PDF is password-protected'), findsOne);
+    // The field has focus over the canvas, so typing goes to it.
+    expect(
+      tester.widget<EditableText>(find.byType(EditableText)).focusNode.hasFocus,
+      isTrue,
+    );
+    // Asked for again before it is unlocked, it shows its tab and is not
+    // remembered: only a file that opens joins the recent files.
+    await controlO(tester);
+    expect(container.read(shellDocumentsProvider).documents, hasLength(1));
+    expect(container.read(recentFilesProvider), isEmpty);
+    expect(container.read(shellDocumentsProvider).active!.icon, IconName.lock);
+    expect(find.byType(ShellModeBar), findsNothing);
+
+    // A wrong password: a1-8b's error, the attempt kept and selected.
+    await tester.enterText(find.byType(EditableText), 'eylul2026');
+    await tester.tap(find.text('Open'));
+    await tester.pumpAndSettle();
+    expect(find.textContaining('That password didn’t work.'), findsOne);
+    final field = tester.widget<EditableText>(find.byType(EditableText));
+    expect(field.controller.selection.start, 0);
+    expect(field.controller.selection.end, 'eylul2026'.length);
+
+    // The right one, submitted with Enter, opens the document in place.
+    await tester.enterText(find.byType(EditableText), 'Eylül2026maaşı');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(find.byType(UnlockTab), findsNothing);
+    expect(find.byType(DocumentView), findsOneWidget);
+    final list = container.read(shellDocumentsProvider);
+    expect(list.documents, hasLength(1));
+    expect(list.active!.document, nda);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('Cancel closes the locked tab; with no tab left Start shows', (
+    tester,
+  ) async {
+    final fake = FakeEngineService(
+      documents: {'/docs/payslip.pdf': nda},
+      passwords: {'/docs/payslip.pdf': 'x'},
+    );
+    final picker = FakeFilePickerService(picked: ['/docs/payslip.pdf']);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
+    await controlO(tester);
+    await tester.tap(find.text('Cancel'));
+    await tester.pumpAndSettle();
+    expect(find.byType(FmStart), findsOneWidget);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('a file that runs out of memory gets no tab: a banner on '
+      'Start, a toast in the editor, each with Try again (a1-9f)', (
+    tester,
+  ) async {
+    const outOfMemory = EngineException(
+      kind: EngineErrorKind.resourceLimit,
+      messageKey: 'errorOutOfMemory',
+    );
+    final fake = FakeEngineService(
+      documents: {'/docs/kira-tr.pdf': kira},
+      failures: {'/docs/imar.pdf': outOfMemory},
+    );
+    final picker = FakeFilePickerService(picked: ['/docs/imar.pdf']);
+    await pumpFermanApp(tester, engine: fake, picker: picker);
     await controlO(tester);
     expect(find.byType(FmStart), findsOneWidget);
     final banner = tester.widget<Banner>(find.byType(Banner));
     expect(banner.tone, BannerTone.danger);
-    // The name is isolated, so it keeps its order in a right-to-left UI.
-    expect(banner.title, 'Ferman can’t open “\u2068missing.pdf\u2069”');
+    expect(banner.title, '“\u2068imar.pdf\u2069” was closed');
+    expect(find.text('Try again'), findsOne);
     await tester.tap(find.bySemanticsLabel('Dismiss'));
     await tester.pumpAndSettle();
     expect(find.byType(Banner), findsNothing);
-  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
-  testWidgets('a file that fails next to one that opens is reported in the '
-      'editor; the next pick clears it', (tester) async {
-    final picker = FakeFilePickerService(
-      picked: ['/docs/missing.pdf', '/docs/kira-tr.pdf'],
-    );
-    await pumpFermanApp(tester, engine: engine(), picker: picker);
+    picker.picked = ['/docs/imar.pdf', '/docs/kira-tr.pdf'];
     await controlO(tester);
     expect(find.byType(FmWindow), findsOneWidget);
     final toast = tester.widget<Toast>(find.byType(Toast));
     expect(toast.tone, ToastTone.danger);
-    expect(toast.title, 'A file didn’t open');
-    expect(toast.message, 'Ferman can’t open “\u2068missing.pdf\u2069”');
-    picker.picked = ['/docs/nda-en.pdf'];
+    expect(toast.title, '“\u2068imar.pdf\u2069” was closed');
+    expect(
+      toast.message,
+      'This computer ran out of memory while opening it. Your other '
+      'documents are open and unchanged.',
+    );
+    expect(toast.action!.label, 'Try again');
+    picker.picked = ['/docs/kira-tr.pdf'];
     await controlO(tester);
     expect(find.byType(Toast), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));

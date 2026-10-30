@@ -1210,13 +1210,7 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String openFailedTitle(String name) => isolate(super.openFailedTitle(name));
 
   @override
-  String get openFailedPassword => isolate(super.openFailedPassword);
-
-  @override
   String get openFailedDismiss => isolate(super.openFailedDismiss);
-
-  @override
-  String get openFailedToastTitle => isolate(super.openFailedToastTitle);
 
   @override
   String get shellSavedOnDeviceUndated =>
@@ -1239,10 +1233,6 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String get shellCloseOtherDocuments =>
       isolate(super.shellCloseOtherDocuments);
-
-  @override
-  String openFailedToastPassword(String name) =>
-      isolate(super.openFailedToastPassword(name));
 
   @override
   String get dropOverlayTitle => isolate(super.dropOverlayTitle);
@@ -1348,6 +1338,86 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get startMissingClose => isolate(super.startMissingClose);
+
+  @override
+  String get errorInternal => isolate(super.errorInternal);
+
+  @override
+  String get errorFileNotFound => isolate(super.errorFileNotFound);
+
+  @override
+  String get errorFilePermissionDenied =>
+      isolate(super.errorFilePermissionDenied);
+
+  @override
+  String get errorFileRead => isolate(super.errorFileRead);
+
+  @override
+  String errorNotPdf(String name) => isolate(super.errorNotPdf(name));
+
+  @override
+  String get errorPasswordRequired => isolate(super.errorPasswordRequired);
+
+  @override
+  String get errorWrongPassword => isolate(super.errorWrongPassword);
+
+  @override
+  String get errorDamaged => isolate(super.errorDamaged);
+
+  @override
+  String get errorDamagedTruncated => isolate(super.errorDamagedTruncated);
+
+  @override
+  String get errorDamagedEmpty => isolate(super.errorDamagedEmpty);
+
+  @override
+  String get errorUnsupported => isolate(super.errorUnsupported);
+
+  @override
+  String get errorTooComplex => isolate(super.errorTooComplex);
+
+  @override
+  String get errorOutOfMemory => isolate(super.errorOutOfMemory);
+
+  @override
+  String openClosedTitle(String name) => isolate(super.openClosedTitle(name));
+
+  @override
+  String get openTryAgain => isolate(super.openTryAgain);
+
+  @override
+  String get openNotPdfTitle => isolate(super.openNotPdfTitle);
+
+  @override
+  String get openAnotherFile => isolate(super.openAnotherFile);
+
+  @override
+  String get openShowInFinder => isolate(super.openShowInFinder);
+
+  @override
+  String get openShowInExplorer => isolate(super.openShowInExplorer);
+
+  @override
+  String get openShowInFolder => isolate(super.openShowInFolder);
+
+  @override
+  String get openConvertToPdf => isolate(super.openConvertToPdf);
+
+  @override
+  String unlockDescription(String name) =>
+      isolate(super.unlockDescription(name));
+
+  @override
+  String get unlockPassword => isolate(super.unlockPassword);
+
+  @override
+  String get unlockShowPassword => isolate(super.unlockShowPassword);
+
+  @override
+  String get unlockCancel => isolate(super.unlockCancel);
+
+  @override
+  String get unlockOpen => isolate(super.unlockOpen);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

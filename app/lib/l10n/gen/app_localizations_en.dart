@@ -1201,14 +1201,7 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
-  String get openFailedPassword =>
-      'It needs a password. Opening password-protected PDFs is available in a future version.';
-
-  @override
   String get openFailedDismiss => 'Dismiss';
-
-  @override
-  String get openFailedToastTitle => 'A file didn’t open';
 
   @override
   String get shellSavedOnDeviceUndated => 'Saved on this device';
@@ -1237,11 +1230,6 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get shellCloseOtherDocuments => 'Close other documents…';
-
-  @override
-  String openFailedToastPassword(String name) {
-    return 'Ferman can’t open “$name”. It needs a password. Opening password-protected PDFs is available in a future version.';
-  }
 
   @override
   String get dropOverlayTitle => 'Drop to open the files';
@@ -1360,4 +1348,99 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startMissingClose => 'Close';
+
+  @override
+  String get errorInternal =>
+      'Something went wrong inside Ferman. Copy the technical details to report it.';
+
+  @override
+  String get errorFileNotFound =>
+      'The file isn’t there any more. It may have been moved, renamed or deleted.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.';
+
+  @override
+  String get errorFileRead =>
+      'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '“$name” isn’t a PDF file. Ferman opens PDF files.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'This PDF is password-protected';
+
+  @override
+  String get errorWrongPassword =>
+      'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.';
+
+  @override
+  String get errorDamaged =>
+      'The file is damaged and Ferman can’t repair it. Try getting the file again.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'The file starts like a PDF, but nothing after that is readable. Try getting the file again.';
+
+  @override
+  String get errorUnsupported =>
+      'It uses something Ferman doesn’t support yet, such as encryption with a certificate.';
+
+  @override
+  String get errorTooComplex =>
+      'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.';
+
+  @override
+  String get errorOutOfMemory =>
+      'This computer ran out of memory while opening it. Your other documents are open and unchanged.';
+
+  @override
+  String openClosedTitle(String name) {
+    return '“$name” was closed';
+  }
+
+  @override
+  String get openTryAgain => 'Try again';
+
+  @override
+  String get openNotPdfTitle => 'That file isn’t a PDF.';
+
+  @override
+  String get openAnotherFile => 'Open another file…';
+
+  @override
+  String get openShowInFinder => 'Show in Finder';
+
+  @override
+  String get openShowInExplorer => 'Show in File Explorer';
+
+  @override
+  String get openShowInFolder => 'Show in folder';
+
+  @override
+  String get openConvertToPdf => 'Convert to PDF…';
+
+  @override
+  String unlockDescription(String name) {
+    return 'Enter the password for “$name”. Ferman forgets it when you close the file.';
+  }
+
+  @override
+  String get unlockPassword => 'Password';
+
+  @override
+  String get unlockShowPassword => 'Show password';
+
+  @override
+  String get unlockCancel => 'Cancel';
+
+  @override
+  String get unlockOpen => 'Open';
 }

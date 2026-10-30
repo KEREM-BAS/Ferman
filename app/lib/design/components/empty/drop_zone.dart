@@ -108,6 +108,7 @@ class DropZone extends StatelessWidget {
     this.overSubtitle,
     this.errorTitle,
     this.errorSubtitle,
+    this.actions,
     this.openLabel,
     this.createLabel,
     this.recentTitle,
@@ -212,6 +213,10 @@ class DropZone extends StatelessWidget {
 
   /// The subtitle of the error state. Not a design-system prop.
   final String? errorSubtitle;
+
+  /// Buttons in place of Open and Create, as a1-9c's error tab composes
+  /// them in `.fm-drop__actions`. Not a design-system prop.
+  final List<Widget>? actions;
 
   /// The Open button's label ("Open a PDF"); null hides the button. Not a
   /// design-system prop.
@@ -332,8 +337,17 @@ class DropZone extends StatelessWidget {
     final createReason = createDisabledReason ?? disabledReason;
     final showCreate =
         createLabel != null && (onCreate != null || createReason != null);
-    final actions =
-        shown == DropZoneState.over || (openLabel == null && !showCreate)
+    final composed = this.actions;
+    final actions = shown == DropZoneState.over
+        ? null
+        : composed != null
+        ? Wrap(
+            alignment: WrapAlignment.center,
+            spacing: theme.space.space2,
+            runSpacing: theme.space.space2,
+            children: composed,
+          )
+        : openLabel == null && !showCreate
         ? null
         : Wrap(
             alignment: WrapAlignment.center,

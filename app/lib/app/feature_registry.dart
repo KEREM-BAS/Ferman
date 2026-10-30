@@ -58,6 +58,10 @@ enum Feature {
   /// (a1-10).
   showAllDocuments('B117'),
 
+  /// Showing a file in the system's file manager: an error tab's Show in
+  /// Finder, Show in File Explorer or Show in folder (a1-9b, a1-9c).
+  showInFolder('B119'),
+
   /// Closing documents: the close button of the active clean tab.
   closingDocuments('B029'),
 

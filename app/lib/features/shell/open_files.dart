@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/additions/save_indicator.dart';
+import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -13,14 +14,18 @@ import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'open_files.g.dart';
 
-/// A file that did not open: its name and the engine's reason.
+/// A file that ran out of memory or past a resource limit while opening
+/// (a1-9f): its tab closed, so the start screen or the editor reports it.
 @immutable
 final class OpenProblem {
-  /// [name] did not open because of [error].
-  const new({required this.name, required this.error});
+  /// The file at [path], named [name], did not open because of [error].
+  const new({required this.name, required this.error, this.path});
 
   /// The file name.
   final String name;
+
+  /// Where the file is, for Try again; null when it cannot be retried.
+  final String? path;
 
   /// What the engine said.
   final EngineException error;
@@ -46,8 +51,12 @@ String fileName(String path) => path
 /// 0021) or picked from the recent files, each in a new active tab, or the
 /// tab of a file already open. Each file that opens goes first in the
 /// recent files ([RecentFiles.opened]).
-/// Its state is the last file of the latest request that did not open,
-/// which the start screen and the editor show until dismissed (G116).
+///
+/// A file that needs its password opens as a locked tab with the unlock
+/// dialog (a1-8, [unlock]); one that does not open shows why in its own
+/// error tab (a1-9b, a1-9c). One that runs out of memory or past a limit
+/// gets no tab: the state is the last such file of the latest request,
+/// which the start screen and the editor show until dismissed (a1-9f).
 @Riverpod(keepAlive: true)
 class DocumentOpener extends _$DocumentOpener {
   bool _picking = false;
@@ -117,9 +126,13 @@ class DocumentOpener extends _$DocumentOpener {
     var opened = false;
     for (final path in paths) {
       if (_opening[path] case final pending?) await pending;
-      if (documents.focus(path)) {
+      // A file that did not open is tried again in its tab: it may have
+      // been fixed.
+      final tab = _tab(path);
+      if (tab != null && tab.error == null && documents.focus(path)) {
         opened = true;
-        _remember(path);
+        // A locked file is remembered only once it opens.
+        if (!tab.locked) _remember(path);
         continue;
       }
       final opening = _add(path, documents, missing);
@@ -136,53 +149,155 @@ class DocumentOpener extends _$DocumentOpener {
     }
   }
 
-  /// Opens [path] in a new active tab of [documents], or reports why it did
-  /// not open (into [missing] when it is not found and [missing] is given);
-  /// whether it opened.
+  /// Opens [path] in a new active tab of [documents], or in place of its
+  /// error tab: the document, its locked tab, or its error tab. Whether a
+  /// tab shows: not for a file that is not found when [missing] is given
+  /// (it is added to [missing]), nor for one that ran out of memory or past
+  /// a limit (the state); either closes an error tab it had.
   Future<bool> _add(
     String path,
     ShellDocuments documents,
     Set<String>? missing,
   ) async {
+    final opened = await _engineOpen(path);
+    void show(ShellDocument document) {
+      if (_tab(path) == null) {
+        documents.add(document);
+      } else {
+        documents
+          ..replace(path, document)
+          ..focus(path);
+      }
+    }
+
+    switch (opened) {
+      case final ShellDocument document:
+        show(document);
+        if (document.document case final engine?) _rememberOpened(path, engine);
+        return true;
+      case EngineException(kind: EngineErrorKind.notFound) when missing != null:
+        missing.add(path);
+      case EngineException(kind: EngineErrorKind.resourceLimit):
+        state = OpenProblem(name: fileName(path), error: opened, path: path);
+      case final EngineException error:
+        show(_failed(path, error));
+        return true;
+    }
+    if (_tab(path) != null) close(path);
+    return false;
+  }
+
+  /// Opens the locked file of the tab of [path] with [password] (a1-8) and
+  /// shows the document in its place. False when the password is wrong
+  /// (a1-8b), so the dialog asks again; otherwise the tab shows the
+  /// document or why it did not open, or closes when memory ran out
+  /// (a1-9f).
+  Future<bool> unlock(String path, String password) async {
+    final opened = await _engineOpen(path, password: password);
+    final documents = ref.read(shellDocumentsProvider.notifier);
+    if (_tab(path)?.locked != true) {
+      // The tab closed meanwhile: the document is not wanted any more.
+      if (opened case ShellDocument(:final document?)) {
+        unawaited(
+          ref
+              .read(engineServiceProvider)
+              .close(document.id)
+              .catchError((Object _) {}),
+        );
+      }
+      return true;
+    }
+    switch (opened) {
+      case final ShellDocument document:
+        documents.replace(path, document);
+        if (document.document case final engine?) _rememberOpened(path, engine);
+      case EngineException(kind: EngineErrorKind.wrongPassword):
+        return false;
+      case EngineException(kind: EngineErrorKind.resourceLimit):
+        state = OpenProblem(name: fileName(path), error: opened, path: path);
+        close(path);
+      case final EngineException error:
+        documents.replace(path, _failed(path, error));
+    }
+    return true;
+  }
+
+  /// Closes the tab of [path], which holds no document (the unlock
+  /// dialog's Cancel), and shows the start screen when no tab is left
+  /// and the editor shows (not Settings opened meanwhile).
+  void close(String path) {
+    final documents = ref.read(shellDocumentsProvider.notifier)..remove(path);
+    final router = ref.read(routerProvider);
+    if (documents.state.documents.isEmpty &&
+        router.state.uri.path == Routes.editor) {
+      router.go(Routes.start);
+    }
+  }
+
+  /// Opens the file of the problem again (a1-9f's Try again).
+  Future<void> retry() async {
+    if (state?.path case final path?) await open([path]);
+  }
+
+  /// The tab of [path], if one is open.
+  ShellDocument? _tab(String path) {
+    for (final document in ref.read(shellDocumentsProvider).documents) {
+      if (document.path == path) return document;
+    }
+    return null;
+  }
+
+  /// The engine's document for [path] in a tab of its own, the locked tab
+  /// of a file that needs its password, or why it did not open.
+  Future<Object> _engineOpen(String path, {String? password}) async {
     final name = fileName(path);
     try {
-      final document = await ref.read(engineServiceProvider).open(path);
-      documents.add(
-        ShellDocument(
-          name: name,
-          path: path,
-          document: document,
-          pageCount: document.pages.length,
-          saveState: document.readOnly == null
-              ? SaveState.saved
-              : SaveState.readOnly,
-        ),
+      final document = await ref
+          .read(engineServiceProvider)
+          .open(path, password: password);
+      return ShellDocument(
+        name: name,
+        path: path,
+        document: document,
+        pageCount: document.pages.length,
+        saveState: document.readOnly == null
+            ? SaveState.saved
+            : SaveState.readOnly,
       );
-      _remember(
-        path,
-        pages: document.pages.length,
-        signed: document.signatures.isNotEmpty,
-      );
-      return true;
     } on EngineException catch (error) {
-      if (missing != null && error.kind == EngineErrorKind.notFound) {
-        missing.add(path);
-      } else {
-        state = OpenProblem(name: name, error: error);
-      }
+      if (error.kind != EngineErrorKind.passwordRequired) return error;
+      return ShellDocument(
+        name: name,
+        path: path,
+        icon: IconName.lock,
+        saveState: SaveState.readOnly,
+        locked: true,
+      );
     } on EngineUnavailableException catch (error) {
       // Picked while the engine was still starting, before its problem
       // disabled opening (G101).
-      state = OpenProblem(
-        name: name,
-        error: EngineException(
-          messageKey: 'errorInternal',
-          details: 'engine unavailable: ${error.reason.name}',
-        ),
+      return EngineException(
+        messageKey: 'errorInternal',
+        details: 'engine unavailable: ${error.reason.name}',
       );
     }
-    return false;
   }
+
+  /// The error tab of [path] (a1-9b, a1-9c).
+  ShellDocument _failed(String path, EngineException error) => ShellDocument(
+    name: fileName(path),
+    path: path,
+    icon: IconName.fileX,
+    saveState: SaveState.readOnly,
+    error: error,
+  );
+
+  /// Remembers the file at [path], opened as [document], with its facts.
+  void _rememberOpened(String path, OpenedDocument document) => _remember(
+    path,
+    pages: document.pages.length,
+    signed: document.signatures.isNotEmpty,
+  );
 
   /// Puts the file at [path] first in the recent files, with a bookmark
   /// that reaches it again after a restart (macOS, Q18). The list is kept

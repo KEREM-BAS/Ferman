@@ -343,6 +343,8 @@ final class ShellDocument {
     this.editCount = 0,
     this.path,
     this.document,
+    this.locked = false,
+    this.error,
   });
 
   /// The file name.
@@ -354,8 +356,16 @@ final class ShellDocument {
   /// The engine's document, which the canvas shows.
   final OpenedDocument? document;
 
-  /// The tab's glyph: `file-text`, or `lock` for a locked file.
+  /// The tab's glyph: `file-text`, `lock` for a locked file, `file-x` for
+  /// one that did not open.
   final IconName icon;
+
+  /// Whether the file waits for its password: the tab shows the unlock
+  /// dialog (a1-8).
+  final bool locked;
+
+  /// Why the file did not open: the tab shows its error (a1-9b, a1-9c).
+  final EngineException? error;
 
   /// The save state, or null while the document is still opening.
   final SaveState? saveState;
@@ -482,6 +492,30 @@ class ShellDocuments extends _$ShellDocuments {
     state = ShellDocumentList(
       documents: [...documents, document],
       activeIndex: documents.length,
+    );
+  }
+
+  /// Puts [document] in place of the tab of [path], if there is one.
+  void replace(String path, ShellDocument document) {
+    final index = state.documents.indexWhere((open) => open.path == path);
+    if (index < 0) return;
+    state = ShellDocumentList(
+      documents: [...state.documents]..[index] = document,
+      activeIndex: state.activeIndex,
+    );
+  }
+
+  /// Takes the tab of [path] away, if there is one; the tab after it, or
+  /// else the one before, shows when it was the active one.
+  void remove(String path) {
+    final index = state.documents.indexWhere((open) => open.path == path);
+    if (index < 0) return;
+    final active = state.activeIndex;
+    state = ShellDocumentList(
+      documents: [...state.documents]..removeAt(index),
+      activeIndex: active > index || active == state.documents.length - 1
+          ? math.max(active - 1, 0)
+          : active,
     );
   }
 

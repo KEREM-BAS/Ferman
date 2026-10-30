@@ -18,6 +18,8 @@ class FakeEngineService implements EngineService {
     this.documents = const {},
     this.failingPages = const {},
     this.searchResults = const {},
+    this.failures = const {},
+    this.passwords = const {},
   });
 
   /// The status [status] returns.
@@ -25,6 +27,13 @@ class FakeEngineService implements EngineService {
 
   /// The documents [open] opens, by path; any other path is not found.
   final Map<String, OpenedDocument> documents;
+
+  /// The paths whose [open] fails, with the error.
+  final Map<String, EngineException> failures;
+
+  /// The passwords of [documents] that need one (a1-8): [open] fails with
+  /// `passwordRequired` without it and `wrongPassword` with another.
+  final Map<String, String> passwords;
 
   /// Pages whose items fail as damaged.
   final Set<int> failingPages;
@@ -55,12 +64,25 @@ class FakeEngineService implements EngineService {
   Future<EngineStatus> status() async => fakeStatus;
 
   @override
-  Future<OpenedDocument> open(String path, {String? password}) async =>
-      documents[path] ??
-      (throw const EngineException(
-        kind: EngineErrorKind.notFound,
-        messageKey: 'errorFileNotFound',
-      ));
+  Future<OpenedDocument> open(String path, {String? password}) async {
+    if (failures[path] case final error?) throw error;
+    if (passwords[path] case final expected? when password != expected) {
+      throw password == null
+          ? const EngineException(
+              kind: EngineErrorKind.passwordRequired,
+              messageKey: 'errorPasswordRequired',
+            )
+          : const EngineException(
+              kind: EngineErrorKind.wrongPassword,
+              messageKey: 'errorWrongPassword',
+            );
+    }
+    return documents[path] ??
+        (throw const EngineException(
+          kind: EngineErrorKind.notFound,
+          messageKey: 'errorFileNotFound',
+        ));
+  }
 
   /// Ends the document's views.
   @override

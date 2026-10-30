@@ -2253,23 +2253,11 @@ abstract class AppLocalizations {
   /// **'Ferman can’t open “{name}”'**
   String openFailedTitle(String name);
 
-  /// Line of the banner of openFailedTitle when the file is encrypted and needs a password (until the unlock dialog a1-8, B115).
-  ///
-  /// In en, this message translates to:
-  /// **'It needs a password. Opening password-protected PDFs is available in a future version.'**
-  String get openFailedPassword;
-
   /// Accessible name of the close button of the banner of openFailedTitle.
   ///
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get openFailedDismiss;
-
-  /// Title of the editor’s danger toast when one of the files picked together did not open (G116); the message names the file with openFailedTitle.
-  ///
-  /// In en, this message translates to:
-  /// **'A file didn’t open'**
-  String get openFailedToastTitle;
 
   /// Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time).
   ///
@@ -2306,12 +2294,6 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close other documents…'**
   String get shellCloseOtherDocuments;
-
-  /// Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name.
-  ///
-  /// In en, this message translates to:
-  /// **'Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version.'**
-  String openFailedToastPassword(String name);
 
   /// Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117).
   ///
@@ -2510,6 +2492,162 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Close'**
   String get startMissingClose;
+
+  /// The line of an error tab (a1-9b) for a bug in Ferman.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong inside Ferman. Copy the technical details to report it.'**
+  String get errorInternal;
+
+  /// The line of an error tab (a1-9b) for a file that is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t there any more. It may have been moved, renamed or deleted.'**
+  String get errorFileNotFound;
+
+  /// The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119).
+  ///
+  /// In en, this message translates to:
+  /// **'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.'**
+  String get errorFilePermissionDenied;
+
+  /// The line of an error tab (a1-9b) when reading the file failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.'**
+  String get errorFileRead;
+
+  /// The line of a1-9c’s error tab under openNotPdfTitle. {name} is the file name (G119: the kind of file is not named).
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” isn’t a PDF file. Ferman opens PDF files.'**
+  String errorNotPdf(String name);
+
+  /// Title of the unlock dialog over a locked tab (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected'**
+  String get errorPasswordRequired;
+
+  /// Error under the password field of the unlock dialog (a1-8b).
+  ///
+  /// In en, this message translates to:
+  /// **'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.'**
+  String get errorWrongPassword;
+
+  /// The line of an error tab (a1-9b) for a damaged file.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is damaged and Ferman can’t repair it. Try getting the file again.'**
+  String get errorDamaged;
+
+  /// The line of a1-9b’s error tab for a truncated file (without the board’s size, G119).
+  ///
+  /// In en, this message translates to:
+  /// **'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.'**
+  String get errorDamagedTruncated;
+
+  /// The line of an error tab (a1-9b) for a file with a PDF header and no objects.
+  ///
+  /// In en, this message translates to:
+  /// **'The file starts like a PDF, but nothing after that is readable. Try getting the file again.'**
+  String get errorDamagedEmpty;
+
+  /// The line of an error tab (a1-9b) for a file Ferman does not support yet (a2-10a: certificate encryption).
+  ///
+  /// In en, this message translates to:
+  /// **'It uses something Ferman doesn’t support yet, such as encryption with a certificate.'**
+  String get errorUnsupported;
+
+  /// Message of a1-9f’s toast when a resource limit stopped the open.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.'**
+  String get errorTooComplex;
+
+  /// Message of a1-9f’s toast.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer ran out of memory while opening it. Your other documents are open and unchanged.'**
+  String get errorOutOfMemory;
+
+  /// Title of a1-9f’s toast (and the start screen’s banner) when a file ran out of memory or past a limit while opening. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” was closed'**
+  String openClosedTitle(String name);
+
+  /// Action of a1-9f’s toast: opens the file again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get openTryAgain;
+
+  /// Title of a1-9c’s error tab.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn’t a PDF.'**
+  String get openNotPdfTitle;
+
+  /// Primary button of an error tab (a1-9b, a1-9c): shows the open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open another file…'**
+  String get openAnotherFile;
+
+  /// Button of an error tab on macOS (a1-9b, a1-9c).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in Finder'**
+  String get openShowInFinder;
+
+  /// Button of an error tab on Windows (a1-9b, a1-9c; G119).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in File Explorer'**
+  String get openShowInExplorer;
+
+  /// Button of an error tab on Linux (a1-9b, a1-9c; G119).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in folder'**
+  String get openShowInFolder;
+
+  /// Disabled button of a1-9c’s error tab until conversion ships (P3).
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to PDF…'**
+  String get openConvertToPdf;
+
+  /// Description of the unlock dialog (a1-8). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password for “{name}”. Ferman forgets it when you close the file.'**
+  String unlockDescription(String name);
+
+  /// Label of the unlock dialog’s field (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get unlockPassword;
+
+  /// Checkbox of the unlock dialog (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get unlockShowPassword;
+
+  /// Button of the unlock dialog (a1-8): closes the locked tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get unlockCancel;
+
+  /// Primary button of the unlock dialog (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get unlockOpen;
 }
 
 class _AppLocalizationsDelegate
