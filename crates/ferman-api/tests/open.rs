@@ -294,8 +294,9 @@ fn a_search_streams_its_matches_and_ends() {
     );
     assert!(matches.len() > 5, "{} matches", matches.len());
 
-    // A cancelled search ends as cancelled, or as done if it was quicker.
-    let long = open("long-500", None).unwrap();
+    // A cancelled search ends as cancelled, or as done if it was quicker. A committed file: CI
+    // has no long-500.
+    let long = open("tez-tr", None).unwrap();
     let (events, received) = mpsc::channel();
     let id = engine()
         .search(
