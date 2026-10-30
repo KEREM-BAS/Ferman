@@ -40,4 +40,4 @@ pub use ferman_render::{
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
     ZoomBucket,
 };
-pub use ferman_text::SearchOptions;
+pub use ferman_text::{SearchOptions, collation_order};

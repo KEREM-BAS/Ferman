@@ -1,4 +1,6 @@
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -6,6 +8,7 @@ import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/onboarding/privacy_step.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
+import 'package:ferman/features/shell/shell_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/isolated_fallback.g.dart';
@@ -16,6 +19,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
+import '../../helpers/fake_open_requests.dart';
 import 'ferman_app_harness.dart';
 
 const _firstRun = AppSettings();
@@ -636,6 +640,30 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.byType(FmStart), findsOneWidget);
       expect((await store.load()).onboardingCompleted, isTrue);
+    });
+
+    testWidgets('a file the system sent during first run shows when it is '
+        'finished (ADR 0021)', (tester) async {
+      final requests = FakeOpenRequests(launch: ['/docs/kira-tr.pdf']);
+      addTearDown(requests.close);
+      await pumpFermanApp(
+        tester,
+        settings: _firstRun,
+        engine: FakeEngineService(
+          documents: {
+            '/docs/kira-tr.pdf': const OpenedDocument(
+              id: 1,
+              pages: [PageInfo(width: 595, height: 842)],
+            ),
+          },
+        ),
+        openRequests: requests,
+      );
+      expect(find.byType(OnboardingScreen), findsOneWidget);
+      await openFree(tester);
+      await tester.tap(find.text('Start using Ferman'));
+      await tester.pumpAndSettle();
+      expect(find.byType(FmWindow), findsOneWidget);
     });
 
     testWidgets('Back returns to the privacy step', (tester) async {

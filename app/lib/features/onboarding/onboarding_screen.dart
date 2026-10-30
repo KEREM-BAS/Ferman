@@ -3,6 +3,7 @@ import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/privacy_step.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_store.dart';
@@ -85,7 +86,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     } on SettingsStoreException {
       // Done for this session; first run shows again at the next launch.
     }
-    if (mounted) context.go(Routes.start);
+    // Files the system sent during first run (ADR 0021) show at once.
+    if (mounted) {
+      context.go(
+        ref.read(shellDocumentsProvider).placeholder
+            ? Routes.start
+            : Routes.editor,
+      );
+    }
   }
 
   @override

@@ -1198,4 +1198,257 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0 في $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'مستندات PDF';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'يتعذّر على Ferman فتح «$name»';
+  }
+
+  @override
+  String get openFailedDismiss => 'تجاهل';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'حُفظ على هذا الجهاز';
+
+  @override
+  String get shellMoreDocumentsMenu => 'مستندات مفتوحة أخرى';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText مستند آخر',
+      many: '$countText مستندًا آخر',
+      few: '$countText مستندات أخرى',
+      two: 'مستندان آخران',
+      one: 'مستند واحد آخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · غير محفوظ';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'عرض كل المستندات المفتوحة';
+
+  @override
+  String get shellCloseOtherDocuments => 'إغلاق المستندات الأخرى…';
+
+  @override
+  String get dropOverlayTitle => 'أفلت لفتح الملفات';
+
+  @override
+  String get dropOverlayHint => 'مرّر فوق أحد الخيارين ثم أفلت.';
+
+  @override
+  String get dropOverlayTabs => 'فتح في علامات تبويب';
+
+  @override
+  String get dropOverlayTabsDescription => 'يُفتح كل ملف على حدة.';
+
+  @override
+  String get dropOverlayCombine => 'دمج في ملف PDF واحد';
+
+  @override
+  String get startDropStripTitle => 'أفلت الملفات في أي مكان في هذه النافذة';
+
+  @override
+  String get startDropStripSubtitle => 'تُفتح ملفات PDF في علامات تبويب.';
+
+  @override
+  String get startPinned => 'المثبّتة';
+
+  @override
+  String get startPin => 'تثبيت';
+
+  @override
+  String get startUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get startRecent => 'الأخيرة';
+
+  @override
+  String get startSearchRecent => 'البحث في الملفات الأخيرة';
+
+  @override
+  String get startSort => 'الترتيب';
+
+  @override
+  String get startSortOpened => 'آخر فتح';
+
+  @override
+  String get startSortName => 'الاسم';
+
+  @override
+  String get startSortLocation => 'الموقع';
+
+  @override
+  String get startView => 'العرض';
+
+  @override
+  String get startViewGrid => 'شبكة';
+
+  @override
+  String get startViewList => 'قائمة';
+
+  @override
+  String get startColumnPages => 'الصفحات';
+
+  @override
+  String get startColumnOpened => 'آخر فتح';
+
+  @override
+  String get startRecentFooter => 'تُعرض الملفات الأخيرة على هذا الجهاز فقط.';
+
+  @override
+  String get startClearList => 'مسح القائمة';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return 'لا يطابق أي ملف حديث «$query».';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages صفحة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'اليوم $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'أمس $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'موقّع';
+
+  @override
+  String startMissingTitle(String name) {
+    return 'تعذّر العثور على «$name»';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'إزالة من القائمة';
+
+  @override
+  String get startMissingLocate => 'تحديد الموقع…';
+
+  @override
+  String get startMissingClose => 'إغلاق';
+
+  @override
+  String get errorInternal =>
+      'حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه.';
+
+  @override
+  String get errorFileNotFound =>
+      'لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك.';
+
+  @override
+  String get errorFileRead =>
+      'تعذّر على Ferman قراءة الملف من القرص. تأكّد من أن القرص ما زال متصلًا، ثم أعد المحاولة.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '«$name» ليس ملف PDF. يفتح Ferman ملفات PDF.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'ملف PDF هذا محمي بكلمة مرور';
+
+  @override
+  String get errorWrongPassword =>
+      'لم تنجح كلمة المرور هذه. تحقّق من مفتاح Caps Lock ومن تخطيط لوحة المفاتيح: في لوحة المفاتيح التركية الحرفان ı وi مفتاحان مختلفان.';
+
+  @override
+  String get errorDamaged =>
+      'الملف تالف ولا يستطيع Ferman إصلاحه. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'ينتهي الملف قبل نهايته والباقي مفقود. ربما انقطع أثناء التنزيل أو النسخ. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'يبدأ الملف كملف PDF، لكن لا شيء بعد ذلك قابل للقراءة. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorUnsupported =>
+      'يستخدم شيئًا لا يدعمه Ferman بعد، مثل التشفير بشهادة.';
+
+  @override
+  String get errorTooComplex =>
+      'هذا الملف معقّد جدًا لفتحه ضمن حدود الأمان في Ferman. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+
+  @override
+  String get errorOutOfMemory =>
+      'نفدت ذاكرة الجهاز أثناء فتحه. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+
+  @override
+  String openClosedTitle(String name) {
+    return 'أُغلق «$name»';
+  }
+
+  @override
+  String get openTryAgain => 'إعادة المحاولة';
+
+  @override
+  String get openNotPdfTitle => 'هذا الملف ليس ملف PDF.';
+
+  @override
+  String get openAnotherFile => 'فتح ملف آخر…';
+
+  @override
+  String get openShowInFinder => 'إظهار في Finder';
+
+  @override
+  String get openShowInExplorer => 'إظهار في مستكشف الملفات';
+
+  @override
+  String get openShowInFolder => 'إظهار في المجلد';
+
+  @override
+  String get openConvertToPdf => 'تحويل إلى PDF…';
+
+  @override
+  String unlockDescription(String name) {
+    return 'أدخل كلمة مرور «$name». ينسى Ferman كلمة المرور عند إغلاق الملف.';
+  }
+
+  @override
+  String get unlockPassword => 'كلمة المرور';
+
+  @override
+  String get unlockShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get unlockCancel => 'إلغاء';
+
+  @override
+  String get unlockOpen => 'فتح';
 }

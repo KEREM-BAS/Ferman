@@ -51,6 +51,11 @@ abstract interface class EngineService {
 
   /// Closes a view; its updates end.
   Future<void> closeView(int view);
+
+  /// The order of [texts] in the language of [locale], a BCP 47 tag such as
+  /// `tr`: their indices, first to last (ICU4X's collator, ADR 0021). Digits
+  /// compare by their value and equal texts keep their order.
+  Future<List<int>> collationOrder(String locale, List<String> texts);
 }
 
 /// Why the engine could not be used.
@@ -126,4 +131,8 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> closeView(int view) async => throw error;
+
+  @override
+  Future<List<int>> collationOrder(String locale, List<String> texts) async =>
+      throw error;
 }

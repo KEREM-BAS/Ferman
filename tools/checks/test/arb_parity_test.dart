@@ -30,6 +30,19 @@ void main() {
     return fixture;
   }
 
+  test('fails on an engine message key without its sentence', () {
+    final fixture = withFiles()
+      ..write(
+        'crates/ferman-api/src/facade/error.rs',
+        'pub const A: Self = Self("openFile");\n'
+            'pub const B: Self = Self("errorDamaged");\n',
+      );
+    const missing =
+        'app_en.arb is missing the engine message errorDamaged '
+        '(crates/ferman-api/src/facade/error.rs)';
+    expect(fixture.run(check).messages, [missing]);
+  });
+
   test('skips without app_en.arb or app_tr.arb', () {
     expect(withFiles(english: null).run(check), skips);
     expect(withFiles(turkish: null).run(check), skips);

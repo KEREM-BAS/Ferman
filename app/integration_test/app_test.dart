@@ -9,6 +9,8 @@ import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_service_frb.dart';
 import 'package:ferman/main.dart' as app;
+import 'package:ferman/platform/open_requests.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
@@ -20,7 +22,7 @@ void main() {
   IntegrationTestWidgetsFlutterBinding.ensureInitialized();
 
   testWidgets('the built app starts with its own title bar', (tester) async {
-    await app.main();
+    await app.main(const []);
     await tester.pumpAndSettle();
     expect(find.byType(FermanApp), findsOneWidget);
     // Integration tests run on the desktop, where bootstrap hides the
@@ -34,6 +36,14 @@ void main() {
       container.read(desktopWindowProvider).doubleClick,
       isNot(DoubleClickSettings.fallback),
     );
+    // The runner answers the open channel (ADR 0021), with nothing kept
+    // back, since nothing asked it to open a file.
+    expect(container.read(openRequestsProvider).launch, isEmpty);
+    expect(
+      await const MethodChannel(PlatformOpenRequests.channelName)
+          .invokeMethod<List<Object?>>('ready'),
+      isEmpty,
+    );
   });
 
   group('engine through the bridge', () {
@@ -45,6 +55,21 @@ void main() {
 
     test('speaks the API version the app was built for', () {
       expect(engine.apiVersion(), kAppApiVersion);
+    });
+
+    test('sorts names in Turkish order (ADR 0021)', () async {
+      // Ç after C, ı before i, digits by their value.
+      expect(
+        await engine.collationOrder('tr', [
+          'Çağrı.pdf',
+          'ikna.pdf',
+          'Cuma.pdf',
+          'Fatura 10.pdf',
+          'ılık.pdf',
+          'Fatura 2.pdf',
+        ]),
+        [2, 0, 5, 3, 4, 1],
+      );
     });
 
     test('reports the versions, and the bundled PDFium is loaded', () async {

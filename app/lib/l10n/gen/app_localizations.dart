@@ -2240,6 +2240,414 @@ abstract class AppLocalizations {
     int pages,
     String pagesText,
   );
+
+  /// Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF documents'**
+  String get openPdfFilter;
+
+  /// Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t open “{name}”'**
+  String openFailedTitle(String name);
+
+  /// Accessible name of the close button of the banner of openFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get openFailedDismiss;
+
+  /// Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time).
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device'**
+  String get shellSavedOnDeviceUndated;
+
+  /// Accessible name of the menu behind “+N” in the title bar (a1-10).
+  ///
+  /// In en, this message translates to:
+  /// **'More open documents'**
+  String get shellMoreDocumentsMenu;
+
+  /// Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more document} other{{countText} more documents}}'**
+  String shellMoreDocumentsHeading(int count, String countText);
+
+  /// An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · unsaved'**
+  String shellMoreDocumentsUnsaved(String name);
+
+  /// Item of the “+N” menu (a1-10).
+  ///
+  /// In en, this message translates to:
+  /// **'Show all open documents'**
+  String get shellShowAllDocuments;
+
+  /// Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Close other documents…'**
+  String get shellCloseOtherDocuments;
+
+  /// Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to open the files'**
+  String get dropOverlayTitle;
+
+  /// Line under dropOverlayTitle (a1-6, FmStart dropHow).
+  ///
+  /// In en, this message translates to:
+  /// **'Move over a choice, then let go.'**
+  String get dropOverlayHint;
+
+  /// Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117).
+  ///
+  /// In en, this message translates to:
+  /// **'Open in tabs'**
+  String get dropOverlayTabs;
+
+  /// Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11).
+  ///
+  /// In en, this message translates to:
+  /// **'Each file opens on its own.'**
+  String get dropOverlayTabsDescription;
+
+  /// Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104).
+  ///
+  /// In en, this message translates to:
+  /// **'Combine into one PDF'**
+  String get dropOverlayCombine;
+
+  /// Title of the drop strip above the recent files (a1-4-m2, FmStart drop).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop files anywhere in this window'**
+  String get startDropStripTitle;
+
+  /// Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11).
+  ///
+  /// In en, this message translates to:
+  /// **'PDF files open in tabs.'**
+  String get startDropStripSubtitle;
+
+  /// Heading of the pinned files on the start screen (a1-4, FmStart pinned).
+  ///
+  /// In en, this message translates to:
+  /// **'Pinned'**
+  String get startPinned;
+
+  /// Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118).
+  ///
+  /// In en, this message translates to:
+  /// **'Pin'**
+  String get startPin;
+
+  /// Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin).
+  ///
+  /// In en, this message translates to:
+  /// **'Unpin'**
+  String get startUnpin;
+
+  /// Heading of the recent files on the start screen (a1-4, FmStart recent).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get startRecent;
+
+  /// Placeholder and accessible name of the recent files’ search field (a1-4, FmStart searchRecent).
+  ///
+  /// In en, this message translates to:
+  /// **'Search recent files'**
+  String get startSearchRecent;
+
+  /// Accessible name of the recent files’ sort menu (a1-4, the Select’s aria-label).
+  ///
+  /// In en, this message translates to:
+  /// **'Sort'**
+  String get startSort;
+
+  /// Sort option: most recently opened first (a1-4, FmStart sort).
+  ///
+  /// In en, this message translates to:
+  /// **'Last opened'**
+  String get startSortOpened;
+
+  /// Sort option and list column: the file name, in the UI language’s order (a1-4, FmStart sort, name).
+  ///
+  /// In en, this message translates to:
+  /// **'Name'**
+  String get startSortName;
+
+  /// Sort option and list column: the folder the file is in (a1-4, FmStart sort, where).
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get startSortLocation;
+
+  /// Accessible name of the grid and list switch of the recent files (a1-4, FmStart view).
+  ///
+  /// In en, this message translates to:
+  /// **'View'**
+  String get startView;
+
+  /// Tooltip of the grid view of the recent files (a1-4, FmStart grid).
+  ///
+  /// In en, this message translates to:
+  /// **'Grid'**
+  String get startViewGrid;
+
+  /// Tooltip of the list view of the recent files (a1-4c, FmStart list).
+  ///
+  /// In en, this message translates to:
+  /// **'List'**
+  String get startViewList;
+
+  /// Column of the recent files’ list: the page count (a1-4c, FmStart pagesH).
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get startColumnPages;
+
+  /// Column of the recent files’ list: when the file was last opened (a1-4c, FmStart opened).
+  ///
+  /// In en, this message translates to:
+  /// **'Last opened'**
+  String get startColumnOpened;
+
+  /// Note under the recent files (a1-4, FmStart footer).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent files are listed only on this device.'**
+  String get startRecentFooter;
+
+  /// Link under the recent files that empties the list but for the pinned files (a1-4, FmStart clear).
+  ///
+  /// In en, this message translates to:
+  /// **'Clear list'**
+  String get startClearList;
+
+  /// Shown in place of the recent files when the search finds none (not drawn, G118).
+  ///
+  /// In en, this message translates to:
+  /// **'No recent file matches “{query}”.'**
+  String startNoRecentMatch(String query);
+
+  /// A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 page} other{{pages} pages}}'**
+  String startPages(int count, String pages);
+
+  /// When a recent file was opened today, with the region’s time (a1-4, FmStart).
+  ///
+  /// In en, this message translates to:
+  /// **'Today {time}'**
+  String startOpenedToday(String time);
+
+  /// When a recent file was opened yesterday, with the region’s time (a1-4, FmStart).
+  ///
+  /// In en, this message translates to:
+  /// **'Yesterday {time}'**
+  String startOpenedYesterday(String time);
+
+  /// Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral).
+  ///
+  /// In en, this message translates to:
+  /// **'Signed'**
+  String get startBadgeSigned;
+
+  /// Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” can’t be found'**
+  String startMissingTitle(String name);
+
+  /// Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “~” for the home folder, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'It was moved, renamed or deleted after you last opened it. It was in {folder}.'**
+  String startMissingDescription(String folder);
+
+  /// Button of a1-9e that takes the missing file off the recent files (a1-9e, remove).
+  ///
+  /// In en, this message translates to:
+  /// **'Remove from list'**
+  String get startMissingRemove;
+
+  /// Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate).
+  ///
+  /// In en, this message translates to:
+  /// **'Locate…'**
+  String get startMissingLocate;
+
+  /// Accessible name of a1-9e’s close button, which keeps the file in the list (G118).
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get startMissingClose;
+
+  /// The line of an error tab (a1-9b) for a bug in Ferman.
+  ///
+  /// In en, this message translates to:
+  /// **'Something went wrong inside Ferman. Copy the technical details to report it.'**
+  String get errorInternal;
+
+  /// The line of an error tab (a1-9b) for a file that is gone.
+  ///
+  /// In en, this message translates to:
+  /// **'The file isn’t there any more. It may have been moved, renamed or deleted.'**
+  String get errorFileNotFound;
+
+  /// The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119).
+  ///
+  /// In en, this message translates to:
+  /// **'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.'**
+  String get errorFilePermissionDenied;
+
+  /// The line of an error tab (a1-9b) when reading the file failed.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.'**
+  String get errorFileRead;
+
+  /// The line of a1-9c’s error tab under openNotPdfTitle. {name} is the file name (G119: the kind of file is not named).
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” isn’t a PDF file. Ferman opens PDF files.'**
+  String errorNotPdf(String name);
+
+  /// Title of the unlock dialog over a locked tab (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'This PDF is password-protected'**
+  String get errorPasswordRequired;
+
+  /// Error under the password field of the unlock dialog (a1-8b).
+  ///
+  /// In en, this message translates to:
+  /// **'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.'**
+  String get errorWrongPassword;
+
+  /// The line of an error tab (a1-9b) for a damaged file.
+  ///
+  /// In en, this message translates to:
+  /// **'The file is damaged and Ferman can’t repair it. Try getting the file again.'**
+  String get errorDamaged;
+
+  /// The line of a1-9b’s error tab for a truncated file (without the board’s size, G119).
+  ///
+  /// In en, this message translates to:
+  /// **'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.'**
+  String get errorDamagedTruncated;
+
+  /// The line of an error tab (a1-9b) for a file with a PDF header and no objects.
+  ///
+  /// In en, this message translates to:
+  /// **'The file starts like a PDF, but nothing after that is readable. Try getting the file again.'**
+  String get errorDamagedEmpty;
+
+  /// The line of an error tab (a1-9b) for a file Ferman does not support yet (a2-10a: certificate encryption).
+  ///
+  /// In en, this message translates to:
+  /// **'It uses something Ferman doesn’t support yet, such as encryption with a certificate.'**
+  String get errorUnsupported;
+
+  /// Message of a1-9f’s toast when a resource limit stopped the open.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.'**
+  String get errorTooComplex;
+
+  /// Message of a1-9f’s toast.
+  ///
+  /// In en, this message translates to:
+  /// **'This computer ran out of memory while opening it. Your other documents are open and unchanged.'**
+  String get errorOutOfMemory;
+
+  /// Title of a1-9f’s toast (and the start screen’s banner) when a file ran out of memory or past a limit while opening. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” was closed'**
+  String openClosedTitle(String name);
+
+  /// Action of a1-9f’s toast: opens the file again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get openTryAgain;
+
+  /// Title of a1-9c’s error tab.
+  ///
+  /// In en, this message translates to:
+  /// **'That file isn’t a PDF.'**
+  String get openNotPdfTitle;
+
+  /// Primary button of an error tab (a1-9b, a1-9c): shows the open panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Open another file…'**
+  String get openAnotherFile;
+
+  /// Button of an error tab on macOS (a1-9b, a1-9c).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in Finder'**
+  String get openShowInFinder;
+
+  /// Button of an error tab on Windows (a1-9b, a1-9c; G119).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in File Explorer'**
+  String get openShowInExplorer;
+
+  /// Button of an error tab on Linux (a1-9b, a1-9c; G119).
+  ///
+  /// In en, this message translates to:
+  /// **'Show in folder'**
+  String get openShowInFolder;
+
+  /// Disabled button of a1-9c’s error tab until conversion ships (P3).
+  ///
+  /// In en, this message translates to:
+  /// **'Convert to PDF…'**
+  String get openConvertToPdf;
+
+  /// Description of the unlock dialog (a1-8). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the password for “{name}”. Ferman forgets it when you close the file.'**
+  String unlockDescription(String name);
+
+  /// Label of the unlock dialog’s field (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Password'**
+  String get unlockPassword;
+
+  /// Checkbox of the unlock dialog (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Show password'**
+  String get unlockShowPassword;
+
+  /// Button of the unlock dialog (a1-8): closes the locked tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get unlockCancel;
+
+  /// Primary button of the unlock dialog (a1-8).
+  ///
+  /// In en, this message translates to:
+  /// **'Open'**
+  String get unlockOpen;
 }
 
 class _AppLocalizationsDelegate

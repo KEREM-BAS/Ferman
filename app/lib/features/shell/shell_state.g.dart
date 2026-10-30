@@ -586,44 +586,47 @@ String _$shortcutPlatformHash() => r'e178a9005d056a5b6519dbf4826a74a3d7cef5b2';
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 
 @ProviderFor(ShellDocuments)
 final shellDocumentsProvider = ShellDocumentsProvider._();
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 final class ShellDocumentsProvider
     extends $NotifierProvider<ShellDocuments, ShellDocumentList> {
   /// The open documents, as `shellDocumentsProvider`.
   ///
-  /// In M1 these are placeholder documents that show every tab state the
-  /// design draws (DS additions `tabStates`, a1-10): the active clean
-  /// contract, an idle clean invoice, an idle statement with unsaved changes,
-  /// a report still opening, a locked payslip, and three more behind "+3".
-  /// The names are the design's sample files, not copy. Activating a tab
-  /// shows that document's save state, pages and edits in the shell; nothing
-  /// is rendered until M2.
+  /// Until the first document opens these are the M1 placeholder documents
+  /// that show every tab state the design draws (DS additions `tabStates`,
+  /// a1-10): the active clean contract, an idle clean invoice, an idle
+  /// statement with unsaved changes, a report still opening, a locked
+  /// payslip, and three more behind "+3". The names are the design's sample
+  /// files, not copy. The first document opened ([add]) replaces them.
+  // shortcut: the placeholders stay the starting state for the M1 shell
+  // tests and `/debug/shell`; drop them with the debug route (end of M2).
   ShellDocumentsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'shellDocumentsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -644,17 +647,18 @@ final class ShellDocumentsProvider
   }
 }
 
-String _$shellDocumentsHash() => r'4c855cad8c6ebbd73264e053f0278d1a02482da9';
+String _$shellDocumentsHash() => r'e161361fb613edc9332d152a66563db0a20d7162';
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 
 abstract class _$ShellDocuments extends $Notifier<ShellDocumentList> {
   ShellDocumentList build();

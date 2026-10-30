@@ -84,6 +84,10 @@ impl MessageKey {
     pub const WRONG_PASSWORD: Self = Self("errorWrongPassword");
     /// The file is damaged beyond repair (a1-9b).
     pub const DAMAGED: Self = Self("errorDamaged");
+    /// The file stops before its end, probably cut off while downloading or copying (a1-9b).
+    pub const DAMAGED_TRUNCATED: Self = Self("errorDamagedTruncated");
+    /// The file holds no PDF objects at all (a1-9b).
+    pub const DAMAGED_EMPTY: Self = Self("errorDamagedEmpty");
     /// The file uses something Ferman does not support yet.
     pub const UNSUPPORTED: Self = Self("errorUnsupported");
     /// The file is too complex for the resource limits.
@@ -101,6 +105,8 @@ impl MessageKey {
         Self::PASSWORD_REQUIRED,
         Self::WRONG_PASSWORD,
         Self::DAMAGED,
+        Self::DAMAGED_TRUNCATED,
+        Self::DAMAGED_EMPTY,
         Self::UNSUPPORTED,
         Self::TOO_COMPLEX,
         Self::OUT_OF_MEMORY,
@@ -161,6 +167,26 @@ impl ApiError {
     }
 }
 
+/// a1-9b's technical details: "expected 2457600 bytes, found 18432 bytes · last complete object
+/// 12 0 obj · no trailer". Structural facts only.
+fn diagnosis_details(diagnosis: &ferman_core::Diagnosis) -> String {
+    let mut parts = vec![match diagnosis.expected_size {
+        Some(expected) => format!(
+            "expected {expected} bytes, found {} bytes",
+            diagnosis.file_size
+        ),
+        None => format!("{} bytes", diagnosis.file_size),
+    }];
+    if let Some((number, generation)) = diagnosis.last_complete_object {
+        parts.push(format!("last complete object {number} {generation} obj"));
+    }
+    parts.push(format!("{} objects", diagnosis.objects_found));
+    if !diagnosis.has_trailer {
+        parts.push("no trailer".to_owned());
+    }
+    parts.join(" · ")
+}
+
 fn details_suffix(details: &Option<String>) -> String {
     details
         .as_deref()
@@ -189,9 +215,13 @@ impl From<ferman_core::CoreError> for ApiError {
             }
             CoreError::WrongPassword => (ErrorKind::WrongPassword, MessageKey::WRONG_PASSWORD),
             CoreError::Damaged(diagnosis) => {
-                // a1-9b's technical details: the diagnosis is structural facts only.
-                return Self::new(ErrorKind::Damaged, MessageKey::DAMAGED)
-                    .with_details(format!("{diagnosis:?}"));
+                let key = match diagnosis.likely_cause {
+                    ferman_core::LikelyCause::Truncated => MessageKey::DAMAGED_TRUNCATED,
+                    ferman_core::LikelyCause::NoObjects => MessageKey::DAMAGED_EMPTY,
+                    _ => MessageKey::DAMAGED,
+                };
+                return Self::new(ErrorKind::Damaged, key)
+                    .with_details(diagnosis_details(diagnosis));
             }
             CoreError::Syntax { .. }
             | CoreError::DamagedStream { .. }
@@ -254,6 +284,27 @@ mod tests {
         assert_eq!(err.kind, ErrorKind::Internal);
         assert_eq!(err.message_key, MessageKey::INTERNAL);
         assert_eq!(err.details.as_deref(), Some("no trailer"));
+    }
+
+    #[test]
+    fn damage_names_its_cause_and_facts() {
+        let diagnosis = ferman_core::Diagnosis {
+            likely_cause: ferman_core::LikelyCause::Truncated,
+            file_size: 18_432,
+            expected_size: Some(2_457_600),
+            last_complete_object: Some((12, 0)),
+            objects_found: 12,
+            has_trailer: false,
+        };
+        let err = ApiError::from(ferman_core::CoreError::Damaged(Box::new(diagnosis)));
+        assert_eq!(err.message_key, MessageKey::DAMAGED_TRUNCATED);
+        assert_eq!(
+            err.details.as_deref(),
+            Some(
+                "expected 2457600 bytes, found 18432 bytes · last complete object 12 0 obj \
+                 · 12 objects · no trailer"
+            )
+        );
     }
 
     #[test]

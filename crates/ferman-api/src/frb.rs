@@ -455,6 +455,18 @@ pub async fn debug_bytes(len: u32) -> Vec<u8> {
     facade::debug_bytes(len).await
 }
 
+/// The order of `texts` in the language of `locale`, a BCP 47 tag such as `tr`: their indices,
+/// first to last. Digits compare by their value and equal texts keep their order. Sorts the recent
+/// files by name and location (ADR 0021).
+///
+/// See [`facade::collation_order`].
+pub async fn collation_order(locale: String, texts: Vec<String>) -> Vec<u32> {
+    facade::collation_order(&locale, &texts)
+        .into_iter()
+        .filter_map(|index| u32::try_from(index).ok())
+        .collect()
+}
+
 /// Opens the PDF at `path`, with `password` if it is encrypted. Without the password an encrypted
 /// file fails with `PasswordRequired`; open it again with the password.
 ///

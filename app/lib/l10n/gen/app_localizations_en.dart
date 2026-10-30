@@ -1191,4 +1191,256 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 on $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'PDF documents';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'Ferman can’t open “$name”';
+  }
+
+  @override
+  String get openFailedDismiss => 'Dismiss';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'Saved on this device';
+
+  @override
+  String get shellMoreDocumentsMenu => 'More open documents';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText more documents',
+      one: '1 more document',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · unsaved';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'Show all open documents';
+
+  @override
+  String get shellCloseOtherDocuments => 'Close other documents…';
+
+  @override
+  String get dropOverlayTitle => 'Drop to open the files';
+
+  @override
+  String get dropOverlayHint => 'Move over a choice, then let go.';
+
+  @override
+  String get dropOverlayTabs => 'Open in tabs';
+
+  @override
+  String get dropOverlayTabsDescription => 'Each file opens on its own.';
+
+  @override
+  String get dropOverlayCombine => 'Combine into one PDF';
+
+  @override
+  String get startDropStripTitle => 'Drop files anywhere in this window';
+
+  @override
+  String get startDropStripSubtitle => 'PDF files open in tabs.';
+
+  @override
+  String get startPinned => 'Pinned';
+
+  @override
+  String get startPin => 'Pin';
+
+  @override
+  String get startUnpin => 'Unpin';
+
+  @override
+  String get startRecent => 'Recent';
+
+  @override
+  String get startSearchRecent => 'Search recent files';
+
+  @override
+  String get startSort => 'Sort';
+
+  @override
+  String get startSortOpened => 'Last opened';
+
+  @override
+  String get startSortName => 'Name';
+
+  @override
+  String get startSortLocation => 'Location';
+
+  @override
+  String get startView => 'View';
+
+  @override
+  String get startViewGrid => 'Grid';
+
+  @override
+  String get startViewList => 'List';
+
+  @override
+  String get startColumnPages => 'Pages';
+
+  @override
+  String get startColumnOpened => 'Last opened';
+
+  @override
+  String get startRecentFooter =>
+      'Recent files are listed only on this device.';
+
+  @override
+  String get startClearList => 'Clear list';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return 'No recent file matches “$query”.';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages pages',
+      one: '1 page',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'Today $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'Yesterday $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'Signed';
+
+  @override
+  String startMissingTitle(String name) {
+    return '“$name” can’t be found';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'It was moved, renamed or deleted after you last opened it. It was in $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'Remove from list';
+
+  @override
+  String get startMissingLocate => 'Locate…';
+
+  @override
+  String get startMissingClose => 'Close';
+
+  @override
+  String get errorInternal =>
+      'Something went wrong inside Ferman. Copy the technical details to report it.';
+
+  @override
+  String get errorFileNotFound =>
+      'The file isn’t there any more. It may have been moved, renamed or deleted.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.';
+
+  @override
+  String get errorFileRead =>
+      'Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '“$name” isn’t a PDF file. Ferman opens PDF files.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'This PDF is password-protected';
+
+  @override
+  String get errorWrongPassword =>
+      'That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.';
+
+  @override
+  String get errorDamaged =>
+      'The file is damaged and Ferman can’t repair it. Try getting the file again.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'The file starts like a PDF, but nothing after that is readable. Try getting the file again.';
+
+  @override
+  String get errorUnsupported =>
+      'It uses something Ferman doesn’t support yet, such as encryption with a certificate.';
+
+  @override
+  String get errorTooComplex =>
+      'This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.';
+
+  @override
+  String get errorOutOfMemory =>
+      'This computer ran out of memory while opening it. Your other documents are open and unchanged.';
+
+  @override
+  String openClosedTitle(String name) {
+    return '“$name” was closed';
+  }
+
+  @override
+  String get openTryAgain => 'Try again';
+
+  @override
+  String get openNotPdfTitle => 'That file isn’t a PDF.';
+
+  @override
+  String get openAnotherFile => 'Open another file…';
+
+  @override
+  String get openShowInFinder => 'Show in Finder';
+
+  @override
+  String get openShowInExplorer => 'Show in File Explorer';
+
+  @override
+  String get openShowInFolder => 'Show in folder';
+
+  @override
+  String get openConvertToPdf => 'Convert to PDF…';
+
+  @override
+  String unlockDescription(String name) {
+    return 'Enter the password for “$name”. Ferman forgets it when you close the file.';
+  }
+
+  @override
+  String get unlockPassword => 'Password';
+
+  @override
+  String get unlockShowPassword => 'Show password';
+
+  @override
+  String get unlockCancel => 'Cancel';
+
+  @override
+  String get unlockOpen => 'Open';
 }

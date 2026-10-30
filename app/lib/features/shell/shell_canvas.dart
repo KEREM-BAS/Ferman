@@ -1,6 +1,9 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/open_problem_notice.dart';
+import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/document_view.dart';
@@ -114,6 +117,19 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final uiDirection = Directionality.of(context);
     final view = ref.watch(viewerProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final active = ref.watch(shellDocumentsProvider).active;
+    // a1-9f: where the toast of a file that got no tab shows.
+    final problem = ref.watch(documentOpenerProvider);
+    final problemToast = problem == null
+        ? null
+        : PositionedDirectional(
+            bottom: theme.space.space4,
+            end: theme.space.space4,
+            child: SizedBox(
+              width: Toast.width,
+              child: OpenProblemToast(problem),
+            ),
+          );
     return Shortcuts(
       shortcuts: ShellCommand.shortcutsFor(
         platform,
@@ -147,7 +163,24 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
               textDirection: TextDirection.ltr,
               child: ColoredBox(
                 color: theme.colors.surfaceCanvas,
-                child: view != null
+                child: active != null && (active.locked || active.error != null)
+                    ? Directionality(
+                        textDirection: uiDirection,
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: active.locked
+                                  ? UnlockTab(
+                                      active,
+                                      key: ValueKey(active.path),
+                                    )
+                                  : OpenErrorTab(active),
+                            ),
+                            ?problemToast,
+                          ],
+                        ),
+                      )
+                    : view != null
                     // The find bar follows the UI's direction; the pages
                     // never mirror (ADR 0014).
                     ? Directionality(
@@ -169,6 +202,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                               end: theme.space.space4,
                               child: const FindBar(),
                             ),
+                            ?problemToast,
                           ],
                         ),
                       )

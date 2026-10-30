@@ -1202,6 +1202,222 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   ) => isolate(
     super.sidebarSearchSummary(matches, matchesText, pages, pagesText),
   );
+
+  @override
+  String get openPdfFilter => isolate(super.openPdfFilter);
+
+  @override
+  String openFailedTitle(String name) => isolate(super.openFailedTitle(name));
+
+  @override
+  String get openFailedDismiss => isolate(super.openFailedDismiss);
+
+  @override
+  String get shellSavedOnDeviceUndated =>
+      isolate(super.shellSavedOnDeviceUndated);
+
+  @override
+  String get shellMoreDocumentsMenu => isolate(super.shellMoreDocumentsMenu);
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) =>
+      isolate(super.shellMoreDocumentsHeading(count, countText));
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) =>
+      isolate(super.shellMoreDocumentsUnsaved(name));
+
+  @override
+  String get shellShowAllDocuments => isolate(super.shellShowAllDocuments);
+
+  @override
+  String get shellCloseOtherDocuments =>
+      isolate(super.shellCloseOtherDocuments);
+
+  @override
+  String get dropOverlayTitle => isolate(super.dropOverlayTitle);
+
+  @override
+  String get dropOverlayHint => isolate(super.dropOverlayHint);
+
+  @override
+  String get dropOverlayTabs => isolate(super.dropOverlayTabs);
+
+  @override
+  String get dropOverlayTabsDescription =>
+      isolate(super.dropOverlayTabsDescription);
+
+  @override
+  String get dropOverlayCombine => isolate(super.dropOverlayCombine);
+
+  @override
+  String get startDropStripTitle => isolate(super.startDropStripTitle);
+
+  @override
+  String get startDropStripSubtitle => isolate(super.startDropStripSubtitle);
+
+  @override
+  String get startPinned => isolate(super.startPinned);
+
+  @override
+  String get startPin => isolate(super.startPin);
+
+  @override
+  String get startUnpin => isolate(super.startUnpin);
+
+  @override
+  String get startRecent => isolate(super.startRecent);
+
+  @override
+  String get startSearchRecent => isolate(super.startSearchRecent);
+
+  @override
+  String get startSort => isolate(super.startSort);
+
+  @override
+  String get startSortOpened => isolate(super.startSortOpened);
+
+  @override
+  String get startSortName => isolate(super.startSortName);
+
+  @override
+  String get startSortLocation => isolate(super.startSortLocation);
+
+  @override
+  String get startView => isolate(super.startView);
+
+  @override
+  String get startViewGrid => isolate(super.startViewGrid);
+
+  @override
+  String get startViewList => isolate(super.startViewList);
+
+  @override
+  String get startColumnPages => isolate(super.startColumnPages);
+
+  @override
+  String get startColumnOpened => isolate(super.startColumnOpened);
+
+  @override
+  String get startRecentFooter => isolate(super.startRecentFooter);
+
+  @override
+  String get startClearList => isolate(super.startClearList);
+
+  @override
+  String startNoRecentMatch(String query) =>
+      isolate(super.startNoRecentMatch(query));
+
+  @override
+  String startPages(int count, String pages) =>
+      isolate(super.startPages(count, pages));
+
+  @override
+  String startOpenedToday(String time) => isolate(super.startOpenedToday(time));
+
+  @override
+  String startOpenedYesterday(String time) =>
+      isolate(super.startOpenedYesterday(time));
+
+  @override
+  String get startBadgeSigned => isolate(super.startBadgeSigned);
+
+  @override
+  String startMissingTitle(String name) =>
+      isolate(super.startMissingTitle(name));
+
+  @override
+  String startMissingDescription(String folder) =>
+      isolate(super.startMissingDescription(folder));
+
+  @override
+  String get startMissingRemove => isolate(super.startMissingRemove);
+
+  @override
+  String get startMissingLocate => isolate(super.startMissingLocate);
+
+  @override
+  String get startMissingClose => isolate(super.startMissingClose);
+
+  @override
+  String get errorInternal => isolate(super.errorInternal);
+
+  @override
+  String get errorFileNotFound => isolate(super.errorFileNotFound);
+
+  @override
+  String get errorFilePermissionDenied =>
+      isolate(super.errorFilePermissionDenied);
+
+  @override
+  String get errorFileRead => isolate(super.errorFileRead);
+
+  @override
+  String errorNotPdf(String name) => isolate(super.errorNotPdf(name));
+
+  @override
+  String get errorPasswordRequired => isolate(super.errorPasswordRequired);
+
+  @override
+  String get errorWrongPassword => isolate(super.errorWrongPassword);
+
+  @override
+  String get errorDamaged => isolate(super.errorDamaged);
+
+  @override
+  String get errorDamagedTruncated => isolate(super.errorDamagedTruncated);
+
+  @override
+  String get errorDamagedEmpty => isolate(super.errorDamagedEmpty);
+
+  @override
+  String get errorUnsupported => isolate(super.errorUnsupported);
+
+  @override
+  String get errorTooComplex => isolate(super.errorTooComplex);
+
+  @override
+  String get errorOutOfMemory => isolate(super.errorOutOfMemory);
+
+  @override
+  String openClosedTitle(String name) => isolate(super.openClosedTitle(name));
+
+  @override
+  String get openTryAgain => isolate(super.openTryAgain);
+
+  @override
+  String get openNotPdfTitle => isolate(super.openNotPdfTitle);
+
+  @override
+  String get openAnotherFile => isolate(super.openAnotherFile);
+
+  @override
+  String get openShowInFinder => isolate(super.openShowInFinder);
+
+  @override
+  String get openShowInExplorer => isolate(super.openShowInExplorer);
+
+  @override
+  String get openShowInFolder => isolate(super.openShowInFolder);
+
+  @override
+  String get openConvertToPdf => isolate(super.openConvertToPdf);
+
+  @override
+  String unlockDescription(String name) =>
+      isolate(super.unlockDescription(name));
+
+  @override
+  String get unlockPassword => isolate(super.unlockPassword);
+
+  @override
+  String get unlockShowPassword => isolate(super.unlockShowPassword);
+
+  @override
+  String get unlockCancel => isolate(super.unlockCancel);
+
+  @override
+  String get unlockOpen => isolate(super.unlockOpen);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

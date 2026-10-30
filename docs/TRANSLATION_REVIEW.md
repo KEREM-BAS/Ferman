@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-356 messages in `app_en.arb`; translated: Turkish 356, Arabic 356.
+424 messages in `app_en.arb`; translated: Turkish 424, Arabic 424.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -412,5 +412,73 @@ The table below is generated from the ARB files by `tools/l10n`
 | `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
 | `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
+| `openPdfFilter` | PDF documents | PDF belgeleri | مستندات PDF | Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files. |
+| `openFailedTitle` | Ferman can’t open “{name}” | Ferman “{name}” dosyasını açamıyor | يتعذّر على Ferman فتح «{name}» | Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name. |
+| `openFailedDismiss` | Dismiss | Kapat | تجاهل | Accessible name of the close button of the banner of openFailedTitle. |
+| `shellSavedOnDeviceUndated` | Saved on this device | Bu cihaza kaydedildi | حُفظ على هذا الجهاز | Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time). |
+| `shellMoreDocumentsMenu` | More open documents | Diğer açık belgeler | مستندات مفتوحة أخرى | Accessible name of the menu behind “+N” in the title bar (a1-10). |
+| `shellMoreDocumentsHeading` | {count, plural, =1{1 more document} other{{countText} more documents}} | {count, plural, =1{1 belge daha} other{{countText} belge daha}} | {count, plural, =1{مستند واحد آخر} =2{مستندان آخران} few{{countText} مستندات أخرى} many{{countText} مستندًا آخر} other{{countText} مستند آخر}} | Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region. |
+| `shellMoreDocumentsUnsaved` | {name} · unsaved | {name} · kaydedilmedi | {name} · غير محفوظ | An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name. |
+| `shellShowAllDocuments` | Show all open documents | Tüm açık belgeleri göster | عرض كل المستندات المفتوحة | Item of the “+N” menu (a1-10). |
+| `shellCloseOtherDocuments` | Close other documents… | Diğer belgeleri kapat… | إغلاق المستندات الأخرى… | Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones. |
+| `dropOverlayTitle` | Drop to open the files | Açmak için dosyaları bırakın | أفلت لفتح الملفات | Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117). |
+| `dropOverlayHint` | Move over a choice, then let go. | Bir seçeneğin üzerine gelin, sonra bırakın. | مرّر فوق أحد الخيارين ثم أفلت. | Line under dropOverlayTitle (a1-6, FmStart dropHow). |
+| `dropOverlayTabs` | Open in tabs | Sekmelerde aç | فتح في علامات تبويب | Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117). |
+| `dropOverlayTabsDescription` | Each file opens on its own. | Her dosya ayrı açılır. | يُفتح كل ملف على حدة. | Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11). |
+| `dropOverlayCombine` | Combine into one PDF | Tek bir PDF’de birleştir | دمج في ملف PDF واحد | Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104). |
+| `startDropStripTitle` | Drop files anywhere in this window | Dosyaları bu pencerede herhangi bir yere bırakın | أفلت الملفات في أي مكان في هذه النافذة | Title of the drop strip above the recent files (a1-4-m2, FmStart drop). |
+| `startDropStripSubtitle` | PDF files open in tabs. | PDF dosyaları sekmelerde açılır. | تُفتح ملفات PDF في علامات تبويب. | Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11). |
+| `startPinned` | Pinned | Sabitlenenler | المثبّتة | Heading of the pinned files on the start screen (a1-4, FmStart pinned). |
+| `startPin` | Pin | Sabitle | تثبيت | Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118). |
+| `startUnpin` | Unpin | Sabitlemeyi kaldır | إلغاء التثبيت | Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin). |
+| `startRecent` | Recent | Son kullanılanlar | الأخيرة | Heading of the recent files on the start screen (a1-4, FmStart recent). |
+| `startSearchRecent` | Search recent files | Son dosyalarda ara | البحث في الملفات الأخيرة | Placeholder and accessible name of the recent files’ search field (a1-4, FmStart searchRecent). |
+| `startSort` | Sort | Sıralama | الترتيب | Accessible name of the recent files’ sort menu (a1-4, the Select’s aria-label). |
+| `startSortOpened` | Last opened | Son açılma | آخر فتح | Sort option: most recently opened first (a1-4, FmStart sort). |
+| `startSortName` | Name | Ad | الاسم | Sort option and list column: the file name, in the UI language’s order (a1-4, FmStart sort, name). |
+| `startSortLocation` | Location | Konum | الموقع | Sort option and list column: the folder the file is in (a1-4, FmStart sort, where). |
+| `startView` | View | Görünüm | العرض | Accessible name of the grid and list switch of the recent files (a1-4, FmStart view). |
+| `startViewGrid` | Grid | Izgara | شبكة | Tooltip of the grid view of the recent files (a1-4, FmStart grid). |
+| `startViewList` | List | Liste | قائمة | Tooltip of the list view of the recent files (a1-4c, FmStart list). |
+| `startColumnPages` | Pages | Sayfa | الصفحات | Column of the recent files’ list: the page count (a1-4c, FmStart pagesH). |
+| `startColumnOpened` | Last opened | Son açılma | آخر فتح | Column of the recent files’ list: when the file was last opened (a1-4c, FmStart opened). |
+| `startRecentFooter` | Recent files are listed only on this device. | Son dosyalar yalnızca bu cihazda listelenir. | تُعرض الملفات الأخيرة على هذا الجهاز فقط. | Note under the recent files (a1-4, FmStart footer). |
+| `startClearList` | Clear list | Listeyi temizle | مسح القائمة | Link under the recent files that empties the list but for the pinned files (a1-4, FmStart clear). |
+| `startNoRecentMatch` | No recent file matches “{query}”. | “{query}” ile eşleşen son dosya yok. | لا يطابق أي ملف حديث «{query}». | Shown in place of the recent files when the search finds none (not drawn, G118). |
+| `startPages` | {count, plural, =1{1 page} other{{pages} pages}} | {count, plural, other{{pages} sayfa}} | {count, plural, other{{pages} صفحة}} | A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits. |
+| `startOpenedToday` | Today {time} | Bugün {time} | اليوم {time} | When a recent file was opened today, with the region’s time (a1-4, FmStart). |
+| `startOpenedYesterday` | Yesterday {time} | Dün {time} | أمس {time} | When a recent file was opened yesterday, with the region’s time (a1-4, FmStart). |
+| `startBadgeSigned` | Signed | İmzalı | موقّع | Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral). |
+| `startMissingTitle` | “{name}” can’t be found | “{name}” bulunamadı | تعذّر العثور على «{name}» | Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated. |
+| `startMissingDescription` | It was moved, renamed or deleted after you last opened it. It was in {folder}. | Dosya son açılışınızdan sonra taşınmış, yeniden adlandırılmış veya silinmiş. Önceki konumu: {folder}. | نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في {folder}. | Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “\~” for the home folder, isolated. |
+| `startMissingRemove` | Remove from list | Listeden kaldır | إزالة من القائمة | Button of a1-9e that takes the missing file off the recent files (a1-9e, remove). |
+| `startMissingLocate` | Locate… | Bul… | تحديد الموقع… | Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate). |
+| `startMissingClose` | Close | Kapat | إغلاق | Accessible name of a1-9e’s close button, which keeps the file in the list (G118). |
+| `errorInternal` | Something went wrong inside Ferman. Copy the technical details to report it. | Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın. | حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه. | The line of an error tab (a1-9b) for a bug in Ferman. |
+| `errorFileNotFound` | The file isn’t there any more. It may have been moved, renamed or deleted. | Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir. | لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف. | The line of an error tab (a1-9b) for a file that is gone. |
+| `errorFilePermissionDenied` | This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours. | Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın. | لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك. | The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119). |
+| `errorFileRead` | Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again. | Ferman dosyayı bulunduğu diskten okuyamadı. Diskin hâlâ bağlı olduğuna bakıp yeniden deneyin. | تعذّر على Ferman قراءة الملف من القرص. تأكّد من أن القرص ما زال متصلًا، ثم أعد المحاولة. | The line of an error tab (a1-9b) when reading the file failed. |
+| `errorNotPdf` | “{name}” isn’t a PDF file. Ferman opens PDF files. | “{name}” bir PDF dosyası değil. Ferman PDF dosyalarını açar. | «{name}» ليس ملف PDF. يفتح Ferman ملفات PDF. | The line of a1-9c’s error tab under openNotPdfTitle. {name} is the file name (G119: the kind of file is not named). |
+| `errorPasswordRequired` | This PDF is password-protected | Bu PDF parolayla korunuyor | ملف PDF هذا محمي بكلمة مرور | Title of the unlock dialog over a locked tab (a1-8). |
+| `errorWrongPassword` | That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys. | Bu parola işe yaramadı. Caps Lock’a ve klavye düzenine bakın: Türkçe klavyede ı ile i ayrı tuşlardır. | لم تنجح كلمة المرور هذه. تحقّق من مفتاح Caps Lock ومن تخطيط لوحة المفاتيح: في لوحة المفاتيح التركية الحرفان ı وi مفتاحان مختلفان. | Error under the password field of the unlock dialog (a1-8b). |
+| `errorDamaged` | The file is damaged and Ferman can’t repair it. Try getting the file again. | Dosya bozuk ve Ferman onaramıyor. Dosyayı yeniden edinmeyi deneyin. | الملف تالف ولا يستطيع Ferman إصلاحه. حاول الحصول على الملف مرة أخرى. | The line of an error tab (a1-9b) for a damaged file. |
+| `errorDamagedTruncated` | The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again. | Dosya sonuna gelmeden bitiyor, geri kalanı eksik. Büyük olasılıkla indirilirken ya da kopyalanırken yarıda kesildi. Dosyayı yeniden edinmeyi deneyin. | ينتهي الملف قبل نهايته والباقي مفقود. ربما انقطع أثناء التنزيل أو النسخ. حاول الحصول على الملف مرة أخرى. | The line of a1-9b’s error tab for a truncated file (without the board’s size, G119). |
+| `errorDamagedEmpty` | The file starts like a PDF, but nothing after that is readable. Try getting the file again. | Dosya bir PDF gibi başlıyor, ama sonrası okunamıyor. Dosyayı yeniden edinmeyi deneyin. | يبدأ الملف كملف PDF، لكن لا شيء بعد ذلك قابل للقراءة. حاول الحصول على الملف مرة أخرى. | The line of an error tab (a1-9b) for a file with a PDF header and no objects. |
+| `errorUnsupported` | It uses something Ferman doesn’t support yet, such as encryption with a certificate. | Ferman’ın henüz desteklemediği bir şey kullanıyor, örneğin sertifikayla şifreleme. | يستخدم شيئًا لا يدعمه Ferman بعد، مثل التشفير بشهادة. | The line of an error tab (a1-9b) for a file Ferman does not support yet (a2-10a: certificate encryption). |
+| `errorTooComplex` | This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged. | Bu dosya Ferman’ın güvenlik sınırları içinde açılamayacak kadar karmaşık. Diğer belgeleriniz açık ve değişmedi. | هذا الملف معقّد جدًا لفتحه ضمن حدود الأمان في Ferman. مستنداتك الأخرى مفتوحة ولم تتغيّر. | Message of a1-9f’s toast when a resource limit stopped the open. |
+| `errorOutOfMemory` | This computer ran out of memory while opening it. Your other documents are open and unchanged. | Dosya açılırken bilgisayarın belleği yetmedi. Diğer belgeleriniz açık ve değişmedi. | نفدت ذاكرة الجهاز أثناء فتحه. مستنداتك الأخرى مفتوحة ولم تتغيّر. | Message of a1-9f’s toast. |
+| `openClosedTitle` | “{name}” was closed | “{name}” kapatıldı | أُغلق «{name}» | Title of a1-9f’s toast (and the start screen’s banner) when a file ran out of memory or past a limit while opening. {name} is the file name. |
+| `openTryAgain` | Try again | Yeniden dene | إعادة المحاولة | Action of a1-9f’s toast: opens the file again. |
+| `openNotPdfTitle` | That file isn’t a PDF. | Bu dosya bir PDF değil. | هذا الملف ليس ملف PDF. | Title of a1-9c’s error tab. |
+| `openAnotherFile` | Open another file… | Başka bir dosya aç… | فتح ملف آخر… | Primary button of an error tab (a1-9b, a1-9c): shows the open panel. |
+| `openShowInFinder` | Show in Finder | Finder’da göster | إظهار في Finder | Button of an error tab on macOS (a1-9b, a1-9c). |
+| `openShowInExplorer` | Show in File Explorer | Dosya Gezgini’nde göster | إظهار في مستكشف الملفات | Button of an error tab on Windows (a1-9b, a1-9c; G119). |
+| `openShowInFolder` | Show in folder | Klasörde göster | إظهار في المجلد | Button of an error tab on Linux (a1-9b, a1-9c; G119). |
+| `openConvertToPdf` | Convert to PDF… | PDF’ye dönüştür… | تحويل إلى PDF… | Disabled button of a1-9c’s error tab until conversion ships (P3). |
+| `unlockDescription` | Enter the password for “{name}”. Ferman forgets it when you close the file. | “{name}” dosyasının parolasını girin. Ferman dosyayı kapattığınızda parolayı unutur. | أدخل كلمة مرور «{name}». ينسى Ferman كلمة المرور عند إغلاق الملف. | Description of the unlock dialog (a1-8). {name} is the file name. |
+| `unlockPassword` | Password | Parola | كلمة المرور | Label of the unlock dialog’s field (a1-8). |
+| `unlockShowPassword` | Show password | Parolayı göster | إظهار كلمة المرور | Checkbox of the unlock dialog (a1-8). |
+| `unlockCancel` | Cancel | Vazgeç | إلغاء | Button of the unlock dialog (a1-8): closes the locked tab. |
+| `unlockOpen` | Open | Aç | فتح | Primary button of the unlock dialog (a1-8). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

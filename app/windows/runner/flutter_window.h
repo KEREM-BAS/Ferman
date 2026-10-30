@@ -6,6 +6,7 @@
 
 #include <memory>
 
+#include "open_requests.h"
 #include "title_bar.h"
 #include "win32_window.h"
 
@@ -33,6 +34,9 @@ class FlutterWindow : public Win32Window {
   // Ferman's custom title bar support (snap layouts); destroyed before the
   // Flutter view it subclasses.
   std::unique_ptr<TitleBar> title_bar_;
+
+  // The files the system asks for, passed to Dart (ADR 0021).
+  std::unique_ptr<OpenChannel> open_channel_;
 };
 
 #endif  // RUNNER_FLUTTER_WINDOW_H_

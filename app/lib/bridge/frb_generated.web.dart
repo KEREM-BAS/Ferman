@@ -101,6 +101,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer dco_decode_layer(dynamic raw);
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
@@ -120,6 +123,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> dco_decode_list_page_rect(dynamic raw);
+
+  @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -307,6 +313,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer sse_decode_layer(SseDeserializer deserializer);
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
 
   @protected
@@ -330,6 +339,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
+
+  @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -577,6 +589,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_String).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_attachment(List<Attachment> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_attachment).toList().jsify()!;
@@ -616,6 +634,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_page_rect(List<PageRect> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_page_rect).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_prim_u_32_strict(Uint32List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.jsify()!;
   }
 
   @protected
@@ -997,6 +1021,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_layer(Layer self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_attachment(
     List<Attachment> self,
     SseSerializer serializer,
@@ -1025,6 +1052,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -1176,6 +1209,12 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__close_view(NativePortType port_, JSAny view) =>
       wasmModule.wire__crate__frb__close_view(port_, view);
 
+  void wire__crate__frb__collation_order(
+    NativePortType port_,
+    String locale,
+    JSAny texts,
+  ) => wasmModule.wire__crate__frb__collation_order(port_, locale, texts);
+
   void wire__crate__frb__debug_bytes(NativePortType port_, int len) =>
       wasmModule.wire__crate__frb__debug_bytes(port_, len);
 
@@ -1242,6 +1281,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__close(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__close_view(NativePortType port_, JSAny view);
+
+  external void wire__crate__frb__collation_order(
+    NativePortType port_,
+    String locale,
+    JSAny texts,
+  );
 
   external void wire__crate__frb__debug_bytes(NativePortType port_, int len);
 

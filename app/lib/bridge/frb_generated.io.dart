@@ -99,6 +99,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer dco_decode_layer(dynamic raw);
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
@@ -118,6 +121,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> dco_decode_list_page_rect(dynamic raw);
+
+  @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -305,6 +311,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer sse_decode_layer(SseDeserializer deserializer);
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
 
   @protected
@@ -328,6 +337,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
+
+  @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -534,6 +546,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_String> cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_String(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      ans.ref.ptr[i] = cst_encode_String(raw[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_attachment> cst_encode_list_attachment(
     List<Attachment> raw,
   ) {
@@ -610,6 +632,16 @@ abstract class FermanBridgeApiImplPlatform
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_page_rect(raw[i], ans.ref.ptr[i]);
     }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_prim_u_32_strict> cst_encode_list_prim_u_32_strict(
+    Uint32List raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_prim_u_32_strict(raw.length);
+    ans.ref.ptr.asTypedList(raw.length).setAll(0, raw);
     return ans;
   }
 
@@ -1111,6 +1143,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_layer(Layer self, SseSerializer serializer);
 
   @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_attachment(
     List<Attachment> self,
     SseSerializer serializer,
@@ -1139,6 +1174,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -1345,6 +1386,34 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__close_view = _wire__crate__frb__close_viewPtr
       .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__collation_order(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> locale,
+    ffi.Pointer<wire_cst_list_String> texts,
+  ) {
+    return _wire__crate__frb__collation_order(port_, locale, texts);
+  }
+
+  late final _wire__crate__frb__collation_orderPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_String>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__collation_order');
+  late final _wire__crate__frb__collation_order =
+      _wire__crate__frb__collation_orderPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_String>,
+            )
+          >();
 
   void wire__crate__frb__debug_bytes(int port_, int len) {
     return _wire__crate__frb__debug_bytes(port_, len);
@@ -1589,6 +1658,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_view_item = _cst_new_box_autoadd_view_itemPtr
       .asFunction<ffi.Pointer<wire_cst_view_item> Function()>();
 
+  ffi.Pointer<wire_cst_list_String> cst_new_list_String(int len) {
+    return _cst_new_list_String(len);
+  }
+
+  late final _cst_new_list_StringPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_String> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_String');
+  late final _cst_new_list_String = _cst_new_list_StringPtr
+      .asFunction<ffi.Pointer<wire_cst_list_String> Function(int)>();
+
   ffi.Pointer<wire_cst_list_attachment> cst_new_list_attachment(int len) {
     return _cst_new_list_attachment(len);
   }
@@ -1676,6 +1758,21 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_page_rect = _cst_new_list_page_rectPtr
       .asFunction<ffi.Pointer<wire_cst_list_page_rect> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_prim_u_32_strict> cst_new_list_prim_u_32_strict(
+    int len,
+  ) {
+    return _cst_new_list_prim_u_32_strict(len);
+  }
+
+  late final _cst_new_list_prim_u_32_strictPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_prim_u_32_strict> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_prim_u_32_strict');
+  late final _cst_new_list_prim_u_32_strict = _cst_new_list_prim_u_32_strictPtr
+      .asFunction<ffi.Pointer<wire_cst_list_prim_u_32_strict> Function(int)>();
+
   ffi.Pointer<wire_cst_list_prim_u_8_strict> cst_new_list_prim_u_8_strict(
     int len,
   ) {
@@ -1757,6 +1854,13 @@ typedef DartPostCObjectFnType =
 
 final class wire_cst_list_prim_u_8_strict extends ffi.Struct {
   external ffi.Pointer<ffi.Uint8> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_String extends ffi.Struct {
+  external ffi.Pointer<ffi.Pointer<wire_cst_list_prim_u_8_strict>> ptr;
 
   @ffi.Int32()
   external int len;
@@ -1931,6 +2035,13 @@ final class wire_cst_page_rect extends ffi.Struct {
 
 final class wire_cst_list_page_rect extends ffi.Struct {
   external ffi.Pointer<wire_cst_page_rect> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint32> ptr;
 
   @ffi.Int32()
   external int len;

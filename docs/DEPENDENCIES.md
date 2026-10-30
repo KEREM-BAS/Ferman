@@ -125,6 +125,7 @@ What M1 has added so far, read from `Cargo.lock`, `app/pubspec.lock`, the tool l
 | md-5, aes, rc4 (`zeroize`) | ferman-core: the standard security handler (`security`): MD5 key derivation, AES-128 and AES-256 blocks with CBC written out, RC4 | 0.11.0; 0.9.2; 0.2.0 | MIT OR Apache-2.0 | ok | M2 | RustCrypto; md-5 and aes are the versions lopdf uses, rc4 the corpus tool's. Their `zeroize` features wipe hash states, key schedules and cipher states on drop. md-5 0.10.6 stays in the graph through flutter_rust_bridge. MSRV 1.85. |
 | stringprep, unicode-normalization | ferman-core: SASLprep of revision 6 passwords (RFC 4013), from stringprep's tables with NFKC, into a buffer that is wiped | 0.1.5; 0.1.26 | MIT OR Apache-2.0; `(MIT OR Apache-2.0) AND Unicode-3.0` | ok | M2 | The versions lopdf's stringprep pulls; stringprep's own `saslprep` returns its result in a plain `String`, so ferman-core runs the steps itself. Pulls unicode-bidi 0.3.18, unicode-properties 0.1.4 and tinyvec 1.13.3 (`Zlib OR Apache-2.0 OR MIT`). |
 | unicode-bidi (`hardcoded-data` only) | ferman-text: right-to-left lines read back into logical order (UAX #9) when text is extracted; unicode-normalization (the version above) folds text for search (NFKC, NFD) and compares the corpus text in NFC in its tests | 0.3.18 | MIT OR Apache-2.0 | ok | M2 | The version stringprep already pulls, so `Cargo.lock` gains no package. |
+| icu_collator, icu_locale_core | ferman-text: the order of names in the UI language (`collate::collation_order`): Turkish puts "Ç" after "C" and "ı" before "i", and digits compare by their value; the API's `collation_order` sorts the recent files by name and location (ADR 0021) | 2.4.0; 2.4.0 | Unicode-3.0 | ok | M2 | Default features (`compiled_data`, every locale's collation data). They bring the ICU4X support crates (icu_collator_data, icu_collections, icu_locale_fallback with its data, icu_normalizer with its data, icu_properties with its data, icu_provider, zerovec, zerotrie, zerofrom, yoke, tinystr, litemap, writeable, potential_utf: Unicode-3.0) and displaydoc, stable_deref_trait, synstructure, utf16_iter, utf8_iter, utf_types and write16 (MIT or Apache-2.0): 29 packages. The release engine library on macOS arm64 grows from 5,976,368 to 7,383,520 bytes (+1.34 MiB, 2026-10-30, the owner's MacBook Pro M5 Pro), most of it the collation data of every locale; data for fewer locales would need ICU4X's datagen. `cargo deny check` passes. |
 | zeroize | ferman-core: `Password` and every buffer derived from it are wiped when dropped ([ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules)) | 1.9.1 | Apache-2.0 OR MIT | ok | M2 | RustCrypto. Planned in the M2 plan. 1.9.1 was released on 2026-10-06. No unsafe code in Ferman's use. MSRV 1.85. |
 | criterion (dev) | ferman-render: the `first_page` benchmark (`benches/first_page.rs`) | 0.8.2 | Apache-2.0 OR MIT | ok | M2 | `default-features = false` with `cargo_bench_support`: no plotters and no rayon. Pulls alloca 0.4.0, crunchy 0.2.4 and oorandom 11.1.5 (MIT); anes 0.1.6, cast 0.3.0, criterion-plot 0.8.2, half 2.7.1, itertools 0.13.0, page_size 0.6.0, tinytemplate 1.2.1 and winapi 0.3.9 (MIT OR Apache-2.0); ciborium 0.2.2 with ciborium-io and ciborium-ll (Apache-2.0); walkdir 2.5.0, same-file 1.0.6 and winapi-util 0.1.11 (Unlicense OR MIT, the MIT side applies); zerocopy 0.8.63 (BSD-2-Clause OR Apache-2.0 OR MIT). 22 packages are new in `Cargo.lock`; the dev-dependency licence run passes. MSRV 1.86. |
 | proptest (dev) | ferman-core: property tests of the filters (round trips, the decoded-size limit) | 1.12.0 | MIT OR Apache-2.0 | ok | M2 | First use of the M1 pin. Pulls bit-set, bit-vec, bitflags, chacha20, core_detect, num-traits, rand, rand_xorshift, regex-syntax, rusty-fork (with quick-error and wait-timeout), tempfile and unarray, all MIT, Apache-2.0 or both; the dev-dependency licence run passes. MSRV 1.88. |
@@ -152,8 +153,9 @@ neither.
 
 Licences re-checked on pub.dev on 2026-10-15. `very_good packages check licenses` over
 `app/pubspec.lock` (the full command of [section 8](#8-dart-licence-check): direct, dev and transitive
-dependencies) passes: 111 packages, BSD-3-Clause (82), MIT (23) and Apache-2.0 (6), since ffigen
-arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is not counted.
+dependencies) passes: 125 packages (126 licences), BSD-3-Clause (92), MIT (26) and Apache-2.0 (8),
+with `dbus` (MPL-2.0, approved in Q17) skipped by name, since desktop_drop arrived on 2026-10-30
+(121 with file_selector earlier that day, 111 before it, 107 before ffigen on 2026-10-19). `rust_lib_ferman` is a path package and is not counted.
 
 | Name | Purpose | Version (pubspec.lock) | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
@@ -163,6 +165,8 @@ arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is n
 | intl | Messages, dates and numbers | 0.20.3 | BSD-3-Clause | ok | M1 | flutter_localizations requires `^0.20.3`. Publisher dart.dev. |
 | flutter_localizations | Framework localisations and RTL support | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | Used with gen-l10n ([ADR 0014](adr/0014-localization-and-rtl.md)). |
 | path_provider | App support, cache and data directories; the settings file lives in the app support directory | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
+| file_selector | The system open panel (a1-13), PDF files, several at once; later the save and folder pickers | 1.1.0 | BSD-3-Clause | ok | M2 | Publisher flutter.dev. [ADR 0018](adr/0018-native-file-pickers.md), Accepted ([Q07](QUESTIONS.md#q07)); behind `FilePickerService` (`app/lib/platform/file_picker_service.dart`). Brings cross_file 0.3.5+5 and the per-platform packages (android, ios, linux, macos, web, windows) and file_selector_platform_interface 2.7.0, all BSD-3-Clause, and `http` 1.6.0 (BSD-3-Clause): the interface declares it and never imports it, and the owner approved it on 2026-10-30 as `pub_denylist`'s first transitive exception (section 8). On macOS both entitlement files gain `com.apple.security.files.user-selected.read-write`. |
+| desktop_drop | Files dropped on the window (a1-6): the start screen and the editor | 0.8.4 | Apache-2.0 | caution | M2 | Publisher mixin.one. Behind `FileDrop` (`app/lib/features/shell/file_drop.dart`); reports only the pointer while files are dragged and names them on the drop ([G117](DESIGN_GAPS.md#g117)). Brings dbus 0.7.15 (MPL-2.0, approved in [Q17](QUESTIONS.md#q17), unmodified; skipped by name in the licence check, section 8; its source location ships as the licence entry `assets/licenses/dbus/SOURCE.txt`), which pulls xml 7.0.1 and petitparser 7.0.2 (MIT), and universal_platform 1.1.0 (MIT). On macOS a sandboxed app reads a dropped file through the grant the drop carries. |
 | window_manager | Custom title bars, window size and state | 0.5.2 | MIT | ok | M1 | Publisher leanflutter.dev. Windows, macOS and Linux only. Pulls screen_retriever 0.2.2 (MIT). |
 | path_parsing | Parses the icons' SVG path data for the Icon widget's `CustomPainter` | 1.1.0 (2024-11-01) | MIT | ok | M1 | Publisher flutter.dev (flutter/packages, `third_party/packages/path_parsing`); its LICENSE is the MIT text. Depends on meta and vector_math 2.4.0 (both BSD-3-Clause). Replaces flutter_svg ([section 4](#4-rejected), [ADR 0013](adr/0013-fonts-and-icons.md)). |
 | flutter_rust_bridge (Dart) | Dart side of the bridge | 2.13.0 | MIT | ok | M1 | Same version as the crate and the codegen. Publisher cjycode.com. |
@@ -176,8 +180,10 @@ arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is n
 | flutter_test, integration_test, flutter_driver (dev) | Widget and integration tests; flutter_driver runs the integration test in profile mode | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | flutter_driver was already transitive through integration_test; since `be0a04b` it is a direct dev dependency for `app/test_driver/integration_test.dart` (`flutter drive --profile`). The lockfile changed only its dependency type, so the licence count stays at 107. |
 | riverpod_lint | Riverpod lints | 3.1.9 | MIT | ok | M1 | A native analyzer plugin under `plugins:` in `app/analysis_options.yaml`, not a pubspec dependency, so it is not in `pubspec.lock` and the licence check above does not see it; its licence was checked on pub.dev. No verified publisher. Its diagnostics appear only in `dart analyze`, so CI runs `dart analyze --fatal-infos` as well as `flutter analyze`. |
 
-`http` is not in `app/pubspec.lock`: the pub deny list (`tools/checks` `pub_denylist`, approved by
-the owner on 2026-10-16) fails on it, which is why flutter_svg was dropped.
+`http` is in `app/pubspec.lock` only as a transitive dependency of file_selector's platform
+interface, which never imports it: the pub deny list (`tools/checks` `pub_denylist`, approved by
+the owner on 2026-10-16) fails on it anywhere else, which is why flutter_svg was dropped, and fails
+on any `package:http` import in `app/lib/` (the owner's exception of 2026-10-30).
 
 ### 2.3 Tools (never shipped)
 
@@ -284,7 +290,7 @@ the row then moves to [section 2](#2-in-use-today). MSRV is the minimum Rust ver
 | unicode-segmentation | Grapheme and word boundaries for caret, selection and search | 1.13.3 (2026-06-01) | MIT OR Apache-2.0 | ok | M2 | icu_segmenter (Unicode-3.0) if Thai or CJK dictionary segmentation is needed. MSRV 1.85. |
 | unicode-bidi | Bidi algorithm for Arabic, Persian and Hebrew text and selection | 0.3.18 (2024-12-16) | MIT OR Apache-2.0 | ok | M2 | In ferman-text since M2 ([section 2.1](#21-rust-crates)). From servo. Slow releases (last in December 2024) but widely used. ICU4X has bidi data if needed. |
 | icu_casemap | Locale-aware case mapping (Turkish İ and ı) for search folding | 2.3.0 (2026-08-13) | Unicode-3.0 | ok | M2 | Its data and support crates (zerovec, yoke, tinystr, litemap, writeable, potential_utf) are Unicode-3.0 too, so Unicode-3.0 is on the allow-list. MSRV 1.88. |
-| icu_collator | Locale collation (Turkish order) for recent files and font lists | 2.3.1 (2026-08-20) | Unicode-3.0 | ok | M2 | Brings icu_normalizer and icu_properties data. Binary size is checked when it is added. MSRV 1.88. |
+| icu_collator | Locale collation (Turkish order) for recent files and font lists | 2.3.1 (2026-08-20); 2.4.0 in use | Unicode-3.0 | ok | M2 | In ferman-text since M2, W3 ([section 2.1](#21-rust-crates)): +1.34 MiB on the release engine library. Brings icu_normalizer and icu_properties data. MSRV 1.88. |
 
 ### 3.5 Concurrency and caching
 
@@ -347,8 +353,8 @@ dropped and shared_preferences was not chosen ([section 4](#4-rejected)).
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
-| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
+| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | In use since M2, W3 ([section 2.2](#22-dart-and-flutter-packages-app)). Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux (the desktop portal's file transfer for sandboxed drag sources). **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
+| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | In use since M2, W3 ([section 2.2](#22-dart-and-flutter-packages-app)). [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. Its platform interface declares `http` without importing it (approved exception, section 8). |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
 
 ### 3.12 Tooling
@@ -392,7 +398,7 @@ licence or maintenance detail worth knowing.
 | hayro-write | krilla (`pdf` feature) | Apache-2.0 OR MIT | |
 | ICU4X support crates (zerovec, yoke, tinystr, litemap, writeable, potential_utf) | icu_casemap, icu_collator | Unicode-3.0 | |
 | ravif, rav1e, exr, paste | `image` default features | BSD-2-Clause and others | Avoided by turning `image` default features off. `paste` is unmaintained (RUSTSEC-2024-0436). |
-| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)), unmodified. From M2 its notice and source location ship with every build that includes desktop_drop. It is the only MPL-2.0 package, skipped by name in the pub licence check. |
+| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)), unmodified. Since M2, W3 (0.7.15) its licence text ships through Flutter's collected notices and its source location as the licence entry `assets/licenses/dbus/SOURCE.txt` (`app/lib/app/licenses.dart`), in every build. It is the only MPL-2.0 package, skipped by name in the pub licence check. |
 | screen_retriever 0.2.2 (pub) | window_manager | MIT | |
 | meta, vector_math 2.4.0 (pub) | path_parsing | BSD-3-Clause | |
 | jni 1.1.0, jni_flutter 1.0.4+1, jni_util 1.0.0 (pub) | path_provider, through path_provider_android 2.3.1 | BSD-3-Clause | Publisher dart.dev. jni's build hook builds `libdartjni.so` (about 150 KB, BSD-3-Clause) into the Linux bundle's `lib/`, although desktop never uses it. Dropping unused native assets from desktop bundles is [B006](BACKLOG.md#open) (M5). |
@@ -573,10 +579,10 @@ Devanagari text comes from Plex Sans.
 |---|---|---|---|
 | Ferman itself | Apache-2.0 | Shown as Apache-2.0. The design says GPL-3.0 in a1-2c and a11-5; the app does not copy that ([G13](DESIGN_GAPS.md#g13)). | M1 |
 | Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. | M1 |
-| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
+| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop: `assets/licenses/dbus/SOURCE.txt` since M2, W3. | M2 |
 | Rust crates | per crate | Generated by cargo-about. | M4 |
 | Glyph names in `crates/ferman-fonts/src/encoding.rs` (the Latin-1 and Latin Extended-A names, as the Adobe Glyph List for New Fonts names them; the base encodings follow ISO 32000-2 Annex D) | BSD-3-Clause (the Adobe Glyph List) | With the Rust crates' notices (M4). Names only: no list file is bundled. | M2 |
-| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 24 texts), which `bootstrap()` calls. | M1 to M4 |
+| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 25 texts: these and the source location of `dbus`, section 3.11), which `bootstrap()` calls. | M1 to M4 |
 | Unicode Character Database 15.0 and CLDR data (case tables in app/lib/l10n/casing.dart, territory lists in app/lib/l10n/region.dart, territory display names and their order per language in app/lib/l10n/region_names.dart (CLDR 48 read through ICU 78.3 in Node.js 24.22.0), grouping and date-time tables in app/lib/l10n/format.dart, SpecialCasing lines, ICU results and CLDR 48 formats in app/test/l10n/) | Unicode-3.0 | The Unicode License V3 that opens assets/licenses/pdfium/icu.txt, also registered under "Unicode data (UCD and CLDR)" | M1 |
 
 ## 6. Toolchain
@@ -645,26 +651,33 @@ cargo-deny does not see pub packages, so very_good_cli checks them with the same
 2026-10-15 the check passes for `app/pubspec.lock` (107 packages), `tools/tokens/pubspec.lock`
 (`tools/l10n/pubspec.lock` too, on 2026-10-16) and cargokit's build tool (54 packages, [section 2.3](#23-tools-never-shipped)). CI runs the command below
 for `app/` in the Linux Flutter job (since `52603cb`).
-MPL-2.0 is not on the list. The M1 graph has no MPL-2.0 package, so M1 runs the check without
+MPL-2.0 is not on the list. The M1 graph had no MPL-2.0 package, so M1 ran the check without
 `--skip-packages`. The owner approved `dbus` on 2026-10-15 ([Q17](QUESTIONS.md#q17),
-[section 3.11](#311-flutter-and-dart-packages)), so `--skip-packages=dbus` is added in the same commit as
-desktop_drop in M2, and any other MPL-2.0 package still fails the check. The flags were checked against very_good_cli's documentation on 2026-10-14. The
+[section 3.11](#311-flutter-and-dart-packages)), so `--skip-packages=dbus` came in the same commit as
+desktop_drop (M2, W3), and any other MPL-2.0 package still fails the check. On 2026-10-30 it passes
+for `app/pubspec.lock`: 126 licences from 125 packages, `dbus` skipped. The flags were checked against very_good_cli's documentation on 2026-10-14. The
 default dependency type is `direct-main` only, so the types are set explicitly.
 
 ```sh
 very_good packages check licenses \
   --dependency-type=direct-main,direct-dev,transitive \
-  --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
-# From M2, in the commit that adds desktop_drop (dbus approved in Q17): add --skip-packages=dbus
+  --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016 \
+  --skip-packages=dbus
 ```
 
 **Approved by the owner on 2026-10-16** (Proposed for M1 step 2 of [ROADMAP.md](ROADMAP.md) until
 then): a second check fails if `pubspec.lock` contains an HTTP client, a font downloader such as
 google_fonts, or an analytics or crash-reporting SDK ([ADR 0015](adr/0015-privacy-and-network.md)). It exists as `pub_denylist` in `tools/checks`, which
-fails on direct and transitive entries alike (its map of transitive exceptions is empty). It caught
-`http` arriving through flutter_svg, which was then dropped ([section 4](#4-rejected)). It reads only
-`app/pubspec.lock`: the `http` and `github` packages of cargokit's build tool run at build time, never
-ship, and are a known build-time exception.
+fails on direct and transitive entries alike, except the transitive exceptions the owner approves,
+each with its reason. It caught `http` arriving through flutter_svg, which was then dropped
+([section 4](#4-rejected)). The one exception, approved on 2026-10-30, is `http` as a transitive
+dependency of file_selector_platform_interface 2.7.0, which declares it and never imports it. The
+exception names the packages allowed to bring it: the check fails on any URI of an excepted package
+in `app/lib/` (an import, export or part, a conditional import's alternatives included), and, once
+`flutter pub get` has resolved the app, on any other package whose pubspec depends on it (it reads
+`app/.dart_tool/package_config.json`; CI's Linux Flutter job runs it there). Of the lockfiles it
+reads only `app/pubspec.lock`, not cargokit's build tool's: the `http` and `github` packages of
+cargokit's build tool run at build time, never ship, and are a known build-time exception.
 
 ## 9. Known risks
 

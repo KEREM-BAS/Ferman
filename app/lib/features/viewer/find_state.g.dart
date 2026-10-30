@@ -8,17 +8,20 @@ part of 'find_state.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Finds text in the open document, as `findProvider`; it starts over when
-/// the document changes.
+/// Finds text in the open document, as `findProvider`. Each document keeps
+/// its own search: switching tabs stops a running one, keeping what it
+/// found, and switching back shows it again.
 
 @ProviderFor(Find)
 final findProvider = FindProvider._();
 
-/// Finds text in the open document, as `findProvider`; it starts over when
-/// the document changes.
+/// Finds text in the open document, as `findProvider`. Each document keeps
+/// its own search: switching tabs stops a running one, keeping what it
+/// found, and switching back shows it again.
 final class FindProvider extends $NotifierProvider<Find, FindState> {
-  /// Finds text in the open document, as `findProvider`; it starts over when
-  /// the document changes.
+  /// Finds text in the open document, as `findProvider`. Each document keeps
+  /// its own search: switching tabs stops a running one, keeping what it
+  /// found, and switching back shows it again.
   FindProvider._()
     : super(
         from: null,
@@ -46,10 +49,11 @@ final class FindProvider extends $NotifierProvider<Find, FindState> {
   }
 }
 
-String _$findHash() => r'80099d206964550aec08346fa61e35e2670a2308';
+String _$findHash() => r'5fde038267f921dc4b9643f873890f5357f64de0';
 
-/// Finds text in the open document, as `findProvider`; it starts over when
-/// the document changes.
+/// Finds text in the open document, as `findProvider`. Each document keeps
+/// its own search: switching tabs stops a running one, keeping what it
+/// found, and switching back shows it again.
 
 abstract class _$Find extends $Notifier<FindState> {
   FindState build();

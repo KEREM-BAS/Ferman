@@ -1,0 +1,6 @@
+Ferman includes the Dart package dbus, unmodified, which desktop_drop
+depends on. dbus is licensed under the Mozilla Public License, Version 2.0;
+its licence text is listed under "dbus".
+
+The Source Code Form of every published version of dbus is available at
+https://pub.dev/packages/dbus/versions and https://github.com/canonical/dbus.dart.

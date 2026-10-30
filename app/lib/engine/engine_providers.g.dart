@@ -9,24 +9,27 @@ part of 'engine_providers.dart';
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
 /// The started engine. `bootstrap()` overrides it with the service it
-/// started; reading it without an override is a programming error.
+/// started; reading it without an override is a programming error, never
+/// retried.
 
 @ProviderFor(engineService)
 final engineServiceProvider = EngineServiceProvider._();
 
 /// The started engine. `bootstrap()` overrides it with the service it
-/// started; reading it without an override is a programming error.
+/// started; reading it without an override is a programming error, never
+/// retried.
 
 final class EngineServiceProvider
     extends $FunctionalProvider<EngineService, EngineService, EngineService>
     with $Provider<EngineService> {
   /// The started engine. `bootstrap()` overrides it with the service it
-  /// started; reading it without an override is a programming error.
+  /// started; reading it without an override is a programming error, never
+  /// retried.
   EngineServiceProvider._()
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: _never,
         name: r'engineServiceProvider',
         isAutoDispose: false,
         dependencies: null,
@@ -55,14 +58,16 @@ final class EngineServiceProvider
   }
 }
 
-String _$engineServiceHash() => r'6978125d77f8521c7187de2de28bbae6fd1fa430';
+String _$engineServiceHash() => r'05ed3d4c79955c7a829815d8b9919c3d0aeb4b01';
 
-/// The engine's versions and build facts.
+/// The engine's versions and build facts. A failure is not retried: a
+/// missing or mismatched engine library stays so for the process.
 
 @ProviderFor(engineStatus)
 final engineStatusProvider = EngineStatusProvider._();
 
-/// The engine's versions and build facts.
+/// The engine's versions and build facts. A failure is not retried: a
+/// missing or mismatched engine library stays so for the process.
 
 final class EngineStatusProvider
     extends
@@ -72,12 +77,13 @@ final class EngineStatusProvider
           FutureOr<EngineStatus>
         >
     with $FutureModifier<EngineStatus>, $FutureProvider<EngineStatus> {
-  /// The engine's versions and build facts.
+  /// The engine's versions and build facts. A failure is not retried: a
+  /// missing or mismatched engine library stays so for the process.
   EngineStatusProvider._()
     : super(
         from: null,
         argument: null,
-        retry: null,
+        retry: _never,
         name: r'engineStatusProvider',
         isAutoDispose: true,
         dependencies: null,
@@ -99,14 +105,14 @@ final class EngineStatusProvider
   }
 }
 
-String _$engineStatusHash() => r'e77337ecac59c1479576596da617fd6bd66f1a02';
+String _$engineStatusHash() => r'be435a7db65e392577d99bae030d85eb87692759';
 
 /// What keeps the engine from opening PDF files, or null when it can, while
 /// it starts, and in the web build (G101). The start screen shows it as a
 /// warning banner and disables opening with its title as the reason.
 ///
-/// An error counts in every state: Riverpod retries a failed status, and
-/// while it does the status is loading with the error kept.
+/// An error counts in every state, the loading state that keeps an error
+/// included.
 
 @ProviderFor(engineProblem)
 final engineProblemProvider = EngineProblemProvider._();
@@ -115,8 +121,8 @@ final engineProblemProvider = EngineProblemProvider._();
 /// it starts, and in the web build (G101). The start screen shows it as a
 /// warning banner and disables opening with its title as the reason.
 ///
-/// An error counts in every state: Riverpod retries a failed status, and
-/// while it does the status is loading with the error kept.
+/// An error counts in every state, the loading state that keeps an error
+/// included.
 
 final class EngineProblemProvider
     extends $FunctionalProvider<EngineProblem?, EngineProblem?, EngineProblem?>
@@ -125,8 +131,8 @@ final class EngineProblemProvider
   /// it starts, and in the web build (G101). The start screen shows it as a
   /// warning banner and disables opening with its title as the reason.
   ///
-  /// An error counts in every state: Riverpod retries a failed status, and
-  /// while it does the status is loading with the error kept.
+  /// An error counts in every state, the loading state that keeps an error
+  /// included.
   EngineProblemProvider._()
     : super(
         from: null,

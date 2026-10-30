@@ -44,6 +44,19 @@ Future<void> debugPanic() => FermanBridge.instance.api.crateFrbDebugPanic();
 Future<Uint8List> debugBytes({required int len}) =>
     FermanBridge.instance.api.crateFrbDebugBytes(len: len);
 
+/// The order of `texts` in the language of `locale`, a BCP 47 tag such as `tr`: their indices,
+/// first to last. Digits compare by their value and equal texts keep their order. Sorts the recent
+/// files by name and location (ADR 0021).
+///
+/// See [`facade::collation_order`].
+Future<Uint32List> collationOrder({
+  required String locale,
+  required List<String> texts,
+}) => FermanBridge.instance.api.crateFrbCollationOrder(
+  locale: locale,
+  texts: texts,
+);
+
 /// Opens the PDF at `path`, with `password` if it is encrypted. Without the password an encrypted
 /// file fails with `PasswordRequired`; open it again with the password.
 ///

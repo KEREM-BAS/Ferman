@@ -9,10 +9,10 @@ import 'package:flutter/widgets.dart';
 /// disabled, with the localized "Available in a future version" (G10):
 ///
 /// ```dart
-/// IconButton(
-///   icon: IconName.plus,
-///   label: l10n.shellOpenFile,
-///   disabledReason: Feature.openFiles.disabledReason(context),
+/// Button(
+///   icon: IconName.filePlus2,
+///   disabledReason: Feature.createPdf.disabledReason(context),
+///   child: Text(l10n.startCreatePdf),
 /// )
 /// ```
 ///
@@ -35,14 +35,12 @@ import 'package:flutter/widgets.dart';
 enum Feature {
   // Files and documents.
 
-  /// Opening files: the title bar's "+" (on the start screen and in the
-  /// editor), Start › Open file… and the drop zone. The zone takes one
-  /// reason for all of it, so its drop target (B010) and its New blank PDF
-  /// ([createPdf], B019) share this value until opening ships and the zone
-  /// gets a reason per part (M2 step 6).
-  openFiles('B018'),
+  /// Opening files in the web build, whose engine is a stub: the title
+  /// bar's "+", ⌘O or Ctrl+O, Start › Open file… and Open a PDF.
+  openFilesOnWeb('B116'),
 
-  /// Creating a PDF: Start › Create PDF and Convert › Create PDF.
+  /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
+  /// Convert › Create PDF.
   createPdf('B019'),
 
   /// Combining and splitting files: Start › Combine files and Organize ›
@@ -52,8 +50,17 @@ enum Feature {
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
 
-  /// The "+N" menu of the documents whose tabs do not fit.
-  moreDocumentsMenu('B028'),
+  /// Combining dropped files: "Combine into one PDF" while files are
+  /// dragged over the window (a1-6).
+  combineDropped('B104'),
+
+  /// Showing every open document at once: "+N" › Show all open documents
+  /// (a1-10).
+  showAllDocuments('B117'),
+
+  /// Showing a file in the system's file manager: an error tab's Show in
+  /// Finder, Show in File Explorer or Show in folder (a1-9b, a1-9c).
+  showInFolder('B119'),
 
   /// Closing documents: the close button of the active clean tab.
   closingDocuments('B029'),

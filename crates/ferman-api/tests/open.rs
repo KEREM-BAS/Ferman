@@ -136,6 +136,11 @@ fn the_open_carries_the_sidebar_lists() {
 fn files_that_do_not_open_say_why() {
     let kind = |name: &str, password: Option<&str>| open(name, password).unwrap_err().kind;
     assert_eq!(kind("truncated", None), ErrorKind::Damaged);
+    // a1-9b's sentence and its technical details.
+    let truncated = open("truncated", None).unwrap_err();
+    assert_eq!(truncated.message_key.as_str(), "errorDamagedTruncated");
+    let details = truncated.details.unwrap();
+    assert!(details.contains("last complete object"), "{details}");
     assert_eq!(kind("payslip-aes256", None), ErrorKind::PasswordRequired);
     assert_eq!(
         kind("payslip-aes256", Some("eylul2026")),
