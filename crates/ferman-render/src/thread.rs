@@ -141,6 +141,11 @@ enum Message {
         document: DocumentId,
         reply: oneshot::Sender<Result<(), RenderError>>,
     },
+    Reload {
+        document: DocumentId,
+        appendix: Arc<[u8]>,
+        reply: oneshot::Sender<Result<u64, RenderError>>,
+    },
     OpenView {
         document: DocumentId,
         sink: Box<dyn ViewSink>,
@@ -239,6 +244,31 @@ impl RenderThread {
         document: DocumentId,
     ) -> impl Future<Output = Result<(), RenderError>> + Send + 'static {
         let reply = self.ask(|reply| Message::Close { document, reply });
+        async move { flatten(reply?.await) }
+    }
+
+    /// Loads `document` again from the bytes it was opened from with a render-only `appendix` after
+    /// them (ADR 0009), such as ferman-core's layer appendix, and swaps it in under the same id
+    /// and views. Every page gets a new render key, which the future returns: bitmaps with an
+    /// older key show the document as it was. An empty appendix goes back to the bytes alone.
+    ///
+    /// # Errors
+    ///
+    /// The future resolves to [`RenderError::NotFound`] for a document that is not open,
+    /// [`RenderError::PasswordRequired`] for one that needed a password (the reload has none,
+    /// Q22), [`RenderError::Damaged`] when PDFium cannot read the result, and
+    /// [`RenderError::ThreadStopped`] if the thread is no longer running. The document stays as it
+    /// was on an error.
+    pub fn reload(
+        &self,
+        document: DocumentId,
+        appendix: Arc<[u8]>,
+    ) -> impl Future<Output = Result<u64, RenderError>> + Send + 'static {
+        let reply = self.ask(|reply| Message::Reload {
+            document,
+            appendix,
+            reply,
+        });
         async move { flatten(reply?.await) }
     }
 
@@ -441,6 +471,13 @@ impl<'p> State<'p> {
                 };
                 let _ = reply.send(closed);
             }
+            Message::Reload {
+                document,
+                appendix,
+                reply,
+            } => {
+                let _ = reply.send(self.reload(document, appendix));
+            }
             Message::OpenView {
                 document,
                 sink,
@@ -476,11 +513,28 @@ impl<'p> State<'p> {
                 _ => "PDFium is not loaded".to_owned(),
             },
         })?;
-        let document = LoadedDocument::load(pdfium, bytes, password, self.loaded_pages)?;
+        let document =
+            LoadedDocument::load(pdfium, bytes, Arc::from([]), password, self.loaded_pages)?;
         let pages = document.sizes().to_vec();
         let id = DocumentId(self.next_id());
         self.documents.insert(id, document);
         Ok(OpenedDocument { id, pages })
+    }
+
+    fn reload(&mut self, document: DocumentId, appendix: Arc<[u8]>) -> Result<u64, RenderError> {
+        let (Some(pdfium), Some(loaded)) = (self.pdfium, self.documents.get(&document)) else {
+            return Err(RenderError::NotFound { what: "document" });
+        };
+        let bytes = Arc::clone(loaded.bytes());
+        let mut reloaded = LoadedDocument::load(pdfium, bytes, appendix, None, self.loaded_pages)?;
+        let key = self.next_id();
+        reloaded.set_render_keys(key);
+        // The old one's pages close first, then the document, in LoadedDocument's drop; its
+        // bitmaps cannot be asked for again.
+        self.documents.insert(document, reloaded);
+        self.tiles.retain(|cached| cached.document != document);
+        self.thumbnails.retain(|cached| cached.document != document);
+        Ok(key)
     }
 
     fn close(&mut self, document: DocumentId) {

@@ -996,4 +996,206 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'رقم الصفحة';
+
+  @override
+  String sidebarPage(String page) {
+    return 'الصفحة $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'لا توجد إشارات مرجعية';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه.';
+
+  @override
+  String get sidebarNoAttachments => 'لا توجد مرفقات';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'تظهر هنا الملفات المضمّنة في ملف PDF هذا.';
+
+  @override
+  String get sidebarNoLayers => 'لا توجد طبقات';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها.';
+
+  @override
+  String get sidebarNoSignatures => 'لا توجد توقيعات';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'هذا المستند غير موقّع ولا يحتوي على حقول توقيع.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة.';
+
+  @override
+  String get sidebarSaveAttachment => 'حفظ المرفق باسم…';
+
+  @override
+  String get sidebarLayersNote =>
+      'تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة.';
+
+  @override
+  String get sidebarHideLayer => 'إخفاء الطبقة';
+
+  @override
+  String get sidebarShowLayer => 'إظهار الطبقة';
+
+  @override
+  String get sidebarLayerLocked => 'مقفلة';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'التحقق من التوقيعات متاح في إصدار قادم.';
+
+  @override
+  String get sidebarEmptySignatureField => 'حقل توقيع فارغ';
+
+  @override
+  String get findRegion => 'بحث واستبدال';
+
+  @override
+  String get findField => 'بحث';
+
+  @override
+  String get findReplaceWith => 'استبدال بـ';
+
+  @override
+  String get findMatchCase => 'مطابقة حالة الأحرف';
+
+  @override
+  String get findWholeWords => 'كلمات كاملة';
+
+  @override
+  String get findRegex => 'تعبير نمطي';
+
+  @override
+  String get findShowReplace => 'إظهار الاستبدال';
+
+  @override
+  String get findHideReplace => 'إخفاء الاستبدال';
+
+  @override
+  String get findPrevious => 'التطابق السابق';
+
+  @override
+  String get findNext => 'التطابق التالي';
+
+  @override
+  String get findReplaceAll => 'استبدال الكل';
+
+  @override
+  String get findNoResults => 'لا نتائج';
+
+  @override
+  String get findOptions => 'خيارات البحث';
+
+  @override
+  String get findMatch => 'المطابقة';
+
+  @override
+  String get findIgnoreAccents =>
+      'تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة';
+
+  @override
+  String get findIgnoreAccentsBody =>
+      '«i» تجد İ وı وî؛ و«c» تجد ç؛ و«kira» تجد KİRA. مفعّل افتراضيًا.';
+
+  @override
+  String get findLookIn => 'البحث في';
+
+  @override
+  String get findPageText => 'نص الصفحة';
+
+  @override
+  String get findComments => 'التعليقات';
+
+  @override
+  String get findFormFields => 'حقول النماذج';
+
+  @override
+  String get findBookmarks => 'الإشارات المرجعية';
+
+  @override
+  String get findSearchingBody => 'تظهر النتائج فور العثور عليها.';
+
+  @override
+  String get findCancel => 'إلغاء';
+
+  @override
+  String get findNoneAction => 'البحث في التعليقات والحقول أيضًا';
+
+  @override
+  String findCount(String current, String total) {
+    return '$current من $total';
+  }
+
+  @override
+  String findSearching(String page, String pages) {
+    return 'جارٍ البحث · الصفحة $page من $pages';
+  }
+
+  @override
+  String findNoneTitle(String query) {
+    return 'لا نتائج لـ«$query»';
+  }
+
+  @override
+  String findNoneBody(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات الـ$pages كلها',
+      two: 'الصفحتين كلتيهما',
+      one: 'الصفحة الوحيدة',
+    );
+    return 'بحث Ferman في $_temp0، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج.';
+  }
+
+  @override
+  String findNoneBodyExact(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات الـ$pages كلها',
+      two: 'الصفحتين كلتيهما',
+      one: 'الصفحة الوحيدة',
+    );
+    return 'بحث Ferman في $_temp0. لم يُبحث في التعليقات وحقول النماذج.';
+  }
+
+  @override
+  String get sidebarSearchField => 'البحث في المستند';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText تطابقًا',
+      few: '$matchesText تطابقات',
+      two: 'تطابقان',
+      one: 'تطابق واحد',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText صفحة',
+      few: '$pagesText صفحات',
+      two: 'صفحتين',
+      one: 'صفحة واحدة',
+    );
+    return '$_temp0 في $_temp1';
+  }
 }

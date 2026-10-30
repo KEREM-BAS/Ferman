@@ -133,7 +133,8 @@ class SearchReplaceBarLabels {
 /// and edits are reported through [onQueryChanged] and [onReplaceChanged].
 ///
 /// **Keyboard:** Escape anywhere in the bar calls [onClose]; in the find
-/// field Enter goes to the next match and Shift+Enter to the previous one.
+/// field Enter goes to the next match and Shift+Enter to the previous one;
+/// Alt+Enter is left to the app (a2-4b's Show all).
 ///
 /// For screen readers it is a group named "Find and replace"; the count is
 /// a polite live region and the notice a status; the option toggles are
@@ -163,6 +164,7 @@ class SearchReplaceBar extends StatefulWidget {
     this.onClose,
     this.autofocus = false,
     this.replaceDisabledReason,
+    this.regexDisabledReason,
   });
 
   /// `.fm-search` `width: 440px`.
@@ -246,6 +248,10 @@ class SearchReplaceBar extends StatefulWidget {
   /// focusable with the reason as their tooltip and hint. Null leaves
   /// replace enabled. Not a design-system prop.
   final String? replaceDisabledReason;
+
+  /// Why the regular-expression toggle is unavailable: the localized
+  /// "Available in a future version" until regular expressions ship (G10).
+  final String? regexDisabledReason;
 
   /// The localized texts. Not a design-system prop.
   final SearchReplaceBarLabels labels;
@@ -336,6 +342,8 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
         key != LogicalKeyboardKey.numpadEnter) {
       return KeyEventResult.ignored;
     }
+    // ⌥↵ is the app's: Show all (a2-4b).
+    if (HardwareKeyboard.instance.isAltPressed) return KeyEventResult.ignored;
     if (HardwareKeyboard.instance.isShiftPressed) {
       widget.onPrevious?.call();
     } else {
@@ -407,6 +415,7 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
               label: labels.regex,
               on: widget.regex,
               onToggle: _toggle(SearchOption.regex, widget.regex),
+              disabledReason: widget.regexDisabledReason,
             ),
           ],
         ),
@@ -625,12 +634,14 @@ class _OptionToggle extends StatelessWidget {
     required this.label,
     required this.on,
     required this.onToggle,
+    this.disabledReason,
   });
 
   final IconName icon;
   final String label;
   final bool on;
   final VoidCallback? onToggle;
+  final String? disabledReason;
 
   @override
   Widget build(BuildContext context) {
@@ -639,8 +650,11 @@ class _OptionToggle extends StatelessWidget {
     const radius = BorderRadius.all(
       Radius.circular(SearchReplaceBar.optionRadius),
     );
+    final disabled = disabledReason != null;
     return FermanInteractive(
       onPressed: onToggle,
+      disabled: disabled,
+      disabledReason: disabledReason,
       toggled: on,
       tooltip: label,
       semanticLabel: label,
@@ -648,7 +662,10 @@ class _OptionToggle extends StatelessWidget {
         final hovered = states.contains(WidgetState.hovered);
         final Color? fill;
         final Color glyph;
-        if (on) {
+        if (disabled) {
+          fill = null;
+          glyph = colors.iconDisabled;
+        } else if (on) {
           fill = colors.accentSubtle;
           glyph = colors.textAccent;
         } else if (hovered) {

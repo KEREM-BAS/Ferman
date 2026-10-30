@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-308 messages in `app_en.arb`; translated: Turkish 308, Arabic 308.
+356 messages in `app_en.arb`; translated: Turkish 356, Arabic 356.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -364,5 +364,53 @@ The table below is generated from the ARB files by `tools/l10n`
 | `viewerTryAgain` | Try again | Yeniden dene | إعادة المحاولة | Canvas: the button that renders a failed page again (a2-13). |
 | `viewerMarqueeZoom` | Release to zoom to {zoom} | {zoom} yakınlaştırmak için bırakın | أفلِت للتكبير إلى {zoom} | Canvas: the label beside the rectangle of Marquee zoom while it is dragged (a2-2). {zoom} is the zoom it gives, a percentage already formatted for the region, for example 180%. |
 | `viewerPageNumber` | Page number | Sayfa numarası | رقم الصفحة | Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G). |
+| `sidebarPage` | Page {page} | Sayfa {page} | الصفحة {page} | Sidebar: a page thumbnail's accessible name and a signature field's page (a2-3p, a2-14). {page} is the page number formatted for the region, or the page's label such as iv. |
+| `sidebarNoBookmarks` | No bookmarks | Yer işareti yok | لا توجد إشارات مرجعية | Sidebar › Outline: the title of the empty state when the document has no outline (a2-3m). |
+| `sidebarNoBookmarksBody` | This document has no outline. Add a bookmark to mark a place you want to come back to. | Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin. | لا يحتوي هذا المستند على إشارات مرجعية. أضف إشارة لتعليم موضع تريد العودة إليه. | Sidebar › Outline: the line under the empty state's title (a2-3m). |
+| `sidebarNoAttachments` | No attachments | Ek yok | لا توجد مرفقات | Sidebar › Attachments: the title of the empty state (a2-3m). |
+| `sidebarNoAttachmentsBody` | Files embedded in this PDF appear here. | Bu PDF’ye gömülü dosyalar burada görünür. | تظهر هنا الملفات المضمّنة في ملف PDF هذا. | Sidebar › Attachments: the line under the empty state's title (a2-3m). |
+| `sidebarNoLayers` | No layers | Katman yok | لا توجد طبقات | Sidebar › Layers: the title of the empty state (a2-3m). |
+| `sidebarNoLayersBody` | This document has no layers to show or hide. | Bu belgede gösterilip gizlenebilecek katman yok. | لا يحتوي هذا المستند على طبقات يمكن إظهارها أو إخفاؤها. | Sidebar › Layers: the line under the empty state's title (a2-3m). |
+| `sidebarNoSignatures` | No signatures | İmza yok | لا توجد توقيعات | Sidebar › Signatures: the title of the empty state (a2-3m). |
+| `sidebarNoSignaturesBody` | This document isn’t signed and has no signature fields. | Bu belge imzalı değil ve imza alanı içermiyor. | هذا المستند غير موقّع ولا يحتوي على حقول توقيع. | Sidebar › Signatures: the line under the empty state's title (a2-3m). |
+| `sidebarAttachmentsNote` | Attachments open in their own app. Ferman doesn’t run embedded files. | Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz. | تُفتح المرفقات في تطبيقاتها الخاصة. لا يشغّل Ferman الملفات المضمّنة. | Sidebar › Attachments: the note under the list (a2-3b). |
+| `sidebarSaveAttachment` | Save attachment as… | Eki farklı kaydet… | حفظ المرفق باسم… | Sidebar › Attachments: the download button of an attachment, which saves it where the user picks (a2-3b). |
+| `sidebarLayersNote` | Hidden layers still print unless you turn off “Print hidden layers” in Print. | Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır. | تُطبع الطبقات المخفية ما لم توقف «طباعة الطبقات المخفية» في نافذة الطباعة. | Sidebar › Layers: the note under the list (a2-3c). |
+| `sidebarHideLayer` | Hide layer | Katmanı gizle | إخفاء الطبقة | Sidebar › Layers: the eye button of a shown layer (a2-3c). |
+| `sidebarShowLayer` | Show layer | Katmanı göster | إظهار الطبقة | Sidebar › Layers: the eye button of a hidden layer (a2-3c). |
+| `sidebarLayerLocked` | Locked | Kilitli | مقفلة | Sidebar › Layers: the accessible name of the lock beside a layer whose visibility the document locks (a2-3c). |
+| `sidebarSignatureCheckingLater` | Signature checking is available in a future version. | İmza denetimi gelecek bir sürümde sunulacak. | التحقق من التوقيعات متاح في إصدار قادم. | Sidebar › Signatures: the line under a signer's name until signatures are checked (a2-14, design gap G31). |
+| `sidebarEmptySignatureField` | Empty signature field | Boş imza alanı | حقل توقيع فارغ | Sidebar › Signatures: the line under an unsigned signature field's name (a2-14). |
+| `findRegion` | Find and replace | Bul ve değiştir | بحث واستبدال | The find bar's accessible name (a2-4a, SearchReplaceBar). |
+| `findField` | Find | Bul | بحث | The find field's placeholder and name (a2-4a). |
+| `findReplaceWith` | Replace with | Şununla değiştir | استبدال بـ | The replace field's placeholder; replace comes in P2 (B045). |
+| `findMatchCase` | Match case | Büyük/küçük harf duyarlı | مطابقة حالة الأحرف | Find option and toggle (a2-4a). |
+| `findWholeWords` | Whole words | Tam sözcükler | كلمات كاملة | Find option and toggle (a2-4a). |
+| `findRegex` | Regular expression | Düzenli ifade | تعبير نمطي | Find option and toggle (a2-4a); disabled for a future version. |
+| `findShowReplace` | Show replace | Değiştirmeyi göster | إظهار الاستبدال | The find bar's disclosure while the replace row is hidden. |
+| `findHideReplace` | Hide replace | Değiştirmeyi gizle | إخفاء الاستبدال | The find bar's disclosure while the replace row shows. |
+| `findPrevious` | Previous match | Önceki eşleşme | التطابق السابق | The find bar's previous button (⇧↵). |
+| `findNext` | Next match | Sonraki eşleşme | التطابق التالي | The find bar's next button (↵). |
+| `findReplaceAll` | Replace all | Tümünü değiştir | استبدال الكل | The find bar's Replace all button; P2 (B045). |
+| `findNoResults` | No results | Sonuç yok | لا نتائج | The find bar's count when nothing matches (a2-4d), in the danger colour. |
+| `findOptions` | Search options | Arama seçenekleri | خيارات البحث | The group of match options under the find bar (a2-4a). |
+| `findMatch` | Match | Eşleştirme | المطابقة | The options group's first heading (a2-4a, shown in capitals). |
+| `findIgnoreAccents` | Ignore accents and dotted/dotless i | Aksanları ve noktalı/noktasız i’yi yok say | تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة | Find option, on by default (a2-4a, G61). |
+| `findIgnoreAccentsBody` | “i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default. | “i”; İ, ı ve î’yi bulur; “c”, ç’yi bulur; “kira”, KİRA’yı bulur. Varsayılan olarak açık. | «i» تجد İ وı وî؛ و«c» تجد ç؛ و«kira» تجد KİRA. مفعّل افتراضيًا. | The description under Ignore accents (a2-4a). |
+| `findLookIn` | Look in | Şurada ara | البحث في | The options group's second heading (a2-4a, shown in capitals). |
+| `findPageText` | Page text | Sayfa metni | نص الصفحة | Look in: the pages' text (a2-4a). |
+| `findComments` | Comments | Yorumlar | التعليقات | Look in: comments already in the file (a2-4a). |
+| `findFormFields` | Form fields | Form alanları | حقول النماذج | Look in: form field values (a2-4a). |
+| `findBookmarks` | Bookmarks | Yer imleri | الإشارات المرجعية | Look in: bookmark titles (a2-4a). |
+| `findSearchingBody` | Matches appear as they’re found. | Eşleşmeler bulundukça görünür. | تظهر النتائج فور العثور عليها. | Under a long search's progress (a2-4c). |
+| `findCancel` | Cancel | İptal | إلغاء | Stops a long search (a2-4c), also Esc. |
+| `findNoneAction` | Also search comments and fields | Yorumlarda ve alanlarda da ara | البحث في التعليقات والحقول أيضًا | No results: the action that widens the search (a2-4d). |
+| `findCount` | {current} of {total} | {current} / {total} | {current} من {total} | The find bar's count, a polite live region (a2-4a); numbers in the region's format. |
+| `findSearching` | Searching · page {page} of {pages} | Aranıyor · sayfa {page} / {pages} | جارٍ البحث · الصفحة {page} من {pages} | A long search's progress (a2-4c); numbers in the region's format. |
+| `findNoneTitle` | No results for “{query}” | “{query}” için sonuç yok | لا نتائج لـ«{query}» | No results: the title, with the query as typed (a2-4d). |
+| `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
+| `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
+| `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
+| `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

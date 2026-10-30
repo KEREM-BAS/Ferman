@@ -106,6 +106,13 @@ enum Feature {
   /// Attaching files: the Attachments tab's Attach a file.
   attachingFiles('B067'),
 
+  /// Saving an attachment: the Attachments tab's Save attachment as….
+  savingAttachments('B110'),
+
+  /// Showing and hiding layers in a repaired document, or one opened with
+  /// its password: the Layers tab's eye buttons there.
+  layerVisibility('B111'),
+
   /// The right panel's sections: its More button.
   rightPanelSections('B068'),
 
@@ -138,6 +145,13 @@ enum Feature {
 
   /// Find and replace (Edit › Find & replace).
   findAndReplace('B045'),
+
+  /// Regular expressions in search: the find bar's toggle and option.
+  searchRegex('B113'),
+
+  /// Searching comments, form fields and bookmarks: the find bar's Look in
+  /// options and a2-4d's action.
+  searchScopes('B114'),
 
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).

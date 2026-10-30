@@ -130,7 +130,8 @@ List<String> _generatedOverrides() {
   final overrides = <String>[];
   for (final match in RegExp(
     r'@override\s+String (?:get (\w+) =>\s*isolate\(super\.(\w+)\);'
-    r'|(\w+)\(([^)]*)\) =>\s*isolate\(super\.(\w+)\(([^)]*)\)\);)',
+    // A long call is formatted over lines, with a trailing comma.
+    r'|(\w+)\(([^)]*)\) =>\s*isolate\(\s*super\.(\w+)\(([^)]*)\),?\s*\);)',
   ).allMatches(body)) {
     if (match.group(1) case final name?) {
       expect(match.group(2), name, reason: 'get $name wraps super.$name');

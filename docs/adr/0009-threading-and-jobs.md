@@ -76,7 +76,11 @@ later need is shown; the network gateway in M5 is decided with its own dependenc
   thread loads that document through the same reader, as for a revision. The original bytes stay an
   exact prefix. Only the pages that use the group get new render keys. The appendix is never written
   to disk, never becomes a revision on the undo stack and never reaches a save; it is also the first
-  piece of the M3 incremental writer.
+  piece of the M3 incremental writer. Built in M2 (W2, commit 10b), with one shortcut: every page
+  gets a new render key until M3's interpreter finds the pages that use the group. The appendix
+  ends in a cross-reference stream that names every object, not a section with `/Prev`, so it
+  reads the same after every kind of table. A repaired document and one opened with its password
+  keep their layers for now (BACKLOG B111).
 
 ### Prioritised, cancellable tile queue
 

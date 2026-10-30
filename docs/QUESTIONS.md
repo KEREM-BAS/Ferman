@@ -829,6 +829,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Proposal:** (a) for M2, with (b) assessed with the writer in M3, when lopdf's rewrite is tested
   against PDFium anyway.
 - **Meanwhile:** (a): PDFium gets the password; ferman-core and ferman-render wipe theirs.
+- **Also decides:** showing and hiding layers in a document opened with its password (BACKLOG
+  B111). PDFium loads the document again for each change and needs the password then; the engine
+  does not keep it, so those eye buttons stay disabled. Option (b) needs no password; with (a), the
+  engine could keep its own wiped copy until the document closes, as PDFium keeps its unwiped one.
 - **Needed by:** the M2 review.
 - **Status:** Open
 - **Related:** [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules),

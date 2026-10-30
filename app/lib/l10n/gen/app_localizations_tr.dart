@@ -1003,4 +1003,199 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'Sayfa numarası';
+
+  @override
+  String sidebarPage(String page) {
+    return 'Sayfa $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'Yer işareti yok';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'Bu belgede yer işareti yok. Geri dönmek istediğiniz bir yeri işaretlemek için yer işareti ekleyin.';
+
+  @override
+  String get sidebarNoAttachments => 'Ek yok';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'Bu PDF’ye gömülü dosyalar burada görünür.';
+
+  @override
+  String get sidebarNoLayers => 'Katman yok';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'Bu belgede gösterilip gizlenebilecek katman yok.';
+
+  @override
+  String get sidebarNoSignatures => 'İmza yok';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'Bu belge imzalı değil ve imza alanı içermiyor.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'Ekler kendi uygulamalarında açılır. Ferman gömülü dosyaları çalıştırmaz.';
+
+  @override
+  String get sidebarSaveAttachment => 'Eki farklı kaydet…';
+
+  @override
+  String get sidebarLayersNote =>
+      'Gizli katmanlar, Yazdır’da “Gizli katmanları yazdır” kapatılmadıkça yine de yazdırılır.';
+
+  @override
+  String get sidebarHideLayer => 'Katmanı gizle';
+
+  @override
+  String get sidebarShowLayer => 'Katmanı göster';
+
+  @override
+  String get sidebarLayerLocked => 'Kilitli';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'İmza denetimi gelecek bir sürümde sunulacak.';
+
+  @override
+  String get sidebarEmptySignatureField => 'Boş imza alanı';
+
+  @override
+  String get findRegion => 'Bul ve değiştir';
+
+  @override
+  String get findField => 'Bul';
+
+  @override
+  String get findReplaceWith => 'Şununla değiştir';
+
+  @override
+  String get findMatchCase => 'Büyük/küçük harf duyarlı';
+
+  @override
+  String get findWholeWords => 'Tam sözcükler';
+
+  @override
+  String get findRegex => 'Düzenli ifade';
+
+  @override
+  String get findShowReplace => 'Değiştirmeyi göster';
+
+  @override
+  String get findHideReplace => 'Değiştirmeyi gizle';
+
+  @override
+  String get findPrevious => 'Önceki eşleşme';
+
+  @override
+  String get findNext => 'Sonraki eşleşme';
+
+  @override
+  String get findReplaceAll => 'Tümünü değiştir';
+
+  @override
+  String get findNoResults => 'Sonuç yok';
+
+  @override
+  String get findOptions => 'Arama seçenekleri';
+
+  @override
+  String get findMatch => 'Eşleştirme';
+
+  @override
+  String get findIgnoreAccents => 'Aksanları ve noktalı/noktasız i’yi yok say';
+
+  @override
+  String get findIgnoreAccentsBody =>
+      '“i”; İ, ı ve î’yi bulur; “c”, ç’yi bulur; “kira”, KİRA’yı bulur. Varsayılan olarak açık.';
+
+  @override
+  String get findLookIn => 'Şurada ara';
+
+  @override
+  String get findPageText => 'Sayfa metni';
+
+  @override
+  String get findComments => 'Yorumlar';
+
+  @override
+  String get findFormFields => 'Form alanları';
+
+  @override
+  String get findBookmarks => 'Yer imleri';
+
+  @override
+  String get findSearchingBody => 'Eşleşmeler bulundukça görünür.';
+
+  @override
+  String get findCancel => 'İptal';
+
+  @override
+  String get findNoneAction => 'Yorumlarda ve alanlarda da ara';
+
+  @override
+  String findCount(String current, String total) {
+    return '$current / $total';
+  }
+
+  @override
+  String findSearching(String page, String pages) {
+    return 'Aranıyor · sayfa $page / $pages';
+  }
+
+  @override
+  String findNoneTitle(String query) {
+    return '“$query” için sonuç yok';
+  }
+
+  @override
+  String findNoneBody(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfanın tamamında',
+      one: 'tek sayfada',
+    );
+    return 'Ferman $_temp0 aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.';
+  }
+
+  @override
+  String findNoneBodyExact(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfanın tamamında',
+      one: 'tek sayfada',
+    );
+    return 'Ferman $_temp0 aradı. Yorumlar ve form alanları aranmadı.';
+  }
+
+  @override
+  String get sidebarSearchField => 'Belgede ara';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText sayfada',
+      one: '1 sayfada',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText eşleşme',
+      one: '1 eşleşme',
+    );
+    return '$_temp0 $_temp1';
+  }
 }

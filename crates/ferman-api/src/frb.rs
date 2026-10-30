@@ -155,6 +155,82 @@ pub struct OpenedDocument {
     pub right_to_left: bool,
     /// Its pages.
     pub pages: Vec<PageInfo>,
+    /// The outline in reading order, each item followed by its children.
+    pub outline: Vec<OutlineEntry>,
+    /// Embedded files, never opened automatically.
+    pub attachments: Vec<Attachment>,
+    /// Layers, in the order the document gives them.
+    pub layers: Vec<Layer>,
+    /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
+    /// needed a password (Q22).
+    pub layers_switchable: bool,
+    /// Signature fields.
+    pub signatures: Vec<Signature>,
+}
+
+/// One outline item (bookmark) of an [`OpenedDocument`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct OutlineEntry {
+    /// Its title.
+    pub title: String,
+    /// The page it goes to, from 0, when it goes to a page of this document.
+    pub page: Option<u32>,
+    /// Its nesting, from 0.
+    pub depth: u32,
+    /// Whether the document shows it open.
+    pub open: bool,
+}
+
+/// A date as the file writes it, without converting its time zone.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct PdfDate {
+    /// The year.
+    pub year: u16,
+    /// The month, 1 to 12.
+    pub month: u8,
+    /// The day, 1 to 31.
+    pub day: u8,
+    /// The hour, 0 to 23.
+    pub hour: u8,
+    /// The minute, 0 to 59.
+    pub minute: u8,
+}
+
+/// An embedded file of an [`OpenedDocument`] (a2-3b).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Attachment {
+    /// Its file name.
+    pub name: String,
+    /// Its size in bytes, when the file gives it.
+    pub size: Option<u64>,
+    /// When it was last changed, or else created, when the file gives it.
+    pub modified: Option<PdfDate>,
+}
+
+/// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Layer {
+    /// Its name.
+    pub name: String,
+    /// Whether the document shows it.
+    pub visible: bool,
+    /// Whether the document locks its visibility.
+    pub locked: bool,
+}
+
+/// A signature field of an [`OpenedDocument`] (a2-14).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Signature {
+    /// The field's full name.
+    pub field: String,
+    /// Whether it holds a signature.
+    pub signed: bool,
+    /// The signer's name as the signature writes it.
+    pub signer: Option<String>,
+    /// When it was signed, as the signature writes it.
+    pub signed_at: Option<PdfDate>,
+    /// The page of its widget, from 0.
+    pub page: Option<u32>,
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -266,6 +342,75 @@ pub struct ViewEvent {
     pub fail_reason: Option<FailReason>,
 }
 
+/// How a search matches (a2-4a).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct SearchOptions {
+    /// Match case.
+    pub match_case: bool,
+    /// Whole words.
+    pub whole_words: bool,
+    /// Ignore accents and dotted/dotless i (on by default in the app, G61).
+    pub ignore_accents: bool,
+}
+
+/// A rectangle on a page in displayed points, y down.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PageRect {
+    /// The left edge.
+    pub left: f32,
+    /// The top edge.
+    pub top: f32,
+    /// The right edge.
+    pub right: f32,
+    /// The bottom edge.
+    pub bottom: f32,
+}
+
+/// One match of a search.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchMatch {
+    /// Its page, from 0.
+    pub page: u32,
+    /// One rectangle per line it covers.
+    pub rects: Vec<PageRect>,
+    /// The line it starts on.
+    pub snippet: String,
+    /// Where it starts in the snippet, in characters.
+    pub snippet_start: u32,
+    /// Where it ends in the snippet, in characters.
+    pub snippet_end: u32,
+}
+
+/// What a search event says.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SearchEventKind {
+    /// The search runs: `search` is its handle. The first event.
+    Started,
+    /// One page's `matches`.
+    Matches,
+    /// `searched` of `pages` pages read.
+    Progress,
+    /// It ended; `cancelled` says how. The last event.
+    Done,
+}
+
+/// An event of a search's stream.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SearchEvent {
+    /// What happened.
+    pub kind: SearchEventKind,
+    /// The search's handle (`Started`).
+    pub search: u64,
+    /// One page's matches (`Matches`).
+    pub matches: Vec<SearchMatch>,
+    /// Pages read (`Progress`).
+    pub searched: u32,
+    /// Pages in the document (`Progress`).
+    pub pages: u32,
+    /// Whether it was cancelled (`Done`).
+    pub cancelled: bool,
+}
+
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
 ///
@@ -338,6 +483,21 @@ pub async fn close(document: u64) -> Result<(), ApiError> {
         .map_err(api_error_dto)
 }
 
+/// Shows the layers of `document` whose `visible` is true and hides the others, in the order of
+/// its `layers`, in every view. Returns every page's new render key: tiles and thumbnails with an
+/// older one show the layers as they were.
+///
+/// # Errors
+///
+/// `InvalidInput` without one value per layer, `Unsupported` when the document's layers cannot be
+/// switched (`layers_switchable`), `Internal` when the reload fails.
+pub async fn show_layers(document: u64, visible: Vec<bool>) -> Result<u64, ApiError> {
+    engine()?
+        .show_layers(facade::DocumentId::from_raw(document), visible)
+        .await
+        .map_err(api_error_dto)
+}
+
 /// Opens a view of `document`: its first event is `Opened` with the view's handle, then its
 /// tiles and thumbnails as [`request_view`] asks for them.
 ///
@@ -397,6 +557,90 @@ pub async fn close_view(view: u64) -> Result<(), ApiError> {
     engine()?
         .close_view(facade::ViewId::from_raw(view))
         .map_err(api_error_dto)
+}
+
+/// Searches `document` for `query`; the stream starts with `Started` and its handle, brings each
+/// page's matches and the progress, and ends after `Done`. Cancelling the stream stops the
+/// search at its next page with matches or progress.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn search(
+    document: u64,
+    query: String,
+    options: SearchOptions,
+    sink: StreamSink<SearchEvent>,
+) -> Result<(), ApiError> {
+    let options = facade::SearchOptions {
+        match_case: options.match_case,
+        whole_words: options.whole_words,
+        ignore_accents: options.ignore_accents,
+        ..facade::SearchOptions::default()
+    };
+    engine()?
+        .search(
+            facade::DocumentId::from_raw(document),
+            query,
+            options,
+            Box::new(BridgeSearch(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Hands a search's events to its Dart stream.
+struct BridgeSearch(StreamSink<SearchEvent>);
+
+impl facade::SearchSink for BridgeSearch {
+    fn deliver(&mut self, event: facade::SearchEvent) -> bool {
+        let empty = SearchEvent {
+            kind: SearchEventKind::Done,
+            search: 0,
+            matches: Vec::new(),
+            searched: 0,
+            pages: 0,
+            cancelled: false,
+        };
+        let event = match event {
+            facade::SearchEvent::Started(id) => SearchEvent {
+                kind: SearchEventKind::Started,
+                search: id.get(),
+                ..empty
+            },
+            facade::SearchEvent::Matches(matches) => SearchEvent {
+                kind: SearchEventKind::Matches,
+                matches: matches
+                    .into_iter()
+                    .map(|found| SearchMatch {
+                        page: found.page,
+                        rects: found
+                            .rects
+                            .into_iter()
+                            .map(|[left, top, right, bottom]| PageRect {
+                                left,
+                                top,
+                                right,
+                                bottom,
+                            })
+                            .collect(),
+                        snippet: found.snippet,
+                        snippet_start: found.snippet_range.start,
+                        snippet_end: found.snippet_range.end,
+                    })
+                    .collect(),
+                ..empty
+            },
+            facade::SearchEvent::Progress { searched, pages } => SearchEvent {
+                kind: SearchEventKind::Progress,
+                searched,
+                pages,
+                ..empty
+            },
+            facade::SearchEvent::Done { cancelled } => SearchEvent { cancelled, ..empty },
+        };
+        self.0.add(event).is_ok()
+    }
 }
 
 /// The process's engine, started on first use under the panic guard.
@@ -527,6 +771,70 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
                 label: page.label,
             })
             .collect(),
+        outline: outline_dto(document.outline),
+        attachments: document
+            .attachments
+            .into_iter()
+            .map(|file| Attachment {
+                name: file.name,
+                size: file.size,
+                modified: file.modified.or(file.created).map(pdf_date_dto),
+            })
+            .collect(),
+        layers: document
+            .layers
+            .into_iter()
+            .map(|layer| Layer {
+                name: layer.name,
+                visible: layer.visible,
+                locked: layer.locked,
+            })
+            .collect(),
+        layers_switchable: document.layers_switchable,
+        signatures: document
+            .signatures
+            .into_iter()
+            .map(|signature| Signature {
+                field: signature.field,
+                signed: signature.signed,
+                signer: signature.signer,
+                signed_at: signature.signed_at.map(pdf_date_dto),
+                page: signature.page,
+            })
+            .collect(),
+    }
+}
+
+/// The outline flattened in reading order, without recursion: its depth is the file's.
+fn outline_dto(items: Vec<facade::OutlineItem>) -> Vec<OutlineEntry> {
+    let mut entries = Vec::new();
+    let mut stack: Vec<(u32, _)> = items.into_iter().rev().map(|item| (0, item)).collect();
+    while let Some((depth, item)) = stack.pop() {
+        let facade::OutlineItem {
+            title,
+            page,
+            open,
+            children,
+        } = item;
+        let next = depth.saturating_add(1);
+        stack.extend(children.into_iter().rev().map(|child| (next, child)));
+        entries.push(OutlineEntry {
+            title,
+            page,
+            depth,
+            open,
+        });
+    }
+    entries
+}
+
+fn pdf_date_dto(date: facade::PdfDate) -> PdfDate {
+    PdfDate {
+        year: date.year,
+        month: date.month,
+        day: date.day,
+        hour: date.hour,
+        minute: date.minute,
     }
 }
 

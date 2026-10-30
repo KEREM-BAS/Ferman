@@ -996,4 +996,199 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get viewerPageNumber => 'Page number';
+
+  @override
+  String sidebarPage(String page) {
+    return 'Page $page';
+  }
+
+  @override
+  String get sidebarNoBookmarks => 'No bookmarks';
+
+  @override
+  String get sidebarNoBookmarksBody =>
+      'This document has no outline. Add a bookmark to mark a place you want to come back to.';
+
+  @override
+  String get sidebarNoAttachments => 'No attachments';
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      'Files embedded in this PDF appear here.';
+
+  @override
+  String get sidebarNoLayers => 'No layers';
+
+  @override
+  String get sidebarNoLayersBody =>
+      'This document has no layers to show or hide.';
+
+  @override
+  String get sidebarNoSignatures => 'No signatures';
+
+  @override
+  String get sidebarNoSignaturesBody =>
+      'This document isn’t signed and has no signature fields.';
+
+  @override
+  String get sidebarAttachmentsNote =>
+      'Attachments open in their own app. Ferman doesn’t run embedded files.';
+
+  @override
+  String get sidebarSaveAttachment => 'Save attachment as…';
+
+  @override
+  String get sidebarLayersNote =>
+      'Hidden layers still print unless you turn off “Print hidden layers” in Print.';
+
+  @override
+  String get sidebarHideLayer => 'Hide layer';
+
+  @override
+  String get sidebarShowLayer => 'Show layer';
+
+  @override
+  String get sidebarLayerLocked => 'Locked';
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      'Signature checking is available in a future version.';
+
+  @override
+  String get sidebarEmptySignatureField => 'Empty signature field';
+
+  @override
+  String get findRegion => 'Find and replace';
+
+  @override
+  String get findField => 'Find';
+
+  @override
+  String get findReplaceWith => 'Replace with';
+
+  @override
+  String get findMatchCase => 'Match case';
+
+  @override
+  String get findWholeWords => 'Whole words';
+
+  @override
+  String get findRegex => 'Regular expression';
+
+  @override
+  String get findShowReplace => 'Show replace';
+
+  @override
+  String get findHideReplace => 'Hide replace';
+
+  @override
+  String get findPrevious => 'Previous match';
+
+  @override
+  String get findNext => 'Next match';
+
+  @override
+  String get findReplaceAll => 'Replace all';
+
+  @override
+  String get findNoResults => 'No results';
+
+  @override
+  String get findOptions => 'Search options';
+
+  @override
+  String get findMatch => 'Match';
+
+  @override
+  String get findIgnoreAccents => 'Ignore accents and dotted/dotless i';
+
+  @override
+  String get findIgnoreAccentsBody =>
+      '“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.';
+
+  @override
+  String get findLookIn => 'Look in';
+
+  @override
+  String get findPageText => 'Page text';
+
+  @override
+  String get findComments => 'Comments';
+
+  @override
+  String get findFormFields => 'Form fields';
+
+  @override
+  String get findBookmarks => 'Bookmarks';
+
+  @override
+  String get findSearchingBody => 'Matches appear as they’re found.';
+
+  @override
+  String get findCancel => 'Cancel';
+
+  @override
+  String get findNoneAction => 'Also search comments and fields';
+
+  @override
+  String findCount(String current, String total) {
+    return '$current of $total';
+  }
+
+  @override
+  String findSearching(String page, String pages) {
+    return 'Searching · page $page of $pages';
+  }
+
+  @override
+  String findNoneTitle(String query) {
+    return 'No results for “$query”';
+  }
+
+  @override
+  String findNoneBody(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'all $pages pages',
+      one: 'the only page',
+    );
+    return 'Ferman searched $_temp0, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.';
+  }
+
+  @override
+  String findNoneBodyExact(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'all $pages pages',
+      one: 'the only page',
+    );
+    return 'Ferman searched $_temp0. Comments and form fields weren’t searched.';
+  }
+
+  @override
+  String get sidebarSearchField => 'Search in document';
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) {
+    String _temp0 = intl.Intl.pluralLogic(
+      matches,
+      locale: localeName,
+      other: '$matchesText matches',
+      one: '1 match',
+    );
+    String _temp1 = intl.Intl.pluralLogic(
+      pages,
+      locale: localeName,
+      other: '$pagesText pages',
+      one: '1 page',
+    );
+    return '$_temp0 on $_temp1';
+  }
 }

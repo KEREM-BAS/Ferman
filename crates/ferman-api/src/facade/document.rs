@@ -4,18 +4,23 @@
 //! [`Engine::open`] reads the file and parses it with ferman-core on a thread of its own, then
 //! loads the same bytes into PDFium and compares the two parsers (ADR 0004). A view of an open
 //! document ([`Engine::open_view`]) receives its tiles and thumbnails as [`ViewEvent`]s; the view
-//! types are ferman-render's, plain data the UI can mirror.
+//! types are ferman-render's, plain data the UI can mirror. A document does not change in M2, so
+//! the open result also carries the lists the sidebar shows (a2-3o, a2-3b, a2-3c, a2-14).
+//! [`Engine::show_layers`] shows and hides layers through a render-only appendix (ADR 0009), and
+//! [`Engine::search`] searches its text; for both the engine keeps every open document's parsed
+//! model, with the text of the pages it has read, until the document closes.
 
+use std::collections::HashMap;
 use std::path::PathBuf;
-use std::sync::Arc;
+use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread;
 
-use ferman_core::structure::{Agreement, Direction};
+use ferman_core::structure::{Agreement, Attachment, Direction, Layer, OutlineItem, Signature};
 use ferman_core::{OpenOptions, Password, RepairReport, Source};
 use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
 
 use super::engine::Engine;
-use super::error::ApiError;
+use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
 
 /// The stack of the thread that parses a file: lopdf and ferman-core recurse into nested objects,
@@ -36,6 +41,27 @@ pub struct OpenedDocument {
     pub direction: Direction,
     /// Its pages, as PDFium lays them out.
     pub pages: Vec<PageInfo>,
+    /// The outline (bookmarks).
+    pub outline: Vec<OutlineItem>,
+    /// Embedded files and file attachment annotations, never opened automatically.
+    pub attachments: Vec<Attachment>,
+    /// Optional content groups (layers), in the order the document gives them.
+    pub layers: Vec<Layer>,
+    /// Whether [`Engine::show_layers`] can show and hide them: it has layers, was not repaired
+    /// (its rebuilt table cannot place objects inside object streams) and did not need a
+    /// password (PDFium needs it again to reload, and the engine does not keep it, Q22).
+    pub layers_switchable: bool,
+    /// Signature fields, shown neutrally until checking arrives (G31).
+    pub signatures: Vec<Signature>,
+}
+
+/// An open document's parsed model, kept for its layers and its search.
+#[derive(Debug)]
+pub(super) struct Model {
+    pub(super) document: ferman_core::Document,
+    pub(super) layers_switchable: bool,
+    /// The text of each page once read, for searches after the first.
+    pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
 }
 
 /// One page of an [`OpenedDocument`].
@@ -112,12 +138,69 @@ impl Engine {
                         .and_then(|page| page.label.clone()),
                 })
                 .collect();
-            Ok(OpenedDocument {
+            let layers_switchable = !structure.layers.is_empty()
+                && model.repair().is_none()
+                && !model
+                    .encryption()
+                    .is_some_and(|encryption| encryption.user_password_required);
+            let opened = OpenedDocument {
                 id: rendered.id,
                 read_only,
                 direction: structure.direction,
                 pages,
-            })
+                outline: structure.outline.clone(),
+                attachments: structure.attachments.clone(),
+                layers: structure.layers.clone(),
+                signatures: structure.signatures.clone(),
+                layers_switchable,
+            };
+            self.models()?.insert(
+                rendered.id,
+                Arc::new(Model {
+                    pages: Mutex::new(vec![None; model.page_count()]),
+                    document: model,
+                    layers_switchable,
+                }),
+            );
+            Ok(opened)
+        })
+        .await
+    }
+
+    /// Shows the layers of `document` whose `visible` is true and hides the others, in the order
+    /// of [`OpenedDocument::layers`], in every view (a2-3c). PDFium loads the document again with
+    /// a render-only appendix after its bytes (ADR 0009); nothing is written. Returns every page's
+    /// new render key: bitmaps with an older one show the layers as they were.
+    ///
+    /// # Errors
+    ///
+    /// Returns `InvalidInput` when `visible` does not have one value per layer, `Unsupported` for
+    /// a document whose layers cannot be switched ([`OpenedDocument::layers_switchable`]), or
+    /// `Internal` when the reload fails.
+    pub async fn show_layers(
+        &self,
+        document: DocumentId,
+        visible: Vec<bool>,
+    ) -> Result<u64, ApiError> {
+        guard_async(async move {
+            let appendix = {
+                let models = self.models()?;
+                let model = models
+                    .get(&document)
+                    .filter(|model| model.layers_switchable)
+                    .map(|model| &model.document)
+                    .ok_or_else(|| {
+                        ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                            .with_details("no layers to switch")
+                    })?;
+                if visible.len() != model.structure().layers.len() {
+                    return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                        .with_details("one visibility per layer"));
+                }
+                // A few kilobytes of catalog and table, so it is built here.
+                model.layer_appendix(&visible)?
+            };
+            Ok(self.render()?.reload(document, Arc::from(appendix)).await?)
         })
         .await
     }
@@ -128,7 +211,11 @@ impl Engine {
     ///
     /// Returns `NotFound` for a document that is not open.
     pub async fn close(&self, document: DocumentId) -> Result<(), ApiError> {
-        guard_async(async { Ok(self.render()?.close_document(document).await?) }).await
+        guard_async(async {
+            self.models()?.remove(&document);
+            Ok(self.render()?.close_document(document).await?)
+        })
+        .await
     }
 
     /// Opens a view of `document` (the canvas, the thumbnail strip) whose tiles and thumbnails go
@@ -167,6 +254,15 @@ impl Engine {
     /// Returns `Internal` if the render thread has stopped.
     pub fn close_view(&self, view: ViewId) -> Result<(), ApiError> {
         Ok(self.render()?.close_view(view)?)
+    }
+
+    /// The parsed models of the open documents.
+    pub(super) fn models(
+        &self,
+    ) -> Result<MutexGuard<'_, HashMap<DocumentId, Arc<Model>>>, ApiError> {
+        self.models
+            .lock()
+            .map_err(|_poisoned| ApiError::internal("the models' lock is poisoned"))
     }
 
     /// The render thread, or an internal error saying why it is not running.

@@ -1,7 +1,7 @@
 //! A document loaded into PDFium, its loaded pages, and rendering with Ferman's fixed flags.
 //!
-//! PDFium reads the document through a reader over the snapshot's shared bytes, so loading makes no
-//! copy (docs/ARCHITECTURE.md §4.4). A small LRU keeps the pages being scrolled loaded; it is
+//! PDFium reads the document through a reader over the snapshot's shared bytes and any render-only
+//! appendix after them, so loading makes no copy (docs/ARCHITECTURE.md §4.4, ADR 0009). A small LRU keeps the pages being scrolled loaded; it is
 //! dropped with the document, pages first, because PDFium must close a page before its document.
 //!
 //! # Render flags
@@ -35,7 +35,7 @@
 //! a pause callback) only through its raw, unsafe bindings, which this crate does not use
 //! (`#![forbid(unsafe_code)]`), so a slow tile always finishes once started.
 
-use std::io::Cursor;
+use std::io::{self, Read, Seek, SeekFrom};
 use std::num::NonZeroUsize;
 use std::sync::Arc;
 
@@ -60,9 +60,11 @@ pub(crate) struct LoadedDocument<'p> {
     pages: LruCache<u32, PdfPage<'p>>,
     document: PdfDocument<'p>,
     sizes: Vec<PageSize>,
-    /// Each page's render key. Every page of a freshly loaded document has key 0; a reload of a
-    /// revised document (M3) sets new keys for the pages whose pixels can change.
+    /// Each page's render key. Every page of a freshly loaded document has key 0; a reload sets
+    /// new keys for the pages whose pixels can change.
     render_keys: Vec<u64>,
+    /// The bytes it was opened from, without an appendix, for a reload.
+    bytes: Arc<[u8]>,
 }
 
 impl Drop for LoadedDocument<'_> {
@@ -72,18 +74,25 @@ impl Drop for LoadedDocument<'_> {
 }
 
 impl<'p> LoadedDocument<'p> {
-    /// Loads `bytes` into PDFium and reads every page size without loading the pages.
+    /// Loads `bytes`, followed by `appendix`, into PDFium and reads every page size without
+    /// loading the pages.
     pub(crate) fn load(
         pdfium: &'p Pdfium,
         bytes: Arc<[u8]>,
+        appendix: Arc<[u8]>,
         password: Option<&Password>,
         loaded_pages: NonZeroUsize,
     ) -> Result<Self, RenderError> {
         let password = password
             .map(Password::as_str)
             .filter(|password| !password.is_empty());
+        let reader = Appended {
+            head: Arc::clone(&bytes),
+            tail: appendix,
+            position: 0,
+        };
         let document = pdfium
-            .load_pdf_from_reader(Cursor::new(bytes), password)
+            .load_pdf_from_reader(reader, password)
             .map_err(|err| open_error(err, password.is_some()))?;
         let pages = document.pages();
         let count = pages.len();
@@ -108,7 +117,20 @@ impl<'p> LoadedDocument<'p> {
             document,
             sizes,
             render_keys,
+            bytes,
         })
+    }
+
+    /// The bytes it was opened from, without an appendix.
+    pub(crate) fn bytes(&self) -> &Arc<[u8]> {
+        &self.bytes
+    }
+
+    /// Gives every page the render key `key`.
+    // shortcut: every page gets a new key, also those that do not use the layer (ADR 0009 wants
+    // only those); find the users with the content interpreter of M3.
+    pub(crate) fn set_render_keys(&mut self, key: u64) {
+        self.render_keys.fill(key);
     }
 
     /// The size of every page, in points as displayed.
@@ -163,6 +185,64 @@ impl<'p> LoadedDocument<'p> {
             self.pages.put(index, page);
         }
         self.pages.get(&index).ok_or(FailReason::Internal)
+    }
+}
+
+/// A document's bytes with an appendix after them, read as one file without a copy.
+struct Appended {
+    head: Arc<[u8]>,
+    tail: Arc<[u8]>,
+    position: u64,
+}
+
+impl Appended {
+    fn length(&self) -> u64 {
+        u64::try_from(self.head.len().saturating_add(self.tail.len())).unwrap_or(u64::MAX)
+    }
+}
+
+impl Read for Appended {
+    /// Fills `buf` across the end of the bytes, because pdfium-render reads each of PDFium's
+    /// blocks with one call.
+    fn read(&mut self, buf: &mut [u8]) -> io::Result<usize> {
+        let head = u64::try_from(self.head.len()).unwrap_or(u64::MAX);
+        let mut count = 0;
+        while let Some(rest) = buf.get_mut(count..).filter(|rest| !rest.is_empty()) {
+            let (part, at) = if self.position < head {
+                (&self.head, self.position)
+            } else {
+                (&self.tail, self.position.saturating_sub(head))
+            };
+            let source = usize::try_from(at)
+                .ok()
+                .and_then(|at| part.get(at..))
+                .unwrap_or_default();
+            let n = source.len().min(rest.len());
+            if n == 0 {
+                break;
+            }
+            if let (Some(to), Some(from)) = (rest.get_mut(..n), source.get(..n)) {
+                to.copy_from_slice(from);
+            }
+            count = count.saturating_add(n);
+            self.position = self
+                .position
+                .saturating_add(u64::try_from(n).unwrap_or(u64::MAX));
+        }
+        Ok(count)
+    }
+}
+
+impl Seek for Appended {
+    fn seek(&mut self, to: SeekFrom) -> io::Result<u64> {
+        let position = match to {
+            SeekFrom::Start(at) => Some(at),
+            SeekFrom::End(delta) => self.length().checked_add_signed(delta),
+            SeekFrom::Current(delta) => self.position.checked_add_signed(delta),
+        }
+        .ok_or_else(|| io::Error::new(io::ErrorKind::InvalidInput, "a seek before the start"))?;
+        self.position = position;
+        Ok(position)
     }
 }
 
@@ -284,5 +364,25 @@ fn open_error(err: PdfiumError, with_password: bool) -> RenderError {
         other => RenderError::Damaged {
             reason: format!("PDFium cannot open it: {other:?}"),
         },
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn the_appended_reader_reads_across_the_join_and_seeks() {
+        let mut reader = Appended {
+            head: Arc::from(&b"abc"[..]),
+            tail: Arc::from(&b"de"[..]),
+            position: 0,
+        };
+        assert_eq!(reader.seek(SeekFrom::End(-4)).unwrap(), 1);
+        let mut buf = [0; 8];
+        assert_eq!(reader.read(&mut buf).unwrap(), 4);
+        assert_eq!(&buf[..4], b"bcde");
+        assert_eq!(reader.read(&mut buf).unwrap(), 0);
+        assert!(reader.seek(SeekFrom::Current(-6)).is_err());
     }
 }

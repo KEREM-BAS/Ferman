@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
-// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
+// These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -63,6 +63,22 @@ Future<OpenedDocument> open({required String path, String? password}) =>
 Future<void> close({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbClose(document: document);
 
+/// Shows the layers of `document` whose `visible` is true and hides the others, in the order of
+/// its `layers`, in every view. Returns every page's new render key: tiles and thumbnails with an
+/// older one show the layers as they were.
+///
+/// # Errors
+///
+/// `InvalidInput` without one value per layer, `Unsupported` when the document's layers cannot be
+/// switched (`layers_switchable`), `Internal` when the reload fails.
+Future<BigInt> showLayers({
+  required BigInt document,
+  required List<bool> visible,
+}) => FermanBridge.instance.api.crateFrbShowLayers(
+  document: document,
+  visible: visible,
+);
+
 /// Opens a view of `document`: its first event is `Opened` with the view's handle, then its
 /// tiles and thumbnails as [`request_view`] asks for them.
 ///
@@ -95,6 +111,23 @@ Future<void> requestView({
 /// `Internal` if the render thread has stopped.
 Future<void> closeView({required BigInt view}) =>
     FermanBridge.instance.api.crateFrbCloseView(view: view);
+
+/// Searches `document` for `query`; the stream starts with `Started` and its handle, brings each
+/// page's matches and the progress, and ends after `Done`. Cancelling the stream stops the
+/// search at its next page with matches or progress.
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Stream<SearchEvent> search({
+  required BigInt document,
+  required String query,
+  required SearchOptions options,
+}) => FermanBridge.instance.api.crateFrbSearch(
+  document: document,
+  query: query,
+  options: options,
+);
 
 /// The error every fallible call returns; Dart receives it as an exception.
 class ApiError implements FrbException {
@@ -142,6 +175,32 @@ class ApiVersion {
           runtimeType == other.runtimeType &&
           major == other.major &&
           minor == other.minor;
+}
+
+/// An embedded file of an [`OpenedDocument`] (a2-3b).
+class Attachment {
+  /// Its file name.
+  final String name;
+
+  /// Its size in bytes, when the file gives it.
+  final BigInt? size;
+
+  /// When it was last changed, or else created, when the file gives it.
+  final PdfDate? modified;
+
+  const Attachment({required this.name, this.size, this.modified});
+
+  @override
+  int get hashCode => name.hashCode ^ size.hashCode ^ modified.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Attachment &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          size == other.size &&
+          modified == other.modified;
 }
 
 /// The build profile of the engine library.
@@ -280,6 +339,36 @@ enum ItemKind {
   thumbnail,
 }
 
+/// A layer (optional content group) of an [`OpenedDocument`] (a2-3c).
+class Layer {
+  /// Its name.
+  final String name;
+
+  /// Whether the document shows it.
+  final bool visible;
+
+  /// Whether the document locks its visibility.
+  final bool locked;
+
+  const Layer({
+    required this.name,
+    required this.visible,
+    required this.locked,
+  });
+
+  @override
+  int get hashCode => name.hashCode ^ visible.hashCode ^ locked.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Layer &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          visible == other.visible &&
+          locked == other.locked;
+}
+
 /// A document the engine opened.
 class OpenedDocument {
   /// Its handle, until [`close`].
@@ -294,16 +383,45 @@ class OpenedDocument {
   /// Its pages.
   final List<PageInfo> pages;
 
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Embedded files, never opened automatically.
+  final List<Attachment> attachments;
+
+  /// Layers, in the order the document gives them.
+  final List<Layer> layers;
+
+  /// Whether [`show_layers`] can show and hide them: not for a repaired document, or one that
+  /// needed a password (Q22).
+  final bool layersSwitchable;
+
+  /// Signature fields.
+  final List<Signature> signatures;
+
   const OpenedDocument({
     required this.id,
     this.readOnly,
     required this.rightToLeft,
     required this.pages,
+    required this.outline,
+    required this.attachments,
+    required this.layers,
+    required this.layersSwitchable,
+    required this.signatures,
   });
 
   @override
   int get hashCode =>
-      id.hashCode ^ readOnly.hashCode ^ rightToLeft.hashCode ^ pages.hashCode;
+      id.hashCode ^
+      readOnly.hashCode ^
+      rightToLeft.hashCode ^
+      pages.hashCode ^
+      outline.hashCode ^
+      attachments.hashCode ^
+      layers.hashCode ^
+      layersSwitchable.hashCode ^
+      signatures.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -313,7 +431,48 @@ class OpenedDocument {
           id == other.id &&
           readOnly == other.readOnly &&
           rightToLeft == other.rightToLeft &&
-          pages == other.pages;
+          pages == other.pages &&
+          outline == other.outline &&
+          attachments == other.attachments &&
+          layers == other.layers &&
+          layersSwitchable == other.layersSwitchable &&
+          signatures == other.signatures;
+}
+
+/// One outline item (bookmark) of an [`OpenedDocument`].
+class OutlineEntry {
+  /// Its title.
+  final String title;
+
+  /// The page it goes to, from 0, when it goes to a page of this document.
+  final int? page;
+
+  /// Its nesting, from 0.
+  final int depth;
+
+  /// Whether the document shows it open.
+  final bool open;
+
+  const OutlineEntry({
+    required this.title,
+    this.page,
+    required this.depth,
+    required this.open,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^ page.hashCode ^ depth.hashCode ^ open.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OutlineEntry &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          page == other.page &&
+          depth == other.depth &&
+          open == other.open;
 }
 
 /// One page of an [`OpenedDocument`], in points as displayed.
@@ -340,6 +499,87 @@ class PageInfo {
           width == other.width &&
           height == other.height &&
           label == other.label;
+}
+
+/// A rectangle on a page in displayed points, y down.
+class PageRect {
+  /// The left edge.
+  final double left;
+
+  /// The top edge.
+  final double top;
+
+  /// The right edge.
+  final double right;
+
+  /// The bottom edge.
+  final double bottom;
+
+  const PageRect({
+    required this.left,
+    required this.top,
+    required this.right,
+    required this.bottom,
+  });
+
+  @override
+  int get hashCode =>
+      left.hashCode ^ top.hashCode ^ right.hashCode ^ bottom.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageRect &&
+          runtimeType == other.runtimeType &&
+          left == other.left &&
+          top == other.top &&
+          right == other.right &&
+          bottom == other.bottom;
+}
+
+/// A date as the file writes it, without converting its time zone.
+class PdfDate {
+  /// The year.
+  final int year;
+
+  /// The month, 1 to 12.
+  final int month;
+
+  /// The day, 1 to 31.
+  final int day;
+
+  /// The hour, 0 to 23.
+  final int hour;
+
+  /// The minute, 0 to 59.
+  final int minute;
+
+  const PdfDate({
+    required this.year,
+    required this.month,
+    required this.day,
+    required this.hour,
+    required this.minute,
+  });
+
+  @override
+  int get hashCode =>
+      year.hashCode ^
+      month.hashCode ^
+      day.hashCode ^
+      hour.hashCode ^
+      minute.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PdfDate &&
+          runtimeType == other.runtimeType &&
+          year == other.year &&
+          month == other.month &&
+          day == other.day &&
+          hour == other.hour &&
+          minute == other.minute;
 }
 
 /// Whether PDFium is loaded: the state of a [`PdfiumStatus`].
@@ -410,6 +650,193 @@ enum ReadOnlyReason {
 
   /// An XFA-only form (a11-7c).
   xfaOnly,
+}
+
+/// An event of a search's stream.
+class SearchEvent {
+  /// What happened.
+  final SearchEventKind kind;
+
+  /// The search's handle (`Started`).
+  final BigInt search;
+
+  /// One page's matches (`Matches`).
+  final List<SearchMatch> matches;
+
+  /// Pages read (`Progress`).
+  final int searched;
+
+  /// Pages in the document (`Progress`).
+  final int pages;
+
+  /// Whether it was cancelled (`Done`).
+  final bool cancelled;
+
+  const SearchEvent({
+    required this.kind,
+    required this.search,
+    required this.matches,
+    required this.searched,
+    required this.pages,
+    required this.cancelled,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      search.hashCode ^
+      matches.hashCode ^
+      searched.hashCode ^
+      pages.hashCode ^
+      cancelled.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchEvent &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          search == other.search &&
+          matches == other.matches &&
+          searched == other.searched &&
+          pages == other.pages &&
+          cancelled == other.cancelled;
+}
+
+/// What a search event says.
+enum SearchEventKind {
+  /// The search runs: `search` is its handle. The first event.
+  started,
+
+  /// One page's `matches`.
+  matches,
+
+  /// `searched` of `pages` pages read.
+  progress,
+
+  /// It ended; `cancelled` says how. The last event.
+  done,
+}
+
+/// One match of a search.
+class SearchMatch {
+  /// Its page, from 0.
+  final int page;
+
+  /// One rectangle per line it covers.
+  final List<PageRect> rects;
+
+  /// The line it starts on.
+  final String snippet;
+
+  /// Where it starts in the snippet, in characters.
+  final int snippetStart;
+
+  /// Where it ends in the snippet, in characters.
+  final int snippetEnd;
+
+  const SearchMatch({
+    required this.page,
+    required this.rects,
+    required this.snippet,
+    required this.snippetStart,
+    required this.snippetEnd,
+  });
+
+  @override
+  int get hashCode =>
+      page.hashCode ^
+      rects.hashCode ^
+      snippet.hashCode ^
+      snippetStart.hashCode ^
+      snippetEnd.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchMatch &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          rects == other.rects &&
+          snippet == other.snippet &&
+          snippetStart == other.snippetStart &&
+          snippetEnd == other.snippetEnd;
+}
+
+/// How a search matches (a2-4a).
+class SearchOptions {
+  /// Match case.
+  final bool matchCase;
+
+  /// Whole words.
+  final bool wholeWords;
+
+  /// Ignore accents and dotted/dotless i (on by default in the app, G61).
+  final bool ignoreAccents;
+
+  const SearchOptions({
+    required this.matchCase,
+    required this.wholeWords,
+    required this.ignoreAccents,
+  });
+
+  @override
+  int get hashCode =>
+      matchCase.hashCode ^ wholeWords.hashCode ^ ignoreAccents.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is SearchOptions &&
+          runtimeType == other.runtimeType &&
+          matchCase == other.matchCase &&
+          wholeWords == other.wholeWords &&
+          ignoreAccents == other.ignoreAccents;
+}
+
+/// A signature field of an [`OpenedDocument`] (a2-14).
+class Signature {
+  /// The field's full name.
+  final String field;
+
+  /// Whether it holds a signature.
+  final bool signed;
+
+  /// The signer's name as the signature writes it.
+  final String? signer;
+
+  /// When it was signed, as the signature writes it.
+  final PdfDate? signedAt;
+
+  /// The page of its widget, from 0.
+  final int? page;
+
+  const Signature({
+    required this.field,
+    required this.signed,
+    this.signer,
+    this.signedAt,
+    this.page,
+  });
+
+  @override
+  int get hashCode =>
+      field.hashCode ^
+      signed.hashCode ^
+      signer.hashCode ^
+      signedAt.hashCode ^
+      page.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Signature &&
+          runtimeType == other.runtimeType &&
+          field == other.field &&
+          signed == other.signed &&
+          signer == other.signer &&
+          signedAt == other.signedAt &&
+          page == other.page;
 }
 
 /// An event of a view's stream. The stream ends when the view closes, with its document or when

@@ -17,6 +17,7 @@ class FakeEngineService implements EngineService {
     ),
     this.documents = const {},
     this.failingPages = const {},
+    this.searchResults = const {},
   });
 
   /// The status [status] returns.
@@ -28,8 +29,21 @@ class FakeEngineService implements EngineService {
   /// Pages whose items fail as damaged.
   final Set<int> failingPages;
 
+  /// What [search] finds, by query: each list is one page's matches.
+  final Map<String, List<List<SearchMatch>>> searchResults;
+
+  /// The queries and options of every [search], oldest first.
+  final List<(String, SearchOptions)> searches = [];
+
   /// The wanted sets of every [requestView], oldest first.
   final List<List<WantedItem>> requests = [];
+
+  /// The visibilities of every [showLayers], oldest first.
+  final List<List<bool>> layerRequests = [];
+
+  /// Each document's render key, from [showLayers].
+  final Map<int, int> _renderKeys = {};
+  int _lastRenderKey = 0;
 
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
@@ -55,6 +69,33 @@ class FakeEngineService implements EngineService {
       if (owner == document) await updates.close();
     }
     _views.removeWhere((_, view) => view.$1 == document);
+  }
+
+  /// Records [visible] and gives every page of [document] a new render key.
+  @override
+  Future<int> showLayers(int document, List<bool> visible) async {
+    layerRequests.add(visible);
+    return _renderKeys[document] = ++_lastRenderKey;
+  }
+
+  /// Reports [searchResults] for [query] page by page, then the progress
+  /// over every page and [SearchDone].
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) async* {
+    searches.add((query, options));
+    final pages = documents.values
+        .firstWhere((open) => open.id == document)
+        .pages
+        .length;
+    for (final matches in searchResults[query] ?? const <List<SearchMatch>>[]) {
+      yield SearchMatches(matches);
+    }
+    yield SearchProgress(searched: pages, pages: pages);
+    yield const SearchDone();
   }
 
   /// A view that answers each wanted item with opaque white pixels of its
@@ -119,7 +160,7 @@ class FakeEngineService implements EngineService {
         RenderedItem(
           item: item,
           generation: generation,
-          renderKey: 0,
+          renderKey: _renderKeys[owner] ?? 0,
           x: item is TileItem ? item.column * 512 : 0,
           y: item is TileItem ? item.row * 512 : 0,
           width: width,

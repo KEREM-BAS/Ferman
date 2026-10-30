@@ -4,6 +4,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/document_view.dart';
+import 'package:ferman/features/viewer/find_bar.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -147,10 +148,29 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
               child: ColoredBox(
                 color: theme.colors.surfaceCanvas,
                 child: view != null
-                    ? DocumentView(
-                        key: ValueKey(view.document.id),
-                        uiDirection: uiDirection,
-                        tools: mode == FermanMode.view,
+                    // The find bar follows the UI's direction; the pages
+                    // never mirror (ADR 0014).
+                    ? Directionality(
+                        textDirection: uiDirection,
+                        child: Stack(
+                          children: [
+                            Positioned.fill(
+                              child: Directionality(
+                                textDirection: TextDirection.ltr,
+                                child: DocumentView(
+                                  key: ValueKey(view.document.id),
+                                  uiDirection: uiDirection,
+                                  tools: mode == FermanMode.view,
+                                ),
+                              ),
+                            ),
+                            PositionedDirectional(
+                              top: theme.space.space3,
+                              end: theme.space.space4,
+                              child: const FindBar(),
+                            ),
+                          ],
+                        ),
                       )
                     : Center(
                         child: Semantics(

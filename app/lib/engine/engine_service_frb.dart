@@ -1,5 +1,6 @@
 import 'dart:async';
 import 'dart:io';
+import 'dart:ui' show Rect;
 
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
@@ -88,6 +89,42 @@ class FrbEngineService implements EngineService {
           for (final page in document.pages)
             PageInfo(width: page.width, height: page.height, label: page.label),
         ],
+        outline: [
+          for (final item in document.outline)
+            OutlineEntry(
+              title: item.title,
+              page: item.page,
+              depth: item.depth,
+              open: item.open,
+            ),
+        ],
+        attachments: [
+          for (final file in document.attachments)
+            Attachment(
+              name: file.name,
+              size: file.size?.toInt(),
+              modified: _date(file.modified),
+            ),
+        ],
+        layers: [
+          for (final layer in document.layers)
+            Layer(
+              name: layer.name,
+              visible: layer.visible,
+              locked: layer.locked,
+            ),
+        ],
+        layersSwitchable: document.layersSwitchable,
+        signatures: [
+          for (final field in document.signatures)
+            Signature(
+              field: field.field,
+              signed: field.signed,
+              signer: field.signer,
+              signedAt: _date(field.signedAt),
+              page: field.page,
+            ),
+        ],
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -98,6 +135,19 @@ class FrbEngineService implements EngineService {
   Future<void> close(int document) async {
     try {
       await bridge.close(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<int> showLayers(int document, List<bool> visible) async {
+    try {
+      final key = await bridge.showLayers(
+        document: BigInt.from(document),
+        visible: visible,
+      );
+      return key.toSigned(64).toInt();
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -172,6 +222,56 @@ class FrbEngineService implements EngineService {
       throw _exception(error);
     }
   }
+
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) => bridge
+      .search(
+        document: BigInt.from(document),
+        query: query,
+        options: bridge.SearchOptions(
+          matchCase: options.matchCase,
+          wholeWords: options.wholeWords,
+          ignoreAccents: options.ignoreAccents,
+        ),
+      )
+      .handleError(
+        (Object error) => throw _exception(error as bridge.ApiError),
+        test: (error) => error is bridge.ApiError,
+      )
+      .map(
+        (event) => switch (event.kind) {
+          bridge.SearchEventKind.started => null,
+          bridge.SearchEventKind.matches => SearchMatches([
+            for (final found in event.matches)
+              SearchMatch(
+                page: found.page,
+                rects: [
+                  for (final rect in found.rects)
+                    Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom),
+                ],
+                snippet: found.snippet,
+                snippetStart: _units(found.snippet, found.snippetStart),
+                snippetEnd: _units(found.snippet, found.snippetEnd),
+              ),
+          ]),
+          bridge.SearchEventKind.progress => SearchProgress(
+            searched: event.searched,
+            pages: event.pages,
+          ),
+          bridge.SearchEventKind.done => SearchDone(cancelled: event.cancelled),
+        },
+      )
+      .where((update) => update != null)
+      .cast<SearchUpdate>();
+
+  /// The UTF-16 offset of the character at [chars] in [text].
+  static int _units(String text, int chars) => text.runes
+      .take(chars)
+      .fold(0, (units, rune) => units + (rune > 0xFFFF ? 2 : 1));
 
   @override
   Future<void> closeView(int view) async {
@@ -317,3 +417,8 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
 
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+/// The date as the file writes it, in no time zone, so it shows as written.
+DateTime? _date(bridge.PdfDate? date) => date == null
+    ? null
+    : DateTime(date.year, date.month, date.day, date.hour, date.minute);

@@ -1947,6 +1947,299 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Page number'**
   String get viewerPageNumber;
+
+  /// Sidebar: a page thumbnail's accessible name and a signature field's page (a2-3p, a2-14). {page} is the page number formatted for the region, or the page's label such as iv.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page}'**
+  String sidebarPage(String page);
+
+  /// Sidebar › Outline: the title of the empty state when the document has no outline (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No bookmarks'**
+  String get sidebarNoBookmarks;
+
+  /// Sidebar › Outline: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no outline. Add a bookmark to mark a place you want to come back to.'**
+  String get sidebarNoBookmarksBody;
+
+  /// Sidebar › Attachments: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No attachments'**
+  String get sidebarNoAttachments;
+
+  /// Sidebar › Attachments: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'Files embedded in this PDF appear here.'**
+  String get sidebarNoAttachmentsBody;
+
+  /// Sidebar › Layers: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No layers'**
+  String get sidebarNoLayers;
+
+  /// Sidebar › Layers: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document has no layers to show or hide.'**
+  String get sidebarNoLayersBody;
+
+  /// Sidebar › Signatures: the title of the empty state (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No signatures'**
+  String get sidebarNoSignatures;
+
+  /// Sidebar › Signatures: the line under the empty state's title (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'This document isn’t signed and has no signature fields.'**
+  String get sidebarNoSignaturesBody;
+
+  /// Sidebar › Attachments: the note under the list (a2-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Attachments open in their own app. Ferman doesn’t run embedded files.'**
+  String get sidebarAttachmentsNote;
+
+  /// Sidebar › Attachments: the download button of an attachment, which saves it where the user picks (a2-3b).
+  ///
+  /// In en, this message translates to:
+  /// **'Save attachment as…'**
+  String get sidebarSaveAttachment;
+
+  /// Sidebar › Layers: the note under the list (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Hidden layers still print unless you turn off “Print hidden layers” in Print.'**
+  String get sidebarLayersNote;
+
+  /// Sidebar › Layers: the eye button of a shown layer (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Hide layer'**
+  String get sidebarHideLayer;
+
+  /// Sidebar › Layers: the eye button of a hidden layer (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Show layer'**
+  String get sidebarShowLayer;
+
+  /// Sidebar › Layers: the accessible name of the lock beside a layer whose visibility the document locks (a2-3c).
+  ///
+  /// In en, this message translates to:
+  /// **'Locked'**
+  String get sidebarLayerLocked;
+
+  /// Sidebar › Signatures: the line under a signer's name until signatures are checked (a2-14, design gap G31).
+  ///
+  /// In en, this message translates to:
+  /// **'Signature checking is available in a future version.'**
+  String get sidebarSignatureCheckingLater;
+
+  /// Sidebar › Signatures: the line under an unsigned signature field's name (a2-14).
+  ///
+  /// In en, this message translates to:
+  /// **'Empty signature field'**
+  String get sidebarEmptySignatureField;
+
+  /// The find bar's accessible name (a2-4a, SearchReplaceBar).
+  ///
+  /// In en, this message translates to:
+  /// **'Find and replace'**
+  String get findRegion;
+
+  /// The find field's placeholder and name (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Find'**
+  String get findField;
+
+  /// The replace field's placeholder; replace comes in P2 (B045).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace with'**
+  String get findReplaceWith;
+
+  /// Find option and toggle (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Match case'**
+  String get findMatchCase;
+
+  /// Find option and toggle (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Whole words'**
+  String get findWholeWords;
+
+  /// Find option and toggle (a2-4a); disabled for a future version.
+  ///
+  /// In en, this message translates to:
+  /// **'Regular expression'**
+  String get findRegex;
+
+  /// The find bar's disclosure while the replace row is hidden.
+  ///
+  /// In en, this message translates to:
+  /// **'Show replace'**
+  String get findShowReplace;
+
+  /// The find bar's disclosure while the replace row shows.
+  ///
+  /// In en, this message translates to:
+  /// **'Hide replace'**
+  String get findHideReplace;
+
+  /// The find bar's previous button (⇧↵).
+  ///
+  /// In en, this message translates to:
+  /// **'Previous match'**
+  String get findPrevious;
+
+  /// The find bar's next button (↵).
+  ///
+  /// In en, this message translates to:
+  /// **'Next match'**
+  String get findNext;
+
+  /// The find bar's Replace all button; P2 (B045).
+  ///
+  /// In en, this message translates to:
+  /// **'Replace all'**
+  String get findReplaceAll;
+
+  /// The find bar's count when nothing matches (a2-4d), in the danger colour.
+  ///
+  /// In en, this message translates to:
+  /// **'No results'**
+  String get findNoResults;
+
+  /// The group of match options under the find bar (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Search options'**
+  String get findOptions;
+
+  /// The options group's first heading (a2-4a, shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Match'**
+  String get findMatch;
+
+  /// Find option, on by default (a2-4a, G61).
+  ///
+  /// In en, this message translates to:
+  /// **'Ignore accents and dotted/dotless i'**
+  String get findIgnoreAccents;
+
+  /// The description under Ignore accents (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'“i” finds İ, ı and î; “c” finds ç; “kira” finds KİRA. On by default.'**
+  String get findIgnoreAccentsBody;
+
+  /// The options group's second heading (a2-4a, shown in capitals).
+  ///
+  /// In en, this message translates to:
+  /// **'Look in'**
+  String get findLookIn;
+
+  /// Look in: the pages' text (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Page text'**
+  String get findPageText;
+
+  /// Look in: comments already in the file (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Comments'**
+  String get findComments;
+
+  /// Look in: form field values (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Form fields'**
+  String get findFormFields;
+
+  /// Look in: bookmark titles (a2-4a).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmarks'**
+  String get findBookmarks;
+
+  /// Under a long search's progress (a2-4c).
+  ///
+  /// In en, this message translates to:
+  /// **'Matches appear as they’re found.'**
+  String get findSearchingBody;
+
+  /// Stops a long search (a2-4c), also Esc.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get findCancel;
+
+  /// No results: the action that widens the search (a2-4d).
+  ///
+  /// In en, this message translates to:
+  /// **'Also search comments and fields'**
+  String get findNoneAction;
+
+  /// The find bar's count, a polite live region (a2-4a); numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'{current} of {total}'**
+  String findCount(String current, String total);
+
+  /// A long search's progress (a2-4c); numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Searching · page {page} of {pages}'**
+  String findSearching(String page, String pages);
+
+  /// No results: the title, with the query as typed (a2-4d).
+  ///
+  /// In en, this message translates to:
+  /// **'No results for “{query}”'**
+  String findNoneTitle(String query);
+
+  /// No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched.'**
+  String findNoneBody(int count, String pages);
+
+  /// No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched.'**
+  String findNoneBodyExact(int count, String pages);
+
+  /// Sidebar › Search results: the field's accessible name (a2-3e).
+  ///
+  /// In en, this message translates to:
+  /// **'Search in document'**
+  String get sidebarSearchField;
+
+  /// Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.
+  ///
+  /// In en, this message translates to:
+  /// **'{matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}}'**
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  );
 }
 
 class _AppLocalizationsDelegate

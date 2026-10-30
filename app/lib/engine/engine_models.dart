@@ -3,6 +3,8 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
+import 'dart:ui' show Rect;
+
 import 'package:flutter/foundation.dart';
 
 /// The API version the app was built against. The engine must report the
@@ -170,6 +172,91 @@ class PageInfo {
   final String? label;
 }
 
+/// One outline item (bookmark) of an [OpenedDocument].
+@immutable
+class OutlineEntry {
+  /// Creates an item.
+  const new({
+    required this.title,
+    this.page,
+    this.depth = 0,
+    this.open = false,
+  });
+
+  /// Its title.
+  final String title;
+
+  /// The page it goes to, from 0, when it goes to a page of this document.
+  final int? page;
+
+  /// Its nesting, from 0.
+  final int depth;
+
+  /// Whether the document shows it open.
+  final bool open;
+}
+
+/// An embedded file of an [OpenedDocument] (a2-3b), never opened
+/// automatically.
+@immutable
+class Attachment {
+  /// Creates an attachment.
+  const new({required this.name, this.size, this.modified});
+
+  /// Its file name.
+  final String name;
+
+  /// Its size in bytes, when the file gives it.
+  final int? size;
+
+  /// When it was last changed, or else created, as the file writes it.
+  final DateTime? modified;
+}
+
+/// A layer (optional content group) of an [OpenedDocument] (a2-3c).
+@immutable
+class Layer {
+  /// Creates a layer.
+  const new({required this.name, this.visible = true, this.locked = false});
+
+  /// Its name.
+  final String name;
+
+  /// Whether the document shows it.
+  final bool visible;
+
+  /// Whether the document locks its visibility.
+  final bool locked;
+}
+
+/// A signature field of an [OpenedDocument] (a2-14).
+@immutable
+class Signature {
+  /// Creates a signature field.
+  const new({
+    required this.field,
+    this.signed = false,
+    this.signer,
+    this.signedAt,
+    this.page,
+  });
+
+  /// The field's full name.
+  final String field;
+
+  /// Whether it holds a signature.
+  final bool signed;
+
+  /// The signer's name as the signature writes it.
+  final String? signer;
+
+  /// When it was signed, as the signature writes it.
+  final DateTime? signedAt;
+
+  /// The page of its widget, from 0.
+  final int? page;
+}
+
 /// A document the engine opened.
 @immutable
 class OpenedDocument {
@@ -179,6 +266,11 @@ class OpenedDocument {
     required this.pages,
     this.readOnly,
     this.rightToLeft = false,
+    this.outline = const [],
+    this.attachments = const [],
+    this.layers = const [],
+    this.layersSwitchable = false,
+    this.signatures = const [],
   });
 
   /// Its handle, until it is closed.
@@ -192,6 +284,22 @@ class OpenedDocument {
 
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
+
+  /// The outline in reading order, each item followed by its children.
+  final List<OutlineEntry> outline;
+
+  /// Its embedded files.
+  final List<Attachment> attachments;
+
+  /// Its layers, in the order the document gives them.
+  final List<Layer> layers;
+
+  /// Whether `EngineService.showLayers` can show and hide them: not for a
+  /// repaired document, or one that needed a password (Q22).
+  final bool layersSwitchable;
+
+  /// Its signature fields.
+  final List<Signature> signatures;
 }
 
 /// Something a view wants rendered: a [TileItem] or a [ThumbnailItem].
@@ -381,4 +489,100 @@ class EngineView {
 
   /// Its rendered and failed items.
   final Stream<ViewUpdate> updates;
+}
+
+/// How a search matches (a2-4a).
+@immutable
+class SearchOptions {
+  /// The defaults: Ignore accents and dotted/dotless i is on for every
+  /// document (G61).
+  const new({
+    this.matchCase = false,
+    this.wholeWords = false,
+    this.ignoreAccents = true,
+  });
+
+  /// Match case.
+  final bool matchCase;
+
+  /// Whole words.
+  final bool wholeWords;
+
+  /// Ignore accents and dotted/dotless i.
+  final bool ignoreAccents;
+
+  @override
+  bool operator ==(Object other) =>
+      other is SearchOptions &&
+      other.matchCase == matchCase &&
+      other.wholeWords == wholeWords &&
+      other.ignoreAccents == ignoreAccents;
+
+  @override
+  int get hashCode => Object.hash(matchCase, wholeWords, ignoreAccents);
+}
+
+/// One match of a search.
+@immutable
+class SearchMatch {
+  /// Creates a match.
+  const new({
+    required this.page,
+    required this.rects,
+    required this.snippet,
+    required this.snippetStart,
+    required this.snippetEnd,
+  });
+
+  /// Its page, from 0.
+  final int page;
+
+  /// One rectangle per line it covers, in the page's displayed points
+  /// (y down).
+  final List<Rect> rects;
+
+  /// The line it starts on.
+  final String snippet;
+
+  /// Where it starts in [snippet], in UTF-16 code units.
+  final int snippetStart;
+
+  /// Where it ends in [snippet], in UTF-16 code units.
+  final int snippetEnd;
+}
+
+/// What a running search reports.
+@immutable
+sealed class SearchUpdate {
+  const new();
+}
+
+/// The matches of one page.
+final class SearchMatches extends SearchUpdate {
+  /// Creates the update.
+  const new(this.matches);
+
+  /// The page's matches, in order.
+  final List<SearchMatch> matches;
+}
+
+/// How far the search has read (a2-4c).
+final class SearchProgress extends SearchUpdate {
+  /// Creates the update.
+  const new({required this.searched, required this.pages});
+
+  /// Pages read.
+  final int searched;
+
+  /// Pages in the document.
+  final int pages;
+}
+
+/// The search ended.
+final class SearchDone extends SearchUpdate {
+  /// Creates the update.
+  const new({this.cancelled = false});
+
+  /// Whether it was cancelled.
+  final bool cancelled;
 }

@@ -36,6 +36,7 @@ export 'package:ferman/design/components/editing/search_replace_bar.dart';
 export 'package:ferman/design/components/editing/text_caret.dart';
 export 'package:ferman/design/components/editing/text_edit_box.dart';
 export 'package:ferman/design/components/empty/drop_zone.dart';
+export 'package:ferman/design/components/empty/empty_state.dart';
 export 'package:ferman/design/components/feedback/banner.dart';
 export 'package:ferman/design/components/feedback/progress_bar.dart';
 export 'package:ferman/design/components/feedback/spinner.dart';

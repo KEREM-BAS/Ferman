@@ -802,6 +802,8 @@ dependencies = [
  "ferman-core",
  "ferman-fonts",
  "thiserror",
+ "unicode-bidi",
+ "unicode-normalization",
 ]
 
 [[package]]

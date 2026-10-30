@@ -13,6 +13,8 @@ repository.workspace = true
 ferman-core.workspace = true
 ferman-fonts.workspace = true
 thiserror.workspace = true
+unicode-bidi.workspace = true
+unicode-normalization.workspace = true
 
 [lints]
 workspace = true

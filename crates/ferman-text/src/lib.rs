@@ -19,10 +19,14 @@
 //!
 //! - `font`: `PdfFont` resolution and the `TextAdvance` implementation, positions from the PDF
 //!   widths. M2.
-//! - `runs`: `GlyphRun` and glyphs to Unicode in the order of §6.3. M2.
+//! - [`extract`] (since M2): [`page_text`], a page's text in reading order: fonts from the
+//!   interpreter's resources, glyphs to Unicode (ToUnicode, then the encoding's glyph names),
+//!   lines by baseline, right-to-left lines read back with the bidi algorithm, vertical columns.
+//!   `PdfFont`, `GlyphRun` and the `runs` module grow out of it with editing (M3).
 //! - `layout`: `PageText`, `TextBlock` and `Line`; words, lines, blocks, columns, alignment and
 //!   reading order, bidi for right-to-left scripts. Lines in M2, blocks and columns in M3.
-//! - `search`: `SearchIndex`, search text and match quads per page. M2.
+//! - [`search`] (since M2): [`find`] with [`SearchOptions`], folding Turkish case and accents as
+//!   a2-4a and G61 ask; the index and match quads per page follow with the search job.
 //! - `hit`: hit testing and caret stops by `BlockId`. M3.
 //! - `edit`: `Editability`, `EditOp` and `BlockEditor`; line breaking, reflow, re-encoding and
 //!   operator generation with the state invariant. M3.
@@ -30,6 +34,12 @@
 //!   (ADR 0006, §6.7 and §6.8). M3.
 //! - `journal`: the edit journal behind the review list. M3.
 #![forbid(unsafe_code)]
+
+pub mod extract;
+pub mod search;
+
+pub use extract::page_text;
+pub use search::{SearchOptions, find};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");

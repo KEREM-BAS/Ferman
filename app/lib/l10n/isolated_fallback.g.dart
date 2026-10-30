@@ -1044,6 +1044,164 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get viewerPageNumber => isolate(super.viewerPageNumber);
+
+  @override
+  String sidebarPage(String page) => isolate(super.sidebarPage(page));
+
+  @override
+  String get sidebarNoBookmarks => isolate(super.sidebarNoBookmarks);
+
+  @override
+  String get sidebarNoBookmarksBody => isolate(super.sidebarNoBookmarksBody);
+
+  @override
+  String get sidebarNoAttachments => isolate(super.sidebarNoAttachments);
+
+  @override
+  String get sidebarNoAttachmentsBody =>
+      isolate(super.sidebarNoAttachmentsBody);
+
+  @override
+  String get sidebarNoLayers => isolate(super.sidebarNoLayers);
+
+  @override
+  String get sidebarNoLayersBody => isolate(super.sidebarNoLayersBody);
+
+  @override
+  String get sidebarNoSignatures => isolate(super.sidebarNoSignatures);
+
+  @override
+  String get sidebarNoSignaturesBody => isolate(super.sidebarNoSignaturesBody);
+
+  @override
+  String get sidebarAttachmentsNote => isolate(super.sidebarAttachmentsNote);
+
+  @override
+  String get sidebarSaveAttachment => isolate(super.sidebarSaveAttachment);
+
+  @override
+  String get sidebarLayersNote => isolate(super.sidebarLayersNote);
+
+  @override
+  String get sidebarHideLayer => isolate(super.sidebarHideLayer);
+
+  @override
+  String get sidebarShowLayer => isolate(super.sidebarShowLayer);
+
+  @override
+  String get sidebarLayerLocked => isolate(super.sidebarLayerLocked);
+
+  @override
+  String get sidebarSignatureCheckingLater =>
+      isolate(super.sidebarSignatureCheckingLater);
+
+  @override
+  String get sidebarEmptySignatureField =>
+      isolate(super.sidebarEmptySignatureField);
+
+  @override
+  String get findRegion => isolate(super.findRegion);
+
+  @override
+  String get findField => isolate(super.findField);
+
+  @override
+  String get findReplaceWith => isolate(super.findReplaceWith);
+
+  @override
+  String get findMatchCase => isolate(super.findMatchCase);
+
+  @override
+  String get findWholeWords => isolate(super.findWholeWords);
+
+  @override
+  String get findRegex => isolate(super.findRegex);
+
+  @override
+  String get findShowReplace => isolate(super.findShowReplace);
+
+  @override
+  String get findHideReplace => isolate(super.findHideReplace);
+
+  @override
+  String get findPrevious => isolate(super.findPrevious);
+
+  @override
+  String get findNext => isolate(super.findNext);
+
+  @override
+  String get findReplaceAll => isolate(super.findReplaceAll);
+
+  @override
+  String get findNoResults => isolate(super.findNoResults);
+
+  @override
+  String get findOptions => isolate(super.findOptions);
+
+  @override
+  String get findMatch => isolate(super.findMatch);
+
+  @override
+  String get findIgnoreAccents => isolate(super.findIgnoreAccents);
+
+  @override
+  String get findIgnoreAccentsBody => isolate(super.findIgnoreAccentsBody);
+
+  @override
+  String get findLookIn => isolate(super.findLookIn);
+
+  @override
+  String get findPageText => isolate(super.findPageText);
+
+  @override
+  String get findComments => isolate(super.findComments);
+
+  @override
+  String get findFormFields => isolate(super.findFormFields);
+
+  @override
+  String get findBookmarks => isolate(super.findBookmarks);
+
+  @override
+  String get findSearchingBody => isolate(super.findSearchingBody);
+
+  @override
+  String get findCancel => isolate(super.findCancel);
+
+  @override
+  String get findNoneAction => isolate(super.findNoneAction);
+
+  @override
+  String findCount(String current, String total) =>
+      isolate(super.findCount(current, total));
+
+  @override
+  String findSearching(String page, String pages) =>
+      isolate(super.findSearching(page, pages));
+
+  @override
+  String findNoneTitle(String query) => isolate(super.findNoneTitle(query));
+
+  @override
+  String findNoneBody(int count, String pages) =>
+      isolate(super.findNoneBody(count, pages));
+
+  @override
+  String findNoneBodyExact(int count, String pages) =>
+      isolate(super.findNoneBodyExact(count, pages));
+
+  @override
+  String get sidebarSearchField => isolate(super.sidebarSearchField);
+
+  @override
+  String sidebarSearchSummary(
+    int matches,
+    String matchesText,
+    int pages,
+    String pagesText,
+  ) => isolate(
+    super.sidebarSearchSummary(matches, matchesText, pages, pagesText),
+  );
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

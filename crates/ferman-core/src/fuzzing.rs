@@ -7,7 +7,9 @@
 use zeroize::Zeroizing;
 
 use crate::CoreError;
+use crate::content;
 use crate::document::{OpenOptions, open};
+use crate::interpret::{FontResource, TextShow, TextSink};
 use crate::limits::Limits;
 use crate::security::{Decrypter, Params, Password};
 use crate::source::Source;
@@ -51,6 +53,86 @@ pub fn syntax_object(data: &[u8]) {
         if let Err(err) = result {
             assert!(expected(&err), "the object parser: {err}");
         }
+    }
+}
+
+/// The content-stream lexer: every operator is named, and the spans stay inside the data and in
+/// order.
+pub fn content_lexer(data: &[u8]) {
+    match content::operators(data, &limits()) {
+        Ok(operators) => {
+            let mut last = 0;
+            for operator in &operators {
+                assert!(!operator.name.is_empty(), "an operator without a name");
+                assert!(
+                    last <= operator.span.start
+                        && operator.span.start <= operator.span.end
+                        && operator.span.end <= data.len(),
+                    "a span out of order or past the data"
+                );
+                last = operator.span.end;
+            }
+        }
+        Err(err) => assert!(expected(&err), "the content lexer: {err}"),
+    }
+}
+
+/// The text interpreter: `data` as a page's content and as a form the page can draw, which can
+/// draw itself, with a simple font; the sink gives every show a fixed advance. Only a limit may
+/// stop it.
+pub fn interpreter(data: &[u8]) {
+    use lopdf::{Object, Stream, dictionary};
+
+    struct Fixed;
+    impl TextSink for Fixed {
+        fn font(&mut self, _: &FontResource) {}
+        fn show(&mut self, show: &TextShow<'_>) -> (f32, f32) {
+            assert!(
+                show.span.end >= show.span.start,
+                "a span that ends before it starts"
+            );
+            (1.0, 0.0)
+        }
+    }
+
+    let mut doc = lopdf::Document::with_version("1.7");
+    let (pages, form) = (doc.new_object_id(), doc.new_object_id());
+    let font = doc.add_object(dictionary! {
+        "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Helvetica",
+        "FirstChar" => 32, "Widths" => vec![250.into()],
+    });
+    let resources = dictionary! {
+        "Font" => dictionary! { "F1" => font },
+        "XObject" => dictionary! { "X1" => form },
+    };
+    let form_dict = dictionary! { "Subtype" => "Form", "Resources" => resources.clone() };
+    doc.objects
+        .insert(form, Object::Stream(Stream::new(form_dict, data.to_vec())));
+    let contents = doc.add_object(Stream::new(dictionary! {}, data.to_vec()));
+    let page = doc.add_object(dictionary! {
+        "Type" => "Page", "Parent" => pages, "Resources" => resources, "Contents" => contents,
+        "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
+    });
+    let kids = dictionary! { "Type" => "Pages", "Kids" => vec![page.into()], "Count" => 1 };
+    doc.objects.insert(pages, Object::Dictionary(kids));
+    let catalog = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
+    doc.trailer.set("Root", catalog);
+    let mut bytes = Vec::new();
+    if doc.save_to(&mut bytes).is_err() {
+        return;
+    }
+    let options = OpenOptions {
+        limits: limits(),
+        ..OpenOptions::default()
+    };
+    let Ok(document) = open(&Source::from_bytes(bytes.into()), &options) else {
+        return;
+    };
+    if let Err(err) = document.page_text(0, &mut Fixed) {
+        assert!(
+            matches!(err, CoreError::ResourceLimit { .. }),
+            "the interpreter: {err}"
+        );
     }
 }
 

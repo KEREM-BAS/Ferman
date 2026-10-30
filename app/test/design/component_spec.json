@@ -4913,6 +4913,15 @@
           "default": null,
           "notes": "Why replace is unavailable: the localized \"Available in a future version\" until replace ships (G10).",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "regexDisabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Why the regular-expression toggle is unavailable: the localized \"Available in a future version\" until regular expressions ship (G10).",
+          "declared": false
         }
       ],
       "itemTypes": [],

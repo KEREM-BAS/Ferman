@@ -1882,6 +1882,7 @@ Drawn in: 02 View, 03b Edit content.
 | `autoFocus` | yes | `autofocus` | `bool` | `false` |  |  |
 | — |  | `labels` | `SearchReplaceBarLabels` (required) |  |  | The localized texts. |
 | — |  | `replaceDisabledReason` | `String?` |  |  | Why replace is unavailable: the localized "Available in a future version" until replace ships (G10). |
+| — |  | `regexDisabledReason` | `String?` |  |  | Why the regular-expression toggle is unavailable: the localized "Available in a future version" until regular expressions ship (G10). |
 
 States:
 
