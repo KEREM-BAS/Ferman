@@ -74,7 +74,7 @@ final class DocumentOpenerProvider
   }
 }
 
-String _$documentOpenerHash() => r'd9a9c4e455eb7b9e66e6d3c7a954722ca6daadfd';
+String _$documentOpenerHash() => r'42221c34da0196b6bc47fd714ef54c1c706f6735';
 
 /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
 /// system open panel, dropped on the window (a1-6), sent by the system (ADR

@@ -37,10 +37,10 @@ void main() {
         'pub const A: Self = Self("openFile");\n'
             'pub const B: Self = Self("errorDamaged");\n',
       );
-    expect(fixture.run(check).messages, [
-      'app_en.arb is missing the engine message errorDamaged '
-          '(crates/ferman-api/src/facade/error.rs)',
-    ]);
+    const missing =
+        'app_en.arb is missing the engine message errorDamaged '
+        '(crates/ferman-api/src/facade/error.rs)';
+    expect(fixture.run(check).messages, [missing]);
   });
 
   test('skips without app_en.arb or app_tr.arb', () {

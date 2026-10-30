@@ -132,10 +132,13 @@ void main() {
     documents['/docs/missing.pdf'] = nda;
     picker.picked = ['/docs/missing.pdf'];
     await controlO(tester);
-    expect([
-      for (final tab in container.read(shellDocumentsProvider).documents)
-        tab.path,
-    ], ['/docs/missing.pdf', '/docs/kira-tr.pdf']);
+    expect(
+      [
+        for (final tab in container.read(shellDocumentsProvider).documents)
+          tab.path,
+      ],
+      ['/docs/missing.pdf', '/docs/kira-tr.pdf'],
+    );
     expect(container.read(shellDocumentsProvider).activeIndex, 0);
     expect(find.byType(OpenErrorTab), findsNothing);
     expect(find.byType(DocumentView), findsOneWidget);
