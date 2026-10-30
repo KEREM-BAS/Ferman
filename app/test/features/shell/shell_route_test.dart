@@ -66,11 +66,10 @@ void main() {
     );
     expect(iconButton('Home'), findsNothing);
     expect(find.byType(DocumentTab), findsNothing);
-    // "+" and Search wait for their milestones; Settings works.
-    expect(
-      tester.widget<IconButton>(iconButton('Open file')).disabledReason,
-      futureVersion,
-    );
+    // "+" opens files and Settings works; Search waits for its milestone.
+    final plus = tester.widget<IconButton>(iconButton('Open file'));
+    expect(plus.disabledReason, isNull);
+    expect(plus.onPressed, isNotNull);
     expect(
       tester
           .widget<Button>(

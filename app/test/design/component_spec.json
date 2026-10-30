@@ -7144,6 +7144,15 @@
         },
         {
           "ds": null,
+          "dart": "createDisabledReason",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "Disables only the New button with a reason while Open works: the localized \"Available in a future version\" until creating PDFs ships (G10).",
+          "declared": false
+        },
+        {
+          "ds": null,
           "dart": "overTitle",
           "type": "String?",
           "required": false,

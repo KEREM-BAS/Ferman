@@ -3,8 +3,11 @@ import 'dart:ui';
 
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart'
+    show ProviderListenableSelect;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
 part 'viewer_state.g.dart';
@@ -21,20 +24,39 @@ enum ViewerTool {
   marquee,
 }
 
-/// The document the canvas shows, as `openDocumentProvider`, or null.
-///
-/// Set by whatever opens a document: the tests in W2, the open picker,
-/// drag and drop and the OS from W3 (ROADMAP §6 step 6).
+/// The document the canvas shows, as `openDocumentProvider`, or null: the
+/// active tab's (`shellDocumentsProvider`), or one a test shows.
 @Riverpod(keepAlive: true)
 class OpenDocument extends _$OpenDocument {
   @override
-  OpenedDocument? build() => null;
+  OpenedDocument? build() =>
+      ref.watch(shellDocumentsProvider.select((list) => list.active?.document));
 
   /// Shows [document] on the canvas, or nothing.
   void show(OpenedDocument? document) {
     if (document == state) return;
     state = document;
   }
+}
+
+/// What one open document's views showed when its tab was left, by the
+/// view's state type, so switching back restores its layers, view and
+/// search (a1-10): per-document state in a family keyed by the document's
+/// id (ADR 0011), as `documentMemoryProvider(id)`.
+// shortcut: an entry stays until the app quits; invalidate it when closing
+// documents ships (B029).
+@Riverpod(keepAlive: true)
+DocumentMemory documentMemory(Ref ref, int document) => DocumentMemory();
+
+/// The store of `documentMemoryProvider`.
+final class DocumentMemory {
+  final Map<Type, Object> _states = {};
+
+  /// What the document's view of type [T] last showed, if anything.
+  T? recall<T extends Object>() => _states[T] as T?;
+
+  /// Keeps [state] as what the document's view of type [T] shows.
+  void remember<T extends Object>(T state) => _states[T] = state;
 }
 
 /// Which layers of the open document show, and the render key showing them
@@ -64,26 +86,41 @@ class LayerVisibility extends _$LayerVisibility {
   LayerState? build() {
     final document = ref.watch(openDocumentProvider);
     if (document == null) return null;
-    return LayerState(
-      visible: [for (final layer in document.layers) layer.visible],
-    );
+    // The engine keeps a document's layers across tab switches; so does
+    // the panel.
+    final memory = ref.read(documentMemoryProvider(document.id));
+    listenSelf((_, next) {
+      if (next != null) memory.remember(next);
+    });
+    return memory.recall<LayerState>() ??
+        LayerState(
+          visible: [for (final layer in document.layers) layer.visible],
+        );
   }
 
   /// Shows layer [index] if [visible], hides it otherwise. Completes when
   /// the views can ask for the new pixels; throws an [EngineException] if
   /// the engine refuses, and the layer stays as it was.
   Future<void> show(int index, {required bool visible}) {
+    // The document shown when the eye was clicked, whichever tab shows by
+    // the time the engine answers: its tab comes back with these layers.
+    final document = ref.read(openDocumentProvider);
     final next = _queue.then((_) async {
-      final current = state;
-      final document = ref.read(openDocumentProvider);
-      if (current == null || document == null) return;
+      if (document == null) return;
+      final memory = ref.read(documentMemoryProvider(document.id));
+      bool shown() => ref.read(openDocumentProvider)?.id == document.id;
+      final current = shown() ? state : memory.recall<LayerState>();
+      if (current == null || index >= current.visible.length) return;
       final wanted = [...current.visible]..[index] = visible;
       final key = await ref
           .read(engineServiceProvider)
           .showLayers(document.id, wanted);
-      // The document may have closed meanwhile.
-      if (ref.read(openDocumentProvider)?.id != document.id) return;
-      state = LayerState(visible: wanted, renderKey: key);
+      final layers = LayerState(visible: wanted, renderKey: key);
+      if (shown()) {
+        state = layers;
+      } else {
+        memory.remember(layers);
+      }
     });
     _queue = next.catchError((Object _) {});
     return next;
@@ -215,7 +252,11 @@ class Viewer extends _$Viewer {
   ViewerState? build() {
     final document = ref.watch(openDocumentProvider);
     if (document == null) return null;
-    return ViewerState(document: document);
+    final memory = ref.read(documentMemoryProvider(document.id));
+    listenSelf((_, next) {
+      if (next != null) memory.remember(next);
+    });
+    return memory.recall<ViewerState>() ?? ViewerState(document: document);
   }
 
   /// The canvas is [viewport] large; a fitted zoom follows it.

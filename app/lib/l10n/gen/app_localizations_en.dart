@@ -1191,4 +1191,55 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0 on $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'PDF documents';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'Ferman can’t open “$name”';
+  }
+
+  @override
+  String get openFailedPassword =>
+      'It needs a password. Opening password-protected PDFs is available in a future version.';
+
+  @override
+  String get openFailedDismiss => 'Dismiss';
+
+  @override
+  String get openFailedToastTitle => 'A file didn’t open';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'Saved on this device';
+
+  @override
+  String get shellMoreDocumentsMenu => 'More open documents';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText more documents',
+      one: '1 more document',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · unsaved';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'Show all open documents';
+
+  @override
+  String get shellCloseOtherDocuments => 'Close other documents…';
+
+  @override
+  String openFailedToastPassword(String name) {
+    return 'Ferman can’t open “$name”. It needs a password. Opening password-protected PDFs is available in a future version.';
+  }
 }

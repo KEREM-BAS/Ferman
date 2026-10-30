@@ -1,4 +1,6 @@
 PODS:
+  - file_selector_macos (0.0.1):
+    - FlutterMacOS
   - FlutterMacOS (1.0.0)
   - rust_lib_ferman (0.1.0):
     - FlutterMacOS
@@ -8,12 +10,15 @@ PODS:
     - FlutterMacOS
 
 DEPENDENCIES:
+  - file_selector_macos (from `Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos`)
   - FlutterMacOS (from `Flutter/ephemeral`)
   - rust_lib_ferman (from `Flutter/ephemeral/.symlinks/plugins/rust_lib_ferman/macos`)
   - screen_retriever_macos (from `Flutter/ephemeral/.symlinks/plugins/screen_retriever_macos/macos`)
   - window_manager (from `Flutter/ephemeral/.symlinks/plugins/window_manager/macos`)
 
 EXTERNAL SOURCES:
+  file_selector_macos:
+    :path: Flutter/ephemeral/.symlinks/plugins/file_selector_macos/macos
   FlutterMacOS:
     :path: Flutter/ephemeral
   rust_lib_ferman:
@@ -24,6 +29,7 @@ EXTERNAL SOURCES:
     :path: Flutter/ephemeral/.symlinks/plugins/window_manager/macos
 
 SPEC CHECKSUMS:
+  file_selector_macos: 3af0fddc391c32a6a3956a7d3898ca3a86057a4f
   FlutterMacOS: c232990155153907050900a2e175c7773903ba4e
   rust_lib_ferman: 5f2d5de1327d57040c86844864f7b22a2e25cca0
   screen_retriever_macos: c5508cc3c66ff0d4db650480cf0ab691e220d933

@@ -1,9 +1,16 @@
+import 'dart:async';
+
 import 'package:ferman/app/desktop_window.dart';
+import 'package:ferman/app/feature_registry.dart';
+import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -14,11 +21,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// The title bar's content and the screen below it each sit in one, so the
 /// keys work wherever focus is. Commands that work get a handler: Settings
-/// when [onOpenSettings] is given and, in the editor, the sidebar and panel
-/// toggles, moving between the placeholder documents and, with a document
-/// open (`viewerProvider`), zoom, the fits, page turns, Go to page and the
-/// View tools. On the
-/// start screen ([home]) only Settings works. Every other command is
+/// when [onOpenSettings] is given, Open while the engine can open files
+/// ([openFiles]) and, in the editor, the sidebar and panel toggles, moving
+/// between the open documents and, with a document open
+/// (`viewerProvider`), zoom, the fits, page turns, Go to page, Find and the
+/// View tools. On the start screen ([home]) only Settings and Open work.
+/// Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
 /// Alt+F4, Ctrl+Q) are the window frame's, on every screen
 /// ([WindowCommandScope]).
@@ -39,31 +47,26 @@ class ShellCommandScope extends ConsumerWidget {
 
   /// Whether the start screen shows instead of the editor: the editor's
   /// commands (sidebar, panel, documents) are disabled, and only Settings
-  /// works.
+  /// and Open work.
   final bool home;
 
-  /// The handlers of the commands that work in M1.
+  /// The handlers of the commands that work.
   static Map<ShellCommand, VoidCallback> handlersFor(
     WidgetRef ref, {
     VoidCallback? onOpenSettings,
+    VoidCallback? onOpenFiles,
     bool home = false,
   }) {
-    if (home) return {ShellCommand.settings: ?onOpenSettings};
+    if (home) {
+      return {
+        ShellCommand.settings: ?onOpenSettings,
+        ShellCommand.open: ?onOpenFiles,
+      };
+    }
     final documents = ref.read(shellDocumentsProvider.notifier);
     final count = ref.read(shellDocumentsProvider).documents.length;
     final panels = ref.read(shellPanelsProvider);
     final viewer = ref.read(viewerProvider.notifier);
-    const jumps = [
-      ShellCommand.document1,
-      ShellCommand.document2,
-      ShellCommand.document3,
-      ShellCommand.document4,
-      ShellCommand.document5,
-      ShellCommand.document6,
-      ShellCommand.document7,
-      ShellCommand.document8,
-      ShellCommand.document9,
-    ];
     return {
       // Like the mode bar's toggles: a panel that stepped aside in a narrow
       // window comes back; one that cannot fit even alone leaves its keys
@@ -74,9 +77,10 @@ class ShellCommandScope extends ConsumerWidget {
       if (panels.panelAvailable)
         ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
       ShellCommand.settings: ?onOpenSettings,
+      ShellCommand.open: ?onOpenFiles,
       if (count > 1) ShellCommand.nextDocument: documents.activateNext,
-      for (var i = 0; i < jumps.length && i < count; i++)
-        jumps[i]: () => documents.activate(i),
+      for (var i = 0; i < documentJumps.length && i < count; i++)
+        documentJumps[i]: () => documents.activate(i),
       if (ref.read(viewerProvider) != null) ...{
         ShellCommand.zoomIn: viewer.zoomIn,
         ShellCommand.zoomOut: viewer.zoomOut,
@@ -110,7 +114,12 @@ class ShellCommandScope extends ConsumerWidget {
     return Actions(
       actions: {
         ShellCommandIntent: ShellCommandAction(
-          handlersFor(ref, onOpenSettings: onOpenSettings, home: home),
+          handlersFor(
+            ref,
+            onOpenSettings: onOpenSettings,
+            onOpenFiles: openFiles(context, ref),
+            home: home,
+          ),
         ),
       },
       child: Shortcuts(
@@ -129,6 +138,43 @@ class ShellCommandScope extends ConsumerWidget {
       )
       ..add(FlagProperty('home', value: home, ifTrue: 'home'));
   }
+}
+
+/// The commands that show the first nine documents (⌘1…⌘9, a1-10).
+const List<ShellCommand> documentJumps = [
+  ShellCommand.document1,
+  ShellCommand.document2,
+  ShellCommand.document3,
+  ShellCommand.document4,
+  ShellCommand.document5,
+  ShellCommand.document6,
+  ShellCommand.document7,
+  ShellCommand.document8,
+  ShellCommand.document9,
+];
+
+/// Why opening PDFs is disabled, or null when it works: the engine's
+/// problem (G101), or the web build, whose engine is a stub until P5.
+String? openFilesDisabledReason(BuildContext context, WidgetRef ref) {
+  if (ref.watch(engineProblemProvider) != null) {
+    return AppLocalizations.of(context).startEngineUnavailableTitle;
+  }
+  if (ref.watch(engineStatusProvider).error case EngineUnavailableException(
+    reason: EngineUnavailableReason.unsupportedPlatform,
+  )) {
+    return Feature.openFilesOnWeb.disabledReason(context);
+  }
+  return null;
+}
+
+/// Opens PDFs through the system open panel (ADR 0018), or null while
+/// opening is disabled ([openFilesDisabledReason]).
+VoidCallback? openFiles(BuildContext context, WidgetRef ref) {
+  if (openFilesDisabledReason(context, ref) != null) return null;
+  final filter = AppLocalizations.of(context).openPdfFilter;
+  return () => unawaited(
+    ref.read(documentOpenerProvider.notifier).pick(filterLabel: filter),
+  );
 }
 
 /// Binds the window's own commands from the shortcut table

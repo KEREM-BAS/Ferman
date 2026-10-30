@@ -643,12 +643,15 @@ void main() {
       expect(find.bySemanticsLabel('3 more'), findsOneWidget);
       expect(
         tester.widget<IconButton>(iconButton('Open file')).disabledReason,
-        futureVersion,
+        // This host starts no engine, so opening takes G101's reason.
+        'Ferman can’t open PDF files right now.',
       );
       final overflow = tester.widget<Button>(
         find.ancestor(of: find.text('+3'), matching: find.byType(Button)),
       );
-      expect(overflow.disabledReason, futureVersion);
+      // "+N" opens the menu of the documents without a tab (a1-10).
+      expect(overflow.disabledReason, isNull);
+      expect(overflow.onPressed, isNotNull);
       expect(overflow.iconEnd, IconName.chevronDown);
       final search = tester.widget<Button>(
         find.ancestor(of: find.text('Search'), matching: find.byType(Button)),

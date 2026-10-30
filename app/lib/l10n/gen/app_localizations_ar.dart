@@ -1198,4 +1198,58 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0 في $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'مستندات PDF';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'يتعذّر على Ferman فتح «$name»';
+  }
+
+  @override
+  String get openFailedPassword =>
+      'يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي.';
+
+  @override
+  String get openFailedDismiss => 'تجاهل';
+
+  @override
+  String get openFailedToastTitle => 'لم يُفتح أحد الملفات';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'حُفظ على هذا الجهاز';
+
+  @override
+  String get shellMoreDocumentsMenu => 'مستندات مفتوحة أخرى';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText مستند آخر',
+      many: '$countText مستندًا آخر',
+      few: '$countText مستندات أخرى',
+      two: 'مستندان آخران',
+      one: 'مستند واحد آخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · غير محفوظ';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'عرض كل المستندات المفتوحة';
+
+  @override
+  String get shellCloseOtherDocuments => 'إغلاق المستندات الأخرى…';
+
+  @override
+  String openFailedToastPassword(String name) {
+    return 'يتعذّر على Ferman فتح «$name». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي.';
+  }
 }

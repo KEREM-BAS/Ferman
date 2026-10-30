@@ -33,7 +33,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The space between the controls moves the window: the content leaves it
 /// empty, so the title bar's own drag area below receives those presses.
 /// The shortcut table's keys work while focus is here
-/// ([ShellCommandScope]; on the start screen only Settings).
+/// ([ShellCommandScope]; on the start screen only Settings and Open).
 class ShellTitleBarContent extends ConsumerWidget {
   /// The title bar's content.
   const new({
@@ -42,16 +42,21 @@ class ShellTitleBarContent extends ConsumerWidget {
     this.homeActive = false,
     this.documents,
     this.onHome,
+    this.onDocument,
   });
 
   /// Whether the start screen shows: the home tab is the active tab.
   final bool homeActive;
 
-  /// The open documents to show instead of the shell's placeholders
-  /// (`shellDocumentsProvider`); their tabs are inert. The start screen
-  /// passes an empty list, since no document opens before M2 (a1-5
+  /// The documents to show instead of the open ones
+  /// (`shellDocumentsProvider`); their tabs are inert. On the start screen
+  /// ([homeActive]) the M1 placeholders show as no documents (a1-5
   /// `noTabs`).
   final ShellDocumentList? documents;
+
+  /// Called after a tab shows its document: the start screen goes to the
+  /// editor.
+  final VoidCallback? onDocument;
 
   /// Shows the start screen; null disables the house button.
   final VoidCallback? onHome;
@@ -70,8 +75,12 @@ class ShellTitleBarContent extends ConsumerWidget {
     final given = this.documents;
     // The type argument keeps `??` from asking the provider for a nullable
     // list.
+    final open = ref.watch<ShellDocumentList>(shellDocumentsProvider);
     final documents =
-        given ?? ref.watch<ShellDocumentList>(shellDocumentsProvider);
+        given ??
+        (homeActive && open.placeholder
+            ? const ShellDocumentList(documents: [])
+            : open);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final notifier = ref.read(shellDocumentsProvider.notifier);
 
@@ -89,45 +98,69 @@ class ShellTitleBarContent extends ConsumerWidget {
             ),
     );
 
-    final overflowCount = documents.overflowCount;
-    final tabs = DocumentTabStrip(
-      semanticLabel: l10n.shellOpenDocuments,
-      tabs: [
-        for (var i = 0; i < documents.documents.length; i++)
-          _tab(
-            documents.documents[i],
-            active: !homeActive && i == documents.activeIndex,
-            l10n: l10n,
-            closeShortcut: ShellCommand.closeDocument.caps(platform),
-            closeDisabledReason: Feature.closingDocuments.disabledReason(
-              context,
-            ),
-            onPressed: given == null ? () => notifier.activate(i) : null,
-          ),
-      ],
-      overflow: overflowCount > 0
-          ? Button(
-              variant: ButtonVariant.ghost,
-              size: ButtonSize.sm,
-              iconEnd: IconName.chevronDown,
-              disabledReason: Feature.moreDocumentsMenu.disabledReason(context),
-              child: Semantics(
-                label: l10n.shellMoreDocuments(format.integer(overflowCount)),
-                child: ExcludeSemantics(
-                  child: Text(
-                    l10n.shellMoreDocumentsBadge(format.integer(overflowCount)),
-                  ),
-                ),
+    Widget strip(double width) {
+      // As many tabs as fit at their least width, then "+N" and "+" (a1-10);
+      // the M1 placeholders keep their own "+3".
+      final count = documents.documents.length;
+      final slot = theme.size.doctabWMin + theme.space.space0_5;
+      final plus = theme.density.controlHSm + theme.space.space0_5;
+      int fitting(double reserve) => ((width - plus - reserve) / slot).floor();
+      var fit = fitting(0);
+      if (fit < count) {
+        // Room for "+N" as wide as its count makes it, counted again once
+        // the count is known.
+        fit = fitting(_MoreDocuments.width(context, l10n, format, count - fit));
+        fit = fitting(_MoreDocuments.width(context, l10n, format, count - fit));
+      }
+      final shown = documents.placeholder
+          ? [for (var i = 0; i < count; i++) i]
+          : documents.shown(fit);
+      final hidden = [
+        for (var i = 0; i < count; i++)
+          if (!shown.contains(i)) i,
+      ];
+      final overflowCount = documents.overflowCount + hidden.length;
+      void show(int i) {
+        notifier.activate(i);
+        onDocument?.call();
+      }
+
+      return DocumentTabStrip(
+        semanticLabel: l10n.shellOpenDocuments,
+        tabs: [
+          for (final i in shown)
+            _tab(
+              documents.documents[i],
+              key: ValueKey(i),
+              active: !homeActive && i == documents.activeIndex,
+              l10n: l10n,
+              closeShortcut: ShellCommand.closeDocument.caps(platform),
+              closeDisabledReason: Feature.closingDocuments.disabledReason(
+                context,
               ),
-            )
-          : null,
-      trailing: IconButton(
-        icon: IconName.plus,
-        label: l10n.shellOpenFile,
-        size: IconButtonSize.sm,
-        shortcut: ShellCommand.open.caps(platform),
-        disabledReason: Feature.openFiles.disabledReason(context),
-      ),
+              onPressed: given == null ? () => show(i) : null,
+            ),
+        ],
+        overflow: overflowCount > 0
+            ? _MoreDocuments(
+                count: overflowCount,
+                hidden: [for (final i in hidden) (i, documents.documents[i])],
+                onShow: given == null ? show : null,
+              )
+            : null,
+        trailing: IconButton(
+          icon: IconName.plus,
+          label: l10n.shellOpenFile,
+          size: IconButtonSize.sm,
+          shortcut: ShellCommand.open.caps(platform),
+          onPressed: openFiles(context, ref),
+          disabledReason: openFilesDisabledReason(context, ref),
+        ),
+      );
+    }
+
+    final tabs = LayoutBuilder(
+      builder: (context, constraints) => strip(constraints.maxWidth),
     );
 
     final actions = Padding(
@@ -183,12 +216,14 @@ class ShellTitleBarContent extends ConsumerWidget {
 
   DocumentTab _tab(
     ShellDocument document, {
+    required Key key,
     required bool active,
     required AppLocalizations l10n,
     required List<String>? closeShortcut,
     required String? closeDisabledReason,
     required VoidCallback? onPressed,
   }) => DocumentTab(
+    key: key,
     name: document.name,
     unsavedLabel: l10n.shellUnsavedChanges,
     closeLabel: l10n.shellCloseDocument,
@@ -220,6 +255,144 @@ class ShellTitleBarContent extends ConsumerWidget {
       ..add(
         ObjectFlagProperty<VoidCallback>.has('onOpenSettings', onOpenSettings),
       );
+  }
+}
+
+/// "+N" and its menu of the documents whose tabs do not fit (a1-10): a
+/// heading with their count, each hidden document with its ⌘1…⌘9 key when
+/// it has one (an unsaved one marked, as its tab is), then "Show all open
+/// documents" and "Close other documents…", disabled until they ship
+/// (B117, B029). Picking a document shows it.
+class _MoreDocuments extends ConsumerStatefulWidget {
+  const new({required this.count, required this.hidden, this.onShow});
+
+  /// How many documents "+N" counts.
+  final int count;
+
+  /// The hidden documents with their indexes, in order.
+  final List<(int, ShellDocument)> hidden;
+
+  /// Shows the document at an index; null leaves the items inert.
+  final ValueChanged<int>? onShow;
+
+  /// The width "+N" takes for [count] in the strip, the gap before it
+  /// included: the small ghost button's padding, border, label and chevron.
+  static double width(
+    BuildContext context,
+    AppLocalizations l10n,
+    RegionFormat format,
+    int count,
+  ) {
+    final theme = context.ferman;
+    final role = theme.typography.bodyStrong;
+    final label = TextPainter(
+      text: TextSpan(
+        text: l10n.shellMoreDocumentsBadge(format.integer(count)),
+        style: role.copyWith(fontSize: theme.typeScale.sizeSm),
+      ),
+      textDirection: Directionality.of(context),
+      textScaler: MediaQuery.textScalerOf(context),
+      maxLines: 1,
+    )..layout();
+    final width = label.width;
+    label.dispose();
+    return width +
+        2 * theme.space.space2 +
+        2 * theme.border.borderWidth +
+        theme.space.space1_5 +
+        Button.iconSizeSm +
+        DocumentTabStrip.overflowGap +
+        theme.space.space0_5;
+  }
+
+  @override
+  ConsumerState<_MoreDocuments> createState() => _MoreDocumentsState();
+}
+
+class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
+  bool _open = false;
+  final FocusNode _button = FocusNode(debugLabel: 'More open documents');
+
+  @override
+  void dispose() {
+    _button.dispose();
+    super.dispose();
+  }
+
+  void _close() {
+    if (!_open) return;
+    setState(() => _open = false);
+    _button.requestFocus();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final platform = ref.watch(shortcutPlatformProvider);
+    final count = format.integer(widget.count);
+    final onShow = widget.onShow;
+    return Popover(
+      open: _open,
+      surface: false,
+      onDismiss: _close,
+      anchor: MergeSemantics(
+        child: Semantics(
+          expanded: _open,
+          child: Button(
+            variant: ButtonVariant.ghost,
+            size: ButtonSize.sm,
+            iconEnd: IconName.chevronDown,
+            focusNode: _button,
+            onPressed: () => setState(() => _open = !_open),
+            child: Semantics(
+              label: l10n.shellMoreDocuments(count),
+              child: ExcludeSemantics(
+                child: Text(l10n.shellMoreDocumentsBadge(count)),
+              ),
+            ),
+          ),
+        ),
+      ),
+      child: Menu(
+        autofocus: true,
+        semanticLabel: l10n.shellMoreDocumentsMenu,
+        items: [
+          MenuItem.section(l10n.shellMoreDocumentsHeading(widget.count, count)),
+          for (final (i, document) in widget.hidden)
+            MenuItem(
+              id: '$i',
+              label: document.unsaved
+                  ? l10n.shellMoreDocumentsUnsaved(document.name)
+                  : document.name,
+              icon: document.unsaved ? IconName.filePenLine : document.icon,
+              shortcut: i < documentJumps.length
+                  ? documentJumps[i].caps(platform)
+                  : null,
+              disabled: onShow == null,
+            ),
+          const MenuItem.divider(),
+          MenuItem(
+            label: l10n.shellShowAllDocuments,
+            icon: IconName.layoutGrid,
+            disabled: true,
+            disabledReason: Feature.showAllDocuments.disabledReason(context),
+          ),
+          MenuItem(
+            label: l10n.shellCloseOtherDocuments,
+            icon: IconName.x,
+            disabled: true,
+            disabledReason: Feature.closingDocuments.disabledReason(context),
+          ),
+        ],
+        onSelected: (item) {
+          _close();
+          final index = int.tryParse(item.id ?? '');
+          if (index != null) onShow?.call(index);
+        },
+        onClose: _close,
+      ),
+    );
   }
 }
 

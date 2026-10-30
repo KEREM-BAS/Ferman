@@ -8,24 +8,18 @@ part of 'viewer_state.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// The document the canvas shows, as `openDocumentProvider`, or null.
-///
-/// Set by whatever opens a document: the tests in W2, the open picker,
-/// drag and drop and the OS from W3 (ROADMAP §6 step 6).
+/// The document the canvas shows, as `openDocumentProvider`, or null: the
+/// active tab's (`shellDocumentsProvider`), or one a test shows.
 
 @ProviderFor(OpenDocument)
 final openDocumentProvider = OpenDocumentProvider._();
 
-/// The document the canvas shows, as `openDocumentProvider`, or null.
-///
-/// Set by whatever opens a document: the tests in W2, the open picker,
-/// drag and drop and the OS from W3 (ROADMAP §6 step 6).
+/// The document the canvas shows, as `openDocumentProvider`, or null: the
+/// active tab's (`shellDocumentsProvider`), or one a test shows.
 final class OpenDocumentProvider
     extends $NotifierProvider<OpenDocument, OpenedDocument?> {
-  /// The document the canvas shows, as `openDocumentProvider`, or null.
-  ///
-  /// Set by whatever opens a document: the tests in W2, the open picker,
-  /// drag and drop and the OS from W3 (ROADMAP §6 step 6).
+  /// The document the canvas shows, as `openDocumentProvider`, or null: the
+  /// active tab's (`shellDocumentsProvider`), or one a test shows.
   OpenDocumentProvider._()
     : super(
         from: null,
@@ -53,12 +47,10 @@ final class OpenDocumentProvider
   }
 }
 
-String _$openDocumentHash() => r'25ca9871d8c104a440425a66a48e61537ebaa977';
+String _$openDocumentHash() => r'4ac8d6efc7c11f4be44ce0d6004fc6104e5b5d32';
 
-/// The document the canvas shows, as `openDocumentProvider`, or null.
-///
-/// Set by whatever opens a document: the tests in W2, the open picker,
-/// drag and drop and the OS from W3 (ROADMAP §6 step 6).
+/// The document the canvas shows, as `openDocumentProvider`, or null: the
+/// active tab's (`shellDocumentsProvider`), or one a test shows.
 
 abstract class _$OpenDocument extends $Notifier<OpenedDocument?> {
   OpenedDocument? build();
@@ -76,6 +68,117 @@ abstract class _$OpenDocument extends $Notifier<OpenedDocument?> {
             >;
     return element.handleCreate(ref, build);
   }
+}
+
+/// What one open document's views showed when its tab was left, by the
+/// view's state type, so switching back restores its layers, view and
+/// search (a1-10): per-document state in a family keyed by the document's
+/// id (ADR 0011), as `documentMemoryProvider(id)`.
+// shortcut: an entry stays until the app quits; invalidate it when closing
+// documents ships (B029).
+
+@ProviderFor(documentMemory)
+final documentMemoryProvider = DocumentMemoryFamily._();
+
+/// What one open document's views showed when its tab was left, by the
+/// view's state type, so switching back restores its layers, view and
+/// search (a1-10): per-document state in a family keyed by the document's
+/// id (ADR 0011), as `documentMemoryProvider(id)`.
+// shortcut: an entry stays until the app quits; invalidate it when closing
+// documents ships (B029).
+
+final class DocumentMemoryProvider
+    extends $FunctionalProvider<DocumentMemory, DocumentMemory, DocumentMemory>
+    with $Provider<DocumentMemory> {
+  /// What one open document's views showed when its tab was left, by the
+  /// view's state type, so switching back restores its layers, view and
+  /// search (a1-10): per-document state in a family keyed by the document's
+  /// id (ADR 0011), as `documentMemoryProvider(id)`.
+  // shortcut: an entry stays until the app quits; invalidate it when closing
+  // documents ships (B029).
+  DocumentMemoryProvider._({
+    required DocumentMemoryFamily super.from,
+    required int super.argument,
+  }) : super(
+         retry: null,
+         name: r'documentMemoryProvider',
+         isAutoDispose: false,
+         dependencies: null,
+         $allTransitiveDependencies: null,
+       );
+
+  @override
+  String debugGetCreateSourceHash() => _$documentMemoryHash();
+
+  @override
+  String toString() {
+    return r'documentMemoryProvider'
+        ''
+        '($argument)';
+  }
+
+  @$internal
+  @override
+  $ProviderElement<DocumentMemory> $createElement($ProviderPointer pointer) =>
+      $ProviderElement(pointer);
+
+  @override
+  DocumentMemory create(Ref ref) {
+    final argument = this.argument as int;
+    return documentMemory(ref, argument);
+  }
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(DocumentMemory value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<DocumentMemory>(value),
+    );
+  }
+
+  @override
+  bool operator ==(Object other) {
+    return other is DocumentMemoryProvider && other.argument == argument;
+  }
+
+  @override
+  int get hashCode {
+    return argument.hashCode;
+  }
+}
+
+String _$documentMemoryHash() => r'af8a3ad8963b12e905376342311131761c3a3297';
+
+/// What one open document's views showed when its tab was left, by the
+/// view's state type, so switching back restores its layers, view and
+/// search (a1-10): per-document state in a family keyed by the document's
+/// id (ADR 0011), as `documentMemoryProvider(id)`.
+// shortcut: an entry stays until the app quits; invalidate it when closing
+// documents ships (B029).
+
+final class DocumentMemoryFamily extends $Family
+    with $FunctionalFamilyOverride<DocumentMemory, int> {
+  DocumentMemoryFamily._()
+    : super(
+        retry: null,
+        name: r'documentMemoryProvider',
+        dependencies: null,
+        $allTransitiveDependencies: null,
+        isAutoDispose: false,
+      );
+
+  /// What one open document's views showed when its tab was left, by the
+  /// view's state type, so switching back restores its layers, view and
+  /// search (a1-10): per-document state in a family keyed by the document's
+  /// id (ADR 0011), as `documentMemoryProvider(id)`.
+  // shortcut: an entry stays until the app quits; invalidate it when closing
+  // documents ships (B029).
+
+  DocumentMemoryProvider call(int document) =>
+      DocumentMemoryProvider._(argument: document, from: this);
+
+  @override
+  String toString() => r'documentMemoryProvider';
 }
 
 /// Shows and hides the open document's layers (a2-3c) in every view, as
@@ -117,7 +220,7 @@ final class LayerVisibilityProvider
   }
 }
 
-String _$layerVisibilityHash() => r'9a104d1550b5e3874052d35897b4be801ac0307e';
+String _$layerVisibilityHash() => r'3a8c30df0b703701fb434540cb15729bd50bb745';
 
 /// Shows and hides the open document's layers (a2-3c) in every view, as
 /// `layerVisibilityProvider`; null without a document.
@@ -243,7 +346,7 @@ final class ViewerProvider extends $NotifierProvider<Viewer, ViewerState?> {
   }
 }
 
-String _$viewerHash() => r'5035f23893dc59d6eb080c342c59e0e4a30cfeee';
+String _$viewerHash() => r'ab50e9b3050c17d0c13689b1ff489054cee4bc64';
 
 /// The canvas's view of the open document, as `viewerProvider`: null when
 /// no document is open. The View row, the status bar and the canvas read

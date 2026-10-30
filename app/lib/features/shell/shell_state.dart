@@ -1,8 +1,11 @@
+import 'dart:math' as math;
+
 import 'package:ferman/design/components/additions/save_indicator.dart';
 import 'package:ferman/design/components/navigation/ferman_mode.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
@@ -324,9 +327,10 @@ bool shellAiEnabled(Ref ref) => false;
 @riverpod
 ShortcutPlatform shortcutPlatform(Ref ref) => ShortcutPlatform.current;
 
-/// An open document as the M1 shell shows it: placeholder data, since
-/// documents open from M2 on. The title bar's tab, the Save button and the
-/// status bar all read the same document, so they always agree (fix 4).
+/// An open document as the shell shows it: the title bar's tab, the Save
+/// button and the status bar all read the same document, so they always
+/// agree (fix 4). A document the engine opened has its [path] and
+/// [document]; the M1 placeholders have neither.
 @immutable
 final class ShellDocument {
   /// A document named [name].
@@ -337,10 +341,18 @@ final class ShellDocument {
     this.savedAt,
     this.pageCount,
     this.editCount = 0,
+    this.path,
+    this.document,
   });
 
   /// The file name.
   final String name;
+
+  /// Where the file is.
+  final String? path;
+
+  /// The engine's document, which the canvas shows.
+  final OpenedDocument? document;
 
   /// The tab's glyph: `file-text`, or `lock` for a locked file.
   final IconName icon;
@@ -385,6 +397,21 @@ final class ShellDocumentList {
   /// button).
   final int overflowCount;
 
+  /// Whether these are the M1 placeholders (no document opened yet).
+  bool get placeholder => identical(documents, ShellDocuments.placeholders);
+
+  /// The indexes of the documents whose tabs show when only [fit] tabs fit,
+  /// in order: the first ones, with the active one in the last place when
+  /// it lies further on (a1-10); the rest go behind "+N".
+  List<int> shown(int fit) {
+    final count = documents.length;
+    if (count <= fit || count == 0) {
+      return [for (var i = 0; i < count; i++) i];
+    }
+    final last = math.max(fit, 1) - 1;
+    return [for (var i = 0; i < last; i++) i, math.max(activeIndex, last)];
+  }
+
   /// The document shown, or null when none is open.
   ShellDocument? get active =>
       activeIndex >= 0 && activeIndex < documents.length
@@ -394,14 +421,15 @@ final class ShellDocumentList {
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
-@riverpod
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
+@Riverpod(keepAlive: true)
 class ShellDocuments extends _$ShellDocuments {
   /// The placeholder documents.
   static final List<ShellDocument> placeholders = [
@@ -443,6 +471,27 @@ class ShellDocuments extends _$ShellDocuments {
       activeIndex: index,
       overflowCount: state.overflowCount,
     );
+  }
+
+  /// Adds [document] as the last tab and shows it; the first one replaces
+  /// the placeholders.
+  void add(ShellDocument document) {
+    final documents = state.placeholder
+        ? const <ShellDocument>[]
+        : state.documents;
+    state = ShellDocumentList(
+      documents: [...documents, document],
+      activeIndex: documents.length,
+    );
+  }
+
+  /// Shows the document opened from [path], if one is; whether one was.
+  bool focus(String path) {
+    final index = state.documents.indexWhere(
+      (document) => document.path == path,
+    );
+    activate(index);
+    return index >= 0;
   }
 
   /// Shows the document after the active one, wrapping to the first.

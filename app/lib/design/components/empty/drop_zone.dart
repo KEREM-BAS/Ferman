@@ -81,8 +81,9 @@ class RecentFile {
 /// **Disabled with a reason (G10).** With [disabledReason] the zone
 /// ignores drags (a drag over it does not enter the over state), and the
 /// Open and New buttons and the recent rows are disabled but focusable,
-/// with the reason as tooltip and semantics hint. The New button shows
-/// when [onCreate] is set or the zone is disabled with a reason.
+/// with the reason as tooltip and semantics hint. [createDisabledReason]
+/// disables only New. The New button shows when [onCreate] is set or it
+/// is disabled with a reason.
 ///
 /// For screen readers it is a region named by the title, which is also a
 /// heading; Tab reaches the buttons and the recent files.
@@ -102,6 +103,7 @@ class DropZone extends StatelessWidget {
     this.onFiles,
     this.minHeight,
     this.disabledReason,
+    this.createDisabledReason,
     this.overTitle,
     this.overSubtitle,
     this.errorTitle,
@@ -192,6 +194,10 @@ class DropZone extends StatelessWidget {
 
   /// Why drops, Open, New and the recent files are disabled (G10).
   final String? disabledReason;
+
+  /// Why only New is disabled, while the rest works (G10). Not a
+  /// design-system prop.
+  final String? createDisabledReason;
 
   /// The title while a drag hovers ("Release to open"). Not a
   /// design-system prop: the design hard-codes the copy.
@@ -323,8 +329,9 @@ class DropZone extends StatelessWidget {
             ),
           );
 
+    final createReason = createDisabledReason ?? disabledReason;
     final showCreate =
-        createLabel != null && (onCreate != null || disabledWithReason);
+        createLabel != null && (onCreate != null || createReason != null);
     final actions =
         shown == DropZoneState.over || (openLabel == null && !showCreate)
         ? null
@@ -371,8 +378,8 @@ class DropZone extends StatelessWidget {
                   size: ButtonSize.lg,
                   icon: IconName.filePlus2,
                   onPressed: onCreate,
-                  disabled: disabledWithReason,
-                  disabledReason: disabledReason,
+                  disabled: createReason != null,
+                  disabledReason: createReason,
                   child: Text(createLabel!),
                 ),
             ],
@@ -586,6 +593,13 @@ class DropZone extends StatelessWidget {
       ..add(DoubleProperty('minHeight', minHeight, defaultValue: null))
       ..add(
         StringProperty('disabledReason', disabledReason, defaultValue: null),
+      )
+      ..add(
+        StringProperty(
+          'createDisabledReason',
+          createDisabledReason,
+          defaultValue: null,
+        ),
       );
   }
 }

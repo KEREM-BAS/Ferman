@@ -1198,4 +1198,55 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0 $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'PDF belgeleri';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'Ferman “$name” dosyasını açamıyor';
+  }
+
+  @override
+  String get openFailedPassword =>
+      'Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.';
+
+  @override
+  String get openFailedDismiss => 'Kapat';
+
+  @override
+  String get openFailedToastTitle => 'Bir dosya açılmadı';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'Bu cihaza kaydedildi';
+
+  @override
+  String get shellMoreDocumentsMenu => 'Diğer açık belgeler';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText belge daha',
+      one: '1 belge daha',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · kaydedilmedi';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'Tüm açık belgeleri göster';
+
+  @override
+  String get shellCloseOtherDocuments => 'Diğer belgeleri kapat…';
+
+  @override
+  String openFailedToastPassword(String name) {
+    return 'Ferman “$name” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.';
+  }
 }

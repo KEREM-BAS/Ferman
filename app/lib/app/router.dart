@@ -4,7 +4,6 @@ import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
-import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_title_bar.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/settings_providers.dart';
@@ -31,8 +30,11 @@ abstract final class Routes {
   /// `language`; see `SettingsPane`).
   static String settingsPane(String pane) => '$settings/$pane';
 
-  /// The editor shell with placeholder documents (M1 phases H2 to H5). In
-  /// M1 it is reachable only here; documents open into it from M2 on.
+  /// The editor: the shell with the documents opened (a1-13).
+  static const String editor = '/editor';
+
+  /// The editor shell with the M1 placeholder documents (M1 phases H2 to
+  /// H5), until a document opens.
   static const String debugShell = '/debug/shell';
 
   /// The component gallery (M1 phase G10): every component of the library
@@ -41,8 +43,8 @@ abstract final class Routes {
   static const String debugGallery = '/debug/gallery';
 }
 
-/// The app's router.
-@riverpod
+/// The app's router; kept, since opening files moves it.
+@Riverpod(keepAlive: true)
 GoRouter router(Ref ref) {
   final router = GoRouter(
     // An unknown location (a web address, a mistyped path) goes to the
@@ -71,10 +73,10 @@ GoRouter router(Ref ref) {
           titleBarContent: switch (state.uri.path) {
             Routes.start => ShellTitleBarContent(
               homeActive: true,
-              documents: const ShellDocumentList(documents: []),
+              onDocument: () => context.go(Routes.editor),
               onOpenSettings: () => context.push(Routes.settings),
             ),
-            Routes.debugShell => ShellTitleBarContent(
+            Routes.editor || Routes.debugShell => ShellTitleBarContent(
               onHome: () => context.go(Routes.start),
               onOpenSettings: () => context.push(Routes.settings),
             ),
@@ -95,11 +97,12 @@ GoRouter router(Ref ref) {
             path: Routes.settings,
             builder: (context, state) => const FmSettings(),
           ),
-          GoRoute(
-            path: Routes.debugShell,
-            builder: (context, state) =>
-                FmWindow(onOpenSettings: () => context.push(Routes.settings)),
-          ),
+          for (final path in [Routes.editor, Routes.debugShell])
+            GoRoute(
+              path: path,
+              builder: (context, state) =>
+                  FmWindow(onOpenSettings: () => context.push(Routes.settings)),
+            ),
           GoRoute(
             path: Routes.debugGallery,
             builder: (context, state) => const GalleryScreen(),

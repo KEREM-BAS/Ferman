@@ -2240,6 +2240,78 @@ abstract class AppLocalizations {
     int pages,
     String pagesText,
   );
+
+  /// Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF documents'**
+  String get openPdfFilter;
+
+  /// Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t open “{name}”'**
+  String openFailedTitle(String name);
+
+  /// Line of the banner of openFailedTitle when the file is encrypted and needs a password (until the unlock dialog a1-8, B115).
+  ///
+  /// In en, this message translates to:
+  /// **'It needs a password. Opening password-protected PDFs is available in a future version.'**
+  String get openFailedPassword;
+
+  /// Accessible name of the close button of the banner of openFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get openFailedDismiss;
+
+  /// Title of the editor’s danger toast when one of the files picked together did not open (G116); the message names the file with openFailedTitle.
+  ///
+  /// In en, this message translates to:
+  /// **'A file didn’t open'**
+  String get openFailedToastTitle;
+
+  /// Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time).
+  ///
+  /// In en, this message translates to:
+  /// **'Saved on this device'**
+  String get shellSavedOnDeviceUndated;
+
+  /// Accessible name of the menu behind “+N” in the title bar (a1-10).
+  ///
+  /// In en, this message translates to:
+  /// **'More open documents'**
+  String get shellMoreDocumentsMenu;
+
+  /// Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 more document} other{{countText} more documents}}'**
+  String shellMoreDocumentsHeading(int count, String countText);
+
+  /// An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} · unsaved'**
+  String shellMoreDocumentsUnsaved(String name);
+
+  /// Item of the “+N” menu (a1-10).
+  ///
+  /// In en, this message translates to:
+  /// **'Show all open documents'**
+  String get shellShowAllDocuments;
+
+  /// Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones.
+  ///
+  /// In en, this message translates to:
+  /// **'Close other documents…'**
+  String get shellCloseOtherDocuments;
+
+  /// Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version.'**
+  String openFailedToastPassword(String name);
 }
 
 class _AppLocalizationsDelegate

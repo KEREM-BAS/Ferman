@@ -442,7 +442,9 @@ class _DocumentTabState extends State<DocumentTab> {
 ///
 /// **Keyboard:** ArrowLeft and ArrowRight move to the previous and next tab
 /// in the visual direction and wrap, and the tab they land on is activated
-/// (as on ModeTabs). Only the active tab is a Tab stop.
+/// (as on ModeTabs). Only the active tab is a Tab stop. A tab with a key
+/// keeps its focus node when the tabs before it leave the strip, so its
+/// focus stays.
 ///
 /// **Semantics:** a tab bar named [semanticLabel] ("Open documents") holding
 /// only the tabs; [overflow] and [trailing] follow it. With no tabs there
@@ -486,21 +488,33 @@ class DocumentTabStrip extends StatefulWidget {
 }
 
 class _DocumentTabStripState extends State<DocumentTabStrip> {
-  final List<FocusNode> _nodes = [];
+  /// Each tab's focus node by its key, so a tab that moves (when others
+  /// leave the strip) keeps its node and its focus.
+  final Map<Key, FocusNode> _byKey = {};
+
+  /// The tabs' keys in order: a tab's own key, or its position.
+  List<Key> _keys = const [];
+
+  /// The focus nodes in tab order.
+  List<FocusNode> get _nodes => [for (final key in _keys) _byKey[key]!];
 
   void _syncNodes() {
-    final count = widget.tabs.length;
-    while (_nodes.length < count) {
-      _nodes.add(FocusNode(debugLabel: 'DocumentTabStrip ${_nodes.length}'));
+    final tabs = widget.tabs;
+    _keys = [for (var i = 0; i < tabs.length; i++) tabs[i].key ?? ValueKey(i)];
+    for (var i = 0; i < _keys.length; i++) {
+      _byKey[_keys[i]] ??= FocusNode(debugLabel: 'DocumentTabStrip $i');
     }
-    while (_nodes.length > count) {
-      _nodes.removeLast().dispose();
-    }
+    final kept = _keys.toSet();
+    _byKey.removeWhere((key, node) {
+      if (kept.contains(key)) return false;
+      node.dispose();
+      return true;
+    });
   }
 
   @override
   void dispose() {
-    for (final node in _nodes) {
+    for (final node in _byKey.values) {
       node.dispose();
     }
     super.dispose();
@@ -541,8 +555,9 @@ class _DocumentTabStripState extends State<DocumentTabStrip> {
         children: [
           for (var i = 0; i < tabs.length; i++)
             Flexible(
+              key: _keys[i],
               child: tabs[i]._withFocusNode(
-                _nodes[i]..skipTraversal = i != stop,
+                _byKey[_keys[i]]!..skipTraversal = i != stop,
               ),
             ),
         ],

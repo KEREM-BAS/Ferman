@@ -355,5 +355,17 @@
   "findNoneBody": "Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.",
   "findNoneBodyExact": "Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı.",
   "sidebarSearchField": "Belgede ara",
-  "sidebarSearchSummary": "{pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}}"
+  "sidebarSearchSummary": "{pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}}",
+  "openPdfFilter": "PDF belgeleri",
+  "openFailedTitle": "Ferman “{name}” dosyasını açamıyor",
+  "openFailedPassword": "Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.",
+  "openFailedDismiss": "Kapat",
+  "openFailedToastTitle": "Bir dosya açılmadı",
+  "shellSavedOnDeviceUndated": "Bu cihaza kaydedildi",
+  "shellMoreDocumentsMenu": "Diğer açık belgeler",
+  "shellMoreDocumentsHeading": "{count, plural, =1{1 belge daha} other{{countText} belge daha}}",
+  "shellMoreDocumentsUnsaved": "{name} · kaydedilmedi",
+  "shellShowAllDocuments": "Tüm açık belgeleri göster",
+  "shellCloseOtherDocuments": "Diğer belgeleri kapat…",
+  "openFailedToastPassword": "Ferman “{name}” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek."
 }

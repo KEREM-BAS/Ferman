@@ -2527,6 +2527,7 @@ Drawn in: 14 Tablet and web, FmStart.
 | `onFiles` |  | `onFiles` | `ValueChanged<List<String>>?` |  |  | Dropped file paths. |
 | `minHeight` |  | `minHeight` | `double?` |  |  | FmStart uses 470. |
 | — |  | `disabledReason` | `String?` |  |  | Disables drop handling, the Open and New buttons and the recent rows as disabled-with-reason (still focusable, the reason as tooltip and hint) (G10). |
+| — |  | `createDisabledReason` | `String?` |  |  | Disables only the New button with a reason while Open works: the localized "Available in a future version" until creating PDFs ships (G10). |
 | — |  | `overTitle` | `String?` |  |  | The title while a drag hovers ("Release to open"). |
 | — |  | `overSubtitle` | `String?` |  |  | The subtitle while a drag hovers. |
 | — |  | `errorTitle` | `String?` |  |  | The title of the error state ("That file isn’t a PDF"). |

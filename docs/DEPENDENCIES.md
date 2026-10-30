@@ -152,8 +152,8 @@ neither.
 
 Licences re-checked on pub.dev on 2026-10-15. `very_good packages check licenses` over
 `app/pubspec.lock` (the full command of [section 8](#8-dart-licence-check): direct, dev and transitive
-dependencies) passes: 111 packages, BSD-3-Clause (82), MIT (23) and Apache-2.0 (6), since ffigen
-arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is not counted.
+dependencies) passes: 121 packages (122 licences), BSD-3-Clause (92), MIT (23) and Apache-2.0 (7),
+since file_selector arrived on 2026-10-30 (111 before, 107 before ffigen on 2026-10-19). `rust_lib_ferman` is a path package and is not counted.
 
 | Name | Purpose | Version (pubspec.lock) | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
@@ -163,6 +163,7 @@ arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is n
 | intl | Messages, dates and numbers | 0.20.3 | BSD-3-Clause | ok | M1 | flutter_localizations requires `^0.20.3`. Publisher dart.dev. |
 | flutter_localizations | Framework localisations and RTL support | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | Used with gen-l10n ([ADR 0014](adr/0014-localization-and-rtl.md)). |
 | path_provider | App support, cache and data directories; the settings file lives in the app support directory | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
+| file_selector | The system open panel (a1-13), PDF files, several at once; later the save and folder pickers | 1.1.0 | BSD-3-Clause | ok | M2 | Publisher flutter.dev. [ADR 0018](adr/0018-native-file-pickers.md), Accepted ([Q07](QUESTIONS.md#q07)); behind `FilePickerService` (`app/lib/platform/file_picker_service.dart`). Brings cross_file 0.3.5+5 and the per-platform packages (android, ios, linux, macos, web, windows) and file_selector_platform_interface 2.7.0, all BSD-3-Clause, and `http` 1.6.0 (BSD-3-Clause): the interface declares it and never imports it, and the owner approved it on 2026-10-30 as `pub_denylist`'s first transitive exception (section 8). On macOS both entitlement files gain `com.apple.security.files.user-selected.read-write`. |
 | window_manager | Custom title bars, window size and state | 0.5.2 | MIT | ok | M1 | Publisher leanflutter.dev. Windows, macOS and Linux only. Pulls screen_retriever 0.2.2 (MIT). |
 | path_parsing | Parses the icons' SVG path data for the Icon widget's `CustomPainter` | 1.1.0 (2024-11-01) | MIT | ok | M1 | Publisher flutter.dev (flutter/packages, `third_party/packages/path_parsing`); its LICENSE is the MIT text. Depends on meta and vector_math 2.4.0 (both BSD-3-Clause). Replaces flutter_svg ([section 4](#4-rejected), [ADR 0013](adr/0013-fonts-and-icons.md)). |
 | flutter_rust_bridge (Dart) | Dart side of the bridge | 2.13.0 | MIT | ok | M1 | Same version as the crate and the codegen. Publisher cjycode.com. |
@@ -176,8 +177,10 @@ arrived on 2026-10-19 (107 before). `rust_lib_ferman` is a path package and is n
 | flutter_test, integration_test, flutter_driver (dev) | Widget and integration tests; flutter_driver runs the integration test in profile mode | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | flutter_driver was already transitive through integration_test; since `be0a04b` it is a direct dev dependency for `app/test_driver/integration_test.dart` (`flutter drive --profile`). The lockfile changed only its dependency type, so the licence count stays at 107. |
 | riverpod_lint | Riverpod lints | 3.1.9 | MIT | ok | M1 | A native analyzer plugin under `plugins:` in `app/analysis_options.yaml`, not a pubspec dependency, so it is not in `pubspec.lock` and the licence check above does not see it; its licence was checked on pub.dev. No verified publisher. Its diagnostics appear only in `dart analyze`, so CI runs `dart analyze --fatal-infos` as well as `flutter analyze`. |
 
-`http` is not in `app/pubspec.lock`: the pub deny list (`tools/checks` `pub_denylist`, approved by
-the owner on 2026-10-16) fails on it, which is why flutter_svg was dropped.
+`http` is in `app/pubspec.lock` only as a transitive dependency of file_selector's platform
+interface, which never imports it: the pub deny list (`tools/checks` `pub_denylist`, approved by
+the owner on 2026-10-16) fails on it anywhere else, which is why flutter_svg was dropped, and fails
+on any `package:http` import in `app/lib/` (the owner's exception of 2026-10-30).
 
 ### 2.3 Tools (never shipped)
 
@@ -348,7 +351,7 @@ dropped and shared_preferences was not chosen ([section 4](#4-rejected)).
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
 | desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
-| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. |
+| file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | In use since M2, W3 ([section 2.2](#22-dart-and-flutter-packages-app)). [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. Its platform interface declares `http` without importing it (approved exception, section 8). |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
 
 ### 3.12 Tooling
@@ -661,10 +664,16 @@ very_good packages check licenses \
 **Approved by the owner on 2026-10-16** (Proposed for M1 step 2 of [ROADMAP.md](ROADMAP.md) until
 then): a second check fails if `pubspec.lock` contains an HTTP client, a font downloader such as
 google_fonts, or an analytics or crash-reporting SDK ([ADR 0015](adr/0015-privacy-and-network.md)). It exists as `pub_denylist` in `tools/checks`, which
-fails on direct and transitive entries alike (its map of transitive exceptions is empty). It caught
-`http` arriving through flutter_svg, which was then dropped ([section 4](#4-rejected)). It reads only
-`app/pubspec.lock`: the `http` and `github` packages of cargokit's build tool run at build time, never
-ship, and are a known build-time exception.
+fails on direct and transitive entries alike, except the transitive exceptions the owner approves,
+each with its reason. It caught `http` arriving through flutter_svg, which was then dropped
+([section 4](#4-rejected)). The one exception, approved on 2026-10-30, is `http` as a transitive
+dependency of file_selector_platform_interface 2.7.0, which declares it and never imports it. The
+exception names the packages allowed to bring it: the check fails on any URI of an excepted package
+in `app/lib/` (an import, export or part, a conditional import's alternatives included), and, once
+`flutter pub get` has resolved the app, on any other package whose pubspec depends on it (it reads
+`app/.dart_tool/package_config.json`; CI's Linux Flutter job runs it there). Of the lockfiles it
+reads only `app/pubspec.lock`, not cargokit's build tool's: the `http` and `github` packages of
+cargokit's build tool run at build time, never ship, and are a known build-time exception.
 
 ## 9. Known risks
 

@@ -1566,5 +1566,76 @@
         "type": "String"
       }
     }
+  },
+  "openPdfFilter": "PDF documents",
+  "@openPdfFilter": {
+    "description": "Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files."
+  },
+  "openFailedTitle": "Ferman can’t open “{name}”",
+  "@openFailedTitle": {
+    "description": "Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openFailedPassword": "It needs a password. Opening password-protected PDFs is available in a future version.",
+  "@openFailedPassword": {
+    "description": "Line of the banner of openFailedTitle when the file is encrypted and needs a password (until the unlock dialog a1-8, B115)."
+  },
+  "openFailedDismiss": "Dismiss",
+  "@openFailedDismiss": {
+    "description": "Accessible name of the close button of the banner of openFailedTitle."
+  },
+  "openFailedToastTitle": "A file didn’t open",
+  "@openFailedToastTitle": {
+    "description": "Title of the editor’s danger toast when one of the files picked together did not open (G116); the message names the file with openFailedTitle."
+  },
+  "shellSavedOnDeviceUndated": "Saved on this device",
+  "@shellSavedOnDeviceUndated": {
+    "description": "Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time)."
+  },
+  "shellMoreDocumentsMenu": "More open documents",
+  "@shellMoreDocumentsMenu": {
+    "description": "Accessible name of the menu behind “+N” in the title bar (a1-10)."
+  },
+  "shellMoreDocumentsHeading": "{count, plural, =1{1 more document} other{{countText} more documents}}",
+  "@shellMoreDocumentsHeading": {
+    "description": "Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "shellMoreDocumentsUnsaved": "{name} · unsaved",
+  "@shellMoreDocumentsUnsaved": {
+    "description": "An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellShowAllDocuments": "Show all open documents",
+  "@shellShowAllDocuments": {
+    "description": "Item of the “+N” menu (a1-10)."
+  },
+  "shellCloseOtherDocuments": "Close other documents…",
+  "@shellCloseOtherDocuments": {
+    "description": "Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones."
+  },
+  "openFailedToastPassword": "Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version.",
+  "@openFailedToastPassword": {
+    "description": "Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
   }
 }

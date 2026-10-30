@@ -1,6 +1,8 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/document_view.dart';
@@ -169,6 +171,16 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                               end: theme.space.space4,
                               child: const FindBar(),
                             ),
+                            if (ref.watch(documentOpenerProvider)
+                                case final problem?)
+                              PositionedDirectional(
+                                bottom: theme.space.space4,
+                                end: theme.space.space4,
+                                child: SizedBox(
+                                  width: Toast.width,
+                                  child: OpenProblemToast(problem),
+                                ),
+                              ),
                           ],
                         ),
                       )

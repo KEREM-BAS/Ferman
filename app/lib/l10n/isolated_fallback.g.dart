@@ -1202,6 +1202,47 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   ) => isolate(
     super.sidebarSearchSummary(matches, matchesText, pages, pagesText),
   );
+
+  @override
+  String get openPdfFilter => isolate(super.openPdfFilter);
+
+  @override
+  String openFailedTitle(String name) => isolate(super.openFailedTitle(name));
+
+  @override
+  String get openFailedPassword => isolate(super.openFailedPassword);
+
+  @override
+  String get openFailedDismiss => isolate(super.openFailedDismiss);
+
+  @override
+  String get openFailedToastTitle => isolate(super.openFailedToastTitle);
+
+  @override
+  String get shellSavedOnDeviceUndated =>
+      isolate(super.shellSavedOnDeviceUndated);
+
+  @override
+  String get shellMoreDocumentsMenu => isolate(super.shellMoreDocumentsMenu);
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) =>
+      isolate(super.shellMoreDocumentsHeading(count, countText));
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) =>
+      isolate(super.shellMoreDocumentsUnsaved(name));
+
+  @override
+  String get shellShowAllDocuments => isolate(super.shellShowAllDocuments);
+
+  @override
+  String get shellCloseOtherDocuments =>
+      isolate(super.shellCloseOtherDocuments);
+
+  @override
+  String openFailedToastPassword(String name) =>
+      isolate(super.openFailedToastPassword(name));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

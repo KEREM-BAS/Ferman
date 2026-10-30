@@ -2,12 +2,15 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_store.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import '../../helpers/fake_file_picker.dart';
 
 /// The size of the design's boards (`1440 × 900`).
 const Size boardSize = Size(1440, 900);
@@ -28,6 +31,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   List<Locale> systemLocales = const [Locale('en', 'US')],
   SettingsStore? store,
   EngineService? engine,
+  FilePickerService? picker,
 }) async {
   tester.view
     ..physicalSize = size
@@ -42,6 +46,9 @@ Future<MemorySettingsStore> pumpFermanApp(
         settingsStoreProvider.overrideWithValue(store ?? memory),
         initialSettingsProvider.overrideWithValue(settings),
         engineServiceProvider.overrideWithValue(engine ?? FakeEngineService()),
+        filePickerServiceProvider.overrideWithValue(
+          picker ?? FakeFilePickerService(),
+        ),
       ],
       child: const FermanApp(),
     ),

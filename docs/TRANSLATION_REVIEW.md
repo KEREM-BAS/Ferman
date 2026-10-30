@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-356 messages in `app_en.arb`; translated: Turkish 356, Arabic 356.
+368 messages in `app_en.arb`; translated: Turkish 368, Arabic 368.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -412,5 +412,17 @@ The table below is generated from the ARB files by `tools/l10n`
 | `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
 | `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
+| `openPdfFilter` | PDF documents | PDF belgeleri | مستندات PDF | Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files. |
+| `openFailedTitle` | Ferman can’t open “{name}” | Ferman “{name}” dosyasını açamıyor | يتعذّر على Ferman فتح «{name}» | Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name. |
+| `openFailedPassword` | It needs a password. Opening password-protected PDFs is available in a future version. | Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek. | يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي. | Line of the banner of openFailedTitle when the file is encrypted and needs a password (until the unlock dialog a1-8, B115). |
+| `openFailedDismiss` | Dismiss | Kapat | تجاهل | Accessible name of the close button of the banner of openFailedTitle. |
+| `openFailedToastTitle` | A file didn’t open | Bir dosya açılmadı | لم يُفتح أحد الملفات | Title of the editor’s danger toast when one of the files picked together did not open (G116); the message names the file with openFailedTitle. |
+| `shellSavedOnDeviceUndated` | Saved on this device | Bu cihaza kaydedildi | حُفظ على هذا الجهاز | Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time). |
+| `shellMoreDocumentsMenu` | More open documents | Diğer açık belgeler | مستندات مفتوحة أخرى | Accessible name of the menu behind “+N” in the title bar (a1-10). |
+| `shellMoreDocumentsHeading` | {count, plural, =1{1 more document} other{{countText} more documents}} | {count, plural, =1{1 belge daha} other{{countText} belge daha}} | {count, plural, =1{مستند واحد آخر} =2{مستندان آخران} few{{countText} مستندات أخرى} many{{countText} مستندًا آخر} other{{countText} مستند آخر}} | Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region. |
+| `shellMoreDocumentsUnsaved` | {name} · unsaved | {name} · kaydedilmedi | {name} · غير محفوظ | An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name. |
+| `shellShowAllDocuments` | Show all open documents | Tüm açık belgeleri göster | عرض كل المستندات المفتوحة | Item of the “+N” menu (a1-10). |
+| `shellCloseOtherDocuments` | Close other documents… | Diğer belgeleri kapat… | إغلاق المستندات الأخرى… | Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones. |
+| `openFailedToastPassword` | Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version. | Ferman “{name}” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek. | يتعذّر على Ferman فتح «{name}». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي. | Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name. |
 
 <!-- END GENERATED TRANSLATION TABLE -->
