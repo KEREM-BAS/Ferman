@@ -153,6 +153,12 @@ class FrbEngineService implements EngineService {
     }
   }
 
+  @override
+  Future<List<int>> collationOrder(String locale, List<String> texts) async {
+    final order = await bridge.collationOrder(locale: locale, texts: texts);
+    return order.toList();
+  }
+
   /// The engine's first event names the view; every later one is an update.
   /// Cancelling [EngineView.updates] cancels the engine's stream, which ends
   /// the view.

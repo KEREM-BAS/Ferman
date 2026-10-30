@@ -35,9 +35,11 @@
 //! - `journal`: the edit journal behind the review list. M3.
 #![forbid(unsafe_code)]
 
+pub mod collate;
 pub mod extract;
 pub mod search;
 
+pub use collate::collation_order;
 pub use extract::page_text;
 pub use search::{SearchOptions, find};
 

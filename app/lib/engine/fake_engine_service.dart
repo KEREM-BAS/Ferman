@@ -78,6 +78,17 @@ class FakeEngineService implements EngineService {
     return _renderKeys[document] = ++_lastRenderKey;
   }
 
+  /// Orders [texts] by their code points, stably: no language rules.
+  @override
+  Future<List<int>> collationOrder(String locale, List<String> texts) async {
+    final order = [for (var i = 0; i < texts.length; i++) i]
+      ..sort((a, b) {
+        final byText = texts[a].compareTo(texts[b]);
+        return byText != 0 ? byText : a.compareTo(b);
+      });
+    return order;
+  }
+
   /// Reports [searchResults] for [query] page by page, then the progress
   /// over every page and [SearchDone].
   @override

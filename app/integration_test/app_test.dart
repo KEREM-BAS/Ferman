@@ -57,6 +57,21 @@ void main() {
       expect(engine.apiVersion(), kAppApiVersion);
     });
 
+    test('sorts names in Turkish order (ADR 0021)', () async {
+      // Ç after C, ı before i, digits by their value.
+      expect(
+        await engine.collationOrder('tr', [
+          'Çağrı.pdf',
+          'ikna.pdf',
+          'Cuma.pdf',
+          'Fatura 10.pdf',
+          'ılık.pdf',
+          'Fatura 2.pdf',
+        ]),
+        [2, 0, 5, 3, 4, 1],
+      );
+    });
+
     test('reports the versions, and the bundled PDFium is loaded', () async {
       final status = await engine.status();
       expect(status.appVersion, '0.1.0');
