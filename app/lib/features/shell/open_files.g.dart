@@ -8,23 +8,26 @@ part of 'open_files.dart';
 
 // GENERATED CODE - DO NOT MODIFY BY HAND
 // ignore_for_file: type=lint, type=warning
-/// Opens PDFs, as `documentOpenerProvider` (a1-13): the system open panel,
-/// then each chosen file in a new active tab, or the tab of a file already
-/// open. Its state is the last file of the latest pick that did not open,
+/// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
+/// system open panel, dropped on the window (a1-6) or sent by the system
+/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 
 @ProviderFor(DocumentOpener)
 final documentOpenerProvider = DocumentOpenerProvider._();
 
-/// Opens PDFs, as `documentOpenerProvider` (a1-13): the system open panel,
-/// then each chosen file in a new active tab, or the tab of a file already
-/// open. Its state is the last file of the latest pick that did not open,
+/// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
+/// system open panel, dropped on the window (a1-6) or sent by the system
+/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 final class DocumentOpenerProvider
     extends $NotifierProvider<DocumentOpener, OpenProblem?> {
-  /// Opens PDFs, as `documentOpenerProvider` (a1-13): the system open panel,
-  /// then each chosen file in a new active tab, or the tab of a file already
-  /// open. Its state is the last file of the latest pick that did not open,
+  /// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
+  /// system open panel, dropped on the window (a1-6) or sent by the system
+  /// (ADR 0021), each in a new active tab, or the tab of a file already open.
+  /// Its state is the last file of the latest request that did not open,
   /// which the start screen and the editor show until dismissed (G116).
   DocumentOpenerProvider._()
     : super(
@@ -53,11 +56,12 @@ final class DocumentOpenerProvider
   }
 }
 
-String _$documentOpenerHash() => r'946589ee7330998b15938995793521c58f14e1e3';
+String _$documentOpenerHash() => r'e551d4e2a5f18731a513d899388fe09ede825f63';
 
-/// Opens PDFs, as `documentOpenerProvider` (a1-13): the system open panel,
-/// then each chosen file in a new active tab, or the tab of a file already
-/// open. Its state is the last file of the latest pick that did not open,
+/// Opens PDFs, as `documentOpenerProvider` (a1-13): the files chosen in the
+/// system open panel, dropped on the window (a1-6) or sent by the system
+/// (ADR 0021), each in a new active tab, or the tab of a file already open.
+/// Its state is the last file of the latest request that did not open,
 /// which the start screen and the editor show until dismissed (G116).
 
 abstract class _$DocumentOpener extends $Notifier<OpenProblem?> {

@@ -1252,4 +1252,19 @@ class AppLocalizationsAr extends AppLocalizations {
   String openFailedToastPassword(String name) {
     return 'يتعذّر على Ferman فتح «$name». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي.';
   }
+
+  @override
+  String get dropOverlayTitle => 'أفلت لفتح الملفات';
+
+  @override
+  String get dropOverlayHint => 'مرّر فوق أحد الخيارين ثم أفلت.';
+
+  @override
+  String get dropOverlayTabs => 'فتح في علامات تبويب';
+
+  @override
+  String get dropOverlayTabsDescription => 'يُفتح كل ملف على حدة.';
+
+  @override
+  String get dropOverlayCombine => 'دمج في ملف PDF واحد';
 }

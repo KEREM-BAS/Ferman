@@ -3,6 +3,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/platform/file_picker_service.dart';
+import 'package:ferman/platform/open_requests.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_store.dart';
@@ -23,7 +24,8 @@ const Size boardSize = Size(1440, 900);
 ///
 /// The app has no title bar of its own here (`NoDesktopWindow`), so the
 /// screens fill the view. The engine is [engine]: by default a fake with
-/// PDFium loaded.
+/// PDFium loaded. The open panel is [picker] and the system's open requests
+/// are [openRequests]: fakes by default that open nothing.
 Future<MemorySettingsStore> pumpFermanApp(
   WidgetTester tester, {
   AppSettings settings = const AppSettings(onboardingCompleted: true),
@@ -32,6 +34,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   SettingsStore? store,
   EngineService? engine,
   FilePickerService? picker,
+  OpenRequests openRequests = const NoOpenRequests(),
 }) async {
   tester.view
     ..physicalSize = size
@@ -49,6 +52,7 @@ Future<MemorySettingsStore> pumpFermanApp(
         filePickerServiceProvider.overrideWithValue(
           picker ?? FakeFilePickerService(),
         ),
+        openRequestsProvider.overrideWithValue(openRequests),
       ],
       child: const FermanApp(),
     ),

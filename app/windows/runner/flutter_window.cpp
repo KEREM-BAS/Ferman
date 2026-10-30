@@ -29,6 +29,8 @@ bool FlutterWindow::OnCreate() {
   title_bar_ = std::make_unique<TitleBar>(
       flutter_controller_->engine()->messenger(), GetHandle(),
       flutter_controller_->view()->GetNativeWindow());
+  open_channel_ =
+      std::make_unique<OpenChannel>(flutter_controller_->engine()->messenger());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
     this->Show();
@@ -43,6 +45,7 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  open_channel_ = nullptr;
   title_bar_ = nullptr;
   if (flutter_controller_) {
     flutter_controller_ = nullptr;
@@ -55,6 +58,21 @@ LRESULT
 FlutterWindow::MessageHandler(HWND hwnd, UINT const message,
                               WPARAM const wparam,
                               LPARAM const lparam) noexcept {
+  // A later launch's files (SingleInstance::Serve): this window comes
+  // forward and Dart opens them.
+  if (message == OpenRequestMessage()) {
+    std::unique_ptr<std::vector<std::string>> paths(
+        reinterpret_cast<std::vector<std::string>*>(lparam));
+    if (::IsIconic(hwnd)) {
+      ::ShowWindow(hwnd, SW_RESTORE);
+    }
+    ::SetForegroundWindow(hwnd);
+    if (open_channel_) {
+      open_channel_->Receive(std::move(*paths));
+    }
+    return 0;
+  }
+
   // The custom title bar answers hit tests over the maximize button before
   // the plugins (window_manager) see them.
   if (title_bar_) {

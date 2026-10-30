@@ -367,5 +367,10 @@
   "shellMoreDocumentsUnsaved": "{name} · kaydedilmedi",
   "shellShowAllDocuments": "Tüm açık belgeleri göster",
   "shellCloseOtherDocuments": "Diğer belgeleri kapat…",
-  "openFailedToastPassword": "Ferman “{name}” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek."
+  "openFailedToastPassword": "Ferman “{name}” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.",
+  "dropOverlayTitle": "Açmak için dosyaları bırakın",
+  "dropOverlayHint": "Bir seçeneğin üzerine gelin, sonra bırakın.",
+  "dropOverlayTabs": "Sekmelerde aç",
+  "dropOverlayTabsDescription": "Her dosya ayrı açılır.",
+  "dropOverlayCombine": "Tek bir PDF’de birleştir"
 }

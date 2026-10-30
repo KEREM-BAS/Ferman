@@ -152,8 +152,9 @@ neither.
 
 Licences re-checked on pub.dev on 2026-10-15. `very_good packages check licenses` over
 `app/pubspec.lock` (the full command of [section 8](#8-dart-licence-check): direct, dev and transitive
-dependencies) passes: 121 packages (122 licences), BSD-3-Clause (92), MIT (23) and Apache-2.0 (7),
-since file_selector arrived on 2026-10-30 (111 before, 107 before ffigen on 2026-10-19). `rust_lib_ferman` is a path package and is not counted.
+dependencies) passes: 125 packages (126 licences), BSD-3-Clause (92), MIT (26) and Apache-2.0 (8),
+with `dbus` (MPL-2.0, approved in Q17) skipped by name, since desktop_drop arrived on 2026-10-30
+(121 with file_selector earlier that day, 111 before it, 107 before ffigen on 2026-10-19). `rust_lib_ferman` is a path package and is not counted.
 
 | Name | Purpose | Version (pubspec.lock) | SPDX licence | Status | Since | Notes |
 |---|---|---|---|---|---|---|
@@ -164,6 +165,7 @@ since file_selector arrived on 2026-10-30 (111 before, 107 before ffigen on 2026
 | flutter_localizations | Framework localisations and RTL support | SDK (Flutter 3.47.7) | BSD-3-Clause | ok | M1 | Used with gen-l10n ([ADR 0014](adr/0014-localization-and-rtl.md)). |
 | path_provider | App support, cache and data directories; the settings file lives in the app support directory | 2.1.6 | BSD-3-Clause | ok | M1 | Publisher flutter.dev. Pulls path_provider_android 2.3.1 and through it jni 1.1.0, jni_flutter 1.0.4+1 and jni_util 1.0.0; jni's build hook puts `libdartjni.so` into the Linux bundle, unused on desktop ([section 3.14](#314-notable-transitive-dependencies), [B006](BACKLOG.md#open)). |
 | file_selector | The system open panel (a1-13), PDF files, several at once; later the save and folder pickers | 1.1.0 | BSD-3-Clause | ok | M2 | Publisher flutter.dev. [ADR 0018](adr/0018-native-file-pickers.md), Accepted ([Q07](QUESTIONS.md#q07)); behind `FilePickerService` (`app/lib/platform/file_picker_service.dart`). Brings cross_file 0.3.5+5 and the per-platform packages (android, ios, linux, macos, web, windows) and file_selector_platform_interface 2.7.0, all BSD-3-Clause, and `http` 1.6.0 (BSD-3-Clause): the interface declares it and never imports it, and the owner approved it on 2026-10-30 as `pub_denylist`'s first transitive exception (section 8). On macOS both entitlement files gain `com.apple.security.files.user-selected.read-write`. |
+| desktop_drop | Files dropped on the window (a1-6): the start screen and the editor | 0.8.4 | Apache-2.0 | caution | M2 | Publisher mixin.one. Behind `FileDrop` (`app/lib/features/shell/file_drop.dart`); reports only the pointer while files are dragged and names them on the drop ([G117](DESIGN_GAPS.md#g117)). Brings dbus 0.7.15 (MPL-2.0, approved in [Q17](QUESTIONS.md#q17), unmodified; skipped by name in the licence check, section 8; its source location ships as the licence entry `assets/licenses/dbus/SOURCE.txt`), which pulls xml 7.0.1 and petitparser 7.0.2 (MIT), and universal_platform 1.1.0 (MIT). On macOS a sandboxed app reads a dropped file through the grant the drop carries. |
 | window_manager | Custom title bars, window size and state | 0.5.2 | MIT | ok | M1 | Publisher leanflutter.dev. Windows, macOS and Linux only. Pulls screen_retriever 0.2.2 (MIT). |
 | path_parsing | Parses the icons' SVG path data for the Icon widget's `CustomPainter` | 1.1.0 (2024-11-01) | MIT | ok | M1 | Publisher flutter.dev (flutter/packages, `third_party/packages/path_parsing`); its LICENSE is the MIT text. Depends on meta and vector_math 2.4.0 (both BSD-3-Clause). Replaces flutter_svg ([section 4](#4-rejected), [ADR 0013](adr/0013-fonts-and-icons.md)). |
 | flutter_rust_bridge (Dart) | Dart side of the bridge | 2.13.0 | MIT | ok | M1 | Same version as the crate and the codegen. Publisher cjycode.com. |
@@ -350,7 +352,7 @@ dropped and shared_preferences was not chosen ([section 4](#4-rejected)).
 
 | Name | Purpose | Version (verified 2026-10-13) | SPDX licence | Status | First milestone | Notes |
 |---|---|---|---|---|---|---|
-| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux. **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
+| desktop_drop | Drag and drop onto the window | 0.8.4 (2026-09-01) | Apache-2.0 | caution | M2 | In use since M2, W3 ([section 2.2](#22-dart-and-flutter-packages-app)). Depends on `dbus` (Canonical, 0.7.x, MPL-2.0) on every platform: the dependency is unconditional in its pubspec, and `lib/src/channel.dart` imports `package:dbus` unconditionally and checks the platform only at run time, using it on Linux (the desktop portal's file transfer for sandboxed drag sources). **`dbus` was approved by the owner on 2026-10-15** ([brief §9](BRIEF.md), [Q17](QUESTIONS.md#q17)), so desktop_drop is added in M2, unmodified. The `dbus` notice and source location ship with every build that includes desktop_drop, and `dbus` gets a named skip in the pub licence check ([section 8](#8-dart-licence-check)). No iOS support. |
 | file_selector | OS-native open, save and folder pickers | 1.1.0 (2025-11-21) | BSD-3-Clause | ok | M2 | In use since M2, W3 ([section 2.2](#22-dart-and-flutter-packages-app)). [ADR 0018](adr/0018-native-file-pickers.md), Accepted by the owner on 2026-10-16 ([Q07](QUESTIONS.md#q07)). Flutter >=3.35. All six platforms. Slow releases. Its platform interface declares `http` without importing it (approved exception, section 8). |
 | freezed, freezed_annotation | Data classes and unions | 4.0.2 (2026-09-18); 3.1.0 | MIT | caution | not planned | Added only if a clear need appears ([ADR 0011](adr/0011-flutter-state-navigation-components.md)). Dart 3 records, sealed classes and the FRB-generated classes cover most cases. freezed_annotation has had no release since 2025-07. |
 
@@ -395,7 +397,7 @@ licence or maintenance detail worth knowing.
 | hayro-write | krilla (`pdf` feature) | Apache-2.0 OR MIT | |
 | ICU4X support crates (zerovec, yoke, tinystr, litemap, writeable, potential_utf) | icu_casemap, icu_collator | Unicode-3.0 | |
 | ravif, rav1e, exr, paste | `image` default features | BSD-2-Clause and others | Avoided by turning `image` default features off. `paste` is unmaintained (RUSTSEC-2024-0436). |
-| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)), unmodified. From M2 its notice and source location ship with every build that includes desktop_drop. It is the only MPL-2.0 package, skipped by name in the pub licence check. |
+| dbus 0.7.x (pub) | desktop_drop, on every platform (unconditional import; used only on Linux at run time) | MPL-2.0 | **Approved by the owner on 2026-10-15** ([Q17](QUESTIONS.md#q17)), unmodified. Since M2, W3 (0.7.15) its licence text ships through Flutter's collected notices and its source location as the licence entry `assets/licenses/dbus/SOURCE.txt` (`app/lib/app/licenses.dart`), in every build. It is the only MPL-2.0 package, skipped by name in the pub licence check. |
 | screen_retriever 0.2.2 (pub) | window_manager | MIT | |
 | meta, vector_math 2.4.0 (pub) | path_parsing | BSD-3-Clause | |
 | jni 1.1.0, jni_flutter 1.0.4+1, jni_util 1.0.0 (pub) | path_provider, through path_provider_android 2.3.1 | BSD-3-Clause | Publisher dart.dev. jni's build hook builds `libdartjni.so` (about 150 KB, BSD-3-Clause) into the Linux bundle's `lib/`, although desktop never uses it. Dropping unused native assets from desktop bundles is [B006](BACKLOG.md#open) (M5). |
@@ -576,10 +578,10 @@ Devanagari text comes from Plex Sans.
 |---|---|---|---|
 | Ferman itself | Apache-2.0 | Shown as Apache-2.0. The design says GPL-3.0 in a1-2c and a11-5; the app does not copy that ([G13](DESIGN_GAPS.md#g13)). | M1 |
 | Flutter engine and framework, Dart packages | BSD-3-Clause and the packages' own licences | Flutter's build collects package and engine licences into the app's notices; `LicenseRegistry` reads them. | M1 |
-| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop. | M2 |
+| `dbus` (through desktop_drop, on every platform) | MPL-2.0 | Approved on 2026-10-15 ([Q17](QUESTIONS.md#q17)). Its notice names the licence and where the source is available (pub.dev), in every build that includes desktop_drop: `assets/licenses/dbus/SOURCE.txt` since M2, W3. | M2 |
 | Rust crates | per crate | Generated by cargo-about. | M4 |
 | Glyph names in `crates/ferman-fonts/src/encoding.rs` (the Latin-1 and Latin Extended-A names, as the Adobe Glyph List for New Fonts names them; the base encodings follow ISO 32000-2 Annex D) | BSD-3-Clause (the Adobe Glyph List) | With the Rust crates' notices (M4). Names only: no list file is bundled. | M2 |
-| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 24 texts), which `bootstrap()` calls. | M1 to M4 |
+| PDFium, fonts, icons | sections 5.1 to 5.3 | Added by hand and registered with `LicenseRegistry` by `registerLicenses()` (`app/lib/app/licenses.dart`, 25 texts: these and the source location of `dbus`, section 3.11), which `bootstrap()` calls. | M1 to M4 |
 | Unicode Character Database 15.0 and CLDR data (case tables in app/lib/l10n/casing.dart, territory lists in app/lib/l10n/region.dart, territory display names and their order per language in app/lib/l10n/region_names.dart (CLDR 48 read through ICU 78.3 in Node.js 24.22.0), grouping and date-time tables in app/lib/l10n/format.dart, SpecialCasing lines, ICU results and CLDR 48 formats in app/test/l10n/) | Unicode-3.0 | The Unicode License V3 that opens assets/licenses/pdfium/icu.txt, also registered under "Unicode data (UCD and CLDR)" | M1 |
 
 ## 6. Toolchain
@@ -648,17 +650,18 @@ cargo-deny does not see pub packages, so very_good_cli checks them with the same
 2026-10-15 the check passes for `app/pubspec.lock` (107 packages), `tools/tokens/pubspec.lock`
 (`tools/l10n/pubspec.lock` too, on 2026-10-16) and cargokit's build tool (54 packages, [section 2.3](#23-tools-never-shipped)). CI runs the command below
 for `app/` in the Linux Flutter job (since `52603cb`).
-MPL-2.0 is not on the list. The M1 graph has no MPL-2.0 package, so M1 runs the check without
+MPL-2.0 is not on the list. The M1 graph had no MPL-2.0 package, so M1 ran the check without
 `--skip-packages`. The owner approved `dbus` on 2026-10-15 ([Q17](QUESTIONS.md#q17),
-[section 3.11](#311-flutter-and-dart-packages)), so `--skip-packages=dbus` is added in the same commit as
-desktop_drop in M2, and any other MPL-2.0 package still fails the check. The flags were checked against very_good_cli's documentation on 2026-10-14. The
+[section 3.11](#311-flutter-and-dart-packages)), so `--skip-packages=dbus` came in the same commit as
+desktop_drop (M2, W3), and any other MPL-2.0 package still fails the check. On 2026-10-30 it passes
+for `app/pubspec.lock`: 126 licences from 125 packages, `dbus` skipped. The flags were checked against very_good_cli's documentation on 2026-10-14. The
 default dependency type is `direct-main` only, so the types are set explicitly.
 
 ```sh
 very_good packages check licenses \
   --dependency-type=direct-main,direct-dev,transitive \
-  --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
-# From M2, in the commit that adds desktop_drop (dbus approved in Q17): add --skip-packages=dbus
+  --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016 \
+  --skip-packages=dbus
 ```
 
 **Approved by the owner on 2026-10-16** (Proposed for M1 step 2 of [ROADMAP.md](ROADMAP.md) until

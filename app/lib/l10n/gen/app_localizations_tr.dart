@@ -1249,4 +1249,19 @@ class AppLocalizationsTr extends AppLocalizations {
   String openFailedToastPassword(String name) {
     return 'Ferman “$name” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek.';
   }
+
+  @override
+  String get dropOverlayTitle => 'Açmak için dosyaları bırakın';
+
+  @override
+  String get dropOverlayHint => 'Bir seçeneğin üzerine gelin, sonra bırakın.';
+
+  @override
+  String get dropOverlayTabs => 'Sekmelerde aç';
+
+  @override
+  String get dropOverlayTabsDescription => 'Her dosya ayrı açılır.';
+
+  @override
+  String get dropOverlayCombine => 'Tek bir PDF’de birleştir';
 }

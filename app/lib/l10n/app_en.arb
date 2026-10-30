@@ -1637,5 +1637,25 @@
         "type": "String"
       }
     }
+  },
+  "dropOverlayTitle": "Drop to open the files",
+  "@dropOverlayTitle": {
+    "description": "Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117)."
+  },
+  "dropOverlayHint": "Move over a choice, then let go.",
+  "@dropOverlayHint": {
+    "description": "Line under dropOverlayTitle (a1-6, FmStart dropHow)."
+  },
+  "dropOverlayTabs": "Open in tabs",
+  "@dropOverlayTabs": {
+    "description": "Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117)."
+  },
+  "dropOverlayTabsDescription": "Each file opens on its own.",
+  "@dropOverlayTabsDescription": {
+    "description": "Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11)."
+  },
+  "dropOverlayCombine": "Combine into one PDF",
+  "@dropOverlayCombine": {
+    "description": "Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104)."
   }
 }

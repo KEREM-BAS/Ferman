@@ -82,6 +82,10 @@ GoRouter router(Ref ref) {
             ),
             _ => null,
           },
+          takesFiles: switch (state.uri.path) {
+            Routes.start || Routes.editor || Routes.debugShell => true,
+            _ => false,
+          },
           child: child,
         ),
         routes: [

@@ -1243,6 +1243,22 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String openFailedToastPassword(String name) =>
       isolate(super.openFailedToastPassword(name));
+
+  @override
+  String get dropOverlayTitle => isolate(super.dropOverlayTitle);
+
+  @override
+  String get dropOverlayHint => isolate(super.dropOverlayHint);
+
+  @override
+  String get dropOverlayTabs => isolate(super.dropOverlayTabs);
+
+  @override
+  String get dropOverlayTabsDescription =>
+      isolate(super.dropOverlayTabsDescription);
+
+  @override
+  String get dropOverlayCombine => isolate(super.dropOverlayCombine);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

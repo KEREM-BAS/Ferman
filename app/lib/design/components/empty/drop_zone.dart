@@ -74,9 +74,9 @@ class RecentFile {
 ///
 /// **Dragging.** The zone is a [DragTarget] for lists of file paths: while
 /// such a drag hovers it shows [DropZoneState.over], and a drop calls
-/// [onFiles]. Desktop file drops arrive through desktop_drop from M2,
-/// which feeds the same paths in; until then a screen that tracks a drag
-/// itself can pass `state: DropZoneState.over`.
+/// [onFiles]. Files dragged from the desktop go to the window instead
+/// (`FileDrop`, a1-6), which covers the screen while they are dragged; a
+/// screen that tracks a drag itself can pass `state: DropZoneState.over`.
 ///
 /// **Disabled with a reason (G10).** With [disabledReason] the zone
 /// ignores drags (a drag over it does not enter the over state), and the
@@ -605,8 +605,8 @@ class DropZone extends StatelessWidget {
 }
 
 /// Paints a [DropZone]'s border: a [width] stroke inside the canvas with
-/// corners of [radius], dashed ([DropZone.dashLength] on,
-/// [DropZone.dashGap] off) unless [dashed] is false.
+/// corners of [radius], dashed ([dashLength] on, [dashGap] off) unless
+/// [dashed] is false.
 class DropZoneBorderPainter extends CustomPainter {
   /// Creates the painter.
   const new({
@@ -614,6 +614,8 @@ class DropZoneBorderPainter extends CustomPainter {
     required this.width,
     required this.radius,
     required this.dashed,
+    this.dashLength = DropZone.dashLength,
+    this.dashGap = DropZone.dashGap,
   });
 
   /// The stroke colour.
@@ -627,6 +629,12 @@ class DropZoneBorderPainter extends CustomPainter {
 
   /// Whether the stroke is dashed (idle, error) or solid (over).
   final bool dashed;
+
+  /// A dash's length; Chromium draws three times the whole stroke width.
+  final double dashLength;
+
+  /// The gap between dashes; Chromium leaves twice the whole stroke width.
+  final double dashGap;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -644,16 +652,9 @@ class DropZoneBorderPainter extends CustomPainter {
       return;
     }
     for (final metric in (Path()..addRRect(box)).computeMetrics()) {
-      for (
-        var at = 0.0;
-        at < metric.length;
-        at += DropZone.dashLength + DropZone.dashGap
-      ) {
+      for (var at = 0.0; at < metric.length; at += dashLength + dashGap) {
         canvas.drawPath(
-          metric.extractPath(
-            at,
-            math.min(at + DropZone.dashLength, metric.length),
-          ),
+          metric.extractPath(at, math.min(at + dashLength, metric.length)),
           paint,
         );
       }
@@ -665,5 +666,7 @@ class DropZoneBorderPainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.width != width ||
       oldDelegate.radius != radius ||
-      oldDelegate.dashed != dashed;
+      oldDelegate.dashed != dashed ||
+      oldDelegate.dashLength != dashLength ||
+      oldDelegate.dashGap != dashGap;
 }

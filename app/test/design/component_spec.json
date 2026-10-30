@@ -7315,7 +7315,7 @@
         "Desktop drops need desktop_drop (Q17 approved); M1 shows the drop strip disabled with disabledReason \"Available in a future version\" until its milestone (ROADMAP step 9).",
         "Copy per state lives in the ARB files; every text is a parameter (overTitle, errorTitle, openLabel and the others), and a null text is not shown (decision 20).",
         "The dashed border is painted as 3 px dashes with 2 px gaps, and the Open shortcut joins symbol caps (\"⌘O\") but puts a plus between word caps (\"Ctrl+O\") (G73).",
-        "Desktop file drops arrive with desktop_drop in M2 (B010)."
+        "Desktop file drops go to the window (FileDrop, a1-6) since M2 (B010); the zone's own DragTarget takes drags inside the app."
       ]
     },
     {

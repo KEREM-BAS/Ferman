@@ -2312,6 +2312,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version.'**
   String openFailedToastPassword(String name);
+
+  /// Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117).
+  ///
+  /// In en, this message translates to:
+  /// **'Drop to open the files'**
+  String get dropOverlayTitle;
+
+  /// Line under dropOverlayTitle (a1-6, FmStart dropHow).
+  ///
+  /// In en, this message translates to:
+  /// **'Move over a choice, then let go.'**
+  String get dropOverlayHint;
+
+  /// Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117).
+  ///
+  /// In en, this message translates to:
+  /// **'Open in tabs'**
+  String get dropOverlayTabs;
+
+  /// Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11).
+  ///
+  /// In en, this message translates to:
+  /// **'Each file opens on its own.'**
+  String get dropOverlayTabsDescription;
+
+  /// Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104).
+  ///
+  /// In en, this message translates to:
+  /// **'Combine into one PDF'**
+  String get dropOverlayCombine;
 }
 
 class _AppLocalizationsDelegate

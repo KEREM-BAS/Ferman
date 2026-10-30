@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-368 messages in `app_en.arb`; translated: Turkish 368, Arabic 368.
+373 messages in `app_en.arb`; translated: Turkish 373, Arabic 373.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -424,5 +424,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `shellShowAllDocuments` | Show all open documents | Tüm açık belgeleri göster | عرض كل المستندات المفتوحة | Item of the “+N” menu (a1-10). |
 | `shellCloseOtherDocuments` | Close other documents… | Diğer belgeleri kapat… | إغلاق المستندات الأخرى… | Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones. |
 | `openFailedToastPassword` | Ferman can’t open “{name}”. It needs a password. Opening password-protected PDFs is available in a future version. | Ferman “{name}” dosyasını açamıyor. Dosya parola istiyor. Parolalı PDF’leri açmak gelecek bir sürümde gelecek. | يتعذّر على Ferman فتح «{name}». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي. | Message of the editor’s danger toast (G116) when the file that did not open needs a password: openFailedTitle and openFailedPassword in one sentence pair. {name} is the file name. |
+| `dropOverlayTitle` | Drop to open the files | Açmak için dosyaları bırakın | أفلت لفتح الملفات | Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117). |
+| `dropOverlayHint` | Move over a choice, then let go. | Bir seçeneğin üzerine gelin, sonra bırakın. | مرّر فوق أحد الخيارين ثم أفلت. | Line under dropOverlayTitle (a1-6, FmStart dropHow). |
+| `dropOverlayTabs` | Open in tabs | Sekmelerde aç | فتح في علامات تبويب | Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117). |
+| `dropOverlayTabsDescription` | Each file opens on its own. | Her dosya ayrı açılır. | يُفتح كل ملف على حدة. | Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11). |
+| `dropOverlayCombine` | Combine into one PDF | Tek bir PDF’de birleştir | دمج في ملف PDF واحد | Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

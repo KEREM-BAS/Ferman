@@ -23,12 +23,13 @@ import 'package:go_router/go_router.dart';
 /// blank PDF. Open file… and Open a PDF show the system open panel
 /// (a1-13, ADR 0018); everything else is visible as drawn and disabled
 /// with "Available in a future version" until its milestone (G10, G11):
-/// dropping files later in M2, creating and combining PDFs and compressing
+/// creating and combining PDFs and compressing
 /// in M4, signing in M4 (simple signatures), protecting in P2, scanning,
 /// conversion, text recognition and compare in P3. Each of those controls
 /// takes its state from its feature in the feature registry ([Feature]).
 /// The copy speaks of PDFs only until conversion exists (G11). A file that
 /// did not open shows a danger banner at the top until dismissed (G116).
+/// Files dropped anywhere on the window open too (`FileDrop`, a1-6).
 ///
 /// The keys come from the shell's shortcut table: ⌘, (Ctrl+, on Windows
 /// and Linux) opens Settings (the a11-1 note) through a
@@ -174,7 +175,6 @@ class FmStart extends ConsumerWidget {
           footnote: l10n.startDropFootnote,
           minHeight: dropMinHeight,
           onOpen: onOpen,
-          // Desktop drops arrive with desktop_drop (B010).
           disabledReason: openReason,
           createDisabledReason: Feature.createPdf.disabledReason(context),
         ),

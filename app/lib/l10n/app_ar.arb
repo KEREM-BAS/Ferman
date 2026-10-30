@@ -367,5 +367,10 @@
   "shellMoreDocumentsUnsaved": "{name} · غير محفوظ",
   "shellShowAllDocuments": "عرض كل المستندات المفتوحة",
   "shellCloseOtherDocuments": "إغلاق المستندات الأخرى…",
-  "openFailedToastPassword": "يتعذّر على Ferman فتح «{name}». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي."
+  "openFailedToastPassword": "يتعذّر على Ferman فتح «{name}». يحتاج الملف إلى كلمة مرور. فتح ملفات PDF المحمية بكلمة مرور متاح في إصدار مستقبلي.",
+  "dropOverlayTitle": "أفلت لفتح الملفات",
+  "dropOverlayHint": "مرّر فوق أحد الخيارين ثم أفلت.",
+  "dropOverlayTabs": "فتح في علامات تبويب",
+  "dropOverlayTabsDescription": "يُفتح كل ملف على حدة.",
+  "dropOverlayCombine": "دمج في ملف PDF واحد"
 }

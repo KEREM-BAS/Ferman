@@ -1242,4 +1242,19 @@ class AppLocalizationsEn extends AppLocalizations {
   String openFailedToastPassword(String name) {
     return 'Ferman can’t open “$name”. It needs a password. Opening password-protected PDFs is available in a future version.';
   }
+
+  @override
+  String get dropOverlayTitle => 'Drop to open the files';
+
+  @override
+  String get dropOverlayHint => 'Move over a choice, then let go.';
+
+  @override
+  String get dropOverlayTabs => 'Open in tabs';
+
+  @override
+  String get dropOverlayTabsDescription => 'Each file opens on its own.';
+
+  @override
+  String get dropOverlayCombine => 'Combine into one PDF';
 }

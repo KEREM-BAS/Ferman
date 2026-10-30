@@ -50,6 +50,10 @@ enum Feature {
   /// Scan to PDF: Start › Scan to PDF and Convert › Scan.
   scanToPdf('B021'),
 
+  /// Combining dropped files: "Combine into one PDF" while files are
+  /// dragged over the window (a1-6).
+  combineDropped('B104'),
+
   /// Showing every open document at once: "+N" › Show all open documents
   /// (a1-10).
   showAllDocuments('B117'),

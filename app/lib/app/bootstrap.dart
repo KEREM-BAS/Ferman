@@ -6,6 +6,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_start.dart';
 import 'package:ferman/l10n/format.dart';
+import 'package:ferman/platform/open_requests.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_start.dart';
 import 'package:flutter/widgets.dart';
@@ -13,9 +14,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// Registers the bundled licence texts, initialises intl's region formats,
 /// loads the settings, starts the engine and the platform window (with
-/// Ferman's own title bar on the desktop), and runs the app.
-Future<void> bootstrap() async {
+/// Ferman's own title bar on the desktop), and runs the app, which opens
+/// the files of [arguments] (the command line on Windows and Linux) and
+/// those the system asks for (ADR 0021).
+Future<void> bootstrap([List<String> arguments = const []]) async {
   WidgetsFlutterBinding.ensureInitialized();
+  final requests = await PlatformOpenRequests.start(arguments);
   registerLicenses();
   // Before the localization delegates load (ADR 0014, format.dart).
   initializeRegionFormats();
@@ -31,6 +35,7 @@ Future<void> bootstrap() async {
         initialSettingsProvider.overrideWithValue(settings),
         engineServiceProvider.overrideWithValue(engine),
         desktopWindowProvider.overrideWithValue(window),
+        openRequestsProvider.overrideWithValue(requests),
       ],
       child: const FermanApp(),
     ),
