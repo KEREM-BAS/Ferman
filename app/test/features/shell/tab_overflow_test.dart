@@ -36,6 +36,7 @@ void main() {
       tester,
       shellHost(
         window: window,
+        samples: false,
         overrides: [engineServiceProvider.overrideWithValue(engine)],
       ),
     );
@@ -84,6 +85,7 @@ void main() {
       tester,
       shellHost(
         window: window,
+        samples: false,
         overrides: [
           engineServiceProvider.overrideWithValue(FakeEngineService()),
         ],
@@ -154,6 +156,7 @@ void main() {
       tester,
       shellHost(
         window: window,
+        samples: false,
         size: sizes,
         overrides: [
           engineServiceProvider.overrideWithValue(FakeEngineService()),

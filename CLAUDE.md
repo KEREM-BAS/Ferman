@@ -74,7 +74,7 @@ cargo clippy --manifest-path fuzz/Cargo.toml --all-targets -- -D warnings && car
 (cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127; the Dco codec's ffigen needs libclang: Xcode on macOS, libclang-dev on Linux)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
-(cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)
+(cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell at /editor once a document opens; the gallery is the debug route /debug/gallery)
 (cd app && flutter build web --release)                              # web build with the engine stubbed (kept buildable until phase 5)
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
 (cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2

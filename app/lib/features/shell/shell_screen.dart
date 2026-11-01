@@ -36,8 +36,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// when the shell opens. The shortcut table's keys work anywhere in it
 /// ([ShellCommandScope]).
 ///
-/// M1 reaches it only at `/debug/shell`, with placeholder documents; the
-/// start screen stays at `/`.
+/// The router shows it at `/editor` once a document opens; the start
+/// screen stays at `/`.
 class FmWindow extends ConsumerWidget {
   /// The shell.
   const new({super.key, this.onOpenSettings});

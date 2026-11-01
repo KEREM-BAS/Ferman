@@ -1,4 +1,3 @@
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -22,10 +21,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// document's page count is known). With a document open
 /// (`viewerProvider`) they work: the page text is a field that a click or
 /// ⌘G (Ctrl+G) opens for a page number or label ([_PageField], a2-13),
-/// and the zoom is the one the view shows, also under a fit. The
-/// placeholder documents keep them disabled with the future-version
-/// tooltip, through the feature registry's [Feature.pageNavigation] and
-/// [Feature.zoom], until documents open (W3). Then the
+/// and the zoom is the one the view shows, also under a fit; while the
+/// document is not shown yet (locked) they are disabled. Then the
 /// text language of the selection when there is one ([language], FmWindow
 /// `statusLang`; none in M1). At the end, the active document's save state
 /// through `SaveIndicator`, the saved time in the region's format; nothing
@@ -72,7 +69,6 @@ class ShellStatusBar extends ConsumerWidget {
     final saveState = document?.saveState;
 
     IconButton button(
-      Feature feature,
       IconName icon,
       String label,
       ShellCommand command, [
@@ -83,8 +79,7 @@ class ShellStatusBar extends ConsumerWidget {
       size: IconButtonSize.xs,
       tooltipSide: TooltipSide.top,
       shortcut: command.caps(platform),
-      disabled: view != null && action == null,
-      disabledReason: view == null ? feature.disabledReason(context) : null,
+      disabled: action == null,
       onPressed: action,
     );
 
@@ -120,14 +115,12 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
-                    Feature.pageNavigation,
                     IconName.chevronUp,
                     l10n.shellPreviousPage,
                     ShellCommand.previousPage,
                     view != null && view.page > 0 ? viewer.previousPage : null,
                   ),
                   button(
-                    Feature.pageNavigation,
                     IconName.chevronDown,
                     l10n.shellNextPage,
                     ShellCommand.nextPage,
@@ -155,7 +148,6 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
-                    Feature.zoom,
                     IconName.minus,
                     l10n.shellZoomOut,
                     ShellCommand.zoomOut,
@@ -169,7 +161,6 @@ class ShellStatusBar extends ConsumerWidget {
                     ),
                   ),
                   button(
-                    Feature.zoom,
                     IconName.plus,
                     l10n.shellZoomIn,
                     ShellCommand.zoomIn,

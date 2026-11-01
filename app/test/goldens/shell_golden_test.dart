@@ -2,6 +2,7 @@ import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/navigation/ferman_mode.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 
+import '../helpers/sample_documents.dart';
 import '../helpers/window_golden.dart';
 
 /// The shell in [mode] from the start, as when a document opens in it.
@@ -27,9 +28,9 @@ String _screen(FermanMode mode) => switch (mode) {
 };
 
 /// The boards `tools/design-refs/compare-map.json` scores a golden against;
-/// the shell is the editor at `/debug/shell` with its placeholder
-/// documents, so the boards are the nearest drawn states, not the same
-/// document.
+/// the shell is the editor at `/editor` with the sample tabs
+/// ([sampleDocuments]), so the boards are the nearest drawn states, not the
+/// same document.
 String? _board(
   FermanMode mode,
   GoldenChrome chrome,
@@ -51,7 +52,7 @@ String? _board(
   _ => null,
 };
 
-/// The editor shell (`/debug/shell`, the placeholder documents) in each of
+/// The editor shell (`/editor`, the [sampleDocuments]) in each of
 /// the eight modes with macOS and Windows chrome, in light and dark × en,
 /// tr and ar (ROADMAP §5 step 11). English uses the United Kingdom region.
 Future<void> main() async {
@@ -70,9 +71,10 @@ Future<void> main() async {
               language: language,
               onboardingCompleted: true,
             ),
-            initialLocation: Routes.debugShell,
+            initialLocation: Routes.editor,
             overrides: [
               shellModeProvider.overrideWith(() => _ShellModeIn(mode)),
+              sampleDocumentsOverride(),
             ],
           );
         }

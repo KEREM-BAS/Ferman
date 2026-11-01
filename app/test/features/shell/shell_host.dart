@@ -15,6 +15,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/component_host.dart';
 import '../../helpers/fake_desktop_window.dart';
+import '../../helpers/sample_documents.dart';
 import 'german_like_localizations.dart';
 
 /// The size of the desktop artboards.
@@ -24,7 +25,8 @@ const Size artboard = Size(1440, 900);
 const String futureVersion = 'Available in a future version';
 
 /// The window frame with the shell's title-bar content and the shell, as
-/// the router shows `/debug/shell`, at the artboard size, in a fresh
+/// the router shows `/editor`, with the [sampleDocuments] unless
+/// [samples] is false, at the artboard size, in a fresh
 /// provider container (disposed after the test) with [window], the key
 /// conventions of [platform] and the region [regionCode] (Türkiye unless
 /// given, so times read 14:32 and percentages "%100").
@@ -48,6 +50,7 @@ Widget shellHost({
   bool germanLike = false,
   LocalizationsDelegate<AppLocalizations>? localizations,
   List<Override> overrides = const [],
+  bool samples = true,
 }) {
   Widget frame(Size size) {
     final shell = SizedBox.fromSize(
@@ -87,6 +90,7 @@ Widget shellHost({
         initialSettingsProvider.overrideWithValue(
           AppSettings(regionCode: regionCode),
         ),
+        if (samples) sampleDocumentsOverride(),
         ...overrides,
       ],
     ),

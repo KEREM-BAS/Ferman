@@ -96,6 +96,21 @@ final Map<String, ShellCommand> _choiceCommands = {
   _l10n.shellActualSize: ShellCommand.actualSize,
 };
 
+/// The View row's and the status bar's viewing controls: disabled without
+/// a reason while no document shows.
+const Set<String> _waitForDocument = {
+  'Select',
+  'Hand',
+  'Marquee zoom',
+  'Zoom out',
+  'Zoom',
+  'Zoom in',
+  'Fit',
+  'Page layout',
+  'Previous page',
+  'Next page',
+};
+
 /// The commands that have a control but whose keys no M1 surface shows
 /// (B034): the Fit segments and the zoom Select cannot show keys
 /// (SegmentOption and SelectOption have no shortcut field), and the
@@ -260,7 +275,14 @@ void main() {
 
           final tooltips = _tooltipsOf(tester, finder);
           expect(tooltips.length, lessThanOrEqualTo(1), reason: reason);
-          if (!control.enabled) {
+          final waits =
+              (!inRow || mode == FermanMode.view) &&
+              _waitForDocument.contains(control.label);
+          if (!control.enabled && waits) {
+            // The viewing controls wait for a shown document, not a version:
+            // the shell shows sample tabs without one.
+            expect(control.disabledReason, isNull, reason: reason);
+          } else if (!control.enabled) {
             // Every disabled control says why (G10) …
             expect(control.disabledReason, isNotNull, reason: reason);
             // … in its tooltip, instead of its keys (G87).
@@ -406,9 +428,21 @@ void main() {
           reason: mode.id,
         );
         // All disabled, the rows give the reason as their tooltip, without
-        // keys (G10).
+        // keys (G10); the viewing tools, waiting for a document, give none.
         final tooltips = _tooltipsOf(tester, menuFinder);
-        expect(tooltips, hasLength(entries.length), reason: mode.id);
+        expect(
+          tooltips,
+          hasLength(
+            entries
+                .where(
+                  (entry) =>
+                      mode != FermanMode.view ||
+                      !_waitForDocument.contains(entry.label),
+                )
+                .length,
+          ),
+          reason: mode.id,
+        );
         for (final tooltip in tooltips) {
           expect(tooltip.message, futureVersion, reason: mode.id);
           expect(tooltip.shortcut, isNull, reason: mode.id);

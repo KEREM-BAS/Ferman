@@ -59,19 +59,6 @@ enum Feature {
 
   // Viewing.
 
-  /// Rendering pages on the canvas.
-  pageRendering('B069'),
-
-  /// The Select and Hand tools of the View row.
-  selectAndHand('B033'),
-
-  /// Zoom: the View row's marquee zoom, zoom buttons, zoom menu and Fit
-  /// and the status bar's zoom buttons, while no document is open.
-  zoom('B034'),
-
-  /// Page layout: the View row's control, while no document is open.
-  pageLayout('B035'),
-
   /// Split view (View row).
   splitView('B036'),
 
@@ -84,9 +71,6 @@ enum Feature {
   /// Dark reading mode: the View row's switch and the option under
   /// Settings › General › PDF pages in dark theme.
   darkReadingMode('B040'),
-
-  /// Page navigation: the status bar's Previous page and Next page.
-  pageNavigation('B070'),
 
   /// The sidebar's tab contents: the Pages tab's badge legend.
   sidebarContents('B065'),

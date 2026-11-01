@@ -20,6 +20,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/component_host.dart';
 import '../../helpers/fake_desktop_window.dart';
+import '../../helpers/sample_documents.dart';
 import 'shell_host.dart';
 
 /// The languages the narrow shell is checked in (G21): English, Turkish,
@@ -84,6 +85,18 @@ bool _tabsIconsOnly(WidgetTester tester) => tester
 Finder _iconButton(String label) => find.byWidgetPredicate(
   (widget) => widget is IconButton && widget.label == label,
 );
+
+/// View's tools that work once a document shows.
+const Set<String> _viewing = {
+  'Select',
+  'Hand',
+  'Marquee zoom',
+  'Zoom out',
+  'Zoom',
+  'Zoom in',
+  'Fit',
+  'Page layout',
+};
 
 void main() {
   late FakeDesktopWindow window;
@@ -522,6 +535,7 @@ void main() {
             initialSettingsProvider.overrideWithValue(
               const AppSettings(regionCode: 'TR'),
             ),
+            sampleDocumentsOverride(),
           ],
         );
         container.read(shellModeProvider.notifier).select(mode);
@@ -557,7 +571,14 @@ void main() {
         expect(entries.map((item) => item.label), outside);
         for (final entry in entries) {
           expect(entry.disabled, isTrue, reason: entry.label);
-          expect(entry.disabledReason, futureVersion, reason: entry.label);
+          // View's viewing tools wait for a shown document, not a version.
+          expect(
+            entry.disabledReason,
+            mode == FermanMode.view && _viewing.contains(entry.label)
+                ? isNull
+                : futureVersion,
+            reason: entry.label,
+          );
         }
         for (final tool in _tools(tester, mode)) {
           final entry = entries.where((item) => item.label == tool.label);
@@ -575,6 +596,7 @@ void main() {
           initialSettingsProvider.overrideWithValue(
             const AppSettings(regionCode: 'TR'),
           ),
+          sampleDocumentsOverride(),
         ],
       );
       container.read(shellModeProvider.notifier).select(FermanMode.edit);

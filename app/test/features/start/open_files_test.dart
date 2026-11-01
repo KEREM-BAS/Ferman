@@ -106,7 +106,7 @@ void main() {
     expect(picker.requests, ['PDF documents']);
     expect(find.byType(FmWindow), findsOneWidget);
     expect(find.byType(DocumentView), findsOneWidget);
-    // Both tabs, the last one shown; the placeholders are gone. (The
+    // Both tabs, the last one shown. (The
     // harness has no custom title bar, so the tabs are read from the state.)
     List<String?> tabs() => [
       for (final document in container.read(shellDocumentsProvider).documents)
