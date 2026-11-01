@@ -2099,14 +2099,14 @@ rows say "keys only".
   real-world set covers Word, Google Docs, LibreOffice, LaTeX, scanned, forms, signed, encrypted and
   damaged files. Open: every generated file has its row, checked by `tools/corpus` `check` in CI,
   but no real-world file has been added yet ([ADR 0020](adr/0020-test-corpus.md)).
-- [ ] Goldens for every M2 screen in light and dark × en, tr and ar (S4), including a dark View-mode
-  window ([G17](DESIGN_GAPS.md#g17)). Open: `app/test/goldens/m2_screens_golden_test.dart` draws
+- [x] Goldens for every M2 screen in light and dark × en, tr and ar (S4), including a dark View-mode
+  window ([G17](DESIGN_GAPS.md#g17)). `app/test/goldens/m2_screens_golden_test.dart` draws
   the M2 screens in light and dark × en, tr and ar, the viewer in dark included: the viewer and
   each sidebar tab, search with its progress (`a2-4c`) and no results (`a2-4d`), the properties,
   restricted, repaired (`a1-9`) and XFA-only (`a11-7c`) documents, the unlock dialog, a damaged
   file (`a1-9b`), a file that is not a PDF, the recent files, the default-app prompt and the start
-  screen without PDFium (G101). The first twelve have their images from CI's Linux run (`a18e5c4`);
-  the newer six get theirs from the next one. `a1-7`'s card has none: its indeterminate bar never
+  screen without PDFium (G101). The first twelve have their images from CI's Linux run (`a18e5c4`),
+  the newer six from the Linux run on `64f2115`. `a1-7`'s card has none: its indeterminate bar never
   stops, which the golden helper refuses.
 - [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
   Open: the CI job that runs the build under strace waits for the owner, since strace is LGPL
