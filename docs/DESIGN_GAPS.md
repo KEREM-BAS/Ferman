@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-121 entries: 98 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
+122 entries: 99 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 33 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 34 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -194,6 +194,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G120](#g120) | gap | M2 | Tabs | No board says which state belongs to a document tab and which to the window | Decided |
 | [G121](#g121) | missing screen | M2 | Tabs | a1-10 names "Show all open documents" and "Close other documents…" but draws neither, and gives ⇧⌘\\ for macOS only | Decided |
 | [G122](#g122) | conflict | M2 | Document properties | ROADMAP names Summary, Fonts and Security; a2-7 draws Summary, Security and Advanced with the fonts inside Summary, and names a substitute only for one font | Decided |
+| [G123](#g123) | ambiguity | M2 | First run / default PDF app | a1-3's "Asked once" beside a "Don't ask again" box, and no state for Ferman already being the default | Decided |
 
 ## Entries
 
@@ -1814,3 +1815,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The tabs follow the boards: Summary (a2-7's grid read row by row, then the fonts table), Security (a2-10b) and Advanced (the document's language and G100's scripts row in a8-3's words). Fonts show Embedded, Subset or Not embedded with their type; the notes keep only the sentence that is true without the coverage check ("Only the characters already used.", "Subset: only characters already in the file."), and a font that is not embedded has no note until the substitute is known (B122). A Type 3 font counts as embedded, as the file draws it. The page size is the first page's, named A4 or Letter when it is one, either way up, within 1 pt. "Made with" is the producer, else the creator (a2-7's "LibreOffice 24.8" is a LibreOffice file's producer). The password reads "No password", "Password to open" or "Owner password" (a file whose permissions are all allowed counts as having none), and Encryption adds "owner password" only when a permission is off. Signing reads the form-filling bit, which covers signature fields (PDF 32000-1 table 22, bit 9). Empty metadata shows a2-10b's "None". Values from the file keep their own direction (bidi isolation), and the panel's path breaks anywhere, as FmDocPanel's `word-break: break-all`. Advanced's XMP and output intents wait for the engine (B122). ⌘D (Ctrl+D) opens the dialog in every mode but Organize, where it duplicates pages (a14-1d); a restricted document's Security tab carries a2-10b's Unlock with owner password…, which closes the dialog for G106's.
 - **Status:** Decided.
 - **Evidence:** `design/02 View.dc.html` lines 184–200 (a2-7) and 247–257 (a2-10b); `design/FmDocPanel.dc.html`. Implemented in `app/lib/features/shell/document_properties.dart` (`DocumentFacts`, `DocumentPanelSections`, `DocumentPropertiesDialog`), `app/lib/features/shell/shell_panel.dart` and `app/lib/features/shell/shell_canvas.dart`; tests in `app/test/features/shell/document_properties_test.dart`.
+
+### G123 · The default-app question: when it asks again, and Ferman already the default
+
+- **Type:** ambiguity
+- **Milestone:** M2
+- **Area:** First run, Settings › General
+- **Artboards:** `a1-3`, `a11-1`
+- **Gap or conflict:** a1-3's note says the question is "Asked once, after onboarding", yet its footer has a "Don't ask again" box, which matters only if it asks more than once. Neither a1-3 nor a11-1 draws Ferman already being the default PDF app, nor a system that does not say which app opens PDF files.
+- **Decision:** The start screen asks at most once a run, while another app opens PDF files. Use Ferman for PDFs asks macOS (which asks the person) and never asks again; Not now closes it until the next start, and with Don't ask again it never asks again (`AppSettings.askDefaultApp`). When Ferman opens PDF files, nothing asks and Settings › General says "Ferman opens PDFs on this Mac." without the button. When the system does not say, nothing asks and the row keeps a1-3's sentence. Only macOS says, so only macOS asks (B101, B102).
+- **Status:** Decided.
+- **Evidence:** `design/01 First run and files.dc.html` (a1-3, its note). Implemented in `app/lib/features/start/default_app_prompt.dart`, `app/lib/features/settings/general_pane.dart` and `app/lib/platform/default_app.dart`; tests in `app/test/features/start/default_app_prompt_test.dart`.

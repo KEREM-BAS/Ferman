@@ -2,6 +2,7 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/platform/default_app.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/platform/open_requests.dart';
@@ -29,7 +30,8 @@ const Size boardSize = Size(1440, 900);
 /// PDFium loaded. The open panel is [picker] and the system's open requests
 /// are [openRequests]: fakes by default that open nothing. The recent files
 /// start as [recentFiles], kept in memory, and [fileAccess] makes their
-/// bookmarks (none by default); [home] is the directory shown as "~".
+/// bookmarks (none by default); [home] is the directory shown as "~";
+/// [defaultApp] answers which app opens PDF files (nothing by default).
 Future<MemorySettingsStore> pumpFermanApp(
   WidgetTester tester, {
   AppSettings settings = const AppSettings(onboardingCompleted: true),
@@ -42,6 +44,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   List<RecentEntry> recentFiles = const [],
   FileAccess fileAccess = const NoFileAccess(),
   String? home,
+  DefaultPdfApp defaultApp = const NoDefaultPdfApp(),
 }) async {
   tester.view
     ..physicalSize = size
@@ -63,6 +66,7 @@ Future<MemorySettingsStore> pumpFermanApp(
         initialRecentFilesProvider.overrideWithValue(recentFiles),
         fileAccessProvider.overrideWithValue(fileAccess),
         homeDirectoryProvider.overrideWithValue(home),
+        defaultPdfAppProvider.overrideWithValue(defaultApp),
         recentFilesStoreProvider.overrideWithValue(
           MemoryRecentFilesStore(recentFiles),
         ),

@@ -504,5 +504,13 @@
   "propertiesScripts": "JavaScript",
   "propertiesScriptsValue": "{count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}}",
   "openingTitle": "“{name}” açılıyor",
-  "openingCancel": "Vazgeç"
+  "openingCancel": "Vazgeç",
+  "defaultAppTitle": "PDF’ler Ferman ile açılsın mı?",
+  "defaultAppDescription": "Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister.",
+  "defaultAppNow": "PDF’leri şu an açan:",
+  "defaultAppNotNow": "Şimdi değil",
+  "defaultAppUse": "PDF’ler için Ferman’ı kullan",
+  "defaultAppDontAsk": "Bir daha sorma",
+  "settingsDefaultAppOther": "Bu Mac’te PDF’leri {app} açıyor.",
+  "settingsDefaultAppFerman": "Bu Mac’te PDF’leri Ferman açıyor."
 }

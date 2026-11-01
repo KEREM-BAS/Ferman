@@ -25,6 +25,7 @@ final class AppSettings {
     this.onboardingCompleted = false,
     this.reopenDocuments = true,
     this.lastDocuments = const [],
+    this.askDefaultApp = true,
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -59,6 +60,7 @@ final class AppSettings {
         ],
         _ => const [],
       },
+      askDefaultApp: json[_askDefaultApp] != false,
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -83,6 +85,7 @@ final class AppSettings {
   static const String _onboardingCompleted = 'onboardingCompleted';
   static const String _reopenDocuments = 'reopenDocuments';
   static const String _lastDocuments = 'lastDocuments';
+  static const String _askDefaultApp = 'askDefaultApp';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -94,6 +97,7 @@ final class AppSettings {
     _onboardingCompleted,
     _reopenDocuments,
     _lastDocuments,
+    _askDefaultApp,
   };
 
   /// Settings → General → Theme.
@@ -128,6 +132,11 @@ final class AppSettings {
   /// kept only while [reopenDocuments] is on.
   final List<String> lastDocuments;
 
+  /// Whether the start screen asks to make Ferman the app that opens PDF
+  /// files (a1-3, B080); off once it was answered with Use Ferman or with
+  /// Don't ask again.
+  final bool askDefaultApp;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -149,6 +158,7 @@ final class AppSettings {
     _onboardingCompleted: onboardingCompleted,
     _reopenDocuments: reopenDocuments,
     _lastDocuments: lastDocuments,
+    _askDefaultApp: askDefaultApp,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -163,6 +173,7 @@ final class AppSettings {
     bool? onboardingCompleted,
     bool? reopenDocuments,
     List<String>? lastDocuments,
+    bool? askDefaultApp,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -175,6 +186,7 @@ final class AppSettings {
     onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
     reopenDocuments: reopenDocuments ?? this.reopenDocuments,
     lastDocuments: lastDocuments ?? this.lastDocuments,
+    askDefaultApp: askDefaultApp ?? this.askDefaultApp,
     unknown: unknown,
     version: version,
   );
@@ -191,6 +203,7 @@ final class AppSettings {
       other.onboardingCompleted == onboardingCompleted &&
       other.reopenDocuments == reopenDocuments &&
       listEquals(other.lastDocuments, lastDocuments) &&
+      other.askDefaultApp == askDefaultApp &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -205,6 +218,7 @@ final class AppSettings {
     onboardingCompleted,
     reopenDocuments,
     Object.hashAll(lastDocuments),
+    askDefaultApp,
     version,
     Object.hashAllUnordered(unknown.keys),
   );

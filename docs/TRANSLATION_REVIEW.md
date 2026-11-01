@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-505 messages in `app_en.arb`; translated: Turkish 505, Arabic 505.
+513 messages in `app_en.arb`; translated: Turkish 513, Arabic 513.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -561,5 +561,13 @@ The table below is generated from the ARB files by `tools/l10n`
 | `propertiesScriptsValue` | {count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}} | {count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}} | {count, plural, =1{برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.} =2{برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.} few{{countText} برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} many{{countText} برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} other{{countText} برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.}} | The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region. |
 | `openingTitle` | Opening “{name}” | “{name}” açılıyor | جارٍ فتح «{name}» | a1-7: the title of the progress card while a file takes long to open. {name} is the file name. |
 | `openingCancel` | Cancel | Vazgeç | إلغاء | a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab. |
+| `defaultAppTitle` | Open PDFs with Ferman? | PDF’ler Ferman ile açılsın mı? | هل تريد فتح ملفات PDF باستخدام Ferman؟ | Title of the first-run question that offers to make Ferman the app that opens PDF files (a1-3), asked after onboarding on macOS. |
+| `defaultAppDescription` | Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change. | Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister. | يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير. | Line under defaultAppTitle (a1-3). |
+| `defaultAppNow` | Opens PDFs now: | PDF’leri şu an açan: | يفتح ملفات PDF الآن: | Label before the app that opens PDF files now, an arrow and Ferman (a1-3). |
+| `defaultAppNotNow` | Not now | Şimdi değil | ليس الآن | Button of a1-3 that closes the question; Settings › General keeps the button. |
+| `defaultAppUse` | Use Ferman for PDFs | PDF’ler için Ferman’ı kullan | استخدام Ferman لملفات PDF | Primary button of a1-3: asks macOS to make Ferman the app that opens PDF files. |
+| `defaultAppDontAsk` | Don’t ask again | Bir daha sorma | عدم السؤال مرة أخرى | Checkbox of a1-3: with it, Not now never asks again. |
+| `settingsDefaultAppOther` | {app} opens PDFs on this Mac. | Bu Mac’te PDF’leri {app} açıyor. | يفتح {app} ملفات PDF على جهاز Mac هذا. | Text beside Make Ferman the default… in Settings › General on macOS (a11-1); app is the app that opens PDF files now, as macOS names it, isolated. |
+| `settingsDefaultAppFerman` | Ferman opens PDFs on this Mac. | Bu Mac’te PDF’leri Ferman açıyor. | يفتح Ferman ملفات PDF على جهاز Mac هذا. | Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

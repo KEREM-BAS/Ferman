@@ -1731,4 +1731,31 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get openingCancel => 'Vazgeç';
+
+  @override
+  String get defaultAppTitle => 'PDF’ler Ferman ile açılsın mı?';
+
+  @override
+  String get defaultAppDescription =>
+      'Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister.';
+
+  @override
+  String get defaultAppNow => 'PDF’leri şu an açan:';
+
+  @override
+  String get defaultAppNotNow => 'Şimdi değil';
+
+  @override
+  String get defaultAppUse => 'PDF’ler için Ferman’ı kullan';
+
+  @override
+  String get defaultAppDontAsk => 'Bir daha sorma';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return 'Bu Mac’te PDF’leri $app açıyor.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman => 'Bu Mac’te PDF’leri Ferman açıyor.';
 }

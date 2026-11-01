@@ -2285,5 +2285,42 @@
   "openingCancel": "Cancel",
   "@openingCancel": {
     "description": "a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab."
+  },
+  "defaultAppTitle": "Open PDFs with Ferman?",
+  "@defaultAppTitle": {
+    "description": "Title of the first-run question that offers to make Ferman the app that opens PDF files (a1-3), asked after onboarding on macOS."
+  },
+  "defaultAppDescription": "Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.",
+  "@defaultAppDescription": {
+    "description": "Line under defaultAppTitle (a1-3)."
+  },
+  "defaultAppNow": "Opens PDFs now:",
+  "@defaultAppNow": {
+    "description": "Label before the app that opens PDF files now, an arrow and Ferman (a1-3)."
+  },
+  "defaultAppNotNow": "Not now",
+  "@defaultAppNotNow": {
+    "description": "Button of a1-3 that closes the question; Settings › General keeps the button."
+  },
+  "defaultAppUse": "Use Ferman for PDFs",
+  "@defaultAppUse": {
+    "description": "Primary button of a1-3: asks macOS to make Ferman the app that opens PDF files."
+  },
+  "defaultAppDontAsk": "Don’t ask again",
+  "@defaultAppDontAsk": {
+    "description": "Checkbox of a1-3: with it, Not now never asks again."
+  },
+  "settingsDefaultAppOther": "{app} opens PDFs on this Mac.",
+  "@settingsDefaultAppOther": {
+    "description": "Text beside Make Ferman the default… in Settings › General on macOS (a11-1); app is the app that opens PDF files now, as macOS names it, isolated.",
+    "placeholders": {
+      "app": {
+        "type": "String"
+      }
+    }
+  },
+  "settingsDefaultAppFerman": "Ferman opens PDFs on this Mac.",
+  "@settingsDefaultAppFerman": {
+    "description": "Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown."
   }
 }

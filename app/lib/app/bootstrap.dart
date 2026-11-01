@@ -6,6 +6,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_start.dart';
 import 'package:ferman/l10n/format.dart';
+import 'package:ferman/platform/default_app.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/open_requests.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -13,6 +14,7 @@ import 'package:ferman/recent/recent_files_start.dart';
 import 'package:ferman/recent/recent_previews.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_start.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -46,6 +48,10 @@ Future<void> bootstrap([List<String> arguments = const []]) async {
         recentPreviewStoreProvider.overrideWithValue(recentPreviewStore),
         homeDirectoryProvider.overrideWithValue(userHomeDirectory()),
         fileAccessProvider.overrideWithValue(const PlatformFileAccess()),
+        if (defaultTargetPlatform == TargetPlatform.macOS)
+          defaultPdfAppProvider.overrideWithValue(
+            const PlatformDefaultPdfApp(),
+          ),
         engineServiceProvider.overrideWithValue(engine),
         desktopWindowProvider.overrideWithValue(window),
         openRequestsProvider.overrideWithValue(requests),

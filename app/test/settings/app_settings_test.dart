@@ -18,6 +18,7 @@ void main() {
         'onboardingCompleted': false,
         'reopenDocuments': true,
         'lastDocuments': <String>[],
+        'askDefaultApp': true,
       });
     });
 
@@ -43,6 +44,7 @@ void main() {
         'onboardingCompleted': true,
         'reopenDocuments': true,
         'lastDocuments': <String>[],
+        'askDefaultApp': true,
       });
     });
 

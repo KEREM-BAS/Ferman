@@ -8,6 +8,7 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/platform/default_app.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -22,11 +23,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// (G10), through its feature in the feature registry ([Feature]): PDF
 /// pages in dark theme (Paper white and Dimmed in M2, Dark
 /// reading mode in P2), the page layout and zoom for new documents and
-/// the default PDF app (M2, a1-3). Their values are the defaults the
-/// design draws.
+/// the default PDF app on Windows and Linux (B101, B102). Their values are
+/// the defaults the design draws.
 ///
-/// The design's "Preview opens PDFs on this Mac." needs the system's
-/// default-app lookup, which comes with the button in M2; until then the
+/// On macOS the row names the app that opens PDF files now, as a11-1 draws
+/// it ("Preview opens PDFs on this Mac.", [pdfHandlerProvider]), and the
+/// button asks macOS to make Ferman that app (B080); once Ferman is, the
+/// row says so and the button goes. Where the system does not say, the
 /// row says what the button does, in a1-3's words. On Windows it names
 /// Windows Settings › Default apps, where Windows lets people choose the
 /// app (a11-1w note, G16; [defaultAppText]). The zoom option "100%" is
@@ -45,6 +48,8 @@ class GeneralPane extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(themeModeProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final handler = ref.watch(pdfHandlerProvider).value;
+    final feature = defaultAppFeature;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -202,13 +207,26 @@ class GeneralPane extends ConsumerWidget {
             spacing: theme.space.space3,
             children: [
               Expanded(
-                child: Text(defaultAppText(l10n), style: theme.typography.body),
+                child: Text(
+                  switch (handler) {
+                    PdfHandler(ferman: true) => l10n.settingsDefaultAppFerman,
+                    PdfHandler(:final name) => l10n.settingsDefaultAppOther(
+                      bidiIsolate(name),
+                    ),
+                    null => defaultAppText(l10n),
+                  },
+                  style: theme.typography.body,
+                ),
               ),
-              Button(
-                size: ButtonSize.sm,
-                disabledReason: defaultAppFeature.disabledReason(context),
-                child: Text(l10n.settingsMakeDefault),
-              ),
+              if (handler?.ferman != true)
+                Button(
+                  size: ButtonSize.sm,
+                  onPressed: feature == null
+                      ? () => unawaited(makeFermanDefault(ref))
+                      : null,
+                  disabledReason: feature?.disabledReason(context),
+                  child: Text(l10n.settingsMakeDefault),
+                ),
             ],
           ),
         ),
@@ -225,11 +243,12 @@ class GeneralPane extends ConsumerWidget {
         _ => l10n.settingsDefaultApp,
       };
 
-  /// The feature behind the default-app button on the system the app runs
-  /// on: each system makes Ferman the default in its own way and in its
-  /// own milestone (B080, B101, B102).
-  static Feature get defaultAppFeature => switch (defaultTargetPlatform) {
-    TargetPlatform.macOS => Feature.defaultAppMacos,
+  /// The feature that still keeps the default-app button disabled on the
+  /// system the app runs on, null on macOS, where it works (B080): each
+  /// system makes Ferman the default in its own way and in its own
+  /// milestone (B101, B102).
+  static Feature? get defaultAppFeature => switch (defaultTargetPlatform) {
+    TargetPlatform.macOS => null,
     TargetPlatform.windows => Feature.defaultAppWindows,
     _ => Feature.defaultAppLinux,
   };

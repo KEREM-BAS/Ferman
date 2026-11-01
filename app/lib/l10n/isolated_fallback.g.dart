@@ -1671,6 +1671,32 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get openingCancel => isolate(super.openingCancel);
+
+  @override
+  String get defaultAppTitle => isolate(super.defaultAppTitle);
+
+  @override
+  String get defaultAppDescription => isolate(super.defaultAppDescription);
+
+  @override
+  String get defaultAppNow => isolate(super.defaultAppNow);
+
+  @override
+  String get defaultAppNotNow => isolate(super.defaultAppNotNow);
+
+  @override
+  String get defaultAppUse => isolate(super.defaultAppUse);
+
+  @override
+  String get defaultAppDontAsk => isolate(super.defaultAppDontAsk);
+
+  @override
+  String settingsDefaultAppOther(String app) =>
+      isolate(super.settingsDefaultAppOther(app));
+
+  @override
+  String get settingsDefaultAppFerman =>
+      isolate(super.settingsDefaultAppFerman);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

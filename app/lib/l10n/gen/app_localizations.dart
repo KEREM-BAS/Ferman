@@ -3134,6 +3134,54 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get openingCancel;
+
+  /// Title of the first-run question that offers to make Ferman the app that opens PDF files (a1-3), asked after onboarding on macOS.
+  ///
+  /// In en, this message translates to:
+  /// **'Open PDFs with Ferman?'**
+  String get defaultAppTitle;
+
+  /// Line under defaultAppTitle (a1-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.'**
+  String get defaultAppDescription;
+
+  /// Label before the app that opens PDF files now, an arrow and Ferman (a1-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Opens PDFs now:'**
+  String get defaultAppNow;
+
+  /// Button of a1-3 that closes the question; Settings › General keeps the button.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get defaultAppNotNow;
+
+  /// Primary button of a1-3: asks macOS to make Ferman the app that opens PDF files.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Ferman for PDFs'**
+  String get defaultAppUse;
+
+  /// Checkbox of a1-3: with it, Not now never asks again.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t ask again'**
+  String get defaultAppDontAsk;
+
+  /// Text beside Make Ferman the default… in Settings › General on macOS (a11-1); app is the app that opens PDF files now, as macOS names it, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} opens PDFs on this Mac.'**
+  String settingsDefaultAppOther(String app);
+
+  /// Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman opens PDFs on this Mac.'**
+  String get settingsDefaultAppFerman;
 }
 
 class _AppLocalizationsDelegate

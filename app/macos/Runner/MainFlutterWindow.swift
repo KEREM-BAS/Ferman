@@ -1,5 +1,6 @@
 import Cocoa
 import FlutterMacOS
+import UniformTypeIdentifiers
 
 class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   /// Where the traffic lights go under Ferman's custom title bar, as the
@@ -178,7 +179,10 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   /// connected is missing at once (a1-9e), as is a file in the Trash.
   /// "show" selects a file in Finder (a1-9b): the sandbox lets Finder show
   /// a file Ferman may read, which every file it opened is.
-  private func handleFiles(_ call: FlutterMethodCall, result: FlutterResult) {
+  /// "pdfHandler" names the app that opens PDF files and says whether it is
+  /// Ferman; "makeDefault" asks macOS, which asks the person, to make
+  /// Ferman that app (B080, app/lib/platform/default_app.dart).
+  private func handleFiles(_ call: FlutterMethodCall, result: @escaping FlutterResult) {
     switch call.method {
     case "bookmark":
       guard let path = call.arguments as? String,
@@ -230,6 +234,20 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
       }
       NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
       result(true)
+    case "pdfHandler":
+      guard let url = NSWorkspace.shared.urlForApplication(toOpen: .pdf) else {
+        result(nil)
+        return
+      }
+      result([
+        "name": FileManager.default.displayName(atPath: url.path),
+        "ferman": Bundle(url: url)?.bundleIdentifier == Bundle.main.bundleIdentifier,
+      ])
+    case "makeDefault":
+      NSWorkspace.shared.setDefaultApplication(at: Bundle.main.bundleURL, toOpen: .pdf) {
+        error in
+        DispatchQueue.main.async { result(error == nil) }
+      }
     default:
       result(FlutterMethodNotImplemented)
     }

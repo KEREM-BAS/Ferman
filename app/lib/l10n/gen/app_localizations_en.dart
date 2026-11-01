@@ -1726,4 +1726,31 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openingCancel => 'Cancel';
+
+  @override
+  String get defaultAppTitle => 'Open PDFs with Ferman?';
+
+  @override
+  String get defaultAppDescription =>
+      'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.';
+
+  @override
+  String get defaultAppNow => 'Opens PDFs now:';
+
+  @override
+  String get defaultAppNotNow => 'Not now';
+
+  @override
+  String get defaultAppUse => 'Use Ferman for PDFs';
+
+  @override
+  String get defaultAppDontAsk => 'Don’t ask again';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return '$app opens PDFs on this Mac.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman => 'Ferman opens PDFs on this Mac.';
 }

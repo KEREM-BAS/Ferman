@@ -1744,4 +1744,32 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get openingCancel => 'إلغاء';
+
+  @override
+  String get defaultAppTitle => 'هل تريد فتح ملفات PDF باستخدام Ferman؟';
+
+  @override
+  String get defaultAppDescription =>
+      'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير.';
+
+  @override
+  String get defaultAppNow => 'يفتح ملفات PDF الآن:';
+
+  @override
+  String get defaultAppNotNow => 'ليس الآن';
+
+  @override
+  String get defaultAppUse => 'استخدام Ferman لملفات PDF';
+
+  @override
+  String get defaultAppDontAsk => 'عدم السؤال مرة أخرى';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return 'يفتح $app ملفات PDF على جهاز Mac هذا.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman =>
+      'يفتح Ferman ملفات PDF على جهاز Mac هذا.';
 }

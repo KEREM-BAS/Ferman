@@ -504,5 +504,13 @@
   "propertiesScripts": "JavaScript",
   "propertiesScriptsValue": "{count, plural, =1{برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.} =2{برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.} few{{countText} برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} many{{countText} برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} other{{countText} برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.}}",
   "openingTitle": "جارٍ فتح «{name}»",
-  "openingCancel": "إلغاء"
+  "openingCancel": "إلغاء",
+  "defaultAppTitle": "هل تريد فتح ملفات PDF باستخدام Ferman؟",
+  "defaultAppDescription": "يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير.",
+  "defaultAppNow": "يفتح ملفات PDF الآن:",
+  "defaultAppNotNow": "ليس الآن",
+  "defaultAppUse": "استخدام Ferman لملفات PDF",
+  "defaultAppDontAsk": "عدم السؤال مرة أخرى",
+  "settingsDefaultAppOther": "يفتح {app} ملفات PDF على جهاز Mac هذا.",
+  "settingsDefaultAppFerman": "يفتح Ferman ملفات PDF على جهاز Mac هذا."
 }

@@ -9,6 +9,7 @@ import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/start/default_app_prompt.dart';
 import 'package:ferman/features/start/recent_files_view.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -189,7 +190,7 @@ class FmStart extends ConsumerWidget {
       ],
     );
 
-    return ShellCommandScope(
+    final scope = ShellCommandScope(
       home: true,
       onOpenSettings: () => context.push(Routes.settings),
       child: Focus(
@@ -212,6 +213,11 @@ class FmStart extends ConsumerWidget {
           ),
         ),
       ),
+    );
+    // a1-3 shows over the window, from wherever it sits.
+    return Stack(
+      fit: StackFit.expand,
+      children: [scope, const DefaultAppPrompt()],
     );
   }
 }
