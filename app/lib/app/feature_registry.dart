@@ -65,12 +65,11 @@ enum Feature {
   /// The Select and Hand tools of the View row.
   selectAndHand('B033'),
 
-  /// Zoom: the View row's marquee zoom, zoom buttons, zoom menu and Fit,
-  /// the status bar's zoom buttons and Settings › General › Zoom.
+  /// Zoom: the View row's marquee zoom, zoom buttons, zoom menu and Fit
+  /// and the status bar's zoom buttons, while no document is open.
   zoom('B034'),
 
-  /// Page layout: the View row's control and Settings › General › Page
-  /// layout for new documents.
+  /// Page layout: the View row's control, while no document is open.
   pageLayout('B035'),
 
   /// Split view (View row).
@@ -85,10 +84,6 @@ enum Feature {
   /// Dark reading mode: the View row's switch and the option under
   /// Settings › General › PDF pages in dark theme.
   darkReadingMode('B040'),
-
-  /// How PDF pages look in the dark theme: Paper white and Dimmed under
-  /// Settings › General.
-  pageLookInDarkTheme('B078'),
 
   /// Page navigation: the status bar's Previous page and Next page.
   pageNavigation('B070'),

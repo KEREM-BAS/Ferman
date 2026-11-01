@@ -9,6 +9,7 @@ import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/platform/default_app.dart';
+import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -17,14 +18,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The General pane of Settings, board a11-1 (Windows a11-1w).
 ///
 /// Theme (Match system, Light, Dark) works: it restyles the app at once and
-/// is stored (`themeModeProvider`), as does Reopen documents from last time
-/// (B079, `DocumentOpener.reopenLast`). The rest is drawn as designed and
+/// is stored (`themeModeProvider`), as do Reopen documents from last time
+/// (B079, `DocumentOpener.reopenLast`), PDF pages in dark theme (Paper
+/// white or Dimmed, B078), and the page layout and zoom a document opens
+/// with (B035, B034; `viewerProvider`). The rest is drawn as designed and
 /// disabled with "Available in a future version" until its milestone
-/// (G10), through its feature in the feature registry ([Feature]): PDF
-/// pages in dark theme (Paper white and Dimmed in M2, Dark
-/// reading mode in P2), the page layout and zoom for new documents and
-/// the default PDF app on Windows and Linux (B101, B102). Their values are
-/// the defaults the design draws.
+/// (G10), through its feature in the feature registry ([Feature]): Dark
+/// reading mode (P2) and the default PDF app on Windows and Linux (B101,
+/// B102).
 ///
 /// On macOS the row names the app that opens PDF files now, as a11-1 draws
 /// it ("Preview opens PDFs on this Mac.", [pdfHandlerProvider]), and the
@@ -49,6 +50,7 @@ class GeneralPane extends ConsumerWidget {
     final mode = ref.watch(themeModeProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final handler = ref.watch(pdfHandlerProvider).value;
+    final settings = ref.watch(settingsProvider);
     final feature = defaultAppFeature;
 
     return Column(
@@ -95,34 +97,38 @@ class GeneralPane extends ConsumerWidget {
           spacing: theme.space.space2,
           children: [
             Field.labelOf(context, l10n.settingsPageTheme),
-            for (final (value, label, description, feature) in [
+            for (final (value, label, description) in [
               (
-                _PageLook.paper,
+                PageLook.paper,
                 l10n.settingsPagePaper,
                 l10n.settingsPagePaperDescription,
-                Feature.pageLookInDarkTheme,
               ),
               (
-                _PageLook.dimmed,
+                PageLook.dimmed,
                 l10n.settingsPageDimmed,
                 l10n.settingsPageDimmedDescription,
-                Feature.pageLookInDarkTheme,
-              ),
-              (
-                _PageLook.dark,
-                l10n.settingsPageDark,
-                l10n.settingsPageDarkDescription,
-                Feature.darkReadingMode,
               ),
             ])
-              Radio<_PageLook>(
+              Radio<PageLook?>(
                 value: value,
-                groupValue: _PageLook.paper,
+                groupValue: settings.pageLook,
                 label: label,
                 description: description,
-                disabled: true,
-                disabledReason: feature.disabledReason(context),
+                onChanged: (look) => unawaited(
+                  changeSetting(
+                    ref,
+                    (current) => current.copyWith(pageLook: look),
+                  ),
+                ),
               ),
+            Radio<PageLook?>(
+              value: null,
+              groupValue: settings.pageLook,
+              label: l10n.settingsPageDark,
+              description: l10n.settingsPageDarkDescription,
+              disabled: true,
+              disabledReason: Feature.darkReadingMode.disabledReason(context),
+            ),
           ],
         ),
         Row(
@@ -130,49 +136,57 @@ class GeneralPane extends ConsumerWidget {
           spacing: theme.space.space3,
           children: [
             Expanded(
-              child: Select<String>(
+              child: Select<NewDocumentLayout>(
                 label: l10n.settingsPageLayout,
                 size: FieldSize.sm,
-                value: 'scroll',
+                value: settings.pageLayout,
                 options: [
                   SelectOption(
-                    value: 'scroll',
+                    value: NewDocumentLayout.scroll,
                     label: l10n.settingsPageLayoutScroll,
                   ),
                   SelectOption(
-                    value: 'single',
+                    value: NewDocumentLayout.single,
                     label: l10n.settingsPageLayoutSingle,
                   ),
                   SelectOption(
-                    value: 'spread',
+                    value: NewDocumentLayout.spread,
                     label: l10n.settingsPageLayoutSpread,
                   ),
                 ],
-                disabled: true,
-                disabledReason: Feature.pageLayout.disabledReason(context),
+                onChanged: (layout) => unawaited(
+                  changeSetting(
+                    ref,
+                    (current) => current.copyWith(pageLayout: layout),
+                  ),
+                ),
               ),
             ),
             Expanded(
-              child: Select<String>(
+              child: Select<NewDocumentZoom>(
                 label: l10n.settingsZoom,
                 size: FieldSize.sm,
-                value: 'fitWidth',
+                value: settings.zoom,
                 options: [
                   SelectOption(
-                    value: 'fitWidth',
+                    value: NewDocumentZoom.fitWidth,
                     label: l10n.settingsZoomFitWidth,
                   ),
                   SelectOption(
-                    value: 'fitPage',
+                    value: NewDocumentZoom.fitPage,
                     label: l10n.settingsZoomFitPage,
                   ),
                   SelectOption(
-                    value: 'actual',
+                    value: NewDocumentZoom.actual,
                     label: bidiIsolate(format.percent(100)),
                   ),
                 ],
-                disabled: true,
-                disabledReason: Feature.zoom.disabledReason(context),
+                onChanged: (zoom) => unawaited(
+                  changeSetting(
+                    ref,
+                    (current) => current.copyWith(zoom: zoom),
+                  ),
+                ),
               ),
             ),
           ],
@@ -265,4 +279,3 @@ class GeneralPane extends ConsumerWidget {
 
 /// The choices of PDF pages in dark theme (a11-1): drawn; Paper white and
 /// Dimmed are built in M2, Dark reading mode in P2.
-enum _PageLook { paper, dimmed, dark }

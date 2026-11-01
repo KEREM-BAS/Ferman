@@ -295,22 +295,17 @@ void main() {
       expect((await store.load()).reopenDocuments, isFalse);
     });
 
-    testWidgets('later options are drawn and disabled', (tester) async {
+    testWidgets('only Dark reading mode and the default app wait', (
+      tester,
+    ) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester);
-      for (final radio in tester.widgetList<Radio<Object?>>(
-        find.byWidgetPredicate((widget) => widget is Radio),
-      )) {
-        expect(radio.disabled, isTrue);
-        expect(radio.disabledReason, _future);
-      }
-      final selects = tester.widgetList<Select<String>>(
-        find.byType(Select<String>),
+      final radios = tester.widgetList<Radio<PageLook?>>(
+        find.byType(Radio<PageLook?>),
       );
-      expect(selects, hasLength(2));
-      for (final select in selects) {
-        expect(select.disabledReason, _future);
-      }
+      expect(radios.map((radio) => radio.disabled), [false, false, true]);
+      expect(radios.last.disabledReason, _future);
+      expect(radios.first.groupValue, PageLook.paper);
       expect(
         tester
             .widget<FermanInteractive>(
@@ -327,6 +322,28 @@ void main() {
       );
     });
 
+    testWidgets('page look, layout and zoom are stored (B078, B035, B034)', (
+      tester,
+    ) async {
+      final store = await pumpFermanApp(tester);
+      await _openAndSettle(tester);
+      await tester.tap(find.text('Dimmed'));
+      await tester.pumpAndSettle();
+      final layout = tester.widget<Select<NewDocumentLayout>>(
+        find.byType(Select<NewDocumentLayout>),
+      );
+      layout.onChanged!(NewDocumentLayout.spread);
+      final zoom = tester.widget<Select<NewDocumentZoom>>(
+        find.byType(Select<NewDocumentZoom>),
+      );
+      zoom.onChanged!(NewDocumentZoom.fitPage);
+      await tester.pumpAndSettle();
+      final stored = await store.load();
+      expect(stored.pageLook, PageLook.dimmed);
+      expect(stored.pageLayout, NewDocumentLayout.spread);
+      expect(stored.zoom, NewDocumentZoom.fitPage);
+    });
+
     testWidgets('the zoom option writes 100% as the region does (G34)', (
       tester,
     ) async {
@@ -338,10 +355,8 @@ void main() {
         ),
       );
       await _openAndSettle(tester);
-      final zoom = tester.widget<Select<String>>(
-        find.byWidgetPredicate(
-          (widget) => widget is Select<String> && widget.label == 'Zoom',
-        ),
+      final zoom = tester.widget<Select<NewDocumentZoom>>(
+        find.byType(Select<NewDocumentZoom>),
       );
       expect(zoom.options.last.label, bidiIsolate('%100'));
     });

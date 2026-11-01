@@ -2,6 +2,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
 import 'package:ferman/features/settings/language_region_pane.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/settings/app_settings.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -50,16 +51,13 @@ String _example(WidgetTester tester, String label) {
 
 /// The label of the General pane's 100% zoom option, without isolates.
 String _zoom100(WidgetTester tester) {
-  final l10n = AppLocalizations.of(
-    tester.element(find.byType(Select<String>).first),
-  );
-  final zoom = tester.widget<Select<String>>(
-    find.byWidgetPredicate(
-      (widget) => widget is Select<String> && widget.label == l10n.settingsZoom,
-    ),
+  final zoom = tester.widget<Select<NewDocumentZoom>>(
+    find.byType(Select<NewDocumentZoom>),
   );
   return _unisolated(
-    zoom.options.firstWhere((option) => option.value == 'actual').label,
+    zoom.options
+        .firstWhere((option) => option.value == NewDocumentZoom.actual)
+        .label,
   );
 }
 

@@ -26,6 +26,9 @@ final class AppSettings {
     this.reopenDocuments = true,
     this.lastDocuments = const [],
     this.askDefaultApp = true,
+    this.pageLook = PageLook.paper,
+    this.pageLayout = NewDocumentLayout.scroll,
+    this.zoom = NewDocumentZoom.fitWidth,
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -61,6 +64,12 @@ final class AppSettings {
         _ => const [],
       },
       askDefaultApp: json[_askDefaultApp] != false,
+      pageLook: pick(PageLook.values, json[_pageLook]) ?? PageLook.paper,
+      pageLayout:
+          pick(NewDocumentLayout.values, json[_pageLayout]) ??
+          NewDocumentLayout.scroll,
+      zoom:
+          pick(NewDocumentZoom.values, json[_zoom]) ?? NewDocumentZoom.fitWidth,
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -86,6 +95,9 @@ final class AppSettings {
   static const String _reopenDocuments = 'reopenDocuments';
   static const String _lastDocuments = 'lastDocuments';
   static const String _askDefaultApp = 'askDefaultApp';
+  static const String _pageLook = 'pageLook';
+  static const String _pageLayout = 'pageLayout';
+  static const String _zoom = 'zoom';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -98,6 +110,9 @@ final class AppSettings {
     _reopenDocuments,
     _lastDocuments,
     _askDefaultApp,
+    _pageLook,
+    _pageLayout,
+    _zoom,
   };
 
   /// Settings → General → Theme.
@@ -137,6 +152,16 @@ final class AppSettings {
   /// Don't ask again.
   final bool askDefaultApp;
 
+  /// Settings → General → PDF pages in dark theme (B078): Paper white, or
+  /// Dimmed through the page filter; the light theme never dims.
+  final PageLook pageLook;
+
+  /// Settings → General → Page layout of documents as they open (B035).
+  final NewDocumentLayout pageLayout;
+
+  /// Settings → General → Zoom of documents as they open (B034).
+  final NewDocumentZoom zoom;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -159,6 +184,9 @@ final class AppSettings {
     _reopenDocuments: reopenDocuments,
     _lastDocuments: lastDocuments,
     _askDefaultApp: askDefaultApp,
+    _pageLook: pageLook.name,
+    _pageLayout: pageLayout.name,
+    _zoom: zoom.name,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -174,6 +202,9 @@ final class AppSettings {
     bool? reopenDocuments,
     List<String>? lastDocuments,
     bool? askDefaultApp,
+    PageLook? pageLook,
+    NewDocumentLayout? pageLayout,
+    NewDocumentZoom? zoom,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -187,6 +218,9 @@ final class AppSettings {
     reopenDocuments: reopenDocuments ?? this.reopenDocuments,
     lastDocuments: lastDocuments ?? this.lastDocuments,
     askDefaultApp: askDefaultApp ?? this.askDefaultApp,
+    pageLook: pageLook ?? this.pageLook,
+    pageLayout: pageLayout ?? this.pageLayout,
+    zoom: zoom ?? this.zoom,
     unknown: unknown,
     version: version,
   );
@@ -204,6 +238,9 @@ final class AppSettings {
       other.reopenDocuments == reopenDocuments &&
       listEquals(other.lastDocuments, lastDocuments) &&
       other.askDefaultApp == askDefaultApp &&
+      other.pageLook == pageLook &&
+      other.pageLayout == pageLayout &&
+      other.zoom == zoom &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -219,10 +256,46 @@ final class AppSettings {
     reopenDocuments,
     Object.hashAll(lastDocuments),
     askDefaultApp,
+    pageLook,
+    pageLayout,
+    zoom,
     version,
     Object.hashAllUnordered(unknown.keys),
   );
 
   @override
   String toString() => 'AppSettings(${toJson()})';
+}
+
+/// How PDF pages look in the dark theme (a11-1, B078).
+enum PageLook {
+  /// Pages as printed.
+  paper,
+
+  /// Pages through the dim page filter.
+  dimmed,
+}
+
+/// The page layout a document opens with (a11-1, B035).
+enum NewDocumentLayout {
+  /// Continuous scroll.
+  scroll,
+
+  /// Single page.
+  single,
+
+  /// Two-page spread.
+  spread,
+}
+
+/// The zoom a document opens with (a11-1, B034).
+enum NewDocumentZoom {
+  /// Fit width.
+  fitWidth,
+
+  /// Fit page.
+  fitPage,
+
+  /// Actual size, 100 %.
+  actual,
 }

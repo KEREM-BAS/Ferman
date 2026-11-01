@@ -5,6 +5,8 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
+import 'package:ferman/settings/app_settings.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
@@ -272,7 +274,22 @@ class Viewer extends _$Viewer {
     listenSelf((_, next) {
       if (next != null) memory.remember(next);
     });
-    return memory.recall<ViewerState>() ?? ViewerState(document: document);
+    if (memory.recall<ViewerState>() case final view?) return view;
+    // A document opens with the layout and zoom of Settings › General.
+    final settings = ref.read(settingsProvider);
+    return ViewerState(
+      document: document,
+      layout: switch (settings.pageLayout) {
+        NewDocumentLayout.scroll => PageLayout.continuous,
+        NewDocumentLayout.single => PageLayout.single,
+        NewDocumentLayout.spread => PageLayout.twoPage,
+      },
+      fit: switch (settings.zoom) {
+        NewDocumentZoom.fitWidth => ZoomFit.width,
+        NewDocumentZoom.fitPage => ZoomFit.page,
+        NewDocumentZoom.actual => null,
+      },
+    );
   }
 
   /// The canvas is [viewport] large; a fitted zoom follows it.

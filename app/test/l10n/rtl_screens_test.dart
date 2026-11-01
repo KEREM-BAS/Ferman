@@ -9,6 +9,7 @@ import 'package:ferman/features/settings/language_region_pane.dart';
 import 'package:ferman/features/settings/privacy_pane.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/settings/app_settings.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
@@ -431,12 +432,8 @@ void main() {
 
         testWidgets('$code: the 100% zoom option is isolated', (tester) async {
           await _pump(tester, M1Screen.settingsGeneral, code);
-          final l10n = _l10n(tester, M1Screen.settingsGeneral);
-          final zoom = tester.widget<Select<String>>(
-            find.byWidgetPredicate(
-              (widget) =>
-                  widget is Select<String> && widget.label == l10n.settingsZoom,
-            ),
+          final zoom = tester.widget<Select<NewDocumentZoom>>(
+            find.byType(Select<NewDocumentZoom>),
           );
           expect(
             zoom.options.map((option) => option.label),

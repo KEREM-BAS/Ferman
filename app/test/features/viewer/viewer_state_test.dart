@@ -3,6 +3,8 @@ import 'dart:ui';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/settings/app_settings.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
@@ -40,6 +42,23 @@ void main() {
     expect(view().zoom, closeTo((1000 - 48) / (595 * pixelsPerPoint), 1e-9));
     expect(view().offset.dy, 0);
     expect(view().currentPage, 0);
+  });
+
+  test('a new view takes the layout and zoom of Settings › General', () {
+    final opened = ProviderContainer.test(
+      overrides: [
+        initialSettingsProvider.overrideWithValue(
+          const AppSettings(
+            pageLayout: NewDocumentLayout.spread,
+            zoom: NewDocumentZoom.actual,
+          ),
+        ),
+      ],
+    )..read(openDocumentProvider.notifier).show(document);
+    final fresh = opened.read(viewerProvider)!;
+    expect(fresh.layout, PageLayout.twoPage);
+    expect(fresh.fit, isNull);
+    expect(fresh.zoom, 1);
   });
 
   test('scrolling stops at the ends', () {

@@ -19,6 +19,9 @@ void main() {
         'reopenDocuments': true,
         'lastDocuments': <String>[],
         'askDefaultApp': true,
+        'pageLook': 'paper',
+        'pageLayout': 'scroll',
+        'zoom': 'fitWidth',
       });
     });
 
@@ -45,6 +48,9 @@ void main() {
         'reopenDocuments': true,
         'lastDocuments': <String>[],
         'askDefaultApp': true,
+        'pageLook': 'paper',
+        'pageLayout': 'scroll',
+        'zoom': 'fitWidth',
       });
     });
 

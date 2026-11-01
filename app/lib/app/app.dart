@@ -10,6 +10,7 @@ import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/platform/open_requests.dart';
+import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -158,6 +159,14 @@ class _FermanAppState extends ConsumerState<FermanApp> {
         textDirection: direction,
         child: FermanThemeScope(
           touch: FermanThemeScope.isTouchPlatform(Theme.of(context).platform),
+          // Dimmed applies to the dark theme only (a11-1, B078).
+          pageDim:
+              Theme.of(context).brightness == Brightness.dark &&
+              ref.watch(
+                settingsProvider.select(
+                  (settings) => settings.pageLook == PageLook.dimmed,
+                ),
+              ),
           child: _AppSurface(child: child),
         ),
       ),
