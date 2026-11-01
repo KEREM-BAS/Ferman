@@ -84,6 +84,21 @@ class FrbEngineService implements EngineService {
             ReadOnlyReason.parsersDisagree,
           bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
         },
+        repairs: [
+          for (final fix in document.repairs)
+            RepairFix(
+              kind: switch (fix.kind) {
+                bridge.RepairKind.crossReferenceRebuilt =>
+                  RepairKind.crossReferenceRebuilt,
+                bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
+                bridge.RepairKind.streamLengthsCorrected =>
+                  RepairKind.streamLengthsCorrected,
+                bridge.RepairKind.objectsUnreadable =>
+                  RepairKind.objectsUnreadable,
+              },
+              count: fix.count,
+            ),
+        ],
         rightToLeft: document.rightToLeft,
         pages: [
           for (final page in document.pages)

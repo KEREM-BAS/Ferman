@@ -102,7 +102,13 @@ impl PdfFont {
     fn new(resource: &FontResource) -> Self {
         let cmap = (resource.kind == FontKind::Type0).then(|| {
             match (&resource.cmap, resource.cmap_name.as_deref()) {
-                (Some(bytes), _) => CMap::parse(bytes),
+                (Some(bytes), _) => {
+                    let mut cmap = CMap::parse(bytes);
+                    for parent in &resource.cmap_parents {
+                        cmap.inherit(&CMap::parse(parent));
+                    }
+                    cmap
+                }
                 (None, Some(b"Identity-V")) => CMap::identity(true),
                 // shortcut: other predefined CMaps read as Identity-H; bundle Adobe's CMaps
                 // (BSD-3-Clause) when a document needs them.
@@ -516,6 +522,7 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             font_program: Some(program.to_vec()),
             cmap_name: None,
             cmap: None,
+            cmap_parents: Vec::new(),
             cid_widths: Vec::new(),
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
@@ -529,6 +536,42 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
         resource.differences = vec![(66, "Scedilla".to_owned())];
         let font = PdfFont::new(&resource);
         assert_eq!([font.text(65), font.text(66)], ["Ğ", "Ş"]);
+    }
+
+    #[test]
+    fn a_composite_font_joins_its_usecmap_parents_and_its_own_codes_win() {
+        let child = b"/CIDInit /ProcSet findresource begin 12 dict begin begincmap
+1 begincodespacerange <0000> <FFFF> endcodespacerange
+1 begincidchar <0001> 100 endcidchar endcmap";
+        let parent = b"/CIDInit /ProcSet findresource begin 12 dict begin begincmap
+1 begincodespacerange <0000> <FFFF> endcodespacerange
+2 begincidchar <0001> 7 <0002> 200 endcidchar endcmap";
+        let resource = FontResource {
+            key: 1,
+            kind: FontKind::Type0,
+            base_font: None,
+            base_encoding: None,
+            differences: Vec::new(),
+            first_char: 0,
+            widths: Vec::new(),
+            missing_width: 0.0,
+            symbolic: false,
+            font_matrix: [0.001, 0.0, 0.0, 0.001, 0.0, 0.0],
+            to_unicode: None,
+            font_program: None,
+            cmap_name: None,
+            cmap: Some(child.to_vec()),
+            cmap_parents: vec![parent.to_vec()],
+            cid_widths: Vec::new(),
+            default_width: 1000.0,
+            vertical_metrics: Vec::new(),
+            default_vertical: [880.0, -1000.0],
+        };
+        let font = PdfFont::new(&resource);
+        let cmap = font.cmap.unwrap();
+        // The child's own code wins; the parent's other code comes through.
+        assert_eq!(cmap.cid(1, 2), Some(100));
+        assert_eq!(cmap.cid(2, 2), Some(200));
     }
 
     #[test]

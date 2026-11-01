@@ -35,9 +35,14 @@ SearchMatch hit(int page) => SearchMatch(
   snippetEnd: 4,
 );
 
-/// A search that reads one page of three and waits.
+/// A search that reads [searched] pages of [pages], finds the first page's
+/// match, and waits.
 class _SlowSearch extends FakeEngineService {
-  new() : super(documents: {'/kira.pdf': document});
+  new({this.searched = 1, this.pages = 3})
+    : super(documents: {'/kira.pdf': document});
+
+  final int searched;
+  final int pages;
 
   @override
   Stream<SearchUpdate> search(
@@ -45,7 +50,8 @@ class _SlowSearch extends FakeEngineService {
     String query,
     SearchOptions options,
   ) async* {
-    yield const SearchProgress(searched: 1, pages: 3);
+    yield SearchMatches([hit(0)]);
+    yield SearchProgress(searched: searched, pages: pages);
     await Completer<void>().future;
   }
 }
@@ -102,6 +108,8 @@ void main() {
     await controlF(tester);
     expect(find.byType(SearchReplaceBar), findsOneWidget);
     expect(find.byType(FindBar), findsOneWidget);
+    // The field takes focus from the canvas.
+    expect(tester.widget<EditableText>(field()).focusNode.hasFocus, isTrue);
     expect(find.text('Ignore accents and dotted/dotless i'), findsOneWidget);
 
     await tester.enterText(field(), 'kira');
@@ -214,6 +222,67 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('No results'), findsOneWidget);
+
+    // Back in the bar, the query is selected, so typing replaces it.
+    await controlF(tester);
+    final editable = tester.widget<EditableText>(field());
+    expect(editable.focusNode.hasFocus, isTrue);
+    expect(
+      editable.controller.selection,
+      const TextSelection(baseOffset: 0, extentOffset: 8),
+    );
+  });
+
+  testWidgets('a long search shows its progress under the bar, counting '
+      'what it found; Esc cancels it, then closes the bar (a2-4c)', (
+    tester,
+  ) async {
+    await pumpShell(
+      tester,
+      shellHost(
+        window: window,
+        regionCode: 'GB',
+        overrides: [
+          engineServiceProvider.overrideWithValue(
+            _SlowSearch(searched: 38, pages: 120),
+          ),
+        ],
+      ),
+    );
+    containerOf(tester).read(openDocumentProvider.notifier).show(document);
+    await settle(tester);
+    await controlF(tester);
+    await tester.enterText(field(), 'kira');
+    await settle(tester);
+    final bar = find.byType(FindBar);
+    Finder inBar(Finder finder) => find.descendant(of: bar, matching: finder);
+    // The heading, and the bar's accessible name.
+    expect(inBar(find.text('Searching · page 38 of 120')), findsWidgets);
+    expect(
+      inBar(find.text('Matches appear as they’re found.')),
+      findsOneWidget,
+    );
+    expect(inBar(find.byType(Spinner)), findsOneWidget);
+    expect(
+      tester.widget<ProgressBar>(inBar(find.byType(ProgressBar))).value,
+      closeTo(38 / 120, 1e-9),
+    );
+    // The options give way to the progress; the match found counts.
+    expect(
+      inBar(find.text('Ignore accents and dotted/dotless i')),
+      findsNothing,
+    );
+    expect(inBar(find.textContaining('1 of 1')), findsOneWidget);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle(tester);
+    expect(findState(tester).searched, isNull);
+    expect(find.byType(SearchReplaceBar), findsOneWidget);
+    expect(inBar(find.byType(ProgressBar)), findsNothing);
+    expect(findState(tester).matches, hasLength(1));
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await settle(tester);
+    expect(find.byType(SearchReplaceBar), findsNothing);
   });
 
   testWidgets('a running search shows in the status bar, whose Cancel stops '

@@ -240,6 +240,9 @@ class SearchReplaceBar extends StatefulWidget {
   final VoidCallback? onClose;
 
   /// Whether the find field takes focus when the bar appears.
+  ///
+  /// It takes it even from a node that has focus already (the canvas),
+  /// with the query selected, so typing replaces it (a2-4d).
   final bool autofocus;
 
   /// Why replace is unavailable: the localized "Available in a future
@@ -300,6 +303,22 @@ class _SearchReplaceBarState extends State<SearchReplaceBar> {
   final FocusNode _replaceNode = FocusNode(
     debugLabel: 'SearchReplaceBar replace',
   );
+
+  @override
+  void initState() {
+    super.initState();
+    if (!widget.autofocus) return;
+    // The query starts selected, so typing replaces it (a2-4d); and the
+    // field takes focus from whatever holds it, which EditableText's own
+    // autofocus never does.
+    _find.selection = TextSelection(
+      baseOffset: 0,
+      extentOffset: _find.text.length,
+    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted) _findNode.requestFocus();
+    });
+  }
 
   @override
   void didUpdateWidget(SearchReplaceBar oldWidget) {

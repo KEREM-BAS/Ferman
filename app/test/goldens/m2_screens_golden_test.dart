@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ferman/app/app.dart';
 import 'package:ferman/engine/engine_models.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
@@ -20,6 +22,9 @@ const String _home = '/Users/elif';
 const String _kiraPath = '$_home/Belgeler/Kira sözleşmesi.pdf';
 const String _bordroPath = '$_home/Belgeler/Bordro Eylül 2026.pdf';
 const String _sheetPath = '$_home/Belgeler/Ek-1 Demirbaş listesi.xlsx';
+const String _scanPath = '$_home/Belgeler/Tarama_0042.pdf';
+const String _damagedPath = '$_home/Belgeler/Kira sözleşmesi (eski).pdf';
+const String _visaPath = '$_home/Belgeler/Vize başvurusu.pdf';
 
 /// The lease of the boards (a2-1b, a2-3o, a2-3b, a2-3c, a2-14): three A4
 /// pages, its outline, attachments, layers and signatures, with its fonts
@@ -105,6 +110,111 @@ final Map<String, List<List<SearchMatch>>> _matches = {
   ],
 };
 
+/// The query of a2-4c's long search.
+/// kira-tr-damaged as ferman-core repairs it (a1-9): a rebuilt table and
+/// a stream read to its end.
+const OpenedDocument _repaired = OpenedDocument(
+  id: 3,
+  pages: [
+    PageInfo(width: 595, height: 842),
+    PageInfo(width: 595, height: 842),
+    PageInfo(width: 595, height: 842),
+  ],
+  readOnly: ReadOnlyReason.repaired,
+  repairs: [
+    RepairFix(kind: RepairKind.crossReferenceRebuilt, count: 48),
+    RepairFix(kind: RepairKind.streamLengthsCorrected, count: 1),
+  ],
+);
+
+/// An XFA-only visa form (a11-7c).
+const OpenedDocument _xfa = OpenedDocument(
+  id: 4,
+  pages: [PageInfo(width: 595, height: 842)],
+  readOnly: ReadOnlyReason.xfaOnly,
+);
+
+const String _slowQuery = 'otopark';
+
+/// The fake engine of the screens, whose search for [_slowQuery] finds
+/// a2-4c's 38 matches, reaches page 840 of 2,400 and waits there.
+final class _Engine extends FakeEngineService {
+  new()
+    : super(
+        documents: {
+          _kiraPath: _kira,
+          '$_home/Belgeler/Sözleşme (kısıtlı).pdf': _restricted,
+          _bordroPath: _kira,
+          _damagedPath: _repaired,
+          _visaPath: _xfa,
+        },
+        passwords: {_bordroPath: 'bordro2026'},
+        failures: {
+          _sheetPath: const EngineException(
+            kind: EngineErrorKind.unsupported,
+            messageKey: 'errorNotPdf',
+          ),
+          // a1-9b's file, cut off at 18 KB.
+          _scanPath: const EngineException(
+            kind: EngineErrorKind.damaged,
+            messageKey: 'errorDamagedTruncated',
+            details:
+                'Expected about 2.4 MB, found 18 KB · last complete object '
+                '12 0 obj · no trailer',
+          ),
+        },
+        searchResults: _matches,
+      );
+
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) async* {
+    if (query != _slowQuery) {
+      yield* super.search(document, query, options);
+      return;
+    }
+    yield SearchMatches([
+      for (var i = 0; i < 38; i++)
+        SearchMatch(
+          page: i % 3,
+          rects: [Rect.fromLTWH(72, 120 + 18.0 * (i ~/ 3), 44, 12)],
+          snippet: 'Kiracı otopark alanını kullanır',
+          snippetStart: 7,
+          snippetEnd: 14,
+        ),
+    ]);
+    yield const SearchProgress(searched: 840, pages: 2400);
+    await Completer<void>().future;
+  }
+}
+
+/// An engine whose PDFium did not load (G101).
+final FakeEngineService _noPdfium = FakeEngineService(
+  fakeStatus: const EngineStatus(
+    appVersion: '0.1.0',
+    apiVersion: kAppApiVersion,
+    isDebugBuild: false,
+    pdfium: PdfiumState.failed,
+    pdfiumReason: 'cannot load the PDFium library: dlopen failed',
+  ),
+);
+
+/// The lease with [query] searched in the find bar.
+Future<void> Function(WidgetTester) _kiraSearching(String query) =>
+    (tester) async {
+      await _open(tester, _kiraPath);
+      _container(tester).read(findProvider.notifier)
+        ..open()
+        ..setQuery(query);
+      // A search that waits never settles.
+      for (var i = 0; i < 10; i++) {
+        await tester.pump(const Duration(milliseconds: 100));
+      }
+    };
+
 /// The recent files of a1-4-m2: dated long ago, so each card shows a date
 /// rather than "Today", and the golden does not change with the clock.
 final List<RecentEntry> _recent = [
@@ -158,6 +268,7 @@ final class _Screen {
     this.recent = false,
     this.defaultApp = false,
     this.dialog = false,
+    this.engine,
   });
 
   final String name;
@@ -172,6 +283,9 @@ final class _Screen {
 
   /// Whether it shows a modal Dialog.
   final bool dialog;
+
+  /// The engine in place of the screens' own.
+  final FakeEngineService? engine;
 }
 
 ProviderContainer _container(WidgetTester tester) =>
@@ -226,6 +340,14 @@ final List<_Screen> _screens = [
   }, board: 'a2-10a'),
   _Screen('unlock', (tester) => _open(tester, _bordroPath), board: 'a1-8'),
   _Screen('not_a_pdf', (tester) => _open(tester, _sheetPath), board: 'a1-9c'),
+  _Screen('damaged', (tester) => _open(tester, _scanPath), board: 'a1-9b'),
+  _Screen('repaired', (tester) => _open(tester, _damagedPath), board: 'a1-9'),
+  _Screen('xfa_only', (tester) => _open(tester, _visaPath), board: 'a11-7c'),
+  _Screen('viewer_search_progress', _kiraSearching(_slowQuery), board: 'a2-4c'),
+  _Screen('viewer_search_none', _kiraSearching('depozito'), board: 'a2-4d'),
+  // No board draws it (G101): the warning Banner over the empty start
+  // screen, its open actions disabled.
+  _Screen('start_no_pdfium', (_) async {}, engine: _noPdfium),
   _Screen('start_recent', (_) async {}, board: 'a1-4-m2', recent: true),
   // The system's answer arrives a frame after the start screen.
   _Screen(
@@ -239,25 +361,14 @@ final List<_Screen> _screens = [
 
 /// The M2 screens (ROADMAP §6, gate S4) in light and dark × en, tr and ar
 /// with macOS chrome: the viewer with the lease open and each sidebar tab,
-/// search, the properties, a restricted document, the unlock dialog, a
-/// file that is not a PDF, the recent files and the default-app prompt. The
-/// fake engine draws no pages, so the canvas shows the pages' paper only.
+/// search with its options, a long search's progress (a2-4c) and no
+/// results (a2-4d), the properties, a restricted document, the unlock
+/// dialog, a damaged file (a1-9b), a file that is not a PDF, the recent
+/// files, the default-app prompt and the start screen without PDFium
+/// (G101). The fake engine draws no pages, so the canvas shows the pages'
+/// paper only.
 Future<void> main() async {
-  final engine = FakeEngineService(
-    documents: {
-      _kiraPath: _kira,
-      '$_home/Belgeler/Sözleşme (kısıtlı).pdf': _restricted,
-      _bordroPath: _kira,
-    },
-    passwords: {_bordroPath: 'bordro2026'},
-    failures: {
-      _sheetPath: const EngineException(
-        kind: EngineErrorKind.unsupported,
-        messageKey: 'errorNotPdf',
-      ),
-    },
-    searchResults: _matches,
-  );
+  final engine = _Engine();
   for (final screen in _screens) {
     for (final theme in GoldenTheme.values) {
       for (final language in GoldenLanguage.values) {
@@ -275,7 +386,7 @@ Future<void> main() async {
             onboardingCompleted: true,
           ),
           open: screen.open,
-          engine: engine,
+          engine: screen.engine ?? engine,
           muteTickers: !screen.dialog,
           overrides: [
             homeDirectoryProvider.overrideWithValue(_home),

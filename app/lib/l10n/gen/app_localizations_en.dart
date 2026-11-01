@@ -1536,6 +1536,110 @@ class AppLocalizationsEn extends AppLocalizations {
   String get scriptsDismiss => 'Dismiss';
 
   @override
+  String get repairedTitle => 'Ferman repaired this file.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText problems were fixed in this copy.',
+      one: '1 problem was fixed in this copy.',
+      zero: 'Problems were fixed in this copy.',
+    );
+    return '$_temp0 The original stays as it was until you save.';
+  }
+
+  @override
+  String get repairedDetails => 'Details';
+
+  @override
+  String get repairedSave => 'Save repaired copy…';
+
+  @override
+  String get repairDetailsTitle => 'What Ferman repaired';
+
+  @override
+  String get repairCopyDetails => 'Copy details';
+
+  @override
+  String get repairXrefTitle => 'The cross-reference table was broken';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rebuilt from the $countText objects found in the file.',
+      one: 'Rebuilt from the 1 object found in the file.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $countText pages are present.',
+      one: 'The page is present.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'The file’s trailer was missing';
+
+  @override
+  String get repairTrailerBody =>
+      'Ferman found where the document starts among its objects.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText streams had the wrong length',
+      one: '1 stream had the wrong length',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'Ferman read each one up to its end.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText objects couldn’t be read',
+      one: '1 object couldn’t be read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'Pages and features that use them may be incomplete.';
+
+  @override
+  String get xfaTitle => 'This is an XFA form, which Ferman can’t show.';
+
+  @override
+  String get xfaBody =>
+      'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'Ferman opened “$name” read-only.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.';
+
+  @override
   String get propertiesFile => 'File';
 
   @override

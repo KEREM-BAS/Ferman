@@ -148,6 +148,42 @@ void main() {
     );
   });
 
+  testWidgets('Pages: the arrow keys move focus between thumbnails, Enter '
+      'goes to the focused one', (tester) async {
+    await pumpDocument(tester, kira);
+    int? focused() {
+      final context = FocusManager.instance.primaryFocus?.context;
+      return context?.findAncestorWidgetOfExactType<PageThumbnail>()?.page;
+    }
+
+    tester
+        .widgetList<Focus>(
+          find.descendant(
+            of: inSidebar(find.byType(PageThumbnail)).first,
+            matching: find.byType(Focus),
+          ),
+        )
+        .map((focus) => focus.focusNode)
+        .firstWhere((node) => node?.debugLabel == 'PageThumbnail')!
+        .requestFocus();
+    await settle(tester);
+    expect(focused(), 1);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(focused(), 2);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(focused(), 3);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await settle(tester);
+    expect(focused(), 2);
+    // Focus alone does not move the reader.
+    expect(currentPage(tester), 0);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await settle(tester);
+    expect(currentPage(tester), 1);
+  });
+
   testWidgets('Outline nests, folds, tints the current section and goes', (
     tester,
   ) async {

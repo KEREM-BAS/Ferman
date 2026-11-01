@@ -57,6 +57,10 @@ enum Feature {
   /// Saving: the mode bar's Save while a document has unsaved changes.
   saving('B031'),
 
+  /// Saving a repaired file as a new one: the repaired bar's "Save repaired
+  /// copy…" (a1-9).
+  saveRepairedCopy('B103'),
+
   // Viewing.
 
   /// Split view (View row).

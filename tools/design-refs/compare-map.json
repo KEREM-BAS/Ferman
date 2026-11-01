@@ -228,6 +228,12 @@
       "note": "A file that is not a PDF in its error tab (M2)."
     },
     {
+      "id": "a1-9b-mac",
+      "board": "a1-9b",
+      "golden": "damaged_mac_light_en.png",
+      "note": "A damaged file in its error tab: what happened, the likely cause, the way out and the technical details (M2). The line leaves out the board's sizes (G119)."
+    },
+    {
       "id": "a1-9c-mac-tr",
       "board": "a1-9c",
       "lang": "tr",
@@ -246,6 +252,46 @@
       "board": "a2-4b",
       "golden": "viewer_search_mac_light_en.png",
       "note": "The find bar with its options and the Search results tab (M2). The test engine draws no page content, so only the match's highlight shows on the page."
+    },
+    {
+      "id": "a2-4c-mac",
+      "board": "a2-4c",
+      "golden": "viewer_search_progress_mac_light_en.png",
+      "note": "A long search's progress under the find bar, with the 38 matches found so far counted and highlighted (M2). The test engine draws no page content, so only the matches' highlights show on the page; the status bar also shows the search (B124)."
+    },
+    {
+      "id": "a2-4c-mac-tr",
+      "board": "a2-4c",
+      "lang": "tr",
+      "golden": "viewer_search_progress_mac_light_tr.png",
+      "note": "As a2-4c-mac, in Turkish."
+    },
+    {
+      "id": "a2-4c-mac-ar",
+      "board": "a2-4c",
+      "lang": "ar",
+      "golden": "viewer_search_progress_mac_light_ar.png",
+      "note": "As a2-4c-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a2-4d-mac",
+      "board": "a2-4d",
+      "golden": "viewer_search_none_mac_light_en.png",
+      "note": "A search with no results: the danger count, the query kept selected and what was searched (M2). The test engine draws no page content."
+    },
+    {
+      "id": "a2-4d-mac-tr",
+      "board": "a2-4d",
+      "lang": "tr",
+      "golden": "viewer_search_none_mac_light_tr.png",
+      "note": "As a2-4d-mac, in Turkish."
+    },
+    {
+      "id": "a2-4d-mac-ar",
+      "board": "a2-4d",
+      "lang": "ar",
+      "golden": "viewer_search_none_mac_light_ar.png",
+      "note": "As a2-4d-mac, in Arabic, right to left."
     },
     {
       "id": "a2-7-mac",
@@ -272,6 +318,18 @@
       "lang": "ar",
       "golden": "restricted_mac_light_ar.png",
       "note": "As a2-10a-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a1-9-mac",
+      "board": "a1-9",
+      "golden": "repaired_mac_light_en.png",
+      "note": "A repaired file: the wrench on its tab and a1-9's bar with Details and Save repaired copy… disabled (M2). The test engine draws no page content; the board's second repair row, a font that is not embedded, is not a repair the engine reports (G28)."
+    },
+    {
+      "id": "a11-7c-mac",
+      "board": "a11-7c",
+      "golden": "xfa_only_mac_light_en.png",
+      "note": "An XFA-only form opened read-only with a11-7c's bar (M2). The board's side panel \"Why this happens\" is not built (G28); the test engine draws no page content."
     }
   ]
 }

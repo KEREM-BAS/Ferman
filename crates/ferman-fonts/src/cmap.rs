@@ -3,8 +3,9 @@
 //! as leniently as viewers read them: what cannot be read is skipped, and parsing never fails.
 //!
 //! `usecmap` is recorded, not followed: the caller finds the parent CMap and joins it with
-//! [`CMap::inherit`] under its own depth limit. A range is kept as a range, so `<0000> <FFFF>`
-//! costs no more than one code.
+//! [`CMap::inherit`] under its own depth limit (ferman-core follows embedded `/UseCMap` streams up
+//! to `Limits::max_usecmap_depth`, and ferman-text joins them). A range is kept as a range, so
+//! `<0000> <FFFF>` costs no more than one code.
 // A parser module: offsets and values come from the data (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 

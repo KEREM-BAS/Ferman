@@ -156,6 +156,35 @@ enum ReadOnlyReason {
   xfaOnly,
 }
 
+/// What a [RepairFix] repaired.
+enum RepairKind {
+  /// The cross-reference table was rebuilt from the objects found.
+  crossReferenceRebuilt,
+
+  /// The trailer was missing; the catalog was found among the objects.
+  trailerRebuilt,
+
+  /// Streams with a wrong length were read up to their end.
+  streamLengthsCorrected,
+
+  /// Objects the cross-reference data names could not be read.
+  objectsUnreadable,
+}
+
+/// One thing repair did, for a1-9's "What Ferman repaired".
+@immutable
+class RepairFix {
+  /// Creates a fix.
+  const new({required this.kind, this.count = 0});
+
+  /// What was repaired.
+  final RepairKind kind;
+
+  /// The objects found, the streams corrected or the objects that could
+  /// not be read; 0 for [RepairKind.trailerRebuilt].
+  final int count;
+}
+
 /// One page of an [OpenedDocument], in points as displayed.
 @immutable
 class PageInfo {
@@ -440,6 +469,7 @@ class OpenedDocument {
     required this.id,
     required this.pages,
     this.readOnly,
+    this.repairs = const [],
     this.rightToLeft = false,
     this.outline = const [],
     this.attachments = const [],
@@ -467,6 +497,10 @@ class OpenedDocument {
 
   /// Why it opened read-only, if it did.
   final ReadOnlyReason? readOnly;
+
+  /// What repair did, in order; empty unless [readOnly] is
+  /// [ReadOnlyReason.repaired].
+  final List<RepairFix> repairs;
 
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
@@ -526,6 +560,7 @@ class OpenedDocument {
     id: id,
     pages: pages,
     readOnly: readOnly,
+    repairs: repairs,
     rightToLeft: rightToLeft,
     outline: outline,
     attachments: attachments,

@@ -2799,6 +2799,120 @@ abstract class AppLocalizations {
   /// **'Dismiss'**
   String get scriptsDismiss;
 
+  /// a1-9: title of the bar above the pages of a file Ferman repaired on open.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman repaired this file.'**
+  String get repairedTitle;
+
+  /// a1-9: message of the repaired bar. {count} is how many repairs the engine reports (0 when it names none), {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Problems were fixed in this copy.} =1{1 problem was fixed in this copy.} other{{countText} problems were fixed in this copy.}} The original stays as it was until you save.'**
+  String repairedBody(int count, String countText);
+
+  /// a1-9: the repaired bar's button that opens the list of repairs (What Ferman repaired).
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get repairedDetails;
+
+  /// a1-9: the repaired bar's button that saves the repaired file as a new file (disabled until saving ships, B103).
+  ///
+  /// In en, this message translates to:
+  /// **'Save repaired copy…'**
+  String get repairedSave;
+
+  /// a1-9: title of the popover that lists the repairs.
+  ///
+  /// In en, this message translates to:
+  /// **'What Ferman repaired'**
+  String get repairDetailsTitle;
+
+  /// a1-9: button in the repairs popover that copies the list of repairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get repairCopyDetails;
+
+  /// a1-9: a repair: the file's table of where its objects are was rebuilt.
+  ///
+  /// In en, this message translates to:
+  /// **'The cross-reference table was broken'**
+  String get repairXrefTitle;
+
+  /// a1-9: detail of the cross-reference repair. {count} is the objects found, {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Rebuilt from the 1 object found in the file.} other{Rebuilt from the {countText} objects found in the file.}}'**
+  String repairXrefBody(int count, String countText);
+
+  /// a1-9: second sentence of the cross-reference repair's detail. {count} is the document's pages, {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The page is present.} other{All {countText} pages are present.}}'**
+  String repairPagesPresent(int count, String countText);
+
+  /// a1-9: a repair: the file's trailer (the part that says where the document starts) was missing (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'The file’s trailer was missing'**
+  String get repairTrailerTitle;
+
+  /// a1-9: detail of the trailer repair (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman found where the document starts among its objects.'**
+  String get repairTrailerBody;
+
+  /// a1-9: a repair: data streams whose stated length was wrong (not on the board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stream had the wrong length} other{{countText} streams had the wrong length}}'**
+  String repairStreamsTitle(int count, String countText);
+
+  /// a1-9: detail of the stream-length repair (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman read each one up to its end.'**
+  String get repairStreamsBody;
+
+  /// a1-9: objects of the file that could not be read (not on the board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 object couldn’t be read} other{{countText} objects couldn’t be read}}'**
+  String repairUnreadableTitle(int count, String countText);
+
+  /// a1-9: detail of the unreadable objects (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Pages and features that use them may be incomplete.'**
+  String get repairUnreadableBody;
+
+  /// a11-7c: title of the bar above the pages of an XFA-only form.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an XFA form, which Ferman can’t show.'**
+  String get xfaTitle;
+
+  /// a11-7c: message of the XFA bar.
+  ///
+  /// In en, this message translates to:
+  /// **'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.'**
+  String get xfaBody;
+
+  /// G102: title of the bar above the pages of a file whose two parsers disagree (not on a board). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman opened “{name}” read-only.'**
+  String disagreeTitle(String name);
+
+  /// G102: message of the parsers-disagree bar (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.'**
+  String get disagreeBody;
+
   /// Right panel section with the file's facts (FmDocPanel `view`).
   ///
   /// In en, this message translates to:

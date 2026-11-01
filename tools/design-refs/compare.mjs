@@ -45,6 +45,12 @@ export const GOLDEN_SCREENS = [
   'not_a_pdf',
   'start_recent',
   'default_app',
+  'repaired',
+  'xfa_only',
+  'damaged',
+  'viewer_search_progress',
+  'viewer_search_none',
+  'start_no_pdfium',
 ];
 
 /** A golden's file name: `<screen>_<chrome>_<theme>_<lang>.png`. */

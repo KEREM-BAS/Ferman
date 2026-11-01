@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `repair_fix_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -624,6 +624,9 @@ class OpenedDocument {
   /// Why it opened read-only, if it did.
   final ReadOnlyReason? readOnly;
 
+  /// What repair did, in order; empty unless `read_only` is `Repaired`.
+  final List<RepairFix> repairs;
+
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
 
@@ -682,6 +685,7 @@ class OpenedDocument {
   const OpenedDocument({
     required this.id,
     this.readOnly,
+    required this.repairs,
     required this.rightToLeft,
     required this.pages,
     required this.outline,
@@ -706,6 +710,7 @@ class OpenedDocument {
   int get hashCode =>
       id.hashCode ^
       readOnly.hashCode ^
+      repairs.hashCode ^
       rightToLeft.hashCode ^
       pages.hashCode ^
       outline.hashCode ^
@@ -732,6 +737,7 @@ class OpenedDocument {
           runtimeType == other.runtimeType &&
           id == other.id &&
           readOnly == other.readOnly &&
+          repairs == other.repairs &&
           rightToLeft == other.rightToLeft &&
           pages == other.pages &&
           outline == other.outline &&
@@ -963,6 +969,45 @@ enum ReadOnlyReason {
 
   /// An XFA-only form (a11-7c).
   xfaOnly,
+}
+
+/// One thing repair did, for a1-9's "What Ferman repaired".
+class RepairFix {
+  /// What was repaired.
+  final RepairKind kind;
+
+  /// The objects found (`CrossReferenceRebuilt`), the streams corrected
+  /// (`StreamLengthsCorrected`) or the objects that could not be read (`ObjectsUnreadable`);
+  /// 0 for `TrailerRebuilt`.
+  final int count;
+
+  const RepairFix({required this.kind, required this.count});
+
+  @override
+  int get hashCode => kind.hashCode ^ count.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RepairFix &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          count == other.count;
+}
+
+/// What a [`RepairFix`] repaired.
+enum RepairKind {
+  /// The cross-reference table was rebuilt from the objects found in the file.
+  crossReferenceRebuilt,
+
+  /// The trailer was missing, and the catalog was found among the objects.
+  trailerRebuilt,
+
+  /// Streams whose `/Length` was wrong were read up to their `endstream`.
+  streamLengthsCorrected,
+
+  /// Objects the cross-reference data names could not be read.
+  objectsUnreadable,
 }
 
 /// An event of a search's stream.

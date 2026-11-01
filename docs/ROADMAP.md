@@ -1757,7 +1757,7 @@ rows say "keys only".
 
 #### Step 2. Open path and structure
 
-- [ ] Every corpus file opens or fails with the designed state: healthy files fully;
+- [x] Every corpus file opens or fails with the designed state: healthy files fully;
   `kira-tr-damaged` as Repaired with the list of fixes (`a1-9`), its "Save repaired copy…" visible
   and disabled with the future-version tooltip until the writer arrives in M3
   ([G28](DESIGN_GAPS.md#g28)); `truncated` with the can't-open state, likely cause and technical
@@ -1770,8 +1770,11 @@ rows say "keys only".
   `files_that_do_not_open_say_why`), and so do `a1-9b` and `a1-9c`
   (`app/test/features/start/open_files_test.dart` `a damaged file shows its cause and technical
   details (a1-9b)`, `a file that is not a PDF gets a1-9c's error tab, with Convert to PDF…
-  disabled`). The app does not draw `a1-9`'s repaired banner with its list of fixes or `a11-7c`'s
-  XFA notice yet: a repaired or XFA-only document shows only Read-only in the status bar.
+  disabled`), `a1-9` and `a11-7c` (`app/test/features/shell/document_banners_test.dart` `a repaired
+  document shows a1-9's bar with the engine's repairs, and Save repaired copy… disabled (B103)`,
+  `an XFA-only form opens read-only with a11-7c's bar and Show in folder`; the repair list crosses
+  the bridge, `crates/ferman-api/src/frb.rs` `every_repair_crosses_with_its_count`). Where the
+  build differs from the boards (a11-7c's side panel, a1-9's font row) is in G28.
 - [ ] `payslip-aes256` asks for its password (`a1-8`); the wrong password "eylul2026" shows the
   Turkish keyboard hint with no lockout (`a1-8b`); the right password opens it. RC4 40, RC4 128 and
   AES-128 corpus files open too. Passwords are wiped from memory after key derivation and never
@@ -1781,12 +1784,13 @@ rows say "keys only".
   `app/test/features/start/open_files_test.dart` `a file that needs a password opens as a locked
   tab with the unlock dialog (a1-8, a1-8b)`) except the copy PDFium keeps while the document is
   open, and the UI's string, which Ferman cannot wipe ([Q22](QUESTIONS.md#q22)).
-- [ ] When lopdf and PDFium disagree on page count or page sizes, the document opens read-only with a
+- [x] When lopdf and PDFium disagree on page count or page sizes, the document opens read-only with a
   notice (approved by the owner on 2026-10-16, [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md);
   test with a crafted file). **Proposed (M2 plan):** it takes `a1-9d`'s read-only state with the
   notice of [G102](DESIGN_GAPS.md#g102). Open: the engine opens `disagree-pages` read-only
-  (`crates/ferman-api/tests/open.rs` `the_corpus_opens_and_the_parsers_agree`), but the app shows
-  no notice for it yet, only Read-only in the status bar.
+  (`crates/ferman-api/tests/open.rs` `the_corpus_opens_and_the_parsers_agree`), and the app shows
+  G102's notice (`app/test/features/shell/document_banners_test.dart` `a document the two parsers
+  disagree on opens read-only with G102's notice`).
 - [ ] An owner-password restricted file opens as `a2-10a` draws it: a banner that names the
   restriction, the modes and tools the permissions forbid disabled with the reason (on the Edit tab
   once Edit ships in M3, the future-version tooltip before), and "Unlock with owner password…", which
@@ -1809,11 +1813,11 @@ rows say "keys only".
   `app/test/features/start/open_files_test.dart` `a file that runs out of memory gets no tab: a
   banner on Start, a toast in the editor, each with Try again (a1-9f)`.
 - [ ] Every limit in ARCHITECTURE.md §9.1 has a test that crosses it and gets `ResourceLimit`, not a
-  hang or a crash. Open: nesting, decoded size per stream, filter chain, `/Prev` chain and operators
-  per page have tests that cross them (ARCHITECTURE.md §9.1); the form XObject depth is enforced
-  (`crates/ferman-core/src/interpret.rs`) with no test that crosses it, and `q` nesting, decoded
-  size per revision, `usecmap` depth, font program size, image pixels and time per page are not
-  enforced yet.
+  hang or a crash. Open: every limit M2's code reaches has a test that crosses it, named in
+  ARCHITECTURE.md §9.1: nesting, decoded size per stream, filter chain, `/Prev` chain, operators per
+  page, form XObject depth, `q` nesting, `usecmap` depth, decoded size per revision and font program
+  size (`crates/ferman-core/src/interpret.rs` tests, `ferman_fonts::type1` tests); Type3 and pattern
+  recursion, time per page and image pixels wait for their code ([B131](BACKLOG.md#open)).
 
 #### Step 3. API, tiles and the viewer
 
@@ -1833,17 +1837,18 @@ rows say "keys only".
   left (a2-1d, a2-15)`; `app/test/features/viewer/document_view_test.dart` `the View row lays pages
   out and fits them`; `crates/ferman-core/tests/corpus.rs`
   `the_structure_scan_finds_what_the_generators_wrote` (`report-ar` reads right to left).
-- [ ] Zoom: fit page, fit width, actual size, 50 to 400% steps, marquee zoom, ⌘ or Ctrl with the
+- [x] Zoom: fit page, fit width, actual size, 50 to 400% steps, marquee zoom, ⌘ or Ctrl with the
   scroll wheel and pinch (`a2-2`). While a sharp tile is missing, the best lower bucket or the
   thumbnail is shown scaled and sharpens in place with no layout shift; a page that fails to render
   shows a placeholder with a plain message and Try again, and the rest of the document keeps working
-  (`a2-13`, [G30](DESIGN_GAPS.md#g30)). Open: the fits, steps, marquee, wheel and the failed page
-  have tests (`app/test/features/viewer/document_view_test.dart` `the zoom field opens a2-2’s menu:
+  (`a2-13`, [G30](DESIGN_GAPS.md#g30)). Evidence: the fits, steps, marquee, wheel and the failed
+  page have tests (`app/test/features/viewer/document_view_test.dart` `the zoom field opens a2-2’s menu:
   the fits with their keys, the steps and Marquee zoom`, `Ctrl with the wheel zooms around the
   pointer, the wheel scrolls`, `the Hand tool drags the pages; Marquee zoom zooms into a rectangle
   and says how far`, `a page that fails shows a2-13’s placeholder, and Try again asks for it
-  again`), but the trackpad's pinch and a lower bucket shown while a sharp tile is missing have
-  none, and the touchscreen's pinch is P5 ([B126](BACKLOG.md#open)).
+  again`), and so do the trackpad's pinch and the lower bucket (`the trackpad pinch zooms around the
+  pointer, its pan scrolls`, `a page shows another bucket’s tiles, scaled, until its sharp tiles
+  arrive (G30)`); the touchscreen's pinch is P5 ([B126](BACKLOG.md#open)).
 - [x] Status bar: page entry ("Page 3 of 64" accepts a typed number or page label; ⌘G or Ctrl+G
   focuses it, `a2-13`), zoom field, inline task progress. With a fit mode, the tool row's zoom field
   names the mode and the status bar shows the zoom it gives (Fit width and 113% in `a2-13`).
@@ -1866,10 +1871,11 @@ rows say "keys only".
 
 #### Step 4. Sidebar
 
-- [ ] Pages: thumbnails with page labels and the badge legend (`a2-3p`, `f5`); arrow keys move focus;
-  badges for later features are not shown until those features exist. Open: thumbnails, labels and
-  a click have a test (`app/test/features/shell/shell_sidebar_tabs_test.dart` `Pages shows a
-  thumbnail of every page and goes to one`), but the arrow keys between thumbnails have none.
+- [x] Pages: thumbnails with page labels and the badge legend (`a2-3p`, `f5`); arrow keys move focus;
+  badges for later features are not shown until those features exist. Evidence:
+  `app/test/features/shell/shell_sidebar_tabs_test.dart` `Pages shows a thumbnail of every page and
+  goes to one`, `Pages: the arrow keys move focus between thumbnails, Enter goes to the focused
+  one`.
 - [x] Outline: nested bookmarks, expand and collapse, the current section tinted, click to navigate
   (`a2-3o`, `a2-3a`, `a2-3x`). Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart`
   `Outline nests, folds, tints the current section and goes`; `crates/ferman-api/tests/open.rs`
@@ -1933,19 +1939,20 @@ rows say "keys only".
   `crates/ferman-text/tests/corpus.rs` `the_roadmap_queries_find_their_words` ("الإسكان" in
   `report-ar`, "Gleimstraße" in `mietvertrag-de`); `crates/ferman-text/src/search.rs`
   `arabic_matches_without_its_marks_and_presentation_forms`.
-- [ ] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
+- [x] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
   moves results to the sidebar grouped by page with snippets (`a2-4b`, `a2-3e`). The search states
   exist ([G29](DESIGN_GAPS.md#g29)): still searching, with the page reached, a bar, Cancel (Esc) and
   matches counted and highlighted as they come in (`a2-4c`); no results, saying what was searched and
   how, with "No results" in the danger text colour and the query kept selected (`a2-4d`); and no text
-  layer, with OCR disabled until P3 (`a2-3m`). Open: most of it has tests
+  layer, with OCR disabled until P3 (`a2-3m`). Evidence:
   (`app/test/design/components/editing/search_replace_bar_test.dart` `semantics: a named group with
   a live count`, `Enter in the find field: next; Shift+Enter: previous`, `no results: danger count,
   previous and next disabled`; `app/test/features/viewer/find_bar_test.dart` `Alt+Enter shows every
   result in the sidebar, grouped by page; a click goes to one, and the arrow keys move from it`, `a
   search that finds nothing says what it searched (a2-4d)`, `a document without text says so in
-  the sidebar, with Recognize text for a future version (a2-3m)`), but `a2-4c`'s progress under the
-  bar with Esc, and `a2-4d`'s query kept selected, have none.
+  the sidebar, with Recognize text for a future version (a2-3m)`, `a long search shows its
+  progress under the bar, counting what it found; Esc cancels it, then closes the bar (a2-4c)`; the
+  a2-4d test also checks the query stays selected).
 - [ ] "Look in" (`a2-4a`) offers Page text and Comments (both on by default), Form fields and
   Bookmarks; each scope searches only its own content: the page text, the contents of annotations
   already in the file, form field values, and bookmark titles. **Proposed (M2 plan):** results from
@@ -2080,23 +2087,27 @@ rows say "keys only".
   under 400 MB, tile cache excluded. Open: not measured on R1 and R2 (an owner check); on the owner's
   Mac only ferman-core's open is recorded, 15.5 ms for `imar-2400` and 2.8 ms for `long-500`
   (PROGRESS.md, Measurements).
-- [ ] Fuzz targets exist and run clean: object lexer and parser; cross-reference and trailer,
+- [x] Fuzz targets exist and run clean: object lexer and parser; cross-reference and trailer,
   including repair; each stream filter (Flate, LZW, ASCII85, ASCIIHex, RunLength); encryption and
   password handling; content-stream lexer; interpreter (extraction path); CMap and ToUnicode; Type1
   parser; "open arbitrary bytes" through the facade. Each runs 60 s on every pull request and 1 hour
-  nightly (**Proposed** durations); every crash becomes a corpus regression file. Open: `fuzz/` has
-  twelve targets (`syntax_object`, `xref_repair`, the five `filter_*`, `security_handler`,
-  `content_lexer`, `interpreter`, `cmap`, `open_document`), each run for 60 s by CI's fuzz job, but
-  no Type1 parser target and no nightly one-hour run.
+  nightly (**Proposed** durations); every crash becomes a corpus regression file. Evidence: `fuzz/`
+  has thirteen targets (`syntax_object`, `xref_repair`, the five `filter_*`, `security_handler`,
+  `content_lexer`, `interpreter`, `cmap`, `type1`, `open_document`), each run for 60 s by CI's fuzz
+  job and for an hour by `.github/workflows/fuzz-nightly.yml` (on `main`, from the merge on).
 - [ ] `tests/corpus/README.md` records source, licence, SHA-256 and purpose for every file; the
   real-world set covers Word, Google Docs, LibreOffice, LaTeX, scanned, forms, signed, encrypted and
   damaged files. Open: every generated file has its row, checked by `tools/corpus` `check` in CI,
   but no real-world file has been added yet ([ADR 0020](adr/0020-test-corpus.md)).
 - [ ] Goldens for every M2 screen in light and dark × en, tr and ar (S4), including a dark View-mode
   window ([G17](DESIGN_GAPS.md#g17)). Open: `app/test/goldens/m2_screens_golden_test.dart` draws
-  twelve M2 screens in light and dark × en, tr and ar, the viewer in dark included, with their
-  images from CI's Linux run (`a18e5c4`), but states such as `a1-9b`, `a1-7`, `a2-4c`, `a2-4d`
-  and the start screen's PDFium banner have no golden yet.
+  the M2 screens in light and dark × en, tr and ar, the viewer in dark included: the viewer and
+  each sidebar tab, search with its progress (`a2-4c`) and no results (`a2-4d`), the properties,
+  restricted, repaired (`a1-9`) and XFA-only (`a11-7c`) documents, the unlock dialog, a damaged
+  file (`a1-9b`), a file that is not a PDF, the recent files, the default-app prompt and the start
+  screen without PDFium (G101). The first twelve have their images from CI's Linux run (`a18e5c4`);
+  the newer six get theirs from the next one. `a1-7`'s card has none: its indeterminate bar never
+  stops, which the golden helper refuses.
 - [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
   Open: the CI job that runs the build under strace waits for the owner, since strace is LGPL
   (PROGRESS.md, "New dependencies" of the M2 plan).

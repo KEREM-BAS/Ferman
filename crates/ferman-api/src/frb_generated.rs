@@ -547,6 +547,18 @@ impl CstDecode<crate::frb::ReadOnlyReason> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::RepairKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::RepairKind {
+        match self {
+            0 => crate::frb::RepairKind::CrossReferenceRebuilt,
+            1 => crate::frb::RepairKind::TrailerRebuilt,
+            2 => crate::frb::RepairKind::StreamLengthsCorrected,
+            3 => crate::frb::RepairKind::ObjectsUnreadable,
+            _ => unreachable!("Invalid variant for RepairKind: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::SearchEventKind> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::SearchEventKind {
@@ -1025,6 +1037,18 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::RepairFix> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::RepairFix>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1066,6 +1090,7 @@ impl SseDecode for crate::frb::OpenedDocument {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <u64>::sse_decode(deserializer);
         let mut var_readOnly = <Option<crate::frb::ReadOnlyReason>>::sse_decode(deserializer);
+        let mut var_repairs = <Vec<crate::frb::RepairFix>>::sse_decode(deserializer);
         let mut var_rightToLeft = <bool>::sse_decode(deserializer);
         let mut var_pages = <Vec<crate::frb::PageInfo>>::sse_decode(deserializer);
         let mut var_outline = <Vec<crate::frb::OutlineEntry>>::sse_decode(deserializer);
@@ -1087,6 +1112,7 @@ impl SseDecode for crate::frb::OpenedDocument {
         return crate::frb::OpenedDocument {
             id: var_id,
             read_only: var_readOnly,
+            repairs: var_repairs,
             right_to_left: var_rightToLeft,
             pages: var_pages,
             outline: var_outline,
@@ -1312,6 +1338,32 @@ impl SseDecode for crate::frb::ReadOnlyReason {
             1 => crate::frb::ReadOnlyReason::ParsersDisagree,
             2 => crate::frb::ReadOnlyReason::XfaOnly,
             _ => unreachable!("Invalid variant for ReadOnlyReason: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::RepairFix {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::RepairKind>::sse_decode(deserializer);
+        let mut var_count = <u32>::sse_decode(deserializer);
+        return crate::frb::RepairFix {
+            kind: var_kind,
+            count: var_count,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::RepairKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::RepairKind::CrossReferenceRebuilt,
+            1 => crate::frb::RepairKind::TrailerRebuilt,
+            2 => crate::frb::RepairKind::StreamLengthsCorrected,
+            3 => crate::frb::RepairKind::ObjectsUnreadable,
+            _ => unreachable!("Invalid variant for RepairKind: {}", inner),
         };
     }
 }
@@ -1855,6 +1907,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
         [
             self.id.into_into_dart().into_dart(),
             self.read_only.into_into_dart().into_dart(),
+            self.repairs.into_into_dart().into_dart(),
             self.right_to_left.into_into_dart().into_dart(),
             self.pages.into_into_dart().into_dart(),
             self.outline.into_into_dart().into_dart(),
@@ -2022,6 +2075,40 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ReadOnlyReason {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::ReadOnlyReason {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::ReadOnlyReason> for crate::frb::ReadOnlyReason {
     fn into_into_dart(self) -> crate::frb::ReadOnlyReason {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RepairFix {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.count.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RepairFix {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RepairFix> for crate::frb::RepairFix {
+    fn into_into_dart(self) -> crate::frb::RepairFix {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RepairKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::CrossReferenceRebuilt => 0.into_dart(),
+            Self::TrailerRebuilt => 1.into_dart(),
+            Self::StreamLengthsCorrected => 2.into_dart(),
+            Self::ObjectsUnreadable => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RepairKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RepairKind> for crate::frb::RepairKind {
+    fn into_into_dart(self) -> crate::frb::RepairKind {
         self
     }
 }
@@ -2597,6 +2684,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::RepairFix> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::RepairFix>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2632,6 +2729,7 @@ impl SseEncode for crate::frb::OpenedDocument {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u64>::sse_encode(self.id, serializer);
         <Option<crate::frb::ReadOnlyReason>>::sse_encode(self.read_only, serializer);
+        <Vec<crate::frb::RepairFix>>::sse_encode(self.repairs, serializer);
         <bool>::sse_encode(self.right_to_left, serializer);
         <Vec<crate::frb::PageInfo>>::sse_encode(self.pages, serializer);
         <Vec<crate::frb::OutlineEntry>>::sse_encode(self.outline, serializer);
@@ -2826,6 +2924,32 @@ impl SseEncode for crate::frb::ReadOnlyReason {
                 crate::frb::ReadOnlyReason::Repaired => 0,
                 crate::frb::ReadOnlyReason::ParsersDisagree => 1,
                 crate::frb::ReadOnlyReason::XfaOnly => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::RepairFix {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::RepairKind>::sse_encode(self.kind, serializer);
+        <u32>::sse_encode(self.count, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::RepairKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::RepairKind::CrossReferenceRebuilt => 0,
+                crate::frb::RepairKind::TrailerRebuilt => 1,
+                crate::frb::RepairKind::StreamLengthsCorrected => 2,
+                crate::frb::RepairKind::ObjectsUnreadable => 3,
                 _ => {
                     unimplemented!("");
                 }
@@ -3323,6 +3447,16 @@ mod io {
             }
         }
     }
+    impl CstDecode<Vec<crate::frb::RepairFix>> for *mut wire_cst_list_repair_fix {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::SearchMatch>> for *mut wire_cst_list_search_match {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::SearchMatch> {
@@ -3359,6 +3493,7 @@ mod io {
             crate::frb::OpenedDocument {
                 id: self.id.cst_decode(),
                 read_only: self.read_only.cst_decode(),
+                repairs: self.repairs.cst_decode(),
                 right_to_left: self.right_to_left.cst_decode(),
                 pages: self.pages.cst_decode(),
                 outline: self.outline.cst_decode(),
@@ -3431,6 +3566,15 @@ mod io {
                 state: self.state.cst_decode(),
                 tag: self.tag.cst_decode(),
                 reason: self.reason.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::RepairFix> for wire_cst_repair_fix {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairFix {
+            crate::frb::RepairFix {
+                kind: self.kind.cst_decode(),
+                count: self.count.cst_decode(),
             }
         }
     }
@@ -3681,6 +3825,7 @@ mod io {
             Self {
                 id: Default::default(),
                 read_only: core::ptr::null_mut(),
+                repairs: core::ptr::null_mut(),
                 right_to_left: Default::default(),
                 pages: core::ptr::null_mut(),
                 outline: core::ptr::null_mut(),
@@ -3777,6 +3922,19 @@ mod io {
         }
     }
     impl Default for wire_cst_pdfium_status {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_repair_fix {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                count: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_repair_fix {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -4210,6 +4368,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_repair_fix(
+        len: i32,
+    ) -> *mut wire_cst_list_repair_fix {
+        let wrap = wire_cst_list_repair_fix {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_repair_fix>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_search_match(
         len: i32,
     ) -> *mut wire_cst_list_search_match {
@@ -4393,6 +4565,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_repair_fix {
+        ptr: *mut wire_cst_repair_fix,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_search_match {
         ptr: *mut wire_cst_search_match,
         len: i32,
@@ -4414,6 +4592,7 @@ mod io {
     pub struct wire_cst_opened_document {
         id: u64,
         read_only: *mut i32,
+        repairs: *mut wire_cst_list_repair_fix,
         right_to_left: bool,
         pages: *mut wire_cst_list_page_info,
         outline: *mut wire_cst_list_outline_entry,
@@ -4471,6 +4650,12 @@ mod io {
         state: i32,
         tag: *mut wire_cst_list_prim_u_8_strict,
         reason: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_repair_fix {
+        kind: i32,
+        count: u32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4927,6 +5112,18 @@ mod web {
             self.into_vec()
         }
     }
+    impl CstDecode<Vec<crate::frb::RepairFix>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::SearchMatch>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -4973,31 +5170,32 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                20,
-                "Expected 20 elements, got {}",
+                21,
+                "Expected 21 elements, got {}",
                 self_.length()
             );
             crate::frb::OpenedDocument {
                 id: self_.get(0).cst_decode(),
                 read_only: self_.get(1).cst_decode(),
-                right_to_left: self_.get(2).cst_decode(),
-                pages: self_.get(3).cst_decode(),
-                outline: self_.get(4).cst_decode(),
-                attachments: self_.get(5).cst_decode(),
-                layers: self_.get(6).cst_decode(),
-                layers_switchable: self_.get(7).cst_decode(),
-                signatures: self_.get(8).cst_decode(),
-                version: self_.get(9).cst_decode(),
-                file_size: self_.get(10).cst_decode(),
-                info: self_.get(11).cst_decode(),
-                language: self_.get(12).cst_decode(),
-                tagged: self_.get(13).cst_decode(),
-                linearized: self_.get(14).cst_decode(),
-                fonts: self_.get(15).cst_decode(),
-                security: self_.get(16).cst_decode(),
-                scripts: self_.get(17).cst_decode(),
-                form_fields: self_.get(18).cst_decode(),
-                scanned: self_.get(19).cst_decode(),
+                repairs: self_.get(2).cst_decode(),
+                right_to_left: self_.get(3).cst_decode(),
+                pages: self_.get(4).cst_decode(),
+                outline: self_.get(5).cst_decode(),
+                attachments: self_.get(6).cst_decode(),
+                layers: self_.get(7).cst_decode(),
+                layers_switchable: self_.get(8).cst_decode(),
+                signatures: self_.get(9).cst_decode(),
+                version: self_.get(10).cst_decode(),
+                file_size: self_.get(11).cst_decode(),
+                info: self_.get(12).cst_decode(),
+                language: self_.get(13).cst_decode(),
+                tagged: self_.get(14).cst_decode(),
+                linearized: self_.get(15).cst_decode(),
+                fonts: self_.get(16).cst_decode(),
+                security: self_.get(17).cst_decode(),
+                scripts: self_.get(18).cst_decode(),
+                form_fields: self_.get(19).cst_decode(),
+                scanned: self_.get(20).cst_decode(),
             }
         }
     }
@@ -5107,6 +5305,26 @@ mod web {
                 state: self_.get(0).cst_decode(),
                 tag: self_.get(1).cst_decode(),
                 reason: self_.get(2).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::RepairFix>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairFix {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::RepairFix {
+                kind: self_.get(0).cst_decode(),
+                count: self_.get(1).cst_decode(),
             }
         }
     }
@@ -5439,6 +5657,14 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::ReadOnlyReason {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::RepairKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairKind {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }

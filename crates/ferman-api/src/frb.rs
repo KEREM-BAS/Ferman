@@ -133,6 +133,30 @@ pub enum ReadOnlyReason {
     XfaOnly,
 }
 
+/// One thing repair did, for a1-9's "What Ferman repaired".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RepairFix {
+    /// What was repaired.
+    pub kind: RepairKind,
+    /// The objects found (`CrossReferenceRebuilt`), the streams corrected
+    /// (`StreamLengthsCorrected`) or the objects that could not be read (`ObjectsUnreadable`);
+    /// 0 for `TrailerRebuilt`.
+    pub count: u32,
+}
+
+/// What a [`RepairFix`] repaired.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RepairKind {
+    /// The cross-reference table was rebuilt from the objects found in the file.
+    CrossReferenceRebuilt,
+    /// The trailer was missing, and the catalog was found among the objects.
+    TrailerRebuilt,
+    /// Streams whose `/Length` was wrong were read up to their `endstream`.
+    StreamLengthsCorrected,
+    /// Objects the cross-reference data names could not be read.
+    ObjectsUnreadable,
+}
+
 /// One page of an [`OpenedDocument`], in points as displayed.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageInfo {
@@ -151,6 +175,8 @@ pub struct OpenedDocument {
     pub id: u64,
     /// Why it opened read-only, if it did.
     pub read_only: Option<ReadOnlyReason>,
+    /// What repair did, in order; empty unless `read_only` is `Repaired`.
+    pub repairs: Vec<RepairFix>,
     /// Whether spreads run right to left (`/Direction /R2L`).
     pub right_to_left: bool,
     /// Its pages.
@@ -952,9 +978,34 @@ fn wanted_facade(wanted: WantedItem) -> Option<facade::Wanted> {
     Some(facade::Wanted { item, priority })
 }
 
+fn repair_fix_dto(repair: &facade::Repair) -> Option<RepairFix> {
+    let (kind, count) = match *repair {
+        facade::Repair::CrossReferenceRebuilt { objects, .. } => {
+            (RepairKind::CrossReferenceRebuilt, objects)
+        }
+        facade::Repair::TrailerRebuilt => (RepairKind::TrailerRebuilt, 0),
+        facade::Repair::StreamLengthsCorrected { streams } => {
+            (RepairKind::StreamLengthsCorrected, streams)
+        }
+        facade::Repair::ObjectsUnreadable { objects, .. } => {
+            (RepairKind::ObjectsUnreadable, objects)
+        }
+        // A repair added later reaches the UI once it has its wording.
+        _ => return None,
+    };
+    Some(RepairFix { kind, count })
+}
+
 fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
+    let repairs = match &document.read_only {
+        Some(facade::ReadOnly::Repaired(report)) => {
+            report.repairs.iter().filter_map(repair_fix_dto).collect()
+        }
+        _ => Vec::new(),
+    };
     OpenedDocument {
         id: document.id.get(),
+        repairs,
         read_only: document.read_only.map(|reason| match reason {
             facade::ReadOnly::Repaired(_) => ReadOnlyReason::Repaired,
             facade::ReadOnly::ParsersDisagree(_) => ReadOnlyReason::ParsersDisagree,
@@ -1240,6 +1291,33 @@ mod tests {
     fn a_stale_document_is_not_found() {
         let err = block_on(close(u64::MAX)).unwrap_err();
         assert_eq!(err.kind, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn every_repair_crosses_with_its_count() {
+        let repairs = [
+            facade::Repair::CrossReferenceRebuilt {
+                objects: 48,
+                problem: facade::XrefProblem::NoStartxref,
+            },
+            facade::Repair::TrailerRebuilt,
+            facade::Repair::StreamLengthsCorrected { streams: 2 },
+            facade::Repair::ObjectsUnreadable {
+                objects: 3,
+                first: 7,
+            },
+        ];
+        let fixes: Vec<_> = repairs.iter().filter_map(repair_fix_dto).collect();
+        let fix = |kind, count| RepairFix { kind, count };
+        assert_eq!(
+            fixes,
+            [
+                fix(RepairKind::CrossReferenceRebuilt, 48),
+                fix(RepairKind::TrailerRebuilt, 0),
+                fix(RepairKind::StreamLengthsCorrected, 2),
+                fix(RepairKind::ObjectsUnreadable, 3),
+            ]
+        );
     }
 
     #[test]

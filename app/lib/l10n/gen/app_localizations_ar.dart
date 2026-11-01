@@ -1547,6 +1547,124 @@ class AppLocalizationsAr extends AppLocalizations {
   String get scriptsDismiss => 'إغلاق';
 
   @override
+  String get repairedTitle => 'أصلح Ferman هذا الملف.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُصلحت $countText مشكلة في هذه النسخة.',
+      many: 'أُصلحت $countText مشكلة في هذه النسخة.',
+      few: 'أُصلحت $countText مشكلات في هذه النسخة.',
+      two: 'أُصلحت مشكلتان في هذه النسخة.',
+      one: 'أُصلحت مشكلة واحدة في هذه النسخة.',
+      zero: 'أُصلحت مشكلات في هذه النسخة.',
+    );
+    return '$_temp0 يبقى الأصل كما هو حتى تحفظ.';
+  }
+
+  @override
+  String get repairedDetails => 'التفاصيل';
+
+  @override
+  String get repairedSave => 'حفظ النسخة المُصلَحة…';
+
+  @override
+  String get repairDetailsTitle => 'ما الذي أصلحه Ferman';
+
+  @override
+  String get repairCopyDetails => 'نسخ التفاصيل';
+
+  @override
+  String get repairXrefTitle => 'كان جدول الإسناد الترافقي تالفًا';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُعيد بناؤه من $countText كائن موجود في الملف.',
+      many: 'أُعيد بناؤه من $countText كائنًا موجودًا في الملف.',
+      few: 'أُعيد بناؤه من $countText كائنات موجودة في الملف.',
+      two: 'أُعيد بناؤه من الكائنين الموجودين في الملف.',
+      one: 'أُعيد بناؤه من الكائن الوحيد الموجود في الملف.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات الـ$countText كلها موجودة.',
+      many: 'الصفحات الـ$countText كلها موجودة.',
+      few: 'الصفحات الـ$countText كلها موجودة.',
+      two: 'الصفحتان موجودتان.',
+      one: 'الصفحة موجودة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'كان مقطع الذيل (trailer) في الملف مفقودًا';
+
+  @override
+  String get repairTrailerBody => 'عثر Ferman على بداية المستند بين كائناته.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كان طول $countText تدفق خاطئًا',
+      many: 'كان طول $countText تدفقًا خاطئًا',
+      few: 'كان طول $countText تدفقات خاطئًا',
+      two: 'كان طول تدفقين خاطئًا',
+      one: 'كان طول تدفق واحد خاطئًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'قرأ Ferman كل واحد منها حتى نهايته.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تعذّرت قراءة $countText كائن',
+      many: 'تعذّرت قراءة $countText كائنًا',
+      few: 'تعذّرت قراءة $countText كائنات',
+      two: 'تعذّرت قراءة كائنين',
+      one: 'تعذّرت قراءة كائن واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'قد تكون الصفحات والميزات التي تستخدمها غير مكتملة.';
+
+  @override
+  String get xfaTitle => 'هذا نموذج XFA، ولا يستطيع Ferman عرضه.';
+
+  @override
+  String get xfaBody =>
+      'XFA تنسيق متوقف من Adobe. افتحه في Adobe Acrobat Reader، أو اطلب من المرسل ملف PDF عاديًا.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'فتح Ferman «$name» للقراءة فقط.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'بعض أجزاء هذا الملف لا تتطابق مع بعضها، وقد يعني ذلك أنه تالف. يمكنك قراءته كالمعتاد.';
+
+  @override
   String get propertiesFile => 'الملف';
 
   @override

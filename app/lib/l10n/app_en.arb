@@ -2024,6 +2024,127 @@
   "@scriptsDismiss": {
     "description": "Screen-reader name of the scripts bar's dismiss button (G100)."
   },
+  "repairedTitle": "Ferman repaired this file.",
+  "@repairedTitle": {
+    "description": "a1-9: title of the bar above the pages of a file Ferman repaired on open."
+  },
+  "repairedBody": "{count, plural, =0{Problems were fixed in this copy.} =1{1 problem was fixed in this copy.} other{{countText} problems were fixed in this copy.}} The original stays as it was until you save.",
+  "@repairedBody": {
+    "description": "a1-9: message of the repaired bar. {count} is how many repairs the engine reports (0 when it names none), {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "repairedDetails": "Details",
+  "@repairedDetails": {
+    "description": "a1-9: the repaired bar's button that opens the list of repairs (What Ferman repaired)."
+  },
+  "repairedSave": "Save repaired copy…",
+  "@repairedSave": {
+    "description": "a1-9: the repaired bar's button that saves the repaired file as a new file (disabled until saving ships, B103)."
+  },
+  "repairDetailsTitle": "What Ferman repaired",
+  "@repairDetailsTitle": {
+    "description": "a1-9: title of the popover that lists the repairs."
+  },
+  "repairCopyDetails": "Copy details",
+  "@repairCopyDetails": {
+    "description": "a1-9: button in the repairs popover that copies the list of repairs."
+  },
+  "repairXrefTitle": "The cross-reference table was broken",
+  "@repairXrefTitle": {
+    "description": "a1-9: a repair: the file's table of where its objects are was rebuilt."
+  },
+  "repairXrefBody": "{count, plural, =1{Rebuilt from the 1 object found in the file.} other{Rebuilt from the {countText} objects found in the file.}}",
+  "@repairXrefBody": {
+    "description": "a1-9: detail of the cross-reference repair. {count} is the objects found, {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "repairPagesPresent": "{count, plural, =1{The page is present.} other{All {countText} pages are present.}}",
+  "@repairPagesPresent": {
+    "description": "a1-9: second sentence of the cross-reference repair's detail. {count} is the document's pages, {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "repairTrailerTitle": "The file’s trailer was missing",
+  "@repairTrailerTitle": {
+    "description": "a1-9: a repair: the file's trailer (the part that says where the document starts) was missing (not on the board)."
+  },
+  "repairTrailerBody": "Ferman found where the document starts among its objects.",
+  "@repairTrailerBody": {
+    "description": "a1-9: detail of the trailer repair (not on the board)."
+  },
+  "repairStreamsTitle": "{count, plural, =1{1 stream had the wrong length} other{{countText} streams had the wrong length}}",
+  "@repairStreamsTitle": {
+    "description": "a1-9: a repair: data streams whose stated length was wrong (not on the board). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "repairStreamsBody": "Ferman read each one up to its end.",
+  "@repairStreamsBody": {
+    "description": "a1-9: detail of the stream-length repair (not on the board)."
+  },
+  "repairUnreadableTitle": "{count, plural, =1{1 object couldn’t be read} other{{countText} objects couldn’t be read}}",
+  "@repairUnreadableTitle": {
+    "description": "a1-9: objects of the file that could not be read (not on the board). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "repairUnreadableBody": "Pages and features that use them may be incomplete.",
+  "@repairUnreadableBody": {
+    "description": "a1-9: detail of the unreadable objects (not on the board)."
+  },
+  "xfaTitle": "This is an XFA form, which Ferman can’t show.",
+  "@xfaTitle": {
+    "description": "a11-7c: title of the bar above the pages of an XFA-only form."
+  },
+  "xfaBody": "XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.",
+  "@xfaBody": {
+    "description": "a11-7c: message of the XFA bar."
+  },
+  "disagreeTitle": "Ferman opened “{name}” read-only.",
+  "@disagreeTitle": {
+    "description": "G102: title of the bar above the pages of a file whose two parsers disagree (not on a board). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "disagreeBody": "Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.",
+  "@disagreeBody": {
+    "description": "G102: message of the parsers-disagree bar (not on a board)."
+  },
   "propertiesFile": "File",
   "@propertiesFile": {
     "description": "Right panel section with the file's facts (FmDocPanel `view`)."

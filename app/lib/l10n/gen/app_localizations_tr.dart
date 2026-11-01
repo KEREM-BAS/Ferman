@@ -1543,6 +1543,106 @@ class AppLocalizationsTr extends AppLocalizations {
   String get scriptsDismiss => 'Kapat';
 
   @override
+  String get repairedTitle => 'Ferman bu dosyayı onardı.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu kopyada $countText sorun giderildi.',
+      zero: 'Bu kopyadaki sorunlar giderildi.',
+    );
+    return '$_temp0 Siz kaydedene kadar özgün dosya olduğu gibi kalır.';
+  }
+
+  @override
+  String get repairedDetails => 'Ayrıntılar';
+
+  @override
+  String get repairedSave => 'Onarılmış kopyayı kaydet…';
+
+  @override
+  String get repairDetailsTitle => 'Ferman neleri onardı';
+
+  @override
+  String get repairCopyDetails => 'Ayrıntıları kopyala';
+
+  @override
+  String get repairXrefTitle => 'Çapraz başvuru tablosu bozuktu';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dosyada bulunan $countText nesneden yeniden oluşturuldu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText sayfanın tümü yerinde.',
+      one: 'Sayfa yerinde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'Dosyanın trailer bölümü eksikti';
+
+  @override
+  String get repairTrailerBody =>
+      'Ferman, belgenin nereden başladığını nesneleri arasında buldu.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText veri akışının uzunluğu yanlıştı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'Ferman her birini sonuna kadar okudu.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText nesne okunamadı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'Bunları kullanan sayfalar ve özellikler eksik olabilir.';
+
+  @override
+  String get xfaTitle => 'Bu bir XFA formu; Ferman bu formu gösteremiyor.';
+
+  @override
+  String get xfaBody =>
+      'XFA, Adobe’ın artık sürdürmediği bir biçimdir. Dosyayı Adobe Acrobat Reader’da açın ya da gönderenden normal bir PDF isteyin.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'Ferman “$name” dosyasını salt okunur açtı.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'Bu dosyanın bazı bölümleri birbiriyle uyuşmuyor; bu, dosyanın hasarlı olduğu anlamına gelebilir. Dosyayı her zamanki gibi okuyabilirsiniz.';
+
+  @override
   String get propertiesFile => 'Dosya';
 
   @override

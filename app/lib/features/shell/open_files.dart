@@ -405,11 +405,17 @@ class DocumentOpener extends _$DocumentOpener {
         name: name,
         path: path,
         document: document,
-        // a2-10a: the shield on the tab while the author's restrictions
-        // apply.
-        icon: document.security?.restricted ?? false
-            ? IconName.shield
-            : IconName.fileText,
+        // Why it is read-only (a1-9's wrench, a11-7c's file-x, G102's lock),
+        // else a2-10a's shield while the author's restrictions apply.
+        icon: switch (document.readOnly) {
+          ReadOnlyReason.repaired => IconName.wrench,
+          ReadOnlyReason.xfaOnly => IconName.fileX,
+          ReadOnlyReason.parsersDisagree => IconName.lock,
+          null =>
+            document.security?.restricted ?? false
+                ? IconName.shield
+                : IconName.fileText,
+        },
         pageCount: document.pages.length,
         saveState: document.readOnly == null
             ? SaveState.saved

@@ -77,6 +77,11 @@ pub struct FontResource {
     pub cmap_name: Option<Vec<u8>>,
     /// A composite font's embedded CMap, decoded.
     pub cmap: Option<Vec<u8>>,
+    /// The CMaps the embedded one uses through `/UseCMap` streams, decoded, nearest first: each
+    /// adds its mappings under the ones before it. At most [`Limits::max_usecmap_depth`].
+    ///
+    /// [`Limits::max_usecmap_depth`]: crate::limits::Limits::max_usecmap_depth
+    pub cmap_parents: Vec<Vec<u8>>,
     /// The CID font's `/W`: first and last CID, and their width.
     pub cid_widths: Vec<(u32, u32, f32)>,
     /// `/DW`, 1000 without one.
@@ -137,9 +142,11 @@ impl Document {
     ///
     /// # Errors
     ///
-    /// [`CoreError::ResourceLimit`] past the operators per page, the form recursion or another
-    /// of the document's [`Limits`](crate::limits::Limits); a content stream that cannot be
-    /// decoded is skipped.
+    /// [`CoreError::ResourceLimit`] past the operators per page, the form recursion, the `q`
+    /// nesting, the `usecmap` depth, the decoded size per revision (counted over what this
+    /// interpretation holds at once: the page's content, the forms being drawn and the fonts'
+    /// CMaps) or another of the document's [`Limits`](crate::limits::Limits); a content stream
+    /// that cannot be decoded is skipped.
     pub fn page_text(&self, index: usize, sink: &mut dyn TextSink) -> Result<(), CoreError> {
         let Some(page) = self.structure().pages.get(index) else {
             return Ok(());
@@ -157,13 +164,14 @@ impl Document {
         let resources =
             inherited(&scope, dict, b"Resources").and_then(|value| value.as_dict().ok());
         let mut content = Vec::new();
+        let mut used = 0;
         let streams: Vec<&Object> = match scope.get(dict, b"Contents") {
             Some(Object::Array(items)) => items.iter().collect(),
             Some(_) => dict.get(b"Contents").into_iter().collect(),
             None => Vec::new(),
         };
         for stream in streams {
-            if let Some(data) = decoded(&scope, stream) {
+            if let Some(data) = decoded(&scope, &mut used, stream)? {
                 // Streams of an array join as one, with white space between (§7.8.2).
                 content.extend(data);
                 content.push(b'\n');
@@ -175,17 +183,45 @@ impl Document {
             announced: BTreeSet::new(),
             forms: Vec::new(),
             operators: 0,
+            decoded: used,
         };
         walk.run(&content, resources, State::default())
     }
 }
 
-/// A stream's decoded bytes, or `None` when it cannot be decoded.
-fn decoded(scope: &Scope<'_>, object: &Object) -> Option<Vec<u8>> {
-    decoded_within(scope, object, scope.limits)
+/// A stream's decoded bytes, or `None` when it cannot be decoded; their size is added to `used`.
+///
+/// # Errors
+///
+/// [`CoreError::ResourceLimit`] when `used` passes [`Limits::max_revision_decoded`].
+///
+/// [`Limits::max_revision_decoded`]: crate::limits::Limits::max_revision_decoded
+fn decoded(
+    scope: &Scope<'_>,
+    used: &mut u64,
+    object: &Object,
+) -> Result<Option<Vec<u8>>, CoreError> {
+    let Some(Object::Stream(stream)) = scope.resolve(object) else {
+        return Ok(None);
+    };
+    let Some(data) = filters::chain_of(&stream.dict)
+        .ok()
+        .and_then(|steps| filters::decode_chain(&steps, &stream.content, scope.limits).ok())
+    else {
+        return Ok(None);
+    };
+    *used = used.saturating_add(u64::try_from(data.len()).unwrap_or(u64::MAX));
+    if *used > scope.limits.max_revision_decoded {
+        return Err(CoreError::ResourceLimit {
+            limit: LimitKind::RevisionDecodedSize,
+            max: scope.limits.max_revision_decoded,
+        });
+    }
+    Ok(Some(data))
 }
 
-/// [`decoded`] with other limits.
+/// A stream's decoded bytes within `limits`, or `None` when it cannot be decoded: a font program,
+/// read only for its built-in encoding, under the font program size limit.
 fn decoded_within(scope: &Scope<'_>, object: &Object, limits: &Limits) -> Option<Vec<u8>> {
     let Object::Stream(stream) = scope.resolve(object)? else {
         return None;
@@ -232,6 +268,10 @@ struct Walk<'a, 's> {
     /// The forms being drawn, outermost first.
     forms: Vec<ObjectId>,
     operators: u64,
+    /// Decoded bytes held now, for [`Limits::max_revision_decoded`].
+    ///
+    /// [`Limits::max_revision_decoded`]: crate::limits::Limits::max_revision_decoded
+    decoded: u64,
 }
 
 impl<'a> Walk<'a, '_> {
@@ -256,9 +296,15 @@ impl<'a> Walk<'a, '_> {
             let n = |at: usize| op.operands.get(at).and_then(number);
             match op.name.as_slice() {
                 b"q" => {
-                    if u32::try_from(saved.len()).is_ok_and(|depth| depth < limits.max_q_nesting) {
-                        saved.push(state);
+                    if u32::try_from(saved.len())
+                        .map_or(true, |depth| depth >= limits.max_q_nesting)
+                    {
+                        return Err(CoreError::ResourceLimit {
+                            limit: LimitKind::QNesting,
+                            max: u64::from(limits.max_q_nesting),
+                        });
                     }
+                    saved.push(state);
                 }
                 b"Q" => {
                     if let Some(previous) = saved.pop() {
@@ -286,7 +332,10 @@ impl<'a> Walk<'a, '_> {
                 }
                 b"Tf" => {
                     let name = op.operands.first().and_then(|name| name.as_name().ok());
-                    state.font = name.and_then(|name| self.font(resources, name));
+                    state.font = match name {
+                        Some(name) => self.font(resources, name)?,
+                        None => None,
+                    };
                     state.size = n(1).unwrap_or(state.size);
                 }
                 b"Td" | b"TD" => {
@@ -367,11 +416,19 @@ impl<'a> Walk<'a, '_> {
     }
 
     /// The font `name` of `resources`, announced to the sink the first time.
-    fn font(&mut self, resources: Option<&'a Dictionary>, name: &[u8]) -> Option<u64> {
+    fn font(
+        &mut self,
+        resources: Option<&'a Dictionary>,
+        name: &[u8],
+    ) -> Result<Option<u64>, CoreError> {
         let scope = self.scope;
-        let fonts = scope.get_dict(resources?, b"Font")?;
-        let entry = fonts.get(name).ok()?;
-        let dict = scope.dict(entry)?;
+        let Some((entry, dict)) = resources
+            .and_then(|resources| scope.get_dict(resources, b"Font"))
+            .and_then(|fonts| fonts.get(name).ok())
+            .and_then(|entry| Some((entry, scope.dict(entry)?)))
+        else {
+            return Ok(None);
+        };
         let key = match entry {
             Object::Reference((number, generation)) => {
                 (u64::from(*number) << 16) | u64::from(*generation)
@@ -379,10 +436,12 @@ impl<'a> Walk<'a, '_> {
             // A direct font dictionary is keyed by where it is, which is stable for a model.
             _ => u64::try_from(std::ptr::from_ref(dict).addr()).unwrap_or(0) | (1 << 63),
         };
-        if self.announced.insert(key) {
-            self.sink.font(&font_resource(scope, dict, key));
+        if !self.announced.contains(&key) {
+            let font = font_resource(scope, dict, key, &mut self.decoded)?;
+            self.announced.insert(key);
+            self.sink.font(&font);
         }
-        Some(key)
+        Ok(Some(key))
     }
 
     /// Draws the form XObject `name` of `resources`.
@@ -415,7 +474,7 @@ impl<'a> Walk<'a, '_> {
                 max: u64::from(scope.limits.max_recursion),
             });
         }
-        let Some(content) = decoded(scope, entry) else {
+        let Some(content) = decoded(scope, &mut self.decoded, entry)? else {
             return Ok(());
         };
         if let Some(m) = scope
@@ -428,6 +487,10 @@ impl<'a> Walk<'a, '_> {
         self.forms.push(id);
         let result = self.run(&content, own, state);
         self.forms.pop();
+        // The form's content is dropped here, so it no longer counts.
+        self.decoded = self
+            .decoded
+            .saturating_sub(u64::try_from(content.len()).unwrap_or(u64::MAX));
         result
     }
 }
@@ -438,8 +501,20 @@ fn matrix(operands: &[Object]) -> Option<Matrix> {
     values.try_into().ok()
 }
 
-/// A font dictionary as plain data.
-fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource {
+/// A font dictionary as plain data; its decoded streams are added to `used`.
+///
+/// # Errors
+///
+/// [`CoreError::ResourceLimit`] past [`Limits::max_usecmap_depth`] or the decoded size per
+/// revision.
+///
+/// [`Limits::max_usecmap_depth`]: crate::limits::Limits::max_usecmap_depth
+fn font_resource(
+    scope: &Scope<'_>,
+    dict: &Dictionary,
+    key: u64,
+    used: &mut u64,
+) -> Result<FontResource, CoreError> {
     let kind = crate::structure::fonts::kind(scope.get_name(dict, b"Subtype"));
     let numbers = |dict: &Dictionary, key: &[u8]| -> Vec<f32> {
         scope
@@ -466,14 +541,47 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
         .and_then(|value| scope.resolve(value));
     let (mut base_encoding, mut differences, mut cmap_name, mut cmap) =
         (None, Vec::new(), None, None);
+    let mut cmap_parents = Vec::new();
     match encoding {
         Some(Object::Name(name)) if kind == FontKind::Type0 => cmap_name = Some(name.clone()),
         Some(Object::Name(name)) => base_encoding = Some(name.clone()),
-        Some(Object::Stream(_)) => {
-            cmap = dict
-                .get(b"Encoding")
-                .ok()
-                .and_then(|value| decoded(scope, value));
+        Some(Object::Stream(stream)) => {
+            let value = dict.get(b"Encoding").ok();
+            cmap = match value {
+                Some(value) => decoded(scope, used, value)?,
+                None => None,
+            };
+            let mut seen: Vec<ObjectId> = value
+                .and_then(|value| value.as_reference().ok())
+                .into_iter()
+                .collect();
+            let mut parent = stream.dict.get(b"UseCMap").ok();
+            // A `/UseCMap` name is a predefined CMap, which M2 does not bundle (extraction reads
+            // it as Identity), so only embedded streams are followed.
+            while let Some(next) = parent {
+                let Some(Object::Stream(next_stream)) = scope.resolve(next) else {
+                    break;
+                };
+                if let Ok(id) = next.as_reference() {
+                    if seen.contains(&id) {
+                        break;
+                    }
+                    seen.push(id);
+                }
+                if u32::try_from(cmap_parents.len())
+                    .map_or(true, |depth| depth >= scope.limits.max_usecmap_depth)
+                {
+                    return Err(CoreError::ResourceLimit {
+                        limit: LimitKind::UsecmapDepth,
+                        max: u64::from(scope.limits.max_usecmap_depth),
+                    });
+                }
+                let Some(data) = decoded(scope, used, next)? else {
+                    break;
+                };
+                cmap_parents.push(data);
+                parent = next_stream.dict.get(b"UseCMap").ok();
+            }
         }
         Some(Object::Dictionary(encoding)) => {
             base_encoding = scope
@@ -526,7 +634,11 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
         &[vy, w1y] => [vy, w1y],
         _ => [880.0, -1000.0],
     };
-    FontResource {
+    let to_unicode = match dict.get(b"ToUnicode").ok() {
+        Some(value) => decoded(scope, used, value)?,
+        None => None,
+    };
+    Ok(FontResource {
         key,
         kind,
         base_font: scope
@@ -545,13 +657,11 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
             .unwrap_or(0.0),
         symbolic: flags & 4 != 0,
         font_matrix,
-        to_unicode: dict
-            .get(b"ToUnicode")
-            .ok()
-            .and_then(|value| decoded(scope, value)),
+        to_unicode,
         font_program,
         cmap_name,
         cmap,
+        cmap_parents,
         cid_widths: cid_widths
             .into_iter()
             .map(|(first, last, [width])| (first, last, width))
@@ -562,7 +672,7 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
             .unwrap_or(1000.0),
         vertical_metrics,
         default_vertical,
-    }
+    })
 }
 
 /// `/W` (with `N` = 1) or `/W2` (with `N` = 3): runs `c [v…]` of consecutive CIDs and ranges
@@ -696,6 +806,11 @@ mod tests {
                 form.to_vec(),
             )),
         );
+        opened(doc, resources, content)
+    }
+
+    /// `doc` with `content` and `resources` on its first page, saved and opened.
+    fn opened(mut doc: lopdf::Document, resources: Dictionary, content: &[u8]) -> Document {
         let page = doc.page_iter().next().unwrap();
         let contents = doc.add_object(Stream::new(dictionary! {}, content.to_vec()));
         let page = doc.get_dictionary_mut(page).unwrap();
@@ -852,6 +967,137 @@ mod tests {
                 ..
             })
         ));
+    }
+
+    fn limit_of(result: Result<(), CoreError>) -> Option<LimitKind> {
+        match result {
+            Err(CoreError::ResourceLimit { limit, .. }) => Some(limit),
+            other => {
+                other.unwrap();
+                None
+            }
+        }
+    }
+
+    /// A page that draws a chain of `depth` distinct forms, each drawing the next.
+    fn form_chain(depth: usize) -> Document {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let mut next: Option<ObjectId> = None;
+        for _ in 0..depth {
+            let resources = next.map_or_else(Dictionary::new, |id| {
+                dictionary! { "XObject" => dictionary! { "X" => id } }
+            });
+            next = Some(doc.add_object(Stream::new(
+                dictionary! { "Type" => "XObject", "Subtype" => "Form", "Resources" => resources },
+                b"/X Do".to_vec(),
+            )));
+        }
+        let resources = dictionary! { "XObject" => dictionary! { "X" => next.unwrap() } };
+        opened(doc, resources, b"/X Do")
+    }
+
+    #[test]
+    fn form_recursion_past_the_limit_is_a_resource_limit() {
+        let limit = Limits::default().max_recursion as usize;
+        let page = |depth| limit_of(form_chain(depth).page_text(0, &mut Recorder::default()));
+        assert_eq!(page(limit), None);
+        assert_eq!(page(limit + 1), Some(LimitKind::Recursion));
+    }
+
+    #[test]
+    fn q_nesting_past_the_limit_is_a_resource_limit() {
+        let limit = Limits::default().max_q_nesting as usize;
+        let page = |depth: usize| {
+            let content = format!("{} BT /F1 10 Tf (A) Tj ET", "q ".repeat(depth));
+            let mut recorder = Recorder::default();
+            let result = document(content.as_bytes(), b"").page_text(0, &mut recorder);
+            limit_of(result)
+        };
+        assert_eq!(page(limit), None);
+        assert_eq!(page(limit + 1), Some(LimitKind::QNesting));
+        // `Q` gives the level back, so balanced pairs never reach it.
+        let balanced = "q Q ".repeat(limit + 1);
+        assert_eq!(
+            limit_of(document(balanced.as_bytes(), b"").page_text(0, &mut Recorder::default())),
+            None
+        );
+    }
+
+    #[test]
+    fn the_decoded_size_per_revision_counts_what_a_page_holds() {
+        let form = b"BT /F1 10 Tf (A) Tj ET";
+        let content = b"/X1 Do /X1 Do";
+        let to_unicode = b"beginbfchar <41> <0041> endbfchar".len();
+        let with = |max: usize| {
+            let mut doc = document(content, form);
+            doc.limits = Limits {
+                max_revision_decoded: max as u64,
+                ..Limits::default()
+            };
+            limit_of(doc.page_text(0, &mut Recorder::default()))
+        };
+        // The page holds its content, the form while it is drawn, and the font's ToUnicode; a
+        // form's content is dropped after it, so the second `Do` adds nothing.
+        let peak = content.len() + form.len() + to_unicode;
+        assert_eq!(with(peak), None);
+        assert_eq!(with(peak - 1), Some(LimitKind::RevisionDecodedSize));
+        assert_eq!(
+            with(content.len() - 1),
+            Some(LimitKind::RevisionDecodedSize)
+        );
+    }
+
+    /// A page with a Type0 font whose embedded CMap uses a chain of `depth` CMap streams;
+    /// `cycle` makes the last one use the first again.
+    fn usecmap_chain(depth: usize, cycle: bool) -> Document {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let ids: Vec<ObjectId> = (0..=depth).map(|_| doc.new_object_id()).collect();
+        for (at, id) in ids.iter().enumerate() {
+            let mut dict = dictionary! { "Type" => "CMap" };
+            match ids.get(at + 1) {
+                Some(parent) => dict.set("UseCMap", *parent),
+                None if cycle => dict.set("UseCMap", ids[0]),
+                None => {}
+            }
+            let data = format!("1 begincidchar <{at:02X}> {at} endcidchar");
+            doc.objects
+                .insert(*id, Object::Stream(Stream::new(dict, data.into_bytes())));
+        }
+        let font = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "Plex",
+            "Encoding" => ids[0],
+            "DescendantFonts" => vec![dictionary! { "Subtype" => "CIDFontType2" }.into()],
+        });
+        let resources = dictionary! { "Font" => dictionary! { "F1" => font } };
+        opened(doc, resources, b"BT /F1 10 Tf <00> Tj ET")
+    }
+
+    #[test]
+    fn usecmap_chains_are_followed_to_the_limit() {
+        let limit = Limits::default().max_usecmap_depth as usize;
+        let mut recorder = Recorder::default();
+        usecmap_chain(limit, false)
+            .page_text(0, &mut recorder)
+            .unwrap();
+        let font = &recorder.fonts[0];
+        assert_eq!(
+            font.cmap.as_deref(),
+            Some(&b"1 begincidchar <00> 0 endcidchar"[..])
+        );
+        assert_eq!(font.cmap_parents.len(), limit);
+        assert_eq!(
+            font.cmap_parents[0],
+            b"1 begincidchar <01> 1 endcidchar".to_vec(),
+            "nearest first"
+        );
+        assert_eq!(
+            limit_of(usecmap_chain(limit + 1, false).page_text(0, &mut Recorder::default())),
+            Some(LimitKind::UsecmapDepth)
+        );
+        // A loop stops at the CMap it started from.
+        let mut recorder = Recorder::default();
+        usecmap_chain(2, true).page_text(0, &mut recorder).unwrap();
+        assert_eq!(recorder.fonts[0].cmap_parents.len(), 2);
     }
 
     #[test]
