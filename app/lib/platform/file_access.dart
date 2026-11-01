@@ -24,7 +24,8 @@ final class BookmarkAccess {
 /// (the open panel, a drop, "Open with"), resolved when the file is opened
 /// from the recent files. Every such call goes through it, as
 /// `fileAccessProvider`, and tests give it a fake. Windows and Linux need
-/// none: there it makes no bookmarks.
+/// none: there it makes no bookmarks. It also shows a file in the system's
+/// file manager on every system (a1-9b).
 abstract interface class FileAccess {
   /// A bookmark of the file at [path], made while Ferman may read it; null
   /// where none is needed or it cannot be made.
@@ -33,6 +34,14 @@ abstract interface class FileAccess {
   /// Starts access to the file of [bookmark] for this session; null when it
   /// cannot be resolved (the file is gone, or the bookmark is not one).
   Future<BookmarkAccess?> access(String bookmark);
+
+  /// Ends the access [access] started to the file at [path], once its
+  /// document closed (B029); nothing when none was started.
+  Future<void> release(String path);
+
+  /// Shows the file at [path] selected in Finder, File Explorer or the file
+  /// manager; false when it could not.
+  Future<bool> show(String path);
 }
 
 /// No bookmarks: Windows, Linux and the web, and tests by default.
@@ -45,10 +54,18 @@ final class NoFileAccess implements FileAccess {
 
   @override
   Future<BookmarkAccess?> access(String bookmark) async => null;
+
+  @override
+  Future<void> release(String path) async {}
+
+  @override
+  Future<bool> show(String path) async => false;
 }
 
-/// The runner's bookmarks over the `ferman/files` channel
-/// (`MainFlutterWindow.swift`); a runner without a handler makes none.
+/// The runner's file access over the `ferman/files` channel
+/// (`MainFlutterWindow.swift`; on Windows `file_manager.cpp` and on Linux
+/// `my_application.cc`, which answer only "show"); a runner without a
+/// handler makes no bookmarks and shows nothing.
 final class PlatformFileAccess implements FileAccess {
   /// Talks to the runner over `ferman/files`, or over the channel given
   /// (tests).
@@ -88,6 +105,28 @@ final class PlatformFileAccess implements FileAccess {
       path: path,
       renewed: renewed is String ? renewed : null,
     );
+  }
+
+  @override
+  Future<void> release(String path) async {
+    try {
+      await _channel.invokeMethod<void>('release', path);
+    } on MissingPluginException {
+      return;
+    } on PlatformException {
+      return;
+    }
+  }
+
+  @override
+  Future<bool> show(String path) async {
+    try {
+      return await _channel.invokeMethod<bool>('show', path) ?? false;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException {
+      return false;
+    }
   }
 }
 

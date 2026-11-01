@@ -631,14 +631,9 @@ void main() {
         false,
       ]);
       expect(tabs[4].icon, IconName.lock);
-      expect(tabs[0].closeShortcut, ['Ctrl', 'W']);
-      // The active clean tab's close button is drawn, disabled until
-      // closing documents exists (M2).
-      expect(tabs[0].closeDisabledReason, futureVersion);
-      final close = tester.widget<IconButton>(iconButton('Close document'));
-      expect(close.onPressed, isNull);
-      expect(close.disabledReason, futureVersion);
-      expect(close.shortcut, ['Ctrl', 'W']);
+      // A placeholder has no file to close.
+      expect(tabs[0].onClose, isNull);
+      expect(iconButton('Close document'), findsNothing);
       expect(find.text('+3'), findsOneWidget);
       expect(find.bySemanticsLabel('3 more'), findsOneWidget);
       expect(

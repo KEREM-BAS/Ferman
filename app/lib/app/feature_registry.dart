@@ -54,17 +54,6 @@ enum Feature {
   /// dragged over the window (a1-6).
   combineDropped('B104'),
 
-  /// Showing every open document at once: "+N" › Show all open documents
-  /// (a1-10).
-  showAllDocuments('B117'),
-
-  /// Showing a file in the system's file manager: an error tab's Show in
-  /// Finder, Show in File Explorer or Show in folder (a1-9b, a1-9c).
-  showInFolder('B119'),
-
-  /// Closing documents: the close button of the active clean tab.
-  closingDocuments('B029'),
-
   /// Saving: the mode bar's Save while a document has unsaved changes.
   saving('B031'),
 

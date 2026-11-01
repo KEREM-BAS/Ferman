@@ -65,6 +65,7 @@ class ShellCommandScope extends ConsumerWidget {
     }
     final documents = ref.read(shellDocumentsProvider.notifier);
     final count = ref.read(shellDocumentsProvider).documents.length;
+    final active = ref.read(shellDocumentsProvider).active;
     final panels = ref.read(shellPanelsProvider);
     final viewer = ref.read(viewerProvider.notifier);
     return {
@@ -78,7 +79,16 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
       ShellCommand.settings: ?onOpenSettings,
       ShellCommand.open: ?onOpenFiles,
-      if (count > 1) ShellCommand.nextDocument: documents.activateNext,
+      // An unsaved document waits for a1-10b's question (M3).
+      if (active?.path case final path? when !active!.unsaved)
+        ShellCommand.closeDocument: () =>
+            ref.read(documentOpenerProvider.notifier).close(path),
+      if (count > 1) ...{
+        ShellCommand.nextDocument: documents.activateNext,
+        ShellCommand.showAllDocuments: ref
+            .read(showAllDocumentsRequestProvider.notifier)
+            .request,
+      },
       for (var i = 0; i < documentJumps.length && i < count; i++)
         documentJumps[i]: () => documents.activate(i),
       if (ref.read(viewerProvider) != null) ...{

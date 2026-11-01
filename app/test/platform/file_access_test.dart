@@ -45,4 +45,31 @@ void main() {
     messenger.setMockMethodCallHandler(channel, (call) async => {'path': ''});
     expect(await access.access('x'), isNull);
   });
+
+  test('release and show pass the path to the runner; without a handler, '
+      'or when it fails, show is false', () async {
+    final calls = <MethodCall>[];
+    messenger.setMockMethodCallHandler(channel, (call) async {
+      calls.add(call);
+      return call.method == 'show' ? true : null;
+    });
+    await access.release('/docs/a.pdf');
+    expect(await access.show('/docs/a.pdf'), isTrue);
+    expect(
+      [for (final call in calls) (call.method, call.arguments)],
+      [('release', '/docs/a.pdf'), ('show', '/docs/a.pdf')],
+    );
+
+    messenger.setMockMethodCallHandler(channel, (call) async => null);
+    expect(await access.show('/docs/a.pdf'), isFalse);
+    messenger.setMockMethodCallHandler(
+      channel,
+      (call) async => throw PlatformException(code: 'broken'),
+    );
+    await access.release('/docs/a.pdf');
+    expect(await access.show('/docs/a.pdf'), isFalse);
+    messenger.setMockMethodCallHandler(channel, null);
+    await access.release('/docs/a.pdf');
+    expect(await access.show('/docs/a.pdf'), isFalse);
+  });
 }

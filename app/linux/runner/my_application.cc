@@ -17,6 +17,8 @@ struct _MyApplication {
   GPtrArray* kept_paths;
   // Whether Dart called "ready": later files go out at once as "open".
   gboolean open_ready;
+  // The "ferman/files" channel (app/lib/platform/file_access.dart): "show".
+  FlMethodChannel* files_channel;
 };
 
 G_DEFINE_TYPE(MyApplication, my_application, GTK_TYPE_APPLICATION)
@@ -73,6 +75,74 @@ static void open_method_call_cb(FlMethodChannel* channel,
   if (!fl_method_call_respond(method_call, response, &error)) {
     g_warning("ferman/open: failed to respond: %s", error->message);
   }
+}
+
+// Answers a "show" call with whether the file shows.
+static void respond_shown(FlMethodCall* method_call, gboolean shown) {
+  g_autoptr(FlValue) result = fl_value_new_bool(shown);
+  g_autoptr(GError) error = nullptr;
+  if (!fl_method_call_respond_success(method_call, result, &error)) {
+    g_warning("ferman/files: failed to respond: %s", error->message);
+  }
+}
+
+// Opens the folder of |path| in the default file manager, without the file
+// selected: the fallback where no file manager offers FileManager1.
+static gboolean open_folder(const gchar* path) {
+  g_autofree gchar* folder = g_path_get_dirname(path);
+  g_autofree gchar* uri = g_filename_to_uri(folder, nullptr, nullptr);
+  return uri != nullptr &&
+         g_app_info_launch_default_for_uri(uri, nullptr, nullptr);
+}
+
+// The file manager's answer to ShowItems; when it failed, the folder opens.
+static void show_items_cb(GObject* source, GAsyncResult* result,
+                          gpointer user_data) {
+  g_autoptr(FlMethodCall) method_call = FL_METHOD_CALL(user_data);
+  g_autoptr(GVariant) reply = g_dbus_connection_call_finish(
+      G_DBUS_CONNECTION(source), result, nullptr);
+  const gchar* path =
+      fl_value_get_string(fl_method_call_get_args(method_call));
+  respond_shown(method_call, reply != nullptr || open_folder(path));
+}
+
+// Handles a call on the "ferman/files" channel. Linux answers only "show":
+// the file selected in the file manager through the freedesktop
+// org.freedesktop.FileManager1 ShowItems call on the session bus (a1-9b), or
+// its folder opened when there is none. Bookmarks are macOS only, so the
+// other calls are not implemented, which Dart treats as none.
+static void files_method_call_cb(FlMethodChannel* channel,
+                                 FlMethodCall* method_call,
+                                 gpointer user_data) {
+  MyApplication* self = MY_APPLICATION(user_data);
+  FlValue* args = fl_method_call_get_args(method_call);
+  if (g_strcmp0(fl_method_call_get_name(method_call), "show") != 0) {
+    g_autoptr(FlMethodResponse) response =
+        FL_METHOD_RESPONSE(fl_method_not_implemented_response_new());
+    fl_method_call_respond(method_call, response, nullptr);
+    return;
+  }
+  if (fl_value_get_type(args) != FL_VALUE_TYPE_STRING ||
+      !g_file_test(fl_value_get_string(args), G_FILE_TEST_EXISTS)) {
+    respond_shown(method_call, FALSE);
+    return;
+  }
+  const gchar* path = fl_value_get_string(args);
+  g_autofree gchar* uri = g_filename_to_uri(path, nullptr, nullptr);
+  GDBusConnection* bus =
+      g_application_get_dbus_connection(G_APPLICATION(self));
+  if (uri == nullptr || bus == nullptr) {
+    respond_shown(method_call, open_folder(path));
+    return;
+  }
+  const gchar* uris[] = {uri, nullptr};
+  g_dbus_connection_call(
+      bus, "org.freedesktop.FileManager1", "/org/freedesktop/FileManager1",
+      "org.freedesktop.FileManager1", "ShowItems",
+      g_variant_new("(^ass)", uris, ""), nullptr, G_DBUS_CALL_FLAGS_NONE,
+      // The default timeout: a file manager started cold may take seconds,
+      // and a fallback after a short one would open a second window.
+      -1, nullptr, show_items_cb, g_object_ref(method_call));
 }
 
 // Sets the window icon from data/app_icon.png beside the executable (made by
@@ -173,6 +243,11 @@ static void my_application_activate(GApplication* application) {
       FL_METHOD_CODEC(codec));
   fl_method_channel_set_method_call_handler(
       self->open_channel, open_method_call_cb, self, nullptr);
+  self->files_channel = fl_method_channel_new(
+      fl_engine_get_binary_messenger(fl_view_get_engine(view)), "ferman/files",
+      FL_METHOD_CODEC(codec));
+  fl_method_channel_set_method_call_handler(
+      self->files_channel, files_method_call_cb, self, nullptr);
 
   gtk_widget_grab_focus(GTK_WIDGET(view));
 }
@@ -270,6 +345,7 @@ static void my_application_dispose(GObject* object) {
   g_clear_pointer(&self->dart_entrypoint_arguments, g_strfreev);
   g_clear_object(&self->window_channel);
   g_clear_object(&self->open_channel);
+  g_clear_object(&self->files_channel);
   g_clear_pointer(&self->kept_paths, g_ptr_array_unref);
   G_OBJECT_CLASS(my_application_parent_class)->dispose(object);
 }

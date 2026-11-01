@@ -11,7 +11,7 @@ versions ([Q03](#q03)). The others came up during discovery and planning. The ow
 first batch with the M0 go-ahead on 2026-10-15; [Q18](#q18) was added at the start of M1 and
 [Q19](#q19) after the M1 bridge benchmark. The owner answered every remaining question on
 2026-10-16, when M1 was merged. [Q21](#q21) came up while planning M2 and [Q22](#q22) with the
-open path (M2 W1); both are open.
+open path (M2 W1), and [Q23](#q23) with the per-document tab state; all three are open.
 
 Related: [design gaps](DESIGN_GAPS.md) · [roadmap](ROADMAP.md) · [architecture](ARCHITECTURE.md) ·
 [dependencies](DEPENDENCIES.md) · [ADRs](adr/README.md) · [progress](PROGRESS.md)
@@ -89,6 +89,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q20](#q20) | AI clients (Claude, ChatGPT and others) working in Ferman through MCP | M4 step 11 | Answered 2026-10-16: after M3, live in the running app, set up from Settings; details as proposed |
 | [Q21](#q21) | Memory-mapping the private snapshot of a file over 256 MB (an `unsafe` exception) | M2 step 2 | Open |
 | [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Open |
+| [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
 
 ## Questions
 
@@ -844,4 +845,28 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Status:** Open
 - **Related:** [ARCHITECTURE.md §9.2](ARCHITECTURE.md#92-untrusted-content-rules),
   [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md), ROADMAP §6 step 2
+- **Answer:** none yet
+
+### Q23 · Open documents without an IndexedStack
+
+- **Question:** ADR 0011 (Accepted) says "Open documents are kept in an IndexedStack too". Since
+  W3's open commit (`98ab6bc`), only the shown document's canvas and sidebar are built, and what each
+  document showed is kept outside the widgets, keyed by its id. May ADR 0011 say that instead?
+- **Why it matters:** an IndexedStack keeps every tab's canvas and thumbnails mounted, with their
+  engine views and decoded bitmaps: at 2x roughly 10 to 30 MB a tab, so hundreds of MB with the 20
+  tabs ROADMAP §6 step 6 asks for, and offstage views would still compete in the render queue. A
+  store outside the widgets also survives what an IndexedStack cannot: hiding the sidebar (B091) and
+  going home, which disposes the editor route. The same ADR already names "per-document state in
+  family providers keyed by `DocumentId`", and brief §6 asks for an IndexedStack only for the mode
+  and sidebar tabs, which keep theirs.
+- **Options:** (a) amend ADR 0011: open documents keep their state in `documentMemoryProvider`,
+  keyed by the document's id, and only the shown one is built; (b) build every open document's
+  canvas in an IndexedStack, as written.
+- **Proposal:** (a).
+- **Meanwhile:** (a), with the tests that switch tabs, hide the sidebar and open twenty documents
+  ([G120](DESIGN_GAPS.md#g120)).
+- **Needed by:** the M2 review.
+- **Status:** Open
+- **Related:** [ADR 0011](adr/0011-flutter-state-navigation-components.md), ROADMAP §6 step 6,
+  BACKLOG B091
 - **Answer:** none yet

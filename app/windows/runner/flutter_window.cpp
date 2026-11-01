@@ -31,6 +31,8 @@ bool FlutterWindow::OnCreate() {
       flutter_controller_->view()->GetNativeWindow());
   open_channel_ =
       std::make_unique<OpenChannel>(flutter_controller_->engine()->messenger());
+  file_channel_ =
+      std::make_unique<FileChannel>(flutter_controller_->engine()->messenger());
 
   flutter_controller_->engine()->SetNextFrameCallback([&]() {
     this->Show();
@@ -45,6 +47,7 @@ bool FlutterWindow::OnCreate() {
 }
 
 void FlutterWindow::OnDestroy() {
+  file_channel_ = nullptr;
   open_channel_ = nullptr;
   title_bar_ = nullptr;
   if (flutter_controller_) {

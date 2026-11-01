@@ -14,6 +14,7 @@ import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/features/viewer/document_view.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -22,6 +23,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_file_picker.dart';
+import '../../helpers/recording_file_access.dart';
 import '../onboarding/ferman_app_harness.dart';
 
 const OpenedDocument kira = OpenedDocument(
@@ -43,6 +45,39 @@ FakeEngineService engine() => FakeEngineService(
     r'/docs/a\b.pdf': nda,
   },
 );
+
+/// An engine whose closes wait for [gate].
+final class _SlowClose extends FakeEngineService {
+  new() : super(documents: {'/docs/kira-tr.pdf': kira});
+
+  final Completer<void> gate = Completer<void>();
+
+  @override
+  Future<void> close(int document) async {
+    await gate.future;
+    await super.close(document);
+  }
+}
+
+/// File access whose bookmarks reach their path, recording each call.
+final class _LoggedAccess implements FileAccess {
+  final List<String> calls = [];
+
+  @override
+  Future<String?> bookmark(String path) async => path;
+
+  @override
+  Future<BookmarkAccess?> access(String bookmark) async {
+    calls.add('access $bookmark');
+    return BookmarkAccess(path: bookmark);
+  }
+
+  @override
+  Future<void> release(String path) async => calls.add('release $path');
+
+  @override
+  Future<bool> show(String path) async => true;
+}
 
 Future<void> controlO(WidgetTester tester) async {
   await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
@@ -95,7 +130,13 @@ void main() {
     final documents = <String, OpenedDocument>{'/docs/kira-tr.pdf': kira};
     final fake = FakeEngineService(documents: documents);
     final picker = FakeFilePickerService(picked: ['/docs/missing.pdf']);
-    await pumpFermanApp(tester, engine: fake, picker: picker);
+    final files = RecordingFileAccess();
+    await pumpFermanApp(
+      tester,
+      engine: fake,
+      picker: picker,
+      fileAccess: files,
+    );
     final container = ProviderScope.containerOf(
       tester.element(find.byType(FmStart)),
     );
@@ -117,10 +158,10 @@ void main() {
     final tab = container.read(shellDocumentsProvider).active!;
     expect(tab.icon, IconName.fileX);
     expect(tab.error!.kind, EngineErrorKind.notFound);
-    final show = tester.widget<Button>(
-      find.widgetWithText(Button, 'Show in folder'),
-    );
-    expect(show.disabled, isTrue);
+    // Show in folder selects the file in the file manager.
+    await tester.tap(find.widgetWithText(Button, 'Show in folder'));
+    await tester.pump();
+    expect(files.shown, ['/docs/missing.pdf']);
 
     // Open another file… shows the open panel.
     picker.picked = ['/docs/kira-tr.pdf'];
@@ -294,6 +335,79 @@ void main() {
     expect(find.byType(Toast), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets('⌘W or Ctrl+W closes the tab with its document, what it kept '
+      'and its file access; the last one closed shows Start (B029)', (
+    tester,
+  ) async {
+    final fake = engine();
+    final files = RecordingFileAccess();
+    final picker = FakeFilePickerService(
+      picked: ['/docs/kira-tr.pdf', '/docs/nda-en.pdf'],
+    );
+    await pumpFermanApp(
+      tester,
+      engine: fake,
+      picker: picker,
+      fileAccess: files,
+    );
+    final container = ProviderScope.containerOf(
+      tester.element(find.byType(FmStart)),
+    );
+    await controlO(tester);
+    final kept = container.read(documentMemoryProvider(nda.id));
+    Future<void> controlW() async {
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyW);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+    }
+
+    await controlW();
+    final list = container.read(shellDocumentsProvider);
+    expect([for (final d in list.documents) d.path], ['/docs/kira-tr.pdf']);
+    expect(list.active!.path, '/docs/kira-tr.pdf');
+    expect(fake.closed, [nda.id]);
+    expect(files.released, ['/docs/nda-en.pdf']);
+    expect(container.read(documentMemoryProvider(nda.id)), isNot(same(kept)));
+    expect(find.byType(DocumentView), findsOneWidget);
+
+    await controlW();
+    expect(find.byType(FmStart), findsOneWidget);
+    expect(fake.closed, [nda.id, kira.id]);
+    expect(files.released, ['/docs/nda-en.pdf', '/docs/kira-tr.pdf']);
+  });
+
+  testWidgets('a recent file reopened while its close is under way starts '
+      'its access after the release, not before (B029)', (tester) async {
+    final slow = _SlowClose();
+    final files = _LoggedAccess();
+    await pumpFermanApp(tester, engine: slow, fileAccess: files);
+    final opener = ProviderScope.containerOf(
+      tester.element(find.byType(FmStart)),
+    ).read(documentOpenerProvider.notifier);
+    final entry = RecentEntry(
+      path: '/docs/kira-tr.pdf',
+      name: 'kira-tr.pdf',
+      opened: DateTime(2026),
+      bookmark: '/docs/kira-tr.pdf',
+    );
+    await opener.openRecent(entry);
+    await tester.pumpAndSettle();
+    opener.close('/docs/kira-tr.pdf');
+    await tester.pumpAndSettle();
+    final reopened = opener.openRecent(entry);
+    await tester.pumpAndSettle();
+    expect(files.calls, ['access /docs/kira-tr.pdf']);
+    slow.gate.complete();
+    await reopened;
+    await tester.pumpAndSettle();
+    expect(files.calls, [
+      'access /docs/kira-tr.pdf',
+      'release /docs/kira-tr.pdf',
+      'access /docs/kira-tr.pdf',
+    ]);
+  });
+
   testWidgets('a cancelled panel changes nothing', (tester) async {
     final picker = FakeFilePickerService();
     await pumpFermanApp(tester, engine: engine(), picker: picker);
@@ -331,7 +445,8 @@ void main() {
     container
       ..listen(layerVisibilityProvider, (_, _) {})
       ..listen(viewerProvider, (_, _) {})
-      ..listen(findProvider, (_, _) {});
+      ..listen(findProvider, (_, _) {})
+      ..listen(shellSidebarTabProvider, (_, _) {});
     documents.add(
       const ShellDocument(name: 'kira-tr.pdf', path: '/k', document: kira),
     );
@@ -342,6 +457,7 @@ void main() {
       ..resize(const Size(800, 600))
       ..zoomTo(2);
     container.read(findProvider.notifier).open();
+    container.read(shellSidebarTabProvider.notifier).select(SidebarTab.search);
     expect(container.read(layerVisibilityProvider)!.visible, [false]);
     final key = container.read(layerVisibilityProvider)!.renderKey;
 
@@ -351,6 +467,7 @@ void main() {
     expect(container.read(viewerProvider)!.document.id, nda.id);
     expect(container.read(viewerProvider)!.zoom, isNot(2));
     expect(container.read(findProvider).open, isFalse);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.pages);
 
     documents.activate(0);
     final layers = container.read(layerVisibilityProvider)!;
@@ -358,6 +475,7 @@ void main() {
     expect(layers.renderKey, key);
     expect(container.read(viewerProvider)!.zoom, 2);
     expect(container.read(findProvider).open, isTrue);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.search);
     expect(fake.layerRequests, [
       [false],
     ]);

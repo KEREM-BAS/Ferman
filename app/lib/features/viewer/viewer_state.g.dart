@@ -74,8 +74,7 @@ abstract class _$OpenDocument extends $Notifier<OpenedDocument?> {
 /// view's state type, so switching back restores its layers, view and
 /// search (a1-10): per-document state in a family keyed by the document's
 /// id (ADR 0011), as `documentMemoryProvider(id)`.
-// shortcut: an entry stays until the app quits; invalidate it when closing
-// documents ships (B029).
+/// Closing the document's tab drops its entry.
 
 @ProviderFor(documentMemory)
 final documentMemoryProvider = DocumentMemoryFamily._();
@@ -84,8 +83,7 @@ final documentMemoryProvider = DocumentMemoryFamily._();
 /// view's state type, so switching back restores its layers, view and
 /// search (a1-10): per-document state in a family keyed by the document's
 /// id (ADR 0011), as `documentMemoryProvider(id)`.
-// shortcut: an entry stays until the app quits; invalidate it when closing
-// documents ships (B029).
+/// Closing the document's tab drops its entry.
 
 final class DocumentMemoryProvider
     extends $FunctionalProvider<DocumentMemory, DocumentMemory, DocumentMemory>
@@ -94,8 +92,7 @@ final class DocumentMemoryProvider
   /// view's state type, so switching back restores its layers, view and
   /// search (a1-10): per-document state in a family keyed by the document's
   /// id (ADR 0011), as `documentMemoryProvider(id)`.
-  // shortcut: an entry stays until the app quits; invalidate it when closing
-  // documents ships (B029).
+  /// Closing the document's tab drops its entry.
   DocumentMemoryProvider._({
     required DocumentMemoryFamily super.from,
     required int super.argument,
@@ -153,8 +150,7 @@ String _$documentMemoryHash() => r'af8a3ad8963b12e905376342311131761c3a3297';
 /// view's state type, so switching back restores its layers, view and
 /// search (a1-10): per-document state in a family keyed by the document's
 /// id (ADR 0011), as `documentMemoryProvider(id)`.
-// shortcut: an entry stays until the app quits; invalidate it when closing
-// documents ships (B029).
+/// Closing the document's tab drops its entry.
 
 final class DocumentMemoryFamily extends $Family
     with $FunctionalFamilyOverride<DocumentMemory, int> {
@@ -171,8 +167,7 @@ final class DocumentMemoryFamily extends $Family
   /// view's state type, so switching back restores its layers, view and
   /// search (a1-10): per-document state in a family keyed by the document's
   /// id (ADR 0011), as `documentMemoryProvider(id)`.
-  // shortcut: an entry stays until the app quits; invalidate it when closing
-  // documents ships (B029).
+  /// Closing the document's tab drops its entry.
 
   DocumentMemoryProvider call(int document) =>
       DocumentMemoryProvider._(argument: document, from: this);

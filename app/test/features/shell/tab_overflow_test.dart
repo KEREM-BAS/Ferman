@@ -3,6 +3,7 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
@@ -30,13 +31,12 @@ void main() {
       'the rest go behind "+N" (a1-10)', (tester) async {
     final window = FakeDesktopWindow(WindowPlatform.linux);
     addTearDown(window.dispose);
+    final engine = FakeEngineService();
     await pumpShell(
       tester,
       shellHost(
         window: window,
-        overrides: [
-          engineServiceProvider.overrideWithValue(FakeEngineService()),
-        ],
+        overrides: [engineServiceProvider.overrideWithValue(engine)],
       ),
     );
     final documents = containerOf(tester).read(shellDocumentsProvider.notifier);
@@ -58,6 +58,14 @@ void main() {
     expect(tabs.length, lessThan(20));
     expect(tabs.last.name, 'Belge 20.pdf');
     expect(tabs.last.active, isTrue);
+
+    // Only the shown document holds engine views (the canvas and the
+    // thumbnails), so twenty tabs never keep twenty documents' bitmaps.
+    for (var i = 0; i < 20; i++) {
+      documents.activate(i);
+      await settle(tester);
+      expect(engine.openViewCount, inInclusiveRange(1, 2));
+    }
     expect(find.text('+${20 - tabs.length}'), findsOneWidget);
 
     documents.activate(0);
@@ -218,5 +226,85 @@ void main() {
     expect(find.byType(Menu), findsNothing);
     expect(containerOf(tester).read(shellDocumentsProvider).activeIndex, 19);
     expect(tabNames(tester).last, 'Belge 20.pdf');
+  });
+
+  testWidgets('"Show all open documents" lists every document, also with '
+      r'Ctrl+Shift+\; "Close other documents…" leaves the active one '
+      '(a1-10)', (tester) async {
+    final documents = await pumpWith(tester, 20);
+    final shown = tabNames(tester).length;
+    Finder inMenu(Finder finder) =>
+        find.descendant(of: find.byType(Menu), matching: finder);
+
+    // The active tab's close button shows its keys.
+    final close = tester.widget<IconButton>(
+      find.byWidgetPredicate(
+        (widget) => widget is IconButton && widget.label == 'Close document',
+      ),
+    );
+    expect(close.onPressed, isNotNull);
+    expect(close.shortcut, ['Ctrl', 'W']);
+
+    await tester.tap(find.text('+${20 - shown}'));
+    await settle(tester);
+    expect(inMenu(find.text('Belge 1.pdf')), findsNothing);
+    expect(
+      tester
+          .widget<Menu>(find.byType(Menu))
+          .items
+          .singleWhere((item) => item.label == 'Show all open documents')
+          .shortcut,
+      ['Ctrl', 'Shift', r'\'],
+    );
+    await tester.tap(inMenu(find.text('Show all open documents')));
+    await settle(tester);
+    expect(inMenu(find.text('Open documents')), findsOneWidget);
+    for (var i = 1; i <= 20; i++) {
+      expect(inMenu(find.text('Belge $i.pdf')), findsOneWidget);
+    }
+    await tester.tap(inMenu(find.text('Belge 2.pdf')));
+    await settle(tester);
+    expect(find.byType(Menu), findsNothing);
+    expect(containerOf(tester).read(shellDocumentsProvider).activeIndex, 1);
+
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.backslash);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await settle(tester);
+    expect(inMenu(find.text('Belge 20.pdf')), findsOneWidget);
+    await tester.tap(inMenu(find.text('Close other documents…')));
+    await settle(tester);
+    expect(tabNames(tester), ['Belge 2.pdf']);
+    expect(documents.state.documents, hasLength(1));
+    expect(find.textContaining('+'), findsNothing);
+
+    // "+N" went with the focused menu; focus falls back to the canvas, so
+    // the keys still work.
+    final sidebar = containerOf(tester).read(shellSidebarOpenProvider);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.keyS);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+    await settle(tester);
+    expect(containerOf(tester).read(shellSidebarOpenProvider), !sidebar);
+  });
+
+  testWidgets(r'Ctrl+Shift+\ with every tab shown does nothing and does not '
+      'fail', (tester) async {
+    await pumpWith(tester, 2);
+    expect(find.textContaining('+'), findsNothing);
+    for (var i = 0; i < 2; i++) {
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.backslash);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.shiftLeft);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await settle(tester);
+    }
+    expect(tester.takeException(), isNull);
+    expect(find.byType(Menu), findsNothing);
   });
 }

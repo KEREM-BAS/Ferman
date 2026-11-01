@@ -265,6 +265,12 @@ final class _FakeFileAccess implements FileAccess {
       renewed: stale.contains(bookmark) ? 'renewed:$now' : null,
     );
   }
+
+  @override
+  Future<void> release(String path) async {}
+
+  @override
+  Future<bool> show(String path) async => true;
 }
 
 /// A fake engine that records each collation it is asked for.

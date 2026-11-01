@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -22,6 +23,23 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 String _pageLabel(OpenedDocument document, int page, RegionFormat format) =>
     (page < document.pages.length ? document.pages[page].label : null) ??
     format.integer(page + 1);
+
+/// A scroll controller for [tab]'s list that starts where the open
+/// document's list was left and keeps its offset in the document's
+/// [SidebarMemory].
+ScrollController _rememberedScroll(WidgetRef ref, SidebarTab tab) {
+  final document = ref.read(viewerProvider)?.document;
+  if (document == null) return ScrollController();
+  final offsets = ref
+      .read(documentMemoryProvider(document.id))
+      .keep(SidebarMemory.new)
+      .offsets;
+  final controller = ScrollController(initialScrollOffset: offsets[tab] ?? 0);
+  return controller..addListener(() {
+    // Not in dispose: the position is detached by then.
+    if (controller.hasClients) offsets[tab] = controller.offset;
+  });
+}
 
 /// The Pages tab (a2-3p): a thumbnail of every page, the reader's page
 /// selected; a click or Enter goes to the page, and the arrow keys move
@@ -56,9 +74,12 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
   final Set<int> _stale = {};
   int _renderKey = 0;
 
+  late final ScrollController _scroll;
+
   @override
   void initState() {
     super.initState();
+    _scroll = _rememberedScroll(ref, SidebarTab.pages);
     _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
     ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
       _,
@@ -73,6 +94,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
 
   @override
   void dispose() {
+    _scroll.dispose();
     unawaited(_updates?.cancel());
     final view = _view;
     if (view != null) {
@@ -182,6 +204,7 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
     if (document == null) return const SizedBox.shrink();
     final viewer = ref.read(viewerProvider.notifier);
     return ListView.builder(
+      controller: _scroll,
       padding: EdgeInsetsDirectional.only(
         top: theme.space.space1,
         bottom: theme.space.space3,
@@ -286,8 +309,30 @@ class SidebarOutline extends ConsumerStatefulWidget {
 }
 
 class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
-  /// The parents the reader closed or opened against the document's state.
-  final Set<int> _toggled = {};
+  /// The parents the reader closed or opened against the document's state,
+  /// kept with the document.
+  late final Set<int> _toggled = switch (ref.read(viewerProvider)?.document) {
+    final document? =>
+      ref
+          .read(documentMemoryProvider(document.id))
+          .keep(SidebarMemory.new)
+          .outlineToggled,
+    null => {},
+  };
+
+  late final ScrollController _scroll;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll = _rememberedScroll(ref, SidebarTab.outline);
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -332,6 +377,7 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
 
     final rtl = Directionality.of(context) == TextDirection.rtl;
     return ListView.builder(
+      controller: _scroll,
       padding: EdgeInsetsDirectional.symmetric(
         vertical: theme.space.space0_5,
         horizontal: theme.space.space1_5,
@@ -796,7 +842,7 @@ class SidebarSignatures extends ConsumerWidget {
 /// marked, the current one tinted; a click goes to it. A search that found
 /// nothing shows a2-3m's empty state. It shares `findProvider` with the
 /// find bar, so typing in either searches.
-class SidebarSearch extends ConsumerWidget {
+class SidebarSearch extends ConsumerStatefulWidget {
   /// The results of `findProvider`.
   const new({super.key});
 
@@ -813,7 +859,26 @@ class SidebarSearch extends ConsumerWidget {
   static const double snippetHeight = 17 / 12;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<SidebarSearch> createState() => _SidebarSearchState();
+}
+
+class _SidebarSearchState extends ConsumerState<SidebarSearch> {
+  late final ScrollController _scroll;
+
+  @override
+  void initState() {
+    super.initState();
+    _scroll = _rememberedScroll(ref, SidebarTab.search);
+  }
+
+  @override
+  void dispose() {
+    _scroll.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
@@ -922,6 +987,7 @@ class SidebarSearch extends ConsumerWidget {
         field,
         Expanded(
           child: ListView(
+            controller: _scroll,
             padding: EdgeInsetsDirectional.symmetric(
               horizontal: theme.space.space1_5,
             ),

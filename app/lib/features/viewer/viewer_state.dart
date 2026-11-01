@@ -43,8 +43,7 @@ class OpenDocument extends _$OpenDocument {
 /// view's state type, so switching back restores its layers, view and
 /// search (a1-10): per-document state in a family keyed by the document's
 /// id (ADR 0011), as `documentMemoryProvider(id)`.
-// shortcut: an entry stays until the app quits; invalidate it when closing
-// documents ships (B029).
+/// Closing the document's tab drops its entry.
 @Riverpod(keepAlive: true)
 DocumentMemory documentMemory(Ref ref, int document) => DocumentMemory();
 
@@ -57,6 +56,23 @@ final class DocumentMemory {
 
   /// Keeps [state] as what the document's view of type [T] shows.
   void remember<T extends Object>(T state) => _states[T] = state;
+
+  /// The document's mutable state of type [T], made by [create] the first
+  /// time.
+  T keep<T extends Object>(T Function() create) =>
+      _states.putIfAbsent(T, create) as T;
+}
+
+/// What the sidebar of one document showed: the outline's parents the
+/// reader folded against the document's state, and each list's scroll
+/// offset. Kept in `documentMemoryProvider`, so it survives a tab switch
+/// and hiding the sidebar (B091).
+final class SidebarMemory {
+  /// The outline items whose open state the reader toggled.
+  final Set<int> outlineToggled = {};
+
+  /// Each tab's list scroll offset.
+  final Map<SidebarTab, double> offsets = {};
 }
 
 /// Which layers of the open document show, and the render key showing them

@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_region.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -22,10 +23,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// - **Document tabs:** the open documents ([documents], or the shell's
 ///   placeholder documents of `shellDocumentsProvider` in M1) in a
 ///   `DocumentTabStrip` "Open documents", with the "+N" overflow button and
-///   the "+" button "Open file". Both buttons are disabled with the
-///   future-version tooltip until M2, and so is the close button of the
-///   active clean tab, until closing documents exists (M2); their reasons
-///   come from the feature registry ([Feature]).
+///   the "+" button "Open file". The active clean tab's close button closes
+///   its document (a placeholder has none).
 /// - **Search** (a ghost Button with ⌘K or Ctrl+K, disabled until the
 ///   command palette in M4) and **Settings** (an IconButton with ⌘, or
 ///   Ctrl+, that calls [onOpenSettings]).
@@ -135,9 +134,11 @@ class ShellTitleBarContent extends ConsumerWidget {
               active: !homeActive && i == documents.activeIndex,
               l10n: l10n,
               closeShortcut: ShellCommand.closeDocument.caps(platform),
-              closeDisabledReason: Feature.closingDocuments.disabledReason(
-                context,
-              ),
+              onClose: switch (documents.documents[i].path) {
+                final path? when given == null =>
+                  () => ref.read(documentOpenerProvider.notifier).close(path),
+                _ => null,
+              },
               onPressed: given == null ? () => show(i) : null,
             ),
         ],
@@ -145,7 +146,15 @@ class ShellTitleBarContent extends ConsumerWidget {
             ? _MoreDocuments(
                 count: overflowCount,
                 hidden: [for (final i in hidden) (i, documents.documents[i])],
+                all: documents.documents.indexed.toList(),
                 onShow: given == null ? show : null,
+                onCloseOthers: switch (documents.active?.path) {
+                  final path? when given == null =>
+                    () => ref
+                        .read(documentOpenerProvider.notifier)
+                        .closeOthers(path),
+                  _ => null,
+                },
               )
             : null,
         trailing: IconButton(
@@ -220,7 +229,7 @@ class ShellTitleBarContent extends ConsumerWidget {
     required bool active,
     required AppLocalizations l10n,
     required List<String>? closeShortcut,
-    required String? closeDisabledReason,
+    required VoidCallback? onClose,
     required VoidCallback? onPressed,
   }) => DocumentTab(
     key: key,
@@ -232,7 +241,7 @@ class ShellTitleBarContent extends ConsumerWidget {
     loading: document.loading,
     icon: document.icon,
     closeShortcut: closeShortcut,
-    closeDisabledReason: closeDisabledReason,
+    onClose: onClose,
     onPressed: onPressed,
     spinner: document.loading
         ? Spinner(size: spinnerSize, semanticLabel: l10n.shellOpening)
@@ -261,10 +270,17 @@ class ShellTitleBarContent extends ConsumerWidget {
 /// "+N" and its menu of the documents whose tabs do not fit (a1-10): a
 /// heading with their count, each hidden document with its ⌘1…⌘9 key when
 /// it has one (an unsaved one marked, as its tab is), then "Show all open
-/// documents" and "Close other documents…", disabled until they ship
-/// (B117, B029). Picking a document shows it.
+/// documents", which lists every open document in the same menu (also
+/// `⇧⌘\`, G121), and "Close other documents…", which closes every tab but
+/// the active one. Picking a document shows it.
 class _MoreDocuments extends ConsumerStatefulWidget {
-  const new({required this.count, required this.hidden, this.onShow});
+  const new({
+    required this.count,
+    required this.hidden,
+    required this.all,
+    this.onShow,
+    this.onCloseOthers,
+  });
 
   /// How many documents "+N" counts.
   final int count;
@@ -272,8 +288,14 @@ class _MoreDocuments extends ConsumerStatefulWidget {
   /// The hidden documents with their indexes, in order.
   final List<(int, ShellDocument)> hidden;
 
+  /// Every open document with its index, in order.
+  final List<(int, ShellDocument)> all;
+
   /// Shows the document at an index; null leaves the items inert.
   final ValueChanged<int>? onShow;
+
+  /// Closes every document but the active one; null leaves the item inert.
+  final VoidCallback? onCloseOthers;
 
   /// The width "+N" takes for [count] in the strip, the gap before it
   /// included: the small ghost button's padding, border, label and chevron.
@@ -310,7 +332,13 @@ class _MoreDocuments extends ConsumerStatefulWidget {
 }
 
 class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
+  static const String _showAllId = 'all';
+  static const String _closeOthersId = 'others';
+
   bool _open = false;
+
+  /// Whether the menu lists every open document, not only the hidden ones.
+  bool _all = false;
   final FocusNode _button = FocusNode(debugLabel: 'More open documents');
 
   @override
@@ -325,6 +353,11 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
     _button.requestFocus();
   }
 
+  void _showAll() => setState(() {
+    _open = true;
+    _all = true;
+  });
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -332,6 +365,10 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
     final platform = ref.watch(shortcutPlatformProvider);
     final count = format.integer(widget.count);
     final onShow = widget.onShow;
+    ref.listen(showAllDocumentsRequestProvider, (_, _) {
+      if (onShow != null) _showAll();
+    });
+    final listed = _all ? widget.all : widget.hidden;
     return Popover(
       open: _open,
       surface: false,
@@ -344,7 +381,10 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
             size: ButtonSize.sm,
             iconEnd: IconName.chevronDown,
             focusNode: _button,
-            onPressed: () => setState(() => _open = !_open),
+            onPressed: () => setState(() {
+              _open = !_open;
+              _all = false;
+            }),
             child: Semantics(
               label: l10n.shellMoreDocuments(count),
               child: ExcludeSemantics(
@@ -358,8 +398,12 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
         autofocus: true,
         semanticLabel: l10n.shellMoreDocumentsMenu,
         items: [
-          MenuItem.section(l10n.shellMoreDocumentsHeading(widget.count, count)),
-          for (final (i, document) in widget.hidden)
+          MenuItem.section(
+            _all
+                ? l10n.shellOpenDocuments
+                : l10n.shellMoreDocumentsHeading(widget.count, count),
+          ),
+          for (final (i, document) in listed)
             MenuItem(
               id: '$i',
               label: document.unsaved
@@ -372,23 +416,31 @@ class _MoreDocumentsState extends ConsumerState<_MoreDocuments> {
               disabled: onShow == null,
             ),
           const MenuItem.divider(),
+          if (!_all)
+            MenuItem(
+              id: _showAllId,
+              label: l10n.shellShowAllDocuments,
+              icon: IconName.layoutGrid,
+              shortcut: ShellCommand.showAllDocuments.caps(platform),
+              disabled: onShow == null,
+            ),
           MenuItem(
-            label: l10n.shellShowAllDocuments,
-            icon: IconName.layoutGrid,
-            disabled: true,
-            disabledReason: Feature.showAllDocuments.disabledReason(context),
-          ),
-          MenuItem(
+            id: _closeOthersId,
             label: l10n.shellCloseOtherDocuments,
             icon: IconName.x,
-            disabled: true,
-            disabledReason: Feature.closingDocuments.disabledReason(context),
+            disabled: widget.onCloseOthers == null,
           ),
         ],
         onSelected: (item) {
           _close();
-          final index = int.tryParse(item.id ?? '');
-          if (index != null) onShow?.call(index);
+          switch (item.id) {
+            case _showAllId:
+              _showAll();
+            case _closeOthersId:
+              widget.onCloseOthers?.call();
+            case final id?:
+              if (int.tryParse(id) case final index?) onShow?.call(index);
+          }
         },
         onClose: _close,
       ),

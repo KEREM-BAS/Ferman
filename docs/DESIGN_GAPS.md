@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-119 entries: 96 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, and G119 with the error tabs; G116 was resolved by them.
+121 entries: 98 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 31 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 33 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -191,6 +191,8 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G117](#g117) | conflict | M2 | Drag and drop | a1-6 counts and lists the dragged files, which the app learns only when they are dropped | Decided |
 | [G118](#g118) | missing state | M2 | Start / recent files | No board draws pinning a recent file, a search that finds none, or leaving a1-9e without an answer | Decided |
 | [G119](#g119) | gap | M2 | Files | The error boards draw one example each: other causes, the file manager on Windows and Linux, the unlock dialog's way out and a read-only file before saving are open | Decided |
+| [G120](#g120) | gap | M2 | Tabs | No board says which state belongs to a document tab and which to the window | Decided |
+| [G121](#g121) | missing screen | M2 | Tabs | a1-10 names "Show all open documents" and "Close other documents…" but draws neither, and gives ⇧⌘\\ for macOS only | Decided |
 
 ## Entries
 
@@ -1296,6 +1298,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** every board drawn with `FmWindow`; `f4`, `f4b`
 - **Gap or conflict:** FmWindow draws Save enabled while the document has unsaved changes, and disabled with "No changes to save" in every other state (`saveDisabled`, line 227; the f4b note says the same for a saved document, while f4's table keeps Save enabled for "Couldn't save", [G41](#g41)). It draws the active clean tab with an enabled close button, "Close document" with ⌘W. Saving comes in M3 and closing documents in M2, so in M1 both would offer something that does nothing. No board draws either control disabled for that reason.
 - **Decision:** Both stay where they are drawn. Save is disabled with "No changes to save" when the active document has no unsaved changes, as FmWindow and the f4b note draw it. While it has unsaved changes, Save is disabled with the future-version tooltip ([G10](#g10)) until saving exists in M3 ([B031](BACKLOG.md#open)). In M1 every state but unsaved counts as clean, as FmWindow's `saveDisabled` does; the error state follows [G41](#g41) once saving exists. The tab's dot, Save and the status bar follow the same document, so they always agree. The active clean tab's close button is drawn, disabled with the future-version tooltip, until closing documents exists in M2 ([B029](BACKLOG.md#open)). An unsaved tab shows its dot instead, as drawn.
+- **Later:** the close button closes its document since M2 (B029); a placeholder of the M1 shell, which has no file, shows none.
 - **Status:** Decided
 - **Evidence:** `design/FmWindow.dc.html` lines 23 (the active tab's close button, `shortcut="{{ k.close }}"`), 42 (Save, `disabled="{{ saveDisabled }}"`, `title="{{ saveTip }}"`), 184 (`saveTipOff: 'No changes to save'`) and 227 (`saveDisabled`, `saveTip`); `design/00 Fixes.dc.html` lines 85 (the f4b note, inside the f4 section) and 88–91 (f4's table of save states). Implemented in `app/lib/features/shell/shell_mode_bar.dart` lines 16–19 and 106–114, `app/lib/features/shell/shell_title_bar.dart` lines 25–28 and 184–205, and `DocumentTab.closeDisabledReason` in `app/lib/design/components/additions/document_tab.dart` lines 35–41, 101–105 and 282–298 (M1 phase H2); checked in `app/test/features/shell/shell_screen_test.dart` lines 261 and 591–592.
 
@@ -1772,5 +1775,28 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-8`, `a1-8b`, `a1-9b`, `a1-9c`, `a1-9d`, `a1-9f`
 - **Gap or conflict:** The boards draw one example of each state. a1-9b's sentence names the size the file stops at ("stops after 18 KB"), which the engine knows only as a technical fact; a1-9c names the kind of file ("is an Excel file") from its extension; the other reasons a file does not open (not found, no permission, a read error, something unsupported, a bug) have no board. "Show in Finder" is macOS only. a1-8 has no close button and says nothing of Escape. a1-9d's banner says Ferman cannot save changes, but nothing can be saved before M3. a1-9f draws a tab that closes, while the engine fails before any tab exists.
 - **Decision:** a1-9b's page takes every reason but "not a PDF", with a sentence per engine message key: the cause without numbers (a truncated file "stops before its end"), and the numbers in the technical details below it ("expected 2457600 bytes, found 18432 bytes · last complete object 12 0 obj · 12 objects · no trailer"). a1-9c's line does not name the kind of file: "“{name}” isn’t a PDF file. Ferman opens PDF files." Show in Finder is Show in File Explorer on Windows and Show in folder on Linux, disabled for a future version until it works (B119). The unlock dialog has no close button; Cancel closes the locked tab, and the start screen shows when it was the last one. Opening a file whose error tab is open tries it again in that place. a1-9d waits for saving (B120). A file that runs out of memory or past a limit gets no tab and a1-9f's toast in the editor, or a danger banner with the same title, message and Try again on the start screen.
+- **Later:** Show in folder works since B119: on Linux without a file manager that answers `org.freedesktop.FileManager1` the folder opens without the file selected, and a file that is gone shows nothing. a2-7 (document properties) draws no Show in Finder, so B119 ships with the error tabs only; later boards (Sign, Convert, Protect, Tools, Settings' recovery copies) reuse `FileAccess.show`.
 - **Status:** Decided.
 - **Evidence:** `design/01 First run and files.dc.html` lines 155–215. Implemented in `app/lib/features/shell/open_files.dart`, `app/lib/features/shell/open_problem_tab.dart`, `app/lib/features/shell/open_problem_notice.dart` and `crates/ferman-api/src/facade/error.rs` (`diagnosis_details`); tests: `app/test/features/start/open_files_test.dart`, `crates/ferman-api/tests/open.rs`.
+
+### G120 · What each document tab keeps
+
+- **Type:** gap
+- **Milestone:** M2
+- **Area:** Tabs
+- **Artboards:** `a1-10`, `a2-3p`, `a2-3o`, `a2-4a`
+- **Gap or conflict:** ROADMAP §6 step 6 asks that each tab keep its scroll, zoom, sidebar tab and search after switching; a1-10 draws only the tabs and the "+N" menu, and no board says what else a tab keeps or what a new document starts with.
+- **Decision:** per document: the view (layout, zoom, fit, tool, scroll), the layers shown, the search with its bar, the sidebar tab, the outline's folds and each sidebar list's scroll. Per window: the mode, whether the sidebar and the panel show, and the panel preference. A new document starts on Pages at the default view. The state lives outside the widgets, keyed by the document's id (`documentMemoryProvider`), so it also survives hiding the sidebar (B091) and going home; only the shown document holds engine views and bitmaps. Whether this replaces ADR 0011's "Open documents are kept in an IndexedStack too" is [Q23](QUESTIONS.md#q23).
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/viewer/viewer_state.dart` (`DocumentMemory`, `SidebarMemory`), `app/lib/features/shell/shell_state.dart` (`ShellSidebarTab`), `app/lib/features/shell/shell_sidebar_tabs.dart`; tests in `app/test/features/shell/shell_sidebar_tabs_test.dart`, `app/test/features/shell/tab_overflow_test.dart` and `app/test/features/start/open_files_test.dart`.
+
+### G121 · Show all open documents and Close other documents
+
+- **Type:** missing screen
+- **Milestone:** M2
+- **Area:** Tabs
+- **Artboards:** `a1-10`
+- **Gap or conflict:** a1-10's "+N" menu ends with "Show all open documents" (`layout-grid`, ⇧⌘\\) and "Close other documents…" (`x`, no key). No board draws what Show all shows, there is no Windows or Linux key, and the ellipsis of Close other hints at a question no board draws.
+- **Decision:** Show all lists every open document in the same menu, headed "Open documents" (the strip's name), with the jump keys and the unsaved mark of the hidden ones; picking one shows it. A thumbnail grid, which `layout-grid` suggests, needs a render view per document and is not drawn. Windows and Linux use Ctrl+Shift+\\. When every tab fits, the strip already shows them all and the keys do nothing. Close other closes every tab but the active one without asking, since nothing can be unsaved before the writer; with saving (M3) it asks about unsaved ones first (a1-10b, [G40](#g40)). The close button stays on the active tab only, as f4b draws it.
+- **Status:** Decided.
+- **Evidence:** `design/01 First run and files.dc.html` lines 231–238 and 401–410. Implemented in `app/lib/features/shell/shell_title_bar.dart` (`_MoreDocuments`), `app/lib/features/shell/open_files.dart` (`closeOthers`) and `app/lib/features/shell/shortcuts.dart` (`showAllDocuments`); tests in `app/test/features/shell/tab_overflow_test.dart`.

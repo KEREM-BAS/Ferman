@@ -405,8 +405,9 @@ String _$shellPanelsHash() => r'dd8ff9f27b56ef8898e40cc1731fc1cb412528fd';
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 
 @ProviderFor(ShellSidebarTab)
 final shellSidebarTabProvider = ShellSidebarTabProvider._();
@@ -414,15 +415,17 @@ final shellSidebarTabProvider = ShellSidebarTabProvider._();
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 final class ShellSidebarTabProvider
     extends $NotifierProvider<ShellSidebarTab, SidebarTab> {
   /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
   /// state, not routes, shown over an `IndexedStack` (ADR 0011).
   ///
-  /// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-  /// chosen before must still show when it comes back.
+  /// Each document keeps its own tab in `documentMemoryProvider`, so
+  /// switching tabs, hiding the sidebar or going home brings it back; a new
+  /// document starts on Pages.
   ShellSidebarTabProvider._()
     : super(
         from: null,
@@ -450,13 +453,14 @@ final class ShellSidebarTabProvider
   }
 }
 
-String _$shellSidebarTabHash() => r'8913200950bbc3126c4aedec4c0b149132fe1d15';
+String _$shellSidebarTabHash() => r'4b9471a716c5043c394be559b65eb1ef0ffbf22d';
 
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 
 abstract class _$ShellSidebarTab extends $Notifier<SidebarTab> {
   SidebarTab build();
@@ -469,6 +473,77 @@ abstract class _$ShellSidebarTab extends $Notifier<SidebarTab> {
             as $ClassProviderElement<
               AnyNotifier<SidebarTab, SidebarTab>,
               SidebarTab,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+
+@ProviderFor(ShowAllDocumentsRequest)
+final showAllDocumentsRequestProvider = ShowAllDocumentsRequestProvider._();
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+final class ShowAllDocumentsRequestProvider
+    extends $NotifierProvider<ShowAllDocumentsRequest, int> {
+  /// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+  /// "Show all open documents"): the count of requests, as
+  /// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+  /// notifier while "+N", the only listener, comes and goes with the overflow.
+  ShowAllDocumentsRequestProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'showAllDocumentsRequestProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$showAllDocumentsRequestHash();
+
+  @$internal
+  @override
+  ShowAllDocumentsRequest create() => ShowAllDocumentsRequest();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$showAllDocumentsRequestHash() =>
+    r'a90415363c05d9102fa283a49d3a7ecd785fb10b';
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+
+abstract class _$ShowAllDocumentsRequest extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
               Object?,
               Object?
             >;

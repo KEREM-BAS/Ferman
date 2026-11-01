@@ -10,13 +10,14 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/platform/file_access.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The canvas of a tab whose file did not open: a1-9c's drop zone error
 /// for a file that is not a PDF, a1-9b's page for every other reason, with
-/// the cause, Open another file…, Show in Finder (B119), the technical
+/// the cause, Open another file…, Show in Finder, the technical
 /// details and "Copy technical details". The mode bar, the sidebar and the
 /// status bar are hidden, as the boards draw them.
 class OpenErrorTab extends ConsumerWidget {
@@ -64,8 +65,12 @@ class OpenErrorTab extends ConsumerWidget {
         child: Text(l10n.openAnotherFile),
       ),
       Button(
-        disabled: true,
-        disabledReason: Feature.showInFolder.disabledReason(context),
+        onPressed: switch (document.path) {
+          final path? => () => unawaited(
+            ref.read(fileAccessProvider).show(path),
+          ),
+          null => null,
+        },
         child: Text(switch (ref.watch(shortcutPlatformProvider)) {
           ShortcutPlatform.mac => l10n.openShowInFinder,
           ShortcutPlatform.windows => l10n.openShowInExplorer,

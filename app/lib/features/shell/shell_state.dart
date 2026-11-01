@@ -7,6 +7,7 @@ import 'package:ferman/design/tokens.g.dart';
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart' show WidgetRef;
 import 'package:riverpod_annotation/riverpod_annotation.dart';
@@ -301,18 +302,38 @@ enum SidebarTab {
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 @Riverpod(keepAlive: true)
 class ShellSidebarTab extends _$ShellSidebarTab {
   @override
-  SidebarTab build() => SidebarTab.pages;
+  SidebarTab build() {
+    final document = ref.watch(openDocumentProvider);
+    if (document == null) return SidebarTab.pages;
+    final memory = ref.read(documentMemoryProvider(document.id));
+    listenSelf((_, next) => memory.remember(next));
+    return memory.recall<SidebarTab>() ?? SidebarTab.pages;
+  }
 
   /// Shows [tab]; nothing happens when it is already shown.
   void select(SidebarTab tab) {
     if (tab == state) return;
     state = tab;
   }
+}
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+@Riverpod(keepAlive: true)
+class ShowAllDocumentsRequest extends _$ShowAllDocumentsRequest {
+  @override
+  int build() => 0;
+
+  /// Lists every open document.
+  void request() => state++;
 }
 
 /// Whether the AI assistant is turned on, as `shellAiEnabledProvider`. The

@@ -27,8 +27,9 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   private var openReady = false
   /// The "ferman/files" channel: bookmarks of the files the user granted.
   private var filesChannel: FlutterMethodChannel?
-  /// The files whose security-scoped access has started this session.
-  private var accessed: Set<String> = []
+  /// The files whose security-scoped access has started, by path, with the
+  /// resolved URL that holds it: only that URL can stop it.
+  private var accessed: [String: URL] = [:]
   private var trafficLights: TrafficLightLayout?
   private var observers: [NSObjectProtocol] = []
   private var appearanceObservation: NSKeyValueObservation?
@@ -171,11 +172,12 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
 
   /// "bookmark" makes a security-scoped bookmark (base64) of a file Ferman
   /// may read now; "access" resolves one, starts access to its file once
-  /// for the session (shortcut: never stopped, until closing documents
-  /// ships, B029) and answers with its path and, when it went stale, a
-  /// renewed bookmark. Resolving never mounts a volume or shows UI, so a
-  /// file on a server that is not connected is missing at once (a1-9e), as
-  /// is a file in the Trash.
+  /// until "release" ends it (its document closed, B029) and answers with
+  /// its path and, when it went stale, a renewed bookmark. Resolving never
+  /// mounts a volume or shows UI, so a file on a server that is not
+  /// connected is missing at once (a1-9e), as is a file in the Trash.
+  /// "show" selects a file in Finder (a1-9b): the sandbox lets Finder show
+  /// a file Ferman may read, which every file it opened is.
   private func handleFiles(_ call: FlutterMethodCall, result: FlutterResult) {
     switch call.method {
     case "bookmark":
@@ -205,8 +207,8 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
         result(nil)
         return
       }
-      if !accessed.contains(url.path), url.startAccessingSecurityScopedResource() {
-        accessed.insert(url.path)
+      if accessed[url.path] == nil, url.startAccessingSecurityScopedResource() {
+        accessed[url.path] = url
       }
       let renewed =
         stale
@@ -214,6 +216,20 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
           options: .withSecurityScope, includingResourceValuesForKeys: nil, relativeTo: nil))?
           .base64EncodedString() : nil
       result(["path": url.path, "renewed": renewed as Any])
+    case "release":
+      if let path = call.arguments as? String, let url = accessed.removeValue(forKey: path) {
+        url.stopAccessingSecurityScopedResource()
+      }
+      result(nil)
+    case "show":
+      guard let path = call.arguments as? String,
+        FileManager.default.fileExists(atPath: path)
+      else {
+        result(false)
+        return
+      }
+      NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
+      result(true)
     default:
       result(FlutterMethodNotImplemented)
     }

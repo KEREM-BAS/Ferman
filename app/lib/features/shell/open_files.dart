@@ -6,6 +6,7 @@ import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/recent/recent_files.dart';
@@ -66,6 +67,10 @@ class DocumentOpener extends _$DocumentOpener {
   /// and shows its tab instead of opening twice.
   final Map<String, Future<bool>> _opening = {};
 
+  /// The closes under way, by path: a recent file reopened meanwhile waits,
+  /// so the access its bookmark starts is not ended by the late release.
+  final Map<String, Future<void>> _releasing = {};
+
   @override
   OpenProblem? build() => null;
 
@@ -92,6 +97,7 @@ class DocumentOpener extends _$DocumentOpener {
   /// (a1-9e).
   Future<bool> openRecent(RecentEntry entry) async {
     var path = entry.path;
+    await _releasing[path];
     if (entry.bookmark case final bookmark?) {
       final access = await ref.read(fileAccessProvider).access(bookmark);
       if (access != null && (access.path != path || access.renewed != null)) {
@@ -222,16 +228,52 @@ class DocumentOpener extends _$DocumentOpener {
     return true;
   }
 
-  /// Closes the tab of [path], which holds no document (the unlock
-  /// dialog's Cancel), and shows the start screen when no tab is left
-  /// and the editor shows (not Settings opened meanwhile).
+  /// Closes the tab of [path] (its close button, ⌘W or Ctrl+W, the unlock
+  /// dialog's Cancel): the tab after it shows, or the one before when it
+  /// was the last, and the start screen when no tab is left and the editor
+  /// shows (not Settings opened meanwhile). Its engine document closes,
+  /// what its views kept goes, and on macOS the access its recent file
+  /// started ends (B029).
+  // shortcut: closes without asking about unsaved changes, which nothing
+  // can make before the writer; a1-10b's question comes with it (M3).
   void close(String path) {
+    final tab = _tab(path);
+    if (tab == null) return;
     final documents = ref.read(shellDocumentsProvider.notifier)..remove(path);
+    final releasing = _release(path, tab.document);
+    _releasing[path] = releasing;
+    unawaited(
+      releasing.whenComplete(
+        () => _releasing.removeWhere((_, pending) => pending == releasing),
+      ),
+    );
     final router = ref.read(routerProvider);
     if (documents.state.documents.isEmpty &&
         router.state.uri.path == Routes.editor) {
       router.go(Routes.start);
     }
+  }
+
+  /// Closes every tab but the one of [path] and shows it (a1-10's "Close
+  /// other documents…").
+  void closeOthers(String path) {
+    for (final document in ref.read(shellDocumentsProvider).documents) {
+      if (document.path case final other? when other != path) close(other);
+    }
+    ref.read(shellDocumentsProvider.notifier).focus(path);
+  }
+
+  /// Lets go of [document], closed with its tab, and then of the file at
+  /// [path]: the file is read until the engine closes it.
+  Future<void> _release(String path, OpenedDocument? document) async {
+    if (document != null) {
+      ref.invalidate(documentMemoryProvider(document.id));
+      await ref
+          .read(engineServiceProvider)
+          .close(document.id)
+          .catchError((Object _) {});
+    }
+    await ref.read(fileAccessProvider).release(path).catchError((Object _) {});
   }
 
   /// Opens the file of the problem again (a1-9f's Try again).
