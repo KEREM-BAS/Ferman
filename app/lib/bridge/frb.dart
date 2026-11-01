@@ -82,6 +82,28 @@ Future<Security?> unlockOwner({
   password: password,
 );
 
+/// Saves the file attached to `document` as its `attachments[index]` at `path` (a2-3b), written
+/// safely: a temp file flushed, read back and renamed over `path`. With `staging` (the macOS App
+/// Sandbox's replacement directory) the verified temp file stays there and its path is returned
+/// for the platform layer to swap in.
+///
+/// See [`facade::Engine::save_attachment`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open; the file errors of the write.
+Future<String?> saveAttachment({
+  required BigInt document,
+  required int index,
+  required String path,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbSaveAttachment(
+  document: document,
+  index: index,
+  path: path,
+  staging: staging,
+);
+
 /// Closes a document and ends its views.
 ///
 /// # Errors

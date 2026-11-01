@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -208137867;
+  int get rustContentHash => 1570182822;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -105,6 +105,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
+  });
+
+  Future<String?> crateFrbSaveAttachment({
+    required BigInt document,
+    required int index,
+    required String path,
+    String? staging,
   });
 
   Stream<SearchEvent> crateFrbSearch({
@@ -373,6 +380,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbRequestViewConstMeta => const TaskConstMeta(
     debugName: "request_view",
     argNames: ["view", "generation", "wanted"],
+  );
+
+  @override
+  Future<String?> crateFrbSaveAttachment({
+    required BigInt document,
+    required int index,
+    required String path,
+    String? staging,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_32(index);
+          var arg2 = cst_encode_String(path);
+          var arg3 = cst_encode_opt_String(staging);
+          return wire.wire__crate__frb__save_attachment(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_opt_String,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveAttachmentConstMeta,
+        argValues: [document, index, path, staging],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveAttachmentConstMeta => const TaskConstMeta(
+    debugName: "save_attachment",
+    argNames: ["document", "index", "path", "staging"],
   );
 
   @override

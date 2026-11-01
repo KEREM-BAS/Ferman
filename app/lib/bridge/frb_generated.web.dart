@@ -1430,6 +1430,20 @@ class FermanBridgeWire implements BaseWire {
     wanted,
   );
 
+  void wire__crate__frb__save_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String path,
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_attachment(
+    port_,
+    document,
+    index,
+    path,
+    staging,
+  );
+
   void wire__crate__frb__search(
     NativePortType port_,
     JSAny document,
@@ -1499,6 +1513,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__save_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String path,
+    String? staging,
   );
 
   external void wire__crate__frb__search(

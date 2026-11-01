@@ -1753,4 +1753,13 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsDefaultAppFerman => 'Ferman opens PDFs on this Mac.';
+
+  @override
+  String attachmentNotSaved(String name) {
+    return '“$name” wasn’t saved';
+  }
+
+  @override
+  String get attachmentWriteFailed =>
+      'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
 }

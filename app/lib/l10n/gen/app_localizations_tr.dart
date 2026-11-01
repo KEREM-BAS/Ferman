@@ -1758,4 +1758,13 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsDefaultAppFerman => 'Bu Mac’te PDF’leri Ferman açıyor.';
+
+  @override
+  String attachmentNotSaved(String name) {
+    return '“$name” kaydedilmedi';
+  }
+
+  @override
+  String get attachmentWriteFailed =>
+      'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
 }

@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
@@ -558,8 +559,8 @@ IconName _fileIcon(String name) {
 }
 
 /// The Attachments tab (a2-3b): each embedded file with its size and date.
-/// Embedded files are never opened; Save attachment as… waits for the
-/// native save panel (B110).
+/// Embedded files are never opened; Save attachment as… writes one where
+/// the system save panel says ([AttachmentSaver], B110).
 class SidebarAttachments extends ConsumerWidget {
   /// The attachments of `viewerProvider`'s document.
   const new({super.key});
@@ -569,9 +570,8 @@ class SidebarAttachments extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
-    final files = ref.watch(
-      viewerProvider.select((v) => v?.document.attachments),
-    );
+    final document = ref.watch(viewerProvider.select((v) => v?.document));
+    final files = document?.attachments;
     if (files == null) return const SizedBox.shrink();
     if (files.isEmpty) {
       return EmptyState(
@@ -586,7 +586,7 @@ class SidebarAttachments extends ConsumerWidget {
         horizontal: theme.space.space2,
       ),
       children: [
-        for (final file in files) ...[
+        for (final (index, file) in files.indexed) ...[
           _Card(
             padding: theme.space.space2,
             child: Row(
@@ -622,8 +622,10 @@ class SidebarAttachments extends ConsumerWidget {
                   icon: IconName.download,
                   label: l10n.sidebarSaveAttachment,
                   size: IconButtonSize.xs,
-                  disabledReason: Feature.savingAttachments.disabledReason(
-                    context,
+                  onPressed: () => unawaited(
+                    ref
+                        .read(attachmentSaverProvider.notifier)
+                        .save(document!.id, index, file.name),
                   ),
                 ),
               ],

@@ -179,6 +179,11 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
   /// connected is missing at once (a1-9e), as is a file in the Trash.
   /// "show" selects a file in Finder (a1-9b): the sandbox lets Finder show
   /// a file Ferman may read, which every file it opened is.
+  /// "staging" names the item-replacement directory on the volume of a file
+  /// chosen in the save panel, where the engine writes and verifies the new
+  /// file first; "swapIn" puts that file in place with `replaceItemAt`, or
+  /// moves it there when there is none yet, and removes the directory
+  /// (ADR 0008, B110): the sandbox grants the chosen file, not its folder.
   /// "pdfHandler" names the app that opens PDF files and says whether it is
   /// Ferman; "makeDefault" asks macOS, which asks the person, to make
   /// Ferman that app (B080, app/lib/platform/default_app.dart).
@@ -234,6 +239,36 @@ class MainFlutterWindow: NSWindow, FlutterAppLifecycleDelegate {
       }
       NSWorkspace.shared.activateFileViewerSelecting([URL(fileURLWithPath: path)])
       result(true)
+    case "staging":
+      guard let path = call.arguments as? String,
+        let url = try? FileManager.default.url(
+          for: .itemReplacementDirectory, in: .userDomainMask,
+          appropriateFor: URL(fileURLWithPath: path), create: true)
+      else {
+        result(nil)
+        return
+      }
+      result(url.path)
+    case "swapIn":
+      guard let arguments = call.arguments as? [String: Any],
+        let staged = arguments["staged"] as? String,
+        let path = arguments["path"] as? String
+      else {
+        result(false)
+        return
+      }
+      let stagedURL = URL(fileURLWithPath: staged)
+      let target = URL(fileURLWithPath: path)
+      let manager = FileManager.default
+      var swapped = false
+      if manager.fileExists(atPath: path) {
+        swapped = (try? manager.replaceItemAt(target, withItemAt: stagedURL)) != nil
+      } else {
+        swapped = (try? manager.moveItem(at: stagedURL, to: target)) != nil
+      }
+      // The staged file, if it is still there, and its directory.
+      try? manager.removeItem(at: stagedURL.deletingLastPathComponent())
+      result(swapped)
     case "pdfHandler":
       guard let url = NSWorkspace.shared.urlForApplication(toOpen: .pdf) else {
         result(nil)

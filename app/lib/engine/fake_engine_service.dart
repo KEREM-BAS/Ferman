@@ -149,6 +149,26 @@ class FakeEngineService implements EngineService {
     return _renderKeys[document] = ++_lastRenderKey;
   }
 
+  /// The attachments [saveAttachment] saved: document, index, path and
+  /// staging, oldest first.
+  final List<(int, int, String, String?)> savedAttachments = [];
+
+  /// The error [saveAttachment] throws, if any.
+  EngineException? saveFailure;
+
+  /// Records the save; with [staging] it names a staged file there.
+  @override
+  Future<String?> saveAttachment(
+    int document,
+    int index,
+    String path, {
+    String? staging,
+  }) async {
+    if (saveFailure case final error?) throw error;
+    savedAttachments.add((document, index, path, staging));
+    return staging == null ? null : '$staging/staged';
+  }
+
   /// Orders [texts] by their code points, stably: no language rules.
   @override
   Future<List<int>> collationOrder(String locale, List<String> texts) async {

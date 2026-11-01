@@ -201,6 +201,25 @@ class FrbEngineService implements EngineService {
   }
 
   @override
+  Future<String?> saveAttachment(
+    int document,
+    int index,
+    String path, {
+    String? staging,
+  }) async {
+    try {
+      return await bridge.saveAttachment(
+        document: BigInt.from(document),
+        index: index,
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
   Future<List<int>> collationOrder(String locale, List<String> texts) async {
     final order = await bridge.collationOrder(locale: locale, texts: texts);
     return order.toList();

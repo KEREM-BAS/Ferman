@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-122 entries: 99 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
+123 entries: 100 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 34 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 35 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -195,6 +195,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G121](#g121) | missing screen | M2 | Tabs | a1-10 names "Show all open documents" and "Close other documents…" but draws neither, and gives ⇧⌘\\ for macOS only | Decided |
 | [G122](#g122) | conflict | M2 | Document properties | ROADMAP names Summary, Fonts and Security; a2-7 draws Summary, Security and Advanced with the fonts inside Summary, and names a substitute only for one font | Decided |
 | [G123](#g123) | ambiguity | M2 | First run / default PDF app | a1-3's "Asked once" beside a "Don't ask again" box, and no state for Ferman already being the default | Decided |
+| [G124](#g124) | missing state | M2 | Sidebar › Attachments | No board draws what follows Save attachment as…: success, or a file that cannot be written | Decided |
 
 ## Entries
 
@@ -1826,3 +1827,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The start screen asks at most once a run, while another app opens PDF files. Use Ferman for PDFs asks macOS (which asks the person) and never asks again; Not now closes it until the next start, and with Don't ask again it never asks again (`AppSettings.askDefaultApp`). When Ferman opens PDF files, nothing asks and Settings › General says "Ferman opens PDFs on this Mac." without the button. When the system does not say, nothing asks and the row keeps a1-3's sentence. Only macOS says, so only macOS asks (B101, B102).
 - **Status:** Decided.
 - **Evidence:** `design/01 First run and files.dc.html` (a1-3, its note). Implemented in `app/lib/features/start/default_app_prompt.dart`, `app/lib/features/settings/general_pane.dart` and `app/lib/platform/default_app.dart`; tests in `app/test/features/start/default_app_prompt_test.dart`.
+
+### G124 · Saving an attachment: what follows the save panel
+
+- **Type:** missing state
+- **Milestone:** M2
+- **Area:** Sidebar › Attachments
+- **Artboards:** `a2-3b`
+- **Gap or conflict:** a2-3b draws the download button of each attachment ("Save attachment as…") and nothing after it: no confirmation that the file was written, no state for a file that cannot be written (a full disk, a folder Ferman may not write) or an attachment whose embedded file is damaged or missing.
+- **Decision:** A save that works shows nothing: the file is where the person put it, as a system save panel leads them to expect. One that fails shows a danger toast at the bottom end of the canvas, where a1-9f's toast goes, titled "“name” wasn't saved", with Dismiss, staying as errors do (a11-6). Its message says the file could not be written there for a file error, and otherwise the engine's message (a damaged attachment). The suggested name drops any folder the file's name carries. The file is never opened.
+- **Status:** Decided.
+- **Evidence:** `design/02 View.dc.html` (a2-3b). Implemented in `app/lib/features/shell/attachment_save.dart` and `app/lib/features/shell/shell_canvas.dart`; tests in `app/test/features/shell/shell_sidebar_tabs_test.dart`.

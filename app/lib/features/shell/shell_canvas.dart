@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/open_files.dart';
@@ -134,15 +135,19 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final active = ref.watch(shellDocumentsProvider).active;
     // a1-9f: where the toast of a file that got no tab shows.
     final problem = ref.watch(documentOpenerProvider);
-    final problemToast = problem == null
+    // B110: an attachment that was not saved, in the same place.
+    final unsaved = ref.watch(attachmentSaverProvider);
+    final toastChild = problem != null
+        ? OpenProblemToast(problem)
+        : unsaved != null
+        ? AttachmentSaveToast(unsaved)
+        : null;
+    final problemToast = toastChild == null
         ? null
         : PositionedDirectional(
             bottom: theme.space.space4,
             end: theme.space.space4,
-            child: SizedBox(
-              width: Toast.width,
-              child: OpenProblemToast(problem),
-            ),
+            child: SizedBox(width: Toast.width, child: toastChild),
           );
     // a1-7: a file still opening, with its Cancel (also Esc).
     final opening = active != null && active.loading ? active.path : null;

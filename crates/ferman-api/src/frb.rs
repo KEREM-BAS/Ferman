@@ -621,6 +621,34 @@ pub async fn unlock_owner(document: u64, password: String) -> Result<Option<Secu
         .map_err(api_error_dto)
 }
 
+/// Saves the file attached to `document` as its `attachments[index]` at `path` (a2-3b), written
+/// safely: a temp file flushed, read back and renamed over `path`. With `staging` (the macOS App
+/// Sandbox's replacement directory) the verified temp file stays there and its path is returned
+/// for the platform layer to swap in.
+///
+/// See [`facade::Engine::save_attachment`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open; the file errors of the write.
+pub async fn save_attachment(
+    document: u64,
+    index: u32,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_attachment(
+            facade::DocumentId::from_raw(document),
+            index,
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(|staged| staged.map(|path| path.to_string_lossy().into_owned()))
+        .map_err(api_error_dto)
+}
+
 /// Closes a document and ends its views.
 ///
 /// # Errors

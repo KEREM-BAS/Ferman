@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -208137867;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1570182822;
 
 // Section: executor
 
@@ -277,6 +277,42 @@ fn wire__crate__frb__request_view_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::request_view(api_view, api_generation, api_wanted).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__save_attachment_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    index: impl CstDecode<u32>,
+    path: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_attachment",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_index = index.cst_decode();
+            let api_path = path.cst_decode();
+            let api_staging = staging.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::save_attachment(
+                            api_document,
+                            api_index,
+                            api_path,
+                            api_staging,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -3922,6 +3958,17 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_attachment(
+        port_: i64,
+        document: u64,
+        index: u32,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__search(
         port_: i64,
         document: u64,
@@ -5471,6 +5518,17 @@ mod web {
         wanted: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__request_view_impl(port_, view, generation, wanted)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__save_attachment(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        index: u32,
+        path: String,
+        staging: Option<String>,
+    ) {
+        wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
     }
 
     #[wasm_bindgen]

@@ -2,15 +2,20 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_sidebar.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/platform/file_access.dart';
+import 'package:ferman/platform/file_picker_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_desktop_window.dart';
+import '../../helpers/fake_file_picker.dart';
+import '../../helpers/recording_file_access.dart';
 import 'shell_host.dart';
 
 /// a2-3o's contract in three pages, with a2-3b's attachments, a2-3c's
@@ -77,15 +82,22 @@ void main() {
 
   Future<FakeEngineService> pumpDocument(
     WidgetTester tester,
-    OpenedDocument document,
-  ) async {
+    OpenedDocument document, {
+    FakeFilePickerService? picker,
+    RecordingFileAccess? access,
+  }) async {
     final engine = FakeEngineService(documents: {'/doc.pdf': document});
     await pumpShell(
       tester,
       shellHost(
         window: window,
         regionCode: 'GB',
-        overrides: [engineServiceProvider.overrideWithValue(engine)],
+        overrides: [
+          engineServiceProvider.overrideWithValue(engine),
+          if (picker != null)
+            filePickerServiceProvider.overrideWithValue(picker),
+          if (access != null) fileAccessProvider.overrideWithValue(access),
+        ],
       ),
     );
     containerOf(tester).read(openDocumentProvider.notifier).show(document);
@@ -227,6 +239,76 @@ void main() {
     expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
   });
 
+  testWidgets('Save attachment as… writes the file where the save panel '
+      'says; under the sandbox through the staging directory (B110)', (
+    tester,
+  ) async {
+    final picker = FakeFilePickerService(saveTo: '/out/Demirbaş.xlsx');
+    final access = RecordingFileAccess();
+    final engine = await pumpDocument(
+      tester,
+      kira,
+      picker: picker,
+      access: access,
+    );
+    await showTab(tester, SidebarTab.attachments);
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(picker.saves, ['Ek-1 Demirbaş listesi.xlsx']);
+    expect(engine.savedAttachments, [(3, 0, '/out/Demirbaş.xlsx', null)]);
+
+    access.stagingDirectory = '/stage';
+    await tester.tap(iconButton('Save attachment as…').last);
+    await settle(tester);
+    expect(engine.savedAttachments.last, (
+      3,
+      1,
+      '/out/Demirbaş.xlsx',
+      '/stage',
+    ));
+    expect(access.swapped, [('/stage/staged', '/out/Demirbaş.xlsx')]);
+
+    // Cancelled: nothing is written.
+    picker.saveTo = null;
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(engine.savedAttachments, hasLength(2));
+
+    // A name from the file never picks the folder.
+    await containerOf(tester)
+        .read(attachmentSaverProvider.notifier)
+        .save(3, 0, '../../ek/kötü.sh');
+    expect(picker.saves.last, 'kötü.sh');
+  });
+
+  testWidgets('a save that fails shows the toast until it is dismissed', (
+    tester,
+  ) async {
+    final engine = await pumpDocument(
+      tester,
+      kira,
+      picker: FakeFilePickerService(saveTo: '/out/ek.xlsx'),
+    );
+    engine.saveFailure = const EngineException(
+      kind: EngineErrorKind.permissionDenied,
+      messageKey: 'errorFilePermissionDenied',
+    );
+    await showTab(tester, SidebarTab.attachments);
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(find.textContaining('wasn’t saved'), findsOne);
+    expect(find.textContaining('couldn’t write the file there'), findsOne);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Toast),
+        matching: find.byType(IconButton),
+      ),
+    );
+    await settle(tester);
+    expect(find.byType(Toast), findsNothing);
+  });
+
   testWidgets('Attachments, Layers and Signatures list the document', (
     tester,
   ) async {
@@ -240,8 +322,8 @@ void main() {
     expect(
       tester
           .widgetList<IconButton>(iconButton('Save attachment as…'))
-          .map((button) => button.disabledReason),
-      [futureVersion, futureVersion],
+          .map((button) => button.onPressed != null),
+      [true, true],
     );
 
     await showTab(tester, SidebarTab.layers);

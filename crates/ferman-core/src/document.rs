@@ -22,6 +22,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use lopdf::{Object, ObjectId, Stream};
 
 use crate::appendix;
+use crate::filters;
 use crate::limits::Limits;
 use crate::repair::{self, Diagnosis, LikelyCause, Repair, RepairReport};
 use crate::security::{Access, Decrypter, EncryptionInfo, Params, Password, Permissions};
@@ -186,6 +187,31 @@ impl Document {
             &self.structure.layers,
             visible,
         )
+    }
+
+    /// The decoded bytes of the file of [`Structure::attachments`]`[index]`, to save where the
+    /// user says (a2-3b, B110). It is never opened or run.
+    ///
+    /// # Errors
+    ///
+    /// [`CoreError::Syntax`] for an index past the list or an attachment whose file stream is
+    /// missing, and every error of [`filters::decode_chain`], within the document's limits.
+    pub fn attachment_data(&self, index: usize) -> Result<Vec<u8>, CoreError> {
+        let missing = || CoreError::Syntax {
+            offset: 0,
+            problem: "an attachment without its embedded file stream",
+        };
+        let id = self
+            .structure
+            .attachments
+            .get(index)
+            .and_then(|attachment| attachment.file)
+            .ok_or_else(missing)?;
+        let Ok(Object::Stream(stream)) = self.model.get_object(id) else {
+            return Err(missing());
+        };
+        let steps = filters::chain_of(&stream.dict)?;
+        filters::decode_chain(&steps, &stream.content, &self.limits)
     }
 
     /// The number of pages, as lopdf's page tree gives them.
@@ -496,6 +522,52 @@ mod tests {
             Err(CoreError::NotPdf {
                 kind: crate::FileKind::Empty
             })
+        ));
+    }
+
+    #[test]
+    fn an_attachment_is_read_through_its_filters_and_a_missing_one_is_an_error() {
+        use lopdf::{Stream, dictionary};
+        let mut model = lopdf::Document::with_version("1.7");
+        let pages = model.new_object_id();
+        model.objects.insert(
+            pages,
+            Object::Dictionary(
+                dictionary! { "Type" => "Pages", "Kids" => Vec::<Object>::new(), "Count" => 0 },
+            ),
+        );
+        let file = model.add_object(Stream::new(
+            dictionary! { "Type" => "EmbeddedFile", "Filter" => "ASCIIHexDecode" },
+            b"612C620A>".to_vec(),
+        ));
+        let spec = model.add_object(dictionary! {
+            "Type" => "Filespec", "UF" => Object::string_literal("ekler.csv"),
+            "EF" => dictionary! { "F" => file },
+        });
+        let lost = model.add_object(dictionary! {
+            "Type" => "Filespec", "UF" => Object::string_literal("kayip.txt"),
+        });
+        let tree = dictionary! { "Names" => vec![
+            Object::string_literal("ekler.csv"), spec.into(),
+            Object::string_literal("kayip.txt"), lost.into(),
+        ]};
+        let catalog = model.add_object(dictionary! {
+            "Type" => "Catalog", "Pages" => pages,
+            "Names" => dictionary! { "EmbeddedFiles" => tree },
+        });
+        model.trailer.set("Root", catalog);
+        let mut bytes = Vec::new();
+        model.save_to(&mut bytes).unwrap();
+        let document = open(&source(&bytes), &OpenOptions::default()).unwrap();
+        assert_eq!(document.structure().attachments.len(), 2);
+        assert_eq!(document.attachment_data(0).unwrap(), b"a,b\n");
+        assert!(matches!(
+            document.attachment_data(1),
+            Err(CoreError::Syntax { .. })
+        ));
+        assert!(matches!(
+            document.attachment_data(2),
+            Err(CoreError::Syntax { .. })
         ));
     }
 

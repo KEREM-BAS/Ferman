@@ -42,6 +42,16 @@ abstract interface class FileAccess {
   /// Shows the file at [path] selected in Finder, File Explorer or the file
   /// manager; false when it could not.
   Future<bool> show(String path);
+
+  /// Under the macOS App Sandbox, a directory on the volume of [path] where
+  /// a file for it may be written first (the system's item-replacement
+  /// directory, ADR 0008); null where the engine writes beside the file.
+  Future<String?> staging(String path);
+
+  /// Puts the written file [staged] in place of [path] (`replaceItemAt`)
+  /// and removes its staging directory; false when it could not, and the
+  /// staged file is gone either way.
+  Future<bool> swapIn(String staged, String path);
 }
 
 /// No bookmarks: Windows, Linux and the web, and tests by default.
@@ -60,12 +70,19 @@ final class NoFileAccess implements FileAccess {
 
   @override
   Future<bool> show(String path) async => false;
+
+  @override
+  Future<String?> staging(String path) async => null;
+
+  @override
+  Future<bool> swapIn(String staged, String path) async => false;
 }
 
 /// The runner's file access over the `ferman/files` channel
 /// (`MainFlutterWindow.swift`; on Windows `file_manager.cpp` and on Linux
 /// `my_application.cc`, which answer only "show"); a runner without a
-/// handler makes no bookmarks and shows nothing.
+/// handler makes no bookmarks, shows nothing and names no staging
+/// directory.
 final class PlatformFileAccess implements FileAccess {
   /// Talks to the runner over `ferman/files`, or over the channel given
   /// (tests).
@@ -122,6 +139,32 @@ final class PlatformFileAccess implements FileAccess {
   Future<bool> show(String path) async {
     try {
       return await _channel.invokeMethod<bool>('show', path) ?? false;
+    } on MissingPluginException {
+      return false;
+    } on PlatformException {
+      return false;
+    }
+  }
+
+  @override
+  Future<String?> staging(String path) async {
+    try {
+      return await _channel.invokeMethod<String>('staging', path);
+    } on MissingPluginException {
+      return null;
+    } on PlatformException {
+      return null;
+    }
+  }
+
+  @override
+  Future<bool> swapIn(String staged, String path) async {
+    try {
+      return await _channel.invokeMethod<bool>('swapIn', {
+            'staged': staged,
+            'path': path,
+          }) ??
+          false;
     } on MissingPluginException {
       return false;
     } on PlatformException {

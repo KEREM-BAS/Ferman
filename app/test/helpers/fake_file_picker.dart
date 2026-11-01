@@ -4,7 +4,7 @@ import 'package:ferman/platform/file_picker_service.dart';
 /// logs each filter it was asked for in [requests].
 final class FakeFilePickerService implements FilePickerService {
   /// Picks [picked] each time; nothing by default, as if cancelled.
-  new({this.picked = const []});
+  new({this.picked = const [], this.saveTo});
 
   /// The paths the open panel returns.
   List<String> picked;
@@ -23,5 +23,17 @@ final class FakeFilePickerService implements FilePickerService {
   Future<String?> openPdf({required String filterLabel}) async {
     requests.add(filterLabel);
     return picked.isEmpty ? null : picked.first;
+  }
+
+  /// The name each save panel suggested, oldest first.
+  final List<String> saves = [];
+
+  /// The path the save panel returns; null, as if cancelled, by default.
+  String? saveTo;
+
+  @override
+  Future<String?> saveFile({required String suggestedName}) async {
+    saves.add(suggestedName);
+    return saveTo;
   }
 }

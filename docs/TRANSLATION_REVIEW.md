@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-513 messages in `app_en.arb`; translated: Turkish 513, Arabic 513.
+515 messages in `app_en.arb`; translated: Turkish 515, Arabic 515.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -569,5 +569,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `defaultAppDontAsk` | Don’t ask again | Bir daha sorma | عدم السؤال مرة أخرى | Checkbox of a1-3: with it, Not now never asks again. |
 | `settingsDefaultAppOther` | {app} opens PDFs on this Mac. | Bu Mac’te PDF’leri {app} açıyor. | يفتح {app} ملفات PDF على جهاز Mac هذا. | Text beside Make Ferman the default… in Settings › General on macOS (a11-1); app is the app that opens PDF files now, as macOS names it, isolated. |
 | `settingsDefaultAppFerman` | Ferman opens PDFs on this Mac. | Bu Mac’te PDF’leri Ferman açıyor. | يفتح Ferman ملفات PDF على جهاز Mac هذا. | Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown. |
+| `attachmentNotSaved` | “{name}” wasn’t saved | “{name}” kaydedilmedi | لم يُحفَظ “{name}” | Title of the editor’s danger toast when Save attachment as… failed (a2-3b, G124); name is the attachment’s file name, isolated. |
+| `attachmentWriteFailed` | Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected. | Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin. | تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا. | Message of the toast of attachmentNotSaved when the file could not be written. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

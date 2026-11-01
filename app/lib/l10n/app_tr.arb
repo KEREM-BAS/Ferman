@@ -512,5 +512,7 @@
   "defaultAppUse": "PDF’ler için Ferman’ı kullan",
   "defaultAppDontAsk": "Bir daha sorma",
   "settingsDefaultAppOther": "Bu Mac’te PDF’leri {app} açıyor.",
-  "settingsDefaultAppFerman": "Bu Mac’te PDF’leri Ferman açıyor."
+  "settingsDefaultAppFerman": "Bu Mac’te PDF’leri Ferman açıyor.",
+  "attachmentNotSaved": "“{name}” kaydedilmedi",
+  "attachmentWriteFailed": "Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin."
 }

@@ -41,6 +41,20 @@ abstract interface class EngineService {
   /// switched ([OpenedDocument.layersSwitchable]).
   Future<int> showLayers(int document, List<bool> visible);
 
+  /// Saves the file attached to [document] as its [OpenedDocument.attachments]
+  /// at [index] at [path] (a2-3b, B110), written safely: a temp file
+  /// flushed, read back and renamed over [path] (ADR 0008). With [staging]
+  /// (the macOS App Sandbox's replacement directory) the verified temp file
+  /// stays there and its path is returned for the platform to swap in.
+  ///
+  /// Throws an [EngineException] when it cannot be read or written.
+  Future<String?> saveAttachment(
+    int document,
+    int index,
+    String path, {
+    String? staging,
+  });
+
   /// Searches [document] for [query]: each page's matches as they are found,
   /// the progress, then [SearchDone]. Cancelling the subscription stops the
   /// search.
@@ -123,6 +137,14 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<int> showLayers(int document, List<bool> visible) async => throw error;
+
+  @override
+  Future<String?> saveAttachment(
+    int document,
+    int index,
+    String path, {
+    String? staging,
+  }) async => throw error;
 
   @override
   Stream<SearchUpdate> search(

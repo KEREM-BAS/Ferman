@@ -3182,6 +3182,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferman opens PDFs on this Mac.'**
   String get settingsDefaultAppFerman;
+
+  /// Title of the editor’s danger toast when Save attachment as… failed (a2-3b, G124); name is the attachment’s file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” wasn’t saved'**
+  String attachmentNotSaved(String name);
+
+  /// Message of the toast of attachmentNotSaved when the file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.'**
+  String get attachmentWriteFailed;
 }
 
 class _AppLocalizationsDelegate

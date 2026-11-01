@@ -81,7 +81,8 @@ folder, so the temp file comes from the system's item-replacement directory on t
 Ferman writes for the user is an embedded file saved with "Save attachment as…" (a2-3b) in M2, so M2
 builds this path for it: the engine writes the attachment with the steps above; under the sandbox its
 temp file goes to the replacement directory that the platform layer names, and the platform layer
-swaps it in with `replaceItemAt`. CI proves it on paths inside the container and the owner on files
+swaps it in with `replaceItemAt` (built in M2: `ferman-core` `save::safe_write`, B110; on Windows its
+rename is the standard library's `MoveFileExW` until the M3 writer brings `ReplaceFileW`). CI proves it on paths inside the container and the owner on files
 granted through the panel; the Q18 decision is recorded at the M2 review, and M3 checks the path
 again with the document writer.
 

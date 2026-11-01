@@ -102,9 +102,6 @@ enum Feature {
   /// Attaching files: the Attachments tab's Attach a file.
   attachingFiles('B067'),
 
-  /// Saving an attachment: the Attachments tab's Save attachment as….
-  savingAttachments('B110'),
-
   /// Showing and hiding layers in a repaired document, or one opened with
   /// its password: the Layers tab's eye buttons there.
   layerVisibility('B111'),

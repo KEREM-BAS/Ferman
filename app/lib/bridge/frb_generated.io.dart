@@ -1729,6 +1729,46 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
           >();
 
+  void wire__crate__frb__save_attachment(
+    int port_,
+    int document,
+    int index,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> staging,
+  ) {
+    return _wire__crate__frb__save_attachment(
+      port_,
+      document,
+      index,
+      path,
+      staging,
+    );
+  }
+
+  late final _wire__crate__frb__save_attachmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_attachment');
+  late final _wire__crate__frb__save_attachment =
+      _wire__crate__frb__save_attachmentPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
   void wire__crate__frb__search(
     int port_,
     int document,

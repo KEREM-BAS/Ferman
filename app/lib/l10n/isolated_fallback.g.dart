@@ -1697,6 +1697,13 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String get settingsDefaultAppFerman =>
       isolate(super.settingsDefaultAppFerman);
+
+  @override
+  String attachmentNotSaved(String name) =>
+      isolate(super.attachmentNotSaved(name));
+
+  @override
+  String get attachmentWriteFailed => isolate(super.attachmentWriteFailed);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate
