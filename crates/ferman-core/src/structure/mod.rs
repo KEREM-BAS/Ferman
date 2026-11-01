@@ -271,6 +271,8 @@ pub struct Structure {
     pub direction: Direction,
     /// `/Lang`, the document's language tag.
     pub language: Option<String>,
+    /// Whether it is a tagged PDF (`/MarkInfo /Marked true`).
+    pub tagged: bool,
     /// `/Info`.
     pub info: Info,
 }
@@ -487,6 +489,10 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
         fonts: fonts::fonts(&scope, &ids),
         direction,
         language: catalog.and_then(|catalog| scope.get_text(catalog, b"Lang")),
+        tagged: catalog
+            .and_then(|catalog| scope.get_dict(catalog, b"MarkInfo"))
+            .and_then(|mark| scope.get(mark, b"Marked"))
+            .is_some_and(|marked| marked.as_bool().is_ok_and(|marked| marked)),
         info: info(&scope),
     }
 }

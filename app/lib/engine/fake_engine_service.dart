@@ -20,6 +20,7 @@ class FakeEngineService implements EngineService {
     this.searchResults = const {},
     this.failures = const {},
     this.passwords = const {},
+    this.ownerPasswords = const {},
   });
 
   /// The status [status] returns.
@@ -34,6 +35,14 @@ class FakeEngineService implements EngineService {
   /// The passwords of [documents] that need one (a1-8): [open] fails with
   /// `passwordRequired` without it and `wrongPassword` with another.
   final Map<String, String> passwords;
+
+  /// The owner passwords of [documents] by id (a2-10): [unlockOwner]
+  /// lifts their restrictions with it and fails with `wrongPassword` with
+  /// another.
+  final Map<int, String> ownerPasswords;
+
+  /// The documents whose owner password was given.
+  final Set<int> ownerUnlocked = {};
 
   /// Pages whose items fail as damaged.
   final Set<int> failingPages;
@@ -56,6 +65,9 @@ class FakeEngineService implements EngineService {
 
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
+
+  /// How many views are open.
+  int get openViewCount => _views.length;
 
   @override
   EngineApiVersion apiVersion() => fakeStatus.apiVersion;
@@ -84,9 +96,40 @@ class FakeEngineService implements EngineService {
         ));
   }
 
+  /// The documents closed, oldest first.
+  final List<int> closed = [];
+
+  @override
+  Future<Security?> unlockOwner(int document, String password) async {
+    final opened = documents.values.where((opened) => opened.id == document);
+    if (opened.isEmpty) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorFileNotFound',
+      );
+    }
+    final security = opened.first.security;
+    if (security == null) return null;
+    if (ownerPasswords[document] != password) {
+      throw const EngineException(
+        kind: EngineErrorKind.wrongPassword,
+        messageKey: 'errorWrongPassword',
+      );
+    }
+    ownerUnlocked.add(document);
+    return Security(
+      method: security.method,
+      keyBits: security.keyBits,
+      userPasswordRequired: security.userPasswordRequired,
+      permissions: security.permissions,
+      owner: true,
+    );
+  }
+
   /// Ends the document's views.
   @override
   Future<void> close(int document) async {
+    closed.add(document);
     for (final (owner, updates) in [..._views.values]) {
       if (owner == document) await updates.close();
     }

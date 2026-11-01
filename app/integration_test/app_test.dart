@@ -128,6 +128,11 @@ void main() {
       expect(document.pages, hasLength(1));
       expect(document.pages.single.width, 200);
       expect(document.pages.single.height, 100);
+      expect(document.version, isNotEmpty);
+      expect(document.fileSize, file.lengthSync());
+      expect(document.security, isNull);
+      expect(document.scripts, 0);
+      expect(await engine.unlockOwner(document.id, ''), isNull);
 
       final view = await engine.openView(document.id);
       const thumbnail = ThumbnailItem(page: 0, size: 64);

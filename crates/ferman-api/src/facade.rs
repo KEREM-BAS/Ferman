@@ -22,7 +22,7 @@ mod version;
 
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
-pub use document::{OpenedDocument, PageInfo, ReadOnly};
+pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
@@ -32,9 +32,10 @@ pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
 pub use ferman_core::structure::{
-    Agreement, Attachment, Direction, Layer, OutlineItem, PdfDate, Signature,
+    Agreement, Attachment, Direction, FontKind, FontUse, Info, Layer, OutlineItem, PdfDate,
+    Scripts, Signature,
 };
-pub use ferman_core::{Password, Repair, RepairReport, XrefProblem};
+pub use ferman_core::{Method, Password, Permissions, Repair, RepairReport, XrefProblem};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,

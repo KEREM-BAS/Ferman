@@ -125,6 +125,53 @@ class FrbEngineService implements EngineService {
               page: field.page,
             ),
         ],
+        version: document.version,
+        fileSize: document.fileSize.toInt(),
+        info: DocumentInfo(
+          title: document.info.title,
+          author: document.info.author,
+          subject: document.info.subject,
+          keywords: document.info.keywords,
+          creator: document.info.creator,
+          producer: document.info.producer,
+          created: _date(document.info.created),
+          modified: _date(document.info.modified),
+        ),
+        language: document.language,
+        tagged: document.tagged,
+        linearized: document.linearized,
+        fonts: [
+          for (final font in document.fonts)
+            FontEntry(
+              name: font.name,
+              kind: switch (font.kind) {
+                bridge.FontType.type1 => FontType.type1,
+                bridge.FontType.multipleMaster => FontType.multipleMaster,
+                bridge.FontType.trueType => FontType.trueType,
+                bridge.FontType.type0 => FontType.type0,
+                bridge.FontType.type3 => FontType.type3,
+                bridge.FontType.other => FontType.other,
+              },
+              embedded: font.embedded,
+              subset: font.subset,
+            ),
+        ],
+        security: _security(document.security),
+        scripts: document.scripts,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<Security?> unlockOwner(int document, String password) async {
+    try {
+      return _security(
+        await bridge.unlockOwner(
+          document: BigInt.from(document),
+          password: password,
+        ),
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -423,6 +470,32 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
 
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+Security? _security(bridge.Security? security) => switch (security) {
+  null => null,
+  final security => Security(
+    method: switch (security.method) {
+      bridge.EncryptionMethod.rc4 => EncryptionMethod.rc4,
+      bridge.EncryptionMethod.aes128 => EncryptionMethod.aes128,
+      bridge.EncryptionMethod.aes256 => EncryptionMethod.aes256,
+      bridge.EncryptionMethod.identity => EncryptionMethod.identity,
+    },
+    keyBits: security.keyBits,
+    userPasswordRequired: security.userPasswordRequired,
+    permissions: DocumentPermissions(
+      print: security.permissions.print,
+      printHighQuality: security.permissions.printHighQuality,
+      modify: security.permissions.modify,
+      annotate: security.permissions.annotate,
+      fillForms: security.permissions.fillForms,
+      copy: security.permissions.copy,
+      accessibility: security.permissions.accessibility,
+      assemble: security.permissions.assemble,
+    ),
+    owner: security.owner,
+    restricted: security.restricted,
+  ),
+};
 
 /// The date as the file writes it, in no time zone, so it shows as written.
 DateTime? _date(bridge.PdfDate? date) => date == null

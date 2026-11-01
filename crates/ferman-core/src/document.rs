@@ -115,17 +115,45 @@ impl Document {
     ///
     /// [`CoreError::Internal`] when a cipher cannot be set up.
     pub fn unlock_owner(&mut self, password: &Password) -> Result<bool, CoreError> {
-        let Some(encryption) = &mut self.encryption else {
-            return Ok(true);
-        };
-        if encryption.access == Access::Owner {
-            return Ok(true);
+        if !self.is_owner_password(password)? {
+            return Ok(false);
         }
-        if encryption.decrypter.params().is_owner(password.as_str())? {
+        if let Some(encryption) = &mut self.encryption {
             encryption.access = Access::Owner;
-            return Ok(true);
         }
-        Ok(false)
+        Ok(true)
+    }
+
+    /// Whether `password` is the owner password, or no password is needed for owner access (the
+    /// document is not encrypted or was opened with it). Unlike [`Document::unlock_owner`] it
+    /// changes nothing, so a shared document can check it.
+    ///
+    /// # Errors
+    ///
+    /// [`CoreError::Internal`] when a cipher cannot be set up.
+    pub fn is_owner_password(&self, password: &Password) -> Result<bool, CoreError> {
+        match &self.encryption {
+            Some(encryption) if encryption.access == Access::User => {
+                encryption.decrypter.params().is_owner(password.as_str())
+            }
+            _ => Ok(true),
+        }
+    }
+
+    /// Whether the file is linearized for fast web view: it holds a linearization dictionary
+    /// whose `/L` is the file's length, so no update was appended since (ISO 32000-2 Annex F).
+    #[must_use]
+    pub fn linearized(&self) -> bool {
+        let length = self.source.bytes().len();
+        self.model.objects.values().any(|object| {
+            object.as_dict().is_ok_and(|dict| {
+                dict.has(b"Linearized")
+                    && dict
+                        .get(b"L")
+                        .and_then(lopdf::Object::as_i64)
+                        .is_ok_and(|l| usize::try_from(l).is_ok_and(|l| l == length))
+            })
+        })
     }
 
     /// What the structure scan found.
@@ -481,6 +509,30 @@ mod tests {
         assert!(document.encryption().is_none());
         assert_eq!(document.access(), Access::Owner);
         assert_eq!(document.version(), "1.7");
+    }
+
+    #[test]
+    fn a_linearized_file_is_fast_web_view_until_an_update_is_appended() {
+        let body = b"%PDF-1.7\n1 0 obj\n<< /Linearized 1 /L LENGTH____ >>\nendobj\n\
+2 0 obj\n<< /Type /Catalog /Pages 3 0 R >>\nendobj\n\
+3 0 obj\n<< /Type /Pages /Kids [] /Count 0 >>\nendobj\n\
+trailer\n<< /Root 2 0 R /Size 4 >>\n%%EOF\n";
+        let with_length = |extra: &[u8]| {
+            let mut data = body.to_vec();
+            data.extend_from_slice(extra);
+            let length = format!("{:010}", body.len());
+            let at = data.windows(10).position(|w| w == b"LENGTH____").unwrap();
+            data[at..at + 10].copy_from_slice(length.as_bytes());
+            data
+        };
+        let linearized = open(&source(&with_length(b"")), &OpenOptions::default()).unwrap();
+        assert!(linearized.linearized());
+        let updated = open(
+            &source(&with_length(b"% an update\n")),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        assert!(!updated.linearized());
     }
 
     #[test]

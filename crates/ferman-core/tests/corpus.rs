@@ -193,7 +193,19 @@ fn the_restricted_contract_opens_with_its_restrictions() {
     assert!(permissions.print() && permissions.extract_for_accessibility());
     assert!(!permissions.modify() && !permissions.copy());
     assert!(!permissions.annotate() && !permissions.fill_forms());
-    // A wrong owner password changes nothing; the right one lifts the restrictions.
+    // A wrong owner password changes nothing; the right one lifts the restrictions. The check
+    // alone works on a shared document.
+    assert!(
+        !document
+            .is_owner_password(&Password::new("kaya".to_owned()))
+            .unwrap()
+    );
+    assert!(
+        document
+            .is_owner_password(&Password::new("Kaya-Moda-18".to_owned()))
+            .unwrap()
+    );
+    assert_eq!(document.access(), Access::User);
     assert!(
         !document
             .unlock_owner(&Password::new("kaya".to_owned()))
@@ -212,6 +224,9 @@ fn the_restricted_contract_opens_with_its_restrictions() {
 #[test]
 fn the_structure_scan_finds_what_the_generators_wrote() {
     let tez = healthy("tez-tr", 64);
+    assert!(tez.structure().tagged);
+    assert!(!healthy("kira-tr", 3).structure().tagged);
+    assert!(!tez.linearized());
     let labels: Vec<String> = tez
         .structure()
         .pages

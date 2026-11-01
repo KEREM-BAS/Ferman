@@ -11,12 +11,16 @@
 //! model, with the text of the pages it has read, until the document closes.
 
 use std::collections::HashMap;
+use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::{Arc, Mutex, MutexGuard};
 use std::thread;
 
-use ferman_core::structure::{Agreement, Attachment, Direction, Layer, OutlineItem, Signature};
-use ferman_core::{OpenOptions, Password, RepairReport, Source};
+use ferman_core::structure::{
+    Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Scripts, Signature,
+};
+use ferman_core::{Access, Method, OpenOptions, Password, Permissions, RepairReport, Source};
 use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
 
 use super::engine::Engine;
@@ -53,6 +57,47 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields, shown neutrally until checking arrives (G31).
     pub signatures: Vec<Signature>,
+    /// The PDF version in the header, such as `1.7`.
+    pub version: String,
+    /// The file's size in bytes.
+    pub file_size: u64,
+    /// The document information dictionary.
+    pub info: Info,
+    /// `/Lang`, the document's language tag.
+    pub language: Option<String>,
+    /// Whether it is a tagged PDF.
+    pub tagged: bool,
+    /// Whether it is linearized for fast web view.
+    pub linearized: bool,
+    /// The fonts its pages use (fonts inside form XObjects come with the interpreter, M3).
+    pub fonts: Vec<FontUse>,
+    /// Its encryption and permissions, when it is encrypted (a2-10a, a2-10b).
+    pub security: Option<Security>,
+    /// The document JavaScript it holds, which Ferman never runs (Q13, G100).
+    pub scripts: Scripts,
+}
+
+/// An encrypted document's security (a2-10b).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Security {
+    /// How its strings and streams are encrypted.
+    pub method: Method,
+    /// Whether opening it needs a password.
+    pub user_password_required: bool,
+    /// What the file allows without its owner password.
+    pub permissions: Permissions,
+    /// Whether it was opened, or since unlocked, with its owner password, which lifts the
+    /// restrictions for the session ([`Engine::unlock_owner`]).
+    pub owner: bool,
+}
+
+impl Security {
+    /// Whether the restrictions apply now: some permission is withheld and the owner password
+    /// was not given.
+    #[must_use]
+    pub fn restricted(&self) -> bool {
+        !self.owner && !self.permissions.all()
+    }
 }
 
 /// An open document's parsed model, kept for its layers and its search.
@@ -60,8 +105,24 @@ pub struct OpenedDocument {
 pub(super) struct Model {
     pub(super) document: ferman_core::Document,
     pub(super) layers_switchable: bool,
+    /// Whether the owner password was given since the open ([`Engine::unlock_owner`]); the
+    /// model is shared, so ferman-core's own access is not changed.
+    pub(super) owner_unlocked: AtomicBool,
     /// The text of each page once read, for searches after the first.
     pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
+}
+
+impl Model {
+    /// The document's security now, `None` when it is not encrypted.
+    fn security(&self) -> Option<Security> {
+        self.document.encryption().map(|encryption| Security {
+            method: encryption.method,
+            user_password_required: encryption.user_password_required,
+            permissions: encryption.permissions,
+            owner: self.document.access() == Access::Owner
+                || self.owner_unlocked.load(Ordering::Relaxed),
+        })
+    }
 }
 
 /// One page of an [`OpenedDocument`].
@@ -153,6 +214,20 @@ impl Engine {
                 layers: structure.layers.clone(),
                 signatures: structure.signatures.clone(),
                 layers_switchable,
+                version: model.version().to_owned(),
+                file_size: u64::try_from(source.bytes().len()).unwrap_or(u64::MAX),
+                info: structure.info.clone(),
+                language: structure.language.clone(),
+                tagged: structure.tagged,
+                linearized: model.linearized(),
+                fonts: structure.fonts.clone(),
+                security: model.encryption().map(|encryption| Security {
+                    method: encryption.method,
+                    user_password_required: encryption.user_password_required,
+                    permissions: encryption.permissions,
+                    owner: model.access() == Access::Owner,
+                }),
+                scripts: structure.scripts,
             };
             self.models()?.insert(
                 rendered.id,
@@ -160,6 +235,7 @@ impl Engine {
                     pages: Mutex::new(vec![None; model.page_count()]),
                     document: model,
                     layers_switchable,
+                    owner_unlocked: AtomicBool::new(false),
                 }),
             );
             Ok(opened)
@@ -201,6 +277,53 @@ impl Engine {
                 model.layer_appendix(&visible)?
             };
             Ok(self.render()?.reload(document, Arc::from(appendix)).await?)
+        })
+        .await
+    }
+
+    /// Lifts the restrictions of `document` for this session when `password` is its owner
+    /// password (a2-10a); the password is wiped when the check ends. Returns the document's
+    /// security from then on, `None` for one that is not encrypted. The key check runs on a thread
+    /// of its own: revision 6 hashes the password many times.
+    ///
+    /// # Errors
+    ///
+    /// Returns `WrongPassword` when it is not the owner password, `NotFound` for a document that
+    /// is not open, or `Internal` when a cipher cannot be set up.
+    pub async fn unlock_owner(
+        &self,
+        document: DocumentId,
+        password: Password,
+    ) -> Result<Option<Security>, ApiError> {
+        guard_async(async move {
+            let model = self
+                .models()?
+                .get(&document)
+                .cloned()
+                .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+            let (reply, receiver) = futures_channel::oneshot::channel();
+            let checked = Arc::clone(&model);
+            thread::Builder::new()
+                .name(PARSE_THREAD.to_owned())
+                .spawn(move || {
+                    // The check reads the shared model and changes nothing.
+                    let result = guard(AssertUnwindSafe(move || {
+                        Ok(checked.document.is_owner_password(&password)?)
+                    }));
+                    let _ = reply.send(result);
+                })
+                .map_err(|_| ApiError::internal("cannot start the unlock thread"))?;
+            let owner = receiver
+                .await
+                .map_err(|_canceled| ApiError::internal("the unlock thread stopped"))??;
+            if !owner {
+                return Err(ApiError::new(
+                    ErrorKind::WrongPassword,
+                    MessageKey::WRONG_PASSWORD,
+                ));
+            }
+            model.owner_unlocked.store(true, Ordering::Relaxed);
+            Ok(model.security())
         })
         .await
     }
