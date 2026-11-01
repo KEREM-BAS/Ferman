@@ -1,3 +1,9 @@
+// GENERATED — do not edit; run (cd tools/cldr && node regions.mjs)
+//
+// From CLDR 48 through ICU 78.3 in Node.js 24.22.0, with the regions and
+// format locales of app/lib/l10n/region.dart (tools/cldr/README.md).
+// `node regions.mjs --check` fails while this file is stale.
+
 /// The names of the regions the region setting can show (a11-1b "Region
 /// formats"), and their order in its picker.
 ///
@@ -41,8 +47,8 @@ bool hasRegionName(String code) => _regionNames.containsKey(code.toUpperCase());
 /// [languageCode], the alphabetical order of that language: Turkish puts
 /// Çekya between Brezilya and Danimarka, Arabic sorts أ, إ and ا as one
 /// letter (CLDR 48's collation, `Intl.Collator(language)` in Node.js
-/// 24.22.0, computed with the names; the engine's collator arrives in M2,
-/// ARCHITECTURE.md §11.2). Another language takes the English order, as it
+/// 24.22.0, computed with the names, so the picker sorts without an engine
+/// call). Another language takes the English order, as it
 /// takes the English names. Codes without a name come last, by code.
 List<String> sortRegionCodes(Iterable<String> codes, String languageCode) {
   final ranks = _regionRanks[languageCode] ?? _regionRanks['en']!;

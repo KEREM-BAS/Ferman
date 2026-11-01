@@ -217,6 +217,7 @@ class WindowCommandScope extends ConsumerWidget {
     final platform = ref.watch(shortcutPlatformProvider);
     final handlers = <ShellCommand, VoidCallback>{
       ShellCommand.minimizeWindow: window.minimize,
+      ShellCommand.windowMenu: window.showWindowMenu,
       ShellCommand.closeWindow: window.close,
       ShellCommand.quit: window.close,
     };

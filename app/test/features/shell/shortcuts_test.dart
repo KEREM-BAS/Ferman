@@ -205,7 +205,10 @@ void main() {
 
     test('gives every command a key on every system but the listed ones', () {
       const without = {
-        ShortcutPlatform.mac: {ShellCommand.closeWindow},
+        ShortcutPlatform.mac: {
+          ShellCommand.closeWindow,
+          ShellCommand.windowMenu,
+        },
         ShortcutPlatform.windows: {
           ShellCommand.saveCopy,
           ShellCommand.minimizeWindow,
@@ -214,6 +217,7 @@ void main() {
         ShortcutPlatform.linux: {
           ShellCommand.saveCopy,
           ShellCommand.minimizeWindow,
+          ShellCommand.windowMenu,
         },
       };
       for (final platform in ShortcutPlatform.values) {

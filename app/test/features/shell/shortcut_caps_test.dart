@@ -179,6 +179,7 @@ const Set<ShellCommand> _keysOnly = {
   // The window's own commands: the caption buttons and traffic lights give
   // their names without keys, as native windows do.
   ShellCommand.minimizeWindow,
+  ShellCommand.windowMenu,
   ShellCommand.closeWindow,
   ShellCommand.quit,
 };

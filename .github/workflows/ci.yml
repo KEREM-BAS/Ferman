@@ -66,6 +66,16 @@ jobs:
           (cd tools/tokens && dart run bin/tokens.dart --check)
           (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
           (cd tools/l10n && dart run l10n --check && dart run l10n:review_table --check)
+      - name: Casing tables match UCD 15.0.0 (tools/unicode)
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/unicode/fetch.sh
+          cd tools/unicode
+          dart pub get --enforce-lockfile
+          dart format --output=none --set-exit-if-changed .
+          dart analyze --fatal-infos
+          dart run bin/casing.dart --check
       - name: Cache the PDFium archives
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -96,6 +106,9 @@ jobs:
         run: |
           npm test
           node index.mjs --check
+      - name: Region names match CLDR 48 (Node.js 24.22.0's ICU)
+        working-directory: tools/cldr
+        run: node regions.mjs --check
 
   rust:
     name: Rust (${{ matrix.os }})

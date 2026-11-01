@@ -91,6 +91,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Open |
 | [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
 | [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Open |
+| [Q25](#q25) | Right-to-left lines drawn in an order the bidi algorithm does not give: M3 instead of M2 | the M2 review | Open |
 
 ## Questions
 
@@ -892,4 +893,28 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Needed by:** the M2 review.
 - **Status:** Open
 - **Related:** ROADMAP §6 step 5, BACKLOG B114 and B128, [G115](DESIGN_GAPS.md#g115)
+- **Answer:** none yet
+
+<a id="q25"></a>
+
+### Q25 · Right-to-left lines the bidi algorithm cannot read back, in M3
+
+- **Question:** BACKLOG B112 (four pages of `report-ar` whose extracted text differs from the
+  source) is planned for M2 with search. May it move to M3, with `/ActualText` and the layout of
+  blocks and columns?
+- **Why it matters:** those lines are not drawn in the order UAX #9 gives their text: "30%." is
+  drawn with the sign left of the number and "(IBAN):" out of place, so reading them back with the
+  algorithm, which round-trips every line drawn the standard way, cannot recover the source. A rule
+  for them would guess (a sign next to a number, a bracket before a colon) and could reorder lines
+  that are drawn correctly; `/ActualText` gives the order exactly where a file has it, and M3's
+  layout reads lines in context. Search finds the words of these lines; only a percentage or a
+  bracketed term at their ends comes back in another order.
+- **Options:** (a) M3, with `/ActualText` and the layout, keeping the four pages listed in
+  `crates/ferman-text/tests/corpus.rs` (`KNOWN`), which fails when one starts to match; (b) rules
+  for terminators and brackets next to numbers in M2.
+- **Proposal:** (a).
+- **Meanwhile:** (a).
+- **Needed by:** the M2 review.
+- **Status:** Open
+- **Related:** ROADMAP §6 step 5, BACKLOG B112, `crates/ferman-text/src/extract.rs`
 - **Answer:** none yet
