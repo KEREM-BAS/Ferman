@@ -463,7 +463,9 @@ class _SidebarOutlineState extends ConsumerState<SidebarOutline> {
                         ),
                         Expanded(
                           child: Text(
-                            entry.title,
+                            // The document's own text keeps its direction
+                            // in a right-to-left UI: "4.1 Yıllık artış".
+                            bidiIsolate(entry.title),
                             maxLines: 1,
                             overflow: TextOverflow.ellipsis,
                             style: theme.typography.body.copyWith(color: color),

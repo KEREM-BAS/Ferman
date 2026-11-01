@@ -428,6 +428,20 @@ jobs:
           path: app/test/**/failures/
           if-no-files-found: ignore
           retention-days: 14
+      - name: Regenerate the goldens after a failure (Linux)
+        # Every golden as this runner draws it, for a new screen whose goldens
+        # do not exist yet or a change that moves many: reviewed and committed
+        # like any change, never by CI.
+        if: failure() && runner.os == 'Linux'
+        run: flutter test --update-goldens --tags golden || true
+      - name: Upload the regenerated goldens
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: goldens-linux
+          path: app/test/goldens/goldens/linux/
+          if-no-files-found: ignore
+          retention-days: 14
       - name: Dart licence check
         if: runner.os == 'Linux'
         run: |

@@ -93,12 +93,13 @@ test('the map parses and every board in it exists in the design export', async (
   for (const pair of map.pairs.filter((p) => p.golden)) assert.match(pair.golden, GOLDEN_NAME, pair.id);
 });
 
-test('the map covers the M1 set, and CI renders every board it names', async () => {
+test('the map covers the M1 set, and CI renders every board it names (@m1 and @m2)', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
   const map = await loadMap(MAP_FILE, await known());
   const boards = new Set(map.pairs.map((p) => p.board));
   for (const id of list.sets.m1) assert.ok(boards.has(id), `${id} of @m1 has no pair`);
-  for (const id of boards) assert.ok(list.sets.m1.includes(id), `${id} is not in @m1, which CI renders`);
+  const rendered = new Set([...list.sets.m1, ...list.sets.m2]);
+  for (const id of boards) assert.ok(rendered.has(id), `${id} is not in @m1 or @m2, which CI renders`);
   assert.deepEqual(
     map.pairs.filter((p) => p.notCompared).map((p) => p.board),
     ['a1-2c', 'a1-5', 'a11-1', 'a11-1w', 'a12-2b', 'a12-2d', 'a11-1h'],
@@ -119,13 +120,13 @@ test('the map pairs the boards with the goldens drawn from them', async () => {
   const map = await loadMap(MAP_FILE, await known());
   const golden = Object.fromEntries(map.pairs.map((p) => [p.id, p.golden]));
   assert.equal(golden['a1-1'], 'language_picker_mac_light_en.png');
-  assert.equal(golden['a12-2a'], 'start_mac_light_ar.png');
+  assert.equal(golden['a12-2a'], 'start_recent_mac_light_ar.png');
   assert.equal(golden['a12-2c'], 'settings_language_mac_light_ar.png');
   assert.equal(golden['a11-1w-m1'], 'settings_general_win_light_en.png');
   assert.equal(golden['a11-1w-m1-tr'], 'settings_general_win_light_tr.png');
   assert.equal(golden['a1-2c-m1-ar'], 'welcome_free_mac_light_ar.png');
   assert.equal(golden['f6a'], 'shell_edit_win_light_en.png');
-  assert.equal(golden['a2-1b'], 'shell_view_mac_light_en.png');
+  assert.equal(golden['a2-1b'], 'viewer_mac_light_en.png');
   assert.equal(golden['a3-1d'], 'shell_edit_mac_dark_en.png');
   assert.equal(golden['a12-1tr'], 'shell_edit_mac_light_tr.png');
   assert.equal(golden['a12-1ar'], 'shell_edit_mac_light_ar.png');

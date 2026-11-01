@@ -5,6 +5,7 @@ import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -129,7 +130,10 @@ String goldenFileName(
 /// The app starts on [settings] with the system locale of [language], at
 /// [initialLocation] (the router's start, `/`, when null), and [open] moves
 /// it to the screen (`M1Screen.open` for first run's steps and Settings).
-/// [overrides] replace further providers (the shell's mode).
+/// [overrides] replace further providers (the shell's mode), and [engine]
+/// the fake engine. [muteTickers] false keeps the tickers running for the
+/// capture, for a screen with a modal Dialog, which hides while they are
+/// muted.
 ///
 /// Determinism: animations that end are run to their end; the spinners,
 /// which never end, are brought to the start of a turn (the design
@@ -156,6 +160,8 @@ Future<void> windowGoldenTest({
   String? initialLocation,
   Future<void> Function(WidgetTester tester)? open,
   List<Override> overrides = const [],
+  EngineService? engine,
+  bool muteTickers = true,
 }) {
   final fileName = goldenFileName(screen, chrome, theme, language);
   late ValueNotifier<bool> tickers;
@@ -174,7 +180,9 @@ Future<void> windowGoldenTest({
         final Widget app = UncontrolledProviderScope(
           container: ProviderContainer.test(
             overrides: [
-              engineServiceProvider.overrideWithValue(FakeEngineService()),
+              engineServiceProvider.overrideWithValue(
+                engine ?? FakeEngineService(),
+              ),
               settingsStoreProvider.overrideWithValue(
                 MemorySettingsStore(settings),
               ),
@@ -226,7 +234,11 @@ Future<void> windowGoldenTest({
         }
         await _alignSpinners(tester);
         _expectOnlySpinnersRun(tester);
-        tickers.value = false;
+        // A modal Dialog hides while its tickers are muted, so a screen
+        // that shows one keeps them; it has nothing left to animate.
+        if (muteTickers) {
+          tickers.value = false;
+        }
         await tester.pump();
         expect(
           tester.binding.transientCallbackCount,

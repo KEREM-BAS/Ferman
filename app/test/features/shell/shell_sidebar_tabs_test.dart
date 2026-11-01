@@ -5,6 +5,7 @@ import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_sidebar.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/l10n/format.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
@@ -152,14 +153,17 @@ void main() {
   ) async {
     await pumpDocument(tester, kira);
     await showTab(tester, SidebarTab.outline);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsOneWidget);
+    expect(
+      inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))),
+      findsOneWidget,
+    );
 
-    await tester.tap(inSidebar(find.text('4.2 Gecikme')));
+    await tester.tap(inSidebar(find.text(bidiIsolate('4.2 Gecikme'))));
     await settle(tester);
     expect(currentPage(tester), 2);
     // The last bookmark at or before page 3 is the current section.
     final tinted = find.ancestor(
-      of: find.text('İmzalar'),
+      of: find.text(bidiIsolate('İmzalar')),
       matching: find.byWidgetPredicate(
         (widget) => widget is FermanInteractive && widget.selected,
       ),
@@ -167,15 +171,21 @@ void main() {
     expect(tinted, findsOneWidget);
 
     // ← closes the focused parent, → opens it again.
-    Focus.of(tester.element(inSidebar(find.text('Madde 4 — Kira bedeli'))))
-        .requestFocus();
+    Focus.of(
+      tester.element(
+        inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      ),
+    ).requestFocus();
     await settle(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsOneWidget);
+    expect(
+      inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))),
+      findsOneWidget,
+    );
   });
 
   testWidgets('each document keeps its sidebar tab, folds and scroll, '
@@ -201,12 +211,15 @@ void main() {
         .pixels;
 
     await showTab(tester, SidebarTab.outline);
-    Focus.of(tester.element(inSidebar(find.text('Madde 4 — Kira bedeli'))))
-        .requestFocus();
+    Focus.of(
+      tester.element(
+        inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      ),
+    ).requestFocus();
     await settle(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
 
     // A new document starts on Pages, at the top.
     await show(long);
@@ -221,8 +234,11 @@ void main() {
 
     await show(kira);
     expect(container.read(shellSidebarTabProvider), SidebarTab.outline);
-    expect(inSidebar(find.text('Madde 4 — Kira bedeli')), findsOneWidget);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(
+      inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      findsOneWidget,
+    );
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
 
     await show(long);
     expect(container.read(shellSidebarTabProvider), SidebarTab.pages);
@@ -236,7 +252,7 @@ void main() {
     await settle(tester);
     expect(offset(), scrolled);
     await show(kira);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
   });
 
   testWidgets('Save attachment as… writes the file where the save panel '
