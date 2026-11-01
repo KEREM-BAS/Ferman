@@ -284,6 +284,92 @@ abstract class _$ShellPanelPreference extends $Notifier<ShellSide> {
   }
 }
 
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+
+@ProviderFor(ShellPaneWidths)
+final shellPaneWidthsProvider = ShellPaneWidthsProvider._();
+
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+final class ShellPaneWidthsProvider
+    extends
+        $NotifierProvider<ShellPaneWidths, ({double panel, double sidebar})> {
+  /// The widths the user dragged the sidebar and the right panel to (B094),
+  /// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+  /// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+  /// draws the limits (G21). Not stored: a new window starts at the
+  /// designed widths.
+  ShellPaneWidthsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shellPaneWidthsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shellPaneWidthsHash();
+
+  @$internal
+  @override
+  ShellPaneWidths create() => ShellPaneWidths();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(({double panel, double sidebar}) value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<({double panel, double sidebar})>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$shellPaneWidthsHash() => r'bcbb4ae6d6a367b133341937fa9c74919aab10fe';
+
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+
+abstract class _$ShellPaneWidths
+    extends $Notifier<({double panel, double sidebar})> {
+  ({double panel, double sidebar}) build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              ({double panel, double sidebar}),
+              ({double panel, double sidebar})
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                ({double panel, double sidebar}),
+                ({double panel, double sidebar})
+              >,
+              ({double panel, double sidebar}),
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
 /// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]

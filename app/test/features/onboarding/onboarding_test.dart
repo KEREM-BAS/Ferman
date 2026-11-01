@@ -162,6 +162,14 @@ void main() {
       await tester.enterText(find.byType(EditableText), 'klingon');
       await tester.pumpAndSettle();
       expect(find.text('No language matches “klingon”.'), findsOneWidget);
+      // a2-3m's empty state (G20, B088).
+      expect(find.byType(EmptyState), findsOneWidget);
+      expect(
+        find.text(
+          'Search by the language’s own name, its English name or its code.',
+        ),
+        findsOneWidget,
+      );
     });
 
     testWidgets('arrow keys move through the list; Enter continues', (

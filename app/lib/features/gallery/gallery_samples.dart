@@ -513,28 +513,28 @@ abstract final class GallerySamples {
   // Buttons (the "Interactive states" sheet and the UI kit).
 
   /// The secondary button of the state sheet.
-  static const String cancel = 'Cancel';
+  static const String cancel = '\u2066Cancel\u2069';
 
   /// The danger button of the state sheet.
-  static const String apply = 'Apply';
+  static const String apply = '\u2066Apply\u2069';
 
   /// The ghost button of the signature pad.
-  static const String clear = 'Clear';
+  static const String clear = '\u2066Clear\u2069';
 
   /// The full-width danger button of the Protect panel.
-  static const String applyRedactions = 'Apply redactions';
+  static const String applyRedactions = '\u2066Apply redactions\u2069';
 
   /// The icon button of the state sheet.
-  static const String rotatePage = 'Rotate page';
+  static const String rotatePage = '\u2066Rotate page\u2069';
 
   /// The toggled icon button of the state sheet.
-  static const String bold = 'Bold';
+  static const String bold = '\u2066Bold\u2069';
 
   /// The text style buttons of the Text panel.
-  static const String italic = 'Italic';
+  static const String italic = '\u2066Italic\u2069';
 
   /// The "+N" overflow button of the tab strip.
-  static const String moreDocuments = '+3';
+  static const String moreDocuments = '\u2066+3\u2069';
 
   // Badges (the UI kit's panels).
 
@@ -552,304 +552,316 @@ abstract final class GallerySamples {
 
   /// The info box.
   static const String bannerInfo =
-      'You can read while Ferman finishes. Search, thumbnails and editing '
-      'turn on when all 2,400 pages are indexed.';
+      '\u2066You can read while Ferman finishes. Search, thumbnails and '
+      'editing '
+      'turn on when all 2,400 pages are indexed.\u2069';
 
   /// The success box title.
-  static const String bannerSuccessTitle = 'Valid PDF/A-2b';
+  static const String bannerSuccessTitle = '\u2066Valid PDF/A-2b\u2069';
 
   /// The success box text.
   static const String bannerSuccess =
-      'Fonts embedded, colours defined, no encryption, no scripts.';
+      '\u2066Fonts embedded, colours defined, no encryption, no scripts.\u2069';
 
   /// The warning box.
   static const String bannerWarning =
-      'Typing ‘ğ’ here uses a similar font for that character. To keep one '
-      'font, pick an installed font with full Turkish support.';
+      '\u2066Typing ‘ğ’ here uses a similar font for that character. To keep '
+      'one '
+      'font, pick an installed font with full Turkish support.\u2069';
 
   /// The danger box title.
-  static const String bannerDangerTitle = '2 redactions not applied';
+  static const String bannerDangerTitle =
+      '\u20662 redactions not applied\u2069';
 
   /// The danger box text.
   static const String bannerDanger =
-      'Marked text stays in the file until you apply redactions.';
+      '\u2066Marked text stays in the file until you apply redactions.\u2069';
 
   /// The neutral box.
   static const String bannerNeutral =
-      'Partial fonts include only the characters already in the file.';
+      '\u2066Partial fonts include only the characters already in the '
+      'file.\u2069';
 
   /// The info bar title.
-  static const String bannerBarTitle = 'This PDF is a fillable form.';
+  static const String bannerBarTitle =
+      '\u2066This PDF is a fillable form.\u2069';
 
   /// The info bar text.
   static const String bannerBar =
-      '20 fields, 15 required. Tab moves to the next field.';
+      '\u206620 fields, 15 required. Tab moves to the next field.\u2069';
 
   /// The warning bar title.
   static const String bannerBarWarningTitle =
-      '“Kira sözleşmesi.pdf” changed on disk.';
+      '\u2066“Kira sözleşmesi.pdf” changed on disk.\u2069';
 
   /// The warning bar text.
   static const String bannerBarWarning =
-      'It was modified at 14:41, probably by iCloud Drive. You have 3 '
-      'unsaved edits.';
+      '\u2066It was modified at 14:41, probably by iCloud Drive. You have 3 '
+      'unsaved edits.\u2069';
 
   /// The warning bar action.
-  static const String reload = 'Reload';
+  static const String reload = '\u2066Reload\u2069';
 
   /// The dismiss button.
-  static const String dismiss = 'Dismiss';
+  static const String dismiss = '\u2066Dismiss\u2069';
 
   // Progress (07 Convert, 11b App).
 
   /// The progress label.
-  static const String recognizingText = 'Recognizing text';
+  static const String recognizingText = '\u2066Recognizing text\u2069';
 
   /// The running task's detail.
   static const String taskRunningDetail =
-      'Page 14 of 64 · about 2 minutes left';
+      '\u2066Page 14 of 64 · about 2 minutes left\u2069';
 
   /// The paused task's title.
-  static const String taskPausedTitle = 'Arşive hazırla · 42 files';
+  static const String taskPausedTitle = '\u2066Arşive hazırla · 42 files\u2069';
 
   /// The paused task's detail.
-  static const String taskPausedDetail = 'Paused at file 18';
+  static const String taskPausedDetail = '\u2066Paused at file 18\u2069';
 
   /// The finished task's title.
-  static const String taskDoneTitle = 'Compressed İmar planı açıklama raporu';
+  static const String taskDoneTitle =
+      '\u2066Compressed İmar planı açıklama raporu\u2069';
 
   /// The finished task's detail.
-  static const String taskDoneDetail = '24,6 MB → 6,9 MB';
+  static const String taskDoneDetail = '\u206624,6 MB → 6,9 MB\u2069';
 
   /// The failed task's title.
-  static const String taskErrorTitle = 'Couldn’t convert Tarama_0042.pdf';
+  static const String taskErrorTitle =
+      '\u2066Couldn’t convert Tarama_0042.pdf\u2069';
 
   /// The failed task's detail.
-  static const String taskErrorDetail = 'The file is cut off after 18 KB.';
+  static const String taskErrorDetail =
+      '\u2066The file is cut off after 18 KB.\u2069';
 
   /// The task's Pause button.
-  static const String pause = 'Pause';
+  static const String pause = '\u2066Pause\u2069';
 
   /// The task's Resume button.
-  static const String resume = 'Resume';
+  static const String resume = '\u2066Resume\u2069';
 
   /// The finished task's action.
-  static const String showInFolder = 'Show in folder';
+  static const String showInFolder = '\u2066Show in folder\u2069';
 
   // Toasts (the UI kit).
 
   /// The neutral toast.
-  static const String toastSavedTitle = 'Saved';
+  static const String toastSavedTitle = '\u2066Saved\u2069';
 
   /// The neutral toast's message.
-  static const String toastSavedMessage = 'Kira sözleşmesi.pdf · 2.4 MB';
+  static const String toastSavedMessage =
+      '\u2066Kira sözleşmesi.pdf · 2.4 MB\u2069';
 
   /// The success toast.
-  static const String toastSignatureTitle = 'Signature added';
+  static const String toastSignatureTitle = '\u2066Signature added\u2069';
 
   /// The success toast's message.
   static const String toastSignatureMessage =
-      'Saved on this device for next time.';
+      '\u2066Saved on this device for next time.\u2069';
 
   /// The warning toast.
-  static const String toastPageTitle = 'A PDF needs at least one page';
+  static const String toastPageTitle =
+      '\u2066A PDF needs at least one page\u2069';
 
   /// The warning toast's message.
   static const String toastPageMessage =
-      'Keep one page or close the file instead.';
+      '\u2066Keep one page or close the file instead.\u2069';
 
   /// The danger toast.
-  static const String toastErrorTitle = 'Couldn’t save';
+  static const String toastErrorTitle = '\u2066Couldn’t save\u2069';
 
   /// The danger toast's message.
   static const String toastErrorMessage =
-      'The disk is full — free some space or save somewhere else.';
+      '\u2066The disk is full — free some space or save somewhere else.\u2069';
 
   /// The toast with an action.
-  static const String toastDeletedTitle = '3 pages deleted';
+  static const String toastDeletedTitle = '\u20663 pages deleted\u2069';
 
   // Fields (the state sheet and the UI kit's panels).
 
   /// The state sheet's page field.
-  static const String page = 'Page';
+  static const String page = '\u2066Page\u2069';
 
   /// The page field's value.
-  static const String pageValue = '12';
+  static const String pageValue = '\u206612\u2069';
 
   /// The page field's value out of range.
-  static const String pageValueError = '52';
+  static const String pageValueError = '\u206652\u2069';
 
   /// The page field's error.
-  static const String pageError = 'Enter 1–48.';
+  static const String pageError = '\u2066Enter 1–48.\u2069';
 
   /// The page field's hint.
-  static const String pageHint = '48 pages';
+  static const String pageHint = '\u206648 pages\u2069';
 
   /// A field with a unit.
-  static const String spaceAfter = 'Space after';
+  static const String spaceAfter = '\u2066Space after\u2069';
 
   /// The field with a unit's value.
-  static const String spaceAfterValue = '6';
+  static const String spaceAfterValue = '\u20666\u2069';
 
   /// The line spacing stepper.
-  static const String lineSpacing = 'Line spacing';
+  static const String lineSpacing = '\u2066Line spacing\u2069';
 
   /// The checkbox of the Convert panel.
-  static const String ocrFirst = 'Recognize text first (OCR)';
+  static const String ocrFirst = '\u2066Recognize text first (OCR)\u2069';
 
   // Colour picker (ColorPicker.jsx).
 
   /// The colour picker's label.
-  static const String color = 'Color';
+  static const String color = '\u2066Color\u2069';
 
   /// The no-colour swatch.
-  static const String noColor = 'No color';
+  static const String noColor = '\u2066No color\u2069';
 
   /// The document colours heading.
-  static const String inThisDocument = 'In this document';
+  static const String inThisDocument = '\u2066In this document\u2069';
 
   /// The standard colours heading.
-  static const String standardColors = 'Standard';
+  static const String standardColors = '\u2066Standard\u2069';
 
   /// The hex field label.
-  static const String hex = 'Hex';
+  static const String hex = '\u2066Hex\u2069';
 
   /// The hex field's name.
-  static const String hexColor = 'Hex color';
+  static const String hexColor = '\u2066Hex color\u2069';
 
   /// The popover's name.
-  static const String chooseColor = 'Choose color';
+  static const String chooseColor = '\u2066Choose color\u2069';
 
   /// The none option.
-  static const String none = 'None';
+  static const String none = '\u2066None\u2069';
 
   // Font picker (FontPicker.jsx, the UI kit's document).
 
   /// The font picker's label.
-  static const String font = 'Font';
+  static const String font = '\u2066Font\u2069';
 
   /// The document's fonts and the device's.
-  static const String plexSerif = 'IBM Plex Serif';
+  static const String plexSerif = '\u2066IBM Plex Serif\u2069';
 
   /// The document's missing font.
-  static const String garamond = 'Garamond Premier Pro';
+  static const String garamond = '\u2066Garamond Premier Pro\u2069';
 
   /// What Ferman shows instead of the missing font.
-  static const String garamondSubstitute = 'EB Garamond';
+  static const String garamondSubstitute = '\u2066EB Garamond\u2069';
 
   /// A device font.
-  static const String plexSans = 'IBM Plex Sans';
+  static const String plexSans = '\u2066IBM Plex Sans\u2069';
 
   /// A device font.
-  static const String georgia = 'Georgia';
+  static const String georgia = '\u2066Georgia\u2069';
 
   /// A device font.
-  static const String timesNewRoman = 'Times New Roman';
+  static const String timesNewRoman = '\u2066Times New Roman\u2069';
 
   /// The device group heading.
-  static const String onThisDevice = 'On this device';
+  static const String onThisDevice = '\u2066On this device\u2069';
 
   /// The search field.
-  static const String searchFonts = 'Search fonts';
+  static const String searchFonts = '\u2066Search fonts\u2069';
 
   /// The list's name.
-  static const String fonts = 'Fonts';
+  static const String fonts = '\u2066Fonts\u2069';
 
   /// The missing font's badge.
-  static const String notInstalled = 'Not installed';
+  static const String notInstalled = '\u2066Not installed\u2069';
 
   /// The missing-font note.
   static const String garamondMissing =
-      'Garamond Premier Pro isn’t installed. Ferman is showing EB Garamond '
-      'instead.';
+      '\u2066Garamond Premier Pro isn’t installed. Ferman is showing EB '
+      'Garamond '
+      'instead.\u2069';
 
   /// The glyph warning.
   static const String glyphWarning =
-      'This font has no ‘ğ’. Ferman will use a similar font for this '
-      'character.';
+      '\u2066This font has no ‘ğ’. Ferman will use a similar font for this '
+      'character.\u2069';
 
   /// The empty search, for a fixed query (see
   /// [GalleryLabels.fontEmptySearchNote]).
-  static const String noFontsMatch = 'No fonts match “Garamond”.';
+  static const String noFontsMatch = '\u2066No fonts match “Garamond”.\u2069';
 
   // Navigation (the UI kit).
 
   /// The alignment segments.
-  static const String alignLeft = 'Align left';
+  static const String alignLeft = '\u2066Align left\u2069';
 
   /// The alignment segments.
-  static const String alignCenter = 'Center';
+  static const String alignCenter = '\u2066Center\u2069';
 
   /// The alignment segments.
-  static const String alignRight = 'Align right';
+  static const String alignRight = '\u2066Align right\u2069';
 
   /// The alignment segments.
-  static const String justify = 'Justify';
+  static const String justify = '\u2066Justify\u2069';
 
   /// The alignment group.
-  static const String alignment = 'Alignment';
+  static const String alignment = '\u2066Alignment\u2069';
 
   /// A toolbar group.
-  static const String textStyle = 'Text style';
+  static const String textStyle = '\u2066Text style\u2069';
 
   /// The flags of an annotation tool.
-  static const String colored = 'colored';
+  static const String colored = '\u2066colored\u2069';
 
   /// The flags of an annotation tool.
-  static const String hasMenu = 'hasMenu';
+  static const String hasMenu = '\u2066hasMenu\u2069';
 
   // Command palette (App.jsx, CommandPalette.jsx).
 
   /// The palette's field.
-  static const String paletteSearch = 'Search commands, pages and text';
+  static const String paletteSearch =
+      '\u2066Search commands, pages and text\u2069';
 
   /// The palette's name.
-  static const String commandPalette = 'Command palette';
+  static const String commandPalette = '\u2066Command palette\u2069';
 
   /// The suggested group.
-  static const String suggested = 'Suggested';
+  static const String suggested = '\u2066Suggested\u2069';
 
   /// The modes group.
-  static const String modes = 'Modes';
+  static const String modes = '\u2066Modes\u2069';
 
   /// The file group.
-  static const String file = 'File';
+  static const String file = '\u2066File\u2069';
 
   /// A command.
-  static const String findAndReplace = 'Find and replace';
+  static const String findAndReplace = '\u2066Find and replace\u2069';
 
   /// A command's keywords.
-  static const String findAndReplaceKeywords = 'bul değiştir';
+  static const String findAndReplaceKeywords = '\u2066bul değiştir\u2069';
 
   /// A command.
-  static const String addSignature = 'Add signature';
+  static const String addSignature = '\u2066Add signature\u2069';
 
   /// A command's keywords.
-  static const String addSignatureKeywords = 'imza';
+  static const String addSignatureKeywords = '\u2066imza\u2069';
 
   /// A command.
-  static const String redactText = 'Redact text and images';
+  static const String redactText = '\u2066Redact text and images\u2069';
 
   /// A command's keywords.
-  static const String redactKeywords = 'karart gizle';
+  static const String redactKeywords = '\u2066karart gizle\u2069';
 
   /// A command's hint: the mode it belongs to.
-  static const String hintEdit = 'Edit';
+  static const String hintEdit = '\u2066Edit\u2069';
 
   /// A command's hint.
-  static const String hintConvert = 'Convert';
+  static const String hintConvert = '\u2066Convert\u2069';
 
   /// A command's hint.
-  static const String hintSign = 'Fill & Sign';
+  static const String hintSign = '\u2066Fill & Sign\u2069';
 
   /// A command's hint.
-  static const String hintProtect = 'Protect';
+  static const String hintProtect = '\u2066Protect\u2069';
 
   /// "Go to" and a mode.
   static String goTo(String mode) => 'Go to $mode';
 
   /// The query that matches nothing.
-  static const String paletteNoMatchQuery = 'grafik';
+  static const String paletteNoMatchQuery = '\u2066grafik\u2069';
 
   /// The empty list's text.
   static String paletteEmpty(String query) =>
@@ -866,97 +878,101 @@ abstract final class GallerySamples {
   static const List<String> previousMatchKeys = ['⇧', '↵'];
 
   /// The footer hints.
-  static const String move = 'Move';
+  static const String move = '\u2066Move\u2069';
 
   /// The footer hints.
-  static const String run = 'Run';
+  static const String run = '\u2066Run\u2069';
 
   /// The footer hints.
-  static const String close = 'Close';
+  static const String close = '\u2066Close\u2069';
 
   /// The Esc key cap.
-  static const String esc = 'Esc';
+  static const String esc = '\u2066Esc\u2069';
 
   // Dialogs (01 First run, 08 Protect, 11b App, 06 Organize).
 
   /// The save dialog.
   static const String saveChangesTitle =
-      'Save changes to “Kira sözleşmesi.pdf”?';
+      '\u2066Save changes to “Kira sözleşmesi.pdf”?\u2069';
 
   /// The save dialog.
   static const String saveChangesDescription =
-      'If you don’t save, your 3 edits from this session will be lost.';
+      '\u2066If you don’t save, your 3 edits from this session will be '
+      'lost.\u2069';
 
   /// The save dialog.
-  static const String dontSave = 'Don’t save';
+  static const String dontSave = '\u2066Don’t save\u2069';
 
   /// The disk-full dialog.
-  static const String diskFullTitle = 'Couldn’t save “Kira sözleşmesi.pdf”';
+  static const String diskFullTitle =
+      '\u2066Couldn’t save “Kira sözleşmesi.pdf”\u2069';
 
   /// The disk-full dialog.
   static const String diskFullDescription =
-      'The disk is full: 12 MB free, the file needs about 300 KB plus room to '
-      'write safely. Free some space or save somewhere else.';
+      '\u2066The disk is full: 12 MB free, the file needs about 300 KB plus '
+      'room to '
+      'write safely. Free some space or save somewhere else.\u2069';
 
   /// The disk-full dialog.
-  static const String saveAs = 'Save as…';
+  static const String saveAs = '\u2066Save as…\u2069';
 
   /// The redaction dialog.
-  static const String applyRedactionsTitle = 'Apply 4 redactions?';
+  static const String applyRedactionsTitle = '\u2066Apply 4 redactions?\u2069';
 
   /// The redaction dialog.
   static const String applyRedactionsDescription =
-      'The marked text and the area are removed from the file for good, '
+      '\u2066The marked text and the area are removed from the file for good, '
       'including from copy, search and hidden layers. You can’t undo this '
-      'after saving.';
+      'after saving.\u2069';
 
   /// The large dialog.
-  static const String pageLabelsTitle = 'Page labels';
+  static const String pageLabelsTitle = '\u2066Page labels\u2069';
 
   /// The large dialog.
   static const String pageLabelsDescription =
-      'Choose how pages are numbered in Ferman, in other PDF apps and when '
-      'printing.';
+      '\u2066Choose how pages are numbered in Ferman, in other PDF apps and '
+      'when '
+      'printing.\u2069';
 
   // Menu (OrganizeGrid.jsx).
 
   /// The menu's name.
-  static const String pageMenu = 'Page';
+  static const String pageMenu = '\u2066Page\u2069';
 
   /// A menu item.
-  static const String extractAsNew = 'Extract as new PDF…';
+  static const String extractAsNew = '\u2066Extract as new PDF…\u2069';
 
   /// A menu item.
-  static const String deletePage = 'Delete page';
+  static const String deletePage = '\u2066Delete page\u2069';
 
   /// A menu item.
-  static const String insertFromFile = 'Insert from file…';
+  static const String insertFromFile = '\u2066Insert from file…\u2069';
 
   // Panel section (the UI kit's Properties panel).
 
   /// A section title.
-  static const String sectionText = 'Text';
+  static const String sectionText = '\u2066Text\u2069';
 
   /// A section title.
-  static const String sectionParagraph = 'Paragraph';
+  static const String sectionParagraph = '\u2066Paragraph\u2069';
 
   /// A section title.
-  static const String sectionFile = 'File';
+  static const String sectionFile = '\u2066File\u2069';
 
   /// A row of the File section.
-  static const String pages = 'Pages';
+  static const String pages = '\u2066Pages\u2069';
 
   /// A row of the File section.
-  static const String pagesValue = '3';
+  static const String pagesValue = '\u20663\u2069';
 
   /// A row of the File section.
-  static const String size = 'Size';
+  static const String size = '\u2066Size\u2069';
 
   /// A row of the File section.
-  static const String sizeValue = '2.4 MB';
+  static const String sizeValue = '\u20662.4 MB\u2069';
 
   /// The section action.
-  static const String resetTextStyle = 'Reset text style';
+  static const String resetTextStyle = '\u2066Reset text style\u2069';
 
   // Pages.
 
@@ -964,31 +980,32 @@ abstract final class GallerySamples {
   static String pageNumber(int page) => 'Page $page';
 
   /// A roman page label.
-  static const String romanLabel = 'ii';
+  static const String romanLabel = '\u2066ii\u2069';
 
   /// The marker's tooltip.
-  static const String editedSinceOpened = 'Edited since opened';
+  static const String editedSinceOpened = '\u2066Edited since opened\u2069';
 
   /// The badges' tooltips (FmSidebar).
-  static const String badgeComments = '2 comments';
+  static const String badgeComments = '\u20662 comments\u2069';
 
   /// The badges' tooltips.
-  static const String badgeFields = 'Has form fields';
+  static const String badgeFields = '\u2066Has form fields\u2069';
 
   /// The badges' tooltips.
-  static const String badgeSignature = 'Has a signature';
+  static const String badgeSignature = '\u2066Has a signature\u2069';
 
   /// The badges' tooltips.
   static const String badgeWarnings =
-      '1 warning · Madde 6 uses a font without ‘ğ’';
+      '\u20661 warning · Madde 6 uses a font without ‘ğ’\u2069';
 
   /// The badge legend (FmSidebar).
-  static const String legendTitle = 'Page badges';
+  static const String legendTitle = '\u2066Page badges\u2069';
 
   /// The badge legend.
   static const String legendFootnote =
-      'Screen readers hear badges in the page name, e.g. “Page 1, edited, 2 '
-      'comments, 1 warning”.';
+      '\u2066Screen readers hear badges in the page name, e.g. “Page 1, '
+      'edited, 2 '
+      'comments, 1 warning”.\u2069';
 
   /// The badge legend's rows.
   static const List<(String, String)> legendEntries = [
@@ -1002,45 +1019,48 @@ abstract final class GallerySamples {
   // Page text (the UI kit's lease).
 
   /// A selected run.
-  static const String runSelection = 'Kiraya veren: Mert Kaya';
+  static const String runSelection = '\u2066Kiraya veren: Mert Kaya\u2069';
 
   /// An edited run.
-  static const String runEdited = 'her ayın onuncu gününe kadar';
+  static const String runEdited = '\u2066her ayın onuncu gününe kadar\u2069';
 
   /// A run with a missing glyph.
-  static const String runMissingGlyph = 'ağustos';
+  static const String runMissingGlyph = '\u2066ağustos\u2069';
 
   /// The missing character.
-  static const String missingChar = 'ğ';
+  static const String missingChar = '\u2066ğ\u2069';
 
   /// A search match.
-  static const String runSearch = 'kira bedeli';
+  static const String runSearch = '\u2066kira bedeli\u2069';
 
   /// A redacted run.
-  static const String runRedact = 'TR12 0006 4000 0011 2345 6789 01';
+  static const String runRedact =
+      '\u2066TR12 0006 4000 0011 2345 6789 01\u2069';
 
   /// A highlighted run.
-  static const String runHighlight = 'her ayın beşinci gününe kadar';
+  static const String runHighlight =
+      '\u2066her ayın beşinci gününe kadar\u2069';
 
   /// The edited mark's tooltip.
-  static const String edited = 'Edited';
+  static const String edited = '\u2066Edited\u2069';
 
   /// The pending redaction's tooltip.
   static const String markedForRedaction =
-      'Marked for redaction. Apply redactions to remove it permanently.';
+      '\u2066Marked for redaction. Apply redactions to remove it '
+      'permanently.\u2069';
 
   /// The applied redaction's tooltip.
-  static const String redacted = 'Redacted';
+  static const String redacted = '\u2066Redacted\u2069';
 
   /// A paragraph of the lease.
   static const String paragraph =
-      'Kira süresi 01.11.2026 tarihinde başlar ve bir yıl sürer.';
+      '\u2066Kira süresi 01.11.2026 tarihinde başlar ve bir yıl sürer.\u2069';
 
   /// The caret sample, before the caret.
-  static const String caretBefore = 'Kira süresi ';
+  static const String caretBefore = '\u2066Kira süresi \u2069';
 
   /// The caret sample, after the caret.
-  static const String caretAfter = '01.11.2026 tarihinde başlar.';
+  static const String caretAfter = '\u206601.11.2026 tarihinde başlar.\u2069';
 
   /// The edit box label: the font and size.
   static String editMeta(String font, String size) => '$font · $size';
@@ -1048,71 +1068,72 @@ abstract final class GallerySamples {
   // Search bar (SearchReplaceBar.jsx, App.jsx).
 
   /// The bar's name.
-  static const String findAndReplaceRegion = 'Find and replace';
+  static const String findAndReplaceRegion = '\u2066Find and replace\u2069';
 
   /// The find field.
-  static const String find = 'Find';
+  static const String find = '\u2066Find\u2069';
 
   /// The replace field.
-  static const String replaceWith = 'Replace with';
+  static const String replaceWith = '\u2066Replace with\u2069';
 
   /// An option.
-  static const String matchCase = 'Match case';
+  static const String matchCase = '\u2066Match case\u2069';
 
   /// An option.
-  static const String wholeWord = 'Whole word';
+  static const String wholeWord = '\u2066Whole word\u2069';
 
   /// An option.
-  static const String regex = 'Regular expression';
+  static const String regex = '\u2066Regular expression\u2069';
 
   /// The disclosure.
-  static const String showReplace = 'Show replace';
+  static const String showReplace = '\u2066Show replace\u2069';
 
   /// The disclosure.
-  static const String hideReplace = 'Hide replace';
+  static const String hideReplace = '\u2066Hide replace\u2069';
 
   /// A button.
-  static const String previousMatch = 'Previous match';
+  static const String previousMatch = '\u2066Previous match\u2069';
 
   /// A button.
-  static const String nextMatch = 'Next match';
+  static const String nextMatch = '\u2066Next match\u2069';
 
   /// A button.
-  static const String replaceAll = 'Replace all';
+  static const String replaceAll = '\u2066Replace all\u2069';
 
   /// The empty count.
-  static const String noResults = 'No results';
+  static const String noResults = '\u2066No results\u2069';
 
   /// "N of M".
   static String count(String current, String total) => '$current of $total';
 
   /// The query.
-  static const String query = 'kira';
+  static const String query = '\u2066kira\u2069';
 
   /// The replacement.
-  static const String replacement = 'Kira';
+  static const String replacement = '\u2066Kira\u2069';
 
   /// The query without matches.
-  static const String queryNone = 'depozito2';
+  static const String queryNone = '\u2066depozito2\u2069';
 
   /// The query with the font notice.
-  static const String queryNotice = 'ağustos';
+  static const String queryNotice = '\u2066ağustos\u2069';
 
   /// The font notice.
   static const String searchNotice =
-      '1 match uses a font without ‘ğ’. Ferman will use a similar font for '
-      'that character.';
+      '\u20661 match uses a font without ‘ğ’. Ferman will use a similar font '
+      'for '
+      'that character.\u2069';
 
   // Annotations (FmComments, 04 Comment).
 
   /// A person.
-  static const String ayse = 'Ayşe Yılmaz';
+  static const String ayse = '\u2066Ayşe Yılmaz\u2069';
 
   /// A person.
-  static const String mert = 'Mert Kaya';
+  static const String mert = '\u2066Mert Kaya\u2069';
 
   /// A person.
-  static const String deniz = 'Av. Deniz Aksoy';
+  static const String deniz = '\u2066Av. Deniz Aksoy\u2069';
 
   /// The people of the mention list.
   static const List<({String initials, String name})> people = [
@@ -1122,78 +1143,81 @@ abstract final class GallerySamples {
   ];
 
   /// The mention list heading.
-  static const String peopleInDocument = 'People in this document';
+  static const String peopleInDocument = '\u2066People in this document\u2069';
 
   /// The mention list's name.
-  static const String mentionSomeone = 'Mention someone';
+  static const String mentionSomeone = '\u2066Mention someone\u2069';
 
   /// A note.
-  static const String noteTime = '09:58';
+  static const String noteTime = '\u206609:58\u2069';
 
   /// A note.
   static const String noteText =
-      'Artış oranı TÜFE’ye bağlı kalsın, sabit oran istemiyorum.';
+      '\u2066Artış oranı TÜFE’ye bağlı kalsın, sabit oran istemiyorum.\u2069';
 
   /// A reply.
-  static const String replyTime = '10:40';
+  static const String replyTime = '\u206610:40\u2069';
 
   /// A reply.
-  static const String replyText = 'Olur, 10’u yazalım.';
+  static const String replyText = '\u2066Olur, 10’u yazalım.\u2069';
 
   /// The note's name.
   static String noteFrom(String author) => 'Note from $author';
 
   /// The note's Close button.
-  static const String closeNote = 'Close note';
+  static const String closeNote = '\u2066Close note\u2069';
 
   /// The reply field.
-  static const String reply = 'Reply';
+  static const String reply = '\u2066Reply\u2069';
 
   /// The comment card.
-  static const String commentTime = '10:12';
+  static const String commentTime = '\u206610:12\u2069';
 
   /// The comment card.
-  static const String commentQuote = '“her ayın beşinci gününe kadar”';
+  static const String commentQuote =
+      '\u2066“her ayın beşinci gününe kadar”\u2069';
 
   /// The comment card.
   static const String commentText =
-      'Ödeme günü beşi yerine onu olabilir mi? Maaşım ayın yedisinde yatıyor.';
+      '\u2066Ödeme günü beşi yerine onu olabilir mi? Maaşım ayın yedisinde '
+      'yatıyor.\u2069';
 
   /// The comment card's second reply.
-  static const String replyTime2 = '11:02';
+  static const String replyTime2 = '\u206611:02\u2069';
 
   /// The comment card's second reply.
   static const String replyText2 =
-      '@Mert Kaya maddeyi buna göre güncelliyorum.';
+      '\u2066@Mert Kaya maddeyi buna göre güncelliyorum.\u2069';
 
   /// The resolved card.
-  static const String resolvedQuote = '“TR12 0006 4000 0011 2345 6789 01”';
+  static const String resolvedQuote =
+      '\u2066“TR12 0006 4000 0011 2345 6789 01”\u2069';
 
   /// The resolved card.
-  static const String resolvedText = 'IBAN’ı bankadan teyit ettim.';
+  static const String resolvedText = '\u2066IBAN’ı bankadan teyit ettim.\u2069';
 
   /// The resolved card.
-  static const String yesterday = 'Yesterday';
+  static const String yesterday = '\u2066Yesterday\u2069';
 
   /// The resolved card.
-  static const String resolvedBy = 'Resolved by Mert Kaya · 11:06';
+  static const String resolvedBy = '\u2066Resolved by Mert Kaya · 11:06\u2069';
 
   /// The cards' replies count.
-  static const String twoReplies = '2 replies';
+  static const String twoReplies = '\u20662 replies\u2069';
 
   /// The card's name.
   static const String commentLabel =
-      'Ayşe Yılmaz, highlight on page 1, 2 replies';
+      '\u2066Ayşe Yılmaz, highlight on page 1, 2 replies\u2069';
 
   /// The resolved card's name.
   static const String resolvedLabel =
-      'Ayşe Yılmaz, underline on page 1, resolved';
+      '\u2066Ayşe Yılmaz, underline on page 1, resolved\u2069';
 
   /// The card's buttons.
-  static const String resolve = 'Resolve';
+  static const String resolve = '\u2066Resolve\u2069';
 
   /// The card's buttons.
-  static const String reopen = 'Reopen';
+  static const String reopen = '\u2066Reopen\u2069';
 
   /// The stamps of 04 Comment, per tone.
   static const Map<String, String> stamps = {
@@ -1204,112 +1228,116 @@ abstract final class GallerySamples {
   };
 
   /// The Turkish stamp, uppercased with Turkish rules ("GİZLİ").
-  static const String stampTurkish = 'Gizli';
+  static const String stampTurkish = '\u2066Gizli\u2069';
 
   /// The stamp with a meta line.
-  static const String stampApproved = 'Onaylandı';
+  static const String stampApproved = '\u2066Onaylandı\u2069';
 
   /// The stamp's meta line.
-  static const String stampMeta = '13.10.2026 · Av. D. Aksoy';
+  static const String stampMeta = '\u206613.10.2026 · Av. D. Aksoy\u2069';
 
   // Form fields (05a Fill, DocForm).
 
   /// The text field.
-  static const String idNumber = 'T.C. Kimlik No';
+  static const String idNumber = '\u2066T.C. Kimlik No\u2069';
 
   /// The text field.
-  static const String idNumberValue = '41239876510';
+  static const String idNumberValue = '\u206641239876510\u2069';
 
   /// The text field.
-  static const String idNumberShort = '4123987651';
+  static const String idNumberShort = '\u20664123987651\u2069';
 
   /// The text field.
-  static const String idNumberError = 'Enter all 11 digits.';
+  static const String idNumberError = '\u2066Enter all 11 digits.\u2069';
 
   /// The multiline field.
-  static const String notes = 'Açıklama';
+  static const String notes = '\u2066Açıklama\u2069';
 
   /// The multiline field.
-  static const String notesValue = 'Teslim tutanağı imzadan önce eklensin.';
+  static const String notesValue =
+      '\u2066Teslim tutanağı imzadan önce eklensin.\u2069';
 
   /// The date field.
-  static const String date = 'Tarih';
+  static const String date = '\u2066Tarih\u2069';
 
   /// The date field.
-  static const String dateValue = '01.11.2026';
+  static const String dateValue = '\u206601.11.2026\u2069';
 
   /// The date field.
-  static const String dateInvalid = '31.02.2026';
+  static const String dateInvalid = '\u206631.02.2026\u2069';
 
   /// The date field.
-  static const String dateError = 'February has 28 days in 2026.';
+  static const String dateError = '\u2066February has 28 days in 2026.\u2069';
 
   /// The dropdown.
-  static const String province = 'İl';
+  static const String province = '\u2066İl\u2069';
 
   /// The dropdown.
-  static const String choose = 'Seçiniz';
+  static const String choose = '\u2066Seçiniz\u2069';
 
   /// The dropdown.
   static const List<String> provinces = ['Ankara', 'İstanbul', 'İzmir'];
 
   /// The dropdown.
-  static const String provinceError = 'Choose a province.';
+  static const String provinceError = '\u2066Choose a province.\u2069';
 
   /// The multiline field, checkboxes and radios.
-  static const String notesError = 'Fill in this field.';
+  static const String notesError = '\u2066Fill in this field.\u2069';
 
   /// The signature field.
-  static const String signature = 'İmza';
+  static const String signature = '\u2066İmza\u2069';
 
   /// The signature field.
-  static const String signHere = 'Sign here';
+  static const String signHere = '\u2066Sign here\u2069';
 
   /// The signature field.
-  static const String signatureError = 'Sign before finishing.';
+  static const String signatureError = '\u2066Sign before finishing.\u2069';
 
   // Signature pad (SignaturePad.jsx).
 
   /// The pad's texts.
-  static const String signatureMethod = 'Signature method';
+  static const String signatureMethod = '\u2066Signature method\u2069';
 
   /// The pad's texts.
-  static const String draw = 'Draw';
+  static const String draw = '\u2066Draw\u2069';
 
   /// The pad's texts.
-  static const String type = 'Type';
+  static const String type = '\u2066Type\u2069';
 
   /// The pad's texts.
-  static const String image = 'Image';
+  static const String image = '\u2066Image\u2069';
 
   /// The pad's texts.
   static const String drawingArea =
-      'Signature drawing area. Draw with a mouse, trackpad, pen or finger.';
+      '\u2066Signature drawing area. Draw with a mouse, trackpad, pen or '
+      'finger.\u2069';
 
   /// The pad's texts.
-  static const String typeYourName = 'Type your name';
+  static const String typeYourName = '\u2066Type your name\u2069';
 
   /// The pad's texts.
-  static const String yourName = 'Your name';
+  static const String yourName = '\u2066Your name\u2069';
 
   /// The pad's texts.
-  static const String signAboveLine = 'Sign above the line';
+  static const String signAboveLine = '\u2066Sign above the line\u2069';
 
   /// The pad's texts.
-  static const String typeAboveLine = 'Type your name above the line';
+  static const String typeAboveLine =
+      '\u2066Type your name above the line\u2069';
 
   /// The pad's texts.
   static const String imageHint =
-      'Drop a photo or scan of your signature. Ferman removes the background.';
+      '\u2066Drop a photo or scan of your signature. Ferman removes the '
+      'background.\u2069';
 
   /// The pad's texts.
-  static const String chooseImage = 'Choose image…';
+  static const String chooseImage = '\u2066Choose image…\u2069';
 
   /// The pad's texts.
-  static const String inkColor = 'Ink color';
+  static const String inkColor = '\u2066Ink color\u2069';
 
   /// The pad's texts.
-  static const String saveOnDevice = 'Save on this device';
+  static const String saveOnDevice = '\u2066Save on this device\u2069';
 
   /// A drawn signature: one stroke in the pad's 188 px area.
   static const List<List<Offset>> signatureStrokes = [
@@ -1336,21 +1364,22 @@ abstract final class GallerySamples {
   // Drop zone (DropZone.jsx).
 
   /// The over state.
-  static const String releaseToOpen = 'Release to open';
+  static const String releaseToOpen = '\u2066Release to open\u2069';
 
   /// The over state.
-  static const String opensOnDevice = 'Ferman opens the file on this device.';
+  static const String opensOnDevice =
+      '\u2066Ferman opens the file on this device.\u2069';
 
   /// The error state.
-  static const String notAPdf = 'That file isn’t a PDF';
+  static const String notAPdf = '\u2066That file isn’t a PDF\u2069';
 
   /// The error state.
   static const String notAPdfSubtitle =
-      'Ferman opens PDF files. To edit a Word or image file, convert it '
-      'first.';
+      '\u2066Ferman opens PDF files. To edit a Word or image file, convert it '
+      'first.\u2069';
 
   /// The recent files heading.
-  static const String recent = 'Recent';
+  static const String recent = '\u2066Recent\u2069';
 
   /// Recent files.
   static const List<(String, String)> recentFiles = [
@@ -1361,22 +1390,23 @@ abstract final class GallerySamples {
   // Additions (FmWindow, 00 Fixes, DocForm, FmNumber).
 
   /// The documents of the tab strip.
-  static const String docLease = 'Kira sözleşmesi.pdf';
+  static const String docLease = '\u2066Kira sözleşmesi.pdf\u2069';
 
   /// The documents of the tab strip.
-  static const String docInvoice = 'e-Arşiv fatura 4187.pdf';
+  static const String docInvoice = '\u2066e-Arşiv fatura 4187.pdf\u2069';
 
   /// The documents of the tab strip.
-  static const String docStatement = 'Hesap ekstresi Eylül 2026.pdf';
+  static const String docStatement =
+      '\u2066Hesap ekstresi Eylül 2026.pdf\u2069';
 
   /// The documents of the tab strip.
-  static const String docPlan = 'İmar planı açıklama raporu.pdf';
+  static const String docPlan = '\u2066İmar planı açıklama raporu.pdf\u2069';
 
   /// The documents of the tab strip.
-  static const String docPayroll = 'Maaş bordrosu Eylül 2026.pdf';
+  static const String docPayroll = '\u2066Maaş bordrosu Eylül 2026.pdf\u2069';
 
   /// The documents of the tab strip.
-  static const String docRepaired = 'Tarama_0042.pdf';
+  static const String docRepaired = '\u2066Tarama_0042.pdf\u2069';
 
   /// When the document was saved: the status bar's "14:32".
   static final DateTime savedAt = DateTime(2026, 10, 13, 14, 32);
@@ -1389,23 +1419,24 @@ abstract final class GallerySamples {
   static final DateTime dateValueDay = DateTime(2026, 11);
 
   /// The date picker's name.
-  static const String chooseDate = 'Choose a date';
+  static const String chooseDate = '\u2066Choose a date\u2069';
 
   /// The date picker's buttons.
-  static const String previousMonth = 'Previous month';
+  static const String previousMonth = '\u2066Previous month\u2069';
 
   /// The date picker's buttons.
-  static const String nextMonth = 'Next month';
+  static const String nextMonth = '\u2066Next month\u2069';
 
   /// The date picker's buttons.
-  static const String today = 'Today';
+  static const String today = '\u2066Today\u2069';
 
   /// The date picker's note.
-  static const String dateFormatNote = 'Format DD.MM.YYYY · from the form';
+  static const String dateFormatNote =
+      '\u2066Format DD.MM.YYYY · from the form\u2069';
 
   /// The FmNumber error.
-  static const String fmNumberError = 'Enter 4–96 pt.';
+  static const String fmNumberError = '\u2066Enter 4–96 pt.\u2069';
 
   /// The FmNumber card's German sample.
-  static const String deutsch = 'Deutsch';
+  static const String deutsch = '\u2066Deutsch\u2069';
 }

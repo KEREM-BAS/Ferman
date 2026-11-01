@@ -4,6 +4,7 @@ import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
+import 'package:ferman/design/components/overlays/menu.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
@@ -112,6 +113,8 @@ class Select<T> extends StatefulWidget {
     this.disabledReason,
     this.semanticLabel,
     this.focusNode,
+    this.menu,
+    this.onMenuSelected,
   });
 
   /// The label above the box; null shows none.
@@ -147,6 +150,14 @@ class Select<T> extends StatefulWidget {
   /// The focus node of the box; one is created when null. Not a
   /// design-system prop.
   final FocusNode? focusNode;
+
+  /// A [Menu] that opens instead of the list (a2-2's zoom menu, with the
+  /// fits' shortcuts, separators and Marquee zoom); the box still shows
+  /// the label of [value]'s option. Not a design-system prop.
+  final List<MenuItem>? menu;
+
+  /// Called with the item of [menu] the user activates.
+  final ValueChanged<MenuItem>? onMenuSelected;
 
   /// `.fm-menu__item` `height`: a row of the open list.
   static const double rowHeight = 28;
@@ -478,13 +489,31 @@ class _SelectState<T> extends State<Select<T>> {
       spacing: Field.gap,
       children: [
         if (label != null) Field.labelOf(context, label),
-        Popover(
-          open: _open,
-          matchAnchorWidth: true,
-          onDismiss: _close,
-          anchor: box,
-          child: _list(context),
-        ),
+        if (widget.menu case final menu?)
+          Popover(
+            open: _open,
+            surface: false,
+            onDismiss: _close,
+            anchor: box,
+            child: Menu(
+              autofocus: true,
+              semanticLabel: label ?? widget.semanticLabel,
+              items: menu,
+              onClose: _close,
+              onSelected: (item) {
+                _close();
+                widget.onMenuSelected?.call(item);
+              },
+            ),
+          )
+        else
+          Popover(
+            open: _open,
+            matchAnchorWidth: true,
+            onDismiss: _close,
+            anchor: box,
+            child: _list(context),
+          ),
       ],
     );
   }

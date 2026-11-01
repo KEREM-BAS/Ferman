@@ -34,9 +34,9 @@ enum ToolButtonLayout {
 /// **Tooltip** (G22): the label and the platform [shortcut] as key caps,
 /// shown when the button is icon-only or has a shortcut; tool-button
 /// tooltips always show the shortcut when one exists. A disabled button
-/// with a [disabledReason] shows the reason instead (G10) and stays
-/// focusable; a plain disabled button shows nothing and is skipped by the
-/// keyboard.
+/// with a [disabledReason] shows the reason instead (G10), under the
+/// label while the button is icon-only (B095), and stays focusable; a
+/// plain disabled button shows nothing and is skipped by the keyboard.
 ///
 /// **Keyboard:** Enter and Space call [onPressed]. With [hasMenu],
 /// ArrowDown opens the menu (the menu-button pattern; not in the bundle):
@@ -188,6 +188,7 @@ class ToolButton extends StatelessWidget {
         toggled: active,
         tooltip: iconOnly || shortcut != null ? label : null,
         tooltipShortcut: shortcut,
+        namedReason: iconOnly,
         semanticLabel: label,
         builder: (context, states, _) => ExcludeSemantics(
           child: _visual(context, states, labelHidden: hidden),

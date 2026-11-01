@@ -502,6 +502,14 @@
   "@shellToolVersionHistory": {
     "description": "Tools row: shows the saved versions of the document (FmWindow)."
   },
+  "shellResizeSidebar": "Resize sidebar",
+  "@shellResizeSidebar": {
+    "description": "Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094)."
+  },
+  "shellResizePanel": "Resize panel",
+  "@shellResizePanel": {
+    "description": "Accessible name of the invisible drag handle on the right panel's edge that changes its width (B094)."
+  },
   "shellSidebar": "Sidebar",
   "@shellSidebar": {
     "description": "Screen-reader name of the sidebar and of its row of tabs (FmSidebar t.sidebar)."
@@ -706,6 +714,10 @@
         "example": "Klingon"
       }
     }
+  },
+  "onboardingLanguageNoMatchBody": "Search by the language’s own name, its English name or its code.",
+  "@onboardingLanguageNoMatchBody": {
+    "description": "The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState)."
   },
   "onboardingLanguageMissing": "Missing your language?",
   "@onboardingLanguageMissing": {

@@ -92,6 +92,65 @@ class ShellPanelPreference extends _$ShellPanelPreference {
   }
 }
 
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+@Riverpod(keepAlive: true)
+class ShellPaneWidths extends _$ShellPaneWidths {
+  @override
+  ({double sidebar, double panel}) build() =>
+      (sidebar: minWidth(ShellSide.sidebar), panel: minWidth(ShellSide.panel));
+
+  /// The narrowest [side] gets: its FmWindow width (`--sidebar-w`,
+  /// `--panel-w`), which its contents are drawn for.
+  static double minWidth(ShellSide side) => switch (side) {
+    ShellSide.sidebar => FermanSizeTokens.sidebarW,
+    ShellSide.panel => FermanSizeTokens.panelW,
+  };
+
+  /// The widest [side] gets.
+  static double maxWidth(ShellSide side) => switch (side) {
+    ShellSide.sidebar => WindowMetrics.sidebarMaxWidth,
+    ShellSide.panel => WindowMetrics.panelMaxWidth,
+  };
+
+  /// Sets [side] to [width], within its limits.
+  void resize(ShellSide side, double width) {
+    final clamped = width.clamp(minWidth(side), maxWidth(side));
+    state = switch (side) {
+      ShellSide.sidebar => (sidebar: clamped, panel: state.panel),
+      ShellSide.panel => (sidebar: state.sidebar, panel: clamped),
+    };
+  }
+}
+
+/// The widths [shown] panels take in a shell [width] wide: what the user
+/// chose ([ShellPaneWidths]), narrowed so the canvas keeps
+/// [WindowMetrics.canvasMinWidth], the sidebar first, never below a
+/// panel's own minimum.
+({double sidebar, double panel}) shellPaneWidthsIn({
+  required ({double sidebar, double panel}) chosen,
+  required ShellPanels shown,
+  required double? width,
+}) {
+  if (width == null) return chosen;
+  final room = width - WindowMetrics.canvasMinWidth;
+  final panelMin = ShellPaneWidths.minWidth(ShellSide.panel);
+  final sidebarMin = ShellPaneWidths.minWidth(ShellSide.sidebar);
+  final sidebar = chosen.sidebar
+      .clamp(
+        sidebarMin,
+        math.max(sidebarMin, room - (shown.panel ? panelMin : 0)),
+      )
+      .toDouble();
+  final panel = chosen.panel
+      .clamp(panelMin, math.max(panelMin, room - (shown.sidebar ? sidebar : 0)))
+      .toDouble();
+  return (sidebar: sidebar, panel: panel);
+}
+
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
 /// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]

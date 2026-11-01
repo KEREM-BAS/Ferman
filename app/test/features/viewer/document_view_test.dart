@@ -118,6 +118,56 @@ void main() {
     );
   });
 
+  testWidgets('the zoom field opens a2-2’s menu: the fits with their keys, '
+      'the steps and Marquee zoom', (tester) async {
+    await pumpDocument(tester);
+    final field = find.byWidgetPredicate(
+      (widget) => widget is Select<String> && widget.value == 'fit-width',
+    );
+    await tester.tap(field);
+    await settle(tester);
+    final menu = tester.widget<Menu>(find.byType(Menu));
+    expect(
+      [
+        for (final item in menu.items)
+          if (item.separator) '-' else item.label,
+      ],
+      [
+        'Fit width',
+        'Fit page',
+        'Actual size',
+        '-',
+        ...[
+          '50',
+          '75',
+          '100',
+          '125',
+          '150',
+          '200',
+          '400',
+        ].map((step) => menu.items.firstWhere((item) => item.id == step).label),
+        '-',
+        'Marquee zoom',
+      ],
+    );
+    expect(menu.items.first.shortcut, ['Ctrl', '2']);
+    expect(menu.items.first.checked, isTrue);
+    expect(menu.items.last.shortcut, ['Z']);
+    await tester.tap(find.text('Fit page').last);
+    await settle(tester);
+    expect(find.byType(Menu), findsNothing);
+    expect(view(tester).fit, ZoomFit.page);
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is Select<String> && widget.value == 'fit-page',
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.text('Marquee zoom').last);
+    await settle(tester);
+    expect(view(tester).tool, ViewerTool.marquee);
+  });
+
   testWidgets('a page that fails shows a2-13’s placeholder, and Try again '
       'asks for it again', (tester) async {
     final engine = await pumpDocument(tester, failingPages: {0});

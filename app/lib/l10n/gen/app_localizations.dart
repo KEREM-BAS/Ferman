@@ -838,6 +838,18 @@ abstract class AppLocalizations {
   /// **'Version history'**
   String get shellToolVersionHistory;
 
+  /// Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094).
+  ///
+  /// In en, this message translates to:
+  /// **'Resize sidebar'**
+  String get shellResizeSidebar;
+
+  /// Accessible name of the invisible drag handle on the right panel's edge that changes its width (B094).
+  ///
+  /// In en, this message translates to:
+  /// **'Resize panel'**
+  String get shellResizePanel;
+
   /// Screen-reader name of the sidebar and of its row of tabs (FmSidebar t.sidebar).
   ///
   /// In en, this message translates to:
@@ -1089,6 +1101,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No language matches “{query}”.'**
   String onboardingLanguageNoMatch(String query);
+
+  /// The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState).
+  ///
+  /// In en, this message translates to:
+  /// **'Search by the language’s own name, its English name or its code.'**
+  String get onboardingLanguageNoMatchBody;
 
   /// Footer of the first-run language picker (a1-1), before the Help translate Ferman link.
   ///

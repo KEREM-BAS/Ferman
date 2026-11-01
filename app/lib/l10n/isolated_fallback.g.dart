@@ -423,6 +423,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get shellToolVersionHistory => isolate(super.shellToolVersionHistory);
 
   @override
+  String get shellResizeSidebar => isolate(super.shellResizeSidebar);
+
+  @override
+  String get shellResizePanel => isolate(super.shellResizePanel);
+
+  @override
   String get shellSidebar => isolate(super.shellSidebar);
 
   @override
@@ -557,6 +563,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String onboardingLanguageNoMatch(String query) =>
       isolate(super.onboardingLanguageNoMatch(query));
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      isolate(super.onboardingLanguageNoMatchBody);
 
   @override
   String get onboardingLanguageMissing =>

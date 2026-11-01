@@ -1,6 +1,8 @@
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
+import 'package:ferman/features/shell/shell_pane_resize.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/shell/shell_region.dart';
 import 'package:ferman/features/shell/shell_sidebar.dart';
@@ -52,6 +54,7 @@ class FmWindow extends ConsumerWidget {
     final sidebarOpen = ref.watch(shellSidebarOpenProvider);
     final panelOpen = ref.watch(shellPanelOpenProvider);
     final preferred = ref.watch(shellPanelPreferenceProvider);
+    final chosen = ref.watch(shellPaneWidthsProvider);
     final active = ref.watch(shellDocumentsProvider).active;
     // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
     // a1-9c: FmWindow with `mode=""` and `status={false}`).
@@ -67,6 +70,38 @@ class FmWindow extends ConsumerWidget {
             panelOpen: panelOpen,
             preferred: preferred,
           );
+          final widths = shellPaneWidthsIn(
+            chosen: chosen,
+            shown: shown,
+            width: width.isFinite ? width : null,
+          );
+          final room = width - WindowMetrics.canvasMinWidth;
+          // A panel with its resize handle on the canvas side (B094).
+          Widget resizable(ShellSide side, Widget pane) {
+            final own = side == ShellSide.sidebar
+                ? widths.sidebar
+                : widths.panel;
+            final other = side == ShellSide.sidebar
+                ? (shown.panel ? widths.panel : 0)
+                : (shown.sidebar ? widths.sidebar : 0);
+            return Stack(
+              children: [
+                pane,
+                PositionedDirectional(
+                  top: 0,
+                  bottom: 0,
+                  start: side == ShellSide.panel ? 0 : null,
+                  end: side == ShellSide.sidebar ? 0 : null,
+                  child: ShellPaneResizeHandle(
+                    side: side,
+                    width: own,
+                    limit: room - other,
+                  ),
+                ),
+              ],
+            );
+          }
+
           if (width.isFinite && ref.read(shellWidthProvider) != width) {
             // Not during the build: providers change between frames.
             WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -91,7 +126,12 @@ class FmWindow extends ConsumerWidget {
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
                         if (shown.sidebar && !bare)
-                          ShellRegion.sidebar.wrap(const FmSidebar()),
+                          ShellRegion.sidebar.wrap(
+                            resizable(
+                              ShellSide.sidebar,
+                              FmSidebar(width: widths.sidebar),
+                            ),
+                          ),
                         Expanded(
                           // Keyed, so the canvas keeps its state and focus
                           // when the sidebar before it hides or shows.
@@ -99,7 +139,12 @@ class FmWindow extends ConsumerWidget {
                           child: ShellRegion.canvas.wrap(const ShellCanvas()),
                         ),
                         if (shown.panel && !bare)
-                          ShellRegion.panel.wrap(const FmDocPanel()),
+                          ShellRegion.panel.wrap(
+                            resizable(
+                              ShellSide.panel,
+                              FmDocPanel(width: widths.panel),
+                            ),
+                          ),
                       ],
                     ),
                   ),

@@ -384,6 +384,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellToolVersionHistory => 'Sürüm geçmişi';
 
   @override
+  String get shellResizeSidebar => 'Kenar çubuğunu yeniden boyutlandır';
+
+  @override
+  String get shellResizePanel => 'Paneli yeniden boyutlandır';
+
+  @override
   String get shellSidebar => 'Kenar çubuğu';
 
   @override
@@ -523,6 +529,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return '“$query” ile eşleşen dil yok.';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın.';
 
   @override
   String get onboardingLanguageMissing => 'Dilinizi bulamadınız mı?';

@@ -94,6 +94,8 @@ final Map<String, ShellCommand> _choiceCommands = {
   _l10n.shellFitWidth: ShellCommand.fitWidth,
   _l10n.shellFitPage: ShellCommand.fitPage,
   _l10n.shellActualSize: ShellCommand.actualSize,
+  // The zoom menu's last item (a2-2).
+  _l10n.shellToolMarqueeZoom: ShellCommand.marqueeZoom,
 };
 
 /// The View row's and the status bar's viewing controls: disabled without
@@ -285,9 +287,17 @@ void main() {
           } else if (!control.enabled) {
             // Every disabled control says why (G10) …
             expect(control.disabledReason, isNotNull, reason: reason);
-            // … in its tooltip, instead of its keys (G87).
+            // … in its tooltip, instead of its keys (G87), under its name
+            // when only its icon shows (B095).
             expect(tooltips, hasLength(1), reason: reason);
-            expect(tooltips.single.message, control.disabledReason);
+            expect(
+              tooltips.single.message,
+              anyOf(
+                control.disabledReason,
+                '${control.label}\n${control.disabledReason}',
+              ),
+              reason: reason,
+            );
             expect(tooltips.single.shortcut, isNull, reason: reason);
           } else if (control.tooltip) {
             expect(tooltips, hasLength(1), reason: reason);
@@ -453,8 +463,9 @@ void main() {
       // Every command of a tool row reaches the menu at this width …
       expect(shown, rowCommands);
       // … and the zoom and Fit submenus carry the Fit choices' keys, which
-      // no one sees before their parents work in M2 (B034).
-      expect(inSubmenus, _shownFromM2);
+      // no one sees before their parents work in M2 (B034), and the zoom
+      // menu Marquee zoom's (a2-2).
+      expect(inSubmenus, {..._shownFromM2, ShellCommand.marqueeZoom});
     });
   }
 }

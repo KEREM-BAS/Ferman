@@ -384,6 +384,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellToolVersionHistory => 'سجل الإصدارات';
 
   @override
+  String get shellResizeSidebar => 'تغيير حجم الشريط الجانبي';
+
+  @override
+  String get shellResizePanel => 'تغيير حجم اللوحة';
+
+  @override
   String get shellSidebar => 'الشريط الجانبي';
 
   @override
@@ -522,6 +528,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return 'لا توجد لغة تطابق «$query».';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها.';
 
   @override
   String get onboardingLanguageMissing => 'لم تجد لغتك؟';

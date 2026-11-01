@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-517 messages in `app_en.arb`; translated: Turkish 517, Arabic 517.
+520 messages in `app_en.arb`; translated: Turkish 520, Arabic 520.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -179,6 +179,8 @@ The table below is generated from the ARB files by `tools/l10n`
 | `shellToolBatch` | Batch actions | Toplu işlemler | إجراءات مجمّعة | Tools row: runs a series of steps on many files (FmWindow). |
 | `shellToolPrint` | Print | Yazdır | طباعة | Tools row: prints the document (FmWindow). A verb. |
 | `shellToolVersionHistory` | Version history | Sürüm geçmişi | سجل الإصدارات | Tools row: shows the saved versions of the document (FmWindow). |
+| `shellResizeSidebar` | Resize sidebar | Kenar çubuğunu yeniden boyutlandır | تغيير حجم الشريط الجانبي | Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094). |
+| `shellResizePanel` | Resize panel | Paneli yeniden boyutlandır | تغيير حجم اللوحة | Accessible name of the invisible drag handle on the right panel's edge that changes its width (B094). |
 | `shellSidebar` | Sidebar | Kenar çubuğu | الشريط الجانبي | Screen-reader name of the sidebar and of its row of tabs (FmSidebar t.sidebar). |
 | `shellSidebarPages` | Pages | Sayfalar | الصفحات | Sidebar tab and heading: page thumbnails (FmSidebar t.pages). |
 | `shellSidebarOutline` | Outline | Yer işaretleri | الإشارات المرجعية | Sidebar tab and heading: the document's bookmarks (FmSidebar t.outline). |
@@ -221,6 +223,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `onboardingLanguageSearchPlaceholder` | Search languages · Dil ara · Sprache suchen · ابحث عن لغة | Dil ara · Search languages · Sprache suchen · ابحث عن لغة | ابحث عن لغة · Search languages · Dil ara · Sprache suchen | Placeholder of the search field of the first-run language picker (a1-1). It asks in several languages on purpose, so people who don't read the interface language can still find theirs: keep the other languages and put this language's phrase first. |
 | `onboardingLanguageSearchLabel` | Search languages | Dil ara | ابحث عن لغة | Screen-reader name of the search field of the first-run language picker (a1-1). |
 | `onboardingLanguageNoMatch` | No language matches “{query}”. | “{query}” ile eşleşen dil yok. | لا توجد لغة تطابق «{query}». | Shown in the first-run language picker (a1-1) when the search finds no language. {query} is what the person typed. |
+| `onboardingLanguageNoMatchBody` | Search by the language’s own name, its English name or its code. | Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın. | ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها. | The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState). |
 | `onboardingLanguageMissing` | Missing your language? | Dilinizi bulamadınız mı? | لم تجد لغتك؟ | Footer of the first-run language picker (a1-1), before the Help translate Ferman link. |
 | `onboardingLanguageHelpTranslate` | Help translate Ferman | Ferman’ı çevirmeye yardım edin | ساعد في ترجمة Ferman | Link in the footer of the first-run language picker (a1-1) to the community translation project. |
 | `onboardingContinue` | Continue | Devam | متابعة | Button that leaves the first-run language picker for the welcome steps (a1-1). |

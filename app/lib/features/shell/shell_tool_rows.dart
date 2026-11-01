@@ -158,6 +158,7 @@ class _ViewTools extends ConsumerWidget {
     'fit-width' || 'width' => viewer.fit(ZoomFit.width),
     'fit-page' || 'page' => viewer.fit(ZoomFit.page),
     'actual' => viewer.zoomTo(1),
+    'marquee' => viewer.setTool(ViewerTool.marquee),
     _ => viewer.zoomTo((int.tryParse(value) ?? 100) / 100),
   };
 
@@ -207,6 +208,35 @@ class _ViewTools extends ConsumerWidget {
       for (final step in zoomSteps) ('$step', percent(step), null),
       ('fit-width', l10n.shellFitWidth, null),
       ('fit-page', l10n.shellFitPage, null),
+    ];
+    // a2-2's menu: the fits with their keys, the steps, Marquee zoom.
+    List<MenuItem> zoomMenu() => [
+      for (final (value, name, icon) in [
+        ('fit-width', l10n.shellFitWidth, IconName.arrowLeftRight),
+        ('fit-page', l10n.shellFitPage, IconName.maximize),
+        ('actual', l10n.shellActualSize, IconName.scan),
+      ])
+        MenuItem(
+          id: value,
+          label: name,
+          icon: icon,
+          shortcut: fitCommands[value]?.caps(platform),
+          checked: value == zoomValue,
+        ),
+      const MenuItem.divider(),
+      for (final step in zoomSteps)
+        MenuItem(
+          id: '$step',
+          label: percent(step),
+          checked: '$step' == zoomValue,
+        ),
+      const MenuItem.divider(),
+      MenuItem(
+        id: 'marquee',
+        label: l10n.shellToolMarqueeZoom,
+        icon: IconName.squareDashed,
+        shortcut: ShellCommand.marqueeZoom.caps(platform),
+      ),
     ];
     // The zoom menu and the segmented controls move into a narrow row's
     // overflow menu as submenus of their choices (G21). A choice that is a
@@ -294,11 +324,11 @@ class _ViewTools extends ConsumerWidget {
           viewer.zoomOut,
         ),
         ToolbarItem(
-          menuItem: choices(
-            l10n.shellZoom,
-            zoomOptions,
-            checked: zoomValue,
-            commands: fitCommands,
+          menuItem: MenuItem(
+            id: l10n.shellZoom,
+            label: l10n.shellZoom,
+            disabled: !live,
+            submenu: zoomMenu(),
           ),
           onMenuSelected: (item) =>
               chosen(item, (value) => zoomChoice(viewer, value)),
@@ -310,6 +340,9 @@ class _ViewTools extends ConsumerWidget {
               value: zoomValue,
               disabled: !live,
               onChanged: live ? (value) => zoomChoice(viewer, value) : null,
+              menu: zoomMenu(),
+              onMenuSelected: (item) =>
+                  chosen(item, (value) => zoomChoice(viewer, value)),
               options: [
                 for (final (value, name, _) in zoomOptions)
                   SelectOption(value: value, label: name),

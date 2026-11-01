@@ -384,6 +384,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellToolVersionHistory => 'Version history';
 
   @override
+  String get shellResizeSidebar => 'Resize sidebar';
+
+  @override
+  String get shellResizePanel => 'Resize panel';
+
+  @override
   String get shellSidebar => 'Sidebar';
 
   @override
@@ -522,6 +528,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return 'No language matches “$query”.';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'Search by the language’s own name, its English name or its code.';
 
   @override
   String get onboardingLanguageMissing => 'Missing your language?';
