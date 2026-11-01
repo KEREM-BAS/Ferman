@@ -1418,6 +1418,41 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get unlockOpen => isolate(super.unlockOpen);
+
+  @override
+  String get restrictedTitle => isolate(super.restrictedTitle);
+
+  @override
+  String get restrictedBody => isolate(super.restrictedBody);
+
+  @override
+  String get restrictedBodyOther => isolate(super.restrictedBodyOther);
+
+  @override
+  String get restrictedUnlock => isolate(super.restrictedUnlock);
+
+  @override
+  String get ownerUnlockTitle => isolate(super.ownerUnlockTitle);
+
+  @override
+  String ownerUnlockDescription(String name) =>
+      isolate(super.ownerUnlockDescription(name));
+
+  @override
+  String get ownerUnlockPassword => isolate(super.ownerUnlockPassword);
+
+  @override
+  String get ownerUnlockAction => isolate(super.ownerUnlockAction);
+
+  @override
+  String scriptsTitle(int count, String countText) =>
+      isolate(super.scriptsTitle(count, countText));
+
+  @override
+  String get scriptsBody => isolate(super.scriptsBody);
+
+  @override
+  String get scriptsDismiss => isolate(super.scriptsDismiss);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

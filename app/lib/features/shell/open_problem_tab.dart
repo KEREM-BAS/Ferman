@@ -11,6 +11,7 @@ import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/platform/file_access.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -207,11 +208,9 @@ class OpenErrorTab extends ConsumerWidget {
 
 /// The canvas of a locked tab: a1-8's unlock dialog on the empty canvas.
 /// It blocks only this tab (the board's "document-modal"): other tabs and
-/// the start screen stay usable. Open tries the password; a wrong one shows
-/// a1-8b's error under the field and keeps the attempt selected, so typing
-/// replaces it; there is no lockout. Cancel closes the tab. The password
-/// is passed to the engine and not kept (Q22: PDFium's copy).
-class UnlockTab extends ConsumerStatefulWidget {
+/// the start screen stay usable. Cancel closes the tab. The password is
+/// passed to the engine and not kept (Q22: PDFium's copy).
+class UnlockTab extends ConsumerWidget {
   /// The locked tab of [document].
   const new(this.document, {super.key});
 
@@ -219,10 +218,94 @@ class UnlockTab extends ConsumerStatefulWidget {
   final ShellDocument document;
 
   @override
-  ConsumerState<UnlockTab> createState() => _UnlockTabState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    final opener = ref.read(documentOpenerProvider.notifier);
+    final path = document.path;
+    return Center(
+      child: SingleChildScrollView(
+        padding: EdgeInsetsDirectional.all(theme.space.space6),
+        child: PasswordDialog(
+          icon: IconName.lock,
+          title: l10n.errorPasswordRequired,
+          description: l10n.unlockDescription(bidiIsolate(document.name)),
+          label: l10n.unlockPassword,
+          action: l10n.unlockOpen,
+          onSubmit: (password) async =>
+              path == null || await opener.unlock(path, password),
+          onCancel: () {
+            if (path != null) opener.close(path);
+          },
+        ),
+      ),
+    );
+  }
 }
 
-class _UnlockTabState extends ConsumerState<UnlockTab> {
+/// a1-8's password dialog, drawn in place: [title] and [description] under
+/// [icon], a password field named [label] with "Show password", Cancel
+/// and [action]. [action] (or Enter) passes the password to [onSubmit];
+/// when it answers false, a1-8b's error shows under the field and the
+/// attempt stays selected, so typing replaces it; there is no lockout.
+/// The field is cleared when the dialog goes.
+class PasswordDialog extends StatefulWidget {
+  /// Creates the dialog.
+  const new({
+    required this.icon,
+    required this.title,
+    required this.description,
+    required this.label,
+    required this.action,
+    required this.onSubmit,
+    required this.onCancel,
+    super.key,
+  });
+
+  /// The glyph.
+  final IconName icon;
+
+  /// The question.
+  final String title;
+
+  /// What the password is for.
+  final String description;
+
+  /// The field's label.
+  final String label;
+
+  /// The primary button's label.
+  final String action;
+
+  /// Tries the password: false when it is wrong.
+  final Future<bool> Function(String password) onSubmit;
+
+  /// Cancel.
+  final VoidCallback onCancel;
+
+  @override
+  State<PasswordDialog> createState() => _PasswordDialogState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(EnumProperty<IconName>('icon', icon))
+      ..add(StringProperty('title', title))
+      ..add(StringProperty('description', description))
+      ..add(StringProperty('label', label))
+      ..add(StringProperty('action', action))
+      ..add(
+        ObjectFlagProperty<Future<bool> Function(String)>.has(
+          'onSubmit',
+          onSubmit,
+        ),
+      )
+      ..add(ObjectFlagProperty<VoidCallback>.has('onCancel', onCancel));
+  }
+}
+
+class _PasswordDialogState extends State<PasswordDialog> {
   final TextEditingController _password = TextEditingController();
   final FocusNode _field = FocusNode(debugLabel: 'Password');
   bool _show = false;
@@ -233,7 +316,7 @@ class _UnlockTabState extends ConsumerState<UnlockTab> {
   void initState() {
     super.initState();
     // The canvas around the dialog asks for focus too, and the first
-    // request in a scope wins: the field takes it once the tab shows (a1-8).
+    // request in a scope wins: the field takes it once the dialog shows.
     WidgetsBinding.instance.addPostFrameCallback((_) {
       if (mounted) _field.requestFocus();
     });
@@ -248,19 +331,16 @@ class _UnlockTabState extends ConsumerState<UnlockTab> {
     super.dispose();
   }
 
-  Future<void> _open() async {
-    final path = widget.document.path;
-    if (_busy || path == null || _password.text.isEmpty) return;
+  Future<void> _submit() async {
+    if (_busy || _password.text.isEmpty) return;
     setState(() => _busy = true);
-    final opened = await ref
-        .read(documentOpenerProvider.notifier)
-        .unlock(path, _password.text);
+    final accepted = await widget.onSubmit(_password.text);
     if (!mounted) return;
     setState(() {
       _busy = false;
-      _wrong = !opened;
+      _wrong = !accepted;
     });
-    if (!opened) {
+    if (!accepted) {
       _password.selection = TextSelection(
         baseOffset: 0,
         extentOffset: _password.text.length,
@@ -269,62 +349,49 @@ class _UnlockTabState extends ConsumerState<UnlockTab> {
     }
   }
 
-  void _cancel() {
-    if (widget.document.path case final path?) {
-      ref.read(documentOpenerProvider.notifier).close(path);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
-    return Center(
-      child: SingleChildScrollView(
-        padding: EdgeInsetsDirectional.all(theme.space.space6),
-        child: Dialog(
-          inline: true,
-          icon: IconName.lock,
-          title: l10n.errorPasswordRequired,
-          description: l10n.unlockDescription(
-            bidiIsolate(widget.document.name),
-          ),
-          cancelAction: Button(
-            onPressed: _cancel,
-            child: Text(l10n.unlockCancel),
-          ),
-          actions: [
-            Button(
-              variant: ButtonVariant.primary,
-              onPressed: _busy ? null : () => unawaited(_open()),
-              child: Text(l10n.unlockOpen),
-            ),
-          ],
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space.space2_5,
-            children: [
-              TextField(
-                label: l10n.unlockPassword,
-                controller: _password,
-                focusNode: _field,
-                autofocus: true,
-                obscureText: !_show,
-                keyboardType: TextInputType.visiblePassword,
-                error: _wrong ? l10n.errorWrongPassword : null,
-                onChanged: (_) {
-                  if (_wrong) setState(() => _wrong = false);
-                },
-                onSubmitted: (_) => unawaited(_open()),
-              ),
-              Checkbox(
-                checked: _show,
-                label: l10n.unlockShowPassword,
-                onChanged: (value) => setState(() => _show = value),
-              ),
-            ],
-          ),
+    return Dialog(
+      inline: true,
+      icon: widget.icon,
+      title: widget.title,
+      description: widget.description,
+      cancelAction: Button(
+        onPressed: widget.onCancel,
+        child: Text(l10n.unlockCancel),
+      ),
+      actions: [
+        Button(
+          variant: ButtonVariant.primary,
+          onPressed: _busy ? null : () => unawaited(_submit()),
+          child: Text(widget.action),
         ),
+      ],
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        spacing: theme.space.space2_5,
+        children: [
+          TextField(
+            label: widget.label,
+            controller: _password,
+            focusNode: _field,
+            autofocus: true,
+            obscureText: !_show,
+            keyboardType: TextInputType.visiblePassword,
+            error: _wrong ? l10n.errorWrongPassword : null,
+            onChanged: (_) {
+              if (_wrong) setState(() => _wrong = false);
+            },
+            onSubmitted: (_) => unawaited(_submit()),
+          ),
+          Checkbox(
+            checked: _show,
+            label: l10n.unlockShowPassword,
+            onChanged: (value) => setState(() => _show = value),
+          ),
+        ],
       ),
     );
   }

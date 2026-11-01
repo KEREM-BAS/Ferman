@@ -228,6 +228,40 @@ class DocumentOpener extends _$DocumentOpener {
     return true;
   }
 
+  /// Lifts the restrictions of the tab of [path]'s document with its owner
+  /// [password] for the session (a2-10a, G106): the banner and the shield
+  /// go. False when the password is wrong, so the dialog asks again.
+  Future<bool> unlockOwner(String path, String password) async {
+    final document = _tab(path)?.document;
+    if (document == null) return true;
+    final Security? security;
+    try {
+      security = await ref
+          .read(engineServiceProvider)
+          .unlockOwner(document.id, password);
+    } on EngineException catch (error) {
+      // Closed meanwhile, or the engine failed: nothing to ask again.
+      return error.kind != EngineErrorKind.wrongPassword;
+    }
+    final tab = _tab(path);
+    if (tab?.document?.id != document.id) return true;
+    ref
+        .read(shellDocumentsProvider.notifier)
+        .replace(
+          path,
+          ShellDocument(
+            name: tab!.name,
+            path: path,
+            document: document.withSecurity(security),
+            pageCount: tab.pageCount,
+            saveState: tab.saveState,
+            savedAt: tab.savedAt,
+            editCount: tab.editCount,
+          ),
+        );
+    return true;
+  }
+
   /// Closes the tab of [path] (its close button, ⌘W or Ctrl+W, the unlock
   /// dialog's Cancel): the tab after it shows, or the one before when it
   /// was the last, and the start screen when no tab is left and the editor
@@ -301,6 +335,11 @@ class DocumentOpener extends _$DocumentOpener {
         name: name,
         path: path,
         document: document,
+        // a2-10a: the shield on the tab while the author's restrictions
+        // apply.
+        icon: document.security?.restricted ?? false
+            ? IconName.shield
+            : IconName.fileText,
         pageCount: document.pages.length,
         saveState: document.readOnly == null
             ? SaveState.saved

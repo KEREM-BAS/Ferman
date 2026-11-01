@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
@@ -45,6 +46,10 @@ class ShellCanvas extends ConsumerStatefulWidget {
 
 class _ShellCanvasState extends ConsumerState<ShellCanvas> {
   final FocusNode _focus = FocusNode(debugLabel: 'ShellCanvas');
+
+  /// The document whose owner-password dialog shows (G106), by id: it
+  /// stays with that document when another tab shows.
+  int? _ownerUnlock;
 
   /// Whether the system would show a focus highlight now.
   bool _highlight = false;
@@ -188,20 +193,49 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                         child: Stack(
                           children: [
                             Positioned.fill(
-                              child: Directionality(
-                                textDirection: TextDirection.ltr,
-                                child: DocumentView(
-                                  key: ValueKey(view.document.id),
-                                  uiDirection: uiDirection,
-                                  tools: mode == FermanMode.view,
-                                ),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.stretch,
+                                children: [
+                                  if (active != null)
+                                    DocumentBanners(
+                                      document: active,
+                                      onUnlock: () => setState(
+                                        () => _ownerUnlock = view.document.id,
+                                      ),
+                                    ),
+                                  Expanded(
+                                    child: Stack(
+                                      children: [
+                                        Positioned.fill(
+                                          child: Directionality(
+                                            textDirection: TextDirection.ltr,
+                                            child: DocumentView(
+                                              key: ValueKey(view.document.id),
+                                              uiDirection: uiDirection,
+                                              tools: mode == FermanMode.view,
+                                            ),
+                                          ),
+                                        ),
+                                        PositionedDirectional(
+                                          top: theme.space.space3,
+                                          end: theme.space.space4,
+                                          child: const FindBar(),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            PositionedDirectional(
-                              top: theme.space.space3,
-                              end: theme.space.space4,
-                              child: const FindBar(),
-                            ),
+                            if (active != null &&
+                                _ownerUnlock == view.document.id)
+                              Positioned.fill(
+                                child: OwnerUnlockDialog(
+                                  document: active,
+                                  onClose: () =>
+                                      setState(() => _ownerUnlock = null),
+                                ),
+                              ),
                             ?problemToast,
                           ],
                         ),

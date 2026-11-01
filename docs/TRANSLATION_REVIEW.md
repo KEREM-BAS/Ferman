@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-424 messages in `app_en.arb`; translated: Turkish 424, Arabic 424.
+435 messages in `app_en.arb`; translated: Turkish 435, Arabic 435.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -480,5 +480,16 @@ The table below is generated from the ARB files by `tools/l10n`
 | `unlockShowPassword` | Show password | Parolayı göster | إظهار كلمة المرور | Checkbox of the unlock dialog (a1-8). |
 | `unlockCancel` | Cancel | Vazgeç | إلغاء | Button of the unlock dialog (a1-8): closes the locked tab. |
 | `unlockOpen` | Open | Aç | فتح | Primary button of the unlock dialog (a1-8). |
+| `restrictedTitle` | The author restricted this document. | Belgenin yazarı bu belgeyi kısıtladı. | قيّد المؤلف هذا المستند. | Title of the bar above the pages of a document whose author restricted it (a2-10a). |
+| `restrictedBody` | You can read and print it. Editing, comments and form filling are turned off. | Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı. | يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة. | Message of the restricted bar (a2-10a), shown when printing is allowed and changes, comments and form filling are not. |
+| `restrictedBodyOther` | You can read it. The author turned some actions off. | Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı. | يمكنك قراءته. عطّل المؤلف بعض الإجراءات. | Message of the restricted bar for any other set of permissions (G106; not on a board). |
+| `restrictedUnlock` | Unlock with owner password… | Sahip parolasıyla kilidi aç… | فتح القفل بكلمة مرور المالك… | Button of the restricted bar (a2-10a) that opens the owner-password dialog. |
+| `ownerUnlockTitle` | Unlock with owner password | Sahip parolasıyla kilidi aç | فتح القفل بكلمة مرور المالك | Title of the owner-password dialog (G106; not on a board). |
+| `ownerUnlockDescription` | Enter the owner password for “{name}”. Ferman forgets it when you close the file. | “{name}” için sahip parolasını girin. Dosyayı kapattığınızda Ferman parolayı unutur. | أدخل كلمة مرور المالك لـ«{name}». ينسى Ferman كلمة المرور عند إغلاق الملف. | Text of the owner-password dialog (G106). {name} is the file name. |
+| `ownerUnlockPassword` | Owner password | Sahip parolası | كلمة مرور المالك | Label of the owner-password dialog's field (G106). |
+| `ownerUnlockAction` | Unlock | Kilidi aç | فتح القفل | Primary button of the owner-password dialog (G106). |
+| `scriptsTitle` | {count, plural, =1{This document contains 1 script.} other{This document contains {countText} scripts.}} | {count, plural, other{Bu belgede {countText} betik var.}} | {count, plural, =1{يحتوي هذا المستند على برنامج نصي واحد.} =2{يحتوي هذا المستند على برنامجين نصيين.} few{يحتوي هذا المستند على {countText} برامج نصية.} many{يحتوي هذا المستند على {countText} برنامجًا نصيًا.} other{يحتوي هذا المستند على {countText} برنامج نصي.}} | Title of the bar above the pages of a document with scripts (G100; not on a board). {countText} is {count} formatted for the region. |
+| `scriptsBody` | Ferman never runs scripts; other apps might. | Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir. | لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى. | Message of the scripts bar (G100), a8-4's sentence. |
+| `scriptsDismiss` | Dismiss | Kapat | إغلاق | Screen-reader name of the scripts bar's dismiss button (G100). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

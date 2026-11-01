@@ -423,5 +423,16 @@
   "unlockPassword": "كلمة المرور",
   "unlockShowPassword": "إظهار كلمة المرور",
   "unlockCancel": "إلغاء",
-  "unlockOpen": "فتح"
+  "unlockOpen": "فتح",
+  "restrictedTitle": "قيّد المؤلف هذا المستند.",
+  "restrictedBody": "يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة.",
+  "restrictedBodyOther": "يمكنك قراءته. عطّل المؤلف بعض الإجراءات.",
+  "restrictedUnlock": "فتح القفل بكلمة مرور المالك…",
+  "ownerUnlockTitle": "فتح القفل بكلمة مرور المالك",
+  "ownerUnlockDescription": "أدخل كلمة مرور المالك لـ«{name}». ينسى Ferman كلمة المرور عند إغلاق الملف.",
+  "ownerUnlockPassword": "كلمة مرور المالك",
+  "ownerUnlockAction": "فتح القفل",
+  "scriptsTitle": "{count, plural, =1{يحتوي هذا المستند على برنامج نصي واحد.} =2{يحتوي هذا المستند على برنامجين نصيين.} few{يحتوي هذا المستند على {countText} برامج نصية.} many{يحتوي هذا المستند على {countText} برنامجًا نصيًا.} other{يحتوي هذا المستند على {countText} برنامج نصي.}}",
+  "scriptsBody": "لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى.",
+  "scriptsDismiss": "إغلاق"
 }

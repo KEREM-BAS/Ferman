@@ -1443,4 +1443,49 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get unlockOpen => 'Open';
+
+  @override
+  String get restrictedTitle => 'The author restricted this document.';
+
+  @override
+  String get restrictedBody =>
+      'You can read and print it. Editing, comments and form filling are turned off.';
+
+  @override
+  String get restrictedBodyOther =>
+      'You can read it. The author turned some actions off.';
+
+  @override
+  String get restrictedUnlock => 'Unlock with owner password…';
+
+  @override
+  String get ownerUnlockTitle => 'Unlock with owner password';
+
+  @override
+  String ownerUnlockDescription(String name) {
+    return 'Enter the owner password for “$name”. Ferman forgets it when you close the file.';
+  }
+
+  @override
+  String get ownerUnlockPassword => 'Owner password';
+
+  @override
+  String get ownerUnlockAction => 'Unlock';
+
+  @override
+  String scriptsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'This document contains $countText scripts.',
+      one: 'This document contains 1 script.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scriptsBody => 'Ferman never runs scripts; other apps might.';
+
+  @override
+  String get scriptsDismiss => 'Dismiss';
 }

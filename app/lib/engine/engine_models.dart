@@ -511,6 +511,28 @@ class OpenedDocument {
 
   /// How many scripts it carries, which Ferman never runs (G100).
   final int scripts;
+
+  /// This document with [security], as the owner unlock leaves it.
+  OpenedDocument withSecurity(Security? security) => OpenedDocument(
+    id: id,
+    pages: pages,
+    readOnly: readOnly,
+    rightToLeft: rightToLeft,
+    outline: outline,
+    attachments: attachments,
+    layers: layers,
+    layersSwitchable: layersSwitchable,
+    signatures: signatures,
+    version: version,
+    fileSize: fileSize,
+    info: info,
+    language: language,
+    tagged: tagged,
+    linearized: linearized,
+    fonts: fonts,
+    security: security,
+    scripts: scripts,
+  );
 }
 
 /// Something a view wants rendered: a [TileItem] or a [ThumbnailItem].

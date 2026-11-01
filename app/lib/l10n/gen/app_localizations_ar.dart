@@ -1451,4 +1451,52 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get unlockOpen => 'فتح';
+
+  @override
+  String get restrictedTitle => 'قيّد المؤلف هذا المستند.';
+
+  @override
+  String get restrictedBody =>
+      'يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة.';
+
+  @override
+  String get restrictedBodyOther => 'يمكنك قراءته. عطّل المؤلف بعض الإجراءات.';
+
+  @override
+  String get restrictedUnlock => 'فتح القفل بكلمة مرور المالك…';
+
+  @override
+  String get ownerUnlockTitle => 'فتح القفل بكلمة مرور المالك';
+
+  @override
+  String ownerUnlockDescription(String name) {
+    return 'أدخل كلمة مرور المالك لـ«$name». ينسى Ferman كلمة المرور عند إغلاق الملف.';
+  }
+
+  @override
+  String get ownerUnlockPassword => 'كلمة مرور المالك';
+
+  @override
+  String get ownerUnlockAction => 'فتح القفل';
+
+  @override
+  String scriptsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يحتوي هذا المستند على $countText برنامج نصي.',
+      many: 'يحتوي هذا المستند على $countText برنامجًا نصيًا.',
+      few: 'يحتوي هذا المستند على $countText برامج نصية.',
+      two: 'يحتوي هذا المستند على برنامجين نصيين.',
+      one: 'يحتوي هذا المستند على برنامج نصي واحد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scriptsBody =>
+      'لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى.';
+
+  @override
+  String get scriptsDismiss => 'إغلاق';
 }

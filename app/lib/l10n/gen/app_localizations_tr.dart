@@ -1450,4 +1450,49 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get unlockOpen => 'Aç';
+
+  @override
+  String get restrictedTitle => 'Belgenin yazarı bu belgeyi kısıtladı.';
+
+  @override
+  String get restrictedBody =>
+      'Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı.';
+
+  @override
+  String get restrictedBodyOther =>
+      'Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı.';
+
+  @override
+  String get restrictedUnlock => 'Sahip parolasıyla kilidi aç…';
+
+  @override
+  String get ownerUnlockTitle => 'Sahip parolasıyla kilidi aç';
+
+  @override
+  String ownerUnlockDescription(String name) {
+    return '“$name” için sahip parolasını girin. Dosyayı kapattığınızda Ferman parolayı unutur.';
+  }
+
+  @override
+  String get ownerUnlockPassword => 'Sahip parolası';
+
+  @override
+  String get ownerUnlockAction => 'Kilidi aç';
+
+  @override
+  String scriptsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu belgede $countText betik var.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scriptsBody =>
+      'Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir.';
+
+  @override
+  String get scriptsDismiss => 'Kapat';
 }

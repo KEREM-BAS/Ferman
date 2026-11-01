@@ -2648,6 +2648,72 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Open'**
   String get unlockOpen;
+
+  /// Title of the bar above the pages of a document whose author restricted it (a2-10a).
+  ///
+  /// In en, this message translates to:
+  /// **'The author restricted this document.'**
+  String get restrictedTitle;
+
+  /// Message of the restricted bar (a2-10a), shown when printing is allowed and changes, comments and form filling are not.
+  ///
+  /// In en, this message translates to:
+  /// **'You can read and print it. Editing, comments and form filling are turned off.'**
+  String get restrictedBody;
+
+  /// Message of the restricted bar for any other set of permissions (G106; not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'You can read it. The author turned some actions off.'**
+  String get restrictedBodyOther;
+
+  /// Button of the restricted bar (a2-10a) that opens the owner-password dialog.
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with owner password…'**
+  String get restrictedUnlock;
+
+  /// Title of the owner-password dialog (G106; not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock with owner password'**
+  String get ownerUnlockTitle;
+
+  /// Text of the owner-password dialog (G106). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter the owner password for “{name}”. Ferman forgets it when you close the file.'**
+  String ownerUnlockDescription(String name);
+
+  /// Label of the owner-password dialog's field (G106).
+  ///
+  /// In en, this message translates to:
+  /// **'Owner password'**
+  String get ownerUnlockPassword;
+
+  /// Primary button of the owner-password dialog (G106).
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock'**
+  String get ownerUnlockAction;
+
+  /// Title of the bar above the pages of a document with scripts (G100; not on a board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{This document contains 1 script.} other{This document contains {countText} scripts.}}'**
+  String scriptsTitle(int count, String countText);
+
+  /// Message of the scripts bar (G100), a8-4's sentence.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman never runs scripts; other apps might.'**
+  String get scriptsBody;
+
+  /// Screen-reader name of the scripts bar's dismiss button (G100).
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get scriptsDismiss;
 }
 
 class _AppLocalizationsDelegate

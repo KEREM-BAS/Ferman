@@ -423,5 +423,16 @@
   "unlockPassword": "Parola",
   "unlockShowPassword": "Parolayı göster",
   "unlockCancel": "Vazgeç",
-  "unlockOpen": "Aç"
+  "unlockOpen": "Aç",
+  "restrictedTitle": "Belgenin yazarı bu belgeyi kısıtladı.",
+  "restrictedBody": "Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı.",
+  "restrictedBodyOther": "Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı.",
+  "restrictedUnlock": "Sahip parolasıyla kilidi aç…",
+  "ownerUnlockTitle": "Sahip parolasıyla kilidi aç",
+  "ownerUnlockDescription": "“{name}” için sahip parolasını girin. Dosyayı kapattığınızda Ferman parolayı unutur.",
+  "ownerUnlockPassword": "Sahip parolası",
+  "ownerUnlockAction": "Kilidi aç",
+  "scriptsTitle": "{count, plural, other{Bu belgede {countText} betik var.}}",
+  "scriptsBody": "Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir.",
+  "scriptsDismiss": "Kapat"
 }
