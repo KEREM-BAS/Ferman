@@ -1,6 +1,11 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/document_banners.dart';
+import 'package:ferman/features/shell/document_properties.dart';
+import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/open_problem_notice.dart';
+import 'package:ferman/features/shell/open_problem_tab.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/document_view.dart';
@@ -42,6 +47,14 @@ class ShellCanvas extends ConsumerStatefulWidget {
 
 class _ShellCanvasState extends ConsumerState<ShellCanvas> {
   final FocusNode _focus = FocusNode(debugLabel: 'ShellCanvas');
+
+  /// The document whose owner-password dialog shows (G106), by id: it
+  /// stays with that document when another tab shows.
+  int? _ownerUnlock;
+
+  /// The document whose properties show (a2-7), by id, like
+  /// [_ownerUnlock].
+  int? _properties;
 
   /// Whether the system would show a focus highlight now.
   bool _highlight = false;
@@ -113,7 +126,28 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     // own left-to-right geometry.
     final uiDirection = Directionality.of(context);
     final view = ref.watch(viewerProvider);
+    ref.listen(documentPropertiesRequestProvider, (_, _) {
+      final id = ref.read(viewerProvider)?.document.id;
+      if (id != null) setState(() => _properties = id);
+    });
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final active = ref.watch(shellDocumentsProvider).active;
+    // a1-9f: where the toast of a file that got no tab shows.
+    final problem = ref.watch(documentOpenerProvider);
+    final problemToast = problem == null
+        ? null
+        : PositionedDirectional(
+            bottom: theme.space.space4,
+            end: theme.space.space4,
+            child: SizedBox(
+              width: Toast.width,
+              child: OpenProblemToast(problem),
+            ),
+          );
+    // a1-7: a file still opening, with its Cancel (also Esc).
+    final opening = active != null && active.loading ? active.path : null;
+    void cancelOpening() =>
+        ref.read(documentOpenerProvider.notifier).close(opening!);
     return Shortcuts(
       shortcuts: ShellCommand.shortcutsFor(
         platform,
@@ -122,80 +156,168 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
       ),
       // The focus stop itself is named, so focusing it reads "Document
       // pages"; the empty state is a node of its own inside it.
-      child: Semantics(
-        container: true,
-        label: l10n.shellCanvas,
-        value: view == null
-            ? null
-            : l10n.shellPageOf(
-                format.integer(view.currentPage + 1),
-                format.integer(view.pageSizes.length),
-              ),
-        child: FocusableActionDetector(
-          focusNode: _focus,
-          autofocus: true,
-          onFocusChange: (focused) {
-            if (!focused && _launchFocus) {
-              setState(() => _launchFocus = false);
-            }
-          },
-          onShowFocusHighlight: (value) => setState(() => _highlight = value),
-          child: FocusRing(
-            visible: _highlight && !_launchFocus,
-            style: FocusRingStyle.inset,
-            child: Directionality(
-              textDirection: TextDirection.ltr,
-              child: ColoredBox(
-                color: theme.colors.surfaceCanvas,
-                child: view != null
-                    // The find bar follows the UI's direction; the pages
-                    // never mirror (ADR 0014).
-                    ? Directionality(
-                        textDirection: uiDirection,
-                        child: Stack(
-                          children: [
-                            Positioned.fill(
-                              child: Directionality(
-                                textDirection: TextDirection.ltr,
-                                child: DocumentView(
-                                  key: ValueKey(view.document.id),
-                                  uiDirection: uiDirection,
-                                  tools: mode == FermanMode.view,
-                                ),
-                              ),
-                            ),
-                            PositionedDirectional(
-                              top: theme.space.space3,
-                              end: theme.space.space4,
-                              child: const FindBar(),
-                            ),
-                          ],
-                        ),
-                      )
-                    : Center(
-                        child: Semantics(
-                          container: true,
-                          child: Column(
-                            mainAxisSize: MainAxisSize.min,
-                            spacing: theme.space.space2,
+      child: CallbackShortcuts(
+        bindings: {
+          if (opening != null)
+            const SingleActivator(LogicalKeyboardKey.escape): cancelOpening,
+        },
+        child: Semantics(
+          container: true,
+          label: l10n.shellCanvas,
+          value: view == null
+              ? null
+              : l10n.shellPageOf(
+                  format.integer(view.currentPage + 1),
+                  format.integer(view.pageSizes.length),
+                ),
+          child: FocusableActionDetector(
+            focusNode: _focus,
+            autofocus: true,
+            onFocusChange: (focused) {
+              if (!focused && _launchFocus) {
+                setState(() => _launchFocus = false);
+              }
+            },
+            onShowFocusHighlight: (value) => setState(() => _highlight = value),
+            child: FocusRing(
+              visible: _highlight && !_launchFocus,
+              style: FocusRingStyle.inset,
+              child: Directionality(
+                textDirection: TextDirection.ltr,
+                child: ColoredBox(
+                  color: theme.colors.surfaceCanvas,
+                  child:
+                      active != null && (active.locked || active.error != null)
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
                             children: [
-                              Icon(
-                                IconName.fileText,
-                                size: theme.density.iconLg,
-                                color: theme.colors.iconSecondary,
+                              Positioned.fill(
+                                child: active.locked
+                                    ? UnlockTab(
+                                        active,
+                                        key: ValueKey(active.path),
+                                      )
+                                    : OpenErrorTab(active),
                               ),
-                              Text(
-                                Feature.pageRendering.disabledReason(context),
-                                textAlign: TextAlign.center,
-                                textDirection: uiDirection,
-                                style: theme.typography.caption.copyWith(
-                                  color: theme.colors.textTertiary,
-                                ),
-                              ),
+                              ?problemToast,
                             ],
                           ),
+                        )
+                      : opening != null
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            children: [
+                              PositionedDirectional(
+                                bottom: theme.space.space6,
+                                end: theme.space.space6,
+                                child: TaskProgress(
+                                  icon: IconName.fileText,
+                                  title: l10n.openingTitle(
+                                    bidiIsolate(active!.name),
+                                  ),
+                                  indeterminate: true,
+                                  onCancel: cancelOpening,
+                                  cancelLabel: l10n.openingCancel,
+                                ),
+                              ),
+                              ?problemToast,
+                            ],
+                          ),
+                        )
+                      : view != null
+                      // The find bar follows the UI's direction; the pages
+                      // never mirror (ADR 0014).
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            children: [
+                              Positioned.fill(
+                                child: Column(
+                                  crossAxisAlignment:
+                                      CrossAxisAlignment.stretch,
+                                  children: [
+                                    if (active != null)
+                                      DocumentBanners(
+                                        document: active,
+                                        onUnlock: () => setState(
+                                          () => _ownerUnlock = view.document.id,
+                                        ),
+                                      ),
+                                    Expanded(
+                                      child: Stack(
+                                        children: [
+                                          Positioned.fill(
+                                            child: Directionality(
+                                              textDirection: TextDirection.ltr,
+                                              child: DocumentView(
+                                                key: ValueKey(view.document.id),
+                                                uiDirection: uiDirection,
+                                                tools: mode == FermanMode.view,
+                                              ),
+                                            ),
+                                          ),
+                                          PositionedDirectional(
+                                            top: theme.space.space3,
+                                            end: theme.space.space4,
+                                            child: const FindBar(),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              if (active != null &&
+                                  _properties == view.document.id)
+                                DocumentPropertiesDialog(
+                                  tab: active,
+                                  onClose: () =>
+                                      setState(() => _properties = null),
+                                  onUnlock: () => setState(() {
+                                    _properties = null;
+                                    _ownerUnlock = view.document.id;
+                                  }),
+                                ),
+                              if (active != null &&
+                                  _ownerUnlock == view.document.id)
+                                Positioned.fill(
+                                  child: OwnerUnlockDialog(
+                                    document: active,
+                                    onClose: () =>
+                                        setState(() => _ownerUnlock = null),
+                                  ),
+                                ),
+                              ?problemToast,
+                            ],
+                          ),
+                        )
+                      : Center(
+                          child: Semantics(
+                            container: true,
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+                              spacing: theme.space.space2,
+                              children: [
+                                Icon(
+                                  IconName.fileText,
+                                  size: theme.density.iconLg,
+                                  color: theme.colors.iconSecondary,
+                                ),
+                                Text(
+                                  Feature.pageRendering.disabledReason(context),
+                                  textAlign: TextAlign.center,
+                                  textDirection: uiDirection,
+                                  style: theme.typography.caption.copyWith(
+                                    color: theme.colors.textTertiary,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
                         ),
-                      ),
+                ),
               ),
             ),
           ),

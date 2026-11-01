@@ -47,12 +47,10 @@ void main() {
     expect(find.textContaining('Word'), findsNothing);
   });
 
-  testWidgets('every entry point is disabled with the reason (G10)', (
-    tester,
-  ) async {
+  testWidgets('every entry point but opening is disabled with the reason '
+      '(G10)', (tester) async {
     await pumpFermanApp(tester);
     for (final label in [
-      'Open file…. PDF files',
       'Create PDF. From a blank page, files or the clipboard',
       'Combine files. Merge several files into one PDF',
       'Scan to PDF. From a scanner or a phone camera',
@@ -68,7 +66,6 @@ void main() {
       'Recognize text (OCR)',
       'Protect',
       'Compare',
-      'Open a PDF',
       'New blank PDF',
     ]) {
       final button = find.ancestor(
@@ -81,7 +78,9 @@ void main() {
       expect(interactive.disabledReason, _future, reason: label);
     }
     final zone = tester.widget<DropZone>(find.byType(DropZone));
-    expect(zone.disabledReason, _future);
+    expect(zone.disabledReason, isNull);
+    expect(zone.createDisabledReason, _future);
+    expect(zone.onOpen, isNotNull);
   });
 
   testWidgets('shows the platform’s shortcut caps', (tester) async {

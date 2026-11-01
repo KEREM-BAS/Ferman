@@ -1198,4 +1198,537 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0 $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'PDF belgeleri';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'Ferman “$name” dosyasını açamıyor';
+  }
+
+  @override
+  String get openFailedDismiss => 'Kapat';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'Bu cihaza kaydedildi';
+
+  @override
+  String get shellMoreDocumentsMenu => 'Diğer açık belgeler';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText belge daha',
+      one: '1 belge daha',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · kaydedilmedi';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'Tüm açık belgeleri göster';
+
+  @override
+  String get shellCloseOtherDocuments => 'Diğer belgeleri kapat…';
+
+  @override
+  String get dropOverlayTitle => 'Açmak için dosyaları bırakın';
+
+  @override
+  String get dropOverlayHint => 'Bir seçeneğin üzerine gelin, sonra bırakın.';
+
+  @override
+  String get dropOverlayTabs => 'Sekmelerde aç';
+
+  @override
+  String get dropOverlayTabsDescription => 'Her dosya ayrı açılır.';
+
+  @override
+  String get dropOverlayCombine => 'Tek bir PDF’de birleştir';
+
+  @override
+  String get startDropStripTitle =>
+      'Dosyaları bu pencerede herhangi bir yere bırakın';
+
+  @override
+  String get startDropStripSubtitle => 'PDF dosyaları sekmelerde açılır.';
+
+  @override
+  String get startPinned => 'Sabitlenenler';
+
+  @override
+  String get startPin => 'Sabitle';
+
+  @override
+  String get startUnpin => 'Sabitlemeyi kaldır';
+
+  @override
+  String get startRecent => 'Son kullanılanlar';
+
+  @override
+  String get startSearchRecent => 'Son dosyalarda ara';
+
+  @override
+  String get startSort => 'Sıralama';
+
+  @override
+  String get startSortOpened => 'Son açılma';
+
+  @override
+  String get startSortName => 'Ad';
+
+  @override
+  String get startSortLocation => 'Konum';
+
+  @override
+  String get startView => 'Görünüm';
+
+  @override
+  String get startViewGrid => 'Izgara';
+
+  @override
+  String get startViewList => 'Liste';
+
+  @override
+  String get startColumnPages => 'Sayfa';
+
+  @override
+  String get startColumnOpened => 'Son açılma';
+
+  @override
+  String get startRecentFooter =>
+      'Son dosyalar yalnızca bu cihazda listelenir.';
+
+  @override
+  String get startClearList => 'Listeyi temizle';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return '“$query” ile eşleşen son dosya yok.';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages sayfa',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'Bugün $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'Dün $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'İmzalı';
+
+  @override
+  String startMissingTitle(String name) {
+    return '“$name” bulunamadı';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'Dosya son açılışınızdan sonra taşınmış, yeniden adlandırılmış veya silinmiş. Önceki konumu: $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'Listeden kaldır';
+
+  @override
+  String get startMissingLocate => 'Bul…';
+
+  @override
+  String get startMissingClose => 'Kapat';
+
+  @override
+  String get errorInternal =>
+      'Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın.';
+
+  @override
+  String get errorFileNotFound =>
+      'Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın.';
+
+  @override
+  String get errorFileRead =>
+      'Ferman dosyayı bulunduğu diskten okuyamadı. Diskin hâlâ bağlı olduğuna bakıp yeniden deneyin.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '“$name” bir PDF dosyası değil. Ferman PDF dosyalarını açar.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'Bu PDF parolayla korunuyor';
+
+  @override
+  String get errorWrongPassword =>
+      'Bu parola işe yaramadı. Caps Lock’a ve klavye düzenine bakın: Türkçe klavyede ı ile i ayrı tuşlardır.';
+
+  @override
+  String get errorDamaged =>
+      'Dosya bozuk ve Ferman onaramıyor. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'Dosya sonuna gelmeden bitiyor, geri kalanı eksik. Büyük olasılıkla indirilirken ya da kopyalanırken yarıda kesildi. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'Dosya bir PDF gibi başlıyor, ama sonrası okunamıyor. Dosyayı yeniden edinmeyi deneyin.';
+
+  @override
+  String get errorUnsupported =>
+      'Ferman’ın henüz desteklemediği bir şey kullanıyor, örneğin sertifikayla şifreleme.';
+
+  @override
+  String get errorTooComplex =>
+      'Bu dosya Ferman’ın güvenlik sınırları içinde açılamayacak kadar karmaşık. Diğer belgeleriniz açık ve değişmedi.';
+
+  @override
+  String get errorOutOfMemory =>
+      'Dosya açılırken bilgisayarın belleği yetmedi. Diğer belgeleriniz açık ve değişmedi.';
+
+  @override
+  String openClosedTitle(String name) {
+    return '“$name” kapatıldı';
+  }
+
+  @override
+  String get openTryAgain => 'Yeniden dene';
+
+  @override
+  String get openNotPdfTitle => 'Bu dosya bir PDF değil.';
+
+  @override
+  String get openAnotherFile => 'Başka bir dosya aç…';
+
+  @override
+  String get openShowInFinder => 'Finder’da göster';
+
+  @override
+  String get openShowInExplorer => 'Dosya Gezgini’nde göster';
+
+  @override
+  String get openShowInFolder => 'Klasörde göster';
+
+  @override
+  String get openConvertToPdf => 'PDF’ye dönüştür…';
+
+  @override
+  String unlockDescription(String name) {
+    return '“$name” dosyasının parolasını girin. Ferman dosyayı kapattığınızda parolayı unutur.';
+  }
+
+  @override
+  String get unlockPassword => 'Parola';
+
+  @override
+  String get unlockShowPassword => 'Parolayı göster';
+
+  @override
+  String get unlockCancel => 'Vazgeç';
+
+  @override
+  String get unlockOpen => 'Aç';
+
+  @override
+  String get restrictedTitle => 'Belgenin yazarı bu belgeyi kısıtladı.';
+
+  @override
+  String get restrictedBody =>
+      'Belgeyi okuyabilir ve yazdırabilirsiniz. Düzenleme, yorum ve form doldurma kapalı.';
+
+  @override
+  String get restrictedBodyOther =>
+      'Belgeyi okuyabilirsiniz. Yazar bazı işlemleri kapattı.';
+
+  @override
+  String get restrictedUnlock => 'Sahip parolasıyla kilidi aç…';
+
+  @override
+  String get ownerUnlockTitle => 'Sahip parolasıyla kilidi aç';
+
+  @override
+  String ownerUnlockDescription(String name) {
+    return '“$name” için sahip parolasını girin. Dosyayı kapattığınızda Ferman parolayı unutur.';
+  }
+
+  @override
+  String get ownerUnlockPassword => 'Sahip parolası';
+
+  @override
+  String get ownerUnlockAction => 'Kilidi aç';
+
+  @override
+  String scriptsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu belgede $countText betik var.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scriptsBody =>
+      'Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir.';
+
+  @override
+  String get scriptsDismiss => 'Kapat';
+
+  @override
+  String get propertiesFile => 'Dosya';
+
+  @override
+  String get propertiesFonts => 'Bu belgedeki yazı tipleri';
+
+  @override
+  String get propertiesSecurity => 'Güvenlik';
+
+  @override
+  String get propertiesPages => 'Sayfalar';
+
+  @override
+  String get propertiesPageSize => 'Sayfa boyutu';
+
+  @override
+  String get propertiesFileSize => 'Dosya boyutu';
+
+  @override
+  String get propertiesVersion => 'PDF sürümü';
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) {
+    return '$version (Acrobat $acrobat.x)';
+  }
+
+  @override
+  String get propertiesLocation => 'Konum';
+
+  @override
+  String get propertiesCreated => 'Oluşturulma';
+
+  @override
+  String get propertiesModified => 'Değiştirilme';
+
+  @override
+  String get propertiesTitle => 'Başlık';
+
+  @override
+  String get propertiesAuthor => 'Yazar';
+
+  @override
+  String get propertiesSubject => 'Konu';
+
+  @override
+  String get propertiesKeywords => 'Anahtar sözcükler';
+
+  @override
+  String get propertiesTagged => 'Etiketli PDF';
+
+  @override
+  String get propertiesFastWebView => 'Hızlı web görünümü';
+
+  @override
+  String get propertiesMadeWith => 'Oluşturan uygulama';
+
+  @override
+  String get propertiesYes => 'Evet';
+
+  @override
+  String get propertiesNo => 'Hayır';
+
+  @override
+  String get propertiesNone => 'Yok';
+
+  @override
+  String get propertiesNoPassword => 'Parola yok';
+
+  @override
+  String get propertiesOwnerPassword => 'Sahip parolası';
+
+  @override
+  String propertiesSignatures(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText imza',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String propertiesSignatureOnPage(String page) {
+    return '1 imza, sayfa $page';
+  }
+
+  @override
+  String get propertiesEmbedded => 'Gömülü';
+
+  @override
+  String get propertiesPartial => 'Kısmi';
+
+  @override
+  String get propertiesPartialNote =>
+      'Alt küme: yalnızca dosyada zaten bulunan karakterler.';
+
+  @override
+  String get propertiesSubset => 'Alt küme';
+
+  @override
+  String get propertiesSubsetNote => 'Yalnızca zaten kullanılan karakterler.';
+
+  @override
+  String get propertiesNotEmbedded => 'Gömülü değil';
+
+  @override
+  String get propertiesFontType1 => 'Type 1';
+
+  @override
+  String get propertiesFontMultipleMaster => 'Multiple Master';
+
+  @override
+  String get propertiesFontTrueType => 'TrueType';
+
+  @override
+  String get propertiesFontType0 => 'Type 0';
+
+  @override
+  String get propertiesFontType3 => 'Type 3';
+
+  @override
+  String get propertiesFontOther => 'Diğer';
+
+  @override
+  String get propertiesFontColumn => 'Yazı tipi';
+
+  @override
+  String get propertiesTypeColumn => 'Tür';
+
+  @override
+  String get propertiesStatusColumn => 'Durum';
+
+  @override
+  String propertiesDialogTitle(String name) {
+    return '$name — Özellikler';
+  }
+
+  @override
+  String get propertiesSection => 'Bölüm';
+
+  @override
+  String get propertiesSummary => 'Özet';
+
+  @override
+  String get propertiesAdvanced => 'Gelişmiş';
+
+  @override
+  String get propertiesDone => 'Bitti';
+
+  @override
+  String get propertiesClose => 'Kapat';
+
+  @override
+  String get propertiesEncryption => 'Şifreleme';
+
+  @override
+  String propertiesRc4(String bits) {
+    return 'RC4, $bits bit';
+  }
+
+  @override
+  String get propertiesAes128 => 'AES-128';
+
+  @override
+  String get propertiesAes256 => 'AES-256';
+
+  @override
+  String get propertiesOwnerPasswordSuffix => 'sahip parolası';
+
+  @override
+  String get propertiesOpenPassword => 'Açma parolası';
+
+  @override
+  String get propertiesRequired => 'Gerekli';
+
+  @override
+  String get propertiesPermissions => 'İzinler';
+
+  @override
+  String get propertiesPrinting => 'Yazdırma';
+
+  @override
+  String get propertiesChanging => 'Belgeyi değiştirme';
+
+  @override
+  String get propertiesCommenting => 'Yorum ekleme';
+
+  @override
+  String get propertiesFilling => 'Form alanlarını doldurma';
+
+  @override
+  String get propertiesSigning => 'İmzalama';
+
+  @override
+  String get propertiesCopying => 'Metin ve görselleri kopyalama';
+
+  @override
+  String get propertiesScreenReaders => 'Ekran okuyucular için metin erişimi';
+
+  @override
+  String get propertiesAssembling => 'Sayfaları birleştirme ve düzenleme';
+
+  @override
+  String get propertiesAllowed => 'İzin veriliyor';
+
+  @override
+  String get propertiesAllowedHighQuality => 'İzin veriliyor, yüksek kalite';
+
+  @override
+  String get propertiesNotAllowed => 'İzin verilmiyor';
+
+  @override
+  String get propertiesLanguage => 'Dil';
+
+  @override
+  String get propertiesScripts => 'JavaScript';
+
+  @override
+  String propertiesScriptsValue(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Dosya açılırken çalışan $countText betik. Ferman bunları hiçbir zaman çalıştırmaz.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String openingTitle(String name) {
+    return '“$name” açılıyor';
+  }
+
+  @override
+  String get openingCancel => 'Vazgeç';
 }

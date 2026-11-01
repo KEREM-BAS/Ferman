@@ -183,7 +183,9 @@ class FmSidebar extends ConsumerWidget {
                       key: keyOf(each),
                       child: switch ((document, each)) {
                         (null, _) => const SizedBox.expand(),
-                        (_, SidebarTab.search) => const SidebarSearch(),
+                        (final open?, SidebarTab.search) => SidebarSearch(
+                          key: ValueKey(open.id),
+                        ),
                         (final open?, SidebarTab.pages) => SidebarPages(
                           key: ValueKey(open.id),
                         ),

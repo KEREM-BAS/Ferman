@@ -5,6 +5,7 @@ import 'package:ferman/app/platform_window.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
 import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/file_drop.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/foundation.dart';
@@ -23,10 +24,19 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// [DesktopWindow.platform]) the frame is just [child].
 class WindowFrame extends ConsumerWidget {
   /// Frames [child] with the title bar, which holds [titleBarContent].
-  const new({required this.child, super.key, this.titleBarContent});
+  const new({
+    required this.child,
+    super.key,
+    this.titleBarContent,
+    this.takesFiles = false,
+  });
 
   /// The screen below the title bar.
   final Widget child;
+
+  /// Whether files dropped on the window open ([FileDrop]): on the start
+  /// screen and in the editor.
+  final bool takesFiles;
 
   /// What the title bar shows between the window controls: the home tab,
   /// the document tabs, search and settings. Null leaves the title bar bare
@@ -37,19 +47,17 @@ class WindowFrame extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final window = ref.watch(desktopWindowProvider);
     final platform = window.platform;
-    if (platform == null) return child;
+    if (platform == null) return FileDrop(enabled: takesFiles, child: child);
     return WindowCommandScope(
       window: window,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          TitleBar(
-            window: window,
-            platform: platform,
-            content: titleBarContent,
-          ),
-          Expanded(child: child),
-        ],
+      child: FileDrop(
+        enabled: takesFiles,
+        titleBar: TitleBar(
+          window: window,
+          platform: platform,
+          content: titleBarContent,
+        ),
+        child: child,
       ),
     );
   }

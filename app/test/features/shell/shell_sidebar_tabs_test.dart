@@ -166,6 +166,67 @@ void main() {
     expect(inSidebar(find.text('4.1 Yıllık artış')), findsOneWidget);
   });
 
+  testWidgets('each document keeps its sidebar tab, folds and scroll, '
+      'also while the sidebar is hidden (B091)', (tester) async {
+    final long = OpenedDocument(
+      id: 6,
+      pages: [
+        for (var i = 0; i < 40; i++) const PageInfo(width: 595, height: 842),
+      ],
+    );
+    await pumpDocument(tester, kira);
+    final container = containerOf(tester);
+    Future<void> show(OpenedDocument document) async {
+      container.read(openDocumentProvider.notifier).show(document);
+      await settle(tester);
+    }
+
+    double offset() => tester
+        .state<ScrollableState>(
+          inSidebar(find.byType(Scrollable)).hitTestable().first,
+        )
+        .position
+        .pixels;
+
+    await showTab(tester, SidebarTab.outline);
+    Focus.of(tester.element(inSidebar(find.text('Madde 4 — Kira bedeli'))))
+        .requestFocus();
+    await settle(tester);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
+    await settle(tester);
+    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+
+    // A new document starts on Pages, at the top.
+    await show(long);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.pages);
+    await tester.drag(
+      inSidebar(find.byType(Scrollable)).hitTestable().first,
+      const Offset(0, -600),
+    );
+    await settle(tester);
+    final scrolled = offset();
+    expect(scrolled, greaterThan(0));
+
+    await show(kira);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.outline);
+    expect(inSidebar(find.text('Madde 4 — Kira bedeli')), findsOneWidget);
+    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+
+    await show(long);
+    expect(container.read(shellSidebarTabProvider), SidebarTab.pages);
+    expect(offset(), scrolled);
+
+    // Hiding the sidebar takes it out of the tree; its state stays.
+    container.read(shellSidebarOpenProvider.notifier).close();
+    await settle(tester);
+    expect(find.byType(FmSidebar), findsNothing);
+    container.read(shellSidebarOpenProvider.notifier).open();
+    await settle(tester);
+    expect(offset(), scrolled);
+    await show(kira);
+    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+  });
+
   testWidgets('Attachments, Layers and Signatures list the document', (
     tester,
   ) async {

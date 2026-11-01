@@ -24,6 +24,14 @@ abstract interface class EngineService {
   /// Closes a document and ends its views.
   Future<void> close(int document);
 
+  /// Lifts [document]'s restrictions for the session with its owner
+  /// [password] (a2-10, G106): its security after, or null when it is not
+  /// encrypted.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.wrongPassword] for
+  /// another password.
+  Future<Security?> unlockOwner(int document, String password);
+
   /// Shows the layers of [document] whose [visible] is true and hides the
   /// others, in the order of its [OpenedDocument.layers], in every view.
   /// Returns every page's new render key: bitmaps with an older one show the
@@ -51,6 +59,11 @@ abstract interface class EngineService {
 
   /// Closes a view; its updates end.
   Future<void> closeView(int view);
+
+  /// The order of [texts] in the language of [locale], a BCP 47 tag such as
+  /// `tr`: their indices, first to last (ICU4X's collator, ADR 0021). Digits
+  /// compare by their value and equal texts keep their order.
+  Future<List<int>> collationOrder(String locale, List<String> texts);
 }
 
 /// Why the engine could not be used.
@@ -105,6 +118,10 @@ class UnavailableEngineService implements EngineService {
   Future<void> close(int document) async => throw error;
 
   @override
+  Future<Security?> unlockOwner(int document, String password) async =>
+      throw error;
+
+  @override
   Future<int> showLayers(int document, List<bool> visible) async => throw error;
 
   @override
@@ -126,4 +143,8 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> closeView(int view) async => throw error;
+
+  @override
+  Future<List<int>> collationOrder(String locale, List<String> texts) async =>
+      throw error;
 }

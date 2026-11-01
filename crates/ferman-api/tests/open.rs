@@ -133,9 +133,60 @@ fn the_open_carries_the_sidebar_lists() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn the_open_carries_the_properties_and_the_owner_unlock_lifts_restrictions() {
+    let kira = open("kira-tr", None).unwrap();
+    assert!(!kira.version.is_empty());
+    assert_eq!(
+        kira.file_size,
+        std::fs::metadata(path("kira-tr")).unwrap().len()
+    );
+    assert!(!kira.fonts.is_empty());
+    assert!(kira.fonts.iter().all(|font| font.embedded));
+    assert!(kira.security.is_none());
+    assert_eq!(kira.scripts.count, 0);
+    assert!(open("tez-tr", None).unwrap().tagged);
+    assert!(open("js-openaction", None).unwrap().scripts.count > 0);
+
+    let payslip = open("payslip-rc4-40", Some("bordro2026")).unwrap();
+    let security = payslip.security.unwrap();
+    assert!(security.user_password_required);
+
+    let restricted = open("kira-tr-restricted", None).unwrap();
+    let security = restricted.security.unwrap();
+    assert!(!security.user_password_required && !security.owner);
+    assert!(security.restricted());
+    assert!(security.permissions.print() && !security.permissions.modify());
+    let wrong = block_on(engine().unlock_owner(restricted.id, Password::new("kaya".to_owned())))
+        .unwrap_err();
+    assert_eq!(wrong.kind, ErrorKind::WrongPassword);
+    let unlocked =
+        block_on(engine().unlock_owner(restricted.id, Password::new("Kaya-Moda-18".to_owned())))
+            .unwrap()
+            .unwrap();
+    assert!(unlocked.owner && !unlocked.restricted());
+    assert_eq!(unlocked.permissions, security.permissions);
+    // Not encrypted: nothing to lift.
+    assert_eq!(
+        block_on(engine().unlock_owner(kira.id, Password::new(String::new()))).unwrap(),
+        None
+    );
+    for id in [kira.id, payslip.id, restricted.id] {
+        block_on(engine().close(id)).unwrap();
+    }
+    let gone = block_on(engine().unlock_owner(kira.id, Password::new(String::new()))).unwrap_err();
+    assert_eq!(gone.kind, ErrorKind::NotFound);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn files_that_do_not_open_say_why() {
     let kind = |name: &str, password: Option<&str>| open(name, password).unwrap_err().kind;
     assert_eq!(kind("truncated", None), ErrorKind::Damaged);
+    // a1-9b's sentence and its technical details.
+    let truncated = open("truncated", None).unwrap_err();
+    assert_eq!(truncated.message_key.as_str(), "errorDamagedTruncated");
+    let details = truncated.details.unwrap();
+    assert!(details.contains("last complete object"), "{details}");
     assert_eq!(kind("payslip-aes256", None), ErrorKind::PasswordRequired);
     assert_eq!(
         kind("payslip-aes256", Some("eylul2026")),

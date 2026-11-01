@@ -62,6 +62,9 @@ abstract class FermanBridgeApiImplPlatform
   SearchOptions dco_decode_box_autoadd_search_options(dynamic raw);
 
   @protected
+  Security dco_decode_box_autoadd_security(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
@@ -77,6 +80,15 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion dco_decode_crate_version(dynamic raw);
 
   @protected
+  DocumentInfo dco_decode_document_info(dynamic raw);
+
+  @protected
+  DocumentPermissions dco_decode_document_permissions(dynamic raw);
+
+  @protected
+  EncryptionMethod dco_decode_encryption_method(dynamic raw);
+
+  @protected
   EngineInfo dco_decode_engine_info(dynamic raw);
 
   @protected
@@ -87,6 +99,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FailReason dco_decode_fail_reason(dynamic raw);
+
+  @protected
+  FontEntry dco_decode_font_entry(dynamic raw);
+
+  @protected
+  FontType dco_decode_font_type(dynamic raw);
 
   @protected
   int dco_decode_i_16(dynamic raw);
@@ -101,6 +119,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer dco_decode_layer(dynamic raw);
 
   @protected
+  List<String> dco_decode_list_String(dynamic raw);
+
+  @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw);
 
   @protected
@@ -108,6 +129,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
+
+  @protected
+  List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
   List<Layer> dco_decode_list_layer(dynamic raw);
@@ -120,6 +144,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> dco_decode_list_page_rect(dynamic raw);
+
+  @protected
+  Uint32List dco_decode_list_prim_u_32_strict(dynamic raw);
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
@@ -147,6 +174,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason? dco_decode_opt_box_autoadd_read_only_reason(dynamic raw);
+
+  @protected
+  Security? dco_decode_opt_box_autoadd_security(dynamic raw);
 
   @protected
   int? dco_decode_opt_box_autoadd_u_32(dynamic raw);
@@ -192,6 +222,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   SearchOptions dco_decode_search_options(dynamic raw);
+
+  @protected
+  Security dco_decode_security(dynamic raw);
 
   @protected
   Signature dco_decode_signature(dynamic raw);
@@ -268,6 +301,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  Security sse_decode_box_autoadd_security(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
@@ -283,6 +319,17 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer);
 
   @protected
+  DocumentInfo sse_decode_document_info(SseDeserializer deserializer);
+
+  @protected
+  DocumentPermissions sse_decode_document_permissions(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  EncryptionMethod sse_decode_encryption_method(SseDeserializer deserializer);
+
+  @protected
   EngineInfo sse_decode_engine_info(SseDeserializer deserializer);
 
   @protected
@@ -293,6 +340,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FailReason sse_decode_fail_reason(SseDeserializer deserializer);
+
+  @protected
+  FontEntry sse_decode_font_entry(SseDeserializer deserializer);
+
+  @protected
+  FontType sse_decode_font_type(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_16(SseDeserializer deserializer);
@@ -307,6 +360,9 @@ abstract class FermanBridgeApiImplPlatform
   Layer sse_decode_layer(SseDeserializer deserializer);
 
   @protected
+  List<String> sse_decode_list_String(SseDeserializer deserializer);
+
+  @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
 
   @protected
@@ -316,6 +372,9 @@ abstract class FermanBridgeApiImplPlatform
   List<CrateVersion> sse_decode_list_crate_version(
     SseDeserializer deserializer,
   );
+
+  @protected
+  List<FontEntry> sse_decode_list_font_entry(SseDeserializer deserializer);
 
   @protected
   List<Layer> sse_decode_list_layer(SseDeserializer deserializer);
@@ -330,6 +389,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<PageRect> sse_decode_list_page_rect(SseDeserializer deserializer);
+
+  @protected
+  Uint32List sse_decode_list_prim_u_32_strict(SseDeserializer deserializer);
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
@@ -361,6 +423,9 @@ abstract class FermanBridgeApiImplPlatform
   ReadOnlyReason? sse_decode_opt_box_autoadd_read_only_reason(
     SseDeserializer deserializer,
   );
+
+  @protected
+  Security? sse_decode_opt_box_autoadd_security(SseDeserializer deserializer);
 
   @protected
   int? sse_decode_opt_box_autoadd_u_32(SseDeserializer deserializer);
@@ -406,6 +471,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   SearchOptions sse_decode_search_options(SseDeserializer deserializer);
+
+  @protected
+  Security sse_decode_security(SseDeserializer deserializer);
 
   @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
@@ -528,6 +596,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_security(Security raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_security(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_u_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_u_32(raw);
@@ -555,6 +629,36 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_document_info(DocumentInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_String(raw.title),
+      cst_encode_opt_String(raw.author),
+      cst_encode_opt_String(raw.subject),
+      cst_encode_opt_String(raw.keywords),
+      cst_encode_opt_String(raw.creator),
+      cst_encode_opt_String(raw.producer),
+      cst_encode_opt_box_autoadd_pdf_date(raw.created),
+      cst_encode_opt_box_autoadd_pdf_date(raw.modified),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_document_permissions(DocumentPermissions raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.print),
+      cst_encode_bool(raw.printHighQuality),
+      cst_encode_bool(raw.modify),
+      cst_encode_bool(raw.annotate),
+      cst_encode_bool(raw.fillForms),
+      cst_encode_bool(raw.copy),
+      cst_encode_bool(raw.accessibility),
+      cst_encode_bool(raw.assemble),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_engine_info(EngineInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -567,6 +671,17 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_font_entry(FontEntry raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_font_type(raw.kind),
+      cst_encode_bool(raw.embedded),
+      cst_encode_bool(raw.subset),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_layer(Layer raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -574,6 +689,12 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_bool(raw.visible),
       cst_encode_bool(raw.locked),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_String(List<String> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_String).toList().jsify()!;
   }
 
   @protected
@@ -592,6 +713,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_crate_version(List<CrateVersion> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_crate_version).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_font_entry(List<FontEntry> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_font_entry).toList().jsify()!;
   }
 
   @protected
@@ -616,6 +743,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_page_rect(List<PageRect> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_page_rect).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_prim_u_32_strict(Uint32List raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.jsify()!;
   }
 
   @protected
@@ -655,6 +788,15 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_layer(raw.layers),
       cst_encode_bool(raw.layersSwitchable),
       cst_encode_list_signature(raw.signatures),
+      cst_encode_String(raw.version),
+      cst_encode_u_64(raw.fileSize),
+      cst_encode_document_info(raw.info),
+      cst_encode_opt_String(raw.language),
+      cst_encode_bool(raw.tagged),
+      cst_encode_bool(raw.linearized),
+      cst_encode_list_font_entry(raw.fonts),
+      cst_encode_opt_box_autoadd_security(raw.security),
+      cst_encode_u_32(raw.scripts),
     ].jsify()!;
   }
 
@@ -680,6 +822,12 @@ abstract class FermanBridgeApiImplPlatform
   int? cst_encode_opt_box_autoadd_read_only_reason(ReadOnlyReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_read_only_reason(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_security(Security? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_security(raw);
   }
 
   @protected
@@ -790,6 +938,19 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_security(Security raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_encryption_method(raw.method),
+      cst_encode_u_16(raw.keyBits),
+      cst_encode_bool(raw.userPasswordRequired),
+      cst_encode_document_permissions(raw.permissions),
+      cst_encode_bool(raw.owner),
+      cst_encode_bool(raw.restricted),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_signature(Signature raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -856,6 +1017,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_build_profile(BuildProfile raw);
 
   @protected
+  int cst_encode_encryption_method(EncryptionMethod raw);
+
+  @protected
   int cst_encode_error_kind(ErrorKind raw);
 
   @protected
@@ -863,6 +1027,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_fail_reason(FailReason raw);
+
+  @protected
+  int cst_encode_font_type(FontType raw);
 
   @protected
   int cst_encode_i_16(int raw);
@@ -955,6 +1122,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_box_autoadd_security(Security self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
@@ -973,6 +1143,21 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_document_info(DocumentInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_document_permissions(
+    DocumentPermissions self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_encryption_method(
+    EncryptionMethod self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_engine_info(EngineInfo self, SseSerializer serializer);
 
   @protected
@@ -985,6 +1170,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_fail_reason(FailReason self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_entry(FontEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_font_type(FontType self, SseSerializer serializer);
+
+  @protected
   void sse_encode_i_16(int self, SseSerializer serializer);
 
   @protected
@@ -995,6 +1186,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_layer(Layer self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_attachment(
@@ -1012,6 +1206,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_font_entry(
+    List<FontEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_layer(List<Layer> self, SseSerializer serializer);
 
   @protected
@@ -1025,6 +1225,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_list_page_rect(List<PageRect> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_prim_u_32_strict(
+    Uint32List self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_prim_u_8_strict(
@@ -1074,6 +1280,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_read_only_reason(
     ReadOnlyReason? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_security(
+    Security? self,
     SseSerializer serializer,
   );
 
@@ -1132,6 +1344,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_search_options(SearchOptions self, SseSerializer serializer);
 
   @protected
+  void sse_encode_security(Security self, SseSerializer serializer);
+
+  @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
 
   @protected
@@ -1175,6 +1390,12 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__close_view(NativePortType port_, JSAny view) =>
       wasmModule.wire__crate__frb__close_view(port_, view);
+
+  void wire__crate__frb__collation_order(
+    NativePortType port_,
+    String locale,
+    JSAny texts,
+  ) => wasmModule.wire__crate__frb__collation_order(port_, locale, texts);
 
   void wire__crate__frb__debug_bytes(NativePortType port_, int len) =>
       wasmModule.wire__crate__frb__debug_bytes(port_, len);
@@ -1228,6 +1449,12 @@ class FermanBridgeWire implements BaseWire {
     JSAny document,
     JSAny visible,
   ) => wasmModule.wire__crate__frb__show_layers(port_, document, visible);
+
+  void wire__crate__frb__unlock_owner(
+    NativePortType port_,
+    JSAny document,
+    String password,
+  ) => wasmModule.wire__crate__frb__unlock_owner(port_, document, password);
 }
 
 @JS('wasm_bindgen')
@@ -1242,6 +1469,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__close(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__close_view(NativePortType port_, JSAny view);
+
+  external void wire__crate__frb__collation_order(
+    NativePortType port_,
+    String locale,
+    JSAny texts,
+  );
 
   external void wire__crate__frb__debug_bytes(NativePortType port_, int len);
 
@@ -1280,5 +1513,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     NativePortType port_,
     JSAny document,
     JSAny visible,
+  );
+
+  external void wire__crate__frb__unlock_owner(
+    NativePortType port_,
+    JSAny document,
+    String password,
   );
 }

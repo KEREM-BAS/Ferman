@@ -74,15 +74,16 @@ class RecentFile {
 ///
 /// **Dragging.** The zone is a [DragTarget] for lists of file paths: while
 /// such a drag hovers it shows [DropZoneState.over], and a drop calls
-/// [onFiles]. Desktop file drops arrive through desktop_drop from M2,
-/// which feeds the same paths in; until then a screen that tracks a drag
-/// itself can pass `state: DropZoneState.over`.
+/// [onFiles]. Files dragged from the desktop go to the window instead
+/// (`FileDrop`, a1-6), which covers the screen while they are dragged; a
+/// screen that tracks a drag itself can pass `state: DropZoneState.over`.
 ///
 /// **Disabled with a reason (G10).** With [disabledReason] the zone
 /// ignores drags (a drag over it does not enter the over state), and the
 /// Open and New buttons and the recent rows are disabled but focusable,
-/// with the reason as tooltip and semantics hint. The New button shows
-/// when [onCreate] is set or the zone is disabled with a reason.
+/// with the reason as tooltip and semantics hint. [createDisabledReason]
+/// disables only New. The New button shows when [onCreate] is set or it
+/// is disabled with a reason.
 ///
 /// For screen readers it is a region named by the title, which is also a
 /// heading; Tab reaches the buttons and the recent files.
@@ -102,10 +103,12 @@ class DropZone extends StatelessWidget {
     this.onFiles,
     this.minHeight,
     this.disabledReason,
+    this.createDisabledReason,
     this.overTitle,
     this.overSubtitle,
     this.errorTitle,
     this.errorSubtitle,
+    this.actions,
     this.openLabel,
     this.createLabel,
     this.recentTitle,
@@ -193,6 +196,10 @@ class DropZone extends StatelessWidget {
   /// Why drops, Open, New and the recent files are disabled (G10).
   final String? disabledReason;
 
+  /// Why only New is disabled, while the rest works (G10). Not a
+  /// design-system prop.
+  final String? createDisabledReason;
+
   /// The title while a drag hovers ("Release to open"). Not a
   /// design-system prop: the design hard-codes the copy.
   final String? overTitle;
@@ -206,6 +213,10 @@ class DropZone extends StatelessWidget {
 
   /// The subtitle of the error state. Not a design-system prop.
   final String? errorSubtitle;
+
+  /// Buttons in place of Open and Create, as a1-9c's error tab composes
+  /// them in `.fm-drop__actions`. Not a design-system prop.
+  final List<Widget>? actions;
 
   /// The Open button's label ("Open a PDF"); null hides the button. Not a
   /// design-system prop.
@@ -323,10 +334,20 @@ class DropZone extends StatelessWidget {
             ),
           );
 
+    final createReason = createDisabledReason ?? disabledReason;
     final showCreate =
-        createLabel != null && (onCreate != null || disabledWithReason);
-    final actions =
-        shown == DropZoneState.over || (openLabel == null && !showCreate)
+        createLabel != null && (onCreate != null || createReason != null);
+    final composed = this.actions;
+    final actions = shown == DropZoneState.over
+        ? null
+        : composed != null
+        ? Wrap(
+            alignment: WrapAlignment.center,
+            spacing: theme.space.space2,
+            runSpacing: theme.space.space2,
+            children: composed,
+          )
+        : openLabel == null && !showCreate
         ? null
         : Wrap(
             alignment: WrapAlignment.center,
@@ -371,8 +392,8 @@ class DropZone extends StatelessWidget {
                   size: ButtonSize.lg,
                   icon: IconName.filePlus2,
                   onPressed: onCreate,
-                  disabled: disabledWithReason,
-                  disabledReason: disabledReason,
+                  disabled: createReason != null,
+                  disabledReason: createReason,
                   child: Text(createLabel!),
                 ),
             ],
@@ -586,13 +607,20 @@ class DropZone extends StatelessWidget {
       ..add(DoubleProperty('minHeight', minHeight, defaultValue: null))
       ..add(
         StringProperty('disabledReason', disabledReason, defaultValue: null),
+      )
+      ..add(
+        StringProperty(
+          'createDisabledReason',
+          createDisabledReason,
+          defaultValue: null,
+        ),
       );
   }
 }
 
 /// Paints a [DropZone]'s border: a [width] stroke inside the canvas with
-/// corners of [radius], dashed ([DropZone.dashLength] on,
-/// [DropZone.dashGap] off) unless [dashed] is false.
+/// corners of [radius], dashed ([dashLength] on, [dashGap] off) unless
+/// [dashed] is false.
 class DropZoneBorderPainter extends CustomPainter {
   /// Creates the painter.
   const new({
@@ -600,6 +628,8 @@ class DropZoneBorderPainter extends CustomPainter {
     required this.width,
     required this.radius,
     required this.dashed,
+    this.dashLength = DropZone.dashLength,
+    this.dashGap = DropZone.dashGap,
   });
 
   /// The stroke colour.
@@ -613,6 +643,12 @@ class DropZoneBorderPainter extends CustomPainter {
 
   /// Whether the stroke is dashed (idle, error) or solid (over).
   final bool dashed;
+
+  /// A dash's length; Chromium draws three times the whole stroke width.
+  final double dashLength;
+
+  /// The gap between dashes; Chromium leaves twice the whole stroke width.
+  final double dashGap;
 
   @override
   void paint(Canvas canvas, Size size) {
@@ -630,16 +666,9 @@ class DropZoneBorderPainter extends CustomPainter {
       return;
     }
     for (final metric in (Path()..addRRect(box)).computeMetrics()) {
-      for (
-        var at = 0.0;
-        at < metric.length;
-        at += DropZone.dashLength + DropZone.dashGap
-      ) {
+      for (var at = 0.0; at < metric.length; at += dashLength + dashGap) {
         canvas.drawPath(
-          metric.extractPath(
-            at,
-            math.min(at + DropZone.dashLength, metric.length),
-          ),
+          metric.extractPath(at, math.min(at + dashLength, metric.length)),
           paint,
         );
       }
@@ -651,5 +680,7 @@ class DropZoneBorderPainter extends CustomPainter {
       oldDelegate.color != color ||
       oldDelegate.width != width ||
       oldDelegate.radius != radius ||
-      oldDelegate.dashed != dashed;
+      oldDelegate.dashed != dashed ||
+      oldDelegate.dashLength != dashLength ||
+      oldDelegate.dashGap != dashGap;
 }

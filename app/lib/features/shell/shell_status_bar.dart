@@ -202,12 +202,13 @@ class ShellStatusBar extends ConsumerWidget {
                     l10n.shellSavedOnDevice(bidiIsolate(time)),
                 label: switch (saveState) {
                   SaveState.unsaved => l10n.shellUnsavedChanges,
-                  SaveState.saved => l10n.shellSavedOnDevice(
-                    switch (document?.savedAt) {
-                      final at? => bidiIsolate(format.time(at)),
-                      null => '',
-                    },
-                  ),
+                  // A document just opened has no save of this session.
+                  SaveState.saved => switch (document?.savedAt) {
+                    final at? => l10n.shellSavedOnDevice(
+                      bidiIsolate(format.time(at)),
+                    ),
+                    null => l10n.shellSavedOnDeviceUndated,
+                  },
                   SaveState.saving => l10n.shellSaving,
                   SaveState.error => l10n.shellSaveError,
                   SaveState.readOnly => l10n.shellReadOnly,

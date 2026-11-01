@@ -30,8 +30,6 @@ final AppLocalizations _l10n = AppLocalizationsEn();
 /// bar, the status bar and the sidebar), by the control's label.
 final Map<String, ShellCommand> _chromeControls = {
   _l10n.shellOpenFile: ShellCommand.open,
-  // The active tab's close button.
-  _l10n.shellCloseDocument: ShellCommand.closeDocument,
   _l10n.shellSettings: ShellCommand.settings,
   _l10n.shellToggleSidebar: ShellCommand.toggleSidebar,
   _l10n.shellTogglePanel: ShellCommand.togglePanel,
@@ -121,6 +119,12 @@ const Set<ShellCommand> _keysOnly = {
   ShellCommand.save,
   ShellCommand.saveAs,
   ShellCommand.saveCopy,
+  // The placeholder tabs have no close button and the walk opens no "+N"
+  // menu: tab_overflow_test checks the close button's and Show all's keys.
+  ShellCommand.closeDocument,
+  ShellCommand.showAllDocuments,
+  // a2-7 gives Properties only its key.
+  ShellCommand.documentProperties,
   // Moving between documents (a1-10's note); the tabs show no keys.
   ShellCommand.nextDocument,
   ShellCommand.document1,

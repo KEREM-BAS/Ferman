@@ -99,6 +99,8 @@ that conflicts with riverpod_generator 4. golden_toolkit is discontinued.
   shown disabled with the future-version tooltip.
 - Mode tabs and sidebar tabs are the design's ModeTabs and SegmentedControl components over an
   `IndexedStack`, so each keeps its state. Open documents are kept in an IndexedStack too.
+  **Proposed amendment ([Q23](../QUESTIONS.md#q23)):** open documents keep their state outside the
+  widgets in `documentMemoryProvider`, keyed by the document's id, and only the shown one is built.
 - `TabBar` and `TabBarView` are never used.
 
 ### Dialogs, popups and overlays

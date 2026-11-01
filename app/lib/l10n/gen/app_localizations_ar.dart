@@ -1198,4 +1198,550 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0 في $_temp1';
   }
+
+  @override
+  String get openPdfFilter => 'مستندات PDF';
+
+  @override
+  String openFailedTitle(String name) {
+    return 'يتعذّر على Ferman فتح «$name»';
+  }
+
+  @override
+  String get openFailedDismiss => 'تجاهل';
+
+  @override
+  String get shellSavedOnDeviceUndated => 'حُفظ على هذا الجهاز';
+
+  @override
+  String get shellMoreDocumentsMenu => 'مستندات مفتوحة أخرى';
+
+  @override
+  String shellMoreDocumentsHeading(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText مستند آخر',
+      many: '$countText مستندًا آخر',
+      few: '$countText مستندات أخرى',
+      two: 'مستندان آخران',
+      one: 'مستند واحد آخر',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String shellMoreDocumentsUnsaved(String name) {
+    return '$name · غير محفوظ';
+  }
+
+  @override
+  String get shellShowAllDocuments => 'عرض كل المستندات المفتوحة';
+
+  @override
+  String get shellCloseOtherDocuments => 'إغلاق المستندات الأخرى…';
+
+  @override
+  String get dropOverlayTitle => 'أفلت لفتح الملفات';
+
+  @override
+  String get dropOverlayHint => 'مرّر فوق أحد الخيارين ثم أفلت.';
+
+  @override
+  String get dropOverlayTabs => 'فتح في علامات تبويب';
+
+  @override
+  String get dropOverlayTabsDescription => 'يُفتح كل ملف على حدة.';
+
+  @override
+  String get dropOverlayCombine => 'دمج في ملف PDF واحد';
+
+  @override
+  String get startDropStripTitle => 'أفلت الملفات في أي مكان في هذه النافذة';
+
+  @override
+  String get startDropStripSubtitle => 'تُفتح ملفات PDF في علامات تبويب.';
+
+  @override
+  String get startPinned => 'المثبّتة';
+
+  @override
+  String get startPin => 'تثبيت';
+
+  @override
+  String get startUnpin => 'إلغاء التثبيت';
+
+  @override
+  String get startRecent => 'الأخيرة';
+
+  @override
+  String get startSearchRecent => 'البحث في الملفات الأخيرة';
+
+  @override
+  String get startSort => 'الترتيب';
+
+  @override
+  String get startSortOpened => 'آخر فتح';
+
+  @override
+  String get startSortName => 'الاسم';
+
+  @override
+  String get startSortLocation => 'الموقع';
+
+  @override
+  String get startView => 'العرض';
+
+  @override
+  String get startViewGrid => 'شبكة';
+
+  @override
+  String get startViewList => 'قائمة';
+
+  @override
+  String get startColumnPages => 'الصفحات';
+
+  @override
+  String get startColumnOpened => 'آخر فتح';
+
+  @override
+  String get startRecentFooter => 'تُعرض الملفات الأخيرة على هذا الجهاز فقط.';
+
+  @override
+  String get startClearList => 'مسح القائمة';
+
+  @override
+  String startNoRecentMatch(String query) {
+    return 'لا يطابق أي ملف حديث «$query».';
+  }
+
+  @override
+  String startPages(int count, String pages) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$pages صفحة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String startOpenedToday(String time) {
+    return 'اليوم $time';
+  }
+
+  @override
+  String startOpenedYesterday(String time) {
+    return 'أمس $time';
+  }
+
+  @override
+  String get startBadgeSigned => 'موقّع';
+
+  @override
+  String startMissingTitle(String name) {
+    return 'تعذّر العثور على «$name»';
+  }
+
+  @override
+  String startMissingDescription(String folder) {
+    return 'نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في $folder.';
+  }
+
+  @override
+  String get startMissingRemove => 'إزالة من القائمة';
+
+  @override
+  String get startMissingLocate => 'تحديد الموقع…';
+
+  @override
+  String get startMissingClose => 'إغلاق';
+
+  @override
+  String get errorInternal =>
+      'حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه.';
+
+  @override
+  String get errorFileNotFound =>
+      'لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف.';
+
+  @override
+  String get errorFilePermissionDenied =>
+      'لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك.';
+
+  @override
+  String get errorFileRead =>
+      'تعذّر على Ferman قراءة الملف من القرص. تأكّد من أن القرص ما زال متصلًا، ثم أعد المحاولة.';
+
+  @override
+  String errorNotPdf(String name) {
+    return '«$name» ليس ملف PDF. يفتح Ferman ملفات PDF.';
+  }
+
+  @override
+  String get errorPasswordRequired => 'ملف PDF هذا محمي بكلمة مرور';
+
+  @override
+  String get errorWrongPassword =>
+      'لم تنجح كلمة المرور هذه. تحقّق من مفتاح Caps Lock ومن تخطيط لوحة المفاتيح: في لوحة المفاتيح التركية الحرفان ı وi مفتاحان مختلفان.';
+
+  @override
+  String get errorDamaged =>
+      'الملف تالف ولا يستطيع Ferman إصلاحه. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorDamagedTruncated =>
+      'ينتهي الملف قبل نهايته والباقي مفقود. ربما انقطع أثناء التنزيل أو النسخ. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorDamagedEmpty =>
+      'يبدأ الملف كملف PDF، لكن لا شيء بعد ذلك قابل للقراءة. حاول الحصول على الملف مرة أخرى.';
+
+  @override
+  String get errorUnsupported =>
+      'يستخدم شيئًا لا يدعمه Ferman بعد، مثل التشفير بشهادة.';
+
+  @override
+  String get errorTooComplex =>
+      'هذا الملف معقّد جدًا لفتحه ضمن حدود الأمان في Ferman. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+
+  @override
+  String get errorOutOfMemory =>
+      'نفدت ذاكرة الجهاز أثناء فتحه. مستنداتك الأخرى مفتوحة ولم تتغيّر.';
+
+  @override
+  String openClosedTitle(String name) {
+    return 'أُغلق «$name»';
+  }
+
+  @override
+  String get openTryAgain => 'إعادة المحاولة';
+
+  @override
+  String get openNotPdfTitle => 'هذا الملف ليس ملف PDF.';
+
+  @override
+  String get openAnotherFile => 'فتح ملف آخر…';
+
+  @override
+  String get openShowInFinder => 'إظهار في Finder';
+
+  @override
+  String get openShowInExplorer => 'إظهار في مستكشف الملفات';
+
+  @override
+  String get openShowInFolder => 'إظهار في المجلد';
+
+  @override
+  String get openConvertToPdf => 'تحويل إلى PDF…';
+
+  @override
+  String unlockDescription(String name) {
+    return 'أدخل كلمة مرور «$name». ينسى Ferman كلمة المرور عند إغلاق الملف.';
+  }
+
+  @override
+  String get unlockPassword => 'كلمة المرور';
+
+  @override
+  String get unlockShowPassword => 'إظهار كلمة المرور';
+
+  @override
+  String get unlockCancel => 'إلغاء';
+
+  @override
+  String get unlockOpen => 'فتح';
+
+  @override
+  String get restrictedTitle => 'قيّد المؤلف هذا المستند.';
+
+  @override
+  String get restrictedBody =>
+      'يمكنك قراءته وطباعته. التحرير والتعليقات وتعبئة النماذج معطّلة.';
+
+  @override
+  String get restrictedBodyOther => 'يمكنك قراءته. عطّل المؤلف بعض الإجراءات.';
+
+  @override
+  String get restrictedUnlock => 'فتح القفل بكلمة مرور المالك…';
+
+  @override
+  String get ownerUnlockTitle => 'فتح القفل بكلمة مرور المالك';
+
+  @override
+  String ownerUnlockDescription(String name) {
+    return 'أدخل كلمة مرور المالك لـ«$name». ينسى Ferman كلمة المرور عند إغلاق الملف.';
+  }
+
+  @override
+  String get ownerUnlockPassword => 'كلمة مرور المالك';
+
+  @override
+  String get ownerUnlockAction => 'فتح القفل';
+
+  @override
+  String scriptsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'يحتوي هذا المستند على $countText برنامج نصي.',
+      many: 'يحتوي هذا المستند على $countText برنامجًا نصيًا.',
+      few: 'يحتوي هذا المستند على $countText برامج نصية.',
+      two: 'يحتوي هذا المستند على برنامجين نصيين.',
+      one: 'يحتوي هذا المستند على برنامج نصي واحد.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get scriptsBody =>
+      'لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى.';
+
+  @override
+  String get scriptsDismiss => 'إغلاق';
+
+  @override
+  String get propertiesFile => 'الملف';
+
+  @override
+  String get propertiesFonts => 'الخطوط في هذا المستند';
+
+  @override
+  String get propertiesSecurity => 'الأمان';
+
+  @override
+  String get propertiesPages => 'الصفحات';
+
+  @override
+  String get propertiesPageSize => 'حجم الصفحة';
+
+  @override
+  String get propertiesFileSize => 'حجم الملف';
+
+  @override
+  String get propertiesVersion => 'إصدار PDF';
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) {
+    return '$version (Acrobat $acrobat.x)';
+  }
+
+  @override
+  String get propertiesLocation => 'الموقع';
+
+  @override
+  String get propertiesCreated => 'تاريخ الإنشاء';
+
+  @override
+  String get propertiesModified => 'تاريخ التعديل';
+
+  @override
+  String get propertiesTitle => 'العنوان';
+
+  @override
+  String get propertiesAuthor => 'المؤلف';
+
+  @override
+  String get propertiesSubject => 'الموضوع';
+
+  @override
+  String get propertiesKeywords => 'الكلمات المفتاحية';
+
+  @override
+  String get propertiesTagged => 'PDF موسوم';
+
+  @override
+  String get propertiesFastWebView => 'عرض ويب سريع';
+
+  @override
+  String get propertiesMadeWith => 'أُنشئ باستخدام';
+
+  @override
+  String get propertiesYes => 'نعم';
+
+  @override
+  String get propertiesNo => 'لا';
+
+  @override
+  String get propertiesNone => 'لا يوجد';
+
+  @override
+  String get propertiesNoPassword => 'بلا كلمة مرور';
+
+  @override
+  String get propertiesOwnerPassword => 'كلمة مرور المالك';
+
+  @override
+  String propertiesSignatures(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText توقيع',
+      many: '$countText توقيعًا',
+      few: '$countText توقيعات',
+      two: 'توقيعان',
+      one: 'توقيع واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String propertiesSignatureOnPage(String page) {
+    return 'توقيع واحد، الصفحة $page';
+  }
+
+  @override
+  String get propertiesEmbedded => 'مضمَّن';
+
+  @override
+  String get propertiesPartial => 'جزئي';
+
+  @override
+  String get propertiesPartialNote =>
+      'مجموعة فرعية: الأحرف الموجودة في الملف فقط.';
+
+  @override
+  String get propertiesSubset => 'مجموعة فرعية';
+
+  @override
+  String get propertiesSubsetNote => 'الأحرف المستخدمة فقط.';
+
+  @override
+  String get propertiesNotEmbedded => 'غير مضمَّن';
+
+  @override
+  String get propertiesFontType1 => 'Type 1';
+
+  @override
+  String get propertiesFontMultipleMaster => 'Multiple Master';
+
+  @override
+  String get propertiesFontTrueType => 'TrueType';
+
+  @override
+  String get propertiesFontType0 => 'Type 0';
+
+  @override
+  String get propertiesFontType3 => 'Type 3';
+
+  @override
+  String get propertiesFontOther => 'أخرى';
+
+  @override
+  String get propertiesFontColumn => 'الخط';
+
+  @override
+  String get propertiesTypeColumn => 'النوع';
+
+  @override
+  String get propertiesStatusColumn => 'الحالة';
+
+  @override
+  String propertiesDialogTitle(String name) {
+    return '$name — الخصائص';
+  }
+
+  @override
+  String get propertiesSection => 'القسم';
+
+  @override
+  String get propertiesSummary => 'ملخّص';
+
+  @override
+  String get propertiesAdvanced => 'متقدّم';
+
+  @override
+  String get propertiesDone => 'تم';
+
+  @override
+  String get propertiesClose => 'إغلاق';
+
+  @override
+  String get propertiesEncryption => 'التشفير';
+
+  @override
+  String propertiesRc4(String bits) {
+    return 'RC4، $bits بت';
+  }
+
+  @override
+  String get propertiesAes128 => 'AES-128';
+
+  @override
+  String get propertiesAes256 => 'AES-256';
+
+  @override
+  String get propertiesOwnerPasswordSuffix => 'كلمة مرور المالك';
+
+  @override
+  String get propertiesOpenPassword => 'كلمة مرور الفتح';
+
+  @override
+  String get propertiesRequired => 'مطلوبة';
+
+  @override
+  String get propertiesPermissions => 'الأذونات';
+
+  @override
+  String get propertiesPrinting => 'الطباعة';
+
+  @override
+  String get propertiesChanging => 'تغيير المستند';
+
+  @override
+  String get propertiesCommenting => 'إضافة التعليقات';
+
+  @override
+  String get propertiesFilling => 'تعبئة حقول النماذج';
+
+  @override
+  String get propertiesSigning => 'التوقيع';
+
+  @override
+  String get propertiesCopying => 'نسخ النصوص والصور';
+
+  @override
+  String get propertiesScreenReaders => 'وصول قارئات الشاشة إلى النص';
+
+  @override
+  String get propertiesAssembling => 'تجميع الصفحات';
+
+  @override
+  String get propertiesAllowed => 'مسموح';
+
+  @override
+  String get propertiesAllowedHighQuality => 'مسموح، بجودة عالية';
+
+  @override
+  String get propertiesNotAllowed => 'غير مسموح';
+
+  @override
+  String get propertiesLanguage => 'اللغة';
+
+  @override
+  String get propertiesScripts => 'JavaScript';
+
+  @override
+  String propertiesScriptsValue(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$countText برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      many:
+          '$countText برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      few: '$countText برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      two: 'برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.',
+      one: 'برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String openingTitle(String name) {
+    return 'جارٍ فتح «$name»';
+  }
+
+  @override
+  String get openingCancel => 'إلغاء';
 }

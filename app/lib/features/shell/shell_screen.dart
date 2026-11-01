@@ -52,6 +52,10 @@ class FmWindow extends ConsumerWidget {
     final sidebarOpen = ref.watch(shellSidebarOpenProvider);
     final panelOpen = ref.watch(shellPanelOpenProvider);
     final preferred = ref.watch(shellPanelPreferenceProvider);
+    final active = ref.watch(shellDocumentsProvider).active;
+    // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
+    // a1-9c: FmWindow with `mode=""` and `status={false}`).
+    final bare = active != null && (active.locked || active.error != null);
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -78,13 +82,15 @@ class FmWindow extends ConsumerWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  ShellRegion.modeBar.wrap(const ShellModeBar()),
-                  ShellRegion.toolRow.wrap(const ShellToolRows()),
+                  if (!bare) ...[
+                    ShellRegion.modeBar.wrap(const ShellModeBar()),
+                    ShellRegion.toolRow.wrap(const ShellToolRows()),
+                  ],
                   Expanded(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        if (shown.sidebar)
+                        if (shown.sidebar && !bare)
                           ShellRegion.sidebar.wrap(const FmSidebar()),
                         Expanded(
                           // Keyed, so the canvas keeps its state and focus
@@ -92,12 +98,12 @@ class FmWindow extends ConsumerWidget {
                           key: _canvasSlot,
                           child: ShellRegion.canvas.wrap(const ShellCanvas()),
                         ),
-                        if (shown.panel)
+                        if (shown.panel && !bare)
                           ShellRegion.panel.wrap(const FmDocPanel()),
                       ],
                     ),
                   ),
-                  ShellRegion.statusBar.wrap(const ShellStatusBar()),
+                  if (!bare) ShellRegion.statusBar.wrap(const ShellStatusBar()),
                 ],
               ),
             ),

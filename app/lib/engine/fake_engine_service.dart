@@ -18,6 +18,10 @@ class FakeEngineService implements EngineService {
     this.documents = const {},
     this.failingPages = const {},
     this.searchResults = const {},
+    this.failures = const {},
+    this.passwords = const {},
+    this.ownerPasswords = const {},
+    this.holds = const {},
   });
 
   /// The status [status] returns.
@@ -25,6 +29,25 @@ class FakeEngineService implements EngineService {
 
   /// The documents [open] opens, by path; any other path is not found.
   final Map<String, OpenedDocument> documents;
+
+  /// The paths whose [open] fails, with the error.
+  final Map<String, EngineException> failures;
+
+  /// The passwords of [documents] that need one (a1-8): [open] fails with
+  /// `passwordRequired` without it and `wrongPassword` with another.
+  final Map<String, String> passwords;
+
+  /// The owner passwords of [documents] by id (a2-10): [unlockOwner]
+  /// lifts their restrictions with it and fails with `wrongPassword` with
+  /// another.
+  final Map<int, String> ownerPasswords;
+
+  /// The paths whose [open] waits for the future, as a slow file does
+  /// (a1-7).
+  final Map<String, Future<void>> holds;
+
+  /// The documents whose owner password was given.
+  final Set<int> ownerUnlocked = {};
 
   /// Pages whose items fail as damaged.
   final Set<int> failingPages;
@@ -48,6 +71,9 @@ class FakeEngineService implements EngineService {
   final Map<int, (int, StreamController<ViewUpdate>)> _views = {};
   int _nextView = 1;
 
+  /// How many views are open.
+  int get openViewCount => _views.length;
+
   @override
   EngineApiVersion apiVersion() => fakeStatus.apiVersion;
 
@@ -55,16 +81,61 @@ class FakeEngineService implements EngineService {
   Future<EngineStatus> status() async => fakeStatus;
 
   @override
-  Future<OpenedDocument> open(String path, {String? password}) async =>
-      documents[path] ??
-      (throw const EngineException(
+  Future<OpenedDocument> open(String path, {String? password}) async {
+    await holds[path];
+    if (failures[path] case final error?) throw error;
+    if (passwords[path] case final expected? when password != expected) {
+      throw password == null
+          ? const EngineException(
+              kind: EngineErrorKind.passwordRequired,
+              messageKey: 'errorPasswordRequired',
+            )
+          : const EngineException(
+              kind: EngineErrorKind.wrongPassword,
+              messageKey: 'errorWrongPassword',
+            );
+    }
+    return documents[path] ??
+        (throw const EngineException(
+          kind: EngineErrorKind.notFound,
+          messageKey: 'errorFileNotFound',
+        ));
+  }
+
+  /// The documents closed, oldest first.
+  final List<int> closed = [];
+
+  @override
+  Future<Security?> unlockOwner(int document, String password) async {
+    final opened = documents.values.where((opened) => opened.id == document);
+    if (opened.isEmpty) {
+      throw const EngineException(
         kind: EngineErrorKind.notFound,
         messageKey: 'errorFileNotFound',
-      ));
+      );
+    }
+    final security = opened.first.security;
+    if (security == null) return null;
+    if (ownerPasswords[document] != password) {
+      throw const EngineException(
+        kind: EngineErrorKind.wrongPassword,
+        messageKey: 'errorWrongPassword',
+      );
+    }
+    ownerUnlocked.add(document);
+    return Security(
+      method: security.method,
+      keyBits: security.keyBits,
+      userPasswordRequired: security.userPasswordRequired,
+      permissions: security.permissions,
+      owner: true,
+    );
+  }
 
   /// Ends the document's views.
   @override
   Future<void> close(int document) async {
+    closed.add(document);
     for (final (owner, updates) in [..._views.values]) {
       if (owner == document) await updates.close();
     }
@@ -76,6 +147,17 @@ class FakeEngineService implements EngineService {
   Future<int> showLayers(int document, List<bool> visible) async {
     layerRequests.add(visible);
     return _renderKeys[document] = ++_lastRenderKey;
+  }
+
+  /// Orders [texts] by their code points, stably: no language rules.
+  @override
+  Future<List<int>> collationOrder(String locale, List<String> texts) async {
+    final order = [for (var i = 0; i < texts.length; i++) i]
+      ..sort((a, b) {
+        final byText = texts[a].compareTo(texts[b]);
+        return byText != 0 ? byText : a.compareTo(b);
+      });
+    return order;
   }
 
   /// Reports [searchResults] for [query] page by page, then the progress

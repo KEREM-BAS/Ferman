@@ -166,6 +166,127 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
+    /// The PDF version in the header, such as "1.7".
+    pub version: String,
+    /// The file's size in bytes.
+    pub file_size: u64,
+    /// The document information dictionary.
+    pub info: DocumentInfo,
+    /// `/Lang`, the document's language tag.
+    pub language: Option<String>,
+    /// Whether it is a tagged PDF.
+    pub tagged: bool,
+    /// Whether it is linearized for fast web view.
+    pub linearized: bool,
+    /// The fonts its pages use, each name once.
+    pub fonts: Vec<FontEntry>,
+    /// Its encryption and permissions, when it is encrypted (a2-10a, a2-10b).
+    pub security: Option<Security>,
+    /// How many JavaScript actions it holds; Ferman never runs them (G100).
+    pub scripts: u32,
+}
+
+/// The document information dictionary (a2-7).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct DocumentInfo {
+    /// `/Title`.
+    pub title: Option<String>,
+    /// `/Author`.
+    pub author: Option<String>,
+    /// `/Subject`.
+    pub subject: Option<String>,
+    /// `/Keywords`.
+    pub keywords: Option<String>,
+    /// `/Creator`: the application that made the original.
+    pub creator: Option<String>,
+    /// `/Producer`: the application that wrote the PDF.
+    pub producer: Option<String>,
+    /// `/CreationDate`.
+    pub created: Option<PdfDate>,
+    /// `/ModDate`.
+    pub modified: Option<PdfDate>,
+}
+
+/// A font's type (a2-7's Type column).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontType {
+    /// Type 1.
+    Type1,
+    /// Multiple Master Type 1.
+    MultipleMaster,
+    /// TrueType.
+    TrueType,
+    /// A composite font (Type 0), usually CID-keyed.
+    Type0,
+    /// Type 3, drawn by content streams.
+    Type3,
+    /// Anything else.
+    Other,
+}
+
+/// A font the pages use (a2-7, FmDocPanel's Fonts in this document).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontEntry {
+    /// Its name, without a subset's `ABCDEF+` tag.
+    pub name: String,
+    /// Its type.
+    pub kind: FontType,
+    /// Whether its program is in the file.
+    pub embedded: bool,
+    /// Whether only the characters the file uses are embedded (the name's tag).
+    pub subset: bool,
+}
+
+/// How an encrypted document is encrypted.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum EncryptionMethod {
+    /// RC4, with [`Security::key_bits`].
+    Rc4,
+    /// AES-128.
+    Aes128,
+    /// AES-256.
+    Aes256,
+    /// Encrypted only in name.
+    Identity,
+}
+
+/// What an encrypted document allows without its owner password (a2-10b's rows).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[allow(clippy::struct_excessive_bools)]
+pub struct DocumentPermissions {
+    /// Printing.
+    pub print: bool,
+    /// Printing at full quality.
+    pub print_high_quality: bool,
+    /// Changing the document.
+    pub modify: bool,
+    /// Adding comments.
+    pub annotate: bool,
+    /// Filling form fields, signature fields included.
+    pub fill_forms: bool,
+    /// Copying text and images.
+    pub copy: bool,
+    /// Text access for screen readers.
+    pub accessibility: bool,
+    /// Assembling pages.
+    pub assemble: bool,
+}
+
+/// An encrypted document's security (a2-10a, a2-10b).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Security {
+    /// How it is encrypted.
+    pub method: EncryptionMethod,
+    /// The key length in bits: RC4's 40 to 128, 128 or 256 for AES, 0 for none.
+    pub key_bits: u16,
+    /// Whether opening it needs a password.
+    pub user_password_required: bool,
+    /// What the file allows without its owner password.
+    pub permissions: DocumentPermissions,
+    /// Whether its owner password was given, which lifts the restrictions for the session.
+    pub owner: bool,
+    /// Whether the restrictions apply now.
+    pub restricted: bool,
 }
 
 /// One outline item (bookmark) of an [`OpenedDocument`].
@@ -455,6 +576,18 @@ pub async fn debug_bytes(len: u32) -> Vec<u8> {
     facade::debug_bytes(len).await
 }
 
+/// The order of `texts` in the language of `locale`, a BCP 47 tag such as `tr`: their indices,
+/// first to last. Digits compare by their value and equal texts keep their order. Sorts the recent
+/// files by name and location (ADR 0021).
+///
+/// See [`facade::collation_order`].
+pub async fn collation_order(locale: String, texts: Vec<String>) -> Vec<u32> {
+    facade::collation_order(&locale, &texts)
+        .into_iter()
+        .filter_map(|index| u32::try_from(index).ok())
+        .collect()
+}
+
 /// Opens the PDF at `path`, with `password` if it is encrypted. Without the password an encrypted
 /// file fails with `PasswordRequired`; open it again with the password.
 ///
@@ -468,6 +601,23 @@ pub async fn open(path: String, password: Option<String>) -> Result<OpenedDocume
         .open(PathBuf::from(path), password.map(facade::Password::new))
         .await
         .map(opened_document_dto)
+        .map_err(api_error_dto)
+}
+
+/// Lifts the restrictions of `document` for this session when `password` is its owner password
+/// (a2-10a). Returns its security from then on, `None` when it is not encrypted.
+///
+/// # Errors
+///
+/// `WrongPassword` when it is not the owner password; `NotFound` for a document that is not open.
+pub async fn unlock_owner(document: u64, password: String) -> Result<Option<Security>, ApiError> {
+    engine()?
+        .unlock_owner(
+            facade::DocumentId::from_raw(document),
+            facade::Password::new(password),
+        )
+        .await
+        .map(|security| security.map(security_dto))
         .map_err(api_error_dto)
 }
 
@@ -802,6 +952,87 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
                 page: signature.page,
             })
             .collect(),
+        version: document.version,
+        file_size: document.file_size,
+        info: DocumentInfo {
+            title: document.info.title,
+            author: document.info.author,
+            subject: document.info.subject,
+            keywords: document.info.keywords,
+            creator: document.info.creator,
+            producer: document.info.producer,
+            created: document.info.created.map(pdf_date_dto),
+            modified: document.info.modified.map(pdf_date_dto),
+        },
+        language: document.language,
+        tagged: document.tagged,
+        linearized: document.linearized,
+        fonts: fonts_dto(document.fonts),
+        security: document.security.map(security_dto),
+        scripts: document.scripts.count,
+    }
+}
+
+/// The fonts with their subset tags taken off, each (name, type, embedding) once, in order.
+fn fonts_dto(fonts: Vec<facade::FontUse>) -> Vec<FontEntry> {
+    let mut entries: Vec<FontEntry> = Vec::new();
+    for font in fonts {
+        let (subset, name) = subset_tag(&font.name);
+        let entry = FontEntry {
+            name: name.to_owned(),
+            kind: match font.kind {
+                facade::FontKind::Type1 => FontType::Type1,
+                facade::FontKind::MultipleMaster => FontType::MultipleMaster,
+                facade::FontKind::TrueType => FontType::TrueType,
+                facade::FontKind::Type0 => FontType::Type0,
+                facade::FontKind::Type3 => FontType::Type3,
+                _ => FontType::Other,
+            },
+            embedded: font.embedded,
+            subset,
+        };
+        if !entries.contains(&entry) {
+            entries.push(entry);
+        }
+    }
+    entries
+}
+
+/// Whether `name` carries a subset tag (six capital letters and `+`, ISO 32000-2 §9.6.4), and the
+/// name without it.
+fn subset_tag(name: &str) -> (bool, &str) {
+    match name.split_once('+') {
+        Some((tag, rest)) if tag.len() == 6 && tag.bytes().all(|b| b.is_ascii_uppercase()) => {
+            (true, rest)
+        }
+        _ => (false, name),
+    }
+}
+
+fn security_dto(security: facade::Security) -> Security {
+    let permissions = security.permissions;
+    let (method, key_bits) = match security.method {
+        facade::Method::Rc4 { bits } => (EncryptionMethod::Rc4, bits),
+        facade::Method::Aes128 => (EncryptionMethod::Aes128, 128),
+        facade::Method::Aes256 => (EncryptionMethod::Aes256, 256),
+        _ => (EncryptionMethod::Identity, 0),
+    };
+    Security {
+        method,
+        key_bits,
+        user_password_required: security.user_password_required,
+        permissions: DocumentPermissions {
+            print: permissions.print(),
+            print_high_quality: permissions.print_high_quality(),
+            modify: permissions.modify(),
+            annotate: permissions.annotate(),
+            fill_forms: permissions.fill_forms(),
+            copy: permissions.copy(),
+            accessibility: permissions.extract_for_accessibility(),
+            assemble: permissions.assemble(),
+        },
+        owner: security.owner,
+        restricted: security.restricted(),
     }
 }
 
@@ -907,6 +1138,14 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
 #[cfg(test)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_subset_tag_is_six_capitals_and_a_plus() {
+        assert_eq!(subset_tag("ABCDEF+PlexSans"), (true, "PlexSans"));
+        assert_eq!(subset_tag("PlexSans"), (false, "PlexSans"));
+        assert_eq!(subset_tag("ABCDEf+PlexSans"), (false, "ABCDEf+PlexSans"));
+        assert_eq!(subset_tag("ABC+Plex"), (false, "ABC+Plex"));
+    }
     use crate::facade::block_on;
 
     #[test]

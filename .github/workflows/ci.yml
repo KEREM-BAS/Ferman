@@ -370,6 +370,15 @@ jobs:
           channel: stable
           cache: true
       - run: flutter pub get --enforce-lockfile
+      - name: Pub deny list against the resolved packages (Linux)
+        # The repository-checks job has no resolved app; here pub_denylist
+        # also reads app/.dart_tool/package_config.json, so only the
+        # approved packages may bring an excepted one (http).
+        if: runner.os == 'Linux'
+        working-directory: tools/checks
+        run: |
+          dart pub get --enforce-lockfile
+          dart run bin/check_all.dart --root ../.. --only pub_denylist
       - name: Cache the PDFium archive
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -413,7 +422,8 @@ jobs:
           # The command of docs/DEPENDENCIES.md section 8.
           very_good packages check licenses \
             --dependency-type=direct-main,direct-dev,transitive \
-            --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016
+            --allowed=Apache-2.0,MIT,MIT-0,BSD-2-Clause,BSD-3-Clause,ISC,Zlib,0BSD,BSL-1.0,CC0-1.0,Unicode-3.0,Unicode-DFS-2016 \
+            --skip-packages=dbus
       - name: Web build (kept buildable until phase 5)
         if: runner.os == 'Linux'
         run: flutter build web --release

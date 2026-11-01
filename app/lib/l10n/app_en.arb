@@ -1566,5 +1566,724 @@
         "type": "String"
       }
     }
+  },
+  "openPdfFilter": "PDF documents",
+  "@openPdfFilter": {
+    "description": "Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files."
+  },
+  "openFailedTitle": "Ferman can’t open “{name}”",
+  "@openFailedTitle": {
+    "description": "Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openFailedDismiss": "Dismiss",
+  "@openFailedDismiss": {
+    "description": "Accessible name of the close button of the banner of openFailedTitle."
+  },
+  "shellSavedOnDeviceUndated": "Saved on this device",
+  "@shellSavedOnDeviceUndated": {
+    "description": "Status bar: a document just opened, with no save in this session yet (FmWindow t.saved without its time)."
+  },
+  "shellMoreDocumentsMenu": "More open documents",
+  "@shellMoreDocumentsMenu": {
+    "description": "Accessible name of the menu behind “+N” in the title bar (a1-10)."
+  },
+  "shellMoreDocumentsHeading": "{count, plural, =1{1 more document} other{{countText} more documents}}",
+  "@shellMoreDocumentsHeading": {
+    "description": "Heading of the “+N” menu (a1-10): how many documents have no tab in the title bar. {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "shellMoreDocumentsUnsaved": "{name} · unsaved",
+  "@shellMoreDocumentsUnsaved": {
+    "description": "An item of the “+N” menu (a1-10) for a document with unsaved changes: its file name, then the mark. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "shellShowAllDocuments": "Show all open documents",
+  "@shellShowAllDocuments": {
+    "description": "Item of the “+N” menu (a1-10)."
+  },
+  "shellCloseOtherDocuments": "Close other documents…",
+  "@shellCloseOtherDocuments": {
+    "description": "Item of the “+N” menu (a1-10): closes every document but the active one, asking about unsaved ones."
+  },
+  "dropOverlayTitle": "Drop to open the files",
+  "@dropOverlayTitle": {
+    "description": "Headline of the overlay while files are dragged over the window (a1-6, FmStart dropN without its count: the files are named only once dropped, G117)."
+  },
+  "dropOverlayHint": "Move over a choice, then let go.",
+  "@dropOverlayHint": {
+    "description": "Line under dropOverlayTitle (a1-6, FmStart dropHow)."
+  },
+  "dropOverlayTabs": "Open in tabs",
+  "@dropOverlayTabs": {
+    "description": "Title of the drop target that opens each dropped file in its own tab (a1-6, FmStart dropTabs without its count, G117)."
+  },
+  "dropOverlayTabsDescription": "Each file opens on its own.",
+  "@dropOverlayTabsDescription": {
+    "description": "Line under dropOverlayTabs (a1-6, FmStart dropTabsSub, the PDF-only line of G11)."
+  },
+  "dropOverlayCombine": "Combine into one PDF",
+  "@dropOverlayCombine": {
+    "description": "Title of the drop target that would merge the dropped files, disabled until combining ships (a1-6, FmStart dropCombine, B104)."
+  },
+  "startDropStripTitle": "Drop files anywhere in this window",
+  "@startDropStripTitle": {
+    "description": "Title of the drop strip above the recent files (a1-4-m2, FmStart drop)."
+  },
+  "startDropStripSubtitle": "PDF files open in tabs.",
+  "@startDropStripSubtitle": {
+    "description": "Line under startDropStripTitle until conversion ships (a1-4-m2, FmStart dropSubPdf, G11)."
+  },
+  "startPinned": "Pinned",
+  "@startPinned": {
+    "description": "Heading of the pinned files on the start screen (a1-4, FmStart pinned)."
+  },
+  "startPin": "Pin",
+  "@startPin": {
+    "description": "Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118)."
+  },
+  "startUnpin": "Unpin",
+  "@startUnpin": {
+    "description": "Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin)."
+  },
+  "startRecent": "Recent",
+  "@startRecent": {
+    "description": "Heading of the recent files on the start screen (a1-4, FmStart recent)."
+  },
+  "startSearchRecent": "Search recent files",
+  "@startSearchRecent": {
+    "description": "Placeholder and accessible name of the recent files’ search field (a1-4, FmStart searchRecent)."
+  },
+  "startSort": "Sort",
+  "@startSort": {
+    "description": "Accessible name of the recent files’ sort menu (a1-4, the Select’s aria-label)."
+  },
+  "startSortOpened": "Last opened",
+  "@startSortOpened": {
+    "description": "Sort option: most recently opened first (a1-4, FmStart sort)."
+  },
+  "startSortName": "Name",
+  "@startSortName": {
+    "description": "Sort option and list column: the file name, in the UI language’s order (a1-4, FmStart sort, name)."
+  },
+  "startSortLocation": "Location",
+  "@startSortLocation": {
+    "description": "Sort option and list column: the folder the file is in (a1-4, FmStart sort, where)."
+  },
+  "startView": "View",
+  "@startView": {
+    "description": "Accessible name of the grid and list switch of the recent files (a1-4, FmStart view)."
+  },
+  "startViewGrid": "Grid",
+  "@startViewGrid": {
+    "description": "Tooltip of the grid view of the recent files (a1-4, FmStart grid)."
+  },
+  "startViewList": "List",
+  "@startViewList": {
+    "description": "Tooltip of the list view of the recent files (a1-4c, FmStart list)."
+  },
+  "startColumnPages": "Pages",
+  "@startColumnPages": {
+    "description": "Column of the recent files’ list: the page count (a1-4c, FmStart pagesH)."
+  },
+  "startColumnOpened": "Last opened",
+  "@startColumnOpened": {
+    "description": "Column of the recent files’ list: when the file was last opened (a1-4c, FmStart opened)."
+  },
+  "startRecentFooter": "Recent files are listed only on this device.",
+  "@startRecentFooter": {
+    "description": "Note under the recent files (a1-4, FmStart footer)."
+  },
+  "startClearList": "Clear list",
+  "@startClearList": {
+    "description": "Link under the recent files that empties the list but for the pinned files (a1-4, FmStart clear)."
+  },
+  "startNoRecentMatch": "No recent file matches “{query}”.",
+  "@startNoRecentMatch": {
+    "description": "Shown in place of the recent files when the search finds none (not drawn, G118).",
+    "placeholders": {
+      "query": {
+        "type": "String"
+      }
+    }
+  },
+  "startPages": "{count, plural, =1{1 page} other{{pages} pages}}",
+  "@startPages": {
+    "description": "A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "startOpenedToday": "Today {time}",
+  "@startOpenedToday": {
+    "description": "When a recent file was opened today, with the region’s time (a1-4, FmStart).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "startOpenedYesterday": "Yesterday {time}",
+  "@startOpenedYesterday": {
+    "description": "When a recent file was opened yesterday, with the region’s time (a1-4, FmStart).",
+    "placeholders": {
+      "time": {
+        "type": "String"
+      }
+    }
+  },
+  "startBadgeSigned": "Signed",
+  "@startBadgeSigned": {
+    "description": "Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral)."
+  },
+  "startMissingTitle": "“{name}” can’t be found",
+  "@startMissingTitle": {
+    "description": "Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "startMissingDescription": "It was moved, renamed or deleted after you last opened it. It was in {folder}.",
+  "@startMissingDescription": {
+    "description": "Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “~” for the home folder, isolated.",
+    "placeholders": {
+      "folder": {
+        "type": "String"
+      }
+    }
+  },
+  "startMissingRemove": "Remove from list",
+  "@startMissingRemove": {
+    "description": "Button of a1-9e that takes the missing file off the recent files (a1-9e, remove)."
+  },
+  "startMissingLocate": "Locate…",
+  "@startMissingLocate": {
+    "description": "Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate)."
+  },
+  "startMissingClose": "Close",
+  "@startMissingClose": {
+    "description": "Accessible name of a1-9e’s close button, which keeps the file in the list (G118)."
+  },
+  "errorInternal": "Something went wrong inside Ferman. Copy the technical details to report it.",
+  "@errorInternal": {
+    "description": "The line of an error tab (a1-9b) for a bug in Ferman."
+  },
+  "errorFileNotFound": "The file isn’t there any more. It may have been moved, renamed or deleted.",
+  "@errorFileNotFound": {
+    "description": "The line of an error tab (a1-9b) for a file that is gone."
+  },
+  "errorFilePermissionDenied": "This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours.",
+  "@errorFilePermissionDenied": {
+    "description": "The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119)."
+  },
+  "errorFileRead": "Ferman couldn’t read the file from its disk. Check that the disk is still connected, then try again.",
+  "@errorFileRead": {
+    "description": "The line of an error tab (a1-9b) when reading the file failed."
+  },
+  "errorNotPdf": "“{name}” isn’t a PDF file. Ferman opens PDF files.",
+  "@errorNotPdf": {
+    "description": "The line of a1-9c’s error tab under openNotPdfTitle. {name} is the file name (G119: the kind of file is not named).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "errorPasswordRequired": "This PDF is password-protected",
+  "@errorPasswordRequired": {
+    "description": "Title of the unlock dialog over a locked tab (a1-8)."
+  },
+  "errorWrongPassword": "That password didn’t work. Check Caps Lock and the keyboard layout: on a Turkish keyboard ı and i are different keys.",
+  "@errorWrongPassword": {
+    "description": "Error under the password field of the unlock dialog (a1-8b)."
+  },
+  "errorDamaged": "The file is damaged and Ferman can’t repair it. Try getting the file again.",
+  "@errorDamaged": {
+    "description": "The line of an error tab (a1-9b) for a damaged file."
+  },
+  "errorDamagedTruncated": "The file stops before its end and the rest is missing. It was probably cut off while downloading or copying. Try getting the file again.",
+  "@errorDamagedTruncated": {
+    "description": "The line of a1-9b’s error tab for a truncated file (without the board’s size, G119)."
+  },
+  "errorDamagedEmpty": "The file starts like a PDF, but nothing after that is readable. Try getting the file again.",
+  "@errorDamagedEmpty": {
+    "description": "The line of an error tab (a1-9b) for a file with a PDF header and no objects."
+  },
+  "errorUnsupported": "It uses something Ferman doesn’t support yet, such as encryption with a certificate.",
+  "@errorUnsupported": {
+    "description": "The line of an error tab (a1-9b) for a file Ferman does not support yet (a2-10a: certificate encryption)."
+  },
+  "errorTooComplex": "This file is too complex to open within Ferman’s safety limits. Your other documents are open and unchanged.",
+  "@errorTooComplex": {
+    "description": "Message of a1-9f’s toast when a resource limit stopped the open."
+  },
+  "errorOutOfMemory": "This computer ran out of memory while opening it. Your other documents are open and unchanged.",
+  "@errorOutOfMemory": {
+    "description": "Message of a1-9f’s toast."
+  },
+  "openClosedTitle": "“{name}” was closed",
+  "@openClosedTitle": {
+    "description": "Title of a1-9f’s toast (and the start screen’s banner) when a file ran out of memory or past a limit while opening. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openTryAgain": "Try again",
+  "@openTryAgain": {
+    "description": "Action of a1-9f’s toast: opens the file again."
+  },
+  "openNotPdfTitle": "That file isn’t a PDF.",
+  "@openNotPdfTitle": {
+    "description": "Title of a1-9c’s error tab."
+  },
+  "openAnotherFile": "Open another file…",
+  "@openAnotherFile": {
+    "description": "Primary button of an error tab (a1-9b, a1-9c): shows the open panel."
+  },
+  "openShowInFinder": "Show in Finder",
+  "@openShowInFinder": {
+    "description": "Button of an error tab on macOS (a1-9b, a1-9c)."
+  },
+  "openShowInExplorer": "Show in File Explorer",
+  "@openShowInExplorer": {
+    "description": "Button of an error tab on Windows (a1-9b, a1-9c; G119)."
+  },
+  "openShowInFolder": "Show in folder",
+  "@openShowInFolder": {
+    "description": "Button of an error tab on Linux (a1-9b, a1-9c; G119)."
+  },
+  "openConvertToPdf": "Convert to PDF…",
+  "@openConvertToPdf": {
+    "description": "Disabled button of a1-9c’s error tab until conversion ships (P3)."
+  },
+  "unlockDescription": "Enter the password for “{name}”. Ferman forgets it when you close the file.",
+  "@unlockDescription": {
+    "description": "Description of the unlock dialog (a1-8). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "unlockPassword": "Password",
+  "@unlockPassword": {
+    "description": "Label of the unlock dialog’s field (a1-8)."
+  },
+  "unlockShowPassword": "Show password",
+  "@unlockShowPassword": {
+    "description": "Checkbox of the unlock dialog (a1-8)."
+  },
+  "unlockCancel": "Cancel",
+  "@unlockCancel": {
+    "description": "Button of the unlock dialog (a1-8): closes the locked tab."
+  },
+  "unlockOpen": "Open",
+  "@unlockOpen": {
+    "description": "Primary button of the unlock dialog (a1-8)."
+  },
+  "restrictedTitle": "The author restricted this document.",
+  "@restrictedTitle": {
+    "description": "Title of the bar above the pages of a document whose author restricted it (a2-10a)."
+  },
+  "restrictedBody": "You can read and print it. Editing, comments and form filling are turned off.",
+  "@restrictedBody": {
+    "description": "Message of the restricted bar (a2-10a), shown when printing is allowed and changes, comments and form filling are not."
+  },
+  "restrictedBodyOther": "You can read it. The author turned some actions off.",
+  "@restrictedBodyOther": {
+    "description": "Message of the restricted bar for any other set of permissions (G106; not on a board)."
+  },
+  "restrictedUnlock": "Unlock with owner password…",
+  "@restrictedUnlock": {
+    "description": "Button of the restricted bar (a2-10a) that opens the owner-password dialog."
+  },
+  "ownerUnlockTitle": "Unlock with owner password",
+  "@ownerUnlockTitle": {
+    "description": "Title of the owner-password dialog (G106; not on a board)."
+  },
+  "ownerUnlockDescription": "Enter the owner password for “{name}”. Ferman forgets it when you close the file.",
+  "@ownerUnlockDescription": {
+    "description": "Text of the owner-password dialog (G106). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "ownerUnlockPassword": "Owner password",
+  "@ownerUnlockPassword": {
+    "description": "Label of the owner-password dialog's field (G106)."
+  },
+  "ownerUnlockAction": "Unlock",
+  "@ownerUnlockAction": {
+    "description": "Primary button of the owner-password dialog (G106)."
+  },
+  "scriptsTitle": "{count, plural, =1{This document contains 1 script.} other{This document contains {countText} scripts.}}",
+  "@scriptsTitle": {
+    "description": "Title of the bar above the pages of a document with scripts (G100; not on a board). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "scriptsBody": "Ferman never runs scripts; other apps might.",
+  "@scriptsBody": {
+    "description": "Message of the scripts bar (G100), a8-4's sentence."
+  },
+  "scriptsDismiss": "Dismiss",
+  "@scriptsDismiss": {
+    "description": "Screen-reader name of the scripts bar's dismiss button (G100)."
+  },
+  "propertiesFile": "File",
+  "@propertiesFile": {
+    "description": "Right panel section with the file's facts (FmDocPanel `view`)."
+  },
+  "propertiesFonts": "Fonts in this document",
+  "@propertiesFonts": {
+    "description": "Right panel section listing the document's fonts (FmDocPanel)."
+  },
+  "propertiesSecurity": "Security",
+  "@propertiesSecurity": {
+    "description": "Right panel section, the properties dialog's Security tab and its Summary row (FmDocPanel, a2-7, a2-10b)."
+  },
+  "propertiesPages": "Pages",
+  "@propertiesPages": {
+    "description": "Label of the page count (FmDocPanel, a2-7)."
+  },
+  "propertiesPageSize": "Page size",
+  "@propertiesPageSize": {
+    "description": "Label of the first page's size (FmDocPanel, a2-7)."
+  },
+  "propertiesFileSize": "File size",
+  "@propertiesFileSize": {
+    "description": "Label of the file's size (FmDocPanel, a2-7)."
+  },
+  "propertiesVersion": "PDF version",
+  "@propertiesVersion": {
+    "description": "Label of the PDF version (FmDocPanel, a2-7)."
+  },
+  "propertiesVersionAcrobat": "{version} (Acrobat {acrobat}.x)",
+  "@propertiesVersionAcrobat": {
+    "description": "A PDF version with the Acrobat version that introduced it, as a2-7 shows it: '1.7 (Acrobat 8.x)'.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "acrobat": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesLocation": "Location",
+  "@propertiesLocation": {
+    "description": "Label of the file's path (FmDocPanel)."
+  },
+  "propertiesCreated": "Created",
+  "@propertiesCreated": {
+    "description": "Label of the creation date (a2-7)."
+  },
+  "propertiesModified": "Modified",
+  "@propertiesModified": {
+    "description": "Label of the modification date (FmDocPanel, a2-7)."
+  },
+  "propertiesTitle": "Title",
+  "@propertiesTitle": {
+    "description": "Label of the document's title (a2-7)."
+  },
+  "propertiesAuthor": "Author",
+  "@propertiesAuthor": {
+    "description": "Label of the document's author (a2-7)."
+  },
+  "propertiesSubject": "Subject",
+  "@propertiesSubject": {
+    "description": "Label of the document's subject (a2-7)."
+  },
+  "propertiesKeywords": "Keywords",
+  "@propertiesKeywords": {
+    "description": "Label of the document's keywords (a2-7)."
+  },
+  "propertiesTagged": "Tagged PDF",
+  "@propertiesTagged": {
+    "description": "Label: whether the PDF is tagged (a2-7)."
+  },
+  "propertiesFastWebView": "Fast web view",
+  "@propertiesFastWebView": {
+    "description": "Label: whether the PDF is linearized (a2-7)."
+  },
+  "propertiesMadeWith": "Made with",
+  "@propertiesMadeWith": {
+    "description": "Label of the application that wrote the PDF (a2-7)."
+  },
+  "propertiesYes": "Yes",
+  "@propertiesYes": {
+    "description": "A yes/no value (a2-7)."
+  },
+  "propertiesNo": "No",
+  "@propertiesNo": {
+    "description": "A yes/no value (a2-7)."
+  },
+  "propertiesNone": "None",
+  "@propertiesNone": {
+    "description": "A value the file does not give (a2-10b's 'Password to open: None'; also empty metadata, not on a board)."
+  },
+  "propertiesNoPassword": "No password",
+  "@propertiesNoPassword": {
+    "description": "An unencrypted document's security (FmDocPanel, a2-7)."
+  },
+  "propertiesOwnerPassword": "Owner password",
+  "@propertiesOwnerPassword": {
+    "description": "Security of a document restricted by an owner password, opening without one (not on a board)."
+  },
+  "propertiesSignatures": "{count, plural, =1{1 signature} other{{countText} signatures}}",
+  "@propertiesSignatures": {
+    "description": "Signatures in the document (a2-7: 'No password · 1 signature'). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesSignatureOnPage": "1 signature, page {page}",
+  "@propertiesSignatureOnPage": {
+    "description": "The one signature of a document and its page (FmDocPanel). {page} is formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesEmbedded": "Embedded",
+  "@propertiesEmbedded": {
+    "description": "A font whose program is in the file (FmDocPanel, a2-7)."
+  },
+  "propertiesPartial": "Partial",
+  "@propertiesPartial": {
+    "description": "A subset font in the right panel (FmDocPanel)."
+  },
+  "propertiesPartialNote": "Subset: only characters already in the file.",
+  "@propertiesPartialNote": {
+    "description": "Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3)."
+  },
+  "propertiesSubset": "Subset",
+  "@propertiesSubset": {
+    "description": "A subset font in the properties dialog (a2-7)."
+  },
+  "propertiesSubsetNote": "Only the characters already used.",
+  "@propertiesSubsetNote": {
+    "description": "Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3)."
+  },
+  "propertiesNotEmbedded": "Not embedded",
+  "@propertiesNotEmbedded": {
+    "description": "A font whose program is not in the file (a2-7)."
+  },
+  "propertiesFontType1": "Type 1",
+  "@propertiesFontType1": {
+    "description": "A font type in the properties dialog's Type column (a2-7); a format name."
+  },
+  "propertiesFontMultipleMaster": "Multiple Master",
+  "@propertiesFontMultipleMaster": {
+    "description": "A font type (Multiple Master Type 1) in the Type column (a2-7); a format name."
+  },
+  "propertiesFontTrueType": "TrueType",
+  "@propertiesFontTrueType": {
+    "description": "A font type in the Type column (a2-7); a format name."
+  },
+  "propertiesFontType0": "Type 0",
+  "@propertiesFontType0": {
+    "description": "A composite font in the Type column (a2-7); a format name."
+  },
+  "propertiesFontType3": "Type 3",
+  "@propertiesFontType3": {
+    "description": "A font drawn by the file itself, in the Type column (a2-7); a format name."
+  },
+  "propertiesFontOther": "Other",
+  "@propertiesFontOther": {
+    "description": "Any other font type, in the Type column (a2-7)."
+  },
+  "propertiesFontColumn": "Font",
+  "@propertiesFontColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesTypeColumn": "Type",
+  "@propertiesTypeColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesStatusColumn": "Status",
+  "@propertiesStatusColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesDialogTitle": "{name} — Properties",
+  "@propertiesDialogTitle": {
+    "description": "Title of the properties dialog (a2-7, a2-10b).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesSection": "Section",
+  "@propertiesSection": {
+    "description": "Accessible name of the properties dialog's tabs (a2-7)."
+  },
+  "propertiesSummary": "Summary",
+  "@propertiesSummary": {
+    "description": "Tab of the properties dialog (a2-7)."
+  },
+  "propertiesAdvanced": "Advanced",
+  "@propertiesAdvanced": {
+    "description": "Tab of the properties dialog (a2-7)."
+  },
+  "propertiesDone": "Done",
+  "@propertiesDone": {
+    "description": "Closes the properties dialog (a2-7, a2-10b)."
+  },
+  "propertiesClose": "Close",
+  "@propertiesClose": {
+    "description": "Accessible name of the properties dialog's close button and scrim (not on a board)."
+  },
+  "propertiesEncryption": "Encryption",
+  "@propertiesEncryption": {
+    "description": "Label of the encryption method (a2-10b)."
+  },
+  "propertiesRc4": "RC4, {bits}-bit",
+  "@propertiesRc4": {
+    "description": "RC4 encryption with its key length (a2-10b's Encryption row; not on a board). {bits} is formatted for the region.",
+    "placeholders": {
+      "bits": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesAes128": "AES-128",
+  "@propertiesAes128": {
+    "description": "AES-128 encryption (a2-10b's Encryption row); a method name."
+  },
+  "propertiesAes256": "AES-256",
+  "@propertiesAes256": {
+    "description": "AES-256 encryption (a2-10b's Encryption row); a method name."
+  },
+  "propertiesOwnerPasswordSuffix": "owner password",
+  "@propertiesOwnerPasswordSuffix": {
+    "description": "After the encryption method of a restricted file (a2-10b: 'AES-256 · owner password')."
+  },
+  "propertiesOpenPassword": "Password to open",
+  "@propertiesOpenPassword": {
+    "description": "Label: whether opening needs a password (a2-10b); also a document's security when it does (not on a board)."
+  },
+  "propertiesRequired": "Required",
+  "@propertiesRequired": {
+    "description": "Opening needs a password (a2-10b's row; not on a board)."
+  },
+  "propertiesPermissions": "Permissions",
+  "@propertiesPermissions": {
+    "description": "Heading of the permissions, shown in capitals (a2-10b)."
+  },
+  "propertiesPrinting": "Printing",
+  "@propertiesPrinting": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesChanging": "Changing the document",
+  "@propertiesChanging": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesCommenting": "Adding comments",
+  "@propertiesCommenting": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesFilling": "Filling form fields",
+  "@propertiesFilling": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesSigning": "Signing",
+  "@propertiesSigning": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesCopying": "Copying text and images",
+  "@propertiesCopying": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesScreenReaders": "Text access for screen readers",
+  "@propertiesScreenReaders": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesAssembling": "Assembling pages",
+  "@propertiesAssembling": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesAllowed": "Allowed",
+  "@propertiesAllowed": {
+    "description": "A permission's state (a2-10b)."
+  },
+  "propertiesAllowedHighQuality": "Allowed, high quality",
+  "@propertiesAllowedHighQuality": {
+    "description": "Printing allowed at full quality (a2-10b)."
+  },
+  "propertiesNotAllowed": "Not allowed",
+  "@propertiesNotAllowed": {
+    "description": "A permission's state (a2-10b)."
+  },
+  "propertiesLanguage": "Language",
+  "@propertiesLanguage": {
+    "description": "Label of the document's language tag in the Advanced tab (not on a board)."
+  },
+  "propertiesScripts": "JavaScript",
+  "@propertiesScripts": {
+    "description": "Label of the scripts row in the Advanced tab (G100, a8-3's row name)."
+  },
+  "propertiesScriptsValue": "{count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}}",
+  "@propertiesScriptsValue": {
+    "description": "The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "openingTitle": "Opening “{name}”",
+  "@openingTitle": {
+    "description": "a1-7: the title of the progress card while a file takes long to open. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openingCancel": "Cancel",
+  "@openingCancel": {
+    "description": "a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab."
   }
 }

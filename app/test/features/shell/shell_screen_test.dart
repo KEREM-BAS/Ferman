@@ -631,24 +631,22 @@ void main() {
         false,
       ]);
       expect(tabs[4].icon, IconName.lock);
-      expect(tabs[0].closeShortcut, ['Ctrl', 'W']);
-      // The active clean tab's close button is drawn, disabled until
-      // closing documents exists (M2).
-      expect(tabs[0].closeDisabledReason, futureVersion);
-      final close = tester.widget<IconButton>(iconButton('Close document'));
-      expect(close.onPressed, isNull);
-      expect(close.disabledReason, futureVersion);
-      expect(close.shortcut, ['Ctrl', 'W']);
+      // A placeholder has no file to close.
+      expect(tabs[0].onClose, isNull);
+      expect(iconButton('Close document'), findsNothing);
       expect(find.text('+3'), findsOneWidget);
       expect(find.bySemanticsLabel('3 more'), findsOneWidget);
       expect(
         tester.widget<IconButton>(iconButton('Open file')).disabledReason,
-        futureVersion,
+        // This host starts no engine, so opening takes G101's reason.
+        'Ferman can’t open PDF files right now.',
       );
       final overflow = tester.widget<Button>(
         find.ancestor(of: find.text('+3'), matching: find.byType(Button)),
       );
-      expect(overflow.disabledReason, futureVersion);
+      // "+N" opens the menu of the documents without a tab (a1-10).
+      expect(overflow.disabledReason, isNull);
+      expect(overflow.onPressed, isNotNull);
       expect(overflow.iconEnd, IconName.chevronDown);
       final search = tester.widget<Button>(
         find.ancestor(of: find.text('Search'), matching: find.byType(Button)),

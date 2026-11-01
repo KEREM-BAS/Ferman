@@ -84,19 +84,23 @@ final class FindState {
   );
 }
 
-/// Finds text in the open document, as `findProvider`; it starts over when
-/// the document changes.
+/// Finds text in the open document, as `findProvider`. Each document keeps
+/// its own search: switching tabs stops a running one, keeping what it
+/// found, and switching back shows it again.
 @Riverpod(keepAlive: true)
 class Find extends _$Find {
   StreamSubscription<SearchUpdate>? _search;
 
   @override
   FindState build() {
-    ref
-      ..watch(openDocumentProvider)
-      ..onDispose(_stop);
+    final document = ref.watch(openDocumentProvider);
+    ref.onDispose(_stop);
     _stop();
-    return const FindState();
+    if (document == null) return const FindState();
+    final memory = ref.read(documentMemoryProvider(document.id));
+    listenSelf((_, next) => memory.remember(next));
+    return memory.recall<FindState>()?.copyWith(searched: () => null) ??
+        const FindState();
   }
 
   /// Shows the bar and focuses its field (⌘F, Ctrl+F).
@@ -179,24 +183,38 @@ class Find extends _$Find {
     );
     if (document == null || !state.hasQuery) return;
     state = state.copyWith(searched: () => 0);
-    _search = ref
+    late final StreamSubscription<SearchUpdate> search;
+    // Reading `state` first runs a rebuild that a tab switch left pending,
+    // which stops this search: its late events must not reach the other
+    // document.
+    bool stale() => !identical(_search, search);
+    search = _search = ref
         .read(engineServiceProvider)
         .search(document.id, state.query, state.options)
         .listen(
           (update) {
+            final current = state;
+            if (stale()) return;
             switch (update) {
               case SearchMatches(:final matches):
-                final first = state.matches.isEmpty;
-                state = state.copyWith(matches: [...state.matches, ...matches]);
-                if (first) _show();
+                state = current.copyWith(
+                  matches: [...current.matches, ...matches],
+                );
+                if (current.matches.isEmpty) _show();
               case SearchProgress(:final searched, :final pages):
-                state = state.copyWith(searched: () => searched, pages: pages);
+                state = current.copyWith(
+                  searched: () => searched,
+                  pages: pages,
+                );
               case SearchDone():
-                state = state.copyWith(searched: () => null, done: true);
+                state = current.copyWith(searched: () => null, done: true);
             }
           },
-          onError: (Object _) =>
-              state = state.copyWith(searched: () => null, done: true),
+          onError: (Object _) {
+            final current = state;
+            if (stale()) return;
+            state = current.copyWith(searched: () => null, done: true);
+          },
         );
   }
 }

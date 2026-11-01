@@ -49,6 +49,15 @@ const Set<String> _sameInArabic = {
   'shellConvertMarkdown',
   'regionPaperA4', // the ISO paper size name
   'regionPaperLetter', // the paper size name, as a12-2c writes it
+  'propertiesVersionAcrobat', // a version number and the product name
+  'propertiesScripts', // JavaScript, the language name
+  'propertiesFontType1', // font format names
+  'propertiesFontMultipleMaster',
+  'propertiesFontTrueType',
+  'propertiesFontType0',
+  'propertiesFontType3',
+  'propertiesAes128', // encryption method names
+  'propertiesAes256',
 };
 
 /// Each Arabic string the design's Arabic boards draw for M1, by the ARB

@@ -405,8 +405,9 @@ String _$shellPanelsHash() => r'dd8ff9f27b56ef8898e40cc1731fc1cb412528fd';
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 
 @ProviderFor(ShellSidebarTab)
 final shellSidebarTabProvider = ShellSidebarTabProvider._();
@@ -414,15 +415,17 @@ final shellSidebarTabProvider = ShellSidebarTabProvider._();
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 final class ShellSidebarTabProvider
     extends $NotifierProvider<ShellSidebarTab, SidebarTab> {
   /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
   /// state, not routes, shown over an `IndexedStack` (ADR 0011).
   ///
-  /// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-  /// chosen before must still show when it comes back.
+  /// Each document keeps its own tab in `documentMemoryProvider`, so
+  /// switching tabs, hiding the sidebar or going home brings it back; a new
+  /// document starts on Pages.
   ShellSidebarTabProvider._()
     : super(
         from: null,
@@ -450,13 +453,14 @@ final class ShellSidebarTabProvider
   }
 }
 
-String _$shellSidebarTabHash() => r'8913200950bbc3126c4aedec4c0b149132fe1d15';
+String _$shellSidebarTabHash() => r'4b9471a716c5043c394be559b65eb1ef0ffbf22d';
 
 /// The sidebar tab shown, as `shellSidebarTabProvider`. Sidebar tabs are
 /// state, not routes, shown over an `IndexedStack` (ADR 0011).
 ///
-/// Kept alive: the sidebar leaves the tree while it is hidden, and the tab
-/// chosen before must still show when it comes back.
+/// Each document keeps its own tab in `documentMemoryProvider`, so
+/// switching tabs, hiding the sidebar or going home brings it back; a new
+/// document starts on Pages.
 
 abstract class _$ShellSidebarTab extends $Notifier<SidebarTab> {
   SidebarTab build();
@@ -469,6 +473,144 @@ abstract class _$ShellSidebarTab extends $Notifier<SidebarTab> {
             as $ClassProviderElement<
               AnyNotifier<SidebarTab, SidebarTab>,
               SidebarTab,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+
+@ProviderFor(ShowAllDocumentsRequest)
+final showAllDocumentsRequestProvider = ShowAllDocumentsRequestProvider._();
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+final class ShowAllDocumentsRequestProvider
+    extends $NotifierProvider<ShowAllDocumentsRequest, int> {
+  /// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+  /// "Show all open documents"): the count of requests, as
+  /// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+  /// notifier while "+N", the only listener, comes and goes with the overflow.
+  ShowAllDocumentsRequestProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'showAllDocumentsRequestProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$showAllDocumentsRequestHash();
+
+  @$internal
+  @override
+  ShowAllDocumentsRequest create() => ShowAllDocumentsRequest();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$showAllDocumentsRequestHash() =>
+    r'a90415363c05d9102fa283a49d3a7ecd785fb10b';
+
+/// Asks "+N" to list every open document (`⇧⌘\` or `Ctrl+Shift+\`, a1-10's
+/// "Show all open documents"): the count of requests, as
+/// `showAllDocumentsRequestProvider`. Kept alive: the command holds its
+/// notifier while "+N", the only listener, comes and goes with the overflow.
+
+abstract class _$ShowAllDocumentsRequest extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+
+@ProviderFor(DocumentPropertiesRequest)
+final documentPropertiesRequestProvider = DocumentPropertiesRequestProvider._();
+
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+final class DocumentPropertiesRequestProvider
+    extends $NotifierProvider<DocumentPropertiesRequest, int> {
+  /// A request to show the active document's properties (a2-7), as
+  /// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+  /// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+  DocumentPropertiesRequestProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'documentPropertiesRequestProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$documentPropertiesRequestHash();
+
+  @$internal
+  @override
+  DocumentPropertiesRequest create() => DocumentPropertiesRequest();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$documentPropertiesRequestHash() =>
+    r'bbf45ca087ceb6feca0e0e9bbc8ace2b9198fa21';
+
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+
+abstract class _$DocumentPropertiesRequest extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
               Object?,
               Object?
             >;
@@ -586,44 +728,47 @@ String _$shortcutPlatformHash() => r'e178a9005d056a5b6519dbf4826a74a3d7cef5b2';
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 
 @ProviderFor(ShellDocuments)
 final shellDocumentsProvider = ShellDocumentsProvider._();
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 final class ShellDocumentsProvider
     extends $NotifierProvider<ShellDocuments, ShellDocumentList> {
   /// The open documents, as `shellDocumentsProvider`.
   ///
-  /// In M1 these are placeholder documents that show every tab state the
-  /// design draws (DS additions `tabStates`, a1-10): the active clean
-  /// contract, an idle clean invoice, an idle statement with unsaved changes,
-  /// a report still opening, a locked payslip, and three more behind "+3".
-  /// The names are the design's sample files, not copy. Activating a tab
-  /// shows that document's save state, pages and edits in the shell; nothing
-  /// is rendered until M2.
+  /// Until the first document opens these are the M1 placeholder documents
+  /// that show every tab state the design draws (DS additions `tabStates`,
+  /// a1-10): the active clean contract, an idle clean invoice, an idle
+  /// statement with unsaved changes, a report still opening, a locked
+  /// payslip, and three more behind "+3". The names are the design's sample
+  /// files, not copy. The first document opened ([add]) replaces them.
+  // shortcut: the placeholders stay the starting state for the M1 shell
+  // tests and `/debug/shell`; drop them with the debug route (end of M2).
   ShellDocumentsProvider._()
     : super(
         from: null,
         argument: null,
         retry: null,
         name: r'shellDocumentsProvider',
-        isAutoDispose: true,
+        isAutoDispose: false,
         dependencies: null,
         $allTransitiveDependencies: null,
       );
@@ -644,17 +789,18 @@ final class ShellDocumentsProvider
   }
 }
 
-String _$shellDocumentsHash() => r'4c855cad8c6ebbd73264e053f0278d1a02482da9';
+String _$shellDocumentsHash() => r'e161361fb613edc9332d152a66563db0a20d7162';
 
 /// The open documents, as `shellDocumentsProvider`.
 ///
-/// In M1 these are placeholder documents that show every tab state the
-/// design draws (DS additions `tabStates`, a1-10): the active clean
-/// contract, an idle clean invoice, an idle statement with unsaved changes,
-/// a report still opening, a locked payslip, and three more behind "+3".
-/// The names are the design's sample files, not copy. Activating a tab
-/// shows that document's save state, pages and edits in the shell; nothing
-/// is rendered until M2.
+/// Until the first document opens these are the M1 placeholder documents
+/// that show every tab state the design draws (DS additions `tabStates`,
+/// a1-10): the active clean contract, an idle clean invoice, an idle
+/// statement with unsaved changes, a report still opening, a locked
+/// payslip, and three more behind "+3". The names are the design's sample
+/// files, not copy. The first document opened ([add]) replaces them.
+// shortcut: the placeholders stay the starting state for the M1 shell
+// tests and `/debug/shell`; drop them with the debug route (end of M2).
 
 abstract class _$ShellDocuments extends $Notifier<ShellDocumentList> {
   ShellDocumentList build();

@@ -213,6 +213,181 @@ class Attachment {
   final DateTime? modified;
 }
 
+/// The Info dictionary of an [OpenedDocument] (a2-7's Summary).
+@immutable
+class DocumentInfo {
+  /// Creates the facts.
+  const new({
+    this.title,
+    this.author,
+    this.subject,
+    this.keywords,
+    this.creator,
+    this.producer,
+    this.created,
+    this.modified,
+  });
+
+  /// `/Title`.
+  final String? title;
+
+  /// `/Author`.
+  final String? author;
+
+  /// `/Subject`.
+  final String? subject;
+
+  /// `/Keywords`.
+  final String? keywords;
+
+  /// `/Creator`: the application that made the original.
+  final String? creator;
+
+  /// `/Producer`: the application that wrote the PDF.
+  final String? producer;
+
+  /// `/CreationDate`, as the file writes it.
+  final DateTime? created;
+
+  /// `/ModDate`, as the file writes it.
+  final DateTime? modified;
+}
+
+/// A font's type (a2-7's Type column).
+enum FontType {
+  /// Type 1.
+  type1,
+
+  /// Multiple Master Type 1.
+  multipleMaster,
+
+  /// TrueType.
+  trueType,
+
+  /// A composite font (Type 0), usually CID-keyed.
+  type0,
+
+  /// Type 3, drawn by content streams.
+  type3,
+
+  /// Anything else.
+  other,
+}
+
+/// A font an [OpenedDocument] uses (a2-7's fonts table).
+@immutable
+class FontEntry {
+  /// Creates a font.
+  const new({
+    required this.name,
+    this.kind = FontType.other,
+    this.embedded = false,
+    this.subset = false,
+  });
+
+  /// Its name, without a subset's `ABCDEF+` tag.
+  final String name;
+
+  /// Its type.
+  final FontType kind;
+
+  /// Whether its program is in the file.
+  final bool embedded;
+
+  /// Whether only the characters the file uses are embedded.
+  final bool subset;
+}
+
+/// How an encrypted document is encrypted.
+enum EncryptionMethod {
+  /// RC4, with [Security.keyBits].
+  rc4,
+
+  /// AES-128.
+  aes128,
+
+  /// AES-256.
+  aes256,
+
+  /// Encrypted only in name.
+  identity,
+}
+
+/// What an encrypted document allows without its owner password
+/// (a2-10b's rows).
+@immutable
+class DocumentPermissions {
+  /// Creates the permissions; all allowed by default.
+  const new({
+    this.print = true,
+    this.printHighQuality = true,
+    this.modify = true,
+    this.annotate = true,
+    this.fillForms = true,
+    this.copy = true,
+    this.accessibility = true,
+    this.assemble = true,
+  });
+
+  /// Printing.
+  final bool print;
+
+  /// Printing at full quality.
+  final bool printHighQuality;
+
+  /// Changing the document.
+  final bool modify;
+
+  /// Adding comments.
+  final bool annotate;
+
+  /// Filling form fields, signature fields included.
+  final bool fillForms;
+
+  /// Copying text and images.
+  final bool copy;
+
+  /// Text access for screen readers.
+  final bool accessibility;
+
+  /// Assembling pages.
+  final bool assemble;
+}
+
+/// The encryption of an [OpenedDocument] (a2-7's Security, a2-10).
+@immutable
+class Security {
+  /// Creates the facts.
+  const new({
+    required this.method,
+    this.keyBits = 0,
+    this.userPasswordRequired = false,
+    this.permissions = const DocumentPermissions(),
+    this.owner = false,
+    this.restricted = false,
+  });
+
+  /// How it is encrypted.
+  final EncryptionMethod method;
+
+  /// The key length in bits: RC4's 40 to 128, 128 or 256 for AES, 0 for
+  /// none.
+  final int keyBits;
+
+  /// Whether opening it needs a password.
+  final bool userPasswordRequired;
+
+  /// What the file allows without its owner password.
+  final DocumentPermissions permissions;
+
+  /// Whether its owner password was given, which lifts the restrictions
+  /// for the session.
+  final bool owner;
+
+  /// Whether the restrictions apply now.
+  final bool restricted;
+}
+
 /// A layer (optional content group) of an [OpenedDocument] (a2-3c).
 @immutable
 class Layer {
@@ -271,6 +446,15 @@ class OpenedDocument {
     this.layers = const [],
     this.layersSwitchable = false,
     this.signatures = const [],
+    this.version = '',
+    this.fileSize = 0,
+    this.info = const DocumentInfo(),
+    this.language,
+    this.tagged = false,
+    this.linearized = false,
+    this.fonts = const [],
+    this.security,
+    this.scripts = 0,
   });
 
   /// Its handle, until it is closed.
@@ -300,6 +484,55 @@ class OpenedDocument {
 
   /// Its signature fields.
   final List<Signature> signatures;
+
+  /// Its PDF version, such as `"1.7"`.
+  final String version;
+
+  /// The file's size in bytes.
+  final int fileSize;
+
+  /// Its Info dictionary.
+  final DocumentInfo info;
+
+  /// Its language (`/Lang`), if it gives one.
+  final String? language;
+
+  /// Whether it is tagged (`/MarkInfo /Marked`).
+  final bool tagged;
+
+  /// Whether it is linearized for fast web view.
+  final bool linearized;
+
+  /// The fonts it uses, each once.
+  final List<FontEntry> fonts;
+
+  /// Its encryption; null when it is not encrypted.
+  final Security? security;
+
+  /// How many scripts it carries, which Ferman never runs (G100).
+  final int scripts;
+
+  /// This document with [security], as the owner unlock leaves it.
+  OpenedDocument withSecurity(Security? security) => OpenedDocument(
+    id: id,
+    pages: pages,
+    readOnly: readOnly,
+    rightToLeft: rightToLeft,
+    outline: outline,
+    attachments: attachments,
+    layers: layers,
+    layersSwitchable: layersSwitchable,
+    signatures: signatures,
+    version: version,
+    fileSize: fileSize,
+    info: info,
+    language: language,
+    tagged: tagged,
+    linearized: linearized,
+    fonts: fonts,
+    security: security,
+    scripts: scripts,
+  );
 }
 
 /// Something a view wants rendered: a [TileItem] or a [ThumbnailItem].

@@ -22,7 +22,8 @@ final class BundledLicense {
 /// Sources (docs/DEPENDENCIES.md §5): PDFium and its third-party
 /// components from the bblanchon/pdfium-binaries archive (§5.1), the IBM
 /// Plex families (§5.2) and the Lucide icons with the Feather notice (§5.3,
-/// ADR 0013). A test checks this list against `pubspec.yaml`.
+/// ADR 0013), and where the source of the MPL-2.0 package dbus is (§3.11).
+/// A test checks this list against `pubspec.yaml`.
 ///
 /// Texts from the PDFium archive are listed under their component and under
 /// PDFium, so the PDFium entry of the licences screen shows everything the
@@ -87,6 +88,9 @@ const List<BundledLicense> bundledLicenses = [
   // Lucide (ISC) with the Feather (MIT) notice, under "Lucide" (ADR 0013).
   BundledLicense('assets/icons/LICENSE-lucide-0.460.0.txt', ['Lucide']),
   BundledLicense('assets/icons/LICENSE-lucide-1.56.0.txt', ['Lucide']),
+  // Where the source of the MPL-2.0 package dbus is (Q17, §3.11); the build
+  // collects its licence text.
+  BundledLicense('assets/licenses/dbus/SOURCE.txt', ['dbus']),
 ];
 
 /// Adds every [bundledLicenses] text to Flutter's [LicenseRegistry], so the

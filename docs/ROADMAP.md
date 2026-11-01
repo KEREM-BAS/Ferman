@@ -1888,7 +1888,8 @@ rows say "keys only".
   this applies above the progressive-open threshold (more than 1,000 pages, or an indexing estimate
   over 2 s); below it, thumbnails come from PDFium without waiting for indexing.
 - [ ] Tabs: 20 documents open at once; the overflow menu works (`a1-10`); each tab keeps its scroll,
-  zoom, sidebar tab and search after switching (IndexedStack test).
+  zoom, sidebar tab and search after switching (IndexedStack test; **Proposed, [Q23](QUESTIONS.md#q23):**
+  the state kept per document by its id, and the test switches tabs).
 - [ ] Document properties (`a2-7`): Summary, Fonts (embedded, subset, not embedded with the font shown
   instead) and Security in the Summary tab's layout: the encryption method, whether a password is
   needed to open, and each permission, Allowed in green and Not allowed neutral (`a2-10b`,

@@ -4,28 +4,36 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_problem.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/start/recent_files_view.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-/// The start screen with no recent files, board a1-5 (right to left
-/// a12-2a; building block `FmStart.dc.html` with `empty`).
+/// The start screen: with no recent files board a1-5 (right to left
+/// a12-2a; building block `FmStart.dc.html` with `empty`), with some the M2
+/// build of a1-4 (a1-4-m2; a1-4b and a1-4c in its grid and list), where
+/// [RecentFilesView] takes the drop area's place.
 ///
 /// Four action cards (Open file…, Create PDF, Combine files, Scan to PDF),
 /// the quick tools, and the drop area ([DropZone]) with Open a PDF and New
-/// blank PDF. Everything is visible as drawn and disabled with "Available
-/// in a future version" until its milestone (G10, G11): opening files and
-/// dropping them in M2 (no file picker in M1, ADR 0018, Q07), creating and
-/// combining PDFs and compressing in M4, signing in M4 (simple
-/// signatures), protecting in P2, scanning, conversion, text recognition
-/// and compare in P3. Each control takes its state from its feature in
-/// the feature registry ([Feature]). The copy speaks of PDFs only until
-/// conversion exists (G11).
+/// blank PDF. Open file… and Open a PDF show the system open panel
+/// (a1-13, ADR 0018); everything else is visible as drawn and disabled
+/// with "Available in a future version" until its milestone (G10, G11):
+/// creating and combining PDFs and compressing
+/// in M4, signing in M4 (simple signatures), protecting in P2, scanning,
+/// conversion, text recognition and compare in P3. Each of those controls
+/// takes its state from its feature in the feature registry ([Feature]).
+/// The copy speaks of PDFs only until conversion exists (G11). A file that
+/// did not open shows a danger banner at the top until dismissed (G116).
+/// Files dropped anywhere on the window open too (`FileDrop`, a1-6).
 ///
 /// The keys come from the shell's shortcut table: ⌘, (Ctrl+, on Windows
 /// and Linux) opens Settings (the a11-1 note) through a
@@ -66,15 +74,15 @@ class FmStart extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
     final problem = ref.watch(engineProblemProvider);
-    // Opening waits for its milestone, or for a working engine (G101).
-    final openReason = problem == null
-        ? Feature.openFiles.disabledReason(context)
-        : l10n.startEngineUnavailableTitle;
+    final openReason = openFilesDisabledReason(context, ref);
+    final onOpen = openFiles(context, ref);
+    final failed = ref.watch(documentOpenerProvider);
+    final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
     // ⌘O and ⌘N have keys on every system.
     final open = ShellCommand.open.caps(platform)!;
     final actions = [
       (
-        Feature.openFiles,
+        null,
         IconName.folderOpen,
         l10n.startOpenFile,
         l10n.startOpenFileDescription,
@@ -116,6 +124,7 @@ class FmStart extends ConsumerWidget {
       spacing: gap,
       children: [
         if (problem != null) _EngineProblemBanner(problem),
+        if (failed != null) OpenProblemBanner(failed),
         IntrinsicHeight(
           child: Row(
             crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -128,7 +137,8 @@ class FmStart extends ConsumerWidget {
                     title: title,
                     description: description,
                     shortcut: keys,
-                    disabledReason: feature == Feature.openFiles
+                    onPressed: feature == null ? onOpen : null,
+                    disabledReason: feature == null
                         ? openReason
                         : feature.disabledReason(context),
                   ),
@@ -161,18 +171,21 @@ class FmStart extends ConsumerWidget {
               ),
           ],
         ),
-        DropZone(
-          title: l10n.startDropTitle,
-          subtitle: l10n.startDropSubtitle,
-          openLabel: l10n.startOpenPdf,
-          createLabel: l10n.startNewBlankPdf,
-          shortcut: open,
-          footnote: l10n.startDropFootnote,
-          minHeight: dropMinHeight,
-          // The zone, its drop target and both buttons share one reason
-          // until opening ships (M2 step 6); New blank PDF stays M4.
-          disabledReason: openReason,
-        ),
+        if (hasRecent)
+          const RecentFilesView()
+        else
+          DropZone(
+            title: l10n.startDropTitle,
+            subtitle: l10n.startDropSubtitle,
+            openLabel: l10n.startOpenPdf,
+            createLabel: l10n.startNewBlankPdf,
+            shortcut: open,
+            footnote: l10n.startDropFootnote,
+            minHeight: dropMinHeight,
+            onOpen: onOpen,
+            disabledReason: openReason,
+            createDisabledReason: Feature.createPdf.disabledReason(context),
+          ),
       ],
     );
 
@@ -244,13 +257,15 @@ class _ActionCard extends StatelessWidget {
     required this.description,
     required this.shortcut,
     required this.disabledReason,
+    this.onPressed,
   });
 
   final IconName icon;
   final String title;
   final String description;
   final List<String>? shortcut;
-  final String disabledReason;
+  final String? disabledReason;
+  final VoidCallback? onPressed;
 
   /// The card's padding (`padding: 16px`) is `--space-4`; the gap between
   /// the tile and the text (`gap: 14px`).
@@ -270,6 +285,8 @@ class _ActionCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) => FermanInteractive(
+    onPressed: onPressed,
+    disabled: onPressed == null,
     disabledReason: disabledReason,
     semanticLabel: '$title. $description',
     builder: (context, states, _) {

@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -44,6 +44,19 @@ Future<void> debugPanic() => FermanBridge.instance.api.crateFrbDebugPanic();
 Future<Uint8List> debugBytes({required int len}) =>
     FermanBridge.instance.api.crateFrbDebugBytes(len: len);
 
+/// The order of `texts` in the language of `locale`, a BCP 47 tag such as `tr`: their indices,
+/// first to last. Digits compare by their value and equal texts keep their order. Sorts the recent
+/// files by name and location (ADR 0021).
+///
+/// See [`facade::collation_order`].
+Future<Uint32List> collationOrder({
+  required String locale,
+  required List<String> texts,
+}) => FermanBridge.instance.api.crateFrbCollationOrder(
+  locale: locale,
+  texts: texts,
+);
+
 /// Opens the PDF at `path`, with `password` if it is encrypted. Without the password an encrypted
 /// file fails with `PasswordRequired`; open it again with the password.
 ///
@@ -54,6 +67,20 @@ Future<Uint8List> debugBytes({required int len}) =>
 /// Returns the facade's error, mirrored.
 Future<OpenedDocument> open({required String path, String? password}) =>
     FermanBridge.instance.api.crateFrbOpen(path: path, password: password);
+
+/// Lifts the restrictions of `document` for this session when `password` is its owner password
+/// (a2-10a). Returns its security from then on, `None` when it is not encrypted.
+///
+/// # Errors
+///
+/// `WrongPassword` when it is not the owner password; `NotFound` for a document that is not open.
+Future<Security?> unlockOwner({
+  required BigInt document,
+  required String password,
+}) => FermanBridge.instance.api.crateFrbUnlockOwner(
+  document: document,
+  password: password,
+);
 
 /// Closes a document and ends its views.
 ///
@@ -234,6 +261,147 @@ class CrateVersion {
           version == other.version;
 }
 
+/// The document information dictionary (a2-7).
+class DocumentInfo {
+  /// `/Title`.
+  final String? title;
+
+  /// `/Author`.
+  final String? author;
+
+  /// `/Subject`.
+  final String? subject;
+
+  /// `/Keywords`.
+  final String? keywords;
+
+  /// `/Creator`: the application that made the original.
+  final String? creator;
+
+  /// `/Producer`: the application that wrote the PDF.
+  final String? producer;
+
+  /// `/CreationDate`.
+  final PdfDate? created;
+
+  /// `/ModDate`.
+  final PdfDate? modified;
+
+  const DocumentInfo({
+    this.title,
+    this.author,
+    this.subject,
+    this.keywords,
+    this.creator,
+    this.producer,
+    this.created,
+    this.modified,
+  });
+
+  @override
+  int get hashCode =>
+      title.hashCode ^
+      author.hashCode ^
+      subject.hashCode ^
+      keywords.hashCode ^
+      creator.hashCode ^
+      producer.hashCode ^
+      created.hashCode ^
+      modified.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DocumentInfo &&
+          runtimeType == other.runtimeType &&
+          title == other.title &&
+          author == other.author &&
+          subject == other.subject &&
+          keywords == other.keywords &&
+          creator == other.creator &&
+          producer == other.producer &&
+          created == other.created &&
+          modified == other.modified;
+}
+
+/// What an encrypted document allows without its owner password (a2-10b's rows).
+class DocumentPermissions {
+  /// Printing.
+  final bool print;
+
+  /// Printing at full quality.
+  final bool printHighQuality;
+
+  /// Changing the document.
+  final bool modify;
+
+  /// Adding comments.
+  final bool annotate;
+
+  /// Filling form fields, signature fields included.
+  final bool fillForms;
+
+  /// Copying text and images.
+  final bool copy;
+
+  /// Text access for screen readers.
+  final bool accessibility;
+
+  /// Assembling pages.
+  final bool assemble;
+
+  const DocumentPermissions({
+    required this.print,
+    required this.printHighQuality,
+    required this.modify,
+    required this.annotate,
+    required this.fillForms,
+    required this.copy,
+    required this.accessibility,
+    required this.assemble,
+  });
+
+  @override
+  int get hashCode =>
+      print.hashCode ^
+      printHighQuality.hashCode ^
+      modify.hashCode ^
+      annotate.hashCode ^
+      fillForms.hashCode ^
+      copy.hashCode ^
+      accessibility.hashCode ^
+      assemble.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DocumentPermissions &&
+          runtimeType == other.runtimeType &&
+          print == other.print &&
+          printHighQuality == other.printHighQuality &&
+          modify == other.modify &&
+          annotate == other.annotate &&
+          fillForms == other.fillForms &&
+          copy == other.copy &&
+          accessibility == other.accessibility &&
+          assemble == other.assemble;
+}
+
+/// How an encrypted document is encrypted.
+enum EncryptionMethod {
+  /// RC4, with [`Security::key_bits`].
+  rc4,
+
+  /// AES-128.
+  aes128,
+
+  /// AES-256.
+  aes256,
+
+  /// Encrypted only in name.
+  identity,
+}
+
 /// Versions and build facts of the running engine, for the About screen and bug reports.
 class EngineInfo {
   /// The version of Ferman, such as `"0.1.0"`.
@@ -330,6 +498,63 @@ enum FailReason {
   internal,
 }
 
+/// A font the pages use (a2-7, FmDocPanel's Fonts in this document).
+class FontEntry {
+  /// Its name, without a subset's `ABCDEF+` tag.
+  final String name;
+
+  /// Its type.
+  final FontType kind;
+
+  /// Whether its program is in the file.
+  final bool embedded;
+
+  /// Whether only the characters the file uses are embedded (the name's tag).
+  final bool subset;
+
+  const FontEntry({
+    required this.name,
+    required this.kind,
+    required this.embedded,
+    required this.subset,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^ kind.hashCode ^ embedded.hashCode ^ subset.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FontEntry &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          kind == other.kind &&
+          embedded == other.embedded &&
+          subset == other.subset;
+}
+
+/// A font's type (a2-7's Type column).
+enum FontType {
+  /// Type 1.
+  type1,
+
+  /// Multiple Master Type 1.
+  multipleMaster,
+
+  /// TrueType.
+  trueType,
+
+  /// A composite font (Type 0), usually CID-keyed.
+  type0,
+
+  /// Type 3, drawn by content streams.
+  type3,
+
+  /// Anything else.
+  other,
+}
+
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
 enum ItemKind {
   /// A 512-pixel tile of a page at a zoom bucket.
@@ -399,6 +624,33 @@ class OpenedDocument {
   /// Signature fields.
   final List<Signature> signatures;
 
+  /// The PDF version in the header, such as "1.7".
+  final String version;
+
+  /// The file's size in bytes.
+  final BigInt fileSize;
+
+  /// The document information dictionary.
+  final DocumentInfo info;
+
+  /// `/Lang`, the document's language tag.
+  final String? language;
+
+  /// Whether it is a tagged PDF.
+  final bool tagged;
+
+  /// Whether it is linearized for fast web view.
+  final bool linearized;
+
+  /// The fonts its pages use, each name once.
+  final List<FontEntry> fonts;
+
+  /// Its encryption and permissions, when it is encrypted (a2-10a, a2-10b).
+  final Security? security;
+
+  /// How many JavaScript actions it holds; Ferman never runs them (G100).
+  final int scripts;
+
   const OpenedDocument({
     required this.id,
     this.readOnly,
@@ -409,6 +661,15 @@ class OpenedDocument {
     required this.layers,
     required this.layersSwitchable,
     required this.signatures,
+    required this.version,
+    required this.fileSize,
+    required this.info,
+    this.language,
+    required this.tagged,
+    required this.linearized,
+    required this.fonts,
+    this.security,
+    required this.scripts,
   });
 
   @override
@@ -421,7 +682,16 @@ class OpenedDocument {
       attachments.hashCode ^
       layers.hashCode ^
       layersSwitchable.hashCode ^
-      signatures.hashCode;
+      signatures.hashCode ^
+      version.hashCode ^
+      fileSize.hashCode ^
+      info.hashCode ^
+      language.hashCode ^
+      tagged.hashCode ^
+      linearized.hashCode ^
+      fonts.hashCode ^
+      security.hashCode ^
+      scripts.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -436,7 +706,16 @@ class OpenedDocument {
           attachments == other.attachments &&
           layers == other.layers &&
           layersSwitchable == other.layersSwitchable &&
-          signatures == other.signatures;
+          signatures == other.signatures &&
+          version == other.version &&
+          fileSize == other.fileSize &&
+          info == other.info &&
+          language == other.language &&
+          tagged == other.tagged &&
+          linearized == other.linearized &&
+          fonts == other.fonts &&
+          security == other.security &&
+          scripts == other.scripts;
 }
 
 /// One outline item (bookmark) of an [`OpenedDocument`].
@@ -792,6 +1071,57 @@ class SearchOptions {
           matchCase == other.matchCase &&
           wholeWords == other.wholeWords &&
           ignoreAccents == other.ignoreAccents;
+}
+
+/// An encrypted document's security (a2-10a, a2-10b).
+class Security {
+  /// How it is encrypted.
+  final EncryptionMethod method;
+
+  /// The key length in bits: RC4's 40 to 128, 128 or 256 for AES, 0 for none.
+  final int keyBits;
+
+  /// Whether opening it needs a password.
+  final bool userPasswordRequired;
+
+  /// What the file allows without its owner password.
+  final DocumentPermissions permissions;
+
+  /// Whether its owner password was given, which lifts the restrictions for the session.
+  final bool owner;
+
+  /// Whether the restrictions apply now.
+  final bool restricted;
+
+  const Security({
+    required this.method,
+    required this.keyBits,
+    required this.userPasswordRequired,
+    required this.permissions,
+    required this.owner,
+    required this.restricted,
+  });
+
+  @override
+  int get hashCode =>
+      method.hashCode ^
+      keyBits.hashCode ^
+      userPasswordRequired.hashCode ^
+      permissions.hashCode ^
+      owner.hashCode ^
+      restricted.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Security &&
+          runtimeType == other.runtimeType &&
+          method == other.method &&
+          keyBits == other.keyBits &&
+          userPasswordRequired == other.userPasswordRequired &&
+          permissions == other.permissions &&
+          owner == other.owner &&
+          restricted == other.restricted;
 }
 
 /// A signature field of an [`OpenedDocument`] (a2-14).

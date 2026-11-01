@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -11,10 +12,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// heading with the panel's title and a "More" button.
 ///
 /// The title is "Document" (FmDocPanel `kind="view"`), or "Edit" in Edit
-/// mode (`kind="edit"`). The panel's sections (file properties, fonts,
-/// security) need an open document (M2), so the body is empty and More is
-/// disabled with the future-version tooltip. The mode panels of later
-/// milestones (FmEditPanel, FmComments, FmFormPanel) take its place.
+/// mode (`kind="edit"`). With a document open the body holds its sections
+/// ([DocumentPanelSections]): File, Fonts in this document and Security,
+/// and in Edit mode only the fonts (its edit summary comes with editing,
+/// M3). More's menu is not drawn, so More stays disabled with the
+/// future-version tooltip (B068). The mode panels of later milestones
+/// (FmEditPanel, FmComments, FmFormPanel) take its place.
 class FmDocPanel extends ConsumerWidget {
   /// The right panel.
   const new({super.key});
@@ -27,6 +30,7 @@ class FmDocPanel extends ConsumerWidget {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(shellModeProvider);
+    final document = ref.watch(shellDocumentsProvider).active;
     final title = mode == FermanMode.edit
         ? l10n.shellModeEdit
         : l10n.shellPanelDocument;
@@ -80,7 +84,16 @@ class FmDocPanel extends ConsumerWidget {
                 ],
               ),
             ),
-            const Expanded(child: SizedBox.shrink()),
+            Expanded(
+              child: document?.document == null
+                  ? const SizedBox.shrink()
+                  : SingleChildScrollView(
+                      child: DocumentPanelSections(
+                        tab: document!,
+                        edit: mode == FermanMode.edit,
+                      ),
+                    ),
+            ),
           ],
         ),
       ),

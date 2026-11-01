@@ -2527,6 +2527,7 @@ Drawn in: 14 Tablet and web, FmStart.
 | `onFiles` |  | `onFiles` | `ValueChanged<List<String>>?` |  |  | Dropped file paths. |
 | `minHeight` |  | `minHeight` | `double?` |  |  | FmStart uses 470. |
 | — |  | `disabledReason` | `String?` |  |  | Disables drop handling, the Open and New buttons and the recent rows as disabled-with-reason (still focusable, the reason as tooltip and hint) (G10). |
+| — |  | `createDisabledReason` | `String?` |  |  | Disables only the New button with a reason while Open works: the localized "Available in a future version" until creating PDFs ships (G10). |
 | — |  | `overTitle` | `String?` |  |  | The title while a drag hovers ("Release to open"). |
 | — |  | `overSubtitle` | `String?` |  |  | The subtitle while a drag hovers. |
 | — |  | `errorTitle` | `String?` |  |  | The title of the error state ("That file isn’t a PDF"). |
@@ -2572,7 +2573,7 @@ Notes:
 - Desktop drops need desktop_drop (Q17 approved); M1 shows the drop strip disabled with disabledReason "Available in a future version" until its milestone (ROADMAP step 9).
 - Copy per state lives in the ARB files; every text is a parameter (overTitle, errorTitle, openLabel and the others), and a null text is not shown (decision 20).
 - The dashed border is painted as 3 px dashes with 2 px gaps, and the Open shortcut joins symbol caps ("⌘O") but puts a plus between word caps ("Ctrl+O") (G73).
-- Desktop file drops arrive with desktop_drop in M2 (B010).
+- Desktop file drops go to the window (FileDrop, a1-6) since M2 (B010); the zone's own DragTarget takes drags inside the app.
 
 ### Group: overlays
 

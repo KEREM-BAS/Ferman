@@ -1,10 +1,14 @@
+import 'dart:async';
+
 import 'package:ferman/app/router.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/platform/open_requests.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -37,12 +41,68 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// asks for reduced motion (`MediaQuery.disableAnimationsOf`), the theme
 /// switch is instant and every token duration is zero; otherwise the switch
 /// takes the base duration with the ease-out curve.
-class FermanApp extends ConsumerWidget {
+///
+/// Files from the system ([openRequestsProvider], ADR 0021) open here: those
+/// Ferman was started with before the first frame shows (for at most
+/// [_FermanAppState.launchWaitMs]), so a cold launch with a file skips Start
+/// (G25), then every later request as it comes.
+class FermanApp extends ConsumerStatefulWidget {
   /// Creates the root widget.
   const new({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<FermanApp> createState() => _FermanAppState();
+}
+
+class _FermanAppState extends ConsumerState<FermanApp> {
+  /// How long the first frame waits for the files Ferman was started with;
+  /// a slower file opens in the editor once it lands.
+  static const int launchWaitMs = 500;
+
+  StreamSubscription<List<String>>? _requests;
+
+  @override
+  void initState() {
+    super.initState();
+    final requests = ref.read(openRequestsProvider);
+    final opener = ref.read(documentOpenerProvider.notifier);
+    void listen() => _requests = requests.later.listen(
+      (paths) => unawaited(opener.open(paths)),
+    );
+    final launch = requests.launch;
+    if (launch.isEmpty) {
+      listen();
+      return;
+    }
+    final binding = WidgetsBinding.instance..deferFirstFrame();
+    var deferred = true;
+    void allow() {
+      if (!deferred) return;
+      deferred = false;
+      binding.allowFirstFrame();
+    }
+
+    binding.addPostFrameCallback((_) {
+      final wait = Timer(const Duration(milliseconds: launchWaitMs), allow);
+      unawaited(
+        opener.open(launch).whenComplete(() {
+          wait.cancel();
+          allow();
+        }),
+      );
+      // Later requests open after the launch's files.
+      listen();
+    });
+  }
+
+  @override
+  void dispose() {
+    unawaited(_requests?.cancel());
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final language = ref.watch(appLanguageProvider);
     final direction = language.textDirection;
     final motion = FermanTheme.motionFor(
