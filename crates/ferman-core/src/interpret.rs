@@ -18,7 +18,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 
 use crate::content::{self, Operator};
 use crate::filters;
-use crate::limits::LimitKind;
+use crate::limits::{LimitKind, Limits};
 use crate::structure::{FontKind, Scope, inherited, number};
 use crate::{CoreError, Document};
 
@@ -68,6 +68,11 @@ pub struct FontResource {
     pub font_matrix: Matrix,
     /// `/ToUnicode`, decoded.
     pub to_unicode: Option<Vec<u8>>,
+    /// A Type1 font's embedded program (`/FontFile`), decoded up to
+    /// [`Limits::max_font_program`](crate::limits::Limits::max_font_program), when its encoding
+    /// names no base encoding: the program's built-in encoding is the base then (ISO 32000-2
+    /// §9.6.5).
+    pub font_program: Option<Vec<u8>>,
     /// A composite font's predefined CMap, such as `Identity-H`.
     pub cmap_name: Option<Vec<u8>>,
     /// A composite font's embedded CMap, decoded.
@@ -177,11 +182,16 @@ impl Document {
 
 /// A stream's decoded bytes, or `None` when it cannot be decoded.
 fn decoded(scope: &Scope<'_>, object: &Object) -> Option<Vec<u8>> {
+    decoded_within(scope, object, scope.limits)
+}
+
+/// [`decoded`] with other limits.
+fn decoded_within(scope: &Scope<'_>, object: &Object, limits: &Limits) -> Option<Vec<u8>> {
     let Object::Stream(stream) = scope.resolve(object)? else {
         return None;
     };
     let steps = filters::chain_of(&stream.dict).ok()?;
-    filters::decode_chain(&steps, &stream.content, scope.limits).ok()
+    filters::decode_chain(&steps, &stream.content, limits).ok()
 }
 
 /// The graphics state's part that places text.
@@ -489,6 +499,21 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
         }
         _ => {}
     }
+    let font_program =
+        if matches!(kind, FontKind::Type1 | FontKind::MultipleMaster) && base_encoding.is_none() {
+            let limits = Limits {
+                max_stream_decoded: scope
+                    .limits
+                    .max_stream_decoded
+                    .min(scope.limits.max_font_program),
+                ..scope.limits.clone()
+            };
+            descriptor
+                .and_then(|descriptor| descriptor.get(b"FontFile").ok())
+                .and_then(|program| decoded_within(scope, program, &limits))
+        } else {
+            None
+        };
     let (cid_widths, vertical_metrics) = descendant.map_or_else(Default::default, |font| {
         (
             cid_ranges::<1>(scope, scope.get_array(font, b"W")),
@@ -524,6 +549,7 @@ fn font_resource(scope: &Scope<'_>, dict: &Dictionary, key: u64) -> FontResource
             .get(b"ToUnicode")
             .ok()
             .and_then(|value| decoded(scope, value)),
+        font_program,
         cmap_name,
         cmap,
         cid_widths: cid_widths
@@ -713,6 +739,68 @@ mod tests {
             ]
         );
         assert_eq!(recorder.fonts.len(), 1, "a font is announced once");
+    }
+
+    /// The font a page using only the font `build` adds announces.
+    fn announced(build: impl FnOnce(&mut lopdf::Document) -> Dictionary) -> FontResource {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let font = build(&mut doc);
+        let font = doc.add_object(font);
+        let page = doc.page_iter().next().unwrap();
+        let contents = doc.add_object(Stream::new(
+            dictionary! {},
+            b"BT /F1 9 Tf (a) Tj ET".to_vec(),
+        ));
+        let page = doc.get_dictionary_mut(page).unwrap();
+        page.set(
+            "Resources",
+            dictionary! { "Font" => dictionary! { "F1" => font } },
+        );
+        page.set("Contents", contents);
+        let mut bytes = Vec::new();
+        doc.save_to(&mut bytes).unwrap();
+        let doc = open(
+            &Source::from_bytes(Arc::from(&bytes[..])),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        let mut recorder = Recorder::default();
+        doc.page_text(0, &mut recorder).unwrap();
+        recorder.fonts.remove(0)
+    }
+
+    #[test]
+    fn a_type1_program_comes_along_only_without_a_base_encoding() {
+        let type1 = |encoding: Option<Object>| {
+            announced(|doc| {
+                let program = doc.add_object(Stream::new(
+                    dictionary! {},
+                    b"/Encoding StandardEncoding def".to_vec(),
+                ));
+                let mut font = dictionary! {
+                    "Type" => "Font", "Subtype" => "Type1", "BaseFont" => "Test",
+                    "FontDescriptor" => dictionary! {
+                        "FontFile" => program,
+                    },
+                };
+                if let Some(encoding) = encoding {
+                    font.set("Encoding", encoding);
+                }
+                font
+            })
+            .font_program
+        };
+        assert_eq!(
+            type1(None).as_deref(),
+            Some(&b"/Encoding StandardEncoding def"[..])
+        );
+        assert!(
+            type1(Some(
+                dictionary! { "Differences" => vec![65.into(), "B".into()] }.into()
+            ))
+            .is_some()
+        );
+        assert_eq!(type1(Some("WinAnsiEncoding".into())), None);
     }
 
     #[test]

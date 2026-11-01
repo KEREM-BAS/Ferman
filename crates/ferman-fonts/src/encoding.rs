@@ -4,9 +4,9 @@
 //! Glyph names are read the way ISO 32000-2 §9.10.2 and the Adobe Glyph List specification read
 //! them: a suffix after `.` is dropped, `_` joins the parts of a ligature, `uniXXXX` holds groups
 //! of four hex digits and `uXXXX` to `uXXXXXX` one code point. Other names come from a table of
-//! the Latin names: the base encodings' names and Latin Extended-A, in Unicode order. A font's
-//! built-in encoding (an embedded Type1 program, Symbol and ZapfDingbats) arrives with the Type1
-//! parser.
+//! the Latin names: the base encodings' names and Latin Extended-A, in Unicode order. An embedded
+//! Type1 program's built-in encoding comes from [`crate::type1`]; Symbol's and ZapfDingbats' arrive
+//! with the standard 14's metrics.
 // A parser module: names and codes come from files (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 

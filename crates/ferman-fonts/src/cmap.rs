@@ -277,7 +277,7 @@ fn utf16(bytes: &[u8]) -> String {
 
 /// One token of a CMap's PostScript.
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum Token<'a> {
+pub(crate) enum Token<'a> {
     Hex(Vec<u8>),
     Integer(i64),
     Name(&'a [u8]),
@@ -286,14 +286,15 @@ enum Token<'a> {
     Array(Vec<Vec<u8>>),
 }
 
-/// The tokens of a CMap. Strings, dictionaries' brackets, procedures and real numbers are skipped.
-struct Tokens<'a> {
+/// The tokens of a CMap or a Type1 program's clear text. Strings, dictionaries' brackets,
+/// procedures and real numbers are skipped.
+pub(crate) struct Tokens<'a> {
     data: &'a [u8],
     at: usize,
 }
 
 impl<'a> Tokens<'a> {
-    fn new(data: &'a [u8]) -> Self {
+    pub(crate) fn new(data: &'a [u8]) -> Self {
         Self { data, at: 0 }
     }
 
