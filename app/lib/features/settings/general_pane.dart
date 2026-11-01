@@ -8,6 +8,7 @@ import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -15,13 +16,14 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The General pane of Settings, board a11-1 (Windows a11-1w).
 ///
 /// Theme (Match system, Light, Dark) works: it restyles the app at once and
-/// is stored (`themeModeProvider`). The rest is drawn as designed and
+/// is stored (`themeModeProvider`), as does Reopen documents from last time
+/// (B079, `DocumentOpener.reopenLast`). The rest is drawn as designed and
 /// disabled with "Available in a future version" until its milestone
 /// (G10), through its feature in the feature registry ([Feature]): PDF
 /// pages in dark theme (Paper white and Dimmed in M2, Dark
 /// reading mode in P2), the page layout and zoom for new documents and
-/// reopening documents (M2, with the viewer) and the default PDF app (M2,
-/// a1-3). Their values are the defaults the design draws.
+/// the default PDF app (M2, a1-3). Their values are the defaults the
+/// design draws.
 ///
 /// The design's "Preview opens PDFs on this Mac." needs the system's
 /// default-app lookup, which comes with the button in M2; until then the
@@ -174,9 +176,15 @@ class GeneralPane extends ConsumerWidget {
           alignment: AlignmentDirectional.centerStart,
           child: Switch(
             label: l10n.settingsReopen,
-            value: true,
-            disabled: true,
-            disabledReason: Feature.reopenDocuments.disabledReason(context),
+            value: ref.watch(
+              settingsProvider.select((settings) => settings.reopenDocuments),
+            ),
+            onChanged: (reopen) => unawaited(
+              changeSetting(
+                ref,
+                (settings) => settings.copyWith(reopenDocuments: reopen),
+              ),
+            ),
           ),
         ),
         Container(

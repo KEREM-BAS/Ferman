@@ -11,6 +11,8 @@ import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/recent/recent_previews.dart';
+import 'package:ferman/settings/settings_providers.dart';
+import 'package:ferman/settings/settings_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -124,6 +126,37 @@ class DocumentOpener extends _$DocumentOpener {
     final missing = <String>{};
     await open([path], missing: missing);
     return missing.isEmpty;
+  }
+
+  /// Opens the files open when the app last ran, in their tab order, when
+  /// Settings › General › Reopen documents from last time is on (B079).
+  /// Each opens as a recent file ([openRecent]), whose bookmark reaches it
+  /// after a restart under the App Sandbox; one that is gone or off the
+  /// recent list is skipped without a report.
+  Future<void> reopenLast() async {
+    final settings = ref.read(settingsProvider);
+    if (!settings.reopenDocuments) return;
+    final recent = ref.read(recentFilesProvider);
+    for (final path in settings.lastDocuments) {
+      final entry = recent.where((entry) => entry.path == path).firstOrNull;
+      if (entry != null) await openRecent(entry);
+    }
+  }
+
+  /// Stores the paths of the files open in [documents] for [reopenLast];
+  /// error tabs are left out. A failed save keeps the old list.
+  Future<void> recordOpen(ShellDocumentList documents) async {
+    final paths = [
+      for (final document in documents.documents)
+        if (document.path case final path? when document.error == null) path,
+    ];
+    try {
+      await ref
+          .read(settingsProvider.notifier)
+          .change((settings) => settings.copyWith(lastDocuments: paths));
+    } on SettingsStoreException {
+      // Kept for this session: the next change tries again.
+    }
   }
 
   /// Opens [paths] one after another, each in a new active tab; a file

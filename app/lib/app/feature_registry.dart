@@ -112,9 +112,6 @@ enum Feature {
   /// The right panel's sections: its More button.
   rightPanelSections('B068'),
 
-  /// Reopening the documents from last time (Settings › General).
-  reopenDocuments('B079'),
-
   /// Making Ferman the default PDF app on macOS (Settings › General).
   defaultAppMacos('B080'),
 

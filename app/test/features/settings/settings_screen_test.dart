@@ -284,6 +284,17 @@ void main() {
       expect(control.value, AppThemeMode.dark);
     });
 
+    testWidgets('Reopen documents from last time is on, and turning it off '
+        'is stored (B079)', (tester) async {
+      final store = await pumpFermanApp(tester);
+      await _openAndSettle(tester);
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isTrue);
+      await tester.tap(find.byType(Switch));
+      await tester.pumpAndSettle();
+      expect(tester.widget<Switch>(find.byType(Switch)).value, isFalse);
+      expect((await store.load()).reopenDocuments, isFalse);
+    });
+
     testWidgets('later options are drawn and disabled', (tester) async {
       await pumpFermanApp(tester);
       await _openAndSettle(tester);
@@ -300,10 +311,6 @@ void main() {
       for (final select in selects) {
         expect(select.disabledReason, _future);
       }
-      expect(
-        tester.widget<Switch>(find.byType(Switch)).disabledReason,
-        _future,
-      );
       expect(
         tester
             .widget<FermanInteractive>(

@@ -16,6 +16,8 @@ void main() {
         'version': 1,
         'theme': 'system',
         'onboardingCompleted': false,
+        'reopenDocuments': true,
+        'lastDocuments': <String>[],
       });
     });
 
@@ -39,6 +41,8 @@ void main() {
         'lengthUnit': 'millimetre',
         'firstDayOfWeek': 'monday',
         'onboardingCompleted': true,
+        'reopenDocuments': true,
+        'lastDocuments': <String>[],
       });
     });
 

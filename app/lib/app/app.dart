@@ -4,11 +4,13 @@ import 'package:ferman/app/router.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/open_files.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/app_language.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/isolated_fallback.g.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/platform/open_requests.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -42,10 +44,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// switch is instant and every token duration is zero; otherwise the switch
 /// takes the base duration with the ease-out curve.
 ///
-/// Files from the system ([openRequestsProvider], ADR 0021) open here: those
+/// Files from the system ([openRequestsProvider], ADR 0021) open here: the
+/// documents from last time ([DocumentOpener.reopenLast], B079) and those
 /// Ferman was started with before the first frame shows (for at most
 /// [_FermanAppState.launchWaitMs]), so a cold launch with a file skips Start
-/// (G25), then every later request as it comes.
+/// (G25), then every later request as it comes. From then on the open
+/// tabs are stored for the next start ([DocumentOpener.recordOpen]).
 class FermanApp extends ConsumerStatefulWidget {
   /// Creates the root widget.
   const new({super.key});
@@ -69,9 +73,24 @@ class _FermanAppState extends ConsumerState<FermanApp> {
     void listen() => _requests = requests.later.listen(
       (paths) => unawaited(opener.open(paths)),
     );
+    // After the first frame: the first record changes the settings, which
+    // initState must not.
+    void record() => WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      ref.listenManual(
+        shellDocumentsProvider,
+        (_, documents) => unawaited(opener.recordOpen(documents)),
+        fireImmediately: true,
+      );
+    });
+
     final launch = requests.launch;
-    if (launch.isEmpty) {
+    final settings = ref.read(settingsProvider);
+    final reopen =
+        settings.reopenDocuments && settings.lastDocuments.isNotEmpty;
+    if (launch.isEmpty && !reopen) {
       listen();
+      record();
       return;
     }
     final binding = WidgetsBinding.instance..deferFirstFrame();
@@ -85,9 +104,12 @@ class _FermanAppState extends ConsumerState<FermanApp> {
     binding.addPostFrameCallback((_) {
       final wait = Timer(const Duration(milliseconds: launchWaitMs), allow);
       unawaited(
-        opener.open(launch).whenComplete(() {
+        opener.reopenLast().then((_) => opener.open(launch)).whenComplete(() {
           wait.cancel();
           allow();
+          // Recorded once the last documents are back, so a quit meanwhile
+          // keeps them all.
+          record();
         }),
       );
       // Later requests open after the launch's files.

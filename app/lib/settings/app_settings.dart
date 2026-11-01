@@ -23,6 +23,8 @@ final class AppSettings {
     this.lengthUnit,
     this.firstDayOfWeek,
     this.onboardingCompleted = false,
+    this.reopenDocuments = true,
+    this.lastDocuments = const [],
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -49,6 +51,14 @@ final class AppSettings {
       lengthUnit: pick(LengthUnit.values, json[_lengthUnit]),
       firstDayOfWeek: pick(FirstDayOfWeek.values, json[_firstDayOfWeek]),
       onboardingCompleted: json[_onboardingCompleted] == true,
+      reopenDocuments: json[_reopenDocuments] != false,
+      lastDocuments: switch (json[_lastDocuments]) {
+        final List<Object?> paths => [
+          for (final path in paths)
+            if (path is String && path.isNotEmpty) path,
+        ],
+        _ => const [],
+      },
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -71,6 +81,8 @@ final class AppSettings {
   static const String _lengthUnit = 'lengthUnit';
   static const String _firstDayOfWeek = 'firstDayOfWeek';
   static const String _onboardingCompleted = 'onboardingCompleted';
+  static const String _reopenDocuments = 'reopenDocuments';
+  static const String _lastDocuments = 'lastDocuments';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -80,6 +92,8 @@ final class AppSettings {
     _lengthUnit,
     _firstDayOfWeek,
     _onboardingCompleted,
+    _reopenDocuments,
+    _lastDocuments,
   };
 
   /// Settings → General → Theme.
@@ -106,6 +120,14 @@ final class AppSettings {
   /// Whether first run (a1-1, a1-2b, a1-2c) has been completed.
   final bool onboardingCompleted;
 
+  /// Settings → General → Reopen documents from last time (B079): the
+  /// files of [lastDocuments] open again at start-up.
+  final bool reopenDocuments;
+
+  /// The paths of the files open when the app last ran, in tab order;
+  /// kept only while [reopenDocuments] is on.
+  final List<String> lastDocuments;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -125,6 +147,8 @@ final class AppSettings {
     _lengthUnit: ?lengthUnit?.name,
     _firstDayOfWeek: ?firstDayOfWeek?.name,
     _onboardingCompleted: onboardingCompleted,
+    _reopenDocuments: reopenDocuments,
+    _lastDocuments: lastDocuments,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -137,6 +161,8 @@ final class AppSettings {
     LengthUnit? Function()? lengthUnit,
     FirstDayOfWeek? Function()? firstDayOfWeek,
     bool? onboardingCompleted,
+    bool? reopenDocuments,
+    List<String>? lastDocuments,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -147,6 +173,8 @@ final class AppSettings {
         ? this.firstDayOfWeek
         : firstDayOfWeek(),
     onboardingCompleted: onboardingCompleted ?? this.onboardingCompleted,
+    reopenDocuments: reopenDocuments ?? this.reopenDocuments,
+    lastDocuments: lastDocuments ?? this.lastDocuments,
     unknown: unknown,
     version: version,
   );
@@ -161,6 +189,8 @@ final class AppSettings {
       other.lengthUnit == lengthUnit &&
       other.firstDayOfWeek == firstDayOfWeek &&
       other.onboardingCompleted == onboardingCompleted &&
+      other.reopenDocuments == reopenDocuments &&
+      listEquals(other.lastDocuments, lastDocuments) &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -173,6 +203,8 @@ final class AppSettings {
     lengthUnit,
     firstDayOfWeek,
     onboardingCompleted,
+    reopenDocuments,
+    Object.hashAll(lastDocuments),
     version,
     Object.hashAllUnordered(unknown.keys),
   );
