@@ -3051,6 +3051,22 @@ Drawn features that take the nearest roadmap item (also part of [Q10](QUESTIONS.
 | Local-network scanner discovery and phone pairing | `a7-4` | not built: Scan to PDF offers only the system's scanners, and pairing is reconsidered with the mobile apps in P5 ([Q06](QUESTIONS.md#q06)) |
 | OCSP and CRL revocation lookups | `a11-1h`, `a11-1e`, the signing boards | P3, off until first use, with their own switch in Settings → Privacy ([Q06](QUESTIONS.md#q06)); until then the drawn row and switch stay visible but disabled ([G51](DESIGN_GAPS.md#g51)) |
 
+### Ideas to weigh later
+
+The owner suggested these on 2026-11-01 for later releases. They are notes, not approved scope or
+decisions: none is in a milestone's deliverables, none has a BACKLOG row or a registry `Feature`,
+and no board draws them (the nearest boards are listed). Each is weighed at the start of the phase
+named here. Overlap with planned work is not a reason to assume it is cheap: that phase plans the
+user flows, the design gaps and the tests of its own.
+
+| Idea | Nearest planned work and boards | Weighed at | Notes for that phase |
+|---|---|---|---|
+| Fine-grained MCP permissions | M4 step 11, [ADR 0019](adr/0019-ai-clients-through-mcp.md) | before M4 step 11 is built | an open decision of ADR 0019 (its Follow-up), not part of the approved details |
+| Matching edits elsewhere: after a name, date or similar is edited, show the other places it appears and offer to change them together | P2 find and replace with per-match preview (`a3-7`), M3 edit transactions | P2, as part of find and replace | never changes anything without the per-match preview; Turkish suffixes, dotted and dotless i, words broken across lines and other date formats need their own fixtures and tests |
+| Check before sharing: leftover placeholders, outdated terms the user lists, empty required fields, open comments, text kept after an overflow warning | P2 remove hidden information and the security report (`a8-3`, `a8-4`); M3 overflow "Keep and warn"; M4 comments and forms | P2 for the first checks, P4 for user profiles | a check of content, kept apart from print preflight (`a9-4b`, PDF/X), which checks print output; "outdated" comes only from the user's own lists |
+| Templates from a PDF: mark name, date, address or amount as variables and make new documents by filling a form | P4 form authoring and field detection (`a5-8`, `a5-8b`), P4 batch (`a9-5`), P2 find and replace | P4 | two ways to weigh: real form fields (portable) or text replaced through edit transactions (keeps the look, needs the overflow choices for each value); filling from a table belongs with batch |
+| Document packages: gather PDFs, images and other files for a submission, check what is missing, names, formats and sizes, export as a folder or ZIP | M4 combine and compress (`a6-3`, `a9-1`), P3 conversion, P4 batch (`a9-5`) | P4 or later | the least tied to editing PDFs; an office's rules (sizes, formats) would live in the user's profiles, not in code |
+
 ## 15. Risk register
 
 Likelihood and impact are high (H), medium (M) or low (L). "Watch from" is the milestone where the
