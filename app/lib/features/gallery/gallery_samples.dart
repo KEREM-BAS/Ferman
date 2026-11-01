@@ -739,22 +739,23 @@ abstract final class GallerySamples {
   static const String font = '\u2066Font\u2069';
 
   /// The document's fonts and the device's.
-  static const String plexSerif = '\u2066IBM Plex Serif\u2069';
+  // Font names are font families too: never isolated (B099).
+  static const String plexSerif = 'IBM Plex Serif';
 
   /// The document's missing font.
-  static const String garamond = '\u2066Garamond Premier Pro\u2069';
+  static const String garamond = 'Garamond Premier Pro';
 
   /// What Ferman shows instead of the missing font.
-  static const String garamondSubstitute = '\u2066EB Garamond\u2069';
+  static const String garamondSubstitute = 'EB Garamond';
 
   /// A device font.
-  static const String plexSans = '\u2066IBM Plex Sans\u2069';
+  static const String plexSans = 'IBM Plex Sans';
 
   /// A device font.
-  static const String georgia = '\u2066Georgia\u2069';
+  static const String georgia = 'Georgia';
 
   /// A device font.
-  static const String timesNewRoman = '\u2066Times New Roman\u2069';
+  static const String timesNewRoman = 'Times New Roman';
 
   /// The device group heading.
   static const String onThisDevice = '\u2066On this device\u2069';

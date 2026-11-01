@@ -1106,6 +1106,8 @@ The first three rows come from brief §5. Rows marked **Proposed** are new and n
 
 The bridge transfer's first numbers come from the development container, not R1 or R2, and miss the target by more than an order of magnitude (section 3.4, [PROGRESS.md](PROGRESS.md#measurements)).
 
+Built in M2: CI's Benchmarks (Linux) job generates `long-500` and runs the `first_page` (ferman-render) and `search` (ferman-text) benchmarks, then one cold run of each that fails above the reference budget (`FERMAN_BENCH_GUARD=1`): a guard against a gross regression until the calibrated budgets below exist. The integration test's group "M2 budgets" times the first page and search on a 500-page PDF through the bridge and asserts the budgets in profile builds.
+
 CI runners are slower and noisier than reference hardware. **Proposed:** each CI budget is the reference budget times a calibration factor measured per runner type. A benchmark more than 15% slower than the stored baseline for three runs in a row fails the job, from M2 on.
 
 ## 15. Risks and open questions
