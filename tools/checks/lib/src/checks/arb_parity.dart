@@ -53,6 +53,7 @@ final class ArbParityCheck implements Check {
     'propertiesFontType3': 'a font format name',
     'propertiesAes128': 'an encryption method name',
     'propertiesAes256': 'an encryption method name',
+    'startBadgeForm': 'Form is the Turkish word too, as FmStart writes it',
   };
 
   @override

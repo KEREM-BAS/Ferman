@@ -25,6 +25,8 @@ RecentEntry recent(
   bool pinned = false,
   int pages = 3,
   bool signed = false,
+  bool form = false,
+  bool scanned = false,
   DateTime? opened,
   String folder = '/docs',
 }) => RecentEntry(
@@ -34,6 +36,8 @@ RecentEntry recent(
   pages: pages,
   pinned: pinned,
   signed: signed,
+  form: form,
+  scanned: scanned,
 );
 
 ProviderContainer containerOf(WidgetTester tester) =>
@@ -62,6 +66,32 @@ void main() {
     await pumpFermanApp(tester);
     expect(find.byType(DropZone), findsOneWidget);
     expect(find.byType(RecentFilesView), findsNothing);
+  });
+
+  testWidgets('each card shows one badge: Signed, else Form, else Scanned '
+      '(B118)', (tester) async {
+    await pumpFermanApp(
+      tester,
+      recentFiles: [
+        recent('İmzalı.pdf', signed: true, form: true),
+        recent('Başvuru.pdf', form: true, scanned: true),
+        recent('Tarama.pdf', scanned: true),
+        recent('Düz.pdf'),
+      ],
+    );
+    final badges = tester
+        .widgetList<Badge>(
+          find.descendant(
+            of: find.byType(RecentFilesView),
+            matching: find.byType(Badge),
+          ),
+        )
+        .toList();
+    expect(
+      [for (final badge in badges) badge.label],
+      ['Signed', 'Form', 'Scanned'],
+    );
+    expect(badges[1].tone, BadgeTone.accent);
   });
 
   testWidgets('recent files take the drop zone’s place (a1-4-m2): the drop '

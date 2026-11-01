@@ -19,6 +19,8 @@ final class RecentEntry {
     this.pinned = false,
     this.signed = false,
     this.locked = false,
+    this.form = false,
+    this.scanned = false,
     this.bookmark,
   });
 
@@ -40,6 +42,8 @@ final class RecentEntry {
       pinned: json['pinned'] == true,
       signed: json['signed'] == true,
       locked: json['locked'] == true,
+      form: json['form'] == true,
+      scanned: json['scanned'] == true,
       bookmark: switch (json['bookmark']) {
         final String bookmark when bookmark.isNotEmpty => bookmark,
         _ => null,
@@ -69,6 +73,13 @@ final class RecentEntry {
   /// preview is kept (G109).
   final bool locked;
 
+  /// Whether it has form fields (the accent "Form" badge of a1-4).
+  final bool form;
+
+  /// Whether its first page has no text, most likely a scan (the neutral
+  /// "Scanned" badge of a1-4).
+  final bool scanned;
+
   /// A security-scoped bookmark of the file (macOS, base64), which reaches
   /// it again after a restart under the App Sandbox (Q18); null elsewhere.
   final String? bookmark;
@@ -82,6 +93,8 @@ final class RecentEntry {
     if (pinned) 'pinned': true,
     if (signed) 'signed': true,
     if (locked) 'locked': true,
+    if (form) 'form': true,
+    if (scanned) 'scanned': true,
     if (bookmark != null) 'bookmark': bookmark,
   };
 
@@ -94,6 +107,8 @@ final class RecentEntry {
     bool? pinned,
     bool? signed,
     bool? locked,
+    bool? form,
+    bool? scanned,
     String? bookmark,
   }) => RecentEntry(
     path: path ?? this.path,
@@ -103,6 +118,8 @@ final class RecentEntry {
     pinned: pinned ?? this.pinned,
     signed: signed ?? this.signed,
     locked: locked ?? this.locked,
+    form: form ?? this.form,
+    scanned: scanned ?? this.scanned,
     bookmark: bookmark ?? this.bookmark,
   );
 
@@ -116,11 +133,23 @@ final class RecentEntry {
       other.pinned == pinned &&
       other.signed == signed &&
       other.locked == locked &&
+      other.form == form &&
+      other.scanned == scanned &&
       other.bookmark == bookmark;
 
   @override
-  int get hashCode =>
-      Object.hash(path, name, opened, pages, pinned, signed, locked, bookmark);
+  int get hashCode => Object.hash(
+    path,
+    name,
+    opened,
+    pages,
+    pinned,
+    signed,
+    locked,
+    form,
+    scanned,
+    bookmark,
+  );
 
   @override
   String toString() => 'RecentEntry($name, $opened, pinned: $pinned)';
@@ -228,6 +257,8 @@ class RecentFiles extends _$RecentFiles {
     int? pages,
     bool? signed,
     bool? locked,
+    bool? form,
+    bool? scanned,
     String? bookmark,
   }) {
     RecentEntry? old;
@@ -241,6 +272,8 @@ class RecentFiles extends _$RecentFiles {
           pages: pages,
           signed: signed,
           locked: locked,
+          form: form,
+          scanned: scanned,
           bookmark: bookmark,
         ) ??
         RecentEntry(
@@ -250,6 +283,8 @@ class RecentFiles extends _$RecentFiles {
           pages: pages,
           signed: signed ?? false,
           locked: locked ?? false,
+          form: form ?? false,
+          scanned: scanned ?? false,
           bookmark: bookmark,
         );
     final rest = [

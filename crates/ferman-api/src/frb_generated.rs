@@ -1082,6 +1082,8 @@ impl SseDecode for crate::frb::OpenedDocument {
         let mut var_fonts = <Vec<crate::frb::FontEntry>>::sse_decode(deserializer);
         let mut var_security = <Option<crate::frb::Security>>::sse_decode(deserializer);
         let mut var_scripts = <u32>::sse_decode(deserializer);
+        let mut var_formFields = <u32>::sse_decode(deserializer);
+        let mut var_scanned = <bool>::sse_decode(deserializer);
         return crate::frb::OpenedDocument {
             id: var_id,
             read_only: var_readOnly,
@@ -1101,6 +1103,8 @@ impl SseDecode for crate::frb::OpenedDocument {
             fonts: var_fonts,
             security: var_security,
             scripts: var_scripts,
+            form_fields: var_formFields,
+            scanned: var_scanned,
         };
     }
 }
@@ -1356,12 +1360,14 @@ impl SseDecode for crate::frb::SearchMatch {
         let mut var_snippet = <String>::sse_decode(deserializer);
         let mut var_snippetStart = <u32>::sse_decode(deserializer);
         let mut var_snippetEnd = <u32>::sse_decode(deserializer);
+        let mut var_bookmark = <bool>::sse_decode(deserializer);
         return crate::frb::SearchMatch {
             page: var_page,
             rects: var_rects,
             snippet: var_snippet,
             snippet_start: var_snippetStart,
             snippet_end: var_snippetEnd,
+            bookmark: var_bookmark,
         };
     }
 }
@@ -1372,10 +1378,12 @@ impl SseDecode for crate::frb::SearchOptions {
         let mut var_matchCase = <bool>::sse_decode(deserializer);
         let mut var_wholeWords = <bool>::sse_decode(deserializer);
         let mut var_ignoreAccents = <bool>::sse_decode(deserializer);
+        let mut var_bookmarks = <bool>::sse_decode(deserializer);
         return crate::frb::SearchOptions {
             match_case: var_matchCase,
             whole_words: var_wholeWords,
             ignore_accents: var_ignoreAccents,
+            bookmarks: var_bookmarks,
         };
     }
 }
@@ -1863,6 +1871,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
             self.fonts.into_into_dart().into_dart(),
             self.security.into_into_dart().into_dart(),
             self.scripts.into_into_dart().into_dart(),
+            self.form_fields.into_into_dart().into_dart(),
+            self.scanned.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2065,6 +2075,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchMatch {
             self.snippet.into_into_dart().into_dart(),
             self.snippet_start.into_into_dart().into_dart(),
             self.snippet_end.into_into_dart().into_dart(),
+            self.bookmark.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2082,6 +2093,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchOptions {
             self.match_case.into_into_dart().into_dart(),
             self.whole_words.into_into_dart().into_dart(),
             self.ignore_accents.into_into_dart().into_dart(),
+            self.bookmarks.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2636,6 +2648,8 @@ impl SseEncode for crate::frb::OpenedDocument {
         <Vec<crate::frb::FontEntry>>::sse_encode(self.fonts, serializer);
         <Option<crate::frb::Security>>::sse_encode(self.security, serializer);
         <u32>::sse_encode(self.scripts, serializer);
+        <u32>::sse_encode(self.form_fields, serializer);
+        <bool>::sse_encode(self.scanned, serializer);
     }
 }
 
@@ -2860,6 +2874,7 @@ impl SseEncode for crate::frb::SearchMatch {
         <String>::sse_encode(self.snippet, serializer);
         <u32>::sse_encode(self.snippet_start, serializer);
         <u32>::sse_encode(self.snippet_end, serializer);
+        <bool>::sse_encode(self.bookmark, serializer);
     }
 }
 
@@ -2869,6 +2884,7 @@ impl SseEncode for crate::frb::SearchOptions {
         <bool>::sse_encode(self.match_case, serializer);
         <bool>::sse_encode(self.whole_words, serializer);
         <bool>::sse_encode(self.ignore_accents, serializer);
+        <bool>::sse_encode(self.bookmarks, serializer);
     }
 }
 
@@ -3359,6 +3375,8 @@ mod io {
                 fonts: self.fonts.cst_decode(),
                 security: self.security.cst_decode(),
                 scripts: self.scripts.cst_decode(),
+                form_fields: self.form_fields.cst_decode(),
+                scanned: self.scanned.cst_decode(),
             }
         }
     }
@@ -3439,6 +3457,7 @@ mod io {
                 snippet: self.snippet.cst_decode(),
                 snippet_start: self.snippet_start.cst_decode(),
                 snippet_end: self.snippet_end.cst_decode(),
+                bookmark: self.bookmark.cst_decode(),
             }
         }
     }
@@ -3449,6 +3468,7 @@ mod io {
                 match_case: self.match_case.cst_decode(),
                 whole_words: self.whole_words.cst_decode(),
                 ignore_accents: self.ignore_accents.cst_decode(),
+                bookmarks: self.bookmarks.cst_decode(),
             }
         }
     }
@@ -3677,6 +3697,8 @@ mod io {
                 fonts: core::ptr::null_mut(),
                 security: core::ptr::null_mut(),
                 scripts: Default::default(),
+                form_fields: Default::default(),
+                scanned: Default::default(),
             }
         }
     }
@@ -3785,6 +3807,7 @@ mod io {
                 snippet: core::ptr::null_mut(),
                 snippet_start: Default::default(),
                 snippet_end: Default::default(),
+                bookmark: Default::default(),
             }
         }
     }
@@ -3799,6 +3822,7 @@ mod io {
                 match_case: Default::default(),
                 whole_words: Default::default(),
                 ignore_accents: Default::default(),
+                bookmarks: Default::default(),
             }
         }
     }
@@ -4406,6 +4430,8 @@ mod io {
         fonts: *mut wire_cst_list_font_entry,
         security: *mut wire_cst_security,
         scripts: u32,
+        form_fields: u32,
+        scanned: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4465,6 +4491,7 @@ mod io {
         snippet: *mut wire_cst_list_prim_u_8_strict,
         snippet_start: u32,
         snippet_end: u32,
+        bookmark: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4472,6 +4499,7 @@ mod io {
         match_case: bool,
         whole_words: bool,
         ignore_accents: bool,
+        bookmarks: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4945,8 +4973,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                18,
-                "Expected 18 elements, got {}",
+                20,
+                "Expected 20 elements, got {}",
                 self_.length()
             );
             crate::frb::OpenedDocument {
@@ -4968,6 +4996,8 @@ mod web {
                 fonts: self_.get(15).cst_decode(),
                 security: self_.get(16).cst_decode(),
                 scripts: self_.get(17).cst_decode(),
+                form_fields: self_.get(18).cst_decode(),
+                scanned: self_.get(19).cst_decode(),
             }
         }
     }
@@ -5115,8 +5145,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                5,
-                "Expected 5 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchMatch {
@@ -5125,6 +5155,7 @@ mod web {
                 snippet: self_.get(2).cst_decode(),
                 snippet_start: self_.get(3).cst_decode(),
                 snippet_end: self_.get(4).cst_decode(),
+                bookmark: self_.get(5).cst_decode(),
             }
         }
     }
@@ -5138,14 +5169,15 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                4,
+                "Expected 4 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchOptions {
                 match_case: self_.get(0).cst_decode(),
                 whole_words: self_.get(1).cst_decode(),
                 ignore_accents: self_.get(2).cst_decode(),
+                bookmarks: self_.get(3).cst_decode(),
             }
         }
     }

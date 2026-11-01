@@ -2,6 +2,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -53,6 +54,11 @@ class ShellStatusBar extends ConsumerWidget {
     final document = ref.watch(shellDocumentsProvider).active;
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
+    final find = ref.watch(
+      findProvider.select(
+        (find) => (searched: find.searched, pages: find.pages),
+      ),
+    );
     final view = ref.watch(
       viewerProvider.select(
         (view) => view == null
@@ -184,6 +190,21 @@ class ShellStatusBar extends ConsumerWidget {
                 ],
               ),
             const Spacer(),
+            // The running job (FmWindow `task`, B124): M2's only job is
+            // search, whose find bar shows its progress too.
+            if (find.searched case final searched?)
+              TaskProgress(
+                variant: TaskProgressVariant.inline,
+                icon: IconName.search,
+                title: l10n.statusSearching,
+                detail: l10n.shellPageOf(
+                  format.integer(searched),
+                  format.integer(find.pages),
+                ),
+                value: find.pages == 0 ? 0 : searched / find.pages,
+                cancelLabel: l10n.findCancel,
+                onCancel: ref.read(findProvider.notifier).cancel,
+              ),
             if (saveState != null)
               SaveIndicator(
                 state: saveState,

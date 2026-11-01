@@ -316,6 +316,7 @@ fn a_search_streams_its_matches_and_ends() {
             kira.id,
             "kira".to_owned(),
             SearchOptions::default(),
+            false,
             Box::new(Found(events)),
         )
         .unwrap();
@@ -357,6 +358,7 @@ fn a_search_streams_its_matches_and_ends() {
             long.id,
             "e".to_owned(),
             SearchOptions::default(),
+            false,
             Box::new(Found(events)),
         )
         .unwrap();
@@ -384,6 +386,7 @@ fn a_search_of_a_scan_ends_textless() {
             scan.id,
             "kira".to_owned(),
             SearchOptions::default(),
+            false,
             Box::new(Found(events)),
         )
         .unwrap();
@@ -399,4 +402,58 @@ fn a_search_of_a_scan_ends_textless() {
         .unwrap();
     assert_eq!(done, (false, true));
     block_on(engine().close(scan.id)).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_search_can_look_in_the_bookmarks() {
+    let tez = open("tez-tr", None).unwrap();
+    let item = tez.outline.iter().find(|item| item.page.is_some()).unwrap();
+    let word = item.title.split_whitespace().next().unwrap().to_owned();
+    let matches = |bookmarks: bool| {
+        let (events, received) = mpsc::channel();
+        engine()
+            .search(
+                tez.id,
+                word.clone(),
+                SearchOptions::default(),
+                bookmarks,
+                Box::new(Found(events)),
+            )
+            .unwrap();
+        let mut found = Vec::new();
+        for event in received.iter() {
+            match event {
+                SearchEvent::Matches(page) => found.extend(page),
+                SearchEvent::Done { .. } => break,
+                _ => {}
+            }
+        }
+        found
+    };
+    let with = matches(true);
+    let titled = with
+        .iter()
+        .find(|found| found.bookmark && found.snippet == item.title)
+        .unwrap();
+    assert_eq!(Some(titled.page), item.page);
+    assert!(titled.rects.is_empty());
+    // A bookmark's match comes before its page's text, in page order.
+    assert!(with.windows(2).all(|pair| pair[0].page <= pair[1].page));
+    assert!(matches(false).iter().all(|found| !found.bookmark));
+    block_on(engine().close(tez.id)).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn the_open_says_what_the_start_screen_badges_need() {
+    let scan = open("scan-tr", None).unwrap();
+    let kira = open("kira-tr", None).unwrap();
+    let form = open("form-aks1-tr", None).unwrap();
+    assert!(scan.scanned && !kira.scanned && !form.scanned);
+    assert_eq!(scan.form_fields, 0);
+    assert!(form.form_fields > 0);
+    for document in [scan, kira, form] {
+        block_on(engine().close(document.id)).unwrap();
+    }
 }

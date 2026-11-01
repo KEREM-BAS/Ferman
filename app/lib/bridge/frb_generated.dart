@@ -861,8 +861,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   OpenedDocument dco_decode_opened_document(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 18)
-      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
+    if (arr.length != 20)
+      throw Exception('unexpected arr length: expect 20 but see ${arr.length}');
     return OpenedDocument(
       id: dco_decode_u_64(arr[0]),
       readOnly: dco_decode_opt_box_autoadd_read_only_reason(arr[1]),
@@ -882,6 +882,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       fonts: dco_decode_list_font_entry(arr[15]),
       security: dco_decode_opt_box_autoadd_security(arr[16]),
       scripts: dco_decode_u_32(arr[17]),
+      formFields: dco_decode_u_32(arr[18]),
+      scanned: dco_decode_bool(arr[19]),
     );
   }
 
@@ -1047,14 +1049,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchMatch dco_decode_search_match(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return SearchMatch(
       page: dco_decode_u_32(arr[0]),
       rects: dco_decode_list_page_rect(arr[1]),
       snippet: dco_decode_String(arr[2]),
       snippetStart: dco_decode_u_32(arr[3]),
       snippetEnd: dco_decode_u_32(arr[4]),
+      bookmark: dco_decode_bool(arr[5]),
     );
   }
 
@@ -1062,12 +1065,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchOptions dco_decode_search_options(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return SearchOptions(
       matchCase: dco_decode_bool(arr[0]),
       wholeWords: dco_decode_bool(arr[1]),
       ignoreAccents: dco_decode_bool(arr[2]),
+      bookmarks: dco_decode_bool(arr[3]),
     );
   }
 
@@ -1649,6 +1653,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_fonts = sse_decode_list_font_entry(deserializer);
     var var_security = sse_decode_opt_box_autoadd_security(deserializer);
     var var_scripts = sse_decode_u_32(deserializer);
+    var var_formFields = sse_decode_u_32(deserializer);
+    var var_scanned = sse_decode_bool(deserializer);
     return OpenedDocument(
       id: var_id,
       readOnly: var_readOnly,
@@ -1668,6 +1674,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       fonts: var_fonts,
       security: var_security,
       scripts: var_scripts,
+      formFields: var_formFields,
+      scanned: var_scanned,
     );
   }
 
@@ -1885,12 +1893,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_snippet = sse_decode_String(deserializer);
     var var_snippetStart = sse_decode_u_32(deserializer);
     var var_snippetEnd = sse_decode_u_32(deserializer);
+    var var_bookmark = sse_decode_bool(deserializer);
     return SearchMatch(
       page: var_page,
       rects: var_rects,
       snippet: var_snippet,
       snippetStart: var_snippetStart,
       snippetEnd: var_snippetEnd,
+      bookmark: var_bookmark,
     );
   }
 
@@ -1900,10 +1910,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_matchCase = sse_decode_bool(deserializer);
     var var_wholeWords = sse_decode_bool(deserializer);
     var var_ignoreAccents = sse_decode_bool(deserializer);
+    var var_bookmarks = sse_decode_bool(deserializer);
     return SearchOptions(
       matchCase: var_matchCase,
       wholeWords: var_wholeWords,
       ignoreAccents: var_ignoreAccents,
+      bookmarks: var_bookmarks,
     );
   }
 
@@ -2593,6 +2605,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_list_font_entry(self.fonts, serializer);
     sse_encode_opt_box_autoadd_security(self.security, serializer);
     sse_encode_u_32(self.scripts, serializer);
+    sse_encode_u_32(self.formFields, serializer);
+    sse_encode_bool(self.scanned, serializer);
   }
 
   @protected
@@ -2784,6 +2798,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_String(self.snippet, serializer);
     sse_encode_u_32(self.snippetStart, serializer);
     sse_encode_u_32(self.snippetEnd, serializer);
+    sse_encode_bool(self.bookmark, serializer);
   }
 
   @protected
@@ -2792,6 +2807,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self.matchCase, serializer);
     sse_encode_bool(self.wholeWords, serializer);
     sse_encode_bool(self.ignoreAccents, serializer);
+    sse_encode_bool(self.bookmarks, serializer);
   }
 
   @protected

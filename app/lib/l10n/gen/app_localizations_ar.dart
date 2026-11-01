@@ -384,6 +384,21 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellToolVersionHistory => 'سجل الإصدارات';
 
   @override
+  String get fieldContextMenu => 'حقل نص';
+
+  @override
+  String get fieldCut => 'قص';
+
+  @override
+  String get fieldCopy => 'نسخ';
+
+  @override
+  String get fieldPaste => 'لصق';
+
+  @override
+  String get fieldSelectAll => 'تحديد الكل';
+
+  @override
   String get shellResizeSidebar => 'تغيير حجم الشريط الجانبي';
 
   @override
@@ -1147,6 +1162,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'جارٍ البحث';
+
+  @override
   String findSearching(String page, String pages) {
     return 'جارٍ البحث · الصفحة $page من $pages';
   }
@@ -1182,6 +1200,11 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'البحث في المستند';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'إشارة مرجعية: $title';
+  }
 
   @override
   String get sidebarSearchNoTextTitle => 'لا يوجد نص للبحث فيه';
@@ -1354,6 +1377,12 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get startBadgeSigned => 'موقّع';
+
+  @override
+  String get startBadgeForm => 'نموذج';
+
+  @override
+  String get startBadgeScanned => 'ممسوح ضوئيًا';
 
   @override
   String startMissingTitle(String name) {

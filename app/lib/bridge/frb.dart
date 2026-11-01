@@ -673,6 +673,12 @@ class OpenedDocument {
   /// How many JavaScript actions it holds; Ferman never runs them (G100).
   final int scripts;
 
+  /// How many form fields it has (the Form badge).
+  final int formFields;
+
+  /// Whether its first page has no text, most likely a scan (the Scanned badge).
+  final bool scanned;
+
   const OpenedDocument({
     required this.id,
     this.readOnly,
@@ -692,6 +698,8 @@ class OpenedDocument {
     required this.fonts,
     this.security,
     required this.scripts,
+    required this.formFields,
+    required this.scanned,
   });
 
   @override
@@ -713,7 +721,9 @@ class OpenedDocument {
       linearized.hashCode ^
       fonts.hashCode ^
       security.hashCode ^
-      scripts.hashCode;
+      scripts.hashCode ^
+      formFields.hashCode ^
+      scanned.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -737,7 +747,9 @@ class OpenedDocument {
           linearized == other.linearized &&
           fonts == other.fonts &&
           security == other.security &&
-          scripts == other.scripts;
+          scripts == other.scripts &&
+          formFields == other.formFields &&
+          scanned == other.scanned;
 }
 
 /// One outline item (bookmark) of an [`OpenedDocument`].
@@ -1042,12 +1054,16 @@ class SearchMatch {
   /// Where it ends in the snippet, in characters.
   final int snippetEnd;
 
+  /// Whether it is in a bookmark's title (the snippet), with no rectangles.
+  final bool bookmark;
+
   const SearchMatch({
     required this.page,
     required this.rects,
     required this.snippet,
     required this.snippetStart,
     required this.snippetEnd,
+    required this.bookmark,
   });
 
   @override
@@ -1056,7 +1072,8 @@ class SearchMatch {
       rects.hashCode ^
       snippet.hashCode ^
       snippetStart.hashCode ^
-      snippetEnd.hashCode;
+      snippetEnd.hashCode ^
+      bookmark.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1067,7 +1084,8 @@ class SearchMatch {
           rects == other.rects &&
           snippet == other.snippet &&
           snippetStart == other.snippetStart &&
-          snippetEnd == other.snippetEnd;
+          snippetEnd == other.snippetEnd &&
+          bookmark == other.bookmark;
 }
 
 /// How a search matches (a2-4a).
@@ -1081,15 +1099,22 @@ class SearchOptions {
   /// Ignore accents and dotted/dotless i (on by default in the app, G61).
   final bool ignoreAccents;
 
+  /// Search the bookmarks' titles too (Look in › Bookmarks).
+  final bool bookmarks;
+
   const SearchOptions({
     required this.matchCase,
     required this.wholeWords,
     required this.ignoreAccents,
+    required this.bookmarks,
   });
 
   @override
   int get hashCode =>
-      matchCase.hashCode ^ wholeWords.hashCode ^ ignoreAccents.hashCode;
+      matchCase.hashCode ^
+      wholeWords.hashCode ^
+      ignoreAccents.hashCode ^
+      bookmarks.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1098,7 +1123,8 @@ class SearchOptions {
           runtimeType == other.runtimeType &&
           matchCase == other.matchCase &&
           wholeWords == other.wholeWords &&
-          ignoreAccents == other.ignoreAccents;
+          ignoreAccents == other.ignoreAccents &&
+          bookmarks == other.bookmarks;
 }
 
 /// An encrypted document's security (a2-10a, a2-10b).

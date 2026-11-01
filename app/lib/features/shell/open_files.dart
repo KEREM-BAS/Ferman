@@ -453,6 +453,8 @@ class DocumentOpener extends _$DocumentOpener {
       pages: document.pages.length,
       signed: document.signatures.isNotEmpty,
       locked: locked,
+      form: document.formFields > 0,
+      scanned: document.scanned,
     );
     _keepPreview(path, locked ? null : document);
   }
@@ -482,7 +484,14 @@ class DocumentOpener extends _$DocumentOpener {
   /// Puts the file at [path] first in the recent files, with a bookmark
   /// that reaches it again after a restart (macOS, Q18). The list is kept
   /// for this session when it cannot be stored.
-  void _remember(String path, {int? pages, bool? signed, bool? locked}) {
+  void _remember(
+    String path, {
+    int? pages,
+    bool? signed,
+    bool? locked,
+    bool? form,
+    bool? scanned,
+  }) {
     final now = DateTime.now();
     unawaited(
       ref
@@ -498,6 +507,8 @@ class DocumentOpener extends _$DocumentOpener {
                   pages: pages,
                   signed: signed,
                   locked: locked,
+                  form: form,
+                  scanned: scanned,
                   bookmark: bookmark,
                 ),
           )

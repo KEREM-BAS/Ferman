@@ -1235,7 +1235,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Component library: TextField, NumberStepper and the pickers' search fields; PdfFormField text fields
 - **Artboards:** none draws a context menu on a field
 - **Gap or conflict:** The design's fields are native `<input>` elements, which bring the browser's context menu (Cut, Copy, Paste, Select all). Flutter's text input shows none unless the app builds one, and the Material and Cupertino toolbars are not used ([ADR 0011](adr/0011-flutter-state-navigation-components.md)).
-- **Decision:** In M1 a right click on a field opens nothing; cut, copy, paste and select all work from the keyboard. A context menu built from the design-system Menu, with the platform's items, order and shortcuts, comes in M2 with the first screens that edit text in fields ([B017](BACKLOG.md#open)).
+- **Decision:** In M1 a right click on a field opens nothing; cut, copy, paste and select all work from the keyboard. A context menu built from the design-system Menu, with the platform's items, order and shortcuts, came in M2 ([B017](BACKLOG.md#done)): Cut, Copy, Paste and Select all, the focus kept in the field.
 - **Status:** Decided
 - **Evidence:** `design/_ds/…/components/forms/forms.css` lines 24–27 (`.fm-input__control`, a native input). Implemented in `app/lib/design/components/forms/field_input.dart` (M1 phase G).
 
@@ -1728,7 +1728,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Area:** Search
 - **Artboards:** `a2-4a`, `a2-4c`, `a2-4d`
 - **Gap or conflict:** a2-4a draws a "Search options" group (Match: Match case, Whole words, Regular expression, Ignore accents and dotted/dotless i; Look in: Page text, Comments, Form fields, Bookmarks) open under the find bar, but no control on the bar opens or closes it; the bar's own toggles repeat three of its options. a2-4c and a2-4d put the searching and no-results panels in the same place. Comments is drawn checked by default, though M2 does not search comments yet.
-- **Decision:** The group shows under the bar whenever the bar is open, and a2-4c's progress (a search past its first 25 pages) or a2-4d's no results takes its place. The bar's toggles and the group's checkboxes are the same options. Until comments, form fields and bookmarks are searched (B114), Look in shows Page text checked and the other three unchecked, all four disabled for a future version, so the group never claims a search that does not happen; a2-4d's "Also search comments and fields" is disabled the same way.
+- **Decision:** The group shows under the bar whenever the bar is open, and a2-4c's progress (a search past its first 25 pages) or a2-4d's no results takes its place. The bar's toggles and the group's checkboxes are the same options. Look in shows Page text checked and disabled (it is always searched) and Bookmarks as a working checkbox (B114); Comments and Form fields stay unchecked and disabled for a future version until they are searched (B128, [Q24](QUESTIONS.md#q24)), so the group never claims a search that does not happen; a2-4d's "Also search comments and fields" is disabled the same way.
 - **Status:** Decided.
 
 <a id="g116"></a>

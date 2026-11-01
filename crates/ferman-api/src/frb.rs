@@ -184,6 +184,10 @@ pub struct OpenedDocument {
     pub security: Option<Security>,
     /// How many JavaScript actions it holds; Ferman never runs them (G100).
     pub scripts: u32,
+    /// How many form fields it has (the Form badge).
+    pub form_fields: u32,
+    /// Whether its first page has no text, most likely a scan (the Scanned badge).
+    pub scanned: bool,
 }
 
 /// The document information dictionary (a2-7).
@@ -472,6 +476,8 @@ pub struct SearchOptions {
     pub whole_words: bool,
     /// Ignore accents and dotted/dotless i (on by default in the app, G61).
     pub ignore_accents: bool,
+    /// Search the bookmarks' titles too (Look in › Bookmarks).
+    pub bookmarks: bool,
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -500,6 +506,8 @@ pub struct SearchMatch {
     pub snippet_start: u32,
     /// Where it ends in the snippet, in characters.
     pub snippet_end: u32,
+    /// Whether it is in a bookmark's title (the snippet), with no rectangles.
+    pub bookmark: bool,
 }
 
 /// What a search event says.
@@ -752,6 +760,7 @@ pub async fn search(
     options: SearchOptions,
     sink: StreamSink<SearchEvent>,
 ) -> Result<(), ApiError> {
+    let bookmarks = options.bookmarks;
     let options = facade::SearchOptions {
         match_case: options.match_case,
         whole_words: options.whole_words,
@@ -763,6 +772,7 @@ pub async fn search(
             facade::DocumentId::from_raw(document),
             query,
             options,
+            bookmarks,
             Box::new(BridgeSearch(sink)),
         )
         .map(drop)
@@ -808,6 +818,7 @@ impl facade::SearchSink for BridgeSearch {
                         snippet: found.snippet,
                         snippet_start: found.snippet_range.start,
                         snippet_end: found.snippet_range.end,
+                        bookmark: found.bookmark,
                     })
                     .collect(),
                 ..empty
@@ -1008,6 +1019,8 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
         fonts: fonts_dto(document.fonts),
         security: document.security.map(security_dto),
         scripts: document.scripts.count,
+        form_fields: document.form_fields,
+        scanned: document.scanned,
     }
 }
 

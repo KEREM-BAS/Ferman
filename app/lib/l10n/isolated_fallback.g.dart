@@ -423,6 +423,21 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get shellToolVersionHistory => isolate(super.shellToolVersionHistory);
 
   @override
+  String get fieldContextMenu => isolate(super.fieldContextMenu);
+
+  @override
+  String get fieldCut => isolate(super.fieldCut);
+
+  @override
+  String get fieldCopy => isolate(super.fieldCopy);
+
+  @override
+  String get fieldPaste => isolate(super.fieldPaste);
+
+  @override
+  String get fieldSelectAll => isolate(super.fieldSelectAll);
+
+  @override
   String get shellResizeSidebar => isolate(super.shellResizeSidebar);
 
   @override
@@ -1186,6 +1201,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.findCount(current, total));
 
   @override
+  String get statusSearching => isolate(super.statusSearching);
+
+  @override
   String findSearching(String page, String pages) =>
       isolate(super.findSearching(page, pages));
 
@@ -1202,6 +1220,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get sidebarSearchField => isolate(super.sidebarSearchField);
+
+  @override
+  String sidebarSearchBookmark(String title) =>
+      isolate(super.sidebarSearchBookmark(title));
 
   @override
   String get sidebarSearchNoTextTitle =>
@@ -1338,6 +1360,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get startBadgeSigned => isolate(super.startBadgeSigned);
+
+  @override
+  String get startBadgeForm => isolate(super.startBadgeForm);
+
+  @override
+  String get startBadgeScanned => isolate(super.startBadgeScanned);
 
   @override
   String startMissingTitle(String name) =>

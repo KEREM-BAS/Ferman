@@ -502,6 +502,26 @@
   "@shellToolVersionHistory": {
     "description": "Tools row: shows the saved versions of the document (FmWindow)."
   },
+  "fieldContextMenu": "Text field",
+  "@fieldContextMenu": {
+    "description": "Accessible name of the context menu a right click opens on a text field (B017)."
+  },
+  "fieldCut": "Cut",
+  "@fieldCut": {
+    "description": "Text field context menu: cut the selected text."
+  },
+  "fieldCopy": "Copy",
+  "@fieldCopy": {
+    "description": "Text field context menu: copy the selected text."
+  },
+  "fieldPaste": "Paste",
+  "@fieldPaste": {
+    "description": "Text field context menu: paste the clipboard."
+  },
+  "fieldSelectAll": "Select all",
+  "@fieldSelectAll": {
+    "description": "Text field context menu: select all the field's text."
+  },
   "shellResizeSidebar": "Resize sidebar",
   "@shellResizeSidebar": {
     "description": "Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094)."
@@ -1512,6 +1532,10 @@
       }
     }
   },
+  "statusSearching": "Searching",
+  "@statusSearching": {
+    "description": "The status bar's inline task while a search runs (FmWindow task, B124), before \"Page N of M\"."
+  },
   "findSearching": "Searching · page {page} of {pages}",
   "@findSearching": {
     "description": "A long search's progress (a2-4c); numbers in the region's format.",
@@ -1560,6 +1584,16 @@
   "sidebarSearchField": "Search in document",
   "@sidebarSearchField": {
     "description": "Sidebar › Search results: the field's accessible name (a2-3e)."
+  },
+  "sidebarSearchBookmark": "Bookmark: {title}",
+  "@sidebarSearchBookmark": {
+    "description": "Accessible name of a search result found in a bookmark's title (Look in › Bookmarks).",
+    "placeholders": {
+      "title": {
+        "type": "String",
+        "example": "Kira bedeli"
+      }
+    }
   },
   "sidebarSearchNoTextTitle": "No text to search",
   "@sidebarSearchNoTextTitle": {
@@ -1775,6 +1809,14 @@
   "startBadgeSigned": "Signed",
   "@startBadgeSigned": {
     "description": "Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral)."
+  },
+  "startBadgeForm": "Form",
+  "@startBadgeForm": {
+    "description": "Badge on a recent file that has form fields (a1-4, accent)."
+  },
+  "startBadgeScanned": "Scanned",
+  "@startBadgeScanned": {
+    "description": "Badge on a recent file whose first page has no text, most likely a scan (a1-4, neutral)."
   },
   "startMissingTitle": "“{name}” can’t be found",
   "@startMissingTitle": {

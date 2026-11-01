@@ -1,9 +1,12 @@
+import 'dart:async';
+
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/shell/shell_sidebar_tabs.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/shell/shell_status_bar.dart';
 import 'package:ferman/features/viewer/find_bar.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
@@ -31,6 +34,21 @@ SearchMatch hit(int page) => SearchMatch(
   snippetStart: 0,
   snippetEnd: 4,
 );
+
+/// A search that reads one page of three and waits.
+class _SlowSearch extends FakeEngineService {
+  new() : super(documents: {'/kira.pdf': document});
+
+  @override
+  Stream<SearchUpdate> search(
+    int document,
+    String query,
+    SearchOptions options,
+  ) async* {
+    yield const SearchProgress(searched: 1, pages: 3);
+    await Completer<void>().future;
+  }
+}
 
 void main() {
   late FakeDesktopWindow window;
@@ -196,5 +214,57 @@ void main() {
       findsOneWidget,
     );
     expect(find.text('No results'), findsOneWidget);
+  });
+
+  testWidgets('a running search shows in the status bar, whose Cancel stops '
+      'it (B124)', (tester) async {
+    await pumpShell(
+      tester,
+      shellHost(
+        window: window,
+        regionCode: 'GB',
+        overrides: [engineServiceProvider.overrideWithValue(_SlowSearch())],
+      ),
+    );
+    containerOf(tester).read(openDocumentProvider.notifier).show(document);
+    await settle(tester);
+    await controlF(tester);
+    await tester.enterText(field(), 'kira');
+    await settle(tester);
+    final task = find.descendant(
+      of: find.byType(ShellStatusBar),
+      matching: find.byType(TaskProgress),
+    );
+    expect(task, findsOneWidget);
+    final progress = tester.widget<TaskProgress>(task);
+    expect(progress.title, 'Searching');
+    expect(progress.detail, 'Page 1 of 3');
+    expect(progress.value, closeTo(1 / 3, 1e-9));
+    progress.onCancel!();
+    await settle(tester);
+    expect(task, findsNothing);
+    expect(findState(tester).searched, isNull);
+  });
+
+  testWidgets('Look in › Bookmarks searches the bookmarks too; comments and '
+      'form fields wait (B114)', (tester) async {
+    final engine = await pumpDocument(tester);
+    await controlF(tester);
+    await tester.enterText(field(), 'kira');
+    await settle(tester);
+    Checkbox checkbox(String label) => tester.widget<Checkbox>(
+      find.byWidgetPredicate(
+        (widget) => widget is Checkbox && widget.label == label,
+      ),
+    );
+    expect(checkbox('Bookmarks').disabled, isFalse);
+    expect(checkbox('Comments').disabledReason, futureVersion);
+    expect(checkbox('Form fields').disabledReason, futureVersion);
+    checkbox('Bookmarks').onChanged!(true);
+    await settle(tester);
+    expect(engine.searches.last, (
+      'kira',
+      const SearchOptions(bookmarks: true),
+    ));
   });
 }

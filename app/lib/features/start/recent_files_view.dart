@@ -772,14 +772,27 @@ class _PinButtonState extends State<_PinButton> {
   }
 }
 
-/// The badges of a recent file: the neutral "Signed" of a1-4-m2 when it
-/// carried signatures.
-Widget? _badge(BuildContext context, RecentEntry file) => file.signed
-    ? Badge(
-        label: AppLocalizations.of(context).startBadgeSigned,
-        icon: IconName.signature,
-      )
-    : null;
+/// The badge of a recent file (a1-4, a1-4-m2), one at most: the neutral
+/// "Signed" when it carried signatures, else the accent "Form" when it has
+/// form fields, else the neutral "Scanned" when its first page has no text.
+/// "Edited" waits for editing (M3).
+Widget? _badge(BuildContext context, RecentEntry file) {
+  final l10n = AppLocalizations.of(context);
+  if (file.signed) {
+    return Badge(label: l10n.startBadgeSigned, icon: IconName.signature);
+  }
+  if (file.form) {
+    return Badge(
+      label: l10n.startBadgeForm,
+      icon: IconName.textCursorInput,
+      tone: BadgeTone.accent,
+    );
+  }
+  if (file.scanned) {
+    return Badge(label: l10n.startBadgeScanned, icon: IconName.scan);
+  }
+  return null;
+}
 
 /// A pinned file (FmStart `pinned`): a small page, the name and the
 /// location with the page count, and the active pin that unpins it, which

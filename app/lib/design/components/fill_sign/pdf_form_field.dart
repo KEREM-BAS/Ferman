@@ -1,6 +1,7 @@
 import 'dart:math' as math;
 import 'dart:ui' show SemanticsValidationResult;
 
+import 'package:ferman/design/components/forms/field_context_menu.dart';
 import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/foundation/forced_states.dart';
@@ -1161,7 +1162,9 @@ class _MultilineInputState extends State<_MultilineInput>
           keyboardType: TextInputType.multiline,
           onChanged: widget.onChanged,
           rendererIgnoresPointer: true,
-          selectionControls: emptyTextSelectionControls,
+          // No selection controls: they would take the legacy toolbar path
+          // and never build the context menu.
+          contextMenuBuilder: fieldContextMenu,
         ),
       ),
     );

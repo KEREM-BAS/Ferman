@@ -797,6 +797,8 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_font_entry(raw.fonts),
       cst_encode_opt_box_autoadd_security(raw.security),
       cst_encode_u_32(raw.scripts),
+      cst_encode_u_32(raw.formFields),
+      cst_encode_bool(raw.scanned),
     ].jsify()!;
   }
 
@@ -925,6 +927,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.snippet),
       cst_encode_u_32(raw.snippetStart),
       cst_encode_u_32(raw.snippetEnd),
+      cst_encode_bool(raw.bookmark),
     ].jsify()!;
   }
 
@@ -935,6 +938,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_bool(raw.matchCase),
       cst_encode_bool(raw.wholeWords),
       cst_encode_bool(raw.ignoreAccents),
+      cst_encode_bool(raw.bookmarks),
     ].jsify()!;
   }
 

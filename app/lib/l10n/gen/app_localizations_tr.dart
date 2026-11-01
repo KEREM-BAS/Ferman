@@ -384,6 +384,21 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellToolVersionHistory => 'Sürüm geçmişi';
 
   @override
+  String get fieldContextMenu => 'Metin alanı';
+
+  @override
+  String get fieldCut => 'Kes';
+
+  @override
+  String get fieldCopy => 'Kopyala';
+
+  @override
+  String get fieldPaste => 'Yapıştır';
+
+  @override
+  String get fieldSelectAll => 'Tümünü seç';
+
+  @override
   String get shellResizeSidebar => 'Kenar çubuğunu yeniden boyutlandır';
 
   @override
@@ -1153,6 +1168,9 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'Aranıyor';
+
+  @override
   String findSearching(String page, String pages) {
     return 'Aranıyor · sayfa $page / $pages';
   }
@@ -1186,6 +1204,11 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'Belgede ara';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'Yer imi: $title';
+  }
 
   @override
   String get sidebarSearchNoTextTitle => 'Aranacak metin yok';
@@ -1353,6 +1376,12 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get startBadgeSigned => 'İmzalı';
+
+  @override
+  String get startBadgeForm => 'Form';
+
+  @override
+  String get startBadgeScanned => 'Taranmış';
 
   @override
   String startMissingTitle(String name) {

@@ -838,6 +838,36 @@ abstract class AppLocalizations {
   /// **'Version history'**
   String get shellToolVersionHistory;
 
+  /// Accessible name of the context menu a right click opens on a text field (B017).
+  ///
+  /// In en, this message translates to:
+  /// **'Text field'**
+  String get fieldContextMenu;
+
+  /// Text field context menu: cut the selected text.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get fieldCut;
+
+  /// Text field context menu: copy the selected text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get fieldCopy;
+
+  /// Text field context menu: paste the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get fieldPaste;
+
+  /// Text field context menu: select all the field's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get fieldSelectAll;
+
   /// Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094).
   ///
   /// In en, this message translates to:
@@ -2218,6 +2248,12 @@ abstract class AppLocalizations {
   /// **'{current} of {total}'**
   String findCount(String current, String total);
 
+  /// The status bar's inline task while a search runs (FmWindow task, B124), before "Page N of M".
+  ///
+  /// In en, this message translates to:
+  /// **'Searching'**
+  String get statusSearching;
+
   /// A long search's progress (a2-4c); numbers in the region's format.
   ///
   /// In en, this message translates to:
@@ -2247,6 +2283,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search in document'**
   String get sidebarSearchField;
+
+  /// Accessible name of a search result found in a bookmark's title (Look in › Bookmarks).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark: {title}'**
+  String sidebarSearchBookmark(String title);
 
   /// Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m).
   ///
@@ -2492,6 +2534,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed'**
   String get startBadgeSigned;
+
+  /// Badge on a recent file that has form fields (a1-4, accent).
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get startBadgeForm;
+
+  /// Badge on a recent file whose first page has no text, most likely a scan (a1-4, neutral).
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned'**
+  String get startBadgeScanned;
 
   /// Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated.
   ///

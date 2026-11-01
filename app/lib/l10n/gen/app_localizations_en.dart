@@ -384,6 +384,21 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellToolVersionHistory => 'Version history';
 
   @override
+  String get fieldContextMenu => 'Text field';
+
+  @override
+  String get fieldCut => 'Cut';
+
+  @override
+  String get fieldCopy => 'Copy';
+
+  @override
+  String get fieldPaste => 'Paste';
+
+  @override
+  String get fieldSelectAll => 'Select all';
+
+  @override
   String get shellResizeSidebar => 'Resize sidebar';
 
   @override
@@ -1146,6 +1161,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'Searching';
+
+  @override
   String findSearching(String page, String pages) {
     return 'Searching · page $page of $pages';
   }
@@ -1179,6 +1197,11 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'Search in document';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'Bookmark: $title';
+  }
 
   @override
   String get sidebarSearchNoTextTitle => 'No text to search';
@@ -1346,6 +1369,12 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get startBadgeSigned => 'Signed';
+
+  @override
+  String get startBadgeForm => 'Form';
+
+  @override
+  String get startBadgeScanned => 'Scanned';
 
   @override
   String startMissingTitle(String name) {

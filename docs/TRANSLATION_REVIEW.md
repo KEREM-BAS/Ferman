@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-520 messages in `app_en.arb`; translated: Turkish 520, Arabic 520.
+529 messages in `app_en.arb`; translated: Turkish 529, Arabic 529.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -179,6 +179,11 @@ The table below is generated from the ARB files by `tools/l10n`
 | `shellToolBatch` | Batch actions | Toplu işlemler | إجراءات مجمّعة | Tools row: runs a series of steps on many files (FmWindow). |
 | `shellToolPrint` | Print | Yazdır | طباعة | Tools row: prints the document (FmWindow). A verb. |
 | `shellToolVersionHistory` | Version history | Sürüm geçmişi | سجل الإصدارات | Tools row: shows the saved versions of the document (FmWindow). |
+| `fieldContextMenu` | Text field | Metin alanı | حقل نص | Accessible name of the context menu a right click opens on a text field (B017). |
+| `fieldCut` | Cut | Kes | قص | Text field context menu: cut the selected text. |
+| `fieldCopy` | Copy | Kopyala | نسخ | Text field context menu: copy the selected text. |
+| `fieldPaste` | Paste | Yapıştır | لصق | Text field context menu: paste the clipboard. |
+| `fieldSelectAll` | Select all | Tümünü seç | تحديد الكل | Text field context menu: select all the field's text. |
 | `shellResizeSidebar` | Resize sidebar | Kenar çubuğunu yeniden boyutlandır | تغيير حجم الشريط الجانبي | Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094). |
 | `shellResizePanel` | Resize panel | Paneli yeniden boyutlandır | تغيير حجم اللوحة | Accessible name of the invisible drag handle on the right panel's edge that changes its width (B094). |
 | `shellSidebar` | Sidebar | Kenar çubuğu | الشريط الجانبي | Screen-reader name of the sidebar and of its row of tabs (FmSidebar t.sidebar). |
@@ -409,11 +414,13 @@ The table below is generated from the ARB files by `tools/l10n`
 | `findCancel` | Cancel | İptal | إلغاء | Stops a long search (a2-4c), also Esc. |
 | `findNoneAction` | Also search comments and fields | Yorumlarda ve alanlarda da ara | البحث في التعليقات والحقول أيضًا | No results: the action that widens the search (a2-4d). |
 | `findCount` | {current} of {total} | {current} / {total} | {current} من {total} | The find bar's count, a polite live region (a2-4a); numbers in the region's format. |
+| `statusSearching` | Searching | Aranıyor | جارٍ البحث | The status bar's inline task while a search runs (FmWindow task, B124), before "Page N of M". |
 | `findSearching` | Searching · page {page} of {pages} | Aranıyor · sayfa {page} / {pages} | جارٍ البحث · الصفحة {page} من {pages} | A long search's progress (a2-4c); numbers in the region's format. |
 | `findNoneTitle` | No results for “{query}” | “{query}” için sonuç yok | لا نتائج لـ«{query}» | No results: the title, with the query as typed (a2-4d). |
 | `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
 | `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
+| `sidebarSearchBookmark` | Bookmark: {title} | Yer imi: {title} | إشارة مرجعية: {title} | Accessible name of a search result found in a bookmark's title (Look in › Bookmarks). |
 | `sidebarSearchNoTextTitle` | No text to search | Aranacak metin yok | لا يوجد نص للبحث فيه | Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m). |
 | `sidebarSearchNoTextBody` | These pages are scanned images. Recognizing text makes them searchable. | Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar. | هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث. | Sidebar › Search results: the line under the no-text empty state's title (a2-3m); recognizing text is OCR. |
 | `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
@@ -454,6 +461,8 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startOpenedToday` | Today {time} | Bugün {time} | اليوم {time} | When a recent file was opened today, with the region’s time (a1-4, FmStart). |
 | `startOpenedYesterday` | Yesterday {time} | Dün {time} | أمس {time} | When a recent file was opened yesterday, with the region’s time (a1-4, FmStart). |
 | `startBadgeSigned` | Signed | İmzalı | موقّع | Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral). |
+| `startBadgeForm` | Form | Form | نموذج | Badge on a recent file that has form fields (a1-4, accent). |
+| `startBadgeScanned` | Scanned | Taranmış | ممسوح ضوئيًا | Badge on a recent file whose first page has no text, most likely a scan (a1-4, neutral). |
 | `startMissingTitle` | “{name}” can’t be found | “{name}” bulunamadı | تعذّر العثور على «{name}» | Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated. |
 | `startMissingDescription` | It was moved, renamed or deleted after you last opened it. It was in {folder}. | Dosya son açılışınızdan sonra taşınmış, yeniden adlandırılmış veya silinmiş. Önceki konumu: {folder}. | نُقل الملف أو أُعيدت تسميته أو حُذف بعد آخر مرة فتحته فيها. كان في {folder}. | Line under startMissingTitle (a1-9e, missDesc); folder is where the file was, “\~” for the home folder, isolated. |
 | `startMissingRemove` | Remove from list | Listeden kaldır | إزالة من القائمة | Button of a1-9e that takes the missing file off the recent files (a1-9e, remove). |

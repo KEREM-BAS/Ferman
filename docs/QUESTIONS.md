@@ -90,6 +90,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 | [Q21](#q21) | Memory-mapping the private snapshot of a file over 256 MB (an `unsafe` exception) | M2 step 2 | Open |
 | [Q22](#q22) | The password copy PDFium keeps while an encrypted document is open | the M2 review | Open |
 | [Q23](#q23) | Per-document state keyed by the document instead of an IndexedStack of open documents (ADR 0011) | the M2 review | Open |
+| [Q24](#q24) | Searching comments and form fields with M4's comments and forms instead of M2 | the M2 review | Open |
 
 ## Questions
 
@@ -869,4 +870,26 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
 - **Status:** Open
 - **Related:** [ADR 0011](adr/0011-flutter-state-navigation-components.md), ROADMAP §6 step 6,
   BACKLOG B091
+- **Answer:** none yet
+
+<a id="q24"></a>
+
+### Q24 · Searching comments and form fields in M4
+
+- **Question:** ROADMAP §6 step 5 puts the find bar's Look in box in M2. M2 searches the page text
+  and, since this question, the bookmarks' titles. May the other two, Comments and Form fields
+  (and a2-4d's "Also search comments and fields"), move to M4, with the comments and form filling
+  they search?
+- **Why it matters:** the engine reads no annotation contents or field values yet: the structure
+  scan counts form fields and finds signatures, nothing more. Searching them in M2 means a reader
+  for `/Contents`, `/RC`, `/V` and widget rectangles that M4's comment and form models replace,
+  with matches whose rectangles M4 draws differently (a comment's note, a field's box). Building it
+  once in M4 costs less and keeps M2's scope to viewing.
+- **Options:** (a) Comments and Form fields in M4 with B050 and B052 (BACKLOG B128), disabled with
+  "Available in a future version" until then; (b) build both in M2 on a reader of their own.
+- **Proposal:** (a).
+- **Meanwhile:** (a): Page text and Bookmarks work, the other two stay disabled.
+- **Needed by:** the M2 review.
+- **Status:** Open
+- **Related:** ROADMAP §6 step 5, BACKLOG B114 and B128, [G115](DESIGN_GAPS.md#g115)
 - **Answer:** none yet

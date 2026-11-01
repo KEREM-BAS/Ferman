@@ -455,6 +455,8 @@ class OpenedDocument {
     this.fonts = const [],
     this.security,
     this.scripts = 0,
+    this.formFields = 0,
+    this.scanned = false,
   });
 
   /// Its handle, until it is closed.
@@ -512,6 +514,13 @@ class OpenedDocument {
   /// How many scripts it carries, which Ferman never runs (G100).
   final int scripts;
 
+  /// How many form fields it has (the start screen's Form badge).
+  final int formFields;
+
+  /// Whether its first page has no text, most likely a scan (the start
+  /// screen's Scanned badge).
+  final bool scanned;
+
   /// This document with [security], as the owner unlock leaves it.
   OpenedDocument withSecurity(Security? security) => OpenedDocument(
     id: id,
@@ -532,6 +541,8 @@ class OpenedDocument {
     fonts: fonts,
     security: security,
     scripts: scripts,
+    formFields: formFields,
+    scanned: scanned,
   );
 }
 
@@ -733,6 +744,7 @@ class SearchOptions {
     this.matchCase = false,
     this.wholeWords = false,
     this.ignoreAccents = true,
+    this.bookmarks = false,
   });
 
   /// Match case.
@@ -744,15 +756,20 @@ class SearchOptions {
   /// Ignore accents and dotted/dotless i.
   final bool ignoreAccents;
 
+  /// Look in the bookmarks' titles too (a2-4a, B114).
+  final bool bookmarks;
+
   @override
   bool operator ==(Object other) =>
       other is SearchOptions &&
       other.matchCase == matchCase &&
       other.wholeWords == wholeWords &&
-      other.ignoreAccents == ignoreAccents;
+      other.ignoreAccents == ignoreAccents &&
+      other.bookmarks == bookmarks;
 
   @override
-  int get hashCode => Object.hash(matchCase, wholeWords, ignoreAccents);
+  int get hashCode =>
+      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks);
 }
 
 /// One match of a search.
@@ -765,6 +782,7 @@ class SearchMatch {
     required this.snippet,
     required this.snippetStart,
     required this.snippetEnd,
+    this.bookmark = false,
   });
 
   /// Its page, from 0.
@@ -782,6 +800,10 @@ class SearchMatch {
 
   /// Where it ends in [snippet], in UTF-16 code units.
   final int snippetEnd;
+
+  /// Whether it is in a bookmark's title, [snippet], pointing at [page];
+  /// it has no [rects].
+  final bool bookmark;
 }
 
 /// What a running search reports.

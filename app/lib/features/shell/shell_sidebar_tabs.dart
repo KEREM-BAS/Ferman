@@ -1138,7 +1138,9 @@ class _Result extends StatelessWidget {
       onPressed: onPressed,
       selected: current,
       focusNode: focusNode,
-      semanticLabel: line,
+      semanticLabel: match.bookmark
+          ? AppLocalizations.of(context).sidebarSearchBookmark(line)
+          : line,
       builder: (context, states, _) => Container(
         padding: EdgeInsetsDirectional.symmetric(
           vertical: theme.space.space1_5,
@@ -1158,6 +1160,21 @@ class _Result extends StatelessWidget {
           TextSpan(
             style: style,
             children: [
+              // A match in a bookmark's title (Look in › Bookmarks, B114).
+              if (match.bookmark)
+                WidgetSpan(
+                  alignment: PlaceholderAlignment.middle,
+                  child: Padding(
+                    padding: EdgeInsetsDirectional.only(
+                      end: theme.space.space1,
+                    ),
+                    child: Icon(
+                      IconName.bookmark,
+                      size: theme.density.iconSm,
+                      color: theme.colors.iconSecondary,
+                    ),
+                  ),
+                ),
               TextSpan(text: pre),
               TextSpan(
                 text: line.substring(start, end),

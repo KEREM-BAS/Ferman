@@ -158,6 +158,8 @@ class FrbEngineService implements EngineService {
         ],
         security: _security(document.security),
         scripts: document.scripts,
+        formFields: document.formFields,
+        scanned: document.scanned,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -308,6 +310,7 @@ class FrbEngineService implements EngineService {
           matchCase: options.matchCase,
           wholeWords: options.wholeWords,
           ignoreAccents: options.ignoreAccents,
+          bookmarks: options.bookmarks,
         ),
       )
       .handleError(
@@ -328,6 +331,7 @@ class FrbEngineService implements EngineService {
                 snippet: found.snippet,
                 snippetStart: _units(found.snippet, found.snippetStart),
                 snippetEnd: _units(found.snippet, found.snippetEnd),
+                bookmark: found.bookmark,
               ),
           ]),
           bridge.SearchEventKind.progress => SearchProgress(
