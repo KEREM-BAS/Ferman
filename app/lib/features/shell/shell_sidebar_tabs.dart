@@ -841,8 +841,10 @@ class SidebarSignatures extends ConsumerWidget {
 
 /// The Search results tab (a2-3e, a2-4b): the query, a summary, and every
 /// match so far grouped by page, its line as a snippet with the match
-/// marked, the current one tinted; a click goes to it. A search that found
-/// nothing shows a2-3m's empty state. It shares `findProvider` with the
+/// marked, the current one tinted; a click goes to it, and ↑ and ↓ move
+/// through the results from one of them. A search that found nothing shows
+/// a2-3m's empty state, or its "No text to search" in a document without
+/// a text layer. It shares `findProvider` with the
 /// find bar, so typing in either searches.
 class SidebarSearch extends ConsumerStatefulWidget {
   /// The results of `findProvider`.
@@ -867,6 +869,34 @@ class SidebarSearch extends ConsumerStatefulWidget {
 class _SidebarSearchState extends ConsumerState<SidebarSearch> {
   late final ScrollController _scroll;
 
+  /// The results' focus, by index, so ↑ and ↓ move it with the current one.
+  final List<FocusNode> _results = [];
+
+  FocusNode _result(int index) {
+    while (_results.length <= index) {
+      _results.add(FocusNode(debugLabel: 'Search result'));
+    }
+    return _results[index];
+  }
+
+  /// Makes the result [by] away from the current one current and focuses
+  /// it; the list builds its neighbours, so the node is attached.
+  void _move(int by) {
+    final find = ref.read(findProvider);
+    final index = find.current + by;
+    if (index < 0 || index >= find.matches.length) return;
+    ref.read(findProvider.notifier).select(index);
+    final node = _result(index)..requestFocus();
+    if (node.context case final context?) {
+      Scrollable.ensureVisible(
+        context,
+        alignmentPolicy: by > 0
+            ? ScrollPositionAlignmentPolicy.keepVisibleAtEnd
+            : ScrollPositionAlignmentPolicy.keepVisibleAtStart,
+      );
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -876,6 +906,9 @@ class _SidebarSearchState extends ConsumerState<SidebarSearch> {
   @override
   void dispose() {
     _scroll.dispose();
+    for (final node in _results) {
+      node.dispose();
+    }
     super.dispose();
   }
 
@@ -922,17 +955,30 @@ class _SidebarSearchState extends ConsumerState<SidebarSearch> {
         children: [
           field,
           Expanded(
-            child: EmptyState(
-              icon: IconName.search,
-              title: l10n.findNoneTitle(find.query.trim()),
-              body:
-                  (find.options.ignoreAccents
-                  ? l10n.findNoneBody
-                  : l10n.findNoneBodyExact)(
-                    find.pages,
-                    format.integer(find.pages),
+            child: find.textless
+                ? EmptyState(
+                    icon: IconName.scanText,
+                    title: l10n.sidebarSearchNoTextTitle,
+                    body: l10n.sidebarSearchNoTextBody,
+                    action: Button(
+                      size: ButtonSize.sm,
+                      icon: IconName.scanText,
+                      disabled: true,
+                      disabledReason: Feature.ocr.disabledReason(context),
+                      child: Text(l10n.shellToolRecognizeText),
+                    ),
+                  )
+                : EmptyState(
+                    icon: IconName.search,
+                    title: l10n.findNoneTitle(find.query.trim()),
+                    body:
+                        (find.options.ignoreAccents
+                        ? l10n.findNoneBody
+                        : l10n.findNoneBodyExact)(
+                          find.pages,
+                          format.integer(find.pages),
+                        ),
                   ),
-            ),
           ),
         ],
       );
@@ -980,7 +1026,12 @@ class _SidebarSearchState extends ConsumerState<SidebarSearch> {
         _Result(
           match: match,
           current: index == find.current,
-          onPressed: () => notifier.select(index),
+          focusNode: _result(index),
+          // A click focuses the result too, so ↑ and ↓ go on from it.
+          onPressed: () {
+            notifier.select(index);
+            _result(index).requestFocus();
+          },
         ),
       );
     }
@@ -988,12 +1039,20 @@ class _SidebarSearchState extends ConsumerState<SidebarSearch> {
       children: [
         field,
         Expanded(
-          child: ListView(
-            controller: _scroll,
-            padding: EdgeInsetsDirectional.symmetric(
-              horizontal: theme.space.space1_5,
+          child: CallbackShortcuts(
+            bindings: {
+              const SingleActivator(LogicalKeyboardKey.arrowDown): () =>
+                  _move(1),
+              const SingleActivator(LogicalKeyboardKey.arrowUp): () =>
+                  _move(-1),
+            },
+            child: ListView(
+              controller: _scroll,
+              padding: EdgeInsetsDirectional.symmetric(
+                horizontal: theme.space.space1_5,
+              ),
+              children: rows,
             ),
-            children: rows,
           ),
         ),
       ],
@@ -1049,11 +1108,13 @@ class _Result extends StatelessWidget {
   const new({
     required this.match,
     required this.current,
+    required this.focusNode,
     required this.onPressed,
   });
 
   final SearchMatch match;
   final bool current;
+  final FocusNode focusNode;
   final VoidCallback onPressed;
 
   @override
@@ -1076,6 +1137,7 @@ class _Result extends StatelessWidget {
     return FermanInteractive(
       onPressed: onPressed,
       selected: current,
+      focusNode: focusNode,
       semanticLabel: line,
       builder: (context, states, _) => Container(
         padding: EdgeInsetsDirectional.symmetric(

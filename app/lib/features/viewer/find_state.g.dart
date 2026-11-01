@@ -49,7 +49,7 @@ final class FindProvider extends $NotifierProvider<Find, FindState> {
   }
 }
 
-String _$findHash() => r'5fde038267f921dc4b9643f873890f5357f64de0';
+String _$findHash() => r'568ed47e2b48382de8739d8172e5dfb57a65003b';
 
 /// Finds text in the open document, as `findProvider`. Each document keeps
 /// its own search: switching tabs stops a running one, keeping what it

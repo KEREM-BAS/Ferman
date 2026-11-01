@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-515 messages in `app_en.arb`; translated: Turkish 515, Arabic 515.
+517 messages in `app_en.arb`; translated: Turkish 517, Arabic 517.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -411,6 +411,8 @@ The table below is generated from the ARB files by `tools/l10n`
 | `findNoneBody` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}, ignoring accents and dotted/dotless i. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}، مع تجاهل علامات التشكيل والفرق بين i المنقوطة وغير المنقوطة. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched and how, with Ignore accents on (a2-4d). count is the page count, pages the same number in the region's format. |
 | `findNoneBodyExact` | Ferman searched {count, plural, =1{the only page} other{all {pages} pages}}. Comments and form fields weren’t searched. | Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı. | بحث Ferman في {count, plural, =1{الصفحة الوحيدة} =2{الصفحتين كلتيهما} other{الصفحات الـ{pages} كلها}}. لم يُبحث في التعليقات وحقول النماذج. | No results: what was searched, with Ignore accents off (a2-4d). count is the page count, pages the same number in the region's format. |
 | `sidebarSearchField` | Search in document | Belgede ara | البحث في المستند | Sidebar › Search results: the field's accessible name (a2-3e). |
+| `sidebarSearchNoTextTitle` | No text to search | Aranacak metin yok | لا يوجد نص للبحث فيه | Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m). |
+| `sidebarSearchNoTextBody` | These pages are scanned images. Recognizing text makes them searchable. | Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar. | هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث. | Sidebar › Search results: the line under the no-text empty state's title (a2-3m); recognizing text is OCR. |
 | `sidebarSearchSummary` | {matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}} | {pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}} | {matches, plural, =1{تطابق واحد} =2{تطابقان} few{{matchesText} تطابقات} other{{matchesText} تطابقًا}} في {pages, plural, =1{صفحة واحدة} =2{صفحتين} few{{pagesText} صفحات} other{{pagesText} صفحة}} | Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format. |
 | `openPdfFilter` | PDF documents | PDF belgeleri | مستندات PDF | Name of the file-type filter in the system open panel (a1-13): the panel lists only PDF files. |
 | `openFailedTitle` | Ferman can’t open “{name}” | Ferman “{name}” dosyasını açamıyor | يتعذّر على Ferman فتح «{name}» | Title of the start screen’s danger banner when a file did not open (a1-9b’s title, G116). {name} is the file name. |

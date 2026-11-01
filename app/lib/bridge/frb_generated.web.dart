@@ -912,6 +912,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_u_32(raw.searched),
       cst_encode_u_32(raw.pages),
       cst_encode_bool(raw.cancelled),
+      cst_encode_bool(raw.textless),
     ].jsify()!;
   }
 

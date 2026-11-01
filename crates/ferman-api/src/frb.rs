@@ -530,6 +530,8 @@ pub struct SearchEvent {
     pub pages: u32,
     /// Whether it was cancelled (`Done`).
     pub cancelled: bool,
+    /// Whether no page had text, a scan (`Done`).
+    pub textless: bool,
 }
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
@@ -779,6 +781,7 @@ impl facade::SearchSink for BridgeSearch {
             searched: 0,
             pages: 0,
             cancelled: false,
+            textless: false,
         };
         let event = match event {
             facade::SearchEvent::Started(id) => SearchEvent {
@@ -815,7 +818,14 @@ impl facade::SearchSink for BridgeSearch {
                 pages,
                 ..empty
             },
-            facade::SearchEvent::Done { cancelled } => SearchEvent { cancelled, ..empty },
+            facade::SearchEvent::Done {
+                cancelled,
+                textless,
+            } => SearchEvent {
+                cancelled,
+                textless,
+                ..empty
+            },
         };
         self.0.add(event).is_ok()
     }

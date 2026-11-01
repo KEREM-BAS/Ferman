@@ -1024,8 +1024,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchEvent dco_decode_search_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return SearchEvent(
       kind: dco_decode_search_event_kind(arr[0]),
       search: dco_decode_u_64(arr[1]),
@@ -1033,6 +1033,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       searched: dco_decode_u_32(arr[3]),
       pages: dco_decode_u_32(arr[4]),
       cancelled: dco_decode_bool(arr[5]),
+      textless: dco_decode_bool(arr[6]),
     );
   }
 
@@ -1857,6 +1858,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_searched = sse_decode_u_32(deserializer);
     var var_pages = sse_decode_u_32(deserializer);
     var var_cancelled = sse_decode_bool(deserializer);
+    var var_textless = sse_decode_bool(deserializer);
     return SearchEvent(
       kind: var_kind,
       search: var_search,
@@ -1864,6 +1866,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       searched: var_searched,
       pages: var_pages,
       cancelled: var_cancelled,
+      textless: var_textless,
     );
   }
 
@@ -2761,6 +2764,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_32(self.searched, serializer);
     sse_encode_u_32(self.pages, serializer);
     sse_encode_bool(self.cancelled, serializer);
+    sse_encode_bool(self.textless, serializer);
   }
 
   @protected

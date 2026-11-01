@@ -1321,6 +1321,7 @@ impl SseDecode for crate::frb::SearchEvent {
         let mut var_searched = <u32>::sse_decode(deserializer);
         let mut var_pages = <u32>::sse_decode(deserializer);
         let mut var_cancelled = <bool>::sse_decode(deserializer);
+        let mut var_textless = <bool>::sse_decode(deserializer);
         return crate::frb::SearchEvent {
             kind: var_kind,
             search: var_search,
@@ -1328,6 +1329,7 @@ impl SseDecode for crate::frb::SearchEvent {
             searched: var_searched,
             pages: var_pages,
             cancelled: var_cancelled,
+            textless: var_textless,
         };
     }
 }
@@ -2023,6 +2025,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchEvent {
             self.searched.into_into_dart().into_dart(),
             self.pages.into_into_dart().into_dart(),
             self.cancelled.into_into_dart().into_dart(),
+            self.textless.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2827,6 +2830,7 @@ impl SseEncode for crate::frb::SearchEvent {
         <u32>::sse_encode(self.searched, serializer);
         <u32>::sse_encode(self.pages, serializer);
         <bool>::sse_encode(self.cancelled, serializer);
+        <bool>::sse_encode(self.textless, serializer);
     }
 }
 
@@ -3422,6 +3426,7 @@ mod io {
                 searched: self.searched.cst_decode(),
                 pages: self.pages.cst_decode(),
                 cancelled: self.cancelled.cst_decode(),
+                textless: self.textless.cst_decode(),
             }
         }
     }
@@ -3763,6 +3768,7 @@ mod io {
                 searched: Default::default(),
                 pages: Default::default(),
                 cancelled: Default::default(),
+                textless: Default::default(),
             }
         }
     }
@@ -4449,6 +4455,7 @@ mod io {
         searched: u32,
         pages: u32,
         cancelled: bool,
+        textless: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -5083,8 +5090,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                6,
-                "Expected 6 elements, got {}",
+                7,
+                "Expected 7 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchEvent {
@@ -5094,6 +5101,7 @@ mod web {
                 searched: self_.get(3).cst_decode(),
                 pages: self_.get(4).cst_decode(),
                 cancelled: self_.get(5).cst_decode(),
+                textless: self_.get(6).cst_decode(),
             }
         }
     }

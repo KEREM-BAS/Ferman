@@ -2230,6 +2230,18 @@ abstract class AppLocalizations {
   /// **'Search in document'**
   String get sidebarSearchField;
 
+  /// Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No text to search'**
+  String get sidebarSearchNoTextTitle;
+
+  /// Sidebar › Search results: the line under the no-text empty state's title (a2-3m); recognizing text is OCR.
+  ///
+  /// In en, this message translates to:
+  /// **'These pages are scanned images. Recognizing text makes them searchable.'**
+  String get sidebarSearchNoTextBody;
+
   /// Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.
   ///
   /// In en, this message translates to:

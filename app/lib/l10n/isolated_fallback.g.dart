@@ -1194,6 +1194,13 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get sidebarSearchField => isolate(super.sidebarSearchField);
 
   @override
+  String get sidebarSearchNoTextTitle =>
+      isolate(super.sidebarSearchNoTextTitle);
+
+  @override
+  String get sidebarSearchNoTextBody => isolate(super.sidebarSearchNoTextBody);
+
+  @override
   String sidebarSearchSummary(
     int matches,
     String matchesText,

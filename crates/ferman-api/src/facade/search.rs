@@ -79,6 +79,8 @@ pub enum SearchEvent {
     Done {
         /// Whether it was cancelled.
         cancelled: bool,
+        /// Whether no page had text: a scan without a text layer (a2-3m). False when cancelled.
+        textless: bool,
     },
 }
 
@@ -144,7 +146,7 @@ impl Engine {
         }))
     }
 
-    /// Cancels a search; it ends with `Done { cancelled: true }`. A search that ended already
+    /// Cancels a search; it ends with `Done { cancelled: true, .. }`. A search that ended already
     /// ignores it.
     pub fn cancel_search(&self, search: SearchId) {
         let searches = self.searches.lock().unwrap_or_else(PoisonError::into_inner);
@@ -163,12 +165,17 @@ fn run(
     sink: &mut dyn SearchSink,
 ) {
     let pages = u32::try_from(model.document.page_count()).unwrap_or(u32::MAX);
+    let mut textless = true;
     for page in 0..pages {
         if cancel.load(Ordering::Relaxed) {
-            sink.deliver(SearchEvent::Done { cancelled: true });
+            sink.deliver(SearchEvent::Done {
+                cancelled: true,
+                textless: false,
+            });
             return;
         }
         let text = page_text(model, page);
+        textless &= text.text.trim().is_empty();
         let matches: Vec<SearchMatch> = ferman_text::find(&text.text, query, options)
             .into_iter()
             .map(|range| found(page, &text, range))
@@ -183,7 +190,10 @@ fn run(
             return;
         }
     }
-    sink.deliver(SearchEvent::Done { cancelled: false });
+    sink.deliver(SearchEvent::Done {
+        cancelled: false,
+        textless,
+    });
 }
 
 /// The text of `page`, read once; a page whose content cannot be read has none.

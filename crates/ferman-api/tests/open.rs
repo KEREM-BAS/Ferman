@@ -326,8 +326,11 @@ fn a_search_streams_its_matches_and_ends() {
         match next() {
             SearchEvent::Matches(page) => matches.extend(page),
             SearchEvent::Progress { searched, pages } => assert!(searched <= pages),
-            SearchEvent::Done { cancelled } => {
-                assert!(!cancelled);
+            SearchEvent::Done {
+                cancelled,
+                textless,
+            } => {
+                assert!(!cancelled && !textless);
                 break;
             }
             SearchEvent::Started(_) => panic!("started twice"),
@@ -361,7 +364,7 @@ fn a_search_streams_its_matches_and_ends() {
     let ended = received
         .iter()
         .find_map(|event| match event {
-            SearchEvent::Done { cancelled } => Some(cancelled),
+            SearchEvent::Done { cancelled, .. } => Some(cancelled),
             _ => None,
         })
         .unwrap();
@@ -369,4 +372,31 @@ fn a_search_streams_its_matches_and_ends() {
     for document in [kira, long] {
         block_on(engine().close(document.id)).unwrap();
     }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_search_of_a_scan_ends_textless() {
+    let scan = open("scan-tr", None).unwrap();
+    let (events, received) = mpsc::channel();
+    engine()
+        .search(
+            scan.id,
+            "kira".to_owned(),
+            SearchOptions::default(),
+            Box::new(Found(events)),
+        )
+        .unwrap();
+    let done = received
+        .iter()
+        .find_map(|event| match event {
+            SearchEvent::Done {
+                cancelled,
+                textless,
+            } => Some((cancelled, textless)),
+            _ => None,
+        })
+        .unwrap();
+    assert_eq!(done, (false, true));
+    block_on(engine().close(scan.id)).unwrap();
 }

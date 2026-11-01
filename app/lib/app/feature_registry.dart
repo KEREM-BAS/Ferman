@@ -173,8 +173,9 @@ enum Feature {
   convertFromPdf('B023'),
 
   /// Text recognition: Start › Recognize text (OCR), Convert › Recognize
-  /// text, the first-run tile, Settings › Text recognition and Settings ›
-  /// Privacy › Downloads you start.
+  /// text, the first-run tile, Settings › Text recognition, Settings ›
+  /// Privacy › Downloads you start and the Search results tab's "No text to
+  /// search".
   ocr('B025'),
 
   // Protect.

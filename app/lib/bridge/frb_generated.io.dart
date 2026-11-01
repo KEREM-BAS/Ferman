@@ -1057,6 +1057,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.searched = cst_encode_u_32(apiObj.searched);
     wireObj.pages = cst_encode_u_32(apiObj.pages);
     wireObj.cancelled = cst_encode_bool(apiObj.cancelled);
+    wireObj.textless = cst_encode_bool(apiObj.textless);
   }
 
   @protected
@@ -2566,6 +2567,9 @@ final class wire_cst_search_event extends ffi.Struct {
 
   @ffi.Bool()
   external bool cancelled;
+
+  @ffi.Bool()
+  external bool textless;
 }
 
 final class wire_cst_view_event extends ffi.Struct {

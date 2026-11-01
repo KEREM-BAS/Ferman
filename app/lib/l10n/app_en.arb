@@ -1549,6 +1549,14 @@
   "@sidebarSearchField": {
     "description": "Sidebar › Search results: the field's accessible name (a2-3e)."
   },
+  "sidebarSearchNoTextTitle": "No text to search",
+  "@sidebarSearchNoTextTitle": {
+    "description": "Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m)."
+  },
+  "sidebarSearchNoTextBody": "These pages are scanned images. Recognizing text makes them searchable.",
+  "@sidebarSearchNoTextBody": {
+    "description": "Sidebar › Search results: the line under the no-text empty state's title (a2-3m); recognizing text is OCR."
+  },
   "sidebarSearchSummary": "{matches, plural, =1{1 match} other{{matchesText} matches}} on {pages, plural, =1{1 page} other{{pagesText} pages}}",
   "@sidebarSearchSummary": {
     "description": "Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.",

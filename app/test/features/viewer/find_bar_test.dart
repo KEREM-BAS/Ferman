@@ -38,9 +38,13 @@ void main() {
   setUp(() => window = FakeDesktopWindow(WindowPlatform.linux));
   tearDown(() => window.dispose());
 
-  Future<FakeEngineService> pumpDocument(WidgetTester tester) async {
+  Future<FakeEngineService> pumpDocument(
+    WidgetTester tester, {
+    bool textless = false,
+  }) async {
     final engine = FakeEngineService(
       documents: {'/kira.pdf': document},
+      textless: textless,
       searchResults: {
         'kira': [
           [hit(0)],
@@ -108,7 +112,9 @@ void main() {
   });
 
   testWidgets('Alt+Enter shows every result in the sidebar, grouped by '
-      'page; a click goes to one', (tester) async {
+      'page; a click goes to one, and the arrow keys move from it', (
+    tester,
+  ) async {
     await pumpDocument(tester);
     await controlF(tester);
     await tester.enterText(find.byType(EditableText).first, 'kira');
@@ -137,6 +143,41 @@ void main() {
     await settle(tester);
     expect(findState(tester).current, 1);
     expect(container.read(viewerProvider)!.currentPage, 2);
+
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await settle(tester);
+    expect(findState(tester).current, 0);
+    expect(container.read(viewerProvider)!.currentPage, 0);
+    // The first result stays first: ↑ does not wrap, as ↵ in the bar does.
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await settle(tester);
+    expect(findState(tester).current, 0);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(findState(tester).current, 1);
+    expect(container.read(viewerProvider)!.currentPage, 2);
+  });
+
+  testWidgets('a document without text says so in the sidebar, with Recognize '
+      'text for a future version (a2-3m)', (tester) async {
+    await pumpDocument(tester, textless: true);
+    await controlF(tester);
+    await tester.enterText(field(), 'kira bedeli');
+    await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+    await settle(tester);
+    expect(findState(tester).textless, isTrue);
+    final sidebar = find.byType(SidebarSearch);
+    expect(
+      find.descendant(of: sidebar, matching: find.text('No text to search')),
+      findsOneWidget,
+    );
+    final ocr = tester.widget<Button>(
+      find.descendant(of: sidebar, matching: find.byType(Button)),
+    );
+    expect(ocr.disabled, isTrue);
+    expect(ocr.disabledReason, futureVersion);
   });
 
   testWidgets('a search that finds nothing says what it searched (a2-4d)', (

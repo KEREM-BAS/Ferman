@@ -814,8 +814,11 @@ final class SearchProgress extends SearchUpdate {
 /// The search ended.
 final class SearchDone extends SearchUpdate {
   /// Creates the update.
-  const new({this.cancelled = false});
+  const new({this.cancelled = false, this.textless = false});
 
   /// Whether it was cancelled.
   final bool cancelled;
+
+  /// Whether no page had text: a scan without a text layer (a2-3m).
+  final bool textless;
 }

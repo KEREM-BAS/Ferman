@@ -334,7 +334,10 @@ class FrbEngineService implements EngineService {
             searched: event.searched,
             pages: event.pages,
           ),
-          bridge.SearchEventKind.done => SearchDone(cancelled: event.cancelled),
+          bridge.SearchEventKind.done => SearchDone(
+            cancelled: event.cancelled,
+            textless: event.textless,
+          ),
         },
       )
       .where((update) => update != null)

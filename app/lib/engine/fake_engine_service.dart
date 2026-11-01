@@ -18,6 +18,7 @@ class FakeEngineService implements EngineService {
     this.documents = const {},
     this.failingPages = const {},
     this.searchResults = const {},
+    this.textless = false,
     this.failures = const {},
     this.passwords = const {},
     this.ownerPasswords = const {},
@@ -54,6 +55,9 @@ class FakeEngineService implements EngineService {
 
   /// What [search] finds, by query: each list is one page's matches.
   final Map<String, List<List<SearchMatch>>> searchResults;
+
+  /// Whether [search] reports that no page has text, as for a scan.
+  final bool textless;
 
   /// The queries and options of every [search], oldest first.
   final List<(String, SearchOptions)> searches = [];
@@ -197,7 +201,7 @@ class FakeEngineService implements EngineService {
       yield SearchMatches(matches);
     }
     yield SearchProgress(searched: pages, pages: pages);
-    yield const SearchDone();
+    yield SearchDone(textless: textless);
   }
 
   /// A view that answers each wanted item with opaque white pixels of its

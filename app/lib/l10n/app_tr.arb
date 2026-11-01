@@ -355,6 +355,8 @@
   "findNoneBody": "Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı; aksanlar ve noktalı/noktasız i yok sayıldı. Yorumlar ve form alanları aranmadı.",
   "findNoneBodyExact": "Ferman {count, plural, =1{tek sayfada} other{{pages} sayfanın tamamında}} aradı. Yorumlar ve form alanları aranmadı.",
   "sidebarSearchField": "Belgede ara",
+  "sidebarSearchNoTextTitle": "Aranacak metin yok",
+  "sidebarSearchNoTextBody": "Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.",
   "sidebarSearchSummary": "{pages, plural, =1{1 sayfada} other{{pagesText} sayfada}} {matches, plural, =1{1 eşleşme} other{{matchesText} eşleşme}}",
   "openPdfFilter": "PDF belgeleri",
   "openFailedTitle": "Ferman “{name}” dosyasını açamıyor",

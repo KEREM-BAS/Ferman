@@ -973,6 +973,9 @@ class SearchEvent {
   /// Whether it was cancelled (`Done`).
   final bool cancelled;
 
+  /// Whether no page had text, a scan (`Done`).
+  final bool textless;
+
   const SearchEvent({
     required this.kind,
     required this.search,
@@ -980,6 +983,7 @@ class SearchEvent {
     required this.searched,
     required this.pages,
     required this.cancelled,
+    required this.textless,
   });
 
   @override
@@ -989,7 +993,8 @@ class SearchEvent {
       matches.hashCode ^
       searched.hashCode ^
       pages.hashCode ^
-      cancelled.hashCode;
+      cancelled.hashCode ^
+      textless.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1001,7 +1006,8 @@ class SearchEvent {
           matches == other.matches &&
           searched == other.searched &&
           pages == other.pages &&
-          cancelled == other.cancelled;
+          cancelled == other.cancelled &&
+          textless == other.textless;
 }
 
 /// What a search event says.

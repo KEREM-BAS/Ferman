@@ -1171,6 +1171,13 @@ class AppLocalizationsEn extends AppLocalizations {
   String get sidebarSearchField => 'Search in document';
 
   @override
+  String get sidebarSearchNoTextTitle => 'No text to search';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'These pages are scanned images. Recognizing text makes them searchable.';
+
+  @override
   String sidebarSearchSummary(
     int matches,
     String matchesText,

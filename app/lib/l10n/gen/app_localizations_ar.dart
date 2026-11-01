@@ -1174,6 +1174,13 @@ class AppLocalizationsAr extends AppLocalizations {
   String get sidebarSearchField => 'البحث في المستند';
 
   @override
+  String get sidebarSearchNoTextTitle => 'لا يوجد نص للبحث فيه';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث.';
+
+  @override
   String sidebarSearchSummary(
     int matches,
     String matchesText,

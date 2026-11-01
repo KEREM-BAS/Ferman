@@ -1178,6 +1178,13 @@ class AppLocalizationsTr extends AppLocalizations {
   String get sidebarSearchField => 'Belgede ara';
 
   @override
+  String get sidebarSearchNoTextTitle => 'Aranacak metin yok';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.';
+
+  @override
   String sidebarSearchSummary(
     int matches,
     String matchesText,
