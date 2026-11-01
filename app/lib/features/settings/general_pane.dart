@@ -182,10 +182,7 @@ class GeneralPane extends ConsumerWidget {
                   ),
                 ],
                 onChanged: (zoom) => unawaited(
-                  changeSetting(
-                    ref,
-                    (current) => current.copyWith(zoom: zoom),
-                  ),
+                  changeSetting(ref, (current) => current.copyWith(zoom: zoom)),
                 ),
               ),
             ),
@@ -221,16 +218,13 @@ class GeneralPane extends ConsumerWidget {
             spacing: theme.space.space3,
             children: [
               Expanded(
-                child: Text(
-                  switch (handler) {
-                    PdfHandler(ferman: true) => l10n.settingsDefaultAppFerman,
-                    PdfHandler(:final name) => l10n.settingsDefaultAppOther(
-                      bidiIsolate(name),
-                    ),
-                    null => defaultAppText(l10n),
-                  },
-                  style: theme.typography.body,
-                ),
+                child: Text(switch (handler) {
+                  PdfHandler(ferman: true) => l10n.settingsDefaultAppFerman,
+                  PdfHandler(:final name) => l10n.settingsDefaultAppOther(
+                    bidiIsolate(name),
+                  ),
+                  null => defaultAppText(l10n),
+                }, style: theme.typography.body),
               ),
               if (handler?.ferman != true)
                 Button(
