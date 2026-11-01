@@ -1,3 +1,6 @@
+import 'dart:async';
+
+import 'package:ferman/recent/recent_previews.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -15,6 +18,7 @@ final class RecentEntry {
     this.pages,
     this.pinned = false,
     this.signed = false,
+    this.locked = false,
     this.bookmark,
   });
 
@@ -35,6 +39,7 @@ final class RecentEntry {
       pages: pages is int && pages > 0 ? pages : null,
       pinned: json['pinned'] == true,
       signed: json['signed'] == true,
+      locked: json['locked'] == true,
       bookmark: switch (json['bookmark']) {
         final String bookmark when bookmark.isNotEmpty => bookmark,
         _ => null,
@@ -60,6 +65,10 @@ final class RecentEntry {
   /// Whether it carried signatures (the neutral "Signed" badge of a1-4-m2).
   final bool signed;
 
+  /// Whether it needs a password to open: its card shows a lock and no
+  /// preview is kept (G109).
+  final bool locked;
+
   /// A security-scoped bookmark of the file (macOS, base64), which reaches
   /// it again after a restart under the App Sandbox (Q18); null elsewhere.
   final String? bookmark;
@@ -72,6 +81,7 @@ final class RecentEntry {
     if (pages != null) 'pages': pages,
     if (pinned) 'pinned': true,
     if (signed) 'signed': true,
+    if (locked) 'locked': true,
     if (bookmark != null) 'bookmark': bookmark,
   };
 
@@ -83,6 +93,7 @@ final class RecentEntry {
     int? pages,
     bool? pinned,
     bool? signed,
+    bool? locked,
     String? bookmark,
   }) => RecentEntry(
     path: path ?? this.path,
@@ -91,6 +102,7 @@ final class RecentEntry {
     pages: pages ?? this.pages,
     pinned: pinned ?? this.pinned,
     signed: signed ?? this.signed,
+    locked: locked ?? this.locked,
     bookmark: bookmark ?? this.bookmark,
   );
 
@@ -103,11 +115,12 @@ final class RecentEntry {
       other.pages == pages &&
       other.pinned == pinned &&
       other.signed == signed &&
+      other.locked == locked &&
       other.bookmark == bookmark;
 
   @override
   int get hashCode =>
-      Object.hash(path, name, opened, pages, pinned, signed, bookmark);
+      Object.hash(path, name, opened, pages, pinned, signed, locked, bookmark);
 
   @override
   String toString() => 'RecentEntry($name, $opened, pinned: $pinned)';
@@ -214,6 +227,7 @@ class RecentFiles extends _$RecentFiles {
     required DateTime now,
     int? pages,
     bool? signed,
+    bool? locked,
     String? bookmark,
   }) {
     RecentEntry? old;
@@ -226,6 +240,7 @@ class RecentFiles extends _$RecentFiles {
           opened: now,
           pages: pages,
           signed: signed,
+          locked: locked,
           bookmark: bookmark,
         ) ??
         RecentEntry(
@@ -234,6 +249,7 @@ class RecentFiles extends _$RecentFiles {
           opened: now,
           pages: pages,
           signed: signed ?? false,
+          locked: locked ?? false,
           bookmark: bookmark,
         );
     final rest = [
@@ -280,6 +296,7 @@ class RecentFiles extends _$RecentFiles {
             pages: sameFile ? file.pages : null,
             pinned: file.pinned || (at?.pinned ?? false),
             signed: sameFile && file.signed,
+            locked: sameFile && file.locked,
             bookmark: bookmark ?? (sameFile ? file.bookmark : null),
           )
         else if (file.path != to)
@@ -300,6 +317,14 @@ class RecentFiles extends _$RecentFiles {
   ]);
 
   Future<void> _save(List<RecentEntry> files) async {
+    final kept = {for (final file in files) file.path};
+    final previews = ref.read(recentPreviewStoreProvider);
+    for (final file in state) {
+      // A file off the list keeps no image of its page.
+      if (!kept.contains(file.path)) {
+        unawaited(previews.remove(file.path).catchError((Object _) {}));
+      }
+    }
     state = List.unmodifiable(files);
     await ref.read(recentFilesStoreProvider).save(state);
   }

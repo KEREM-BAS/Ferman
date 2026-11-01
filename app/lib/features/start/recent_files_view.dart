@@ -14,6 +14,7 @@ import 'package:ferman/l10n/locale_providers.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/recent/recent_files.dart';
+import 'package:ferman/recent/recent_previews.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' show Bidi;
@@ -31,9 +32,9 @@ import 'package:intl/intl.dart' show Bidi;
 /// in the semantics tree (G118). The search matches the file name, ignoring
 /// case in the UI language. Names and folders sort in the UI language's
 /// order through the engine's collator; without an engine, by code points.
-/// The sort and the view last for the session ([recentLayoutProvider]). The
-/// page previews are the boards' placeholder lines until thumbnails come
-/// (B118).
+/// The sort and the view last for the session ([recentLayoutProvider]). Each
+/// card shows its file's first-page preview, kept when the file opened; one
+/// without a preview shows the boards' placeholder lines.
 class RecentFilesView extends ConsumerStatefulWidget {
   /// The files of the start screen.
   const new({super.key});
@@ -614,19 +615,29 @@ class _DropStrip extends StatelessWidget {
   }
 }
 
-/// A page in paper white with the placeholder lines, [width] × [height],
-/// ringed in the default border (`box-shadow: 0 0 0 1px`), with the small
-/// shadow when [raised].
-class _Page extends StatelessWidget {
-  const new({required this.width, required this.height, this.raised = false});
+/// [file]'s page in paper white, [width] × [height], ringed in the default
+/// border (`box-shadow: 0 0 0 1px`), with the small shadow when [raised]:
+/// its first page's preview, the `lock` of a file that needs a password
+/// (G109), or the placeholder lines while there is no preview.
+class _Page extends ConsumerWidget {
+  const new({
+    required this.file,
+    required this.width,
+    required this.height,
+    this.raised = false,
+  });
 
+  final RecentEntry file;
   final double width;
   final double height;
   final bool raised;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = context.ferman;
+    final preview = file.locked
+        ? null
+        : ref.watch(recentPreviewProvider(file.path)).value;
     return Container(
       width: width,
       height: height,
@@ -641,7 +652,22 @@ class _Page extends StatelessWidget {
           ),
         ],
       ),
-      child: const PageLines(),
+      child: switch (preview) {
+        _ when file.locked => Center(
+          child: Icon(
+            IconName.lock,
+            size: theme.density.iconSm,
+            color: theme.colors.iconSecondary,
+          ),
+        ),
+        final png? => Image.memory(
+          png,
+          fit: BoxFit.contain,
+          gaplessPlayback: true,
+          excludeFromSemantics: true,
+        ),
+        null => const PageLines(),
+      },
     );
   }
 }
@@ -815,7 +841,7 @@ class _PinnedCard extends StatelessWidget {
                   child: Row(
                     spacing: theme.space.space3,
                     children: [
-                      const _Page(width: pageWidth, height: pageHeight),
+                      _Page(file: file, width: pageWidth, height: pageHeight),
                       Expanded(
                         child: _NameAndMeta(name: file.name, meta: meta),
                       ),
@@ -929,7 +955,8 @@ class _RecentCardState extends State<_RecentCard> {
                               color: theme.colors.borderSubtle,
                             ),
                           ),
-                          child: const _Page(
+                          child: _Page(
+                            file: file,
                             width: _RecentCard.pageWidth,
                             height: _RecentCard.pageHeight,
                             raised: true,

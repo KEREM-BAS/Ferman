@@ -4,4 +4,4 @@ library;
 
 export 'package:ferman/recent/recent_files_store_io.dart'
     if (dart.library.js_interop) 'package:ferman/recent/recent_files_store_web.dart'
-    show openRecentFilesStore, userHomeDirectory;
+    show openRecentFilesStore, openRecentPreviewStore, userHomeDirectory;

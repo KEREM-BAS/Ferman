@@ -155,6 +155,7 @@ void main() {
           name: 'a.pdf',
           opened: DateTime.utc(2026),
           signed: true,
+          locked: true,
           bookmark: 'Ym9va21hcms=',
         ),
       ];

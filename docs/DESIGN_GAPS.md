@@ -1641,7 +1641,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-4`, `a1-4b`, `a1-4c`, `a1-4-m2`, `a12-2a`; the lock of `a1-8`
 - **Gap or conflict:** Every recent file on the Start boards shows a page preview, and none needs a password; a1-8's payslip, which does, is not in the list. A preview of such a file cannot be drawn without its password, and keeping one would store an image of protected content on disk.
 - **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** Ferman renders and stores no preview of a file that needs a password to open. Its card keeps the page shape in paper white with the `lock` icon centred where the page image would be, the icon a1-8's tab carries, and the rest of the card follows the boards. A file with only an owner password opens without one (a2-10a) and gets its preview as usual.
-- **Status:** Decided; the decision is Proposed with the M2 plan.
+- **Status:** Decided; the decision is Proposed with the M2 plan. Built in W3 (B118): `RecentEntry.locked` marks such a file, its card shows the `lock`, and its preview, if one was kept before it needed a password, is deleted when it opens.
 - **Evidence:** `design/FmStart.dc.html` lines 25 and 29 (the pinned and recent cards with their page previews) and 65–74 (the recent files, none of them encrypted); `design/01 First run and files.dc.html` lines 158 and 394 (a1-8's `tabsLocked`, with the `lock` icon); ROADMAP §6 step 6 ("no preview is stored for a document that needs a password").
 
 <a id="g110"></a>

@@ -10,6 +10,7 @@ import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/open_requests.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/recent/recent_files_start.dart';
+import 'package:ferman/recent/recent_previews.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:ferman/settings/settings_start.dart';
 import 'package:flutter/widgets.dart';
@@ -31,6 +32,7 @@ Future<void> bootstrap([List<String> arguments = const []]) async {
   final settings = await settingsStore.load();
   final recentFilesStore = await openRecentFilesStore();
   final recentFiles = await recentFilesStore.load();
+  final recentPreviewStore = await openRecentPreviewStore();
   final engine = await _startEngine();
   await setUpWindow();
   final window = await _startDesktopWindow();
@@ -41,6 +43,7 @@ Future<void> bootstrap([List<String> arguments = const []]) async {
         initialSettingsProvider.overrideWithValue(settings),
         recentFilesStoreProvider.overrideWithValue(recentFilesStore),
         initialRecentFilesProvider.overrideWithValue(recentFiles),
+        recentPreviewStoreProvider.overrideWithValue(recentPreviewStore),
         homeDirectoryProvider.overrideWithValue(userHomeDirectory()),
         fileAccessProvider.overrideWithValue(const PlatformFileAccess()),
         engineServiceProvider.overrideWithValue(engine),

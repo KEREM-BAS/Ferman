@@ -10,6 +10,7 @@ import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/recent/recent_files.dart';
+import 'package:ferman/recent/recent_previews.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -210,7 +211,12 @@ class DocumentOpener extends _$DocumentOpener {
     switch (opened) {
       case final ShellDocument document:
         show(document);
-        if (document.document case final engine?) _rememberOpened(path, engine);
+        if (document.document case final engine?) {
+          _rememberOpened(path, engine);
+        } else if (document.locked) {
+          // It needs a password now: no image of its page stays (G109).
+          _keepPreview(path, null);
+        }
         return true;
       case EngineException(kind: EngineErrorKind.notFound) when missing != null:
         missing.add(path);
@@ -404,17 +410,46 @@ class DocumentOpener extends _$DocumentOpener {
     error: error,
   );
 
-  /// Remembers the file at [path], opened as [document], with its facts.
-  void _rememberOpened(String path, OpenedDocument document) => _remember(
-    path,
-    pages: document.pages.length,
-    signed: document.signatures.isNotEmpty,
-  );
+  /// Remembers the file at [path], opened as [document], with its facts and
+  /// the preview of its first page, none for a file that needs a password
+  /// (G109).
+  void _rememberOpened(String path, OpenedDocument document) {
+    final locked = document.security?.userPasswordRequired ?? false;
+    _remember(
+      path,
+      pages: document.pages.length,
+      signed: document.signatures.isNotEmpty,
+      locked: locked,
+    );
+    _keepPreview(path, locked ? null : document);
+  }
+
+  /// Renders and keeps the preview of [document] as the file at [path]'s,
+  /// or deletes the file's preview when [document] is null. A preview that
+  /// cannot be made or kept leaves the card's placeholder page.
+  void _keepPreview(String path, OpenedDocument? document) {
+    final store = ref.read(recentPreviewStoreProvider);
+    final engine = ref.read(engineServiceProvider);
+    Future<void> keep() async {
+      if (document == null) {
+        await store.remove(path);
+        return;
+      }
+      final png = await renderRecentPreview(engine, document.id);
+      if (png != null) await store.save(path, png);
+    }
+
+    unawaited(
+      keep()
+          .then((_) => ref.invalidate(recentPreviewProvider(path)))
+          .catchError((Object _) {}),
+    );
+  }
 
   /// Puts the file at [path] first in the recent files, with a bookmark
   /// that reaches it again after a restart (macOS, Q18). The list is kept
   /// for this session when it cannot be stored.
-  void _remember(String path, {int? pages, bool? signed}) {
+  void _remember(String path, {int? pages, bool? signed, bool? locked}) {
     final now = DateTime.now();
     unawaited(
       ref
@@ -429,6 +464,7 @@ class DocumentOpener extends _$DocumentOpener {
                   now: now,
                   pages: pages,
                   signed: signed,
+                  locked: locked,
                   bookmark: bookmark,
                 ),
           )

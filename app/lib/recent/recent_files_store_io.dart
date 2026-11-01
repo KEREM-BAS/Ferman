@@ -2,6 +2,8 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:ferman/recent/recent_files.dart';
+import 'package:ferman/recent/recent_previews.dart';
+import 'package:flutter/foundation.dart';
 import 'package:path_provider/path_provider.dart';
 
 /// The desktop [RecentFilesStore]: `recent_files.json` beside
@@ -101,6 +103,68 @@ final class FileRecentFilesStore implements RecentFilesStore {
 
 /// Opens the recent files' store of this platform.
 Future<RecentFilesStore> openRecentFilesStore() => FileRecentFilesStore.open();
+
+/// The desktop [RecentPreviewStore]: one PNG a file in `recent_previews`
+/// in the app cache directory (ADR 0021), named by a hash of the file's
+/// path, so no file name is kept there. A preview is written to a
+/// temporary file and renamed into place.
+final class FileRecentPreviewStore implements RecentPreviewStore {
+  /// A store in [directory].
+  new(this.directory);
+
+  /// The store in the app cache directory.
+  static Future<FileRecentPreviewStore> open() async => FileRecentPreviewStore(
+    Directory(
+      '${(await getApplicationCacheDirectory()).path}'
+      '${Platform.pathSeparator}recent_previews',
+    ),
+  );
+
+  /// The directory that holds the previews.
+  final Directory directory;
+
+  /// The preview file of [path]: its 32-bit FNV-1a hash in hex.
+  File fileOf(String path) {
+    var hash = 0x811c9dc5;
+    for (final byte in utf8.encode(path)) {
+      hash = ((hash ^ byte) * 0x01000193) & 0xffffffff;
+    }
+    final name = hash.toRadixString(16).padLeft(8, '0');
+    return File('${directory.path}${Platform.pathSeparator}$name.png');
+  }
+
+  @override
+  Future<Uint8List?> load(String path) async {
+    try {
+      final file = fileOf(path);
+      return file.existsSync() ? await file.readAsBytes() : null;
+    } on FileSystemException {
+      return null;
+    }
+  }
+
+  @override
+  Future<void> save(String path, Uint8List png) async {
+    final file = fileOf(path);
+    final temporary = File('${file.path}.tmp');
+    await directory.create(recursive: true);
+    await temporary.writeAsBytes(png, flush: true);
+    await temporary.rename(file.path);
+  }
+
+  @override
+  Future<void> remove(String path) async {
+    try {
+      await fileOf(path).delete();
+    } on PathNotFoundException {
+      // No preview.
+    }
+  }
+}
+
+/// Opens the recent files' preview store of this platform.
+Future<RecentPreviewStore> openRecentPreviewStore() =>
+    FileRecentPreviewStore.open();
 
 /// The user's home directory on macOS and Linux, which the recent files
 /// show as "~"; null on Windows, whose paths keep their drive. Under the
