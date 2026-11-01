@@ -29,7 +29,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// come with search (W3).
 class FmSidebar extends ConsumerWidget {
   /// The sidebar.
-  const new({super.key});
+  const new({super.key, this.width});
+
+  /// The sidebar's width; null takes its FmWindow width. The shell passes
+  /// the width the user dragged it to (B094).
+  final double? width;
 
   /// FmSidebar's heading row: `height: 34px`.
   static const double headingHeight = 34;
@@ -108,7 +112,7 @@ class FmSidebar extends ConsumerWidget {
       explicitChildNodes: true,
       label: l10n.shellSidebar,
       child: Container(
-        width: theme.size.sidebarW,
+        width: width ?? theme.size.sidebarW,
         decoration: BoxDecoration(
           color: theme.colors.surfacePanel,
           border: BorderDirectional(end: line),

@@ -1810,6 +1810,24 @@
           "default": null,
           "notes": "The focus node of the box; one is created when null.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "menu",
+          "type": "List<MenuItem>?",
+          "required": false,
+          "default": null,
+          "notes": "A Menu that opens instead of the list (a2-2's zoom menu).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onMenuSelected",
+          "type": "ValueChanged<MenuItem>?",
+          "required": false,
+          "default": null,
+          "notes": "Called with the activated item of menu.",
+          "declared": false
         }
       ],
       "itemTypes": [

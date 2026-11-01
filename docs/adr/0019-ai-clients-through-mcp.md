@@ -103,6 +103,19 @@ when the step starts goes back to the owner:
 - [G94](../DESIGN_GAPS.md#g94): the Settings section and the connected notice need a board, or are
   built from the existing components and recorded.
 - [DEPENDENCIES.md](../DEPENDENCIES.md): the MCP SDK, licence-checked, in the same change that adds it.
+- **Open, to decide with the owner before M4 step 11 is built: the permission model** (the owner's
+  suggestion of 2026-11-01, [ROADMAP §14](../ROADMAP.md#ideas-to-weigh-later); not part of the
+  details approved above). To weigh: read, comment and edit as separate grants, read-only by
+  default; grants per client and per document; page ranges; parts the client may not change (form
+  fields named by the user, areas the user locks). Two limits to keep in mind:
+  - Permissions narrow what injected instructions in a document's text can make a client do, but do
+    not stop prompt injection: a client allowed to read can still be misled, and what it reads goes
+    to its provider. The edit review, undo and the visible connection stay needed with them.
+  - A signed document is not protected by locking the visible signature area. The engine applies
+    the document's own rules: what each signature covers (its byte range and any later incremental
+    updates), a certification signature's allowed changes (DocMDP `/P`) and field locks (`/Lock`,
+    FieldMDP), and the same warning before editing a signed document as the UI.
+  Enforced in `ferman-api`, never left to the client.
 - [ADR 0015](0015-privacy-and-network.md) and Settings → Privacy: list connected AI clients with the
   other network uses.
 

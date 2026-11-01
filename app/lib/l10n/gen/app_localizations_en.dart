@@ -384,6 +384,27 @@ class AppLocalizationsEn extends AppLocalizations {
   String get shellToolVersionHistory => 'Version history';
 
   @override
+  String get fieldContextMenu => 'Text field';
+
+  @override
+  String get fieldCut => 'Cut';
+
+  @override
+  String get fieldCopy => 'Copy';
+
+  @override
+  String get fieldPaste => 'Paste';
+
+  @override
+  String get fieldSelectAll => 'Select all';
+
+  @override
+  String get shellResizeSidebar => 'Resize sidebar';
+
+  @override
+  String get shellResizePanel => 'Resize panel';
+
+  @override
   String get shellSidebar => 'Sidebar';
 
   @override
@@ -522,6 +543,10 @@ class AppLocalizationsEn extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return 'No language matches “$query”.';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'Search by the language’s own name, its English name or its code.';
 
   @override
   String get onboardingLanguageMissing => 'Missing your language?';
@@ -1136,6 +1161,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'Searching';
+
+  @override
   String findSearching(String page, String pages) {
     return 'Searching · page $page of $pages';
   }
@@ -1169,6 +1197,18 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'Search in document';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'Bookmark: $title';
+  }
+
+  @override
+  String get sidebarSearchNoTextTitle => 'No text to search';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'These pages are scanned images. Recognizing text makes them searchable.';
 
   @override
   String sidebarSearchSummary(
@@ -1331,6 +1371,12 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startBadgeSigned => 'Signed';
 
   @override
+  String get startBadgeForm => 'Form';
+
+  @override
+  String get startBadgeScanned => 'Scanned';
+
+  @override
   String startMissingTitle(String name) {
     return '“$name” can’t be found';
   }
@@ -1488,6 +1534,110 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'Dismiss';
+
+  @override
+  String get repairedTitle => 'Ferman repaired this file.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText problems were fixed in this copy.',
+      one: '1 problem was fixed in this copy.',
+      zero: 'Problems were fixed in this copy.',
+    );
+    return '$_temp0 The original stays as it was until you save.';
+  }
+
+  @override
+  String get repairedDetails => 'Details';
+
+  @override
+  String get repairedSave => 'Save repaired copy…';
+
+  @override
+  String get repairDetailsTitle => 'What Ferman repaired';
+
+  @override
+  String get repairCopyDetails => 'Copy details';
+
+  @override
+  String get repairXrefTitle => 'The cross-reference table was broken';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Rebuilt from the $countText objects found in the file.',
+      one: 'Rebuilt from the 1 object found in the file.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'All $countText pages are present.',
+      one: 'The page is present.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'The file’s trailer was missing';
+
+  @override
+  String get repairTrailerBody =>
+      'Ferman found where the document starts among its objects.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText streams had the wrong length',
+      one: '1 stream had the wrong length',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'Ferman read each one up to its end.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText objects couldn’t be read',
+      one: '1 object couldn’t be read',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'Pages and features that use them may be incomplete.';
+
+  @override
+  String get xfaTitle => 'This is an XFA form, which Ferman can’t show.';
+
+  @override
+  String get xfaBody =>
+      'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'Ferman opened “$name” read-only.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.';
 
   @override
   String get propertiesFile => 'File';
@@ -1726,4 +1876,40 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get openingCancel => 'Cancel';
+
+  @override
+  String get defaultAppTitle => 'Open PDFs with Ferman?';
+
+  @override
+  String get defaultAppDescription =>
+      'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.';
+
+  @override
+  String get defaultAppNow => 'Opens PDFs now:';
+
+  @override
+  String get defaultAppNotNow => 'Not now';
+
+  @override
+  String get defaultAppUse => 'Use Ferman for PDFs';
+
+  @override
+  String get defaultAppDontAsk => 'Don’t ask again';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return '$app opens PDFs on this Mac.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman => 'Ferman opens PDFs on this Mac.';
+
+  @override
+  String attachmentNotSaved(String name) {
+    return '“$name” wasn’t saved';
+  }
+
+  @override
+  String get attachmentWriteFailed =>
+      'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
 }

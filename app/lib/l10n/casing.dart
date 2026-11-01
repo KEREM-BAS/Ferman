@@ -482,14 +482,11 @@ final class _Delta {
 // dart format off
 // The tables below come from the Unicode Character Database 15.0.0
 // (SpecialCasing.txt, UnicodeData.txt, PropList.txt and
-// DerivedCoreProperties.txt), read with Perl 5.38's Unicode::UCD; the Dart
-// VM's mappings were dumped from Dart 3.13.5. Unicode data is covered by
-// the Unicode License v3 (https://www.unicode.org/license.txt), a
-// permissive licence. `dart format off` keeps the inversion lists in rows.
-// The generator is not in the repository yet (BACKLOG.md, "Generator for
-// the casing tables"); do not edit the tables by hand. Until it lands,
-// casing_test.dart (the SpecialCasing lines) and casing_icu_test.dart (ICU
-// results) are the check on them.
+// DerivedCoreProperties.txt); the Dart VM's mappings are Dart 3.13.5's.
+// Unicode data is covered by the Unicode License v3
+// (https://www.unicode.org/license.txt), a permissive licence.
+// `dart format off` keeps the inversion lists in rows. GENERATED — do not
+// edit; run (cd tools/unicode && bash fetch.sh && dart run bin/casing.dart).
 
 /// The unconditional entries of SpecialCasing-15.0.0.txt: code point →
 /// full upper-case and title-case mapping. Their lower-case mappings are
@@ -748,8 +745,7 @@ const List<int> _cased = [
 ];
 
 /// Case_Ignorable (DerivedCoreProperties-15.0.0.txt) in U+0000 to U+052F,
-/// U+1AB0 to U+1AFF, U+1D00 to U+20FF, U+FE00 to U+FE2F and U+FE50 to
-/// U+FF6F.
+/// U+1AB0 to U+1AFF, U+1D00 to U+20FF, U+FE00 to U+FE2F and U+FE50 to U+FF6F.
 const List<int> _caseIgnorable = [
   0x27, 0x28, 0x2E, 0x2F, 0x3A, 0x3B, 0x5E, 0x5F,
   0x60, 0x61, 0xA8, 0xA9, 0xAD, 0xAE, 0xAF, 0xB0,
@@ -765,9 +761,9 @@ const List<int> _caseIgnorable = [
   0xFF0E, 0xFF0F, 0xFF1A, 0xFF1B, 0xFF3E, 0xFF3F, 0xFF40, 0xFF41,
 ];
 
-/// Canonical combining class 230 (UnicodeData-15.0.0.txt) in the mark
-/// blocks U+0300 to U+036F, U+0483 to U+0489, U+1AB0 to U+1AFF, U+1DC0 to
-/// U+1DFF, U+20D0 to U+20FF and U+FE20 to U+FE2F.
+/// Canonical combining class 230 (UnicodeData-15.0.0.txt) in the mark blocks
+/// U+0300 to U+036F, U+0483 to U+0489, U+1AB0 to U+1AFF, U+1DC0 to U+1DFF,
+/// U+20D0 to U+20FF and U+FE20 to U+FE2F.
 const List<int> _marksAbove = [
   0x300, 0x315, 0x33D, 0x345, 0x346, 0x347, 0x34A, 0x34D,
   0x350, 0x353, 0x357, 0x358, 0x35B, 0x35C, 0x363, 0x370,

@@ -3,8 +3,9 @@
 //! as leniently as viewers read them: what cannot be read is skipped, and parsing never fails.
 //!
 //! `usecmap` is recorded, not followed: the caller finds the parent CMap and joins it with
-//! [`CMap::inherit`] under its own depth limit. A range is kept as a range, so `<0000> <FFFF>`
-//! costs no more than one code.
+//! [`CMap::inherit`] under its own depth limit (ferman-core follows embedded `/UseCMap` streams up
+//! to `Limits::max_usecmap_depth`, and ferman-text joins them). A range is kept as a range, so
+//! `<0000> <FFFF>` costs no more than one code.
 // A parser module: offsets and values come from the data (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -277,7 +278,7 @@ fn utf16(bytes: &[u8]) -> String {
 
 /// One token of a CMap's PostScript.
 #[derive(Debug, Clone, PartialEq, Eq)]
-enum Token<'a> {
+pub(crate) enum Token<'a> {
     Hex(Vec<u8>),
     Integer(i64),
     Name(&'a [u8]),
@@ -286,14 +287,15 @@ enum Token<'a> {
     Array(Vec<Vec<u8>>),
 }
 
-/// The tokens of a CMap. Strings, dictionaries' brackets, procedures and real numbers are skipped.
-struct Tokens<'a> {
+/// The tokens of a CMap or a Type1 program's clear text. Strings, dictionaries' brackets,
+/// procedures and real numbers are skipped.
+pub(crate) struct Tokens<'a> {
     data: &'a [u8],
     at: usize,
 }
 
 impl<'a> Tokens<'a> {
-    fn new(data: &'a [u8]) -> Self {
+    pub(crate) fn new(data: &'a [u8]) -> Self {
         Self { data, at: 0 }
     }
 

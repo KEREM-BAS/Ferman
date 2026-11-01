@@ -1,0 +1,5 @@
+name: unicode
+description: Generates the Unicode tables of app/lib/l10n/casing.dart (B004).
+publish_to: none
+environment:
+  sdk: ^3.13.0

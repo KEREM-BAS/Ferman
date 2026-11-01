@@ -188,12 +188,14 @@ class _LanguagePickerState extends ConsumerState<LanguagePicker> {
     final list = SizedBox(
       height: listHeight,
       child: visible.isEmpty
-          ? Center(
+          ? Align(
+              alignment: AlignmentDirectional.topCenter,
               child: Semantics(
                 liveRegion: true,
-                child: Text(
-                  l10n.onboardingLanguageNoMatch(_query.text.trim()),
-                  style: typography.body.copyWith(color: colors.textSecondary),
+                child: EmptyState(
+                  icon: IconName.search,
+                  title: l10n.onboardingLanguageNoMatch(_query.text.trim()),
+                  body: l10n.onboardingLanguageNoMatchBody,
                 ),
               ),
             )

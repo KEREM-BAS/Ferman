@@ -95,6 +95,12 @@ test = false
 doc = false
 
 [[bin]]
+name = "type1"
+path = "fuzz_targets/type1.rs"
+test = false
+doc = false
+
+[[bin]]
 name = "interpreter"
 path = "fuzz_targets/interpreter.rs"
 test = false

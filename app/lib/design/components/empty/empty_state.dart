@@ -8,14 +8,15 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// tile with [icon], the [title] in strong body type and one line of
 /// [body] in caption type, centred at the top of the space it is given.
 ///
-/// The design's optional action button arrives with its first user, the
-/// search that finds no text to search (W3).
+/// An optional [action] sits under the body, as a2-3m's "Recognize text
+/// (OCR)" for a search that finds no text to search.
 class EmptyState extends StatelessWidget {
   /// An empty state.
   const new({
     required this.icon,
     required this.title,
     required this.body,
+    this.action,
     super.key,
   });
 
@@ -41,6 +42,9 @@ class EmptyState extends StatelessWidget {
 
   /// One line on why, or what fills the list.
   final String body;
+
+  /// A small button under [body]: `margin-top:4px` on the 8 px gap.
+  final Widget? action;
 
   @override
   Widget build(BuildContext context) {
@@ -78,6 +82,11 @@ class EmptyState extends StatelessWidget {
               color: theme.colors.textSecondary,
             ),
           ),
+          if (action case final action?)
+            Padding(
+              padding: EdgeInsetsDirectional.only(top: theme.space.space1),
+              child: action,
+            ),
         ],
       ),
     );

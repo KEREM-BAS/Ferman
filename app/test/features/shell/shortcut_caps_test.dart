@@ -94,6 +94,23 @@ final Map<String, ShellCommand> _choiceCommands = {
   _l10n.shellFitWidth: ShellCommand.fitWidth,
   _l10n.shellFitPage: ShellCommand.fitPage,
   _l10n.shellActualSize: ShellCommand.actualSize,
+  // The zoom menu's last item (a2-2).
+  _l10n.shellToolMarqueeZoom: ShellCommand.marqueeZoom,
+};
+
+/// The View row's and the status bar's viewing controls: disabled without
+/// a reason while no document shows.
+const Set<String> _waitForDocument = {
+  'Select',
+  'Hand',
+  'Marquee zoom',
+  'Zoom out',
+  'Zoom',
+  'Zoom in',
+  'Fit',
+  'Page layout',
+  'Previous page',
+  'Next page',
 };
 
 /// The commands that have a control but whose keys no M1 surface shows
@@ -162,6 +179,7 @@ const Set<ShellCommand> _keysOnly = {
   // The window's own commands: the caption buttons and traffic lights give
   // their names without keys, as native windows do.
   ShellCommand.minimizeWindow,
+  ShellCommand.windowMenu,
   ShellCommand.closeWindow,
   ShellCommand.quit,
 };
@@ -260,12 +278,27 @@ void main() {
 
           final tooltips = _tooltipsOf(tester, finder);
           expect(tooltips.length, lessThanOrEqualTo(1), reason: reason);
-          if (!control.enabled) {
+          final waits =
+              (!inRow || mode == FermanMode.view) &&
+              _waitForDocument.contains(control.label);
+          if (!control.enabled && waits) {
+            // The viewing controls wait for a shown document, not a version:
+            // the shell shows sample tabs without one.
+            expect(control.disabledReason, isNull, reason: reason);
+          } else if (!control.enabled) {
             // Every disabled control says why (G10) …
             expect(control.disabledReason, isNotNull, reason: reason);
-            // … in its tooltip, instead of its keys (G87).
+            // … in its tooltip, instead of its keys (G87), under its name
+            // when only its icon shows (B095).
             expect(tooltips, hasLength(1), reason: reason);
-            expect(tooltips.single.message, control.disabledReason);
+            expect(
+              tooltips.single.message,
+              anyOf(
+                control.disabledReason,
+                '${control.label}\n${control.disabledReason}',
+              ),
+              reason: reason,
+            );
             expect(tooltips.single.shortcut, isNull, reason: reason);
           } else if (control.tooltip) {
             expect(tooltips, hasLength(1), reason: reason);
@@ -406,9 +439,21 @@ void main() {
           reason: mode.id,
         );
         // All disabled, the rows give the reason as their tooltip, without
-        // keys (G10).
+        // keys (G10); the viewing tools, waiting for a document, give none.
         final tooltips = _tooltipsOf(tester, menuFinder);
-        expect(tooltips, hasLength(entries.length), reason: mode.id);
+        expect(
+          tooltips,
+          hasLength(
+            entries
+                .where(
+                  (entry) =>
+                      mode != FermanMode.view ||
+                      !_waitForDocument.contains(entry.label),
+                )
+                .length,
+          ),
+          reason: mode.id,
+        );
         for (final tooltip in tooltips) {
           expect(tooltip.message, futureVersion, reason: mode.id);
           expect(tooltip.shortcut, isNull, reason: mode.id);
@@ -419,8 +464,9 @@ void main() {
       // Every command of a tool row reaches the menu at this width …
       expect(shown, rowCommands);
       // … and the zoom and Fit submenus carry the Fit choices' keys, which
-      // no one sees before their parents work in M2 (B034).
-      expect(inSubmenus, _shownFromM2);
+      // no one sees before their parents work in M2 (B034), and the zoom
+      // menu Marquee zoom's (a2-2).
+      expect(inSubmenus, {..._shownFromM2, ShellCommand.marqueeZoom});
     });
   }
 }

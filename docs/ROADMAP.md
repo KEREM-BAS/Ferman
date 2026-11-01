@@ -1732,12 +1732,18 @@ rows say "keys only".
 
 #### Step 1. PDFium and the render thread
 
-- [ ] PDFium is bundled in the macOS, Windows and Linux builds next to the app as
-  [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) describes.
+- [x] PDFium is bundled in the macOS, Windows and Linux builds next to the app as
+  [ARCHITECTURE.md §12](ARCHITECTURE.md#12-platform-integration) describes. Evidence:
+  `app/integration_test/app_test.dart` `reports the versions, and the bundled PDFium is loaded`
+  (the built app on each system); CI's release builds check `libpdfium.dylib` in the macOS app
+  bundle and `libpdfium.so` in the Linux bundle (`.github/workflows/ci.yml`).
 - [ ] The library loads from the bundled location on all three systems; if it is missing, the app
   shows an error screen instead of crashing (integration test). **Proposed (M2 plan):** the error is
   the warning Banner of [G101](DESIGN_GAPS.md#g101) on the start screen, with the open actions
-  disabled and the rest of the app working.
+  disabled and the rest of the app working. Open: loading is checked by the integration test above,
+  and the banner by widget tests (`app/test/features/start/start_screen_test.dart`
+  `a broken PDFium shows the warning banner first`, `a missing engine library shows it too`), but
+  no integration test runs the built app without PDFium.
 - [x] Rendering is deterministic: the same page with the same settings gives byte-identical pixels in
   ten runs on each system. The pixel-diff acceptance in M3 depends on this. Evidence:
   `rendering_is_deterministic_in_ten_runs` (`crates/ferman-render/tests/pdfium.rs`, eight corpus
@@ -1751,22 +1757,40 @@ rows say "keys only".
 
 #### Step 2. Open path and structure
 
-- [ ] Every corpus file opens or fails with the designed state: healthy files fully;
+- [x] Every corpus file opens or fails with the designed state: healthy files fully;
   `kira-tr-damaged` as Repaired with the list of fixes (`a1-9`), its "Save repaired copy…" visible
   and disabled with the future-version tooltip until the writer arrives in M3
   ([G28](DESIGN_GAPS.md#g28)); `truncated` with the can't-open state, likely cause and technical
   details (`a1-9b`); `xfa-visa` read-only with the XFA notice (`a11-7c`). A file that isn't a PDF
   opens as an error tab with the drop zone's error variant and "That file isn't a PDF." (`a1-9c`):
   Open another file… and Show in Finder, with Convert to PDF… disabled until P3
-  ([G107](DESIGN_GAPS.md#g107) names the Windows and Linux labels).
+  ([G107](DESIGN_GAPS.md#g107) names the Windows and Linux labels). Open: the engine side holds
+  (`crates/ferman-core/tests/corpus.rs` `the_damaged_copy_is_repaired_with_its_fixes_listed`,
+  `the_truncated_scan_cannot_be_opened`; `crates/ferman-api/tests/open.rs`
+  `files_that_do_not_open_say_why`), and so do `a1-9b` and `a1-9c`
+  (`app/test/features/start/open_files_test.dart` `a damaged file shows its cause and technical
+  details (a1-9b)`, `a file that is not a PDF gets a1-9c's error tab, with Convert to PDF…
+  disabled`), `a1-9` and `a11-7c` (`app/test/features/shell/document_banners_test.dart` `a repaired
+  document shows a1-9's bar with the engine's repairs, and Save repaired copy… disabled (B103)`,
+  `an XFA-only form opens read-only with a11-7c's bar and Show in folder`; the repair list crosses
+  the bridge, `crates/ferman-api/src/frb.rs` `every_repair_crosses_with_its_count`). Where the
+  build differs from the boards (a11-7c's side panel, a1-9's font row) is in G28.
 - [ ] `payslip-aes256` asks for its password (`a1-8`); the wrong password "eylul2026" shows the
   Turkish keyboard hint with no lockout (`a1-8b`); the right password opens it. RC4 40, RC4 128 and
   AES-128 corpus files open too. Passwords are wiped from memory after key derivation and never
-  logged (test).
-- [ ] When lopdf and PDFium disagree on page count or page sizes, the document opens read-only with a
+  logged (test). Open: all of it holds (`crates/ferman-core/tests/corpus.rs`
+  `payslips_need_their_password`; `crates/ferman-core/src/security.rs`
+  `passwords_and_keys_are_wiped_when_dropped`, `a_password_never_shows_in_debug_output`;
+  `app/test/features/start/open_files_test.dart` `a file that needs a password opens as a locked
+  tab with the unlock dialog (a1-8, a1-8b)`) except the copy PDFium keeps while the document is
+  open, and the UI's string, which Ferman cannot wipe ([Q22](QUESTIONS.md#q22)).
+- [x] When lopdf and PDFium disagree on page count or page sizes, the document opens read-only with a
   notice (approved by the owner on 2026-10-16, [ADR 0004](adr/0004-lopdf-model-pdfium-renderer.md);
   test with a crafted file). **Proposed (M2 plan):** it takes `a1-9d`'s read-only state with the
-  notice of [G102](DESIGN_GAPS.md#g102).
+  notice of [G102](DESIGN_GAPS.md#g102). Open: the engine opens `disagree-pages` read-only
+  (`crates/ferman-api/tests/open.rs` `the_corpus_opens_and_the_parsers_agree`), and the app shows
+  G102's notice (`app/test/features/shell/document_banners_test.dart` `a document the two parsers
+  disagree on opens read-only with G102's notice`).
 - [ ] An owner-password restricted file opens as `a2-10a` draws it: a banner that names the
   restriction, the modes and tools the permissions forbid disabled with the reason (on the Edit tab
   once Edit ships in M3, the future-version tooltip before), and "Unlock with owner password…", which
@@ -1774,153 +1798,319 @@ rows say "keys only".
   [G106](DESIGN_GAPS.md#g106), **Proposed (M2 plan)**). A read-only or permission-denied file on disk
   opens read-only as `a1-9d` draws it: a lock on the tab, Read-only in the status bar, Save disabled
   with the tooltip "Read-only", and a banner whose "Save a copy…" stays disabled until the M3 writer
-  ([G28](DESIGN_GAPS.md#g28)).
-- [ ] A document that runs out of memory closes only its own tab, with `a1-9f`'s toast and Try again,
+  ([G28](DESIGN_GAPS.md#g28)). Open: the restricted file holds
+  (`crates/ferman-api/tests/open.rs`
+  `the_open_carries_the_properties_and_the_owner_unlock_lifts_restrictions`;
+  `app/test/features/shell/document_banners_test.dart` `a restricted document shows the shield and
+  a2-10a's bar; the owner password lifts both, a wrong one asks again (G106)`), but a file that is
+  read-only on disk opens like any other until saving arrives in M3 ([B120](BACKLOG.md#open)).
+- [x] A document that runs out of memory closes only its own tab, with `a1-9f`'s toast and Try again,
   and the other documents keep working ([ADR 0010](adr/0010-error-handling-no-panics.md),
   [G28](DESIGN_GAPS.md#g28)). **Proposed (M2 plan):** this holds where the engine sees the shortage
   coming, through its limits and reservations checked before allocating; memory running out inside
-  PDFium cannot be caught.
+  PDFium cannot be caught. Evidence: `crates/ferman-api/src/facade/error.rs`
+  `open_errors_get_their_kind_and_message` (`OutOfMemory` becomes `errorOutOfMemory`);
+  `app/test/features/start/open_files_test.dart` `a file that runs out of memory gets no tab: a
+  banner on Start, a toast in the editor, each with Try again (a1-9f)`.
 - [ ] Every limit in ARCHITECTURE.md §9.1 has a test that crosses it and gets `ResourceLimit`, not a
-  hang or a crash.
+  hang or a crash. Open: every limit M2's code reaches has a test that crosses it, named in
+  ARCHITECTURE.md §9.1: nesting, decoded size per stream, filter chain, `/Prev` chain, operators per
+  page, form XObject depth, `q` nesting, `usecmap` depth, decoded size per revision and font program
+  size (`crates/ferman-core/src/interpret.rs` tests, `ferman_fonts::type1` tests); Type3 and pattern
+  recursion, time per page and image pixels wait for their code ([B131](BACKLOG.md#open)).
 
 #### Step 3. API, tiles and the viewer
 
 - [ ] `open`, `close`, `unlock`, `page_info`, `open_view`, `request_tiles`, `request_thumbnails`,
   `close_view` and the job calls exist with documented DTOs; the UI imports nothing below
-  `app/lib/engine/`.
-- [ ] Layouts: single page, continuous, two-page spread and book with a cover (`a2-1a` to `a2-1d`).
+  `app/lib/engine/`. Open: the imports hold (`tools/checks` `bridge_imports`, documented DTOs under
+  `missing_docs` in `crates/ferman-api/src/lib.rs`), but the calls ship in the shapes recorded under
+  "Decisions taken during M2" in PROGRESS.md, which wait for the owner's review: no `unlock` or
+  `page_info` (`open` takes the password and carries the pages), one `request_view` for tiles and
+  thumbnails, and `search` as the only job, cancelled through its stream.
+- [x] Layouts: single page, continuous, two-page spread and book with a cover (`a2-1a` to `a2-1d`).
   Spread and book order follow the document's `/ViewerPreferences/Direction`, never the UI language
   ([G32](DESIGN_GAPS.md#g32)): with `/R2L`, page 1 sits on the right and page 2 on its left in every
   interface language, and in book layout a right-to-left cover stands alone on the left (`a2-15`).
-- [ ] Zoom: fit page, fit width, actual size, 50 to 400% steps, marquee zoom, ⌘ or Ctrl with the
+  Evidence: `app/test/features/viewer/viewer_layout_test.dart` `spreads read left to right, or right
+  to left by the document`, `a book’s cover stands alone on the right, or on the left in right to
+  left (a2-1d, a2-15)`; `app/test/features/viewer/document_view_test.dart` `the View row lays pages
+  out and fits them`; `crates/ferman-core/tests/corpus.rs`
+  `the_structure_scan_finds_what_the_generators_wrote` (`report-ar` reads right to left).
+- [x] Zoom: fit page, fit width, actual size, 50 to 400% steps, marquee zoom, ⌘ or Ctrl with the
   scroll wheel and pinch (`a2-2`). While a sharp tile is missing, the best lower bucket or the
   thumbnail is shown scaled and sharpens in place with no layout shift; a page that fails to render
   shows a placeholder with a plain message and Try again, and the rest of the document keeps working
-  (`a2-13`, [G30](DESIGN_GAPS.md#g30)).
-- [ ] Status bar: page entry ("Page 3 of 64" accepts a typed number or page label; ⌘G or Ctrl+G
+  (`a2-13`, [G30](DESIGN_GAPS.md#g30)). Evidence: the fits, steps, marquee, wheel and the failed
+  page have tests (`app/test/features/viewer/document_view_test.dart` `the zoom field opens a2-2’s menu:
+  the fits with their keys, the steps and Marquee zoom`, `Ctrl with the wheel zooms around the
+  pointer, the wheel scrolls`, `the Hand tool drags the pages; Marquee zoom zooms into a rectangle
+  and says how far`, `a page that fails shows a2-13’s placeholder, and Try again asks for it
+  again`), and so do the trackpad's pinch and the lower bucket (`the trackpad pinch zooms around the
+  pointer, its pan scrolls`, `a page shows another bucket’s tiles, scaled, until its sharp tiles
+  arrive (G30)`); the touchscreen's pinch is P5 ([B126](BACKLOG.md#open)).
+- [x] Status bar: page entry ("Page 3 of 64" accepts a typed number or page label; ⌘G or Ctrl+G
   focuses it, `a2-13`), zoom field, inline task progress. With a fit mode, the tool row's zoom field
   names the mode and the status bar shows the zoom it gives (Fit width and 113% in `a2-13`).
-- [ ] Settings → General enables the default layout and zoom, "Reopen documents" and the "Paper
+  Evidence: `app/test/features/viewer/document_view_test.dart` `Ctrl+G opens the page field, which
+  takes numbers and labels`, `the status bar zooms and shows the zoom a fit gives`;
+  `app/test/features/viewer/find_bar_test.dart` `a running search shows in the status bar, whose
+  Cancel stops it (B124)`.
+- [x] Settings → General enables the default layout and zoom, "Reopen documents" and the "Paper
   white" and "Dimmed" page options (`a11-1`). The M1 build keeps them disabled, although `a11-1-m1`
   draws them enabled ([G108](DESIGN_GAPS.md#g108)). "Dark reading mode" stays disabled until P2.
   **Proposed (M2 plan), [G103](DESIGN_GAPS.md#g103):** the default-app line and button work on
   macOS; on Windows the line keeps `a11-1w-m1`'s wording and on Linux `a11-1-m1`'s, and the button
   stays disabled until the M5 installer registers Ferman (Windows) or packaging installs it (Linux).
+  Evidence: `app/test/features/settings/settings_screen_test.dart` `page look, layout and zoom are
+  stored (B078, B035, B034)`, `Reopen documents from last time is on, and turning it off is stored
+  (B079)`, `only Dark reading mode and the default app wait`;
+  `app/test/features/viewer/viewer_state_test.dart` `a new view takes the layout and zoom of
+  Settings › General`; `app/test/features/start/default_app_prompt_test.dart` `Settings › General
+  on macOS names the app and makes Ferman the default; then it says Ferman opens PDFs`.
 
 #### Step 4. Sidebar
 
-- [ ] Pages: thumbnails with page labels and the badge legend (`a2-3p`, `f5`); arrow keys move focus;
-  badges for later features are not shown until those features exist.
-- [ ] Outline: nested bookmarks, expand and collapse, the current section tinted, click to navigate
-  (`a2-3o`, `a2-3a`, `a2-3x`).
+- [x] Pages: thumbnails with page labels and the badge legend (`a2-3p`, `f5`); arrow keys move focus;
+  badges for later features are not shown until those features exist. Evidence:
+  `app/test/features/shell/shell_sidebar_tabs_test.dart` `Pages shows a thumbnail of every page and
+  goes to one`, `Pages: the arrow keys move focus between thumbnails, Enter goes to the focused
+  one`.
+- [x] Outline: nested bookmarks, expand and collapse, the current section tinted, click to navigate
+  (`a2-3o`, `a2-3a`, `a2-3x`). Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart`
+  `Outline nests, folds, tints the current section and goes`; `crates/ferman-api/tests/open.rs`
+  `the_open_carries_the_sidebar_lists` (`tez-tr`'s nested outline).
 - [ ] Attachments: list with name, size and date; "Save attachment as…" writes the embedded file to a
   location the user picks through the native save picker (`a2-3b`,
   [ADR 0018](adr/0018-native-file-pickers.md), Accepted with [Q07](QUESTIONS.md#q07)). Embedded files
   are never opened automatically. **Proposed (M2 plan):** the write is atomic, and under the macOS
   sandbox it goes through the system's replacement directory, the mechanism
-  [Q18](QUESTIONS.md#q18) asks M2 to prove.
+  [Q18](QUESTIONS.md#q18) asks M2 to prove. Open: the list and the save are built and tested
+  (`app/test/features/shell/shell_sidebar_tabs_test.dart` `Attachments, Layers and Signatures list
+  the document`, `Save attachment as… writes the file where the save panel says; under the sandbox
+  through the staging directory (B110)`; `crates/ferman-core/src/save.rs`
+  `writes_a_new_file_and_replaces_an_old_one_leaving_no_temp_file`,
+  `a_failed_write_leaves_the_target_and_no_temp_file`,
+  `with_a_staging_folder_the_verified_temp_file_stays_there`; `crates/ferman-core/src/document.rs`
+  `an_attachment_is_read_through_its_filters_and_a_missing_one_is_an_error`), but the save under
+  the real macOS sandbox, which Q18 asks M2 to prove, is a pending owner check (PROGRESS.md,
+  "Pending owner checks (M2)").
 - [ ] Layers (in M2 since [Q10](QUESTIONS.md#q10)): optional content groups listed with show and
-  hide; hiding a layer re-renders without it (`a2-3c`).
-- [ ] Signatures: each signature in the neutral state `a2-14` draws: the signer's name as written in
+  hide; hiding a layer re-renders without it (`a2-3c`). Open: it works for most documents
+  (`crates/ferman-api/tests/open.rs` `showing_and_hiding_a_layer_renders_the_page_again`;
+  `app/test/features/shell/shell_sidebar_tabs_test.dart` `the eye buttons show and hide layers, and
+  every view asks for its pixels again`), but not in a repaired document or one opened with its
+  password, whose eye buttons stay disabled ([B111](BACKLOG.md#open), [Q22](QUESTIONS.md#q22)).
+- [x] Signatures: each signature in the neutral state `a2-14` draws: the signer's name as written in
   the file, the page, no green and no check, and the line that checking comes in a future version
-  ([G31](DESIGN_GAPS.md#g31)).
-- [ ] Empty states for every tab, from one EmptyState component (`a2-3m`, [G29](DESIGN_GAPS.md#g29)).
+  ([G31](DESIGN_GAPS.md#g31)). Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart`
+  `Attachments, Layers and Signatures list the document`; `crates/ferman-api/tests/open.rs`
+  `the_open_carries_the_sidebar_lists` (`nda-en`'s signature, `kira-tr`'s empty fields).
+- [x] Empty states for every tab, from one EmptyState component (`a2-3m`, [G29](DESIGN_GAPS.md#g29)).
+  Evidence: `app/test/features/shell/shell_sidebar_tabs_test.dart` `empty tabs say so with one
+  EmptyState`.
 
 #### Step 5. Text extraction and search
 
 - [ ] For every generated corpus file, extracted text equals the generator's source text after NFC
-  normalisation (100%), including `report-ar` in logical order and `letter-ja-vertical`.
-- [ ] Turkish folding: "kira" finds "KİRA" and "Kira" in `kira-tr`; "ılık" finds "ILIK"; "istanbul"
-  finds "İSTANBUL" (`a2-4a`).
-- [ ] "Ignore accents and dotted/dotless i" (`a2-4a`) is on by default for every document, whatever
+  normalisation (100%), including `report-ar` in logical order and `letter-ja-vertical`. Open:
+  `crates/ferman-text/tests/corpus.rs` `every_generated_file_reads_as_its_source_text` passes for
+  every page but four of `report-ar` (its `KNOWN` list), whose right-to-left lines are drawn in an
+  order the bidi algorithm does not give back ([B112](BACKLOG.md#open), [Q25](QUESTIONS.md#q25)).
+- [x] Turkish folding: "kira" finds "KİRA" and "Kira" in `kira-tr`; "ılık" finds "ILIK"; "istanbul"
+  finds "İSTANBUL" (`a2-4a`). Evidence: `crates/ferman-text/src/search.rs`
+  `the_defaults_fold_turkish_and_accents_for_every_document`,
+  `without_ignoring_accents_turkish_case_folding_still_holds`; `crates/ferman-text/tests/corpus.rs`
+  `the_roadmap_queries_find_their_words` ("KİRA" and "Kira" in `kira-tr`).
+- [x] "Ignore accents and dotted/dotless i" (`a2-4a`) is on by default for every document, whatever
   its language, and the last sentence of its description reads "On by default."
   ([G61](DESIGN_GAPS.md#g61)). With it on, "i" finds "İ", "ı" and "î"; "c" finds "ç"; "kira" finds
-  "KİRA"; "sozlesme" finds "sözleşme".
-- [ ] With default settings, "muller" finds "Müller" in `mietvertrag-de` and "istanbul" finds
-  "İSTANBUL" in `kira-tr` ([G61](DESIGN_GAPS.md#g61)).
-- [ ] Arabic words in `report-ar` and German words with ß in `mietvertrag-de` are found.
-- [ ] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
+  "KİRA"; "sozlesme" finds "sözleşme". Evidence: `crates/ferman-text/src/search.rs`
+  `the_defaults_fold_turkish_and_accents_for_every_document`;
+  `app/test/features/viewer/find_bar_test.dart` `Ctrl+F opens the bar with its options; typing
+  searches and Enter steps through the matches` (the default options are sent);
+  `findIgnoreAccentsBody` in `app/lib/l10n/app_en.arb`.
+- [x] With default settings, "muller" finds "Müller" in `mietvertrag-de` and "istanbul" finds
+  "İSTANBUL" in `kira-tr` ([G61](DESIGN_GAPS.md#g61)). Evidence: `crates/ferman-text/tests/corpus.rs`
+  `the_roadmap_queries_find_their_words` ("Müller" in `mietvertrag-de`; `kira-tr` writes the city
+  "İstanbul", which "istanbul" finds), and "İSTANBUL" in `crates/ferman-text/src/search.rs`
+  `the_defaults_fold_turkish_and_accents_for_every_document`.
+- [x] Arabic words in `report-ar` and German words with ß in `mietvertrag-de` are found. Evidence:
+  `crates/ferman-text/tests/corpus.rs` `the_roadmap_queries_find_their_words` ("الإسكان" in
+  `report-ar`, "Gleimstraße" in `mietvertrag-de`); `crates/ferman-text/src/search.rs`
+  `arabic_matches_without_its_marks_and_presentation_forms`.
+- [x] The counter is a live region ("1 of 7"); Enter and Shift+Enter step through matches; "Show all"
   moves results to the sidebar grouped by page with snippets (`a2-4b`, `a2-3e`). The search states
   exist ([G29](DESIGN_GAPS.md#g29)): still searching, with the page reached, a bar, Cancel (Esc) and
   matches counted and highlighted as they come in (`a2-4c`); no results, saying what was searched and
   how, with "No results" in the danger text colour and the query kept selected (`a2-4d`); and no text
-  layer, with OCR disabled until P3 (`a2-3m`).
+  layer, with OCR disabled until P3 (`a2-3m`). Evidence:
+  (`app/test/design/components/editing/search_replace_bar_test.dart` `semantics: a named group with
+  a live count`, `Enter in the find field: next; Shift+Enter: previous`, `no results: danger count,
+  previous and next disabled`; `app/test/features/viewer/find_bar_test.dart` `Alt+Enter shows every
+  result in the sidebar, grouped by page; a click goes to one, and the arrow keys move from it`, `a
+  search that finds nothing says what it searched (a2-4d)`, `a document without text says so in
+  the sidebar, with Recognize text for a future version (a2-3m)`, `a long search shows its
+  progress under the bar, counting what it found; Esc cancels it, then closes the bar (a2-4c)`; the
+  a2-4d test also checks the query stays selected).
 - [ ] "Look in" (`a2-4a`) offers Page text and Comments (both on by default), Form fields and
   Bookmarks; each scope searches only its own content: the page text, the contents of annotations
   already in the file, form field values, and bookmark titles. **Proposed (M2 plan):** results from
-  comments, fields and bookmarks join the group of their page ([G110](DESIGN_GAPS.md#g110)).
+  comments, fields and bookmarks join the group of their page ([G110](DESIGN_GAPS.md#g110)). Open:
+  Page text and Bookmarks work (`crates/ferman-api/tests/open.rs`
+  `a_search_can_look_in_the_bookmarks`; `app/test/features/viewer/find_bar_test.dart` `Look in ›
+  Bookmarks searches the bookmarks too; comments and form fields wait (B114)`); Comments and Form
+  fields stay disabled, proposed for M4 ([B128](BACKLOG.md#open), [Q24](QUESTIONS.md#q24)).
 - [ ] **Proposed budget:** first match on `long-500` in under 200 ms and all matches counted in under
-  1 s once indexed; indexing at least 100 pages per second.
+  1 s once indexed; indexing at least 100 pages per second. Open: met on the owner's MacBook Pro
+  (Apple M5 Pro, not R1 or R2) on 2026-11-01, `cargo bench -p ferman-text --bench search`: 500
+  pages read in 224 ms (2,226 pages a second), found in 51 ms, the first page's matches in 4.0 ms
+  (PROGRESS.md, Measurements); R1 and R2 are an owner check.
 
 #### Step 6. Files, tabs and properties
 
-- [ ] "Open file…", "Open a PDF" and ⌘O or Ctrl+O show the OS-native open picker, filtered to PDF,
+- [x] "Open file…", "Open a PDF" and ⌘O or Ctrl+O show the OS-native open picker, filtered to PDF,
   with several files at once; each chosen file opens as a new active tab (`a1-13`,
   [G26](DESIGN_GAPS.md#g26), [ADR 0018](adr/0018-native-file-pickers.md), Accepted with
-  [Q07](QUESTIONS.md#q07)).
-- [ ] Drag and drop onto the start screen (the whole window) opens each PDF in a new tab (`a1-6`).
+  [Q07](QUESTIONS.md#q07)). Evidence: `app/test/features/start/open_files_test.dart` `Open file…
+  opens each chosen PDF in a new active tab (a1-13)`; the PDF filter in
+  `app/lib/platform/file_picker_service.dart`.
+- [x] Drag and drop onto the start screen (the whole window) opens each PDF in a new tab (`a1-6`).
   **Proposed (M2 plan), [G105](DESIGN_GAPS.md#g105):** so does a drop onto a document window (its
   canvas or its tab strip), which no board draws, and `a1-6`'s "Combine into one PDF" target stays
   visible and disabled until M4. **Proposed (M2 plan):** a file that isn't a PDF shows the note
   "Can't open yet" with the future-version tooltip while it is dragged, and once it arrives it gets
-  `a1-9c`'s error tab ([G11](DESIGN_GAPS.md#g11), [G28](DESIGN_GAPS.md#g28)).
+  `a1-9c`'s error tab ([G11](DESIGN_GAPS.md#g11), [G28](DESIGN_GAPS.md#g28)). Evidence:
+  `app/test/features/start/open_from_system_test.dart` `a drop on Start opens each file in a new tab
+  and shows the editor` (the editor takes drops too), `files dragged over the window show a1-6
+  without a count, and leaving hides it`, `a dropped file that does not open gets its error tab`.
+  The "Can't open yet" note while dragging cannot be drawn, since the drop package names the files
+  only when they are dropped ([G117](DESIGN_GAPS.md#g117), Decided).
 - [ ] "Open with" and double-click: macOS open-document events and a command-line path on Windows and
   Linux open a tab in the running instance; a second launch forwards its paths; a file already open
   focuses its tab; a cold launch with a file skips Start and opens the document (`a1-13`,
   [G25](DESIGN_GAPS.md#g25)). **Proposed (M2 plan, [ADR 0021](adr/0021-open-from-the-os.md)):**
   Windows forwards through a named pipe per user, and Linux through GApplication's D-Bus uniqueness,
-  with every launch its own instance when there is no session bus.
-- [ ] Recent files: grid and list (`a1-4`, `a1-4b`, `a1-4c`) and the M2 build of the start screen
+  with every launch its own instance when there is no session bus. Open: the app's side has tests
+  (`app/test/features/start/open_from_system_test.dart` `a cold launch with files opens them before
+  the first frame shows, and skips Start (G25)`, `a later request opens in a new tab, and a file
+  asked for twice at once opens once`; `app/test/platform/open_requests_test.dart`), but the
+  runners' events and forwarding (macOS, the named pipe, D-Bus) have none and are a pending owner
+  check on all three systems (PROGRESS.md, "Pending owner checks (M2)").
+- [x] Recent files: grid and list (`a1-4`, `a1-4b`, `a1-4c`) and the M2 build of the start screen
   (`a1-4-m2`), pinned files, search, sort with Turkish collation, "Clear list", stored only on this
   device; a moved or deleted file opens `a1-9e`'s dialog with "Remove from list" and "Locate…", which
   opens the system open panel and updates the entry ([G28](DESIGN_GAPS.md#g28)). **Proposed (M2
   plan):** no preview is stored for a document that needs a password ([G109](DESIGN_GAPS.md#g109)),
   and the list is a Dart store in the app support directory whose entries carry macOS
-  security-scoped bookmarks ([ADR 0021](adr/0021-open-from-the-os.md)).
-- [ ] Default-app prompt (`a1-3`): macOS asks the system, which asks the user. **Proposed (M2 plan),
+  security-scoped bookmarks ([ADR 0021](adr/0021-open-from-the-os.md)). Evidence:
+  `app/test/features/start/recent_files_view_test.dart` `recent files take the drop zone’s place
+  (a1-4-m2): the drop strip, pinned and recent cards, the note and Clear list`, `the list view
+  (a1-4c) shows the location, pages and time`, `the search keeps the names that match, ignoring
+  Turkish case`, `Name sorts through the engine’s collator; Last opened is the stored order`, `a
+  recent file that is gone asks what to do (a1-9e); Remove from list drops it`, `Locate… points the
+  entry to the file chosen and opens it`, `a file opened keeps a bookmark, and a recent file opens
+  through it, following a move and a renewed bookmark (Q18)`;
+  `app/test/recent/recent_files_test.dart` `round-trips the list in its versioned file`;
+  `app/test/recent/recent_previews_test.dart` `a file that needs a password keeps no preview, loses
+  an old one and shows the lock on its card (G109)`.
+- [x] Default-app prompt (`a1-3`): macOS asks the system, which asks the user. **Proposed (M2 plan),
   [G103](DESIGN_GAPS.md#g103):** on Windows the button opens Settings → Default apps only once
   Ferman is registered for PDF files, which the M5 installer does, and on Linux it waits for
   packaging in M5; until then it is disabled with the future-version tooltip, and the first-run
-  prompt shows only where the button can act.
+  prompt shows only where the button can act. Evidence:
+  `app/test/features/start/default_app_prompt_test.dart` `a1-3 names the app that opens PDFs; Use
+  Ferman for PDFs asks the system and never asks again (B080)`, `nothing asks when Ferman already
+  opens PDFs, the system does not say, or it was turned down`;
+  `app/test/features/settings/settings_screen_test.dart` `only Dark reading mode and the default app
+  wait`. Windows and Linux are [B101 and B102](BACKLOG.md#open).
 - [ ] Large files: `imar-2400` shows page 1 at once, then the indexing card and banner ("Page 840 of
   2,400 · about 20 seconds left"); search and thumbnails turn on when indexing ends (editing joins
   them in M3); Cancel closes the tab (`a1-7`). **Proposed (M2 plan), [G104](DESIGN_GAPS.md#g104):**
   this applies above the progressive-open threshold (more than 1,000 pages, or an indexing estimate
-  over 2 s); below it, thumbnails come from PDFium without waiting for indexing.
-- [ ] Tabs: 20 documents open at once; the overflow menu works (`a1-10`); each tab keeps its scroll,
+  over 2 s); below it, thumbnails come from PDFium without waiting for indexing. Open: `imar-2400`
+  opens in about 30 ms with nothing left to index, so the banner and the 1,000-page rule are not
+  built (PROGRESS.md session log, 2026-11-01); an open still running after 0.5 s shows `a1-7`'s card
+  without its pages-read detail, and Cancel or Esc closes the tab
+  (`app/test/features/shell/progressive_open_test.dart` `a slow open shows its tab with a spinner and
+  a1-7 card, then the document`, `Esc cancels: the tab closes, Start shows again and the late
+  document closes in the engine`); the detail waits for progress from the engine
+  ([B123](BACKLOG.md#open)).
+- [x] Tabs: 20 documents open at once; the overflow menu works (`a1-10`); each tab keeps its scroll,
   zoom, sidebar tab and search after switching (IndexedStack test; **Proposed, [Q23](QUESTIONS.md#q23):**
-  the state kept per document by its id, and the test switches tabs).
+  the state kept per document by its id, and the test switches tabs). Evidence:
+  `app/test/features/shell/tab_overflow_test.dart` `twenty documents fit the title bar: the active
+  one shows and the rest go behind "+N" (a1-10)`, `"+N" lists the hidden documents with their keys;
+  picking one shows it (a1-10)`; `app/test/features/start/open_files_test.dart` `each tab keeps its
+  layers, view and search`; `app/test/features/shell/shell_sidebar_tabs_test.dart` `each document
+  keeps its sidebar tab, folds and scroll, also while the sidebar is hidden (B091)`. Q23 is still
+  open.
 - [ ] Document properties (`a2-7`): Summary, Fonts (embedded, subset, not embedded with the font shown
   instead) and Security in the Summary tab's layout: the encryption method, whether a password is
   needed to open, and each permission, Allowed in green and Not allowed neutral (`a2-10b`,
   [G27](DESIGN_GAPS.md#g27)). **Proposed (M2 plan):** a document with scripts says so in an info
-  banner and in a properties row ([G100](DESIGN_GAPS.md#g100)).
-- [ ] Dates, numbers and percentages follow the region, never the UI language
+  banner and in a properties row ([G100](DESIGN_GAPS.md#g100)). Open: Summary, Fonts, Security and
+  the scripts banner and row have tests (`app/test/features/shell/document_properties_test.dart`
+  `Ctrl+D shows a2-7: the summary, the fonts and the Advanced tab's scripts row; Done closes it`,
+  `a restricted document's Security tab lists each permission and hands over to the owner-password
+  dialog (a2-10b)`; `app/test/features/shell/document_banners_test.dart` `a document with scripts
+  says so until dismissed, also after another tab showed (G100)`; `crates/ferman-api/tests/open.rs`
+  `the_open_carries_the_properties_and_the_owner_unlock_lifts_restrictions`), but a font that is not
+  embedded does not name the font shown instead until M3's font substitution
+  ([B122](BACKLOG.md#open)).
+- [x] Dates, numbers and percentages follow the region, never the UI language
   ([G34](DESIGN_GAPS.md#g34)): the `RegionFormat` tests (`app/lib/l10n/format.dart`) take the six
   regions of `a12-0` (tr-TR, en-GB, en-US, de-DE, ar-SA, ar-AE) as their oracle, and the zoom field
-  and the status bar write the Turkish percent sign first (%100).
+  and the status bar write the Turkish percent sign first (%100). Evidence:
+  `app/test/l10n/format_test.dart` group "every listed region" (its CLDR 48 table,
+  `app/test/l10n/cldr_formats.dart`, has `a12-0`'s dates, times and numbers for the six regions) and
+  group "percentages (G34, G74)"; `app/test/features/shell/shell_screen_test.dart` `the status bar
+  shows pages, zoom and the save state in the region's formats`;
+  `app/test/features/settings/settings_screen_test.dart` `the zoom option writes 100% as the region
+  does (G34)`.
 
 ### Acceptance criteria
 
-- [ ] Steps 1 to 6 accepted.
+- [ ] Steps 1 to 6 accepted. Open: some step boxes above are still open.
 - [ ] **First page visible in under 1 s** for `long-500` on R1 and R2, cold engine caches (brief §5);
-  the engine part is guarded by a criterion benchmark on every pull request.
+  the engine part is guarded by a criterion benchmark on every pull request. Open: R1 and R2 are an
+  owner check. On the owner's MacBook Pro (Apple M5 Pro, not R1 or R2) the engine's open and first
+  tile take 2.71 ms (`cargo bench -p ferman-render --bench first_page`, 2026-10-20) and 2.9 ms in
+  the guard's cold run (2026-11-01; PROGRESS.md, Measurements); CI's Benchmarks job runs the guard
+  (`.github/workflows/ci.yml`, `bench`), and `app/integration_test/app_test.dart` has `M2 budgets:
+  the first page of 500 pages` for the owner's run.
 - [ ] **60 fps**: frame build plus raster under 16.6 ms at the 99th percentile while scrolling through
-  `long-500` and pinching from 25% to 800%, on R1 and R2 in profile mode (brief §5).
+  `long-500` and pinching from 25% to 800%, on R1 and R2 in profile mode (brief §5). Open: not
+  measured yet; R1 and R2 are an owner check.
 - [ ] **Proposed budgets** measured and recorded: first 12 thumbnails within 300 ms after the first
   page; `imar-2400` first page under 1.5 s and indexing under 25 s; engine memory for idle `long-500`
-  under 400 MB, tile cache excluded.
-- [ ] Fuzz targets exist and run clean: object lexer and parser; cross-reference and trailer,
+  under 400 MB, tile cache excluded. Open: not measured on R1 and R2 (an owner check); on the owner's
+  Mac only ferman-core's open is recorded, 15.5 ms for `imar-2400` and 2.8 ms for `long-500`
+  (PROGRESS.md, Measurements).
+- [x] Fuzz targets exist and run clean: object lexer and parser; cross-reference and trailer,
   including repair; each stream filter (Flate, LZW, ASCII85, ASCIIHex, RunLength); encryption and
   password handling; content-stream lexer; interpreter (extraction path); CMap and ToUnicode; Type1
   parser; "open arbitrary bytes" through the facade. Each runs 60 s on every pull request and 1 hour
-  nightly (**Proposed** durations); every crash becomes a corpus regression file.
+  nightly (**Proposed** durations); every crash becomes a corpus regression file. Evidence: `fuzz/`
+  has thirteen targets (`syntax_object`, `xref_repair`, the five `filter_*`, `security_handler`,
+  `content_lexer`, `interpreter`, `cmap`, `type1`, `open_document`), each run for 60 s by CI's fuzz
+  job and for an hour by `.github/workflows/fuzz-nightly.yml` (on `main`, from the merge on).
 - [ ] `tests/corpus/README.md` records source, licence, SHA-256 and purpose for every file; the
   real-world set covers Word, Google Docs, LibreOffice, LaTeX, scanned, forms, signed, encrypted and
-  damaged files.
-- [ ] Goldens for every M2 screen in light and dark × en, tr and ar (S4), including a dark View-mode
-  window ([G17](DESIGN_GAPS.md#g17)).
+  damaged files. Open: every generated file has its row, checked by `tools/corpus` `check` in CI,
+  but no real-world file has been added yet ([ADR 0020](adr/0020-test-corpus.md)).
+- [x] Goldens for every M2 screen in light and dark × en, tr and ar (S4), including a dark View-mode
+  window ([G17](DESIGN_GAPS.md#g17)). `app/test/goldens/m2_screens_golden_test.dart` draws
+  the M2 screens in light and dark × en, tr and ar, the viewer in dark included: the viewer and
+  each sidebar tab, search with its progress (`a2-4c`) and no results (`a2-4d`), the properties,
+  restricted, repaired (`a1-9`) and XFA-only (`a11-7c`) documents, the unlock dialog, a damaged
+  file (`a1-9b`), a file that is not a PDF, the recent files, the default-app prompt and the start
+  screen without PDFium (G101). The first twelve have their images from CI's Linux run (`a18e5c4`),
+  the newer six from the Linux run on `64f2115`. `a1-7`'s card has none: its indeterminate bar never
+  stops, which the golden helper refuses.
 - [ ] No network connection is made by any M2 build (test with outbound traffic blocked and logged).
+  Open: the CI job that runs the build under strace waits for the owner, since strace is LGPL
+  (PROGRESS.md, "New dependencies" of the M2 plan).
 - [ ] Standard gates S1 to S9.
 
 ### Design gaps to settle in M2
@@ -1949,12 +2139,16 @@ labels, [G109](DESIGN_GAPS.md#g109) a recent file that needs a password,
 
 E1 to E8, plus:
 
-- [ ] The PDFium `licenses/` folder and the packager's `LICENSE` are in the app bundle on all three
-  systems and in the notices.
+- [x] The PDFium `licenses/` folder and the packager's `LICENSE` are in the app bundle on all three
+  systems and in the notices. Evidence: the files ship as assets under `app/assets/licenses/pdfium/`
+  (listed in `app/pubspec.yaml`); `app/test/app/licenses_test.dart` `covers the PDFium archive, the
+  six Plex families and Lucide`, `makes LicenseRegistry yield every bundled licence text`.
 - [ ] Measured budgets are in PROGRESS.md; the CI calibration factor per runner is recorded
-  ([ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets)).
+  ([ARCHITECTURE.md §14](ARCHITECTURE.md#14-performance-budgets)). Open: PROGRESS.md records the
+  owner's Mac, not R1 and R2, and no calibration factor is recorded yet.
 - [ ] If the single render thread misses a budget, the helper-process option is assessed and the
-  result recorded in [ADR 0009](adr/0009-threading-and-jobs.md).
+  result recorded in [ADR 0009](adr/0009-threading-and-jobs.md). Open: no budget measured so far
+  is missed, but R1 and R2 are not measured yet.
 
 ## 7. M3: edit text core
 
@@ -3050,6 +3244,22 @@ Drawn features that take the nearest roadmap item (also part of [Q10](QUESTIONS.
 | Scanner and camera import in Organize | `a6-1` | P3, with Scan to PDF |
 | Local-network scanner discovery and phone pairing | `a7-4` | not built: Scan to PDF offers only the system's scanners, and pairing is reconsidered with the mobile apps in P5 ([Q06](QUESTIONS.md#q06)) |
 | OCSP and CRL revocation lookups | `a11-1h`, `a11-1e`, the signing boards | P3, off until first use, with their own switch in Settings → Privacy ([Q06](QUESTIONS.md#q06)); until then the drawn row and switch stay visible but disabled ([G51](DESIGN_GAPS.md#g51)) |
+
+### Ideas to weigh later
+
+The owner suggested these on 2026-11-01 for later releases. They are notes, not approved scope or
+decisions: none is in a milestone's deliverables, none has a BACKLOG row or a registry `Feature`,
+and no board draws them (the nearest boards are listed). Each is weighed at the start of the phase
+named here. Overlap with planned work is not a reason to assume it is cheap: that phase plans the
+user flows, the design gaps and the tests of its own.
+
+| Idea | Nearest planned work and boards | Weighed at | Notes for that phase |
+|---|---|---|---|
+| Fine-grained MCP permissions | M4 step 11, [ADR 0019](adr/0019-ai-clients-through-mcp.md) | before M4 step 11 is built | an open decision of ADR 0019 (its Follow-up), not part of the approved details |
+| Matching edits elsewhere: after a name, date or similar is edited, show the other places it appears and offer to change them together | P2 find and replace with per-match preview (`a3-7`), M3 edit transactions | P2, as part of find and replace | never changes anything without the per-match preview; Turkish suffixes, dotted and dotless i, words broken across lines and other date formats need their own fixtures and tests |
+| Check before sharing: leftover placeholders, outdated terms the user lists, empty required fields, open comments, text kept after an overflow warning | P2 remove hidden information and the security report (`a8-3`, `a8-4`); M3 overflow "Keep and warn"; M4 comments and forms | P2 for the first checks, P4 for user profiles | a check of content, kept apart from print preflight (`a9-4b`, PDF/X), which checks print output; "outdated" comes only from the user's own lists |
+| Templates from a PDF: mark name, date, address or amount as variables and make new documents by filling a form | P4 form authoring and field detection (`a5-8`, `a5-8b`), P4 batch (`a9-5`), P2 find and replace | P4 | two ways to weigh: real form fields (portable) or text replaced through edit transactions (keeps the look, needs the overflow choices for each value); filling from a table belongs with batch |
+| Document packages: gather PDFs, images and other files for a submission, check what is missing, names, formats and sizes, export as a folder or ZIP | M4 combine and compress (`a6-3`, `a9-1`), P3 conversion, P4 batch (`a9-5`) | P4 or later | the least tied to editing PDFs; an office's rules (sizes, formats) would live in the user's profiles, not in code |
 
 ## 15. Risk register
 

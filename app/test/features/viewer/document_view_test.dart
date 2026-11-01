@@ -27,6 +27,40 @@ const OpenedDocument document = OpenedDocument(
   ],
 );
 
+/// A view that answers only the tiles of [buckets], and no thumbnails, as
+/// an engine whose sharp tiles are still on their way; [release] answers
+/// the last request in full.
+class _SlowTiles extends FakeEngineService {
+  new() : super(documents: {'/kira.pdf': document});
+
+  /// The zoom buckets whose tiles arrive; null lets every tile arrive.
+  Set<int>? buckets;
+
+  /// The last request as the canvas sent it.
+  (int, int, List<WantedItem>)? last;
+
+  @override
+  Future<void> requestView(int view, int generation, List<WantedItem> wanted) {
+    last = (view, generation, wanted);
+    return super.requestView(view, generation, [
+      for (final entry in wanted)
+        if (entry.item case TileItem(:final zoomBucket)
+            when buckets?.contains(zoomBucket) ?? true)
+          entry,
+    ]);
+  }
+
+  /// The sharp tiles arrive.
+  Future<void> release() async {
+    if (last case (final view, final generation, final wanted)) {
+      await super.requestView(view, generation, [
+        for (final entry in wanted)
+          if (entry.item is TileItem) entry,
+      ]);
+    }
+  }
+}
+
 void main() {
   late FakeDesktopWindow window;
 
@@ -37,11 +71,14 @@ void main() {
   Future<FakeEngineService> pumpDocument(
     WidgetTester tester, {
     Set<int> failingPages = const {},
+    FakeEngineService? fake,
   }) async {
-    final engine = FakeEngineService(
-      documents: {'/kira.pdf': document},
-      failingPages: failingPages,
-    );
+    final engine =
+        fake ??
+        FakeEngineService(
+          documents: {'/kira.pdf': document},
+          failingPages: failingPages,
+        );
     await pumpShell(
       tester,
       shellHost(
@@ -116,6 +153,56 @@ void main() {
       ),
       findsOneWidget,
     );
+  });
+
+  testWidgets('the zoom field opens a2-2’s menu: the fits with their keys, '
+      'the steps and Marquee zoom', (tester) async {
+    await pumpDocument(tester);
+    final field = find.byWidgetPredicate(
+      (widget) => widget is Select<String> && widget.value == 'fit-width',
+    );
+    await tester.tap(field);
+    await settle(tester);
+    final menu = tester.widget<Menu>(find.byType(Menu));
+    expect(
+      [
+        for (final item in menu.items)
+          if (item.separator) '-' else item.label,
+      ],
+      [
+        'Fit width',
+        'Fit page',
+        'Actual size',
+        '-',
+        ...[
+          '50',
+          '75',
+          '100',
+          '125',
+          '150',
+          '200',
+          '400',
+        ].map((step) => menu.items.firstWhere((item) => item.id == step).label),
+        '-',
+        'Marquee zoom',
+      ],
+    );
+    expect(menu.items.first.shortcut, ['Ctrl', '2']);
+    expect(menu.items.first.checked, isTrue);
+    expect(menu.items.last.shortcut, ['Z']);
+    await tester.tap(find.text('Fit page').last);
+    await settle(tester);
+    expect(find.byType(Menu), findsNothing);
+    expect(view(tester).fit, ZoomFit.page);
+    await tester.tap(
+      find.byWidgetPredicate(
+        (widget) => widget is Select<String> && widget.value == 'fit-page',
+      ),
+    );
+    await settle(tester);
+    await tester.tap(find.text('Marquee zoom').last);
+    await settle(tester);
+    expect(view(tester).tool, ViewerTool.marquee);
   });
 
   testWidgets('a page that fails shows a2-13’s placeholder, and Try again '
@@ -195,6 +282,117 @@ void main() {
     await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
     await settle(tester);
     expect(view(tester).zoom, closeTo(before * 2, 1e-9));
+  });
+
+  testWidgets('the trackpad pinch zooms around the pointer, its pan '
+      'scrolls', (tester) async {
+    await pumpDocument(tester);
+    final origin = tester.getTopLeft(find.byType(DocumentView));
+    final focal =
+        tester.getCenter(find.byType(DocumentView)) + const Offset(80, 60);
+    // The point of page 1 under the pointer, in points.
+    Offset underPointer() {
+      final state = view(tester);
+      final page = state.placement.rects.first!;
+      return (state.visible.topLeft + focal - origin - page.topLeft) /
+          state.scale;
+    }
+
+    final before = view(tester).zoom;
+    final point = underPointer();
+    final trackpad = TestPointer(1, PointerDeviceKind.trackpad);
+    await tester.sendEventToBinding(trackpad.panZoomStart(focal));
+    await tester.sendEventToBinding(trackpad.panZoomUpdate(focal, scale: 1.5));
+    await tester.sendEventToBinding(trackpad.panZoomUpdate(focal, scale: 2));
+    await tester.sendEventToBinding(trackpad.panZoomEnd());
+    await settle(tester);
+    expect(view(tester).zoom, closeTo(before * 2, 1e-9));
+    expect(underPointer().dx, closeTo(point.dx, 1e-6));
+    expect(underPointer().dy, closeTo(point.dy, 1e-6));
+
+    // Two fingers moving up scroll down; a new pinch starts from 1 again.
+    final offset = view(tester).offset;
+    await tester.sendEventToBinding(trackpad.panZoomStart(focal));
+    await tester.sendEventToBinding(
+      trackpad.panZoomUpdate(focal, pan: const Offset(0, -120)),
+    );
+    await tester.sendEventToBinding(trackpad.panZoomEnd());
+    await settle(tester);
+    expect(view(tester).zoom, closeTo(before * 2, 1e-9));
+    expect(view(tester).offset.dy, closeTo(offset.dy + 120, 1e-6));
+  });
+
+  testWidgets('a page shows another bucket’s tiles, scaled, until its sharp '
+      'tiles arrive (G30)', (tester) async {
+    final engine = _SlowTiles();
+    await pumpDocument(tester, fake: engine);
+    final bucket = zoomBucket(view(tester).scale);
+    // Every bitmap drawn on the canvas, in order: its source and target.
+    List<(Rect, Rect)> drawn() {
+      final calls = <(Rect, Rect)>[];
+      expect(
+        tester.renderObject(
+          find
+              .descendant(
+                of: find.byType(DocumentView),
+                matching: find.byType(CustomPaint),
+              )
+              .first,
+        ),
+        paints..everything((method, arguments) {
+          if (method == #drawImageRect) {
+            calls.add((arguments[1]! as Rect, arguments[2]! as Rect));
+          }
+          return true;
+        }),
+      );
+      return calls;
+    }
+
+    double ratio((Rect, Rect) draw) => draw.$2.width / draw.$1.width;
+
+    // The fake's pixels decode outside the test's fake clock.
+    Future<void> decode() async {
+      await tester.runAsync(
+        () => Future<void>.delayed(const Duration(milliseconds: 200)),
+      );
+      await tester.pump();
+    }
+
+    await decode();
+    final sharp = drawn();
+    expect(sharp, isNotEmpty);
+    final size = ratio(sharp.first);
+
+    engine.buckets = {bucket};
+    containerOf(tester)
+        .read(viewerProvider.notifier)
+        .zoomTo(view(tester).zoom * 2);
+    await settle(tester);
+    await decode();
+    expect(zoomBucket(view(tester).scale), bucket + 4);
+    // The sharp tiles were asked for and have not come: the old ones show,
+    // twice as large, where the page now is.
+    expect(
+      engine.last!.$3.map((entry) => entry.item),
+      contains(
+        isA<TileItem>().having((t) => t.zoomBucket, 'zoomBucket', bucket + 4),
+      ),
+    );
+    final scaled = drawn();
+    expect(scaled, isNotEmpty);
+    for (final draw in scaled) {
+      expect(ratio(draw), closeTo(size * 2, 1e-6));
+    }
+
+    // They sharpen in place: the new tiles are drawn last, on top, at their
+    // own size.
+    await engine.release();
+    await decode();
+    final after = drawn();
+    expect(after.length, greaterThan(scaled.length));
+    expect(ratio(after.last), closeTo(size, 1e-6));
+    expect(ratio(after.first), closeTo(size * 2, 1e-6));
   });
 
   testWidgets('the Hand tool drags the pages; Marquee zoom zooms into a '

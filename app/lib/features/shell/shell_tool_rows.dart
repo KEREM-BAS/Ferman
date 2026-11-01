@@ -124,8 +124,8 @@ IconButton _futureIcon(
 ///
 /// With a document open (`viewerProvider`) the tools, zoom, Fit and Page
 /// layout work: the zoom field names a fit while one is on and shows the
-/// zoom otherwise (a2-13). Without one they stay disabled with their
-/// future-version reason, as M1 drew them, until documents open (W3).
+/// zoom otherwise (a2-13). Without one (a document still opening, locked or
+/// not opened) they stay disabled.
 class _ViewTools extends ConsumerWidget {
   const new();
 
@@ -158,6 +158,7 @@ class _ViewTools extends ConsumerWidget {
     'fit-width' || 'width' => viewer.fit(ZoomFit.width),
     'fit-page' || 'page' => viewer.fit(ZoomFit.page),
     'actual' => viewer.zoomTo(1),
+    'marquee' => viewer.setTool(ViewerTool.marquee),
     _ => viewer.zoomTo((int.tryParse(value) ?? 100) / 100),
   };
 
@@ -180,9 +181,6 @@ class _ViewTools extends ConsumerWidget {
     );
     final viewer = ref.read(viewerProvider.notifier);
     final live = view != null;
-    final zoom = live ? null : Feature.zoom.disabledReason(context);
-    final layout = live ? null : Feature.pageLayout.disabledReason(context);
-    final tools = live ? null : Feature.selectAndHand.disabledReason(context);
     // The region writes the percentage: "%100" for Türkiye (G34).
     String percent(int value) => bidiIsolate(format.percent(value));
     final zoomValue = switch (view?.fit) {
@@ -211,6 +209,35 @@ class _ViewTools extends ConsumerWidget {
       ('fit-width', l10n.shellFitWidth, null),
       ('fit-page', l10n.shellFitPage, null),
     ];
+    // a2-2's menu: the fits with their keys, the steps, Marquee zoom.
+    List<MenuItem> zoomMenu() => [
+      for (final (value, name, icon) in [
+        ('fit-width', l10n.shellFitWidth, IconName.arrowLeftRight),
+        ('fit-page', l10n.shellFitPage, IconName.maximize),
+        ('actual', l10n.shellActualSize, IconName.scan),
+      ])
+        MenuItem(
+          id: value,
+          label: name,
+          icon: icon,
+          shortcut: fitCommands[value]?.caps(platform),
+          checked: value == zoomValue,
+        ),
+      const MenuItem.divider(),
+      for (final step in zoomSteps)
+        MenuItem(
+          id: '$step',
+          label: percent(step),
+          checked: '$step' == zoomValue,
+        ),
+      const MenuItem.divider(),
+      MenuItem(
+        id: 'marquee',
+        label: l10n.shellToolMarqueeZoom,
+        icon: IconName.squareDashed,
+        shortcut: ShellCommand.marqueeZoom.caps(platform),
+      ),
+    ];
     // The zoom menu and the segmented controls move into a narrow row's
     // overflow menu as submenus of their choices (G21). A choice that is a
     // command of the shortcut table shows its keys, as the zoom menu (a2-2)
@@ -218,14 +245,12 @@ class _ViewTools extends ConsumerWidget {
     MenuItem choices(
       String label,
       List<(String, String, IconName?)> options, {
-      required String? reason,
       String? checked,
       Map<String, ShellCommand> commands = const {},
     }) => MenuItem(
       id: label,
       label: label,
-      disabled: reason != null,
-      disabledReason: reason,
+      disabled: !live,
       submenu: [
         for (final (value, name, icon) in options)
           MenuItem(
@@ -248,7 +273,6 @@ class _ViewTools extends ConsumerWidget {
       active: (view?.tool ?? ViewerTool.select) == which,
       shortcut: command.caps(platform),
       disabled: !live,
-      disabledReason: tools,
       onPressed: live ? () => viewer.setTool(which) : null,
     );
     IconButton step(
@@ -261,7 +285,6 @@ class _ViewTools extends ConsumerWidget {
       label: label,
       shortcut: command.caps(platform),
       disabled: !live,
-      disabledReason: zoom,
       onPressed: live ? action : null,
     );
     void chosen(MenuItem item, void Function(String) apply) {
@@ -291,7 +314,6 @@ class _ViewTools extends ConsumerWidget {
           active: view?.tool == ViewerTool.marquee,
           shortcut: ShellCommand.marqueeZoom.caps(platform),
           disabled: !live,
-          disabledReason: zoom,
           onPressed: live ? () => viewer.setTool(ViewerTool.marquee) : null,
         ),
         const ToolbarSeparator(),
@@ -302,12 +324,11 @@ class _ViewTools extends ConsumerWidget {
           viewer.zoomOut,
         ),
         ToolbarItem(
-          menuItem: choices(
-            l10n.shellZoom,
-            zoomOptions,
-            reason: zoom,
-            checked: zoomValue,
-            commands: fitCommands,
+          menuItem: MenuItem(
+            id: l10n.shellZoom,
+            label: l10n.shellZoom,
+            disabled: !live,
+            submenu: zoomMenu(),
           ),
           onMenuSelected: (item) =>
               chosen(item, (value) => zoomChoice(viewer, value)),
@@ -318,8 +339,10 @@ class _ViewTools extends ConsumerWidget {
               semanticLabel: l10n.shellZoom,
               value: zoomValue,
               disabled: !live,
-              disabledReason: zoom,
               onChanged: live ? (value) => zoomChoice(viewer, value) : null,
+              menu: zoomMenu(),
+              onMenuSelected: (item) =>
+                  chosen(item, (value) => zoomChoice(viewer, value)),
               options: [
                 for (final (value, name, _) in zoomOptions)
                   SelectOption(value: value, label: name),
@@ -341,7 +364,6 @@ class _ViewTools extends ConsumerWidget {
               ('page', l10n.shellFitPage, IconName.maximize),
               ('actual', l10n.shellActualSize, IconName.scan),
             ],
-            reason: zoom,
             checked: fitValue,
             commands: fitCommands,
           ),
@@ -351,7 +373,6 @@ class _ViewTools extends ConsumerWidget {
             semanticLabel: l10n.shellFit,
             value: fitValue,
             disabled: !live,
-            disabledReason: zoom,
             onChanged: live
                 ? (value) {
                     if (value != null) zoomChoice(viewer, value);
@@ -378,17 +399,12 @@ class _ViewTools extends ConsumerWidget {
         ),
         const ToolbarSeparator(),
         ToolbarItem(
-          menuItem: choices(
-            l10n.shellPageLayout,
-            [
-              ('single', l10n.shellLayoutSingle, IconName.fileText),
-              ('scroll', l10n.shellLayoutContinuous, IconName.arrowUpDown),
-              ('two', l10n.shellLayoutTwoPage, IconName.columns2),
-              ('book', l10n.shellLayoutBook, IconName.bookOpen),
-            ],
-            reason: layout,
-            checked: layoutValue,
-          ),
+          menuItem: choices(l10n.shellPageLayout, [
+            ('single', l10n.shellLayoutSingle, IconName.fileText),
+            ('scroll', l10n.shellLayoutContinuous, IconName.arrowUpDown),
+            ('two', l10n.shellLayoutTwoPage, IconName.columns2),
+            ('book', l10n.shellLayoutBook, IconName.bookOpen),
+          ], checked: layoutValue),
           onMenuSelected: (item) => chosen(item, (value) {
             final chosen = layouts[value];
             if (chosen != null) viewer.setLayout(chosen);
@@ -397,7 +413,6 @@ class _ViewTools extends ConsumerWidget {
             semanticLabel: l10n.shellPageLayout,
             value: layoutValue,
             disabled: !live,
-            disabledReason: layout,
             onChanged: live
                 ? (value) {
                     final chosen = layouts[value];

@@ -284,6 +284,92 @@ abstract class _$ShellPanelPreference extends $Notifier<ShellSide> {
   }
 }
 
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+
+@ProviderFor(ShellPaneWidths)
+final shellPaneWidthsProvider = ShellPaneWidthsProvider._();
+
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+final class ShellPaneWidthsProvider
+    extends
+        $NotifierProvider<ShellPaneWidths, ({double panel, double sidebar})> {
+  /// The widths the user dragged the sidebar and the right panel to (B094),
+  /// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+  /// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+  /// draws the limits (G21). Not stored: a new window starts at the
+  /// designed widths.
+  ShellPaneWidthsProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'shellPaneWidthsProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$shellPaneWidthsHash();
+
+  @$internal
+  @override
+  ShellPaneWidths create() => ShellPaneWidths();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(({double panel, double sidebar}) value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<({double panel, double sidebar})>(
+        value,
+      ),
+    );
+  }
+}
+
+String _$shellPaneWidthsHash() => r'bcbb4ae6d6a367b133341937fa9c74919aab10fe';
+
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+
+abstract class _$ShellPaneWidths
+    extends $Notifier<({double panel, double sidebar})> {
+  ({double panel, double sidebar}) build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref =
+        this.ref
+            as $Ref<
+              ({double panel, double sidebar}),
+              ({double panel, double sidebar})
+            >;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<
+                ({double panel, double sidebar}),
+                ({double panel, double sidebar})
+              >,
+              ({double panel, double sidebar}),
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
 /// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
@@ -726,42 +812,18 @@ final class ShortcutPlatformProvider
 
 String _$shortcutPlatformHash() => r'e178a9005d056a5b6519dbf4826a74a3d7cef5b2';
 
-/// The open documents, as `shellDocumentsProvider`.
-///
-/// Until the first document opens these are the M1 placeholder documents
-/// that show every tab state the design draws (DS additions `tabStates`,
-/// a1-10): the active clean contract, an idle clean invoice, an idle
-/// statement with unsaved changes, a report still opening, a locked
-/// payslip, and three more behind "+3". The names are the design's sample
-/// files, not copy. The first document opened ([add]) replaces them.
-// shortcut: the placeholders stay the starting state for the M1 shell
-// tests and `/debug/shell`; drop them with the debug route (end of M2).
+/// The open documents, as `shellDocumentsProvider`: none until the first
+/// one opens.
 
 @ProviderFor(ShellDocuments)
 final shellDocumentsProvider = ShellDocumentsProvider._();
 
-/// The open documents, as `shellDocumentsProvider`.
-///
-/// Until the first document opens these are the M1 placeholder documents
-/// that show every tab state the design draws (DS additions `tabStates`,
-/// a1-10): the active clean contract, an idle clean invoice, an idle
-/// statement with unsaved changes, a report still opening, a locked
-/// payslip, and three more behind "+3". The names are the design's sample
-/// files, not copy. The first document opened ([add]) replaces them.
-// shortcut: the placeholders stay the starting state for the M1 shell
-// tests and `/debug/shell`; drop them with the debug route (end of M2).
+/// The open documents, as `shellDocumentsProvider`: none until the first
+/// one opens.
 final class ShellDocumentsProvider
     extends $NotifierProvider<ShellDocuments, ShellDocumentList> {
-  /// The open documents, as `shellDocumentsProvider`.
-  ///
-  /// Until the first document opens these are the M1 placeholder documents
-  /// that show every tab state the design draws (DS additions `tabStates`,
-  /// a1-10): the active clean contract, an idle clean invoice, an idle
-  /// statement with unsaved changes, a report still opening, a locked
-  /// payslip, and three more behind "+3". The names are the design's sample
-  /// files, not copy. The first document opened ([add]) replaces them.
-  // shortcut: the placeholders stay the starting state for the M1 shell
-  // tests and `/debug/shell`; drop them with the debug route (end of M2).
+  /// The open documents, as `shellDocumentsProvider`: none until the first
+  /// one opens.
   ShellDocumentsProvider._()
     : super(
         from: null,
@@ -789,18 +851,10 @@ final class ShellDocumentsProvider
   }
 }
 
-String _$shellDocumentsHash() => r'e161361fb613edc9332d152a66563db0a20d7162';
+String _$shellDocumentsHash() => r'b9631551a5856eed4be5a4494b9d7b1e66b47013';
 
-/// The open documents, as `shellDocumentsProvider`.
-///
-/// Until the first document opens these are the M1 placeholder documents
-/// that show every tab state the design draws (DS additions `tabStates`,
-/// a1-10): the active clean contract, an idle clean invoice, an idle
-/// statement with unsaved changes, a report still opening, a locked
-/// payslip, and three more behind "+3". The names are the design's sample
-/// files, not copy. The first document opened ([add]) replaces them.
-// shortcut: the placeholders stay the starting state for the M1 shell
-// tests and `/debug/shell`; drop them with the debug route (end of M2).
+/// The open documents, as `shellDocumentsProvider`: none until the first
+/// one opens.
 
 abstract class _$ShellDocuments extends $Notifier<ShellDocumentList> {
   ShellDocumentList build();

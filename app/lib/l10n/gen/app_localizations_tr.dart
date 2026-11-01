@@ -384,6 +384,27 @@ class AppLocalizationsTr extends AppLocalizations {
   String get shellToolVersionHistory => 'Sürüm geçmişi';
 
   @override
+  String get fieldContextMenu => 'Metin alanı';
+
+  @override
+  String get fieldCut => 'Kes';
+
+  @override
+  String get fieldCopy => 'Kopyala';
+
+  @override
+  String get fieldPaste => 'Yapıştır';
+
+  @override
+  String get fieldSelectAll => 'Tümünü seç';
+
+  @override
+  String get shellResizeSidebar => 'Kenar çubuğunu yeniden boyutlandır';
+
+  @override
+  String get shellResizePanel => 'Paneli yeniden boyutlandır';
+
+  @override
   String get shellSidebar => 'Kenar çubuğu';
 
   @override
@@ -523,6 +544,10 @@ class AppLocalizationsTr extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return '“$query” ile eşleşen dil yok.';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın.';
 
   @override
   String get onboardingLanguageMissing => 'Dilinizi bulamadınız mı?';
@@ -1143,6 +1168,9 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'Aranıyor';
+
+  @override
   String findSearching(String page, String pages) {
     return 'Aranıyor · sayfa $page / $pages';
   }
@@ -1176,6 +1204,18 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'Belgede ara';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'Yer imi: $title';
+  }
+
+  @override
+  String get sidebarSearchNoTextTitle => 'Aranacak metin yok';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'Bu sayfalar taranmış görüntülerden oluşuyor. Metin tanıma, sayfaları aranabilir yapar.';
 
   @override
   String sidebarSearchSummary(
@@ -1338,6 +1378,12 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startBadgeSigned => 'İmzalı';
 
   @override
+  String get startBadgeForm => 'Form';
+
+  @override
+  String get startBadgeScanned => 'Taranmış';
+
+  @override
   String startMissingTitle(String name) {
     return '“$name” bulunamadı';
   }
@@ -1495,6 +1541,106 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'Kapat';
+
+  @override
+  String get repairedTitle => 'Ferman bu dosyayı onardı.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu kopyada $countText sorun giderildi.',
+      zero: 'Bu kopyadaki sorunlar giderildi.',
+    );
+    return '$_temp0 Siz kaydedene kadar özgün dosya olduğu gibi kalır.';
+  }
+
+  @override
+  String get repairedDetails => 'Ayrıntılar';
+
+  @override
+  String get repairedSave => 'Onarılmış kopyayı kaydet…';
+
+  @override
+  String get repairDetailsTitle => 'Ferman neleri onardı';
+
+  @override
+  String get repairCopyDetails => 'Ayrıntıları kopyala';
+
+  @override
+  String get repairXrefTitle => 'Çapraz başvuru tablosu bozuktu';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Dosyada bulunan $countText nesneden yeniden oluşturuldu.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText sayfanın tümü yerinde.',
+      one: 'Sayfa yerinde.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'Dosyanın trailer bölümü eksikti';
+
+  @override
+  String get repairTrailerBody =>
+      'Ferman, belgenin nereden başladığını nesneleri arasında buldu.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText veri akışının uzunluğu yanlıştı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'Ferman her birini sonuna kadar okudu.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText nesne okunamadı',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'Bunları kullanan sayfalar ve özellikler eksik olabilir.';
+
+  @override
+  String get xfaTitle => 'Bu bir XFA formu; Ferman bu formu gösteremiyor.';
+
+  @override
+  String get xfaBody =>
+      'XFA, Adobe’ın artık sürdürmediği bir biçimdir. Dosyayı Adobe Acrobat Reader’da açın ya da gönderenden normal bir PDF isteyin.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'Ferman “$name” dosyasını salt okunur açtı.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'Bu dosyanın bazı bölümleri birbiriyle uyuşmuyor; bu, dosyanın hasarlı olduğu anlamına gelebilir. Dosyayı her zamanki gibi okuyabilirsiniz.';
 
   @override
   String get propertiesFile => 'Dosya';
@@ -1731,4 +1877,40 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get openingCancel => 'Vazgeç';
+
+  @override
+  String get defaultAppTitle => 'PDF’ler Ferman ile açılsın mı?';
+
+  @override
+  String get defaultAppDescription =>
+      'Ferman, bir PDF’e çift tıkladığınızda açılan uygulama olabilir. macOS bu değişikliği onaylamanızı ister.';
+
+  @override
+  String get defaultAppNow => 'PDF’leri şu an açan:';
+
+  @override
+  String get defaultAppNotNow => 'Şimdi değil';
+
+  @override
+  String get defaultAppUse => 'PDF’ler için Ferman’ı kullan';
+
+  @override
+  String get defaultAppDontAsk => 'Bir daha sorma';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return 'Bu Mac’te PDF’leri $app açıyor.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman => 'Bu Mac’te PDF’leri Ferman açıyor.';
+
+  @override
+  String attachmentNotSaved(String name) {
+    return '“$name” kaydedilmedi';
+  }
+
+  @override
+  String get attachmentWriteFailed =>
+      'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
 }

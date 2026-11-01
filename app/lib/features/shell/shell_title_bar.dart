@@ -20,11 +20,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// - **Home:** the "Ferman" wordmark tab while the start screen shows
 ///   ([homeActive], FmWindow `homeActive`; a1-5), otherwise the small
 ///   house IconButton "Home" that calls [onHome].
-/// - **Document tabs:** the open documents ([documents], or the shell's
-///   placeholder documents of `shellDocumentsProvider` in M1) in a
+/// - **Document tabs:** the open documents ([documents], or those of
+///   `shellDocumentsProvider`) in a
 ///   `DocumentTabStrip` "Open documents", with the "+N" overflow button and
 ///   the "+" button "Open file". The active clean tab's close button closes
-///   its document (a placeholder has none).
+///   its document (a tab without a file has none).
 /// - **Search** (a ghost Button with ⌘K or Ctrl+K, disabled until the
 ///   command palette in M4) and **Settings** (an IconButton with ⌘, or
 ///   Ctrl+, that calls [onOpenSettings]).
@@ -74,12 +74,8 @@ class ShellTitleBarContent extends ConsumerWidget {
     final given = this.documents;
     // The type argument keeps `??` from asking the provider for a nullable
     // list.
-    final open = ref.watch<ShellDocumentList>(shellDocumentsProvider);
     final documents =
-        given ??
-        (homeActive && open.placeholder
-            ? const ShellDocumentList(documents: [])
-            : open);
+        given ?? ref.watch<ShellDocumentList>(shellDocumentsProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final notifier = ref.read(shellDocumentsProvider.notifier);
 
@@ -98,8 +94,7 @@ class ShellTitleBarContent extends ConsumerWidget {
     );
 
     Widget strip(double width) {
-      // As many tabs as fit at their least width, then "+N" and "+" (a1-10);
-      // the M1 placeholders keep their own "+3".
+      // As many tabs as fit at their least width, then "+N" and "+" (a1-10).
       final count = documents.documents.length;
       final slot = theme.size.doctabWMin + theme.space.space0_5;
       final plus = theme.density.controlHSm + theme.space.space0_5;
@@ -111,9 +106,7 @@ class ShellTitleBarContent extends ConsumerWidget {
         fit = fitting(_MoreDocuments.width(context, l10n, format, count - fit));
         fit = fitting(_MoreDocuments.width(context, l10n, format, count - fit));
       }
-      final shown = documents.placeholder
-          ? [for (var i = 0; i < count; i++) i]
-          : documents.shown(fit);
+      final shown = documents.shown(fit);
       final hidden = [
         for (var i = 0; i < count; i++)
           if (!shown.contains(i)) i,

@@ -275,7 +275,7 @@ final class RecentFilesProvider
   }
 }
 
-String _$recentFilesHash() => r'06f590b1b6b0807a1cdd9d97c3d17c931cc7c572';
+String _$recentFilesHash() => r'd43e6569a8084a670a2e90ca1b8ff842b16b4cb0';
 
 /// The recent files, most recent first, as `recentFilesProvider`: every
 /// file opened, at most [limit] of them besides the pinned ones. Each

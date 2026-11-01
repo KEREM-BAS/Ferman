@@ -156,6 +156,8 @@ void main() {
           opened: DateTime.utc(2026),
           signed: true,
           locked: true,
+          form: true,
+          scanned: true,
           bookmark: 'Ym9va21hcms=',
         ),
       ];

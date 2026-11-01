@@ -371,6 +371,27 @@ void main() {
       handle.dispose();
     });
 
+    testWidgets('icon only and disabled with a reason: the tooltip names '
+        'the tool above the reason (B095)', (tester) async {
+      await tester.pumpWidget(
+        componentHost(
+          Builder(
+            builder: (context) => ToolButton(
+              icon: IconName.link,
+              label: 'Link',
+              showLabel: false,
+              disabled: true,
+              disabledReason: futureVersionReason(context),
+            ),
+          ),
+        ),
+      );
+      await focusFirstTabStop(tester);
+      await tester.pump(const Duration(milliseconds: 450));
+      await tester.pumpAndSettle();
+      expect(find.text('Link\nAvailable in a future version'), findsOneWidget);
+    });
+
     testWidgets('menu: a 12 px caret at 70 % opacity; ArrowDown asks for '
         'the menu', (tester) async {
       var presses = 0;

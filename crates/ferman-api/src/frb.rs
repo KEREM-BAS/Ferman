@@ -133,6 +133,30 @@ pub enum ReadOnlyReason {
     XfaOnly,
 }
 
+/// One thing repair did, for a1-9's "What Ferman repaired".
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RepairFix {
+    /// What was repaired.
+    pub kind: RepairKind,
+    /// The objects found (`CrossReferenceRebuilt`), the streams corrected
+    /// (`StreamLengthsCorrected`) or the objects that could not be read (`ObjectsUnreadable`);
+    /// 0 for `TrailerRebuilt`.
+    pub count: u32,
+}
+
+/// What a [`RepairFix`] repaired.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum RepairKind {
+    /// The cross-reference table was rebuilt from the objects found in the file.
+    CrossReferenceRebuilt,
+    /// The trailer was missing, and the catalog was found among the objects.
+    TrailerRebuilt,
+    /// Streams whose `/Length` was wrong were read up to their `endstream`.
+    StreamLengthsCorrected,
+    /// Objects the cross-reference data names could not be read.
+    ObjectsUnreadable,
+}
+
 /// One page of an [`OpenedDocument`], in points as displayed.
 #[derive(Debug, Clone, PartialEq)]
 pub struct PageInfo {
@@ -151,6 +175,8 @@ pub struct OpenedDocument {
     pub id: u64,
     /// Why it opened read-only, if it did.
     pub read_only: Option<ReadOnlyReason>,
+    /// What repair did, in order; empty unless `read_only` is `Repaired`.
+    pub repairs: Vec<RepairFix>,
     /// Whether spreads run right to left (`/Direction /R2L`).
     pub right_to_left: bool,
     /// Its pages.
@@ -184,6 +210,10 @@ pub struct OpenedDocument {
     pub security: Option<Security>,
     /// How many JavaScript actions it holds; Ferman never runs them (G100).
     pub scripts: u32,
+    /// How many form fields it has (the Form badge).
+    pub form_fields: u32,
+    /// Whether its first page has no text, most likely a scan (the Scanned badge).
+    pub scanned: bool,
 }
 
 /// The document information dictionary (a2-7).
@@ -472,6 +502,8 @@ pub struct SearchOptions {
     pub whole_words: bool,
     /// Ignore accents and dotted/dotless i (on by default in the app, G61).
     pub ignore_accents: bool,
+    /// Search the bookmarks' titles too (Look in › Bookmarks).
+    pub bookmarks: bool,
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -500,6 +532,8 @@ pub struct SearchMatch {
     pub snippet_start: u32,
     /// Where it ends in the snippet, in characters.
     pub snippet_end: u32,
+    /// Whether it is in a bookmark's title (the snippet), with no rectangles.
+    pub bookmark: bool,
 }
 
 /// What a search event says.
@@ -530,6 +564,8 @@ pub struct SearchEvent {
     pub pages: u32,
     /// Whether it was cancelled (`Done`).
     pub cancelled: bool,
+    /// Whether no page had text, a scan (`Done`).
+    pub textless: bool,
 }
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
@@ -618,6 +654,34 @@ pub async fn unlock_owner(document: u64, password: String) -> Result<Option<Secu
         )
         .await
         .map(|security| security.map(security_dto))
+        .map_err(api_error_dto)
+}
+
+/// Saves the file attached to `document` as its `attachments[index]` at `path` (a2-3b), written
+/// safely: a temp file flushed, read back and renamed over `path`. With `staging` (the macOS App
+/// Sandbox's replacement directory) the verified temp file stays there and its path is returned
+/// for the platform layer to swap in.
+///
+/// See [`facade::Engine::save_attachment`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open; the file errors of the write.
+pub async fn save_attachment(
+    document: u64,
+    index: u32,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_attachment(
+            facade::DocumentId::from_raw(document),
+            index,
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(|staged| staged.map(|path| path.to_string_lossy().into_owned()))
         .map_err(api_error_dto)
 }
 
@@ -722,6 +786,7 @@ pub async fn search(
     options: SearchOptions,
     sink: StreamSink<SearchEvent>,
 ) -> Result<(), ApiError> {
+    let bookmarks = options.bookmarks;
     let options = facade::SearchOptions {
         match_case: options.match_case,
         whole_words: options.whole_words,
@@ -733,6 +798,7 @@ pub async fn search(
             facade::DocumentId::from_raw(document),
             query,
             options,
+            bookmarks,
             Box::new(BridgeSearch(sink)),
         )
         .map(drop)
@@ -751,6 +817,7 @@ impl facade::SearchSink for BridgeSearch {
             searched: 0,
             pages: 0,
             cancelled: false,
+            textless: false,
         };
         let event = match event {
             facade::SearchEvent::Started(id) => SearchEvent {
@@ -777,6 +844,7 @@ impl facade::SearchSink for BridgeSearch {
                         snippet: found.snippet,
                         snippet_start: found.snippet_range.start,
                         snippet_end: found.snippet_range.end,
+                        bookmark: found.bookmark,
                     })
                     .collect(),
                 ..empty
@@ -787,7 +855,14 @@ impl facade::SearchSink for BridgeSearch {
                 pages,
                 ..empty
             },
-            facade::SearchEvent::Done { cancelled } => SearchEvent { cancelled, ..empty },
+            facade::SearchEvent::Done {
+                cancelled,
+                textless,
+            } => SearchEvent {
+                cancelled,
+                textless,
+                ..empty
+            },
         };
         self.0.add(event).is_ok()
     }
@@ -903,9 +978,34 @@ fn wanted_facade(wanted: WantedItem) -> Option<facade::Wanted> {
     Some(facade::Wanted { item, priority })
 }
 
+fn repair_fix_dto(repair: &facade::Repair) -> Option<RepairFix> {
+    let (kind, count) = match *repair {
+        facade::Repair::CrossReferenceRebuilt { objects, .. } => {
+            (RepairKind::CrossReferenceRebuilt, objects)
+        }
+        facade::Repair::TrailerRebuilt => (RepairKind::TrailerRebuilt, 0),
+        facade::Repair::StreamLengthsCorrected { streams } => {
+            (RepairKind::StreamLengthsCorrected, streams)
+        }
+        facade::Repair::ObjectsUnreadable { objects, .. } => {
+            (RepairKind::ObjectsUnreadable, objects)
+        }
+        // A repair added later reaches the UI once it has its wording.
+        _ => return None,
+    };
+    Some(RepairFix { kind, count })
+}
+
 fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
+    let repairs = match &document.read_only {
+        Some(facade::ReadOnly::Repaired(report)) => {
+            report.repairs.iter().filter_map(repair_fix_dto).collect()
+        }
+        _ => Vec::new(),
+    };
     OpenedDocument {
         id: document.id.get(),
+        repairs,
         read_only: document.read_only.map(|reason| match reason {
             facade::ReadOnly::Repaired(_) => ReadOnlyReason::Repaired,
             facade::ReadOnly::ParsersDisagree(_) => ReadOnlyReason::ParsersDisagree,
@@ -970,6 +1070,8 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
         fonts: fonts_dto(document.fonts),
         security: document.security.map(security_dto),
         scripts: document.scripts.count,
+        form_fields: document.form_fields,
+        scanned: document.scanned,
     }
 }
 
@@ -1189,6 +1291,33 @@ mod tests {
     fn a_stale_document_is_not_found() {
         let err = block_on(close(u64::MAX)).unwrap_err();
         assert_eq!(err.kind, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn every_repair_crosses_with_its_count() {
+        let repairs = [
+            facade::Repair::CrossReferenceRebuilt {
+                objects: 48,
+                problem: facade::XrefProblem::NoStartxref,
+            },
+            facade::Repair::TrailerRebuilt,
+            facade::Repair::StreamLengthsCorrected { streams: 2 },
+            facade::Repair::ObjectsUnreadable {
+                objects: 3,
+                first: 7,
+            },
+        ];
+        let fixes: Vec<_> = repairs.iter().filter_map(repair_fix_dto).collect();
+        let fix = |kind, count| RepairFix { kind, count };
+        assert_eq!(
+            fixes,
+            [
+                fix(RepairKind::CrossReferenceRebuilt, 48),
+                fix(RepairKind::TrailerRebuilt, 0),
+                fix(RepairKind::StreamLengthsCorrected, 2),
+                fix(RepairKind::ObjectsUnreadable, 3),
+            ]
+        );
     }
 
     #[test]

@@ -685,6 +685,10 @@ enum ShellCommand {
   /// Minimizes the window (macOS ⌘M; WindowChrome's window commands).
   minimizeWindow(mac: [KeyBinding(_Key.keyM, meta: true)], windows: []),
 
+  /// Opens the system's window menu (Alt+Space on Windows, B008; GTK and
+  /// macOS bind no key to it in an app).
+  windowMenu(mac: [], windows: [KeyBinding(_Key.space, alt: true)], linux: []),
+
   /// Closes the window (Alt+F4 on Windows and Linux).
   closeWindow(mac: [], windows: [KeyBinding(_Key.f4, alt: true)]),
 
@@ -740,11 +744,13 @@ enum ShellCommand {
   /// Whether the command's keys work in [mode].
   bool appliesIn(FermanMode mode) => modes?.contains(mode) ?? true;
 
-  /// The commands of the window itself: minimize, close and quit. The
+  /// The commands of the window itself: minimize, the window menu, close
+  /// and quit. The
   /// window frame binds them on every screen (`WindowCommandScope`), so
   /// they are left out of [shortcutsFor].
   static const Set<ShellCommand> windowCommands = {
     minimizeWindow,
+    windowMenu,
     closeWindow,
     quit,
   };

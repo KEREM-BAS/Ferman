@@ -1,6 +1,7 @@
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/number_stepper.dart';
 import 'package:ferman/design/components/forms/text_field.dart';
+import 'package:ferman/design/components/overlays/menu.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/l10n/region.dart';
@@ -90,6 +91,51 @@ void main() {
   });
 
   group('TextField', () {
+    testWidgets('a right click opens the Menu with Cut, Copy, Paste and '
+        'Select all; only what applies is enabled (B017)', (tester) async {
+      final controller = TextEditingController(text: 'kira bedeli');
+      addTearDown(controller.dispose);
+      await tester.pumpWidget(componentHost(field(controller: controller)));
+      final at = tester.getCenter(find.byType(EditableText));
+      Future<Menu> rightClick() async {
+        final gesture = await tester.startGesture(
+          at,
+          kind: PointerDeviceKind.mouse,
+          buttons: kSecondaryMouseButton,
+        );
+        await gesture.up();
+        await tester.pumpAndSettle();
+        return tester.widget<Menu>(find.byType(Menu));
+      }
+
+      // A right click without a selection selects the word under it, as
+      // desktop fields do, so Cut and Copy apply.
+      var menu = await rightClick();
+      expect(
+        [
+          for (final item in menu.items)
+            if (item.isItem) item.label,
+        ],
+        ['Cut', 'Copy', 'Paste', 'Select all'],
+      );
+      expect(menu.items.last.shortcut, ['Ctrl', 'A']);
+      await tester.tap(find.text('Select all'));
+      await tester.pumpAndSettle();
+      expect(find.byType(Menu), findsNothing);
+      expect(
+        controller.selection,
+        const TextSelection(baseOffset: 0, extentOffset: 11),
+      );
+      menu = await rightClick();
+      expect(
+        menu.items.firstWhere((item) => item.label == 'Copy').disabled,
+        isFalse,
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      expect(find.byType(Menu), findsNothing);
+    });
+
     testWidgets('medium: 30 px box, 1 px default border, 4 px radius, '
         'raised surface', (tester) async {
       await tester.pumpWidget(componentHost(field()));

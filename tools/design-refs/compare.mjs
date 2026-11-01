@@ -32,6 +32,25 @@ export const GOLDEN_SCREENS = [
   'shell_convert',
   'shell_protect',
   'shell_tools',
+  // M2 (ROADMAP §6).
+  'viewer',
+  'viewer_outline',
+  'viewer_attachments',
+  'viewer_layers',
+  'viewer_signatures',
+  'viewer_search',
+  'properties',
+  'restricted',
+  'unlock',
+  'not_a_pdf',
+  'start_recent',
+  'default_app',
+  'repaired',
+  'xfa_only',
+  'damaged',
+  'viewer_search_progress',
+  'viewer_search_none',
+  'start_no_pdfium',
 ];
 
 /** A golden's file name: `<screen>_<chrome>_<theme>_<lang>.png`. */

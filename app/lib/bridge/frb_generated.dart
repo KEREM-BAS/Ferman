@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -208137867;
+  int get rustContentHash => 1570182822;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -105,6 +105,13 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
+  });
+
+  Future<String?> crateFrbSaveAttachment({
+    required BigInt document,
+    required int index,
+    required String path,
+    String? staging,
   });
 
   Stream<SearchEvent> crateFrbSearch({
@@ -373,6 +380,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbRequestViewConstMeta => const TaskConstMeta(
     debugName: "request_view",
     argNames: ["view", "generation", "wanted"],
+  );
+
+  @override
+  Future<String?> crateFrbSaveAttachment({
+    required BigInt document,
+    required int index,
+    required String path,
+    String? staging,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_32(index);
+          var arg2 = cst_encode_String(path);
+          var arg3 = cst_encode_opt_String(staging);
+          return wire.wire__crate__frb__save_attachment(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+            arg3,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_opt_String,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveAttachmentConstMeta,
+        argValues: [document, index, path, staging],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveAttachmentConstMeta => const TaskConstMeta(
+    debugName: "save_attachment",
+    argNames: ["document", "index", "path", "staging"],
   );
 
   @override
@@ -795,6 +840,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<RepairFix> dco_decode_list_repair_fix(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_repair_fix).toList();
+  }
+
+  @protected
   List<SearchMatch> dco_decode_list_search_match(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_search_match).toList();
@@ -816,27 +867,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   OpenedDocument dco_decode_opened_document(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 18)
-      throw Exception('unexpected arr length: expect 18 but see ${arr.length}');
+    if (arr.length != 21)
+      throw Exception('unexpected arr length: expect 21 but see ${arr.length}');
     return OpenedDocument(
       id: dco_decode_u_64(arr[0]),
       readOnly: dco_decode_opt_box_autoadd_read_only_reason(arr[1]),
-      rightToLeft: dco_decode_bool(arr[2]),
-      pages: dco_decode_list_page_info(arr[3]),
-      outline: dco_decode_list_outline_entry(arr[4]),
-      attachments: dco_decode_list_attachment(arr[5]),
-      layers: dco_decode_list_layer(arr[6]),
-      layersSwitchable: dco_decode_bool(arr[7]),
-      signatures: dco_decode_list_signature(arr[8]),
-      version: dco_decode_String(arr[9]),
-      fileSize: dco_decode_u_64(arr[10]),
-      info: dco_decode_document_info(arr[11]),
-      language: dco_decode_opt_String(arr[12]),
-      tagged: dco_decode_bool(arr[13]),
-      linearized: dco_decode_bool(arr[14]),
-      fonts: dco_decode_list_font_entry(arr[15]),
-      security: dco_decode_opt_box_autoadd_security(arr[16]),
-      scripts: dco_decode_u_32(arr[17]),
+      repairs: dco_decode_list_repair_fix(arr[2]),
+      rightToLeft: dco_decode_bool(arr[3]),
+      pages: dco_decode_list_page_info(arr[4]),
+      outline: dco_decode_list_outline_entry(arr[5]),
+      attachments: dco_decode_list_attachment(arr[6]),
+      layers: dco_decode_list_layer(arr[7]),
+      layersSwitchable: dco_decode_bool(arr[8]),
+      signatures: dco_decode_list_signature(arr[9]),
+      version: dco_decode_String(arr[10]),
+      fileSize: dco_decode_u_64(arr[11]),
+      info: dco_decode_document_info(arr[12]),
+      language: dco_decode_opt_String(arr[13]),
+      tagged: dco_decode_bool(arr[14]),
+      linearized: dco_decode_bool(arr[15]),
+      fonts: dco_decode_list_font_entry(arr[16]),
+      security: dco_decode_opt_box_autoadd_security(arr[17]),
+      scripts: dco_decode_u_32(arr[18]),
+      formFields: dco_decode_u_32(arr[19]),
+      scanned: dco_decode_bool(arr[20]),
     );
   }
 
@@ -976,11 +1030,29 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RepairFix dco_decode_repair_fix(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return RepairFix(
+      kind: dco_decode_repair_kind(arr[0]),
+      count: dco_decode_u_32(arr[1]),
+    );
+  }
+
+  @protected
+  RepairKind dco_decode_repair_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return RepairKind.values[raw as int];
+  }
+
+  @protected
   SearchEvent dco_decode_search_event(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 6)
-      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    if (arr.length != 7)
+      throw Exception('unexpected arr length: expect 7 but see ${arr.length}');
     return SearchEvent(
       kind: dco_decode_search_event_kind(arr[0]),
       search: dco_decode_u_64(arr[1]),
@@ -988,6 +1060,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       searched: dco_decode_u_32(arr[3]),
       pages: dco_decode_u_32(arr[4]),
       cancelled: dco_decode_bool(arr[5]),
+      textless: dco_decode_bool(arr[6]),
     );
   }
 
@@ -1001,14 +1074,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchMatch dco_decode_search_match(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 5)
-      throw Exception('unexpected arr length: expect 5 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return SearchMatch(
       page: dco_decode_u_32(arr[0]),
       rects: dco_decode_list_page_rect(arr[1]),
       snippet: dco_decode_String(arr[2]),
       snippetStart: dco_decode_u_32(arr[3]),
       snippetEnd: dco_decode_u_32(arr[4]),
+      bookmark: dco_decode_bool(arr[5]),
     );
   }
 
@@ -1016,12 +1090,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   SearchOptions dco_decode_search_options(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return SearchOptions(
       matchCase: dco_decode_bool(arr[0]),
       wholeWords: dco_decode_bool(arr[1]),
       ignoreAccents: dco_decode_bool(arr[2]),
+      bookmarks: dco_decode_bool(arr[3]),
     );
   }
 
@@ -1545,6 +1620,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<RepairFix> sse_decode_list_repair_fix(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <RepairFix>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_repair_fix(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -1587,6 +1674,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_readOnly = sse_decode_opt_box_autoadd_read_only_reason(
       deserializer,
     );
+    var var_repairs = sse_decode_list_repair_fix(deserializer);
     var var_rightToLeft = sse_decode_bool(deserializer);
     var var_pages = sse_decode_list_page_info(deserializer);
     var var_outline = sse_decode_list_outline_entry(deserializer);
@@ -1603,9 +1691,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_fonts = sse_decode_list_font_entry(deserializer);
     var var_security = sse_decode_opt_box_autoadd_security(deserializer);
     var var_scripts = sse_decode_u_32(deserializer);
+    var var_formFields = sse_decode_u_32(deserializer);
+    var var_scanned = sse_decode_bool(deserializer);
     return OpenedDocument(
       id: var_id,
       readOnly: var_readOnly,
+      repairs: var_repairs,
       rightToLeft: var_rightToLeft,
       pages: var_pages,
       outline: var_outline,
@@ -1622,6 +1713,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       fonts: var_fonts,
       security: var_security,
       scripts: var_scripts,
+      formFields: var_formFields,
+      scanned: var_scanned,
     );
   }
 
@@ -1804,6 +1897,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RepairFix sse_decode_repair_fix(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_repair_kind(deserializer);
+    var var_count = sse_decode_u_32(deserializer);
+    return RepairFix(kind: var_kind, count: var_count);
+  }
+
+  @protected
+  RepairKind sse_decode_repair_kind(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return RepairKind.values[inner];
+  }
+
+  @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_kind = sse_decode_search_event_kind(deserializer);
@@ -1812,6 +1920,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_searched = sse_decode_u_32(deserializer);
     var var_pages = sse_decode_u_32(deserializer);
     var var_cancelled = sse_decode_bool(deserializer);
+    var var_textless = sse_decode_bool(deserializer);
     return SearchEvent(
       kind: var_kind,
       search: var_search,
@@ -1819,6 +1928,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       searched: var_searched,
       pages: var_pages,
       cancelled: var_cancelled,
+      textless: var_textless,
     );
   }
 
@@ -1837,12 +1947,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_snippet = sse_decode_String(deserializer);
     var var_snippetStart = sse_decode_u_32(deserializer);
     var var_snippetEnd = sse_decode_u_32(deserializer);
+    var var_bookmark = sse_decode_bool(deserializer);
     return SearchMatch(
       page: var_page,
       rects: var_rects,
       snippet: var_snippet,
       snippetStart: var_snippetStart,
       snippetEnd: var_snippetEnd,
+      bookmark: var_bookmark,
     );
   }
 
@@ -1852,10 +1964,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_matchCase = sse_decode_bool(deserializer);
     var var_wholeWords = sse_decode_bool(deserializer);
     var var_ignoreAccents = sse_decode_bool(deserializer);
+    var var_bookmarks = sse_decode_bool(deserializer);
     return SearchOptions(
       matchCase: var_matchCase,
       wholeWords: var_wholeWords,
       ignoreAccents: var_ignoreAccents,
+      bookmarks: var_bookmarks,
     );
   }
 
@@ -2065,6 +2179,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_read_only_reason(ReadOnlyReason raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_repair_kind(RepairKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -2486,6 +2606,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_repair_fix(
+    List<RepairFix> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_repair_fix(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_search_match(
     List<SearchMatch> self,
     SseSerializer serializer,
@@ -2529,6 +2661,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_u_64(self.id, serializer);
     sse_encode_opt_box_autoadd_read_only_reason(self.readOnly, serializer);
+    sse_encode_list_repair_fix(self.repairs, serializer);
     sse_encode_bool(self.rightToLeft, serializer);
     sse_encode_list_page_info(self.pages, serializer);
     sse_encode_list_outline_entry(self.outline, serializer);
@@ -2545,6 +2678,8 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_list_font_entry(self.fonts, serializer);
     sse_encode_opt_box_autoadd_security(self.security, serializer);
     sse_encode_u_32(self.scripts, serializer);
+    sse_encode_u_32(self.formFields, serializer);
+    sse_encode_bool(self.scanned, serializer);
   }
 
   @protected
@@ -2708,6 +2843,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_repair_fix(RepairFix self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_repair_kind(self.kind, serializer);
+    sse_encode_u_32(self.count, serializer);
+  }
+
+  @protected
+  void sse_encode_repair_kind(RepairKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_search_event_kind(self.kind, serializer);
@@ -2716,6 +2864,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_u_32(self.searched, serializer);
     sse_encode_u_32(self.pages, serializer);
     sse_encode_bool(self.cancelled, serializer);
+    sse_encode_bool(self.textless, serializer);
   }
 
   @protected
@@ -2735,6 +2884,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_String(self.snippet, serializer);
     sse_encode_u_32(self.snippetStart, serializer);
     sse_encode_u_32(self.snippetEnd, serializer);
+    sse_encode_bool(self.bookmark, serializer);
   }
 
   @protected
@@ -2743,6 +2893,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self.matchCase, serializer);
     sse_encode_bool(self.wholeWords, serializer);
     sse_encode_bool(self.ignoreAccents, serializer);
+    sse_encode_bool(self.bookmarks, serializer);
   }
 
   @protected

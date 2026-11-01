@@ -11,6 +11,8 @@ import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/platform/file_picker_service.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/recent/recent_previews.dart';
+import 'package:ferman/settings/settings_providers.dart';
+import 'package:ferman/settings/settings_store.dart';
 import 'package:flutter/foundation.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 
@@ -124,6 +126,37 @@ class DocumentOpener extends _$DocumentOpener {
     final missing = <String>{};
     await open([path], missing: missing);
     return missing.isEmpty;
+  }
+
+  /// Opens the files open when the app last ran, in their tab order, when
+  /// Settings › General › Reopen documents from last time is on (B079).
+  /// Each opens as a recent file ([openRecent]), whose bookmark reaches it
+  /// after a restart under the App Sandbox; one that is gone or off the
+  /// recent list is skipped without a report.
+  Future<void> reopenLast() async {
+    final settings = ref.read(settingsProvider);
+    if (!settings.reopenDocuments) return;
+    final recent = ref.read(recentFilesProvider);
+    for (final path in settings.lastDocuments) {
+      final entry = recent.where((entry) => entry.path == path).firstOrNull;
+      if (entry != null) await openRecent(entry);
+    }
+  }
+
+  /// Stores the paths of the files open in [documents] for [reopenLast];
+  /// error tabs are left out. A failed save keeps the old list.
+  Future<void> recordOpen(ShellDocumentList documents) async {
+    final paths = [
+      for (final document in documents.documents)
+        if (document.path case final path? when document.error == null) path,
+    ];
+    try {
+      await ref
+          .read(settingsProvider.notifier)
+          .change((settings) => settings.copyWith(lastDocuments: paths));
+    } on SettingsStoreException {
+      // Kept for this session: the next change tries again.
+    }
   }
 
   /// Opens [paths] one after another, each in a new active tab; a file
@@ -372,11 +405,17 @@ class DocumentOpener extends _$DocumentOpener {
         name: name,
         path: path,
         document: document,
-        // a2-10a: the shield on the tab while the author's restrictions
-        // apply.
-        icon: document.security?.restricted ?? false
-            ? IconName.shield
-            : IconName.fileText,
+        // Why it is read-only (a1-9's wrench, a11-7c's file-x, G102's lock),
+        // else a2-10a's shield while the author's restrictions apply.
+        icon: switch (document.readOnly) {
+          ReadOnlyReason.repaired => IconName.wrench,
+          ReadOnlyReason.xfaOnly => IconName.fileX,
+          ReadOnlyReason.parsersDisagree => IconName.lock,
+          null =>
+            document.security?.restricted ?? false
+                ? IconName.shield
+                : IconName.fileText,
+        },
         pageCount: document.pages.length,
         saveState: document.readOnly == null
             ? SaveState.saved
@@ -420,6 +459,8 @@ class DocumentOpener extends _$DocumentOpener {
       pages: document.pages.length,
       signed: document.signatures.isNotEmpty,
       locked: locked,
+      form: document.formFields > 0,
+      scanned: document.scanned,
     );
     _keepPreview(path, locked ? null : document);
   }
@@ -449,7 +490,14 @@ class DocumentOpener extends _$DocumentOpener {
   /// Puts the file at [path] first in the recent files, with a bookmark
   /// that reaches it again after a restart (macOS, Q18). The list is kept
   /// for this session when it cannot be stored.
-  void _remember(String path, {int? pages, bool? signed, bool? locked}) {
+  void _remember(
+    String path, {
+    int? pages,
+    bool? signed,
+    bool? locked,
+    bool? form,
+    bool? scanned,
+  }) {
     final now = DateTime.now();
     unawaited(
       ref
@@ -465,6 +513,8 @@ class DocumentOpener extends _$DocumentOpener {
                   pages: pages,
                   signed: signed,
                   locked: locked,
+                  form: form,
+                  scanned: scanned,
                   bookmark: bookmark,
                 ),
           )

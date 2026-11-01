@@ -92,6 +92,65 @@ class ShellPanelPreference extends _$ShellPanelPreference {
   }
 }
 
+/// The widths the user dragged the sidebar and the right panel to (B094),
+/// as `shellPaneWidthsProvider`. Each starts at its FmWindow width, which
+/// is also its narrowest ([minWidth]); [maxWidth] is the widest. No board
+/// draws the limits (G21). Not stored: a new window starts at the
+/// designed widths.
+@Riverpod(keepAlive: true)
+class ShellPaneWidths extends _$ShellPaneWidths {
+  @override
+  ({double sidebar, double panel}) build() =>
+      (sidebar: minWidth(ShellSide.sidebar), panel: minWidth(ShellSide.panel));
+
+  /// The narrowest [side] gets: its FmWindow width (`--sidebar-w`,
+  /// `--panel-w`), which its contents are drawn for.
+  static double minWidth(ShellSide side) => switch (side) {
+    ShellSide.sidebar => FermanSizeTokens.sidebarW,
+    ShellSide.panel => FermanSizeTokens.panelW,
+  };
+
+  /// The widest [side] gets.
+  static double maxWidth(ShellSide side) => switch (side) {
+    ShellSide.sidebar => WindowMetrics.sidebarMaxWidth,
+    ShellSide.panel => WindowMetrics.panelMaxWidth,
+  };
+
+  /// Sets [side] to [width], within its limits.
+  void resize(ShellSide side, double width) {
+    final clamped = width.clamp(minWidth(side), maxWidth(side));
+    state = switch (side) {
+      ShellSide.sidebar => (sidebar: clamped, panel: state.panel),
+      ShellSide.panel => (sidebar: state.sidebar, panel: clamped),
+    };
+  }
+}
+
+/// The widths [shown] panels take in a shell [width] wide: what the user
+/// chose ([ShellPaneWidths]), narrowed so the canvas keeps
+/// [WindowMetrics.canvasMinWidth], the sidebar first, never below a
+/// panel's own minimum.
+({double sidebar, double panel}) shellPaneWidthsIn({
+  required ({double sidebar, double panel}) chosen,
+  required ShellPanels shown,
+  required double? width,
+}) {
+  if (width == null) return chosen;
+  final room = width - WindowMetrics.canvasMinWidth;
+  final panelMin = ShellPaneWidths.minWidth(ShellSide.panel);
+  final sidebarMin = ShellPaneWidths.minWidth(ShellSide.sidebar);
+  final sidebar = chosen.sidebar
+      .clamp(
+        sidebarMin,
+        math.max(sidebarMin, room - (shown.panel ? panelMin : 0)),
+      )
+      .toDouble();
+  final panel = chosen.panel
+      .clamp(panelMin, math.max(panelMin, room - (shown.sidebar ? sidebar : 0)))
+      .toDouble();
+  return (sidebar: sidebar, panel: panel);
+}
+
 /// The width the shell was last laid out at, as `shellWidthProvider`, or
 /// null before its first layout. `FmWindow` measures it after each
 /// layout; the panel toggles and their shortcuts read [shellPanelsProvider]
@@ -363,7 +422,7 @@ ShortcutPlatform shortcutPlatform(Ref ref) => ShortcutPlatform.current;
 /// An open document as the shell shows it: the title bar's tab, the Save
 /// button and the status bar all read the same document, so they always
 /// agree (fix 4). A document the engine opened has its [path] and
-/// [document]; the M1 placeholders have neither.
+/// [document]; one still opening, locked or failed has no [document].
 @immutable
 final class ShellDocument {
   /// A document named [name].
@@ -440,9 +499,6 @@ final class ShellDocumentList {
   /// button).
   final int overflowCount;
 
-  /// Whether these are the M1 placeholders (no document opened yet).
-  bool get placeholder => identical(documents, ShellDocuments.placeholders);
-
   /// The indexes of the documents whose tabs show when only [fit] tabs fit,
   /// in order: the first ones, with the active one in the last place when
   /// it lies further on (a1-10); the rest go behind "+N".
@@ -462,49 +518,12 @@ final class ShellDocumentList {
       : null;
 }
 
-/// The open documents, as `shellDocumentsProvider`.
-///
-/// Until the first document opens these are the M1 placeholder documents
-/// that show every tab state the design draws (DS additions `tabStates`,
-/// a1-10): the active clean contract, an idle clean invoice, an idle
-/// statement with unsaved changes, a report still opening, a locked
-/// payslip, and three more behind "+3". The names are the design's sample
-/// files, not copy. The first document opened ([add]) replaces them.
-// shortcut: the placeholders stay the starting state for the M1 shell
-// tests and `/debug/shell`; drop them with the debug route (end of M2).
+/// The open documents, as `shellDocumentsProvider`: none until the first
+/// one opens.
 @Riverpod(keepAlive: true)
 class ShellDocuments extends _$ShellDocuments {
-  /// The placeholder documents.
-  static final List<ShellDocument> placeholders = [
-    ShellDocument(
-      name: 'Kira sözleşmesi.pdf',
-      saveState: SaveState.saved,
-      savedAt: DateTime(2026, 10, 13, 14, 32),
-      pageCount: 3,
-    ),
-    ShellDocument(
-      name: 'e-Arşiv fatura 4187.pdf',
-      saveState: SaveState.saved,
-      savedAt: DateTime(2026, 10, 13, 11, 5),
-      pageCount: 1,
-    ),
-    const ShellDocument(
-      name: 'Hesap ekstresi Eylül 2026.pdf',
-      saveState: SaveState.unsaved,
-      pageCount: 2,
-      editCount: 3,
-    ),
-    const ShellDocument(name: 'İmar planı açıklama raporu.pdf'),
-    const ShellDocument(
-      name: 'Maaş bordrosu Eylül 2026.pdf',
-      icon: IconName.lock,
-      saveState: SaveState.readOnly,
-    ),
-  ];
-
   @override
-  ShellDocumentList build() =>
-      ShellDocumentList(documents: placeholders, overflowCount: 3);
+  ShellDocumentList build() => const ShellDocumentList(documents: []);
 
   /// Shows the document at [index].
   void activate(int index) {
@@ -516,12 +535,9 @@ class ShellDocuments extends _$ShellDocuments {
     );
   }
 
-  /// Adds [document] as the last tab and shows it; the first one replaces
-  /// the placeholders.
+  /// Adds [document] as the last tab and shows it.
   void add(ShellDocument document) {
-    final documents = state.placeholder
-        ? const <ShellDocument>[]
-        : state.documents;
+    final documents = state.documents;
     state = ShellDocumentList(
       documents: [...documents, document],
       activeIndex: documents.length,

@@ -810,6 +810,7 @@ dependencies = [
 name = "ferman-text"
 version = "0.1.0"
 dependencies = [
+ "criterion",
  "ferman-core",
  "ferman-fonts",
  "icu_collator",

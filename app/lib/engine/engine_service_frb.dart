@@ -84,6 +84,21 @@ class FrbEngineService implements EngineService {
             ReadOnlyReason.parsersDisagree,
           bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
         },
+        repairs: [
+          for (final fix in document.repairs)
+            RepairFix(
+              kind: switch (fix.kind) {
+                bridge.RepairKind.crossReferenceRebuilt =>
+                  RepairKind.crossReferenceRebuilt,
+                bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
+                bridge.RepairKind.streamLengthsCorrected =>
+                  RepairKind.streamLengthsCorrected,
+                bridge.RepairKind.objectsUnreadable =>
+                  RepairKind.objectsUnreadable,
+              },
+              count: fix.count,
+            ),
+        ],
         rightToLeft: document.rightToLeft,
         pages: [
           for (final page in document.pages)
@@ -158,6 +173,8 @@ class FrbEngineService implements EngineService {
         ],
         security: _security(document.security),
         scripts: document.scripts,
+        formFields: document.formFields,
+        scanned: document.scanned,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -195,6 +212,25 @@ class FrbEngineService implements EngineService {
         visible: visible,
       );
       return key.toSigned(64).toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveAttachment(
+    int document,
+    int index,
+    String path, {
+    String? staging,
+  }) async {
+    try {
+      return await bridge.saveAttachment(
+        document: BigInt.from(document),
+        index: index,
+        path: path,
+        staging: staging,
+      );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -289,6 +325,7 @@ class FrbEngineService implements EngineService {
           matchCase: options.matchCase,
           wholeWords: options.wholeWords,
           ignoreAccents: options.ignoreAccents,
+          bookmarks: options.bookmarks,
         ),
       )
       .handleError(
@@ -309,13 +346,17 @@ class FrbEngineService implements EngineService {
                 snippet: found.snippet,
                 snippetStart: _units(found.snippet, found.snippetStart),
                 snippetEnd: _units(found.snippet, found.snippetEnd),
+                bookmark: found.bookmark,
               ),
           ]),
           bridge.SearchEventKind.progress => SearchProgress(
             searched: event.searched,
             pages: event.pages,
           ),
-          bridge.SearchEventKind.done => SearchDone(cancelled: event.cancelled),
+          bridge.SearchEventKind.done => SearchDone(
+            cancelled: event.cancelled,
+            textless: event.textless,
+          ),
         },
       )
       .where((update) => update != null)

@@ -303,6 +303,10 @@ class _TitleBarState extends State<TitleBar> {
                         PointerDeviceKind.unknown,
                       },
                       onPanStart: (_) => window.startDragging(),
+                      // The system's window menu, as on a native title bar
+                      // (B008).
+                      onSecondaryTapUp: (_) =>
+                          unawaited(window.showWindowMenu()),
                       // A click that does not move is a click: competing
                       // for the pointer, the tap keeps the drag from
                       // starting until the pointer moves, as on a native

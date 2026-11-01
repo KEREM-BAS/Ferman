@@ -984,6 +984,8 @@ Drawn in: 01 First run and files, 02 View, 03a Edit text, 03b Edit content, 03c 
 | — |  | `disabledReason` | `String?` |  |  | Settings controls (G10). |
 | — |  | `semanticLabel` | `String?` |  |  | aria-label via ...rest (zoom, sort). |
 | — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the box; one is created when null. |
+| — |  | `menu` | `List<MenuItem>?` |  |  | A Menu that opens instead of the list (a2-2's zoom menu). |
+| — |  | `onMenuSelected` | `ValueChanged<MenuItem>?` |  |  | Called with the activated item of menu. |
 
 Item type `SelectOption` → `SelectOption<T>` (declared in the lint config):
 

@@ -2,7 +2,6 @@ import 'dart:ui' show CheckedState, Tristate;
 
 import 'package:ferman/app/window_frame.dart';
 import 'package:ferman/design/components/components.dart';
-import 'package:ferman/design/icons/icon_painter.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
@@ -119,30 +118,22 @@ void main() {
       );
     });
     testWidgets('the canvas is never mirrored: in right to left its subtree '
-        'runs left to right and its glyph is not flipped (ADR 0014)', (
-      tester,
-    ) async {
+        'runs left to right (ADR 0014)', (tester) async {
       await pumpShell(
         tester,
         shellHost(window: window, locale: const Locale('ar')),
       );
       final canvas = find.byType(ShellCanvas);
       expect(Directionality.of(tester.element(canvas)), TextDirection.rtl);
-      final glyph = find.descendant(of: canvas, matching: find.byType(Icon));
-      expect(tester.widget<Icon>(glyph).name, IconName.fileText);
       // The canvas content runs with its own left-to-right geometry.
-      expect(Directionality.of(tester.element(glyph)), TextDirection.ltr);
-      final painter =
-          tester
-                  .widget<CustomPaint>(
-                    find.descendant(
-                      of: glyph,
-                      matching: find.byType(CustomPaint),
-                    ),
-                  )
-                  .painter!
-              as IconPainter;
-      expect(painter.mirror, isFalse);
+      final content = find.descendant(
+        of: canvas,
+        matching: find.byType(SizedBox),
+      );
+      expect(
+        Directionality.of(tester.element(content.last)),
+        TextDirection.ltr,
+      );
       // No mirroring transform between the canvas and its content.
       final transforms = tester.widgetList<Transform>(
         find.descendant(of: canvas, matching: find.byType(Transform)),
@@ -150,11 +141,6 @@ void main() {
       for (final transform in transforms) {
         expect(transform.transform.storage[0], isNot(lessThan(0)));
       }
-      // The placeholder's copy keeps the UI's direction.
-      final copy = tester.widget<Text>(
-        find.descendant(of: canvas, matching: find.byType(Text)),
-      );
-      expect(copy.textDirection, TextDirection.rtl);
       // And the canvas sits between the mirrored panels, the sidebar right.
       expect(
         tester.getRect(canvas).right,
@@ -530,10 +516,21 @@ void main() {
       );
     });
 
-    testWidgets('disable every tool with the future-version tooltip', (
+    testWidgets('disable every tool with the future-version tooltip, and '
+        "View's viewing tools without one while no document shows", (
       tester,
     ) async {
       await pumpShell(tester, shellHost(window: window));
+      const viewing = {
+        'Select',
+        'Hand',
+        'Marquee zoom',
+        'icon:Zoom out',
+        'select',
+        'icon:Zoom in',
+        'segments:Fit',
+        'segments:Page layout',
+      };
       for (final mode in FermanMode.values) {
         for (final item in itemsOf(tester, mode)) {
           final reason = switch (item) {
@@ -551,7 +548,14 @@ void main() {
               onPressed == null ? disabledReason : 'enabled',
             _ => futureVersion,
           };
-          expect(reason, futureVersion, reason: '$mode ${describe(item)}');
+          final name = describe(item);
+          expect(
+            reason,
+            mode == FermanMode.view && viewing.contains(name)
+                ? isNull
+                : futureVersion,
+            reason: '$mode $name',
+          );
         }
       }
       final annotations = tester.widget<AnnotationTools>(
@@ -776,17 +780,16 @@ void main() {
       );
     });
 
-    testWidgets('the canvas shows its empty state and has focus first', (
-      tester,
-    ) async {
+    testWidgets('the canvas shows only its background while no document '
+        'shows, and has focus first', (tester) async {
       final semantics = tester.ensureSemantics();
       await pumpShell(tester, shellHost(window: window));
       expect(
         find.descendant(
           of: find.byType(ShellCanvas),
-          matching: find.text(futureVersion),
+          matching: find.byType(Text),
         ),
-        findsOneWidget,
+        findsNothing,
       );
       expect(find.bySemanticsLabel('Document pages'), findsOneWidget);
       expect(
@@ -918,7 +921,7 @@ void main() {
                 ),
               )
               .disabledReason,
-          futureVersion,
+          isNull,
         );
       }
     });
@@ -992,7 +995,7 @@ void main() {
 
   group('accessibility', () {
     testWidgets('focus moves title bar, mode bar, tool row, sidebar, canvas, '
-        'panel, status bar', (tester) async {
+        'panel', (tester) async {
       await pumpShell(tester, shellHost(window: window, onHome: () {}));
       Focus.of(
         tester.element(
@@ -1012,7 +1015,14 @@ void main() {
         await tester.sendKeyEvent(LogicalKeyboardKey.tab);
         await tester.pump();
       }
-      expect(seen, [...ShellRegion.values, ShellRegion.titleBar]);
+      // While no document shows, the status bar's buttons are disabled and
+      // it has no focus stop.
+      expect(seen, [
+        ...ShellRegion.values.where(
+          (region) => region != ShellRegion.statusBar,
+        ),
+        ShellRegion.titleBar,
+      ]);
     });
 
     testWidgets('names every control', (tester) async {

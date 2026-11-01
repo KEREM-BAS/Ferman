@@ -22,6 +22,8 @@
 //! - `encoding` (since M2): [`BaseEncoding`] (Standard, WinAnsi, MacRoman), [`SimpleEncoding`]
 //!   with `/Differences`, and glyph names to text ([`glyph_text`]). MacExpert, PDFDoc, Symbol and
 //!   ZapfDingbats follow with the fonts that need them.
+//! - `type1` (since M2): the minimal Type1 parser, a program's [`BuiltinEncoding`] from its
+//!   clear text ([`builtin_encoding`]).
 //! - `cmap` (since M2): [`CMap`], encoding and ToUnicode CMaps read leniently, with `usecmap`
 //!   recorded for the caller's depth limit; writing in M3.
 //! - `shaping`: the internal `Shaper` trait and `ShapedRun`, with harfrust behind it (ADR 0007), so
@@ -33,9 +35,11 @@
 
 pub mod cmap;
 pub mod encoding;
+pub mod type1;
 
 pub use cmap::CMap;
 pub use encoding::{BaseEncoding, SimpleEncoding, glyph_text};
+pub use type1::{BuiltinEncoding, builtin_encoding};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
 pub const VERSION: &str = env!("CARGO_PKG_VERSION");
@@ -52,6 +56,20 @@ pub enum FontError {
     #[error("internal error in ferman-fonts: {context}")]
     Internal {
         /// What ferman-fonts was doing when the invariant failed.
+        context: &'static str,
+    },
+    /// A font program is larger than the limit (docs/ARCHITECTURE.md §9.1).
+    #[error("font program of {size} bytes exceeds the limit of {max}")]
+    ProgramTooLarge {
+        /// The program's size in bytes.
+        size: u64,
+        /// The limit in bytes.
+        max: u64,
+    },
+    /// A font program's structure is damaged.
+    #[error("damaged font program: {context}")]
+    Malformed {
+        /// The part that is damaged.
         context: &'static str,
     },
 }

@@ -13,6 +13,7 @@ use std::sync::atomic::{AtomicBool, AtomicU64, Ordering};
 use std::sync::{Arc, PoisonError};
 use std::thread;
 
+use ferman_core::structure::OutlineItem;
 use ferman_render::DocumentId;
 use ferman_text::SearchOptions;
 use ferman_text::extract::{CharBox, PageText};
@@ -58,6 +59,9 @@ pub struct SearchMatch {
     pub snippet: String,
     /// Where it is in the snippet, in characters.
     pub snippet_range: Range<u32>,
+    /// Whether it is in a bookmark's title, not the page text: the snippet is the title and
+    /// there are no rectangles.
+    pub bookmark: bool,
 }
 
 /// What a search reports, in order: `Started`, then `Matches` and `Progress` as pages are read,
@@ -79,6 +83,8 @@ pub enum SearchEvent {
     Done {
         /// Whether it was cancelled.
         cancelled: bool,
+        /// Whether no page had text: a scan without a text layer (a2-3m). False when cancelled.
+        textless: bool,
     },
 }
 
@@ -90,8 +96,9 @@ pub trait SearchSink: Send {
 }
 
 impl Engine {
-    /// Searches `document` for `query` with `options` on a thread of its own; `sink` receives
-    /// `Started` before any match.
+    /// Searches `document` for `query` with `options` on a thread of its own, and the bookmarks'
+    /// titles too with `bookmarks` (a2-4a's Look in); `sink` receives `Started` before any match.
+    /// A bookmark's matches come with its page's, before the page text's.
     ///
     /// # Errors
     ///
@@ -102,6 +109,7 @@ impl Engine {
         document: DocumentId,
         query: String,
         mut options: SearchOptions,
+        bookmarks: bool,
         mut sink: Box<dyn SearchSink>,
     ) -> Result<SearchId, ApiError> {
         // The state a panic could leave is the searches' map, whose lock is taken as it is.
@@ -135,7 +143,7 @@ impl Engine {
                 .spawn(move || {
                     // A panic ends the search; the sink is dropped and the stream ends.
                     let _ = guard(AssertUnwindSafe(|| {
-                        run(&model, &query, &options, &cancel, sink.as_mut());
+                        run(&model, &query, &options, bookmarks, &cancel, sink.as_mut());
                         Ok(())
                     }));
                 })
@@ -144,7 +152,7 @@ impl Engine {
         }))
     }
 
-    /// Cancels a search; it ends with `Done { cancelled: true }`. A search that ended already
+    /// Cancels a search; it ends with `Done { cancelled: true, .. }`. A search that ended already
     /// ignores it.
     pub fn cancel_search(&self, search: SearchId) {
         let searches = self.searches.lock().unwrap_or_else(PoisonError::into_inner);
@@ -159,19 +167,42 @@ fn run(
     model: &Model,
     query: &str,
     options: &SearchOptions,
+    bookmarks: bool,
     cancel: &AtomicBool,
     sink: &mut dyn SearchSink,
 ) {
     let pages = u32::try_from(model.document.page_count()).unwrap_or(u32::MAX);
+    let titles = if bookmarks {
+        titles_by_page(&model.document.structure().outline)
+    } else {
+        Vec::new()
+    };
+    let mut textless = true;
     for page in 0..pages {
         if cancel.load(Ordering::Relaxed) {
-            sink.deliver(SearchEvent::Done { cancelled: true });
+            sink.deliver(SearchEvent::Done {
+                cancelled: true,
+                textless: false,
+            });
             return;
         }
         let text = page_text(model, page);
-        let matches: Vec<SearchMatch> = ferman_text::find(&text.text, query, options)
+        textless &= text.text.trim().is_empty();
+        let in_titles = titles
+            .get(usize::try_from(page).unwrap_or(usize::MAX))
             .into_iter()
-            .map(|range| found(page, &text, range))
+            .flatten()
+            .flat_map(|title| {
+                ferman_text::find(title, query, options)
+                    .into_iter()
+                    .map(move |range| in_title(page, title, range))
+            });
+        let matches: Vec<SearchMatch> = in_titles
+            .chain(
+                ferman_text::find(&text.text, query, options)
+                    .into_iter()
+                    .map(|range| found(page, &text, range)),
+            )
             .collect();
         if !matches.is_empty() && !sink.deliver(SearchEvent::Matches(matches)) {
             return;
@@ -183,7 +214,41 @@ fn run(
             return;
         }
     }
-    sink.deliver(SearchEvent::Done { cancelled: false });
+    sink.deliver(SearchEvent::Done {
+        cancelled: false,
+        textless,
+    });
+}
+
+/// The bookmarks' titles by their page, in reading order; a bookmark without a page is left out.
+fn titles_by_page(outline: &[OutlineItem]) -> Vec<Vec<String>> {
+    let mut by_page: Vec<Vec<String>> = Vec::new();
+    // Depth first without recursion: a deep outline cannot overflow the stack.
+    let mut stack: Vec<&OutlineItem> = outline.iter().rev().collect();
+    while let Some(item) = stack.pop() {
+        if let Some(page) = item.page.and_then(|page| usize::try_from(page).ok()) {
+            if by_page.len() <= page {
+                by_page.resize_with(page.saturating_add(1), Vec::new);
+            }
+            if let Some(titles) = by_page.get_mut(page) {
+                titles.push(item.title.clone());
+            }
+        }
+        stack.extend(item.children.iter().rev());
+    }
+    by_page
+}
+
+/// A match of `range`'s characters in a bookmark's `title`, which points at `page`.
+fn in_title(page: u32, title: &str, range: Range<usize>) -> SearchMatch {
+    let offset = |at: usize| u32::try_from(at).unwrap_or(u32::MAX);
+    SearchMatch {
+        page,
+        rects: Vec::new(),
+        snippet: title.to_owned(),
+        snippet_range: offset(range.start)..offset(range.end),
+        bookmark: true,
+    }
 }
 
 /// The text of `page`, read once; a page whose content cannot be read has none.
@@ -260,5 +325,6 @@ fn found(page: u32, text: &PageText, range: Range<usize>) -> SearchMatch {
         rects,
         snippet,
         snippet_range: offset(range.start)..offset(range.end.min(line_end)),
+        bookmark: false,
     }
 }

@@ -1,6 +1,6 @@
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/open_files.dart';
@@ -23,10 +23,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 ///
 /// With a document open (`viewerProvider`) it shows its pages
 /// ([DocumentView]), names the page in its semantics and scrolls with ↑,
-/// ↓, Page Up, Page Down, Space, Home and End. Until documents open from
-/// the UI (W3), the placeholder documents of the shell show the canvas
-/// background and a quiet empty state: a page glyph and "Available in a
-/// future version", the reason of [Feature.pageRendering]. It is a
+/// ↓, Page Up, Page Down, Space, Home and End. While the document is still
+/// opening it shows only the canvas background (no board draws an empty
+/// canvas, G86). It is a
 /// focus stop named "Document pages", focused when the shell opens, so the
 /// shortcut table's keys work at once. The inset focus ring shows once the
 /// keyboard is used there: not for the focus it gets at launch (no board
@@ -35,8 +34,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// table's canvas keys (`ShortcutScope.canvas`: page turns, form fields,
 /// the page grid) are bound here. The canvas is never mirrored in right to
 /// left: its subtree runs with a left-to-right [Directionality], as pages
-/// keep their own geometry (ADR 0014), while the placeholder's copy keeps
-/// the UI's direction.
+/// keep their own geometry (ADR 0014).
 class ShellCanvas extends ConsumerStatefulWidget {
   /// The canvas.
   const new({super.key});
@@ -134,15 +132,19 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final active = ref.watch(shellDocumentsProvider).active;
     // a1-9f: where the toast of a file that got no tab shows.
     final problem = ref.watch(documentOpenerProvider);
-    final problemToast = problem == null
+    // B110: an attachment that was not saved, in the same place.
+    final unsaved = ref.watch(attachmentSaverProvider);
+    final toastChild = problem != null
+        ? OpenProblemToast(problem)
+        : unsaved != null
+        ? AttachmentSaveToast(unsaved)
+        : null;
+    final problemToast = toastChild == null
         ? null
         : PositionedDirectional(
             bottom: theme.space.space4,
             end: theme.space.space4,
-            child: SizedBox(
-              width: Toast.width,
-              child: OpenProblemToast(problem),
-            ),
+            child: SizedBox(width: Toast.width, child: toastChild),
           );
     // a1-7: a file still opening, with its Cancel (also Esc).
     final opening = active != null && active.loading ? active.path : null;
@@ -293,30 +295,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                             ],
                           ),
                         )
-                      : Center(
-                          child: Semantics(
-                            container: true,
-                            child: Column(
-                              mainAxisSize: MainAxisSize.min,
-                              spacing: theme.space.space2,
-                              children: [
-                                Icon(
-                                  IconName.fileText,
-                                  size: theme.density.iconLg,
-                                  color: theme.colors.iconSecondary,
-                                ),
-                                Text(
-                                  Feature.pageRendering.disabledReason(context),
-                                  textAlign: TextAlign.center,
-                                  textDirection: uiDirection,
-                                  style: theme.typography.caption.copyWith(
-                                    color: theme.colors.textTertiary,
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ),
-                        ),
+                      : const SizedBox.expand(),
                 ),
               ),
             ),

@@ -7,6 +7,7 @@ import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/onboarding/onboarding_screen.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/shell/shell_screen.dart';
+import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shell_title_bar.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/settings/app_settings.dart';
@@ -16,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_desktop_window.dart';
+import '../../helpers/sample_documents.dart';
 import 'shell_host.dart';
 
 void main() {
@@ -162,12 +164,14 @@ void main() {
     expect(window.calls, ['close', 'close', 'close']);
   });
 
-  testWidgets('the shell at /debug/shell has its documents; Home goes back '
-      'to the home header', (tester) async {
+  testWidgets('the editor shows the open documents; Home goes back to the '
+      'home header, which keeps their tabs', (tester) async {
     final container = await pumpApp(tester);
     expect(find.byType(FmWindow), findsNothing);
 
-    container.read(routerProvider).go(Routes.debugShell);
+    final documents = container.read(shellDocumentsProvider.notifier);
+    sampleDocuments.forEach(documents.add);
+    container.read(routerProvider).go(Routes.editor);
     await settle(tester);
     expect(find.byType(FmWindow), findsOneWidget);
     expect(titleBar(tester).homeActive, isFalse);
@@ -178,7 +182,14 @@ void main() {
     expect(find.byType(FmWindow), findsNothing);
     expect(find.byType(FmStart), findsOneWidget);
     expect(titleBar(tester).homeActive, isTrue);
-    expect(find.byType(DocumentTab), findsNothing);
+    // The open documents keep their tabs beside Home, none of them active.
+    expect(find.byType(DocumentTab), findsNWidgets(5));
+    expect(
+      tester
+          .widgetList<DocumentTab>(find.byType(DocumentTab))
+          .where((tab) => tab.active),
+      isEmpty,
+    );
   });
 
   testWidgets('first run keeps the bare title bar', (tester) async {

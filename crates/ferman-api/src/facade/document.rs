@@ -22,6 +22,7 @@ use ferman_core::structure::{
 };
 use ferman_core::{Access, Method, OpenOptions, Password, Permissions, RepairReport, Source};
 use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
+use ferman_text::extract::PageText;
 
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
@@ -75,6 +76,11 @@ pub struct OpenedDocument {
     pub security: Option<Security>,
     /// The document JavaScript it holds, which Ferman never runs (Q13, G100).
     pub scripts: Scripts,
+    /// How many form fields it has (the start screen's Form badge).
+    pub form_fields: u32,
+    /// Whether its first page has no text: most likely a scan without a text layer (the start
+    /// screen's Scanned badge). A page of drawings only says so too.
+    pub scanned: bool,
 }
 
 /// An encrypted document's security (a2-10b).
@@ -166,7 +172,7 @@ impl Engine {
     ) -> Result<OpenedDocument, ApiError> {
         guard_async(async move {
             let render = self.render()?;
-            let (source, model) = parse(path, password.clone()).await?;
+            let (source, model, first) = parse(path, password.clone()).await?;
             // shortcut: ferman-core parses before PDFium loads, so the first page waits for both;
             // run them side by side if the first-page bench misses its budget.
             let rendered = render
@@ -228,11 +234,19 @@ impl Engine {
                     owner: model.access() == Access::Owner,
                 }),
                 scripts: structure.scripts,
+                form_fields: structure.forms.fields,
+                scanned: first
+                    .as_ref()
+                    .is_some_and(|text| text.text.trim().is_empty()),
             };
+            let mut texts = vec![None; model.page_count()];
+            if let Some(slot) = texts.first_mut() {
+                *slot = first;
+            }
             self.models()?.insert(
                 rendered.id,
                 Arc::new(Model {
-                    pages: Mutex::new(vec![None; model.page_count()]),
+                    pages: Mutex::new(texts),
                     document: model,
                     layers_switchable,
                     owner_unlocked: AtomicBool::new(false),
@@ -328,6 +342,54 @@ impl Engine {
         .await
     }
 
+    /// Saves the file attached to `document` as its `attachments[index]` at `path` (a2-3b,
+    /// B110), through ferman-core's safe write (ADR 0008), on a thread of its own: decoding and
+    /// writing take a while for a large file. With `staging` (the macOS App Sandbox's replacement
+    /// directory) the verified temp file stays there and its path is returned for the platform
+    /// layer to swap in; otherwise it replaces `path` and `None` is returned. The file is never
+    /// opened or run.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open, the core's error for an attachment
+    /// that cannot be read, and the file errors of the write (`PermissionDenied`, `NotFound`, …).
+    pub async fn save_attachment(
+        &self,
+        document: DocumentId,
+        index: u32,
+        path: PathBuf,
+        staging: Option<PathBuf>,
+    ) -> Result<Option<PathBuf>, ApiError> {
+        guard_async(async move {
+            let model = self
+                .models()?
+                .get(&document)
+                .cloned()
+                .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+            let index = usize::try_from(index)
+                .map_err(|_| ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL))?;
+            let (reply, receiver) = futures_channel::oneshot::channel();
+            thread::Builder::new()
+                .name(PARSE_THREAD.to_owned())
+                .spawn(move || {
+                    let result = guard(AssertUnwindSafe(move || {
+                        let bytes = model.document.attachment_data(index)?;
+                        Ok(ferman_core::save::safe_write(
+                            &path,
+                            &bytes,
+                            staging.as_deref(),
+                        )?)
+                    }));
+                    let _ = reply.send(result);
+                })
+                .map_err(|_| ApiError::internal("cannot start the attachment thread"))?;
+            receiver
+                .await
+                .map_err(|_canceled| ApiError::internal("the attachment thread stopped"))?
+        })
+        .await
+    }
+
     /// Closes a document: its views end and PDFium lets it go.
     ///
     /// # Errors
@@ -399,7 +461,7 @@ impl Engine {
 async fn parse(
     path: PathBuf,
     password: Option<Password>,
-) -> Result<(Source, ferman_core::Document), ApiError> {
+) -> Result<(Source, ferman_core::Document, Option<Arc<PageText>>), ApiError> {
     let (reply, receiver) = futures_channel::oneshot::channel();
     thread::Builder::new()
         .name(PARSE_THREAD.to_owned())
@@ -412,7 +474,13 @@ async fn parse(
             let result = guard(move || {
                 let source = Source::read(&path)?;
                 let model = ferman_core::open(&source, &options)?;
-                Ok((source, model))
+                // The first page's text, for the Scanned badge and the first search; a page
+                // that cannot be read says nothing.
+                let first = (model.page_count() > 0)
+                    .then(|| ferman_text::extract::page_layout(&model, 0).ok())
+                    .flatten()
+                    .map(Arc::new);
+                Ok((source, model, first))
             });
             // The caller may have stopped waiting; then nobody needs the result.
             let _ = reply.send(result);

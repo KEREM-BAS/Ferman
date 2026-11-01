@@ -1,3 +1,4 @@
+import 'package:ferman/design/components/forms/field_context_menu.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
@@ -189,7 +190,9 @@ class _FieldInputState extends State<FieldInput>
       onEditingComplete: widget.onEditingComplete,
       rendererIgnoresPointer: true,
       enableInteractiveSelection: widget.enabled,
-      selectionControls: emptyTextSelectionControls,
+      // No selection controls: they would take the legacy toolbar path
+      // and never build the context menu.
+      contextMenuBuilder: fieldContextMenu,
       mouseCursor: widget.mouseCursor,
     );
     final placeholder = widget.placeholder;

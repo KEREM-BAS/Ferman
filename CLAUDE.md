@@ -36,7 +36,7 @@ ferman/
 ├── fuzz/                  cargo-fuzz workspace on a pinned nightly, one target per parser (M2)
 ├── app/                   Flutter app: macos, windows, linux, web now; ios, android later
 │   └── rust_builder/      FFI plugin that builds ferman-api through vendored cargokit (two marked patches)
-├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); app-icons/, corpus/ (M2)
+├── tools/                 checks/, tokens/, icons/, l10n/, fonts/, pdfium/, design-refs/ (M1); app-icons/, corpus/, cldr/, unicode/ (M2)
 ├── tests/corpus/          README.md with provenance (M1); test PDFs from M2
 ├── .github/workflows/     CI on macOS, Windows and Linux
 └── build/                 gitignored output, including build/design-refs/
@@ -74,7 +74,7 @@ cargo clippy --manifest-path fuzz/Cargo.toml --all-targets -- -D warnings && car
 (cd app && flutter_rust_bridge_codegen generate) && cargo fmt -p ferman-api   # bridge bindings (FRB 2.13.0, cargo-expand 1.0.127; the Dco codec's ffigen needs libclang: Xcode on macOS, libclang-dev on Linux)
 bash tools/pdfium/fetch.sh --platform <linux-x64|win-x64|mac-univ>   # before a desktop build or integration test: the app bundles PDFium
 (cd app && flutter build <linux|windows|macos> --release)            # desktop build (CI scans it with tools/checks/bin/scan_bundle.dart)
-(cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell and the gallery are the debug routes /debug/shell and /debug/gallery until M2)
+(cd app && flutter run -d <linux|windows|macos>)                     # run the app: first run, then the start screen (the shell at /editor once a document opens; the gallery is the debug route /debug/gallery)
 (cd app && flutter build web --release)                              # web build with the engine stubbed (kept buildable until phase 5)
 (cd app && flutter test integration_test -d linux)                   # the engine through the bridge (Linux under xvfb-run -a; also macos, windows)
 (cd app && flutter drive --profile -d <linux|windows|macos> --driver=test_driver/integration_test.dart --target=integration_test/app_test.dart)   # same test in profile mode: the bridge timing for R1 and R2
@@ -94,6 +94,8 @@ tools/pdfium/fetch.sh [--platform <id> | --all] [--verify --check-licenses]     
 node tools/design-refs [--only @m1,@m2] [--twice]  # every board → build/design-refs/<id>.png (and <id>.<tr|ar>.png variants), offline
 node tools/design-refs compare                 # goldens vs references → build/design-compare/report.md (informative)
 node tools/app-icons [--check]                 # app icons for macOS, Windows, Linux and the web from design/assets/logo (a headless Chrome renders; --check needs none)
+node tools/cldr/regions.mjs [--check]         # region names and the picker's order → app/lib/l10n/region_names.dart (Node.js 24.22.0 only: CLDR 48)
+bash tools/unicode/fetch.sh && (cd tools/unicode && dart run bin/casing.dart [--check])   # UCD 15.0.0 → the casing tables in app/lib/l10n/casing.dart (Dart 3.13.5 only)
 ```
 
 Each tool's README has the full options and its self-tests. The renderer needs the Chromium 1194 headless shell: the development container has it in `/opt/pw-browsers`; on Linux x64 `tools/design-refs/fetch-chromium.sh` downloads it and prints the path for `--chromium`. Never use the Playwright installer: it also downloads an LGPL ffmpeg build.

@@ -150,6 +150,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<RepairFix> dco_decode_list_repair_fix(dynamic raw);
+
+  @protected
   List<SearchMatch> dco_decode_list_search_match(dynamic raw);
 
   @protected
@@ -208,6 +211,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  RepairFix dco_decode_repair_fix(dynamic raw);
+
+  @protected
+  RepairKind dco_decode_repair_kind(dynamic raw);
 
   @protected
   SearchEvent dco_decode_search_event(dynamic raw);
@@ -395,6 +404,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<RepairFix> sse_decode_list_repair_fix(SseDeserializer deserializer);
+
+  @protected
   List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer);
 
   @protected
@@ -457,6 +469,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  RepairFix sse_decode_repair_fix(SseDeserializer deserializer);
+
+  @protected
+  RepairKind sse_decode_repair_kind(SseDeserializer deserializer);
 
   @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer);
@@ -732,6 +750,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_repair_fix> cst_encode_list_repair_fix(
+    List<RepairFix> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_repair_fix(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_repair_fix(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_search_match> cst_encode_list_search_match(
     List<SearchMatch> raw,
   ) {
@@ -974,6 +1004,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.read_only = cst_encode_opt_box_autoadd_read_only_reason(
       apiObj.readOnly,
     );
+    wireObj.repairs = cst_encode_list_repair_fix(apiObj.repairs);
     wireObj.right_to_left = cst_encode_bool(apiObj.rightToLeft);
     wireObj.pages = cst_encode_list_page_info(apiObj.pages);
     wireObj.outline = cst_encode_list_outline_entry(apiObj.outline);
@@ -990,6 +1021,8 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.fonts = cst_encode_list_font_entry(apiObj.fonts);
     wireObj.security = cst_encode_opt_box_autoadd_security(apiObj.security);
     wireObj.scripts = cst_encode_u_32(apiObj.scripts);
+    wireObj.form_fields = cst_encode_u_32(apiObj.formFields);
+    wireObj.scanned = cst_encode_bool(apiObj.scanned);
   }
 
   @protected
@@ -1047,6 +1080,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_repair_fix(
+    RepairFix apiObj,
+    wire_cst_repair_fix wireObj,
+  ) {
+    wireObj.kind = cst_encode_repair_kind(apiObj.kind);
+    wireObj.count = cst_encode_u_32(apiObj.count);
+  }
+
+  @protected
   void cst_api_fill_to_wire_search_event(
     SearchEvent apiObj,
     wire_cst_search_event wireObj,
@@ -1057,6 +1099,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.searched = cst_encode_u_32(apiObj.searched);
     wireObj.pages = cst_encode_u_32(apiObj.pages);
     wireObj.cancelled = cst_encode_bool(apiObj.cancelled);
+    wireObj.textless = cst_encode_bool(apiObj.textless);
   }
 
   @protected
@@ -1069,6 +1112,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.snippet = cst_encode_String(apiObj.snippet);
     wireObj.snippet_start = cst_encode_u_32(apiObj.snippetStart);
     wireObj.snippet_end = cst_encode_u_32(apiObj.snippetEnd);
+    wireObj.bookmark = cst_encode_bool(apiObj.bookmark);
   }
 
   @protected
@@ -1079,6 +1123,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.match_case = cst_encode_bool(apiObj.matchCase);
     wireObj.whole_words = cst_encode_bool(apiObj.wholeWords);
     wireObj.ignore_accents = cst_encode_bool(apiObj.ignoreAccents);
+    wireObj.bookmarks = cst_encode_bool(apiObj.bookmarks);
   }
 
   @protected
@@ -1193,6 +1238,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_read_only_reason(ReadOnlyReason raw);
+
+  @protected
+  int cst_encode_repair_kind(RepairKind raw);
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw);
@@ -1384,6 +1432,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_repair_fix(
+    List<RepairFix> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_search_match(
     List<SearchMatch> self,
     SseSerializer serializer,
@@ -1472,6 +1526,12 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_repair_fix(RepairFix self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_repair_kind(RepairKind self, SseSerializer serializer);
 
   @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
@@ -1727,6 +1787,46 @@ class FermanBridgeWire implements BaseWire {
       _wire__crate__frb__request_viewPtr
           .asFunction<
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
+          >();
+
+  void wire__crate__frb__save_attachment(
+    int port_,
+    int document,
+    int index,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> staging,
+  ) {
+    return _wire__crate__frb__save_attachment(
+      port_,
+      document,
+      index,
+      path,
+      staging,
+    );
+  }
+
+  late final _wire__crate__frb__save_attachmentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint32,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_attachment');
+  late final _wire__crate__frb__save_attachment =
+      _wire__crate__frb__save_attachmentPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
           >();
 
   void wire__crate__frb__search(
@@ -2041,6 +2141,19 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
 
+  ffi.Pointer<wire_cst_list_repair_fix> cst_new_list_repair_fix(int len) {
+    return _cst_new_list_repair_fix(len);
+  }
+
+  late final _cst_new_list_repair_fixPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_repair_fix> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_repair_fix');
+  late final _cst_new_list_repair_fix = _cst_new_list_repair_fixPtr
+      .asFunction<ffi.Pointer<wire_cst_list_repair_fix> Function(int)>();
+
   ffi.Pointer<wire_cst_list_search_match> cst_new_list_search_match(int len) {
     return _cst_new_list_search_match(len);
   }
@@ -2165,6 +2278,9 @@ final class wire_cst_search_options extends ffi.Struct {
 
   @ffi.Bool()
   external bool ignore_accents;
+
+  @ffi.Bool()
+  external bool bookmarks;
 }
 
 final class wire_cst_list_bool extends ffi.Struct {
@@ -2365,6 +2481,21 @@ final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_repair_fix extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  @ffi.Uint32()
+  external int count;
+}
+
+final class wire_cst_list_repair_fix extends ffi.Struct {
+  external ffi.Pointer<wire_cst_repair_fix> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_search_match extends ffi.Struct {
   @ffi.Uint32()
   external int page;
@@ -2378,6 +2509,9 @@ final class wire_cst_search_match extends ffi.Struct {
 
   @ffi.Uint32()
   external int snippet_end;
+
+  @ffi.Bool()
+  external bool bookmark;
 }
 
 final class wire_cst_list_search_match extends ffi.Struct {
@@ -2470,6 +2604,8 @@ final class wire_cst_opened_document extends ffi.Struct {
 
   external ffi.Pointer<ffi.Int32> read_only;
 
+  external ffi.Pointer<wire_cst_list_repair_fix> repairs;
+
   @ffi.Bool()
   external bool right_to_left;
 
@@ -2507,6 +2643,12 @@ final class wire_cst_opened_document extends ffi.Struct {
 
   @ffi.Uint32()
   external int scripts;
+
+  @ffi.Uint32()
+  external int form_fields;
+
+  @ffi.Bool()
+  external bool scanned;
 }
 
 final class wire_cst_search_event extends ffi.Struct {
@@ -2526,6 +2668,9 @@ final class wire_cst_search_event extends ffi.Struct {
 
   @ffi.Bool()
   external bool cancelled;
+
+  @ffi.Bool()
+  external bool textless;
 }
 
 final class wire_cst_view_event extends ffi.Struct {

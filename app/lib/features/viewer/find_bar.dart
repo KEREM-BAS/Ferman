@@ -134,10 +134,12 @@ SearchOptions _with(
   bool? matchCase,
   bool? wholeWords,
   bool? ignoreAccents,
+  bool? bookmarks,
 }) => SearchOptions(
   matchCase: matchCase ?? options.matchCase,
   wholeWords: wholeWords ?? options.wholeWords,
   ignoreAccents: ignoreAccents ?? options.ignoreAccents,
+  bookmarks: bookmarks ?? options.bookmarks,
 );
 
 /// The raised box the panels under the bar share.
@@ -274,11 +276,17 @@ class _Options extends ConsumerWidget {
           spacing: FindBar.lookInGap,
           runSpacing: theme.space.space2,
           children: [
-            // The page text is always searched in M2 (B114).
+            // The page text is always searched; comments and form fields
+            // wait for their models (B114).
             check(l10n.findPageText, checked: true, reason: later),
             check(l10n.findComments, reason: later),
             check(l10n.findFormFields, reason: later),
-            check(l10n.findBookmarks, reason: later),
+            Checkbox(
+              checked: options.bookmarks,
+              label: l10n.findBookmarks,
+              onChanged: (value) =>
+                  notifier.setOptions(_with(options, bookmarks: value)),
+            ),
           ],
         ),
       ],

@@ -15,7 +15,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// with its design-system source, grouped as the spec groups them, so a
 /// person can compare it with the design's boards.
 ///
-/// A debug surface, like `/debug/shell`; not shipped UI. The bar at the
+/// A debug surface; not shipped UI. The bar at the
 /// top switches the preview's theme (light, dark, dim), density (standard,
 /// touch), reduced motion, text direction and UI language (English,
 /// Turkish, Arabic) for the sections only, never the app's settings

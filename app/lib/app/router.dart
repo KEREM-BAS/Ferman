@@ -33,13 +33,9 @@ abstract final class Routes {
   /// The editor: the shell with the documents opened (a1-13).
   static const String editor = '/editor';
 
-  /// The editor shell with the M1 placeholder documents (M1 phases H2 to
-  /// H5), until a document opens.
-  static const String debugShell = '/debug/shell';
-
   /// The component gallery (M1 phase G10): every component of the library
   /// with its variants and states, for review against the design. A debug
-  /// surface like [debugShell].
+  /// surface, not shipped UI.
   static const String debugGallery = '/debug/gallery';
 }
 
@@ -76,14 +72,14 @@ GoRouter router(Ref ref) {
               onDocument: () => context.go(Routes.editor),
               onOpenSettings: () => context.push(Routes.settings),
             ),
-            Routes.editor || Routes.debugShell => ShellTitleBarContent(
+            Routes.editor => ShellTitleBarContent(
               onHome: () => context.go(Routes.start),
               onOpenSettings: () => context.push(Routes.settings),
             ),
             _ => null,
           },
           takesFiles: switch (state.uri.path) {
-            Routes.start || Routes.editor || Routes.debugShell => true,
+            Routes.start || Routes.editor => true,
             _ => false,
           },
           child: child,
@@ -101,12 +97,11 @@ GoRouter router(Ref ref) {
             path: Routes.settings,
             builder: (context, state) => const FmSettings(),
           ),
-          for (final path in [Routes.editor, Routes.debugShell])
-            GoRoute(
-              path: path,
-              builder: (context, state) =>
-                  FmWindow(onOpenSettings: () => context.push(Routes.settings)),
-            ),
+          GoRoute(
+            path: Routes.editor,
+            builder: (context, state) =>
+                FmWindow(onOpenSettings: () => context.push(Routes.settings)),
+          ),
           GoRoute(
             path: Routes.debugGallery,
             builder: (context, state) => const GalleryScreen(),

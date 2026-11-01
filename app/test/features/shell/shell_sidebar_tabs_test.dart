@@ -2,15 +2,21 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
+import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_sidebar.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_layout.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/l10n/format.dart';
+import 'package:ferman/platform/file_access.dart';
+import 'package:ferman/platform/file_picker_service.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_desktop_window.dart';
+import '../../helpers/fake_file_picker.dart';
+import '../../helpers/recording_file_access.dart';
 import 'shell_host.dart';
 
 /// a2-3o's contract in three pages, with a2-3b's attachments, a2-3c's
@@ -77,15 +83,22 @@ void main() {
 
   Future<FakeEngineService> pumpDocument(
     WidgetTester tester,
-    OpenedDocument document,
-  ) async {
+    OpenedDocument document, {
+    FakeFilePickerService? picker,
+    RecordingFileAccess? access,
+  }) async {
     final engine = FakeEngineService(documents: {'/doc.pdf': document});
     await pumpShell(
       tester,
       shellHost(
         window: window,
         regionCode: 'GB',
-        overrides: [engineServiceProvider.overrideWithValue(engine)],
+        overrides: [
+          engineServiceProvider.overrideWithValue(engine),
+          if (picker != null)
+            filePickerServiceProvider.overrideWithValue(picker),
+          if (access != null) fileAccessProvider.overrideWithValue(access),
+        ],
       ),
     );
     containerOf(tester).read(openDocumentProvider.notifier).show(document);
@@ -135,19 +148,58 @@ void main() {
     );
   });
 
+  testWidgets('Pages: the arrow keys move focus between thumbnails, Enter '
+      'goes to the focused one', (tester) async {
+    await pumpDocument(tester, kira);
+    int? focused() {
+      final context = FocusManager.instance.primaryFocus?.context;
+      return context?.findAncestorWidgetOfExactType<PageThumbnail>()?.page;
+    }
+
+    tester
+        .widgetList<Focus>(
+          find.descendant(
+            of: inSidebar(find.byType(PageThumbnail)).first,
+            matching: find.byType(Focus),
+          ),
+        )
+        .map((focus) => focus.focusNode)
+        .firstWhere((node) => node?.debugLabel == 'PageThumbnail')!
+        .requestFocus();
+    await settle(tester);
+    expect(focused(), 1);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(focused(), 2);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+    await settle(tester);
+    expect(focused(), 3);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowUp);
+    await settle(tester);
+    expect(focused(), 2);
+    // Focus alone does not move the reader.
+    expect(currentPage(tester), 0);
+    await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+    await settle(tester);
+    expect(currentPage(tester), 1);
+  });
+
   testWidgets('Outline nests, folds, tints the current section and goes', (
     tester,
   ) async {
     await pumpDocument(tester, kira);
     await showTab(tester, SidebarTab.outline);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsOneWidget);
+    expect(
+      inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))),
+      findsOneWidget,
+    );
 
-    await tester.tap(inSidebar(find.text('4.2 Gecikme')));
+    await tester.tap(inSidebar(find.text(bidiIsolate('4.2 Gecikme'))));
     await settle(tester);
     expect(currentPage(tester), 2);
     // The last bookmark at or before page 3 is the current section.
     final tinted = find.ancestor(
-      of: find.text('İmzalar'),
+      of: find.text(bidiIsolate('İmzalar')),
       matching: find.byWidgetPredicate(
         (widget) => widget is FermanInteractive && widget.selected,
       ),
@@ -155,15 +207,21 @@ void main() {
     expect(tinted, findsOneWidget);
 
     // ← closes the focused parent, → opens it again.
-    Focus.of(tester.element(inSidebar(find.text('Madde 4 — Kira bedeli'))))
-        .requestFocus();
+    Focus.of(
+      tester.element(
+        inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      ),
+    ).requestFocus();
     await settle(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsOneWidget);
+    expect(
+      inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))),
+      findsOneWidget,
+    );
   });
 
   testWidgets('each document keeps its sidebar tab, folds and scroll, '
@@ -189,12 +247,15 @@ void main() {
         .pixels;
 
     await showTab(tester, SidebarTab.outline);
-    Focus.of(tester.element(inSidebar(find.text('Madde 4 — Kira bedeli'))))
-        .requestFocus();
+    Focus.of(
+      tester.element(
+        inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      ),
+    ).requestFocus();
     await settle(tester);
     await tester.sendKeyEvent(LogicalKeyboardKey.arrowLeft);
     await settle(tester);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
 
     // A new document starts on Pages, at the top.
     await show(long);
@@ -209,8 +270,11 @@ void main() {
 
     await show(kira);
     expect(container.read(shellSidebarTabProvider), SidebarTab.outline);
-    expect(inSidebar(find.text('Madde 4 — Kira bedeli')), findsOneWidget);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(
+      inSidebar(find.text(bidiIsolate('Madde 4 — Kira bedeli'))),
+      findsOneWidget,
+    );
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
 
     await show(long);
     expect(container.read(shellSidebarTabProvider), SidebarTab.pages);
@@ -224,7 +288,77 @@ void main() {
     await settle(tester);
     expect(offset(), scrolled);
     await show(kira);
-    expect(inSidebar(find.text('4.1 Yıllık artış')), findsNothing);
+    expect(inSidebar(find.text(bidiIsolate('4.1 Yıllık artış'))), findsNothing);
+  });
+
+  testWidgets('Save attachment as… writes the file where the save panel '
+      'says; under the sandbox through the staging directory (B110)', (
+    tester,
+  ) async {
+    final picker = FakeFilePickerService(saveTo: '/out/Demirbaş.xlsx');
+    final access = RecordingFileAccess();
+    final engine = await pumpDocument(
+      tester,
+      kira,
+      picker: picker,
+      access: access,
+    );
+    await showTab(tester, SidebarTab.attachments);
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(picker.saves, ['Ek-1 Demirbaş listesi.xlsx']);
+    expect(engine.savedAttachments, [(3, 0, '/out/Demirbaş.xlsx', null)]);
+
+    access.stagingDirectory = '/stage';
+    await tester.tap(iconButton('Save attachment as…').last);
+    await settle(tester);
+    expect(engine.savedAttachments.last, (
+      3,
+      1,
+      '/out/Demirbaş.xlsx',
+      '/stage',
+    ));
+    expect(access.swapped, [('/stage/staged', '/out/Demirbaş.xlsx')]);
+
+    // Cancelled: nothing is written.
+    picker.saveTo = null;
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(engine.savedAttachments, hasLength(2));
+
+    // A name from the file never picks the folder.
+    await containerOf(tester)
+        .read(attachmentSaverProvider.notifier)
+        .save(3, 0, '../../ek/kötü.sh');
+    expect(picker.saves.last, 'kötü.sh');
+  });
+
+  testWidgets('a save that fails shows the toast until it is dismissed', (
+    tester,
+  ) async {
+    final engine = await pumpDocument(
+      tester,
+      kira,
+      picker: FakeFilePickerService(saveTo: '/out/ek.xlsx'),
+    );
+    engine.saveFailure = const EngineException(
+      kind: EngineErrorKind.permissionDenied,
+      messageKey: 'errorFilePermissionDenied',
+    );
+    await showTab(tester, SidebarTab.attachments);
+    await tester.tap(iconButton('Save attachment as…').first);
+    await settle(tester);
+    expect(find.textContaining('wasn’t saved'), findsOne);
+    expect(find.textContaining('couldn’t write the file there'), findsOne);
+
+    await tester.tap(
+      find.descendant(
+        of: find.byType(Toast),
+        matching: find.byType(IconButton),
+      ),
+    );
+    await settle(tester);
+    expect(find.byType(Toast), findsNothing);
   });
 
   testWidgets('Attachments, Layers and Signatures list the document', (
@@ -240,8 +374,8 @@ void main() {
     expect(
       tester
           .widgetList<IconButton>(iconButton('Save attachment as…'))
-          .map((button) => button.disabledReason),
-      [futureVersion, futureVersion],
+          .map((button) => button.onPressed != null),
+      [true, true],
     );
 
     await showTab(tester, SidebarTab.layers);

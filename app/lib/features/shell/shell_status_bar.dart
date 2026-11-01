@@ -1,8 +1,8 @@
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
+import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -22,10 +22,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// document's page count is known). With a document open
 /// (`viewerProvider`) they work: the page text is a field that a click or
 /// ⌘G (Ctrl+G) opens for a page number or label ([_PageField], a2-13),
-/// and the zoom is the one the view shows, also under a fit. The
-/// placeholder documents keep them disabled with the future-version
-/// tooltip, through the feature registry's [Feature.pageNavigation] and
-/// [Feature.zoom], until documents open (W3). Then the
+/// and the zoom is the one the view shows, also under a fit; while the
+/// document is not shown yet (locked) they are disabled. Then the
 /// text language of the selection when there is one ([language], FmWindow
 /// `statusLang`; none in M1). At the end, the active document's save state
 /// through `SaveIndicator`, the saved time in the region's format; nothing
@@ -56,6 +54,11 @@ class ShellStatusBar extends ConsumerWidget {
     final document = ref.watch(shellDocumentsProvider).active;
     final region = ref.watch(regionProvider).region;
     final format = RegionFormat.forRegion(region);
+    final find = ref.watch(
+      findProvider.select(
+        (find) => (searched: find.searched, pages: find.pages),
+      ),
+    );
     final view = ref.watch(
       viewerProvider.select(
         (view) => view == null
@@ -72,7 +75,6 @@ class ShellStatusBar extends ConsumerWidget {
     final saveState = document?.saveState;
 
     IconButton button(
-      Feature feature,
       IconName icon,
       String label,
       ShellCommand command, [
@@ -83,8 +85,7 @@ class ShellStatusBar extends ConsumerWidget {
       size: IconButtonSize.xs,
       tooltipSide: TooltipSide.top,
       shortcut: command.caps(platform),
-      disabled: view != null && action == null,
-      disabledReason: view == null ? feature.disabledReason(context) : null,
+      disabled: action == null,
       onPressed: action,
     );
 
@@ -120,14 +121,12 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
-                    Feature.pageNavigation,
                     IconName.chevronUp,
                     l10n.shellPreviousPage,
                     ShellCommand.previousPage,
                     view != null && view.page > 0 ? viewer.previousPage : null,
                   ),
                   button(
-                    Feature.pageNavigation,
                     IconName.chevronDown,
                     l10n.shellNextPage,
                     ShellCommand.nextPage,
@@ -155,7 +154,6 @@ class ShellStatusBar extends ConsumerWidget {
                 spacing: theme.space.space0_5,
                 children: [
                   button(
-                    Feature.zoom,
                     IconName.minus,
                     l10n.shellZoomOut,
                     ShellCommand.zoomOut,
@@ -169,7 +167,6 @@ class ShellStatusBar extends ConsumerWidget {
                     ),
                   ),
                   button(
-                    Feature.zoom,
                     IconName.plus,
                     l10n.shellZoomIn,
                     ShellCommand.zoomIn,
@@ -193,6 +190,21 @@ class ShellStatusBar extends ConsumerWidget {
                 ],
               ),
             const Spacer(),
+            // The running job (FmWindow `task`, B124): M2's only job is
+            // search, whose find bar shows its progress too.
+            if (find.searched case final searched?)
+              TaskProgress(
+                variant: TaskProgressVariant.inline,
+                icon: IconName.search,
+                title: l10n.statusSearching,
+                detail: l10n.shellPageOf(
+                  format.integer(searched),
+                  format.integer(find.pages),
+                ),
+                value: find.pages == 0 ? 0 : searched / find.pages,
+                cancelLabel: l10n.findCancel,
+                onCancel: ref.read(findProvider.notifier).cancel,
+              ),
             if (saveState != null)
               SaveIndicator(
                 state: saveState,

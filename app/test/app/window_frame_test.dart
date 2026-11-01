@@ -330,8 +330,21 @@ void main() {
         );
         await tester.pump(const Duration(milliseconds: 50));
         await tester.tapAt(empty, kind: PointerDeviceKind.mouse);
-        expect(window.calls, isEmpty);
+        // It opens the window menu, and the next click counts alone.
+        expect(window.calls, ['showWindowMenu']);
         await tester.pumpAndSettle();
+      });
+
+      testWidgets('a right click on the empty space opens the system window '
+          'menu (B008)', (tester) async {
+        await tester.pumpWidget(bar());
+        await tester.tapAt(
+          empty,
+          kind: PointerDeviceKind.mouse,
+          buttons: kSecondaryButton,
+        );
+        await tester.pumpAndSettle();
+        expect(window.calls, ['showWindowMenu']);
       });
 
       testWidgets('a mouse drag moves the window; a trackpad scroll does not', (
@@ -500,6 +513,29 @@ void main() {
         modifier: LogicalKeyboardKey.altLeft,
       );
       expect(window.calls, contains('close'));
+    });
+
+    testWidgets('Alt+Space opens the window menu on Windows, not on Linux '
+        '(B008)', (tester) async {
+      await tester.pumpWidget(frame(window, keys: ShortcutPlatform.windows));
+      await tester.pump();
+      await press(
+        tester,
+        LogicalKeyboardKey.space,
+        modifier: LogicalKeyboardKey.altLeft,
+      );
+      expect(window.calls, ['showWindowMenu']);
+
+      final linux = FakeDesktopWindow(WindowPlatform.linux);
+      addTearDown(linux.dispose);
+      await tester.pumpWidget(frame(linux));
+      await tester.pump();
+      await press(
+        tester,
+        LogicalKeyboardKey.space,
+        modifier: LogicalKeyboardKey.altLeft,
+      );
+      expect(linux.calls, isEmpty);
     });
 
     testWidgets('binds no window keys where the system frames the app', (

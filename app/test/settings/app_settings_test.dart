@@ -16,6 +16,12 @@ void main() {
         'version': 1,
         'theme': 'system',
         'onboardingCompleted': false,
+        'reopenDocuments': true,
+        'lastDocuments': <String>[],
+        'askDefaultApp': true,
+        'pageLook': 'paper',
+        'pageLayout': 'scroll',
+        'zoom': 'fitWidth',
       });
     });
 
@@ -39,6 +45,12 @@ void main() {
         'lengthUnit': 'millimetre',
         'firstDayOfWeek': 'monday',
         'onboardingCompleted': true,
+        'reopenDocuments': true,
+        'lastDocuments': <String>[],
+        'askDefaultApp': true,
+        'pageLook': 'paper',
+        'pageLayout': 'scroll',
+        'zoom': 'fitWidth',
       });
     });
 

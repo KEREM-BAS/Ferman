@@ -7,6 +7,10 @@
 //! 1 MB and so not committed: `cargo run --manifest-path tools/corpus/Cargo.toml -- generate`
 //! makes it. Without either the benchmark says so and measures nothing.
 //!
+//! With `FERMAN_BENCH_GUARD=1` (CI) it then times one cold open and first tile and fails above
+//! the whole budget of the first page, 1 s: a guard against a gross regression, since a CI runner
+//! is not R1 or R2.
+//!
 //! ```sh
 //! FERMAN_PDFIUM_PATH="$PWD/build/pdfium/<id>/lib/<libpdfium>" cargo bench -p ferman-render --bench first_page
 //! ```
@@ -129,4 +133,18 @@ fn main() {
         bench.iter(|| render(&thread, document.id, first_tile(1, 1)));
     });
     criterion.final_summary();
+    block_on(thread.close_document(document.id)).unwrap();
+
+    if std::env::var_os("FERMAN_BENCH_GUARD").is_none() {
+        return;
+    }
+    let start = std::time::Instant::now();
+    let document = block_on(thread.open_document(Arc::clone(&bytes), None)).unwrap();
+    render(&thread, document.id, first_tile(0, 0));
+    let elapsed = start.elapsed();
+    eprintln!("first_page guard: open and first tile in {elapsed:?}");
+    assert!(
+        elapsed < Duration::from_secs(1),
+        "the first page took {elapsed:?}, over 1 s"
+    );
 }

@@ -10,6 +10,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/engine_service_frb.dart';
 import 'package:ferman/main.dart' as app;
 import 'package:ferman/platform/open_requests.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -193,6 +194,81 @@ void main() {
       );
     });
 
+    // M2 budgets (ARCHITECTURE §14): the engine and bridge parts of the
+    // first page and of search on 500 pages, timed in Dart. The budgets
+    // hold for a profile build on R1 and R2 (`flutter drive --profile`);
+    // a debug build only logs its numbers.
+    test('M2 budgets: the first page of 500 pages', () async {
+      final dir = await Directory.systemTemp.createTemp('ferman-budget');
+      addTearDown(() => dir.delete(recursive: true));
+      final file = File('${dir.path}/pages-500.pdf')
+        ..writeAsStringSync(_pagesPdf(500));
+      final watch = Stopwatch()..start();
+      final document = await engine.open(file.path);
+      expect(document.pages, hasLength(500));
+      final view = await engine.openView(document.id);
+      const tile = TileItem(
+        page: 0,
+        zoomBucket: 0,
+        devicePixelRatio: 2,
+        column: 0,
+        row: 0,
+      );
+      await engine.requestView(view.id, 1, const [
+        WantedItem(tile, RenderPriority.visible),
+      ]);
+      final update = await view.updates.firstWhere(
+        (update) => update is RenderedItem,
+      );
+      watch.stop();
+      expect((update as RenderedItem).item, tile);
+      // The measurement goes to the test log; there is no other reporter.
+      // ignore: avoid_print
+      print(
+        'M2 budget: open 500 pages and the first tile through the bridge: '
+        '${watch.elapsedMilliseconds} ms (budget 1,000 ms)',
+      );
+      if (kProfileMode) expect(watch.elapsedMilliseconds, lessThan(1000));
+      await engine.close(document.id);
+    });
+
+    test('M2 budgets: search across 500 pages', () async {
+      final dir = await Directory.systemTemp.createTemp('ferman-budget');
+      addTearDown(() => dir.delete(recursive: true));
+      final file = File('${dir.path}/pages-500.pdf')
+        ..writeAsStringSync(_pagesPdf(500));
+      final document = await engine.open(file.path);
+      final watch = Stopwatch()..start();
+      int? first;
+      var found = 0;
+      await for (final update in engine.search(
+        document.id,
+        'caretaker',
+        const SearchOptions(),
+      )) {
+        if (update is SearchMatches) {
+          first ??= watch.elapsedMilliseconds;
+          found += update.matches.length;
+        }
+      }
+      watch.stop();
+      final rate = 500 / (watch.elapsedMilliseconds / 1000);
+      // The measurement goes to the test log.
+      // ignore: avoid_print
+      print(
+        'M2 budget: search 500 pages: first match $first ms (budget 200), '
+        'all $found in ${watch.elapsedMilliseconds} ms, '
+        '${rate.round()} pages/s (budget 100)',
+      );
+      // Seven of each page's 30 lines have the word.
+      expect(found, 500 * 7);
+      if (kProfileMode) {
+        expect(first, lessThan(200));
+        expect(rate, greaterThanOrEqualTo(100));
+      }
+      await engine.close(document.id);
+    });
+
     test('a 1 MiB byte vector crosses the bridge', () async {
       const length = 1024 * 1024;
       // One warm-up call, then 20 timed ones; the minimum and the median
@@ -241,6 +317,64 @@ String _onePagePdf({String? text}) {
     '<< /Length ${content.length} >>\nstream\n$content\nendstream',
     font,
   ];
+  // ASCII only, so string offsets are byte offsets.
+  final pdf = StringBuffer('%PDF-1.7\n');
+  final offsets = <int>[];
+  for (final (index, object) in objects.indexed) {
+    offsets.add(pdf.length);
+    pdf.write('${index + 1} 0 obj\n$object\nendobj\n');
+  }
+  final xref = pdf.length;
+  pdf.write('xref\n0 ${objects.length + 1}\n0000000000 65535 f \n');
+  for (final offset in offsets) {
+    pdf.write('${offset.toString().padLeft(10, '0')} 00000 n \n');
+  }
+  pdf.write(
+    'trailer\n<< /Size ${objects.length + 1} /Root 1 0 R >>\n'
+    'startxref\n$xref\n%%EOF\n',
+  );
+  return pdf.toString();
+}
+
+/// [count] A4 pages of text in Helvetica, each with its number and 30
+/// lines, seven of which have "caretaker", for the M2 budgets.
+String _pagesPdf(int count) {
+  const font =
+      '<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica '
+      '/Encoding /WinAnsiEncoding >>';
+  const lines = [
+    'The water tanks in the loft are inspected every year for corrosion,',
+    'and their lids are kept closed to stop debris and insects getting in.',
+    'Smoke alarms are tested monthly by the caretaker of the building, and',
+    'the batteries are replaced every year, whether or not the alarm sounded.',
+  ];
+  final objects = <String>[
+    '<< /Type /Catalog /Pages 2 0 R >>',
+    // The page tree, filled in below.
+    '',
+    font,
+  ];
+  final kids = <String>[];
+  for (var page = 0; page < count; page++) {
+    final text = StringBuffer(
+      'BT /F1 11 Tf 72 770 Td 14 TL (Page ${page + 1}) Tj',
+    );
+    for (var line = 0; line < 30; line++) {
+      text.write(' T* (${lines[line % lines.length]}) Tj');
+    }
+    text.write(' ET');
+    final content = text.toString();
+    // This page's content is object `objects.length + 1`, the page the next.
+    final pageId = objects.length + 2;
+    objects
+      ..add('<< /Length ${content.length} >>\nstream\n$content\nendstream')
+      ..add(
+        '<< /Type /Page /Parent 2 0 R /MediaBox [0 0 595 842] '
+        '/Contents ${pageId - 1} 0 R /Resources << /Font << /F1 3 0 R >> >> >>',
+      );
+    kids.add('$pageId 0 R');
+  }
+  objects[1] = '<< /Type /Pages /Kids [${kids.join(' ')}] /Count $count >>';
   // ASCII only, so string offsets are byte offsets.
   final pdf = StringBuffer('%PDF-1.7\n');
   final offsets = <int>[];

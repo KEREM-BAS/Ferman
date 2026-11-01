@@ -89,7 +89,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     // Files the system sent during first run (ADR 0021) show at once.
     if (mounted) {
       context.go(
-        ref.read(shellDocumentsProvider).placeholder
+        ref.read(shellDocumentsProvider).documents.isEmpty
             ? Routes.start
             : Routes.editor,
       );

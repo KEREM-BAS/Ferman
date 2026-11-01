@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `repair_fix_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -80,6 +80,28 @@ Future<Security?> unlockOwner({
 }) => FermanBridge.instance.api.crateFrbUnlockOwner(
   document: document,
   password: password,
+);
+
+/// Saves the file attached to `document` as its `attachments[index]` at `path` (a2-3b), written
+/// safely: a temp file flushed, read back and renamed over `path`. With `staging` (the macOS App
+/// Sandbox's replacement directory) the verified temp file stays there and its path is returned
+/// for the platform layer to swap in.
+///
+/// See [`facade::Engine::save_attachment`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open; the file errors of the write.
+Future<String?> saveAttachment({
+  required BigInt document,
+  required int index,
+  required String path,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbSaveAttachment(
+  document: document,
+  index: index,
+  path: path,
+  staging: staging,
 );
 
 /// Closes a document and ends its views.
@@ -602,6 +624,9 @@ class OpenedDocument {
   /// Why it opened read-only, if it did.
   final ReadOnlyReason? readOnly;
 
+  /// What repair did, in order; empty unless `read_only` is `Repaired`.
+  final List<RepairFix> repairs;
+
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
 
@@ -651,9 +676,16 @@ class OpenedDocument {
   /// How many JavaScript actions it holds; Ferman never runs them (G100).
   final int scripts;
 
+  /// How many form fields it has (the Form badge).
+  final int formFields;
+
+  /// Whether its first page has no text, most likely a scan (the Scanned badge).
+  final bool scanned;
+
   const OpenedDocument({
     required this.id,
     this.readOnly,
+    required this.repairs,
     required this.rightToLeft,
     required this.pages,
     required this.outline,
@@ -670,12 +702,15 @@ class OpenedDocument {
     required this.fonts,
     this.security,
     required this.scripts,
+    required this.formFields,
+    required this.scanned,
   });
 
   @override
   int get hashCode =>
       id.hashCode ^
       readOnly.hashCode ^
+      repairs.hashCode ^
       rightToLeft.hashCode ^
       pages.hashCode ^
       outline.hashCode ^
@@ -691,7 +726,9 @@ class OpenedDocument {
       linearized.hashCode ^
       fonts.hashCode ^
       security.hashCode ^
-      scripts.hashCode;
+      scripts.hashCode ^
+      formFields.hashCode ^
+      scanned.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -700,6 +737,7 @@ class OpenedDocument {
           runtimeType == other.runtimeType &&
           id == other.id &&
           readOnly == other.readOnly &&
+          repairs == other.repairs &&
           rightToLeft == other.rightToLeft &&
           pages == other.pages &&
           outline == other.outline &&
@@ -715,7 +753,9 @@ class OpenedDocument {
           linearized == other.linearized &&
           fonts == other.fonts &&
           security == other.security &&
-          scripts == other.scripts;
+          scripts == other.scripts &&
+          formFields == other.formFields &&
+          scanned == other.scanned;
 }
 
 /// One outline item (bookmark) of an [`OpenedDocument`].
@@ -931,6 +971,45 @@ enum ReadOnlyReason {
   xfaOnly,
 }
 
+/// One thing repair did, for a1-9's "What Ferman repaired".
+class RepairFix {
+  /// What was repaired.
+  final RepairKind kind;
+
+  /// The objects found (`CrossReferenceRebuilt`), the streams corrected
+  /// (`StreamLengthsCorrected`) or the objects that could not be read (`ObjectsUnreadable`);
+  /// 0 for `TrailerRebuilt`.
+  final int count;
+
+  const RepairFix({required this.kind, required this.count});
+
+  @override
+  int get hashCode => kind.hashCode ^ count.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RepairFix &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          count == other.count;
+}
+
+/// What a [`RepairFix`] repaired.
+enum RepairKind {
+  /// The cross-reference table was rebuilt from the objects found in the file.
+  crossReferenceRebuilt,
+
+  /// The trailer was missing, and the catalog was found among the objects.
+  trailerRebuilt,
+
+  /// Streams whose `/Length` was wrong were read up to their `endstream`.
+  streamLengthsCorrected,
+
+  /// Objects the cross-reference data names could not be read.
+  objectsUnreadable,
+}
+
 /// An event of a search's stream.
 class SearchEvent {
   /// What happened.
@@ -951,6 +1030,9 @@ class SearchEvent {
   /// Whether it was cancelled (`Done`).
   final bool cancelled;
 
+  /// Whether no page had text, a scan (`Done`).
+  final bool textless;
+
   const SearchEvent({
     required this.kind,
     required this.search,
@@ -958,6 +1040,7 @@ class SearchEvent {
     required this.searched,
     required this.pages,
     required this.cancelled,
+    required this.textless,
   });
 
   @override
@@ -967,7 +1050,8 @@ class SearchEvent {
       matches.hashCode ^
       searched.hashCode ^
       pages.hashCode ^
-      cancelled.hashCode;
+      cancelled.hashCode ^
+      textless.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -979,7 +1063,8 @@ class SearchEvent {
           matches == other.matches &&
           searched == other.searched &&
           pages == other.pages &&
-          cancelled == other.cancelled;
+          cancelled == other.cancelled &&
+          textless == other.textless;
 }
 
 /// What a search event says.
@@ -1014,12 +1099,16 @@ class SearchMatch {
   /// Where it ends in the snippet, in characters.
   final int snippetEnd;
 
+  /// Whether it is in a bookmark's title (the snippet), with no rectangles.
+  final bool bookmark;
+
   const SearchMatch({
     required this.page,
     required this.rects,
     required this.snippet,
     required this.snippetStart,
     required this.snippetEnd,
+    required this.bookmark,
   });
 
   @override
@@ -1028,7 +1117,8 @@ class SearchMatch {
       rects.hashCode ^
       snippet.hashCode ^
       snippetStart.hashCode ^
-      snippetEnd.hashCode;
+      snippetEnd.hashCode ^
+      bookmark.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1039,7 +1129,8 @@ class SearchMatch {
           rects == other.rects &&
           snippet == other.snippet &&
           snippetStart == other.snippetStart &&
-          snippetEnd == other.snippetEnd;
+          snippetEnd == other.snippetEnd &&
+          bookmark == other.bookmark;
 }
 
 /// How a search matches (a2-4a).
@@ -1053,15 +1144,22 @@ class SearchOptions {
   /// Ignore accents and dotted/dotless i (on by default in the app, G61).
   final bool ignoreAccents;
 
+  /// Search the bookmarks' titles too (Look in › Bookmarks).
+  final bool bookmarks;
+
   const SearchOptions({
     required this.matchCase,
     required this.wholeWords,
     required this.ignoreAccents,
+    required this.bookmarks,
   });
 
   @override
   int get hashCode =>
-      matchCase.hashCode ^ wholeWords.hashCode ^ ignoreAccents.hashCode;
+      matchCase.hashCode ^
+      wholeWords.hashCode ^
+      ignoreAccents.hashCode ^
+      bookmarks.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1070,7 +1168,8 @@ class SearchOptions {
           runtimeType == other.runtimeType &&
           matchCase == other.matchCase &&
           wholeWords == other.wholeWords &&
-          ignoreAccents == other.ignoreAccents;
+          ignoreAccents == other.ignoreAccents &&
+          bookmarks == other.bookmarks;
 }
 
 /// An encrypted document's security (a2-10a, a2-10b).

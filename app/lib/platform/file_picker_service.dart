@@ -14,6 +14,11 @@ abstract interface class FilePickerService {
   /// [filterLabel] ("Locate…" of a1-9e); the chosen path, null when
   /// cancelled.
   Future<String?> openPdf({required String filterLabel});
+
+  /// Shows the system save panel with [suggestedName] ("Save attachment
+  /// as…", a2-3b); the chosen path, null when cancelled. The panel asks
+  /// before replacing a file.
+  Future<String?> saveFile({required String suggestedName});
 }
 
 /// The pickers of file_selector: NSOpenPanel on macOS, IFileOpenDialog on
@@ -32,6 +37,12 @@ final class NativeFilePickerService implements FilePickerService {
   Future<String?> openPdf({required String filterLabel}) async {
     final file = await openFile(acceptedTypeGroups: [_pdf(filterLabel)]);
     return file?.path;
+  }
+
+  @override
+  Future<String?> saveFile({required String suggestedName}) async {
+    final location = await getSaveLocation(suggestedName: suggestedName);
+    return location?.path;
   }
 
   static XTypeGroup _pdf(String label) => XTypeGroup(

@@ -20,7 +20,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// (FmEditPanel, FmComments, FmFormPanel) take its place.
 class FmDocPanel extends ConsumerWidget {
   /// The right panel.
-  const new({super.key});
+  const new({super.key, this.width});
+
+  /// The right panel's width; null takes its FmWindow width. The shell passes
+  /// the width the user dragged it to (B094).
+  final double? width;
 
   /// FmDocPanel's heading: `height: 40px`.
   static const double headingHeight = 40;
@@ -43,7 +47,7 @@ class FmDocPanel extends ConsumerWidget {
       explicitChildNodes: true,
       label: title,
       child: Container(
-        width: theme.size.panelW,
+        width: width ?? theme.size.panelW,
         decoration: BoxDecoration(
           color: theme.colors.surfacePanel,
           border: BorderDirectional(start: line),

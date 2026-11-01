@@ -23,6 +23,7 @@ final class FindState {
     this.searched,
     this.pages = 0,
     this.done = false,
+    this.textless = false,
     this.focusRequests = 0,
   });
 
@@ -50,6 +51,9 @@ final class FindState {
   /// Whether the last search read every page.
   final bool done;
 
+  /// Whether the last search found no text on any page: a scan (a2-3m).
+  final bool textless;
+
   /// How often ⌘F or Ctrl+F asked for the field's focus.
   final int focusRequests;
 
@@ -70,6 +74,7 @@ final class FindState {
     int? Function()? searched,
     int? pages,
     bool? done,
+    bool? textless,
     int? focusRequests,
   }) => FindState(
     open: open ?? this.open,
@@ -80,6 +85,7 @@ final class FindState {
     searched: searched == null ? this.searched : searched(),
     pages: pages ?? this.pages,
     done: done ?? this.done,
+    textless: textless ?? this.textless,
     focusRequests: focusRequests ?? this.focusRequests,
   );
 }
@@ -180,6 +186,7 @@ class Find extends _$Find {
       searched: () => null,
       pages: document?.pages.length ?? 0,
       done: false,
+      textless: false,
     );
     if (document == null || !state.hasQuery) return;
     state = state.copyWith(searched: () => 0);
@@ -206,8 +213,12 @@ class Find extends _$Find {
                   searched: () => searched,
                   pages: pages,
                 );
-              case SearchDone():
-                state = current.copyWith(searched: () => null, done: true);
+              case SearchDone(:final textless):
+                state = current.copyWith(
+                  searched: () => null,
+                  done: true,
+                  textless: textless,
+                );
             }
           },
           onError: (Object _) {

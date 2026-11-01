@@ -63,6 +63,9 @@ class FakeDesktopWindow implements DesktopWindow {
   Future<void> startDragging() async => calls.add('startDragging');
 
   @override
+  Future<void> showWindowMenu() async => calls.add('showWindowMenu');
+
+  @override
   Future<void> titleBarDoubleClicked() async =>
       calls.add('titleBarDoubleClicked');
 

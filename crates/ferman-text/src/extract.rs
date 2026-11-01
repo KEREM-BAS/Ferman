@@ -15,7 +15,7 @@ use std::collections::HashMap;
 use ferman_core::Document;
 use ferman_core::interpret::{FontResource, Matrix, ShowItem, TextShow, TextSink};
 use ferman_core::structure::FontKind;
-use ferman_fonts::{BaseEncoding, CMap, SimpleEncoding};
+use ferman_fonts::{BaseEncoding, BuiltinEncoding, CMap, SimpleEncoding, builtin_encoding};
 use unicode_bidi::{BidiClass, BidiInfo, Level, bidi_class};
 
 use crate::TextError;
@@ -102,21 +102,41 @@ impl PdfFont {
     fn new(resource: &FontResource) -> Self {
         let cmap = (resource.kind == FontKind::Type0).then(|| {
             match (&resource.cmap, resource.cmap_name.as_deref()) {
-                (Some(bytes), _) => CMap::parse(bytes),
+                (Some(bytes), _) => {
+                    let mut cmap = CMap::parse(bytes);
+                    for parent in &resource.cmap_parents {
+                        cmap.inherit(&CMap::parse(parent));
+                    }
+                    cmap
+                }
                 (None, Some(b"Identity-V")) => CMap::identity(true),
                 // shortcut: other predefined CMaps read as Identity-H; bundle Adobe's CMaps
                 // (BSD-3-Clause) when a document needs them.
                 _ => CMap::identity(false),
             }
         });
-        let base = resource
+        let named = resource
             .base_encoding
             .as_deref()
-            .and_then(BaseEncoding::from_name)
-            .or((!resource.symbolic).then_some(BaseEncoding::Standard));
-        let differences = resource
-            .differences
+            .and_then(BaseEncoding::from_name);
+        // Without a named base, an embedded Type1 program's built-in encoding is the base
+        // (ISO 32000-2 §9.6.5); a damaged program falls back to the default.
+        let builtin = resource
+            .font_program
+            .as_deref()
+            .filter(|_| named.is_none())
+            .and_then(|program| builtin_encoding(program).ok().flatten());
+        let (base, builtin_codes) = match builtin {
+            Some(BuiltinEncoding::Standard) => (Some(BaseEncoding::Standard), Vec::new()),
+            Some(BuiltinEncoding::Codes(codes)) => (None, codes),
+            None => (
+                named.or((!resource.symbolic).then_some(BaseEncoding::Standard)),
+                Vec::new(),
+            ),
+        };
+        let differences = builtin_codes
             .iter()
+            .chain(&resource.differences)
             .map(|(code, name)| (*code, name.as_str()));
         Self {
             cmap,
@@ -481,6 +501,77 @@ mod tests {
             .into_iter()
             .map(|line| line.into_iter().map(|(c, _)| c).collect())
             .collect()
+    }
+
+    #[test]
+    fn a_type1_font_without_an_encoding_reads_through_its_program() {
+        let program = b"/Encoding 256 array 0 1 255 {1 index exch /.notdef put} for
+dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
+        let mut resource = FontResource {
+            key: 1,
+            kind: FontKind::Type1,
+            base_font: Some("ABCDEF+Test".to_owned()),
+            base_encoding: None,
+            differences: Vec::new(),
+            first_char: 0,
+            widths: Vec::new(),
+            missing_width: 0.0,
+            symbolic: false,
+            font_matrix: [0.001, 0.0, 0.0, 0.001, 0.0, 0.0],
+            to_unicode: None,
+            font_program: Some(program.to_vec()),
+            cmap_name: None,
+            cmap: None,
+            cmap_parents: Vec::new(),
+            cid_widths: Vec::new(),
+            default_width: 1000.0,
+            vertical_metrics: Vec::new(),
+            default_vertical: [880.0, -1000.0],
+        };
+        let font = PdfFont::new(&resource);
+        // The program's codes, and nothing of StandardEncoding's.
+        assert_eq!([font.text(65), font.text(66)], ["Ğ", "ï"]);
+        assert_eq!(font.text(67), "\u{FFFD}");
+        // /Differences go on top of the built-in encoding.
+        resource.differences = vec![(66, "Scedilla".to_owned())];
+        let font = PdfFont::new(&resource);
+        assert_eq!([font.text(65), font.text(66)], ["Ğ", "Ş"]);
+    }
+
+    #[test]
+    fn a_composite_font_joins_its_usecmap_parents_and_its_own_codes_win() {
+        let child = b"/CIDInit /ProcSet findresource begin 12 dict begin begincmap
+1 begincodespacerange <0000> <FFFF> endcodespacerange
+1 begincidchar <0001> 100 endcidchar endcmap";
+        let parent = b"/CIDInit /ProcSet findresource begin 12 dict begin begincmap
+1 begincodespacerange <0000> <FFFF> endcodespacerange
+2 begincidchar <0001> 7 <0002> 200 endcidchar endcmap";
+        let resource = FontResource {
+            key: 1,
+            kind: FontKind::Type0,
+            base_font: None,
+            base_encoding: None,
+            differences: Vec::new(),
+            first_char: 0,
+            widths: Vec::new(),
+            missing_width: 0.0,
+            symbolic: false,
+            font_matrix: [0.001, 0.0, 0.0, 0.001, 0.0, 0.0],
+            to_unicode: None,
+            font_program: None,
+            cmap_name: None,
+            cmap: Some(child.to_vec()),
+            cmap_parents: vec![parent.to_vec()],
+            cid_widths: Vec::new(),
+            default_width: 1000.0,
+            vertical_metrics: Vec::new(),
+            default_vertical: [880.0, -1000.0],
+        };
+        let font = PdfFont::new(&resource);
+        let cmap = font.cmap.unwrap();
+        // The child's own code wins; the parent's other code comes through.
+        assert_eq!(cmap.cid(1, 2), Some(100));
+        assert_eq!(cmap.cid(2, 2), Some(200));
     }
 
     #[test]

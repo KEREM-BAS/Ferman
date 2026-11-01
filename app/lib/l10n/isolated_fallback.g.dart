@@ -423,6 +423,27 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get shellToolVersionHistory => isolate(super.shellToolVersionHistory);
 
   @override
+  String get fieldContextMenu => isolate(super.fieldContextMenu);
+
+  @override
+  String get fieldCut => isolate(super.fieldCut);
+
+  @override
+  String get fieldCopy => isolate(super.fieldCopy);
+
+  @override
+  String get fieldPaste => isolate(super.fieldPaste);
+
+  @override
+  String get fieldSelectAll => isolate(super.fieldSelectAll);
+
+  @override
+  String get shellResizeSidebar => isolate(super.shellResizeSidebar);
+
+  @override
+  String get shellResizePanel => isolate(super.shellResizePanel);
+
+  @override
   String get shellSidebar => isolate(super.shellSidebar);
 
   @override
@@ -557,6 +578,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String onboardingLanguageNoMatch(String query) =>
       isolate(super.onboardingLanguageNoMatch(query));
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      isolate(super.onboardingLanguageNoMatchBody);
 
   @override
   String get onboardingLanguageMissing =>
@@ -1176,6 +1201,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.findCount(current, total));
 
   @override
+  String get statusSearching => isolate(super.statusSearching);
+
+  @override
   String findSearching(String page, String pages) =>
       isolate(super.findSearching(page, pages));
 
@@ -1192,6 +1220,17 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get sidebarSearchField => isolate(super.sidebarSearchField);
+
+  @override
+  String sidebarSearchBookmark(String title) =>
+      isolate(super.sidebarSearchBookmark(title));
+
+  @override
+  String get sidebarSearchNoTextTitle =>
+      isolate(super.sidebarSearchNoTextTitle);
+
+  @override
+  String get sidebarSearchNoTextBody => isolate(super.sidebarSearchNoTextBody);
 
   @override
   String sidebarSearchSummary(
@@ -1321,6 +1360,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get startBadgeSigned => isolate(super.startBadgeSigned);
+
+  @override
+  String get startBadgeForm => isolate(super.startBadgeForm);
+
+  @override
+  String get startBadgeScanned => isolate(super.startBadgeScanned);
 
   @override
   String startMissingTitle(String name) =>
@@ -1453,6 +1498,68 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get scriptsDismiss => isolate(super.scriptsDismiss);
+
+  @override
+  String get repairedTitle => isolate(super.repairedTitle);
+
+  @override
+  String repairedBody(int count, String countText) =>
+      isolate(super.repairedBody(count, countText));
+
+  @override
+  String get repairedDetails => isolate(super.repairedDetails);
+
+  @override
+  String get repairedSave => isolate(super.repairedSave);
+
+  @override
+  String get repairDetailsTitle => isolate(super.repairDetailsTitle);
+
+  @override
+  String get repairCopyDetails => isolate(super.repairCopyDetails);
+
+  @override
+  String get repairXrefTitle => isolate(super.repairXrefTitle);
+
+  @override
+  String repairXrefBody(int count, String countText) =>
+      isolate(super.repairXrefBody(count, countText));
+
+  @override
+  String repairPagesPresent(int count, String countText) =>
+      isolate(super.repairPagesPresent(count, countText));
+
+  @override
+  String get repairTrailerTitle => isolate(super.repairTrailerTitle);
+
+  @override
+  String get repairTrailerBody => isolate(super.repairTrailerBody);
+
+  @override
+  String repairStreamsTitle(int count, String countText) =>
+      isolate(super.repairStreamsTitle(count, countText));
+
+  @override
+  String get repairStreamsBody => isolate(super.repairStreamsBody);
+
+  @override
+  String repairUnreadableTitle(int count, String countText) =>
+      isolate(super.repairUnreadableTitle(count, countText));
+
+  @override
+  String get repairUnreadableBody => isolate(super.repairUnreadableBody);
+
+  @override
+  String get xfaTitle => isolate(super.xfaTitle);
+
+  @override
+  String get xfaBody => isolate(super.xfaBody);
+
+  @override
+  String disagreeTitle(String name) => isolate(super.disagreeTitle(name));
+
+  @override
+  String get disagreeBody => isolate(super.disagreeBody);
 
   @override
   String get propertiesFile => isolate(super.propertiesFile);
@@ -1671,6 +1778,39 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get openingCancel => isolate(super.openingCancel);
+
+  @override
+  String get defaultAppTitle => isolate(super.defaultAppTitle);
+
+  @override
+  String get defaultAppDescription => isolate(super.defaultAppDescription);
+
+  @override
+  String get defaultAppNow => isolate(super.defaultAppNow);
+
+  @override
+  String get defaultAppNotNow => isolate(super.defaultAppNotNow);
+
+  @override
+  String get defaultAppUse => isolate(super.defaultAppUse);
+
+  @override
+  String get defaultAppDontAsk => isolate(super.defaultAppDontAsk);
+
+  @override
+  String settingsDefaultAppOther(String app) =>
+      isolate(super.settingsDefaultAppOther(app));
+
+  @override
+  String get settingsDefaultAppFerman =>
+      isolate(super.settingsDefaultAppFerman);
+
+  @override
+  String attachmentNotSaved(String name) =>
+      isolate(super.attachmentNotSaved(name));
+
+  @override
+  String get attachmentWriteFailed => isolate(super.attachmentWriteFailed);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

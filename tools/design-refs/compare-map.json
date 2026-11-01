@@ -129,9 +129,8 @@
     },
     {
       "board": "a12-2a",
-      "golden": "start_mac_light_ar.png",
-      "masks": [{ "label": "recent-files", "x": 0, "y": 232, "width": 1440, "height": 668 }],
-      "note": "The start screen in Arabic, right to left, macOS. The board draws pinned and recent files (M2) where M1 shows the empty drop zone, so everything below the quick tools is masked (the chips end at row 218, the drop area starts at row 245 in a12-2a and a1-5). The board's two document tabs in the title bar are expected to differ."
+      "golden": "start_recent_mac_light_ar.png",
+      "note": "The start screen in Arabic, right to left, macOS, with pinned and recent files (M2). Unmasked since M2 (B098). The golden lists its own files with the previews' placeholder lines; the board's two document tabs in the title bar are expected to differ."
     },
     {
       "board": "a12-2b",
@@ -148,9 +147,8 @@
     },
     {
       "board": "a2-1b",
-      "golden": "shell_view_mac_light_en.png",
-      "masks": [{ "label": "canvas", "x": 216, "y": 123, "width": 960, "height": 751 }],
-      "note": "The macOS shell chrome in View mode, light (ROADMAP §5 step 8: the macOS shell has no M1 board of its own). The canvas is masked. The thumbnails and the Document panel describe an open document (M2) and are expected to differ."
+      "golden": "viewer_mac_light_en.png",
+      "note": "The viewer in View mode, light, with the lease open: the pages, their thumbnails, the Document panel and the status bar (M2). Unmasked since M2 (B098); the test engine draws no page content, so the page's text and the thumbnails' are expected to differ."
     },
     {
       "board": "a3-1d",
@@ -190,6 +188,148 @@
       "lang": "ar",
       "golden": "settings_privacy_mac_light_ar.png",
       "note": "Settings › Privacy, M1 build, macOS, light, Arabic, right to left: all five switches off and disabled, and Show network activity disabled (G89). The board shows the tooltip on the first switch and draws every pane of the navigation enabled; the golden shows no tooltip and the panes not built yet disabled (G108), so those are expected to differ."
+    },
+    {
+      "id": "a1-4-m2-mac",
+      "board": "a1-4-m2",
+      "golden": "start_recent_mac_light_en.png",
+      "note": "The start screen with pinned and recent files, each card with its badge (M2, B118). The golden lists its own files, dated in 2025 so they show dates, with the previews' placeholder lines."
+    },
+    {
+      "id": "a1-4-m2-mac-tr",
+      "board": "a1-4-m2",
+      "lang": "tr",
+      "golden": "start_recent_mac_light_tr.png",
+      "note": "As a1-4-m2-mac, in Turkish."
+    },
+    {
+      "id": "a1-4-m2-mac-ar",
+      "board": "a1-4-m2",
+      "lang": "ar",
+      "golden": "start_recent_mac_light_ar.png",
+      "note": "As a1-4-m2-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a1-3-mac",
+      "board": "a1-3",
+      "golden": "default_app_mac_light_en.png",
+      "note": "The default-app question over the empty start screen, with Preview opening PDF files (M2, B080)."
+    },
+    {
+      "id": "a1-8-mac",
+      "board": "a1-8",
+      "golden": "unlock_mac_light_en.png",
+      "note": "A file that needs its password: its locked tab and the unlock dialog (M2, B115)."
+    },
+    {
+      "id": "a1-9c-mac",
+      "board": "a1-9c",
+      "golden": "not_a_pdf_mac_light_en.png",
+      "note": "A file that is not a PDF in its error tab (M2)."
+    },
+    {
+      "id": "a1-9b-mac",
+      "board": "a1-9b",
+      "golden": "damaged_mac_light_en.png",
+      "note": "A damaged file in its error tab: what happened, the likely cause, the way out and the technical details (M2). The line leaves out the board's sizes (G119)."
+    },
+    {
+      "id": "a1-9c-mac-tr",
+      "board": "a1-9c",
+      "lang": "tr",
+      "golden": "not_a_pdf_mac_light_tr.png",
+      "note": "As a1-9c-mac, in Turkish."
+    },
+    {
+      "id": "a1-9c-mac-ar",
+      "board": "a1-9c",
+      "lang": "ar",
+      "golden": "not_a_pdf_mac_light_ar.png",
+      "note": "As a1-9c-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a2-4b-mac",
+      "board": "a2-4b",
+      "golden": "viewer_search_mac_light_en.png",
+      "note": "The find bar with its options and the Search results tab (M2). The test engine draws no page content, so only the match's highlight shows on the page."
+    },
+    {
+      "id": "a2-4c-mac",
+      "board": "a2-4c",
+      "golden": "viewer_search_progress_mac_light_en.png",
+      "note": "A long search's progress under the find bar, with the 38 matches found so far counted and highlighted (M2). The test engine draws no page content, so only the matches' highlights show on the page; the status bar also shows the search (B124)."
+    },
+    {
+      "id": "a2-4c-mac-tr",
+      "board": "a2-4c",
+      "lang": "tr",
+      "golden": "viewer_search_progress_mac_light_tr.png",
+      "note": "As a2-4c-mac, in Turkish."
+    },
+    {
+      "id": "a2-4c-mac-ar",
+      "board": "a2-4c",
+      "lang": "ar",
+      "golden": "viewer_search_progress_mac_light_ar.png",
+      "note": "As a2-4c-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a2-4d-mac",
+      "board": "a2-4d",
+      "golden": "viewer_search_none_mac_light_en.png",
+      "note": "A search with no results: the danger count, the query kept selected and what was searched (M2). The test engine draws no page content."
+    },
+    {
+      "id": "a2-4d-mac-tr",
+      "board": "a2-4d",
+      "lang": "tr",
+      "golden": "viewer_search_none_mac_light_tr.png",
+      "note": "As a2-4d-mac, in Turkish."
+    },
+    {
+      "id": "a2-4d-mac-ar",
+      "board": "a2-4d",
+      "lang": "ar",
+      "golden": "viewer_search_none_mac_light_ar.png",
+      "note": "As a2-4d-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a2-7-mac",
+      "board": "a2-7",
+      "golden": "properties_mac_light_en.png",
+      "note": "Document properties, Summary, over the viewer (M2). The test engine draws no page content."
+    },
+    {
+      "id": "a2-10a-mac",
+      "board": "a2-10a",
+      "golden": "restricted_mac_light_en.png",
+      "note": "A document restricted by its owner password: the shield on its tab and the info bar (M2). The test engine draws no page content."
+    },
+    {
+      "id": "a2-10a-mac-tr",
+      "board": "a2-10a",
+      "lang": "tr",
+      "golden": "restricted_mac_light_tr.png",
+      "note": "As a2-10a-mac, in Turkish."
+    },
+    {
+      "id": "a2-10a-mac-ar",
+      "board": "a2-10a",
+      "lang": "ar",
+      "golden": "restricted_mac_light_ar.png",
+      "note": "As a2-10a-mac, in Arabic, right to left."
+    },
+    {
+      "id": "a1-9-mac",
+      "board": "a1-9",
+      "golden": "repaired_mac_light_en.png",
+      "note": "A repaired file: the wrench on its tab and a1-9's bar with Details and Save repaired copy… disabled (M2). The test engine draws no page content; the board's second repair row, a font that is not embedded, is not a repair the engine reports (G28)."
+    },
+    {
+      "id": "a11-7c-mac",
+      "board": "a11-7c",
+      "golden": "xfa_only_mac_light_en.png",
+      "note": "An XFA-only form opened read-only with a11-7c's bar (M2). The board's side panel \"Why this happens\" is not built (G28); the test engine draws no page content."
     }
   ]
 }

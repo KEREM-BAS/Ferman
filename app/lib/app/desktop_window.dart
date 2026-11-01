@@ -70,6 +70,12 @@ abstract class DesktopWindow {
   /// Moves the window with the pointer that is down on the title bar.
   Future<void> startDragging();
 
+  /// Opens the system's window menu at the pointer (restore, move, size,
+  /// minimize, maximize, close), as a right click on a native title bar
+  /// does: Windows' system menu, GTK's window menu on Linux (B008). macOS
+  /// has none, so nothing happens there.
+  Future<void> showWindowMenu();
+
   /// When two presses on the title bar make a double-click, from the
   /// system; [DoubleClickSettings.fallback] until it answers.
   DoubleClickSettings get doubleClick;
@@ -141,6 +147,9 @@ class NoDesktopWindow implements DesktopWindow {
 
   @override
   Future<void> startDragging() async {}
+
+  @override
+  Future<void> showWindowMenu() async {}
 
   @override
   Future<void> titleBarDoubleClicked() async {}
@@ -233,6 +242,11 @@ class WindowManagerDesktopWindow with WindowListener implements DesktopWindow {
 
   @override
   Future<void> startDragging() => windowManager.startDragging();
+
+  @override
+  Future<void> showWindowMenu() async {
+    if (platform != WindowPlatform.mac) await windowManager.popUpWindowMenu();
+  }
 
   @override
   Future<void> titleBarDoubleClicked() => platform == WindowPlatform.mac

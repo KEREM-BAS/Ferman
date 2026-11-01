@@ -152,6 +152,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<RepairFix> dco_decode_list_repair_fix(dynamic raw);
+
+  @protected
   List<SearchMatch> dco_decode_list_search_match(dynamic raw);
 
   @protected
@@ -210,6 +213,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
+
+  @protected
+  RepairFix dco_decode_repair_fix(dynamic raw);
+
+  @protected
+  RepairKind dco_decode_repair_kind(dynamic raw);
 
   @protected
   SearchEvent dco_decode_search_event(dynamic raw);
@@ -397,6 +406,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<RepairFix> sse_decode_list_repair_fix(SseDeserializer deserializer);
+
+  @protected
   List<SearchMatch> sse_decode_list_search_match(SseDeserializer deserializer);
 
   @protected
@@ -459,6 +471,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
+
+  @protected
+  RepairFix sse_decode_repair_fix(SseDeserializer deserializer);
+
+  @protected
+  RepairKind sse_decode_repair_kind(SseDeserializer deserializer);
 
   @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer);
@@ -758,6 +776,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_repair_fix(List<RepairFix> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_repair_fix).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_search_match(List<SearchMatch> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_search_match).toList().jsify()!;
@@ -781,6 +805,7 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_u_64(raw.id),
       cst_encode_opt_box_autoadd_read_only_reason(raw.readOnly),
+      cst_encode_list_repair_fix(raw.repairs),
       cst_encode_bool(raw.rightToLeft),
       cst_encode_list_page_info(raw.pages),
       cst_encode_list_outline_entry(raw.outline),
@@ -797,6 +822,8 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_font_entry(raw.fonts),
       cst_encode_opt_box_autoadd_security(raw.security),
       cst_encode_u_32(raw.scripts),
+      cst_encode_u_32(raw.formFields),
+      cst_encode_bool(raw.scanned),
     ].jsify()!;
   }
 
@@ -903,6 +930,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_repair_fix(RepairFix raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_repair_kind(raw.kind),
+      cst_encode_u_32(raw.count),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_search_event(SearchEvent raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -912,6 +948,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_u_32(raw.searched),
       cst_encode_u_32(raw.pages),
       cst_encode_bool(raw.cancelled),
+      cst_encode_bool(raw.textless),
     ].jsify()!;
   }
 
@@ -924,6 +961,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.snippet),
       cst_encode_u_32(raw.snippetStart),
       cst_encode_u_32(raw.snippetEnd),
+      cst_encode_bool(raw.bookmark),
     ].jsify()!;
   }
 
@@ -934,6 +972,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_bool(raw.matchCase),
       cst_encode_bool(raw.wholeWords),
       cst_encode_bool(raw.ignoreAccents),
+      cst_encode_bool(raw.bookmarks),
     ].jsify()!;
   }
 
@@ -1048,6 +1087,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_read_only_reason(ReadOnlyReason raw);
+
+  @protected
+  int cst_encode_repair_kind(RepairKind raw);
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw);
@@ -1239,6 +1281,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_repair_fix(
+    List<RepairFix> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_search_match(
     List<SearchMatch> self,
     SseSerializer serializer,
@@ -1327,6 +1375,12 @@ abstract class FermanBridgeApiImplPlatform
     ReadOnlyReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_repair_fix(RepairFix self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_repair_kind(RepairKind self, SseSerializer serializer);
 
   @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
@@ -1430,6 +1484,20 @@ class FermanBridgeWire implements BaseWire {
     wanted,
   );
 
+  void wire__crate__frb__save_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String path,
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_attachment(
+    port_,
+    document,
+    index,
+    path,
+    staging,
+  );
+
   void wire__crate__frb__search(
     NativePortType port_,
     JSAny document,
@@ -1499,6 +1567,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__save_attachment(
+    NativePortType port_,
+    JSAny document,
+    int index,
+    String path,
+    String? staging,
   );
 
   external void wire__crate__frb__search(

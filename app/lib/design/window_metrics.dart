@@ -31,6 +31,15 @@ abstract final class WindowMetrics {
   /// them does.
   static const double canvasMinWidth = 640;
 
+  /// The widest the sidebar gets when it is dragged wider (B094; G21 asks
+  /// for limits no board draws): room for longer bookmark titles and file
+  /// names, while a 1440 px window keeps the canvas well above
+  /// [canvasMinWidth] with the right panel open.
+  static const double sidebarMaxWidth = 360;
+
+  /// The widest the right panel gets when it is dragged wider (B094).
+  static const double panelMaxWidth = 400;
+
   /// The window title used by the operating system (task switcher, dock).
   static const String title = 'Ferman';
 }

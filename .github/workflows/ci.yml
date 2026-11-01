@@ -66,6 +66,16 @@ jobs:
           (cd tools/tokens && dart run bin/tokens.dart --check)
           (cd tools/icons && dart run icons --check && dart run icons:component_spec --check)
           (cd tools/l10n && dart run l10n --check && dart run l10n:review_table --check)
+      - name: Casing tables match UCD 15.0.0 (tools/unicode)
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash tools/unicode/fetch.sh
+          cd tools/unicode
+          dart pub get --enforce-lockfile
+          dart format --output=none --set-exit-if-changed .
+          dart analyze --fatal-infos
+          dart run bin/casing.dart --check
       - name: Cache the PDFium archives
         uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
         with:
@@ -96,6 +106,9 @@ jobs:
         run: |
           npm test
           node index.mjs --check
+      - name: Region names match CLDR 48 (Node.js 24.22.0's ICU)
+        working-directory: tools/cldr
+        run: node regions.mjs --check
 
   rust:
     name: Rust (${{ matrix.os }})
@@ -177,6 +190,45 @@ jobs:
           cargo run -q --manifest-path tools/corpus/Cargo.toml --locked -- check
           # PDFium, a reader independent of lopdf, opens every generated file as its generator says.
           cargo test --manifest-path tools/corpus/Cargo.toml --locked --test oracle -- --ignored
+
+  bench:
+    # ARCHITECTURE §14's engine budgets on a CI runner (not R1 or R2): criterion's quick runs for
+    # the record, then one cold run each that fails above the reference budget, a guard against a
+    # gross regression. The calibrated CI budgets of §14 wait for numbers from R1 and R2.
+    name: Benchmarks (Linux)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Install the toolchain from rust-toolchain.toml
+        run: |
+          rustup toolchain install
+          rustup show active-toolchain
+      - uses: Swatinem/rust-cache@6323deb102c322ba6fcbdcafc7e3dddab59af2b6 # v2.9.2
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: Cache the corpus fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/corpus-fonts
+          key: corpus-fonts-${{ hashFiles('tools/corpus/fonts.lock') }}
+      - name: PDFium and long-500 (generated, not committed)
+        run: |
+          set -euo pipefail
+          bash tools/pdfium/fetch.sh --platform linux-x64
+          bash tools/corpus/fetch-fonts.sh
+          cargo run -q --manifest-path tools/corpus/Cargo.toml --locked -- generate
+      - name: First page and search, with their guards
+        env:
+          FERMAN_BENCH_GUARD: "1"
+        run: |
+          set -euo pipefail
+          export FERMAN_PDFIUM_PATH="$PWD/build/pdfium/linux-x64/lib/libpdfium.so"
+          cargo bench --locked -p ferman-render --bench first_page -- --quick
+          cargo bench --locked -p ferman-text --bench search -- --quick
 
   deny:
     name: cargo-deny
@@ -413,6 +465,20 @@ jobs:
         with:
           name: golden-failures
           path: app/test/**/failures/
+          if-no-files-found: ignore
+          retention-days: 14
+      - name: Regenerate the goldens after a failure (Linux)
+        # Every golden as this runner draws it, for a new screen whose goldens
+        # do not exist yet or a change that moves many: reviewed and committed
+        # like any change, never by CI.
+        if: failure() && runner.os == 'Linux'
+        run: flutter test --update-goldens --tags golden || true
+      - name: Upload the regenerated goldens
+        if: failure() && runner.os == 'Linux'
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: goldens-linux
+          path: app/test/goldens/goldens/linux/
           if-no-files-found: ignore
           retention-days: 14
       - name: Dart licence check

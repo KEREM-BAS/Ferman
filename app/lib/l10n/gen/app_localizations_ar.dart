@@ -384,6 +384,27 @@ class AppLocalizationsAr extends AppLocalizations {
   String get shellToolVersionHistory => 'سجل الإصدارات';
 
   @override
+  String get fieldContextMenu => 'حقل نص';
+
+  @override
+  String get fieldCut => 'قص';
+
+  @override
+  String get fieldCopy => 'نسخ';
+
+  @override
+  String get fieldPaste => 'لصق';
+
+  @override
+  String get fieldSelectAll => 'تحديد الكل';
+
+  @override
+  String get shellResizeSidebar => 'تغيير حجم الشريط الجانبي';
+
+  @override
+  String get shellResizePanel => 'تغيير حجم اللوحة';
+
+  @override
   String get shellSidebar => 'الشريط الجانبي';
 
   @override
@@ -522,6 +543,10 @@ class AppLocalizationsAr extends AppLocalizations {
   String onboardingLanguageNoMatch(String query) {
     return 'لا توجد لغة تطابق «$query».';
   }
+
+  @override
+  String get onboardingLanguageNoMatchBody =>
+      'ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها.';
 
   @override
   String get onboardingLanguageMissing => 'لم تجد لغتك؟';
@@ -1137,6 +1162,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get statusSearching => 'جارٍ البحث';
+
+  @override
   String findSearching(String page, String pages) {
     return 'جارٍ البحث · الصفحة $page من $pages';
   }
@@ -1172,6 +1200,18 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get sidebarSearchField => 'البحث في المستند';
+
+  @override
+  String sidebarSearchBookmark(String title) {
+    return 'إشارة مرجعية: $title';
+  }
+
+  @override
+  String get sidebarSearchNoTextTitle => 'لا يوجد نص للبحث فيه';
+
+  @override
+  String get sidebarSearchNoTextBody =>
+      'هذه الصفحات صور ممسوحة ضوئيًا. التعرّف على النص يجعلها قابلة للبحث.';
 
   @override
   String sidebarSearchSummary(
@@ -1339,6 +1379,12 @@ class AppLocalizationsAr extends AppLocalizations {
   String get startBadgeSigned => 'موقّع';
 
   @override
+  String get startBadgeForm => 'نموذج';
+
+  @override
+  String get startBadgeScanned => 'ممسوح ضوئيًا';
+
+  @override
   String startMissingTitle(String name) {
     return 'تعذّر العثور على «$name»';
   }
@@ -1499,6 +1545,124 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'إغلاق';
+
+  @override
+  String get repairedTitle => 'أصلح Ferman هذا الملف.';
+
+  @override
+  String repairedBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُصلحت $countText مشكلة في هذه النسخة.',
+      many: 'أُصلحت $countText مشكلة في هذه النسخة.',
+      few: 'أُصلحت $countText مشكلات في هذه النسخة.',
+      two: 'أُصلحت مشكلتان في هذه النسخة.',
+      one: 'أُصلحت مشكلة واحدة في هذه النسخة.',
+      zero: 'أُصلحت مشكلات في هذه النسخة.',
+    );
+    return '$_temp0 يبقى الأصل كما هو حتى تحفظ.';
+  }
+
+  @override
+  String get repairedDetails => 'التفاصيل';
+
+  @override
+  String get repairedSave => 'حفظ النسخة المُصلَحة…';
+
+  @override
+  String get repairDetailsTitle => 'ما الذي أصلحه Ferman';
+
+  @override
+  String get repairCopyDetails => 'نسخ التفاصيل';
+
+  @override
+  String get repairXrefTitle => 'كان جدول الإسناد الترافقي تالفًا';
+
+  @override
+  String repairXrefBody(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'أُعيد بناؤه من $countText كائن موجود في الملف.',
+      many: 'أُعيد بناؤه من $countText كائنًا موجودًا في الملف.',
+      few: 'أُعيد بناؤه من $countText كائنات موجودة في الملف.',
+      two: 'أُعيد بناؤه من الكائنين الموجودين في الملف.',
+      one: 'أُعيد بناؤه من الكائن الوحيد الموجود في الملف.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String repairPagesPresent(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'الصفحات الـ$countText كلها موجودة.',
+      many: 'الصفحات الـ$countText كلها موجودة.',
+      few: 'الصفحات الـ$countText كلها موجودة.',
+      two: 'الصفحتان موجودتان.',
+      one: 'الصفحة موجودة.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairTrailerTitle => 'كان مقطع الذيل (trailer) في الملف مفقودًا';
+
+  @override
+  String get repairTrailerBody => 'عثر Ferman على بداية المستند بين كائناته.';
+
+  @override
+  String repairStreamsTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'كان طول $countText تدفق خاطئًا',
+      many: 'كان طول $countText تدفقًا خاطئًا',
+      few: 'كان طول $countText تدفقات خاطئًا',
+      two: 'كان طول تدفقين خاطئًا',
+      one: 'كان طول تدفق واحد خاطئًا',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairStreamsBody => 'قرأ Ferman كل واحد منها حتى نهايته.';
+
+  @override
+  String repairUnreadableTitle(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تعذّرت قراءة $countText كائن',
+      many: 'تعذّرت قراءة $countText كائنًا',
+      few: 'تعذّرت قراءة $countText كائنات',
+      two: 'تعذّرت قراءة كائنين',
+      one: 'تعذّرت قراءة كائن واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get repairUnreadableBody =>
+      'قد تكون الصفحات والميزات التي تستخدمها غير مكتملة.';
+
+  @override
+  String get xfaTitle => 'هذا نموذج XFA، ولا يستطيع Ferman عرضه.';
+
+  @override
+  String get xfaBody =>
+      'XFA تنسيق متوقف من Adobe. افتحه في Adobe Acrobat Reader، أو اطلب من المرسل ملف PDF عاديًا.';
+
+  @override
+  String disagreeTitle(String name) {
+    return 'فتح Ferman «$name» للقراءة فقط.';
+  }
+
+  @override
+  String get disagreeBody =>
+      'بعض أجزاء هذا الملف لا تتطابق مع بعضها، وقد يعني ذلك أنه تالف. يمكنك قراءته كالمعتاد.';
 
   @override
   String get propertiesFile => 'الملف';
@@ -1744,4 +1908,41 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get openingCancel => 'إلغاء';
+
+  @override
+  String get defaultAppTitle => 'هل تريد فتح ملفات PDF باستخدام Ferman؟';
+
+  @override
+  String get defaultAppDescription =>
+      'يمكن أن يكون Ferman التطبيق الذي يُفتح عند النقر المزدوج على ملف PDF. سيطلب منك macOS تأكيد التغيير.';
+
+  @override
+  String get defaultAppNow => 'يفتح ملفات PDF الآن:';
+
+  @override
+  String get defaultAppNotNow => 'ليس الآن';
+
+  @override
+  String get defaultAppUse => 'استخدام Ferman لملفات PDF';
+
+  @override
+  String get defaultAppDontAsk => 'عدم السؤال مرة أخرى';
+
+  @override
+  String settingsDefaultAppOther(String app) {
+    return 'يفتح $app ملفات PDF على جهاز Mac هذا.';
+  }
+
+  @override
+  String get settingsDefaultAppFerman =>
+      'يفتح Ferman ملفات PDF على جهاز Mac هذا.';
+
+  @override
+  String attachmentNotSaved(String name) {
+    return 'لم يُحفَظ “$name”';
+  }
+
+  @override
+  String get attachmentWriteFailed =>
+      'تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا.';
 }

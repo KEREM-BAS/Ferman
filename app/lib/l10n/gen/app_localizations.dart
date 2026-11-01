@@ -838,6 +838,48 @@ abstract class AppLocalizations {
   /// **'Version history'**
   String get shellToolVersionHistory;
 
+  /// Accessible name of the context menu a right click opens on a text field (B017).
+  ///
+  /// In en, this message translates to:
+  /// **'Text field'**
+  String get fieldContextMenu;
+
+  /// Text field context menu: cut the selected text.
+  ///
+  /// In en, this message translates to:
+  /// **'Cut'**
+  String get fieldCut;
+
+  /// Text field context menu: copy the selected text.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy'**
+  String get fieldCopy;
+
+  /// Text field context menu: paste the clipboard.
+  ///
+  /// In en, this message translates to:
+  /// **'Paste'**
+  String get fieldPaste;
+
+  /// Text field context menu: select all the field's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Select all'**
+  String get fieldSelectAll;
+
+  /// Accessible name of the invisible drag handle on the sidebar's edge that changes its width (B094).
+  ///
+  /// In en, this message translates to:
+  /// **'Resize sidebar'**
+  String get shellResizeSidebar;
+
+  /// Accessible name of the invisible drag handle on the right panel's edge that changes its width (B094).
+  ///
+  /// In en, this message translates to:
+  /// **'Resize panel'**
+  String get shellResizePanel;
+
   /// Screen-reader name of the sidebar and of its row of tabs (FmSidebar t.sidebar).
   ///
   /// In en, this message translates to:
@@ -1089,6 +1131,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'No language matches “{query}”.'**
   String onboardingLanguageNoMatch(String query);
+
+  /// The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState).
+  ///
+  /// In en, this message translates to:
+  /// **'Search by the language’s own name, its English name or its code.'**
+  String get onboardingLanguageNoMatchBody;
 
   /// Footer of the first-run language picker (a1-1), before the Help translate Ferman link.
   ///
@@ -2200,6 +2248,12 @@ abstract class AppLocalizations {
   /// **'{current} of {total}'**
   String findCount(String current, String total);
 
+  /// The status bar's inline task while a search runs (FmWindow task, B124), before "Page N of M".
+  ///
+  /// In en, this message translates to:
+  /// **'Searching'**
+  String get statusSearching;
+
   /// A long search's progress (a2-4c); numbers in the region's format.
   ///
   /// In en, this message translates to:
@@ -2229,6 +2283,24 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Search in document'**
   String get sidebarSearchField;
+
+  /// Accessible name of a search result found in a bookmark's title (Look in › Bookmarks).
+  ///
+  /// In en, this message translates to:
+  /// **'Bookmark: {title}'**
+  String sidebarSearchBookmark(String title);
+
+  /// Sidebar › Search results: the title of the empty state when the document has no text layer, such as a scan (a2-3m).
+  ///
+  /// In en, this message translates to:
+  /// **'No text to search'**
+  String get sidebarSearchNoTextTitle;
+
+  /// Sidebar › Search results: the line under the no-text empty state's title (a2-3m); recognizing text is OCR.
+  ///
+  /// In en, this message translates to:
+  /// **'These pages are scanned images. Recognizing text makes them searchable.'**
+  String get sidebarSearchNoTextBody;
 
   /// Sidebar › Search results: the summary under the field (a2-3e). matches and pages are counts, matchesText and pagesText the same numbers in the region's format.
   ///
@@ -2462,6 +2534,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Signed'**
   String get startBadgeSigned;
+
+  /// Badge on a recent file that has form fields (a1-4, accent).
+  ///
+  /// In en, this message translates to:
+  /// **'Form'**
+  String get startBadgeForm;
+
+  /// Badge on a recent file whose first page has no text, most likely a scan (a1-4, neutral).
+  ///
+  /// In en, this message translates to:
+  /// **'Scanned'**
+  String get startBadgeScanned;
 
   /// Title of the dialog for a recent file that was moved, renamed or deleted (a1-9e, missTitle); name is the file name, isolated.
   ///
@@ -2714,6 +2798,120 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get scriptsDismiss;
+
+  /// a1-9: title of the bar above the pages of a file Ferman repaired on open.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman repaired this file.'**
+  String get repairedTitle;
+
+  /// a1-9: message of the repaired bar. {count} is how many repairs the engine reports (0 when it names none), {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =0{Problems were fixed in this copy.} =1{1 problem was fixed in this copy.} other{{countText} problems were fixed in this copy.}} The original stays as it was until you save.'**
+  String repairedBody(int count, String countText);
+
+  /// a1-9: the repaired bar's button that opens the list of repairs (What Ferman repaired).
+  ///
+  /// In en, this message translates to:
+  /// **'Details'**
+  String get repairedDetails;
+
+  /// a1-9: the repaired bar's button that saves the repaired file as a new file (disabled until saving ships, B103).
+  ///
+  /// In en, this message translates to:
+  /// **'Save repaired copy…'**
+  String get repairedSave;
+
+  /// a1-9: title of the popover that lists the repairs.
+  ///
+  /// In en, this message translates to:
+  /// **'What Ferman repaired'**
+  String get repairDetailsTitle;
+
+  /// a1-9: button in the repairs popover that copies the list of repairs.
+  ///
+  /// In en, this message translates to:
+  /// **'Copy details'**
+  String get repairCopyDetails;
+
+  /// a1-9: a repair: the file's table of where its objects are was rebuilt.
+  ///
+  /// In en, this message translates to:
+  /// **'The cross-reference table was broken'**
+  String get repairXrefTitle;
+
+  /// a1-9: detail of the cross-reference repair. {count} is the objects found, {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Rebuilt from the 1 object found in the file.} other{Rebuilt from the {countText} objects found in the file.}}'**
+  String repairXrefBody(int count, String countText);
+
+  /// a1-9: second sentence of the cross-reference repair's detail. {count} is the document's pages, {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The page is present.} other{All {countText} pages are present.}}'**
+  String repairPagesPresent(int count, String countText);
+
+  /// a1-9: a repair: the file's trailer (the part that says where the document starts) was missing (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'The file’s trailer was missing'**
+  String get repairTrailerTitle;
+
+  /// a1-9: detail of the trailer repair (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman found where the document starts among its objects.'**
+  String get repairTrailerBody;
+
+  /// a1-9: a repair: data streams whose stated length was wrong (not on the board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 stream had the wrong length} other{{countText} streams had the wrong length}}'**
+  String repairStreamsTitle(int count, String countText);
+
+  /// a1-9: detail of the stream-length repair (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman read each one up to its end.'**
+  String get repairStreamsBody;
+
+  /// a1-9: objects of the file that could not be read (not on the board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 object couldn’t be read} other{{countText} objects couldn’t be read}}'**
+  String repairUnreadableTitle(int count, String countText);
+
+  /// a1-9: detail of the unreadable objects (not on the board).
+  ///
+  /// In en, this message translates to:
+  /// **'Pages and features that use them may be incomplete.'**
+  String get repairUnreadableBody;
+
+  /// a11-7c: title of the bar above the pages of an XFA-only form.
+  ///
+  /// In en, this message translates to:
+  /// **'This is an XFA form, which Ferman can’t show.'**
+  String get xfaTitle;
+
+  /// a11-7c: message of the XFA bar.
+  ///
+  /// In en, this message translates to:
+  /// **'XFA is a discontinued Adobe format. Open it in Adobe Acrobat Reader, or ask the sender for a regular PDF.'**
+  String get xfaBody;
+
+  /// G102: title of the bar above the pages of a file whose two parsers disagree (not on a board). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman opened “{name}” read-only.'**
+  String disagreeTitle(String name);
+
+  /// G102: message of the parsers-disagree bar (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Parts of this file don’t match each other, which can mean it is damaged. You can read it as usual.'**
+  String get disagreeBody;
 
   /// Right panel section with the file's facts (FmDocPanel `view`).
   ///
@@ -3134,6 +3332,66 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Cancel'**
   String get openingCancel;
+
+  /// Title of the first-run question that offers to make Ferman the app that opens PDF files (a1-3), asked after onboarding on macOS.
+  ///
+  /// In en, this message translates to:
+  /// **'Open PDFs with Ferman?'**
+  String get defaultAppTitle;
+
+  /// Line under defaultAppTitle (a1-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can be the app that opens when you double-click a PDF. macOS asks you to confirm the change.'**
+  String get defaultAppDescription;
+
+  /// Label before the app that opens PDF files now, an arrow and Ferman (a1-3).
+  ///
+  /// In en, this message translates to:
+  /// **'Opens PDFs now:'**
+  String get defaultAppNow;
+
+  /// Button of a1-3 that closes the question; Settings › General keeps the button.
+  ///
+  /// In en, this message translates to:
+  /// **'Not now'**
+  String get defaultAppNotNow;
+
+  /// Primary button of a1-3: asks macOS to make Ferman the app that opens PDF files.
+  ///
+  /// In en, this message translates to:
+  /// **'Use Ferman for PDFs'**
+  String get defaultAppUse;
+
+  /// Checkbox of a1-3: with it, Not now never asks again.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t ask again'**
+  String get defaultAppDontAsk;
+
+  /// Text beside Make Ferman the default… in Settings › General on macOS (a11-1); app is the app that opens PDF files now, as macOS names it, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'{app} opens PDFs on this Mac.'**
+  String settingsDefaultAppOther(String app);
+
+  /// Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman opens PDFs on this Mac.'**
+  String get settingsDefaultAppFerman;
+
+  /// Title of the editor’s danger toast when Save attachment as… failed (a2-3b, G124); name is the attachment’s file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” wasn’t saved'**
+  String attachmentNotSaved(String name);
+
+  /// Message of the toast of attachmentNotSaved when the file could not be written.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.'**
+  String get attachmentWriteFailed;
 }
 
 class _AppLocalizationsDelegate

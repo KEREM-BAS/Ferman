@@ -156,6 +156,35 @@ enum ReadOnlyReason {
   xfaOnly,
 }
 
+/// What a [RepairFix] repaired.
+enum RepairKind {
+  /// The cross-reference table was rebuilt from the objects found.
+  crossReferenceRebuilt,
+
+  /// The trailer was missing; the catalog was found among the objects.
+  trailerRebuilt,
+
+  /// Streams with a wrong length were read up to their end.
+  streamLengthsCorrected,
+
+  /// Objects the cross-reference data names could not be read.
+  objectsUnreadable,
+}
+
+/// One thing repair did, for a1-9's "What Ferman repaired".
+@immutable
+class RepairFix {
+  /// Creates a fix.
+  const new({required this.kind, this.count = 0});
+
+  /// What was repaired.
+  final RepairKind kind;
+
+  /// The objects found, the streams corrected or the objects that could
+  /// not be read; 0 for [RepairKind.trailerRebuilt].
+  final int count;
+}
+
 /// One page of an [OpenedDocument], in points as displayed.
 @immutable
 class PageInfo {
@@ -440,6 +469,7 @@ class OpenedDocument {
     required this.id,
     required this.pages,
     this.readOnly,
+    this.repairs = const [],
     this.rightToLeft = false,
     this.outline = const [],
     this.attachments = const [],
@@ -455,6 +485,8 @@ class OpenedDocument {
     this.fonts = const [],
     this.security,
     this.scripts = 0,
+    this.formFields = 0,
+    this.scanned = false,
   });
 
   /// Its handle, until it is closed.
@@ -465,6 +497,10 @@ class OpenedDocument {
 
   /// Why it opened read-only, if it did.
   final ReadOnlyReason? readOnly;
+
+  /// What repair did, in order; empty unless [readOnly] is
+  /// [ReadOnlyReason.repaired].
+  final List<RepairFix> repairs;
 
   /// Whether spreads run right to left (`/Direction /R2L`).
   final bool rightToLeft;
@@ -512,11 +548,19 @@ class OpenedDocument {
   /// How many scripts it carries, which Ferman never runs (G100).
   final int scripts;
 
+  /// How many form fields it has (the start screen's Form badge).
+  final int formFields;
+
+  /// Whether its first page has no text, most likely a scan (the start
+  /// screen's Scanned badge).
+  final bool scanned;
+
   /// This document with [security], as the owner unlock leaves it.
   OpenedDocument withSecurity(Security? security) => OpenedDocument(
     id: id,
     pages: pages,
     readOnly: readOnly,
+    repairs: repairs,
     rightToLeft: rightToLeft,
     outline: outline,
     attachments: attachments,
@@ -532,6 +576,8 @@ class OpenedDocument {
     fonts: fonts,
     security: security,
     scripts: scripts,
+    formFields: formFields,
+    scanned: scanned,
   );
 }
 
@@ -733,6 +779,7 @@ class SearchOptions {
     this.matchCase = false,
     this.wholeWords = false,
     this.ignoreAccents = true,
+    this.bookmarks = false,
   });
 
   /// Match case.
@@ -744,15 +791,20 @@ class SearchOptions {
   /// Ignore accents and dotted/dotless i.
   final bool ignoreAccents;
 
+  /// Look in the bookmarks' titles too (a2-4a, B114).
+  final bool bookmarks;
+
   @override
   bool operator ==(Object other) =>
       other is SearchOptions &&
       other.matchCase == matchCase &&
       other.wholeWords == wholeWords &&
-      other.ignoreAccents == ignoreAccents;
+      other.ignoreAccents == ignoreAccents &&
+      other.bookmarks == bookmarks;
 
   @override
-  int get hashCode => Object.hash(matchCase, wholeWords, ignoreAccents);
+  int get hashCode =>
+      Object.hash(matchCase, wholeWords, ignoreAccents, bookmarks);
 }
 
 /// One match of a search.
@@ -765,6 +817,7 @@ class SearchMatch {
     required this.snippet,
     required this.snippetStart,
     required this.snippetEnd,
+    this.bookmark = false,
   });
 
   /// Its page, from 0.
@@ -782,6 +835,10 @@ class SearchMatch {
 
   /// Where it ends in [snippet], in UTF-16 code units.
   final int snippetEnd;
+
+  /// Whether it is in a bookmark's title, [snippet], pointing at [page];
+  /// it has no [rects].
+  final bool bookmark;
 }
 
 /// What a running search reports.
@@ -814,8 +871,11 @@ final class SearchProgress extends SearchUpdate {
 /// The search ended.
 final class SearchDone extends SearchUpdate {
   /// Creates the update.
-  const new({this.cancelled = false});
+  const new({this.cancelled = false, this.textless = false});
 
   /// Whether it was cancelled.
   final bool cancelled;
+
+  /// Whether no page had text: a scan without a text layer (a2-3m).
+  final bool textless;
 }

@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -208137867;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1570182822;
 
 // Section: executor
 
@@ -285,6 +285,42 @@ fn wire__crate__frb__request_view_impl(
         },
     )
 }
+fn wire__crate__frb__save_attachment_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    index: impl CstDecode<u32>,
+    path: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_attachment",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_index = index.cst_decode();
+            let api_path = path.cst_decode();
+            let api_staging = staging.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::save_attachment(
+                            api_document,
+                            api_index,
+                            api_path,
+                            api_staging,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__search_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -508,6 +544,18 @@ impl CstDecode<crate::frb::ReadOnlyReason> for i32 {
             1 => crate::frb::ReadOnlyReason::ParsersDisagree,
             2 => crate::frb::ReadOnlyReason::XfaOnly,
             _ => unreachable!("Invalid variant for ReadOnlyReason: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::RepairKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::RepairKind {
+        match self {
+            0 => crate::frb::RepairKind::CrossReferenceRebuilt,
+            1 => crate::frb::RepairKind::TrailerRebuilt,
+            2 => crate::frb::RepairKind::StreamLengthsCorrected,
+            3 => crate::frb::RepairKind::ObjectsUnreadable,
+            _ => unreachable!("Invalid variant for RepairKind: {}", self),
         }
     }
 }
@@ -989,6 +1037,18 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::RepairFix> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::RepairFix>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1030,6 +1090,7 @@ impl SseDecode for crate::frb::OpenedDocument {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_id = <u64>::sse_decode(deserializer);
         let mut var_readOnly = <Option<crate::frb::ReadOnlyReason>>::sse_decode(deserializer);
+        let mut var_repairs = <Vec<crate::frb::RepairFix>>::sse_decode(deserializer);
         let mut var_rightToLeft = <bool>::sse_decode(deserializer);
         let mut var_pages = <Vec<crate::frb::PageInfo>>::sse_decode(deserializer);
         let mut var_outline = <Vec<crate::frb::OutlineEntry>>::sse_decode(deserializer);
@@ -1046,9 +1107,12 @@ impl SseDecode for crate::frb::OpenedDocument {
         let mut var_fonts = <Vec<crate::frb::FontEntry>>::sse_decode(deserializer);
         let mut var_security = <Option<crate::frb::Security>>::sse_decode(deserializer);
         let mut var_scripts = <u32>::sse_decode(deserializer);
+        let mut var_formFields = <u32>::sse_decode(deserializer);
+        let mut var_scanned = <bool>::sse_decode(deserializer);
         return crate::frb::OpenedDocument {
             id: var_id,
             read_only: var_readOnly,
+            repairs: var_repairs,
             right_to_left: var_rightToLeft,
             pages: var_pages,
             outline: var_outline,
@@ -1065,6 +1129,8 @@ impl SseDecode for crate::frb::OpenedDocument {
             fonts: var_fonts,
             security: var_security,
             scripts: var_scripts,
+            form_fields: var_formFields,
+            scanned: var_scanned,
         };
     }
 }
@@ -1276,6 +1342,32 @@ impl SseDecode for crate::frb::ReadOnlyReason {
     }
 }
 
+impl SseDecode for crate::frb::RepairFix {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::RepairKind>::sse_decode(deserializer);
+        let mut var_count = <u32>::sse_decode(deserializer);
+        return crate::frb::RepairFix {
+            kind: var_kind,
+            count: var_count,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::RepairKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::RepairKind::CrossReferenceRebuilt,
+            1 => crate::frb::RepairKind::TrailerRebuilt,
+            2 => crate::frb::RepairKind::StreamLengthsCorrected,
+            3 => crate::frb::RepairKind::ObjectsUnreadable,
+            _ => unreachable!("Invalid variant for RepairKind: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::SearchEvent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1285,6 +1377,7 @@ impl SseDecode for crate::frb::SearchEvent {
         let mut var_searched = <u32>::sse_decode(deserializer);
         let mut var_pages = <u32>::sse_decode(deserializer);
         let mut var_cancelled = <bool>::sse_decode(deserializer);
+        let mut var_textless = <bool>::sse_decode(deserializer);
         return crate::frb::SearchEvent {
             kind: var_kind,
             search: var_search,
@@ -1292,6 +1385,7 @@ impl SseDecode for crate::frb::SearchEvent {
             searched: var_searched,
             pages: var_pages,
             cancelled: var_cancelled,
+            textless: var_textless,
         };
     }
 }
@@ -1318,12 +1412,14 @@ impl SseDecode for crate::frb::SearchMatch {
         let mut var_snippet = <String>::sse_decode(deserializer);
         let mut var_snippetStart = <u32>::sse_decode(deserializer);
         let mut var_snippetEnd = <u32>::sse_decode(deserializer);
+        let mut var_bookmark = <bool>::sse_decode(deserializer);
         return crate::frb::SearchMatch {
             page: var_page,
             rects: var_rects,
             snippet: var_snippet,
             snippet_start: var_snippetStart,
             snippet_end: var_snippetEnd,
+            bookmark: var_bookmark,
         };
     }
 }
@@ -1334,10 +1430,12 @@ impl SseDecode for crate::frb::SearchOptions {
         let mut var_matchCase = <bool>::sse_decode(deserializer);
         let mut var_wholeWords = <bool>::sse_decode(deserializer);
         let mut var_ignoreAccents = <bool>::sse_decode(deserializer);
+        let mut var_bookmarks = <bool>::sse_decode(deserializer);
         return crate::frb::SearchOptions {
             match_case: var_matchCase,
             whole_words: var_wholeWords,
             ignore_accents: var_ignoreAccents,
+            bookmarks: var_bookmarks,
         };
     }
 }
@@ -1809,6 +1907,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
         [
             self.id.into_into_dart().into_dart(),
             self.read_only.into_into_dart().into_dart(),
+            self.repairs.into_into_dart().into_dart(),
             self.right_to_left.into_into_dart().into_dart(),
             self.pages.into_into_dart().into_dart(),
             self.outline.into_into_dart().into_dart(),
@@ -1825,6 +1924,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
             self.fonts.into_into_dart().into_dart(),
             self.security.into_into_dart().into_dart(),
             self.scripts.into_into_dart().into_dart(),
+            self.form_fields.into_into_dart().into_dart(),
+            self.scanned.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -1978,6 +2079,40 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::ReadOnlyReason> for crate::fr
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RepairFix {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.count.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RepairFix {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RepairFix> for crate::frb::RepairFix {
+    fn into_into_dart(self) -> crate::frb::RepairFix {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RepairKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::CrossReferenceRebuilt => 0.into_dart(),
+            Self::TrailerRebuilt => 1.into_dart(),
+            Self::StreamLengthsCorrected => 2.into_dart(),
+            Self::ObjectsUnreadable => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RepairKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RepairKind> for crate::frb::RepairKind {
+    fn into_into_dart(self) -> crate::frb::RepairKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::SearchEvent {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -1987,6 +2122,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchEvent {
             self.searched.into_into_dart().into_dart(),
             self.pages.into_into_dart().into_dart(),
             self.cancelled.into_into_dart().into_dart(),
+            self.textless.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2026,6 +2162,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchMatch {
             self.snippet.into_into_dart().into_dart(),
             self.snippet_start.into_into_dart().into_dart(),
             self.snippet_end.into_into_dart().into_dart(),
+            self.bookmark.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2043,6 +2180,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::SearchOptions {
             self.match_case.into_into_dart().into_dart(),
             self.whole_words.into_into_dart().into_dart(),
             self.ignore_accents.into_into_dart().into_dart(),
+            self.bookmarks.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2546,6 +2684,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::RepairFix> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::RepairFix>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::SearchMatch> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2581,6 +2729,7 @@ impl SseEncode for crate::frb::OpenedDocument {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u64>::sse_encode(self.id, serializer);
         <Option<crate::frb::ReadOnlyReason>>::sse_encode(self.read_only, serializer);
+        <Vec<crate::frb::RepairFix>>::sse_encode(self.repairs, serializer);
         <bool>::sse_encode(self.right_to_left, serializer);
         <Vec<crate::frb::PageInfo>>::sse_encode(self.pages, serializer);
         <Vec<crate::frb::OutlineEntry>>::sse_encode(self.outline, serializer);
@@ -2597,6 +2746,8 @@ impl SseEncode for crate::frb::OpenedDocument {
         <Vec<crate::frb::FontEntry>>::sse_encode(self.fonts, serializer);
         <Option<crate::frb::Security>>::sse_encode(self.security, serializer);
         <u32>::sse_encode(self.scripts, serializer);
+        <u32>::sse_encode(self.form_fields, serializer);
+        <bool>::sse_encode(self.scanned, serializer);
     }
 }
 
@@ -2782,6 +2933,32 @@ impl SseEncode for crate::frb::ReadOnlyReason {
     }
 }
 
+impl SseEncode for crate::frb::RepairFix {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::RepairKind>::sse_encode(self.kind, serializer);
+        <u32>::sse_encode(self.count, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::RepairKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::RepairKind::CrossReferenceRebuilt => 0,
+                crate::frb::RepairKind::TrailerRebuilt => 1,
+                crate::frb::RepairKind::StreamLengthsCorrected => 2,
+                crate::frb::RepairKind::ObjectsUnreadable => 3,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::SearchEvent {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -2791,6 +2968,7 @@ impl SseEncode for crate::frb::SearchEvent {
         <u32>::sse_encode(self.searched, serializer);
         <u32>::sse_encode(self.pages, serializer);
         <bool>::sse_encode(self.cancelled, serializer);
+        <bool>::sse_encode(self.textless, serializer);
     }
 }
 
@@ -2820,6 +2998,7 @@ impl SseEncode for crate::frb::SearchMatch {
         <String>::sse_encode(self.snippet, serializer);
         <u32>::sse_encode(self.snippet_start, serializer);
         <u32>::sse_encode(self.snippet_end, serializer);
+        <bool>::sse_encode(self.bookmark, serializer);
     }
 }
 
@@ -2829,6 +3008,7 @@ impl SseEncode for crate::frb::SearchOptions {
         <bool>::sse_encode(self.match_case, serializer);
         <bool>::sse_encode(self.whole_words, serializer);
         <bool>::sse_encode(self.ignore_accents, serializer);
+        <bool>::sse_encode(self.bookmarks, serializer);
     }
 }
 
@@ -3267,6 +3447,16 @@ mod io {
             }
         }
     }
+    impl CstDecode<Vec<crate::frb::RepairFix>> for *mut wire_cst_list_repair_fix {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::SearchMatch>> for *mut wire_cst_list_search_match {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::SearchMatch> {
@@ -3303,6 +3493,7 @@ mod io {
             crate::frb::OpenedDocument {
                 id: self.id.cst_decode(),
                 read_only: self.read_only.cst_decode(),
+                repairs: self.repairs.cst_decode(),
                 right_to_left: self.right_to_left.cst_decode(),
                 pages: self.pages.cst_decode(),
                 outline: self.outline.cst_decode(),
@@ -3319,6 +3510,8 @@ mod io {
                 fonts: self.fonts.cst_decode(),
                 security: self.security.cst_decode(),
                 scripts: self.scripts.cst_decode(),
+                form_fields: self.form_fields.cst_decode(),
+                scanned: self.scanned.cst_decode(),
             }
         }
     }
@@ -3376,6 +3569,15 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::RepairFix> for wire_cst_repair_fix {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairFix {
+            crate::frb::RepairFix {
+                kind: self.kind.cst_decode(),
+                count: self.count.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SearchEvent> for wire_cst_search_event {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::SearchEvent {
@@ -3386,6 +3588,7 @@ mod io {
                 searched: self.searched.cst_decode(),
                 pages: self.pages.cst_decode(),
                 cancelled: self.cancelled.cst_decode(),
+                textless: self.textless.cst_decode(),
             }
         }
     }
@@ -3398,6 +3601,7 @@ mod io {
                 snippet: self.snippet.cst_decode(),
                 snippet_start: self.snippet_start.cst_decode(),
                 snippet_end: self.snippet_end.cst_decode(),
+                bookmark: self.bookmark.cst_decode(),
             }
         }
     }
@@ -3408,6 +3612,7 @@ mod io {
                 match_case: self.match_case.cst_decode(),
                 whole_words: self.whole_words.cst_decode(),
                 ignore_accents: self.ignore_accents.cst_decode(),
+                bookmarks: self.bookmarks.cst_decode(),
             }
         }
     }
@@ -3620,6 +3825,7 @@ mod io {
             Self {
                 id: Default::default(),
                 read_only: core::ptr::null_mut(),
+                repairs: core::ptr::null_mut(),
                 right_to_left: Default::default(),
                 pages: core::ptr::null_mut(),
                 outline: core::ptr::null_mut(),
@@ -3636,6 +3842,8 @@ mod io {
                 fonts: core::ptr::null_mut(),
                 security: core::ptr::null_mut(),
                 scripts: Default::default(),
+                form_fields: Default::default(),
+                scanned: Default::default(),
             }
         }
     }
@@ -3718,6 +3926,19 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_repair_fix {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                count: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_repair_fix {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_search_event {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -3727,6 +3948,7 @@ mod io {
                 searched: Default::default(),
                 pages: Default::default(),
                 cancelled: Default::default(),
+                textless: Default::default(),
             }
         }
     }
@@ -3743,6 +3965,7 @@ mod io {
                 snippet: core::ptr::null_mut(),
                 snippet_start: Default::default(),
                 snippet_end: Default::default(),
+                bookmark: Default::default(),
             }
         }
     }
@@ -3757,6 +3980,7 @@ mod io {
                 match_case: Default::default(),
                 whole_words: Default::default(),
                 ignore_accents: Default::default(),
+                bookmarks: Default::default(),
             }
         }
     }
@@ -3919,6 +4143,17 @@ mod io {
         wanted: *mut wire_cst_list_wanted_item,
     ) {
         wire__crate__frb__request_view_impl(port_, view, generation, wanted)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_attachment(
+        port_: i64,
+        document: u64,
+        index: u32,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -4133,6 +4368,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_repair_fix(
+        len: i32,
+    ) -> *mut wire_cst_list_repair_fix {
+        let wrap = wire_cst_list_repair_fix {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_repair_fix>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_search_match(
         len: i32,
     ) -> *mut wire_cst_list_search_match {
@@ -4316,6 +4565,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_repair_fix {
+        ptr: *mut wire_cst_repair_fix,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_search_match {
         ptr: *mut wire_cst_search_match,
         len: i32,
@@ -4337,6 +4592,7 @@ mod io {
     pub struct wire_cst_opened_document {
         id: u64,
         read_only: *mut i32,
+        repairs: *mut wire_cst_list_repair_fix,
         right_to_left: bool,
         pages: *mut wire_cst_list_page_info,
         outline: *mut wire_cst_list_outline_entry,
@@ -4353,6 +4609,8 @@ mod io {
         fonts: *mut wire_cst_list_font_entry,
         security: *mut wire_cst_security,
         scripts: u32,
+        form_fields: u32,
+        scanned: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4395,6 +4653,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_repair_fix {
+        kind: i32,
+        count: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_search_event {
         kind: i32,
         search: u64,
@@ -4402,6 +4666,7 @@ mod io {
         searched: u32,
         pages: u32,
         cancelled: bool,
+        textless: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4411,6 +4676,7 @@ mod io {
         snippet: *mut wire_cst_list_prim_u_8_strict,
         snippet_start: u32,
         snippet_end: u32,
+        bookmark: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4418,6 +4684,7 @@ mod io {
         match_case: bool,
         whole_words: bool,
         ignore_accents: bool,
+        bookmarks: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -4845,6 +5112,18 @@ mod web {
             self.into_vec()
         }
     }
+    impl CstDecode<Vec<crate::frb::RepairFix>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::SearchMatch>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -4891,29 +5170,32 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                18,
-                "Expected 18 elements, got {}",
+                21,
+                "Expected 21 elements, got {}",
                 self_.length()
             );
             crate::frb::OpenedDocument {
                 id: self_.get(0).cst_decode(),
                 read_only: self_.get(1).cst_decode(),
-                right_to_left: self_.get(2).cst_decode(),
-                pages: self_.get(3).cst_decode(),
-                outline: self_.get(4).cst_decode(),
-                attachments: self_.get(5).cst_decode(),
-                layers: self_.get(6).cst_decode(),
-                layers_switchable: self_.get(7).cst_decode(),
-                signatures: self_.get(8).cst_decode(),
-                version: self_.get(9).cst_decode(),
-                file_size: self_.get(10).cst_decode(),
-                info: self_.get(11).cst_decode(),
-                language: self_.get(12).cst_decode(),
-                tagged: self_.get(13).cst_decode(),
-                linearized: self_.get(14).cst_decode(),
-                fonts: self_.get(15).cst_decode(),
-                security: self_.get(16).cst_decode(),
-                scripts: self_.get(17).cst_decode(),
+                repairs: self_.get(2).cst_decode(),
+                right_to_left: self_.get(3).cst_decode(),
+                pages: self_.get(4).cst_decode(),
+                outline: self_.get(5).cst_decode(),
+                attachments: self_.get(6).cst_decode(),
+                layers: self_.get(7).cst_decode(),
+                layers_switchable: self_.get(8).cst_decode(),
+                signatures: self_.get(9).cst_decode(),
+                version: self_.get(10).cst_decode(),
+                file_size: self_.get(11).cst_decode(),
+                info: self_.get(12).cst_decode(),
+                language: self_.get(13).cst_decode(),
+                tagged: self_.get(14).cst_decode(),
+                linearized: self_.get(15).cst_decode(),
+                fonts: self_.get(16).cst_decode(),
+                security: self_.get(17).cst_decode(),
+                scripts: self_.get(18).cst_decode(),
+                form_fields: self_.get(19).cst_decode(),
+                scanned: self_.get(20).cst_decode(),
             }
         }
     }
@@ -5026,6 +5308,26 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::RepairFix>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairFix {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::RepairFix {
+                kind: self_.get(0).cst_decode(),
+                count: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::SearchEvent>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -5036,8 +5338,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                6,
-                "Expected 6 elements, got {}",
+                7,
+                "Expected 7 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchEvent {
@@ -5047,6 +5349,7 @@ mod web {
                 searched: self_.get(3).cst_decode(),
                 pages: self_.get(4).cst_decode(),
                 cancelled: self_.get(5).cst_decode(),
+                textless: self_.get(6).cst_decode(),
             }
         }
     }
@@ -5060,8 +5363,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                5,
-                "Expected 5 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchMatch {
@@ -5070,6 +5373,7 @@ mod web {
                 snippet: self_.get(2).cst_decode(),
                 snippet_start: self_.get(3).cst_decode(),
                 snippet_end: self_.get(4).cst_decode(),
+                bookmark: self_.get(5).cst_decode(),
             }
         }
     }
@@ -5083,14 +5387,15 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                4,
+                "Expected 4 elements, got {}",
                 self_.length()
             );
             crate::frb::SearchOptions {
                 match_case: self_.get(0).cst_decode(),
                 whole_words: self_.get(1).cst_decode(),
                 ignore_accents: self_.get(2).cst_decode(),
+                bookmarks: self_.get(3).cst_decode(),
             }
         }
     }
@@ -5355,6 +5660,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::RepairKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RepairKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::frb::SearchEventKind>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -5471,6 +5784,17 @@ mod web {
         wanted: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__request_view_impl(port_, view, generation, wanted)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__save_attachment(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        index: u32,
+        path: String,
+        staging: Option<String>,
+    ) {
+        wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
     }
 
     #[wasm_bindgen]

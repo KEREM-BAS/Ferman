@@ -57,21 +57,11 @@ enum Feature {
   /// Saving: the mode bar's Save while a document has unsaved changes.
   saving('B031'),
 
+  /// Saving a repaired file as a new one: the repaired bar's "Save repaired
+  /// copy…" (a1-9).
+  saveRepairedCopy('B103'),
+
   // Viewing.
-
-  /// Rendering pages on the canvas.
-  pageRendering('B069'),
-
-  /// The Select and Hand tools of the View row.
-  selectAndHand('B033'),
-
-  /// Zoom: the View row's marquee zoom, zoom buttons, zoom menu and Fit,
-  /// the status bar's zoom buttons and Settings › General › Zoom.
-  zoom('B034'),
-
-  /// Page layout: the View row's control and Settings › General › Page
-  /// layout for new documents.
-  pageLayout('B035'),
 
   /// Split view (View row).
   splitView('B036'),
@@ -86,13 +76,6 @@ enum Feature {
   /// Settings › General › PDF pages in dark theme.
   darkReadingMode('B040'),
 
-  /// How PDF pages look in the dark theme: Paper white and Dimmed under
-  /// Settings › General.
-  pageLookInDarkTheme('B078'),
-
-  /// Page navigation: the status bar's Previous page and Next page.
-  pageNavigation('B070'),
-
   /// The sidebar's tab contents: the Pages tab's badge legend.
   sidebarContents('B065'),
 
@@ -102,21 +85,12 @@ enum Feature {
   /// Attaching files: the Attachments tab's Attach a file.
   attachingFiles('B067'),
 
-  /// Saving an attachment: the Attachments tab's Save attachment as….
-  savingAttachments('B110'),
-
   /// Showing and hiding layers in a repaired document, or one opened with
   /// its password: the Layers tab's eye buttons there.
   layerVisibility('B111'),
 
   /// The right panel's sections: its More button.
   rightPanelSections('B068'),
-
-  /// Reopening the documents from last time (Settings › General).
-  reopenDocuments('B079'),
-
-  /// Making Ferman the default PDF app on macOS (Settings › General).
-  defaultAppMacos('B080'),
 
   /// Making Ferman the default PDF app on Windows (Settings › General).
   defaultAppWindows('B101'),
@@ -145,9 +119,9 @@ enum Feature {
   /// Regular expressions in search: the find bar's toggle and option.
   searchRegex('B113'),
 
-  /// Searching comments, form fields and bookmarks: the find bar's Look in
-  /// options and a2-4d's action.
-  searchScopes('B114'),
+  /// Searching comments and form fields: the find bar's Look in options
+  /// Comments and Form fields, and a2-4d's action.
+  searchScopes('B128'),
 
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
@@ -203,8 +177,9 @@ enum Feature {
   convertFromPdf('B023'),
 
   /// Text recognition: Start › Recognize text (OCR), Convert › Recognize
-  /// text, the first-run tile, Settings › Text recognition and Settings ›
-  /// Privacy › Downloads you start.
+  /// text, the first-run tile, Settings › Text recognition, Settings ›
+  /// Privacy › Downloads you start and the Search results tab's "No text to
+  /// search".
   ocr('B025'),
 
   // Protect.

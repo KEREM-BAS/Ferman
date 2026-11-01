@@ -57,6 +57,7 @@ class FermanInteractive extends StatefulWidget {
     this.inMutuallyExclusiveGroup = false,
     this.tooltip,
     this.tooltipShortcut,
+    this.namedReason = false,
     this.tooltipSide = TooltipSide.bottom,
     this.semanticLabel,
     this.semanticsRole,
@@ -120,6 +121,12 @@ class FermanInteractive extends StatefulWidget {
 
   /// The shortcut key caps shown after [tooltip].
   final List<String>? tooltipShortcut;
+
+  /// Whether the tooltip of a disabled control shows [tooltip] above its
+  /// [disabledReason], for a control whose name is not visible (a tool
+  /// whose label has hidden, B095). The semantics keep the reason alone as
+  /// the hint. Not a design-system prop.
+  final bool namedReason;
 
   /// The side the tooltip opens on.
   final TooltipSide tooltipSide;
@@ -197,6 +204,9 @@ class FermanInteractive extends StatefulWidget {
         ),
       )
       ..add(StringProperty('tooltip', tooltip, defaultValue: null))
+      ..add(
+        FlagProperty('namedReason', value: namedReason, ifTrue: 'named reason'),
+      )
       ..add(StringProperty('semanticLabel', semanticLabel, defaultValue: null))
       ..add(
         IterableProperty<WidgetState>(
@@ -351,8 +361,11 @@ class _FermanInteractiveState extends State<FermanInteractive> {
       child: result,
     );
     if (message != null) {
+      final name = widget.tooltip;
       result = Tooltip(
-        message: message,
+        message: _showsReason && widget.namedReason && name != null
+            ? '$name\n$message'
+            : message,
         shortcut: _showsReason ? null : widget.tooltipShortcut,
         side: widget.tooltipSide,
         // A hover only the platform sees opens the tooltip too.

@@ -25,6 +25,9 @@
 //! - [`interpret`]: the content interpreter for text: [`Document::page_text`] hands each show
 //!   operator and the fonts it uses, as plain [`FontResource`](interpret::FontResource) data, to a
 //!   [`TextSink`](interpret::TextSink), which returns the displacement (§6.1).
+//! - [`save`]: [`safe_write`](save::safe_write), a file written through a temp file, flushed,
+//!   verified and renamed over the target (ADR 0008); M2 saves attachments with it
+//!   ([`Document::attachment_data`]).
 //! - `content` (private): the content-stream lexer, operators with their operands and byte spans,
 //!   read leniently, with inline images (§6.1).
 //! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
@@ -38,8 +41,9 @@
 //! - The rest of the interpreter (§6.1): clipping, colour, marked content and Type3 glyph
 //!   procedures, M3.
 //! - `revision`: the revision store, `RevisionId` and `ChangeSet`, §4.3. M3.
-//! - `save`: `SaveMode`, the incremental writer, the full rewrite and `safe_write` (temp file,
-//!   flush, verify, atomic rename), §7 and ADR 0008. M3.
+//! - The rest of `save`: `SaveMode`, the incremental writer and the full rewrite, §7 and
+//!   ADR 0008. M3. Its [`save::safe_write`] (temp file, flush, verify, atomic rename) is here since
+//!   M2, for "Save attachment as…".
 //! - `recovery`: the autosave `RecoveryJournal`, §7.6. M3.
 #![forbid(unsafe_code)]
 
@@ -53,6 +57,7 @@ pub mod fuzzing;
 pub mod interpret;
 pub mod limits;
 pub mod repair;
+pub mod save;
 pub mod security;
 pub mod sniff;
 pub mod source;
