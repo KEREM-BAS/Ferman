@@ -502,5 +502,7 @@
   "propertiesNotAllowed": "İzin verilmiyor",
   "propertiesLanguage": "Dil",
   "propertiesScripts": "JavaScript",
-  "propertiesScriptsValue": "{count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}}"
+  "propertiesScriptsValue": "{count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}}",
+  "openingTitle": "“{name}” açılıyor",
+  "openingCancel": "Vazgeç"
 }

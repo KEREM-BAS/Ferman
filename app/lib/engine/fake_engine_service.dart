@@ -21,6 +21,7 @@ class FakeEngineService implements EngineService {
     this.failures = const {},
     this.passwords = const {},
     this.ownerPasswords = const {},
+    this.holds = const {},
   });
 
   /// The status [status] returns.
@@ -40,6 +41,10 @@ class FakeEngineService implements EngineService {
   /// lifts their restrictions with it and fails with `wrongPassword` with
   /// another.
   final Map<int, String> ownerPasswords;
+
+  /// The paths whose [open] waits for the future, as a slow file does
+  /// (a1-7).
+  final Map<String, Future<void>> holds;
 
   /// The documents whose owner password was given.
   final Set<int> ownerUnlocked = {};
@@ -77,6 +82,7 @@ class FakeEngineService implements EngineService {
 
   @override
   Future<OpenedDocument> open(String path, {String? password}) async {
+    await holds[path];
     if (failures[path] case final error?) throw error;
     if (passwords[path] case final expected? when password != expected) {
       throw password == null

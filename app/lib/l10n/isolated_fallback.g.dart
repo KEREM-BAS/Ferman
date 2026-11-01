@@ -1665,6 +1665,12 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String propertiesScriptsValue(int count, String countText) =>
       isolate(super.propertiesScriptsValue(count, countText));
+
+  @override
+  String openingTitle(String name) => isolate(super.openingTitle(name));
+
+  @override
+  String get openingCancel => isolate(super.openingCancel);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

@@ -71,6 +71,13 @@ class DocumentOpener extends _$DocumentOpener {
   /// so the access its bookmark starts is not ended by the late release.
   final Map<String, Future<void>> _releasing = {};
 
+  /// How long, in milliseconds, an open runs before its tab shows loading
+  /// (a1-7, G104).
+  static const int slowOpenMs = 500;
+
+  /// [slowOpenMs] as a duration.
+  static const Duration slowOpen = Duration(milliseconds: slowOpenMs);
+
   @override
   OpenProblem? build() => null;
 
@@ -165,7 +172,31 @@ class DocumentOpener extends _$DocumentOpener {
     ShellDocuments documents,
     Set<String>? missing,
   ) async {
+    // a1-7: an open that takes a moment shows its tab with a spinner and
+    // the progress card; a fast one shows none, so no tab flashes.
+    var loading = false;
+    final slow = Timer(slowOpen, () {
+      if (_tab(path) != null) return;
+      loading = true;
+      documents.add(ShellDocument(name: fileName(path), path: path));
+      final router = ref.read(routerProvider);
+      if (router.state.uri.path == Routes.start) router.go(Routes.editor);
+    });
     final opened = await _engineOpen(path);
+    slow.cancel();
+    if (loading && _tab(path)?.loading != true) {
+      // Cancelled (a1-7's Cancel or Esc, or the tab closed): the document
+      // is not wanted any more.
+      if (opened case ShellDocument(:final document?)) {
+        unawaited(
+          ref
+              .read(engineServiceProvider)
+              .close(document.id)
+              .catchError((Object _) {}),
+        );
+      }
+      return false;
+    }
     void show(ShellDocument document) {
       if (_tab(path) == null) {
         documents.add(document);

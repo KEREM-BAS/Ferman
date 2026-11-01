@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-503 messages in `app_en.arb`; translated: Turkish 503, Arabic 503.
+505 messages in `app_en.arb`; translated: Turkish 505, Arabic 505.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -559,5 +559,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `propertiesLanguage` | Language | Dil | اللغة | Label of the document's language tag in the Advanced tab (not on a board). |
 | `propertiesScripts` | JavaScript | JavaScript | JavaScript | Label of the scripts row in the Advanced tab (G100, a8-3's row name). |
 | `propertiesScriptsValue` | {count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}} | {count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}} | {count, plural, =1{برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.} =2{برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.} few{{countText} برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} many{{countText} برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} other{{countText} برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.}} | The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region. |
+| `openingTitle` | Opening “{name}” | “{name}” açılıyor | جارٍ فتح «{name}» | a1-7: the title of the progress card while a file takes long to open. {name} is the file name. |
+| `openingCancel` | Cancel | Vazgeç | إلغاء | a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

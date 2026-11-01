@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ferman/app/app.dart';
 import 'package:ferman/app/router.dart';
+import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/tokens.g.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
@@ -107,7 +108,9 @@ void main() {
       // of it already).
       await tester.pump(const Duration(milliseconds: 500));
       expect(tester.binding.sendFramesToEngine, isTrue);
-      expect(find.byType(FmStart), findsOneWidget);
+      // Still opening by then: its tab and a1-7's card show, not Start.
+      expect(find.byType(FmStart), findsNothing);
+      expect(find.byType(TaskProgress), findsOneWidget);
 
       engine.release.complete();
       await tester.pumpAndSettle();

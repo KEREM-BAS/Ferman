@@ -1723,4 +1723,12 @@ class AppLocalizationsTr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String openingTitle(String name) {
+    return '“$name” açılıyor';
+  }
+
+  @override
+  String get openingCancel => 'Vazgeç';
 }

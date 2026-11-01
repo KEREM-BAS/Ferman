@@ -3122,6 +3122,18 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'{count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}}'**
   String propertiesScriptsValue(int count, String countText);
+
+  /// a1-7: the title of the progress card while a file takes long to open. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Opening “{name}”'**
+  String openingTitle(String name);
+
+  /// a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get openingCancel;
 }
 
 class _AppLocalizationsDelegate

@@ -1718,4 +1718,12 @@ class AppLocalizationsEn extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String openingTitle(String name) {
+    return 'Opening “$name”';
+  }
+
+  @override
+  String get openingCancel => 'Cancel';
 }

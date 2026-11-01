@@ -1736,4 +1736,12 @@ class AppLocalizationsAr extends AppLocalizations {
     );
     return '$_temp0';
   }
+
+  @override
+  String openingTitle(String name) {
+    return 'جارٍ فتح «$name»';
+  }
+
+  @override
+  String get openingCancel => 'إلغاء';
 }

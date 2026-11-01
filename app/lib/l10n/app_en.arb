@@ -2272,5 +2272,18 @@
         "type": "String"
       }
     }
+  },
+  "openingTitle": "Opening “{name}”",
+  "@openingTitle": {
+    "description": "a1-7: the title of the progress card while a file takes long to open. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "openingCancel": "Cancel",
+  "@openingCancel": {
+    "description": "a1-7: the progress card's button (also Esc) that stops opening the file and closes its tab."
   }
 }
