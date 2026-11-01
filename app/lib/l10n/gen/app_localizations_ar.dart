@@ -1499,4 +1499,241 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'إغلاق';
+
+  @override
+  String get propertiesFile => 'الملف';
+
+  @override
+  String get propertiesFonts => 'الخطوط في هذا المستند';
+
+  @override
+  String get propertiesSecurity => 'الأمان';
+
+  @override
+  String get propertiesPages => 'الصفحات';
+
+  @override
+  String get propertiesPageSize => 'حجم الصفحة';
+
+  @override
+  String get propertiesFileSize => 'حجم الملف';
+
+  @override
+  String get propertiesVersion => 'إصدار PDF';
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) {
+    return '$version (Acrobat $acrobat.x)';
+  }
+
+  @override
+  String get propertiesLocation => 'الموقع';
+
+  @override
+  String get propertiesCreated => 'تاريخ الإنشاء';
+
+  @override
+  String get propertiesModified => 'تاريخ التعديل';
+
+  @override
+  String get propertiesTitle => 'العنوان';
+
+  @override
+  String get propertiesAuthor => 'المؤلف';
+
+  @override
+  String get propertiesSubject => 'الموضوع';
+
+  @override
+  String get propertiesKeywords => 'الكلمات المفتاحية';
+
+  @override
+  String get propertiesTagged => 'PDF موسوم';
+
+  @override
+  String get propertiesFastWebView => 'عرض ويب سريع';
+
+  @override
+  String get propertiesMadeWith => 'أُنشئ باستخدام';
+
+  @override
+  String get propertiesYes => 'نعم';
+
+  @override
+  String get propertiesNo => 'لا';
+
+  @override
+  String get propertiesNone => 'لا يوجد';
+
+  @override
+  String get propertiesNoPassword => 'بلا كلمة مرور';
+
+  @override
+  String get propertiesOwnerPassword => 'كلمة مرور المالك';
+
+  @override
+  String propertiesSignatures(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText توقيع',
+      many: '$countText توقيعًا',
+      few: '$countText توقيعات',
+      two: 'توقيعان',
+      one: 'توقيع واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String propertiesSignatureOnPage(String page) {
+    return 'توقيع واحد، الصفحة $page';
+  }
+
+  @override
+  String get propertiesEmbedded => 'مضمَّن';
+
+  @override
+  String get propertiesPartial => 'جزئي';
+
+  @override
+  String get propertiesPartialNote =>
+      'مجموعة فرعية: الأحرف الموجودة في الملف فقط.';
+
+  @override
+  String get propertiesSubset => 'مجموعة فرعية';
+
+  @override
+  String get propertiesSubsetNote => 'الأحرف المستخدمة فقط.';
+
+  @override
+  String get propertiesNotEmbedded => 'غير مضمَّن';
+
+  @override
+  String get propertiesFontType1 => 'Type 1';
+
+  @override
+  String get propertiesFontMultipleMaster => 'Multiple Master';
+
+  @override
+  String get propertiesFontTrueType => 'TrueType';
+
+  @override
+  String get propertiesFontType0 => 'Type 0';
+
+  @override
+  String get propertiesFontType3 => 'Type 3';
+
+  @override
+  String get propertiesFontOther => 'أخرى';
+
+  @override
+  String get propertiesFontColumn => 'الخط';
+
+  @override
+  String get propertiesTypeColumn => 'النوع';
+
+  @override
+  String get propertiesStatusColumn => 'الحالة';
+
+  @override
+  String propertiesDialogTitle(String name) {
+    return '$name — الخصائص';
+  }
+
+  @override
+  String get propertiesSection => 'القسم';
+
+  @override
+  String get propertiesSummary => 'ملخّص';
+
+  @override
+  String get propertiesAdvanced => 'متقدّم';
+
+  @override
+  String get propertiesDone => 'تم';
+
+  @override
+  String get propertiesClose => 'إغلاق';
+
+  @override
+  String get propertiesEncryption => 'التشفير';
+
+  @override
+  String propertiesRc4(String bits) {
+    return 'RC4، $bits بت';
+  }
+
+  @override
+  String get propertiesAes128 => 'AES-128';
+
+  @override
+  String get propertiesAes256 => 'AES-256';
+
+  @override
+  String get propertiesOwnerPasswordSuffix => 'كلمة مرور المالك';
+
+  @override
+  String get propertiesOpenPassword => 'كلمة مرور الفتح';
+
+  @override
+  String get propertiesRequired => 'مطلوبة';
+
+  @override
+  String get propertiesPermissions => 'الأذونات';
+
+  @override
+  String get propertiesPrinting => 'الطباعة';
+
+  @override
+  String get propertiesChanging => 'تغيير المستند';
+
+  @override
+  String get propertiesCommenting => 'إضافة التعليقات';
+
+  @override
+  String get propertiesFilling => 'تعبئة حقول النماذج';
+
+  @override
+  String get propertiesSigning => 'التوقيع';
+
+  @override
+  String get propertiesCopying => 'نسخ النصوص والصور';
+
+  @override
+  String get propertiesScreenReaders => 'وصول قارئات الشاشة إلى النص';
+
+  @override
+  String get propertiesAssembling => 'تجميع الصفحات';
+
+  @override
+  String get propertiesAllowed => 'مسموح';
+
+  @override
+  String get propertiesAllowedHighQuality => 'مسموح، بجودة عالية';
+
+  @override
+  String get propertiesNotAllowed => 'غير مسموح';
+
+  @override
+  String get propertiesLanguage => 'اللغة';
+
+  @override
+  String get propertiesScripts => 'JavaScript';
+
+  @override
+  String propertiesScriptsValue(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$countText برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      many:
+          '$countText برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      few: '$countText برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.',
+      two: 'برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.',
+      one: 'برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.',
+    );
+    return '$_temp0';
+  }
 }

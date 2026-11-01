@@ -244,6 +244,22 @@ enum ShellCommand {
     windows: [KeyBinding(_Key.backslash, control: true, shift: true)],
   ),
 
+  /// Shows the active document's properties (a2-7's ⌘D); Organize keeps
+  /// ⌘D for Duplicate.
+  documentProperties(
+    mac: [KeyBinding(_Key.keyD, meta: true)],
+    windows: [KeyBinding(_Key.keyD, control: true)],
+    modes: {
+      FermanMode.view,
+      FermanMode.edit,
+      FermanMode.comment,
+      FermanMode.sign,
+      FermanMode.convert,
+      FermanMode.protect,
+      FermanMode.tools,
+    },
+  ),
+
   /// Moves to the next open document (a11-3, a1-10).
   nextDocument(
     mac: [KeyBinding(_Key.tab, control: true)],

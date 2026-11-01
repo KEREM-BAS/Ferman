@@ -2,6 +2,7 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/shell/document_banners.dart';
+import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/open_problem_tab.dart';
@@ -50,6 +51,10 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
   /// The document whose owner-password dialog shows (G106), by id: it
   /// stays with that document when another tab shows.
   int? _ownerUnlock;
+
+  /// The document whose properties show (a2-7), by id, like
+  /// [_ownerUnlock].
+  int? _properties;
 
   /// Whether the system would show a focus highlight now.
   bool _highlight = false;
@@ -121,6 +126,10 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     // own left-to-right geometry.
     final uiDirection = Directionality.of(context);
     final view = ref.watch(viewerProvider);
+    ref.listen(documentPropertiesRequestProvider, (_, _) {
+      final id = ref.read(viewerProvider)?.document.id;
+      if (id != null) setState(() => _properties = id);
+    });
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final active = ref.watch(shellDocumentsProvider).active;
     // a1-9f: where the toast of a file that got no tab shows.
@@ -227,6 +236,17 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                 ],
                               ),
                             ),
+                            if (active != null &&
+                                _properties == view.document.id)
+                              DocumentPropertiesDialog(
+                                tab: active,
+                                onClose: () =>
+                                    setState(() => _properties = null),
+                                onUnlock: () => setState(() {
+                                  _properties = null;
+                                  _ownerUnlock = view.document.id;
+                                }),
+                              ),
                             if (active != null &&
                                 _ownerUnlock == view.document.id)
                               Positioned.fill(

@@ -1488,4 +1488,234 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'Dismiss';
+
+  @override
+  String get propertiesFile => 'File';
+
+  @override
+  String get propertiesFonts => 'Fonts in this document';
+
+  @override
+  String get propertiesSecurity => 'Security';
+
+  @override
+  String get propertiesPages => 'Pages';
+
+  @override
+  String get propertiesPageSize => 'Page size';
+
+  @override
+  String get propertiesFileSize => 'File size';
+
+  @override
+  String get propertiesVersion => 'PDF version';
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) {
+    return '$version (Acrobat $acrobat.x)';
+  }
+
+  @override
+  String get propertiesLocation => 'Location';
+
+  @override
+  String get propertiesCreated => 'Created';
+
+  @override
+  String get propertiesModified => 'Modified';
+
+  @override
+  String get propertiesTitle => 'Title';
+
+  @override
+  String get propertiesAuthor => 'Author';
+
+  @override
+  String get propertiesSubject => 'Subject';
+
+  @override
+  String get propertiesKeywords => 'Keywords';
+
+  @override
+  String get propertiesTagged => 'Tagged PDF';
+
+  @override
+  String get propertiesFastWebView => 'Fast web view';
+
+  @override
+  String get propertiesMadeWith => 'Made with';
+
+  @override
+  String get propertiesYes => 'Yes';
+
+  @override
+  String get propertiesNo => 'No';
+
+  @override
+  String get propertiesNone => 'None';
+
+  @override
+  String get propertiesNoPassword => 'No password';
+
+  @override
+  String get propertiesOwnerPassword => 'Owner password';
+
+  @override
+  String propertiesSignatures(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText signatures',
+      one: '1 signature',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String propertiesSignatureOnPage(String page) {
+    return '1 signature, page $page';
+  }
+
+  @override
+  String get propertiesEmbedded => 'Embedded';
+
+  @override
+  String get propertiesPartial => 'Partial';
+
+  @override
+  String get propertiesPartialNote =>
+      'Subset: only characters already in the file.';
+
+  @override
+  String get propertiesSubset => 'Subset';
+
+  @override
+  String get propertiesSubsetNote => 'Only the characters already used.';
+
+  @override
+  String get propertiesNotEmbedded => 'Not embedded';
+
+  @override
+  String get propertiesFontType1 => 'Type 1';
+
+  @override
+  String get propertiesFontMultipleMaster => 'Multiple Master';
+
+  @override
+  String get propertiesFontTrueType => 'TrueType';
+
+  @override
+  String get propertiesFontType0 => 'Type 0';
+
+  @override
+  String get propertiesFontType3 => 'Type 3';
+
+  @override
+  String get propertiesFontOther => 'Other';
+
+  @override
+  String get propertiesFontColumn => 'Font';
+
+  @override
+  String get propertiesTypeColumn => 'Type';
+
+  @override
+  String get propertiesStatusColumn => 'Status';
+
+  @override
+  String propertiesDialogTitle(String name) {
+    return '$name — Properties';
+  }
+
+  @override
+  String get propertiesSection => 'Section';
+
+  @override
+  String get propertiesSummary => 'Summary';
+
+  @override
+  String get propertiesAdvanced => 'Advanced';
+
+  @override
+  String get propertiesDone => 'Done';
+
+  @override
+  String get propertiesClose => 'Close';
+
+  @override
+  String get propertiesEncryption => 'Encryption';
+
+  @override
+  String propertiesRc4(String bits) {
+    return 'RC4, $bits-bit';
+  }
+
+  @override
+  String get propertiesAes128 => 'AES-128';
+
+  @override
+  String get propertiesAes256 => 'AES-256';
+
+  @override
+  String get propertiesOwnerPasswordSuffix => 'owner password';
+
+  @override
+  String get propertiesOpenPassword => 'Password to open';
+
+  @override
+  String get propertiesRequired => 'Required';
+
+  @override
+  String get propertiesPermissions => 'Permissions';
+
+  @override
+  String get propertiesPrinting => 'Printing';
+
+  @override
+  String get propertiesChanging => 'Changing the document';
+
+  @override
+  String get propertiesCommenting => 'Adding comments';
+
+  @override
+  String get propertiesFilling => 'Filling form fields';
+
+  @override
+  String get propertiesSigning => 'Signing';
+
+  @override
+  String get propertiesCopying => 'Copying text and images';
+
+  @override
+  String get propertiesScreenReaders => 'Text access for screen readers';
+
+  @override
+  String get propertiesAssembling => 'Assembling pages';
+
+  @override
+  String get propertiesAllowed => 'Allowed';
+
+  @override
+  String get propertiesAllowedHighQuality => 'Allowed, high quality';
+
+  @override
+  String get propertiesNotAllowed => 'Not allowed';
+
+  @override
+  String get propertiesLanguage => 'Language';
+
+  @override
+  String get propertiesScripts => 'JavaScript';
+
+  @override
+  String propertiesScriptsValue(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$countText scripts that run when the file opens. Ferman never runs them.',
+      one: 'A script that runs when the file opens. Ferman never runs it.',
+    );
+    return '$_temp0';
+  }
 }

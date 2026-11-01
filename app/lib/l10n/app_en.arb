@@ -1961,5 +1961,316 @@
   "scriptsDismiss": "Dismiss",
   "@scriptsDismiss": {
     "description": "Screen-reader name of the scripts bar's dismiss button (G100)."
+  },
+  "propertiesFile": "File",
+  "@propertiesFile": {
+    "description": "Right panel section with the file's facts (FmDocPanel `view`)."
+  },
+  "propertiesFonts": "Fonts in this document",
+  "@propertiesFonts": {
+    "description": "Right panel section listing the document's fonts (FmDocPanel)."
+  },
+  "propertiesSecurity": "Security",
+  "@propertiesSecurity": {
+    "description": "Right panel section, the properties dialog's Security tab and its Summary row (FmDocPanel, a2-7, a2-10b)."
+  },
+  "propertiesPages": "Pages",
+  "@propertiesPages": {
+    "description": "Label of the page count (FmDocPanel, a2-7)."
+  },
+  "propertiesPageSize": "Page size",
+  "@propertiesPageSize": {
+    "description": "Label of the first page's size (FmDocPanel, a2-7)."
+  },
+  "propertiesFileSize": "File size",
+  "@propertiesFileSize": {
+    "description": "Label of the file's size (FmDocPanel, a2-7)."
+  },
+  "propertiesVersion": "PDF version",
+  "@propertiesVersion": {
+    "description": "Label of the PDF version (FmDocPanel, a2-7)."
+  },
+  "propertiesVersionAcrobat": "{version} (Acrobat {acrobat}.x)",
+  "@propertiesVersionAcrobat": {
+    "description": "A PDF version with the Acrobat version that introduced it, as a2-7 shows it: '1.7 (Acrobat 8.x)'.",
+    "placeholders": {
+      "version": {
+        "type": "String"
+      },
+      "acrobat": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesLocation": "Location",
+  "@propertiesLocation": {
+    "description": "Label of the file's path (FmDocPanel)."
+  },
+  "propertiesCreated": "Created",
+  "@propertiesCreated": {
+    "description": "Label of the creation date (a2-7)."
+  },
+  "propertiesModified": "Modified",
+  "@propertiesModified": {
+    "description": "Label of the modification date (FmDocPanel, a2-7)."
+  },
+  "propertiesTitle": "Title",
+  "@propertiesTitle": {
+    "description": "Label of the document's title (a2-7)."
+  },
+  "propertiesAuthor": "Author",
+  "@propertiesAuthor": {
+    "description": "Label of the document's author (a2-7)."
+  },
+  "propertiesSubject": "Subject",
+  "@propertiesSubject": {
+    "description": "Label of the document's subject (a2-7)."
+  },
+  "propertiesKeywords": "Keywords",
+  "@propertiesKeywords": {
+    "description": "Label of the document's keywords (a2-7)."
+  },
+  "propertiesTagged": "Tagged PDF",
+  "@propertiesTagged": {
+    "description": "Label: whether the PDF is tagged (a2-7)."
+  },
+  "propertiesFastWebView": "Fast web view",
+  "@propertiesFastWebView": {
+    "description": "Label: whether the PDF is linearized (a2-7)."
+  },
+  "propertiesMadeWith": "Made with",
+  "@propertiesMadeWith": {
+    "description": "Label of the application that wrote the PDF (a2-7)."
+  },
+  "propertiesYes": "Yes",
+  "@propertiesYes": {
+    "description": "A yes/no value (a2-7)."
+  },
+  "propertiesNo": "No",
+  "@propertiesNo": {
+    "description": "A yes/no value (a2-7)."
+  },
+  "propertiesNone": "None",
+  "@propertiesNone": {
+    "description": "A value the file does not give (a2-10b's 'Password to open: None'; also empty metadata, not on a board)."
+  },
+  "propertiesNoPassword": "No password",
+  "@propertiesNoPassword": {
+    "description": "An unencrypted document's security (FmDocPanel, a2-7)."
+  },
+  "propertiesOwnerPassword": "Owner password",
+  "@propertiesOwnerPassword": {
+    "description": "Security of a document restricted by an owner password, opening without one (not on a board)."
+  },
+  "propertiesSignatures": "{count, plural, =1{1 signature} other{{countText} signatures}}",
+  "@propertiesSignatures": {
+    "description": "Signatures in the document (a2-7: 'No password · 1 signature'). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesSignatureOnPage": "1 signature, page {page}",
+  "@propertiesSignatureOnPage": {
+    "description": "The one signature of a document and its page (FmDocPanel). {page} is formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesEmbedded": "Embedded",
+  "@propertiesEmbedded": {
+    "description": "A font whose program is in the file (FmDocPanel, a2-7)."
+  },
+  "propertiesPartial": "Partial",
+  "@propertiesPartial": {
+    "description": "A subset font in the right panel (FmDocPanel)."
+  },
+  "propertiesPartialNote": "Subset: only characters already in the file.",
+  "@propertiesPartialNote": {
+    "description": "Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3)."
+  },
+  "propertiesSubset": "Subset",
+  "@propertiesSubset": {
+    "description": "A subset font in the properties dialog (a2-7)."
+  },
+  "propertiesSubsetNote": "Only the characters already used.",
+  "@propertiesSubsetNote": {
+    "description": "Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3)."
+  },
+  "propertiesNotEmbedded": "Not embedded",
+  "@propertiesNotEmbedded": {
+    "description": "A font whose program is not in the file (a2-7)."
+  },
+  "propertiesFontType1": "Type 1",
+  "@propertiesFontType1": {
+    "description": "A font type in the properties dialog's Type column (a2-7); a format name."
+  },
+  "propertiesFontMultipleMaster": "Multiple Master",
+  "@propertiesFontMultipleMaster": {
+    "description": "A font type (Multiple Master Type 1) in the Type column (a2-7); a format name."
+  },
+  "propertiesFontTrueType": "TrueType",
+  "@propertiesFontTrueType": {
+    "description": "A font type in the Type column (a2-7); a format name."
+  },
+  "propertiesFontType0": "Type 0",
+  "@propertiesFontType0": {
+    "description": "A composite font in the Type column (a2-7); a format name."
+  },
+  "propertiesFontType3": "Type 3",
+  "@propertiesFontType3": {
+    "description": "A font drawn by the file itself, in the Type column (a2-7); a format name."
+  },
+  "propertiesFontOther": "Other",
+  "@propertiesFontOther": {
+    "description": "Any other font type, in the Type column (a2-7)."
+  },
+  "propertiesFontColumn": "Font",
+  "@propertiesFontColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesTypeColumn": "Type",
+  "@propertiesTypeColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesStatusColumn": "Status",
+  "@propertiesStatusColumn": {
+    "description": "Column heading of the fonts table, shown in capitals (a2-7)."
+  },
+  "propertiesDialogTitle": "{name} — Properties",
+  "@propertiesDialogTitle": {
+    "description": "Title of the properties dialog (a2-7, a2-10b).",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesSection": "Section",
+  "@propertiesSection": {
+    "description": "Accessible name of the properties dialog's tabs (a2-7)."
+  },
+  "propertiesSummary": "Summary",
+  "@propertiesSummary": {
+    "description": "Tab of the properties dialog (a2-7)."
+  },
+  "propertiesAdvanced": "Advanced",
+  "@propertiesAdvanced": {
+    "description": "Tab of the properties dialog (a2-7)."
+  },
+  "propertiesDone": "Done",
+  "@propertiesDone": {
+    "description": "Closes the properties dialog (a2-7, a2-10b)."
+  },
+  "propertiesClose": "Close",
+  "@propertiesClose": {
+    "description": "Accessible name of the properties dialog's close button and scrim (not on a board)."
+  },
+  "propertiesEncryption": "Encryption",
+  "@propertiesEncryption": {
+    "description": "Label of the encryption method (a2-10b)."
+  },
+  "propertiesRc4": "RC4, {bits}-bit",
+  "@propertiesRc4": {
+    "description": "RC4 encryption with its key length (a2-10b's Encryption row; not on a board). {bits} is formatted for the region.",
+    "placeholders": {
+      "bits": {
+        "type": "String"
+      }
+    }
+  },
+  "propertiesAes128": "AES-128",
+  "@propertiesAes128": {
+    "description": "AES-128 encryption (a2-10b's Encryption row); a method name."
+  },
+  "propertiesAes256": "AES-256",
+  "@propertiesAes256": {
+    "description": "AES-256 encryption (a2-10b's Encryption row); a method name."
+  },
+  "propertiesOwnerPasswordSuffix": "owner password",
+  "@propertiesOwnerPasswordSuffix": {
+    "description": "After the encryption method of a restricted file (a2-10b: 'AES-256 · owner password')."
+  },
+  "propertiesOpenPassword": "Password to open",
+  "@propertiesOpenPassword": {
+    "description": "Label: whether opening needs a password (a2-10b); also a document's security when it does (not on a board)."
+  },
+  "propertiesRequired": "Required",
+  "@propertiesRequired": {
+    "description": "Opening needs a password (a2-10b's row; not on a board)."
+  },
+  "propertiesPermissions": "Permissions",
+  "@propertiesPermissions": {
+    "description": "Heading of the permissions, shown in capitals (a2-10b)."
+  },
+  "propertiesPrinting": "Printing",
+  "@propertiesPrinting": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesChanging": "Changing the document",
+  "@propertiesChanging": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesCommenting": "Adding comments",
+  "@propertiesCommenting": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesFilling": "Filling form fields",
+  "@propertiesFilling": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesSigning": "Signing",
+  "@propertiesSigning": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesCopying": "Copying text and images",
+  "@propertiesCopying": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesScreenReaders": "Text access for screen readers",
+  "@propertiesScreenReaders": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesAssembling": "Assembling pages",
+  "@propertiesAssembling": {
+    "description": "A permission (a2-10b)."
+  },
+  "propertiesAllowed": "Allowed",
+  "@propertiesAllowed": {
+    "description": "A permission's state (a2-10b)."
+  },
+  "propertiesAllowedHighQuality": "Allowed, high quality",
+  "@propertiesAllowedHighQuality": {
+    "description": "Printing allowed at full quality (a2-10b)."
+  },
+  "propertiesNotAllowed": "Not allowed",
+  "@propertiesNotAllowed": {
+    "description": "A permission's state (a2-10b)."
+  },
+  "propertiesLanguage": "Language",
+  "@propertiesLanguage": {
+    "description": "Label of the document's language tag in the Advanced tab (not on a board)."
+  },
+  "propertiesScripts": "JavaScript",
+  "@propertiesScripts": {
+    "description": "Label of the scripts row in the Advanced tab (G100, a8-3's row name)."
+  },
+  "propertiesScriptsValue": "{count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}}",
+  "@propertiesScriptsValue": {
+    "description": "The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "countText": {
+        "type": "String"
+      }
+    }
   }
 }

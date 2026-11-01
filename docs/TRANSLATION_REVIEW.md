@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-435 messages in `app_en.arb`; translated: Turkish 435, Arabic 435.
+503 messages in `app_en.arb`; translated: Turkish 503, Arabic 503.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -491,5 +491,73 @@ The table below is generated from the ARB files by `tools/l10n`
 | `scriptsTitle` | {count, plural, =1{This document contains 1 script.} other{This document contains {countText} scripts.}} | {count, plural, other{Bu belgede {countText} betik var.}} | {count, plural, =1{يحتوي هذا المستند على برنامج نصي واحد.} =2{يحتوي هذا المستند على برنامجين نصيين.} few{يحتوي هذا المستند على {countText} برامج نصية.} many{يحتوي هذا المستند على {countText} برنامجًا نصيًا.} other{يحتوي هذا المستند على {countText} برنامج نصي.}} | Title of the bar above the pages of a document with scripts (G100; not on a board). {countText} is {count} formatted for the region. |
 | `scriptsBody` | Ferman never runs scripts; other apps might. | Ferman betikleri hiçbir zaman çalıştırmaz; başka uygulamalar çalıştırabilir. | لا يشغّل Ferman البرامج النصية أبدًا، وقد تشغّلها تطبيقات أخرى. | Message of the scripts bar (G100), a8-4's sentence. |
 | `scriptsDismiss` | Dismiss | Kapat | إغلاق | Screen-reader name of the scripts bar's dismiss button (G100). |
+| `propertiesFile` | File | Dosya | الملف | Right panel section with the file's facts (FmDocPanel \`view\`). |
+| `propertiesFonts` | Fonts in this document | Bu belgedeki yazı tipleri | الخطوط في هذا المستند | Right panel section listing the document's fonts (FmDocPanel). |
+| `propertiesSecurity` | Security | Güvenlik | الأمان | Right panel section, the properties dialog's Security tab and its Summary row (FmDocPanel, a2-7, a2-10b). |
+| `propertiesPages` | Pages | Sayfalar | الصفحات | Label of the page count (FmDocPanel, a2-7). |
+| `propertiesPageSize` | Page size | Sayfa boyutu | حجم الصفحة | Label of the first page's size (FmDocPanel, a2-7). |
+| `propertiesFileSize` | File size | Dosya boyutu | حجم الملف | Label of the file's size (FmDocPanel, a2-7). |
+| `propertiesVersion` | PDF version | PDF sürümü | إصدار PDF | Label of the PDF version (FmDocPanel, a2-7). |
+| `propertiesVersionAcrobat` | {version} (Acrobat {acrobat}.x) | {version} (Acrobat {acrobat}.x) | {version} (Acrobat {acrobat}.x) | A PDF version with the Acrobat version that introduced it, as a2-7 shows it: '1.7 (Acrobat 8.x)'. |
+| `propertiesLocation` | Location | Konum | الموقع | Label of the file's path (FmDocPanel). |
+| `propertiesCreated` | Created | Oluşturulma | تاريخ الإنشاء | Label of the creation date (a2-7). |
+| `propertiesModified` | Modified | Değiştirilme | تاريخ التعديل | Label of the modification date (FmDocPanel, a2-7). |
+| `propertiesTitle` | Title | Başlık | العنوان | Label of the document's title (a2-7). |
+| `propertiesAuthor` | Author | Yazar | المؤلف | Label of the document's author (a2-7). |
+| `propertiesSubject` | Subject | Konu | الموضوع | Label of the document's subject (a2-7). |
+| `propertiesKeywords` | Keywords | Anahtar sözcükler | الكلمات المفتاحية | Label of the document's keywords (a2-7). |
+| `propertiesTagged` | Tagged PDF | Etiketli PDF | PDF موسوم | Label: whether the PDF is tagged (a2-7). |
+| `propertiesFastWebView` | Fast web view | Hızlı web görünümü | عرض ويب سريع | Label: whether the PDF is linearized (a2-7). |
+| `propertiesMadeWith` | Made with | Oluşturan uygulama | أُنشئ باستخدام | Label of the application that wrote the PDF (a2-7). |
+| `propertiesYes` | Yes | Evet | نعم | A yes/no value (a2-7). |
+| `propertiesNo` | No | Hayır | لا | A yes/no value (a2-7). |
+| `propertiesNone` | None | Yok | لا يوجد | A value the file does not give (a2-10b's 'Password to open: None'; also empty metadata, not on a board). |
+| `propertiesNoPassword` | No password | Parola yok | بلا كلمة مرور | An unencrypted document's security (FmDocPanel, a2-7). |
+| `propertiesOwnerPassword` | Owner password | Sahip parolası | كلمة مرور المالك | Security of a document restricted by an owner password, opening without one (not on a board). |
+| `propertiesSignatures` | {count, plural, =1{1 signature} other{{countText} signatures}} | {count, plural, other{{countText} imza}} | {count, plural, =1{توقيع واحد} =2{توقيعان} few{{countText} توقيعات} many{{countText} توقيعًا} other{{countText} توقيع}} | Signatures in the document (a2-7: 'No password · 1 signature'). {countText} is {count} formatted for the region. |
+| `propertiesSignatureOnPage` | 1 signature, page {page} | 1 imza, sayfa {page} | توقيع واحد، الصفحة {page} | The one signature of a document and its page (FmDocPanel). {page} is formatted for the region. |
+| `propertiesEmbedded` | Embedded | Gömülü | مضمَّن | A font whose program is in the file (FmDocPanel, a2-7). |
+| `propertiesPartial` | Partial | Kısmi | جزئي | A subset font in the right panel (FmDocPanel). |
+| `propertiesPartialNote` | Subset: only characters already in the file. | Alt küme: yalnızca dosyada zaten bulunan karakterler. | مجموعة فرعية: الأحرف الموجودة في الملف فقط. | Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3). |
+| `propertiesSubset` | Subset | Alt küme | مجموعة فرعية | A subset font in the properties dialog (a2-7). |
+| `propertiesSubsetNote` | Only the characters already used. | Yalnızca zaten kullanılan karakterler. | الأحرف المستخدمة فقط. | Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3). |
+| `propertiesNotEmbedded` | Not embedded | Gömülü değil | غير مضمَّن | A font whose program is not in the file (a2-7). |
+| `propertiesFontType1` | Type 1 | Type 1 | Type 1 | A font type in the properties dialog's Type column (a2-7); a format name. |
+| `propertiesFontMultipleMaster` | Multiple Master | Multiple Master | Multiple Master | A font type (Multiple Master Type 1) in the Type column (a2-7); a format name. |
+| `propertiesFontTrueType` | TrueType | TrueType | TrueType | A font type in the Type column (a2-7); a format name. |
+| `propertiesFontType0` | Type 0 | Type 0 | Type 0 | A composite font in the Type column (a2-7); a format name. |
+| `propertiesFontType3` | Type 3 | Type 3 | Type 3 | A font drawn by the file itself, in the Type column (a2-7); a format name. |
+| `propertiesFontOther` | Other | Diğer | أخرى | Any other font type, in the Type column (a2-7). |
+| `propertiesFontColumn` | Font | Yazı tipi | الخط | Column heading of the fonts table, shown in capitals (a2-7). |
+| `propertiesTypeColumn` | Type | Tür | النوع | Column heading of the fonts table, shown in capitals (a2-7). |
+| `propertiesStatusColumn` | Status | Durum | الحالة | Column heading of the fonts table, shown in capitals (a2-7). |
+| `propertiesDialogTitle` | {name} — Properties | {name} — Özellikler | {name} — الخصائص | Title of the properties dialog (a2-7, a2-10b). |
+| `propertiesSection` | Section | Bölüm | القسم | Accessible name of the properties dialog's tabs (a2-7). |
+| `propertiesSummary` | Summary | Özet | ملخّص | Tab of the properties dialog (a2-7). |
+| `propertiesAdvanced` | Advanced | Gelişmiş | متقدّم | Tab of the properties dialog (a2-7). |
+| `propertiesDone` | Done | Bitti | تم | Closes the properties dialog (a2-7, a2-10b). |
+| `propertiesClose` | Close | Kapat | إغلاق | Accessible name of the properties dialog's close button and scrim (not on a board). |
+| `propertiesEncryption` | Encryption | Şifreleme | التشفير | Label of the encryption method (a2-10b). |
+| `propertiesRc4` | RC4, {bits}-bit | RC4, {bits} bit | RC4، {bits} بت | RC4 encryption with its key length (a2-10b's Encryption row; not on a board). {bits} is formatted for the region. |
+| `propertiesAes128` | AES-128 | AES-128 | AES-128 | AES-128 encryption (a2-10b's Encryption row); a method name. |
+| `propertiesAes256` | AES-256 | AES-256 | AES-256 | AES-256 encryption (a2-10b's Encryption row); a method name. |
+| `propertiesOwnerPasswordSuffix` | owner password | sahip parolası | كلمة مرور المالك | After the encryption method of a restricted file (a2-10b: 'AES-256 · owner password'). |
+| `propertiesOpenPassword` | Password to open | Açma parolası | كلمة مرور الفتح | Label: whether opening needs a password (a2-10b); also a document's security when it does (not on a board). |
+| `propertiesRequired` | Required | Gerekli | مطلوبة | Opening needs a password (a2-10b's row; not on a board). |
+| `propertiesPermissions` | Permissions | İzinler | الأذونات | Heading of the permissions, shown in capitals (a2-10b). |
+| `propertiesPrinting` | Printing | Yazdırma | الطباعة | A permission (a2-10b). |
+| `propertiesChanging` | Changing the document | Belgeyi değiştirme | تغيير المستند | A permission (a2-10b). |
+| `propertiesCommenting` | Adding comments | Yorum ekleme | إضافة التعليقات | A permission (a2-10b). |
+| `propertiesFilling` | Filling form fields | Form alanlarını doldurma | تعبئة حقول النماذج | A permission (a2-10b). |
+| `propertiesSigning` | Signing | İmzalama | التوقيع | A permission (a2-10b). |
+| `propertiesCopying` | Copying text and images | Metin ve görselleri kopyalama | نسخ النصوص والصور | A permission (a2-10b). |
+| `propertiesScreenReaders` | Text access for screen readers | Ekran okuyucular için metin erişimi | وصول قارئات الشاشة إلى النص | A permission (a2-10b). |
+| `propertiesAssembling` | Assembling pages | Sayfaları birleştirme ve düzenleme | تجميع الصفحات | A permission (a2-10b). |
+| `propertiesAllowed` | Allowed | İzin veriliyor | مسموح | A permission's state (a2-10b). |
+| `propertiesAllowedHighQuality` | Allowed, high quality | İzin veriliyor, yüksek kalite | مسموح، بجودة عالية | Printing allowed at full quality (a2-10b). |
+| `propertiesNotAllowed` | Not allowed | İzin verilmiyor | غير مسموح | A permission's state (a2-10b). |
+| `propertiesLanguage` | Language | Dil | اللغة | Label of the document's language tag in the Advanced tab (not on a board). |
+| `propertiesScripts` | JavaScript | JavaScript | JavaScript | Label of the scripts row in the Advanced tab (G100, a8-3's row name). |
+| `propertiesScriptsValue` | {count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}} | {count, plural, other{Dosya açılırken çalışan {countText} betik. Ferman bunları hiçbir zaman çalıştırmaz.}} | {count, plural, =1{برنامج نصي يعمل عند فتح الملف. لا يشغّله Ferman أبدًا.} =2{برنامجان نصيان يعملان عند فتح الملف. لا يشغّلهما Ferman أبدًا.} few{{countText} برامج نصية تعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} many{{countText} برنامجًا نصيًا يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.} other{{countText} برنامج نصي يعمل عند فتح الملف. لا يشغّلها Ferman أبدًا.}} | The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

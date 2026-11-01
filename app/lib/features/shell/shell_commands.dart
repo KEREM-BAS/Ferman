@@ -89,6 +89,10 @@ class ShellCommandScope extends ConsumerWidget {
             .read(showAllDocumentsRequestProvider.notifier)
             .request,
       },
+      if (active?.document != null)
+        ShellCommand.documentProperties: ref
+            .read(documentPropertiesRequestProvider.notifier)
+            .request,
       for (var i = 0; i < documentJumps.length && i < count; i++)
         documentJumps[i]: () => documents.activate(i),
       if (ref.read(viewerProvider) != null) ...{

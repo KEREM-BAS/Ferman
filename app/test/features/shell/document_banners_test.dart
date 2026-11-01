@@ -65,7 +65,7 @@ Future<ProviderContainer> openAll(
 }
 
 void main() {
-  testWidgets('a restricted document shows the shield and a2-10a\'s bar; the '
+  testWidgets("a restricted document shows the shield and a2-10a's bar; the "
       'owner password lifts both, a wrong one asks again (G106)', (
     tester,
   ) async {
@@ -118,7 +118,7 @@ void main() {
     expect(active().document!.id, restricted.id);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
-  testWidgets('permissions the board\'s sentence does not describe get the '
+  testWidgets("permissions the board's sentence does not describe get the "
       'neutral one', (tester) async {
     await openAll(
       tester,

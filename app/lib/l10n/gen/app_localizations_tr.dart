@@ -1495,4 +1495,232 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get scriptsDismiss => 'Kapat';
+
+  @override
+  String get propertiesFile => 'Dosya';
+
+  @override
+  String get propertiesFonts => 'Bu belgedeki yazı tipleri';
+
+  @override
+  String get propertiesSecurity => 'Güvenlik';
+
+  @override
+  String get propertiesPages => 'Sayfalar';
+
+  @override
+  String get propertiesPageSize => 'Sayfa boyutu';
+
+  @override
+  String get propertiesFileSize => 'Dosya boyutu';
+
+  @override
+  String get propertiesVersion => 'PDF sürümü';
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) {
+    return '$version (Acrobat $acrobat.x)';
+  }
+
+  @override
+  String get propertiesLocation => 'Konum';
+
+  @override
+  String get propertiesCreated => 'Oluşturulma';
+
+  @override
+  String get propertiesModified => 'Değiştirilme';
+
+  @override
+  String get propertiesTitle => 'Başlık';
+
+  @override
+  String get propertiesAuthor => 'Yazar';
+
+  @override
+  String get propertiesSubject => 'Konu';
+
+  @override
+  String get propertiesKeywords => 'Anahtar sözcükler';
+
+  @override
+  String get propertiesTagged => 'Etiketli PDF';
+
+  @override
+  String get propertiesFastWebView => 'Hızlı web görünümü';
+
+  @override
+  String get propertiesMadeWith => 'Oluşturan uygulama';
+
+  @override
+  String get propertiesYes => 'Evet';
+
+  @override
+  String get propertiesNo => 'Hayır';
+
+  @override
+  String get propertiesNone => 'Yok';
+
+  @override
+  String get propertiesNoPassword => 'Parola yok';
+
+  @override
+  String get propertiesOwnerPassword => 'Sahip parolası';
+
+  @override
+  String propertiesSignatures(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$countText imza',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String propertiesSignatureOnPage(String page) {
+    return '1 imza, sayfa $page';
+  }
+
+  @override
+  String get propertiesEmbedded => 'Gömülü';
+
+  @override
+  String get propertiesPartial => 'Kısmi';
+
+  @override
+  String get propertiesPartialNote =>
+      'Alt küme: yalnızca dosyada zaten bulunan karakterler.';
+
+  @override
+  String get propertiesSubset => 'Alt küme';
+
+  @override
+  String get propertiesSubsetNote => 'Yalnızca zaten kullanılan karakterler.';
+
+  @override
+  String get propertiesNotEmbedded => 'Gömülü değil';
+
+  @override
+  String get propertiesFontType1 => 'Type 1';
+
+  @override
+  String get propertiesFontMultipleMaster => 'Multiple Master';
+
+  @override
+  String get propertiesFontTrueType => 'TrueType';
+
+  @override
+  String get propertiesFontType0 => 'Type 0';
+
+  @override
+  String get propertiesFontType3 => 'Type 3';
+
+  @override
+  String get propertiesFontOther => 'Diğer';
+
+  @override
+  String get propertiesFontColumn => 'Yazı tipi';
+
+  @override
+  String get propertiesTypeColumn => 'Tür';
+
+  @override
+  String get propertiesStatusColumn => 'Durum';
+
+  @override
+  String propertiesDialogTitle(String name) {
+    return '$name — Özellikler';
+  }
+
+  @override
+  String get propertiesSection => 'Bölüm';
+
+  @override
+  String get propertiesSummary => 'Özet';
+
+  @override
+  String get propertiesAdvanced => 'Gelişmiş';
+
+  @override
+  String get propertiesDone => 'Bitti';
+
+  @override
+  String get propertiesClose => 'Kapat';
+
+  @override
+  String get propertiesEncryption => 'Şifreleme';
+
+  @override
+  String propertiesRc4(String bits) {
+    return 'RC4, $bits bit';
+  }
+
+  @override
+  String get propertiesAes128 => 'AES-128';
+
+  @override
+  String get propertiesAes256 => 'AES-256';
+
+  @override
+  String get propertiesOwnerPasswordSuffix => 'sahip parolası';
+
+  @override
+  String get propertiesOpenPassword => 'Açma parolası';
+
+  @override
+  String get propertiesRequired => 'Gerekli';
+
+  @override
+  String get propertiesPermissions => 'İzinler';
+
+  @override
+  String get propertiesPrinting => 'Yazdırma';
+
+  @override
+  String get propertiesChanging => 'Belgeyi değiştirme';
+
+  @override
+  String get propertiesCommenting => 'Yorum ekleme';
+
+  @override
+  String get propertiesFilling => 'Form alanlarını doldurma';
+
+  @override
+  String get propertiesSigning => 'İmzalama';
+
+  @override
+  String get propertiesCopying => 'Metin ve görselleri kopyalama';
+
+  @override
+  String get propertiesScreenReaders => 'Ekran okuyucular için metin erişimi';
+
+  @override
+  String get propertiesAssembling => 'Sayfaları birleştirme ve düzenleme';
+
+  @override
+  String get propertiesAllowed => 'İzin veriliyor';
+
+  @override
+  String get propertiesAllowedHighQuality => 'İzin veriliyor, yüksek kalite';
+
+  @override
+  String get propertiesNotAllowed => 'İzin verilmiyor';
+
+  @override
+  String get propertiesLanguage => 'Dil';
+
+  @override
+  String get propertiesScripts => 'JavaScript';
+
+  @override
+  String propertiesScriptsValue(int count, String countText) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'Dosya açılırken çalışan $countText betik. Ferman bunları hiçbir zaman çalıştırmaz.',
+    );
+    return '$_temp0';
+  }
 }

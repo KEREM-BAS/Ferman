@@ -551,6 +551,73 @@ abstract class _$ShowAllDocumentsRequest extends $Notifier<int> {
   }
 }
 
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+
+@ProviderFor(DocumentPropertiesRequest)
+final documentPropertiesRequestProvider = DocumentPropertiesRequestProvider._();
+
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+final class DocumentPropertiesRequestProvider
+    extends $NotifierProvider<DocumentPropertiesRequest, int> {
+  /// A request to show the active document's properties (a2-7), as
+  /// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+  /// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+  DocumentPropertiesRequestProvider._()
+    : super(
+        from: null,
+        argument: null,
+        retry: null,
+        name: r'documentPropertiesRequestProvider',
+        isAutoDispose: false,
+        dependencies: null,
+        $allTransitiveDependencies: null,
+      );
+
+  @override
+  String debugGetCreateSourceHash() => _$documentPropertiesRequestHash();
+
+  @$internal
+  @override
+  DocumentPropertiesRequest create() => DocumentPropertiesRequest();
+
+  /// {@macro riverpod.override_with_value}
+  Override overrideWithValue(int value) {
+    return $ProviderOverride(
+      origin: this,
+      providerOverride: $SyncValueProvider<int>(value),
+    );
+  }
+}
+
+String _$documentPropertiesRequestHash() =>
+    r'bbf45ca087ceb6feca0e0e9bbc8ace2b9198fa21';
+
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+
+abstract class _$DocumentPropertiesRequest extends $Notifier<int> {
+  int build();
+  @$mustCallSuper
+  @override
+  WhenComplete runBuild() {
+    final ref = this.ref as $Ref<int, int>;
+    final element =
+        ref.element
+            as $ClassProviderElement<
+              AnyNotifier<int, int>,
+              int,
+              Object?,
+              Object?
+            >;
+    return element.handleCreate(ref, build);
+  }
+}
+
 /// Whether the AI assistant is turned on, as `shellAiEnabledProvider`. The
 /// mode bar shows its button only when it is on (FmWindow `aiOn`). Off in
 /// M1: the assistant comes in phase 4 and is off by default even then.

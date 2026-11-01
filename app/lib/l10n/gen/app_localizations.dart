@@ -2714,6 +2714,414 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get scriptsDismiss;
+
+  /// Right panel section with the file's facts (FmDocPanel `view`).
+  ///
+  /// In en, this message translates to:
+  /// **'File'**
+  String get propertiesFile;
+
+  /// Right panel section listing the document's fonts (FmDocPanel).
+  ///
+  /// In en, this message translates to:
+  /// **'Fonts in this document'**
+  String get propertiesFonts;
+
+  /// Right panel section, the properties dialog's Security tab and its Summary row (FmDocPanel, a2-7, a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Security'**
+  String get propertiesSecurity;
+
+  /// Label of the page count (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Pages'**
+  String get propertiesPages;
+
+  /// Label of the first page's size (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Page size'**
+  String get propertiesPageSize;
+
+  /// Label of the file's size (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'File size'**
+  String get propertiesFileSize;
+
+  /// Label of the PDF version (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'PDF version'**
+  String get propertiesVersion;
+
+  /// A PDF version with the Acrobat version that introduced it, as a2-7 shows it: '1.7 (Acrobat 8.x)'.
+  ///
+  /// In en, this message translates to:
+  /// **'{version} (Acrobat {acrobat}.x)'**
+  String propertiesVersionAcrobat(String version, String acrobat);
+
+  /// Label of the file's path (FmDocPanel).
+  ///
+  /// In en, this message translates to:
+  /// **'Location'**
+  String get propertiesLocation;
+
+  /// Label of the creation date (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Created'**
+  String get propertiesCreated;
+
+  /// Label of the modification date (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Modified'**
+  String get propertiesModified;
+
+  /// Label of the document's title (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Title'**
+  String get propertiesTitle;
+
+  /// Label of the document's author (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Author'**
+  String get propertiesAuthor;
+
+  /// Label of the document's subject (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Subject'**
+  String get propertiesSubject;
+
+  /// Label of the document's keywords (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Keywords'**
+  String get propertiesKeywords;
+
+  /// Label: whether the PDF is tagged (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Tagged PDF'**
+  String get propertiesTagged;
+
+  /// Label: whether the PDF is linearized (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Fast web view'**
+  String get propertiesFastWebView;
+
+  /// Label of the application that wrote the PDF (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Made with'**
+  String get propertiesMadeWith;
+
+  /// A yes/no value (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Yes'**
+  String get propertiesYes;
+
+  /// A yes/no value (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'No'**
+  String get propertiesNo;
+
+  /// A value the file does not give (a2-10b's 'Password to open: None'; also empty metadata, not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'None'**
+  String get propertiesNone;
+
+  /// An unencrypted document's security (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'No password'**
+  String get propertiesNoPassword;
+
+  /// Security of a document restricted by an owner password, opening without one (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Owner password'**
+  String get propertiesOwnerPassword;
+
+  /// Signatures in the document (a2-7: 'No password · 1 signature'). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 signature} other{{countText} signatures}}'**
+  String propertiesSignatures(int count, String countText);
+
+  /// The one signature of a document and its page (FmDocPanel). {page} is formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'1 signature, page {page}'**
+  String propertiesSignatureOnPage(String page);
+
+  /// A font whose program is in the file (FmDocPanel, a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Embedded'**
+  String get propertiesEmbedded;
+
+  /// A subset font in the right panel (FmDocPanel).
+  ///
+  /// In en, this message translates to:
+  /// **'Partial'**
+  String get propertiesPartial;
+
+  /// Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3).
+  ///
+  /// In en, this message translates to:
+  /// **'Subset: only characters already in the file.'**
+  String get propertiesPartialNote;
+
+  /// A subset font in the properties dialog (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Subset'**
+  String get propertiesSubset;
+
+  /// Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3).
+  ///
+  /// In en, this message translates to:
+  /// **'Only the characters already used.'**
+  String get propertiesSubsetNote;
+
+  /// A font whose program is not in the file (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Not embedded'**
+  String get propertiesNotEmbedded;
+
+  /// A font type in the properties dialog's Type column (a2-7); a format name.
+  ///
+  /// In en, this message translates to:
+  /// **'Type 1'**
+  String get propertiesFontType1;
+
+  /// A font type (Multiple Master Type 1) in the Type column (a2-7); a format name.
+  ///
+  /// In en, this message translates to:
+  /// **'Multiple Master'**
+  String get propertiesFontMultipleMaster;
+
+  /// A font type in the Type column (a2-7); a format name.
+  ///
+  /// In en, this message translates to:
+  /// **'TrueType'**
+  String get propertiesFontTrueType;
+
+  /// A composite font in the Type column (a2-7); a format name.
+  ///
+  /// In en, this message translates to:
+  /// **'Type 0'**
+  String get propertiesFontType0;
+
+  /// A font drawn by the file itself, in the Type column (a2-7); a format name.
+  ///
+  /// In en, this message translates to:
+  /// **'Type 3'**
+  String get propertiesFontType3;
+
+  /// Any other font type, in the Type column (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Other'**
+  String get propertiesFontOther;
+
+  /// Column heading of the fonts table, shown in capitals (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Font'**
+  String get propertiesFontColumn;
+
+  /// Column heading of the fonts table, shown in capitals (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Type'**
+  String get propertiesTypeColumn;
+
+  /// Column heading of the fonts table, shown in capitals (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Status'**
+  String get propertiesStatusColumn;
+
+  /// Title of the properties dialog (a2-7, a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'{name} — Properties'**
+  String propertiesDialogTitle(String name);
+
+  /// Accessible name of the properties dialog's tabs (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Section'**
+  String get propertiesSection;
+
+  /// Tab of the properties dialog (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Summary'**
+  String get propertiesSummary;
+
+  /// Tab of the properties dialog (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Advanced'**
+  String get propertiesAdvanced;
+
+  /// Closes the properties dialog (a2-7, a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Done'**
+  String get propertiesDone;
+
+  /// Accessible name of the properties dialog's close button and scrim (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get propertiesClose;
+
+  /// Label of the encryption method (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Encryption'**
+  String get propertiesEncryption;
+
+  /// RC4 encryption with its key length (a2-10b's Encryption row; not on a board). {bits} is formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'RC4, {bits}-bit'**
+  String propertiesRc4(String bits);
+
+  /// AES-128 encryption (a2-10b's Encryption row); a method name.
+  ///
+  /// In en, this message translates to:
+  /// **'AES-128'**
+  String get propertiesAes128;
+
+  /// AES-256 encryption (a2-10b's Encryption row); a method name.
+  ///
+  /// In en, this message translates to:
+  /// **'AES-256'**
+  String get propertiesAes256;
+
+  /// After the encryption method of a restricted file (a2-10b: 'AES-256 · owner password').
+  ///
+  /// In en, this message translates to:
+  /// **'owner password'**
+  String get propertiesOwnerPasswordSuffix;
+
+  /// Label: whether opening needs a password (a2-10b); also a document's security when it does (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Password to open'**
+  String get propertiesOpenPassword;
+
+  /// Opening needs a password (a2-10b's row; not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Required'**
+  String get propertiesRequired;
+
+  /// Heading of the permissions, shown in capitals (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Permissions'**
+  String get propertiesPermissions;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Printing'**
+  String get propertiesPrinting;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Changing the document'**
+  String get propertiesChanging;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Adding comments'**
+  String get propertiesCommenting;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Filling form fields'**
+  String get propertiesFilling;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Signing'**
+  String get propertiesSigning;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Copying text and images'**
+  String get propertiesCopying;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Text access for screen readers'**
+  String get propertiesScreenReaders;
+
+  /// A permission (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Assembling pages'**
+  String get propertiesAssembling;
+
+  /// A permission's state (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed'**
+  String get propertiesAllowed;
+
+  /// Printing allowed at full quality (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Allowed, high quality'**
+  String get propertiesAllowedHighQuality;
+
+  /// A permission's state (a2-10b).
+  ///
+  /// In en, this message translates to:
+  /// **'Not allowed'**
+  String get propertiesNotAllowed;
+
+  /// Label of the document's language tag in the Advanced tab (not on a board).
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get propertiesLanguage;
+
+  /// Label of the scripts row in the Advanced tab (G100, a8-3's row name).
+  ///
+  /// In en, this message translates to:
+  /// **'JavaScript'**
+  String get propertiesScripts;
+
+  /// The scripts row of the Advanced tab, in a8-3's words (G100; not on a board). {countText} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{A script that runs when the file opens. Ferman never runs it.} other{{countText} scripts that run when the file opens. Ferman never runs them.}}'**
+  String propertiesScriptsValue(int count, String countText);
 }
 
 class _AppLocalizationsDelegate

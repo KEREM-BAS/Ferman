@@ -44,6 +44,15 @@ final class ArbParityCheck implements Check {
     'shellConvertMarkdown': 'a file format',
     'regionPaperA4': 'the ISO paper size name',
     'regionPaperLetter': 'the paper size name, used as is in Turkish',
+    'propertiesVersionAcrobat': 'a version number and the product name',
+    'propertiesScripts': 'JavaScript, the language name',
+    'propertiesFontType1': 'a font format name',
+    'propertiesFontMultipleMaster': 'a font format name',
+    'propertiesFontTrueType': 'a font format name',
+    'propertiesFontType0': 'a font format name',
+    'propertiesFontType3': 'a font format name',
+    'propertiesAes128': 'an encryption method name',
+    'propertiesAes256': 'an encryption method name',
   };
 
   @override

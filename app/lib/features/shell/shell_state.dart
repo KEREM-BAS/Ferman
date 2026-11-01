@@ -336,6 +336,18 @@ class ShowAllDocumentsRequest extends _$ShowAllDocumentsRequest {
   void request() => state++;
 }
 
+/// A request to show the active document's properties (a2-7), as
+/// `documentPropertiesRequestProvider`: ⌘D bumps it and the canvas shows
+/// the dialog. Kept alive for the same reason as [ShowAllDocumentsRequest].
+@Riverpod(keepAlive: true)
+class DocumentPropertiesRequest extends _$DocumentPropertiesRequest {
+  @override
+  int build() => 0;
+
+  /// Shows the properties.
+  void request() => state++;
+}
+
 /// Whether the AI assistant is turned on, as `shellAiEnabledProvider`. The
 /// mode bar shows its button only when it is on (FmWindow `aiOn`). Off in
 /// M1: the assistant comes in phase 4 and is off by default even then.

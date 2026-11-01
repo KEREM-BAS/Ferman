@@ -123,6 +123,8 @@ const Set<ShellCommand> _keysOnly = {
   // menu: tab_overflow_test checks the close button's and Show all's keys.
   ShellCommand.closeDocument,
   ShellCommand.showAllDocuments,
+  // a2-7 gives Properties only its key.
+  ShellCommand.documentProperties,
   // Moving between documents (a1-10's note); the tabs show no keys.
   ShellCommand.nextDocument,
   ShellCommand.document1,

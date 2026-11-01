@@ -1453,6 +1453,218 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get scriptsDismiss => isolate(super.scriptsDismiss);
+
+  @override
+  String get propertiesFile => isolate(super.propertiesFile);
+
+  @override
+  String get propertiesFonts => isolate(super.propertiesFonts);
+
+  @override
+  String get propertiesSecurity => isolate(super.propertiesSecurity);
+
+  @override
+  String get propertiesPages => isolate(super.propertiesPages);
+
+  @override
+  String get propertiesPageSize => isolate(super.propertiesPageSize);
+
+  @override
+  String get propertiesFileSize => isolate(super.propertiesFileSize);
+
+  @override
+  String get propertiesVersion => isolate(super.propertiesVersion);
+
+  @override
+  String propertiesVersionAcrobat(String version, String acrobat) =>
+      isolate(super.propertiesVersionAcrobat(version, acrobat));
+
+  @override
+  String get propertiesLocation => isolate(super.propertiesLocation);
+
+  @override
+  String get propertiesCreated => isolate(super.propertiesCreated);
+
+  @override
+  String get propertiesModified => isolate(super.propertiesModified);
+
+  @override
+  String get propertiesTitle => isolate(super.propertiesTitle);
+
+  @override
+  String get propertiesAuthor => isolate(super.propertiesAuthor);
+
+  @override
+  String get propertiesSubject => isolate(super.propertiesSubject);
+
+  @override
+  String get propertiesKeywords => isolate(super.propertiesKeywords);
+
+  @override
+  String get propertiesTagged => isolate(super.propertiesTagged);
+
+  @override
+  String get propertiesFastWebView => isolate(super.propertiesFastWebView);
+
+  @override
+  String get propertiesMadeWith => isolate(super.propertiesMadeWith);
+
+  @override
+  String get propertiesYes => isolate(super.propertiesYes);
+
+  @override
+  String get propertiesNo => isolate(super.propertiesNo);
+
+  @override
+  String get propertiesNone => isolate(super.propertiesNone);
+
+  @override
+  String get propertiesNoPassword => isolate(super.propertiesNoPassword);
+
+  @override
+  String get propertiesOwnerPassword => isolate(super.propertiesOwnerPassword);
+
+  @override
+  String propertiesSignatures(int count, String countText) =>
+      isolate(super.propertiesSignatures(count, countText));
+
+  @override
+  String propertiesSignatureOnPage(String page) =>
+      isolate(super.propertiesSignatureOnPage(page));
+
+  @override
+  String get propertiesEmbedded => isolate(super.propertiesEmbedded);
+
+  @override
+  String get propertiesPartial => isolate(super.propertiesPartial);
+
+  @override
+  String get propertiesPartialNote => isolate(super.propertiesPartialNote);
+
+  @override
+  String get propertiesSubset => isolate(super.propertiesSubset);
+
+  @override
+  String get propertiesSubsetNote => isolate(super.propertiesSubsetNote);
+
+  @override
+  String get propertiesNotEmbedded => isolate(super.propertiesNotEmbedded);
+
+  @override
+  String get propertiesFontType1 => isolate(super.propertiesFontType1);
+
+  @override
+  String get propertiesFontMultipleMaster =>
+      isolate(super.propertiesFontMultipleMaster);
+
+  @override
+  String get propertiesFontTrueType => isolate(super.propertiesFontTrueType);
+
+  @override
+  String get propertiesFontType0 => isolate(super.propertiesFontType0);
+
+  @override
+  String get propertiesFontType3 => isolate(super.propertiesFontType3);
+
+  @override
+  String get propertiesFontOther => isolate(super.propertiesFontOther);
+
+  @override
+  String get propertiesFontColumn => isolate(super.propertiesFontColumn);
+
+  @override
+  String get propertiesTypeColumn => isolate(super.propertiesTypeColumn);
+
+  @override
+  String get propertiesStatusColumn => isolate(super.propertiesStatusColumn);
+
+  @override
+  String propertiesDialogTitle(String name) =>
+      isolate(super.propertiesDialogTitle(name));
+
+  @override
+  String get propertiesSection => isolate(super.propertiesSection);
+
+  @override
+  String get propertiesSummary => isolate(super.propertiesSummary);
+
+  @override
+  String get propertiesAdvanced => isolate(super.propertiesAdvanced);
+
+  @override
+  String get propertiesDone => isolate(super.propertiesDone);
+
+  @override
+  String get propertiesClose => isolate(super.propertiesClose);
+
+  @override
+  String get propertiesEncryption => isolate(super.propertiesEncryption);
+
+  @override
+  String propertiesRc4(String bits) => isolate(super.propertiesRc4(bits));
+
+  @override
+  String get propertiesAes128 => isolate(super.propertiesAes128);
+
+  @override
+  String get propertiesAes256 => isolate(super.propertiesAes256);
+
+  @override
+  String get propertiesOwnerPasswordSuffix =>
+      isolate(super.propertiesOwnerPasswordSuffix);
+
+  @override
+  String get propertiesOpenPassword => isolate(super.propertiesOpenPassword);
+
+  @override
+  String get propertiesRequired => isolate(super.propertiesRequired);
+
+  @override
+  String get propertiesPermissions => isolate(super.propertiesPermissions);
+
+  @override
+  String get propertiesPrinting => isolate(super.propertiesPrinting);
+
+  @override
+  String get propertiesChanging => isolate(super.propertiesChanging);
+
+  @override
+  String get propertiesCommenting => isolate(super.propertiesCommenting);
+
+  @override
+  String get propertiesFilling => isolate(super.propertiesFilling);
+
+  @override
+  String get propertiesSigning => isolate(super.propertiesSigning);
+
+  @override
+  String get propertiesCopying => isolate(super.propertiesCopying);
+
+  @override
+  String get propertiesScreenReaders => isolate(super.propertiesScreenReaders);
+
+  @override
+  String get propertiesAssembling => isolate(super.propertiesAssembling);
+
+  @override
+  String get propertiesAllowed => isolate(super.propertiesAllowed);
+
+  @override
+  String get propertiesAllowedHighQuality =>
+      isolate(super.propertiesAllowedHighQuality);
+
+  @override
+  String get propertiesNotAllowed => isolate(super.propertiesNotAllowed);
+
+  @override
+  String get propertiesLanguage => isolate(super.propertiesLanguage);
+
+  @override
+  String get propertiesScripts => isolate(super.propertiesScripts);
+
+  @override
+  String propertiesScriptsValue(int count, String countText) =>
+      isolate(super.propertiesScriptsValue(count, countText));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate
