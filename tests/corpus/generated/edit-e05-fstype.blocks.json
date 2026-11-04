@@ -1,0 +1,12 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Ek Protokol", "start": [72.00, 745.41], "end": [146.03, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 6 – Ortak Giderler", "start": [72.00, 712.13], "end": [191.75, 712.13], "size": 12.00, "vertical": false},
+      {"text": "Ortak giderler her ay kira bedeli ile birlikte ödenir.", "start": [72.00, 689.33], "end": [299.00, 689.33], "size": 12.00, "vertical": false},
+      {"text": "Pay: 1.250 TL / ay", "start": [72.00, 666.53], "end": [156.92, 666.53], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

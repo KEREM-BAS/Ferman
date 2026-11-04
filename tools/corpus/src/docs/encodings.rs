@@ -317,6 +317,8 @@ fn rksj(sources: &Sources) -> Result<Generated, String> {
     let mut y = pdf::A4.1 - 96.0;
     for (index, line) in std::iter::once(TITLE).chain(LINES).enumerate() {
         let size = if index == 0 { 16.0 } else { 12.0 };
+        // The three lines under the title are one block.
+        page.group = (index > 0).then(|| "body".to_owned());
         let mut codes = String::new();
         for c in line.chars() {
             let (row, cell, cid) = jis(c).ok_or_else(|| format!("{c:?} is not in rows 1, 4, 5"))?;
@@ -331,8 +333,24 @@ fn rksj(sources: &Sources) -> Result<Generated, String> {
             pdf::num(size),
             pdf::num(y)
         ));
+        let advance: f64 = line
+            .chars()
+            .filter_map(|c| face.glyph(c))
+            .map(|gid| face.advance(gid))
+            .sum();
+        page.record(
+            vec![crate::text::TruthLine {
+                text: line.to_owned(),
+                start: (72.0, y),
+                end: (72.0 + advance * size / 1000.0, y),
+                size,
+                vertical: false,
+            }],
+            "left",
+        );
         page.lines.push(line.to_owned());
         y -= if index == 0 { 32.0 } else { 22.0 };
+        page.group = None;
     }
 
     let gids: Vec<u16> = remap.remapped_gids().collect();

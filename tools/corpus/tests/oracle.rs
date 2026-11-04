@@ -129,7 +129,10 @@ fn pdfium_reads_every_generated_file_as_its_generator_says() {
         if only.as_deref().is_some_and(|name| name != generator.name) {
             continue;
         }
-        let [(_, pdf), (_, text)] = generator.outputs(&sources).expect("the generator runs");
+        let mut outputs = generator.outputs(&sources).expect("the generator runs");
+        outputs.truncate(2);
+        let (_, text) = outputs.pop().expect("the expected text");
+        let (_, pdf) = outputs.pop().expect("the PDF");
         let text = String::from_utf8(text).expect("the expected text is UTF-8");
         if let Err(problem) = check(&pdfium, generator.expect, &pdf, &text) {
             failures.push(format!("{}: {problem}", generator.name));

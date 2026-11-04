@@ -13,9 +13,13 @@
 use std::collections::HashMap;
 
 use ferman_core::Document;
-use ferman_core::interpret::{FontResource, Matrix, ShowItem, TextShow, TextSink};
+use ferman_core::interpret::{
+    FontResource, Matrix, OperatorEvent, ShowItem, Span, SpanSource, TextShow, TextSink,
+};
 use ferman_core::structure::FontKind;
-use ferman_fonts::{BaseEncoding, BuiltinEncoding, CMap, SimpleEncoding, builtin_encoding};
+use ferman_fonts::{
+    BaseEncoding, BuiltinEncoding, CMap, FontProgram, SimpleEncoding, builtin_encoding,
+};
 use unicode_bidi::{BidiClass, BidiInfo, Level, bidi_class};
 
 use crate::TextError;
@@ -55,39 +59,59 @@ pub fn page_layout(document: &Document, index: usize) -> Result<PageText, TextEr
     let mut collector = Collector::default();
     document.page_text(index, &mut collector)?;
     let page = document.structure().pages.get(index);
+    let glyphs = &collector.glyphs;
     let mut out = PageText::default();
-    for (n, line) in lines(&collector.glyphs).into_iter().enumerate() {
+    for (n, line) in lines(glyphs).into_iter().enumerate() {
         if n > 0 {
             out.text.push('\n');
             out.boxes.push(None);
         }
         for (c, found) in line {
             out.text.push(c);
-            out.boxes.push(found.map(|[left, bottom, right, top]| {
-                let Some(page) = page else {
-                    return [left, top, right, bottom];
-                };
-                let corners = [
-                    page.display_point(left, bottom),
-                    page.display_point(right, top),
-                ];
-                let xs = corners.map(|(x, _)| x);
-                let ys = corners.map(|(_, y)| y);
-                [
-                    xs[0].min(xs[1]),
-                    ys[0].min(ys[1]),
-                    xs[0].max(xs[1]),
-                    ys[0].max(ys[1]),
-                ]
-            }));
+            out.boxes.push(
+                found
+                    .and_then(|at| glyphs.get(at))
+                    .map(|glyph| displayed(page, glyph_box(glyph))),
+            );
         }
     }
     Ok(out)
 }
 
-/// A line's characters with the boxes of their glyphs in page space, `[left, bottom, right,
-/// top]`.
-type Line = Vec<(char, Option<CharBox>)>;
+/// A box of user space, `[left, bottom, right, top]`, in displayed points `[left, top, right,
+/// bottom]`.
+pub(crate) fn displayed(
+    page: Option<&ferman_core::structure::Page>,
+    [left, bottom, right, top]: CharBox,
+) -> CharBox {
+    let Some(page) = page else {
+        return [left, top, right, bottom];
+    };
+    let corners = [
+        page.display_point(left, bottom),
+        page.display_point(right, top),
+    ];
+    let xs = corners.map(|(x, _)| x);
+    let ys = corners.map(|(_, y)| y);
+    [
+        xs[0].min(xs[1]),
+        ys[0].min(ys[1]),
+        xs[0].max(xs[1]),
+        ys[0].max(ys[1]),
+    ]
+}
+
+/// A line's characters, each with the index of the glyph that drew it.
+pub(crate) type Line = Vec<(char, Option<usize>)>;
+
+/// Where a glyph comes from: its show operator and its place in it (docs/ARCHITECTURE.md §6.6).
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
+pub struct GlyphLink {
+    /// The show operator's span: its stream or form and its bytes in that stream's decoded data.
+    pub span: Span,
+    /// The glyph's code among the show's codes, from 0, across the strings of a `TJ`.
+    pub index: usize,
+}
 
 /// A font, ready to split strings into codes and give their widths and text.
 struct PdfFont {
@@ -96,6 +120,9 @@ struct PdfFont {
     encoding: SimpleEncoding,
     to_unicode: Option<CMap>,
     resource: FontResource,
+    /// The ascent and descent per unit of font size (descent negative).
+    ascent: f32,
+    descent: f32,
 }
 
 impl PdfFont {
@@ -121,10 +148,11 @@ impl PdfFont {
             .and_then(BaseEncoding::from_name);
         // Without a named base, an embedded Type1 program's built-in encoding is the base
         // (ISO 32000-2 §9.6.5); a damaged program falls back to the default.
+        let type1 = matches!(resource.kind, FontKind::Type1 | FontKind::MultipleMaster);
         let builtin = resource
             .font_program
             .as_deref()
-            .filter(|_| named.is_none())
+            .filter(|_| named.is_none() && type1)
             .and_then(|program| builtin_encoding(program).ok().flatten());
         let (base, builtin_codes) = match builtin {
             Some(BuiltinEncoding::Standard) => (Some(BaseEncoding::Standard), Vec::new()),
@@ -138,11 +166,14 @@ impl PdfFont {
             .iter()
             .chain(&resource.differences)
             .map(|(code, name)| (*code, name.as_str()));
+        let (ascent, descent) = ascent_descent(resource);
         Self {
             cmap,
             encoding: SimpleEncoding::new(base, differences),
             to_unicode: resource.to_unicode.as_deref().map(CMap::parse),
             resource: resource.clone(),
+            ascent,
+            descent,
         }
     }
 
@@ -219,28 +250,126 @@ impl PdfFont {
     }
 }
 
+/// The ascent and descent of `font` per unit of font size: from its embedded program, its
+/// descriptor's `/Ascent` and `/Descent`, a standard 14 font's metrics, its `/FontBBox`, or
+/// four fifths above the baseline and one fifth below.
+fn ascent_descent(font: &FontResource) -> (f32, f32) {
+    let scale = if font.kind == FontKind::Type3 {
+        font.font_matrix[3]
+    } else {
+        0.001
+    };
+    let program = font
+        .font_program
+        .as_deref()
+        .and_then(|bytes| FontProgram::parse(bytes).ok())
+        .and_then(|program| {
+            let (ascent, descent) = program.ascent_descent();
+            let units = f32::from(program.units_per_em());
+            (units > 0.0).then(|| (ascent / units, descent / units))
+        });
+    let descriptor = (font.ascent != 0.0 || font.descent != 0.0)
+        .then_some((font.ascent * scale, font.descent * scale));
+    let bbox = font
+        .font_bbox
+        .map(|[_, bottom, _, top]| (top * scale, bottom * scale));
+    [
+        program,
+        descriptor,
+        standard_metrics(font.base_font.as_deref()),
+        bbox,
+    ]
+    .into_iter()
+    .flatten()
+    // A hostile or broken font's metrics beyond four ems fall through to the next source.
+    .find(|&(ascent, descent)| ascent > descent && ascent.abs() <= 4.0 && descent.abs() <= 4.0)
+    .unwrap_or((0.8, -0.2))
+}
+
+/// The ascender and descender of a standard 14 font, from Adobe's Core14 AFM files.
+fn standard_metrics(base_font: Option<&str>) -> Option<(f32, f32)> {
+    let name = base_font?;
+    // A subset tag such as `ABCDEF+` comes before the name.
+    let name = name.split_once('+').map_or(name, |(_, name)| name);
+    let (ascent, descent) = [
+        ("Courier", (629.0, -157.0)),
+        ("Helvetica", (718.0, -207.0)),
+        ("Times", (683.0, -217.0)),
+        ("Symbol", (1010.0, -293.0)),
+        ("ZapfDingbats", (820.0, -143.0)),
+    ]
+    .into_iter()
+    .find(|(family, _)| name.starts_with(family))?
+    .1;
+    Some((ascent / 1000.0, descent / 1000.0))
+}
+
 /// One glyph on the page.
 #[derive(Debug, Clone, PartialEq)]
-struct Glyph {
-    text: String,
+pub(crate) struct Glyph {
+    pub(crate) text: String,
     /// Its origin and the point its advance reaches, in page space.
-    start: [f32; 2],
-    end: [f32; 2],
+    pub(crate) start: [f32; 2],
+    pub(crate) end: [f32; 2],
     /// Its font size in page space.
-    size: f32,
-    vertical: bool,
+    pub(crate) size: f32,
+    pub(crate) vertical: bool,
+    /// Its font's ascent and descent per unit of size (descent negative).
+    pub(crate) ascent: f32,
+    pub(crate) descent: f32,
+    /// Its show operator and its place in it.
+    pub(crate) link: GlyphLink,
+    /// The show it is in, counted from 0 on the page.
+    pub(crate) show: usize,
+    /// The font's key.
+    pub(crate) font: u64,
+    /// `Tr`.
+    pub(crate) render_mode: u8,
+    /// Whether it is the single-byte code 32, which `Tw` widens.
+    pub(crate) space: bool,
+    /// The word spacing `Tw` added to it, in text space.
+    pub(crate) word_spacing: f32,
+    /// The `TJ` number right after it, in thousandths of text space against the writing
+    /// direction (negative widens); 0 without one.
+    pub(crate) adjust: f32,
+    /// `Tc`, in text space.
+    pub(crate) char_spacing: f32,
+    /// Whether text space is sheared in page space, so its boxes are not rectangles.
+    pub(crate) skewed: bool,
 }
 
 /// The sink that places glyphs.
 #[derive(Default)]
-struct Collector {
+pub(crate) struct Collector {
     fonts: HashMap<u64, PdfFont>,
-    glyphs: Vec<Glyph>,
+    pub(crate) glyphs: Vec<Glyph>,
+    shows: usize,
+    /// Whether the page draws an image (`Do` of an XObject that is not a form with content, or
+    /// `BI`), and whether it paints a path.
+    pub(crate) images: bool,
+    pub(crate) paths: bool,
+    /// The stream or form of the operator before this one.
+    last_source: Option<SpanSource>,
 }
 
 impl TextSink for Collector {
     fn font(&mut self, font: &FontResource) {
         self.fonts.insert(font.key, PdfFont::new(font));
+    }
+
+    fn operator(&mut self, operator: &OperatorEvent<'_>) {
+        let source = operator.span.source;
+        match operator.name {
+            // A form's `Do` comes after the form's own operators, from another source; an
+            // image's comes alone.
+            b"Do" if self.last_source.is_none_or(|last| last == source) => self.images = true,
+            b"BI" => self.images = true,
+            b"f" | b"F" | b"f*" | b"B" | b"B*" | b"b" | b"b*" | b"S" | b"s" => {
+                self.paths = true;
+            }
+            _ => {}
+        }
+        self.last_source = Some(source);
     }
 
     fn show(&mut self, show: &TextShow<'_>) -> (f32, f32) {
@@ -254,24 +383,33 @@ impl TextSink for Collector {
         } else {
             state.horizontal_scaling
         };
-        let [_, _, c, d, _, _] = show.matrix;
+        let [a, b, c, d, _, _] = show.matrix;
         let size = state.size * d.hypot(c);
+        let skewed =
+            (a * c + b * d).abs() > 1e-3 * (a.hypot(b) * c.hypot(d)).max(f32::MIN_POSITIVE);
+        let show_index = self.shows;
+        self.shows = self.shows.saturating_add(1);
         let mut advance = 0.0_f32;
+        let mut index = 0_usize;
         for item in show.items {
             let bytes = match item {
                 ShowItem::Adjust(n) => {
                     advance -= n / 1000.0 * state.size * scale;
+                    if let Some(last) = self
+                        .glyphs
+                        .last_mut()
+                        .filter(|glyph| glyph.show == show_index)
+                    {
+                        last.adjust += n;
+                    }
                     continue;
                 }
                 ShowItem::Text(bytes) => bytes,
             };
             for (code, length) in font.codes(bytes) {
-                let spacing = state.char_spacing
-                    + if length == 1 && code == 32 {
-                        state.word_spacing
-                    } else {
-                        0.0
-                    };
+                let space = length == 1 && code == 32;
+                let word_spacing = if space { state.word_spacing } else { 0.0 };
+                let spacing = state.char_spacing + word_spacing;
                 let (origin, step) = if vertical {
                     (
                         [0.0, advance],
@@ -294,7 +432,22 @@ impl TextSink for Collector {
                     end: apply(show.matrix, reach),
                     size,
                     vertical,
+                    ascent: font.ascent,
+                    descent: font.descent,
+                    link: GlyphLink {
+                        span: show.span.clone(),
+                        index,
+                    },
+                    show: show_index,
+                    font: show.font,
+                    render_mode: state.render_mode,
+                    space,
+                    word_spacing,
+                    adjust: 0.0,
+                    char_spacing: state.char_spacing,
+                    skewed,
                 });
+                index = index.saturating_add(1);
                 advance += step;
             }
         }
@@ -313,49 +466,61 @@ fn apply(m: Matrix, [x, y]: [f32; 2]) -> [f32; 2] {
 }
 
 /// The glyphs as lines in content order.
-fn lines(glyphs: &[Glyph]) -> Vec<Line> {
-    let mut out: Vec<Vec<&Glyph>> = Vec::new();
-    for glyph in glyphs {
-        let joins = out.last().and_then(|line| line.last()).is_some_and(|last| {
-            let size = last.size.max(glyph.size);
-            if last.vertical {
-                (glyph.start[0] - last.start[0]).abs() < size * 0.6
-                    && glyph.start[1] < last.start[1] + size
-            } else {
-                (glyph.start[1] - last.start[1]).abs() < size * 0.5
-                    && glyph.start[0] > last.start[0] - size
-            }
-        });
+pub(crate) fn lines(glyphs: &[Glyph]) -> Vec<Line> {
+    line_groups(glyphs).iter().map(|line| words(line)).collect()
+}
+
+/// The glyphs, with their indices, grouped into lines by baseline in content order.
+pub(crate) fn line_groups(glyphs: &[Glyph]) -> Vec<Vec<(usize, &Glyph)>> {
+    let mut out: Vec<Vec<(usize, &Glyph)>> = Vec::new();
+    for (at, glyph) in glyphs.iter().enumerate() {
+        let joins = out
+            .last()
+            .and_then(|line| line.last())
+            .is_some_and(|(_, last)| {
+                let size = last.size.max(glyph.size);
+                if last.vertical {
+                    (glyph.start[0] - last.start[0]).abs() < size * 0.6
+                        && glyph.start[1] < last.start[1] + size
+                } else {
+                    (glyph.start[1] - last.start[1]).abs() < size * 0.5
+                        && glyph.start[0] > last.start[0] - size
+                }
+            });
         match out.last_mut() {
-            Some(line) if joins => line.push(glyph),
-            _ => out.push(vec![glyph]),
+            Some(line) if joins => line.push((at, glyph)),
+            _ => out.push(vec![(at, glyph)]),
         }
     }
-    out.iter().map(|line| words(line)).collect()
+    out
 }
 
 /// One line's characters, with spaces at word gaps, in logical order.
-fn words(line: &[&Glyph]) -> Line {
+pub(crate) fn words(line: &[(usize, &Glyph)]) -> Line {
     let rtl = line
         .iter()
-        .any(|glyph| glyph.text.chars().any(right_to_left));
+        .any(|(_, glyph)| glyph.text.chars().any(right_to_left));
     // A combining mark comes before its base in a right-to-left line's visual order; it stays
     // with that base. Such a line is read left to right, as it shows, whatever order drew it.
-    let mut units: Vec<(Vec<&Glyph>, &Glyph)> = Vec::new();
+    let mut units: Vec<(Vec<&Glyph>, usize, &Glyph)> = Vec::new();
     let mut marks = Vec::new();
-    for &glyph in line {
+    for &(at, glyph) in line {
         if rtl && !glyph.text.is_empty() && glyph.text.chars().all(is_mark) {
-            marks.push(glyph);
+            marks.push((at, glyph));
         } else {
-            units.push((std::mem::take(&mut marks), glyph));
+            let marks = std::mem::take(&mut marks)
+                .into_iter()
+                .map(|(_, mark)| mark)
+                .collect();
+            units.push((marks, at, glyph));
         }
     }
-    if rtl && !line.iter().any(|glyph| glyph.vertical) {
-        units.sort_by(|(_, a), (_, b)| a.start[0].total_cmp(&b.start[0]));
+    if rtl && !line.iter().any(|(_, glyph)| glyph.vertical) {
+        units.sort_by(|(_, _, a), (_, _, b)| a.start[0].total_cmp(&b.start[0]));
     }
     let mut visual: Line = Vec::new();
     let mut previous: Option<&Glyph> = None;
-    for (marks, glyph) in &units {
+    for (marks, at, glyph) in &units {
         if let Some(last) = previous {
             let gap = if last.vertical {
                 last.end[1] - glyph.start[1]
@@ -369,7 +534,7 @@ fn words(line: &[&Glyph]) -> Line {
             }
         }
         let logical = with_marks(glyph, marks);
-        let area = Some(glyph_box(glyph));
+        let area = Some(*at);
         // A right-to-left unit is reversed here, so reading the line back restores it.
         if logical.chars().any(right_to_left) {
             visual.extend(logical.chars().rev().map(|c| (c, area)));
@@ -378,23 +543,28 @@ fn words(line: &[&Glyph]) -> Line {
         }
         previous = Some(glyph);
     }
-    for mark in marks {
-        let area = Some(glyph_box(mark));
-        visual.extend(mark.text.chars().map(|c| (c, area)));
+    for (at, mark) in marks {
+        visual.extend(mark.text.chars().map(|c| (c, Some(at))));
     }
     if rtl { logical(&visual) } else { visual }
 }
 
 /// The box a glyph covers in page space, `[left, bottom, right, top]`: its advance across, and
-/// from a fifth of its size below the baseline to four fifths above.
-fn glyph_box(glyph: &Glyph) -> CharBox {
+/// from its font's descent below the baseline to its ascent above; a vertical glyph is an em
+/// wide.
+pub(crate) fn glyph_box(glyph: &Glyph) -> CharBox {
     let [x0, y0] = glyph.start;
     let [x1, y1] = glyph.end;
     let size = glyph.size;
     if glyph.vertical {
         [x0 - size / 2.0, y0.min(y1), x0 + size / 2.0, y0.max(y1)]
     } else {
-        [x0.min(x1), y0 - size * 0.2, x0.max(x1), y0 + size * 0.8]
+        [
+            x0.min(x1),
+            y0 + size * glyph.descent,
+            x0.max(x1),
+            y0 + size * glyph.ascent,
+        ]
     }
 }
 
@@ -440,13 +610,13 @@ fn is_mark(c: char) -> bool {
 }
 
 /// Whether `c` is a strong right-to-left character.
-fn right_to_left(c: char) -> bool {
+pub(crate) fn right_to_left(c: char) -> bool {
     matches!(bidi_class(c), BidiClass::R | BidiClass::AL)
 }
 
 /// A right-to-left line in visual order, read back into logical order with each character's box,
 /// its brackets mirrored at right-to-left levels.
-fn logical(visual: &[(char, Option<CharBox>)]) -> Line {
+fn logical(visual: &[(char, Option<usize>)]) -> Line {
     let text: String = visual.iter().map(|(c, _)| c).collect();
     let info = BidiInfo::new(&text, Some(Level::rtl()));
     let Some(paragraph) = info.paragraphs.first() else {
@@ -454,7 +624,7 @@ fn logical(visual: &[(char, Option<CharBox>)]) -> Line {
     };
     // Levels per byte, then one per character, with the line rules (L1) applied.
     let levels = info.reordered_levels_per_char(paragraph, paragraph.range.clone());
-    let chars: Vec<(char, Option<CharBox>)> = visual
+    let chars: Vec<(char, Option<usize>)> = visual
         .iter()
         .zip(&levels)
         .map(|(&(c, area), level)| (if level.is_rtl() { mirror(c) } else { c }, area))
@@ -482,6 +652,36 @@ fn mirror(c: char) -> char {
     }
 }
 
+/// A horizontal glyph at `start`, 10 points in size, for tests.
+#[cfg(test)]
+pub(crate) fn test_glyph(text: &str, start: [f32; 2]) -> Glyph {
+    Glyph {
+        text: text.to_owned(),
+        start,
+        end: start,
+        size: 10.0,
+        vertical: false,
+        ascent: 0.8,
+        descent: -0.2,
+        link: GlyphLink {
+            span: Span {
+                source: SpanSource::Page { stream: (1, 0) },
+                range: 0..0,
+                carried: false,
+            },
+            index: 0,
+        },
+        show: 0,
+        font: 0,
+        render_mode: 0,
+        space: text == " ",
+        word_spacing: 0.0,
+        adjust: 0.0,
+        char_spacing: 0.0,
+        skewed: false,
+    }
+}
+
 #[cfg(test)]
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
@@ -489,11 +689,8 @@ mod tests {
 
     fn glyph(text: &str, x: f32, y: f32) -> Glyph {
         Glyph {
-            text: text.to_owned(),
-            start: [x, y],
             end: [x + 5.0, y],
-            size: 10.0,
-            vertical: false,
+            ..test_glyph(text, [x, y])
         }
     }
 
@@ -521,6 +718,9 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             font_matrix: [0.001, 0.0, 0.0, 0.001, 0.0, 0.0],
             to_unicode: None,
             font_program: Some(program.to_vec()),
+            ascent: 0.0,
+            descent: 0.0,
+            font_bbox: None,
             cmap_name: None,
             cmap: None,
             cmap_parents: Vec::new(),
@@ -561,6 +761,9 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             font_matrix: [0.001, 0.0, 0.0, 0.001, 0.0, 0.0],
             to_unicode: None,
             font_program: None,
+            ascent: 0.0,
+            descent: 0.0,
+            font_bbox: None,
             cmap_name: None,
             cmap: Some(child.to_vec()),
             cmap_parents: vec![parent.to_vec()],
@@ -575,6 +778,79 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
         // The child's own code wins; the parent's other code comes through.
         assert_eq!(cmap.cid(1, 2), Some(100));
         assert_eq!(cmap.cid(2, 2), Some(200));
+    }
+
+    #[test]
+    fn glyph_boxes_take_the_font_ascent_and_descent() {
+        let font = |base: &str, kind: FontKind| FontResource {
+            key: 1,
+            kind,
+            base_font: Some(base.to_owned()),
+            base_encoding: None,
+            differences: Vec::new(),
+            first_char: 0,
+            widths: Vec::new(),
+            missing_width: 0.0,
+            symbolic: false,
+            font_matrix: [0.01, 0.0, 0.0, 0.01, 0.0, 0.0],
+            to_unicode: None,
+            font_program: None,
+            ascent: 0.0,
+            descent: 0.0,
+            font_bbox: None,
+            cmap_name: None,
+            cmap: None,
+            cmap_parents: Vec::new(),
+            cid_widths: Vec::new(),
+            default_width: 1000.0,
+            vertical_metrics: Vec::new(),
+            default_vertical: [880.0, -1000.0],
+            char_procs: Vec::new(),
+        };
+        let close = |got: (f32, f32), want: (f32, f32)| {
+            assert!(
+                (got.0 - want.0).abs() < 1e-6 && (got.1 - want.1).abs() < 1e-6,
+                "{got:?} {want:?}"
+            );
+        };
+        // Nothing known: four fifths up, one fifth down.
+        close(
+            ascent_descent(&font("Unknown", FontKind::TrueType)),
+            (0.8, -0.2),
+        );
+        // A standard 14 font, subset tag or not.
+        close(
+            ascent_descent(&font("ABCDEF+Helvetica-Bold", FontKind::Type1)),
+            (0.718, -0.207),
+        );
+        // The standard metrics win over the box; without them the box counts, and the
+        // descriptor wins over both.
+        let mut boxed = font("Helvetica", FontKind::Type1);
+        boxed.font_bbox = Some([0.0, -300.0, 1000.0, 900.0]);
+        close(ascent_descent(&boxed), (0.718, -0.207));
+        boxed.base_font = None;
+        close(ascent_descent(&boxed), (0.9, -0.3));
+        boxed.ascent = 750.0;
+        boxed.descent = -250.0;
+        close(ascent_descent(&boxed), (0.75, -0.25));
+        // A Type3 font's box is in its glyph space, scaled by its font matrix.
+        let mut type3 = font("", FontKind::Type3);
+        type3.base_font = None;
+        type3.font_bbox = Some([0.0, -10.0, 100.0, 70.0]);
+        close(ascent_descent(&type3), (0.7, -0.1));
+        // A damaged program falls through to what the descriptor says.
+        boxed.font_program = Some(b"not a font".to_vec());
+        close(ascent_descent(&boxed), (0.75, -0.25));
+        // Metrics beyond four ems are not believed.
+        boxed.ascent = 1.0e9;
+        close(ascent_descent(&boxed), (0.9, -0.3));
+        let glyph = Glyph {
+            end: [10.0, 100.0],
+            ascent: 0.75,
+            descent: -0.25,
+            ..test_glyph("a", [0.0, 100.0])
+        };
+        assert_eq!(glyph_box(&glyph), [0.0, 97.5, 10.0, 107.5]);
     }
 
     #[test]
@@ -606,11 +882,9 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
     #[test]
     fn vertical_glyphs_make_columns() {
         let column = |x: f32, y: f32, text: &str| Glyph {
-            text: text.to_owned(),
-            start: [x, y],
             end: [x, y - 10.0],
-            size: 10.0,
             vertical: true,
+            ..test_glyph(text, [x, y])
         };
         let glyphs = [
             column(100.0, 700.0, "拝"),

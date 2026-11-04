@@ -831,6 +831,7 @@ dependencies = [
  "ferman-fonts",
  "icu_collator",
  "icu_locale_core",
+ "serde_json",
  "thiserror",
  "unicode-bidi",
  "unicode-normalization",

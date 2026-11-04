@@ -22,7 +22,8 @@ for the right-to-left and vertical files, whose order PDFium guesses).
 - **Generated files name their generator.** A file produced by a script in `tools/corpus` lists that
   script and its arguments in the source column, so anyone can regenerate it byte for byte. Generators
   are deterministic: no timestamps, random ids or machine-specific paths in the output. A generated
-  PDF's expected text, `generated/<name>.expected.txt`, shares the PDF's row.
+  PDF's expected text, `generated/<name>.expected.txt`, and its block ground truth,
+  `generated/<name>.blocks.json`, share the PDF's row.
 - **Hashes are checked.** The SHA-256 is of the file as committed. Changing a file means a new hash, a
   new row note and a reason in the commit message.
 - **Size.** Files up to 1 MB are committed here ([ADR 0020](../../docs/adr/0020-test-corpus.md)).

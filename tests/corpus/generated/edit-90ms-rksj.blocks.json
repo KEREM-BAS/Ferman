@@ -1,0 +1,12 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "おしらせ", "start": [72.00, 745.89], "end": [136.00, 745.89], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "マンションのけいやくこうしんについて、おしらせします。", "start": [72.00, 713.89], "end": [396.00, 713.89], "size": 12.00, "vertical": false},
+      {"text": "こうしんのてつづきは、かんりじむしょでおこないます。", "start": [72.00, 691.89], "end": [384.00, 691.89], "size": 12.00, "vertical": false},
+      {"text": "ごふめいなてんは、おといあわせください。", "start": [72.00, 669.89], "end": [312.00, 669.89], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

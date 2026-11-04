@@ -66,6 +66,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         Align::Left,
     )?;
     y -= 30.0;
+    // The sender's address and the invoice's details are two blocks side by side.
     for (left, right) in [
         ("Moda Gayrimenkul Yönetimi A.Ş.", "Fatura no: MGY2026000418"),
         (
@@ -75,14 +76,18 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         ("34710 Kadıköy/İstanbul", "Son ödeme tarihi: 16.11.2026"),
         ("Vergi dairesi: Kadıköy, VKN 6120458731", ""),
     ] {
+        page.group = Some("sender".to_owned());
         doc.line(&mut page, &body, left, (LEFT, y), WIDTH / 2.0, Align::Left)?;
         if !right.is_empty() {
+            page.group = Some("details".to_owned());
             let half = (LEFT + WIDTH / 2.0, y);
             doc.line(&mut page, &body, right, half, WIDTH / 2.0, Align::Right)?;
         }
         y -= 15.0;
     }
+    page.group = None;
     y -= 15.0;
+    // The recipient's name and address are one block.
     doc.line(
         &mut page,
         &bold,
@@ -105,12 +110,15 @@ fn build(sources: &Sources) -> Result<Generated, String> {
     page.content.fill_rgb((0xF3, 0xF1, 0xEC));
     page.content.fill_rect(LEFT, y - 6.0, WIDTH, 20.0);
     page.content.fill_rgb((0, 0, 0));
-    for (offset, width, align, title) in COLUMNS {
+    // The table: its header, the items and the totals under the last two columns.
+    for (column, (offset, width, align, title)) in COLUMNS.into_iter().enumerate() {
+        page.cell = Some([0, 0, column]);
         doc.line(&mut page, &bold, title, (LEFT + offset, y), width, align)?;
     }
     y -= 22.0;
-    for item in ITEMS {
-        for ((offset, width, align, _), cell) in COLUMNS.iter().zip(item) {
+    for (row, item) in ITEMS.iter().enumerate() {
+        for (column, ((offset, width, align, _), cell)) in COLUMNS.iter().zip(item).enumerate() {
+            page.cell = Some([0, row + 1, column]);
             doc.line(&mut page, &body, cell, (LEFT + offset, y), *width, *align)?;
         }
         page.content
@@ -132,6 +140,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         } else {
             &body
         };
+        page.cell = Some([0, ITEMS.len() + 1 + index, 3]);
         doc.line(
             &mut page,
             style,
@@ -140,6 +149,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
             label_width,
             Align::Right,
         )?;
+        page.cell = Some([0, ITEMS.len() + 1 + index, 4]);
         doc.line(
             &mut page,
             style,
@@ -150,10 +160,12 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         )?;
         y -= 17.0;
     }
+    page.cell = None;
     page.content
         .line_width(0.75)
         .line((amount_x, y + 30.0), (LEFT + WIDTH, y + 30.0));
     y -= 20.0;
+    page.group = Some("payment".to_owned());
     for line in [
         "Yalnız yirmi yedi bin beş yüz kırk Türk lirasıdır.",
         "Ödemenizi son ödeme tarihine kadar TR64 0001 2009 4520 0058 0012 34 numaralı hesaba,",
@@ -162,6 +174,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         doc.line(&mut page, &body, line, (LEFT, y), WIDTH, Align::Left)?;
         y -= 15.0;
     }
+    page.group = None;
 
     let (ids, expected) = doc.add_pages(vec![page], pdf::A4);
     let catalog = dictionary! { "Lang" => text("tr-TR"), "OpenAction" => open_first(ids[0]) };

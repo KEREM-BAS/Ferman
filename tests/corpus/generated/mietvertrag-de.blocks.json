@@ -1,0 +1,329 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Mietvertrag über Wohnraum", "start": [171.77, 744.35], "end": [423.50, 744.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Gleimstraße 24, 3. OG rechts, 10437 Berlin", "start": [196.97, 719.59], "end": [398.30, 719.59], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 1 Vertragsparteien", "start": [79.00, 669.04], "end": [193.52, 669.04], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Zwischen Herrn Klaus Müller, Schönhauser Allee 112, 10437 Berlin (im", "start": [79.00, 646.68], "end": [516.28, 646.68], "size": 12.00, "vertical": false},
+      {"text": "Folgenden „Vermieter“), und Frau Jana Weißmann, Kastanienallee 7, 10435", "start": [79.00, 627.48], "end": [516.28, 627.48], "size": 12.00, "vertical": false},
+      {"text": "Berlin (im Folgenden „Mieterin“), wird folgender Mietvertrag über", "start": [79.00, 608.28], "end": [516.28, 608.28], "size": 12.00, "vertical": false},
+      {"text": "Wohnraum geschlossen.", "start": [79.00, 589.08], "end": [217.95, 589.08], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 2 Mieträume", "start": [79.00, 550.99], "end": [159.24, 550.99], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Vermietet wird die Wohnung im dritten Obergeschoss rechts des Hauses", "start": [79.00, 528.63], "end": [516.28, 528.63], "size": 12.00, "vertical": false},
+      {"text": "Gleimstraße 24, 10437 Berlin, bestehend aus drei Zimmern, einer Küche,", "start": [79.00, 509.43], "end": [516.28, 509.43], "size": 12.00, "vertical": false},
+      {"text": "einem Bad mit Fenster, einem Flur und einem Balkon. Die Wohnfläche", "start": [79.00, 490.23], "end": [516.28, 490.23], "size": 12.00, "vertical": false},
+      {"text": "beträgt 78,4 Quadratmeter. Zur Wohnung gehört ein Kellerabteil mit der", "start": [79.00, 471.03], "end": [516.28, 471.03], "size": 12.00, "vertical": false},
+      {"text": "Nummer 9.", "start": [79.00, 451.83], "end": [143.58, 451.83], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Mieterin ist berechtigt, den Fahrradraum im Hof und die", "start": [79.00, 424.63], "end": [516.28, 424.63], "size": 12.00, "vertical": false},
+      {"text": "Gemeinschaftswaschküche nach Maßgabe der Hausordnung mitzubenutzen.", "start": [79.00, 405.43], "end": [516.28, 405.43], "size": 12.00, "vertical": false},
+      {"text": "Eine Änderung der Größe oder des Zuschnitts der Räume bedarf der", "start": [79.00, 386.23], "end": [516.28, 386.23], "size": 12.00, "vertical": false},
+      {"text": "schriftlichen Zustimmung des Vermieters.", "start": [79.00, 367.03], "end": [318.93, 367.03], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 3 Mietzeit", "start": [79.00, 328.94], "end": [142.73, 328.94], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Das Mietverhältnis beginnt am 1. Dezember 2026 und läuft auf unbestimmte", "start": [79.00, 306.58], "end": [516.28, 306.58], "size": 12.00, "vertical": false},
+      {"text": "Zeit. Es kann von beiden Parteien nach den gesetzlichen Vorschriften", "start": [79.00, 287.38], "end": [516.28, 287.38], "size": 12.00, "vertical": false},
+      {"text": "gekündigt werden.", "start": [79.00, 268.18], "end": [184.37, 268.18], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Kündigung muss schriftlich erfolgen. Für die Rechtzeitigkeit der", "start": [79.00, 240.98], "end": [516.28, 240.98], "size": 12.00, "vertical": false},
+      {"text": "Kündigung kommt es nicht auf die Absendung, sondern auf den Zugang des", "start": [79.00, 221.78], "end": [516.28, 221.78], "size": 12.00, "vertical": false},
+      {"text": "Kündigungsschreibens an.", "start": [79.00, 202.58], "end": [230.08, 202.58], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 4 Miete und Nebenkosten", "start": [79.00, 164.49], "end": [230.21, 164.49], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die monatliche Nettokaltmiete beträgt 1.096,00 €. Daneben zahlt die", "start": [79.00, 142.13], "end": [516.28, 142.13], "size": 12.00, "vertical": false},
+      {"text": "Mieterin monatliche Vorauszahlungen auf die Betriebskosten in Höhe von", "start": [79.00, 122.93], "end": [516.28, 122.93], "size": 12.00, "vertical": false},
+      {"text": "210,00 € und auf die Heiz- und Warmwasserkosten in Höhe von 95,00 €. Die", "start": [79.00, 103.73], "end": [516.28, 103.73], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 1 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Gesamtmiete beträgt somit 1.401,00 €.", "start": [79.00, 749.93], "end": [298.44, 749.93], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Über die Vorauszahlungen wird jährlich abgerechnet. Die Abrechnung ist der", "start": [79.00, 722.73], "end": [516.28, 722.73], "size": 12.00, "vertical": false},
+      {"text": "Mieterin spätestens zwölf Monate nach Ende des Abrechnungszeitraums", "start": [79.00, 703.53], "end": [516.28, 703.53], "size": 12.00, "vertical": false},
+      {"text": "mitzuteilen. Nachforderungen und Guthaben sind innerhalb von dreißig", "start": [79.00, 684.33], "end": [516.28, 684.33], "size": 12.00, "vertical": false},
+      {"text": "Tagen nach Zugang der Abrechnung auszugleichen.", "start": [79.00, 665.13], "end": [372.04, 665.13], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 5 Zahlung der Miete", "start": [79.00, 627.04], "end": [199.61, 627.04], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Miete ist monatlich im Voraus, spätestens am dritten Werktag eines", "start": [79.00, 604.68], "end": [516.28, 604.68], "size": 12.00, "vertical": false},
+      {"text": "jeden Monats, kostenfrei auf das Konto des Vermieters bei der Berliner", "start": [79.00, 585.48], "end": [516.28, 585.48], "size": 12.00, "vertical": false},
+      {"text": "Volksbank, IBAN DE89 3704 0044 0532 0130 00, zu zahlen. Für die", "start": [79.00, 566.28], "end": [516.28, 566.28], "size": 12.00, "vertical": false},
+      {"text": "Rechtzeitigkeit der Zahlung kommt es auf die Gutschrift auf dem Konto des", "start": [79.00, 547.08], "end": [516.28, 547.08], "size": 12.00, "vertical": false},
+      {"text": "Vermieters an.", "start": [79.00, 527.88], "end": [162.42, 527.88], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 6 Mietsicherheit", "start": [79.00, 489.79], "end": [179.15, 489.79], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Mieterin leistet eine Sicherheit in Höhe von drei Nettokaltmieten, also", "start": [79.00, 467.43], "end": [516.28, 467.43], "size": 12.00, "vertical": false},
+      {"text": "3.288,00 €. Sie ist berechtigt, die Sicherheit in drei gleichen monatlichen", "start": [79.00, 448.23], "end": [516.28, 448.23], "size": 12.00, "vertical": false},
+      {"text": "Teilzahlungen zu erbringen; die erste Teilzahlung ist zu Beginn des", "start": [79.00, 429.03], "end": [516.28, 429.03], "size": 12.00, "vertical": false},
+      {"text": "Mietverhältnisses fällig. Der Vermieter legt die Sicherheit getrennt von", "start": [79.00, 409.83], "end": [516.28, 409.83], "size": 12.00, "vertical": false},
+      {"text": "seinem Vermögen bei einem Kreditinstitut zu dem für Spareinlagen mit", "start": [79.00, 390.63], "end": [516.28, 390.63], "size": 12.00, "vertical": false},
+      {"text": "dreimonatiger Kündigungsfrist üblichen Zinssatz an.", "start": [79.00, 371.43], "end": [378.52, 371.43], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 7 Zustand der Mieträume", "start": [79.00, 333.34], "end": [229.56, 333.34], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Wohnung wird in renoviertem Zustand übergeben. Bei Übergabe wird ein", "start": [79.00, 310.98], "end": [516.28, 310.98], "size": 12.00, "vertical": false},
+      {"text": "Protokoll erstellt, das von beiden Parteien unterschrieben wird und", "start": [79.00, 291.78], "end": [516.28, 291.78], "size": 12.00, "vertical": false},
+      {"text": "Bestandteil dieses Vertrags ist.", "start": [79.00, 272.58], "end": [252.42, 272.58], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Mieterin hat die Mieträume pfleglich zu behandeln und für ausreichende", "start": [79.00, 245.38], "end": [516.28, 245.38], "size": 12.00, "vertical": false},
+      {"text": "Lüftung und Heizung zu sorgen. Schäden in den Mieträumen sind dem", "start": [79.00, 226.18], "end": [516.28, 226.18], "size": 12.00, "vertical": false},
+      {"text": "Vermieter unverzüglich anzuzeigen.", "start": [79.00, 206.98], "end": [284.18, 206.98], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 8 Schönheitsreparaturen", "start": [79.00, 168.89], "end": [228.55, 168.89], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Schönheitsreparaturen trägt die Mieterin, soweit sie durch ihren Gebrauch", "start": [79.00, 146.53], "end": [516.28, 146.53], "size": 12.00, "vertical": false},
+      {"text": "erforderlich werden. Dazu gehören das Tapezieren und Anstreichen der", "start": [79.00, 127.33], "end": [516.28, 127.33], "size": 12.00, "vertical": false},
+      {"text": "Wände und Decken, das Streichen der Heizkörper und der Innentüren sowie", "start": [79.00, 108.13], "end": [516.28, 108.13], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 2 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "der Fenster und Außentüren von innen. Die Arbeiten sind fachgerecht und in", "start": [79.00, 749.93], "end": [516.28, 749.93], "size": 12.00, "vertical": false},
+      {"text": "neutralen, hellen Farbtönen auszuführen.", "start": [79.00, 730.73], "end": [315.46, 730.73], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 9 Kleinreparaturen", "start": [79.00, 692.64], "end": [196.25, 692.64], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Kosten für kleine Instandhaltungen an Teilen der Wohnung, die dem", "start": [79.00, 670.28], "end": [516.28, 670.28], "size": 12.00, "vertical": false},
+      {"text": "häufigen Zugriff der Mieterin ausgesetzt sind, wie Wasserhähne,", "start": [79.00, 651.08], "end": [516.28, 651.08], "size": 12.00, "vertical": false},
+      {"text": "Lichtschalter, Steckdosen, Fenster- und Türverschlüsse, trägt die Mieterin", "start": [79.00, 631.88], "end": [516.28, 631.88], "size": 12.00, "vertical": false},
+      {"text": "bis zu einem Betrag von 100,00 € im Einzelfall, höchstens jedoch bis zu acht", "start": [79.00, 612.68], "end": [516.28, 612.68], "size": 12.00, "vertical": false},
+      {"text": "Prozent der jährlichen Nettokaltmiete.", "start": [79.00, 593.48], "end": [296.50, 593.48], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 10 Bauliche Veränderungen", "start": [79.00, 555.39], "end": [244.61, 555.39], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Bauliche Veränderungen durch die Mieterin, insbesondere Um- und", "start": [79.00, 533.03], "end": [516.28, 533.03], "size": 12.00, "vertical": false},
+      {"text": "Einbauten sowie Installationen, bedürfen der vorherigen schriftlichen", "start": [79.00, 513.83], "end": [516.28, 513.83], "size": 12.00, "vertical": false},
+      {"text": "Erlaubnis des Vermieters. Die Erlaubnis darf nur aus wichtigem Grund", "start": [79.00, 494.63], "end": [516.28, 494.63], "size": 12.00, "vertical": false},
+      {"text": "versagt werden. Bei Beendigung des Mietverhältnisses ist der ursprüngliche", "start": [79.00, 475.43], "end": [516.28, 475.43], "size": 12.00, "vertical": false},
+      {"text": "Zustand wiederherzustellen, soweit nichts anderes vereinbart ist.", "start": [79.00, 456.23], "end": [448.34, 456.23], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 11 Untervermietung und Tierhaltung", "start": [79.00, 418.14], "end": [296.47, 418.14], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Untervermietung der Wohnung oder einzelner Räume ist nur mit", "start": [79.00, 395.78], "end": [516.28, 395.78], "size": 12.00, "vertical": false},
+      {"text": "Erlaubnis des Vermieters zulässig. Die Aufnahme des Ehegatten, des", "start": [79.00, 376.58], "end": [516.28, 376.58], "size": 12.00, "vertical": false},
+      {"text": "eingetragenen Lebenspartners und von Kindern bedarf keiner Erlaubnis.", "start": [79.00, 357.38], "end": [491.26, 357.38], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die Haltung von Kleintieren wie Ziervögeln, Zierfischen und Hamstern ist", "start": [79.00, 330.18], "end": [516.28, 330.18], "size": 12.00, "vertical": false},
+      {"text": "ohne Erlaubnis zulässig. Für die Haltung von Hunden und Katzen ist die", "start": [79.00, 310.98], "end": [516.28, 310.98], "size": 12.00, "vertical": false},
+      {"text": "Zustimmung des Vermieters erforderlich, die nur aus sachlichem Grund", "start": [79.00, 291.78], "end": [516.28, 291.78], "size": 12.00, "vertical": false},
+      {"text": "verweigert werden darf.", "start": [79.00, 272.58], "end": [213.72, 272.58], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 12 Betreten der Mieträume", "start": [79.00, 234.49], "end": [239.15, 234.49], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Der Vermieter oder ein von ihm Beauftragter darf die Mieträume nach", "start": [79.00, 212.13], "end": [516.28, 212.13], "size": 12.00, "vertical": false},
+      {"text": "rechtzeitiger Ankündigung zu angemessener Tageszeit betreten, um die", "start": [79.00, 192.93], "end": [516.28, 192.93], "size": 12.00, "vertical": false},
+      {"text": "Notwendigkeit von Instandsetzungsarbeiten festzustellen oder die Räume", "start": [79.00, 173.73], "end": [516.28, 173.73], "size": 12.00, "vertical": false},
+      {"text": "Kauf- oder Mietinteressenten zu zeigen. Bei Gefahr im Verzug ist der Zutritt", "start": [79.00, 154.53], "end": [516.28, 154.53], "size": 12.00, "vertical": false},
+      {"text": "jederzeit gestattet.", "start": [79.00, 135.33], "end": [183.40, 135.33], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 13 Hausordnung", "start": [79.00, 97.24], "end": [181.80, 97.24], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 3 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Die beigefügte Hausordnung ist Bestandteil dieses Vertrags. Die Mieterin", "start": [79.00, 749.93], "end": [516.28, 749.93], "size": 12.00, "vertical": false},
+      {"text": "verpflichtet sich, sie einzuhalten und auf die Belange der übrigen", "start": [79.00, 730.73], "end": [516.28, 730.73], "size": 12.00, "vertical": false},
+      {"text": "Hausbewohner Rücksicht zu nehmen. Insbesondere sind die Ruhezeiten von", "start": [79.00, 711.53], "end": [516.28, 711.53], "size": 12.00, "vertical": false},
+      {"text": "22 Uhr bis 6 Uhr und von 13 Uhr bis 15 Uhr einzuhalten.", "start": [79.00, 692.33], "end": [396.76, 692.33], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 14 Rückgabe der Mieträume", "start": [79.00, 654.24], "end": [245.68, 654.24], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Bei Beendigung des Mietverhältnisses hat die Mieterin die Mieträume", "start": [79.00, 631.88], "end": [516.28, 631.88], "size": 12.00, "vertical": false},
+      {"text": "vollständig geräumt und gereinigt zurückzugeben. Sämtliche Schlüssel, auch", "start": [79.00, 612.68], "end": [516.28, 612.68], "size": 12.00, "vertical": false},
+      {"text": "selbst beschaffte, sind dem Vermieter auszuhändigen. Über die Rückgabe", "start": [79.00, 593.48], "end": [516.28, 593.48], "size": 12.00, "vertical": false},
+      {"text": "wird ein gemeinsames Protokoll erstellt.", "start": [79.00, 574.28], "end": [306.63, 574.28], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 15 Datenschutz", "start": [79.00, 536.19], "end": [174.54, 536.19], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Der Vermieter verarbeitet die personenbezogenen Daten der Mieterin", "start": [79.00, 513.83], "end": [516.28, 513.83], "size": 12.00, "vertical": false},
+      {"text": "ausschließlich zur Durchführung dieses Mietverhältnisses. Eine Weitergabe", "start": [79.00, 494.63], "end": [516.28, 494.63], "size": 12.00, "vertical": false},
+      {"text": "an Dritte erfolgt nur, soweit sie für die Erfüllung des Vertrags erforderlich ist,", "start": [79.00, 475.43], "end": [516.28, 475.43], "size": 12.00, "vertical": false},
+      {"text": "etwa an den Abrechnungsdienstleister für die Heizkosten.", "start": [79.00, 456.23], "end": [406.06, 456.23], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "§ 16 Schlussbestimmungen", "start": [79.00, 418.14], "end": [232.65, 418.14], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Änderungen und Ergänzungen dieses Vertrags bedürfen der Schriftform.", "start": [79.00, 395.78], "end": [516.28, 395.78], "size": 12.00, "vertical": false},
+      {"text": "Sollte eine Bestimmung dieses Vertrags unwirksam sein oder werden, so", "start": [79.00, 376.58], "end": [516.28, 376.58], "size": 12.00, "vertical": false},
+      {"text": "wird die Wirksamkeit der übrigen Bestimmungen hiervon nicht berührt.", "start": [79.00, 357.38], "end": [516.28, 357.38], "size": 12.00, "vertical": false},
+      {"text": "Gerichtsstand ist Berlin.", "start": [79.00, 338.18], "end": [216.05, 338.18], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 4 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Unterschriften", "start": [79.00, 751.04], "end": [162.28, 751.04], "size": 11.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "Beide Parteien bestätigen, eine Ausfertigung dieses Vertrags einschließlich", "start": [79.00, 725.28], "end": [516.28, 725.28], "size": 12.00, "vertical": false},
+      {"text": "der Hausordnung und des Übergabeprotokolls erhalten zu haben.", "start": [79.00, 707.28], "end": [448.95, 707.28], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Berlin, den ____________", "start": [79.00, 590.00], "end": [194.77, 590.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Vermieter: Klaus Müller", "start": [79.00, 546.00], "end": [185.98, 546.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Berlin, den ____________", "start": [307.64, 590.00], "end": [423.40, 590.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Mieterin: Jana Weißmann", "start": [307.64, 546.00], "end": [423.45, 546.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 5 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Anlage 1: Übergabeprotokoll", "start": [79.00, 748.89], "end": [273.17, 748.89], "size": 14.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 0, 0], "lines": [
+      {"text": "Raum", "start": [79.00, 718.89], "end": [107.81, 718.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 0, 1], "lines": [
+      {"text": "Zustand", "start": [209.00, 718.89], "end": [248.94, 718.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 0, 2], "lines": [
+      {"text": "Bemerkungen", "start": [329.00, 718.89], "end": [398.33, 718.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 1, 0], "lines": [
+      {"text": "Flur", "start": [79.00, 696.89], "end": [98.88, 696.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 1, 1], "lines": [
+      {"text": "renoviert", "start": [209.00, 696.89], "end": [252.63, 696.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 1, 2], "lines": [
+      {"text": "Garderobenhaken an der Wand", "start": [329.00, 696.89], "end": [476.92, 696.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 2, 0], "lines": [
+      {"text": "Küche", "start": [79.00, 676.89], "end": [109.02, 676.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 2, 1], "lines": [
+      {"text": "renoviert", "start": [209.00, 676.89], "end": [252.63, 676.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 2, 2], "lines": [
+      {"text": "Einbauküche mit Herd und Kühlschrank", "start": [329.00, 676.89], "end": [520.16, 676.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 3, 0], "lines": [
+      {"text": "Bad", "start": [79.00, 656.89], "end": [97.24, 656.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 3, 1], "lines": [
+      {"text": "gut", "start": [209.00, 656.89], "end": [224.16, 656.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 3, 2], "lines": [
+      {"text": "Fugen an der Dusche neu verfugt", "start": [329.00, 656.89], "end": [484.50, 656.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 4, 0], "lines": [
+      {"text": "Wohnzimmer", "start": [79.00, 636.89], "end": [144.03, 636.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 4, 1], "lines": [
+      {"text": "renoviert", "start": [209.00, 636.89], "end": [252.63, 636.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 4, 2], "lines": [
+      {"text": "Dielenboden geschliffen", "start": [329.00, 636.89], "end": [442.91, 636.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 5, 0], "lines": [
+      {"text": "Schlafzimmer", "start": [79.00, 616.89], "end": [145.24, 616.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 5, 1], "lines": [
+      {"text": "renoviert", "start": [209.00, 616.89], "end": [252.63, 616.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 5, 2], "lines": [
+      {"text": "keine", "start": [329.00, 616.89], "end": [355.10, 616.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 6, 0], "lines": [
+      {"text": "Arbeitszimmer", "start": [79.00, 596.89], "end": [150.27, 596.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 6, 1], "lines": [
+      {"text": "renoviert", "start": [209.00, 596.89], "end": [252.63, 596.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 6, 2], "lines": [
+      {"text": "zwei Dübellöcher verschlossen", "start": [329.00, 596.89], "end": [473.98, 596.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 7, 0], "lines": [
+      {"text": "Balkon", "start": [79.00, 576.89], "end": [112.03, 576.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 7, 1], "lines": [
+      {"text": "gut", "start": [209.00, 576.89], "end": [224.16, 576.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 7, 2], "lines": [
+      {"text": "Geländer gestrichen", "start": [329.00, 576.89], "end": [424.55, 576.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 8, 0], "lines": [
+      {"text": "Kellerabteil Nr. 9", "start": [79.00, 556.89], "end": [159.23, 556.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 8, 1], "lines": [
+      {"text": "gut", "start": [209.00, 556.89], "end": [224.16, 556.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": [0, 8, 2], "lines": [
+      {"text": "leer übergeben", "start": [329.00, 556.89], "end": [399.96, 556.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Zählerstände am 1. Dezember 2026:", "start": [79.00, 518.89], "end": [249.55, 518.89], "size": 10.00, "vertical": false},
+      {"text": "Stromzähler Nr. 1ESY 1160 4471: 18.432,7 kWh", "start": [79.00, 502.89], "end": [305.02, 502.89], "size": 10.00, "vertical": false},
+      {"text": "Wasserzähler Küche: 112,45 m³ · Wasserzähler Bad: 87,10 m³", "start": [79.00, 486.89], "end": [368.68, 486.89], "size": 10.00, "vertical": false},
+      {"text": "Wärmemengenzähler: 6.204 kWh", "start": [79.00, 470.89], "end": [237.46, 470.89], "size": 10.00, "vertical": false},
+      {"text": "Übergebene Schlüssel: 2 Haustür, 2 Wohnungstür, 1 Briefkasten, 1 Kellertür.", "start": [79.00, 454.89], "end": [439.52, 454.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Seite 6 von 6", "start": [270.81, 40.00], "end": [324.46, 40.00], "size": 9.00, "vertical": false}
+    ]}
+  ]}
+]}

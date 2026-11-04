@@ -1,0 +1,12 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Meeting room booking", "start": [72.00, 745.41], "end": [232.19, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Room 3.14 is booked for the budget review on Monday, 9 November 2026.", "start": [72.00, 713.11], "end": [439.20, 713.11], "size": 11.00, "vertical": false},
+      {"text": "The meeting starts at 10:00 and ends at 12:30.", "start": [72.00, 691.71], "end": [304.25, 691.71], "size": 11.00, "vertical": false},
+      {"text": "Please return the key to the front desk afterwards.", "start": [72.00, 670.31], "end": [319.75, 670.31], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

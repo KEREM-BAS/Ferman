@@ -1,0 +1,135 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "KONUT KİRA SÖZLEŞMESİ", "start": [184.16, 759.67], "end": [411.12, 759.67], "size": 15.75, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Sözleşme No: 2026/0412 · Düzenleme tarihi: 13.10.2026", "start": [178.22, 738.50], "end": [417.06, 738.50], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 1 — Taraflar", "start": [72.00, 701.93], "end": [174.85, 701.93], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiraya veren: Mert Kaya (T.C. Kimlik No: 35712648950), Moda Cad. No: 18, Kadıköy,", "start": [72.00, 681.45], "end": [523.28, 681.45], "size": 10.50, "vertical": false},
+      {"text": "İstanbul. Kiracı: Ayşe Yılmaz (T.C. Kimlik No: 41239876516), Bağdat Cad. No: 241/7,", "start": [72.00, 665.70], "end": [523.28, 665.70], "size": 10.50, "vertical": false},
+      {"text": "Maltepe, İstanbul.", "start": [72.00, 649.95], "end": [160.34, 649.95], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 2 — Kiralanan Taşınmaz", "start": [72.00, 611.18], "end": [239.21, 611.18], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiralanan taşınmaz, İstanbul ili, Kadıköy ilçesi, Caferağa Mahallesi, Moda Caddesi No: 18", "start": [72.00, 590.70], "end": [523.28, 590.70], "size": 10.50, "vertical": false},
+      {"text": "Daire: 5 adresindeki 3+1 konuttur. Taşınmaz eşyasız olarak teslim edilmiştir.", "start": [72.00, 574.95], "end": [452.79, 574.95], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 3 — Kira Süresi", "start": [72.00, 536.18], "end": [190.81, 536.18], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kira süresi 01.11.2026 tarihinde başlar ve bir (1) yıldır. Taraflardan biri süre bitiminden en", "start": [72.00, 515.70], "end": [523.28, 515.70], "size": 10.50, "vertical": false},
+      {"text": "az otuz gün önce yazılı bildirimde bulunmadıkça sözleşme aynı koşullarla bir yıl uzar.", "start": [72.00, 499.95], "end": [494.91, 499.95], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 4 — Kira Bedeli ve Ödeme", "start": [72.00, 461.19], "end": [245.58, 461.19], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiracı, aylık kira bedeli olan 18.500 TL’yi her ayın beşinci gününe kadar kiraya verenin", "start": [72.00, 440.70], "end": [523.28, 440.70], "size": 10.50, "vertical": false},
+      {"text": "aşağıdaki hesabına ödemekle yükümlüdür.", "start": [72.00, 424.95], "end": [284.79, 424.95], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "IBAN: TR12 0006 4000 0011 2345 6789 01 · Alıcı: Mert Kaya", "start": [72.00, 405.20], "end": [369.41, 405.20], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kira bedeli her kira yılının başında, bir önceki yılın on iki aylık TÜFE ortalaması oranında", "start": [72.00, 381.45], "end": [523.28, 381.45], "size": 10.50, "vertical": false},
+      {"text": "artırılır.", "start": [72.00, 365.70], "end": [111.28, 365.70], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 5 — Depozito", "start": [72.00, 326.94], "end": [177.75, 326.94], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiracı, sözleşmenin imzalanması sırasında iki aylık kira bedeli tutarında, 37.000 TL", "start": [72.00, 306.45], "end": [523.28, 306.45], "size": 10.50, "vertical": false},
+      {"text": "depozito öder. Depozito, taşınmazın hasarsız teslimi hâlinde 15 gün içinde iade edilir.", "start": [72.00, 290.70], "end": [494.81, 290.70], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 6 — Kullanım ve Bakım", "start": [72.00, 251.93], "end": [232.61, 251.93], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiracı, kiralananı özenle kullanmak ve komşulara saygı göstermekle yükümlüdür. Olağan bakım ve küçük", "start": [72.00, 230.68], "end": [523.28, 230.68], "size": 11.25, "vertical": false},
+      {"text": "onarımlar kiracıya aittir.", "start": [72.00, 213.80], "end": [175.15, 213.80], "size": 11.25, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "1 / 3", "start": [288.50, 36.00], "end": [306.77, 36.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 7 — Tahliye", "start": [72.00, 764.56], "end": [170.88, 764.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiracı, kira süresinin bitiminde taşınmazı boş ve hasarsız olarak teslim eder. Teslim", "start": [72.00, 744.07], "end": [523.28, 744.07], "size": 10.50, "vertical": false},
+      {"text": "sırasında taraflarca bir teslim tutanağı düzenlenir ve sayaç değerleri bu tutanağa yazılır.", "start": [72.00, 728.32], "end": [507.14, 728.32], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 8 — Özel Şartlar", "start": [72.00, 689.56], "end": [193.83, 689.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Kiralanan taşınmazda evcil hayvan beslenebilir. Taşınmazın bir kısmı veya tamamı, kiraya", "start": [72.00, 669.07], "end": [523.28, 669.07], "size": 10.50, "vertical": false},
+      {"text": "verenin yazılı izni olmadan başkasına kiralanamaz ve kullandırılamaz.", "start": [72.00, 653.32], "end": [421.16, 653.32], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 9 — Bildirimler", "start": [72.00, 614.56], "end": [190.24, 614.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Taraflar, bu sözleşmeden doğan bildirimleri aşağıdaki adreslere yapar. Kiraya veren:", "start": [72.00, 594.07], "end": [523.28, 594.07], "size": 10.50, "vertical": false},
+      {"text": "mert.kaya@ornekposta.com.tr · 0532 418 27 63. Kiracı: ayse.yilmaz@ornekposta.com.tr ·", "start": [72.00, 578.32], "end": [523.28, 578.32], "size": 10.50, "vertical": false},
+      {"text": "0544 902 15 38.", "start": [72.00, 562.57], "end": [151.42, 562.57], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Madde 10 — Uyuşmazlıklar", "start": [72.00, 523.81], "end": [215.46, 523.81], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Bu sözleşmeden doğan uyuşmazlıklarda İstanbul Anadolu Mahkemeleri ve İcra Daireleri", "start": [72.00, 503.32], "end": [523.28, 503.32], "size": 10.50, "vertical": false},
+      {"text": "yetkilidir. Sözleşme iki nüsha olarak düzenlenmiş ve taraflarca okunarak imzalanmıştır.", "start": [72.00, 487.57], "end": [507.79, 487.57], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "2 / 3", "start": [288.50, 36.00], "end": [306.77, 36.00], "size": 9.00, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "İmzalar", "start": [72.00, 764.56], "end": [113.41, 764.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Taraflar, bu sözleşmenin tüm maddelerini okuduklarını ve kabul ettiklerini beyan eder.", "start": [72.00, 744.07], "end": [503.54, 744.07], "size": 10.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "KİRAYA VEREN", "start": [72.00, 686.64], "end": [139.30, 686.64], "size": 8.25, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Ad Soyad", "start": [72.00, 663.64], "end": [109.90, 663.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Tarih", "start": [72.00, 619.64], "end": [92.62, 619.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "İmza", "start": [72.00, 575.64], "end": [92.44, 575.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "KİRACI", "start": [315.64, 686.64], "end": [348.49, 686.64], "size": 8.25, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Ad Soyad *", "start": [315.64, 663.64], "end": [359.71, 663.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Tarih *", "start": [315.64, 619.64], "end": [342.43, 619.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "İmza *", "start": [315.64, 575.64], "end": [342.25, 575.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Ek-1: Demirbaş listesi (1 sayfa) · Ek-2: Tapu fotokopisi", "start": [72.00, 474.64], "end": [300.76, 474.64], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "3 / 3", "start": [288.50, 36.00], "end": [306.77, 36.00], "size": 9.00, "vertical": false}
+    ]}
+  ]}
+]}

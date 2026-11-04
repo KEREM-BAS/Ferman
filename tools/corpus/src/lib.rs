@@ -1,10 +1,11 @@
 //! Ferman's test corpus: deterministic generators and the provenance check
 //! ([ADR 0020](../../../docs/adr/0020-test-corpus.md)).
 //!
-//! Each generator makes `tests/corpus/generated/<name>.pdf` and `<name>.expected.txt` (the expected
-//! text, one page per form feed), byte for byte the same on every run. A generator whose PDF
-//! is up to [`COMMIT_LIMIT`] has both files committed; a larger one has neither, and its PDF is
-//! checked against the SHA-256 of its README row. [`check`] proves both, and that every file in
+//! Each generator makes `tests/corpus/generated/<name>.pdf`, `<name>.expected.txt` (the expected
+//! text, one page per form feed) and, when it knows its layout, `<name>.blocks.json` (the block
+//! ground truth), byte for byte the same on every run. A generator whose PDF is up to
+//! [`COMMIT_LIMIT`] has its files committed; a larger one has none, and its PDF is checked
+//! against the SHA-256 of its README row. [`check`] proves both, and that every file in
 //! `tests/corpus/` has its row.
 #![forbid(unsafe_code)]
 
@@ -37,6 +38,10 @@ pub const GENERATED_DIR: &str = "generated";
 /// The suffix of a generated PDF's expected-text file. It shares the PDF's README row.
 pub const EXPECTED_SUFFIX: &str = ".expected.txt";
 
+/// The suffix of a generated PDF's block ground truth (`ferman-text`'s layout test). It shares
+/// the PDF's README row.
+pub const BLOCKS_SUFFIX: &str = ".blocks.json";
+
 /// Files up to this many bytes are committed (ADR 0020: up to 1 MB).
 pub const COMMIT_LIMIT: usize = 1_000_000;
 
@@ -50,6 +55,9 @@ pub struct Generated {
     pub pdf: Vec<u8>,
     /// The text a reader should extract, one page per form feed (U+000C).
     pub expected_text: String,
+    /// The blocks, lines, alignment and columns of every page as JSON, when the generator knows
+    /// them (`text::blocks_json`).
+    pub blocks: Option<String>,
 }
 
 /// What a reader should do with a generated file. The PDFium oracle test
@@ -94,17 +102,28 @@ impl Generator {
         format!("{GENERATED_DIR}/{}{EXPECTED_SUFFIX}", self.name)
     }
 
-    /// The generator's files as (path relative to [`CORPUS_DIR`], bytes).
+    /// The block ground truth's path relative to [`CORPUS_DIR`].
+    #[must_use]
+    pub fn blocks_path(&self) -> String {
+        format!("{GENERATED_DIR}/{}{BLOCKS_SUFFIX}", self.name)
+    }
+
+    /// The generator's files as (path relative to [`CORPUS_DIR`], bytes): the PDF first, then
+    /// the expected text and, when the generator knows them, the blocks.
     ///
     /// # Errors
     ///
     /// The generator's message, prefixed with its name.
-    pub fn outputs(&self, sources: &Sources) -> Result<[(String, Vec<u8>); 2], String> {
+    pub fn outputs(&self, sources: &Sources) -> Result<Vec<(String, Vec<u8>)>, String> {
         let generated = (self.build)(sources).map_err(|err| format!("{}: {err}", self.name))?;
-        Ok([
+        let mut outputs = vec![
             (self.pdf_path(), generated.pdf),
             (self.text_path(), generated.expected_text.into_bytes()),
-        ])
+        ];
+        if let Some(blocks) = generated.blocks {
+            outputs.push((self.blocks_path(), blocks.into_bytes()));
+        }
+        Ok(outputs)
     }
 }
 
@@ -184,7 +203,10 @@ pub fn check(root: &Path, generators: &[Generator]) -> Result<Vec<String>, Strin
 
     let files = corpus_files(&corpus)?;
     for (path, bytes) in &files {
-        if let Some(pdf) = path.strip_suffix(EXPECTED_SUFFIX) {
+        if let Some(pdf) = path
+            .strip_suffix(EXPECTED_SUFFIX)
+            .or_else(|| path.strip_suffix(BLOCKS_SUFFIX))
+        {
             if !by_file.contains_key(format!("{pdf}.pdf").as_str()) {
                 problems.push(format!(
                     "{path}: no row for {pdf}.pdf, the PDF it belongs to"
@@ -240,15 +262,17 @@ pub fn check(root: &Path, generators: &[Generator]) -> Result<Vec<String>, Strin
     Ok(problems)
 }
 
-/// Checks a generator's PDF and expected text against the tree, the README and the ignore file.
+/// Checks a generator's PDF, expected text and blocks against the tree, the README and the ignore file.
 fn check_outputs(
-    outputs: &[(String, Vec<u8>); 2],
+    outputs: &[(String, Vec<u8>)],
     files: &BTreeMap<String, Vec<u8>>,
     by_file: &BTreeMap<&str, &Row>,
     ignored: &BTreeSet<String>,
     problems: &mut Vec<String>,
 ) {
-    let [(pdf_path, pdf), _] = outputs;
+    let Some((pdf_path, pdf)) = outputs.first() else {
+        return;
+    };
     let row = by_file.get(pdf_path.as_str());
     if row.is_none() {
         problems.push(format!(
@@ -341,6 +365,7 @@ mod tests {
         Ok(Generated {
             pdf: b"%PDF-1.7 small".to_vec(),
             expected_text: "Page one\u{c}Page two".to_owned(),
+            blocks: Some("{}".to_owned()),
         })
     }
 
@@ -348,6 +373,7 @@ mod tests {
         Ok(Generated {
             pdf: vec![b'x'; COMMIT_LIMIT + 1],
             expected_text: "Large".to_owned(),
+            blocks: None,
         })
     }
 
@@ -356,6 +382,7 @@ mod tests {
         Ok(Generated {
             pdf: vec![RUNS.fetch_add(1, Ordering::Relaxed)],
             expected_text: String::new(),
+            blocks: None,
         })
     }
 
@@ -403,7 +430,11 @@ mod tests {
         let written = generate(root.path(), &[SMALL]).unwrap();
         assert_eq!(
             written,
-            ["generated/small.pdf", "generated/small.expected.txt"]
+            [
+                "generated/small.pdf",
+                "generated/small.expected.txt",
+                "generated/small.blocks.json"
+            ]
         );
         assert_eq!(check(root.path(), &[SMALL]).unwrap(), Vec::<String>::new());
         assert_eq!(

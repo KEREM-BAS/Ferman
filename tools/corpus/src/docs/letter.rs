@@ -84,6 +84,9 @@ impl Columns {
     ) -> Result<(), String> {
         let all = cells(pieces);
         let count = all.len();
+        // A call's columns are one block, ending at the bottom when `bottom`.
+        self.page.group = Some(format!("{}", self.x));
+        self.page.vertical_align = Some(if bottom { "right" } else { "left" });
         for column in columns(all, per_column(style, HEIGHT)) {
             let top = if bottom {
                 TOP - HEIGHT + style.height(count)
@@ -100,6 +103,8 @@ impl Columns {
             self.x -= pitch;
         }
         self.x -= GAP;
+        self.page.group = None;
+        self.page.vertical_align = None;
         Ok(())
     }
 }
@@ -149,6 +154,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         true,
     )?;
     // 記, centred in its column, the items one character down, and 以上 at the bottom.
+    page.page.vertical_align = Some("center");
     draw_column(
         &mut page.page,
         &mut doc.fonts,
@@ -156,7 +162,9 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         &cells(&[Piece::Text("記")]),
         (page.x - line / 2.0, TOP - (HEIGHT - body.height(1)) / 2.0),
     )?;
+    page.page.vertical_align = None;
     page.x -= line + GAP;
+    page.page.group = Some("items".to_owned());
     for item in ITEMS {
         draw_column(
             &mut page.page,
@@ -170,6 +178,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         )?;
         page.x -= pitch;
     }
+    page.page.group = None;
     page.add(&mut doc, &body, &[Piece::Text("以上")], line, true)?;
     if page.x + GAP < LEFT {
         return Err(format!(

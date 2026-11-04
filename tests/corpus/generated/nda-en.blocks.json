@@ -1,0 +1,175 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Mutual Non-Disclosure Agreement", "start": [72.00, 752.38], "end": [343.47, 752.38], "size": 17.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement is made between Northwind Analytics Ltd., 14 Wharf Road, London N1", "start": [72.00, 722.51], "end": [523.28, 722.51], "size": 11.00, "vertical": false},
+      {"text": "7GR, United Kingdom (“Northwind”), and Kestrel Design Studio LLC, 220 Harbor Street,", "start": [72.00, 704.91], "end": [523.28, 704.91], "size": 11.00, "vertical": false},
+      {"text": "Portland, ME 04101, United States (“Kestrel”), each a “party”.", "start": [72.00, 687.31], "end": [378.17, 687.31], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "1. Purpose", "start": [72.00, 646.26], "end": [126.74, 646.26], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "The parties wish to explore a possible collaboration on the design of a data platform for", "start": [72.00, 625.21], "end": [523.28, 625.21], "size": 11.00, "vertical": false},
+      {"text": "retail analytics (the “Purpose”). In the course of their discussions each party may disclose", "start": [72.00, 607.61], "end": [523.28, 607.61], "size": 11.00, "vertical": false},
+      {"text": "to the other information that it regards as confidential.", "start": [72.00, 590.01], "end": [339.15, 590.01], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "2. Confidential Information", "start": [72.00, 558.96], "end": [210.63, 558.96], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "“Confidential Information” means any information disclosed by one party (the “Discloser”)", "start": [72.00, 537.91], "end": [523.28, 537.91], "size": 11.00, "vertical": false},
+      {"text": "to the other (the “Recipient”), whether in writing, orally or by any other means, that is", "start": [72.00, 520.31], "end": [523.28, 520.31], "size": 11.00, "vertical": false},
+      {"text": "marked as confidential or that a reasonable person would understand to be confidential,", "start": [72.00, 502.71], "end": [523.28, 502.71], "size": 11.00, "vertical": false},
+      {"text": "including business plans, customer lists, prices, designs, source code and data.", "start": [72.00, 485.11], "end": [461.63, 485.11], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "3. Exclusions", "start": [72.00, 454.06], "end": [139.08, 454.06], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Confidential Information does not include information that (a) is or becomes public through", "start": [72.00, 433.01], "end": [523.28, 433.01], "size": 11.00, "vertical": false},
+      {"text": "no fault of the Recipient; (b) was lawfully known to the Recipient before disclosure; (c) is", "start": [72.00, 415.41], "end": [523.28, 415.41], "size": 11.00, "vertical": false},
+      {"text": "lawfully received from a third party without a duty of confidence; or (d) is independently", "start": [72.00, 397.81], "end": [523.28, 397.81], "size": 11.00, "vertical": false},
+      {"text": "developed by the Recipient without use of the Discloser’s information.", "start": [72.00, 380.21], "end": [417.15, 380.21], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "4. Obligations", "start": [72.00, 349.16], "end": [142.62, 349.16], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "The Recipient shall use the Confidential Information only for the Purpose, shall not disclose", "start": [72.00, 328.11], "end": [523.28, 328.11], "size": 11.00, "vertical": false},
+      {"text": "it to any person other than its employees and advisers who need to know it for the Purpose", "start": [72.00, 310.51], "end": [523.28, 310.51], "size": 11.00, "vertical": false},
+      {"text": "and are bound by obligations of confidence at least as strict as these, and shall protect it", "start": [72.00, 292.91], "end": [523.28, 292.91], "size": 11.00, "vertical": false},
+      {"text": "with at least the care it uses for its own confidential information, and never less than", "start": [72.00, 275.31], "end": [523.28, 275.31], "size": 11.00, "vertical": false},
+      {"text": "reasonable care.", "start": [72.00, 257.71], "end": [154.07, 257.71], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "5. Required Disclosure", "start": [72.00, 226.66], "end": [187.27, 226.66], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "If the Recipient is required by law, regulation or court order to disclose Confidential", "start": [72.00, 205.61], "end": [523.28, 205.61], "size": 11.00, "vertical": false},
+      {"text": "Information, it may do so, provided that it gives the Discloser prompt written notice where", "start": [72.00, 188.01], "end": [523.28, 188.01], "size": 11.00, "vertical": false},
+      {"text": "lawful and discloses only the part that is legally required.", "start": [72.00, 170.41], "end": [352.14, 170.41], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "6. Return and Destruction", "start": [72.00, 139.36], "end": [203.26, 139.36], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "On written request, and in any event when the discussions end, the Recipient shall return or", "start": [72.00, 118.31], "end": [523.28, 118.31], "size": 11.00, "vertical": false},
+      {"text": "destroy all Confidential Information and confirm in writing that it has done so, except for", "start": [72.00, 100.71], "end": [523.28, 100.71], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Page 1 of 4", "start": [276.35, 40.00], "end": [318.93, 40.00], "size": 8.50, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "copies it must keep by law or that are held in routine backups, which remain subject to this", "start": [72.00, 758.01], "end": [523.28, 758.01], "size": 11.00, "vertical": false},
+      {"text": "Agreement.", "start": [72.00, 740.41], "end": [129.72, 740.41], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "7. No Licence", "start": [72.00, 709.36], "end": [139.97, 709.36], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Nothing in this Agreement grants the Recipient any licence or right in the Discloser’s", "start": [72.00, 688.31], "end": [523.28, 688.31], "size": 11.00, "vertical": false},
+      {"text": "intellectual property, other than the limited right to use Confidential Information for the", "start": [72.00, 670.71], "end": [523.28, 670.71], "size": 11.00, "vertical": false},
+      {"text": "Purpose. All Confidential Information is provided “as is”.", "start": [72.00, 653.11], "end": [350.10, 653.11], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "8. No Obligation", "start": [72.00, 622.06], "end": [153.83, 622.06], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement does not oblige either party to disclose any particular information or to", "start": [72.00, 601.01], "end": [523.28, 601.01], "size": 11.00, "vertical": false},
+      {"text": "enter into any further agreement. Either party may end the discussions at any time by", "start": [72.00, 583.41], "end": [523.28, 583.41], "size": 11.00, "vertical": false},
+      {"text": "written notice.", "start": [72.00, 565.81], "end": [143.42, 565.81], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "9. Term", "start": [72.00, 534.76], "end": [111.08, 534.76], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement takes effect on the date of the last signature and continues for two years.", "start": [72.00, 513.71], "end": [523.28, 513.71], "size": 11.00, "vertical": false},
+      {"text": "The obligations in sections 4 to 7 survive for five years after it ends, and for trade secrets", "start": [72.00, 496.11], "end": [523.28, 496.11], "size": 11.00, "vertical": false},
+      {"text": "for as long as they remain trade secrets.", "start": [72.00, 478.51], "end": [269.20, 478.51], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "10. Remedies", "start": [72.00, 447.46], "end": [141.69, 447.46], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Each party acknowledges that damages alone may not be an adequate remedy for a breach", "start": [72.00, 426.41], "end": [523.28, 426.41], "size": 11.00, "vertical": false},
+      {"text": "of this Agreement and that the Discloser may seek injunctive relief in addition to any other", "start": [72.00, 408.81], "end": [523.28, 408.81], "size": 11.00, "vertical": false},
+      {"text": "remedy available to it.", "start": [72.00, 391.21], "end": [181.19, 391.21], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "11. Entire Agreement", "start": [72.00, 360.16], "end": [180.82, 360.16], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement is the entire agreement between the parties about its subject and", "start": [72.00, 339.11], "end": [523.28, 339.11], "size": 11.00, "vertical": false},
+      {"text": "supersedes all earlier discussions. It may be changed only in writing signed by both parties.", "start": [72.00, 321.51], "end": [521.65, 321.51], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "12. Non-Solicitation", "start": [72.00, 290.46], "end": [174.00, 290.46], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "During the term of this Agreement and for twelve months after it ends, neither party shall", "start": [72.00, 269.41], "end": [523.28, 269.41], "size": 11.00, "vertical": false},
+      {"text": "solicit for employment any employee of the other party with whom it had contact in", "start": [72.00, 251.81], "end": [523.28, 251.81], "size": 11.00, "vertical": false},
+      {"text": "connection with the Purpose, except through general advertisements not aimed at those", "start": [72.00, 234.21], "end": [523.28, 234.21], "size": 11.00, "vertical": false},
+      {"text": "employees.", "start": [72.00, 216.61], "end": [129.09, 216.61], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "13. Notices", "start": [72.00, 185.56], "end": [129.60, 185.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Notices under this Agreement shall be in writing and sent by email with a copy by recorded", "start": [72.00, 164.51], "end": [523.28, 164.51], "size": 11.00, "vertical": false},
+      {"text": "delivery to the addresses given above, or to any other address a party notifies to the other.", "start": [72.00, 146.91], "end": [523.28, 146.91], "size": 11.00, "vertical": false},
+      {"text": "A notice takes effect on the business day after it is sent.", "start": [72.00, 129.31], "end": [346.35, 129.31], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "14. Counterparts", "start": [72.00, 98.26], "end": [158.51, 98.26], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Page 2 of 4", "start": [276.35, 40.00], "end": [318.93, 40.00], "size": 8.50, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement may be signed in counterparts, including by electronic signature, each of", "start": [72.00, 758.01], "end": [523.28, 758.01], "size": 11.00, "vertical": false},
+      {"text": "which is an original and which together form one agreement.", "start": [72.00, 740.41], "end": [369.57, 740.41], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "15. Governing Law", "start": [72.00, 709.36], "end": [166.78, 709.36], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "This Agreement is governed by the laws of England and Wales, and the courts of England", "start": [72.00, 688.31], "end": [523.28, 688.31], "size": 11.00, "vertical": false},
+      {"text": "have exclusive jurisdiction over any dispute arising from it.", "start": [72.00, 670.71], "end": [359.18, 670.71], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Page 3 of 4", "start": [276.35, 40.00], "end": [318.93, 40.00], "size": 8.50, "vertical": false}
+    ]}
+  ]},
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Signatures", "start": [72.00, 758.56], "end": [126.90, 758.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Signed by the authorised representatives of the parties.", "start": [72.00, 734.06], "end": [345.25, 734.06], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Northwind Analytics Ltd.", "start": [72.00, 690.00], "end": [198.32, 690.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Jordan Lee, Managing Director", "start": [72.00, 596.00], "end": [194.74, 596.00], "size": 9.00, "vertical": false},
+      {"text": "Date: 8 October 2026", "start": [72.00, 582.00], "end": [159.51, 582.00], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Kestrel Design Studio LLC", "start": [72.00, 490.00], "end": [203.04, 490.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Priya Raman, Partner", "start": [72.00, 396.00], "end": [157.42, 396.00], "size": 9.00, "vertical": false},
+      {"text": "Date:", "start": [72.00, 382.00], "end": [93.57, 382.00], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "center", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Page 4 of 4", "start": [276.35, 40.00], "end": [318.93, 40.00], "size": 8.50, "vertical": false}
+    ]}
+  ]}
+]}

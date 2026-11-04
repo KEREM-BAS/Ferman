@@ -1,0 +1,120 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "FATURA", "start": [64.00, 769.89], "end": [141.10, 769.89], "size": 20.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Moda Gayrimenkul Yönetimi A.Ş.", "start": [64.00, 739.89], "end": [210.56, 739.89], "size": 10.00, "vertical": false},
+      {"text": "Caferağa Mah. Moda Cad. No: 18", "start": [64.00, 724.89], "end": [210.12, 724.89], "size": 10.00, "vertical": false},
+      {"text": "34710 Kadıköy/İstanbul", "start": [64.00, 709.89], "end": [173.63, 709.89], "size": 10.00, "vertical": false},
+      {"text": "Vergi dairesi: Kadıköy, VKN 6120458731", "start": [64.00, 694.89], "end": [247.62, 694.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Fatura no: MGY2026000418", "start": [402.23, 739.89], "end": [531.28, 739.89], "size": 10.00, "vertical": false},
+      {"text": "Fatura tarihi: 02.11.2026", "start": [417.87, 724.89], "end": [531.28, 724.89], "size": 10.00, "vertical": false},
+      {"text": "Son ödeme tarihi: 16.11.2026", "start": [396.44, 709.89], "end": [531.28, 709.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Sayın Ayşe Yılmaz", "start": [64.00, 664.89], "end": [148.34, 664.89], "size": 10.00, "vertical": false},
+      {"text": "Bağdat Cad. No: 211 D: 7, 34728 Kadıköy/İstanbul", "start": [64.00, 649.89], "end": [291.63, 649.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 0, 0], "lines": [
+      {"text": "Sıra", "start": [64.00, 615.89], "end": [82.39, 615.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 0, 1], "lines": [
+      {"text": "Açıklama", "start": [98.00, 615.89], "end": [141.23, 615.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 0, 2], "lines": [
+      {"text": "Miktar", "start": [322.20, 615.89], "end": [352.00, 615.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 3, "cell": [0, 0, 3], "lines": [
+      {"text": "Birim fiyat", "start": [392.85, 615.89], "end": [441.00, 615.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 4, "cell": [0, 0, 4], "lines": [
+      {"text": "Tutar (TL)", "start": [486.23, 615.89], "end": [531.28, 615.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 1, 0], "lines": [
+      {"text": "1", "start": [64.00, 593.89], "end": [70.00, 593.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 1, 1], "lines": [
+      {"text": "Ofis kirası, Kasım 2026", "start": [98.00, 593.89], "end": [201.42, 593.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 1, 2], "lines": [
+      {"text": "1", "start": [346.00, 593.89], "end": [352.00, 593.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 3, "cell": [0, 1, 3], "lines": [
+      {"text": "18.500,00", "start": [393.56, 593.89], "end": [441.00, 593.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 4, "cell": [0, 1, 4], "lines": [
+      {"text": "18.500,00", "start": [483.84, 593.89], "end": [531.28, 593.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 2, 0], "lines": [
+      {"text": "2", "start": [64.00, 573.89], "end": [70.00, 573.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 2, 1], "lines": [
+      {"text": "Site aidatı", "start": [98.00, 573.89], "end": [142.66, 573.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 2, 2], "lines": [
+      {"text": "1", "start": [346.00, 573.89], "end": [352.00, 573.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 3, "cell": [0, 2, 3], "lines": [
+      {"text": "1.250,00", "start": [399.56, 573.89], "end": [441.00, 573.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 4, "cell": [0, 2, 4], "lines": [
+      {"text": "1.250,00", "start": [489.84, 573.89], "end": [531.28, 573.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 3, 0], "lines": [
+      {"text": "3", "start": [64.00, 553.89], "end": [70.00, 553.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 3, 1], "lines": [
+      {"text": "Kapalı otopark yeri", "start": [98.00, 553.89], "end": [182.20, 553.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 3, 2], "lines": [
+      {"text": "2", "start": [346.00, 553.89], "end": [352.00, 553.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 3, "cell": [0, 3, 3], "lines": [
+      {"text": "750,00", "start": [408.28, 553.89], "end": [441.00, 553.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 4, "cell": [0, 3, 4], "lines": [
+      {"text": "1.500,00", "start": [489.84, 553.89], "end": [531.28, 553.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 4, 0], "lines": [
+      {"text": "4", "start": [64.00, 533.89], "end": [70.00, 533.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": [0, 4, 1], "lines": [
+      {"text": "Ortak alan temizliği", "start": [98.00, 533.89], "end": [184.57, 533.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 4, 2], "lines": [
+      {"text": "4", "start": [346.00, 533.89], "end": [352.00, 533.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 3, "cell": [0, 4, 3], "lines": [
+      {"text": "425,00", "start": [408.28, 533.89], "end": [441.00, 533.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 4, "cell": [0, 4, 4], "lines": [
+      {"text": "1.700,00", "start": [489.84, 533.89], "end": [531.28, 533.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": [0, 5, 3], "lines": [
+      {"text": "Ara toplam", "start": [391.52, 509.89], "end": [441.00, 509.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 5, 4], "lines": [
+      {"text": "22.950,00", "start": [483.84, 509.89], "end": [531.28, 509.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": [0, 6, 3], "lines": [
+      {"text": "KDV %20", "start": [398.23, 492.89], "end": [441.00, 492.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 6, 4], "lines": [
+      {"text": "4.590,00", "start": [489.84, 492.89], "end": [531.28, 492.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": [0, 7, 3], "lines": [
+      {"text": "Genel toplam", "start": [378.76, 475.89], "end": [441.00, 475.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 7, 4], "lines": [
+      {"text": "27.540,00", "start": [483.32, 475.89], "end": [531.28, 475.89], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Yalnız yirmi yedi bin beş yüz kırk Türk lirasıdır.", "start": [64.00, 438.89], "end": [269.65, 438.89], "size": 10.00, "vertical": false},
+      {"text": "Ödemenizi son ödeme tarihine kadar TR64 0001 2009 4520 0058 0012 34 numaralı hesaba,", "start": [64.00, 423.89], "end": [480.66, 423.89], "size": 10.00, "vertical": false},
+      {"text": "açıklamaya fatura numarasını yazarak yapabilirsiniz.", "start": [64.00, 408.89], "end": [296.97, 408.89], "size": 10.00, "vertical": false}
+    ]}
+  ]}
+]}

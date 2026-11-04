@@ -1,0 +1,24 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Teslim Formu", "start": [72.00, 745.41], "end": [170.66, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Aşağıdaki iki kutu, belgenin asıl ve suret nüshalarının teslim kaydıdır.", "start": [72.00, 714.56], "end": [409.88, 714.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "TESLİM ALINDI", "start": [82.00, 612.00], "end": [159.06, 612.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Moda Gayrimenkul, Kadıköy şubesi", "start": [82.00, 594.00], "end": [223.06, 594.00], "size": 9.00, "vertical": false},
+      {"text": "Tarih: 2 Kasım 2026", "start": [82.00, 578.00], "end": [163.62, 578.00], "size": 9.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "TESLİM ALINDI", "start": [82.00, 492.00], "end": [159.06, 492.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Moda Gayrimenkul, Kadıköy şubesi", "start": [82.00, 474.00], "end": [223.06, 474.00], "size": 9.00, "vertical": false},
+      {"text": "Tarih: 2 Kasım 2026", "start": [82.00, 458.00], "end": [163.62, 458.00], "size": 9.00, "vertical": false}
+    ]}
+  ]}
+]}

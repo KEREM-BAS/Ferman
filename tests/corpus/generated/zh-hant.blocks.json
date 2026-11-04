@@ -1,0 +1,17 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "租賃合約續約通知", "start": [72.00, 743.35], "end": [216.00, 743.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "您好，您目前承租位於臺北市大安區的辦公室，租賃合約將於二〇二六年十一月三十", "start": [72.00, 703.33], "end": [516.00, 703.33], "size": 12.00, "vertical": false},
+      {"text": "日到期。", "start": [72.00, 682.93], "end": [120.00, 682.93], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "如需續約，請於十一月十五日前聯絡物業管理處，並攜帶有效身分證件及原合約。", "start": [72.00, 652.53], "end": [504.00, 652.53], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "續約後的每月租金為新臺幣六萬五千元，管理費另計。", "start": [72.00, 622.13], "end": [360.00, 622.13], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

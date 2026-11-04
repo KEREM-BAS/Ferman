@@ -1,0 +1,11 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Duyuru", "start": [72.00, 745.41], "end": [123.86, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Bina yönetimi, asansör bakımı nedeniyle 9 Kasım 2026 Pazartesi günü 09.00 ile 13.00", "start": [72.00, 714.56], "end": [523.28, 714.56], "size": 11.00, "vertical": false},
+      {"text": "arasında asansörün kullanılamayacağını bildirir. Anlayışınız için teşekkür ederiz.", "start": [72.00, 698.06], "end": [463.05, 698.06], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

@@ -70,11 +70,18 @@ pub struct FontResource {
     pub font_matrix: Matrix,
     /// `/ToUnicode`, decoded.
     pub to_unicode: Option<Vec<u8>>,
-    /// A Type1 font's embedded program (`/FontFile`), decoded up to
-    /// [`Limits::max_font_program`](crate::limits::Limits::max_font_program), when its encoding
-    /// names no base encoding: the program's built-in encoding is the base then (ISO 32000-2
-    /// §9.6.5).
+    /// The embedded program (`/FontFile`, `/FontFile2` or `/FontFile3` of the descriptor, the
+    /// descendant's for a composite font), decoded up to
+    /// [`Limits::max_font_program`](crate::limits::Limits::max_font_program): a Type1 font's
+    /// built-in encoding is the base when its encoding names none (ISO 32000-2 §9.6.5), and every
+    /// program gives its ascent and descent.
     pub font_program: Option<Vec<u8>>,
+    /// The descriptor's `/Ascent`, in glyph space; 0 without one.
+    pub ascent: f32,
+    /// The descriptor's `/Descent`, in glyph space (negative below the baseline); 0 without one.
+    pub descent: f32,
+    /// `/FontBBox`: the descriptor's, or a Type3 font's own, in glyph space.
+    pub font_bbox: Option<[f32; 4]>,
     /// A composite font's predefined CMap, such as `Identity-H`.
     pub cmap_name: Option<Vec<u8>>,
     /// A composite font's embedded CMap, decoded.
@@ -964,14 +971,21 @@ fn font_resource(
             .min(scope.limits.max_font_program),
         ..scope.limits.clone()
     };
-    let font_program =
-        if matches!(kind, FontKind::Type1 | FontKind::MultipleMaster) && base_encoding.is_none() {
-            descriptor
-                .and_then(|descriptor| descriptor.get(b"FontFile").ok())
-                .and_then(|program| decoded_within(scope, program, &program_limits))
-        } else {
-            None
-        };
+    let font_program = descriptor.and_then(|descriptor| {
+        [&b"FontFile"[..], b"FontFile2", b"FontFile3"]
+            .iter()
+            .find_map(|key| descriptor.get(key).ok())
+            .and_then(|program| decoded_within(scope, program, &program_limits))
+    });
+    let descriptor_number = |key: &[u8]| {
+        descriptor
+            .and_then(|descriptor| scope.get(descriptor, key))
+            .and_then(number)
+            .unwrap_or(0.0)
+    };
+    let font_bbox = <[f32; 4]>::try_from(numbers(descriptor.unwrap_or(dict), b"FontBBox"))
+        .ok()
+        .or_else(|| <[f32; 4]>::try_from(numbers(dict, b"FontBBox")).ok());
     let char_procs = if kind == FontKind::Type3 {
         char_procs(scope, dict, &program_limits)
     } else {
@@ -1014,6 +1028,9 @@ fn font_resource(
         font_matrix,
         to_unicode,
         font_program,
+        ascent: descriptor_number(b"Ascent"),
+        descent: descriptor_number(b"Descent"),
+        font_bbox,
         cmap_name,
         cmap,
         cmap_parents,
@@ -1295,7 +1312,34 @@ mod tests {
     }
 
     #[test]
-    fn a_type1_program_comes_along_only_without_a_base_encoding() {
+    fn a_descriptor_gives_the_ascent_descent_and_box() {
+        let font = announced(|doc| {
+            let program = doc.add_object(Stream::new(dictionary! {}, b"\0\x01\0\0".to_vec()));
+            dictionary! {
+                "Type" => "Font", "Subtype" => "TrueType", "BaseFont" => "Test",
+                "FontDescriptor" => dictionary! {
+                    "Ascent" => 750, "Descent" => -250,
+                    "FontBBox" => vec![(-10).into(), (-260).into(), 900.into(), 800.into()],
+                    "FontFile2" => program,
+                },
+            }
+        });
+        assert_eq!((font.ascent, font.descent), (750.0, -250.0));
+        assert_eq!(font.font_bbox, Some([-10.0, -260.0, 900.0, 800.0]));
+        assert_eq!(font.font_program.as_deref(), Some(&b"\0\x01\0\0"[..]));
+        // A Type3 font has its box in its own dictionary.
+        let type3 = announced(|_| {
+            dictionary! {
+                "Type" => "Font", "Subtype" => "Type3",
+                "FontBBox" => vec![0.into(), (-20).into(), 100.into(), 80.into()],
+            }
+        });
+        assert_eq!((type3.ascent, type3.descent), (0.0, 0.0));
+        assert_eq!(type3.font_bbox, Some([0.0, -20.0, 100.0, 80.0]));
+    }
+
+    #[test]
+    fn a_font_program_comes_along_with_or_without_a_base_encoding() {
         let type1 = |encoding: Option<Object>| {
             announced(|doc| {
                 let program = doc.add_object(Stream::new(
@@ -1325,7 +1369,7 @@ mod tests {
             ))
             .is_some()
         );
-        assert_eq!(type1(Some("WinAnsiEncoding".into())), None);
+        assert!(type1(Some("WinAnsiEncoding".into())).is_some());
     }
 
     #[test]

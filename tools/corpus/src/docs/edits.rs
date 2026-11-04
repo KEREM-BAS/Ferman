@@ -19,7 +19,7 @@
 use super::{Doc, generated, info, open_first, opens};
 use crate::pdf::{self, num, rect, text};
 use crate::sources::{FontFile, Sources};
-use crate::text::{Align, Flow, Frame, PageText, Paragraph, Style, expected_text};
+use crate::text::{Align, Expected, Flow, Frame, PageText, PageTruth, Paragraph, Style, expected};
 use crate::{Expect, Generated, Generator};
 use lopdf::{Dictionary, Object, ObjectId, dictionary};
 
@@ -99,16 +99,17 @@ fn flowed(doc: &mut Doc, style: &Style, paragraphs: &[&str], top: f64) -> Result
         .ok_or_else(|| "no page".to_owned())
 }
 
-/// A page's content without its text record: the lines, and the `/Resources` and content bytes
-/// it would have.
-fn parts(doc: &Doc, mut page: PageText) -> (Vec<String>, Dictionary, Vec<u8>) {
+/// A page's content without its text record: the lines and blocks, and the `/Resources` and
+/// content bytes it would have.
+fn parts(doc: &Doc, mut page: PageText) -> (Vec<String>, PageTruth, Dictionary, Vec<u8>) {
     let lines = std::mem::take(&mut page.lines);
+    let truth = page.truth();
     let page = page.into_page(&doc.fonts, pdf::A4);
-    (lines, page.resources, page.content)
+    (lines, truth, page.resources, page.content)
 }
 
 /// The catalog, the information dictionary and the file.
-fn finish(doc: Doc, first: ObjectId, expected: String, name: &str) -> Result<Generated, String> {
+fn finish(doc: Doc, first: ObjectId, expected: Expected, name: &str) -> Result<Generated, String> {
     let catalog = dictionary! { "Lang" => text("tr-TR"), "OpenAction" => open_first(first) };
     let bytes = doc.close(
         catalog,
@@ -143,14 +144,24 @@ fn line_content(
     Ok(part)
 }
 
-/// Moves what `part` draws and records onto `page`, its operators changed by `rewrite`.
-fn merge(page: &mut PageText, part: PageText, rewrite: impl Fn(&str) -> String) {
+/// Moves what `part` draws and records onto `page`, its operators changed by `rewrite` and the
+/// points of its blocks by `place`.
+fn merge(
+    page: &mut PageText,
+    mut part: PageText,
+    rewrite: impl Fn(&str) -> String,
+    place: impl Fn((f64, f64)) -> (f64, f64),
+) {
+    page.take_text(&mut part, place);
     let content = String::from_utf8_lossy(&part.content.into_bytes()).into_owned();
     for op in content.lines() {
         page.content.op(&rewrite(op));
     }
-    page.fonts.extend(part.fonts);
-    page.lines.extend(part.lines);
+}
+
+/// Where a point stays.
+fn unmoved(point: (f64, f64)) -> (f64, f64) {
+    point
 }
 
 fn e19(sources: &Sources) -> Result<Generated, String> {
@@ -166,10 +177,19 @@ fn e19(sources: &Sources) -> Result<Generated, String> {
     )?;
     // The line's `x y Td` becomes the same origin in a rotating text matrix. From 300 pt the
     // turned line, about 190 pt long, rises to some 420 pt, clear of the paragraph above it.
-    merge(&mut page, part, |op| match op.strip_suffix(" Td") {
-        Some(origin) => format!("0.8 0.6 -0.6 0.8 {origin} Tm"),
-        None => op.to_owned(),
-    });
+    let rotate = |(x, y): (f64, f64)| {
+        let (dx, dy) = (x - LEFT, y - 300.0);
+        (LEFT + 0.8 * dx - 0.6 * dy, 300.0 + 0.6 * dx + 0.8 * dy)
+    };
+    merge(
+        &mut page,
+        part,
+        |op| match op.strip_suffix(" Td") {
+            Some(origin) => format!("0.8 0.6 -0.6 0.8 {origin} Tm"),
+            None => op.to_owned(),
+        },
+        rotate,
+    );
     page.extra.set("Rotate", 90);
     usual(doc, vec![page], "edit-e19-rotate")
 }
@@ -193,19 +213,21 @@ fn e20(sources: &Sources) -> Result<Generated, String> {
         "Moda Gayrimenkul, Kadıköy şubesi",
         (10.0, 34.0),
     )?;
-    merge(&mut stamp, part, str::to_owned);
+    merge(&mut stamp, part, str::to_owned, unmoved);
     let part = line_content(
         &mut doc,
         &style.sized(9.0),
         "Tarih: 2 Kasım 2026",
         (10.0, 18.0),
     )?;
-    merge(&mut stamp, part, str::to_owned);
+    merge(&mut stamp, part, str::to_owned, unmoved);
+    // The branch and the date are one block under the stamp's title.
+    stamp.join_last();
     stamp
         .content
         .line_width(1.0)
         .stroke_rect(2.0, 2.0, 216.0, 76.0);
-    let (stamp_lines, resources, content) = parts(&doc, stamp);
+    let (stamp_lines, stamp_truth, resources, content) = parts(&doc, stamp);
     let form = doc.pdf.stream(
         dictionary! {
             "Type" => "XObject",
@@ -221,7 +243,12 @@ fn e20(sources: &Sources) -> Result<Generated, String> {
             num(LEFT),
             num(y)
         ));
-        page.lines.extend(stamp_lines.iter().cloned());
+        let mut placed = PageText {
+            lines: stamp_lines.clone(),
+            blocks: stamp_truth.blocks.clone(),
+            ..PageText::default()
+        };
+        page.take_text(&mut placed, |(x, at)| (x + LEFT, at + y));
     }
     page.resources.set("XObject", dictionary! { "Fm1" => form });
     usual(doc, vec![page], "edit-e20-form-twice")
@@ -239,7 +266,7 @@ fn e21(sources: &Sources) -> Result<Generated, String> {
         .collect();
     page.content
         .op(&format!("/Span <</ActualText <{utf16}>>> BDC"));
-    merge(&mut page, part, str::to_owned);
+    merge(&mut page, part, str::to_owned, unmoved);
     page.content.op("EMC");
     usual(doc, vec![page], "edit-e21-actualtext")
 }
@@ -248,7 +275,7 @@ fn e22(sources: &Sources) -> Result<Generated, String> {
     let mut doc = Doc::new("1.7");
     let style = body(&mut doc, sources)?;
     let page = flowed(&mut doc, &style, &["Duyuru", NOTICE], TOP)?;
-    let (lines, resources, content) = parts(&doc, page);
+    let (lines, truth, resources, content) = parts(&doc, page);
     // After the first `Tf` of the third text object (the title, then the paragraph's lines).
     let find = |from: usize, needle: &[u8]| {
         content
@@ -270,7 +297,12 @@ fn e22(sources: &Sources) -> Result<Generated, String> {
         "Resources" => resources,
         "Contents" => vec![Object::Reference(first), Object::Reference(second)],
     });
-    finish(doc, id, expected_text(&[lines]), "edit-e22-split-contents")
+    finish(
+        doc,
+        id,
+        expected(&[lines], &[truth]),
+        "edit-e22-split-contents",
+    )
 }
 
 fn e23(sources: &Sources) -> Result<Generated, String> {
@@ -282,7 +314,7 @@ fn e23(sources: &Sources) -> Result<Generated, String> {
         &["Duyuru", NOTICE, "Bu duyuru her kat panosuna asılmıştır."],
         TOP,
     )?;
-    let (lines, resources, content) = parts(&doc, page);
+    let (lines, truth, resources, content) = parts(&doc, page);
     let content = doc.pdf.stream(Dictionary::new(), content);
     let resources = doc.pdf.add(resources);
     let mut ids = Vec::new();
@@ -297,7 +329,7 @@ fn e23(sources: &Sources) -> Result<Generated, String> {
     finish(
         doc,
         first,
-        expected_text(&[lines.clone(), lines]),
+        expected(&[lines.clone(), lines], &[truth.clone(), truth]),
         "edit-e23-shared-contents",
     )
 }
@@ -312,8 +344,8 @@ fn e26(sources: &Sources) -> Result<Generated, String> {
         "Onaylayan: Bina Yönetimi",
         (LEFT + 48.0, 612.0),
     )?;
-    merge(&mut page, part, str::to_owned);
-    let (lines, resources, mut content) = parts(&doc, page);
+    merge(&mut page, part, str::to_owned, unmoved);
+    let (lines, truth, resources, mut content) = parts(&doc, page);
     content.extend_from_slice(
         format!(
             "q\n40 0 0 40 {} 600 cm\nBI\n/W 16\n/H 16\n/BPC 8\n/CS /G\nID ",
@@ -333,5 +365,10 @@ fn e26(sources: &Sources) -> Result<Generated, String> {
         "Resources" => resources,
         "Contents" => content,
     });
-    finish(doc, id, expected_text(&[lines]), "edit-e26-inline-image")
+    finish(
+        doc,
+        id,
+        expected(&[lines], &[truth]),
+        "edit-e26-inline-image",
+    )
 }

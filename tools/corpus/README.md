@@ -94,12 +94,26 @@ CI caches the folder by the hash of `fonts.lock`.
 
 ## What a generator makes
 
-Each generator writes two files to `tests/corpus/generated/`:
+Each generator writes two or three files to `tests/corpus/generated/`:
 
 - **`<name>.pdf`:** the document.
 - **`<name>.expected.txt`:** the text a reader should extract, one page per form feed (U+000C), in
   drawing order and, for right-to-left text, in logical order. It shares the PDF's row in the
   README. A scan's pages have no text, so its file holds only the form feeds.
+- **`<name>.blocks.json`:** the block ground truth of ROADMAP §7 step 1, which ferman-text's
+  `tests/layout.rs` holds the text model to: per page, `empty` (`"image"` for a scan) and the
+  blocks in reading order, each with its `align` (`left`, `right`, `center` or `justified`; a
+  vertical column's start is `left`), its `justify` for a justified block (`tw` when a line uses
+  `Tw`, else `tj` for `TJ` adjustments after the spaces; `null` otherwise), its `column` (its rank from the left among the blocks whose
+  extent in y overlaps its own), its table `cell` (`[table, row, column]`) and its lines (`text` in
+  logical order, the baseline's `start` and `end` points in user space, `size`, `vertical`). It
+  shares the PDF's row. `text.rs` records it as it draws: a paragraph is a block, joined to the
+  block above when a reader cannot tell them apart (the same frame, alignment and size, neither
+  justified, at most `BLOCK_PITCH` ems below at an even leading, nothing between), and a generator
+  groups the lines it draws one by one (`PageText::group`), marks table cells (`PageText::cell`)
+  and reorders blocks it draws out of reading order (a running head drawn last). `form-aks1-tr`,
+  `form-aks1-flat`, `ocg-plan` and `truncated` have none yet; the test skips `disagree-pages`,
+  whose page count depends on the reader, and the files too large to commit.
 
 The output is the same bytes on every run and every system:
 
@@ -110,8 +124,8 @@ The output is the same bytes on every run and every system:
 - no transcendental floating-point functions, whose last bits can differ between C libraries.
 
 `.gitattributes` keeps `tests/corpus/generated/` from line-ending conversion. A generator whose PDF
-is up to 1 MB has both files committed. A larger one has neither: the same command regenerates them,
-the PDF is checked against the SHA-256 of its row, and both are listed in `generated/.gitignore`.
+is up to 1 MB has its files committed. A larger one has none: the same command regenerates them,
+the PDF is checked against the SHA-256 of its row, and all are listed in `generated/.gitignore`.
 
 ## What `check` proves
 

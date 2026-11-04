@@ -1,0 +1,15 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Lieferbestätigung", "start": [72.00, 745.41], "end": [204.82, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Die Lieferung für das Café Müller in der Hauptstraße 12 ist am 2. November 2026", "start": [72.00, 713.11], "end": [491.08, 713.11], "size": 11.00, "vertical": false},
+      {"text": "eingegangen.", "start": [72.00, 697.71], "end": [141.15, 697.71], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Geprüft von: Jérôme Dubois – “vollständig und unbeschädigt”.", "start": [72.00, 676.31], "end": [394.05, 676.31], "size": 11.00, "vertical": false},
+      {"text": "Bitte bewahren Sie diese Bestätigung für Ihre Unterlagen auf.", "start": [72.00, 654.91], "end": [387.81, 654.91], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

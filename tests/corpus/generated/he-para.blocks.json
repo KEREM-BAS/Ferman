@@ -1,0 +1,17 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "הודעה על חידוש חוזה השכירות", "start": [295.99, 743.35], "end": [523.28, 743.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "חוזה השכירות של הדירה ברחוב הרצל 24 בתל אביב מסתיים בסוף חודש נובמבר.", "start": [138.17, 703.33], "end": [523.28, 703.33], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "השוכרים מתבקשים להודיע למשרד הניהול עד סוף השבוע הבא אם ברצונם לחדש את החוזה", "start": [72.00, 672.93], "end": [523.28, 672.93], "size": 12.00, "vertical": false},
+      {"text": "לשנה נוספת.", "start": [460.22, 652.53], "end": [523.28, 652.53], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "לפרטים נוספים ניתן לפנות למשרד הניהול בכל יום חול.", "start": [265.95, 622.13], "end": [523.28, 622.13], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

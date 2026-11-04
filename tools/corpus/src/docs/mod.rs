@@ -23,7 +23,7 @@ use crate::crypt::{self, Security};
 use crate::font::{Face, PdfFont, SimpleFont, StandardFont, Type0Font};
 use crate::pdf::{self, Info, Pdf};
 use crate::sources::{FontFile, Sources};
-use crate::text::{Align, FontKey, Fonts, PageText, Paragraph, Style, expected_text, lay_out};
+use crate::text::{Align, Expected, FontKey, Fonts, PageText, Paragraph, Style, expected, lay_out};
 use crate::vertical::Vertical;
 use crate::{Expect, Generated, Generator};
 use lopdf::{Dictionary, Object, ObjectId};
@@ -280,19 +280,25 @@ impl Doc {
         Ok(())
     }
 
-    /// Adds `pages` and returns their objects and expected text. Fonts are written later, by
-    /// [`Doc::close`].
-    pub fn add_pages(&mut self, pages: Vec<PageText>, size: (f64, f64)) -> (Vec<ObjectId>, String) {
+    /// Adds `pages` and returns their objects, expected text and blocks. Fonts are written later,
+    /// by [`Doc::close`].
+    pub fn add_pages(
+        &mut self,
+        pages: Vec<PageText>,
+        size: (f64, f64),
+    ) -> (Vec<ObjectId>, Expected) {
         let mut ids = Vec::with_capacity(pages.len());
         let mut texts = Vec::with_capacity(pages.len());
+        let mut truth = Vec::with_capacity(pages.len());
         for mut page in pages {
             texts.push(std::mem::take(&mut page.lines));
+            truth.push(page.truth());
             let extra = std::mem::take(&mut page.extra);
             let mut page = page.into_page(&self.fonts, size);
             page.extra = extra;
             ids.push(self.pdf.add_page(page));
         }
-        (ids, expected_text(&texts))
+        (ids, expected(&texts, &truth))
     }
 
     /// Writes the fonts, the catalog and the information dictionary, encrypts the document when
@@ -333,8 +339,13 @@ pub fn info(title: &str, author: &str, creator: &str, created: &str) -> Info {
 
 /// The generated files.
 #[must_use]
-pub fn generated(pdf: Vec<u8>, expected_text: String) -> Generated {
-    Generated { pdf, expected_text }
+pub fn generated(pdf: Vec<u8>, expected: impl Into<Expected>) -> Generated {
+    let Expected { text, blocks } = expected.into();
+    Generated {
+        pdf,
+        expected_text: text,
+        blocks,
+    }
 }
 
 /// An `/OpenAction` that shows the first page at its top.
@@ -362,7 +373,10 @@ mod tests {
 
     fn make(generator: &Generator) -> Vec<u8> {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let [(_, pdf), _] = generator.outputs(&Sources::new(&root)).unwrap();
+        let (_, pdf) = generator
+            .outputs(&Sources::new(&root))
+            .unwrap()
+            .swap_remove(0);
         pdf
     }
 

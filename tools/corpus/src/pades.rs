@@ -500,7 +500,10 @@ mod tests {
             .iter()
             .find(|generator| generator.name == "kira-tr-signed")
             .unwrap();
-        let [(_, file), _] = generator.outputs(&crate::Sources::new(&root_dir)).unwrap();
+        let (_, file) = generator
+            .outputs(&crate::Sources::new(&root_dir))
+            .unwrap()
+            .swap_remove(0);
 
         // The byte range covers the whole file but the /Contents hex string.
         let doc = lopdf::Document::load_mem(&file).unwrap();

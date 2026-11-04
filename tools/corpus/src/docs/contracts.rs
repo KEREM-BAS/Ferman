@@ -365,7 +365,9 @@ fn handover(
     let small = body.sized(10.0);
     let bold = heading.sized(10.0);
     let columns = [(0.0, "Raum"), (130.0, "Zustand"), (250.0, "Bemerkungen")];
-    for (offset, title) in columns {
+    // The handover record is a table: its header and a row per room.
+    for (column, (offset, title)) in columns.into_iter().enumerate() {
+        page.cell = Some([0, 0, column]);
         doc.line(
             &mut page,
             &bold,
@@ -394,8 +396,12 @@ fn handover(
         ("Balkon", "gut", "Geländer gestrichen"),
         ("Kellerabteil Nr. 9", "gut", "leer übergeben"),
     ];
-    for (room, state, note) in rows {
-        for (offset, cell) in [(0.0, room), (130.0, state), (250.0, note)] {
+    for (row, (room, state, note)) in rows.into_iter().enumerate() {
+        for (column, (offset, cell)) in [(0.0, room), (130.0, state), (250.0, note)]
+            .into_iter()
+            .enumerate()
+        {
+            page.cell = Some([0, row + 1, column]);
             doc.line(
                 &mut page,
                 &small,
@@ -411,6 +417,7 @@ fn handover(
         );
         y -= 20.0;
     }
+    page.cell = None;
     y -= 18.0;
     for line in [
         "Zählerstände am 1. Dezember 2026:",

@@ -599,7 +599,7 @@ pub enum Align {
 }
 
 /// Draws `line` with its baseline at `y`, in `width` points from `x`, and returns the fonts it
-/// used. `last` marks a paragraph's last line, which is never justified. The runs go in visual
+/// used and whether it stretched its spaces with `Tw`. `last` marks a paragraph's last line, which is never justified. The runs go in visual
 /// order.
 #[allow(clippy::too_many_arguments)]
 pub fn draw_line(
@@ -611,7 +611,7 @@ pub fn draw_line(
     align: Align,
     last: bool,
     word_spacing: bool,
-) -> BTreeSet<FontKey> {
+) -> (BTreeSet<FontKey>, bool) {
     let (x, extra) = line.start_and_extra(origin.0, width, align, last);
     let use_tw = extra > 0.0
         && word_spacing
@@ -675,7 +675,7 @@ pub fn draw_line(
         content.fill_rgb((0, 0, 0));
     }
     content.op("ET");
-    used
+    (used, use_tw)
 }
 
 /// Appends `glyphs` to a `TJ` array: strings of codes, with a number wherever the shaped
@@ -782,6 +782,203 @@ impl Paragraph {
     }
 }
 
+/// One line of a block as the generator drew it: its text in logical order and its baseline,
+/// from its left end to its right one (from the top down for vertical text), in user space.
+#[derive(Debug, Clone, PartialEq)]
+pub struct TruthLine {
+    /// The text, in logical order.
+    pub text: String,
+    /// The baseline's first point: the pen where the line starts.
+    pub start: (f64, f64),
+    /// The baseline's last point: where the last glyph's advance ends.
+    pub end: (f64, f64),
+    /// The largest size on the line.
+    pub size: f64,
+    /// Whether the line is a vertical column.
+    pub vertical: bool,
+}
+
+/// A block of text, a paragraph frame as a reader sees it, for the ground truth of
+/// `<name>.blocks.json` (ARCHITECTURE §6.4).
+#[derive(Debug, Clone, PartialEq)]
+pub struct TruthBlock {
+    /// Its lines, from the first down (vertical text: from the right).
+    pub lines: Vec<TruthLine>,
+    /// How its lines sit: `left`, `right`, `center` or `justified`. Vertical text's start is
+    /// `left` and its end `right`; a justified paragraph without a stretched line is `left`, or
+    /// `right` when it reads right to left.
+    pub align: &'static str,
+    /// How a justified block stretches its lines: `tw` when any line uses `Tw` word spacing,
+    /// else `tj` for `TJ` adjustments after the spaces.
+    pub justify: Option<&'static str>,
+    /// Its table cell: table, row and column on the page.
+    pub cell: Option<[usize; 3]>,
+    /// The group its lines were drawn in.
+    key: Option<String>,
+    /// The left edge and width of the frame its paragraphs were set in.
+    frame: Option<(f64, f64)>,
+}
+
+impl TruthBlock {
+    /// The span `[low, high]` of its lines across (`across`) or along the page's x axis.
+    fn extent(&self, across: bool) -> (f64, f64) {
+        let mut low = f64::INFINITY;
+        let mut high = f64::NEG_INFINITY;
+        for line in &self.lines {
+            let (lo, hi) = line_extent(line.start, line.end, line.size, line.vertical, across);
+            low = low.min(lo);
+            high = high.max(hi);
+        }
+        (low, high)
+    }
+}
+
+/// The largest distance between two baselines, in ems, at which a reader still sees the lines as
+/// one block (`ferman-text`'s rule for a block's first two lines of horizontal text).
+pub const BLOCK_PITCH: f64 = 2.0;
+
+/// A line's span in y (`across`) or x, as `ferman-text`'s ground-truth test reads it: a
+/// horizontal line from a fifth of its size below its baseline to four fifths above, a vertical
+/// one half its size either side of its centre.
+#[must_use]
+pub fn line_extent(
+    start: (f64, f64),
+    end: (f64, f64),
+    size: f64,
+    vertical: bool,
+    across: bool,
+) -> (f64, f64) {
+    match (vertical, across) {
+        (false, true) => (
+            start.1.min(end.1) - size * 0.2,
+            start.1.max(end.1) + size * 0.8,
+        ),
+        (false, false) | (true, true) => {
+            let (a, b) = if across {
+                (start.1, end.1)
+            } else {
+                (start.0, end.0)
+            };
+            (a.min(b), a.max(b))
+        }
+        (true, false) => (
+            start.0.min(end.0) - size / 2.0,
+            start.0.max(end.0) + size / 2.0,
+        ),
+    }
+}
+
+/// The column of each block: its rank from the left among the blocks whose extent in y overlaps
+/// its own (ties in drawing order).
+#[must_use]
+pub fn columns(blocks: &[TruthBlock]) -> Vec<usize> {
+    let spans: Vec<((f64, f64), (f64, f64))> = blocks
+        .iter()
+        .map(|block| (block.extent(true), block.extent(false)))
+        .collect();
+    spans
+        .iter()
+        .enumerate()
+        .map(|(index, ((low, high), (left, _)))| {
+            spans
+                .iter()
+                .enumerate()
+                .filter(|(other, ((lo, hi), (x, _)))| {
+                    *other != index
+                        && *lo < high - 0.01
+                        && low < &(hi - 0.01)
+                        && (x < left || (x == left && *other < index))
+                })
+                .count()
+        })
+        .collect()
+}
+
+/// A page's ground truth: its blocks in reading order, or why it has none.
+#[derive(Debug, Clone, Default, PartialEq)]
+pub struct PageTruth {
+    /// The blocks.
+    pub blocks: Vec<TruthBlock>,
+    /// `image` for a page of images only.
+    pub empty: Option<&'static str>,
+}
+
+/// The expected output of a generator besides its PDF: the text, and the blocks of
+/// `<name>.blocks.json` when the generator knows them.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Expected {
+    /// The expected text, one page per form feed.
+    pub text: String,
+    /// The block ground truth as JSON.
+    pub blocks: Option<String>,
+}
+
+impl From<String> for Expected {
+    fn from(text: String) -> Self {
+        Self { text, blocks: None }
+    }
+}
+
+/// `pages`' blocks as the JSON of `<name>.blocks.json`: per page its blocks in reading order,
+/// each with its alignment, justification method, column, table cell and lines (text, baseline points in user space,
+/// size, whether vertical).
+#[must_use]
+pub fn blocks_json(pages: &[PageTruth]) -> String {
+    let point = |(x, y): (f64, f64)| format!("[{x:.2}, {y:.2}]");
+    let mut out = String::from("{\"pages\": [\n");
+    for (index, page) in pages.iter().enumerate() {
+        let empty = page
+            .empty
+            .map_or("null".to_owned(), |reason| format!("\"{reason}\""));
+        out.push_str(&format!("  {{\"empty\": {empty}, \"blocks\": [\n"));
+        let columns = columns(&page.blocks);
+        for (at, (block, column)) in page.blocks.iter().zip(columns).enumerate() {
+            let cell = block
+                .cell
+                .map_or("null".to_owned(), |[t, r, c]| format!("[{t}, {r}, {c}]"));
+            let justify = block
+                .justify
+                .map_or("null".to_owned(), |method| format!("\"{method}\""));
+            out.push_str(&format!(
+                "    {{\"align\": \"{}\", \"justify\": {justify}, \"column\": {column}, \"cell\": {cell}, \"lines\": [\n",
+                block.align
+            ));
+            for (n, line) in block.lines.iter().enumerate() {
+                out.push_str(&format!(
+                    "      {{\"text\": {}, \"start\": {}, \"end\": {}, \"size\": {:.2}, \"vertical\": {}}}{}\n",
+                    json_string(&line.text),
+                    point(line.start),
+                    point(line.end),
+                    line.size,
+                    line.vertical,
+                    if n + 1 == block.lines.len() { "" } else { "," }
+                ));
+            }
+            let comma = if at + 1 == page.blocks.len() { "" } else { "," };
+            out.push_str(&format!("    ]}}{comma}\n"));
+        }
+        let comma = if index + 1 == pages.len() { "" } else { "," };
+        out.push_str(&format!("  ]}}{comma}\n"));
+    }
+    out.push_str("]}\n");
+    out
+}
+
+/// `text` as a JSON string; characters outside ASCII stay as they are.
+fn json_string(text: &str) -> String {
+    let mut out = String::from("\"");
+    for c in text.chars() {
+        match c {
+            '"' => out.push_str("\\\""),
+            '\\' => out.push_str("\\\\"),
+            c if u32::from(c) < 0x20 => out.push_str(&format!("\\u{:04x}", u32::from(c))),
+            c => out.push(c),
+        }
+    }
+    out.push('"');
+    out
+}
+
 /// A page being written: its content, the fonts it uses and its text.
 #[derive(Debug, Default)]
 pub struct PageText {
@@ -791,6 +988,14 @@ pub struct PageText {
     pub fonts: BTreeSet<FontKey>,
     /// Its lines of text in drawing order.
     pub lines: Vec<String>,
+    /// Its blocks in reading order, for the ground truth.
+    pub blocks: Vec<TruthBlock>,
+    /// While set, the lines drawn join the page's block of this group instead of starting one.
+    pub group: Option<String>,
+    /// While set, the blocks drawn are this table cell: table, row and column.
+    pub cell: Option<[usize; 3]>,
+    /// The alignment vertical columns get: `left` (from the top), `right` or `center`.
+    pub vertical_align: Option<&'static str>,
     /// More resources, such as `/XObject` or `/Properties`.
     pub resources: Dictionary,
     /// More page entries, such as `/Annots`.
@@ -814,11 +1019,31 @@ impl PageText {
         ends: bool,
     ) -> f64 {
         let mut y = top;
+        let mut truth = Vec::new();
+        let mut stretched = false;
+        let mut tw = false;
+        let rtl = lines.first().is_some_and(|line| line.rtl);
         for (index, line) in lines.iter().enumerate() {
             let height = line.size * paragraph.leading;
             let baseline = y - height + (height - line.size) / 2.0 + line.size * 0.22;
             let last = ends && index + 1 == lines.len();
-            let used = draw_line(
+            let (start, extra) = line.start_and_extra(x, width, paragraph.align, last);
+            let spaces = line
+                .items
+                .iter()
+                .filter(|item| matches!(item, Item::Space(_)))
+                .count();
+            stretched |= extra > 0.0;
+            #[allow(clippy::cast_precision_loss)]
+            let end = start + line.width() + extra * spaces as f64;
+            truth.push(TruthLine {
+                text: line.text(),
+                start: (start, baseline),
+                end: (end, baseline),
+                size: line.size,
+                vertical: false,
+            });
+            let (used, line_tw) = draw_line(
                 &mut self.content,
                 fonts,
                 line,
@@ -828,11 +1053,186 @@ impl PageText {
                 last,
                 paragraph.word_spacing,
             );
+            tw |= line_tw;
             self.fonts.extend(used);
             self.lines.push(line.text());
             y -= height;
         }
+        let align = match paragraph.align {
+            Align::Left => "left",
+            Align::Center => "center",
+            Align::Right => "right",
+            Align::Justify if stretched => "justified",
+            Align::Justify if rtl => "right",
+            Align::Justify => "left",
+        };
+        let justify = (align == "justified").then_some(if tw { "tw" } else { "tj" });
+        self.record_in(truth, align, justify, Some((x, width)));
         y
+    }
+
+    /// Adds `lines` to the ground truth: to the block of the current group, or as a block.
+    pub fn record(&mut self, lines: Vec<TruthLine>, align: &'static str) {
+        self.record_in(lines, align, None, None);
+    }
+
+    /// Adds `lines`, set in `frame`, to the ground truth: to the block of the current group; to
+    /// the block above them when a reader cannot tell them apart (the same frame, alignment and
+    /// size, neither justified, one leading below it and nothing drawn between); or as a block.
+    fn record_in(
+        &mut self,
+        lines: Vec<TruthLine>,
+        align: &'static str,
+        justify: Option<&'static str>,
+        frame: Option<(f64, f64)>,
+    ) {
+        if lines.is_empty() {
+            return;
+        }
+        if self.group.is_none()
+            && self.cell.is_none()
+            && frame.is_some()
+            && align != "justified"
+            && let Some(at) = self.continued(&lines, align, frame)
+        {
+            if let Some(block) = self.blocks.get_mut(at) {
+                block.lines.extend(lines);
+            }
+            return;
+        }
+        let group = self.group.clone();
+        if let Some(block) = self
+            .blocks
+            .iter_mut()
+            .find(|block| group.is_some() && block.key == group)
+        {
+            block.lines.extend(lines);
+            if align == "justified" {
+                block.align = align;
+                block.justify = match (block.justify, justify) {
+                    (Some("tw"), _) | (_, Some("tw")) => Some("tw"),
+                    _ => justify,
+                };
+            }
+            return;
+        }
+        self.blocks.push(TruthBlock {
+            lines,
+            align,
+            justify,
+            cell: self.cell,
+            key: group,
+            frame,
+        });
+    }
+
+    /// The block `lines` continue, as [`PageText::record_in`] says.
+    fn continued(
+        &self,
+        lines: &[TruthLine],
+        align: &'static str,
+        frame: Option<(f64, f64)>,
+    ) -> Option<usize> {
+        let first = lines.first()?;
+        let at = self.blocks.iter().rposition(|block| block.frame == frame)?;
+        let block = self.blocks.get(at)?;
+        let last = block.lines.last()?;
+        let pitch = |a: &TruthLine, b: &TruthLine| a.start.1 - b.start.1;
+        let gap = pitch(last, first);
+        let same = |a: f64, b: f64| (a - b).abs() < 0.01;
+        let sizes = block
+            .lines
+            .iter()
+            .chain(lines)
+            .all(|line| same(line.size, first.size));
+        let steady = block
+            .lines
+            .windows(2)
+            .chain(lines.windows(2))
+            .all(|pair| match pair {
+                [a, b] => same(pitch(a, b), gap),
+                _ => true,
+            });
+        let between = self.blocks.iter().skip(at + 1).any(|other| {
+            other.lines.iter().any(|line| {
+                line.start.1 < last.start.1
+                    && line.start.1 > first.start.1
+                    && line.start.0.max(line.end.0) > last.start.0.min(first.start.0)
+                    && line.start.0.min(line.end.0) < last.end.0.max(first.end.0)
+            })
+        });
+        let fits = block.key.is_none()
+            && block.cell.is_none()
+            && block.align == align
+            && !first.vertical
+            && sizes
+            && steady
+            && !between
+            && gap > 0.0
+            && gap <= first.size * BLOCK_PITCH;
+        fits.then_some(at)
+    }
+
+    /// Moves `part`'s text, fonts and ground truth onto this page, its points moved by `place`.
+    pub fn take_text(&mut self, part: &mut PageText, place: impl Fn((f64, f64)) -> (f64, f64)) {
+        self.fonts.extend(std::mem::take(&mut part.fonts));
+        self.lines.append(&mut part.lines);
+        for mut block in std::mem::take(&mut part.blocks) {
+            for line in &mut block.lines {
+                line.start = place(line.start);
+                line.end = place(line.end);
+            }
+            self.blocks.push(block);
+        }
+    }
+
+    /// Moves the last `count` blocks to the front of the reading order, as a running head drawn
+    /// after the body is read first.
+    pub fn hoist(&mut self, count: usize) {
+        let from = self.blocks.len().saturating_sub(count);
+        let head: Vec<TruthBlock> = self.blocks.drain(from..).collect();
+        self.blocks.splice(0..0, head);
+    }
+
+    /// The next row of the page's first table.
+    #[must_use]
+    pub fn next_row(&self) -> usize {
+        self.blocks
+            .iter()
+            .filter_map(|block| match block.cell {
+                Some([0, row, _]) => Some(row + 1),
+                _ => None,
+            })
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// Joins the last block to the one before it: lines a reader sees as one block.
+    pub fn join_last(&mut self) {
+        if let Some(last) = self.blocks.pop() {
+            match self.blocks.last_mut() {
+                Some(block) => block.lines.extend(last.lines),
+                None => self.blocks.push(last),
+            }
+        }
+    }
+
+    /// The index the next table of the page gets.
+    #[must_use]
+    pub fn next_table(&self) -> usize {
+        self.blocks
+            .iter()
+            .filter_map(|block| block.cell.map(|[table, ..]| table + 1))
+            .max()
+            .unwrap_or(0)
+    }
+
+    /// The page's ground truth, taken from it.
+    pub fn truth(&mut self) -> PageTruth {
+        PageTruth {
+            blocks: std::mem::take(&mut self.blocks),
+            empty: None,
+        }
     }
 
     /// The page for `pdf`, with its `/Font` resources.
@@ -1012,6 +1412,15 @@ impl Flow {
     #[must_use]
     pub fn into_pages(self) -> Vec<PageText> {
         self.pages
+    }
+}
+
+/// The expected text of `pages` and their blocks.
+#[must_use]
+pub fn expected(pages: &[Vec<String>], truth: &[PageTruth]) -> Expected {
+    Expected {
+        text: expected_text(pages),
+        blocks: Some(blocks_json(truth)),
     }
 }
 

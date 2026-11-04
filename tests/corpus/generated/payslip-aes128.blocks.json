@@ -1,0 +1,135 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "ÜCRET BORDROSU", "start": [56.00, 744.00], "end": [196.86, 744.00], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Belge No: BRD-2026-09-0187", "start": [429.26, 744.00], "end": [539.28, 744.00], "size": 8.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Dönem: Eylül 2026 (01.09.2026 – 30.09.2026)", "start": [56.00, 728.00], "end": [270.32, 728.00], "size": 10.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "İŞVEREN", "start": [56.00, 698.00], "end": [93.02, 698.00], "size": 8.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Boğaziçi Lojistik A.Ş.", "start": [56.00, 684.00], "end": [145.58, 684.00], "size": 9.50, "vertical": false},
+      {"text": "Kozyatağı Mah. Değirmen Sok. No: 9, Kadıköy, İstanbul", "start": [56.00, 671.00], "end": [287.77, 671.00], "size": 9.50, "vertical": false},
+      {"text": "SGK işyeri sicil no: 2 5229 01 01 1234567 034", "start": [56.00, 658.00], "end": [255.45, 658.00], "size": 9.50, "vertical": false},
+      {"text": "Vergi dairesi: Kozyatağı · VKN 1790456823", "start": [56.00, 645.00], "end": [239.57, 645.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "ÇALIŞAN", "start": [305.64, 698.00], "end": [342.57, 698.00], "size": 8.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Ayşe Yılmaz · Muhasebe Uzmanı", "start": [305.64, 684.00], "end": [445.46, 684.00], "size": 9.50, "vertical": false},
+      {"text": "T.C. Kimlik No: 41239876516", "start": [305.64, 671.00], "end": [431.99, 671.00], "size": 9.50, "vertical": false},
+      {"text": "Sicil no: 2024-0187 · İşe giriş: 02.09.2024", "start": [305.64, 658.00], "end": [487.76, 658.00], "size": 9.50, "vertical": false},
+      {"text": "Ücret türü: Aylık brüt", "start": [305.64, 645.00], "end": [394.34, 645.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 0, 0], "lines": [
+      {"text": "KAZANÇLAR", "start": [62.00, 610.00], "end": [111.78, 610.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 0, 1], "lines": [
+      {"text": "Miktar", "start": [420.75, 610.00], "end": [446.00, 610.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 0, 2], "lines": [
+      {"text": "Tutar (TL)", "start": [495.20, 610.00], "end": [533.28, 610.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 1, 0], "lines": [
+      {"text": "Normal çalışma", "start": [62.00, 590.00], "end": [128.52, 590.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 1, 1], "lines": [
+      {"text": "30 gün", "start": [416.59, 590.00], "end": [446.00, 590.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 1, 2], "lines": [
+      {"text": "85.000,00", "start": [488.21, 590.00], "end": [533.28, 590.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 2, 0], "lines": [
+      {"text": "Fazla mesai (%50 zamlı)", "start": [62.00, 573.00], "end": [165.68, 573.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 2, 1], "lines": [
+      {"text": "6 saat", "start": [419.95, 573.00], "end": [446.00, 573.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 2, 2], "lines": [
+      {"text": "3.187,50", "start": [493.91, 573.00], "end": [533.28, 573.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 3, 0], "lines": [
+      {"text": "Yemek yardımı", "start": [62.00, 556.00], "end": [124.80, 556.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 3, 1], "lines": [
+      {"text": "22 gün", "start": [416.59, 556.00], "end": [446.00, 556.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 3, 2], "lines": [
+      {"text": "3.960,00", "start": [493.91, 556.00], "end": [533.28, 556.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 4, 0], "lines": [
+      {"text": "Brüt toplam", "start": [62.00, 539.00], "end": [114.52, 539.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 4, 2], "lines": [
+      {"text": "92.147,50", "start": [487.71, 539.00], "end": [533.28, 539.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 5, 0], "lines": [
+      {"text": "KESİNTİLER", "start": [62.00, 505.00], "end": [111.42, 505.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 5, 1], "lines": [
+      {"text": "Miktar", "start": [420.75, 505.00], "end": [446.00, 505.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 5, 2], "lines": [
+      {"text": "Tutar (TL)", "start": [495.20, 505.00], "end": [533.28, 505.00], "size": 8.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 6, 0], "lines": [
+      {"text": "SGK işçi payı", "start": [62.00, 485.00], "end": [116.44, 485.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 6, 1], "lines": [
+      {"text": "%14", "start": [425.79, 485.00], "end": [446.00, 485.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 6, 2], "lines": [
+      {"text": "12.900,65", "start": [488.21, 485.00], "end": [533.28, 485.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 7, 0], "lines": [
+      {"text": "İşsizlik sigortası işçi payı", "start": [62.00, 468.00], "end": [166.49, 468.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 7, 1], "lines": [
+      {"text": "%1", "start": [431.49, 468.00], "end": [446.00, 468.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 7, 2], "lines": [
+      {"text": "921,48", "start": [502.19, 468.00], "end": [533.28, 468.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 8, 0], "lines": [
+      {"text": "Gelir vergisi", "start": [62.00, 451.00], "end": [111.98, 451.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 8, 1], "lines": [
+      {"text": "%15", "start": [425.79, 451.00], "end": [446.00, 451.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 8, 2], "lines": [
+      {"text": "11.748,81", "start": [488.21, 451.00], "end": [533.28, 451.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 9, 0], "lines": [
+      {"text": "Damga vergisi", "start": [62.00, 434.00], "end": [121.52, 434.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 9, 1], "lines": [
+      {"text": "%0,759", "start": [411.81, 434.00], "end": [446.00, 434.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": [0, 9, 2], "lines": [
+      {"text": "699,40", "start": [502.19, 434.00], "end": [533.28, 434.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 10, 0], "lines": [
+      {"text": "Kesinti toplamı", "start": [62.00, 417.00], "end": [128.59, 417.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 10, 2], "lines": [
+      {"text": "26.270,34", "start": [487.71, 417.00], "end": [533.28, 417.00], "size": 9.50, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": [0, 11, 0], "lines": [
+      {"text": "NET ÖDENEN", "start": [62.00, 383.00], "end": [129.91, 383.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 1, "cell": [0, 11, 2], "lines": [
+      {"text": "65.877,16 TL", "start": [465.81, 383.00], "end": [533.28, 383.00], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Ödeme tarihi: 30.09.2026 · IBAN: TR33 0006 1005 1978 6457 8413 26", "start": [56.00, 343.00], "end": [315.46, 343.00], "size": 8.00, "vertical": false},
+      {"text": "Bu bordro, 5510 sayılı Kanun ve 193 sayılı Gelir Vergisi Kanunu uyarınca düzenlenmiştir.", "start": [56.00, 331.00], "end": [369.58, 331.00], "size": 8.00, "vertical": false},
+      {"text": "Belge elektronik ortamda oluşturulmuştur; ıslak imza gerektirmez.", "start": [56.00, 319.00], "end": [292.80, 319.00], "size": 8.00, "vertical": false}
+    ]}
+  ]}
+]}

@@ -1,0 +1,17 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "租赁合同续签通知", "start": [72.00, 743.35], "end": [216.00, 743.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "您好，您目前租用的位于上海市徐汇区的办公室，租赁合同将于二〇二六年十一月三", "start": [72.00, 703.33], "end": [516.00, 703.33], "size": 12.00, "vertical": false},
+      {"text": "十日到期。", "start": [72.00, 682.93], "end": [132.00, 682.93], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "如需续签，请在十一月十五日前联系物业管理处，并携带有效身份证件及原合同。", "start": [72.00, 652.53], "end": [504.00, 652.53], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "续签后的月租金为一万九千五百元，物业管理费另计。", "start": [72.00, 622.13], "end": [360.00, 622.13], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

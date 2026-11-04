@@ -17,7 +17,7 @@ use crate::kinsoku::breakable;
 use crate::pdf::{self, Content, num, text};
 use crate::raster::Gray;
 use crate::sources::{FontFile, Sources};
-use crate::text::{Align, PageText, Paragraph, Style, lay_out};
+use crate::text::{Align, Expected, PageText, PageTruth, Paragraph, Style, blocks_json, lay_out};
 use crate::{Generated, Generator};
 use lopdf::{Dictionary, Stream, dictionary};
 
@@ -742,5 +742,13 @@ fn close(
     let (ids, _) = doc.add_pages(pages, pdf::A4);
     let catalog = dictionary! { "Lang" => text(lang), "OpenAction" => open_first(ids[0]) };
     let bytes = doc.close(catalog, &info(title, "", creator, created), seed, None)?;
-    Ok(generated(bytes, "\u{c}".repeat(count.saturating_sub(1))))
+    let image = PageTruth {
+        empty: Some("image"),
+        ..PageTruth::default()
+    };
+    let expected = Expected {
+        text: "\u{c}".repeat(count.saturating_sub(1)),
+        blocks: Some(blocks_json(&vec![image; count])),
+    };
+    Ok(generated(bytes, expected))
 }

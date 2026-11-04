@@ -277,6 +277,7 @@ fn table(
 ) -> Result<(), String> {
     let height = 22.0;
     let mut y = flow.y() - 6.0;
+    let table_index = flow.page().next_table();
     for (index, row) in rows.iter().enumerate() {
         let header = index == 0;
         let bold_row = header || (total && index + 1 == rows.len());
@@ -300,7 +301,10 @@ fn table(
                 } else {
                     (x + 6.0, width - 12.0)
                 };
+                // Columns count from the left in the ground truth.
+                page.cell = Some([table_index, index, widths.len().saturating_sub(column + 1)]);
                 doc.line(page, style, cell, (x, y - 15.0), width, align)?;
+                page.cell = None;
             }
             right = x;
         }
@@ -418,10 +422,14 @@ fn build(sources: &Sources) -> Result<Generated, String> {
                 }
                 Block::Contents => {
                     let mut y = flow.y() - 10.0;
-                    for (title, page_number) in CONTENTS {
+                    // A table of a title and its page number per row.
+                    for (row, (title, page_number)) in CONTENTS.iter().enumerate() {
                         let page = flow.page();
+                        page.cell = Some([0, row, 1]);
                         doc.line(page, &body, title, (LEFT, y), WIDTH - 40.0, Align::Right)?;
+                        page.cell = Some([0, row, 0]);
                         doc.line(page, &body, page_number, (LEFT, y), 30.0, Align::Left)?;
+                        page.cell = None;
                         page.content
                             .stroke_rgb(RULE)
                             .line_width(0.5)
@@ -455,6 +463,8 @@ fn build(sources: &Sources) -> Result<Generated, String> {
             WIDTH,
             Align::Left,
         )?;
+        // The running head, drawn last, is read first.
+        page.hoist(2);
         page.content
             .stroke_rgb(RULE)
             .line_width(0.5)

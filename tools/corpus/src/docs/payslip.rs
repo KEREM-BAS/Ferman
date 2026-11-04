@@ -81,8 +81,13 @@ fn row(
     y: f64,
     cells: [&str; 3],
 ) -> Result<(), String> {
+    // Both sections are rows of one table in the ground truth: they share their columns.
+    let index = page.next_row();
+    page.cell = Some([0, index, 0]);
     doc.line(page, style, cells[0], (LEFT + 6.0, y), 300.0, Align::Left)?;
+    page.cell = Some([0, index, 1]);
     doc.line(page, style, cells[1], (LEFT + 300.0, y), 90.0, Align::Right)?;
+    page.cell = Some([0, index, 2]);
     doc.line(
         page,
         style,
@@ -91,6 +96,7 @@ fn row(
         120.0,
         Align::Right,
     )?;
+    page.cell = None;
     Ok(())
 }
 
@@ -130,6 +136,8 @@ fn build(sources: &Sources, method: Method, name: &str) -> Result<Generated, Str
         WIDTH,
         Align::Right,
     )?;
+    // The title and the document number share a baseline: read row by row.
+    page.blocks.swap(1, 2);
 
     let blocks: [(&str, [&str; 4]); 2] = [
         (
@@ -224,6 +232,9 @@ fn build(sources: &Sources, method: Method, name: &str) -> Result<Generated, Str
         .fill_rect(LEFT, y - 10.0, WIDTH, 26.0)
         .fill_rgb((0, 0, 0));
     let white = bold.sized(11.0).colored((0xFF, 0xFF, 0xFF));
+    // The net amount is the table's last row, under its amount column.
+    let index = page.next_row();
+    page.cell = Some([0, index, 0]);
     doc.line(
         &mut page,
         &white,
@@ -232,6 +243,7 @@ fn build(sources: &Sources, method: Method, name: &str) -> Result<Generated, Str
         300.0,
         Align::Left,
     )?;
+    page.cell = Some([0, index, 2]);
     doc.line(
         &mut page,
         &white,
@@ -240,6 +252,7 @@ fn build(sources: &Sources, method: Method, name: &str) -> Result<Generated, Str
         200.0,
         Align::Right,
     )?;
+    page.cell = None;
     y -= 40.0;
     for line in [
         "Ödeme tarihi: 30.09.2026 · IBAN: TR33 0006 1005 1978 6457 8413 26",

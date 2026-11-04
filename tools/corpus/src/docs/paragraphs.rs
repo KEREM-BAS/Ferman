@@ -14,7 +14,7 @@ use super::{Doc, generated, info, open_first, opens};
 use crate::kinsoku::breakable;
 use crate::pdf::{self, text};
 use crate::sources::{FontFile, Sources};
-use crate::text::{Align, Flow, Frame, Paragraph};
+use crate::text::{Align, Expected, Flow, Frame, Paragraph};
 use crate::{Expect, Generated, Generator};
 use lopdf::dictionary;
 
@@ -123,7 +123,12 @@ fn notice(sources: &Sources, notice: &Notice) -> Result<Generated, String> {
         notice.name,
         None,
     )?;
-    Ok(generated(bytes, expected.replace(ZWNJ, "")))
+    // ZWNJ draws no glyph, so a reader finds none.
+    let expected = Expected {
+        text: expected.text.replace(ZWNJ, ""),
+        blocks: expected.blocks.map(|blocks| blocks.replace(ZWNJ, "")),
+    };
+    Ok(generated(bytes, expected))
 }
 
 fn fa(sources: &Sources) -> Result<Generated, String> {
