@@ -2004,4 +2004,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get attachmentWriteFailed =>
       'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
+
+  @override
+  String editStepText(String page) {
+    return 'Edited text · page $page';
+  }
+
+  @override
+  String get editHistoryClose => 'Close history';
+
+  @override
+  String get editHistorySteps => 'Steps';
+
+  @override
+  String editHistoryOpened(String name) {
+    return 'Opened $name';
+  }
+
+  @override
+  String get editHistoryNote =>
+      'Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.';
+
+  @override
+  String get editNothingToUndo => 'Nothing to undo';
+
+  @override
+  String get editNothingToRedo => 'Nothing to redo';
 }

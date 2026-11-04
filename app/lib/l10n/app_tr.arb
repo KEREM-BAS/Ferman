@@ -572,5 +572,12 @@
   "settingsDefaultAppOther": "Bu Mac’te PDF’leri {app} açıyor.",
   "settingsDefaultAppFerman": "Bu Mac’te PDF’leri Ferman açıyor.",
   "attachmentNotSaved": "“{name}” kaydedilmedi",
-  "attachmentWriteFailed": "Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin."
+  "attachmentWriteFailed": "Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.",
+  "editStepText": "Metin düzenlendi · sayfa {page}",
+  "editHistoryClose": "Geçmişi kapat",
+  "editHistorySteps": "Adımlar",
+  "editHistoryOpened": "{name} açıldı",
+  "editHistoryNote": "Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.",
+  "editNothingToUndo": "Geri alınacak bir şey yok",
+  "editNothingToRedo": "Yinelenecek bir şey yok"
 }

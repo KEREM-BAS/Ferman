@@ -289,7 +289,7 @@ void main() {
     });
 
     testWidgets('disables Save with "No changes to save" for a clean '
-        'document, and until M3 for an unsaved one (fix 4)', (tester) async {
+        'document and enables it for an unsaved one (fix 4)', (tester) async {
       await pumpShell(tester, shellHost(window: window));
       Button save() => tester.widget<Button>(
         find.ancestor(of: find.text('Save'), matching: find.byType(Button)),
@@ -307,7 +307,7 @@ void main() {
       // agree.
       await tester.tap(find.text('Hesap ekstresi Eylül 2026.pdf'));
       await settle(tester);
-      expect(save().disabledReason, futureVersion);
+      expect(save().onPressed, isNotNull);
       expect(
         find.descendant(
           of: find.byType(ShellStatusBar),
@@ -531,6 +531,14 @@ void main() {
         'segments:Fit',
         'segments:Page layout',
       };
+      // Edit's tools that work since M3: Edit text, Edit history, and undo
+      // and redo with nothing to undo or redo yet.
+      const working = {
+        'Edit text': 'enabled',
+        'icon:Undo': 'Nothing to undo',
+        'icon:Redo': 'Nothing to redo',
+        'icon:Edit history': 'enabled',
+      };
       for (final mode in FermanMode.values) {
         for (final item in itemsOf(tester, mode)) {
           final reason = switch (item) {
@@ -553,6 +561,8 @@ void main() {
             reason,
             mode == FermanMode.view && viewing.contains(name)
                 ? isNull
+                : mode == FermanMode.edit
+                ? working[name] ?? futureVersion
                 : futureVersion,
             reason: '$mode $name',
           );

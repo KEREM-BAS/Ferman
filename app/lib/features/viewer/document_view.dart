@@ -6,6 +6,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/block_editor.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
 import 'package:ferman/features/viewer/text_state.dart';
@@ -43,7 +45,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// dashed frame, with the I-beam and "Click to edit · …" (a3-1a); text
 /// that cannot be edited shows the not-allowed cursor and its reason, and
 /// the Edit panel its callout (a3-19, `editCalloutProvider`). A click on
-/// an editable block places the engine's caret; typing comes later (B041).
+/// an editable block opens its inline editor ([BlockEditor], a3-1b) with
+/// the caret where the engine puts it (`documentEditorProvider`); a click
+/// anywhere else commits and closes it. After each commit, undo or redo
+/// every page is drawn again and its blocks asked for again.
 /// The pages' blocks come from the engine as the pointer reaches them,
 /// and their frames are hit-tested here (ARCHITECTURE §3.5).
 ///
@@ -133,8 +138,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   /// What the pointer is over: a page, the block there, and where.
   _Target? _hover;
 
-  /// The caret a click placed in Edit mode: its page and box.
-  (int, Rect)? _caret;
+  /// The inline editor's key, new for each block edited, and its edit.
+  GlobalKey _editorKey = GlobalKey();
+  ActiveEdit? _keyed;
 
   /// Where a text selection started: its page and position.
   (int, BlockPosition)? _anchor;
@@ -157,6 +163,19 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       _stale.addAll(_images.keys);
       _request(force: true);
     });
+    // A commit, undo or redo changed the pages: draw them and read their
+    // text again.
+    ref.listenManual(documentEditorProvider.select((s) => s.renderKey), (
+      _,
+      key,
+    ) {
+      if (key == null) return;
+      _renderKey = math.max(_renderKey, key);
+      _stale.addAll(_images.keys);
+      _blocks.clear();
+      _asked.clear();
+      _request(force: true);
+    });
     // The owner password lifts Restricted: ask the engine for the blocks
     // again.
     ref.listenManual(
@@ -176,6 +195,10 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     super.didUpdateWidget(old);
     if (old.edit != widget.edit || old.tools != widget.tools) {
       _clearText();
+    }
+    // Leaving Edit mode commits the typing (the coalescing rule).
+    if (old.edit && !widget.edit) {
+      unawaited(ref.read(documentEditorProvider.notifier).finish());
     }
   }
 
@@ -370,6 +393,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   }
 
   void _down(PointerDownEvent event) {
+    // A click in the open editor is the text field's.
+    if (widget.edit && _inEditor(event.position)) return;
     Focus.maybeOf(context)?.requestFocus();
     ContextMenuController.removeAny();
     if (event.kind != PointerDeviceKind.mouse) return;
@@ -379,7 +404,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     }
     if (event.buttons != kPrimaryMouseButton) return;
     if (widget.edit) {
-      unawaited(_placeCaret(_targetAt(event.localPosition)));
+      unawaited(_openEditor(_targetAt(event.localPosition)));
       return;
     }
     switch (_tool) {
@@ -491,27 +516,43 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     }
   }
 
-  Future<void> _placeCaret(_Target? target) async {
+  /// Whether [position] (global) is over the open inline editor.
+  bool _inEditor(Offset position) {
+    final box = _editorKey.currentContext?.findRenderObject();
+    return box is RenderBox &&
+        box.hasSize &&
+        (Offset.zero & box.size).contains(box.globalToLocal(position));
+  }
+
+  /// Opens the inline editor on [target]'s block with the engine's caret
+  /// there; off an editable block, commits and closes the open one.
+  Future<void> _openEditor(_Target? target) async {
+    final editor = ref.read(documentEditorProvider.notifier);
     final block = target?.block;
     final document = ref.read(viewerProvider)?.document.id;
     if (target == null ||
         block == null ||
         block.notEditable != null ||
         document == null) {
-      setState(() => _caret = null);
+      await editor.finish();
       return;
     }
+    final l10n = AppLocalizations.of(context);
+    final format = RegionFormat.forRegion(ref.read(regionProvider).region);
+    final name = l10n.editStepText(format.integer(target.page + 1));
+    var caret = 0;
     try {
-      final caret = await _engine.caretAt(
+      caret = (await _engine.caretAt(
         document,
         target.page,
         block.id,
         target.point,
-      );
-      if (mounted) setState(() => _caret = (target.page, caret.rect));
+      )).index;
     } on Object {
-      if (mounted) setState(() => _caret = null);
+      // The caret starts at the block's start.
     }
+    if (!mounted) return;
+    await editor.open(target.page, block, caret: caret, name: name);
   }
 
   Future<void> _startSelection(_Target? target) async {
@@ -586,7 +627,6 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     _anchor = null;
     _selecting = false;
     _hover = null;
-    _caret = null;
     ContextMenuController.removeAny();
     // Riverpod forbids changing a provider while the tree builds.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -760,22 +800,34 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     ).shift(-state.offset);
   }
 
-  /// Edit mode's hover frame, caret and tooltip (a3-1a, a3-19).
+  /// Edit mode's hover frame, inline editor and tooltip (a3-1a, a3-1b,
+  /// a3-19).
   List<Widget> _editLayer(BuildContext context, ViewerState state) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final hover = _hover;
     final block = hover?.block;
-    final frame = hover == null || block == null
+    final active = ref.watch(documentEditorProvider).active;
+    if (!identical(active, _keyed)) {
+      _keyed = active;
+      _editorKey = GlobalKey();
+    }
+    final editing = active == null
+        ? null
+        : _onCanvas(state, active.page, active.block.frame);
+    // The block being edited shows its editor, not the hover frame and tip.
+    final onEditor =
+        hover != null &&
+        active?.page == hover.page &&
+        active?.block.id == block?.id;
+    final frame = hover == null || block == null || onEditor
         ? null
         : _onCanvas(state, hover.page, block.frame);
-    final caret = _caret;
-    final caretBox = caret == null
-        ? null
-        : _onCanvas(state, caret.$1, caret.$2);
     final reason = block != null ? block.notEditable : hover?.empty;
     final String? tip;
-    if (block != null && reason == null) {
+    if (onEditor) {
+      tip = null;
+    } else if (block != null && reason == null) {
       final first = block.lines.firstOrNull?.text ?? '';
       final runes = first.runes;
       tip = l10n.editHoverTip(
@@ -808,16 +860,15 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
             ),
           ),
         ),
-      if (caretBox != null)
+      if (active != null && editing != null)
         PositionedDirectional(
-          start: caretBox.left,
-          top: caretBox.top,
-          height: caretBox.height,
-          child: IgnorePointer(
-            child: DefaultTextStyle.merge(
-              style: TextStyle(fontSize: caretBox.height / TextCaret.heightEm),
-              child: const TextCaret(),
-            ),
+          start: editing.left - TextEditBox.marginX,
+          top: editing.top - TextEditBox.marginY,
+          child: BlockEditor(
+            key: _editorKey,
+            edit: active,
+            frame: editing,
+            scale: state.scale,
           ),
         ),
       if (hover != null && tip != null)

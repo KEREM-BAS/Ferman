@@ -569,13 +569,28 @@ void main() {
             if (!item.separator) item,
         ];
         expect(entries.map((item) => item.label), outside);
+        // Edit's tools that work since M3.
+        const working = {
+          'Edit text': null,
+          'Undo': 'Nothing to undo',
+          'Redo': 'Nothing to redo',
+          'Edit history': null,
+        };
         for (final entry in entries) {
-          expect(entry.disabled, isTrue, reason: entry.label);
+          final works =
+              mode == FermanMode.edit && working.containsKey(entry.label);
+          expect(
+            entry.disabled,
+            !works || working[entry.label] != null,
+            reason: entry.label,
+          );
           // View's viewing tools wait for a shown document, not a version.
           expect(
             entry.disabledReason,
             mode == FermanMode.view && _viewing.contains(entry.label)
                 ? isNull
+                : works
+                ? working[entry.label]
                 : futureVersion,
             reason: entry.label,
           );

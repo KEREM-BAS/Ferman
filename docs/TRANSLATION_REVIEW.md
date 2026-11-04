@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-573 messages in `app_en.arb`; translated: Turkish 573, Arabic 573.
+580 messages in `app_en.arb`; translated: Turkish 580, Arabic 580.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -629,5 +629,12 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsDefaultAppFerman` | Ferman opens PDFs on this Mac. | Bu Mac’te PDF’leri Ferman açıyor. | يفتح Ferman ملفات PDF على جهاز Mac هذا. | Text in Settings › General on macOS when Ferman already opens PDF files; the button is then not shown. |
 | `attachmentNotSaved` | “{name}” wasn’t saved | “{name}” kaydedilmedi | لم يُحفَظ “{name}” | Title of the editor’s danger toast when Save attachment as… failed (a2-3b, G124); name is the attachment’s file name, isolated. |
 | `attachmentWriteFailed` | Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected. | Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin. | تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا. | Message of the toast of attachmentNotSaved when the file could not be written. |
+| `editStepText` | Edited text · page {page} | Metin düzenlendi · sayfa {page} | تحرير النص · الصفحة {page} | Edit mode: the name of a history step that changed the text of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region. |
+| `editHistoryClose` | Close history | Geçmişi kapat | إغلاق السجل | Undo history panel (a3-10): tooltip and screen-reader name of the button that closes the panel. |
+| `editHistorySteps` | Steps | Adımlar | الخطوات | Undo history panel (a3-10): screen-reader name of the list of history steps. |
+| `editHistoryOpened` | Opened {name} | {name} açıldı | فتح {name} | Undo history panel (a3-10): the first row, the document as it was opened. {name} is the file name, isolated. |
+| `editHistoryNote` | Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history. | Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir. | انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات. | Undo history panel (a3-10): the note at the bottom of the panel. |
+| `editNothingToUndo` | Nothing to undo | Geri alınacak bir şey yok | لا شيء للتراجع عنه | Edit tool row: why Undo is disabled, as its tooltip, when the document has no step to undo (G126). |
+| `editNothingToRedo` | Nothing to redo | Yinelenecek bir şey yok | لا شيء لإعادته | Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126). |
 
 <!-- END GENERATED TRANSLATION TABLE -->

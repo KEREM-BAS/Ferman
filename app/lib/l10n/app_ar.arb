@@ -572,5 +572,12 @@
   "settingsDefaultAppOther": "يفتح {app} ملفات PDF على جهاز Mac هذا.",
   "settingsDefaultAppFerman": "يفتح Ferman ملفات PDF على جهاز Mac هذا.",
   "attachmentNotSaved": "لم يُحفَظ “{name}”",
-  "attachmentWriteFailed": "تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا."
+  "attachmentWriteFailed": "تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا.",
+  "editStepText": "تحرير النص · الصفحة {page}",
+  "editHistoryClose": "إغلاق السجل",
+  "editHistorySteps": "الخطوات",
+  "editHistoryOpened": "فتح {name}",
+  "editHistoryNote": "انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات.",
+  "editNothingToUndo": "لا شيء للتراجع عنه",
+  "editNothingToRedo": "لا شيء لإعادته"
 }

@@ -3542,6 +3542,48 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.'**
   String get attachmentWriteFailed;
+
+  /// Edit mode: the name of a history step that changed the text of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited text · page {page}'**
+  String editStepText(String page);
+
+  /// Undo history panel (a3-10): tooltip and screen-reader name of the button that closes the panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Close history'**
+  String get editHistoryClose;
+
+  /// Undo history panel (a3-10): screen-reader name of the list of history steps.
+  ///
+  /// In en, this message translates to:
+  /// **'Steps'**
+  String get editHistorySteps;
+
+  /// Undo history panel (a3-10): the first row, the document as it was opened. {name} is the file name, isolated.
+  ///
+  /// In en, this message translates to:
+  /// **'Opened {name}'**
+  String editHistoryOpened(String name);
+
+  /// Undo history panel (a3-10): the note at the bottom of the panel.
+  ///
+  /// In en, this message translates to:
+  /// **'Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.'**
+  String get editHistoryNote;
+
+  /// Edit tool row: why Undo is disabled, as its tooltip, when the document has no step to undo (G126).
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to undo'**
+  String get editNothingToUndo;
+
+  /// Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126).
+  ///
+  /// In en, this message translates to:
+  /// **'Nothing to redo'**
+  String get editNothingToRedo;
 }
 
 class _AppLocalizationsDelegate

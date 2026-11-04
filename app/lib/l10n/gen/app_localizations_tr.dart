@@ -2003,4 +2003,30 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get attachmentWriteFailed =>
       'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
+
+  @override
+  String editStepText(String page) {
+    return 'Metin düzenlendi · sayfa $page';
+  }
+
+  @override
+  String get editHistoryClose => 'Geçmişi kapat';
+
+  @override
+  String get editHistorySteps => 'Adımlar';
+
+  @override
+  String editHistoryOpened(String name) {
+    return '$name açıldı';
+  }
+
+  @override
+  String get editHistoryNote =>
+      'Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.';
+
+  @override
+  String get editNothingToUndo => 'Geri alınacak bir şey yok';
+
+  @override
+  String get editNothingToRedo => 'Yinelenecek bir şey yok';
 }

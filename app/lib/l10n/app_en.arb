@@ -2623,5 +2623,43 @@
   "attachmentWriteFailed": "Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.",
   "@attachmentWriteFailed": {
     "description": "Message of the toast of attachmentNotSaved when the file could not be written."
+  },
+  "editStepText": "Edited text · page {page}",
+  "@editStepText": {
+    "description": "Edit mode: the name of a history step that changed the text of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "editHistoryClose": "Close history",
+  "@editHistoryClose": {
+    "description": "Undo history panel (a3-10): tooltip and screen-reader name of the button that closes the panel."
+  },
+  "editHistorySteps": "Steps",
+  "@editHistorySteps": {
+    "description": "Undo history panel (a3-10): screen-reader name of the list of history steps."
+  },
+  "editHistoryOpened": "Opened {name}",
+  "@editHistoryOpened": {
+    "description": "Undo history panel (a3-10): the first row, the document as it was opened. {name} is the file name, isolated.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "editHistoryNote": "Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.",
+  "@editHistoryNote": {
+    "description": "Undo history panel (a3-10): the note at the bottom of the panel."
+  },
+  "editNothingToUndo": "Nothing to undo",
+  "@editNothingToUndo": {
+    "description": "Edit tool row: why Undo is disabled, as its tooltip, when the document has no step to undo (G126)."
+  },
+  "editNothingToRedo": "Nothing to redo",
+  "@editNothingToRedo": {
+    "description": "Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126)."
   }
 }

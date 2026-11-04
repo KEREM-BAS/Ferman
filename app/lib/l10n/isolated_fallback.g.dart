@@ -1886,6 +1886,28 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get attachmentWriteFailed => isolate(super.attachmentWriteFailed);
+
+  @override
+  String editStepText(String page) => isolate(super.editStepText(page));
+
+  @override
+  String get editHistoryClose => isolate(super.editHistoryClose);
+
+  @override
+  String get editHistorySteps => isolate(super.editHistorySteps);
+
+  @override
+  String editHistoryOpened(String name) =>
+      isolate(super.editHistoryOpened(name));
+
+  @override
+  String get editHistoryNote => isolate(super.editHistoryNote);
+
+  @override
+  String get editNothingToUndo => isolate(super.editNothingToUndo);
+
+  @override
+  String get editNothingToRedo => isolate(super.editNothingToRedo);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

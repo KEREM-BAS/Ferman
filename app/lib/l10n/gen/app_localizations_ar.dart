@@ -2033,4 +2033,30 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get attachmentWriteFailed =>
       'تعذّر على Ferman كتابة الملف هناك. اختر مجلدًا آخر، أو تحقق من وجود مساحة كافية على القرص ومن أنه لا يزال متصلًا.';
+
+  @override
+  String editStepText(String page) {
+    return 'تحرير النص · الصفحة $page';
+  }
+
+  @override
+  String get editHistoryClose => 'إغلاق السجل';
+
+  @override
+  String get editHistorySteps => 'الخطوات';
+
+  @override
+  String editHistoryOpened(String name) {
+    return 'فتح $name';
+  }
+
+  @override
+  String get editHistoryNote =>
+      'انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات.';
+
+  @override
+  String get editNothingToUndo => 'لا شيء للتراجع عنه';
+
+  @override
+  String get editNothingToRedo => 'لا شيء لإعادته';
 }

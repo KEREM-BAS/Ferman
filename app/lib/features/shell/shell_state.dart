@@ -475,7 +475,27 @@ final class ShellDocument {
   bool get loading => saveState == null;
 
   /// Whether the document has unsaved changes.
-  bool get unsaved => saveState == SaveState.unsaved;
+  bool get unsaved =>
+      saveState == SaveState.unsaved || saveState == SaveState.error;
+
+  /// This document in [saveState], saved at [savedAt] when given, with
+  /// [editCount] edits when given.
+  ShellDocument withSave(
+    SaveState saveState, {
+    DateTime? savedAt,
+    int? editCount,
+  }) => ShellDocument(
+    name: name,
+    icon: icon,
+    saveState: saveState,
+    savedAt: savedAt ?? this.savedAt,
+    pageCount: pageCount,
+    editCount: editCount ?? this.editCount,
+    path: path,
+    document: document,
+    locked: locked,
+    error: error,
+  );
 }
 
 /// The open documents and which one is shown.

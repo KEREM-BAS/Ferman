@@ -10,6 +10,7 @@ import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/services.dart';
+import 'package:flutter/widgets.dart' show EditableText;
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_desktop_window.dart';
@@ -153,12 +154,19 @@ void main() {
     expect(find.byType(TextEditBox), findsNothing);
     expect(find.textContaining('Click to edit'), findsNothing);
 
-    // A click on a block places the engine's caret.
+    // A click on a block opens its editor (editor_test.dart), with no hover
+    // frame or tooltip over it.
     await mouse.moveTo(onScreen(tester, const Offset(72, 106)));
     await mouse.down(onScreen(tester, const Offset(72, 106)));
     await mouse.up();
     await tester.pump();
-    expect(find.byType(TextCaret), findsOneWidget);
+    await tester.pump();
+    expect(find.byType(EditableText), findsOneWidget);
+    expect(
+      tester.widget<TextEditBox>(find.byType(TextEditBox)).state,
+      TextEditBoxState.editing,
+    );
+    expect(find.textContaining('Click to edit'), findsNothing);
     await mouse.removePointer();
   });
 
