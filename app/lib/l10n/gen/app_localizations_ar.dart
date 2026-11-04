@@ -2059,4 +2059,109 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'لا شيء لإعادته';
+
+  @override
+  String get editOverflowTitle => 'النص لا يتسع';
+
+  @override
+  String editOverflowBody(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تحتاج الفقرة المعدّلة إلى $n سطر أكثر من إطارها.',
+      many: 'تحتاج الفقرة المعدّلة إلى $n سطرًا أكثر من إطارها.',
+      few: 'تحتاج الفقرة المعدّلة إلى $n أسطر أكثر من إطارها.',
+      two: 'تحتاج الفقرة المعدّلة إلى سطرين أكثر من إطارها.',
+      one: 'تحتاج الفقرة المعدّلة إلى سطر واحد أكثر من إطارها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowExtend(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'توسيع الكتلة بـ$n سطر',
+      many: 'توسيع الكتلة بـ$n سطرًا',
+      few: 'توسيع الكتلة بـ$n أسطر',
+      two: 'توسيع الكتلة بسطرين',
+      one: 'توسيع الكتلة بسطر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowTighten(String percent) {
+    return 'تضييق التباعد قليلًا (−$percent)';
+  }
+
+  @override
+  String get editOverflowKeep => 'إبقاء مع تحذير';
+
+  @override
+  String editOverflowExtendLabelBelow(String label) {
+    return 'سطر $label يقع مباشرة أسفل هذه الكتلة.';
+  }
+
+  @override
+  String editOverflowExtendBelow(String text) {
+    return 'السطر «$text» يقع مباشرة أسفل هذه الكتلة.';
+  }
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      'توسيع الكتلة سيجعلها تتجاوز حافة الصفحة.';
+
+  @override
+  String editOverflowTightenShort(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حتى أضيق تباعد مسموح يترك $n سطر زائد.',
+      many: 'حتى أضيق تباعد مسموح يترك $n سطرًا زائدًا.',
+      few: 'حتى أضيق تباعد مسموح يترك $n أسطر زائدة.',
+      two: 'حتى أضيق تباعد مسموح يترك سطرين زائدين.',
+      one: 'حتى أضيق تباعد مسموح يترك سطرًا واحدًا زائدًا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowHidden(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$n سطر مخفي',
+      many: '+$n سطرًا مخفيًا',
+      few: '+$n أسطر مخفية',
+      two: '+سطران مخفيان',
+      one: '+سطر واحد مخفي',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editTotalsTitle => 'لا تُحدَّث المجاميع';
+
+  @override
+  String get editTotalsBody =>
+      'يخزّن ملف PDF الأرقام كنص. لا تزال الخلايا المعلّمة تعرض المبالغ القديمة.';
+
+  @override
+  String editTotalsReview(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'مراجعة الـ$n خلية المعلّمة',
+      many: 'مراجعة الـ$n خلية المعلّمة',
+      few: 'مراجعة الخلايا الـ$n المعلّمة',
+      two: 'مراجعة الخليتين المعلّمتين',
+      one: 'مراجعة الخلية المعلّمة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editBadgeEdited => 'معدّل';
 }

@@ -21,6 +21,12 @@ part of 'edit_session.dart';
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
 ///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
+///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
 /// marks it saved, or "Couldn't save" when it fails.
@@ -41,6 +47,12 @@ final documentEditorProvider = DocumentEditorProvider._();
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
 ///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
+///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
 /// marks it saved, or "Couldn't save" when it fails.
@@ -58,6 +70,12 @@ final class DocumentEditorProvider
   /// editor open; typing on begins a new transaction). Undo and redo commit
   /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
   /// one after another, in the order they were asked for.
+  ///
+  /// Text that no longer fits its block comes back with "Keep and warn"
+  /// applied and the overflow choices in [EditorState.asking]; [resolve]
+  /// picks another, in the open transaction or, once the typing committed,
+  /// by undoing that step and writing the text again with the choice, so
+  /// either way it is one step.
   ///
   /// Each commit, undo and redo marks the shell's document unsaved; [save]
   /// writes the committed steps to the file (an incremental update) and
@@ -89,7 +107,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'e32a9305ee0f93758758632e23bdfe91869826a9';
+String _$documentEditorHash() => r'087ba7923c012f92e09f7b44ebeff9aedab2cb4d';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).
@@ -103,6 +121,12 @@ String _$documentEditorHash() => r'e32a9305ee0f93758758632e23bdfe91869826a9';
 /// editor open; typing on begins a new transaction). Undo and redo commit
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
+///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and

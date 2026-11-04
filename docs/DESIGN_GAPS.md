@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-125 entries: 102 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing.
+126 entries: 103 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 14 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 35 | 15 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -198,6 +198,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G124](#g124) | missing state | M2 | Sidebar › Attachments | No board draws what follows Save attachment as…: success, or a file that cannot be written | Decided |
 | [G125](#g125) | ambiguity | M3 | Edit: hover and not-editable text | a3-1a names a block by its heading and offers "Click to edit" before typing works; a3-19's tooltip position | Decided |
 | [G126](#g126) | missing state | M3 | Edit: editing a block, Undo history | a3-1b edits in the document's font with a font label and two clicks; a3-10 names steps in detail; no copy for Undo and Redo with nothing to do | Decided |
+| [G127](#g127) | missing state | M3 | Edit: overflow choices, dependent table cells | a3-4 clips a frame the field grows past and draws the choices in FmEditPanel; a3-9's table panel needs table geometry the engine does not give | Decided |
 
 ## Entries
 
@@ -1864,3 +1865,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** One click on an editable block opens its editor with the caret at the click: the solid editing frame and a multi-line text field over the block on the page's white, in the UI font sized from the block's lines, without the font label; the page shows the real result after each commit. The field keeps the block's number of lines until reflow (W2). A step is named "Edited text · page N", the page written for the region; the first row is "Opened" and the file name, without a time (the opening is not a step of the engine's history), and the note drops the board number. With nothing to undo or redo, Undo and Redo are disabled with "Nothing to undo" and "Nothing to redo". Edit history is a toggle that puts the panel in the right panel's place, opening the panel when it was closed; Close history brings the right panel back.
 - **Status:** Decided.
 - **Evidence:** `design/03a Edit text.dc.html` (a3-1b and its note), `design/03b Edit content.dc.html` (a3-10, its `history` list and note). Implemented in `app/lib/features/editor/` and `app/lib/features/shell/shell_tool_rows.dart`; tests in `app/test/features/editor/editor_test.dart`.
+
+<a id="g127"></a>
+
+### G127 · Overflow and table cells in the app before the Edit panel and table detection
+
+- **Type:** missing state
+- **Milestone:** M3
+- **Area:** Edit: overflow choices, dependent table cells
+- **Artboards:** `a3-4`, `a3-18`, `a3-9`
+- **Gap or conflict:** a3-4 keeps the frame at its size and clips the faded third line; the field Ferman edits in grows with its text. a3-4 draws the choices in FmEditPanel, which W2 does not build, and no board says what the panel shows after a choice, or what happens when the typing commits before one is picked. a3-18 names the line that blocks Extend by its label ("The IBAN line"); the engine gives the blocking block's first line. a3-9's "Table cell" panel says "Detected: 6 columns × 5 rows · cell C2", letters the columns A–F over the table and offers "Keep column alignment", "Tab moves to the next cell", "Row below" and "Columns…"; the engine's API gives the dependent cells but no table geometry, and table detection and row insert are P2. Its warning names "Row 1 and the three totals".
+- **Decision:** The overflow warning and its three choices sit at the top of the Edit-mode right panel (FmDocPanel), worded and laid out as FmEditPanel's callout, with the amounts the engine computed and each disabled choice's reason under it; the first choice that can apply is primary, Keep and warn the ghost button. While Keep and warn applies, the field's text fades from 60% of the frame's height to 35% at its bottom, past which it stays faded, under the amber dashed edge, and "+N lines hidden" sits in the margin at the end of the block, also after the commit, with the page thumbnail's warning badge. A choice ends the warning until text overflows again; a choice picked after the typing committed with Keep and warn replaces that step (undo, then the same text with the choice), so it stays one step; undo or redo ends the warning, as its step is no longer the newest. A disabled Tighten names the cap that was not enough ("−2%", ARCHITECTURE §6.8). Extend's reason names a labelled line ("IBAN: …", a label that starts with a letter) by its label, any other line by its first 24 characters in quotes, and the page edge in words of its own. The dependent cells are tinted with `--glyph-missing-bg` while their cell is edited, and the panel shows "Totals don’t update" with "The marked cells still show the old amounts." and "Review the N marked cells", disabled until Review edits (B049). The heading carries the "Edited" badge once the block's text changed. The table section and the column letters wait for table detection (B134). Arabic is a3-18's own copy where it draws it (the one-line forms, the title, Tighten, Keep and warn, the IBAN reason) and FmEditPanel's "Edited"; the other plural forms and the a3-9 strings, which no Arabic board draws, wait for the native-speaker review with the rest (TRANSLATION_REVIEW.md).
+- **Status:** Decided.
+- **Evidence:** `design/03a Edit text.dc.html` (a3-4, a3-18 and its `GS` copy), `design/FmEditPanel.dc.html` (`overflow`, `callout`), `design/03b Edit content.dc.html` (a3-9). Implemented in `app/lib/features/editor/edit_callouts.dart`, `edit_session.dart`, `block_editor.dart`, `app/lib/features/viewer/document_view.dart`, `app/lib/features/shell/shell_panel.dart` and `shell_sidebar_tabs.dart`; tests in `app/test/features/editor/overflow_test.dart`.

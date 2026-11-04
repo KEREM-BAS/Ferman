@@ -3584,6 +3584,90 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to redo'**
   String get editNothingToRedo;
+
+  /// Edit panel (a3-4, a3-18): the warning's title when the edited text needs more lines than its block's frame.
+  ///
+  /// In en, this message translates to:
+  /// **'Text doesn’t fit'**
+  String get editOverflowTitle;
+
+  /// Edit panel (a3-4, a3-18): the overflow warning's message. {n} is the number of lines written for the region; {count} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The edited paragraph needs {n} more line than its frame.} other{The edited paragraph needs {n} more lines than its frame.}}'**
+  String editOverflowBody(int count, String n);
+
+  /// Edit panel (a3-4): the choice that grows the block's frame by the lines the engine computed. {n} is the number written for the region; {count} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Extend block by {n} line} other{Extend block by {n} lines}}'**
+  String editOverflowExtend(int count, String n);
+
+  /// Edit panel (a3-4): the choice that tightens the block's spacing by the amount the engine computed. {percent} is the percentage written for the region, such as 0.6% or %0,6.
+  ///
+  /// In en, this message translates to:
+  /// **'Tighten spacing slightly (−{percent})'**
+  String editOverflowTighten(String percent);
+
+  /// Edit panel (a3-4): the choice that keeps the frame and hides the lines that don't fit, with a warning on the page and its thumbnail.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep and warn'**
+  String get editOverflowKeep;
+
+  /// Edit panel (a3-18): why Extend is disabled when a labelled line, such as 'IBAN: …', sits right below the block. {label} is the line's label in the document's own words.
+  ///
+  /// In en, this message translates to:
+  /// **'The {label} line sits right below this block.'**
+  String editOverflowExtendLabelBelow(String label);
+
+  /// Edit panel (a3-18): why Extend is disabled when another line sits right below the block. {text} is the start of that line in the document's own words.
+  ///
+  /// In en, this message translates to:
+  /// **'The line “{text}” sits right below this block.'**
+  String editOverflowExtendBelow(String text);
+
+  /// Edit panel (a3-18): why Extend is disabled when the block already reaches the edge of the page.
+  ///
+  /// In en, this message translates to:
+  /// **'Extending the block would run it past the page’s edge.'**
+  String get editOverflowExtendPageEdge;
+
+  /// Edit panel (a3-18): why Tighten is disabled. {n} is the number of lines still over, written for the region; {count} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Even the tightest allowed spacing leaves {n} line over.} other{Even the tightest allowed spacing leaves {n} lines over.}}'**
+  String editOverflowTightenShort(int count, String n);
+
+  /// Edit mode (a3-4, a3-18): the amber status in the page margin beside a block whose last lines Keep and warn hides, and the page thumbnail's warning. {n} is the number written for the region; {count} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{+{n} line hidden} other{+{n} lines hidden}}'**
+  String editOverflowHidden(int count, String n);
+
+  /// Edit panel (a3-9): the warning's title after a number in a table cell was edited and other cells likely depend on it.
+  ///
+  /// In en, this message translates to:
+  /// **'Totals don’t update'**
+  String get editTotalsTitle;
+
+  /// Edit panel (a3-9): the warning's message; the cells that likely depend on the edited one are tinted on the page.
+  ///
+  /// In en, this message translates to:
+  /// **'A PDF stores numbers as text. The marked cells still show the old amounts.'**
+  String get editTotalsBody;
+
+  /// Edit panel (a3-9): the button that opens the cells that likely depend on the edited one in Review edits. {n} is the number written for the region; {count} picks the plural form.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Review the marked cell} other{Review the {n} marked cells}}'**
+  String editTotalsReview(int count, String n);
+
+  /// Edit panel heading (a3-9, FmEditPanel): the badge once the open block's text changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get editBadgeEdited;
 }
 
 class _AppLocalizationsDelegate

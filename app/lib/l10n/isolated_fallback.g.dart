@@ -1908,6 +1908,57 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get editNothingToRedo => isolate(super.editNothingToRedo);
+
+  @override
+  String get editOverflowTitle => isolate(super.editOverflowTitle);
+
+  @override
+  String editOverflowBody(int count, String n) =>
+      isolate(super.editOverflowBody(count, n));
+
+  @override
+  String editOverflowExtend(int count, String n) =>
+      isolate(super.editOverflowExtend(count, n));
+
+  @override
+  String editOverflowTighten(String percent) =>
+      isolate(super.editOverflowTighten(percent));
+
+  @override
+  String get editOverflowKeep => isolate(super.editOverflowKeep);
+
+  @override
+  String editOverflowExtendLabelBelow(String label) =>
+      isolate(super.editOverflowExtendLabelBelow(label));
+
+  @override
+  String editOverflowExtendBelow(String text) =>
+      isolate(super.editOverflowExtendBelow(text));
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      isolate(super.editOverflowExtendPageEdge);
+
+  @override
+  String editOverflowTightenShort(int count, String n) =>
+      isolate(super.editOverflowTightenShort(count, n));
+
+  @override
+  String editOverflowHidden(int count, String n) =>
+      isolate(super.editOverflowHidden(count, n));
+
+  @override
+  String get editTotalsTitle => isolate(super.editTotalsTitle);
+
+  @override
+  String get editTotalsBody => isolate(super.editTotalsBody);
+
+  @override
+  String editTotalsReview(int count, String n) =>
+      isolate(super.editTotalsReview(count, n));
+
+  @override
+  String get editBadgeEdited => isolate(super.editBadgeEdited);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

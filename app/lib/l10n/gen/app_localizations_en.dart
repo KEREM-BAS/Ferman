@@ -2030,4 +2030,94 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'Nothing to redo';
+
+  @override
+  String get editOverflowTitle => 'Text doesn’t fit';
+
+  @override
+  String editOverflowBody(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The edited paragraph needs $n more lines than its frame.',
+      one: 'The edited paragraph needs $n more line than its frame.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowExtend(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Extend block by $n lines',
+      one: 'Extend block by $n line',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowTighten(String percent) {
+    return 'Tighten spacing slightly (−$percent)';
+  }
+
+  @override
+  String get editOverflowKeep => 'Keep and warn';
+
+  @override
+  String editOverflowExtendLabelBelow(String label) {
+    return 'The $label line sits right below this block.';
+  }
+
+  @override
+  String editOverflowExtendBelow(String text) {
+    return 'The line “$text” sits right below this block.';
+  }
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      'Extending the block would run it past the page’s edge.';
+
+  @override
+  String editOverflowTightenShort(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Even the tightest allowed spacing leaves $n lines over.',
+      one: 'Even the tightest allowed spacing leaves $n line over.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowHidden(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$n lines hidden',
+      one: '+$n line hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editTotalsTitle => 'Totals don’t update';
+
+  @override
+  String get editTotalsBody =>
+      'A PDF stores numbers as text. The marked cells still show the old amounts.';
+
+  @override
+  String editTotalsReview(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review the $n marked cells',
+      one: 'Review the marked cell',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editBadgeEdited => 'Edited';
 }

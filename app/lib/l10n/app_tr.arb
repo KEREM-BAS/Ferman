@@ -579,5 +579,19 @@
   "editHistoryOpened": "{name} açıldı",
   "editHistoryNote": "Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.",
   "editNothingToUndo": "Geri alınacak bir şey yok",
-  "editNothingToRedo": "Yinelenecek bir şey yok"
+  "editNothingToRedo": "Yinelenecek bir şey yok",
+  "editOverflowTitle": "Metin sığmıyor",
+  "editOverflowBody": "{count, plural, other{Düzenlenen paragraf, çerçevesinden {n} satır fazla yer istiyor.}}",
+  "editOverflowExtend": "{count, plural, other{Bloğu {n} satır uzat}}",
+  "editOverflowTighten": "Aralığı biraz daralt (−{percent})",
+  "editOverflowKeep": "Koru ve uyar",
+  "editOverflowExtendLabelBelow": "{label} satırı bu bloğun hemen altında.",
+  "editOverflowExtendBelow": "“{text}” satırı bu bloğun hemen altında.",
+  "editOverflowExtendPageEdge": "Blok uzarsa sayfanın kenarını aşar.",
+  "editOverflowTightenShort": "{count, plural, other{İzin verilen en dar aralıkta bile {n} satır taşıyor.}}",
+  "editOverflowHidden": "{count, plural, other{+{n} satır gizli}}",
+  "editTotalsTitle": "Toplamlar güncellenmez",
+  "editTotalsBody": "PDF, sayıları metin olarak saklar. İşaretli hücreler hâlâ eski tutarları gösteriyor.",
+  "editTotalsReview": "{count, plural, =1{İşaretli hücreyi incele} other{İşaretli {n} hücreyi incele}}",
+  "editBadgeEdited": "Düzenlendi"
 }

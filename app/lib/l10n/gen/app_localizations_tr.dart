@@ -2029,4 +2029,90 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'Yinelenecek bir şey yok';
+
+  @override
+  String get editOverflowTitle => 'Metin sığmıyor';
+
+  @override
+  String editOverflowBody(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Düzenlenen paragraf, çerçevesinden $n satır fazla yer istiyor.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowExtend(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bloğu $n satır uzat',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowTighten(String percent) {
+    return 'Aralığı biraz daralt (−$percent)';
+  }
+
+  @override
+  String get editOverflowKeep => 'Koru ve uyar';
+
+  @override
+  String editOverflowExtendLabelBelow(String label) {
+    return '$label satırı bu bloğun hemen altında.';
+  }
+
+  @override
+  String editOverflowExtendBelow(String text) {
+    return '“$text” satırı bu bloğun hemen altında.';
+  }
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      'Blok uzarsa sayfanın kenarını aşar.';
+
+  @override
+  String editOverflowTightenShort(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'İzin verilen en dar aralıkta bile $n satır taşıyor.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowHidden(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$n satır gizli',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editTotalsTitle => 'Toplamlar güncellenmez';
+
+  @override
+  String get editTotalsBody =>
+      'PDF, sayıları metin olarak saklar. İşaretli hücreler hâlâ eski tutarları gösteriyor.';
+
+  @override
+  String editTotalsReview(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'İşaretli $n hücreyi incele',
+      one: 'İşaretli hücreyi incele',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editBadgeEdited => 'Düzenlendi';
 }
