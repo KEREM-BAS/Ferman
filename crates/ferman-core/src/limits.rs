@@ -25,7 +25,7 @@ pub struct Limits {
     pub max_nesting: u32,
     /// Depth of form XObject, Type3 and pattern recursion, on top of cycle detection. Default 32.
     pub max_recursion: u32,
-    /// Nesting of `q` in a content stream. Default 256.
+    /// Nesting of `q`, and of marked content, in a content stream. Default 256.
     pub max_q_nesting: u32,
     /// Operators interpreted on one page before it counts as too complex. Default 10 million.
     pub max_operators_per_page: u64,

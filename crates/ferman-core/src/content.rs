@@ -26,6 +26,9 @@ pub(crate) struct Operator {
     pub(crate) operands: Vec<Object>,
     /// From its first operand, or the operator when it has none, to the operator's end.
     pub(crate) span: Range<usize>,
+    /// Whether operands came from the streams before this one (a page's `/Contents` array may
+    /// split between operands and their operator, ISO 32000-2 §7.8.2); `span` then starts at 0.
+    pub(crate) carried: bool,
 }
 
 /// The operators of `data`.
@@ -35,11 +38,26 @@ pub(crate) struct Operator {
 /// [`CoreError::ResourceLimit`] past [`Limits::max_operators_per_page`] or
 /// [`Limits::max_nesting`].
 pub(crate) fn operators(data: &[u8], limits: &Limits) -> Result<Vec<Operator>, CoreError> {
+    Ok(operators_after(data, limits, Vec::new())?.0)
+}
+
+/// The operators of `data`, one stream of a page's `/Contents` array, after the `carried`
+/// operands the streams before it left; returns them and the operands `data` leaves at its end.
+///
+/// # Errors
+///
+/// As [`operators`].
+pub(crate) fn operators_after(
+    data: &[u8],
+    limits: &Limits,
+    carried: Vec<Object>,
+) -> Result<(Vec<Operator>, Vec<Object>), CoreError> {
     let max = usize::try_from(limits.max_operators_per_page).unwrap_or(usize::MAX);
     let mut parser = Parser::new(data, 0, limits);
     let mut out = Vec::new();
-    let mut operands = Vec::new();
-    let mut first = None;
+    let mut is_carried = !carried.is_empty();
+    let mut first = is_carried.then_some(0);
+    let mut operands = carried;
     loop {
         let at = parser.pos();
         let (item, start) = match parser.content_item() {
@@ -54,6 +72,7 @@ pub(crate) fn operators(data: &[u8], limits: &Limits) -> Result<Vec<Operator>, C
                 }
                 operands.clear();
                 first = None;
+                is_carried = false;
                 parser.seek(offset.max(at.saturating_add(1)));
                 continue;
             }
@@ -85,11 +104,12 @@ pub(crate) fn operators(data: &[u8], limits: &Limits) -> Result<Vec<Operator>, C
                     name: name.to_vec(),
                     operands,
                     span: begin..end,
+                    carried: std::mem::take(&mut is_carried),
                 });
             }
         }
     }
-    Ok(out)
+    Ok((out, operands))
 }
 
 /// After `BI`: the image dictionary up to `ID`, then the data skipped past its `EI`. Returns the
@@ -186,6 +206,23 @@ mod tests {
         assert_eq!(dict.get(b"CS").unwrap(), &Object::Name(b"G".to_vec()));
         assert!(data[ops[1].span.clone()].ends_with(b" EI"));
         assert_eq!(names(b"BI /W 1 ID xx"), Vec::<String>::new());
+    }
+
+    #[test]
+    fn operands_carry_into_the_next_stream() {
+        let limits = Limits::default();
+        let (ops, left) = operators_after(b"BT /F1", &limits, Vec::new()).unwrap();
+        assert_eq!(ops.len(), 1);
+        assert_eq!(left, [Object::Name(b"F1".to_vec())]);
+        let data = b" 12 Tf (a) Tj";
+        let (ops, left) = operators_after(data, &limits, left).unwrap();
+        assert!(left.is_empty());
+        assert_eq!((&ops[0].name[..], ops[0].operands.len()), (&b"Tf"[..], 2));
+        assert!(ops[0].carried && !ops[1].carried);
+        assert_eq!(&data[ops[0].span.clone()], b" 12 Tf");
+        // A bad token drops the carried operands with the others.
+        let (ops, _) = operators_after(b") Tz", &limits, vec![Object::Integer(5)]).unwrap();
+        assert!(ops[0].operands.is_empty() && !ops[0].carried);
     }
 
     #[test]

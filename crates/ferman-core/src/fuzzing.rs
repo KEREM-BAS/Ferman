@@ -88,7 +88,7 @@ pub fn interpreter(data: &[u8]) {
         fn font(&mut self, _: &FontResource) {}
         fn show(&mut self, show: &TextShow<'_>) -> (f32, f32) {
             assert!(
-                show.span.end >= show.span.start,
+                show.span.range.end >= show.span.range.start,
                 "a span that ends before it starts"
             );
             (1.0, 0.0)

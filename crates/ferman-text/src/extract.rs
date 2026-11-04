@@ -247,45 +247,46 @@ impl TextSink for Collector {
         let Some(font) = self.fonts.get(&show.font) else {
             return (0.0, 0.0);
         };
+        let state = show.state;
         let vertical = font.vertical();
         let scale = if vertical {
             1.0
         } else {
-            show.horizontal_scaling
+            state.horizontal_scaling
         };
         let [_, _, c, d, _, _] = show.matrix;
-        let size = show.size * d.hypot(c);
+        let size = state.size * d.hypot(c);
         let mut advance = 0.0_f32;
         for item in show.items {
             let bytes = match item {
                 ShowItem::Adjust(n) => {
-                    advance -= n / 1000.0 * show.size * scale;
+                    advance -= n / 1000.0 * state.size * scale;
                     continue;
                 }
                 ShowItem::Text(bytes) => bytes,
             };
             for (code, length) in font.codes(bytes) {
-                let spacing = show.char_spacing
+                let spacing = state.char_spacing
                     + if length == 1 && code == 32 {
-                        show.word_spacing
+                        state.word_spacing
                     } else {
                         0.0
                     };
                 let (origin, step) = if vertical {
                     (
                         [0.0, advance],
-                        font.vertical_advance(code, length) * show.size + spacing,
+                        font.vertical_advance(code, length) * state.size + spacing,
                     )
                 } else {
                     (
-                        [advance, show.rise],
-                        (font.width(code, length) * show.size + spacing) * scale,
+                        [advance, state.rise],
+                        (font.width(code, length) * state.size + spacing) * scale,
                     )
                 };
                 let reach = if vertical {
                     [0.0, advance + step]
                 } else {
-                    [advance + step, show.rise]
+                    [advance + step, state.rise]
                 };
                 self.glyphs.push(Glyph {
                     text: font.text(code),
@@ -527,6 +528,7 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
             default_vertical: [880.0, -1000.0],
+            char_procs: Vec::new(),
         };
         let font = PdfFont::new(&resource);
         // The program's codes, and nothing of StandardEncoding's.
@@ -566,6 +568,7 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
             default_vertical: [880.0, -1000.0],
+            char_procs: Vec::new(),
         };
         let font = PdfFont::new(&resource);
         let cmap = font.cmap.unwrap();
