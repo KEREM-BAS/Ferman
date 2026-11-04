@@ -25,7 +25,9 @@
 //! - `type1` (since M2): the minimal clear-text Type1 parser, a program's [`BuiltinEncoding`] from its
 //!   clear text ([`builtin_encoding`]).
 //! - `cmap` (since M2): [`CMap`], encoding and ToUnicode CMaps read leniently, with `usecmap`
-//!   recorded for the caller's depth limit; since M3 also text or CID back to code. Writing in M3.
+//!   recorded for the caller's depth limit; since M3 also text or CID back to code, the
+//!   predefined CMaps bundled from Adobe's cmap-resources ([`CMap::predefined`]), and ToUnicode
+//!   CMaps with added entries ([`with_text`]).
 //! - `shaping`: the internal `Shaper` trait and `ShapedRun`, with harfrust behind it (ADR 0007), so
 //!   a change of shaper touches one module. M3.
 //! - `subset`: `Subset` through subsetter, respecting embedding permissions (OS/2 `fsType`). M3.
@@ -38,7 +40,7 @@ pub mod encoding;
 pub mod program;
 pub mod type1;
 
-pub use cmap::CMap;
+pub use cmap::{CMap, with_text};
 pub use encoding::{BaseEncoding, SimpleEncoding, glyph_names, glyph_text};
 pub use program::{FontProgram, GlyphId};
 pub use type1::{BuiltinEncoding, builtin_encoding};

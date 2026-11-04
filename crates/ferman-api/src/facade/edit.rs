@@ -246,6 +246,9 @@ impl Session {
                     .collect();
                 let mut working = (*committed).clone();
                 working.begin()?;
+                // The font copies the new codes need, in the same transaction as the splices
+                // that name them, so undo and redo cover both.
+                working.add_fonts(document, open.page, &rewrite.fonts)?;
                 working.splice(document, open.page, &splices, &[])?;
                 open.working = Some(working);
                 (Vec::new(), !rewrite.overflowing.is_empty())
@@ -852,6 +855,21 @@ mod tests {
             .unwrap();
         assert_eq!(preview.missing, ['ğ']);
         assert!(session.open.as_ref().unwrap().working.is_none());
+    }
+
+    #[test]
+    fn a_composite_font_edit_commits_and_undoes() {
+        let mut session = session("zh-hans", None);
+        let original = saved(&session);
+        edit(
+            &mut session,
+            "一万九千五百元",
+            "一万五千九百元",
+            "Edited text",
+        );
+        keep("facade-zh-hans", &session.bytes().unwrap());
+        session.undo().unwrap();
+        assert_eq!(saved(&session), original);
     }
 
     #[test]

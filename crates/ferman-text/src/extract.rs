@@ -119,8 +119,11 @@ pub struct GlyphLink {
 pub(crate) struct PdfFont {
     /// A composite font's CMap; a simple font's codes are single bytes.
     pub(crate) cmap: Option<CMap>,
+    /// Whether `cmap` is the font's own: false for a predefined CMap Ferman does not bundle,
+    /// read as `Identity-H`.
+    pub(crate) cmap_known: bool,
     encoding: SimpleEncoding,
-    to_unicode: Option<CMap>,
+    pub(crate) to_unicode: Option<CMap>,
     pub(crate) resource: FontResource,
     /// A simple font's glyph names by code: its program's built-in encoding, then `/Differences`.
     names: Vec<(u8, String)>,
@@ -134,6 +137,7 @@ pub(crate) struct PdfFont {
 
 impl PdfFont {
     fn new(resource: &FontResource) -> Self {
+        let mut cmap_known = true;
         let cmap = (resource.kind == FontKind::Type0).then(|| {
             match (&resource.cmap, resource.cmap_name.as_deref()) {
                 (Some(bytes), _) => {
@@ -143,10 +147,14 @@ impl PdfFont {
                     }
                     cmap
                 }
-                (None, Some(b"Identity-V")) => CMap::identity(true),
-                // shortcut: other predefined CMaps read as Identity-H; bundle Adobe's CMaps
-                // (BSD-3-Clause) when a document needs them.
-                _ => CMap::identity(false),
+                (None, Some(name)) if let Some(cmap) = CMap::predefined(name) => cmap,
+                // shortcut: a predefined CMap that is not bundled reads as Identity-H, and its
+                // lines are not rewritten; bundle it from Adobe's cmap-resources when a
+                // document needs it.
+                _ => {
+                    cmap_known = false;
+                    CMap::identity(false)
+                }
             }
         });
         let named = resource
@@ -177,6 +185,7 @@ impl PdfFont {
         let (ascent, descent) = ascent_descent(resource);
         let mut font = Self {
             cmap,
+            cmap_known,
             encoding: SimpleEncoding::new(base, differences),
             to_unicode: resource.to_unicode.as_deref().map(CMap::parse),
             resource: resource.clone(),
@@ -280,6 +289,34 @@ impl PdfFont {
                 .and_then(|at| usize::try_from(at).ok())
                 .and_then(|at| resource.widths.get(at))
                 .is_some_and(|&width| width > 0.0)
+    }
+
+    /// The glyph of a composite font's `cid` in its embedded `program`, not `.notdef`: through
+    /// a `CIDFontType2` font's `/CIDToGIDMap` stream, else the program's own CIDs (a TrueType
+    /// program's are its glyph indices, `/Identity`).
+    pub(crate) fn cid_glyph(&self, program: &FontProgram<'_>, cid: u32) -> Option<GlyphId> {
+        let glyph = match &self.resource.cid_to_gid {
+            Some(map) => {
+                let at = usize::try_from(cid).ok()?.checked_mul(2)?;
+                let pair = map.get(at..at.checked_add(2)?)?;
+                let [high, low] = <[u8; 2]>::try_from(pair).ok()?;
+                GlyphId(u32::from(u16::from_be_bytes([high, low])))
+            }
+            None => program.glyph_for_cid(cid)?,
+        };
+        (glyph.0 != 0 && glyph.0 < program.glyph_count()).then_some(glyph)
+    }
+
+    /// The CID whose glyph is `glyph`, the inverse of [`cid_glyph`](Self::cid_glyph): the
+    /// lowest one a `/CIDToGIDMap` stream gives it.
+    pub(crate) fn glyph_cid(&self, program: &FontProgram<'_>, glyph: GlyphId) -> Option<u32> {
+        match &self.resource.cid_to_gid {
+            Some(map) => (0_u32..)
+                .zip(map.as_chunks::<2>().0)
+                .find(|(_, pair)| u32::from(u16::from_be_bytes(**pair)) == glyph.0)
+                .map(|(cid, _)| cid),
+            None => program.cid_for_glyph(glyph),
+        }
     }
 
     pub(crate) fn vertical(&self) -> bool {
@@ -859,6 +896,7 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
             default_vertical: [880.0, -1000.0],
+            cid_to_gid: None,
             char_procs: Vec::new(),
         };
         let font = PdfFont::new(&resource);
@@ -902,13 +940,48 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
             default_vertical: [880.0, -1000.0],
+            cid_to_gid: None,
             char_procs: Vec::new(),
         };
         let font = PdfFont::new(&resource);
-        let cmap = font.cmap.unwrap();
+        let cmap = font.cmap.as_ref().unwrap();
         // The child's own code wins; the parent's other code comes through.
         assert_eq!(cmap.cid(1, 2), Some(100));
         assert_eq!(cmap.cid(2, 2), Some(200));
+        // And back: the parent's shadowed CID has no code.
+        assert_eq!(cmap.code_for_cid(200), Some((2, 2)));
+        assert_eq!(cmap.code_for_cid(7), None);
+        assert!(font.cmap_known);
+
+        // A CIDToGIDMap stream maps CIDs to glyphs, and back; without one a CID is its glyph.
+        let program =
+            include_bytes!("../../../app/assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf");
+        let mapped = PdfFont::new(&FontResource {
+            cid_to_gid: Some(vec![0, 0, 0, 5, 0, 3]),
+            font_program: Some(program.to_vec()),
+            ..resource.clone()
+        });
+        let parsed = mapped.program().unwrap();
+        assert_eq!(mapped.cid_glyph(&parsed, 1), Some(GlyphId(5)));
+        assert_eq!(mapped.cid_glyph(&parsed, 0), None, ".notdef");
+        assert_eq!(mapped.cid_glyph(&parsed, 3), None, "past the map");
+        assert_eq!(mapped.glyph_cid(&parsed, GlyphId(3)), Some(2));
+        assert_eq!(mapped.glyph_cid(&parsed, GlyphId(4)), None);
+        let identity = PdfFont::new(&FontResource {
+            font_program: Some(program.to_vec()),
+            ..resource.clone()
+        });
+        assert_eq!(identity.cid_glyph(&parsed, 3), Some(GlyphId(3)));
+        assert_eq!(identity.glyph_cid(&parsed, GlyphId(3)), Some(3));
+        // A predefined CMap Ferman does not bundle reads as Identity-H, and is known not to be
+        // the font's.
+        let unknown = PdfFont::new(&FontResource {
+            cmap: None,
+            cmap_parents: Vec::new(),
+            cmap_name: Some(b"GBK-EUC-H".to_vec()),
+            ..resource
+        });
+        assert!(!unknown.cmap_known);
     }
 
     #[test]
@@ -936,6 +1009,7 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
             default_width: 1000.0,
             vertical_metrics: Vec::new(),
             default_vertical: [880.0, -1000.0],
+            cid_to_gid: None,
             char_procs: Vec::new(),
         };
         let close = |got: (f32, f32), want: (f32, f32)| {

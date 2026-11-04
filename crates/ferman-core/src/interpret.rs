@@ -101,6 +101,9 @@ pub struct FontResource {
     /// `/DW2`: the default position vector's y and vertical displacement, `[880 -1000]` without
     /// one.
     pub default_vertical: [f32; 2],
+    /// A `CIDFontType2` font's `/CIDToGIDMap` stream, decoded: two bytes per CID, its glyph.
+    /// `None` for `/Identity` (a CID is its glyph), without one, or for another descendant.
+    pub cid_to_gid: Option<Vec<u8>>,
     /// A Type3 font's `/CharProcs`, in the dictionary's order.
     pub char_procs: Vec<CharProc>,
 }
@@ -1015,6 +1018,10 @@ fn font_resource(
         &[vy, w1y] => [vy, w1y],
         _ => [880.0, -1000.0],
     };
+    let cid_to_gid = descendant
+        .filter(|font| scope.get_name(font, b"Subtype") == Some(b"CIDFontType2"))
+        .and_then(|font| font.get(b"CIDToGIDMap").ok())
+        .and_then(|map| decoded_within(scope, map, &program_limits));
     let to_unicode = match dict.get(b"ToUnicode").ok() {
         Some(value) => decoded(scope, used, value)?,
         None => None,
@@ -1056,6 +1063,7 @@ fn font_resource(
             .unwrap_or(1000.0),
         vertical_metrics,
         default_vertical,
+        cid_to_gid,
         char_procs,
     })
 }
@@ -1564,6 +1572,49 @@ mod tests {
         let mut recorder = Recorder::default();
         usecmap_chain(2, true).page_text(0, &mut recorder).unwrap();
         assert_eq!(recorder.fonts[0].cmap_parents.len(), 2);
+    }
+
+    #[test]
+    fn cid_widths_and_the_cid_to_gid_map_are_read() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let map = doc.add_object(Stream::new(dictionary! {}, vec![0, 0, 0, 7, 0, 9]));
+        // Runs and ranges; a range missing its width and what follows are dropped.
+        let widths: Vec<Object> = vec![
+            1.into(),
+            vec![500.into(), Object::Real(612.5)].into(),
+            10.into(),
+            12.into(),
+            700.into(),
+            20.into(),
+            vec![800.into()].into(),
+            30.into(),
+            31.into(),
+        ];
+        let font = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type0", "BaseFont" => "Plex",
+            "Encoding" => "Identity-H",
+            "DescendantFonts" => vec![dictionary! {
+                "Subtype" => "CIDFontType2", "W" => widths, "DW" => 900, "CIDToGIDMap" => map,
+            }.into()],
+        });
+        let resources = dictionary! { "Font" => dictionary! { "F1" => font } };
+        let mut recorder = Recorder::default();
+        opened(doc, resources, b"BT /F1 10 Tf <0001> Tj ET")
+            .page_text(0, &mut recorder)
+            .unwrap();
+        let font = &recorder.fonts[0];
+        assert_eq!(
+            font.cid_widths,
+            [
+                (1, 1, 500.0),
+                (2, 2, 612.5),
+                (10, 12, 700.0),
+                (20, 20, 800.0)
+            ]
+        );
+        assert_eq!(font.default_width, 900.0);
+        assert_eq!(font.cmap_name.as_deref(), Some(&b"Identity-H"[..]));
+        assert_eq!(font.cid_to_gid.as_deref(), Some(&[0, 0, 0, 7, 0, 9][..]));
     }
 
     /// The state after the last operator `name` of a page with `content`.

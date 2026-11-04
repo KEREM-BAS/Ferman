@@ -77,6 +77,22 @@ pub struct Placement {
     pub draw: Span,
 }
 
+/// A copy of a composite font of a page for the new codes of an edit (ROADMAP §7 step 4): new
+/// Type0 and CIDFont dictionaries with the original's keys, its descriptor and program shared, a
+/// `/W` with more widths and a new ToUnicode CMap. The original dictionaries stay as they are.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FontCopy {
+    /// The name the page's `/Font` resources give the font copied.
+    pub base: Vec<u8>,
+    /// The copy's name there, which no font of the page uses
+    /// ([`RevisionStore::free_font_name`]).
+    pub name: Vec<u8>,
+    /// CIDs the descendant's `/W` lacks, with their widths in thousandths of an em.
+    pub widths: Vec<(u32, f32)>,
+    /// The copy's ToUnicode CMap.
+    pub to_unicode: Vec<u8>,
+}
+
 /// The revisions of one opened document. It belongs to that document: every method takes the
 /// [`Document`] it was made for.
 #[derive(Debug, Clone, Default)]
@@ -335,6 +351,110 @@ impl RevisionStore {
         Ok(())
     }
 
+    /// A name for a copy of the font page `index` names `base` that its `/Font` resources and
+    /// `taken` do not use: `base` with a numbered suffix.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoSuchPage`], and [`CoreError::Internal`] when no suffix is free.
+    pub fn free_font_name(
+        &self,
+        doc: &Document,
+        index: usize,
+        base: &[u8],
+        taken: &[Vec<u8>],
+    ) -> Result<Vec<u8>, CoreError> {
+        let page = page_id(doc, index)?;
+        let (_, fonts) = self.page_resources(doc, page, b"Font");
+        for suffix in 1..=10_000u32 {
+            let mut candidate = base.to_vec();
+            let _ = write!(candidate, "_{suffix}");
+            if !fonts.has(&candidate) && !taken.contains(&candidate) {
+                return Ok(candidate);
+            }
+        }
+        Err(CoreError::Internal {
+            context: "a free resource name for a font copy",
+        })
+    }
+
+    /// Adds `fonts` to page `index`'s `/Font` resources in the open transaction: each a new
+    /// Type0 dictionary whose descendant is a new CIDFont dictionary, both copies of the
+    /// original's with [`FontCopy`]'s widths and ToUnicode. The page's `/Resources` become a
+    /// direct copy with the new names; every original object stays as it is. On an error the
+    /// transaction stays as it was.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`], [`WriteError::Font`] for a name
+    /// that is not a composite font of the page or a copy's name that is taken, and
+    /// [`WriteError::ObjectNumbers`].
+    pub fn add_fonts(
+        &mut self,
+        doc: &Document,
+        index: usize,
+        fonts: &[FontCopy],
+    ) -> Result<(), CoreError> {
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        if fonts.is_empty() {
+            return Ok(());
+        }
+        let page = page_id(doc, index)?;
+        let wrong = || CoreError::Write(WriteError::Font);
+        let (mut resources, mut entries) = self.page_resources(doc, page, b"Font");
+        let mut queued: Vec<(ObjectId, Object)> = Vec::new();
+        let mut next = self.next_number();
+        {
+            let scope = self.scope(doc);
+            for copy in fonts {
+                if entries.has(&copy.name) {
+                    return Err(wrong());
+                }
+                let original = entries.get(&copy.base).ok().ok_or_else(wrong)?;
+                let mut type0 = scope.dict(original).cloned().ok_or_else(wrong)?;
+                let descendant = scope
+                    .get_array(&type0, b"DescendantFonts")
+                    .and_then(|fonts| fonts.first())
+                    .and_then(|font| scope.dict(font))
+                    .ok_or_else(wrong)?;
+                if scope.get_name(&type0, b"Subtype") != Some(b"Type0") {
+                    return Err(wrong());
+                }
+                let mut cid_font = descendant.clone();
+                let mut widths = scope
+                    .get_array(descendant, b"W")
+                    .cloned()
+                    .unwrap_or_default();
+                for &(cid, width) in &copy.widths {
+                    widths.push(Object::Integer(i64::from(cid)));
+                    widths.push(Object::Array(vec![Object::Real(width)]));
+                }
+                cid_font.set("W", Object::Array(widths));
+                let cid_font = queue_new(&mut queued, &mut next, Object::Dictionary(cid_font))?;
+                let to_unicode =
+                    Object::Stream(Stream::new(Dictionary::new(), copy.to_unicode.clone()));
+                let to_unicode = queue_new(&mut queued, &mut next, to_unicode)?;
+                type0.set(
+                    "DescendantFonts",
+                    Object::Array(vec![Object::Reference(cid_font)]),
+                );
+                type0.set("ToUnicode", Object::Reference(to_unicode));
+                let type0 = queue_new(&mut queued, &mut next, Object::Dictionary(type0))?;
+                entries.set(copy.name.clone(), Object::Reference(type0));
+            }
+        }
+        let mut dict = self.dictionary(doc, page)?;
+        resources.set("Font", entries);
+        dict.set("Resources", resources);
+        queued.push((page, Object::Dictionary(dict)));
+        for (id, object) in queued {
+            self.put(id, object)?;
+        }
+        Ok(())
+    }
+
     /// Object `id` in the open transaction or the current revisions, without the model's.
     pub(crate) fn lookup(&self, id: ObjectId) -> Option<&Object> {
         self.open
@@ -451,6 +571,11 @@ impl RevisionStore {
 
     /// Copies of page `id`'s inherited `/Resources` and of their `/XObject`, both direct.
     fn page_xobjects(&self, doc: &Document, id: ObjectId) -> (Dictionary, Dictionary) {
+        self.page_resources(doc, id, b"XObject")
+    }
+
+    /// Copies of page `id`'s inherited `/Resources` and of their entry `key`, both direct.
+    fn page_resources(&self, doc: &Document, id: ObjectId, key: &[u8]) -> (Dictionary, Dictionary) {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return (Dictionary::new(), Dictionary::new());
@@ -458,7 +583,7 @@ impl RevisionStore {
         let resources =
             inherited(&scope, dict, b"Resources").and_then(|value| value.as_dict().ok());
         let xobjects = resources
-            .and_then(|resources| scope.get_dict(resources, b"XObject"))
+            .and_then(|resources| scope.get_dict(resources, key))
             .cloned()
             .unwrap_or_default();
         (resources.cloned().unwrap_or_default(), xobjects)
@@ -512,6 +637,15 @@ impl RevisionStore {
             context: "a free resource name for a form copy",
         })
     }
+}
+
+/// The object id of page `index`.
+fn page_id(doc: &Document, index: usize) -> Result<ObjectId, CoreError> {
+    doc.structure()
+        .pages
+        .get(index)
+        .map(|page| page.id)
+        .ok_or(CoreError::Write(WriteError::NoSuchPage))
 }
 
 /// `number` as a new object's number; the last two are kept for the writer's `/Size` and its

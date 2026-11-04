@@ -581,15 +581,76 @@ fn mac_roman_edits() {
 #[test]
 fn mixed_simple_and_composite_lines_keep_their_composite_glyphs() {
     // A Turkish line drawn in a WinAnsi font with "ı" from a composite one: the composite runs
-    // keep their codes, a new "ı" needs the composite font (step 4).
+    // keep their codes, and a new "ı" takes the composite font's code (step 4).
     edit(&corpus("edit-e21-actualtext"), 0, "Pazartesi", "Pazar");
-    let pdf = corpus("edit-e21-actualtext");
+    let (rewrite, _) = edit(&corpus("edit-e21-actualtext"), 0, "Pazartesi", "Pazarı");
+    assert!(rewrite.fonts.is_empty(), "the font's own code, no copy");
+}
+
+#[test]
+fn identity_h_truetype_cid_fonts_edit_with_their_own_codes() {
+    // E12: CIDFontType2 subsets with Identity-H, characters of the subsets reordered.
+    for (file, from, to) in [
+        ("zh-hans", "一万九千五百元", "一万五千九百元"),
+        ("zh-hant", "十一月十五日", "十一月五十日"),
+        ("ko-para", "11월 30일에", "11월 03일에"),
+    ] {
+        let (rewrite, after) = edit(&corpus(file), 0, from, to);
+        assert!(rewrite.fonts.is_empty(), "{file}");
+        // Composite strings are hex, two bytes a code.
+        let splice = String::from_utf8(rewrite.splices[0].bytes.clone()).unwrap();
+        assert!(
+            splice.contains('<') && !splice.contains('('),
+            "{file}: {splice}"
+        );
+        assert!(
+            squeeze(&ferman_text::page_text(&document(&after), 0).unwrap()).contains(&squeeze(to))
+        );
+    }
+}
+
+#[test]
+fn a_cff_cid_font_edits_through_its_charset() {
+    // CIDFontType0 with a CID-keyed CFF program (FontFile3/CIDFontType0C).
+    let (rewrite, _) = edit(&corpus("edit-cff-cid"), 0, "2 Kasım 2026", "6 Kasım 2022");
+    assert!(rewrite.fonts.is_empty());
+    edit(&corpus("edit-cff-cid"), 0, "Şule Işık", "Işık Şule");
+}
+
+#[test]
+fn a_predefined_cmap_encodes_shift_jis() {
+    // 90ms-RKSJ-H: two-byte Shift-JIS codes whose Adobe-Japan1 CIDs the CIDToGIDMap stream
+    // maps to the subset's glyphs.
+    let (rewrite, _) = edit(&corpus("edit-90ms-rksj"), 0, "マンションの", "ションマンの");
+    let splice = String::from_utf8(rewrite.splices[0].bytes.clone()).unwrap();
+    // "シ" is JIS row 5, cell 23: Shift-JIS 83 56.
+    assert!(splice.contains("<8356"), "{splice}");
+    edit(&corpus("edit-90ms-rksj"), 0, "おしらせ", "おしらせします");
+}
+
+#[test]
+fn a_character_a_composite_subset_lacks_is_missing() {
+    // The subset has no cmap and no glyph for it: reported, never substituted.
+    let pdf = corpus("zh-hans");
     let doc = document(&pdf);
-    let target = block(&doc, 0, "Pazartesi");
-    let text = edited(&target, "Pazartesi", "Salı");
+    let target = block(&doc, 0, "一万九千五百元");
+    let text = edited(&target, "一万九千五百元", "一万九千五百龘");
     assert_eq!(
         rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::Unsupported(Unsupported::CompositeFont)
+        Outcome::MissingGlyphs(vec!['龘'])
+    );
+}
+
+#[test]
+fn a_vertical_block_is_not_rewritten_yet() {
+    // Identity-V reads, but vertical editing is W3.
+    let pdf = corpus("letter-ja-vertical");
+    let doc = document(&pdf);
+    let target = block(&doc, 0, "二〇二六年十月十三日");
+    let text = edited(&target, "十三日", "十四日");
+    assert_eq!(
+        rewrite_block(&doc, 0, &target, &text).unwrap(),
+        Outcome::Unsupported(Unsupported::Direction)
     );
 }
 

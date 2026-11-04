@@ -1,6 +1,6 @@
 //! A block's new text as new operators in its own fonts (docs/ARCHITECTURE.md §6.6, ADR 0005,
 //! ROADMAP §7 step 3): the [`Splice`]s that replace exactly the operators of the lines that
-//! changed, for simple fonts.
+//! changed, in simple and composite fonts.
 //!
 //! - **Re-encoding.** Each new character becomes a code of a simple font of its line (Type1 with
 //!   the standard 14, TrueType symbolic or not, Type3) whose text reads back as the character
@@ -9,6 +9,15 @@
 //!   font's `/CharProcs`. The font of the character before it is tried first, then the one after
 //!   it, then the line's others. A character no font of the line can draw is reported
 //!   ([`Outcome::MissingGlyphs`]), never substituted; the missing-glyph steps come with W3.
+//! - **Composite fonts (ROADMAP §7 step 4).** In a Type0 font (`CIDFontType0` or
+//!   `CIDFontType2`; `Identity-H`, an embedded CMap with its `usecmap` parents, or a bundled
+//!   predefined CMap such as `90ms-RKSJ-H`) a new character takes the code its ToUnicode CMap
+//!   gives it, of the codespace's length, when the CMap's CID has a glyph in the embedded
+//!   program (through `/CIDToGIDMap` or the CFF charset); its width is the one `/W` or `/DW`
+//!   give. Else the program's own cmap may hold the glyph: its CID's code then goes into a copy
+//!   of the font ([`FontCopy`]) with the code's ToUnicode entry and, when `/DW` is not its
+//!   advance, its width in `/W`, under a new name used only by the new codes. The original
+//!   dictionaries never change. Composite strings are written in hex.
 //! - **Operators.** A changed line's operators, from its first show to its last, become one run
 //!   of `TJ` (or `Tj` when the line had no `TJ` and needs no adjustment), a `Tf` between runs of
 //!   different fonts. The unchanged start and end of the line keep their codes and their places
@@ -24,11 +33,12 @@
 //!   adjustment. Exact re-justification, reflow and the overflow choices are W2: a line wider
 //!   than its frame is still written and listed in [`Rewrite::overflowing`].
 //!
-//! Strings are written as literal strings with `\(`, `\)`, `\\` and octal escapes; the original
-//! operator's string form is not visible here, since spans carry no bytes.
+//! Simple fonts' strings are written as literal strings with `\(`, `\)`, `\\` and octal escapes;
+//! the original operator's string form is not visible here, since spans carry no bytes.
 //!
-//! Not rewritten yet ([`Unsupported`]): right-to-left and vertical lines, another number of lines,
-//! a new character only a composite font of the line could draw, and lines whose operators are
+//! Not rewritten yet ([`Unsupported`]): right-to-left and vertical lines (Identity-V is W3),
+//! another number of lines, a new character only a composite font could draw whose predefined
+//! CMap is not bundled or that needs a copy of a form's font, and lines whose operators are
 //! not a plain run of shows (marked content, colour or other operators inside, a show shared with
 //! another line, a split operator, different spacing between the shows, a shifted baseline).
 //! Marked content around a line, such as `/ActualText`, is kept as it is.
@@ -43,8 +53,8 @@ use ferman_core::interpret::{
     FontResource, GraphicsState, Matrix, OperatorEvent, Span, SpanSource, TextShow, TextSink,
     multiply,
 };
-use ferman_core::revision::RevisionStore;
-use ferman_fonts::FontProgram;
+use ferman_core::revision::{FontCopy, RevisionStore};
+use ferman_fonts::{FontProgram, with_text};
 
 use crate::TextError;
 use crate::extract::{Collector, PdfFont, displayed, glyph_box};
@@ -62,17 +72,20 @@ pub struct Splice {
 }
 
 /// A block's new operators.
-#[derive(Debug, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Clone, Default, PartialEq)]
 pub struct Rewrite {
     /// One splice per changed line, in the block's line order; none when no line changed.
     pub splices: Vec<Splice>,
+    /// The font copies the splices name, to add to the page's resources in the same
+    /// transaction before the splices ([`RevisionStore::add_fonts`]).
+    pub fonts: Vec<FontCopy>,
     /// The lines, as indices into the block's lines, whose new text runs past the block's frame.
     /// They are written as they are; reflow and the overflow choices are W2.
     pub overflowing: Vec<usize>,
 }
 
 /// What rewriting a block gives.
-#[derive(Debug, Clone, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq)]
 pub enum Outcome {
     /// The splices.
     Rewritten(Rewrite),
@@ -93,7 +106,8 @@ pub enum Unsupported {
     LineCount,
     /// The block runs right to left or vertically.
     Direction,
-    /// A new character could only come from a composite font of its line.
+    /// A new character could only come from a composite font of its line whose predefined CMap
+    /// is not bundled, or from a copy of a font of a form.
     CompositeFont,
     /// A changed line's operators are not a plain run of shows (module documentation).
     Operators,
@@ -162,13 +176,27 @@ fn rewrite_through(
     }
     let page = Page::new(&recorder, document.structure().pages.get(index));
     let frame = Frame::of(block);
+    let fresh;
+    let store = match revisions {
+        Some(revisions) => revisions,
+        None => {
+            fresh = RevisionStore::new(document);
+            &fresh
+        }
+    };
+    let mut copies = Copies {
+        document,
+        store,
+        page: index,
+        list: Vec::new(),
+    };
     let mut rewrite = Rewrite::default();
     let mut missing: Vec<char> = Vec::new();
     for (at, (line, new)) in block.lines.iter().zip(texts).enumerate() {
         if line.text == new {
             continue;
         }
-        match page.line(line, new, block.justification, &frame) {
+        match page.line(line, new, block.justification, &frame, &mut copies) {
             Err(unsupported) => return Ok(Outcome::Unsupported(unsupported)),
             Ok(Planned::Missing(chars)) => missing.extend(chars),
             Ok(Planned::Splice(splice, over)) => {
@@ -188,7 +216,92 @@ fn rewrite_through(
         });
         return Ok(Outcome::MissingGlyphs(missing));
     }
+    rewrite.fonts = copies.finish();
     Ok(Outcome::Rewritten(rewrite))
+}
+
+/// The font copies a block's new codes need, one per font copied.
+struct Copies<'a> {
+    document: &'a Document,
+    store: &'a RevisionStore,
+    page: usize,
+    list: Vec<Copied>,
+}
+
+/// One font copy as the lines add to it.
+struct Copied {
+    /// The original's key, and the key the copy goes by among the rewrite's fonts.
+    base: u64,
+    key: u64,
+    /// The original's ToUnicode CMap, decoded.
+    to_unicode: Option<Vec<u8>>,
+    copy: FontCopy,
+    /// The new codes' text.
+    texts: Vec<(Vec<u8>, String)>,
+}
+
+impl Copies<'_> {
+    /// The key and name of the copy of the font `base`, named `name` on the page, that draws
+    /// `code` with `needs`; the copy is made with its first code.
+    fn add(
+        &mut self,
+        base: u64,
+        name: &[u8],
+        font: &PdfFont,
+        code: &[u8],
+        needs: &Needs,
+    ) -> Result<(u64, Vec<u8>), Unsupported> {
+        let at = match self.list.iter().position(|copied| copied.base == base) {
+            Some(at) => at,
+            None => {
+                let taken: Vec<Vec<u8>> = self
+                    .list
+                    .iter()
+                    .map(|copied| copied.copy.name.clone())
+                    .collect();
+                let fresh = self
+                    .store
+                    .free_font_name(self.document, self.page, name, &taken)
+                    .map_err(|_| Unsupported::Operators)?;
+                self.list.push(Copied {
+                    base,
+                    // Font keys are hashes of their dictionaries; a copy's is derived from its
+                    // original's.
+                    key: base ^ 0x5C0F_F0C0_FFEE_0001,
+                    to_unicode: font.resource.to_unicode.clone(),
+                    copy: FontCopy {
+                        base: name.to_vec(),
+                        name: fresh,
+                        widths: Vec::new(),
+                        to_unicode: Vec::new(),
+                    },
+                    texts: Vec::new(),
+                });
+                self.list.len().saturating_sub(1)
+            }
+        };
+        let copied = self.list.get_mut(at).ok_or(Unsupported::Operators)?;
+        if let Some(width) = needs.width
+            && !copied.copy.widths.iter().any(|(cid, _)| *cid == needs.cid)
+        {
+            copied.copy.widths.push((needs.cid, width));
+        }
+        if needs.text && !copied.texts.iter().any(|(bytes, _)| bytes == code) {
+            copied.texts.push((code.to_vec(), needs.c.to_string()));
+        }
+        Ok((copied.key, copied.copy.name.clone()))
+    }
+
+    /// The copies, each with its ToUnicode CMap.
+    fn finish(self) -> Vec<FontCopy> {
+        self.list
+            .into_iter()
+            .map(|copied| FontCopy {
+                to_unicode: with_text(copied.to_unicode.as_deref(), &copied.texts),
+                ..copied.copy
+            })
+            .collect()
+    }
 }
 
 /// One operator as the interpreter left it.
@@ -289,6 +402,8 @@ struct Placed {
     font: u64,
     size: f32,
     bytes: Vec<u8>,
+    /// Whether its font is composite, so its string is written in hex.
+    hex: bool,
     x: f32,
     step: f32,
     ink: bool,
@@ -447,6 +562,7 @@ impl<'a> Page<'a> {
         new: &str,
         justification: Option<Justification>,
         frame: &Frame,
+        copies: &mut Copies<'_>,
     ) -> Result<Planned, Unsupported> {
         let recorder = self.recorder;
         let glyphs = &recorder.collector.glyphs;
@@ -707,6 +823,11 @@ impl<'a> Page<'a> {
             placed.push(Placed {
                 font: glyph.font,
                 size,
+                hex: recorder
+                    .collector
+                    .fonts
+                    .get(&glyph.font)
+                    .is_some_and(|font| font.cmap.is_some()),
                 bytes: bytes
                     .get(4_usize.saturating_sub(length)..)
                     .unwrap_or_default()
@@ -739,29 +860,56 @@ impl<'a> Page<'a> {
                 let Some(font) = recorder.collector.fonts.get(&key) else {
                     continue;
                 };
-                if font.cmap.is_some() {
+                let program = programs.entry(key).or_insert_with(|| font.program());
+                if font.cmap.is_none() {
+                    if let Some(code) = encode(font, program.as_ref(), c) {
+                        chosen = Some((key, vec![code], font.width(u32::from(code), 1), false));
+                        break;
+                    }
+                    continue;
+                }
+                if !font.cmap_known {
                     composite = true;
                     continue;
                 }
-                let program = programs.entry(key).or_insert_with(|| font.program());
-                if let Some(code) = encode(font, program.as_ref(), c) {
-                    chosen = Some((key, font, code));
+                let Some(found) = encode_composite(font, program.as_ref(), c) else {
+                    continue;
+                };
+                let Some(needs) = &found.needs else {
+                    chosen = Some((key, found.bytes, found.width, true));
                     break;
+                };
+                // A copy goes into the page's resources; a form's fonts are not copied yet.
+                let named = fonts.iter().find(|(font, ..)| *font == key).cloned();
+                let (Some((_, name, size)), SpanSource::Page { .. }) = (named, source) else {
+                    composite = true;
+                    continue;
+                };
+                let (copy, copy_name) = copies.add(key, &name, font, &found.bytes, needs)?;
+                if !fonts.iter().any(|(font, ..)| *font == copy) {
+                    fonts.push((copy, copy_name, size));
                 }
+                chosen = Some((copy, found.bytes, found.width, true));
+                break;
             }
             match chosen {
-                Some((key, font, code)) => {
+                Some((key, bytes, width, hex)) => {
                     let size = fonts
                         .iter()
                         .find(|(font, ..)| *font == key)
                         .map_or(state.size, |(_, _, size)| *size);
-                    let spacing =
-                        state.char_spacing + if code == 32 { state.word_spacing } else { 0.0 };
-                    let advance = (font.width(u32::from(code), 1) * size + spacing) * scaling;
+                    let spacing = state.char_spacing
+                        + if bytes == [32] {
+                            state.word_spacing
+                        } else {
+                            0.0
+                        };
+                    let advance = (width * size + spacing) * scaling;
                     placed.push(Placed {
                         font: key,
                         size,
-                        bytes: vec![code],
+                        hex,
+                        bytes,
                         x: cursor,
                         step: advance,
                         ink: !c.is_whitespace(),
@@ -809,9 +957,13 @@ impl<'a> Page<'a> {
         };
         let mut natural = 0.0_f32;
         let mut items: Vec<Item> = Vec::new();
+        let mut hex = false;
         for glyph in &placed {
+            if sim.font != Some(glyph.font) || sim.size != glyph.size || glyph.hex != hex {
+                flush(&mut out, &mut items, tj, hex)?;
+                hex = glyph.hex;
+            }
             if sim.font != Some(glyph.font) || sim.size != glyph.size {
-                flush(&mut out, &mut items, tj)?;
                 let name = name_of(glyph.font).ok_or(Unsupported::Operators)?;
                 set_font(&mut out, &name, glyph.size)?;
                 sim.font = Some(glyph.font);
@@ -832,7 +984,7 @@ impl<'a> Page<'a> {
             }
             natural += glyph.step;
         }
-        flush(&mut out, &mut items, tj)?;
+        flush(&mut out, &mut items, tj, hex)?;
         sim.text_matrix = multiply([1.0, 0.0, 0.0, 1.0, natural, 0.0], state.text_matrix);
         sim.line_matrix = state.line_matrix;
         let target = &events.last().ok_or(Unsupported::Operators)?.state;
@@ -886,6 +1038,98 @@ fn encode(font: &PdfFont, program: Option<&FontProgram<'_>>, c: char) -> Option<
     (0..=u8::MAX).find(|&code| font.text(u32::from(code)) == text && font.has_glyph(program, code))
 }
 
+/// A new character's code in a composite font.
+struct Composite {
+    bytes: Vec<u8>,
+    /// Its advance per unit of font size.
+    width: f32,
+    /// What a copy of the font must add for it; `None` when the font draws it as it is.
+    needs: Option<Needs>,
+}
+
+/// What a copy of a composite font adds for a new code.
+struct Needs {
+    cid: u32,
+    /// Its advance in thousandths of an em, which `/W` lacks and `/DW` is not.
+    width: Option<f32>,
+    /// Whether the ToUnicode CMap needs an entry for it, and its character.
+    text: bool,
+    c: char,
+}
+
+/// The code of composite `font` that draws `c` (module documentation): the one its ToUnicode
+/// CMap gives `c` when its CID has a glyph, else the code of the CID of the glyph the program's
+/// cmap gives `c`, with what a copy of the font must add for it.
+fn encode_composite(
+    font: &PdfFont,
+    program: Option<&FontProgram<'_>>,
+    c: char,
+) -> Option<Composite> {
+    if c == char::REPLACEMENT_CHARACTER || !font.cmap_known || font.vertical() {
+        return None;
+    }
+    let cmap = font.cmap.as_ref()?;
+    let text = c.to_string();
+    // The code's bytes, which the codespace must read back as this one code.
+    let bytes_of = |code: u32, length: usize| -> Option<Vec<u8>> {
+        let all = code.to_be_bytes();
+        let bytes = all.get(4_usize.checked_sub(length)?..)?.to_vec();
+        let read: Vec<(u32, usize)> = cmap.codes(&bytes).collect();
+        (read == [(code, length)]).then_some(bytes)
+    };
+    // Without a program the reader's own font draws the CIDs; one that does not parse is
+    // trusted the same way.
+    let drawn =
+        |cid: u32| program.map_or(cid != 0, |program| font.cid_glyph(program, cid).is_some());
+    let mapped = font.to_unicode.as_ref();
+    if let Some((code, length)) = mapped.and_then(|cmap| cmap.code_for_text(&text))
+        && let Some(bytes) = bytes_of(code, length)
+        && cmap.cid(code, length).is_some_and(drawn)
+    {
+        return Some(Composite {
+            bytes,
+            width: font.width(code, length),
+            needs: None,
+        });
+    }
+    let program = program?;
+    let glyph = program.glyph_for_char(c).filter(|glyph| glyph.0 != 0)?;
+    let cid = font.glyph_cid(program, glyph)?;
+    if font.cid_glyph(program, cid) != Some(glyph) {
+        return None;
+    }
+    let (code, length) = cmap.code_for_cid(cid)?;
+    let bytes = bytes_of(code, length)?;
+    let needs_text = match mapped.and_then(|cmap| cmap.text(code)) {
+        Some(other) if other != text => return None,
+        Some(_) => false,
+        None => true,
+    };
+    let resource = &font.resource;
+    let listed = resource
+        .cid_widths
+        .iter()
+        .any(|&(first, last, _)| (first..=last).contains(&cid));
+    let units = f32::from(program.units_per_em());
+    let advance = (!listed && units > 0.0)
+        .then(|| program.advance_width(glyph))
+        .flatten()
+        .map(|advance| (advance * 1000.0 / units).round())
+        .filter(|advance| advance.is_finite() && (advance - resource.default_width).abs() > 0.5);
+    let width = advance.map_or_else(|| font.width(code, length), |advance| advance / 1000.0);
+    let needs = (needs_text || advance.is_some()).then_some(Needs {
+        cid,
+        width: advance,
+        text: needs_text,
+        c,
+    });
+    Some(Composite {
+        bytes,
+        width,
+        needs,
+    })
+}
+
 /// What the operators after `events`' start need restored: nothing when the text object ends
 /// or the matrix is set anew, the line matrix before a move to the next line, both otherwise.
 fn need_after(events: &[Event]) -> Need {
@@ -907,8 +1151,9 @@ enum Item {
 }
 
 /// Writes the pending `items` as one show and clears them: `Tj` for a single string when the
-/// line had no `TJ`, else `TJ`.
-fn flush(out: &mut Vec<u8>, items: &mut Vec<Item>, tj: bool) -> Result<(), Unsupported> {
+/// line had no `TJ`, else `TJ`; its strings in hex when `hex`.
+fn flush(out: &mut Vec<u8>, items: &mut Vec<Item>, tj: bool, hex: bool) -> Result<(), Unsupported> {
+    let string = if hex { hex_string } else { string };
     match items.as_slice() {
         [] => return Ok(()),
         [Item::Text(bytes)] if !tj => {
@@ -1071,10 +1316,39 @@ fn string(out: &mut Vec<u8>, bytes: &[u8]) {
     out.push(b')');
 }
 
+/// A hex string, `<…>`.
+fn hex_string(out: &mut Vec<u8>, bytes: &[u8]) {
+    out.push(b'<');
+    for byte in bytes {
+        out.extend_from_slice(format!("{byte:02X}").as_bytes());
+    }
+    out.push(b'>');
+}
+
 #[cfg(test)]
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn composite_runs_are_written_in_hex() {
+        let mut out = Vec::new();
+        hex_string(&mut out, &[0x00, 0x0A, 0x82, 0xFF]);
+        assert_eq!(out, b"<000A82FF>");
+        let mut out = Vec::new();
+        let mut items = vec![
+            Item::Text(vec![0x01, 0x02]),
+            Item::Number(-250.0),
+            Item::Text(vec![0x82, 0xA0]),
+        ];
+        flush(&mut out, &mut items, false, true).unwrap();
+        assert_eq!(out, b"[<0102> -250 <82A0>] TJ");
+        let mut items = vec![Item::Text(vec![0x30, 0x42])];
+        let mut out = Vec::new();
+        flush(&mut out, &mut items, false, true).unwrap();
+        assert_eq!(out, b"<3042> Tj");
+        assert!(items.is_empty());
+    }
 
     #[test]
     fn strings_escape_what_a_literal_cannot_hold() {

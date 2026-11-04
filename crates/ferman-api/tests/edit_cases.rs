@@ -1,5 +1,5 @@
-//! The pixel-diff acceptance cases of ROADMAP §7 that simple fonts reach (W1 of the M3 plan),
-//! through the engine crates the facade is built on: ferman-text rewrites a block, ferman-core's
+//! The pixel-diff acceptance cases of ROADMAP §7 that simple and composite fonts reach (W1 and
+//! W2 of the M3 plan), through the engine crates the facade is built on: ferman-text rewrites a block, ferman-core's
 //! splicer and incremental writer save it, the saved file is read back from disk, and
 //! ferman-render's harness renders every page before and after at 72, 150 and 300 dpi
 //! (docs/ARCHITECTURE.md §13.4).
@@ -8,7 +8,9 @@
 //! - the original file is an exact prefix of the saved one, and the update's classic
 //!   cross-reference table names the original's as `/Prev` and points at every object it lists;
 //! - the update section holds only the edited content streams (or this page's copy of a shared
-//!   one, or the copy of an edited form), the page objects that name a copy, and nothing else;
+//!   one, or the copy of an edited form), the page objects that name a copy, the new Type0,
+//!   CIDFont and ToUnicode objects of a font copy, and nothing else: every original font
+//!   dictionary stays as it is;
 //!   each edited stream's decoded bytes outside the replaced spans are identical (a placement's
 //!   `Do` may only draw another name);
 //! - PDFium opens the saved file with the same page count;
@@ -379,8 +381,9 @@ fn xref_problems(original: &[u8], saved: &[u8]) -> Vec<String> {
     problems
 }
 
-/// The byte checks of the module documentation; the problems found.
-fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits) -> Vec<String> {
+/// The byte checks of the module documentation, for an edit that made `fonts` font copies; the
+/// problems found.
+fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits, fonts: usize) -> Vec<String> {
     if !saved.starts_with(original) {
         return vec!["the original is not a prefix of the saved file".to_owned()];
     }
@@ -391,8 +394,18 @@ fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits) -> Vec<String> {
         .iter()
         .filter(|object| original_object(original, object.id).is_none())
         .count();
+    let mut font_objects = 0;
     for object in &objects {
         let old = original_object(original, object.id);
+        let font = object.is(b"/Type /Font") || object.is(b"/Type/Font");
+        let to_unicode = object.raw.is_some() && {
+            let data = object.data();
+            data.windows(9).any(|window| window == b"begincmap")
+        };
+        if old.is_none() && fonts > 0 && (font || to_unicode) {
+            font_objects += 1;
+            continue;
+        }
         if object.raw.is_none() {
             let page = old
                 .as_ref()
@@ -427,6 +440,11 @@ fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits) -> Vec<String> {
             )),
         }
     }
+    if font_objects != 3 * fonts {
+        problems.push(format!(
+            "{font_objects} new font objects for {fonts} font copies"
+        ));
+    }
     for source in edits.keys() {
         if !landed.contains(source) {
             problems.push(format!(
@@ -440,7 +458,28 @@ fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits) -> Vec<String> {
 /// Rewrites the block with `from` on `page` of corpus file `file` to say `to`, saves it, and
 /// runs every check; panics with the reports when one fails.
 fn case(name: &str, file: &str, page: usize, from: &str, to: &str) {
-    let original = corpus(file);
+    let (saved, problems) = saved_case(name, corpus(file), page, from, to);
+    rendered_case(name, &saved, problems, page, to);
+}
+
+/// What [`saved_case`] keeps for [`rendered_case`].
+struct Saved {
+    original: Vec<u8>,
+    doc: Document,
+    block: TextBlock,
+    path: PathBuf,
+    rewrite: ferman_text::Rewrite,
+}
+
+/// [`case`] up to the save: rewrites, applies the font copies and splices in one transaction,
+/// writes the incremental update and runs the byte checks.
+fn saved_case(
+    name: &str,
+    original: Vec<u8>,
+    page: usize,
+    from: &str,
+    to: &str,
+) -> (Saved, Vec<String>) {
     let doc = open(
         &Source::from_bytes(Arc::from(original.as_slice())),
         &OpenOptions::default(),
@@ -464,7 +503,7 @@ fn case(name: &str, file: &str, page: usize, from: &str, to: &str) {
     let mut edits = Edits::new();
     let mut splices = Vec::new();
     let mut placements: Vec<Placement> = Vec::new();
-    for splice in rewrite.splices {
+    for splice in rewrite.splices.clone() {
         let (SpanSource::Page { stream: id } | SpanSource::Form { form: id }) = splice.source;
         edits
             .entry(id)
@@ -491,6 +530,7 @@ fn case(name: &str, file: &str, page: usize, from: &str, to: &str) {
     }
     let mut store = RevisionStore::new(&doc);
     store.begin().unwrap();
+    store.add_fonts(&doc, page, &rewrite.fonts).unwrap();
     store.splice(&doc, page, &splices, &placements).unwrap();
     store.commit().unwrap();
     let path = saved_dir().join(format!("{name}.pdf"));
@@ -498,8 +538,28 @@ fn case(name: &str, file: &str, page: usize, from: &str, to: &str) {
 
     // Everything after this reads the saved file from disk.
     let saved = std::fs::read(&path).unwrap();
-    let mut problems = byte_problems(&original, &saved, &edits);
-    let after = open(&Source::read(&path).unwrap(), &OpenOptions::default()).unwrap();
+    let problems = byte_problems(&original, &saved, &edits, rewrite.fonts.len());
+    let saved = Saved {
+        original,
+        doc,
+        block,
+        path,
+        rewrite,
+    };
+    (saved, problems)
+}
+
+/// [`case`] after the save: reopens the saved file, finds the new text and compares the renders.
+fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page: usize, to: &str) {
+    let Saved {
+        original,
+        doc,
+        block,
+        path,
+        ..
+    } = saved_case;
+    let saved = std::fs::read(path).unwrap();
+    let after = open(&Source::read(path).unwrap(), &OpenOptions::default()).unwrap();
     let mut boxes = vec![block.bbox];
     boxes.extend(
         text_page(&after, page, &EditContext::default())
@@ -672,6 +732,213 @@ fn e26_inline_image() {
         "Duyuru",
         "Duyurular",
     );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_zh_hans_identity_h() {
+    case(
+        "e12-zh-hans",
+        "zh-hans",
+        0,
+        "一万九千五百元",
+        "一万五千九百元",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_zh_hant_identity_h() {
+    case("e12-zh-hant", "zh-hant", 0, "十一月十五日", "十一月五十日");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_ko_para_justified_by_tj() {
+    case("e12-ko-para", "ko-para", 0, "11월 30일에", "11월 03일에");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_japanese_predefined_cmap() {
+    case(
+        "e12-90ms-rksj",
+        "edit-90ms-rksj",
+        0,
+        "マンションの",
+        "ションマンの",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn cff_cid_font() {
+    case("cff-cid", "edit-cff-cid", 0, "2 Kasım 2026", "6 Kasım 2022");
+}
+
+/// A page with two blocks in one composite font, `/F1`: the full IBM Plex Sans as an
+/// `Identity-H` `CIDFontType2` font whose `/W` and ToUnicode CMap hold only the glyphs the page
+/// draws, as producers write them. Typing a character of the program the page does not draw
+/// needs a copy of the font.
+fn composite_pdf() -> Vec<u8> {
+    const PLEX_SANS: &[u8] =
+        include_bytes!("../../../app/assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf");
+    let program = ferman_fonts::FontProgram::parse(PLEX_SANS).unwrap();
+    let units = f32::from(program.units_per_em());
+    let lines = [("Merhaba dünya", 140), ("Ferman", 80)];
+    let mut glyphs = BTreeMap::new();
+    let mut content = String::new();
+    for (text, y) in lines {
+        let mut hex = String::new();
+        for c in text.chars() {
+            let glyph = program.glyph_for_char(c).unwrap();
+            let width = (program.advance_width(glyph).unwrap() * 1000.0 / units).round();
+            glyphs.insert(glyph.0, (c, width));
+            hex.push_str(&format!("{:04X}", glyph.0));
+        }
+        content.push_str(&format!("BT /F1 18 Tf 40 {y} Td <{hex}> Tj ET\n"));
+    }
+    let widths: String = glyphs
+        .iter()
+        .map(|(gid, (_, width))| format!("{gid} [{width}] "))
+        .collect();
+    let mut cmap = String::from(
+        "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n1 begincodespacerange\n<0000> <FFFF>\nendcodespacerange\n",
+    );
+    cmap.push_str(&format!("{} beginbfchar\n", glyphs.len()));
+    for (gid, (c, _)) in &glyphs {
+        cmap.push_str(&format!("<{gid:04X}> <{:04X}>\n", u32::from(*c)));
+    }
+    cmap.push_str("endbfchar\nendcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n");
+    let stream = |dict: &str, data: &[u8]| {
+        let mut out = format!("<< {dict} /Length {} >>\nstream\n", data.len()).into_bytes();
+        out.extend_from_slice(data);
+        out.extend_from_slice(b"\nendstream");
+        out
+    };
+    let objects: Vec<Vec<u8>> = vec![
+        b"<< /Type /Catalog /Pages 2 0 R >>".to_vec(),
+        b"<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_vec(),
+        b"<< /Type /Page /Parent 2 0 R /MediaBox [0 0 400 200] /Resources << /Font << /F1 4 0 R >> >> /Contents 8 0 R >>".to_vec(),
+        b"<< /Type /Font /Subtype /Type0 /BaseFont /IBMPlexSans /Encoding /Identity-H /DescendantFonts [5 0 R] /ToUnicode 7 0 R >>".to_vec(),
+        format!("<< /Type /Font /Subtype /CIDFontType2 /BaseFont /IBMPlexSans /CIDSystemInfo << /Registry (Adobe) /Ordering (Identity) /Supplement 0 >> /FontDescriptor 6 0 R /DW 1000 /W [{widths}] /CIDToGIDMap /Identity >>").into_bytes(),
+        b"<< /Type /FontDescriptor /FontName /IBMPlexSans /Flags 32 /FontBBox [-200 -300 1200 1100] /ItalicAngle 0 /Ascent 1025 /Descent -275 /CapHeight 698 /StemV 80 /FontFile2 9 0 R >>".to_vec(),
+        stream("", cmap.as_bytes()),
+        stream("", content.as_bytes()),
+        stream(&format!("/Length1 {}", PLEX_SANS.len()), PLEX_SANS),
+    ];
+    let mut pdf = b"%PDF-1.7\n".to_vec();
+    let mut offsets = Vec::new();
+    for (at, object) in objects.iter().enumerate() {
+        offsets.push(pdf.len());
+        pdf.extend_from_slice(format!("{} 0 obj\n", at + 1).as_bytes());
+        pdf.extend_from_slice(object);
+        pdf.extend_from_slice(b"\nendobj\n");
+    }
+    let xref = pdf.len();
+    pdf.extend_from_slice(
+        format!("xref\n0 {}\n0000000000 65535 f \n", objects.len() + 1).as_bytes(),
+    );
+    for offset in offsets {
+        pdf.extend_from_slice(format!("{offset:010} 00000 n \n").as_bytes());
+    }
+    pdf.extend_from_slice(
+        format!(
+            "trailer\n<< /Size {} /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n",
+            objects.len() + 1
+        )
+        .as_bytes(),
+    );
+    pdf
+}
+
+#[test]
+fn a_new_code_goes_into_a_copy_of_the_font() {
+    let (saved, problems) = saved_case(
+        "new-font-copy",
+        composite_pdf(),
+        0,
+        "Merhaba dünya",
+        "Merhaba güneş",
+    );
+    assert!(problems.is_empty(), "{problems:?}");
+    // One copy of /F1 with "g" and "ş" (their widths and text), which "e" and "n" do not need.
+    let [copy] = saved.rewrite.fonts.as_slice() else {
+        panic!("{:?}", saved.rewrite.fonts);
+    };
+    assert_eq!(
+        (copy.base.as_slice(), copy.name.as_slice()),
+        (&b"F1"[..], &b"F1_1"[..])
+    );
+    assert_eq!(copy.widths.len(), 2);
+    let [splice] = saved.rewrite.splices.as_slice() else {
+        panic!("one line");
+    };
+    let names = |bytes: &[u8]| bytes.windows(6).filter(|w| w == b"/F1_1 ").count();
+    assert!(names(&splice.bytes) > 0);
+    // The saved file reads the new text, and the other block keeps the original font: the copy's
+    // name is only in the edited line's operators.
+    let after = open(&Source::read(&saved.path).unwrap(), &OpenOptions::default()).unwrap();
+    let text = ferman_text::page_text(&after, 0).unwrap();
+    assert!(
+        text.contains("Merhaba güneş") && text.contains("Ferman"),
+        "{text}"
+    );
+    let saved_bytes = std::fs::read(&saved.path).unwrap();
+    let section = section_objects(&saved_bytes[saved.original.len()..]);
+    let content = section
+        .iter()
+        .find(|object| object.id == (8, 0))
+        .unwrap()
+        .data();
+    assert_eq!(names(&content), names(&splice.bytes));
+    // Undo and redo take the copy with the splice: one transaction.
+    let mut store = RevisionStore::new(&saved.doc);
+    store.begin().unwrap();
+    store
+        .add_fonts(&saved.doc, 0, &saved.rewrite.fonts)
+        .unwrap();
+    let splices: Vec<Splice> = saved
+        .rewrite
+        .splices
+        .iter()
+        .map(|splice| Splice {
+            source: splice.source,
+            range: splice.range.clone(),
+            bytes: splice.bytes.clone(),
+        })
+        .collect();
+    store.splice(&saved.doc, 0, &splices, &[]).unwrap();
+    store.commit().unwrap();
+    let read = |store: &RevisionStore| {
+        ferman_text::text_page_revised(&saved.doc, store, 0, &EditContext::default())
+            .unwrap()
+            .blocks
+            .iter()
+            .flat_map(|block| &block.lines)
+            .map(|line| line.text.clone())
+            .collect::<Vec<_>>()
+    };
+    assert_eq!(read(&store), ["Merhaba güneş", "Ferman"]);
+    store.undo().unwrap();
+    assert_eq!(read(&store), ["Merhaba dünya", "Ferman"]);
+    store.redo().unwrap();
+    assert_eq!(read(&store), ["Merhaba güneş", "Ferman"]);
+    // A second copy under the same name is refused.
+    store.begin().unwrap();
+    assert!(
+        store
+            .add_fonts(&saved.doc, 0, &saved.rewrite.fonts)
+            .is_err()
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e12_new_font_dictionary() {
+    let to = "Merhaba güneş";
+    let (saved, problems) = saved_case("e12-font-copy", composite_pdf(), 0, "Merhaba dünya", to);
+    rendered_case("e12-font-copy", &saved, problems, 0, to);
 }
 
 #[test]
