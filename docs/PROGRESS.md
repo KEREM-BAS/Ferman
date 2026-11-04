@@ -1198,6 +1198,10 @@ integration tests; 18. closing documents. Two more are kept for CI fixes.
 
 ### Questions for the owner with the M3 plan
 
+**Answered by the owner on 2026-11-04: all four as proposed.** The `platform` module, the
+signing crates in `tools/corpus`, `unicode-linebreak` and the owner's real-world files are part of
+the plan; ADR 0010 and DEPENDENCIES are updated in the commits that bring them.
+
 1. **`unsafe` outside ferman-api.** `ferman-core` has `#![forbid(unsafe_code)]`, and `tools/checks`
    allows `unsafe` only in ferman-api (ADR 0010). Windows `ReplaceFileW`, macOS `fcopyfile` (keeping
    metadata) and clonefile or reflink need FFI. Proposed: one small `platform` module in ferman-core
