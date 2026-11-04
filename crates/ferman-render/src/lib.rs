@@ -39,6 +39,10 @@
 //!   first.
 //! - `document` (private, M2): a document in PDFium with its loaded-page cache, and rendering with
 //!   the fixed flags it documents.
+//! - `diff` (M3): the pixel-diff harness of the edit acceptance tests: [`render_page`] puts a
+//!   page's tiles together at one of the fixed [`RESOLUTIONS`], [`device_region`] turns an edited
+//!   block's boxes into device pixels, and [`compare`] measures a [`PixelDiff`] against that region
+//!   grown by [`EDIT_MARGIN`] (docs/ARCHITECTURE.md §13.4).
 //! - `library` (private, M1): binding the library and the first call, and the rule that one render
 //!   thread uses PDFium at a time, because pdfium-render's `thread_safe` lock covers only part of
 //!   its bindings.
@@ -51,12 +55,16 @@
 #![forbid(unsafe_code)]
 
 mod cache;
+mod diff;
 mod document;
 mod library;
 mod queue;
 mod thread;
 mod tiles;
 
+pub use diff::{
+    EDIT_MARGIN, PageRaster, PixelDiff, RESOLUTIONS, compare, device_region, render_page, tiles_at,
+};
 pub use thread::{
     DocumentId, OpenedDocument, PdfiumStatus, RenderConfig, RenderThread, THREAD_NAME, ViewId,
 };
