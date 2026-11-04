@@ -283,8 +283,7 @@ pub(crate) fn rebuild(
             .map(|(&number, &(offset, generation))| (number, Entry::Normal { offset, generation }))
             .collect(),
         trailer,
-        sections: 0,
-        size: 0,
+        ..Xref::default()
     };
     xref.size = crate::xref::size_of(&xref);
     let objects = u32::try_from(scan.objects.len()).unwrap_or(u32::MAX);

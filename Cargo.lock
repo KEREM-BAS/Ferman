@@ -777,6 +777,7 @@ version = "0.1.0"
 dependencies = [
  "aes",
  "flate2",
+ "getrandom",
  "lopdf",
  "md-5 0.11.0",
  "proptest",

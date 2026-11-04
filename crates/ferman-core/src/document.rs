@@ -49,6 +49,8 @@ struct Encryption {
     info: EncryptionInfo,
     access: Access,
     decrypter: Decrypter,
+    /// The encryption dictionary's object, when it is indirect: never rewritten or encrypted.
+    id: Option<ObjectId>,
 }
 
 /// An open document: its bytes, the lopdf model and what the open found.
@@ -229,6 +231,19 @@ impl Document {
     pub(crate) fn model(&self) -> &lopdf::Document {
         &self.model
     }
+
+    /// The cross-reference data as read from the file, or as repair rebuilt it.
+    pub(crate) fn xref(&self) -> &Xref {
+        &self.xref
+    }
+
+    /// An encrypted document's decrypter, which encrypts written objects too, and its
+    /// encryption dictionary's object.
+    pub(crate) fn decrypter(&self) -> Option<(&Decrypter, Option<ObjectId>)> {
+        self.encryption
+            .as_ref()
+            .map(|encryption| (&encryption.decrypter, encryption.id))
+    }
 }
 
 /// The encryption dictionary named by the trailer, read from the file.
@@ -337,6 +352,7 @@ pub fn open(source: &Source, options: &OpenOptions) -> Result<Document, CoreErro
             info,
             access,
             decrypter,
+            id,
         });
         encrypt_id = id;
     }

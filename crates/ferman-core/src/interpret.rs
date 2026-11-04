@@ -21,6 +21,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 use crate::content::{self, Operator};
 use crate::filters;
 use crate::limits::{LimitKind, Limits};
+use crate::revision::RevisionStore;
 use crate::structure::{FontKind, Scope, inherited, number};
 use crate::{CoreError, Document};
 
@@ -334,6 +335,16 @@ impl Document {
     /// CMaps) or another of the document's [`Limits`](crate::limits::Limits); a content stream
     /// that cannot be decoded is skipped.
     pub fn page_text(&self, index: usize, sink: &mut dyn TextSink) -> Result<(), CoreError> {
+        self.page_text_through(None, index, sink)
+    }
+
+    /// [`page_text`](Self::page_text), reading objects through `overlay`'s revisions.
+    pub(crate) fn page_text_through(
+        &self,
+        overlay: Option<&RevisionStore>,
+        index: usize,
+        sink: &mut dyn TextSink,
+    ) -> Result<(), CoreError> {
         let Some(page) = self.structure().pages.get(index) else {
             return Ok(());
         };
@@ -343,8 +354,9 @@ impl Document {
             limits,
             page_of: BTreeMap::new(),
             annotation_page: BTreeMap::new(),
+            overlay,
         };
-        let Ok(dict) = scope.doc.get_dictionary(page.id) else {
+        let Some(Object::Dictionary(dict)) = scope.object(page.id) else {
             return Ok(());
         };
         let resources =

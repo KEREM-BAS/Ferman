@@ -21,6 +21,9 @@ rc4.workspace = true
 stringprep.workspace = true
 unicode-normalization.workspace = true
 zeroize.workspace = true
+# AES initialisation vectors and the new /ID of an incremental update (M3 plan, decision 7): the
+# version lopdf already pulls, so Cargo.lock gains no package.
+getrandom = "0.4.3"
 
 [features]
 # Entry points for the fuzz targets in fuzz/; nothing else enables it.
