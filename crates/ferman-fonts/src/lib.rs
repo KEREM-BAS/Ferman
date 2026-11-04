@@ -39,7 +39,7 @@ pub mod program;
 pub mod type1;
 
 pub use cmap::CMap;
-pub use encoding::{BaseEncoding, SimpleEncoding, glyph_text};
+pub use encoding::{BaseEncoding, SimpleEncoding, glyph_names, glyph_text};
 pub use program::{FontProgram, GlyphId};
 pub use type1::{BuiltinEncoding, builtin_encoding};
 

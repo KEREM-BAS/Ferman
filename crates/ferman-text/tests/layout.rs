@@ -29,8 +29,9 @@ const KNOWN_TEXT: [(&str, usize); 4] = [
     ("report-ar", 10),
 ];
 
-/// Files whose glyph widths the engine does not know yet (BACKLOG: the standard 14 fonts'
-/// metrics), so only where their lines start is compared.
+/// Files whose ground truth measures other widths than the ones a reader draws: `edit-e15-helvetica`
+/// names Helvetica without `/Widths` but breaks its lines with IBM Plex Sans's widths, so only where
+/// its lines start is compared.
 const KNOWN_WIDTHS: [&str; 1] = ["edit-e15-helvetica"];
 
 fn squeeze(text: &str) -> String {

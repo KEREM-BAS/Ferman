@@ -197,6 +197,22 @@ pub fn glyph_text(name: &str) -> Option<String> {
     Some(text)
 }
 
+/// The glyph names the table gives `c`, sorted, then its `uniXXXX` name: the names a font
+/// program may store the glyph of `c` under.
+#[must_use]
+pub fn glyph_names(c: char) -> Vec<String> {
+    let mut found: Vec<String> = names()
+        .iter()
+        .filter(|&(_, &named)| named == c)
+        .map(|(&name, _)| name.to_owned())
+        .collect();
+    found.sort();
+    if let Ok(unit) = u16::try_from(u32::from(c)) {
+        found.push(format!("uni{unit:04X}"));
+    }
+    found
+}
+
 /// One part of a ligature's name.
 fn component(part: &str) -> Option<String> {
     if let Some(&c) = names().get(part) {
@@ -734,5 +750,21 @@ mod tests {
         assert_eq!(glyph_text("multiply").as_deref(), Some("\u{D7}"));
         assert_eq!(glyph_text("ydieresis").as_deref(), Some("ÿ"));
         assert_eq!(glyph_text(".notdef"), None);
+    }
+
+    #[test]
+    fn characters_give_back_their_glyph_names() {
+        assert_eq!(glyph_names('ğ'), ["gbreve", "uni011F"]);
+        assert_eq!(
+            glyph_names('\u{A0}'),
+            ["nbspace", "nonbreakingspace", "uni00A0"]
+        );
+        assert_eq!(glyph_names('a'), ["a", "uni0061"]);
+        assert_eq!(glyph_names('😀'), Vec::<String>::new());
+        for c in ['ı', 'ş', '€', 'ﬁ', '7'] {
+            for name in glyph_names(c) {
+                assert_eq!(glyph_text(&name), Some(c.to_string()), "{name}");
+            }
+        }
     }
 }

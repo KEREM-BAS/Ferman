@@ -2,7 +2,7 @@
 
 Ferman's own code and documentation are licensed under the Apache License 2.0 (see [LICENSE](LICENSE)).
 
-This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export. `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
+This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export, and the generated table of standard 14 font widths in ferman-text ([below](#standard-14-font-widths)). `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
 
 The export itself ships no licence files (see [docs/DESIGN_GAPS.md](docs/DESIGN_GAPS.md#g08)), and `design/` must not be edited. The licence texts therefore live here, outside `design/`.
 
@@ -162,3 +162,14 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Standard 14 font widths
+
+`crates/ferman-text/src/standard14.rs` holds the advance widths of the twelve Latin standard 14 fonts
+(Courier, Helvetica and Times in four styles each), which a PDF may name without embedding them or
+listing `/Widths`. They are not copied from a font or an AFM file: `tools/standard14/generate.py`
+measures them by drawing each character with the pinned PDFium library (`tools/pdfium`), whose
+built-in standard fonts are metric-compatible with Adobe's Core14 AFM files, so the numbers are the
+AFM widths a reader uses. PDFium is BSD-3-Clause; its licence (`licenses/pdfium.txt` of the PDFium
+archive) ships with the app, see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md). Adobe's Core14 AFM
+files may be used, copied and distributed with their notice kept; Ferman ships none of them.

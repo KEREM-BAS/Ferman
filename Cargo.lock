@@ -830,6 +830,7 @@ dependencies = [
  "criterion",
  "ferman-core",
  "ferman-fonts",
+ "flate2",
  "icu_collator",
  "icu_locale_core",
  "serde_json",

@@ -18,11 +18,13 @@ use ferman_core::interpret::{
 };
 use ferman_core::structure::FontKind;
 use ferman_fonts::{
-    BaseEncoding, BuiltinEncoding, CMap, FontProgram, SimpleEncoding, builtin_encoding,
+    BaseEncoding, BuiltinEncoding, CMap, FontProgram, GlyphId, SimpleEncoding, builtin_encoding,
+    glyph_names,
 };
 use unicode_bidi::{BidiClass, BidiInfo, Level, bidi_class};
 
 use crate::TextError;
+use crate::standard14;
 
 /// The gap, as a share of the font size, from which two glyphs are two words.
 const WORD_GAP: f32 = 0.2;
@@ -114,12 +116,17 @@ pub struct GlyphLink {
 }
 
 /// A font, ready to split strings into codes and give their widths and text.
-struct PdfFont {
+pub(crate) struct PdfFont {
     /// A composite font's CMap; a simple font's codes are single bytes.
-    cmap: Option<CMap>,
+    pub(crate) cmap: Option<CMap>,
     encoding: SimpleEncoding,
     to_unicode: Option<CMap>,
-    resource: FontResource,
+    pub(crate) resource: FontResource,
+    /// A simple font's glyph names by code: its program's built-in encoding, then `/Differences`.
+    names: Vec<(u8, String)>,
+    /// A simple font without `/Widths`: each code's width in thousandths of an em, from the
+    /// standard 14 metrics or the embedded program (docs/ARCHITECTURE.md §6.2).
+    fallback: Vec<Option<f32>>,
     /// The ascent and descent per unit of font size (descent negative).
     ascent: f32,
     descent: f32,
@@ -162,26 +169,124 @@ impl PdfFont {
                 Vec::new(),
             ),
         };
-        let differences = builtin_codes
-            .iter()
-            .chain(&resource.differences)
-            .map(|(code, name)| (*code, name.as_str()));
+        let names: Vec<(u8, String)> = builtin_codes
+            .into_iter()
+            .chain(resource.differences.iter().cloned())
+            .collect();
+        let differences = names.iter().map(|(code, name)| (*code, name.as_str()));
         let (ascent, descent) = ascent_descent(resource);
-        Self {
+        let mut font = Self {
             cmap,
             encoding: SimpleEncoding::new(base, differences),
             to_unicode: resource.to_unicode.as_deref().map(CMap::parse),
             resource: resource.clone(),
+            names,
+            fallback: Vec::new(),
             ascent,
             descent,
+        };
+        if font.cmap.is_none() && resource.widths.is_empty() {
+            font.fallback = font.fallback_widths();
         }
+        font
     }
 
-    fn vertical(&self) -> bool {
+    /// The width of every code of a simple font without `/Widths`: a standard 14 font's metrics
+    /// by the code's character, else the embedded program's advance.
+    fn fallback_widths(&self) -> Vec<Option<f32>> {
+        let standard = standard14::widths(self.resource.base_font.as_deref());
+        let program = self.program();
+        let units = program
+            .as_ref()
+            .map_or(0.0, |program| f32::from(program.units_per_em()));
+        (0..=u8::MAX)
+            .map(|code| {
+                let standard = standard
+                    .zip(single(&self.text(u32::from(code))))
+                    .and_then(|(table, c)| standard14::width(table, c));
+                standard.or_else(|| {
+                    let program = program.as_ref().filter(|_| units > 0.0)?;
+                    let advance = program.advance_width(self.glyph(program, code)?)?;
+                    Some(advance * 1000.0 / units)
+                })
+            })
+            .collect()
+    }
+
+    /// The embedded program, when it parses.
+    pub(crate) fn program(&self) -> Option<FontProgram<'_>> {
+        FontProgram::parse(self.resource.font_program.as_deref()?).ok()
+    }
+
+    /// The glyph name a simple font's encoding gives `code`, when its program or `/Differences`
+    /// name one.
+    fn name(&self, code: u8) -> Option<&str> {
+        self.names
+            .iter()
+            .rev()
+            .find(|(at, _)| *at == code)
+            .map(|(_, name)| name.as_str())
+    }
+
+    /// The glyph of a simple font's `code` in its embedded `program`, not `.notdef`: a symbolic
+    /// TrueType font's through its symbol or Macintosh cmap, otherwise the one the code's glyph
+    /// name or its character finds (ISO 32000-2 §9.6.5.4).
+    pub(crate) fn glyph(&self, program: &FontProgram<'_>, code: u8) -> Option<GlyphId> {
+        let found = |glyph: Option<GlyphId>| glyph.filter(|glyph| glyph.0 != 0);
+        if self.resource.kind == FontKind::TrueType && self.resource.symbolic {
+            return found(program.glyph_for_char(char::from(code)));
+        }
+        if let Some(glyph) = found(
+            self.name(code)
+                .and_then(|name| program.glyph_for_name(name)),
+        ) {
+            return Some(glyph);
+        }
+        let c = single(&self.text(u32::from(code)))?;
+        found(program.glyph_for_char(c)).or_else(|| {
+            glyph_names(c)
+                .into_iter()
+                .find_map(|name| found(program.glyph_for_name(&name)))
+        })
+    }
+
+    /// Whether a simple font draws `code` with a glyph of its own, not `.notdef`: a Type3 font
+    /// through its `/CharProcs`, an embedded program through [`glyph`](Self::glyph), a standard
+    /// 14 font through its metrics, another font by its widths. `program` is
+    /// [`program`](Self::program)'s, parsed once by the caller.
+    pub(crate) fn has_glyph(&self, program: Option<&FontProgram<'_>>, code: u8) -> bool {
+        let resource = &self.resource;
+        if resource.kind == FontKind::Type3 {
+            return self
+                .name(code)
+                .is_some_and(|name| resource.char_procs.iter().any(|proc| proc.name == name));
+        }
+        if let Some(program) = program {
+            return self.glyph(program, code).is_some();
+        }
+        if resource.font_program.is_none()
+            && resource.widths.is_empty()
+            && let Some(table) = standard14::widths(resource.base_font.as_deref())
+        {
+            return single(&self.text(u32::from(code)))
+                .and_then(|c| standard14::width(table, c))
+                .is_some();
+        }
+        // A program that does not parse, or a font the reader finds on the system: its widths
+        // tell the codes it uses.
+        resource.widths.is_empty()
+            || u32::from(code)
+                .checked_sub(resource.first_char)
+                .and_then(|at| usize::try_from(at).ok())
+                .and_then(|at| resource.widths.get(at))
+                .is_some_and(|&width| width > 0.0)
+    }
+
+    pub(crate) fn vertical(&self) -> bool {
         self.cmap.as_ref().is_some_and(CMap::is_vertical)
     }
 
-    fn codes(&self, bytes: &[u8]) -> Vec<(u32, usize)> {
+    pub(crate) fn codes(&self, bytes: &[u8]) -> Vec<(u32, usize)> {
         match &self.cmap {
             Some(cmap) => cmap.codes(bytes).collect(),
             None => bytes.iter().map(|&byte| (u32::from(byte), 1)).collect(),
@@ -189,7 +294,7 @@ impl PdfFont {
     }
 
     /// The horizontal advance of `code`, per unit of font size.
-    fn width(&self, code: u32, length: usize) -> f32 {
+    pub(crate) fn width(&self, code: u32, length: usize) -> f32 {
         let font = &self.resource;
         if let Some(cmap) = &self.cmap {
             let cid = cmap.cid(code, length).unwrap_or(0);
@@ -204,14 +309,19 @@ impl PdfFont {
             .checked_sub(font.first_char)
             .and_then(|at| usize::try_from(at).ok())
             .and_then(|at| font.widths.get(at))
+            .or_else(|| {
+                usize::try_from(code)
+                    .ok()
+                    .and_then(|at| self.fallback.get(at))
+                    .and_then(Option::as_ref)
+            })
             .copied()
             .unwrap_or(font.missing_width);
         if font.kind == FontKind::Type3 {
             let [a, ..] = font.font_matrix;
             return width * a;
         }
-        // shortcut: a standard font without /Widths gets half an em; bundle the standard 14's
-        // metrics when their licence is checked (docs/ARCHITECTURE.md §6.2).
+        // A font without /Widths whose metrics no source gives gets half an em.
         if width == 0.0 && font.widths.is_empty() {
             return 0.5;
         }
@@ -235,7 +345,7 @@ impl PdfFont {
     }
 
     /// The text of `code`: its ToUnicode entry, the encoding's glyph name, or U+FFFD.
-    fn text(&self, code: u32) -> String {
+    pub(crate) fn text(&self, code: u32) -> String {
         if let Some(text) = self.to_unicode.as_ref().and_then(|cmap| cmap.text(code)) {
             return text;
         }
@@ -248,6 +358,12 @@ impl PdfFont {
         }
         char::REPLACEMENT_CHARACTER.to_string()
     }
+}
+
+/// The character of `text` when it is one.
+pub(crate) fn single(text: &str) -> Option<char> {
+    let mut chars = text.chars();
+    chars.next().filter(|_| chars.next().is_none())
 }
 
 /// The ascent and descent of `font` per unit of font size: from its embedded program, its
@@ -319,6 +435,13 @@ pub(crate) struct Glyph {
     pub(crate) descent: f32,
     /// Its show operator and its place in it.
     pub(crate) link: GlyphLink,
+    /// Its code and the code's length in bytes.
+    pub(crate) code: u32,
+    pub(crate) length: usize,
+    /// Where it starts along its show in the show's text space, and how far it advances there
+    /// (spacing included).
+    pub(crate) offset: f32,
+    pub(crate) step: f32,
     /// The show it is in, counted from 0 on the page.
     pub(crate) show: usize,
     /// The font's key.
@@ -341,7 +464,7 @@ pub(crate) struct Glyph {
 /// The sink that places glyphs.
 #[derive(Default)]
 pub(crate) struct Collector {
-    fonts: HashMap<u64, PdfFont>,
+    pub(crate) fonts: HashMap<u64, PdfFont>,
     pub(crate) glyphs: Vec<Glyph>,
     shows: usize,
     /// Whether the page draws an image (`Do` of an XObject that is not a form with content, or
@@ -438,6 +561,10 @@ impl TextSink for Collector {
                         span: show.span.clone(),
                         index,
                     },
+                    code,
+                    length,
+                    offset: advance,
+                    step,
                     show: show_index,
                     font: show.font,
                     render_mode: state.render_mode,
@@ -671,6 +798,10 @@ pub(crate) fn test_glyph(text: &str, start: [f32; 2]) -> Glyph {
             },
             index: 0,
         },
+        code: 0,
+        length: 1,
+        offset: 0.0,
+        step: 0.0,
         show: 0,
         font: 0,
         render_mode: 0,
