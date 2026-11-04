@@ -1,5 +1,5 @@
 /// `openSettingsStore()` for this platform: the file store on desktop, the
-/// memory store on the web (the conditional import keeps `dart:io` out of
+/// localStorage store on the web (the conditional import keeps `dart:io` out of
 /// the web build).
 library;
 

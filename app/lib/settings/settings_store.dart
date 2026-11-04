@@ -4,8 +4,8 @@ import 'package:ferman/settings/app_settings.dart';
 ///
 /// The desktop store (`FileSettingsStore`) writes `settings.json` in the
 /// app's own support directory and nothing else; settings never leave the
-/// device (ARCHITECTURE.md §12, ADR 0011). Tests and the web build use
-/// [MemorySettingsStore].
+/// device (ARCHITECTURE.md §12, ADR 0011). The web build keeps them in the
+/// browser's localStorage; tests use [MemorySettingsStore].
 abstract interface class SettingsStore {
   /// The stored settings, or the defaults when nothing is stored yet or the
   /// stored file cannot be read.
@@ -28,8 +28,7 @@ final class SettingsStoreException implements Exception {
   String toString() => 'SettingsStoreException: $message';
 }
 
-/// A [SettingsStore] that keeps the settings in memory only: tests, and the
-/// web build until phase 5 decides its storage.
+/// A [SettingsStore] that keeps the settings in memory only, for tests.
 final class MemorySettingsStore implements SettingsStore {
   /// A store holding [initial].
   new([AppSettings initial = const AppSettings()]) : _settings = initial;

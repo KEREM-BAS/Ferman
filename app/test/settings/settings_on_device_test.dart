@@ -215,7 +215,8 @@ import "dart:html";
       ];
       final forbiddenNames = RegExp(
         r'\b(HttpClient|HttpServer|HttpRequest|(Raw|Secure)?(Server)?Socket|'
-        r'WebSocket|RawDatagramSocket)\b',
+        r'WebSocket|RawDatagramSocket|fetch|XMLHttpRequest|sendBeacon|'
+        r'EventSource)\b',
       );
       final files = [
         for (final path in ['lib/settings', 'lib/features/settings'])
@@ -241,7 +242,12 @@ import "dart:html";
             ]),
           );
         }
+        // The web store reaches localStorage, and only it, through JS interop.
+        final allowed = file.path.endsWith('settings_store_web.dart')
+            ? const ['dart:js_interop']
+            : const <String>[];
         for (final uri in uris) {
+          if (allowed.contains(uri)) continue;
           for (final forbidden in forbiddenImports) {
             expect(
               uri.startsWith(forbidden),
