@@ -17,15 +17,15 @@
 //! The crate is a skeleton in M1. The layout below follows docs/ARCHITECTURE.md §2.3; each module
 //! arrives with the milestone that needs it.
 //!
-//! - `program`: `FontProgram` and `GlyphId`; TrueType and CFF/CFF2 through skrifa and read-fonts,
-//!   and the minimal Type1 parser. M2.
+//! - `program` (since M3): [`FontProgram`] and [`GlyphId`]; TrueType and OpenType through skrifa,
+//!   bare CFF and Type1 through read-fonts. A Type1 built-in encoding stays with `type1`.
 //! - `encoding` (since M2): [`BaseEncoding`] (Standard, WinAnsi, MacRoman), [`SimpleEncoding`]
-//!   with `/Differences`, and glyph names to text ([`glyph_text`]). MacExpert, PDFDoc, Symbol and
-//!   ZapfDingbats follow with the fonts that need them.
-//! - `type1` (since M2): the minimal Type1 parser, a program's [`BuiltinEncoding`] from its
+//!   with `/Differences`, and glyph names to text ([`glyph_text`]); since M3 also text back to
+//!   codes. MacExpert, PDFDoc, Symbol and ZapfDingbats follow with the fonts that need them.
+//! - `type1` (since M2): the minimal clear-text Type1 parser, a program's [`BuiltinEncoding`] from its
 //!   clear text ([`builtin_encoding`]).
 //! - `cmap` (since M2): [`CMap`], encoding and ToUnicode CMaps read leniently, with `usecmap`
-//!   recorded for the caller's depth limit; writing in M3.
+//!   recorded for the caller's depth limit; since M3 also text or CID back to code. Writing in M3.
 //! - `shaping`: the internal `Shaper` trait and `ShapedRun`, with harfrust behind it (ADR 0007), so
 //!   a change of shaper touches one module. M3.
 //! - `subset`: `Subset` through subsetter, respecting embedding permissions (OS/2 `fsType`). M3.
@@ -35,10 +35,12 @@
 
 pub mod cmap;
 pub mod encoding;
+pub mod program;
 pub mod type1;
 
 pub use cmap::CMap;
 pub use encoding::{BaseEncoding, SimpleEncoding, glyph_text};
+pub use program::{FontProgram, GlyphId};
 pub use type1::{BuiltinEncoding, builtin_encoding};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.

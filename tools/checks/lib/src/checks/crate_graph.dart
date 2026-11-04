@@ -36,6 +36,9 @@ final class CrateGraphCheck implements Check {
     'pdfium-render': 'ferman-render',
     // The document model: lopdf objects never leave ferman-core (ADR 0004).
     'lopdf': 'ferman-core',
+    // Font programs: fontations types never leave ferman-fonts.
+    'skrifa': 'ferman-fonts',
+    'read-fonts': 'ferman-fonts',
   };
 
   /// Crates for tests and benchmarks that must stay dev-dependencies.

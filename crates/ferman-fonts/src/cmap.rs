@@ -6,6 +6,9 @@
 //! [`CMap::inherit`] under its own depth limit (ferman-core follows embedded `/UseCMap` streams up
 //! to `Limits::max_usecmap_depth`, and ferman-text joins them). A range is kept as a range, so
 //! `<0000> <FFFF>` costs no more than one code.
+//!
+//! Back from text or a CID to a code ([`CMap::code_for_text`], [`CMap::code_for_cid`]): several
+//! codes may stand for one, and the shortest, then the lowest, is taken.
 // A parser module: offsets and values come from the data (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -21,8 +24,8 @@ pub struct CMap {
     codespace: Vec<(Vec<u8>, Vec<u8>)>,
     /// CID ranges: the low and the high code, their length, and the low code's CID.
     cids: Vec<(u32, u32, usize, u32)>,
-    /// `bfchar` entries.
-    text: HashMap<u32, String>,
+    /// `bfchar` entries: each code's length and text.
+    text: HashMap<u32, (usize, String)>,
     /// `bfrange` entries.
     text_ranges: Vec<TextRange>,
     vertical: bool,
@@ -36,12 +39,14 @@ enum TextRange {
     Counting {
         low: u32,
         high: u32,
+        length: usize,
         start: Vec<u16>,
     },
     /// Each code has its own text, in order.
     Listed {
         low: u32,
         high: u32,
+        length: usize,
         texts: Vec<String>,
     },
 }
@@ -101,10 +106,10 @@ impl CMap {
                 }
                 b"endbfchar" => {
                     for pair in stack.as_chunks::<2>().0 {
-                        if let [Token::Hex(code), Token::Hex(text)] = pair
-                            && let Some(code) = number(code)
+                        if let [Token::Hex(bytes), Token::Hex(text)] = pair
+                            && let Some(code) = number(bytes)
                         {
-                            cmap.text.insert(code, utf16(text));
+                            cmap.text.insert(code, (bytes.len(), utf16(text)));
                         }
                     }
                 }
@@ -113,6 +118,7 @@ impl CMap {
                         let [Token::Hex(low), Token::Hex(high), target] = triple else {
                             continue;
                         };
+                        let length = low.len();
                         let (Some(low), Some(high)) = (number(low), number(high)) else {
                             continue;
                         };
@@ -123,11 +129,13 @@ impl CMap {
                             Token::Hex(start) => cmap.text_ranges.push(TextRange::Counting {
                                 low,
                                 high,
+                                length,
                                 start: units(start),
                             }),
                             Token::Array(texts) => cmap.text_ranges.push(TextRange::Listed {
                                 low,
                                 high,
+                                length,
                                 texts: texts.iter().map(|text| utf16(text)).collect(),
                             }),
                             _ => {}
@@ -223,21 +231,80 @@ impl CMap {
     /// The text of `code` in a ToUnicode CMap.
     #[must_use]
     pub fn text(&self, code: u32) -> Option<String> {
-        if let Some(text) = self.text.get(&code) {
+        if let Some((_, text)) = self.text.get(&code) {
             return Some(text.clone());
         }
         self.text_ranges.iter().find_map(|range| match range {
-            TextRange::Counting { low, high, start } if (low..=high).contains(&&code) => {
+            TextRange::Counting {
+                low, high, start, ..
+            } if (low..=high).contains(&&code) => {
                 let mut units = start.clone();
                 let last = units.last_mut()?;
                 *last = last.checked_add(u16::try_from(code.checked_sub(*low)?).ok()?)?;
                 Some(decode(&units))
             }
-            TextRange::Listed { low, high, texts } if (low..=high).contains(&&code) => texts
+            TextRange::Listed {
+                low, high, texts, ..
+            } if (low..=high).contains(&&code) => texts
                 .get(usize::try_from(code.checked_sub(*low)?).ok()?)
                 .cloned(),
             _ => None,
         })
+    }
+
+    /// The code, with its length in bytes, whose ToUnicode text is `text`.
+    #[must_use]
+    pub fn code_for_text(&self, text: &str) -> Option<(u32, usize)> {
+        let target: Vec<u16> = text.encode_utf16().collect();
+        let chars = self
+            .text
+            .iter()
+            .filter(|(_, (_, mapped))| mapped == text)
+            .map(|(&code, &(length, _))| Some((code, length)));
+        let ranges = self.text_ranges.iter().flat_map(|range| match range {
+            TextRange::Counting {
+                low,
+                high,
+                length,
+                start,
+            } => {
+                let found = (|| {
+                    let (last, prefix) = start.split_last()?;
+                    let (target_last, target_prefix) = target.split_last()?;
+                    if prefix != target_prefix {
+                        return None;
+                    }
+                    let code = low.checked_add(u32::from(target_last.checked_sub(*last)?))?;
+                    (code <= *high).then_some((code, *length))
+                })();
+                vec![found]
+            }
+            TextRange::Listed {
+                low, length, texts, ..
+            } => (0_u32..)
+                .zip(texts)
+                .filter(|(_, mapped)| *mapped == text)
+                .map(|(offset, _)| Some((low.checked_add(offset)?, *length)))
+                .collect(),
+        });
+        chars
+            .chain(ranges)
+            .flatten()
+            // An earlier entry for the same code wins, as in `text`.
+            .filter(|&(code, _)| self.text(code).as_deref() == Some(text))
+            .min_by_key(|&(code, length)| (length, code))
+    }
+
+    /// The code, with its length in bytes, whose CID is `cid`.
+    #[must_use]
+    pub fn code_for_cid(&self, cid: u32) -> Option<(u32, usize)> {
+        self.cids
+            .iter()
+            .filter_map(|&(low, high, length, first)| {
+                let code = low.checked_add(cid.checked_sub(first)?)?;
+                (code <= high && self.cid(code, length) == Some(cid)).then_some((code, length))
+            })
+            .min_by_key(|&(code, length)| (length, code))
     }
 }
 
@@ -499,6 +566,95 @@ endcmap CMapName currentdict /CMap defineresource pop end end";
         child.inherit(&cmap);
         assert_eq!(child.cid(0x41, 1), Some(7), "the child's own mapping wins");
         assert_eq!(child.cid(0x8140, 2), Some(633));
+    }
+
+    #[test]
+    fn a_to_unicode_cmap_maps_text_back_to_the_shortest_lowest_code() {
+        let cmap = CMap::parse(
+            b"2 begincodespacerange <00> <7F> <8000> <FFFF> endcodespacerange
+4 beginbfchar
+<8001> <0041>
+<41> <0041>
+<9000> <00660069>
+<31> <0131>
+endbfchar
+3 beginbfrange
+<8100> <810F> <0100>
+<8200> <8202> [<011F> <015F> <011F>]
+<30> <32> <0130>
+endbfrange",
+        );
+        assert_eq!(
+            cmap.code_for_text("A"),
+            Some((0x41, 1)),
+            "one byte before two"
+        );
+        assert_eq!(cmap.code_for_text("fi"), Some((0x9000, 2)));
+        assert_eq!(
+            cmap.code_for_text("ğ"),
+            Some((0x8200, 2)),
+            "the lowest of two listed codes"
+        );
+        assert_eq!(cmap.code_for_text("ş"), Some((0x8201, 2)));
+        assert_eq!(cmap.code_for_text("İ"), Some((0x30, 1)));
+        assert_eq!(
+            cmap.code_for_text("ı"),
+            Some((0x31, 1)),
+            "bfchar overrides the range"
+        );
+        assert_eq!(cmap.code_for_text("Ĳ"), Some((0x32, 1)));
+        assert_eq!(cmap.code_for_text("ď"), Some((0x810F, 2)));
+        assert_eq!(cmap.code_for_text("Đ"), None, "past the range's end");
+        assert_eq!(cmap.code_for_text("B"), None);
+        assert_eq!(cmap.code_for_text(""), None);
+        // Every code of the shared ToUnicode comes back, ligatures and surrogates included; 0x32
+        // and 0x21 are both "ı", and the lower wins.
+        let shared = CMap::parse(TO_UNICODE);
+        for code in [3, 0x11, 0x12, 0x20, 0x21, 0x22, 0x30, 0x31, 0x32] {
+            let text = shared.text(code).unwrap();
+            let expected = if code == 0x32 { 0x21 } else { code };
+            assert_eq!(
+                shared.code_for_text(&text),
+                Some((expected, 2)),
+                "{code:#x}"
+            );
+        }
+    }
+
+    #[test]
+    fn an_encoding_cmap_maps_cids_back_to_the_shortest_lowest_code() {
+        let cmap = CMap::parse(
+            b"2 begincodespacerange <00> <80> <8140> <9FFC> endcodespacerange
+2 begincidrange <8140> <817E> 633 <9000> <9010> 640 endcidrange
+2 begincidchar <41> 640 <8150> 7 endcidchar",
+        );
+        assert_eq!(cmap.code_for_cid(633), Some((0x8140, 2)));
+        assert_eq!(
+            cmap.code_for_cid(640),
+            Some((0x41, 1)),
+            "one byte before two"
+        );
+        assert_eq!(
+            cmap.code_for_cid(641),
+            Some((0x8148, 2)),
+            "the lowest of two codes"
+        );
+        assert_eq!(
+            cmap.code_for_cid(649),
+            Some((0x8150, 2)),
+            "the range wins over cidchar"
+        );
+        assert_eq!(
+            cmap.code_for_cid(7),
+            None,
+            "an earlier range shadows the cidchar"
+        );
+        assert_eq!(cmap.code_for_cid(10_000), None);
+        assert_eq!(
+            CMap::identity(false).code_for_cid(0x0102),
+            Some((0x0102, 2))
+        );
+        assert_eq!(CMap::identity(false).code_for_cid(0x1_0000), None);
     }
 
     #[test]

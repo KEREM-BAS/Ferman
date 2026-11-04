@@ -7,6 +7,9 @@
 //! any other form (another named encoding, a computed array) reads as none. The built-in encodings
 //! of the non-embedded Symbol and ZapfDingbats are not here: they need their AFM tables, which
 //! arrive with the standard 14's metrics.
+//!
+//! The glyph names and widths a program has (its `/CharStrings`, in the encrypted part) come from
+//! [`crate::FontProgram`], which decrypts it.
 // A parser module: the program comes from a file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 

@@ -74,6 +74,11 @@ zeroize = "1.9.1"
 # backend: the standard HashMap is enough.
 crossbeam-channel = "0.5.17"
 lru = { version = "0.19.0", default-features = false }
+# Embedded font programs in ferman-fonts (fontations): skrifa reads TrueType and OpenType, read-fonts
+# bare CFF. Pinned exactly to tools/corpus's versions, so the engine has one fontations copy; they
+# move with harfrust and subsetter. Default features off: `std` only, no autohinter shaping.
+skrifa = { version = "=0.48.0", default-features = false, features = ["std"] }
+read-fonts = { version = "=0.45.1", default-features = false, features = ["std"] }
 
 # Dev and test only; never in the shipped graph.
 insta = "1.49.0"
