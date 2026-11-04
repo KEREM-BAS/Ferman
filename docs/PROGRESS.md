@@ -451,6 +451,18 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 
 - [ ] Editing existing text as brief §4 describes, save and save as, undo and redo, edit review
   list. [ROADMAP.md](ROADMAP.md), section 7.
+  - W0 (2026-11-04): committed, CI not yet seen. ferman-core's spans name their stream or form,
+    with the full graphics, text and marked-content state (`857a340`); ferman-fonts reads font
+    programs through skrifa and encodes Unicode back to codes (`00a78b0`); the edit corpus, 19 new
+    generators and `kira-tr-signed` (ECDSA P-256, so no RSA advisory exception) (`e769bad`,
+    `41baee6`); ferman-text's blocks, lines, alignment, justification method, tables, block ids,
+    hit testing and editability with reasons, matched 100% against `<name>.blocks.json` ground
+    truth from the generators (`8d3193a`); the API's text blocks, hit testing and selection, Edit
+    mode's hover frame and the not-allowed callout, and Select-tool selection and copy (B106)
+    (`74b4a62`, G125). Left for later waves or open: ground truth for form-aks1-tr, form-aks1-flat,
+    ocg-plan and truncated; standard-14 widths; the standard-14 AFM licence row; signature and
+    field areas in `EditContext`; ⌥ for every frame and Tab through blocks (B041); E05 needs a
+    restricted font installed by the test; `fa-zwnj` draws no ZWNJ (Plex Sans Arabic lacks it).
 - [ ] The owner approves M3
 
 ### M4 · Rest of phase 1
@@ -1390,3 +1402,4 @@ Newest last. One row per session.
 | 2026-11-04 | M2 (after the merge) | Main builds: `.github/workflows/main-builds.yml` runs when CI passes on a push to `main` (or by hand). It builds the macOS universal app, Windows x64 and Linux x64 release bundles and the web build (base href `/<repository>/`), scans each for design files, replaces the rolling `main-latest` prerelease with them, and publishes the web build on GitHub Pages. Unsigned test builds. Android is left out until the mobile phase (owner, 2026-11-04; B132). Four new actions in DEPENDENCIES §2.4. Not run yet: it starts only from `main`. | this commit |
 | 2026-11-04 | M2 (after the merge) | The nightly fuzz run of 2026-11-02 stopped xref_repair at libFuzzer's 2 GB RSS limit after 59 minutes. Not an engine bug: the input it saved runs in 2 ms and peaks at 180 MB on its own, and the report's live heap was 27 MB; the RSS grew steadily over the hour (ASan keeps freed memory). `fuzz-nightly.yml` now gives the process 4 GB (`-rss_limit_mb=4096`) and still stops any single input above 2 GB (`-malloc_limit_mb=2048`). The pull-request smoke run keeps 2 GB. | this commit |
 | 2026-11-04 | M3 | The owner approved M2 and gave the go-ahead for M3 (the open M2 owner checks, Q21 to Q25 and strace stay open and do not block it). Branch `m3-edit-text` from `main` at `ff94562`; the [M3 plan](#m3-plan) written from ROADMAP §7 for the owner's approval. | this commit |
+| 2026-11-04 | M3 | W0, built by agents in parallel worktrees and each reviewed adversarially: spans with their source and the full interpreter state, font programs and reverse encodings, the edit corpus with `kira-tr-signed`, the text model with hit testing and editability against generator ground truth, and the app's text blocks, hover and Select-tool copy. Checked on the owner's Mac (MacBook Pro M5 Pro): rustfmt, Clippy (both), `cargo test --workspace -- --include-ignored` with PDFium, the corpus tool (check, oracle, deny), cargo-deny, both analyzers, `flutter test --exclude-tags golden` (1,797 pass), the repository checks, `flutter build web`. Not checked: goldens and CI on Windows and Linux. | `857a340` to `74b4a62` |
