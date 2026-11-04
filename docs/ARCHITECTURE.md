@@ -654,7 +654,7 @@ Text inside a Form XObject used in several places is editable. The edited placem
 4. **Operator generation.** The replacement starts with the text state the original block started with (`Tf`, `Tc`, `Tw`, `Tz`, `TL`, `Ts`, `Tr`, colour) and positions lines with `Td` or `Tm` relative to the original line origins. `TJ` carries kerning and justification. Numbers are written with deterministic precision.
 5. **State invariant.** After the replacement, every piece of state that later operators can observe must equal what the original block left behind: text matrix, line matrix, text state parameters, colour and `q` depth. The generator ends with explicit operators that restore them (for example a final `Tm` with the original end matrix). Without this, a following `Td` relative to the line matrix would shift text outside the block.
 6. **Interleaved blocks.** When a block's operators are interleaved with other blocks' operators (common in multi-column output), all new text goes into the first span. The other spans are replaced with only the state-setting operators needed to keep the invariant.
-7. **Splice.** ferman-core replaces exactly the block's byte spans. The stream is re-encoded with its original filter where Ferman can encode it (Flate, LZW, ASCII85, ASCIIHex, RunLength, none), otherwise with Flate.
+7. **Splice.** ferman-core replaces exactly the block's byte spans. The stream is re-encoded with Flate, its other filters and `/DecodeParms` dropped and every other dictionary key kept (since M3 W1).
 8. **Proof.** A test asserts that the bytes outside the spans are identical and that the pixels outside the edited region are identical (section 13.4).
 
 ### 6.7 Missing glyphs

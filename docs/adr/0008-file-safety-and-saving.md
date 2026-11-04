@@ -59,6 +59,11 @@ error state, and the Saving group of a11-1c.
 
 ### The save sequence
 
+An incremental update of an encrypted document draws its AES initialisation vectors and the new
+second `/ID` from the system's generator through `getrandom` (M3 plan decision 7); tests pass fixed
+bytes.
+
+
 | Step | Linux | macOS | Windows |
 |---|---|---|---|
 | Temp file in the **same directory** (same volume), exclusive create | `.<name>.ferman-<random>.tmp` | same | same, hidden attribute |

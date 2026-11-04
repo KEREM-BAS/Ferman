@@ -77,9 +77,9 @@ stream boundaries when `/Contents` is an array.
    new text goes into the block's first span. Its other spans are replaced with only the state-setting
    operators needed to keep the invariant.
 7. **Splice.** ferman-core replaces exactly the block's byte spans in the **decoded** content stream.
-   Every other decoded byte stays identical. The stream is re-encoded with its original filter where
-   Ferman can encode it, otherwise with Flate. Compressed bytes necessarily change; decoded bytes
-   outside the spans do not.
+   Every other decoded byte stays identical. The stream is re-encoded with Flate, its other filters
+   and `/DecodeParms` dropped and every other dictionary key kept (since M3 W1). Compressed bytes
+   necessarily change; decoded bytes outside the spans do not.
 8. **Revision.** The new stream is a new version of the same object, kept in the revision overlay. If
    the stream is shared with other pages, it becomes a new object and only this page's `/Contents`
    changes. Text inside a Form XObject used in several places gets a copy of that XObject for the

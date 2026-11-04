@@ -164,9 +164,26 @@ jobs:
           export FERMAN_PDFIUM_PATH="$root/build/pdfium/$id/$lib"
           # The corpus oracle below uses the same library.
           echo "FERMAN_PDFIUM_PATH=$FERMAN_PDFIUM_PATH" >> "$GITHUB_ENV"
+          # Every file the edit and save tests write, for the structure checker below.
+          export FERMAN_SAVED_DIR="$RUNNER_TEMP/saved"
+          mkdir -p "$FERMAN_SAVED_DIR"
           cargo test --workspace --locked -- --ignored
           cargo run -q --locked -p ferman-cli -- info --json --pdfium "$FERMAN_PDFIUM_PATH" | tee "$RUNNER_TEMP/info.json"
           grep -q '"state": "loaded"' "$RUNNER_TEMP/info.json"
+      # An independent checker over every saved test file (M3 plan decision 3; CI only, never shipped).
+      - name: qpdf --check on the saved files
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get install -y -q qpdf
+          qpdf --version | head -1
+          shopt -s nullglob
+          files=("$RUNNER_TEMP"/saved/*.pdf)
+          [ "${#files[@]}" -gt 0 ] || { echo "no saved files"; exit 1; }
+          # Exit 3 is warnings only; the file is still valid.
+          for f in "${files[@]}"; do qpdf --check "$f" >/dev/null || [ $? -eq 3 ] || { echo "qpdf failed: $f"; exit 1; }; done
+          echo "${#files[@]} files checked"
       - name: CLI smoke test
         shell: bash
         run: |
