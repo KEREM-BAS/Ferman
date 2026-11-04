@@ -215,7 +215,7 @@ import "dart:html";
       ];
       final forbiddenNames = RegExp(
         r'\b(HttpClient|HttpServer|HttpRequest|(Raw|Secure)?(Server)?Socket|'
-        r'WebSocket|RawDatagramSocket|fetch|XMLHttpRequest|sendBeacon|'
+        'WebSocket|RawDatagramSocket|fetch|XMLHttpRequest|sendBeacon|'
         r'EventSource)\b',
       );
       final files = [
