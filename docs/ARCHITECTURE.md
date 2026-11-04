@@ -671,8 +671,8 @@ Every substitution is recorded as an edit in the review list (a3-12) and announc
 
 When the re-laid-out text needs more lines than the frame holds, the panel offers the design's three choices (a3-4):
 
-- **Extend block by N lines.** The frame grows down. If it would overlap other content (the IBAN line under Madde 4), the option is disabled with the reason, as a3-18 draws it ([G38](DESIGN_GAPS.md#g38)).
-- **Tighten spacing slightly.** Character or word spacing shrinks within a small cap (Proposed: 2%). If that is not enough, the option is disabled with the reason.
+- **Extend block by N lines.** The frame grows by N line pitches in the block's flow direction (down, or to the left for vertical columns). If the new lines' area would overlap another block of the page (the IBAN line under Madde 4) or leave the page, the option is disabled with the reason, as a3-18 draws it ([G38](DESIGN_GAPS.md#g38)); the engine names the block in the way and the UI words it. Images and paths join the obstacles when the text model records their boxes.
+- **Tighten spacing slightly.** Character spacing (`Tc`, so glyph shapes stay as they are) shrinks by the smallest step of 0.1% of the em per glyph that makes the text fit, within the cap (M3 plan decision 5: 2%); the amount is the one the label shows ("−0.6%"). If the cap is not enough, the option is disabled with the reason and the number of lines still over.
 - **Keep and warn.** The block model keeps all the text. The saved content stream draws the lines that fit and writes the rest clipped to the frame, so no text is lost and nothing is drawn over neighbouring content. The warning stays in the review list and on the page thumbnail until resolved. Text clipped this way is listed by "Remove hidden information" (a8-3, P2).
 
 The same machinery serves translation overflow later (a3-13b, P4). The labels are the brief's three labels everywhere ([G54](DESIGN_GAPS.md#g54)).

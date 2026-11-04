@@ -16,6 +16,7 @@ icu_collator.workspace = true
 icu_locale_core.workspace = true
 thiserror.workspace = true
 unicode-bidi.workspace = true
+unicode-linebreak.workspace = true
 unicode-normalization.workspace = true
 
 [dev-dependencies]

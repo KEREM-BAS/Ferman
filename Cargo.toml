@@ -68,6 +68,8 @@ icu_collator = "2.4.0"
 icu_locale_core = "2.4.0"
 # The bidi algorithm for right-to-left text (ferman-text), the version stringprep already pulls.
 unicode-bidi = { version = "0.3.18", default-features = false, features = ["hardcoded-data"] }
+# Line break opportunities (UAX #14) for reflow in ferman-text, tailored there with kinsoku.
+unicode-linebreak = "0.1.5"
 # Passwords and keys are wiped from memory when dropped (docs/ARCHITECTURE.md §9.2).
 zeroize = "1.9.1"
 # The render thread's request channel and its caches (ADR 0009). lru without its default hashbrown
