@@ -35,6 +35,7 @@ pub const GENERATORS: &[Generator] = &[
     kira::KIRA_TR,
     kira::KIRA_TR_DAMAGED,
     kira::KIRA_TR_RESTRICTED,
+    kira::KIRA_TR_SIGNED,
     damaged::TRUNCATED,
     damaged::DISAGREE_PAGES,
     payslip::PAYSLIP_AES256,

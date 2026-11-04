@@ -12,10 +12,13 @@
 //!   its cross-reference table two bytes early.
 //! - **kira-tr-restricted:** kira-tr with an owner password only (AES-128): it opens without a
 //!   password, but changes, copying, comments and form filling are not allowed (`a2-10a`).
+//! - **kira-tr-signed:** kira-tr with the landlord's signature field signed as PAdES baseline,
+//!   with a signature timestamp ([`crate::pades`]).
 
 use super::files::{Cell, jpeg, xlsx};
 use super::{Doc, generated, info, open_first, opens};
 use crate::crypt::{Method, PRINT_ONLY, Security};
+use crate::pades;
 use crate::pdf::{self, Content, Pdf, name, num, rect, text};
 use crate::sources::{FontFile, Sources};
 use crate::text::{Align, Flow, Frame, PageText, Paragraph, Style};
@@ -43,6 +46,13 @@ pub const KIRA_TR_RESTRICTED: Generator = Generator {
     expect: Expect::Opens { password: None },
 };
 
+/// The contract signed by the landlord.
+pub const KIRA_TR_SIGNED: Generator = Generator {
+    name: "kira-tr-signed",
+    build: |sources| build(sources, Variant::Signed),
+    expect: opens(),
+};
+
 /// The owner password of kira-tr-restricted.
 pub const OWNER_PASSWORD: &str = "Kaya-Moda-18";
 
@@ -51,6 +61,7 @@ enum Variant {
     Full,
     Damaged,
     Restricted,
+    Signed,
 }
 
 const CREATED: &str = "D:20261013093000+03'00'";
@@ -714,7 +725,11 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         "OpenAction" => open_first(ids[0]),
     };
     if variant != Variant::Damaged {
-        let (annots, acro) = form(&mut doc.pdf, ids[2], &fields)?;
+        let (annots, mut acro) = form(&mut doc.pdf, ids[2], &fields)?;
+        if variant == Variant::Signed {
+            sign_field(&mut doc.pdf, &fields, &annots)?;
+            acro.set("SigFlags", 3);
+        }
         set_page_entry(&mut doc.pdf, ids[2], "Annots", Object::Array(annots));
         catalog.set("AcroForm", acro);
         catalog.set("Names", attachments(&mut doc, sources)?);
@@ -723,6 +738,7 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         Variant::Full => "kira-tr",
         Variant::Damaged => "kira-tr-damaged",
         Variant::Restricted => "kira-tr-restricted",
+        Variant::Signed => "kira-tr-signed",
     };
     let title = if variant == Variant::Damaged {
         "Kira sözleşmesi (eski)"
@@ -742,12 +758,35 @@ fn build(sources: &Sources, variant: Variant) -> Result<Generated, String> {
         name,
         (variant == Variant::Restricted).then_some(&security),
     )?;
-    let bytes = if variant == Variant::Damaged {
-        shift_xref(&bytes, 2)?
-    } else {
-        bytes
+    let bytes = match variant {
+        Variant::Damaged => shift_xref(&bytes, 2)?,
+        Variant::Signed => pades::sign(bytes)?,
+        Variant::Full | Variant::Restricted => bytes,
     };
     Ok(generated(bytes, expected))
+}
+
+/// Gives the landlord's signature field its value, signed by [`pades::sign`] once written.
+fn sign_field(pdf: &mut Pdf, fields: &[Field], annots: &[Object]) -> Result<(), String> {
+    let value = pdf.add(pades::value(dictionary! {
+        "Name" => text("Mert Kaya"),
+        "Reason" => text("Sözleşmeyi onaylıyorum."),
+        "Location" => text("İstanbul"),
+        "M" => text(pades::SIGNED_AT),
+    }));
+    let widget = fields
+        .iter()
+        .zip(annots)
+        .find(|(field, _)| field.name == "kiraya_veren_imza")
+        .and_then(|(_, widget)| widget.as_reference().ok())
+        .ok_or("no landlord's signature field")?;
+    match pdf.doc.objects.get_mut(&widget) {
+        Some(Object::Dictionary(dict)) => {
+            dict.set("V", value);
+            Ok(())
+        }
+        _ => Err("the landlord's signature field is not a dictionary".to_owned()),
+    }
 }
 
 /// Sets one entry of a page dictionary.

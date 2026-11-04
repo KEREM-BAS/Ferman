@@ -12,6 +12,7 @@ pub mod crypt;
 pub mod docs;
 pub mod font;
 pub mod kinsoku;
+pub mod pades;
 pub mod pdf;
 pub mod raster;
 pub mod readme;

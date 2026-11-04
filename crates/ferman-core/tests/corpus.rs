@@ -49,6 +49,7 @@ fn healthy(name: &str, pages: usize) -> Document {
 fn healthy_files_open_fully() {
     for (name, pages) in [
         ("kira-tr", 3),
+        ("kira-tr-signed", 3),
         ("nda-en", 4),
         ("mietvertrag-de", 6),
         ("report-ar", 12),
@@ -277,4 +278,16 @@ fn the_structure_scan_finds_what_the_generators_wrote() {
     let kira = healthy("kira-tr", 3);
     assert!(kira.structure().fonts.iter().all(|font| font.embedded));
     assert!(kira.structure().scripts.count == 0);
+
+    let signed = healthy("kira-tr-signed", 3);
+    let signatures = &signed.structure().signatures;
+    assert_eq!(signatures.len(), 2, "{signatures:?}");
+    let landlord = signatures
+        .iter()
+        .find(|signature| signature.field == "kiraya_veren_imza")
+        .unwrap();
+    assert!(landlord.signed);
+    assert_eq!(landlord.signer.as_deref(), Some("Mert Kaya"));
+    assert_eq!(landlord.page, Some(2));
+    assert_eq!(landlord.signed_at.map(|date| date.hour), Some(10));
 }
