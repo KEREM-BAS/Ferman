@@ -14,16 +14,16 @@ Related: [roadmap](ROADMAP.md) · [questions](QUESTIONS.md) · [design gaps](DES
 
 | Topic | State |
 |---|---|
-| Milestone | **M2, open and view: in progress** (since 2026-10-19). Pull request #4 brought wave W0 (the feature registry) and the Dco trial of W1 into `main` (`6ce74df`), and pull request #5 the app icons (`8031ddd`). Pull request #6 brought the rest of W1 (merged as `d66e28e` on 2026-10-23), pull request #7 brought W2's API, engine services and viewer (merged as `652365d` on 2026-10-30), pull request #8 the sidebar, layers, text extraction and search (merged as `34d444d` on 2026-10-30), and M2 continues on the branch `m2-open-and-view` in pull request #9 to `main`. The owner approved the [M2 plan](#m2-plan) on 2026-10-17. W1: the Dco trial; the fuzz and corpus workspaces with ferman-core's stream filters; the corpus's first wave of 23 generated files with the PDFium oracle test; the render thread with tiles, its queue and caches, and the start screen's warning when PDFium is missing; and ferman-core's open path (cross-reference reading and repair, the security handler, lopdf, the structure scan) with the two-parser check and four more fuzz targets. W2: the API's open, close and views with the open path's errors, the bridge and the app's `EngineService` for them, the viewer on the canvas, the sidebar's tabs, showing and hiding layers, text extraction and search. W3 so far: opening files through the system open panel, a drop on the window and the system (double-click, "Open with", the command line, a second launch), into tabs that keep their view and their sidebar state, which close with the document, the engine's document properties, and the restricted and scripts bars with the owner unlock |
-| Previous | Phase 0 of M2 (the design sync): pull request #3 merged into `main` on 2026-10-17 (merge commit `b6fd215`; CI on `main` green, run [39022269403](https://github.com/KEREM-BAS/Ferman/actions/runs/39022269403)). M1 approved on 2026-10-16 (pull request #2, `aa7ad21`); M0 on 2026-10-15 (pull request #1, `fe99894`) |
-| Next | M2 is built and waits for the full CI check and the owner's review: pull request #10 holds the M2 close-out (W3's last rows, W4's goldens, comparison pairs, budgets and benchmark job). Owner checks before approval: the [pending owner checks](#pending-owner-checks), R1 and R2 numbers for ARCHITECTURE §14's budgets (`cargo bench`, `flutter drive --profile`), and answers to [Q21](QUESTIONS.md#q21) to [Q25](QUESTIONS.md#q25) and the CI-only strace job. M3 waits for the owner's go-ahead. |
+| Milestone | **M3, edit text core: planning** (since 2026-11-04, on the branch `m3-edit-text`; the [M3 plan](#m3-plan) waits for the owner's approval). M2 was approved on 2026-11-04 (below). M2 history: in progress from 2026-10-19. Pull request #4 brought wave W0 (the feature registry) and the Dco trial of W1 into `main` (`6ce74df`), and pull request #5 the app icons (`8031ddd`). Pull request #6 brought the rest of W1 (merged as `d66e28e` on 2026-10-23), pull request #7 brought W2's API, engine services and viewer (merged as `652365d` on 2026-10-30), pull request #8 the sidebar, layers, text extraction and search (merged as `34d444d` on 2026-10-30), and M2 continues on the branch `m2-open-and-view` in pull request #9 to `main`. The owner approved the [M2 plan](#m2-plan) on 2026-10-17. W1: the Dco trial; the fuzz and corpus workspaces with ferman-core's stream filters; the corpus's first wave of 23 generated files with the PDFium oracle test; the render thread with tiles, its queue and caches, and the start screen's warning when PDFium is missing; and ferman-core's open path (cross-reference reading and repair, the security handler, lopdf, the structure scan) with the two-parser check and four more fuzz targets. W2: the API's open, close and views with the open path's errors, the bridge and the app's `EngineService` for them, the viewer on the canvas, the sidebar's tabs, showing and hiding layers, text extraction and search. W3 so far: opening files through the system open panel, a drop on the window and the system (double-click, "Open with", the command line, a second launch), into tabs that keep their view and their sidebar state, which close with the document, the engine's document properties, and the restricted and scripts bars with the owner unlock |
+| Previous | M2 approved by the owner on 2026-11-04 (pull request #10 merged as `c353805`), with the [pending owner checks (M2)](#pending-owner-checks-m2), [Q21](QUESTIONS.md#q21) to [Q25](QUESTIONS.md#q25) and strace kept open: they no longer block M3. Phase 0 of M2 (the design sync): pull request #3 merged into `main` on 2026-10-17 (merge commit `b6fd215`; CI on `main` green, run [39022269403](https://github.com/KEREM-BAS/Ferman/actions/runs/39022269403)). M1 approved on 2026-10-16 (pull request #2, `aa7ad21`); M0 on 2026-10-15 (pull request #1, `fe99894`) |
+| Next | The owner reviews and approves the [M3 plan](#m3-plan); M3's first wave starts after that. |
 | Application code | in `main` since the M1 merge: phases A to F (the app skeleton, the Rust workspace, `tools/checks`, the tool packages, fonts, icons and tokens, the bridge and PDFium bundling, the theme layer and the S6 checks), phase G (the component library: four groups, each reviewed and fixed, and the spec walker), phases H1 to H5 (Ferman's own title bar, the shell, the shortcut table), phases I1 to I4 (the settings store, first run, the start screen, the settings skeleton), phase H6 (narrow windows), phases J1 and J2 (Turkish complete and Arabic for every M1 string, pending native review; the localization tests), phase K (the golden matrix and its comparison with the design references) and the first part of phase L (the CI checks, component and screen tests, the component goldens, the spec walker and the `Fm*` names) |
 | Questions | 25 entries: Q01 to Q20 answered (the last ones on 2026-10-16, as proposed, with the release files for macOS, Windows and Linux on GitHub Releases, [Q15](QUESTIONS.md#q15)); [Q21](QUESTIONS.md#q21) (memory-mapping files over 256 MB) open since 2026-10-17, and [Q22](QUESTIONS.md#q22) (the password copy PDFium keeps) since 2026-10-21, and [Q23](QUESTIONS.md#q23) (an amendment of ADR 0011 for per-document tab state) since 2026-11-01, [Q24](QUESTIONS.md#q24) (comments and form fields searched in M4) and [Q25](QUESTIONS.md#q25) (right-to-left lines the bidi algorithm cannot read back, in M3) since 2026-11-01; see [QUESTIONS.md](QUESTIONS.md#summary) |
 | Proposed ADRs | none waiting. 0020 (test corpus) and 0021 (opening files from the OS), and the details the M2 plan adds to 0008, 0009 and 0010, were approved with the [M2 plan](#m2-plan) on 2026-10-17. The crash-log placeholders of 0010 and the 640 px canvas minimum ([G95](DESIGN_GAPS.md#g95)) were approved on 2026-10-17; 0009 and 0018, the Proposed details in 0003, 0004, 0006, 0008 and 0019, and the reading of "GPL-compatible" in 0016 on 2026-10-16 (see [ADR status](#adr-status)) |
 | Design gaps | 121 recorded: 98 Decided, 0 Needs owner, 23 Resolved (G62 to G99 found in M1; the last Needs owner entries decided on 2026-10-16; on 2026-10-17 export `519d42a` resolved 22 entries and settled five in part; G100 to G111 were found while planning M2, G112 with the app icons, G113 with the corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop and G118 with the recent files, G119 with the error tabs, which resolved G116, G120 and G121 with the tab state and closing) |
 | Backlog | 98 open and 32 done (2026-11-01): B001 to B005 from the casing and region-format work, B006 and B007 from the bridge and bundling work, B008 and B009 from the title bars, B010 to B017 from the component library, B018 to B092 from the shell, first run, the start screen and Settings, B093 to B096 from narrow windows, B097 and B098 from the golden comparison, B099 and B100 from closing M1, B101 to B106 from the M2 plan (Proposed with it), B107 and B108 from the app icons, B109 from the API commit, B110 and B111 from the sidebar, B112 from text extraction, B113 and B114 from search, B115 to B118 from opening, B119 and B120 from the error tabs, B121 from the restricted bar, B122 from the properties dialog, B123 from the progressive open; B003 (parsing region numbers) and B013 (narrow windows) shipped in M1, B018 (opening files), B028 (the "+N" menu), B010 (desktop file drops) B115 (error tabs and the unlock dialog), B091 (sidebar state per document), B029 (closing documents), B117 (showing every open document) and B119 (Show in folder) in M2 |
 | Owner actions | 1 open (see [Owner actions](#owner-actions)) |
-| Last updated | 2026-11-01 |
+| Last updated | 2026-11-04 |
 
 ## Owner actions
 
@@ -43,8 +43,8 @@ Things only the owner can do on GitHub. Each is ticked when done.
 |---|---|---|
 | M0 Discovery and plan | Complete (approved 2026-10-15) | [ROADMAP.md](ROADMAP.md), section 4 |
 | M1 Foundations | Complete (approved 2026-10-16) | [ROADMAP.md](ROADMAP.md), section 5; [M1 plan](#m1-plan) |
-| M2 Open and view | Built; waiting for the owner's review and checks | [ROADMAP.md](ROADMAP.md), section 6; [M2 plan](#m2-plan) |
-| M3 Edit text core | Not started | [ROADMAP.md](ROADMAP.md), section 7 |
+| M2 Open and view | Complete (approved 2026-11-04) | [ROADMAP.md](ROADMAP.md), section 6; [M2 plan](#m2-plan) |
+| M3 Edit text core | Planning | [ROADMAP.md](ROADMAP.md), section 7 |
 | M4 Rest of phase 1 | Not started | [ROADMAP.md](ROADMAP.md), section 8 |
 | M5 Release pipeline | Not started | [ROADMAP.md](ROADMAP.md), section 9 |
 | Phase 2 | Not started | [ROADMAP.md](ROADMAP.md), section 10 |
@@ -443,7 +443,9 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
     Q18 (W3); the features leave the registry when documents open from the UI and the placeholder
     documents go (W3); the status bar's task progress with the first job (search); the viewer and
     sidebar goldens and EmptyState's gallery entry (W4).
-- [ ] The owner approves M2
+- [x] The owner approves M2. Evidence: pull request #10 merged into `main` as `c353805`; the owner
+  approved M2 and gave the go-ahead for M3 on 2026-11-04, with the pending owner checks (M2), Q21
+  to Q25 and strace left open and not blocking.
 
 ### M3 · Edit text core
 
@@ -1072,6 +1074,189 @@ Taken by the lead within the approved plan, reversible, and listed in the M2 sum
   the outline's folds and the thumbnails' scroll; W3's per-document state of tabs keeps them
   (B091).
 
+## M3 plan
+
+**Waits for the owner's approval.** The owner approved M2 and gave the go-ahead for M3 on
+2026-11-04. Written from [ROADMAP.md](ROADMAP.md) section 7 and [brief](BRIEF.md) §4 after a survey
+of the code on `m3-edit-text` the same day, then checked against section 7 point by point. No M3 code
+is written before the plan is approved. Every decision below is Proposed with the plan; the
+[questions for the owner](#questions-for-the-owner-with-the-m3-plan) are asked first, and the items
+under [Still Proposed at the M3 review](#still-proposed-at-the-m3-review) stay Proposed after it.
+
+### Delivery
+
+- **One pull request** from `m3-edit-text` to `main`: 18 commits planned, 2 kept for CI fixes, at most
+  20. Every commit authored as the owner, signed off ([Q14](QUESTIONS.md#q14)), no AI attribution.
+  Each wave ends with an adversarial review and one checked, batched push. Merged by the owner with a
+  merge commit.
+- At most three agents work in `app/` at once. The lead alone writes the shared files: `pubspec.yaml`,
+  the ARB files, the router, the components barrel, `[workspace.dependencies]`, the workflows and
+  `docs/`.
+
+### What exists and what is new
+
+The M2 read path is the base: the content lexer (`content.rs`) with operator spans, the text
+interpreter (`interpret.rs`: text state, `q`/`Q`, `cm`, the text operators, Form XObjects with cycle
+detection and limits), `safe_write` (temp file, flush, read back, rename, directory flush; used by
+Save attachment as), the render-only layer appendix, decrypt-only security, the signature scan with
+DocMDP, and simple-font encodings, CMaps and the Type1 built-in encoding in ferman-fonts. Not there
+yet, so built in M3:
+
+- **Spans with their source.** Today a page's `/Contents` array is joined before lexing, so spans
+  point into the joined buffer, and a form's spans name no form. Editing needs every operator's span
+  as (stream object or form, offset into its decoded data); extraction keeps its join.
+- **The rest of the interpreter:** clipping, colour, `gs`, marked content (`/MCID`, `/ActualText`,
+  `/Lang`, `/Artifact`, `/OC`), Type3 `CharProcs`, inline images with their position, and the state
+  at a block's end (text and line matrix, text state, colour, `q` depth).
+- **The writer is new code**, not a generalisation of `appendix.rs` (which writes the catalog
+  unencrypted, has no `/Prev` and always writes a cross-reference stream): a revision store with
+  overlays and a `ChangeSet`; the splicer; the incremental writer matching the original
+  cross-reference form (which `xref::read` starts recording); an encryptor mirroring `Decrypter`;
+  the full rewrite; external-change detection; typed save failures in `CoreError`; the recovery
+  journal; `/SigFlags`, `/ByteRange` and `/CIDToGIDMap` read.
+- **ferman-fonts** has no font-program dependency yet (only `thiserror`): skrifa and read-fonts enter
+  the engine here (DEPENDENCIES marks them M2; fixed with commit 1), with harfrust, subsetter and
+  fontdb; reverse encodings, ToUnicode and CMap writing, coverage, the similar-font ranking and the
+  bundled-font registry, including Cormorant Garamond and Crimson Pro ([Q08](QUESTIONS.md#q08)
+  group 4: release, licence files and `fsType` checked in W3).
+- **ferman-text:** blocks, columns, alignment and the justification method, table columns, block
+  ids, hit testing, editability with reasons, glyph boxes from the font's ascent and descent
+  (today a fixed 0.2/0.8 box), line breaking with kinsoku, reflow, bidi for editing, overflow and
+  missing-glyph plans, the edit journal.
+- **ferman-api:** the document actor with transactions and undo ([ARCHITECTURE.md §3.6](ARCHITECTURE.md#36-edit-transactions-and-undo)),
+  save and save as, the confirmation token, and the error kinds DiskFull, FileChangedOnDisk,
+  FileLocked, NotEditable and ConfirmationRequired. Editability: a document is editable only when it
+  is not read-only (`Repaired`, `ParsersDisagree`, `XfaOnly`) **and** not restricted
+  (`OpenedDocument::restricted()`) until the owner password unlocks it (ARCHITECTURE §6.5).
+- **ferman-cli:** `edit`, `save`, `verify-edit`.
+- **Dart:** the edit, undo, save and recovery calls in `FrbEngineService`, `FakeEngineService` (with
+  mutable state) and `UnavailableEngineService`; the web stub keeps throwing `unsupportedPlatform`
+  (phase 5). New features `editor/` and `review/`, the Save as sheet, the close and recovery dialogs,
+  Settings › Editing, and the shell commands save, save as, save a copy, undo, redo and edit text.
+
+### Waves
+
+| Wave | Contents | ROADMAP step | Boards |
+|---|---|---|---|
+| W0 | Interpreter (spans with their source, full state, marked content, Type3, inline images) with a unit test per operator; font programs and reverse encodings; the text model, hit testing and editability with every reason, the not-allowed cursor and callout, "Recognize text" disabled on scanned pages (`Feature`, P3); selection and copy with the Select tool (B106); the edit corpus generators and their fonts (below) | 1 | a3-1a, a3-19 |
+| W1 | Revision store, splicer, incremental writer with encryption; the actor and transactions with the 50-edit property test; simple-font rewriting (Standard, WinAnsi, MacRoman, `/Differences`; Type1 with the standard 14, TrueType, Type3); the pixel-diff harness and `verify-edit`; each saved test file reopened in PDFium with the same page count and checked by the structure checker | 2, 3 | a3-10 |
+| W2 | Composite fonts (CIDFontType0 and 2, Identity-H and -V, embedded and predefined CMaps, `/CIDToGIDMap`, `/W`, `/W2`), a new font dictionary per edited block; line breaking, reflow, justification, overflow with its three choices and amounts; table cells with dependent totals flagged | 4, 5 | a3-4, a3-18, a3-9 |
+| W3 | Missing glyphs: steps 1 to 3, shaping, subsetting, system and bundled fonts, the picker, "Ask each time", the "Font substituted" toast, no faked bold or italic; Arabic, Persian, Hebrew, CJK, vertical Japanese last; IME through `DeltaTextInputClient` with composing text as a preview, not an undo step | 6, 7 | a3-3a, a3-3b, a3-17, a3-15, f2 |
+| W4 | Saving: atomic replace with metadata kept, hard-link and ownership cases offering Save as, FileLocked retry with backoff, every failure of ARCHITECTURE §7.8, external change, Optimize and clean, repaired copy (B103), crash injection; recovery journal, the one-minute snapshot, the `a11-1c` switch, encrypted recovery with the known-plaintext scan; closing with the platform's button order; signed documents (E25) | 8, 9, 10 | f4, f4a, f4b, a1-10b, a1-11, a1-11b, a1-12, a11-1c, a11-7, a11-7b, a11-7d, a11-7e, a11-7f, a3-16a, a3-16b |
+| W0–W4, app | Edit mode on the fake from W1, wired to the engine as each step lands: caret, selection, format bar, dark editor, the panel, frame labels (`f1`), edit marks (`f3`), the review list with filter, Go to, Revert, Revert all… with its confirmation, Export list and the empty state, per-block language, welcome step 1; semantics nodes per block in reading order, the active block a multi-line text field | 11 | a3-1b, a3-1c, a3-1d, a3-2, a3-12, a3-12b, a3-14, f1, f3, a1-2a, a2-3d |
+| W5 | Goldens (light and dark × en, tr, ar) with the G37, G38, G40 and G42 states; `a12-1*`; the nine fuzz targets of ROADMAP §7 (incremental writer round trip, edit scripts, re-encoding, ToUnicode and CMap writing, font programs with Type1, subsetting, shaping, line breaking, the journal reader); the edit-to-render bench with the 75 ms engine guard in CI and the save budget; Flow A on three systems; closing M3 (E1 to E8, ADRs 0005 to 0008 match the code, no direct rustybuzz, the edit corpus and its ground truth in `tests/corpus/README.md`) | close | a12-1tr, a12-1de, a12-1ar, a12-1ja |
+
+Critical paths: spans with their source → splicer → incremental writer → pixel-diff harness (every
+case runs through it); font programs → shaping and subsetting → missing glyphs and complex scripts;
+the actor and transactions → the app's edit mode.
+
+Controls that stay disabled with a `Feature` entry and a BACKLOG row: highlight, comment and Add
+link in `a3-1c` (M4); find and replace (P2); spell-check and hyphenation in `a3-2` and `a3-14` (M4,
+unless decided otherwise); Keep versions (M4) and Font for new text (P2) in `a11-1c`; Signatures
+in `a2-3d` stays a2-14's neutral state (P3); the signed-document check in Comment, Fill & Sign and
+Organize (M4); "Optimized for web" (M4) and PDF/A-2b (P4) in Save as ([G111](DESIGN_GAPS.md#g111)).
+
+### Edit corpus
+
+Generated in W0 by `tools/corpus`, with README rows and hashes: `fatura-tr`, `fa-zwnj`, `he-para`,
+`zh-hans`, `zh-hant`, `ko-para`, `kira-tr-signed`, and the generated cases E04, E05, E15, E16 and
+E19 to E23 and E26; plus three cases the acceptance list needs and section 7 has no row for:
+MacRoman, a predefined non-Identity CMap (for example 90ms-RKSJ-H) and a CFF CID-keyed font
+(CIDFontType0). The Chinese, Korean and Hebrew fonts join `tools/corpus/fonts.lock` (OFL-1.1, test
+data only, pinned hashes, never shipped). E14, E17 and E18 need real-world files (question 4).
+
+### Commit map
+
+1. documents (stale text swept: ADR 0004's and 0018's "verified in M2", ADR 0005's "proposed in
+G35", ADR 0006's "not drawn yet", ADR 0008's header, ARCHITECTURE §6.1's trait names and "decoded
+bytes", §6.8's "line(s)", the CFF claim, G43, the skrifa rows); 2. the interpreter; 3. font
+programs, reverse encodings and data; 4. the text model, hit testing and editability; 5. the edit
+corpus; 6. revisions, splicer and incremental writer; 7. the actor, transactions and bridge;
+8. simple-font rewriting, the harness and the CLI; 9. composite fonts; 10. layout, reflow and
+overflow; 11. missing glyphs; 12. complex scripts, CJK and input; 13. saving; 14. recovery and
+closing; 15. signed documents; 16. the app's edit mode; 17. goldens, fuzz targets, benches and
+integration tests; 18. closing documents. Two more are kept for CI fixes.
+
+### Decisions in this plan
+
+| # | Question | Decision | Recorded in |
+|---|---|---|---|
+| 1 | Spans index a joined `/Contents` buffer | A span names its stream or form and an offset into its decoded data; extraction keeps its join, editing never uses it | ARCHITECTURE §6.1 |
+| 2 | atomic-write-file or our own code | Our own, on `safe_write`, which already verifies and stages for the sandbox; the Windows and copy calls as question 1 decides | ADR 0008 |
+| 3 | The independent structure checker | qpdf `--check` in one Linux CI job on every saved test file; CI only, never shipped | ROADMAP §7; DEPENDENCIES |
+| 4 | Coalescing | Commit on blur, Esc, mode switch, save or 1.5 s idle | ARCHITECTURE §3.6 |
+| 5 | Tighten cap | 2 % | ARCHITECTURE §6.8 |
+| 6 | The pixel-diff margin | 2 device pixels, measured on the corpus; a case that needs more is filed, never widened silently | ARCHITECTURE §13.4 |
+| 7 | Random keys and IVs on write | `getrandom` (already in `Cargo.lock`, MIT OR Apache-2.0) as a direct dependency; seeded vectors in tests | ADR 0008; DEPENDENCIES |
+| 8 | Vertical Japanese (`a3-15`, [Q10](QUESTIONS.md#q10) leaves it open) | Built last in W3; if E13 cannot reach zero diff by W5, vertical blocks are "not editable" with the reason and a BACKLOG row | ROADMAP §7 |
+| 9 | File-change detection | Size, modification time and SHA-256 checked before every save and when the window regains focus; a live notification crate only if the owner wants it (ARCHITECTURE §7.5 marks it Proposed) | ARCHITECTURE §7.5 |
+| 10 | The recovery base copy | A plain copy up to 200 MB, the journal alone above it; clonefile or reflink only with question 1 | ARCHITECTURE §7.6 |
+| 11 | [Q22](QUESTIONS.md#q22) and [Q25](QUESTIONS.md#q25) are still open | Their option (a) stays in force until the owner answers | QUESTIONS |
+| 12 | Selection and copy with the Select tool (B106, from M2) | Ships with W0's hit testing | BACKLOG |
+| 13 | Spell-check and hyphenation (ROADMAP: "may move to M4") | M4, disabled with the future-version tooltip | BACKLOG |
+| 14 | The web build | Stays without an engine until phase 5, as the brief's platform order says (owner, 2026-11-04) | — |
+
+### Questions for the owner with the M3 plan
+
+1. **`unsafe` outside ferman-api.** `ferman-core` has `#![forbid(unsafe_code)]`, and `tools/checks`
+   allows `unsafe` only in ferman-api (ADR 0010). Windows `ReplaceFileW`, macOS `fcopyfile` (keeping
+   metadata) and clonefile or reflink need FFI. Proposed: one small `platform` module in ferman-core
+   with `windows-sys` and `libc` as direct dependencies, each call with a safety comment, ADR 0010
+   amended and the check widened by that one module.
+2. **Making `kira-tr-signed`.** A PAdES file with a timestamp needs CMS and RSA crates (`cms` is
+   marked caution in DEPENDENCIES §3.7, `rsa` has RUSTSEC-2023-0071 without a fix), two phases early.
+   Proposed: only in `tools/corpus`, with a self-made test certificate and timestamp authority and a
+   named advisory exception there; never in the engine.
+3. **The UAX #14 line breaker.** `icu_segmenter` (Unicode-3.0, same family as icu_collator) brings
+   megabytes of data; `unicode-linebreak` (Apache-2.0) is small and covers UAX #14 alone. Proposed:
+   `unicode-linebreak`, with our own kinsoku rules.
+4. **Real-world files for E14, E17, E18** and the 95 % ground truth of step 1. Proposed: the owner
+   makes them in LaTeX, Word, Google Docs and LibreOffice from text we write, so they can be
+   redistributed, before W5; until then generated stand-ins run, marked as such.
+
+### New dependencies
+
+Planned in [DEPENDENCIES.md](DEPENDENCIES.md): harfrust 0.14, skrifa 0.48 and read-fonts 0.45 (new to
+the engine, through ferman-fonts), subsetter 0.2.6 with `variable-fonts` off, fontdb 0.24 (ttf-parser
+transitive only), tempfile 3.27. New: `getrandom`; the line breaker of question 3; `windows-sys` and
+`libc` if question 1 says yes; the signing crates in `tools/corpus` if question 2 says yes; the
+Adobe Glyph List in full and Adobe's cmap-resources (BSD-3-Clause), the standard-14 AFM metrics once
+their notice is checked; Cormorant Garamond and Crimson Pro (OFL-1.1, bundled unmodified); the
+Chinese, Korean and Hebrew corpus fonts (test data); qpdf (Apache-2.0, CI only).
+
+### Still Proposed at the M3 review
+
+The coalescing rule, the 2 % tighten cap, the 2-pixel margin, the 95 % ground-truth threshold, qpdf
+as the checker, the fuzz durations (60 s per pull request, 1 h nightly), the save budget (20 MB, 500
+pages, 10 edits, under 500 ms), the R1 and R2 budgets, the recovery base copy.
+
+### Pending owner checks (M3)
+
+Each gets one command that prints labelled JSON (`ferman verify-edit --json`, `flutter drive
+--profile`) and links to the CI artefacts. Numbers from the owner's MacBook Pro M5 Pro are labelled
+as such, not as R1.
+
+- [ ] Edit-to-render under 100 ms and the save budget on R1 and R2.
+- [ ] The macOS sandbox save through `replaceItemAt` with the document writer ([Q18](QUESTIONS.md#q18)).
+- [ ] Japanese and Korean IME and Turkish dead keys on the three systems.
+- [ ] Recovery after a forced quit on each system; saving on Windows while another app holds the file.
+- [ ] The real-world files (question 4).
+- [ ] Native readers check the Turkish, Arabic, Persian, Hebrew and CJK cases and the new strings.
+
+### Risks
+
+- **A splice hits the wrong bytes.** Spans name their source from W0; every splice runs through the
+  byte and pixel diff.
+- **Font programs are deeper than planned** (the CFF path was never exercised). Font programs come
+  first, with fuzz targets; an unreadable program makes the block "not editable" with the reason.
+- **Zero diff fails on anti-aliasing.** The margin is measured; a failing case is filed.
+- **The PDFium reload after a commit misses the 100 ms budget.** The page reloads from the snapshot
+  bytes without a copy; the bench runs from W1.
+- **The writer, encryption, signatures and crash safety on three systems.** New code, each with its
+  own tests and CI job; crash injection on Linux and macOS.
+- **M3 is the largest milestone; 20 commits are tight.** A review per wave and the commit map in the
+  pull request body.
+
 ## ADR status
 
 Decisions taken from the brief are "Accepted (brief)". New ones stay "Proposed" until the owner
@@ -1200,3 +1385,4 @@ Newest last. One row per session.
 | 2026-11-01 | M2 | Goldens from CI's Linux run on `64f2115` (artifact `goldens-linux`): the six new screens in light and dark × en, tr and ar (36 images), and 12 changed ones, each looked at: FontPicker's right-to-left samples now end their sentences correctly (the isolated sample strings), TextEditBox differs by a few anti-aliased pixels from the same isolates, and search (`viewer_search`, six images) opens with the query field focused and its text selected (the Ctrl+F fix). ROADMAP §6's goldens box is ticked. | this commit |
 | 2026-11-04 | M2 (after the merge) | Main builds: `.github/workflows/main-builds.yml` runs when CI passes on a push to `main` (or by hand). It builds the macOS universal app, Windows x64 and Linux x64 release bundles and the web build (base href `/<repository>/`), scans each for design files, replaces the rolling `main-latest` prerelease with them, and publishes the web build on GitHub Pages. Unsigned test builds. Android is left out until the mobile phase (owner, 2026-11-04; B132). Four new actions in DEPENDENCIES §2.4. Not run yet: it starts only from `main`. | this commit |
 | 2026-11-04 | M2 (after the merge) | The nightly fuzz run of 2026-11-02 stopped xref_repair at libFuzzer's 2 GB RSS limit after 59 minutes. Not an engine bug: the input it saved runs in 2 ms and peaks at 180 MB on its own, and the report's live heap was 27 MB; the RSS grew steadily over the hour (ASan keeps freed memory). `fuzz-nightly.yml` now gives the process 4 GB (`-rss_limit_mb=4096`) and still stops any single input above 2 GB (`-malloc_limit_mb=2048`). The pull-request smoke run keeps 2 GB. | this commit |
+| 2026-11-04 | M3 | The owner approved M2 and gave the go-ahead for M3 (the open M2 owner checks, Q21 to Q25 and strace stay open and do not block it). Branch `m3-edit-text` from `main` at `ff94562`; the [M3 plan](#m3-plan) written from ROADMAP §7 for the owner's approval. | this commit |
