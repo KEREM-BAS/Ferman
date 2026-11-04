@@ -1,0 +1,196 @@
+# Builds of every commit on main once CI passes on it: the macOS, Windows and Linux release apps and
+# the web build, published as the rolling "main-latest" prerelease, with the web build also on GitHub
+# Pages for testing. Unsigned test builds, not a product release. Android waits for the mobile phase
+# (docs/BACKLOG.md).
+# Every action is pinned by commit SHA (tools/checks action_pins).
+name: Main builds
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [main]
+  workflow_dispatch:
+
+concurrency:
+  group: main-builds
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+env:
+  FLUTTER_VERSION: 3.47.7
+  # The commit CI passed on (workflow_run), or the dispatched one.
+  SHA: ${{ github.event.workflow_run.head_sha || github.sha }}
+
+jobs:
+  desktop:
+    name: Desktop (${{ matrix.target }})
+    # Only a green CI run of a push to main; a manual run builds the chosen ref.
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: ubuntu-24.04
+            target: linux
+            pdfium: linux-x64
+          - os: macos-15
+            target: macos
+            pdfium: mac-univ
+          - os: windows-2025
+            target: windows
+            pdfium: win-x64
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 45
+    defaults:
+      run:
+        working-directory: app
+        shell: bash
+    steps:
+      - name: Allow long paths (Windows)
+        if: runner.os == 'Windows'
+        working-directory: .
+        run: git config --system core.longpaths true
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+      - name: Linux desktop build dependencies
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q ninja-build libgtk-3-dev liblzma-dev
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      - name: Cache the PDFium archive
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/pdfium/cache
+          key: pdfium-archives-${{ runner.os }}-${{ hashFiles('tools/pdfium/pdfium.lock') }}
+      - name: PDFium for the app bundle
+        working-directory: .
+        run: bash tools/pdfium/fetch.sh --platform ${{ matrix.pdfium }}
+      - run: flutter build ${{ matrix.target }} --release
+      - name: No design files in the app build
+        working-directory: tools/checks
+        run: |
+          case "$RUNNER_OS" in
+            Linux) out=build/linux/x64/release/bundle ;;
+            macOS) out=build/macos/Build/Products/Release/Ferman.app ;;
+            Windows) out=build/windows/x64/runner/Release ;;
+          esac
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. "../../app/$out"
+      - name: Package
+        run: |
+          set -euo pipefail
+          mkdir -p ../dist
+          case "$RUNNER_OS" in
+            Linux) tar -C build/linux/x64/release/bundle -czf ../dist/ferman-linux-x64.tar.gz . ;;
+            # ditto keeps the bundle's symlinks and attributes, which zip does not.
+            macOS) ditto -c -k --keepParent build/macos/Build/Products/Release/Ferman.app ../dist/ferman-macos-universal.zip ;;
+            Windows) 7z a -tzip ../dist/ferman-windows-x64.zip ./build/windows/x64/runner/Release/* ;;
+          esac
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ferman-${{ matrix.target }}
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+
+  web:
+    name: Web
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push')
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ env.SHA }}
+      - uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version: ${{ env.FLUTTER_VERSION }}
+          channel: stable
+          cache: true
+      - run: flutter pub get --enforce-lockfile
+      # Pages serves the site at /<repository>/, not at the root.
+      - run: flutter build web --release --base-href "/${{ github.event.repository.name }}/"
+      - name: No design files in the web build
+        working-directory: tools/checks
+        run: |
+          dart pub get --enforce-lockfile
+          dart run bin/scan_bundle.dart --root ../.. ../../app/build/web
+      - name: Package
+        run: |
+          mkdir -p ../dist
+          (cd build/web && zip -qr ../../../dist/ferman-web.zip .)
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: ferman-web
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
+      - uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+        with:
+          path: app/build/web
+
+  pages:
+    name: Web on GitHub Pages
+    needs: web
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      pages: write
+      id-token: write
+    environment:
+      name: github-pages
+      url: ${{ steps.deploy.outputs.page_url }}
+    steps:
+      - uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
+      - id: deploy
+        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
+
+  release:
+    name: The main-latest prerelease
+    needs: [desktop, web]
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          pattern: ferman-*
+          path: dist
+          merge-multiple: true
+      - name: Replace the prerelease
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          set -euo pipefail
+          ls -l dist
+          # One rolling prerelease: the old one and its tag go, the new one tags this commit.
+          gh release delete main-latest --cleanup-tag --yes || true
+          gh release create main-latest dist/* \
+            --prerelease \
+            --target "$SHA" \
+            --title "main-latest (${SHA:0:7})" \
+            --notes "Unsigned test builds of ${SHA} on main, after CI passed. Not a product release.
+
+          - macOS: ferman-macos-universal.zip (macOS 12.0 or later; unsigned: run xattr -dr com.apple.quarantine Ferman.app once).
+          - Windows: ferman-windows-x64.zip (unsigned; SmartScreen asks once).
+          - Linux: ferman-linux-x64.tar.gz (GTK 3; run ./ferman).
+          - Web: ferman-web.zip, also on GitHub Pages. The web build has no engine yet (ROADMAP phase 5): it shows the interface only."

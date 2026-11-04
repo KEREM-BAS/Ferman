@@ -227,7 +227,7 @@ standard library; they add no dependency. `tools/corpus/fetch-fonts.sh` uses onl
 
 ### 2.4 GitHub Actions
 
-Pinned by full commit SHA in `.github/workflows/ci.yml` and `design-refs.yml`, with the version in a
+Pinned by full commit SHA in `.github/workflows/ci.yml`, `design-refs.yml`, `fuzz-nightly.yml` and `main-builds.yml`, with the version in a
 comment; `tools/checks` fails on an unpinned action ([ADR 0017](adr/0017-testing-and-ci.md)).
 
 | Name | Purpose | Version and SHA | SPDX licence | Status | Since | Notes |
@@ -239,6 +239,10 @@ comment; `tools/checks` fails on an unpinned action ([ADR 0017](adr/0017-testing
 | actions/cache | The PDFium archive caches, keyed on `tools/pdfium/pdfium.lock` (all seven archives in the repository-checks job; one archive per system in the Rust jobs, the Flutter jobs and the Ubuntu 22.04 job), and the flutter_rust_bridge_codegen and cargo-expand binaries in the codegen job, keyed on their versions | v6.1.0, `55cc8345863c7cc4c66a329aec7e433d2d1c52a9` | MIT | ok | M1 | Not used for Cargo, which rust-cache handles. |
 | actions/setup-node | Installs Node for `tools/design-refs` | v7.1.0, `949feb2413d6458794dcd2491c4babbbce0c15c1` | MIT | ok | M1 | `node-version-file: tools/design-refs/.nvmrc` (24.22.0), in the repository-checks job and the design-reference workflow. |
 | actions/upload-artifact | Uploads the design-reference PNGs and, when a Linux golden test fails, its failure images | v7.0.2, `cf430e030ddbb5b0abf93d22962f4752f3646cd9` | MIT | ok | M1 | |
+| actions/download-artifact | Collects the main builds' files for the `main-latest` prerelease (`main-builds.yml`) | v8.0.2, `9000827ccba6bdab643e8b6fd33ac0654aef8333` | MIT | ok | M2 | |
+| actions/upload-pages-artifact | Uploads the web build of `main` for GitHub Pages (`main-builds.yml`) | v5.0.0, `fc324d3547104276b827a68afc52ff2a11cc49c9` | MIT | ok | M2 | |
+| actions/configure-pages | Reads the repository's Pages settings before the deploy (`main-builds.yml`) | v6.0.0, `45bfe0192ca1faeb007ade9deae92b16b8254a0d` | MIT | ok | M2 | |
+| actions/deploy-pages | Publishes the web build of `main` on GitHub Pages for testing (`main-builds.yml`) | v5.0.1, `368f82528645a54fb793d4d04e342629a3f51346` | MIT | ok | M2 | A static site; it sends nothing from the app. |
 
 The Rust toolchain comes from `rustup toolchain install`, which reads `rust-toolchain.toml`; no
 toolchain action is used ([section 4](#4-rejected)).
