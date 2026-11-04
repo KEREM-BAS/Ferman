@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -260,6 +260,22 @@ Future<EditPreview> applyEdit({
 }) => FermanBridge.instance.api.crateFrbApplyEdit(
   transaction: transaction,
   text: text,
+);
+
+/// Writes the transaction's newest text again with the overflow choice `choice`.
+///
+/// See [`facade::Engine::resolve_overflow`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when its text does not overflow
+/// or the choice is disabled.
+Future<EditPreview> resolveOverflow({
+  required BigInt transaction,
+  required OverflowChoice choice,
+}) => FermanBridge.instance.api.crateFrbResolveOverflow(
+  transaction: transaction,
+  choice: choice,
 );
 
 /// Commits the transaction as the history step `name`.
@@ -531,6 +547,28 @@ class CrateVersion {
           version == other.version;
 }
 
+/// A table cell that likely depends on the edited one.
+class DependentCell {
+  /// Its block's id.
+  final BigInt id;
+
+  /// Its frame.
+  final PageRect frame;
+
+  const DependentCell({required this.id, required this.frame});
+
+  @override
+  int get hashCode => id.hashCode ^ frame.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DependentCell &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          frame == other.frame;
+}
+
 /// The document information dictionary (a2-7).
 class DocumentInfo {
   /// `/Title`.
@@ -666,17 +704,35 @@ class EditPreview {
   /// first appear: the text was not applied.
   final List<String> missing;
 
-  /// Whether a line runs past the block's frame.
+  /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
   final bool overflowing;
+
+  /// The overflow choices, when the text needs more lines than the block's frame holds.
+  final OverflowPlan? overflow;
+
+  /// The choice the preview shows and a commit keeps: `Keep` until [`resolve_overflow`].
+  final OverflowChoice? chosen;
+
+  /// The table cells whose values likely depend on the edited one (a3-9).
+  final List<DependentCell> dependents;
 
   const EditPreview({
     required this.page,
     required this.missing,
     required this.overflowing,
+    this.overflow,
+    this.chosen,
+    required this.dependents,
   });
 
   @override
-  int get hashCode => page.hashCode ^ missing.hashCode ^ overflowing.hashCode;
+  int get hashCode =>
+      page.hashCode ^
+      missing.hashCode ^
+      overflowing.hashCode ^
+      overflow.hashCode ^
+      chosen.hashCode ^
+      dependents.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -685,7 +741,10 @@ class EditPreview {
           runtimeType == other.runtimeType &&
           page == other.page &&
           missing == other.missing &&
-          overflowing == other.overflowing;
+          overflowing == other.overflowing &&
+          overflow == other.overflow &&
+          chosen == other.chosen &&
+          dependents == other.dependents;
 }
 
 /// How an encrypted document is encrypted.
@@ -782,6 +841,41 @@ enum ErrorKind {
 
   /// A bug in Ferman, including a caught panic.
   internal,
+}
+
+/// Why Extend is disabled (a3-18).
+class ExtendBlocked {
+  /// What is in the way.
+  final ExtendBlockedKind kind;
+
+  /// The block in the way, for `Block`.
+  final BigInt? block;
+
+  /// Its first line, for the UI's reason ("The IBAN line sits right below this block.").
+  final String text;
+
+  const ExtendBlocked({required this.kind, this.block, required this.text});
+
+  @override
+  int get hashCode => kind.hashCode ^ block.hashCode ^ text.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExtendBlocked &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          block == other.block &&
+          text == other.text;
+}
+
+/// What stands in the way of Extend.
+enum ExtendBlockedKind {
+  /// Another block of the page.
+  block,
+
+  /// The page's edge.
+  pageEdge,
 }
 
 /// Why an item was not rendered; the UI shows a2-13's placeholder with Try again.
@@ -889,10 +983,17 @@ class HistoryStep {
   /// When it was committed, in milliseconds since the Unix epoch.
   final PlatformInt64 time;
 
-  const HistoryStep({required this.name, required this.time});
+  /// The lines Keep and warn left hidden: the warning of the review list; 0 for none.
+  final int hiddenLines;
+
+  const HistoryStep({
+    required this.name,
+    required this.time,
+    required this.hiddenLines,
+  });
 
   @override
-  int get hashCode => name.hashCode ^ time.hashCode;
+  int get hashCode => name.hashCode ^ time.hashCode ^ hiddenLines.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -900,7 +1001,8 @@ class HistoryStep {
       other is HistoryStep &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          time == other.time;
+          time == other.time &&
+          hiddenLines == other.hiddenLines;
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -1197,6 +1299,69 @@ class OutlineEntry {
           page == other.page &&
           depth == other.depth &&
           open == other.open;
+}
+
+/// One of the overflow choices (a3-4).
+enum OverflowChoice {
+  /// "Extend block by N line(s)".
+  extend,
+
+  /// "Tighten spacing slightly (−x%)".
+  tighten,
+
+  /// "Keep and warn".
+  keep,
+}
+
+/// The overflow choices with their amounts (docs/ARCHITECTURE.md §6.8).
+class OverflowPlan {
+  /// How many lines go past the frame.
+  final int over;
+
+  /// Extend's N, when it is available.
+  final int? extendLines;
+
+  /// Why Extend is disabled, when it is.
+  final ExtendBlocked? extendBlocked;
+
+  /// Tighten's amount in percent, one decimal (the 0.6 of "−0.6%"), when it is available.
+  final double? tightenPercent;
+
+  /// The lines still over at the tightest allowed spacing, when Tighten is disabled.
+  final int? tightenShort;
+
+  /// The lines Keep and warn hides.
+  final int keepHidden;
+
+  const OverflowPlan({
+    required this.over,
+    this.extendLines,
+    this.extendBlocked,
+    this.tightenPercent,
+    this.tightenShort,
+    required this.keepHidden,
+  });
+
+  @override
+  int get hashCode =>
+      over.hashCode ^
+      extendLines.hashCode ^
+      extendBlocked.hashCode ^
+      tightenPercent.hashCode ^
+      tightenShort.hashCode ^
+      keepHidden.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OverflowPlan &&
+          runtimeType == other.runtimeType &&
+          over == other.over &&
+          extendLines == other.extendLines &&
+          extendBlocked == other.extendBlocked &&
+          tightenPercent == other.tightenPercent &&
+          tightenShort == other.tightenShort &&
+          keepHidden == other.keepHidden;
 }
 
 /// A page's text blocks.

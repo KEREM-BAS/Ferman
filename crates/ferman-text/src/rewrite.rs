@@ -28,20 +28,38 @@
 //!   left behind: a final `Tf`, a `Tm` with the original line matrix and an empty `[n] TJ` that
 //!   moves the text matrix to the original end. Colour and `q` depth are untouched, since a line
 //!   with such operators inside is not rewritten.
-//! - **Justification (W1).** `Tw` stays as it was, so new spaces stretch like the old ones; a
-//!   line justified by `TJ` gives new spaces (or, glyph by glyph, new glyphs) the line's mean
-//!   adjustment. Exact re-justification, reflow and the overflow choices are W2: a line wider
-//!   than its frame is still written and listed in [`Rewrite::overflowing`].
+//! - **Justification, line by line.** `Tw` stays as it was, so new spaces stretch like the old
+//!   ones; a line justified by `TJ` gives new spaces (or, glyph by glyph, new glyphs) the line's
+//!   mean adjustment. A line of a left-aligned block wider than its frame is still written and
+//!   listed in [`Rewrite::overflowing`]; one of a justified block reflows the block.
+//! - **Reflow (ROADMAP §7 step 5).** A block is rewritten line by line when the new text has one
+//!   piece per line (separated by `\n`) and the block is left-aligned or justified. Any other
+//!   text, and every right-aligned or centred block, is laid out again in the block's frame by
+//!   [`reflow`](crate::reflow), a `\n` ending a paragraph, with the real advances of the line's
+//!   fonts, `Tc`, `Tw` and `Tz`; a one-line block given one line keeps it, however long, since
+//!   its frame is only its old text. Each planned line gets a `Tm` at its planned start, in the font
+//!   and state of the block's first show: alignment kept, justified lines stretched by the
+//!   block's own method (`Tw` per line, or `TJ` numbers after the spaces or between the glyphs).
+//!   Kept characters keep their codes; new ones are encoded as above. All the new lines go into
+//!   the operators of the block's first line in content order; the other lines' operators are
+//!   replaced by what keeps the state invariant (docs/ARCHITECTURE.md §6.6 step 6), so lines in
+//!   text objects of their own, with colour operators between them, reflow too.
+//! - **Overflow (§6.8).** When the lines need more than the frame holds, the rewrite carries the
+//!   [`OverflowPlan`] and writes the [`Choice`] asked for: Extend writes every line below the
+//!   frame, Tighten writes the plan's tracking as `Tc`, and Keep and warn (also the default, and
+//!   what a disabled choice falls back to) writes the lines past the frame with `3 Tr`, invisible
+//!   but still in the text, since clipping paths and `q` are not allowed inside a text object.
 //!
 //! Simple fonts' strings are written as literal strings with `\(`, `\)`, `\\` and octal escapes;
 //! the original operator's string form is not visible here, since spans carry no bytes.
 //!
-//! Not rewritten yet ([`Unsupported`]): right-to-left and vertical lines (Identity-V is W3),
-//! another number of lines, a new character only a composite font could draw whose predefined
-//! CMap is not bundled or that needs a copy of a form's font, and lines whose operators are
-//! not a plain run of shows (marked content, colour or other operators inside, a show shared with
-//! another line, a split operator, different spacing between the shows, a shifted baseline).
-//! Marked content around a line, such as `/ActualText`, is kept as it is.
+//! Not rewritten yet ([`Unsupported`]): right-to-left and vertical lines (Identity-V is W3), a
+//! new character only a composite font could draw whose predefined CMap is not bundled or that
+//! needs a copy of a form's font, lines whose operators are not a plain run of shows (marked
+//! content, colour or other operators inside, a show shared with another line, a split operator,
+//! different spacing between the shows, a shifted baseline), and the reflow of a block whose lines
+//! differ in spacing, colour or turn, are in several streams, or have a raised baseline. Marked
+//! content around a line, such as `/ActualText`, is kept as it is.
 // Positions, codes and spans come from files (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -58,7 +76,8 @@ use ferman_fonts::{FontProgram, with_text};
 
 use crate::TextError;
 use crate::extract::{Collector, PdfFont, displayed, glyph_box};
-use crate::layout::{Justification, Line, TextBlock, TextChar, TextDirection};
+use crate::layout::{Alignment, Justification, Line, TextBlock, TextChar, TextDirection};
+use crate::reflow::{self, OverflowPlan};
 
 /// One replacement in a content stream, for ferman-core's splicer.
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -79,9 +98,28 @@ pub struct Rewrite {
     /// The font copies the splices name, to add to the page's resources in the same
     /// transaction before the splices ([`RevisionStore::add_fonts`]).
     pub fonts: Vec<FontCopy>,
-    /// The lines, as indices into the block's lines, whose new text runs past the block's frame.
-    /// They are written as they are; reflow and the overflow choices are W2.
+    /// The lines, as indices into the block's lines, whose new text runs past the frame of a
+    /// left-aligned block rewritten line by line: written as they are.
     pub overflowing: Vec<usize>,
+    /// The overflow choices, when the reflowed text needs more lines than the frame holds.
+    pub overflow: Option<OverflowPlan>,
+    /// The choice written for that overflow: the one asked for when it is available, else
+    /// [`Choice::Keep`].
+    pub chosen: Option<Choice>,
+    /// How many lines past the frame are written invisible ([`Choice::Keep`]).
+    pub hidden: usize,
+}
+
+/// One of the overflow choices (a3-4, docs/ARCHITECTURE.md §6.8).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub enum Choice {
+    /// "Extend block by N line(s)": every line written, the frame grown.
+    Extend,
+    /// "Tighten spacing slightly (−x%)": `Tc` tightened as the plan says, so the text fits.
+    Tighten,
+    /// "Keep and warn": every line written, the ones past the frame invisible (`3 Tr`), so
+    /// their text stays in the file.
+    Keep,
 }
 
 /// What rewriting a block gives.
@@ -102,8 +140,6 @@ pub enum Outcome {
 pub enum Unsupported {
     /// The block is not editable ([`TextBlock::editability`]).
     NotEditable,
-    /// The new text has another number of lines: reflow is W2.
-    LineCount,
     /// The block runs right to left or vertically.
     Direction,
     /// A new character could only come from a composite font of its line whose predefined CMap
@@ -127,7 +163,7 @@ pub fn rewrite_block(
     block: &TextBlock,
     text: &str,
 ) -> Result<Outcome, TextError> {
-    rewrite_through(document, None, index, block, text)
+    rewrite_through(document, None, index, block, text, &[], None)
 }
 
 /// [`rewrite_block`] for a block of the document as `revisions` changed it (its current revision
@@ -144,7 +180,27 @@ pub fn rewrite_block_revised(
     block: &TextBlock,
     text: &str,
 ) -> Result<Outcome, TextError> {
-    rewrite_through(document, Some(revisions), index, block, text)
+    rewrite_through(document, Some(revisions), index, block, text, &[], None)
+}
+
+/// [`rewrite_block`] (or [`rewrite_block_revised`] with `revisions`) with the overflow choice
+/// `choice` (none yet: [`Choice::Keep`]) and the page's blocks `others`, which may block
+/// [`Choice::Extend`]. `text` is the block's new text, a line feed ending a paragraph where the
+/// block is reflowed (module documentation).
+///
+/// # Errors
+///
+/// As [`rewrite_block`].
+pub fn rewrite_block_with(
+    document: &Document,
+    revisions: Option<&RevisionStore>,
+    index: usize,
+    block: &TextBlock,
+    text: &str,
+    others: &[TextBlock],
+    choice: Option<Choice>,
+) -> Result<Outcome, TextError> {
+    rewrite_through(document, revisions, index, block, text, others, choice)
 }
 
 fn rewrite_through(
@@ -153,6 +209,8 @@ fn rewrite_through(
     index: usize,
     block: &TextBlock,
     text: &str,
+    others: &[TextBlock],
+    choice: Option<Choice>,
 ) -> Result<Outcome, TextError> {
     if !block.editability.is_editable() {
         return Ok(Outcome::Unsupported(Unsupported::NotEditable));
@@ -166,9 +224,8 @@ fn rewrite_through(
         return Ok(Outcome::Unsupported(Unsupported::Direction));
     }
     let texts: Vec<&str> = text.split('\n').collect();
-    if texts.len() != block.lines.len() {
-        return Ok(Outcome::Unsupported(Unsupported::LineCount));
-    }
+    let line_by_line = texts.len() == block.lines.len()
+        && matches!(block.alignment, Alignment::Left | Alignment::Justified);
     let mut recorder = Recorder::default();
     match revisions {
         Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
@@ -192,7 +249,10 @@ fn rewrite_through(
     };
     let mut rewrite = Rewrite::default();
     let mut missing: Vec<char> = Vec::new();
-    for (at, (line, new)) in block.lines.iter().zip(texts).enumerate() {
+    if !line_by_line {
+        return reflowed(&page, block, text, others, choice, copies);
+    }
+    for (at, (line, new)) in block.lines.iter().zip(texts.iter().copied()).enumerate() {
         if line.text == new {
             continue;
         }
@@ -216,8 +276,49 @@ fn rewrite_through(
         });
         return Ok(Outcome::MissingGlyphs(missing));
     }
+    if block.alignment == Alignment::Justified && !rewrite.overflowing.is_empty() {
+        // A justified block is one paragraph: a line past its frame reflows it.
+        copies.list.clear();
+        return reflowed(&page, block, &texts.join(" "), others, choice, copies);
+    }
     rewrite.fonts = copies.finish();
     Ok(Outcome::Rewritten(rewrite))
+}
+
+/// The outcome of reflowing `block` to `text`.
+fn reflowed(
+    page: &Page<'_>,
+    block: &TextBlock,
+    text: &str,
+    others: &[TextBlock],
+    choice: Option<Choice>,
+    mut copies: Copies<'_>,
+) -> Result<Outcome, TextError> {
+    Ok(match page.block(block, text, others, choice, &mut copies) {
+        Err(unsupported) => Outcome::Unsupported(unsupported),
+        Ok(Reflowed::Missing(mut missing)) => {
+            let mut seen = Vec::new();
+            missing.retain(|c| {
+                let first = !seen.contains(c);
+                seen.push(*c);
+                first
+            });
+            Outcome::MissingGlyphs(missing)
+        }
+        Ok(Reflowed::Splice {
+            splices,
+            overflow,
+            chosen,
+            hidden,
+        }) => Outcome::Rewritten(Rewrite {
+            splices,
+            fonts: copies.finish(),
+            overflowing: Vec::new(),
+            overflow,
+            chosen,
+            hidden,
+        }),
+    })
 }
 
 /// The font copies a block's new codes need, one per font copied.
@@ -391,6 +492,31 @@ enum Planned {
     Missing(Vec<char>),
 }
 
+/// A line's glyphs and the operators that draw them.
+struct Runs {
+    units: Vec<Unit>,
+    /// Its glyphs, in content order.
+    glyphs: Vec<usize>,
+    shows: Vec<usize>,
+    /// Its first and last operator, as indices into the recorded events.
+    first: usize,
+    last: usize,
+    source: SpanSource,
+}
+
+/// Whether two shows draw with the same spacing, colour, baseline and turn of text space.
+fn alike(other: &GraphicsState, state: &GraphicsState) -> bool {
+    other.char_spacing == state.char_spacing
+        && other.word_spacing == state.word_spacing
+        && other.horizontal_scaling == state.horizontal_scaling
+        && other.rise == state.rise
+        && other.render_mode == state.render_mode
+        && other.fill == state.fill
+        && other.stroke == state.stroke
+        && other.ctm == state.ctm
+        && other.text_matrix.get(..4) == state.text_matrix.get(..4)
+}
+
 /// A run of a line's characters drawn by one glyph, or a space no glyph drew.
 struct Unit {
     glyph: Option<usize>,
@@ -555,17 +681,9 @@ impl<'a> Page<'a> {
             .min_by(|&a, &b| distance(a).total_cmp(&distance(b)))
     }
 
-    /// The splice for one changed line.
-    fn line(
-        &self,
-        line: &Line,
-        new: &str,
-        justification: Option<Justification>,
-        frame: &Frame,
-        copies: &mut Copies<'_>,
-    ) -> Result<Planned, Unsupported> {
+    /// A line's glyphs and the operators that draw them, when they are a plain run of shows.
+    fn runs(&self, line: &Line) -> Result<Runs, Unsupported> {
         let recorder = self.recorder;
-        let glyphs = &recorder.collector.glyphs;
         // The line's characters as glyphs, in content order.
         let mut units: Vec<Unit> = Vec::new();
         for (at, c) in line.chars.iter().enumerate() {
@@ -582,18 +700,20 @@ impl<'a> Page<'a> {
                 }),
             }
         }
-        let line_glyphs: Vec<usize> = units.iter().filter_map(|unit| unit.glyph).collect();
-        if line_glyphs.is_empty()
-            || line_glyphs
+        let glyphs: Vec<usize> = units.iter().filter_map(|unit| unit.glyph).collect();
+        if glyphs.is_empty()
+            || glyphs
                 .windows(2)
                 .any(|pair| matches!(pair, [a, b] if a >= b))
         {
             return Err(Unsupported::Operators);
         }
-        let show_of = |glyph: usize| recorder.glyph_shows.get(glyph).copied();
-        let mut shows: Vec<usize> = line_glyphs.iter().filter_map(|&g| show_of(g)).collect();
+        let mut shows: Vec<usize> = glyphs
+            .iter()
+            .filter_map(|&g| recorder.glyph_shows.get(g).copied())
+            .collect();
         shows.dedup();
-        let in_line = |glyph: usize| line_glyphs.binary_search(&glyph).is_ok();
+        let in_line = |glyph: usize| glyphs.binary_search(&glyph).is_ok();
         for &show in &shows {
             let all = recorder
                 .shows
@@ -603,21 +723,35 @@ impl<'a> Page<'a> {
                 return Err(Unsupported::Operators);
             }
         }
-        let (Some(&first_show), Some(&last_show)) = (shows.first(), shows.last()) else {
+        let (Some(first_show), Some(last_show)) = (shows.first(), shows.last()) else {
             return Err(Unsupported::Operators);
         };
         let (Some(&first), Some(&last)) = (
-            self.show_events.get(&first_show),
-            self.show_events.get(&last_show),
+            self.show_events.get(first_show),
+            self.show_events.get(last_show),
         ) else {
             return Err(Unsupported::Operators);
         };
+        let source = self.plain(first, last, &shows)?;
+        Ok(Runs {
+            units,
+            glyphs,
+            shows,
+            first,
+            last,
+            source,
+        })
+    }
+
+    /// The stream of the operators `first..=last`, when they are all shows of `shows` (or empty
+    /// ones), positioning and text state, in one stream.
+    fn plain(&self, first: usize, last: usize, shows: &[usize]) -> Result<SpanSource, Unsupported> {
+        let recorder = self.recorder;
         let events = recorder
             .events
             .get(first..=last)
             .ok_or(Unsupported::Operators)?;
-        let head = events.first().ok_or(Unsupported::Operators)?;
-        let source = head.span.source;
+        let source = events.first().ok_or(Unsupported::Operators)?.span.source;
         for event in events {
             let allowed = INSIDE.contains(&event.name.as_slice()) || event.name == INSIDE_FONT;
             let foreign = event.show.is_some_and(|show| {
@@ -631,10 +765,43 @@ impl<'a> Page<'a> {
                 return Err(Unsupported::Operators);
             }
         }
-        let range = head.span.range.start
-            ..events
-                .last()
-                .map_or(head.span.range.end, |event| event.span.range.end);
+        Ok(source)
+    }
+
+    /// The bytes the operators `first..=last` take in their stream.
+    fn range(&self, first: usize, last: usize) -> Result<Range<usize>, Unsupported> {
+        let events = &self.recorder.events;
+        let head = events.get(first).ok_or(Unsupported::Operators)?;
+        let tail = events.get(last).ok_or(Unsupported::Operators)?;
+        Ok(head.span.range.start..tail.span.range.end)
+    }
+
+    /// The splice for one changed line.
+    fn line(
+        &self,
+        line: &Line,
+        new: &str,
+        justification: Option<Justification>,
+        frame: &Frame,
+        copies: &mut Copies<'_>,
+    ) -> Result<Planned, Unsupported> {
+        let recorder = self.recorder;
+        let glyphs = &recorder.collector.glyphs;
+        let Runs {
+            units,
+            glyphs: line_glyphs,
+            shows,
+            first,
+            last,
+            source,
+        } = self.runs(line)?;
+        let show_of = |glyph: usize| recorder.glyph_shows.get(glyph).copied();
+        let events = recorder
+            .events
+            .get(first..=last)
+            .ok_or(Unsupported::Operators)?;
+        let range = self.range(first, last)?;
+        let first_show = *shows.first().ok_or(Unsupported::Operators)?;
         let base = recorder
             .shows
             .get(first_show)
@@ -646,16 +813,7 @@ impl<'a> Page<'a> {
                 .get(show)
                 .ok_or(Unsupported::Operators)?
                 .state;
-            let alike = other.char_spacing == state.char_spacing
-                && other.word_spacing == state.word_spacing
-                && other.horizontal_scaling == state.horizontal_scaling
-                && other.rise == state.rise
-                && other.render_mode == state.render_mode
-                && other.fill == state.fill
-                && other.stroke == state.stroke
-                && other.ctm == state.ctm
-                && other.text_matrix.get(..4) == state.text_matrix.get(..4);
-            if !alike {
+            if !alike(other, state) {
                 return Err(Unsupported::Operators);
             }
         }
@@ -779,29 +937,14 @@ impl<'a> Page<'a> {
         let middle = fresh
             .get(head_chars..fresh.len().saturating_sub(tail_chars))
             .ok_or(Unsupported::Operators)?;
-        // The fonts of the line, with the name and size its shows set them with.
-        let mut fonts: Vec<(u64, Vec<u8>, f32)> = Vec::new();
-        for &show in &shows {
-            let state = &recorder
-                .shows
-                .get(show)
-                .ok_or(Unsupported::Operators)?
-                .state;
-            if let (Some(font), Some(name)) = (state.font, &state.font_name)
-                && !fonts.iter().any(|(key, ..)| *key == font)
-            {
-                fonts.push((font, name.clone(), state.size));
-            }
-        }
+        let mut encoder = Encoder::new(recorder, &shows, source)?;
         let font_of = |g: usize| glyphs.get(g).map(|glyph| glyph.font);
         let next_font = units
             .get(kept_tail)
             .and_then(|unit| unit.glyph)
             .and_then(font_of);
-        let mut programs: HashMap<u64, Option<FontProgram<'_>>> = HashMap::new();
         let mut placed: Vec<Placed> = Vec::new();
         let mut missing = Vec::new();
-        let mut composite = false;
         let first_x = line_glyphs.first().map_or(0.0, |&g| x(g));
         let mut cursor = first_x;
         let keep = |at: usize, next_kept: bool, placed: &mut Vec<Placed>, cursor: &mut f32| {
@@ -851,53 +994,20 @@ impl<'a> Page<'a> {
         }
         for &c in middle {
             let previous = placed.last().map(|p| p.font);
-            let order = previous
+            let order: Vec<u64> = previous
                 .into_iter()
                 .chain(next_font)
-                .chain(fonts.iter().map(|(key, ..)| *key));
-            let mut chosen = None;
-            for key in order {
-                let Some(font) = recorder.collector.fonts.get(&key) else {
-                    continue;
-                };
-                let program = programs.entry(key).or_insert_with(|| font.program());
-                if font.cmap.is_none() {
-                    if let Some(code) = encode(font, program.as_ref(), c) {
-                        chosen = Some((key, vec![code], font.width(u32::from(code), 1), false));
-                        break;
-                    }
-                    continue;
-                }
-                if !font.cmap_known {
-                    composite = true;
-                    continue;
-                }
-                let Some(found) = encode_composite(font, program.as_ref(), c) else {
-                    continue;
-                };
-                let Some(needs) = &found.needs else {
-                    chosen = Some((key, found.bytes, found.width, true));
-                    break;
-                };
-                // A copy goes into the page's resources; a form's fonts are not copied yet.
-                let named = fonts.iter().find(|(font, ..)| *font == key).cloned();
-                let (Some((_, name, size)), SpanSource::Page { .. }) = (named, source) else {
-                    composite = true;
-                    continue;
-                };
-                let (copy, copy_name) = copies.add(key, &name, font, &found.bytes, needs)?;
-                if !fonts.iter().any(|(font, ..)| *font == copy) {
-                    fonts.push((copy, copy_name, size));
-                }
-                chosen = Some((copy, found.bytes, found.width, true));
-                break;
-            }
+                .chain(encoder.fonts.iter().map(|(key, ..)| *key))
+                .collect();
+            let chosen = encoder.choose(copies, &order, c)?;
             match chosen {
-                Some((key, bytes, width, hex)) => {
-                    let size = fonts
-                        .iter()
-                        .find(|(font, ..)| *font == key)
-                        .map_or(state.size, |(_, _, size)| *size);
+                Some(Chosen {
+                    font: key,
+                    bytes,
+                    width,
+                    hex,
+                    size,
+                }) => {
                     let spacing = state.char_spacing
                         + if bytes == [32] {
                             state.word_spacing
@@ -934,7 +1044,7 @@ impl<'a> Page<'a> {
             );
         }
         if !missing.is_empty() {
-            return if composite {
+            return if encoder.composite {
                 Err(Unsupported::CompositeFont)
             } else {
                 Ok(Planned::Missing(missing))
@@ -949,12 +1059,7 @@ impl<'a> Page<'a> {
         let mut sim = Sim::of(&before.state);
         restore(&mut out, &mut sim, state, Need::Both)?;
         let tj = events.iter().any(|event| event.name == b"TJ");
-        let name_of = |key: u64| {
-            fonts
-                .iter()
-                .find(|(font, ..)| *font == key)
-                .map(|(_, name, _)| name.clone())
-        };
+        let name_of = |key: u64| encoder.name(key);
         let mut natural = 0.0_f32;
         let mut items: Vec<Item> = Vec::new();
         let mut hex = false;
@@ -1024,6 +1129,707 @@ impl<'a> Page<'a> {
             },
             over,
         ))
+    }
+}
+
+/// What a reflowed block gives.
+enum Reflowed {
+    Splice {
+        splices: Vec<Splice>,
+        overflow: Option<OverflowPlan>,
+        chosen: Option<Choice>,
+        hidden: usize,
+    },
+    Missing(Vec<char>),
+}
+
+/// One glyph of a reflowed block, at a character of the new text.
+struct Piece {
+    /// The character's byte offset in the new text.
+    at: usize,
+    font: u64,
+    size: f32,
+    /// Its code; empty for a space no font draws, written as a `TJ` move.
+    bytes: Vec<u8>,
+    hex: bool,
+    /// Its advance per unit of font size.
+    width: f32,
+    /// Whether its character is a space.
+    blank: bool,
+}
+
+impl Piece {
+    /// Whether it is the single-byte code 32, which `Tw` widens.
+    fn space(&self) -> bool {
+        self.bytes == [32]
+    }
+
+    /// Whether it is a space, of any code, or a move where no font draws one.
+    fn blank(&self) -> bool {
+        self.blank
+    }
+}
+
+impl Page<'_> {
+    /// The splice that lays `text` out in `block`'s frame (module documentation): one
+    /// replacement of every operator from the block's first show to its last.
+    #[allow(clippy::too_many_lines)]
+    fn block(
+        &self,
+        block: &TextBlock,
+        text: &str,
+        others: &[TextBlock],
+        choice: Option<Choice>,
+        copies: &mut Copies<'_>,
+    ) -> Result<Reflowed, Unsupported> {
+        let recorder = self.recorder;
+        let glyphs = &recorder.collector.glyphs;
+        let runs: Vec<Runs> = block
+            .lines
+            .iter()
+            .map(|line| self.runs(line))
+            .collect::<Result<_, _>>()?;
+        // The lines' operators in content order: the first run takes the new text, the others
+        // only what keeps the state invariant (docs/ARCHITECTURE.md §6.6 step 6).
+        let mut order: Vec<&Runs> = runs.iter().collect();
+        order.sort_by_key(|run| run.first);
+        let head = *order.first().ok_or(Unsupported::Operators)?;
+        let (first, last, source) = (head.first, head.last, head.source);
+        if order.iter().any(|run| run.source != source) {
+            return Err(Unsupported::Operators);
+        }
+        let mut shows: Vec<usize> = runs.iter().flat_map(|run| run.shows.clone()).collect();
+        shows.sort_unstable();
+        shows.dedup();
+        let range = self.range(first, last)?;
+        let first_show = *shows.first().ok_or(Unsupported::Operators)?;
+        let base = recorder
+            .shows
+            .get(first_show)
+            .ok_or(Unsupported::Operators)?;
+        let state = &base.state;
+        let word_spacing = block.justification == Some(Justification::WordSpacing);
+        for &show in &shows {
+            let other = &recorder
+                .shows
+                .get(show)
+                .ok_or(Unsupported::Operators)?
+                .state;
+            // A block justified by `Tw` sets it per line, and so does its rewrite; lines an
+            // earlier Keep and warn hid (`3 Tr`) are checked below.
+            let other = GraphicsState {
+                word_spacing: if word_spacing {
+                    state.word_spacing
+                } else {
+                    other.word_spacing
+                },
+                render_mode: if other.render_mode == 3 {
+                    state.render_mode
+                } else {
+                    other.render_mode
+                },
+                ..other.clone()
+            };
+            if !alike(&other, state) {
+                return Err(Unsupported::Operators);
+            }
+        }
+        // The lines an earlier Keep and warn hid past the frame: invisible lines at the block's
+        // end. They are laid out again with the rest, and the frame is the lines before them.
+        let hidden_before = |run: &Runs| {
+            state.render_mode != 3
+                && run.shows.iter().all(|&show| {
+                    recorder
+                        .shows
+                        .get(show)
+                        .is_some_and(|show| show.state.render_mode == 3)
+                })
+        };
+        let shown = runs
+            .iter()
+            .rposition(|run| !hidden_before(run))
+            .map_or(0, |at| at.saturating_add(1));
+        let visible_shows = |run: &Runs| {
+            run.shows.iter().all(|&show| {
+                recorder
+                    .shows
+                    .get(show)
+                    .is_some_and(|show| show.state.render_mode == state.render_mode)
+            })
+        };
+        if shown == 0 || !runs.iter().take(shown).all(visible_shows) {
+            return Err(Unsupported::Operators);
+        }
+        let kept_block;
+        let framed = if shown < block.lines.len() {
+            let lines = block.lines.get(..shown).ok_or(Unsupported::Operators)?;
+            let bbox = lines.iter().fold(
+                [f32::MAX, f32::MAX, f32::MIN, f32::MIN],
+                |[l, t, r, b], line| {
+                    let [x0, y0, x1, y1] = line.bbox;
+                    [l.min(x0), t.min(y0), r.max(x1), b.max(y1)]
+                },
+            );
+            kept_block = TextBlock {
+                lines: lines.to_vec(),
+                bbox,
+                ..block.clone()
+            };
+            &kept_block
+        } else {
+            block
+        };
+        let [a, b, ..] = base.matrix;
+        let scale = a.hypot(b);
+        let scaling = state.horizontal_scaling;
+        // shortcut: a raised baseline is not reflowed; `Ts` joins when a file needs it.
+        if state.rise != 0.0 || scale <= 0.0 || scaling <= 0.0 || !scale.is_finite() {
+            return Err(Unsupported::Operators);
+        }
+        let to_text = invert(base.matrix).ok_or(Unsupported::Operators)?;
+        let from_displayed = invert(display_matrix(self.page)).ok_or(Unsupported::Operators)?;
+        let frame = reflow::Frame {
+            lines: shown,
+            ..reflow::Frame::of(block).ok_or(Unsupported::Operators)?
+        };
+        // A one-line block's frame is only its old text, so one line in stays one line out
+        // (a right-aligned or centred cell grows along its line, as a left-aligned one does).
+        let planned = if block.lines.len() == 1 && !text.contains('\n') {
+            reflow::Frame {
+                width: f32::MAX,
+                ..frame
+            }
+        } else {
+            frame
+        };
+
+        // The old text, its lines joined by a space, and which glyph drew each character.
+        let mut old: Vec<(char, Option<(usize, usize)>)> = Vec::new();
+        let mut starts = Vec::new();
+        for (l, (line, run)) in block.lines.iter().zip(&runs).enumerate() {
+            if l > 0 {
+                old.push((' ', None));
+            }
+            starts.push(old.len());
+            for (u, unit) in run.units.iter().enumerate() {
+                for _ in unit.chars.clone() {
+                    old.push((' ', Some((l, u))));
+                }
+            }
+            for (slot, c) in old
+                .iter_mut()
+                .skip(*starts.last().unwrap_or(&0))
+                .zip(&line.chars)
+            {
+                slot.0 = c.ch;
+            }
+        }
+        let fresh: Vec<(usize, char)> = text.char_indices().collect();
+        let same = |a: char, b: char| a == b || (a.is_whitespace() && b.is_whitespace());
+        let prefix = old
+            .iter()
+            .zip(&fresh)
+            .take_while(|((a, _), (_, b))| same(*a, *b))
+            .count();
+        let room = old.len().min(fresh.len()).saturating_sub(prefix);
+        let suffix = old
+            .iter()
+            .rev()
+            .zip(fresh.iter().rev())
+            .take(room)
+            .take_while(|((a, _), (_, b))| same(*a, *b))
+            .count();
+        let tail_old = old.len().saturating_sub(suffix);
+        let tail_new = fresh.len().saturating_sub(suffix);
+        // The old characters of a glyph, as indices into `old`.
+        let unit_range = |l: usize, u: usize| -> Option<Range<usize>> {
+            let start = *starts.get(l)?;
+            let chars = &runs.get(l)?.units.get(u)?.chars;
+            Some(start.checked_add(chars.start)?..start.checked_add(chars.end)?)
+        };
+        let kept = |range: &Range<usize>| range.end <= prefix || range.start >= tail_old;
+
+        let mut encoder = Encoder::new(recorder, &shows, source)?;
+        let mut pieces: Vec<Piece> = Vec::new();
+        let mut missing = Vec::new();
+        for (i, &(at, c)) in fresh.iter().enumerate() {
+            let before = if i < prefix {
+                Some(i)
+            } else if i >= tail_new {
+                i.checked_sub(tail_new)
+                    .and_then(|k| k.checked_add(tail_old))
+            } else {
+                None
+            };
+            let glyph = before
+                .and_then(|o| old.get(o).and_then(|(_, unit)| *unit).map(|unit| (o, unit)))
+                .and_then(|(o, (l, u))| {
+                    let g = runs.get(l)?.units.get(u)?.glyph?;
+                    Some((o, unit_range(l, u)?, g))
+                });
+            if let Some((o, range, g)) = glyph
+                && kept(&range)
+            {
+                // A kept glyph keeps its code, at its first character.
+                if o == range.start
+                    && let Some(glyph) = glyphs.get(g)
+                {
+                    let font = recorder
+                        .collector
+                        .fonts
+                        .get(&glyph.font)
+                        .ok_or(Unsupported::Operators)?;
+                    let length = glyph.length.min(4);
+                    let size = recorder
+                        .glyph_shows
+                        .get(g)
+                        .and_then(|&show| recorder.shows.get(show))
+                        .map_or(state.size, |show| show.state.size);
+                    pieces.push(Piece {
+                        at,
+                        font: glyph.font,
+                        size,
+                        bytes: glyph
+                            .code
+                            .to_be_bytes()
+                            .get(4_usize.saturating_sub(length)..)
+                            .unwrap_or_default()
+                            .to_vec(),
+                        hex: font.cmap.is_some(),
+                        width: font.width(glyph.code, length),
+                        blank: glyph.text.chars().all(char::is_whitespace),
+                    });
+                }
+                continue;
+            }
+            if c == '\n' || c == '\r' {
+                continue;
+            }
+            let c = if c.is_whitespace() { ' ' } else { c };
+            let order: Vec<u64> = pieces
+                .last()
+                .map(|piece| piece.font)
+                .into_iter()
+                .chain(encoder.fonts.iter().map(|(key, ..)| *key))
+                .collect();
+            match encoder.choose(copies, &order, c)? {
+                Some(chosen) => pieces.push(Piece {
+                    at,
+                    font: chosen.font,
+                    size: chosen.size,
+                    bytes: chosen.bytes,
+                    hex: chosen.hex,
+                    width: chosen.width,
+                    blank: c == ' ',
+                }),
+                None if c == ' ' => pieces.push(Piece {
+                    at,
+                    font: state.font.unwrap_or_default(),
+                    size: state.size,
+                    bytes: Vec::new(),
+                    hex: false,
+                    // shortcut: a space no font draws is a quarter em; measure the old gaps when
+                    // a file without space glyphs is reflowed.
+                    width: 0.25,
+                    blank: true,
+                }),
+                None => missing.push(c),
+            }
+        }
+        if !missing.is_empty() {
+            if encoder.composite {
+                return Err(Unsupported::CompositeFont);
+            }
+            return Ok(Reflowed::Missing(missing));
+        }
+
+        // Advances in text space without the justification, and in points for the plan.
+        let advance = |piece: &Piece, char_spacing: f32| -> f32 {
+            if piece.bytes.is_empty() {
+                return piece.width * piece.size * scaling;
+            }
+            let spacing = if piece.space() && !word_spacing {
+                state.word_spacing
+            } else {
+                0.0
+            };
+            (piece.width * piece.size + char_spacing + spacing) * scaling
+        };
+        let mut by_char: HashMap<char, f32> = HashMap::new();
+        for piece in &pieces {
+            if let Some(c) = text.get(piece.at..).and_then(|rest| rest.chars().next()) {
+                by_char
+                    .entry(if c.is_whitespace() { ' ' } else { c })
+                    .or_insert(advance(piece, state.char_spacing) * scale);
+            }
+        }
+        let points = |c: char| by_char.get(&c).copied().unwrap_or(0.0);
+        let page_box = self
+            .page
+            .map_or([f32::MIN, f32::MIN, f32::MAX, f32::MAX], |page| {
+                [0.0, 0.0, page.size.0, page.size.1]
+            });
+        let overflow = reflow::overflow(framed, &planned, text, points, others, page_box);
+        let (plan, tracking, visible, chosen) = match &overflow {
+            None => (
+                reflow::reflow(&planned, text, points),
+                0.0,
+                usize::MAX,
+                None,
+            ),
+            Some(plan) => match (choice, &plan.extend, &plan.tighten) {
+                (Some(Choice::Tighten), _, Ok(tighten)) => (
+                    tighten.plan.clone(),
+                    tighten.tracking,
+                    usize::MAX,
+                    Some(Choice::Tighten),
+                ),
+                (Some(Choice::Extend), Ok(_), _) => (
+                    reflow::reflow(&frame, text, points),
+                    0.0,
+                    usize::MAX,
+                    Some(Choice::Extend),
+                ),
+                // Keep and warn, also for a choice that is disabled.
+                _ => (
+                    reflow::reflow(&frame, text, points),
+                    0.0,
+                    frame.lines,
+                    Some(Choice::Keep),
+                ),
+            },
+        };
+        let char_spacing = state.char_spacing - tracking / (scale * scaling);
+
+        // The operators.
+        let before = first
+            .checked_sub(1)
+            .and_then(|at| recorder.events.get(at))
+            .ok_or(Unsupported::Operators)?;
+        let mut out = Vec::new();
+        let mut sim = Sim::of(&before.state);
+        restore(&mut out, &mut sim, state, Need::Nothing)?;
+        if char_spacing != sim.char_spacing {
+            space(&mut out);
+            number(&mut out, char_spacing)?;
+            out.extend_from_slice(b" Tc");
+            sim.char_spacing = char_spacing;
+        }
+        let mut hidden = 0_usize;
+        let mut end = None;
+        for (n, line) in plan.lines.iter().enumerate() {
+            let line_pieces: Vec<&Piece> = pieces
+                .iter()
+                .filter(|piece| line.range.contains(&piece.at))
+                .collect();
+            if line_pieces.is_empty() {
+                continue;
+            }
+            if n >= visible {
+                hidden = hidden.saturating_add(1);
+                if sim.render_mode != 3 {
+                    out.extend_from_slice(b" 3 Tr");
+                    sim.render_mode = 3;
+                }
+            }
+            let natural: f32 = line_pieces
+                .iter()
+                .map(|piece| advance(piece, char_spacing))
+                .sum();
+            let width = natural * scale;
+            let room = frame.width - width;
+            // The stretch at each gap, in text space, by the block's method.
+            let stretch = line.stretch.map(|stretch| {
+                let gaps = match stretch.method {
+                    Justification::WordSpacing => {
+                        line_pieces.iter().filter(|piece| piece.space()).count()
+                    }
+                    Justification::Adjustments => {
+                        line_pieces.iter().filter(|piece| piece.blank()).count()
+                    }
+                    Justification::Glyphs => line_pieces.len().saturating_sub(1),
+                };
+                #[allow(clippy::cast_precision_loss)]
+                let per_gap = if gaps > 0 && room > 0.0 {
+                    room / gaps as f32 / scale
+                } else {
+                    0.0
+                };
+                (stretch.method, per_gap)
+            });
+            let offset = match frame.alignment {
+                Alignment::Right => room,
+                Alignment::Center => room / 2.0,
+                Alignment::Left | Alignment::Justified => 0.0,
+            };
+            if word_spacing {
+                let tw = match stretch {
+                    Some((Justification::WordSpacing, per_gap)) => per_gap / scaling,
+                    _ => 0.0,
+                };
+                if tw != sim.word_spacing {
+                    space(&mut out);
+                    number(&mut out, tw)?;
+                    out.extend_from_slice(b" Tw");
+                    sim.word_spacing = tw;
+                }
+            }
+            #[allow(clippy::cast_precision_loss)]
+            let down = frame.pitch * n as f32;
+            let point = [
+                frame.origin[0] + frame.along[0] * offset + frame.across[0] * down,
+                frame.origin[1] + frame.along[1] * offset + frame.across[1] * down,
+            ];
+            let [tx, ty] = apply(to_text, apply(from_displayed, point));
+            let matrix = multiply([1.0, 0.0, 0.0, 1.0, tx, ty], state.text_matrix);
+            space(&mut out);
+            for value in matrix {
+                number(&mut out, value)?;
+                out.push(b' ');
+            }
+            out.extend_from_slice(b"Tm");
+            sim.line_matrix = matrix;
+            sim.text_matrix = matrix;
+            let mut moved = 0.0_f32;
+            let mut items: Vec<Item> = Vec::new();
+            let mut hex = false;
+            for (k, piece) in line_pieces.iter().enumerate() {
+                if !piece.bytes.is_empty()
+                    && (sim.font != Some(piece.font) || sim.size != piece.size || piece.hex != hex)
+                {
+                    flush(&mut out, &mut items, false, hex)?;
+                    hex = piece.hex;
+                    if sim.font != Some(piece.font) || sim.size != piece.size {
+                        let name = encoder.name(piece.font).ok_or(Unsupported::Operators)?;
+                        set_font(&mut out, &name, piece.size)?;
+                        sim.font = Some(piece.font);
+                        sim.size = piece.size;
+                    }
+                }
+                let unit = sim.size * scaling / 1000.0;
+                if unit == 0.0 {
+                    return Err(Unsupported::Operators);
+                }
+                let mut shift = 0.0_f32;
+                if piece.bytes.is_empty() {
+                    shift += advance(piece, char_spacing);
+                } else {
+                    match items.last_mut() {
+                        Some(Item::Text(bytes)) => bytes.extend_from_slice(&piece.bytes),
+                        _ => items.push(Item::Text(piece.bytes.clone())),
+                    }
+                    // A word-spacing block's `Tw` is the line's own, which `advance` leaves out.
+                    moved += advance(piece, char_spacing)
+                        + if piece.space() && word_spacing {
+                            sim.word_spacing * scaling
+                        } else {
+                            0.0
+                        };
+                }
+                let not_last = k.saturating_add(1) < line_pieces.len();
+                shift += match stretch {
+                    Some((Justification::Adjustments, per_gap)) if piece.blank() => per_gap,
+                    Some((Justification::Glyphs, per_gap)) if not_last => per_gap,
+                    _ => 0.0,
+                };
+                if shift != 0.0 {
+                    let n = ((-shift / unit) * 1000.0).round() / 1000.0;
+                    items.push(Item::Number(n));
+                    moved -= n * unit;
+                }
+            }
+            flush(&mut out, &mut items, false, hex)?;
+            end = Some(multiply([1.0, 0.0, 0.0, 1.0, moved, 0.0], matrix));
+        }
+        if let Some(end) = end {
+            sim.text_matrix = end;
+        }
+        let target = &recorder
+            .events
+            .get(last)
+            .ok_or(Unsupported::Operators)?
+            .state;
+        let need = need_after(
+            recorder
+                .events
+                .get(last.saturating_add(1)..)
+                .unwrap_or_default(),
+        );
+        restore(&mut out, &mut sim, target, need)?;
+        if !matches!(out.first(), Some(b'[' | b'(' | b'/' | b'<')) {
+            out.insert(0, b' ');
+        }
+        let mut splices = vec![Splice {
+            source,
+            range,
+            bytes: out,
+        }];
+        for run in order.iter().skip(1) {
+            let events = &recorder.events;
+            let before = run
+                .first
+                .checked_sub(1)
+                .and_then(|at| events.get(at))
+                .ok_or(Unsupported::Operators)?;
+            let target = &events.get(run.last).ok_or(Unsupported::Operators)?.state;
+            let need = need_after(events.get(run.last.saturating_add(1)..).unwrap_or_default());
+            let mut out = Vec::new();
+            restore(&mut out, &mut Sim::of(&before.state), target, need)?;
+            out.insert(0, b' ');
+            splices.push(Splice {
+                source,
+                range: self.range(run.first, run.last)?,
+                bytes: out,
+            });
+        }
+        Ok(Reflowed::Splice {
+            splices,
+            overflow,
+            chosen,
+            hidden,
+        })
+    }
+}
+
+/// The matrix that takes user space to displayed page space: the crop box's corner at the
+/// origin, y down, the page's rotation applied.
+fn display_matrix(page: Option<&ferman_core::structure::Page>) -> Matrix {
+    let Some(page) = page else {
+        return [1.0, 0.0, 0.0, 1.0, 0.0, 0.0];
+    };
+    let (ox, oy) = page.display_point(0.0, 0.0);
+    let (xx, xy) = page.display_point(1.0, 0.0);
+    let (yx, yy) = page.display_point(0.0, 1.0);
+    [xx - ox, xy - oy, yx - ox, yy - oy, ox, oy]
+}
+
+/// A new character's code, in the font that draws it.
+struct Chosen {
+    font: u64,
+    bytes: Vec<u8>,
+    /// Its advance per unit of font size.
+    width: f32,
+    /// Whether the font is composite, so its string is written in hex.
+    hex: bool,
+    /// The size the font is set at.
+    size: f32,
+}
+
+/// The fonts of some shows, which new characters are encoded in.
+struct Encoder<'a> {
+    recorder: &'a Recorder,
+    programs: HashMap<u64, Option<FontProgram<'a>>>,
+    /// The fonts with the name and size their shows set them with, then the font copies made.
+    fonts: Vec<(u64, Vec<u8>, f32)>,
+    source: SpanSource,
+    /// Whether a character was left out that only a composite font whose predefined CMap is
+    /// not bundled, or a copy of a form's font, could draw.
+    composite: bool,
+}
+
+impl<'a> Encoder<'a> {
+    fn new(
+        recorder: &'a Recorder,
+        shows: &[usize],
+        source: SpanSource,
+    ) -> Result<Self, Unsupported> {
+        let mut fonts: Vec<(u64, Vec<u8>, f32)> = Vec::new();
+        for &show in shows {
+            let state = &recorder
+                .shows
+                .get(show)
+                .ok_or(Unsupported::Operators)?
+                .state;
+            if let (Some(font), Some(name)) = (state.font, &state.font_name)
+                && !fonts.iter().any(|(key, ..)| *key == font)
+            {
+                fonts.push((font, name.clone(), state.size));
+            }
+        }
+        Ok(Self {
+            recorder,
+            programs: HashMap::new(),
+            fonts,
+            source,
+            composite: false,
+        })
+    }
+
+    /// The name a font is set by.
+    fn name(&self, key: u64) -> Option<Vec<u8>> {
+        self.fonts
+            .iter()
+            .find(|(font, ..)| *font == key)
+            .map(|(_, name, _)| name.clone())
+    }
+
+    /// `c` in the first font of `order` that draws it (module documentation), making the font
+    /// copy it needs; `None` when none does.
+    fn choose(
+        &mut self,
+        copies: &mut Copies<'_>,
+        order: &[u64],
+        c: char,
+    ) -> Result<Option<Chosen>, Unsupported> {
+        let recorder = self.recorder;
+        for &key in order {
+            let Some(font) = recorder.collector.fonts.get(&key) else {
+                continue;
+            };
+            let program = self.programs.entry(key).or_insert_with(|| font.program());
+            let size_of = |fonts: &[(u64, Vec<u8>, f32)], key: u64| {
+                fonts
+                    .iter()
+                    .find(|(font, ..)| *font == key)
+                    .map(|(_, _, size)| *size)
+            };
+            if font.cmap.is_none() {
+                if let Some(code) = encode(font, program.as_ref(), c) {
+                    return Ok(Some(Chosen {
+                        font: key,
+                        bytes: vec![code],
+                        width: font.width(u32::from(code), 1),
+                        hex: false,
+                        size: size_of(&self.fonts, key).ok_or(Unsupported::Operators)?,
+                    }));
+                }
+                continue;
+            }
+            if !font.cmap_known {
+                self.composite = true;
+                continue;
+            }
+            let Some(found) = encode_composite(font, program.as_ref(), c) else {
+                continue;
+            };
+            let Some(needs) = &found.needs else {
+                return Ok(Some(Chosen {
+                    font: key,
+                    bytes: found.bytes,
+                    width: found.width,
+                    hex: true,
+                    size: size_of(&self.fonts, key).ok_or(Unsupported::Operators)?,
+                }));
+            };
+            // A copy goes into the page's resources; a form's fonts are not copied yet.
+            let named = self.fonts.iter().find(|(font, ..)| *font == key).cloned();
+            let (Some((_, name, size)), SpanSource::Page { .. }) = (named, self.source) else {
+                self.composite = true;
+                continue;
+            };
+            let (copy, copy_name) = copies.add(key, &name, font, &found.bytes, needs)?;
+            if !self.fonts.iter().any(|(font, ..)| *font == copy) {
+                self.fonts.push((copy, copy_name, size));
+            }
+            return Ok(Some(Chosen {
+                font: copy,
+                bytes: found.bytes,
+                width: found.width,
+                hex: true,
+                size,
+            }));
+        }
+        Ok(None)
     }
 }
 

@@ -1101,6 +1101,9 @@ class EditPreview {
     required this.page,
     this.missing = const [],
     this.overflowing = false,
+    this.overflow,
+    this.chosen,
+    this.dependents = const [],
   });
 
   /// The page's blocks with the new text, or with the text before when
@@ -1111,8 +1114,112 @@ class EditPreview {
   /// appear: the text was not applied (ARCHITECTURE §6.7).
   final List<String> missing;
 
-  /// Whether a line runs past its block's frame.
+  /// Whether a line of a left-aligned block rewritten line by line runs past
+  /// its frame.
   final bool overflowing;
+
+  /// The overflow choices, when the text needs more lines than the block's
+  /// frame holds (a3-4, ARCHITECTURE §6.8).
+  final OverflowPlan? overflow;
+
+  /// The choice the preview shows and a commit keeps: [OverflowChoice.keep]
+  /// until `resolveOverflow` picks another.
+  final OverflowChoice? chosen;
+
+  /// The table cells whose values likely depend on the edited one (a3-9):
+  /// tinted, with "Totals don't update"; the engine never changes them.
+  final List<DependentCell> dependents;
+}
+
+/// One of the overflow choices (a3-4).
+enum OverflowChoice {
+  /// "Extend block by N line(s)".
+  extend,
+
+  /// "Tighten spacing slightly (−x%)".
+  tighten,
+
+  /// "Keep and warn".
+  keep,
+}
+
+/// What stands in the way of [OverflowChoice.extend].
+enum ExtendBlockedKind {
+  /// Another block of the page.
+  block,
+
+  /// The page's edge.
+  pageEdge,
+}
+
+/// Why [OverflowChoice.extend] is disabled (a3-18).
+@immutable
+class ExtendBlocked {
+  /// Creates the reason.
+  const new({required this.kind, this.block, this.text = ''});
+
+  /// What is in the way.
+  final ExtendBlockedKind kind;
+
+  /// The block in the way, for [ExtendBlockedKind.block].
+  final int? block;
+
+  /// Its first line, which the reason names.
+  final String text;
+}
+
+/// The overflow choices with the amounts the engine computed for the block.
+@immutable
+class OverflowPlan {
+  /// Creates a plan.
+  const new({
+    required this.over,
+    required this.keepHidden,
+    this.extendLines,
+    this.extendBlocked,
+    this.tightenPercent,
+    this.tightenShort,
+  });
+
+  /// How many lines go past the frame.
+  final int over;
+
+  /// The N of "Extend block by N line(s)", when it is available.
+  final int? extendLines;
+
+  /// Why Extend is disabled, when it is.
+  final ExtendBlocked? extendBlocked;
+
+  /// The x of "Tighten spacing slightly (−x%)", one decimal, when it is
+  /// available.
+  final double? tightenPercent;
+
+  /// The lines still over at the tightest allowed spacing, when Tighten is
+  /// disabled.
+  final int? tightenShort;
+
+  /// The lines "Keep and warn" hides.
+  final int keepHidden;
+
+  /// Whether [choice] can be picked.
+  bool allows(OverflowChoice choice) => switch (choice) {
+    OverflowChoice.extend => extendLines != null,
+    OverflowChoice.tighten => tightenPercent != null,
+    OverflowChoice.keep => true,
+  };
+}
+
+/// A table cell that likely depends on an edited one.
+@immutable
+class DependentCell {
+  /// Creates the cell.
+  const new({required this.id, required this.frame});
+
+  /// Its block's id.
+  final int id;
+
+  /// Its frame, in the page's displayed points.
+  final Rect frame;
 }
 
 /// Where a document's history stands after a commit, rollback, undo or
@@ -1135,13 +1242,17 @@ class RevisionInfo {
 @immutable
 class HistoryStep {
   /// Creates a step.
-  const new({required this.name, required this.time});
+  const new({required this.name, required this.time, this.hiddenLines = 0});
 
   /// Its name as the app gave it at commit.
   final String name;
 
   /// When it was committed.
   final DateTime time;
+
+  /// The lines "Keep and warn" left hidden past the block's frame: the
+  /// warning of the review list and the page thumbnail (a3-12); 0 for none.
+  final int hiddenLines;
 }
 
 /// A document's history for the Undo history panel (a3-10).

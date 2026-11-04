@@ -28,7 +28,7 @@ mod version;
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
-pub use edit::{EditPreview, History, HistoryStep, RevisionInfo, TransactionId};
+pub use edit::{DependentCell, EditPreview, History, HistoryStep, RevisionInfo, TransactionId};
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
@@ -50,6 +50,7 @@ pub use ferman_render::{
 };
 pub use ferman_render::{EDIT_MARGIN, PageRaster, PixelDiff, RESOLUTIONS, compare, device_region};
 pub use ferman_text::{
-    Alignment, BlockId, Complexity, Editability, NotEditableReason, SearchOptions, TextDirection,
+    Alignment, BlockId, Choice, Complexity, Editability, Extend, ExtendBlocked, Keep,
+    NotEditableReason, OverflowPlan, SearchOptions, TextDirection, Tighten, TightenShort,
     collation_order,
 };

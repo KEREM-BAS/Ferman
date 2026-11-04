@@ -96,13 +96,24 @@ abstract interface class EngineService {
   /// [EngineErrorKind.invalidInput] while another transaction is open.
   Future<int> beginEdit(int document, int page, int block);
 
-  /// Replaces the whole text of the [transaction]'s block with [text], its
-  /// lines separated by line feeds, one per line of the block; returns the
-  /// page as it would read.
+  /// Replaces the whole text of the [transaction]'s block with [text]; returns
+  /// the page as it would read. One piece per line of a left-aligned or
+  /// justified block, separated by line feeds, rewrites the changed lines in
+  /// place; any other text is laid out again in the block's frame, a line
+  /// feed ending a paragraph. Text that needs more lines than the frame holds
+  /// comes back with [EditPreview.overflow] and "Keep and warn" applied, which
+  /// a commit keeps unless [resolveOverflow] picks another choice.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.unsupported] for text
-  /// the engine cannot write yet, such as another number of lines.
+  /// the engine cannot write yet, such as right-to-left lines.
   Future<EditPreview> applyEdit(int transaction, String text);
+
+  /// Writes the [transaction]'s newest text again with the overflow
+  /// [choice]; the transaction stays open.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] when the
+  /// text does not overflow or [choice] is disabled.
+  Future<EditPreview> resolveOverflow(int transaction, OverflowChoice choice);
 
   /// Commits the [transaction] as the history step [name], dropping the
   /// steps undone. A transaction that changed nothing adds no step.
@@ -247,6 +258,12 @@ class UnavailableEngineService implements EngineService {
   @override
   Future<EditPreview> applyEdit(int transaction, String text) async =>
       throw error;
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async => throw error;
 
   @override
   Future<RevisionInfo> commitEdit(int transaction, String name) async =>

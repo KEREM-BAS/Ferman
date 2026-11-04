@@ -121,11 +121,64 @@ void main() {
       engine.beginEdit(7, 0, 99),
       _fails(EngineErrorKind.notFound),
     );
+  });
+
+  test('another number of lines reflows the block', () async {
+    final engine = FakeEngineService(pageBlocks: {0: _page});
     final tx = await engine.beginEdit(7, 0, 1);
+    var preview = await engine.applyEdit(tx, 'one line');
+    expect(preview.page.blocks.first.lines, hasLength(1));
+    expect(preview.overflow, isNull);
+    preview = await engine.applyEdit(tx, 'Madde 4\nKira bedeli\n18.500 TL');
+    final block = preview.page.blocks.first;
+    expect(block.lines, hasLength(3));
+    expect(block.lines.last.bbox.top, 100);
+    expect(block.frame.bottom, greaterThanOrEqualTo(112));
     await expectLater(
-      engine.applyEdit(tx, 'one line'),
-      _fails(EngineErrorKind.unsupported),
+      engine.resolveOverflow(tx, OverflowChoice.keep),
+      _fails(EngineErrorKind.invalidInput),
     );
+  });
+
+  test('an overflow offers its plan and records the hidden lines', () async {
+    final engine = FakeEngineService(
+      pageBlocks: {0: _page},
+      overflows: {1: FakeEngineService.ibanOverflow},
+    );
+    final tx = await engine.beginEdit(7, 0, 1);
+    var preview = await engine.applyEdit(
+      tx,
+      'Madde 4 Kira bedeli 18.500 TL, her ayın beşinci gününe kadar.',
+    );
+    final plan = preview.overflow!;
+    expect(plan.over, 1);
+    expect(plan.extendLines, isNull);
+    expect(plan.extendBlocked!.text, startsWith('IBAN'));
+    expect(plan.tightenPercent, 0.6);
+    expect(plan.allows(OverflowChoice.extend), isFalse);
+    expect(preview.chosen, OverflowChoice.keep);
+    await expectLater(
+      engine.resolveOverflow(tx, OverflowChoice.extend),
+      _fails(EngineErrorKind.invalidInput),
+    );
+    preview = await engine.resolveOverflow(tx, OverflowChoice.tighten);
+    expect(preview.chosen, OverflowChoice.tighten);
+    preview = await engine.resolveOverflow(tx, OverflowChoice.keep);
+    await engine.commitEdit(tx, 'Edited text · Madde 4');
+    expect((await engine.history(7)).steps.single.hiddenLines, 1);
+  });
+
+  test('a table cell names the cells that depend on it', () async {
+    final engine = FakeEngineService(
+      pageBlocks: {0: _page},
+      dependents: {
+        1: [2],
+      },
+    );
+    final tx = await engine.beginEdit(7, 0, 1);
+    final preview = await engine.applyEdit(tx, 'Madde 4\nKira bedeli 1 TL');
+    expect(preview.dependents.single.id, 2);
+    expect(preview.dependents.single.frame, _page.blocks[1].frame);
   });
 
   test('saves are recorded and can fail', () async {
@@ -148,6 +201,7 @@ void main() {
     for (final call in <Future<Object?> Function()>[
       () => service.beginEdit(1, 0, 1),
       () => service.applyEdit(1, ''),
+      () => service.resolveOverflow(1, OverflowChoice.keep),
       () => service.commitEdit(1, ''),
       () => service.rollbackEdit(1),
       () => service.undo(1),

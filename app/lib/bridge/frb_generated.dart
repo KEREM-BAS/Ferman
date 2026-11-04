@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -1499499776;
+  int get rustContentHash => -192509212;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -132,6 +132,11 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
+  });
+
+  Future<EditPreview> crateFrbResolveOverflow({
+    required BigInt transaction,
+    required OverflowChoice choice,
   });
 
   Future<RevisionInfo> crateFrbRollbackEdit({required BigInt transaction});
@@ -592,6 +597,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<EditPreview> crateFrbResolveOverflow({
+    required BigInt transaction,
+    required OverflowChoice choice,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(transaction);
+          var arg1 = cst_encode_overflow_choice(choice);
+          return wire.wire__crate__frb__resolve_overflow(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_edit_preview,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbResolveOverflowConstMeta,
+        argValues: [transaction, choice],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbResolveOverflowConstMeta => const TaskConstMeta(
+    debugName: "resolve_overflow",
+    argNames: ["transaction", "choice"],
+  );
+
+  @override
   Future<RevisionInfo> crateFrbRollbackEdit({required BigInt transaction}) {
     return handler.executeNormal(
       NormalTask(
@@ -973,6 +1006,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_extend_blocked(raw);
+  }
+
+  @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw as double;
+  }
+
+  @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_fail_reason(raw);
@@ -982,6 +1027,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_not_editable_reason(raw);
+  }
+
+  @protected
+  OverflowChoice dco_decode_box_autoadd_overflow_choice(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_overflow_choice(raw);
+  }
+
+  @protected
+  OverflowPlan dco_decode_box_autoadd_overflow_plan(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_overflow_plan(raw);
   }
 
   @protected
@@ -1069,6 +1126,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  DependentCell dco_decode_dependent_cell(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return DependentCell(
+      id: dco_decode_u_64(arr[0]),
+      frame: dco_decode_page_rect(arr[1]),
+    );
+  }
+
+  @protected
   DocumentInfo dco_decode_document_info(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -1108,12 +1177,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   EditPreview dco_decode_edit_preview(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
     return EditPreview(
       page: dco_decode_page_blocks(arr[0]),
       missing: dco_decode_list_String(arr[1]),
       overflowing: dco_decode_bool(arr[2]),
+      overflow: dco_decode_opt_box_autoadd_overflow_plan(arr[3]),
+      chosen: dco_decode_opt_box_autoadd_overflow_choice(arr[4]),
+      dependents: dco_decode_list_dependent_cell(arr[5]),
     );
   }
 
@@ -1142,6 +1214,25 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ErrorKind dco_decode_error_kind(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return ErrorKind.values[raw as int];
+  }
+
+  @protected
+  ExtendBlocked dco_decode_extend_blocked(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return ExtendBlocked(
+      kind: dco_decode_extend_blocked_kind(arr[0]),
+      block: dco_decode_opt_box_autoadd_u_64(arr[1]),
+      text: dco_decode_String(arr[2]),
+    );
+  }
+
+  @protected
+  ExtendBlockedKind dco_decode_extend_blocked_kind(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return ExtendBlockedKind.values[raw as int];
   }
 
   @protected
@@ -1192,11 +1283,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   HistoryStep dco_decode_history_step(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 2)
-      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
     return HistoryStep(
       name: dco_decode_String(arr[0]),
       time: dco_decode_i_64(arr[1]),
+      hiddenLines: dco_decode_u_32(arr[2]),
     );
   }
 
@@ -1279,6 +1371,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_crate_version).toList();
+  }
+
+  @protected
+  List<DependentCell> dco_decode_list_dependent_cell(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_dependent_cell).toList();
   }
 
   @protected
@@ -1403,6 +1501,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_extend_blocked(raw);
+  }
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_f_32(raw);
+  }
+
+  @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_fail_reason(raw);
@@ -1414,6 +1524,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_not_editable_reason(raw);
+  }
+
+  @protected
+  OverflowChoice? dco_decode_opt_box_autoadd_overflow_choice(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_overflow_choice(raw);
+  }
+
+  @protected
+  OverflowPlan? dco_decode_opt_box_autoadd_overflow_plan(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_overflow_plan(raw);
   }
 
   @protected
@@ -1463,6 +1585,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       page: dco_decode_opt_box_autoadd_u_32(arr[1]),
       depth: dco_decode_u_32(arr[2]),
       open: dco_decode_bool(arr[3]),
+    );
+  }
+
+  @protected
+  OverflowChoice dco_decode_overflow_choice(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return OverflowChoice.values[raw as int];
+  }
+
+  @protected
+  OverflowPlan dco_decode_overflow_plan(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 6)
+      throw Exception('unexpected arr length: expect 6 but see ${arr.length}');
+    return OverflowPlan(
+      over: dco_decode_u_32(arr[0]),
+      extendLines: dco_decode_opt_box_autoadd_u_32(arr[1]),
+      extendBlocked: dco_decode_opt_box_autoadd_extend_blocked(arr[2]),
+      tightenPercent: dco_decode_opt_box_autoadd_f_32(arr[3]),
+      tightenShort: dco_decode_opt_box_autoadd_u_32(arr[4]),
+      keepHidden: dco_decode_u_32(arr[5]),
     );
   }
 
@@ -1886,6 +2030,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ExtendBlocked sse_decode_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_extend_blocked(deserializer));
+  }
+
+  @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_f_32(deserializer));
+  }
+
+  @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_fail_reason(deserializer));
@@ -1897,6 +2055,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_not_editable_reason(deserializer));
+  }
+
+  @protected
+  OverflowChoice sse_decode_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_overflow_choice(deserializer));
+  }
+
+  @protected
+  OverflowPlan sse_decode_box_autoadd_overflow_plan(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_overflow_plan(deserializer));
   }
 
   @protected
@@ -1983,6 +2157,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  DependentCell sse_decode_dependent_cell(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_id = sse_decode_u_64(deserializer);
+    var var_frame = sse_decode_page_rect(deserializer);
+    return DependentCell(id: var_id, frame: var_frame);
+  }
+
+  @protected
   DocumentInfo sse_decode_document_info(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_title = sse_decode_opt_String(deserializer);
@@ -2036,10 +2218,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_page = sse_decode_page_blocks(deserializer);
     var var_missing = sse_decode_list_String(deserializer);
     var var_overflowing = sse_decode_bool(deserializer);
+    var var_overflow = sse_decode_opt_box_autoadd_overflow_plan(deserializer);
+    var var_chosen = sse_decode_opt_box_autoadd_overflow_choice(deserializer);
+    var var_dependents = sse_decode_list_dependent_cell(deserializer);
     return EditPreview(
       page: var_page,
       missing: var_missing,
       overflowing: var_overflowing,
+      overflow: var_overflow,
+      chosen: var_chosen,
+      dependents: var_dependents,
     );
   }
 
@@ -2072,6 +2260,24 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return ErrorKind.values[inner];
+  }
+
+  @protected
+  ExtendBlocked sse_decode_extend_blocked(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_kind = sse_decode_extend_blocked_kind(deserializer);
+    var var_block = sse_decode_opt_box_autoadd_u_64(deserializer);
+    var var_text = sse_decode_String(deserializer);
+    return ExtendBlocked(kind: var_kind, block: var_block, text: var_text);
+  }
+
+  @protected
+  ExtendBlockedKind sse_decode_extend_blocked_kind(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return ExtendBlockedKind.values[inner];
   }
 
   @protected
@@ -2122,7 +2328,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_name = sse_decode_String(deserializer);
     var var_time = sse_decode_i_64(deserializer);
-    return HistoryStep(name: var_name, time: var_time);
+    var var_hiddenLines = sse_decode_u_32(deserializer);
+    return HistoryStep(
+      name: var_name,
+      time: var_time,
+      hiddenLines: var_hiddenLines,
+    );
   }
 
   @protected
@@ -2232,6 +2443,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <CrateVersion>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_crate_version(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<DependentCell> sse_decode_list_dependent_cell(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <DependentCell>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_dependent_cell(deserializer));
     }
     return ans_;
   }
@@ -2456,6 +2681,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_extend_blocked(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_f_32(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
     SseDeserializer deserializer,
   ) {
@@ -2476,6 +2725,32 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_not_editable_reason(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  OverflowChoice? sse_decode_opt_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_overflow_choice(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  OverflowPlan? sse_decode_opt_box_autoadd_overflow_plan(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_overflow_plan(deserializer));
     } else {
       return null;
     }
@@ -2561,6 +2836,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       page: var_page,
       depth: var_depth,
       open: var_open,
+    );
+  }
+
+  @protected
+  OverflowChoice sse_decode_overflow_choice(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return OverflowChoice.values[inner];
+  }
+
+  @protected
+  OverflowPlan sse_decode_overflow_plan(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_over = sse_decode_u_32(deserializer);
+    var var_extendLines = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_extendBlocked = sse_decode_opt_box_autoadd_extend_blocked(
+      deserializer,
+    );
+    var var_tightenPercent = sse_decode_opt_box_autoadd_f_32(deserializer);
+    var var_tightenShort = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_keepHidden = sse_decode_u_32(deserializer);
+    return OverflowPlan(
+      over: var_over,
+      extendLines: var_extendLines,
+      extendBlocked: var_extendBlocked,
+      tightenPercent: var_tightenPercent,
+      tightenShort: var_tightenShort,
+      keepHidden: var_keepHidden,
     );
   }
 
@@ -2924,6 +3227,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_extend_blocked_kind(ExtendBlockedKind raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   double cst_encode_f_32(double raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw;
@@ -2961,6 +3270,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_not_editable_reason(NotEditableReason raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_overflow_choice(OverflowChoice raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -3130,6 +3445,21 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_box_autoadd_extend_blocked(
+    ExtendBlocked self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_extend_blocked(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_f_32(self, serializer);
+  }
+
+  @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
     SseSerializer serializer,
@@ -3145,6 +3475,24 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_not_editable_reason(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_overflow_choice(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_overflow_plan(
+    OverflowPlan self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_overflow_plan(self, serializer);
   }
 
   @protected
@@ -3240,6 +3588,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_dependent_cell(DependentCell self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.id, serializer);
+    sse_encode_page_rect(self.frame, serializer);
+  }
+
+  @protected
   void sse_encode_document_info(DocumentInfo self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_opt_String(self.title, serializer);
@@ -3274,6 +3629,9 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_page_blocks(self.page, serializer);
     sse_encode_list_String(self.missing, serializer);
     sse_encode_bool(self.overflowing, serializer);
+    sse_encode_opt_box_autoadd_overflow_plan(self.overflow, serializer);
+    sse_encode_opt_box_autoadd_overflow_choice(self.chosen, serializer);
+    sse_encode_list_dependent_cell(self.dependents, serializer);
   }
 
   @protected
@@ -3297,6 +3655,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_error_kind(ErrorKind self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_extend_blocked(ExtendBlocked self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_extend_blocked_kind(self.kind, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.block, serializer);
+    sse_encode_String(self.text, serializer);
+  }
+
+  @protected
+  void sse_encode_extend_blocked_kind(
+    ExtendBlockedKind self,
+    SseSerializer serializer,
+  ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }
@@ -3340,6 +3715,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.name, serializer);
     sse_encode_i_64(self.time, serializer);
+    sse_encode_u_32(self.hiddenLines, serializer);
   }
 
   @protected
@@ -3434,6 +3810,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_crate_version(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_dependent_cell(
+    List<DependentCell> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_dependent_cell(item, serializer);
     }
   }
 
@@ -3635,6 +4023,29 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_opt_box_autoadd_extend_blocked(
+    ExtendBlocked? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_extend_blocked(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_f_32(self, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
     SseSerializer serializer,
@@ -3657,6 +4068,32 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_not_editable_reason(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_choice(
+    OverflowChoice? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_overflow_choice(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_plan(
+    OverflowPlan? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_overflow_plan(self, serializer);
     }
   }
 
@@ -3739,6 +4176,26 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_box_autoadd_u_32(self.page, serializer);
     sse_encode_u_32(self.depth, serializer);
     sse_encode_bool(self.open, serializer);
+  }
+
+  @protected
+  void sse_encode_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_overflow_plan(OverflowPlan self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.over, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.extendLines, serializer);
+    sse_encode_opt_box_autoadd_extend_blocked(self.extendBlocked, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.tightenPercent, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.tightenShort, serializer);
+    sse_encode_u_32(self.keepHidden, serializer);
   }
 
   @protected

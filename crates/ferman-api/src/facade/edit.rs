@@ -34,7 +34,10 @@ use std::time::{SystemTime, UNIX_EPOCH};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::{CoreError, WriteError};
 use ferman_render::DocumentId;
-use ferman_text::{BlockId, EditContext, Editability, NotEditableReason, Outcome, TextBlock};
+use ferman_text::extract::CharBox;
+use ferman_text::{
+    BlockId, Choice, EditContext, Editability, NotEditableReason, Outcome, OverflowPlan, TextBlock,
+};
 
 use super::document::Model;
 use super::engine::Engine;
@@ -72,8 +75,26 @@ pub struct EditPreview {
     /// The characters no font of their line can draw, in the order they first appear: the text
     /// was not applied, and the missing-glyph steps decide (docs/ARCHITECTURE.md §6.7).
     pub missing: Vec<char>,
-    /// Whether a line runs past the block's frame (the overflow choices come with reflow).
+    /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
     pub overflowing: bool,
+    /// The overflow choices with their amounts, when the reflowed text needs more lines than
+    /// the frame holds (docs/ARCHITECTURE.md §6.8).
+    pub overflow: Option<OverflowPlan>,
+    /// The choice the preview shows and a commit keeps: [`Choice::Keep`] until
+    /// [`Engine::resolve_overflow`] picks another.
+    pub chosen: Option<Choice>,
+    /// The table cells whose values likely depend on the edited one (a3-9): the UI tints them
+    /// and says "Totals don't update"; the engine never changes them.
+    pub dependents: Vec<DependentCell>,
+}
+
+/// A table cell that likely depends on the edited one.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DependentCell {
+    /// Its block.
+    pub id: BlockId,
+    /// Its frame, `[left, top, right, bottom]` in page space.
+    pub frame: CharBox,
 }
 
 /// Where the document's history stands after a commit, rollback, undo or redo.
@@ -93,6 +114,9 @@ pub struct HistoryStep {
     pub name: String,
     /// When it was committed, in milliseconds since the Unix epoch.
     pub time: i64,
+    /// The lines Keep and warn left hidden past the block's frame: the warning the review list
+    /// and the page thumbnail show (a3-12); 0 for none.
+    pub hidden_lines: u32,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -137,6 +161,14 @@ struct Open {
     block: TextBlock,
     /// The committed revisions with the newest text in an open transaction, once one applied.
     working: Option<RevisionStore>,
+    /// The page's blocks, which may block Extend.
+    others: Vec<TextBlock>,
+    dependents: Vec<DependentCell>,
+    /// The newest text applied, and its overflow choices, the choice written and hidden lines.
+    text: Option<String>,
+    overflow: Option<OverflowPlan>,
+    chosen: Option<Choice>,
+    hidden: usize,
 }
 
 impl Session {
@@ -190,10 +222,21 @@ impl Session {
             index,
             &self.context(),
         )?;
+        let dependents = ferman_text::dependent_cells(&text, block)
+            .into_iter()
+            .filter_map(|id| {
+                let cell = text.blocks.iter().find(|candidate| candidate.id == id)?;
+                Some(DependentCell {
+                    id,
+                    frame: cell.bbox,
+                })
+            })
+            .collect();
         let block = text
             .blocks
-            .into_iter()
+            .iter()
             .find(|candidate| candidate.id == block)
+            .cloned()
             .ok_or_else(|| {
                 ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL)
                     .with_details("no such block")
@@ -207,6 +250,12 @@ impl Session {
             page: index,
             block,
             working: None,
+            others: text.blocks,
+            dependents,
+            text: None,
+            overflow: None,
+            chosen: None,
+            hidden: 0,
         });
         Ok(id)
     }
@@ -226,13 +275,54 @@ impl Session {
         transaction: TransactionId,
         text: &str,
     ) -> Result<EditPreview, ApiError> {
+        self.write(transaction, text, None)
+    }
+
+    pub(super) fn resolve_overflow(
+        &mut self,
+        transaction: TransactionId,
+        choice: Choice,
+    ) -> Result<EditPreview, ApiError> {
+        let open = self.open(transaction)?;
+        let disabled = || {
+            ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("that overflow choice is not available")
+        };
+        let plan = open.overflow.as_ref().ok_or_else(disabled)?;
+        let available = match choice {
+            Choice::Extend => plan.extend.is_ok(),
+            Choice::Tighten => plan.tighten.is_ok(),
+            Choice::Keep => true,
+        };
+        let text = open
+            .text
+            .clone()
+            .filter(|_| available)
+            .ok_or_else(disabled)?;
+        self.write(transaction, &text, Some(choice))
+    }
+
+    /// Rewrites the transaction's block to `text` with the overflow choice `choice`.
+    fn write(
+        &mut self,
+        transaction: TransactionId,
+        text: &str,
+        choice: Option<Choice>,
+    ) -> Result<EditPreview, ApiError> {
         let context = self.context();
         let committed = Arc::clone(&self.committed);
         let model = Arc::clone(&self.model);
         let document = &model.document;
         let open = self.open(transaction)?;
-        let outcome =
-            ferman_text::rewrite_block_revised(document, &committed, open.page, &open.block, text)?;
+        let outcome = ferman_text::rewrite_block_with(
+            document,
+            Some(&committed),
+            open.page,
+            &open.block,
+            text,
+            &open.others,
+            choice,
+        )?;
         let (missing, overflowing) = match outcome {
             Outcome::Rewritten(rewrite) => {
                 let splices: Vec<revision::Splice> = rewrite
@@ -251,9 +341,13 @@ impl Session {
                 working.add_fonts(document, open.page, &rewrite.fonts)?;
                 working.splice(document, open.page, &splices, &[])?;
                 open.working = Some(working);
+                open.text = Some(text.to_owned());
+                open.overflow = rewrite.overflow;
+                open.chosen = rewrite.chosen;
+                open.hidden = rewrite.hidden;
                 (Vec::new(), !rewrite.overflowing.is_empty())
             }
-            // The text before stays applied.
+            // The text before stays applied, with its overflow choice.
             Outcome::MissingGlyphs(missing) => (missing, false),
             Outcome::Unsupported(unsupported) => {
                 return Err(
@@ -268,6 +362,9 @@ impl Session {
             page: page_blocks_info(&model, &page),
             missing,
             overflowing,
+            overflow: open.overflow.clone(),
+            chosen: open.chosen,
+            dependents: open.dependents.clone(),
         })
     }
 
@@ -277,7 +374,10 @@ impl Session {
         name: String,
     ) -> Result<(u32, Reload), ApiError> {
         self.open(transaction)?;
-        let working = self.open.take().and_then(|open| open.working);
+        let (working, hidden) = self
+            .open
+            .take()
+            .map_or((None, 0), |open| (open.working, open.hidden));
         let before = self.committed.current();
         let Some(mut working) = working else {
             return Ok((self.current(), None));
@@ -294,6 +394,7 @@ impl Session {
                 .ok()
                 .and_then(|since| i64::try_from(since.as_millis()).ok())
                 .unwrap_or(0),
+            hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
         });
         self.committed = Arc::new(working);
         Ok((self.current(), self.publish()))
@@ -403,14 +504,19 @@ impl Engine {
         .await
     }
 
-    /// Replaces the text of the transaction's block with `text`, its lines separated by line
-    /// feeds, one per line of the block, and returns the page as it would read.
+    /// Replaces the text of the transaction's block with `text` and returns the page as it
+    /// would read. With one piece per line of a left-aligned or justified block, separated by
+    /// line feeds, the changed lines are rewritten in place; any other text is laid out again in
+    /// the block's frame, a line feed ending a paragraph (a justified line past its frame
+    /// reflows the block as one paragraph). When the text needs more lines than the frame
+    /// holds, the preview carries the overflow choices and shows Keep and warn, which a commit
+    /// keeps unless [`resolve_overflow`](Self::resolve_overflow) picks another choice.
     ///
     /// # Errors
     ///
     /// Returns `NotFound` for a transaction that is not open, `Unsupported` for text the
-    /// rewriter cannot write yet (another number of lines, right to left, a block inside a
-    /// form…), or the error of reading the page.
+    /// rewriter cannot write yet (right to left, a line drawn with other operators inside…), or
+    /// the error of reading the page.
     pub async fn apply(
         &self,
         transaction: TransactionId,
@@ -420,6 +526,29 @@ impl Engine {
             let document = self.transaction_document(transaction)?;
             self.ask(document, move |session| session.apply(transaction, &text))
                 .await
+        })
+        .await
+    }
+
+    /// Writes the newest text of the transaction again with the overflow choice `choice` and
+    /// returns the page as it would read; the transaction stays open.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a transaction that is not open, and `InvalidInput` when its text
+    /// does not overflow or the choice is disabled (Extend into another block or off the page,
+    /// Tighten past the cap).
+    pub async fn resolve_overflow(
+        &self,
+        transaction: TransactionId,
+        choice: Choice,
+    ) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| {
+                session.resolve_overflow(transaction, choice)
+            })
+            .await
         })
         .await
     }
@@ -822,16 +951,153 @@ mod tests {
             .flat_map(|b| b.lines.iter().map(|l| l.text.clone()))
             .collect();
         assert!(lines.contains("Friday") && !lines.contains("Tuesday"));
-        // Another number of lines is not rewritten yet; the text before stays applied.
-        let err = session.apply(tx, &format!("{text}\nmore")).unwrap_err();
-        assert_eq!(err.kind, ErrorKind::Unsupported);
+        // Text that cannot be written leaves the text before applied.
+        let preview = session.apply(tx, "Monday \u{0634}").unwrap();
+        assert_eq!(preview.missing, ['\u{0634}']);
         assert!(session.open.as_ref().unwrap().working.is_some());
+        let preview = session
+            .apply(tx, &text.replace("Monday", "Friday"))
+            .unwrap();
+        assert_eq!(preview.overflow, None);
         session.commit(tx, "Friday".to_owned()).unwrap();
         assert!(
             blocks(&session, 0)
                 .blocks
                 .iter()
                 .any(|b| b.lines.iter().any(|l| l.text.contains("Friday")))
+        );
+    }
+
+    /// The first block of page 0 whose text has `needle`, and its text as one paragraph.
+    fn paragraph(session: &Session, needle: &str) -> (BlockId, String) {
+        let block = blocks(session, 0)
+            .blocks
+            .into_iter()
+            .find(|block| block.lines.iter().any(|l| l.text.contains(needle)))
+            .unwrap();
+        let text = block
+            .lines
+            .iter()
+            .map(|l| l.text.clone())
+            .collect::<Vec<_>>()
+            .join(" ");
+        (block.id, text)
+    }
+
+    const SENTENCE: &str = " Kiracı, gecikme hâlinde kiraya verene yazılı bildirimde bulunur.";
+
+    #[test]
+    fn an_overflow_offers_its_choices_and_keeps_the_warning() {
+        // E06: Madde 4 grows by a line; the IBAN line below blocks Extend.
+        let mut session = session("kira-tr", None);
+        let (id, text) = paragraph(&session, "aylık kira bedeli");
+        let tx = session.begin(0, id).unwrap();
+        let preview = session.apply(tx, &format!("{text}{SENTENCE}")).unwrap();
+        let lines: Vec<&str> = preview
+            .page
+            .blocks
+            .iter()
+            .flat_map(|block| block.lines.iter().map(|line| line.text.as_str()))
+            .filter(|line| line.contains("Kirac") || line.contains("gecikme"))
+            .collect();
+        let plan = preview
+            .overflow
+            .clone()
+            .unwrap_or_else(|| panic!("{lines:?}"));
+        assert_eq!(plan.over, 1);
+        assert!(
+            matches!(&plan.extend, Err(ferman_text::ExtendBlocked::Block { text, .. }) if text.starts_with("IBAN")),
+            "{:?}",
+            plan.extend
+        );
+        assert_eq!(preview.chosen, Some(Choice::Keep));
+        let err = session.resolve_overflow(tx, Choice::Extend).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::InvalidInput);
+        session.resolve_overflow(tx, Choice::Keep).unwrap();
+        // Text that cannot be written leaves the overflowing text and its choice applied.
+        let preview = session
+            .apply(tx, &format!("{text}{SENTENCE} \u{0634}"))
+            .unwrap();
+        assert_eq!(preview.missing, ['\u{0634}']);
+        assert_eq!(
+            (preview.overflow.is_some(), preview.chosen),
+            (true, Some(Choice::Keep))
+        );
+        session.commit(tx, "Kept".to_owned()).unwrap();
+        assert_eq!(session.history().steps.first().unwrap().hidden_lines, 1);
+        // The hidden line's text is in the file.
+        let bytes = session.bytes().unwrap();
+        let saved = ferman_core::open(
+            &ferman_core::Source::from_bytes(Arc::from(bytes.as_slice())),
+            &ferman_core::OpenOptions::default(),
+        )
+        .unwrap();
+        let extracted = ferman_text::extract::page_text(&saved, 0).unwrap();
+        assert!(extracted.contains("gecikme hâlinde"), "{extracted}");
+        // The kept paragraph stays editable: with less text the hidden line fits again, and
+        // with as much it is kept hidden in the old frame, not drawn over the IBAN line.
+        let (id, kept) = paragraph(&session, "aylık kira bedeli");
+        let tx = session.begin(0, id).unwrap();
+        let preview = session.apply(tx, &format!("{kept} Ek.")).unwrap();
+        let plan = preview.overflow.unwrap();
+        assert_eq!(plan.over, 1);
+        assert!(plan.extend.is_err(), "{:?}", plan.extend);
+        let preview = session
+            .apply(tx, &kept.replace(SENTENCE.trim(), "Kısa."))
+            .unwrap();
+        assert_eq!(preview.overflow, None);
+        session.commit(tx, "Shortened".to_owned()).unwrap();
+        assert_eq!(session.history().steps.get(1).unwrap().hidden_lines, 0);
+        keep("facade-e06-keep", &bytes);
+
+        // Madde 3 has room below: Extend.
+        let (id, text) = paragraph(&session, "Kira süresi");
+        let tx = session.begin(0, id).unwrap();
+        let preview = session.apply(tx, &format!("{text}{SENTENCE}")).unwrap();
+        assert_eq!(preview.overflow.unwrap().extend.unwrap().lines, 1);
+        let preview = session.resolve_overflow(tx, Choice::Extend).unwrap();
+        assert_eq!(preview.chosen, Some(Choice::Extend));
+        session.commit(tx, "Extended".to_owned()).unwrap();
+        assert_eq!(session.history().steps.get(2).unwrap().hidden_lines, 0);
+        // Text that fits has no choice to make.
+        let (id, text) = paragraph(&session, "Kira bedeli her");
+        let tx = session.begin(0, id).unwrap();
+        session
+            .apply(tx, &text.replacen("on iki", "12", 1))
+            .unwrap();
+        let err = session.resolve_overflow(tx, Choice::Keep).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::InvalidInput);
+    }
+
+    #[test]
+    fn a_table_cell_names_the_cells_that_depend_on_it() {
+        // E07: a price flags its row's amount and the totals below.
+        let mut session = session("fatura-tr", None);
+        let page = blocks(&session, 0);
+        let price = page
+            .blocks
+            .iter()
+            .find(|block| block.text() == "1.250,00")
+            .unwrap();
+        let tx = session.begin(0, price.id).unwrap();
+        let preview = session.apply(tx, "1.350,00").unwrap();
+        let texts: Vec<String> = preview
+            .dependents
+            .iter()
+            .map(|cell| {
+                page.blocks
+                    .iter()
+                    .find(|block| block.id == cell.id)
+                    .unwrap()
+                    .text()
+            })
+            .collect();
+        assert_eq!(texts, ["1.250,00", "22.950,00", "4.590,00", "27.540,00"]);
+        assert!(
+            preview
+                .dependents
+                .iter()
+                .all(|cell| cell.frame[2] > cell.frame[0])
         );
     }
 

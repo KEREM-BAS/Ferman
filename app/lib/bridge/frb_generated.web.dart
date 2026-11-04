@@ -56,10 +56,22 @@ abstract class FermanBridgeApiImplPlatform
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
@@ -98,6 +110,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion dco_decode_crate_version(dynamic raw);
 
   @protected
+  DependentCell dco_decode_dependent_cell(dynamic raw);
+
+  @protected
   DocumentInfo dco_decode_document_info(dynamic raw);
 
   @protected
@@ -114,6 +129,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ErrorKind dco_decode_error_kind(dynamic raw);
+
+  @protected
+  ExtendBlocked dco_decode_extend_blocked(dynamic raw);
+
+  @protected
+  ExtendBlockedKind dco_decode_extend_blocked_kind(dynamic raw);
 
   @protected
   double dco_decode_f_32(dynamic raw);
@@ -167,6 +188,9 @@ abstract class FermanBridgeApiImplPlatform
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
 
   @protected
+  List<DependentCell> dco_decode_list_dependent_cell(dynamic raw);
+
+  @protected
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
@@ -215,12 +239,24 @@ abstract class FermanBridgeApiImplPlatform
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
 
   @protected
   NotEditableReason? dco_decode_opt_box_autoadd_not_editable_reason(
     dynamic raw,
   );
+
+  @protected
+  OverflowChoice? dco_decode_opt_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan? dco_decode_opt_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
@@ -242,6 +278,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_overflow_plan(dynamic raw);
 
   @protected
   PageBlocks dco_decode_page_blocks(dynamic raw);
@@ -368,10 +410,28 @@ abstract class FermanBridgeApiImplPlatform
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked sse_decode_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
 
   @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice sse_decode_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan sse_decode_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -418,6 +478,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer);
 
   @protected
+  DependentCell sse_decode_dependent_cell(SseDeserializer deserializer);
+
+  @protected
   DocumentInfo sse_decode_document_info(SseDeserializer deserializer);
 
   @protected
@@ -436,6 +499,14 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ErrorKind sse_decode_error_kind(SseDeserializer deserializer);
+
+  @protected
+  ExtendBlocked sse_decode_extend_blocked(SseDeserializer deserializer);
+
+  @protected
+  ExtendBlockedKind sse_decode_extend_blocked_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   double sse_decode_f_32(SseDeserializer deserializer);
@@ -487,6 +558,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<CrateVersion> sse_decode_list_crate_version(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<DependentCell> sse_decode_list_dependent_cell(
     SseDeserializer deserializer,
   );
 
@@ -543,12 +619,30 @@ abstract class FermanBridgeApiImplPlatform
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
     SseDeserializer deserializer,
   );
 
   @protected
   NotEditableReason? sse_decode_opt_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice? sse_decode_opt_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan? sse_decode_opt_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -574,6 +668,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
+
+  @protected
+  OverflowChoice sse_decode_overflow_choice(SseDeserializer deserializer);
+
+  @protected
+  OverflowPlan sse_decode_overflow_plan(SseDeserializer deserializer);
 
   @protected
   PageBlocks sse_decode_page_blocks(SseDeserializer deserializer);
@@ -745,6 +845,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_extend_blocked(ExtendBlocked raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_extend_blocked(raw);
+  }
+
+  @protected
+  double cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_f_32(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_fail_reason(FailReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_fail_reason(raw);
@@ -754,6 +866,18 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_box_autoadd_not_editable_reason(NotEditableReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_not_editable_reason(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_overflow_choice(OverflowChoice raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_overflow_choice(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_overflow_plan(OverflowPlan raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_overflow_plan(raw);
   }
 
   @protected
@@ -829,6 +953,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_dependent_cell(DependentCell raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_u_64(raw.id), cst_encode_page_rect(raw.frame)].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_document_info(DocumentInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -865,6 +995,9 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_page_blocks(raw.page),
       cst_encode_list_String(raw.missing),
       cst_encode_bool(raw.overflowing),
+      cst_encode_opt_box_autoadd_overflow_plan(raw.overflow),
+      cst_encode_opt_box_autoadd_overflow_choice(raw.chosen),
+      cst_encode_list_dependent_cell(raw.dependents),
     ].jsify()!;
   }
 
@@ -877,6 +1010,16 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_build_profile(raw.buildProfile),
       cst_encode_list_crate_version(raw.crates),
       cst_encode_pdfium_status(raw.pdfium),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_extend_blocked(ExtendBlocked raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_extend_blocked_kind(raw.kind),
+      cst_encode_opt_box_autoadd_u_64(raw.block),
+      cst_encode_String(raw.text),
     ].jsify()!;
   }
 
@@ -903,7 +1046,11 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   JSAny cst_encode_history_step(HistoryStep raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return [cst_encode_String(raw.name), cst_encode_i_64(raw.time)].jsify()!;
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_i_64(raw.time),
+      cst_encode_u_32(raw.hiddenLines),
+    ].jsify()!;
   }
 
   @protected
@@ -961,6 +1108,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_crate_version(List<CrateVersion> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_crate_version).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_dependent_cell(List<DependentCell> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_dependent_cell).toList().jsify()!;
   }
 
   @protected
@@ -1076,6 +1229,18 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_extend_blocked(ExtendBlocked? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_extend_blocked(raw);
+  }
+
+  @protected
+  double? cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
   int? cst_encode_opt_box_autoadd_fail_reason(FailReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_fail_reason(raw);
@@ -1085,6 +1250,18 @@ abstract class FermanBridgeApiImplPlatform
   int? cst_encode_opt_box_autoadd_not_editable_reason(NotEditableReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_not_editable_reason(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_overflow_choice(OverflowChoice? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_overflow_choice(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_overflow_plan(OverflowPlan? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_overflow_plan(raw);
   }
 
   @protected
@@ -1131,6 +1308,19 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_u_32(raw.page),
       cst_encode_u_32(raw.depth),
       cst_encode_bool(raw.open),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_overflow_plan(OverflowPlan raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.over),
+      cst_encode_opt_box_autoadd_u_32(raw.extendLines),
+      cst_encode_opt_box_autoadd_extend_blocked(raw.extendBlocked),
+      cst_encode_opt_box_autoadd_f_32(raw.tightenPercent),
+      cst_encode_opt_box_autoadd_u_32(raw.tightenShort),
+      cst_encode_u_32(raw.keepHidden),
     ].jsify()!;
   }
 
@@ -1352,6 +1542,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_error_kind(ErrorKind raw);
 
   @protected
+  int cst_encode_extend_blocked_kind(ExtendBlockedKind raw);
+
+  @protected
   double cst_encode_f_32(double raw);
 
   @protected
@@ -1371,6 +1564,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_not_editable_reason(NotEditableReason raw);
+
+  @protected
+  int cst_encode_overflow_choice(OverflowChoice raw);
 
   @protected
   int cst_encode_pdfium_state(PdfiumState raw);
@@ -1445,6 +1641,15 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_extend_blocked(
+    ExtendBlocked self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
     SseSerializer serializer,
@@ -1453,6 +1658,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_not_editable_reason(
     NotEditableReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_plan(
+    OverflowPlan self,
     SseSerializer serializer,
   );
 
@@ -1508,6 +1725,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_dependent_cell(DependentCell self, SseSerializer serializer);
+
+  @protected
   void sse_encode_document_info(DocumentInfo self, SseSerializer serializer);
 
   @protected
@@ -1530,6 +1750,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_error_kind(ErrorKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_extend_blocked(ExtendBlocked self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_extend_blocked_kind(
+    ExtendBlockedKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
@@ -1588,6 +1817,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_dependent_cell(
+    List<DependentCell> self,
     SseSerializer serializer,
   );
 
@@ -1673,6 +1908,15 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_extend_blocked(
+    ExtendBlocked? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
     SseSerializer serializer,
@@ -1681,6 +1925,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_not_editable_reason(
     NotEditableReason? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_choice(
+    OverflowChoice? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_plan(
+    OverflowPlan? self,
     SseSerializer serializer,
   );
 
@@ -1716,6 +1972,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_overflow_plan(OverflowPlan self, SseSerializer serializer);
 
   @protected
   void sse_encode_page_blocks(PageBlocks self, SseSerializer serializer);
@@ -1906,6 +2171,13 @@ class FermanBridgeWire implements BaseWire {
     wanted,
   );
 
+  void wire__crate__frb__resolve_overflow(
+    NativePortType port_,
+    JSAny transaction,
+    int choice,
+  ) =>
+      wasmModule.wire__crate__frb__resolve_overflow(port_, transaction, choice);
+
   void wire__crate__frb__rollback_edit(
     NativePortType port_,
     JSAny transaction,
@@ -2057,6 +2329,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__resolve_overflow(
+    NativePortType port_,
+    JSAny transaction,
+    int choice,
   );
 
   external void wire__crate__frb__rollback_edit(

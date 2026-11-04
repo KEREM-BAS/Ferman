@@ -25,7 +25,30 @@ class FakeEngineService implements EngineService {
     this.ownerPasswords = const {},
     this.holds = const {},
     this.pageBlocks = const {},
+    this.overflows = const {},
+    this.dependents = const {},
   });
+
+  /// The overflow of kira-tr's Madde 4 in a3-18: one line over, Extend
+  /// blocked by the IBAN line below, Tighten at −0.6%.
+  static const ibanOverflow = OverflowPlan(
+    over: 1,
+    extendBlocked: ExtendBlocked(
+      kind: ExtendBlockedKind.block,
+      block: 2,
+      text: 'IBAN: TR12 0006 4000 0011 2345 6789 01 · Alıcı: Mert Kaya',
+    ),
+    tightenPercent: 0.6,
+    keepHidden: 1,
+  );
+
+  /// The blocks, by id, whose text overflows with this plan when an edit
+  /// makes it longer.
+  final Map<int, OverflowPlan> overflows;
+
+  /// The table cells, by block id, that depend on each block's value; their
+  /// frames come from [pageBlocks].
+  final Map<int, List<int>> dependents;
 
   /// What [textBlocks] returns, by page, for every document; other pages
   /// have no blocks. [caretAt] and [selection] treat every character of a
@@ -235,10 +258,8 @@ class FakeEngineService implements EngineService {
   /// Each document's committed steps, oldest first, and how many apply.
   final Map<int, ({List<_FakeStep> steps, int current})> _histories = {};
 
-  /// The open transactions: document, page, block and the page as the
-  /// newest text would leave it.
-  final Map<int, ({int document, int page, int block, PageBlocks? applied})>
-  _transactions = {};
+  /// The open transactions.
+  final Map<int, _FakeTransaction> _transactions = {};
   int _nextTransaction = 1;
 
   /// The saves: document and the path of a Save as, oldest first.
@@ -262,50 +283,87 @@ class FakeEngineService implements EngineService {
       );
     }
     final id = _nextTransaction++;
-    _transactions[id] = (
-      document: document,
-      page: page,
-      block: block,
-      applied: null,
-    );
+    _transactions[id] = _FakeTransaction(document, page, block);
     return id;
   }
 
-  ({int document, int page, int block, PageBlocks? applied}) _open(
-    int transaction,
-  ) =>
+  _FakeTransaction _open(int transaction) =>
       _transactions[transaction] ??
       (throw const EngineException(
         kind: EngineErrorKind.notFound,
         messageKey: 'errorInternal',
       ));
 
-  /// Gives the block's lines the lines of [text] in their old boxes; another
-  /// number of lines is unsupported, as in the engine.
+  /// Gives the block one line per line of [text]: the old lines' boxes, and
+  /// further lines one line pitch below the last. A block of [overflows]
+  /// overflows with its plan whenever its text grows, "Keep and warn" until
+  /// [resolveOverflow] picks another choice.
   @override
   Future<EditPreview> applyEdit(int transaction, String text) async {
     final open = _open(transaction);
-    final before = _blocks(open.document, open.page);
     final block = _block(open.document, open.page, open.block);
-    final texts = text.split('\n');
-    if (texts.length != block.lines.length) {
+    open
+      ..text = text
+      ..overflow = text.length > block.text.length
+          ? overflows[open.block]
+          : null
+      ..chosen = open.overflow == null ? null : OverflowChoice.keep;
+    return _preview(open);
+  }
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async {
+    final open = _open(transaction);
+    if (open.overflow?.allows(choice) != true) {
       throw const EngineException(
-        kind: EngineErrorKind.unsupported,
-        messageKey: 'errorUnsupported',
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
       );
     }
+    open.chosen = choice;
+    return _preview(open);
+  }
+
+  EditPreview _preview(_FakeTransaction open) {
+    final before = _blocks(open.document, open.page);
+    final block = _block(open.document, open.page, open.block);
+    final texts = open.text!.split('\n');
+    final last = block.lines.last;
+    final pitch = block.lines.length > 1
+        ? block.lines[1].bbox.top - block.lines[0].bbox.top
+        : last.bbox.height;
+    final lines = [
+      for (final (i, text) in texts.indexed)
+        if (i < block.lines.length)
+          TextLine(
+            text: text,
+            bbox: block.lines[i].bbox,
+            baselineStart: block.lines[i].baselineStart,
+            baselineEnd: block.lines[i].baselineEnd,
+          )
+        else
+          TextLine(
+            text: text,
+            bbox: last.bbox.shift(
+              Offset(0, pitch * (i - block.lines.length + 1)),
+            ),
+            baselineStart:
+                last.baselineStart +
+                Offset(0, pitch * (i - block.lines.length + 1)),
+            baselineEnd:
+                last.baselineEnd +
+                Offset(0, pitch * (i - block.lines.length + 1)),
+          ),
+    ];
     final edited = TextBlock(
       id: block.id,
-      frame: block.frame,
-      lines: [
-        for (final (i, line) in block.lines.indexed)
-          TextLine(
-            text: texts[i],
-            bbox: line.bbox,
-            baselineStart: line.baselineStart,
-            baselineEnd: line.baselineEnd,
-          ),
-      ],
+      frame: lines
+          .map((line) => line.bbox)
+          .fold(block.frame, (frame, box) => frame.expandToInclude(box)),
+      lines: lines,
       alignment: block.alignment,
       direction: block.direction,
     );
@@ -316,13 +374,17 @@ class FakeEngineService implements EngineService {
       ],
       empty: before.empty,
     );
-    _transactions[transaction] = (
-      document: open.document,
-      page: open.page,
-      block: open.block,
-      applied: page,
+    open.applied = page;
+    return EditPreview(
+      page: page,
+      overflow: open.overflow,
+      chosen: open.chosen,
+      dependents: [
+        for (final id in dependents[open.block] ?? const <int>[])
+          for (final cell in before.blocks.where((b) => b.id == id))
+            DependentCell(id: id, frame: cell.frame),
+      ],
     );
-    return EditPreview(page: page);
   }
 
   ({List<_FakeStep> steps, int current}) _history(int document) =>
@@ -351,7 +413,13 @@ class FakeEngineService implements EngineService {
       steps: [
         ...history.steps.take(history.current),
         _FakeStep(
-          HistoryStep(name: name, time: DateTime.now()),
+          HistoryStep(
+            name: name,
+            time: DateTime.now(),
+            hiddenLines: open.chosen == OverflowChoice.keep
+                ? open.overflow?.keepHidden ?? 0
+                : 0,
+          ),
           open.page,
           before,
           after,
@@ -588,6 +656,20 @@ class FakeEngineService implements EngineService {
   Future<void> closeView(int view) async {
     await _views.remove(view)?.$2.close();
   }
+}
+
+/// An open transaction of the fake: its block, the newest text and the page
+/// it leaves, and its overflow.
+final class _FakeTransaction {
+  new(this.document, this.page, this.block);
+
+  final int document;
+  final int page;
+  final int block;
+  String? text;
+  PageBlocks? applied;
+  OverflowPlan? overflow;
+  OverflowChoice? chosen;
 }
 
 /// One committed step of the fake's history: its page before and after.

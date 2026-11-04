@@ -16,7 +16,12 @@
 //! - PDFium opens the saved file with the same page count;
 //! - on the edited page no pixel differs outside the union of the block's box before and after,
 //!   grown by [`EDIT_MARGIN`] (M3 plan decision 6), and some pixel differs inside it at every
-//!   resolution; on every other page no pixel differs at all.
+//!   resolution; on every other page no pixel differs at all. After Keep and warn the region is
+//!   the box before alone: the hidden lines must draw nothing.
+//!
+//! The reflow cases (W2) give the whole new text: E06's three overflow choices on kira-tr, E07's
+//! right-aligned amount on fatura-tr, E08's justified paragraphs on tez-tr, a paragraph that
+//! loses a line and a composite-font paragraph on zh-hans.
 //!
 //! Each case prints a JSON report per page and resolution (case, page, dpi, region, differing
 //! pixels, the margin they need, pixels outside and their bounds), the form `ferman verify-edit`
@@ -53,7 +58,10 @@ use ferman_render::{
     EDIT_MARGIN, PdfiumStatus, RESOLUTIONS, RenderConfig, RenderThread, compare, device_region,
     render_page,
 };
-use ferman_text::{EditContext, Outcome, TextBlock, rewrite_block, text_page};
+use ferman_text::{
+    Choice, EditContext, ExtendBlocked, Outcome, TextBlock, dependent_cells, rewrite_block_with,
+    text_page,
+};
 use serde_json::json;
 
 type ObjectId = (u32, u16);
@@ -334,6 +342,11 @@ fn xref_problems(original: &[u8], saved: &[u8]) -> Vec<String> {
     let (Some(prev), Some(xref)) = (startxref(original), startxref(saved)) else {
         return vec!["no startxref".to_owned()];
     };
+    // shortcut: the update of a file with a cross-reference stream is a stream too, which this
+    // check does not parse; CI's qpdf --check reads it.
+    if original.get(prev..prev + 4) != Some(b"xref") {
+        return Vec::new();
+    }
     if xref < original.len() || saved.get(xref..xref + 4) != Some(b"xref") {
         return vec![format!(
             "startxref {xref} is not a classic table in the update"
@@ -480,23 +493,42 @@ fn saved_case(
     from: &str,
     to: &str,
 ) -> (Saved, Vec<String>) {
+    let lines = |block: &TextBlock| {
+        block
+            .lines
+            .iter()
+            .map(|line| line.text.replacen(from, to, 1))
+            .collect::<Vec<_>>()
+            .join("\n")
+    };
+    saved_text(name, original, page, from, &lines, None)
+}
+
+/// [`saved_case`] for the block with `needle`, given the whole new text and an overflow choice:
+/// a reflow when the text is not one piece per line of a left-aligned or justified block.
+fn saved_text(
+    name: &str,
+    original: Vec<u8>,
+    page: usize,
+    needle: &str,
+    text_of: &dyn Fn(&TextBlock) -> String,
+    choice: Option<Choice>,
+) -> (Saved, Vec<String>) {
     let doc = open(
         &Source::from_bytes(Arc::from(original.as_slice())),
         &OpenOptions::default(),
     )
     .unwrap();
-    let block: TextBlock = text_page(&doc, page, &EditContext::default())
+    let blocks = text_page(&doc, page, &EditContext::default())
         .unwrap()
-        .blocks
-        .into_iter()
-        .find(|block| block.lines.iter().any(|line| line.text.contains(from)))
-        .unwrap_or_else(|| panic!("{name}: no block with {from:?}"));
-    let text: Vec<String> = block
-        .lines
+        .blocks;
+    let block: TextBlock = blocks
         .iter()
-        .map(|line| line.text.replacen(from, to, 1))
-        .collect();
-    let outcome = rewrite_block(&doc, page, &block, &text.join("\n")).unwrap();
+        .find(|block| block.lines.iter().any(|line| line.text.contains(needle)))
+        .cloned()
+        .unwrap_or_else(|| panic!("{name}: no block with {needle:?}"));
+    let text = text_of(&block);
+    let outcome = rewrite_block_with(&doc, None, page, &block, &text, &blocks, choice).unwrap();
     let Outcome::Rewritten(rewrite) = outcome else {
         panic!("{name}: {outcome:?}");
     };
@@ -556,23 +588,26 @@ fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page
         doc,
         block,
         path,
-        ..
+        rewrite,
     } = saved_case;
     let saved = std::fs::read(path).unwrap();
     let after = open(&Source::read(path).unwrap(), &OpenOptions::default()).unwrap();
     let mut boxes = vec![block.bbox];
-    boxes.extend(
-        text_page(&after, page, &EditContext::default())
-            .unwrap()
-            .blocks
-            .into_iter()
-            .filter(|new| {
-                intersects(new.bbox, block.bbox) && new.lines.iter().any(|l| l.text.contains(to))
-            })
-            .map(|new| new.bbox),
-    );
-    if boxes.len() < 2 {
+    let new_boxes: Vec<[f32; 4]> = text_page(&after, page, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .filter(|new| {
+            intersects(new.bbox, block.bbox) && new.lines.iter().any(|l| l.text.contains(to))
+        })
+        .map(|new| new.bbox)
+        .collect();
+    if new_boxes.is_empty() {
         problems.push(format!("no block with {to:?} after the edit"));
+    }
+    // Keep and warn draws nothing past the old frame: its hidden lines are not in the region.
+    if rewrite.chosen != Some(Choice::Keep) {
+        boxes.extend(new_boxes);
     }
 
     let render = render();
@@ -774,6 +809,320 @@ fn e12_japanese_predefined_cmap() {
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn cff_cid_font() {
     case("cff-cid", "edit-cff-cid", 0, "2 Kasım 2026", "6 Kasım 2022");
+}
+
+/// The block's lines joined as one paragraph by `joint`.
+fn joined(block: &TextBlock, joint: &str) -> String {
+    block
+        .lines
+        .iter()
+        .map(|line| line.text.clone())
+        .collect::<Vec<_>>()
+        .join(joint)
+}
+
+/// Reflows the block with `needle` on `page` of `file` to `text_of`'s text with `choice`, saves
+/// it and runs every check; `to` is in the new text only. Returns the rewrite.
+fn reflow_case(
+    name: &str,
+    file: &str,
+    page: usize,
+    needle: &str,
+    text_of: &dyn Fn(&TextBlock) -> String,
+    choice: Option<Choice>,
+    to: &str,
+) -> ferman_text::Rewrite {
+    let (saved, problems) = saved_text(name, corpus(file), page, needle, text_of, choice);
+    rendered_case(name, &saved, problems, page, to);
+    saved.rewrite
+}
+
+/// How many lines the block with `to` has in case `name`'s saved file, and how many the block
+/// with `needle` had in `file`.
+fn line_counts(name: &str, file: &str, page: usize, needle: &str, to: &str) -> (usize, usize) {
+    let count = |doc: &Document, text: &str| {
+        text_page(doc, page, &EditContext::default())
+            .unwrap()
+            .blocks
+            .into_iter()
+            .find(|block| block.text().contains(text))
+            .map_or(0, |block| block.lines.len())
+    };
+    let saved = Source::read(&saved_dir().join(format!("{name}.pdf"))).unwrap();
+    let before = Source::from_bytes(Arc::from(corpus(file).as_slice()));
+    (
+        count(&open(&before, &OpenOptions::default()).unwrap(), needle),
+        count(&open(&saved, &OpenOptions::default()).unwrap(), to),
+    )
+}
+
+/// A sentence kira-tr's fonts draw, which takes Madde 3 and Madde 4 past their frames.
+const SENTENCE: &str = " Kiracı, gecikme hâlinde kiraya verene yazılı bildirimde bulunur.";
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e06_keep_and_warn_hides_the_line_the_iban_line_leaves_no_room_for() {
+    let rewrite = reflow_case(
+        "e06-kira-tr-keep",
+        "kira-tr",
+        0,
+        "aylık kira bedeli olan",
+        &|block| joined(block, " ") + SENTENCE,
+        None,
+        "bildirimde bulunur",
+    );
+    let plan = rewrite.overflow.unwrap();
+    assert_eq!(plan.over, 1);
+    assert!(
+        matches!(&plan.extend, Err(ExtendBlocked::Block { text, .. }) if text.starts_with("IBAN")),
+        "{:?}",
+        plan.extend
+    );
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Keep), 1));
+    // The hidden line is still in the saved file's text.
+    let saved = Source::read(&saved_dir().join("e06-kira-tr-keep.pdf")).unwrap();
+    let text = ferman_text::extract::page_text(&open(&saved, &OpenOptions::default()).unwrap(), 0)
+        .unwrap();
+    assert!(text.contains("bildirimde bulunur."), "{text}");
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e06_extend_grows_madde_3_into_the_free_space_below() {
+    let rewrite = reflow_case(
+        "e06-kira-tr-extend",
+        "kira-tr",
+        0,
+        "Kira süresi 01.11.2026",
+        &|block| joined(block, " ") + SENTENCE,
+        Some(Choice::Extend),
+        "bildirimde bulunur",
+    );
+    assert_eq!(rewrite.overflow.unwrap().extend.unwrap().lines, 1);
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Extend), 0));
+    assert_eq!(
+        line_counts(
+            "e06-kira-tr-extend",
+            "kira-tr",
+            0,
+            "Kira süresi 01.11.2026",
+            "bildirimde bulunur"
+        ),
+        (2, 3)
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e06_tighten_fits_madde_4_within_the_cap() {
+    // The last line's word growing a letter at a time: the first overflow is less than a letter,
+    // which tightening within the cap takes back.
+    let doc = open(
+        &Source::from_bytes(Arc::from(corpus("kira-tr").as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let blocks = text_page(&doc, 0, &EditContext::default()).unwrap().blocks;
+    let block = blocks
+        .iter()
+        .find(|block| block.text().contains("aylık kira bedeli olan"))
+        .unwrap();
+    let grown =
+        |n: usize| joined(block, " ").replace("hesabına", &format!("hesab{}ına", "a".repeat(n)));
+    let n = (1..80)
+        .find(|&n| {
+            let outcome =
+                rewrite_block_with(&doc, None, 0, block, &grown(n), &blocks, None).unwrap();
+            matches!(outcome, Outcome::Rewritten(ref rewrite)
+                if rewrite.overflow.as_ref().is_some_and(|plan| plan.tighten.is_ok()))
+        })
+        .expect("an overflow that tightening fits");
+    let rewrite = reflow_case(
+        "e06-kira-tr-tighten",
+        "kira-tr",
+        0,
+        "aylık kira bedeli olan",
+        &|_| grown(n),
+        Some(Choice::Tighten),
+        "aaaı",
+    );
+    let percent = rewrite.overflow.unwrap().tighten.unwrap().percent;
+    assert!(percent > 0.0 && percent <= ferman_text::TIGHTEN_CAP);
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Tighten), 0));
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e07_right_aligned_amount_keeps_its_edge_and_flags_the_totals() {
+    let original = corpus("fatura-tr");
+    let doc = open(
+        &Source::from_bytes(Arc::from(original.as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let page = text_page(&doc, 0, &EditContext::default()).unwrap();
+    let price = page
+        .blocks
+        .iter()
+        .find(|block| block.text() == "1.250,00")
+        .unwrap();
+    let flagged: Vec<String> = dependent_cells(&page, price.id)
+        .into_iter()
+        .map(|id| page.blocks.iter().find(|b| b.id == id).unwrap().text())
+        .collect();
+    assert_eq!(flagged, ["1.250,00", "22.950,00", "4.590,00", "27.540,00"]);
+    let end = price.lines[0].baseline[1];
+    reflow_case(
+        "e07-fatura-tr",
+        "fatura-tr",
+        0,
+        "1.250,00",
+        &|_| "1.350,00".to_owned(),
+        None,
+        "1.350,00",
+    );
+    let saved = Source::read(&saved_dir().join("e07-fatura-tr.pdf")).unwrap();
+    let after = text_page(
+        &open(&saved, &OpenOptions::default()).unwrap(),
+        0,
+        &EditContext::default(),
+    )
+    .unwrap();
+    let edited = after
+        .blocks
+        .iter()
+        .find(|block| block.text() == "1.350,00")
+        .unwrap();
+    let new_end = edited.lines[0].baseline[1];
+    assert!(
+        (new_end[0] - end[0]).abs() < 0.05,
+        "the right edge moved: {end:?} → {new_end:?}"
+    );
+    // The totals stay as they were: flagged, never changed.
+    for total in ["22.950,00", "4.590,00", "27.540,00"] {
+        assert!(after.blocks.iter().any(|block| block.text() == total));
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e08_justified_turkish_and_english_paragraphs_keep_their_method() {
+    for (name, page, needle, from, to) in [
+        (
+            "e08-tez-tr-ozet",
+            2,
+            "Bu tez",
+            "üç ilçesinde",
+            "dört ilçesinde",
+        ),
+        (
+            "e08-tez-tr-abstract",
+            3,
+            "This thesis",
+            "three districts",
+            "four districts",
+        ),
+    ] {
+        let rewrite = reflow_case(
+            name,
+            "tez-tr",
+            page,
+            needle,
+            &|block| joined(block, " ").replacen(from, to, 1),
+            None,
+            to,
+        );
+        assert_eq!(rewrite.overflow, None, "{name}");
+        let saved = Source::read(&saved_dir().join(format!("{name}.pdf"))).unwrap();
+        let before = open(
+            &Source::from_bytes(Arc::from(corpus("tez-tr").as_slice())),
+            &OpenOptions::default(),
+        )
+        .unwrap();
+        let old = text_page(&before, page, &EditContext::default())
+            .unwrap()
+            .blocks
+            .into_iter()
+            .find(|block| block.text().contains(needle))
+            .unwrap();
+        let new = text_page(
+            &open(&saved, &OpenOptions::default()).unwrap(),
+            page,
+            &EditContext::default(),
+        )
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| block.text().contains(to))
+        .unwrap();
+        let ends = |block: &TextBlock| {
+            block
+                .lines
+                .iter()
+                .map(|line| (line.baseline[1][0], line.text.chars().count()))
+                .collect::<Vec<_>>()
+        };
+        assert_eq!(
+            new.alignment,
+            ferman_text::Alignment::Justified,
+            "{name}: {:?} {:?} → {:?}",
+            old.justification,
+            ends(&old),
+            ends(&new)
+        );
+        assert_eq!(new.justification, old.justification, "{name}");
+    }
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_paragraph_shrinks_by_a_line() {
+    let rewrite = reflow_case(
+        "reflow-kira-tr-shrink",
+        "kira-tr",
+        0,
+        "Kiraya veren: Mert Kaya",
+        &|block| {
+            joined(block, " ").replacen(
+                " (T.C. Kimlik No: 41239876516), Bağdat Cad. No: 241/7",
+                "",
+                1,
+            )
+        },
+        None,
+        "Yılmaz, Maltepe",
+    );
+    assert_eq!(rewrite.overflow, None);
+    assert_eq!(
+        line_counts(
+            "reflow-kira-tr-shrink",
+            "kira-tr",
+            0,
+            "Kiraya veren: Mert Kaya",
+            "Yılmaz, Maltepe"
+        ),
+        (3, 2)
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_composite_font_paragraph_reflows() {
+    // zh-hans's notice in its Identity-H font, a clause shorter: two lines become one.
+    let rewrite = reflow_case(
+        "reflow-zh-hans",
+        "zh-hans",
+        0,
+        "您好",
+        &|block| joined(block, "").replacen("位于上海市徐汇区的", "", 1),
+        None,
+        "您目前租用的办公室",
+    );
+    assert_eq!(rewrite.overflow, None);
+    assert_eq!(
+        line_counts("reflow-zh-hans", "zh-hans", 0, "您好", "您目前租用的办公室"),
+        (2, 1)
+    );
 }
 
 /// A page with two blocks in one composite font, `/F1`: the full IBM Plex Sans as an

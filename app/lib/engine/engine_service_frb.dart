@@ -447,14 +447,71 @@ class FrbEngineService implements EngineService {
         transaction: BigInt.from(transaction),
         text: text,
       );
-      return EditPreview(
-        page: _pageBlocks(preview.page),
-        missing: preview.missing,
-        overflowing: preview.overflowing,
-      );
+      return _preview(preview);
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
+  }
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async {
+    try {
+      final preview = await bridge.resolveOverflow(
+        transaction: BigInt.from(transaction),
+        choice: switch (choice) {
+          OverflowChoice.extend => bridge.OverflowChoice.extend,
+          OverflowChoice.tighten => bridge.OverflowChoice.tighten,
+          OverflowChoice.keep => bridge.OverflowChoice.keep,
+        },
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static EditPreview _preview(bridge.EditPreview preview) {
+    final plan = preview.overflow;
+    final blocked = plan?.extendBlocked;
+    return EditPreview(
+      page: _pageBlocks(preview.page),
+      missing: preview.missing,
+      overflowing: preview.overflowing,
+      overflow: plan == null
+          ? null
+          : OverflowPlan(
+              over: plan.over,
+              extendLines: plan.extendLines,
+              extendBlocked: blocked == null
+                  ? null
+                  : ExtendBlocked(
+                      kind: switch (blocked.kind) {
+                        bridge.ExtendBlockedKind.block =>
+                          ExtendBlockedKind.block,
+                        bridge.ExtendBlockedKind.pageEdge =>
+                          ExtendBlockedKind.pageEdge,
+                      },
+                      block: blocked.block?.toInt(),
+                      text: blocked.text,
+                    ),
+              tightenPercent: plan.tightenPercent,
+              tightenShort: plan.tightenShort,
+              keepHidden: plan.keepHidden,
+            ),
+      chosen: switch (preview.chosen) {
+        null => null,
+        bridge.OverflowChoice.extend => OverflowChoice.extend,
+        bridge.OverflowChoice.tighten => OverflowChoice.tighten,
+        bridge.OverflowChoice.keep => OverflowChoice.keep,
+      },
+      dependents: [
+        for (final cell in preview.dependents)
+          DependentCell(id: cell.id.toInt(), frame: _rect(cell.frame)),
+      ],
+    );
   }
 
   @override
@@ -500,6 +557,7 @@ class FrbEngineService implements EngineService {
             HistoryStep(
               name: step.name,
               time: DateTime.fromMillisecondsSinceEpoch(step.time),
+              hiddenLines: step.hiddenLines,
             ),
         ],
         current: history.current,

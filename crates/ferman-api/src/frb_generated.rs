@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -1499499776;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -192509212;
 
 // Section: executor
 
@@ -446,6 +446,33 @@ fn wire__crate__frb__request_view_impl(
         },
     )
 }
+fn wire__crate__frb__resolve_overflow_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    transaction: impl CstDecode<u64>,
+    choice: impl CstDecode<crate::frb::OverflowChoice>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "resolve_overflow",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_transaction = transaction.cst_decode();
+            let api_choice = choice.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::resolve_overflow(api_transaction, api_choice).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__rollback_edit_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     transaction: impl CstDecode<u64>,
@@ -787,6 +814,16 @@ impl CstDecode<crate::frb::ErrorKind> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::ExtendBlockedKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::ExtendBlockedKind {
+        match self {
+            0 => crate::frb::ExtendBlockedKind::Block,
+            1 => crate::frb::ExtendBlockedKind::PageEdge,
+            _ => unreachable!("Invalid variant for ExtendBlockedKind: {}", self),
+        }
+    }
+}
 impl CstDecode<f32> for f32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> f32 {
@@ -865,6 +902,17 @@ impl CstDecode<crate::frb::NotEditableReason> for i32 {
             10 => crate::frb::NotEditableReason::TooComplexSplitOperator,
             11 => crate::frb::NotEditableReason::TooComplexSkewed,
             _ => unreachable!("Invalid variant for NotEditableReason: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::OverflowChoice> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::OverflowChoice {
+        match self {
+            0 => crate::frb::OverflowChoice::Extend,
+            1 => crate::frb::OverflowChoice::Tighten,
+            2 => crate::frb::OverflowChoice::Keep,
+            _ => unreachable!("Invalid variant for OverflowChoice: {}", self),
         }
     }
 }
@@ -1124,6 +1172,18 @@ impl SseDecode for crate::frb::CrateVersion {
     }
 }
 
+impl SseDecode for crate::frb::DependentCell {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_id = <u64>::sse_decode(deserializer);
+        let mut var_frame = <crate::frb::PageRect>::sse_decode(deserializer);
+        return crate::frb::DependentCell {
+            id: var_id,
+            frame: var_frame,
+        };
+    }
+}
+
 impl SseDecode for crate::frb::DocumentInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1178,10 +1238,16 @@ impl SseDecode for crate::frb::EditPreview {
         let mut var_page = <crate::frb::PageBlocks>::sse_decode(deserializer);
         let mut var_missing = <Vec<String>>::sse_decode(deserializer);
         let mut var_overflowing = <bool>::sse_decode(deserializer);
+        let mut var_overflow = <Option<crate::frb::OverflowPlan>>::sse_decode(deserializer);
+        let mut var_chosen = <Option<crate::frb::OverflowChoice>>::sse_decode(deserializer);
+        let mut var_dependents = <Vec<crate::frb::DependentCell>>::sse_decode(deserializer);
         return crate::frb::EditPreview {
             page: var_page,
             missing: var_missing,
             overflowing: var_overflowing,
+            overflow: var_overflow,
+            chosen: var_chosen,
+            dependents: var_dependents,
         };
     }
 }
@@ -1235,6 +1301,32 @@ impl SseDecode for crate::frb::ErrorKind {
             9 => crate::frb::ErrorKind::NotEditable,
             10 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::ExtendBlocked {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::ExtendBlockedKind>::sse_decode(deserializer);
+        let mut var_block = <Option<u64>>::sse_decode(deserializer);
+        let mut var_text = <String>::sse_decode(deserializer);
+        return crate::frb::ExtendBlocked {
+            kind: var_kind,
+            block: var_block,
+            text: var_text,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::ExtendBlockedKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::ExtendBlockedKind::Block,
+            1 => crate::frb::ExtendBlockedKind::PageEdge,
+            _ => unreachable!("Invalid variant for ExtendBlockedKind: {}", inner),
         };
     }
 }
@@ -1310,9 +1402,11 @@ impl SseDecode for crate::frb::HistoryStep {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_name = <String>::sse_decode(deserializer);
         let mut var_time = <i64>::sse_decode(deserializer);
+        let mut var_hiddenLines = <u32>::sse_decode(deserializer);
         return crate::frb::HistoryStep {
             name: var_name,
             time: var_time,
+            hidden_lines: var_hiddenLines,
         };
     }
 }
@@ -1435,6 +1529,18 @@ impl SseDecode for Vec<crate::frb::CrateVersion> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::CrateVersion>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::DependentCell> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::DependentCell>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -1679,6 +1785,28 @@ impl SseDecode for Option<String> {
     }
 }
 
+impl SseDecode for Option<crate::frb::ExtendBlocked> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::ExtendBlocked>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<f32>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
 impl SseDecode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1695,6 +1823,28 @@ impl SseDecode for Option<crate::frb::NotEditableReason> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::NotEditableReason>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::OverflowChoice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::OverflowChoice>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::OverflowPlan> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::OverflowPlan>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -1779,6 +1929,39 @@ impl SseDecode for crate::frb::OutlineEntry {
             page: var_page,
             depth: var_depth,
             open: var_open,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::OverflowChoice {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::OverflowChoice::Extend,
+            1 => crate::frb::OverflowChoice::Tighten,
+            2 => crate::frb::OverflowChoice::Keep,
+            _ => unreachable!("Invalid variant for OverflowChoice: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::OverflowPlan {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_over = <u32>::sse_decode(deserializer);
+        let mut var_extendLines = <Option<u32>>::sse_decode(deserializer);
+        let mut var_extendBlocked = <Option<crate::frb::ExtendBlocked>>::sse_decode(deserializer);
+        let mut var_tightenPercent = <Option<f32>>::sse_decode(deserializer);
+        let mut var_tightenShort = <Option<u32>>::sse_decode(deserializer);
+        let mut var_keepHidden = <u32>::sse_decode(deserializer);
+        return crate::frb::OverflowPlan {
+            over: var_over,
+            extend_lines: var_extendLines,
+            extend_blocked: var_extendBlocked,
+            tighten_percent: var_tightenPercent,
+            tighten_short: var_tightenShort,
+            keep_hidden: var_keepHidden,
         };
     }
 }
@@ -2368,6 +2551,22 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::CrateVersion> for crate::frb:
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::DependentCell {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.id.into_into_dart().into_dart(),
+            self.frame.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::DependentCell {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::DependentCell> for crate::frb::DependentCell {
+    fn into_into_dart(self) -> crate::frb::DependentCell {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::DocumentInfo {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -2423,6 +2622,9 @@ impl flutter_rust_bridge::IntoDart for crate::frb::EditPreview {
             self.page.into_into_dart().into_dart(),
             self.missing.into_into_dart().into_dart(),
             self.overflowing.into_into_dart().into_dart(),
+            self.overflow.into_into_dart().into_dart(),
+            self.chosen.into_into_dart().into_dart(),
+            self.dependents.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2494,6 +2696,41 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ErrorKind {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::ErrorKind {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::ErrorKind> for crate::frb::ErrorKind {
     fn into_into_dart(self) -> crate::frb::ErrorKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::ExtendBlocked {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.block.into_into_dart().into_dart(),
+            self.text.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::ExtendBlocked {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::ExtendBlocked> for crate::frb::ExtendBlocked {
+    fn into_into_dart(self) -> crate::frb::ExtendBlocked {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::ExtendBlockedKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Block => 0.into_dart(),
+            Self::PageEdge => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::ExtendBlockedKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::ExtendBlockedKind>
+    for crate::frb::ExtendBlockedKind
+{
+    fn into_into_dart(self) -> crate::frb::ExtendBlockedKind {
         self
     }
 }
@@ -2576,6 +2813,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::HistoryStep {
         [
             self.name.into_into_dart().into_dart(),
             self.time.into_into_dart().into_dart(),
+            self.hidden_lines.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2715,6 +2953,43 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OutlineEntry {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::OutlineEntry {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::OutlineEntry> for crate::frb::OutlineEntry {
     fn into_into_dart(self) -> crate::frb::OutlineEntry {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::OverflowChoice {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Extend => 0.into_dart(),
+            Self::Tighten => 1.into_dart(),
+            Self::Keep => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::OverflowChoice {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::OverflowChoice> for crate::frb::OverflowChoice {
+    fn into_into_dart(self) -> crate::frb::OverflowChoice {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::OverflowPlan {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.over.into_into_dart().into_dart(),
+            self.extend_lines.into_into_dart().into_dart(),
+            self.extend_blocked.into_into_dart().into_dart(),
+            self.tighten_percent.into_into_dart().into_dart(),
+            self.tighten_short.into_into_dart().into_dart(),
+            self.keep_hidden.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::OverflowPlan {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::OverflowPlan> for crate::frb::OverflowPlan {
+    fn into_into_dart(self) -> crate::frb::OverflowPlan {
         self
     }
 }
@@ -3297,6 +3572,14 @@ impl SseEncode for crate::frb::CrateVersion {
     }
 }
 
+impl SseEncode for crate::frb::DependentCell {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.id, serializer);
+        <crate::frb::PageRect>::sse_encode(self.frame, serializer);
+    }
+}
+
 impl SseEncode for crate::frb::DocumentInfo {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3331,6 +3614,9 @@ impl SseEncode for crate::frb::EditPreview {
         <crate::frb::PageBlocks>::sse_encode(self.page, serializer);
         <Vec<String>>::sse_encode(self.missing, serializer);
         <bool>::sse_encode(self.overflowing, serializer);
+        <Option<crate::frb::OverflowPlan>>::sse_encode(self.overflow, serializer);
+        <Option<crate::frb::OverflowChoice>>::sse_encode(self.chosen, serializer);
+        <Vec<crate::frb::DependentCell>>::sse_encode(self.dependents, serializer);
     }
 }
 
@@ -3379,6 +3665,31 @@ impl SseEncode for crate::frb::ErrorKind {
                 crate::frb::ErrorKind::Io => 8,
                 crate::frb::ErrorKind::NotEditable => 9,
                 crate::frb::ErrorKind::Internal => 10,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::ExtendBlocked {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::ExtendBlockedKind>::sse_encode(self.kind, serializer);
+        <Option<u64>>::sse_encode(self.block, serializer);
+        <String>::sse_encode(self.text, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::ExtendBlockedKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::ExtendBlockedKind::Block => 0,
+                crate::frb::ExtendBlockedKind::PageEdge => 1,
                 _ => {
                     unimplemented!("");
                 }
@@ -3457,6 +3768,7 @@ impl SseEncode for crate::frb::HistoryStep {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <String>::sse_encode(self.name, serializer);
         <i64>::sse_encode(self.time, serializer);
+        <u32>::sse_encode(self.hidden_lines, serializer);
     }
 }
 
@@ -3562,6 +3874,16 @@ impl SseEncode for Vec<crate::frb::CrateVersion> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::CrateVersion>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::DependentCell> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::DependentCell>::sse_encode(item, serializer);
         }
     }
 }
@@ -3759,6 +4081,26 @@ impl SseEncode for Option<String> {
     }
 }
 
+impl SseEncode for Option<crate::frb::ExtendBlocked> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::ExtendBlocked>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<f32> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <f32>::sse_encode(value, serializer);
+        }
+    }
+}
+
 impl SseEncode for Option<crate::frb::FailReason> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3775,6 +4117,26 @@ impl SseEncode for Option<crate::frb::NotEditableReason> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::NotEditableReason>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::OverflowChoice> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::OverflowChoice>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::OverflowPlan> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::OverflowPlan>::sse_encode(value, serializer);
         }
     }
 }
@@ -3846,6 +4208,35 @@ impl SseEncode for crate::frb::OutlineEntry {
         <Option<u32>>::sse_encode(self.page, serializer);
         <u32>::sse_encode(self.depth, serializer);
         <bool>::sse_encode(self.open, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::OverflowChoice {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::OverflowChoice::Extend => 0,
+                crate::frb::OverflowChoice::Tighten => 1,
+                crate::frb::OverflowChoice::Keep => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::OverflowPlan {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u32>::sse_encode(self.over, serializer);
+        <Option<u32>>::sse_encode(self.extend_lines, serializer);
+        <Option<crate::frb::ExtendBlocked>>::sse_encode(self.extend_blocked, serializer);
+        <Option<f32>>::sse_encode(self.tighten_percent, serializer);
+        <Option<u32>>::sse_encode(self.tighten_short, serializer);
+        <u32>::sse_encode(self.keep_hidden, serializer);
     }
 }
 
@@ -4291,6 +4682,19 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::ExtendBlocked> for *mut wire_cst_extend_blocked {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ExtendBlocked {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::ExtendBlocked>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<f32> for *mut f32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> f32 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
     impl CstDecode<crate::frb::FailReason> for *mut i32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FailReason {
@@ -4303,6 +4707,20 @@ mod io {
         fn cst_decode(self) -> crate::frb::NotEditableReason {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::NotEditableReason>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::OverflowChoice> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OverflowChoice {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::OverflowChoice>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::OverflowPlan> for *mut wire_cst_overflow_plan {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OverflowPlan {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::OverflowPlan>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::PagePoint> for *mut wire_cst_page_point {
@@ -4384,6 +4802,15 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::DependentCell> for wire_cst_dependent_cell {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::DependentCell {
+            crate::frb::DependentCell {
+                id: self.id.cst_decode(),
+                frame: self.frame.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::DocumentInfo> for wire_cst_document_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::DocumentInfo {
@@ -4421,6 +4848,9 @@ mod io {
                 page: self.page.cst_decode(),
                 missing: self.missing.cst_decode(),
                 overflowing: self.overflowing.cst_decode(),
+                overflow: self.overflow.cst_decode(),
+                chosen: self.chosen.cst_decode(),
+                dependents: self.dependents.cst_decode(),
             }
         }
     }
@@ -4433,6 +4863,16 @@ mod io {
                 build_profile: self.build_profile.cst_decode(),
                 crates: self.crates.cst_decode(),
                 pdfium: self.pdfium.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::ExtendBlocked> for wire_cst_extend_blocked {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ExtendBlocked {
+            crate::frb::ExtendBlocked {
+                kind: self.kind.cst_decode(),
+                block: self.block.cst_decode(),
+                text: self.text.cst_decode(),
             }
         }
     }
@@ -4462,6 +4902,7 @@ mod io {
             crate::frb::HistoryStep {
                 name: self.name.cst_decode(),
                 time: self.time.cst_decode(),
+                hidden_lines: self.hidden_lines.cst_decode(),
             }
         }
     }
@@ -4529,6 +4970,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::CrateVersion>> for *mut wire_cst_list_crate_version {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::CrateVersion> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::DependentCell>> for *mut wire_cst_list_dependent_cell {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::DependentCell> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -4700,6 +5151,19 @@ mod io {
                 page: self.page.cst_decode(),
                 depth: self.depth.cst_decode(),
                 open: self.open.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::OverflowPlan> for wire_cst_overflow_plan {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OverflowPlan {
+            crate::frb::OverflowPlan {
+                over: self.over.cst_decode(),
+                extend_lines: self.extend_lines.cst_decode(),
+                extend_blocked: self.extend_blocked.cst_decode(),
+                tighten_percent: self.tighten_percent.cst_decode(),
+                tighten_short: self.tighten_short.cst_decode(),
+                keep_hidden: self.keep_hidden.cst_decode(),
             }
         }
     }
@@ -4989,6 +5453,19 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_dependent_cell {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                id: Default::default(),
+                frame: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_dependent_cell {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_document_info {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -5033,6 +5510,9 @@ mod io {
                 page: Default::default(),
                 missing: core::ptr::null_mut(),
                 overflowing: Default::default(),
+                overflow: core::ptr::null_mut(),
+                chosen: core::ptr::null_mut(),
+                dependents: core::ptr::null_mut(),
             }
         }
     }
@@ -5053,6 +5533,20 @@ mod io {
         }
     }
     impl Default for wire_cst_engine_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_extend_blocked {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                block: core::ptr::null_mut(),
+                text: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_extend_blocked {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -5090,6 +5584,7 @@ mod io {
             Self {
                 name: core::ptr::null_mut(),
                 time: Default::default(),
+                hidden_lines: Default::default(),
             }
         }
     }
@@ -5170,6 +5665,23 @@ mod io {
         }
     }
     impl Default for wire_cst_outline_entry {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_overflow_plan {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                over: Default::default(),
+                extend_lines: core::ptr::null_mut(),
+                extend_blocked: core::ptr::null_mut(),
+                tighten_percent: core::ptr::null_mut(),
+                tighten_short: core::ptr::null_mut(),
+                keep_hidden: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_overflow_plan {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -5567,6 +6079,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__resolve_overflow(
+        port_: i64,
+        transaction: u64,
+        choice: i32,
+    ) {
+        wire__crate__frb__resolve_overflow_impl(port_, transaction, choice)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__rollback_edit(port_: i64, transaction: u64) {
         wire__crate__frb__rollback_edit_impl(port_, transaction)
     }
@@ -5651,6 +6172,19 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_extend_blocked()
+    -> *mut wire_cst_extend_blocked {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_extend_blocked::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_f_32(value: f32) -> *mut f32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_fail_reason(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
@@ -5660,6 +6194,19 @@ mod io {
         value: i32,
     ) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_overflow_choice(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_overflow_plan()
+    -> *mut wire_cst_overflow_plan {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_overflow_plan::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -5771,6 +6318,20 @@ mod io {
         let wrap = wire_cst_list_crate_version {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_crate_version>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_dependent_cell(
+        len: i32,
+    ) -> *mut wire_cst_list_dependent_cell {
+        let wrap = wire_cst_list_dependent_cell {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_dependent_cell>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -5996,6 +6557,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_dependent_cell {
+        id: u64,
+        frame: wire_cst_page_rect,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_document_info {
         title: *mut wire_cst_list_prim_u_8_strict,
         author: *mut wire_cst_list_prim_u_8_strict,
@@ -6024,6 +6591,9 @@ mod io {
         page: wire_cst_page_blocks,
         missing: *mut wire_cst_list_String,
         overflowing: bool,
+        overflow: *mut wire_cst_overflow_plan,
+        chosen: *mut i32,
+        dependents: *mut wire_cst_list_dependent_cell,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6033,6 +6603,13 @@ mod io {
         build_profile: i32,
         crates: *mut wire_cst_list_crate_version,
         pdfium: wire_cst_pdfium_status,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_extend_blocked {
+        kind: i32,
+        block: *mut u64,
+        text: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6053,6 +6630,7 @@ mod io {
     pub struct wire_cst_history_step {
         name: *mut wire_cst_list_prim_u_8_strict,
         time: i64,
+        hidden_lines: u32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6097,6 +6675,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_crate_version {
         ptr: *mut wire_cst_crate_version,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_dependent_cell {
+        ptr: *mut wire_cst_dependent_cell,
         len: i32,
     }
     #[repr(C)]
@@ -6209,6 +6793,16 @@ mod io {
         page: *mut u32,
         depth: u32,
         open: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_overflow_plan {
+        over: u32,
+        extend_lines: *mut u32,
+        extend_blocked: *mut wire_cst_extend_blocked,
+        tighten_percent: *mut f32,
+        tighten_short: *mut u32,
+        keep_hidden: u32,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6542,6 +7136,26 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::DependentCell>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::DependentCell {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::DependentCell {
+                id: self_.get(0).cst_decode(),
+                frame: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::DocumentInfo>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -6604,14 +7218,17 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                6,
+                "Expected 6 elements, got {}",
                 self_.length()
             );
             crate::frb::EditPreview {
                 page: self_.get(0).cst_decode(),
                 missing: self_.get(1).cst_decode(),
                 overflowing: self_.get(2).cst_decode(),
+                overflow: self_.get(3).cst_decode(),
+                chosen: self_.get(4).cst_decode(),
+                dependents: self_.get(5).cst_decode(),
             }
         }
     }
@@ -6635,6 +7252,27 @@ mod web {
                 build_profile: self_.get(2).cst_decode(),
                 crates: self_.get(3).cst_decode(),
                 pdfium: self_.get(4).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::ExtendBlocked>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ExtendBlocked {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                3,
+                "Expected 3 elements, got {}",
+                self_.length()
+            );
+            crate::frb::ExtendBlocked {
+                kind: self_.get(0).cst_decode(),
+                block: self_.get(1).cst_decode(),
+                text: self_.get(2).cst_decode(),
             }
         }
     }
@@ -6688,13 +7326,14 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                2,
-                "Expected 2 elements, got {}",
+                3,
+                "Expected 3 elements, got {}",
                 self_.length()
             );
             crate::frb::HistoryStep {
                 name: self_.get(0).cst_decode(),
                 time: self_.get(1).cst_decode(),
+                hidden_lines: self_.get(2).cst_decode(),
             }
         }
     }
@@ -6786,6 +7425,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::CrateVersion> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::DependentCell>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::DependentCell> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -7001,6 +7652,30 @@ mod web {
                 page: self_.get(1).cst_decode(),
                 depth: self_.get(2).cst_decode(),
                 open: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::OverflowPlan>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OverflowPlan {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::OverflowPlan {
+                over: self_.get(0).cst_decode(),
+                extend_lines: self_.get(1).cst_decode(),
+                extend_blocked: self_.get(2).cst_decode(),
+                tighten_percent: self_.get(3).cst_decode(),
+                tighten_short: self_.get(4).cst_decode(),
+                keep_hidden: self_.get(5).cst_decode(),
             }
         }
     }
@@ -7469,6 +8144,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::ExtendBlockedKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ExtendBlockedKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<f32> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> f32 {
@@ -7534,6 +8217,14 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::NotEditableReason {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::OverflowChoice>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OverflowChoice {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -7746,6 +8437,15 @@ mod web {
         wanted: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__request_view_impl(port_, view, generation, wanted)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__resolve_overflow(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        choice: i32,
+    ) {
+        wire__crate__frb__resolve_overflow_impl(port_, transaction, choice)
     }
 
     #[wasm_bindgen]

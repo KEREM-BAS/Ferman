@@ -22,7 +22,8 @@ use ferman_core::interpret::{
 };
 use ferman_core::{Document, OpenOptions, Source, open};
 use ferman_text::{
-    EditContext, Outcome, Rewrite, Splice, TextBlock, Unsupported, rewrite_block, text_page,
+    Choice, EditContext, Outcome, Rewrite, Splice, TextBlock, Unsupported, rewrite_block,
+    rewrite_block_with, text_page,
 };
 use unicode_normalization::UnicodeNormalization;
 
@@ -386,15 +387,22 @@ fn check(
         };
         assert_eq!(strip(old), strip(new), "{}", String::from_utf8_lossy(name));
     }
-    // Every glyph outside the block's edited lines is where it was.
+    // Every glyph outside the block's edited lines is where it was: the lines whose glyphs a
+    // splice replaces (all of them where the block is reflowed).
     let edited_lines: Vec<usize> = target
         .lines
         .iter()
-        .zip(text.split('\n'))
         .enumerate()
-        .filter(|(_, (line, new))| line.text != *new)
+        .filter(|(_, line)| {
+            line.chars.iter().any(|c| {
+                c.glyph
+                    .as_ref()
+                    .is_some_and(|link| inside(&link.span, &old_ranges))
+            })
+        })
         .map(|(at, _)| at)
         .collect();
+    let line_by_line = text.split('\n').count() == target.lines.len();
     let edited_spans: Vec<&Span> = edited_lines
         .iter()
         .flat_map(|&at| &target.lines[at].chars)
@@ -441,12 +449,16 @@ fn check(
     }
     // The new lines read back as the new text, once per placement of a form: the codes decode
     // to it.
-    let wanted: String = squeeze(
-        &edited_lines
-            .iter()
-            .map(|&at| text.split('\n').nth(at).unwrap())
-            .collect::<String>(),
-    );
+    let wanted: String = if line_by_line {
+        squeeze(
+            &edited_lines
+                .iter()
+                .map(|&at| text.split('\n').nth(at).unwrap())
+                .collect::<String>(),
+        )
+    } else {
+        squeeze(text)
+    };
     let model = text_page(after, page, &EditContext::default()).unwrap();
     let got: String = squeeze(
         &model
@@ -819,7 +831,8 @@ fn lines_justified_by_adjustments_give_new_spaces_the_mean_adjustment() {
         block(&doc, 0, "Aaaa").justification,
         Some(ferman_text::Justification::Adjustments)
     );
-    let (rewrite, _) = edit(&pdf, 0, "cccc dddd", "cc dd ee");
+    // Shorter, so the line stays in its frame and is rewritten line by line.
+    let (rewrite, _) = edit(&pdf, 0, "cccc dddd", "cc dd e");
     let bytes = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
     assert_eq!(bytes.matches("-800").count(), 4, "{bytes}");
 }
@@ -872,10 +885,6 @@ fn what_w1_does_not_rewrite_says_why() {
     let doc = document(&pdf);
     let target = block(&doc, 0, "One line");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, "One\nline").unwrap(),
-        Outcome::Unsupported(Unsupported::LineCount)
-    );
-    assert_eq!(
         rewrite_block(&doc, 0, &target, "One line").unwrap(),
         Outcome::Rewritten(Rewrite::default())
     );
@@ -926,4 +935,195 @@ fn a_replacement_character_is_never_written_as_an_unmapped_code() {
         rewrite_block(&doc, 0, &target, &text).unwrap(),
         Outcome::MissingGlyphs(vec!['\u{FFFD}'])
     );
+}
+
+/// Reflows the block with `needle` on `page` of `pdf` to `text` with `choice`, checks the result
+/// as [`edit`] does and returns the rewrite, the new file and the block's lines after.
+fn reflow_edit(
+    pdf: &[u8],
+    page: usize,
+    needle: &str,
+    text: &str,
+    choice: Option<Choice>,
+) -> (Rewrite, Vec<u8>, Vec<String>) {
+    let before = document(pdf);
+    let model = text_page(&before, page, &EditContext::default()).unwrap();
+    let target = block(&before, page, needle);
+    let outcome =
+        rewrite_block_with(&before, None, page, &target, text, &model.blocks, choice).unwrap();
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{needle:?} → {text:?}: {outcome:?}");
+    };
+    assert!(!rewrite.splices.is_empty());
+    let (after_pdf, placed) = apply(pdf, &rewrite.splices);
+    let after = document(&after_pdf);
+    check(&before, &after, page, &target, text, &rewrite, &placed);
+    let first = text.split_whitespace().next().unwrap();
+    let lines = text_page(&after, page, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| {
+            block
+                .lines
+                .first()
+                .is_some_and(|l| l.text.starts_with(first))
+        })
+        .map(|block| block.lines.into_iter().map(|line| line.text).collect())
+        .unwrap_or_default();
+    (rewrite, after_pdf, lines)
+}
+
+const PARAGRAPH: &[u8] = b"BT /F1 12 Tf 14 TL 72 700 Td (The quick brown fox jumps over the) Tj T* \
+(lazy dog and runs far away to) Tj T* (the green hills.) Tj ET BT /F1 12 Tf 72 600 Td (Below) Tj ET";
+
+#[test]
+fn a_paragraph_reflows_into_fewer_lines() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let (rewrite, _, lines) = reflow_edit(
+        &pdf,
+        0,
+        "quick",
+        "The quick brown fox jumps over the lazy dog.",
+        None,
+    );
+    assert_eq!(rewrite.overflow, None);
+    assert_eq!(rewrite.chosen, None);
+    assert_eq!(lines, ["The quick brown fox jumps over the", "lazy dog."]);
+}
+
+#[test]
+fn overflow_offers_the_three_choices_and_writes_each() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let text = "The quick brown fox jumps over the lazy dog and runs far away to the green \
+                hills, where it sleeps until the morning comes.";
+    // No choice yet: Keep and warn, the line past the frame written invisible.
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "quick", text, None);
+    let plan = rewrite.overflow.clone().unwrap();
+    assert_eq!(plan.over, 1);
+    assert_eq!(plan.keep.hidden, 1);
+    assert_eq!(plan.extend.as_ref().unwrap().lines, 1);
+    assert_eq!(rewrite.chosen, Some(Choice::Keep));
+    assert_eq!(rewrite.hidden, 1);
+    assert_eq!(lines.len(), 4, "{lines:?}");
+    let (_, data) = stream(&after, 5);
+    assert!(find(&data, b" 3 Tr", 0).is_some());
+    // The hidden text is still in the file.
+    let extracted = ferman_text::extract::page_text(&document(&after), 0).unwrap();
+    assert!(extracted.contains("morning"), "{extracted}");
+
+    let (rewrite, _, lines) = reflow_edit(&pdf, 0, "quick", text, Some(Choice::Extend));
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Extend), 0));
+    assert_eq!(lines.len(), 4);
+
+    // Too much for tightening: the choice falls back to Keep.
+    assert!(plan.tighten.is_err());
+    let (rewrite, ..) = reflow_edit(&pdf, 0, "quick", text, Some(Choice::Tighten));
+    assert_eq!(rewrite.chosen, Some(Choice::Keep));
+}
+
+#[test]
+fn tightening_writes_the_planned_tracking() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let text = "The quick brown fox jumps over the lazy dog and runs far away to the green hills.";
+    // A word of the last line growing a letter at a time: the first overflow is less than a
+    // letter, which tightening within the cap fits.
+    let (longer, rewrite) = (1..60)
+        .find_map(|n| {
+            let longer = text.replace("green", &format!("green{}", "x".repeat(n)));
+            let (rewrite, ..) = reflow_edit(&pdf, 0, "quick", &longer, None);
+            rewrite
+                .overflow
+                .as_ref()
+                .is_some_and(|plan| plan.tighten.is_ok())
+                .then_some((longer, rewrite))
+        })
+        .expect("an overflow that tightening fits");
+    let tighten = rewrite.overflow.unwrap().tighten.unwrap();
+    assert!(tighten.percent > 0.0 && tighten.percent <= 2.0);
+    assert_eq!(rewrite.hidden, 1);
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "quick", &longer, Some(Choice::Tighten));
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Tighten), 0));
+    assert_eq!(lines.len(), 3, "{lines:?}");
+    let (_, data) = stream(&after, 5);
+    assert!(find(&data, b" Tc", 0).is_some());
+}
+
+#[test]
+fn a_right_aligned_cell_keeps_its_right_edge() {
+    // E07: the amounts of fatura-tr's table are right-aligned cells.
+    let pdf = corpus("fatura-tr");
+    let target = block(&document(&pdf), 0, "1.250,00");
+    assert_eq!(target.alignment, ferman_text::Alignment::Right);
+    let end = target.lines[0].baseline[1];
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "1.250,00", "11.250,00", None);
+    assert_eq!((rewrite.overflow, lines.len()), (None, 1));
+    let moved = block(&document(&after), 0, "11.250,00");
+    let new_end = moved.lines[0].baseline[1];
+    assert!(
+        (new_end[0] - end[0]).abs() < 0.05 && (new_end[1] - end[1]).abs() < 0.05,
+        "{end:?} → {new_end:?}"
+    );
+}
+
+#[test]
+fn a_one_line_cell_grows_along_its_line_and_never_wraps() {
+    // A longer amount with a space (thousands spaced), in a right-aligned cell whose frame is its old text: the
+    // cell stays one line, its right edge kept, and nothing overflows into hiding.
+    let pdf = corpus("fatura-tr");
+    let end = block(&document(&pdf), 0, "1.250,00").lines[0].baseline[1];
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "1.250,00", "11 250,00", None);
+    assert_eq!(
+        (rewrite.overflow, rewrite.hidden, lines.len()),
+        (None, 0, 1)
+    );
+    let new_end = block(&document(&after), 0, "11 250,00").lines[0].baseline[1];
+    assert!((new_end[0] - end[0]).abs() < 0.05, "{end:?} → {new_end:?}");
+}
+
+#[test]
+fn a_paragraph_justified_by_adjustments_stretches_its_spaces_by_tj() {
+    // E08: tez-tr's ÖZET, an Identity-H font whose space is a two-byte code, justified by TJ.
+    let pdf = corpus("tez-tr");
+    let doc = document(&pdf);
+    let target = block(&doc, 2, "Bu tez");
+    assert_eq!(
+        target.justification,
+        Some(ferman_text::Justification::Adjustments)
+    );
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.clone())
+        .collect::<Vec<_>>()
+        .join(" ")
+        .replacen("üç ilçesinde", "dört ilçesinde", 1);
+    let outcome = rewrite_block_with(&doc, None, 2, &target, &text, &[], None).unwrap();
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{outcome:?}")
+    };
+    let bytes = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
+    let first = bytes.split(" Tm ").nth(1).unwrap();
+    assert!(first.starts_with('[') && first.contains("> -"), "{first}");
+}
+
+#[test]
+fn kira_tr_madde_4_grows_past_the_iban_line() {
+    // E06 at the text level: the sentence needs a third line, and the IBAN line blocks Extend.
+    let pdf = corpus("kira-tr");
+    let target = block(&document(&pdf), 0, "aylık kira bedeli olan");
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.clone())
+        .collect::<Vec<_>>()
+        .join(" ")
+        + " Kiracı, gecikme hâlinde kiraya verene yazılı bildirimde bulunur.";
+    let (rewrite, _, lines) = reflow_edit(&pdf, 0, "aylık kira bedeli olan", &text, None);
+    let plan = rewrite.overflow.unwrap_or_else(|| panic!("{lines:?}"));
+    assert_eq!(plan.over, 1);
+    assert!(matches!(
+        plan.extend,
+        Err(ferman_text::ExtendBlocked::Block { ref text, .. }) if text.starts_with("IBAN")
+    ));
 }

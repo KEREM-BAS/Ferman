@@ -54,10 +54,22 @@ abstract class FermanBridgeApiImplPlatform
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
 
   @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
@@ -96,6 +108,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion dco_decode_crate_version(dynamic raw);
 
   @protected
+  DependentCell dco_decode_dependent_cell(dynamic raw);
+
+  @protected
   DocumentInfo dco_decode_document_info(dynamic raw);
 
   @protected
@@ -112,6 +127,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ErrorKind dco_decode_error_kind(dynamic raw);
+
+  @protected
+  ExtendBlocked dco_decode_extend_blocked(dynamic raw);
+
+  @protected
+  ExtendBlockedKind dco_decode_extend_blocked_kind(dynamic raw);
 
   @protected
   double dco_decode_f_32(dynamic raw);
@@ -165,6 +186,9 @@ abstract class FermanBridgeApiImplPlatform
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
 
   @protected
+  List<DependentCell> dco_decode_list_dependent_cell(dynamic raw);
+
+  @protected
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
@@ -213,12 +237,24 @@ abstract class FermanBridgeApiImplPlatform
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
 
   @protected
   NotEditableReason? dco_decode_opt_box_autoadd_not_editable_reason(
     dynamic raw,
   );
+
+  @protected
+  OverflowChoice? dco_decode_opt_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan? dco_decode_opt_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
@@ -240,6 +276,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_overflow_plan(dynamic raw);
 
   @protected
   PageBlocks dco_decode_page_blocks(dynamic raw);
@@ -366,10 +408,28 @@ abstract class FermanBridgeApiImplPlatform
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked sse_decode_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
 
   @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice sse_decode_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan sse_decode_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -416,6 +476,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer);
 
   @protected
+  DependentCell sse_decode_dependent_cell(SseDeserializer deserializer);
+
+  @protected
   DocumentInfo sse_decode_document_info(SseDeserializer deserializer);
 
   @protected
@@ -434,6 +497,14 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   ErrorKind sse_decode_error_kind(SseDeserializer deserializer);
+
+  @protected
+  ExtendBlocked sse_decode_extend_blocked(SseDeserializer deserializer);
+
+  @protected
+  ExtendBlockedKind sse_decode_extend_blocked_kind(
+    SseDeserializer deserializer,
+  );
 
   @protected
   double sse_decode_f_32(SseDeserializer deserializer);
@@ -485,6 +556,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<CrateVersion> sse_decode_list_crate_version(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<DependentCell> sse_decode_list_dependent_cell(
     SseDeserializer deserializer,
   );
 
@@ -541,12 +617,30 @@ abstract class FermanBridgeApiImplPlatform
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
     SseDeserializer deserializer,
   );
 
   @protected
   NotEditableReason? sse_decode_opt_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice? sse_decode_opt_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan? sse_decode_opt_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -572,6 +666,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
+
+  @protected
+  OverflowChoice sse_decode_overflow_choice(SseDeserializer deserializer);
+
+  @protected
+  OverflowPlan sse_decode_overflow_plan(SseDeserializer deserializer);
 
   @protected
   PageBlocks sse_decode_page_blocks(SseDeserializer deserializer);
@@ -706,6 +806,22 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_extend_blocked> cst_encode_box_autoadd_extend_blocked(
+    ExtendBlocked raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_extend_blocked();
+    cst_api_fill_to_wire_extend_blocked(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<ffi.Float> cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_f_32(cst_encode_f_32(raw));
+  }
+
+  @protected
   ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_fail_reason(FailReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return wire.cst_new_box_autoadd_fail_reason(cst_encode_fail_reason(raw));
@@ -719,6 +835,26 @@ abstract class FermanBridgeApiImplPlatform
     return wire.cst_new_box_autoadd_not_editable_reason(
       cst_encode_not_editable_reason(raw),
     );
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_overflow_choice(
+    OverflowChoice raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_overflow_choice(
+      cst_encode_overflow_choice(raw),
+    );
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_overflow_plan> cst_encode_box_autoadd_overflow_plan(
+    OverflowPlan raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_overflow_plan();
+    cst_api_fill_to_wire_overflow_plan(raw, ptr.ref);
+    return ptr;
   }
 
   @protected
@@ -857,6 +993,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_crate_version(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_crate_version(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_dependent_cell> cst_encode_list_dependent_cell(
+    List<DependentCell> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_dependent_cell(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_dependent_cell(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -1020,6 +1168,21 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_extend_blocked>
+  cst_encode_opt_box_autoadd_extend_blocked(ExtendBlocked? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_extend_blocked(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Float> cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
   ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_fail_reason(
     FailReason? raw,
   ) {
@@ -1035,6 +1198,26 @@ abstract class FermanBridgeApiImplPlatform
     return raw == null
         ? ffi.nullptr
         : cst_encode_box_autoadd_not_editable_reason(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_overflow_choice(
+    OverflowChoice? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_overflow_choice(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_overflow_plan> cst_encode_opt_box_autoadd_overflow_plan(
+    OverflowPlan? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_overflow_plan(raw);
   }
 
   @protected
@@ -1134,6 +1317,22 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_box_autoadd_extend_blocked(
+    ExtendBlocked apiObj,
+    ffi.Pointer<wire_cst_extend_blocked> wireObj,
+  ) {
+    cst_api_fill_to_wire_extend_blocked(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_overflow_plan(
+    OverflowPlan apiObj,
+    ffi.Pointer<wire_cst_overflow_plan> wireObj,
+  ) {
+    cst_api_fill_to_wire_overflow_plan(apiObj, wireObj.ref);
+  }
+
+  @protected
   void cst_api_fill_to_wire_box_autoadd_page_point(
     PagePoint apiObj,
     ffi.Pointer<wire_cst_page_point> wireObj,
@@ -1197,6 +1396,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_dependent_cell(
+    DependentCell apiObj,
+    wire_cst_dependent_cell wireObj,
+  ) {
+    wireObj.id = cst_encode_u_64(apiObj.id);
+    cst_api_fill_to_wire_page_rect(apiObj.frame, wireObj.frame);
+  }
+
+  @protected
   void cst_api_fill_to_wire_document_info(
     DocumentInfo apiObj,
     wire_cst_document_info wireObj,
@@ -1234,6 +1442,11 @@ abstract class FermanBridgeApiImplPlatform
     cst_api_fill_to_wire_page_blocks(apiObj.page, wireObj.page);
     wireObj.missing = cst_encode_list_String(apiObj.missing);
     wireObj.overflowing = cst_encode_bool(apiObj.overflowing);
+    wireObj.overflow = cst_encode_opt_box_autoadd_overflow_plan(
+      apiObj.overflow,
+    );
+    wireObj.chosen = cst_encode_opt_box_autoadd_overflow_choice(apiObj.chosen);
+    wireObj.dependents = cst_encode_list_dependent_cell(apiObj.dependents);
   }
 
   @protected
@@ -1246,6 +1459,16 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.build_profile = cst_encode_build_profile(apiObj.buildProfile);
     wireObj.crates = cst_encode_list_crate_version(apiObj.crates);
     cst_api_fill_to_wire_pdfium_status(apiObj.pdfium, wireObj.pdfium);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_extend_blocked(
+    ExtendBlocked apiObj,
+    wire_cst_extend_blocked wireObj,
+  ) {
+    wireObj.kind = cst_encode_extend_blocked_kind(apiObj.kind);
+    wireObj.block = cst_encode_opt_box_autoadd_u_64(apiObj.block);
+    wireObj.text = cst_encode_String(apiObj.text);
   }
 
   @protected
@@ -1272,6 +1495,7 @@ abstract class FermanBridgeApiImplPlatform
   ) {
     wireObj.name = cst_encode_String(apiObj.name);
     wireObj.time = cst_encode_i_64(apiObj.time);
+    wireObj.hidden_lines = cst_encode_u_32(apiObj.hiddenLines);
   }
 
   @protected
@@ -1334,6 +1558,25 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
     wireObj.depth = cst_encode_u_32(apiObj.depth);
     wireObj.open = cst_encode_bool(apiObj.open);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_overflow_plan(
+    OverflowPlan apiObj,
+    wire_cst_overflow_plan wireObj,
+  ) {
+    wireObj.over = cst_encode_u_32(apiObj.over);
+    wireObj.extend_lines = cst_encode_opt_box_autoadd_u_32(apiObj.extendLines);
+    wireObj.extend_blocked = cst_encode_opt_box_autoadd_extend_blocked(
+      apiObj.extendBlocked,
+    );
+    wireObj.tighten_percent = cst_encode_opt_box_autoadd_f_32(
+      apiObj.tightenPercent,
+    );
+    wireObj.tighten_short = cst_encode_opt_box_autoadd_u_32(
+      apiObj.tightenShort,
+    );
+    wireObj.keep_hidden = cst_encode_u_32(apiObj.keepHidden);
   }
 
   @protected
@@ -1563,6 +1806,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_error_kind(ErrorKind raw);
 
   @protected
+  int cst_encode_extend_blocked_kind(ExtendBlockedKind raw);
+
+  @protected
   double cst_encode_f_32(double raw);
 
   @protected
@@ -1582,6 +1828,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_not_editable_reason(NotEditableReason raw);
+
+  @protected
+  int cst_encode_overflow_choice(OverflowChoice raw);
 
   @protected
   int cst_encode_pdfium_state(PdfiumState raw);
@@ -1656,6 +1905,15 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_extend_blocked(
+    ExtendBlocked self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
     SseSerializer serializer,
@@ -1664,6 +1922,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_not_editable_reason(
     NotEditableReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_plan(
+    OverflowPlan self,
     SseSerializer serializer,
   );
 
@@ -1719,6 +1989,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_dependent_cell(DependentCell self, SseSerializer serializer);
+
+  @protected
   void sse_encode_document_info(DocumentInfo self, SseSerializer serializer);
 
   @protected
@@ -1741,6 +2014,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_error_kind(ErrorKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_extend_blocked(ExtendBlocked self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_extend_blocked_kind(
+    ExtendBlockedKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
@@ -1799,6 +2081,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_crate_version(
     List<CrateVersion> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_dependent_cell(
+    List<DependentCell> self,
     SseSerializer serializer,
   );
 
@@ -1884,6 +2172,15 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_extend_blocked(
+    ExtendBlocked? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
     SseSerializer serializer,
@@ -1892,6 +2189,18 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_not_editable_reason(
     NotEditableReason? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_choice(
+    OverflowChoice? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_plan(
+    OverflowPlan? self,
     SseSerializer serializer,
   );
 
@@ -1927,6 +2236,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_overflow_plan(OverflowPlan self, SseSerializer serializer);
 
   @protected
   void sse_encode_page_blocks(PageBlocks self, SseSerializer serializer);
@@ -2345,6 +2663,22 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
           >();
 
+  void wire__crate__frb__resolve_overflow(
+    int port_,
+    int transaction,
+    int choice,
+  ) {
+    return _wire__crate__frb__resolve_overflow(port_, transaction, choice);
+  }
+
+  late final _wire__crate__frb__resolve_overflowPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Int32)>
+      >('frbgen_ferman_wire__crate__frb__resolve_overflow');
+  late final _wire__crate__frb__resolve_overflow =
+      _wire__crate__frb__resolve_overflowPtr
+          .asFunction<void Function(int, int, int)>();
+
   void wire__crate__frb__rollback_edit(int port_, int transaction) {
     return _wire__crate__frb__rollback_edit(port_, transaction);
   }
@@ -2563,6 +2897,29 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
 
+  ffi.Pointer<wire_cst_extend_blocked> cst_new_box_autoadd_extend_blocked() {
+    return _cst_new_box_autoadd_extend_blocked();
+  }
+
+  late final _cst_new_box_autoadd_extend_blockedPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_extend_blocked> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_extend_blocked');
+  late final _cst_new_box_autoadd_extend_blocked =
+      _cst_new_box_autoadd_extend_blockedPtr
+          .asFunction<ffi.Pointer<wire_cst_extend_blocked> Function()>();
+
+  ffi.Pointer<ffi.Float> cst_new_box_autoadd_f_32(double value) {
+    return _cst_new_box_autoadd_f_32(value);
+  }
+
+  late final _cst_new_box_autoadd_f_32Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Float> Function(ffi.Float)>>(
+        'frbgen_ferman_cst_new_box_autoadd_f_32',
+      );
+  late final _cst_new_box_autoadd_f_32 = _cst_new_box_autoadd_f_32Ptr
+      .asFunction<ffi.Pointer<ffi.Float> Function(double)>();
+
   ffi.Pointer<ffi.Int32> cst_new_box_autoadd_fail_reason(int value) {
     return _cst_new_box_autoadd_fail_reason(value);
   }
@@ -2586,6 +2943,30 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_not_editable_reason =
       _cst_new_box_autoadd_not_editable_reasonPtr
           .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_overflow_choice(int value) {
+    return _cst_new_box_autoadd_overflow_choice(value);
+  }
+
+  late final _cst_new_box_autoadd_overflow_choicePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_ferman_cst_new_box_autoadd_overflow_choice',
+      );
+  late final _cst_new_box_autoadd_overflow_choice =
+      _cst_new_box_autoadd_overflow_choicePtr
+          .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_overflow_plan> cst_new_box_autoadd_overflow_plan() {
+    return _cst_new_box_autoadd_overflow_plan();
+  }
+
+  late final _cst_new_box_autoadd_overflow_planPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_overflow_plan> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_overflow_plan');
+  late final _cst_new_box_autoadd_overflow_plan =
+      _cst_new_box_autoadd_overflow_planPtr
+          .asFunction<ffi.Pointer<wire_cst_overflow_plan> Function()>();
 
   ffi.Pointer<wire_cst_page_point> cst_new_box_autoadd_page_point() {
     return _cst_new_box_autoadd_page_point();
@@ -2752,6 +3133,21 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_crate_version');
   late final _cst_new_list_crate_version = _cst_new_list_crate_versionPtr
       .asFunction<ffi.Pointer<wire_cst_list_crate_version> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_dependent_cell> cst_new_list_dependent_cell(
+    int len,
+  ) {
+    return _cst_new_list_dependent_cell(len);
+  }
+
+  late final _cst_new_list_dependent_cellPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_dependent_cell> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_dependent_cell');
+  late final _cst_new_list_dependent_cell = _cst_new_list_dependent_cellPtr
+      .asFunction<ffi.Pointer<wire_cst_list_dependent_cell> Function(int)>();
 
   ffi.Pointer<wire_cst_list_font_entry> cst_new_list_font_entry(int len) {
     return _cst_new_list_font_entry(len);
@@ -3037,6 +3433,31 @@ final class wire_cst_list_bool extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_extend_blocked extends ffi.Struct {
+  @ffi.Int32()
+  external int kind;
+
+  external ffi.Pointer<ffi.Uint64> block;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> text;
+}
+
+final class wire_cst_overflow_plan extends ffi.Struct {
+  @ffi.Uint32()
+  external int over;
+
+  external ffi.Pointer<ffi.Uint32> extend_lines;
+
+  external ffi.Pointer<wire_cst_extend_blocked> extend_blocked;
+
+  external ffi.Pointer<ffi.Float> tighten_percent;
+
+  external ffi.Pointer<ffi.Uint32> tighten_short;
+
+  @ffi.Uint32()
+  external int keep_hidden;
+}
+
 final class wire_cst_pdf_date extends ffi.Struct {
   @ffi.Uint16()
   external int year;
@@ -3182,6 +3603,20 @@ final class wire_cst_list_crate_version extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_dependent_cell extends ffi.Struct {
+  @ffi.Uint64()
+  external int id;
+
+  external wire_cst_page_rect frame;
+}
+
+final class wire_cst_list_dependent_cell extends ffi.Struct {
+  external ffi.Pointer<wire_cst_dependent_cell> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_font_entry extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
 
@@ -3207,6 +3642,9 @@ final class wire_cst_history_step extends ffi.Struct {
 
   @ffi.Int64()
   external int time;
+
+  @ffi.Uint32()
+  external int hidden_lines;
 }
 
 final class wire_cst_list_history_step extends ffi.Struct {
@@ -3398,6 +3836,12 @@ final class wire_cst_edit_preview extends ffi.Struct {
 
   @ffi.Bool()
   external bool overflowing;
+
+  external ffi.Pointer<wire_cst_overflow_plan> overflow;
+
+  external ffi.Pointer<ffi.Int32> chosen;
+
+  external ffi.Pointer<wire_cst_list_dependent_cell> dependents;
 }
 
 final class wire_cst_pdfium_status extends ffi.Struct {

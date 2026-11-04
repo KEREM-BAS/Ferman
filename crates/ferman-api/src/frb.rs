@@ -707,8 +707,71 @@ pub struct EditPreview {
     /// The characters no font of their line can draw, each as a string, in the order they
     /// first appear: the text was not applied.
     pub missing: Vec<String>,
-    /// Whether a line runs past the block's frame.
+    /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
     pub overflowing: bool,
+    /// The overflow choices, when the text needs more lines than the block's frame holds.
+    pub overflow: Option<OverflowPlan>,
+    /// The choice the preview shows and a commit keeps: `Keep` until [`resolve_overflow`].
+    pub chosen: Option<OverflowChoice>,
+    /// The table cells whose values likely depend on the edited one (a3-9).
+    pub dependents: Vec<DependentCell>,
+}
+
+/// One of the overflow choices (a3-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OverflowChoice {
+    /// "Extend block by N line(s)".
+    Extend,
+    /// "Tighten spacing slightly (−x%)".
+    Tighten,
+    /// "Keep and warn".
+    Keep,
+}
+
+/// What stands in the way of Extend.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExtendBlockedKind {
+    /// Another block of the page.
+    Block,
+    /// The page's edge.
+    PageEdge,
+}
+
+/// Why Extend is disabled (a3-18).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExtendBlocked {
+    /// What is in the way.
+    pub kind: ExtendBlockedKind,
+    /// The block in the way, for `Block`.
+    pub block: Option<u64>,
+    /// Its first line, for the UI's reason ("The IBAN line sits right below this block.").
+    pub text: String,
+}
+
+/// The overflow choices with their amounts (docs/ARCHITECTURE.md §6.8).
+#[derive(Debug, Clone, PartialEq)]
+pub struct OverflowPlan {
+    /// How many lines go past the frame.
+    pub over: u32,
+    /// Extend's N, when it is available.
+    pub extend_lines: Option<u32>,
+    /// Why Extend is disabled, when it is.
+    pub extend_blocked: Option<ExtendBlocked>,
+    /// Tighten's amount in percent, one decimal (the 0.6 of "−0.6%"), when it is available.
+    pub tighten_percent: Option<f32>,
+    /// The lines still over at the tightest allowed spacing, when Tighten is disabled.
+    pub tighten_short: Option<u32>,
+    /// The lines Keep and warn hides.
+    pub keep_hidden: u32,
+}
+
+/// A table cell that likely depends on the edited one.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DependentCell {
+    /// Its block's id.
+    pub id: u64,
+    /// Its frame.
+    pub frame: PageRect,
 }
 
 /// Where the history stands after a commit, rollback, undo or redo.
@@ -727,6 +790,8 @@ pub struct HistoryStep {
     pub name: String,
     /// When it was committed, in milliseconds since the Unix epoch.
     pub time: i64,
+    /// The lines Keep and warn left hidden: the warning of the review list; 0 for none.
+    pub hidden_lines: u32,
 }
 
 /// A document's history (a3-10).
@@ -1081,11 +1146,31 @@ pub async fn apply_edit(transaction: u64, text: String) -> Result<EditPreview, A
     engine()?
         .apply(facade::TransactionId::from_raw(transaction), text)
         .await
-        .map(|preview| EditPreview {
-            page: page_blocks_dto(preview.page),
-            missing: preview.missing.into_iter().map(String::from).collect(),
-            overflowing: preview.overflowing,
-        })
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Writes the transaction's newest text again with the overflow choice `choice`.
+///
+/// See [`facade::Engine::resolve_overflow`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when its text does not overflow
+/// or the choice is disabled.
+pub async fn resolve_overflow(
+    transaction: u64,
+    choice: OverflowChoice,
+) -> Result<EditPreview, ApiError> {
+    let choice = match choice {
+        OverflowChoice::Extend => facade::Choice::Extend,
+        OverflowChoice::Tighten => facade::Choice::Tighten,
+        OverflowChoice::Keep => facade::Choice::Keep,
+    };
+    engine()?
+        .resolve_overflow(facade::TransactionId::from_raw(transaction), choice)
+        .await
+        .map(edit_preview_dto)
         .map_err(api_error_dto)
 }
 
@@ -1168,6 +1253,7 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                 .map(|step| HistoryStep {
                     name: step.name,
                     time: step.time,
+                    hidden_lines: step.hidden_lines,
                 })
                 .collect(),
             current: history.current,
@@ -1303,6 +1389,48 @@ fn page_blocks_dto(blocks: facade::PageBlocks) -> PageBlocks {
             })
             .collect(),
         empty: blocks.empty.map(reason_dto),
+    }
+}
+
+/// An edit preview as its mirror.
+fn edit_preview_dto(preview: facade::EditPreview) -> EditPreview {
+    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
+    EditPreview {
+        page: page_blocks_dto(preview.page),
+        missing: preview.missing.into_iter().map(String::from).collect(),
+        overflowing: preview.overflowing,
+        overflow: preview.overflow.map(|plan| OverflowPlan {
+            over: count(plan.over),
+            extend_lines: plan.extend.as_ref().ok().map(|extend| count(extend.lines)),
+            extend_blocked: plan.extend.err().map(|blocked| match blocked {
+                facade::ExtendBlocked::Block { id, text } => ExtendBlocked {
+                    kind: ExtendBlockedKind::Block,
+                    block: Some(id.0),
+                    text,
+                },
+                facade::ExtendBlocked::PageEdge => ExtendBlocked {
+                    kind: ExtendBlockedKind::PageEdge,
+                    block: None,
+                    text: String::new(),
+                },
+            }),
+            tighten_percent: plan.tighten.as_ref().ok().map(|tighten| tighten.percent),
+            tighten_short: plan.tighten.err().map(|short| count(short.over)),
+            keep_hidden: count(plan.keep.hidden),
+        }),
+        chosen: preview.chosen.map(|choice| match choice {
+            facade::Choice::Extend => OverflowChoice::Extend,
+            facade::Choice::Tighten => OverflowChoice::Tighten,
+            facade::Choice::Keep => OverflowChoice::Keep,
+        }),
+        dependents: preview
+            .dependents
+            .into_iter()
+            .map(|cell| DependentCell {
+                id: cell.id.0,
+                frame: rect_dto(cell.frame),
+            })
+            .collect(),
     }
 }
 
