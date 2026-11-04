@@ -22,7 +22,7 @@ use ferman_core::structure::{
     Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Scripts, Signature,
 };
 use ferman_core::{Access, Method, OpenOptions, Password, Permissions, RepairReport, Source};
-use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
+use ferman_render::{DocumentId, PageRaster, PageSize, RenderThread, ViewId, ViewSink, Wanted};
 use ferman_text::extract::PageText;
 
 use super::engine::Engine;
@@ -505,6 +505,25 @@ impl Engine {
     /// Returns `Internal` if the render thread has stopped.
     pub fn close_view(&self, view: ViewId) -> Result<(), ApiError> {
         Ok(self.render()?.close_view(view)?)
+    }
+
+    /// Renders the whole of page `page` (of size `size`) of `document` at `dpi`, tile for tile as
+    /// the canvas gets it, for the pixel-diff harness ([`ferman_render::render_page`]).
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open, and the render thread's errors.
+    pub async fn render_page(
+        &self,
+        document: DocumentId,
+        page: u32,
+        size: PageSize,
+        dpi: u32,
+    ) -> Result<PageRaster, ApiError> {
+        guard_async(async {
+            Ok(ferman_render::render_page(self.render()?, document, page, size, dpi).await?)
+        })
+        .await
     }
 
     /// The parsed models of the open documents.

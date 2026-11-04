@@ -2,7 +2,7 @@
 
 // Test code may panic (clippy.toml), but clippy exempts only `#[test]` functions, not the helpers
 // of an integration-test crate.
-#![allow(clippy::panic)]
+#![allow(clippy::panic, clippy::unwrap_used)]
 
 use std::process::{Command, Output, Stdio};
 
@@ -231,4 +231,193 @@ fn open_prints_pages_and_the_read_only_reason() {
     assert_eq!(json["direction"], "left_to_right");
     assert_eq!(json["api_version"]["major"], API_VERSION.major);
     assert_eq!(json["pages"].as_array().map(Vec::len), Some(3));
+}
+
+#[test]
+fn edit_commands_reject_bad_arguments() {
+    let file = corpus("edit-e04-differences");
+    for args in [
+        &["blocks", &file, "--page", "0"][..],
+        &["edit", &file, "--page", "1", "--block", "x", "--text", "a"],
+        &["verify-edit", &file, "--page", "1", "--text", "a"],
+        &["save", &file],
+    ] {
+        let output = ferman(args);
+        assert_eq!(output.status.code(), Some(2), "{args:?}");
+        assert!(!stderr(&output).contains("panicked"), "{args:?}");
+    }
+}
+
+#[test]
+fn edit_and_save_report_a_missing_file() {
+    let missing = corpus("no-such-file");
+    let out = std::env::temp_dir().join(format!("ferman-cli-unsaved-{}.pdf", std::process::id()));
+    let out = out.to_str().unwrap();
+    for args in [
+        &["save", &missing, "-o", out][..],
+        &[
+            "edit", &missing, "--page", "1", "--block", "1", "--text", "a", "-o", out,
+        ],
+        &[
+            "verify-edit",
+            &missing,
+            "--page",
+            "1",
+            "--block",
+            "1",
+            "--text",
+            "a",
+        ],
+    ] {
+        let output = ferman(args);
+        assert_eq!(output.status.code(), Some(1), "{args:?}");
+        assert!(stderr(&output).contains("not_found"), "{}", stderr(&output));
+    }
+    assert!(!std::path::Path::new(out).exists());
+}
+
+/// The E04 file's block that holds `needle`: its id and text, from `ferman blocks --json`.
+fn e04_block(file: &str, pdfium: &str, needle: &str) -> (String, String) {
+    let output = ferman(&["blocks", file, "--page", "1", "--json", "--pdfium", pdfium]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let json: serde_json::Value = serde_json::from_str(stdout(&output)).unwrap();
+    assert_eq!(json["api_version"]["major"], API_VERSION.major);
+    let block = json["blocks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|block| block["text"].as_str().unwrap().contains(needle))
+        .unwrap_or_else(|| panic!("no block with {needle:?}: {json}"));
+    assert_eq!(block["editable"], true);
+    assert_eq!(block["bbox"].as_array().map(Vec::len), Some(4));
+    (
+        block["id"].as_u64().unwrap().to_string(),
+        block["text"].as_str().unwrap().to_owned(),
+    )
+}
+
+fn temp_pdf(name: &str) -> std::path::PathBuf {
+    std::env::temp_dir().join(format!("ferman-cli-{name}-{}.pdf", std::process::id()))
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn edit_saves_an_incremental_update() {
+    let pdfium = pdfium_path();
+    let file = corpus("edit-e04-differences");
+    let (id, text) = e04_block(&file, &pdfium, "Moda Cad. No: 18");
+    let new = text.replacen("Moda Cad. No: 18", "Moda Cd. 18", 1);
+    let out = temp_pdf("edited");
+    let out_str = out.to_str().unwrap();
+    let output = ferman(&[
+        "edit", &file, "--page", "1", "--block", &id, "--text", &new, "-o", out_str, "--pdfium",
+        &pdfium,
+    ]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let original = std::fs::read(&file).unwrap();
+    let saved = std::fs::read(&out).unwrap();
+    assert!(saved.len() > original.len() && saved.starts_with(&original));
+    let (_, after) = e04_block(out_str, &pdfium, "Moda Cd. 18");
+    assert_eq!(after, new);
+
+    // Without -o the file itself gets the update.
+    let in_place = temp_pdf("in-place");
+    std::fs::copy(&file, &in_place).unwrap();
+    let in_place_str = in_place.to_str().unwrap();
+    let output = ferman(&[
+        "edit",
+        in_place_str,
+        "--page",
+        "1",
+        "--block",
+        &id,
+        "--text",
+        &new,
+        "--pdfium",
+        &pdfium,
+    ]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    assert!(std::fs::read(&in_place).unwrap().starts_with(&original));
+    assert_eq!(e04_block(in_place_str, &pdfium, "Moda Cd. 18").1, new);
+    std::fs::remove_file(&in_place).unwrap();
+
+    // A block the page does not have.
+    let output = ferman(&[
+        "edit", &file, "--page", "1", "--block", "1", "--text", "a", "-o", out_str, "--pdfium",
+        &pdfium,
+    ]);
+    assert_eq!(output.status.code(), Some(1));
+    assert!(stderr(&output).contains("not_found"), "{}", stderr(&output));
+    std::fs::remove_file(&out).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn save_writes_a_copy_that_opens() {
+    let pdfium = pdfium_path();
+    let file = corpus("edit-e04-differences");
+    let out = temp_pdf("copy");
+    let out_str = out.to_str().unwrap();
+    let output = ferman(&["save", &file, "-o", out_str, "--pdfium", &pdfium]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    assert!(
+        std::fs::read(&out)
+            .unwrap()
+            .starts_with(&std::fs::read(&file).unwrap())
+    );
+    let output = ferman(&["open", out_str, "--pdfium", &pdfium]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    std::fs::remove_file(&out).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn verify_edit_passes_an_edit_and_fails_one_that_draws_nothing() {
+    let pdfium = pdfium_path();
+    let file = corpus("edit-e04-differences");
+    let (id, text) = e04_block(&file, &pdfium, "Moda Cad. No: 18");
+    let new = text.replacen("Moda Cad. No: 18", "Moda Cd. 18", 1);
+    let verify = |text: &str| {
+        ferman(&[
+            "verify-edit",
+            &file,
+            "--page",
+            "1",
+            "--block",
+            &id,
+            "--text",
+            text,
+            "--json",
+            "--pdfium",
+            &pdfium,
+        ])
+    };
+
+    let output = verify(&new);
+    assert!(output.status.success(), "{}", stdout(&output));
+    let json: serde_json::Value = serde_json::from_str(stdout(&output)).unwrap();
+    assert_eq!(json["passed"], true, "{json}");
+    let renders = json["renders"].as_array().unwrap();
+    assert_eq!(renders.len(), 3);
+    for render in renders {
+        assert_eq!(render["outside"], 0, "{render}");
+        assert_eq!(render["passed"], true, "{render}");
+        assert!(render["differing"].as_u64().unwrap() > 0, "{render}");
+        assert!(render["region"].is_object(), "{render}");
+    }
+    let dpis: Vec<_> = renders.iter().map(|render| render["dpi"].clone()).collect();
+    assert_eq!(dpis, [72, 150, 300]);
+
+    // The same text again changes nothing, so the check has nothing to test.
+    let output = verify(&text);
+    assert_eq!(output.status.code(), Some(1), "{}", stdout(&output));
+    let json: serde_json::Value = serde_json::from_str(stdout(&output)).unwrap();
+    assert_eq!(json["passed"], false);
+    for render in json["renders"].as_array().unwrap() {
+        assert_eq!(render["passed"], false, "{render}");
+    }
+    assert!(
+        json["problems"].to_string().contains("drew nothing"),
+        "{json}"
+    );
 }

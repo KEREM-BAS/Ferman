@@ -48,6 +48,7 @@ pub use ferman_render::{
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
     ZoomBucket,
 };
+pub use ferman_render::{EDIT_MARGIN, PageRaster, PixelDiff, RESOLUTIONS, compare, device_region};
 pub use ferman_text::{
     Alignment, BlockId, Complexity, Editability, NotEditableReason, SearchOptions, TextDirection,
     collation_order,
