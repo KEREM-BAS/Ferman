@@ -216,6 +216,9 @@ mod tests {
         let path = std::env::temp_dir()
             .join(format!("ferman-api-missing-{}", std::process::id()))
             .join("libpdfium.so");
+        // The global engine of the other tests loads PDFium first, so this engine's brief claim
+        // never makes it fail with PdfiumInUse; with PDFium held, this one fails that way instead.
+        block_on(Engine::global().pdfium_status());
         let engine = engine(PdfiumLibrary::Path(path));
         match block_on(engine.pdfium_status()) {
             PdfiumStatus::Failed { reason } => {

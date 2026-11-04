@@ -1347,6 +1347,111 @@
       }
     }
   },
+  "editHoverTip": "Click to edit · {block}",
+  "@editHoverTip": {
+    "description": "Edit mode: the tooltip beside the pointer over an editable text block (a3-1a). {block} is the start of the block's first line, as the document writes it, for example Madde 3.",
+    "placeholders": {
+      "block": {
+        "type": "String"
+      }
+    }
+  },
+  "editNotEditableTitle": "This text can’t be edited",
+  "@editNotEditableTitle": {
+    "description": "Edit mode: the title of the right panel's callout for text that cannot be edited (a3-19, G39)."
+  },
+  "editTipImageOnly": "No text on this page yet · Recognize text to edit",
+  "@editTipImageOnly": {
+    "description": "Edit mode: the tooltip beside the pointer over a scanned page without text (a3-11)."
+  },
+  "editBodyImageOnly": "This page is an image, such as a scan. Recognize its text to edit it.",
+  "@editBodyImageOnly": {
+    "description": "Edit mode: the panel callout's message for a scanned page without text (a3-11, G39)."
+  },
+  "editTipOutlinedText": "This text is drawn as shapes, so it can’t be edited",
+  "@editTipOutlinedText": {
+    "description": "Edit mode: the tooltip over text drawn as vector shapes (a3-19)."
+  },
+  "editBodyOutlinedText": "This text is drawn as vector shapes, not letters. Ferman can’t change it without redrawing it.",
+  "@editBodyOutlinedText": {
+    "description": "Edit mode: the panel callout's message for text drawn as vector shapes (a3-19)."
+  },
+  "editTipUnknownText": "Ferman can’t read the letters of this text",
+  "@editTipUnknownText": {
+    "description": "Edit mode: the tooltip over text whose glyphs have no Unicode mapping (G39)."
+  },
+  "editBodyUnknownText": "Its font doesn’t say which letters its shapes stand for, so Ferman can’t change it safely.",
+  "@editBodyUnknownText": {
+    "description": "Edit mode: the panel callout's message for text without a Unicode mapping (G39)."
+  },
+  "editTipInvisibleText": "This text is invisible",
+  "@editTipInvisibleText": {
+    "description": "Edit mode: the tooltip over invisible text, such as recognized text over a scan (G39)."
+  },
+  "editBodyInvisibleText": "It’s hidden text, such as recognized text over a scan. Ferman doesn’t edit it.",
+  "@editBodyInvisibleText": {
+    "description": "Edit mode: the panel callout's message for invisible text (G39)."
+  },
+  "editTipRestricted": "The author’s permissions don’t allow editing",
+  "@editTipRestricted": {
+    "description": "Edit mode: the tooltip over text of a document whose permissions forbid changes (G27, G39)."
+  },
+  "editBodyRestricted": "Unlock the document with its owner password to edit it.",
+  "@editBodyRestricted": {
+    "description": "Edit mode: the panel callout's message for a restricted document (G27, G39)."
+  },
+  "editTipReadOnly": "This document is read-only",
+  "@editTipReadOnly": {
+    "description": "Edit mode: the tooltip over text of a document Ferman opened read-only, such as an XFA form (G39)."
+  },
+  "editBodyReadOnly": "Ferman opened this document for viewing only, so its text can’t be changed.",
+  "@editBodyReadOnly": {
+    "description": "Edit mode: the panel callout's message for a read-only document (G39)."
+  },
+  "editTipDamaged": "This document was repaired, so it can’t be edited",
+  "@editTipDamaged": {
+    "description": "Edit mode: the tooltip over text of a repaired document, or one whose readers disagree (a1-9, G39)."
+  },
+  "editBodyDamaged": "Ferman found problems in this file and opened it for viewing only. Save a repaired copy to edit it.",
+  "@editBodyDamaged": {
+    "description": "Edit mode: the panel callout's message for a repaired document (a1-9, G39)."
+  },
+  "editTipSignature": "This text is part of a signature",
+  "@editTipSignature": {
+    "description": "Edit mode: the tooltip over text inside a signature field (G39)."
+  },
+  "editBodySignature": "Ferman never edits signatures.",
+  "@editBodySignature": {
+    "description": "Edit mode: the panel callout's message for text inside a signature field (G39)."
+  },
+  "editTipAnnotation": "This text belongs to a comment or form field",
+  "@editTipAnnotation": {
+    "description": "Edit mode: the tooltip over text inside an annotation or form field (G39)."
+  },
+  "editBodyAnnotation": "Change it in Comment or Fill & Sign mode.",
+  "@editBodyAnnotation": {
+    "description": "Edit mode: the panel callout's message for text inside an annotation or form field (G39). Use the mode names of the mode bar."
+  },
+  "editTipTooComplex": "Ferman can’t change this text safely",
+  "@editTipTooComplex": {
+    "description": "Edit mode: the tooltip over text the engine cannot rewrite safely (G39)."
+  },
+  "editBodyLimits": "This page is too large or complex for Ferman to rewrite safely.",
+  "@editBodyLimits": {
+    "description": "Edit mode: the panel callout's message for a page that hit a resource limit (G39)."
+  },
+  "editBodySplit": "Its drawing instructions are split across two parts of the page, so Ferman can’t rewrite it safely.",
+  "@editBodySplit": {
+    "description": "Edit mode: the panel callout's message for text whose operator is split across two content streams (G39)."
+  },
+  "editBodySkewed": "This text is slanted, so Ferman can’t rewrite it safely.",
+  "@editBodySkewed": {
+    "description": "Edit mode: the panel callout's message for sheared text (G39)."
+  },
+  "viewerTextMenu": "Text",
+  "@viewerTextMenu": {
+    "description": "Canvas: the accessible name of the context menu a right click opens on page text with the Select tool (B106)."
+  },
   "viewerPageNumber": "Page number",
   "@viewerPageNumber": {
     "description": "Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G)."

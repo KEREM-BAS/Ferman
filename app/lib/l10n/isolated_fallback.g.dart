@@ -1068,6 +1068,81 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.viewerMarqueeZoom(zoom));
 
   @override
+  String editHoverTip(String block) => isolate(super.editHoverTip(block));
+
+  @override
+  String get editNotEditableTitle => isolate(super.editNotEditableTitle);
+
+  @override
+  String get editTipImageOnly => isolate(super.editTipImageOnly);
+
+  @override
+  String get editBodyImageOnly => isolate(super.editBodyImageOnly);
+
+  @override
+  String get editTipOutlinedText => isolate(super.editTipOutlinedText);
+
+  @override
+  String get editBodyOutlinedText => isolate(super.editBodyOutlinedText);
+
+  @override
+  String get editTipUnknownText => isolate(super.editTipUnknownText);
+
+  @override
+  String get editBodyUnknownText => isolate(super.editBodyUnknownText);
+
+  @override
+  String get editTipInvisibleText => isolate(super.editTipInvisibleText);
+
+  @override
+  String get editBodyInvisibleText => isolate(super.editBodyInvisibleText);
+
+  @override
+  String get editTipRestricted => isolate(super.editTipRestricted);
+
+  @override
+  String get editBodyRestricted => isolate(super.editBodyRestricted);
+
+  @override
+  String get editTipReadOnly => isolate(super.editTipReadOnly);
+
+  @override
+  String get editBodyReadOnly => isolate(super.editBodyReadOnly);
+
+  @override
+  String get editTipDamaged => isolate(super.editTipDamaged);
+
+  @override
+  String get editBodyDamaged => isolate(super.editBodyDamaged);
+
+  @override
+  String get editTipSignature => isolate(super.editTipSignature);
+
+  @override
+  String get editBodySignature => isolate(super.editBodySignature);
+
+  @override
+  String get editTipAnnotation => isolate(super.editTipAnnotation);
+
+  @override
+  String get editBodyAnnotation => isolate(super.editBodyAnnotation);
+
+  @override
+  String get editTipTooComplex => isolate(super.editTipTooComplex);
+
+  @override
+  String get editBodyLimits => isolate(super.editBodyLimits);
+
+  @override
+  String get editBodySplit => isolate(super.editBodySplit);
+
+  @override
+  String get editBodySkewed => isolate(super.editBodySkewed);
+
+  @override
+  String get viewerTextMenu => isolate(super.viewerTextMenu);
+
+  @override
   String get viewerPageNumber => isolate(super.viewerPageNumber);
 
   @override

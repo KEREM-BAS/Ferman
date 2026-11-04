@@ -3,7 +3,7 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:flutter/foundation.dart';
 
@@ -878,4 +878,195 @@ final class SearchDone extends SearchUpdate {
 
   /// Whether no page had text: a scan without a text layer (a2-3m).
   final bool textless;
+}
+
+/// Why text cannot be edited (ARCHITECTURE §6.5); the canvas's tooltip
+/// and the Edit panel's callout say so (a3-11, a3-19, G39).
+enum NotEditableReason {
+  /// The page has only images: a scan (a3-11).
+  imageOnly,
+
+  /// The glyphs have no usable Unicode mapping.
+  unknownText,
+
+  /// The text is drawn as vector shapes (a3-19).
+  outlinedText,
+
+  /// The text is invisible, such as recognised text over a scan.
+  invisibleText,
+
+  /// The author's permissions forbid changes until the owner password
+  /// unlocks them (G27).
+  restricted,
+
+  /// The document is read-only (an XFA-only form).
+  readOnly,
+
+  /// The document was repaired or its readers disagree.
+  damaged,
+
+  /// The text is inside a signature field.
+  signatureAppearance,
+
+  /// The text is inside an annotation or a form field.
+  annotationOrField,
+
+  /// The page hit a resource limit.
+  tooComplexLimits,
+
+  /// An operator is split across two content streams.
+  tooComplexSplitOperator,
+
+  /// The text is sheared.
+  tooComplexSkewed,
+}
+
+/// How a block's lines sit in its frame.
+enum BlockAlignment {
+  /// Flush left.
+  left,
+
+  /// Flush right.
+  right,
+
+  /// Centred.
+  center,
+
+  /// Flush on both sides, but for the last line.
+  justified,
+}
+
+/// The direction a block's text runs in.
+enum BlockDirection {
+  /// Left to right.
+  leftToRight,
+
+  /// Right to left.
+  rightToLeft,
+
+  /// Vertical columns, from the right.
+  vertical,
+}
+
+/// One line of a [TextBlock].
+@immutable
+class TextLine {
+  /// Creates a line.
+  const new({
+    required this.text,
+    required this.bbox,
+    required this.baselineStart,
+    required this.baselineEnd,
+  });
+
+  /// Its text in logical order.
+  final String text;
+
+  /// The box of its glyphs, in the page's displayed points (y down).
+  final Rect bbox;
+
+  /// Its baseline's start, in visual order.
+  final Offset baselineStart;
+
+  /// Its baseline's end.
+  final Offset baselineEnd;
+}
+
+/// A text block (paragraph frame) of a page (ARCHITECTURE §3.5).
+@immutable
+class TextBlock {
+  /// Creates a block.
+  const new({
+    required this.id,
+    required this.frame,
+    required this.lines,
+    this.alignment = BlockAlignment.left,
+    this.direction = BlockDirection.leftToRight,
+    this.notEditable,
+  });
+
+  /// Its id on its page.
+  final int id;
+
+  /// Its frame, in the page's displayed points (y down).
+  final Rect frame;
+
+  /// Its lines, from the first.
+  final List<TextLine> lines;
+
+  /// How its lines sit.
+  final BlockAlignment alignment;
+
+  /// The direction its text runs in.
+  final BlockDirection direction;
+
+  /// Why it cannot be edited; null when it can.
+  final NotEditableReason? notEditable;
+
+  /// Its text: the lines joined by line feeds.
+  String get text => lines.map((line) => line.text).join('\n');
+}
+
+/// A page's text blocks.
+@immutable
+class PageBlocks {
+  /// Creates the blocks of a page.
+  const new({this.blocks = const [], this.empty});
+
+  /// Its blocks in reading order.
+  final List<TextBlock> blocks;
+
+  /// Why a page without blocks has no text to edit:
+  /// [NotEditableReason.imageOnly] or [NotEditableReason.outlinedText].
+  final NotEditableReason? empty;
+}
+
+/// A caret in a block.
+@immutable
+class BlockCaret {
+  /// Creates a caret.
+  const new({required this.index, required this.rect});
+
+  /// Its index in the block's [TextBlock.text], in characters (code
+  /// points).
+  final int index;
+
+  /// Its box, of no width across its line, in the page's displayed points.
+  final Rect rect;
+}
+
+/// A caret index in one block of a page.
+@immutable
+class BlockPosition {
+  /// Creates a position.
+  const new({required this.block, required this.index});
+
+  /// The block's [TextBlock.id].
+  final int block;
+
+  /// The caret index in its text, in characters (code points).
+  final int index;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlockPosition && other.block == block && other.index == index;
+
+  @override
+  int get hashCode => Object.hash(block, index);
+}
+
+/// What a selection on a page covers.
+@immutable
+class PageSelection {
+  /// Creates a selection.
+  const new({this.page = 0, this.quads = const [], this.text = ''});
+
+  /// Its page, from 0. The engine's reply leaves it 0; the canvas sets it.
+  final int page;
+
+  /// The boxes to highlight, in the page's displayed points.
+  final List<Rect> quads;
+
+  /// Its text for copying.
+  final String text;
 }

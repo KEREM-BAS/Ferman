@@ -1020,6 +1020,94 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String editHoverTip(String block) {
+    return 'انقر للتحرير · $block';
+  }
+
+  @override
+  String get editNotEditableTitle => 'لا يمكن تحرير هذا النص';
+
+  @override
+  String get editTipImageOnly =>
+      'لا يوجد نص في هذه الصفحة بعد · تعرّف على النص لتحريره';
+
+  @override
+  String get editBodyImageOnly =>
+      'هذه الصفحة صورة، مثل مستند ممسوح ضوئيًا. تعرّف على نصها لتحريرها.';
+
+  @override
+  String get editTipOutlinedText => 'هذا النص مرسوم كأشكال، فلا يمكن تحريره';
+
+  @override
+  String get editBodyOutlinedText =>
+      'هذا النص مرسوم كأشكال متجهة لا كحروف. لا يستطيع Ferman تغييره دون إعادة رسمه.';
+
+  @override
+  String get editTipUnknownText => 'لا يستطيع Ferman قراءة حروف هذا النص';
+
+  @override
+  String get editBodyUnknownText =>
+      'لا يحدد خطه الحروف التي تمثلها أشكاله، لذا لا يستطيع Ferman تغييره بأمان.';
+
+  @override
+  String get editTipInvisibleText => 'هذا النص غير مرئي';
+
+  @override
+  String get editBodyInvisibleText =>
+      'إنه نص مخفي، مثل نص متعرَّف عليه فوق مستند ممسوح ضوئيًا. لا يحرره Ferman.';
+
+  @override
+  String get editTipRestricted => 'أذونات المؤلف لا تسمح بالتحرير';
+
+  @override
+  String get editBodyRestricted =>
+      'افتح قفل المستند بكلمة مرور المالك لتحريره.';
+
+  @override
+  String get editTipReadOnly => 'هذا المستند للقراءة فقط';
+
+  @override
+  String get editBodyReadOnly =>
+      'فتح Ferman هذا المستند للعرض فقط، لذا لا يمكن تغيير نصه.';
+
+  @override
+  String get editTipDamaged => 'تم إصلاح هذا المستند، لذا لا يمكن تحريره';
+
+  @override
+  String get editBodyDamaged =>
+      'وجد Ferman مشكلات في هذا الملف وفتحه للعرض فقط. احفظ نسخة مُصلَحة لتحريره.';
+
+  @override
+  String get editTipSignature => 'هذا النص جزء من توقيع';
+
+  @override
+  String get editBodySignature => 'لا يحرر Ferman التوقيعات أبدًا.';
+
+  @override
+  String get editTipAnnotation => 'هذا النص يتبع تعليقًا أو حقل نموذج';
+
+  @override
+  String get editBodyAnnotation => 'غيّره في وضع التعليق أو التعبئة والتوقيع.';
+
+  @override
+  String get editTipTooComplex => 'لا يستطيع Ferman تغيير هذا النص بأمان';
+
+  @override
+  String get editBodyLimits =>
+      'هذه الصفحة كبيرة أو معقدة جدًا ليعيد Ferman كتابتها بأمان.';
+
+  @override
+  String get editBodySplit =>
+      'تعليمات رسمه مقسمة بين جزأين من الصفحة، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
+
+  @override
+  String get editBodySkewed =>
+      'هذا النص مائل، لذا لا يستطيع Ferman إعادة كتابته بأمان.';
+
+  @override
+  String get viewerTextMenu => 'النص';
+
+  @override
   String get viewerPageNumber => 'رقم الصفحة';
 
   @override

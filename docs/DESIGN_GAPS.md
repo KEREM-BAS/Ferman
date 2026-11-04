@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-123 entries: 100 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them.
+124 entries: 101 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 12 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 35 | 13 | 11 | 1 | 1 | 2 | 1 | 1 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -196,6 +196,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G122](#g122) | conflict | M2 | Document properties | ROADMAP names Summary, Fonts and Security; a2-7 draws Summary, Security and Advanced with the fonts inside Summary, and names a substitute only for one font | Decided |
 | [G123](#g123) | ambiguity | M2 | First run / default PDF app | a1-3's "Asked once" beside a "Don't ask again" box, and no state for Ferman already being the default | Decided |
 | [G124](#g124) | missing state | M2 | Sidebar › Attachments | No board draws what follows Save attachment as…: success, or a file that cannot be written | Decided |
+| [G125](#g125) | ambiguity | M3 | Edit: hover and not-editable text | a3-1a names a block by its heading and offers "Click to edit" before typing works; a3-19's tooltip position | Decided |
 
 ## Entries
 
@@ -1838,3 +1839,14 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** A save that works shows nothing: the file is where the person put it, as a system save panel leads them to expect. One that fails shows a danger toast at the bottom end of the canvas, where a1-9f's toast goes, titled "“name” wasn't saved", with Dismiss, staying as errors do (a11-6). Its message says the file could not be written there for a file error, and otherwise the engine's message (a damaged attachment). The suggested name drops any folder the file's name carries. The file is never opened.
 - **Status:** Decided.
 - **Evidence:** `design/02 View.dc.html` (a2-3b). Implemented in `app/lib/features/shell/attachment_save.dart` and `app/lib/features/shell/shell_canvas.dart`; tests in `app/test/features/shell/shell_sidebar_tabs_test.dart`.
+
+### G125 · Edit mode's hover before typing works
+
+- **Type:** ambiguity
+- **Milestone:** M3
+- **Area:** Edit: hover frame and text that cannot be edited
+- **Artboards:** `a3-1a`, `a3-19`, `a3-11`
+- **Gap or conflict:** a3-1a's tooltip names the block by its heading ("Click to edit · Madde 3"), but the engine's blocks carry no heading or name. Its note has ⌥ reveal every block and Tab walk the blocks with their announcement. W0 of M3 places the caret but does not type yet (B041), while the tooltip says "Click to edit". a3-19 and a3-11 draw the inverse tooltip centred above the block; a scanned page has no block to centre on.
+- **Decision:** The tooltip names a block by its first line, cut to 24 characters with "…" and isolated for its direction. "Click to edit" shows from W0 on, as the click already places the caret and the wording stays right once typing ships. Both tooltips follow the pointer (just below and after it), which also works on a scan's page. ⌥ and Tab come with editing (B041).
+- **Status:** Decided.
+- **Evidence:** `design/03a Edit text.dc.html` (a3-1a, a3-19 and their notes). Implemented in `app/lib/features/viewer/document_view.dart` (`_editLayer`) and `app/lib/features/shell/shell_panel.dart`; tests in `app/test/features/viewer/text_layer_test.dart`.

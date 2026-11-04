@@ -1,3 +1,5 @@
+import 'dart:ui' show Offset;
+
 import 'package:ferman/engine/engine_models.dart';
 
 export 'package:ferman/engine/engine_models.dart';
@@ -62,6 +64,28 @@ abstract interface class EngineService {
     int document,
     String query,
     SearchOptions options,
+  );
+
+  /// The text blocks of [page] of [document] in reading order, with their
+  /// editability (ARCHITECTURE §3.5). The UI hit-tests their frames itself.
+  ///
+  /// Throws an [EngineException] for a page the document does not have.
+  Future<PageBlocks> textBlocks(int document, int page);
+
+  /// The caret in [block] of [page] nearest [point], in the page's displayed
+  /// points.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.notFound] for a block
+  /// the page does not have.
+  Future<BlockCaret> caretAt(int document, int page, int block, Offset point);
+
+  /// What a selection from [anchor] to [focus] on [page] covers, in reading
+  /// order; either end may come first.
+  Future<PageSelection> selection(
+    int document,
+    int page,
+    BlockPosition anchor,
+    BlockPosition focus,
   );
 
   /// Opens a view of [document] that renders nothing until [requestView].
@@ -152,6 +176,25 @@ class UnavailableEngineService implements EngineService {
     String query,
     SearchOptions options,
   ) => Stream.error(error);
+
+  @override
+  Future<PageBlocks> textBlocks(int document, int page) async => throw error;
+
+  @override
+  Future<BlockCaret> caretAt(
+    int document,
+    int page,
+    int block,
+    Offset point,
+  ) async => throw error;
+
+  @override
+  Future<PageSelection> selection(
+    int document,
+    int page,
+    BlockPosition anchor,
+    BlockPosition focus,
+  ) async => throw error;
 
   @override
   Future<EngineView> openView(int document) async => throw error;

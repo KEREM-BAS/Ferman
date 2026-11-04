@@ -4,7 +4,8 @@
 //! two questions: which API version this library speaks ([`api_version`], the only synchronous call
 //! of the API) and what the engine is made of, including whether PDFium is loaded
 //! ([`engine_info`], async). Since M2 it opens and closes documents and runs views of their pages
-//! ([`Engine::open`], [`Engine::open_view`]). The [`Engine`] owns the long-lived parts (the render
+//! ([`Engine::open`], [`Engine::open_view`]); since M3 it gives each page's text blocks, carets
+//! and selections ([`Engine::text_blocks`]). The [`Engine`] owns the long-lived parts (the render
 //! thread that loads PDFium); the free functions use the process's [global](Engine::global) engine.
 //! Every entry point runs inside [`guard`] or [`guard_async`], which turn a panic into an
 //! [`ApiError`] as a last resort (ADR 0010). [`debug_panic`] and [`debug_bytes`] exist for the
@@ -18,6 +19,7 @@ mod error;
 mod guard;
 mod info;
 mod search;
+mod text;
 mod version;
 
 pub use blocking::block_on;
@@ -28,6 +30,7 @@ pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
+pub use text::{BlockInfo, Caret, LineInfo, PageBlocks, Selection, TextPosition};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
@@ -41,4 +44,7 @@ pub use ferman_render::{
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
     ZoomBucket,
 };
-pub use ferman_text::{SearchOptions, collation_order};
+pub use ferman_text::{
+    Alignment, BlockId, Complexity, Editability, NotEditableReason, SearchOptions, TextDirection,
+    collation_order,
+};

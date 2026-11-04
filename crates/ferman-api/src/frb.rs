@@ -568,6 +568,135 @@ pub struct SearchEvent {
     pub textless: bool,
 }
 
+/// A point on a page in displayed points, y down.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PagePoint {
+    /// From the left edge.
+    pub x: f32,
+    /// From the top edge.
+    pub y: f32,
+}
+
+/// How a block's lines sit in its frame.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Alignment {
+    /// Flush left (the top in vertical text).
+    Left,
+    /// Flush right (the bottom in vertical text).
+    Right,
+    /// Centred.
+    Center,
+    /// Flush on both sides, but for the last line.
+    Justified,
+}
+
+/// The direction a block's text runs in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TextDirection {
+    /// Left to right.
+    LeftToRight,
+    /// Right to left: Arabic, Persian, Hebrew.
+    RightToLeft,
+    /// Vertical columns, from the right.
+    Vertical,
+}
+
+/// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
+/// panel callout (a3-11, a3-19, G39). The facade's `TooComplex` comes as one value per cause.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NotEditableReason {
+    /// The page has only images: a scan.
+    ImageOnly,
+    /// The glyphs have no usable Unicode mapping.
+    UnknownText,
+    /// The text is drawn as vector shapes.
+    OutlinedText,
+    /// The text is invisible, such as recognised text over a scan.
+    InvisibleText,
+    /// The author's permissions forbid changes until the owner password unlocks them.
+    Restricted,
+    /// The document is read-only (an XFA-only form).
+    ReadOnly,
+    /// The document was repaired or its readers disagree.
+    Damaged,
+    /// The text is inside a signature field.
+    SignatureAppearance,
+    /// The text is inside an annotation or a form field.
+    AnnotationOrField,
+    /// The page hit a resource limit.
+    TooComplexLimits,
+    /// An operator is split across two content streams.
+    TooComplexSplitOperator,
+    /// The text is sheared.
+    TooComplexSkewed,
+}
+
+/// One line of a [`BlockInfo`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct LineInfo {
+    /// Its text in logical order.
+    pub text: String,
+    /// The box of its glyphs.
+    pub bbox: PageRect,
+    /// Its baseline's start, in visual order.
+    pub baseline_start: PagePoint,
+    /// Its baseline's end.
+    pub baseline_end: PagePoint,
+}
+
+/// A text block (paragraph frame) of a page.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockInfo {
+    /// Its id, the same for the same content.
+    pub id: u64,
+    /// Its frame.
+    pub frame: PageRect,
+    /// Its lines, from the first.
+    pub lines: Vec<LineInfo>,
+    /// How its lines sit.
+    pub alignment: Alignment,
+    /// The direction its text runs in.
+    pub direction: TextDirection,
+    /// Why it cannot be edited; `None` when it can.
+    pub not_editable: Option<NotEditableReason>,
+}
+
+/// A page's text blocks.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PageBlocks {
+    /// Its blocks in reading order.
+    pub blocks: Vec<BlockInfo>,
+    /// Why a page without blocks has no text: `ImageOnly` or `OutlinedText`.
+    pub empty: Option<NotEditableReason>,
+}
+
+/// A caret in a block.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Caret {
+    /// Its index in the block's text (lines joined by line feeds), in characters.
+    pub index: u32,
+    /// Its box, of no width across its line.
+    pub rect: PageRect,
+}
+
+/// A caret index in one block of a page.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TextPosition {
+    /// The block's id.
+    pub block: u64,
+    /// The caret index in its text.
+    pub index: u32,
+}
+
+/// What a selection covers.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Selection {
+    /// The boxes to highlight.
+    pub quads: Vec<PageRect>,
+    /// Its text for copying.
+    pub text: String,
+}
+
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
 ///
@@ -805,6 +934,116 @@ pub async fn search(
         .map_err(api_error_dto)
 }
 
+/// The text blocks of `page` of `document` in reading order, with their editability.
+///
+/// See [`facade::Engine::text_blocks`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` for a page it does not have.
+pub async fn text_blocks(document: u64, page: u32) -> Result<PageBlocks, ApiError> {
+    let blocks = engine()?
+        .text_blocks(facade::DocumentId::from_raw(document), page)
+        .await
+        .map_err(api_error_dto)?;
+    Ok(PageBlocks {
+        blocks: blocks
+            .blocks
+            .into_iter()
+            .map(|block| BlockInfo {
+                id: block.id.0,
+                frame: rect_dto(block.frame),
+                lines: block
+                    .lines
+                    .into_iter()
+                    .map(|line| LineInfo {
+                        text: line.text,
+                        bbox: rect_dto(line.bbox),
+                        baseline_start: point_dto(line.baseline[0]),
+                        baseline_end: point_dto(line.baseline[1]),
+                    })
+                    .collect(),
+                alignment: match block.alignment {
+                    facade::Alignment::Left => Alignment::Left,
+                    facade::Alignment::Right => Alignment::Right,
+                    facade::Alignment::Center => Alignment::Center,
+                    facade::Alignment::Justified => Alignment::Justified,
+                },
+                direction: match block.direction {
+                    facade::TextDirection::LeftToRight => TextDirection::LeftToRight,
+                    facade::TextDirection::RightToLeft => TextDirection::RightToLeft,
+                    facade::TextDirection::Vertical => TextDirection::Vertical,
+                },
+                not_editable: match block.editability {
+                    facade::Editability::Editable => None,
+                    facade::Editability::NotEditable(reason) => Some(reason_dto(reason)),
+                },
+            })
+            .collect(),
+        empty: blocks.empty.map(reason_dto),
+    })
+}
+
+/// The caret in `block` of `page` nearest `point`.
+///
+/// See [`facade::Engine::caret_at`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+pub async fn caret_at(
+    document: u64,
+    page: u32,
+    block: u64,
+    point: PagePoint,
+) -> Result<Caret, ApiError> {
+    engine()?
+        .caret_at(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+            [point.x, point.y],
+        )
+        .await
+        .map(|caret| Caret {
+            index: caret.index,
+            rect: rect_dto(caret.rect),
+        })
+        .map_err(api_error_dto)
+}
+
+/// What a selection from `anchor` to `focus` on `page` covers, either end first.
+///
+/// See [`facade::Engine::selection`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+pub async fn selection(
+    document: u64,
+    page: u32,
+    anchor: TextPosition,
+    focus: TextPosition,
+) -> Result<Selection, ApiError> {
+    let position = |at: TextPosition| facade::TextPosition {
+        block: facade::BlockId(at.block),
+        index: at.index,
+    };
+    engine()?
+        .selection(
+            facade::DocumentId::from_raw(document),
+            page,
+            position(anchor),
+            position(focus),
+        )
+        .await
+        .map(|selection| Selection {
+            quads: selection.quads.into_iter().map(rect_dto).collect(),
+            text: selection.text,
+        })
+        .map_err(api_error_dto)
+}
+
 /// Hands a search's events to its Dart stream.
 struct BridgeSearch(StreamSink<SearchEvent>);
 
@@ -865,6 +1104,41 @@ impl facade::SearchSink for BridgeSearch {
             },
         };
         self.0.add(event).is_ok()
+    }
+}
+
+/// A page-space box `[left, top, right, bottom]` as its mirror.
+fn rect_dto([left, top, right, bottom]: [f32; 4]) -> PageRect {
+    PageRect {
+        left,
+        top,
+        right,
+        bottom,
+    }
+}
+
+/// A page-space point as its mirror.
+fn point_dto([x, y]: [f32; 2]) -> PagePoint {
+    PagePoint { x, y }
+}
+
+/// A reason a block cannot be edited, as its mirror. The facade's enum is non-exhaustive; a
+/// reason added later reads as too complex until it gets its mirror.
+fn reason_dto(reason: facade::NotEditableReason) -> NotEditableReason {
+    use facade::{Complexity, NotEditableReason as Reason};
+    match reason {
+        Reason::ImageOnly => NotEditableReason::ImageOnly,
+        Reason::UnknownText => NotEditableReason::UnknownText,
+        Reason::OutlinedText => NotEditableReason::OutlinedText,
+        Reason::InvisibleText => NotEditableReason::InvisibleText,
+        Reason::Restricted => NotEditableReason::Restricted,
+        Reason::ReadOnly => NotEditableReason::ReadOnly,
+        Reason::Damaged => NotEditableReason::Damaged,
+        Reason::SignatureAppearance => NotEditableReason::SignatureAppearance,
+        Reason::AnnotationOrField => NotEditableReason::AnnotationOrField,
+        Reason::TooComplex(Complexity::SplitOperator) => NotEditableReason::TooComplexSplitOperator,
+        Reason::TooComplex(Complexity::Skewed) => NotEditableReason::TooComplexSkewed,
+        _ => NotEditableReason::TooComplexLimits,
     }
 }
 

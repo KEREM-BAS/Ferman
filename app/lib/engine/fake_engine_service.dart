@@ -1,6 +1,7 @@
 import 'dart:async';
 import 'dart:math' as math;
 import 'dart:typed_data';
+import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_service.dart';
 
@@ -23,7 +24,13 @@ class FakeEngineService implements EngineService {
     this.passwords = const {},
     this.ownerPasswords = const {},
     this.holds = const {},
+    this.pageBlocks = const {},
   });
+
+  /// What [textBlocks] returns, by page, for every document; other pages
+  /// have no blocks. [caretAt] and [selection] treat every character of a
+  /// line as equally wide.
+  final Map<int, PageBlocks> pageBlocks;
 
   /// The status [status] returns.
   final EngineStatus fakeStatus;
@@ -202,6 +209,104 @@ class FakeEngineService implements EngineService {
     }
     yield SearchProgress(searched: pages, pages: pages);
     yield SearchDone(textless: textless);
+  }
+
+  @override
+  Future<PageBlocks> textBlocks(int document, int page) async =>
+      pageBlocks[page] ?? const PageBlocks();
+
+  TextBlock _block(int page, int id) =>
+      pageBlocks[page]?.blocks.where((block) => block.id == id).firstOrNull ??
+      (throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      ));
+
+  /// The x of the caret before character [at] of [line].
+  static double _x(TextLine line, int at) {
+    final count = line.text.runes.length;
+    return count == 0
+        ? line.bbox.left
+        : line.bbox.left + line.bbox.width * at.clamp(0, count) / count;
+  }
+
+  /// The caret on the line nearest [point], before the nearest character.
+  @override
+  Future<BlockCaret> caretAt(
+    int document,
+    int page,
+    int block,
+    Offset point,
+  ) async {
+    final found = _block(page, block);
+    var start = 0;
+    var best = (distance: double.infinity, index: 0, rect: Rect.zero);
+    for (final line in found.lines) {
+      final count = line.text.runes.length;
+      final distance = point.dy < line.bbox.top
+          ? line.bbox.top - point.dy
+          : math.max(0, point.dy - line.bbox.bottom).toDouble();
+      if (distance < best.distance) {
+        final at = count == 0
+            ? 0
+            : ((point.dx - line.bbox.left) / line.bbox.width * count)
+                  .round()
+                  .clamp(0, count);
+        final x = _x(line, at);
+        best = (
+          distance: distance,
+          index: start + at,
+          rect: Rect.fromLTRB(x, line.bbox.top, x, line.bbox.bottom),
+        );
+      }
+      start += count + 1;
+    }
+    return BlockCaret(index: best.index, rect: best.rect);
+  }
+
+  /// The blocks between [anchor] and [focus] in reading order.
+  @override
+  Future<PageSelection> selection(
+    int document,
+    int page,
+    BlockPosition anchor,
+    BlockPosition focus,
+  ) async {
+    final blocks = pageBlocks[page]?.blocks ?? const <TextBlock>[];
+    int order(BlockPosition at) =>
+        blocks.indexWhere((block) => block.id == _block(page, at.block).id);
+    final forward =
+        order(anchor) < order(focus) ||
+        (order(anchor) == order(focus) && anchor.index <= focus.index);
+    final (from, to) = forward ? (anchor, focus) : (focus, anchor);
+    final quads = <Rect>[];
+    final texts = <String>[];
+    for (var i = order(from); i <= order(to); i++) {
+      final block = blocks[i];
+      final low = i == order(from) ? from.index : 0;
+      final high = i == order(to) ? to.index : block.text.runes.length;
+      texts.add(
+        String.fromCharCodes(block.text.runes.skip(low).take(high - low)),
+      );
+      var start = 0;
+      for (final line in block.lines) {
+        final count = line.text.runes.length;
+        final a = (low - start).clamp(0, count);
+        final b = (high - start).clamp(0, count);
+        if (a < b) {
+          quads.add(
+            Rect.fromLTRB(
+              _x(line, a),
+              line.bbox.top,
+              _x(line, b),
+              line.bbox.bottom,
+            ),
+          );
+        }
+        start += count + 1;
+      }
+    }
+    return PageSelection(quads: quads, text: texts.join('\n'));
   }
 
   /// A view that answers each wanted item with opaque white pixels of its

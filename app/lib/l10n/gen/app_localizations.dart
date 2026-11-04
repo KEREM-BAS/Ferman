@@ -1990,6 +1990,156 @@ abstract class AppLocalizations {
   /// **'Release to zoom to {zoom}'**
   String viewerMarqueeZoom(String zoom);
 
+  /// Edit mode: the tooltip beside the pointer over an editable text block (a3-1a). {block} is the start of the block's first line, as the document writes it, for example Madde 3.
+  ///
+  /// In en, this message translates to:
+  /// **'Click to edit · {block}'**
+  String editHoverTip(String block);
+
+  /// Edit mode: the title of the right panel's callout for text that cannot be edited (a3-19, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This text can’t be edited'**
+  String get editNotEditableTitle;
+
+  /// Edit mode: the tooltip beside the pointer over a scanned page without text (a3-11).
+  ///
+  /// In en, this message translates to:
+  /// **'No text on this page yet · Recognize text to edit'**
+  String get editTipImageOnly;
+
+  /// Edit mode: the panel callout's message for a scanned page without text (a3-11, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This page is an image, such as a scan. Recognize its text to edit it.'**
+  String get editBodyImageOnly;
+
+  /// Edit mode: the tooltip over text drawn as vector shapes (a3-19).
+  ///
+  /// In en, this message translates to:
+  /// **'This text is drawn as shapes, so it can’t be edited'**
+  String get editTipOutlinedText;
+
+  /// Edit mode: the panel callout's message for text drawn as vector shapes (a3-19).
+  ///
+  /// In en, this message translates to:
+  /// **'This text is drawn as vector shapes, not letters. Ferman can’t change it without redrawing it.'**
+  String get editBodyOutlinedText;
+
+  /// Edit mode: the tooltip over text whose glyphs have no Unicode mapping (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t read the letters of this text'**
+  String get editTipUnknownText;
+
+  /// Edit mode: the panel callout's message for text without a Unicode mapping (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Its font doesn’t say which letters its shapes stand for, so Ferman can’t change it safely.'**
+  String get editBodyUnknownText;
+
+  /// Edit mode: the tooltip over invisible text, such as recognized text over a scan (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This text is invisible'**
+  String get editTipInvisibleText;
+
+  /// Edit mode: the panel callout's message for invisible text (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'It’s hidden text, such as recognized text over a scan. Ferman doesn’t edit it.'**
+  String get editBodyInvisibleText;
+
+  /// Edit mode: the tooltip over text of a document whose permissions forbid changes (G27, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'The author’s permissions don’t allow editing'**
+  String get editTipRestricted;
+
+  /// Edit mode: the panel callout's message for a restricted document (G27, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Unlock the document with its owner password to edit it.'**
+  String get editBodyRestricted;
+
+  /// Edit mode: the tooltip over text of a document Ferman opened read-only, such as an XFA form (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This document is read-only'**
+  String get editTipReadOnly;
+
+  /// Edit mode: the panel callout's message for a read-only document (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman opened this document for viewing only, so its text can’t be changed.'**
+  String get editBodyReadOnly;
+
+  /// Edit mode: the tooltip over text of a repaired document, or one whose readers disagree (a1-9, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This document was repaired, so it can’t be edited'**
+  String get editTipDamaged;
+
+  /// Edit mode: the panel callout's message for a repaired document (a1-9, G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman found problems in this file and opened it for viewing only. Save a repaired copy to edit it.'**
+  String get editBodyDamaged;
+
+  /// Edit mode: the tooltip over text inside a signature field (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This text is part of a signature'**
+  String get editTipSignature;
+
+  /// Edit mode: the panel callout's message for text inside a signature field (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman never edits signatures.'**
+  String get editBodySignature;
+
+  /// Edit mode: the tooltip over text inside an annotation or form field (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This text belongs to a comment or form field'**
+  String get editTipAnnotation;
+
+  /// Edit mode: the panel callout's message for text inside an annotation or form field (G39). Use the mode names of the mode bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Change it in Comment or Fill & Sign mode.'**
+  String get editBodyAnnotation;
+
+  /// Edit mode: the tooltip over text the engine cannot rewrite safely (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t change this text safely'**
+  String get editTipTooComplex;
+
+  /// Edit mode: the panel callout's message for a page that hit a resource limit (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This page is too large or complex for Ferman to rewrite safely.'**
+  String get editBodyLimits;
+
+  /// Edit mode: the panel callout's message for text whose operator is split across two content streams (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'Its drawing instructions are split across two parts of the page, so Ferman can’t rewrite it safely.'**
+  String get editBodySplit;
+
+  /// Edit mode: the panel callout's message for sheared text (G39).
+  ///
+  /// In en, this message translates to:
+  /// **'This text is slanted, so Ferman can’t rewrite it safely.'**
+  String get editBodySkewed;
+
+  /// Canvas: the accessible name of the context menu a right click opens on page text with the Select tool (B106).
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get viewerTextMenu;
+
   /// Status bar: the accessible name of the page field, which takes a page number or a page label (a2-13, ⌘G).
   ///
   /// In en, this message translates to:

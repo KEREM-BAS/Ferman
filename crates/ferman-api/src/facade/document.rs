@@ -116,11 +116,16 @@ pub(super) struct Model {
     pub(super) owner_unlocked: AtomicBool,
     /// The text of each page once read, for searches after the first.
     pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
+    /// Why no block of the document can be edited whatever the password: damaged or read-only.
+    pub(super) read_only: Option<ferman_text::NotEditableReason>,
+    /// The text model of each page once laid out ([`Engine::text_blocks`]), with `read_only`
+    /// but without the author's restrictions, which the owner password can lift.
+    pub(super) blocks: Mutex<Vec<Option<Arc<ferman_text::PageText>>>>,
 }
 
 impl Model {
     /// The document's security now, `None` when it is not encrypted.
-    fn security(&self) -> Option<Security> {
+    pub(super) fn security(&self) -> Option<Security> {
         self.document.encryption().map(|encryption| Security {
             method: encryption.method,
             user_password_required: encryption.user_password_required,
@@ -239,6 +244,13 @@ impl Engine {
                     .as_ref()
                     .is_some_and(|text| text.text.trim().is_empty()),
             };
+            let not_editable = opened.read_only.as_ref().map(|read_only| match read_only {
+                ReadOnly::Repaired(_) | ReadOnly::ParsersDisagree(_) => {
+                    ferman_text::NotEditableReason::Damaged
+                }
+                ReadOnly::XfaOnly => ferman_text::NotEditableReason::ReadOnly,
+            });
+            let blocks = vec![None; model.page_count()];
             let mut texts = vec![None; model.page_count()];
             if let Some(slot) = texts.first_mut() {
                 *slot = first;
@@ -247,6 +259,8 @@ impl Engine {
                 rendered.id,
                 Arc::new(Model {
                     pages: Mutex::new(texts),
+                    read_only: not_editable,
+                    blocks: Mutex::new(blocks),
                     document: model,
                     layers_switchable,
                     owner_unlocked: AtomicBool::new(false),

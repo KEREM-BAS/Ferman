@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:io';
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
@@ -366,6 +366,123 @@ class FrbEngineService implements EngineService {
   static int _units(String text, int chars) => text.runes
       .take(chars)
       .fold(0, (units, rune) => units + (rune > 0xFFFF ? 2 : 1));
+
+  @override
+  Future<PageBlocks> textBlocks(int document, int page) async {
+    try {
+      final blocks = await bridge.textBlocks(
+        document: BigInt.from(document),
+        page: page,
+      );
+      return PageBlocks(
+        blocks: [
+          for (final block in blocks.blocks)
+            TextBlock(
+              id: block.id.toInt(),
+              frame: _rect(block.frame),
+              lines: [
+                for (final line in block.lines)
+                  TextLine(
+                    text: line.text,
+                    bbox: _rect(line.bbox),
+                    baselineStart: Offset(
+                      line.baselineStart.x,
+                      line.baselineStart.y,
+                    ),
+                    baselineEnd: Offset(line.baselineEnd.x, line.baselineEnd.y),
+                  ),
+              ],
+              alignment: switch (block.alignment) {
+                bridge.Alignment.left => BlockAlignment.left,
+                bridge.Alignment.right => BlockAlignment.right,
+                bridge.Alignment.center => BlockAlignment.center,
+                bridge.Alignment.justified => BlockAlignment.justified,
+              },
+              direction: switch (block.direction) {
+                bridge.TextDirection.leftToRight => BlockDirection.leftToRight,
+                bridge.TextDirection.rightToLeft => BlockDirection.rightToLeft,
+                bridge.TextDirection.vertical => BlockDirection.vertical,
+              },
+              notEditable: _reason(block.notEditable),
+            ),
+        ],
+        empty: _reason(blocks.empty),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<BlockCaret> caretAt(
+    int document,
+    int page,
+    int block,
+    Offset point,
+  ) async {
+    try {
+      final caret = await bridge.caretAt(
+        document: BigInt.from(document),
+        page: page,
+        block: BigInt.from(block),
+        point: bridge.PagePoint(x: point.dx, y: point.dy),
+      );
+      return BlockCaret(index: caret.index, rect: _rect(caret.rect));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<PageSelection> selection(
+    int document,
+    int page,
+    BlockPosition anchor,
+    BlockPosition focus,
+  ) async {
+    bridge.TextPosition position(BlockPosition at) =>
+        bridge.TextPosition(block: BigInt.from(at.block), index: at.index);
+    try {
+      final selection = await bridge.selection(
+        document: BigInt.from(document),
+        page: page,
+        anchor: position(anchor),
+        focus: position(focus),
+      );
+      return PageSelection(
+        quads: [for (final quad in selection.quads) _rect(quad)],
+        text: selection.text,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static Rect _rect(bridge.PageRect rect) =>
+      Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom);
+
+  static NotEditableReason? _reason(bridge.NotEditableReason? reason) =>
+      switch (reason) {
+        null => null,
+        bridge.NotEditableReason.imageOnly => NotEditableReason.imageOnly,
+        bridge.NotEditableReason.unknownText => NotEditableReason.unknownText,
+        bridge.NotEditableReason.outlinedText => NotEditableReason.outlinedText,
+        bridge.NotEditableReason.invisibleText =>
+          NotEditableReason.invisibleText,
+        bridge.NotEditableReason.restricted => NotEditableReason.restricted,
+        bridge.NotEditableReason.readOnly => NotEditableReason.readOnly,
+        bridge.NotEditableReason.damaged => NotEditableReason.damaged,
+        bridge.NotEditableReason.signatureAppearance =>
+          NotEditableReason.signatureAppearance,
+        bridge.NotEditableReason.annotationOrField =>
+          NotEditableReason.annotationOrField,
+        bridge.NotEditableReason.tooComplexLimits =>
+          NotEditableReason.tooComplexLimits,
+        bridge.NotEditableReason.tooComplexSplitOperator =>
+          NotEditableReason.tooComplexSplitOperator,
+        bridge.NotEditableReason.tooComplexSkewed =>
+          NotEditableReason.tooComplexSkewed,
+      };
 
   @override
   Future<void> closeView(int view) async {

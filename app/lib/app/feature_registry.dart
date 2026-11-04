@@ -178,8 +178,8 @@ enum Feature {
 
   /// Text recognition: Start › Recognize text (OCR), Convert › Recognize
   /// text, the first-run tile, Settings › Text recognition, Settings ›
-  /// Privacy › Downloads you start and the Search results tab's "No text to
-  /// search".
+  /// Privacy › Downloads you start, the Search results tab's "No text to
+  /// search" and the Edit panel's callout on a scanned page (a3-11).
   ocr('B025'),
 
   // Protect.
