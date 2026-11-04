@@ -74,6 +74,11 @@ impl Fonts {
         Ok(())
     }
 
+    /// The font of `key`, to set how it is written before it is used.
+    pub fn get_mut(&mut self, key: FontKey) -> Option<&mut PdfFont> {
+        self.list.get_mut(key)
+    }
+
     fn two_byte(&self, key: FontKey) -> bool {
         self.list.get(key).is_some_and(PdfFont::two_byte)
     }

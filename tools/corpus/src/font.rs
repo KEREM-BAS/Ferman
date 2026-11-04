@@ -14,7 +14,7 @@
 //! variable font is used at one location: its metrics, its shaping and its subset (instanced by
 //! subsetter) all take the same variations.
 
-use crate::pdf::{Pdf, name, real};
+use crate::pdf::{Pdf, name, num, real};
 use crate::{sfnt, sha256_hex};
 use harfrust::{Buffer, Direction, Feature, ShapeOptions, ShaperFont};
 use lopdf::{Dictionary, Object, ObjectId, dictionary};
@@ -218,8 +218,18 @@ impl Face {
         self.upem
     }
 
+    /// Whether the face has CFF outlines (an `OTTO` OpenType font).
+    #[must_use]
+    pub fn is_cff(&self) -> bool {
+        self.data.starts_with(b"OTTO")
+    }
+
     /// The subset program for `remap`, instanced at the face's location.
-    fn subset(&self, remap: &GlyphRemapper) -> Result<Vec<u8>, String> {
+    ///
+    /// # Errors
+    ///
+    /// A message when subsetter fails.
+    pub fn subset(&self, remap: &GlyphRemapper) -> Result<Vec<u8>, String> {
         let program = if self.variations.is_empty() {
             subsetter::subset(&self.data, 0, remap)
         } else {
@@ -291,7 +301,8 @@ impl Face {
     }
 
     /// A font descriptor for `font_name`, without the font program.
-    fn descriptor(&self, font_name: &str, symbolic: bool) -> Dictionary {
+    #[must_use]
+    pub fn descriptor(&self, font_name: &str, symbolic: bool) -> Dictionary {
         // A common estimate when the font does not say: 50 + (weight / 65)².
         let stem_v = 50.0 + (self.weight / 65.0) * (self.weight / 65.0);
         dictionary! {
@@ -344,7 +355,8 @@ fn mirror(c: char) -> Option<char> {
 }
 
 /// A six-letter subset tag from `seed`.
-fn subset_tag(seed: &str) -> String {
+#[must_use]
+pub fn subset_tag(seed: &str) -> String {
     sha256_hex(seed.as_bytes())
         .as_bytes()
         .chunks(2)
@@ -358,7 +370,8 @@ fn subset_tag(seed: &str) -> String {
 }
 
 /// A `/ToUnicode` CMap for `map` (code → text).
-fn to_unicode(map: &BTreeMap<Vec<u8>, String>, two_byte: bool) -> Vec<u8> {
+#[must_use]
+pub fn to_unicode(map: &BTreeMap<Vec<u8>, String>, two_byte: bool) -> Vec<u8> {
     let mut out = String::from(
         "/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n\
          /CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n\
@@ -393,6 +406,10 @@ pub struct Type0Font {
     pub id: ObjectId,
     /// Whether it sets text top to bottom (`Identity-V`).
     pub vertical: bool,
+    /// Whether the face has CFF outlines, written as `CIDFontType0` with a bare
+    /// `CIDFontType0C` program (subsetter makes every CFF subset CID-keyed, CID = glyph). Set
+    /// from the face.
+    pub cff: bool,
     remap: GlyphRemapper,
     unicode: BTreeMap<u16, String>,
     widths: BTreeMap<u16, f64>,
@@ -405,6 +422,7 @@ impl Type0Font {
     /// A horizontal font on `face`, its object reserved in `pdf`.
     pub fn new(pdf: &mut Pdf, face: Rc<Face>) -> Self {
         Self {
+            cff: face.is_cff(),
             face,
             id: pdf.reserve(),
             vertical: false,
@@ -512,6 +530,11 @@ impl Type0Font {
         }
         let mut glyphs = Vec::with_capacity(shaped.len());
         for (glyph, glyph_text) in shaped.into_iter().zip(texts) {
+            // A zero width non-joiner the shaper hid (as the space glyph, without advance) is
+            // not drawn, as producers write it; its glyph would read as a space.
+            if glyph_text.as_deref() == Some("\u{200C}") && glyph.advance.abs() < f64::EPSILON {
+                continue;
+            }
             if glyph.gid == 0 {
                 return Err(format!(
                     "{} has no glyph for {:?}",
@@ -554,10 +577,17 @@ impl Type0Font {
         let tag = subset_tag(&format!("{}{gids:?}", self.face.postscript_name));
         let base_font = format!("{tag}+{}", self.face.postscript_name);
         let program = self.face.subset(&self.remap)?;
-        let length = i64::try_from(program.len()).map_err(|err| err.to_string())?;
-        let file = pdf.stream(dictionary! { "Length1" => length }, program);
         let mut descriptor = self.face.descriptor(&base_font, true);
-        descriptor.set("FontFile2", file);
+        if self.cff {
+            let (_, mut tables) = sfnt::tables(&program)?;
+            let cff = tables.remove(b"CFF ").ok_or("subset: no CFF table")?;
+            let file = pdf.stream(dictionary! { "Subtype" => "CIDFontType0C" }, cff);
+            descriptor.set("FontFile3", file);
+        } else {
+            let length = i64::try_from(program.len()).map_err(|err| err.to_string())?;
+            let file = pdf.stream(dictionary! { "Length1" => length }, program);
+            descriptor.set("FontFile2", file);
+        }
         let descriptor = pdf.add(descriptor);
         let mut widths = Vec::new();
         if let Some(first) = self.widths.keys().next() {
@@ -579,8 +609,12 @@ impl Type0Font {
             },
             "FontDescriptor" => descriptor,
             "W" => widths,
-            "CIDToGIDMap" => "Identity",
         };
+        if self.cff {
+            cid_font.set("Subtype", "CIDFontType0");
+        } else {
+            cid_font.set("CIDToGIDMap", "Identity");
+        }
         if self.vertical {
             // The usual default, [880 -1000], and the glyphs that differ from it.
             let origin = self.face.vertical_origin().round();
@@ -665,6 +699,35 @@ pub fn win_ansi(c: char) -> Option<u8> {
     Some(code)
 }
 
+/// The MacRomanEncoding code of `c` (ISO 32000-1 Annex D.2, where 0xDB is the currency sign, not
+/// the euro). shortcut: only ASCII, the accented letters at 0x80 to 0x9F and some punctuation;
+/// add rows when a generator needs more.
+#[must_use]
+pub fn mac_roman(c: char) -> Option<u8> {
+    const HIGH: &str = "ÄÅÇÉÑÖÜáàâäãåçéèêëíìîïñóòôöõúùûü";
+    if (0x20..=0x7E).contains(&u32::from(c)) {
+        return u8::try_from(u32::from(c)).ok();
+    }
+    if let Some(index) = HIGH.chars().position(|high| high == c) {
+        return u8::try_from(0x80 + index).ok();
+    }
+    let code = match c {
+        '°' => 0xA1,
+        '•' => 0xA5,
+        'ß' => 0xA7,
+        '©' => 0xA9,
+        '…' => 0xC9,
+        '–' => 0xD0,
+        '—' => 0xD1,
+        '“' => 0xD2,
+        '”' => 0xD3,
+        '‘' => 0xD4,
+        '’' => 0xD5,
+        _ => return None,
+    };
+    Some(code)
+}
+
 /// The Windows-1254 letters that replace six Windows-1252 ones, with their glyph names.
 const TURKISH: [(char, u8, &str); 6] = [
     ('Ğ', 0xD0, "Gbreve"),
@@ -681,6 +744,15 @@ pub struct SimpleFont {
     face: Rc<Face>,
     /// The font dictionary's object, reserved when the font is made.
     pub id: ObjectId,
+    /// `/MacRomanEncoding` instead of `/WinAnsiEncoding`.
+    pub mac_roman: bool,
+    /// Characters whose glyphs the program and its `cmap` keep though no code shows them, as
+    /// a producer that embeds a font's whole character set does.
+    pub kept: Vec<char>,
+    /// An `OS/2.fsType` written into the program, such as 2 (embedding restricted).
+    pub fs_type: Option<u16>,
+    /// A `Type3` font whose glyph procedures fill the face's outlines, instead of TrueType.
+    pub type3: bool,
     used: BTreeMap<u8, char>,
     cache: BTreeMap<char, Option<Glyph>>,
 }
@@ -691,6 +763,10 @@ impl SimpleFont {
         Self {
             face,
             id: pdf.reserve(),
+            mac_roman: false,
+            kept: Vec::new(),
+            fs_type: None,
+            type3: false,
             used: BTreeMap::new(),
             cache: BTreeMap::new(),
         }
@@ -707,7 +783,11 @@ impl SimpleFont {
     }
 
     fn encode_uncached(&mut self, c: char) -> Option<Glyph> {
-        let code = win_ansi(c)?;
+        let code = if self.mac_roman {
+            mac_roman(c)?
+        } else {
+            win_ansi(c)?
+        };
         let gid = self.face.glyph(c)?;
         self.used.insert(code, c);
         let width = self.face.advance(gid);
@@ -726,9 +806,13 @@ impl SimpleFont {
     ///
     /// A message when subsetting fails.
     pub fn finish(self, pdf: &mut Pdf) -> Result<(), String> {
+        if self.type3 {
+            self.finish_type3(pdf);
+            return Ok(());
+        }
         let mut remap = GlyphRemapper::new();
         let mut cmap = BTreeMap::new();
-        for c in self.used.values() {
+        for c in self.used.values().chain(&self.kept) {
             if let Some(gid) = self.face.glyph(*c) {
                 cmap.insert(*c, remap.remap(gid));
             }
@@ -737,24 +821,18 @@ impl SimpleFont {
         let tag = subset_tag(&format!("{}{gids:?}", self.face.postscript_name));
         let base_font = format!("{tag}+{}", self.face.postscript_name);
         let program = self.face.subset(&remap)?;
-        let program = sfnt::with_cmap(&program, &cmap)?;
+        let mut program = sfnt::with_cmap(&program, &cmap)?;
+        if let Some(fs_type) = self.fs_type {
+            let (_, original) = sfnt::tables(&self.face.data)?;
+            let os2 = original.get(b"OS/2").ok_or("the font has no OS/2 table")?;
+            program = sfnt::with_fs_type(&program, os2, fs_type)?;
+        }
         let length = i64::try_from(program.len()).map_err(|err| err.to_string())?;
         let file = pdf.stream(dictionary! { "Length1" => length }, program);
         let mut descriptor = self.face.descriptor(&base_font, false);
         descriptor.set("FontFile2", file);
         let descriptor = pdf.add(descriptor);
-        let first = self.used.keys().next().copied().unwrap_or(32);
-        let last = self.used.keys().last().copied().unwrap_or(32);
-        let widths: Vec<Object> = (first..=last)
-            .map(|code| {
-                let width = self
-                    .used
-                    .get(&code)
-                    .and_then(|c| self.face.glyph(*c))
-                    .map_or(0.0, |gid| self.face.advance(gid));
-                real(width.round())
-            })
-            .collect();
+        let (first, last, widths) = self.widths();
         pdf.set(
             self.id,
             dictionary! {
@@ -764,11 +842,177 @@ impl SimpleFont {
                 "FirstChar" => i64::from(first),
                 "LastChar" => i64::from(last),
                 "Widths" => widths,
-                "Encoding" => "WinAnsiEncoding",
+                "Encoding" => if self.mac_roman { "MacRomanEncoding" } else { "WinAnsiEncoding" },
                 "FontDescriptor" => descriptor,
             },
         );
         Ok(())
+    }
+
+    /// The widths of the codes from the first used to the last, and those codes.
+    fn widths(&self) -> (u8, u8, Vec<Object>) {
+        let first = self.used.keys().next().copied().unwrap_or(32);
+        let last = self.used.keys().last().copied().unwrap_or(32);
+        let widths = (first..=last)
+            .map(|code| {
+                let width = self
+                    .used
+                    .get(&code)
+                    .and_then(|c| self.face.glyph(*c))
+                    .map_or(0.0, |gid| self.face.advance(gid));
+                real(width.round())
+            })
+            .collect();
+        (first, last, widths)
+    }
+
+    /// Writes the font as `Type3`: one glyph procedure per code, the face's outline in
+    /// thousandths of an em, named `uniXXXX` in `/Differences`, with a `/ToUnicode` CMap.
+    fn finish_type3(self, pdf: &mut Pdf) {
+        let scale = 1000.0 / self.face.units_per_em();
+        let mut procs = Dictionary::new();
+        let mut differences = Vec::new();
+        let mut unicode = BTreeMap::new();
+        for (code, c) in &self.used {
+            let glyph_name = format!("uni{:04X}", u32::from(*c));
+            let gid = self.face.glyph(*c).unwrap_or(0);
+            let mut pen = PathPen::new(scale);
+            self.face.draw_outline(gid, &mut pen);
+            let [x1, y1, x2, y2] = pen.bounds();
+            let proc = format!(
+                "{} 0 {} {} {} {} d1\n{}",
+                num(self.face.advance(gid).round()),
+                num(x1),
+                num(y1),
+                num(x2),
+                num(y2),
+                if pen.out.is_empty() {
+                    String::new()
+                } else {
+                    format!("{}f\n", pen.out)
+                }
+            );
+            procs.set(
+                glyph_name.as_str(),
+                pdf.stream(Dictionary::new(), proc.into_bytes()),
+            );
+            differences.push(Object::Integer(i64::from(*code)));
+            differences.push(name(&glyph_name));
+            unicode.insert(vec![*code], c.to_string());
+        }
+        let (first, last, widths) = self.widths();
+        let cmap = pdf.stream(Dictionary::new(), to_unicode(&unicode, false));
+        let bbox = Object::Array(self.face.bbox.iter().map(|v| real(v.round())).collect());
+        pdf.set(
+            self.id,
+            dictionary! {
+                "Type" => "Font",
+                "Subtype" => "Type3",
+                "FontBBox" => bbox,
+                "FontMatrix" => vec![real(0.001), 0.into(), 0.into(), real(0.001), 0.into(), 0.into()],
+                "CharProcs" => procs,
+                "Encoding" => dictionary! { "Type" => "Encoding", "Differences" => differences },
+                "FirstChar" => i64::from(first),
+                "LastChar" => i64::from(last),
+                "Widths" => widths,
+                "Resources" => Dictionary::new(),
+                "ToUnicode" => cmap,
+            },
+        );
+    }
+}
+
+/// An outline as content-stream path operators, scaled from font units, with its bounds.
+struct PathPen {
+    out: String,
+    scale: f64,
+    current: (f64, f64),
+    bounds: Option<[f64; 4]>,
+}
+
+impl PathPen {
+    fn new(scale: f64) -> Self {
+        Self {
+            out: String::new(),
+            scale,
+            current: (0.0, 0.0),
+            bounds: None,
+        }
+    }
+
+    /// Scales a point, extends the bounds by it, and returns it.
+    fn point(&mut self, x: f32, y: f32) -> (f64, f64) {
+        let point = (f64::from(x) * self.scale, f64::from(y) * self.scale);
+        let [x1, y1, x2, y2] = self.bounds.unwrap_or([point.0, point.1, point.0, point.1]);
+        self.bounds = Some([
+            x1.min(point.0),
+            y1.min(point.1),
+            x2.max(point.0),
+            y2.max(point.1),
+        ]);
+        point
+    }
+
+    /// The bounds, rounded outwards; zero for an empty glyph.
+    fn bounds(&self) -> [f64; 4] {
+        self.bounds.map_or([0.0; 4], |[x1, y1, x2, y2]| {
+            [x1.floor(), y1.floor(), x2.ceil(), y2.ceil()]
+        })
+    }
+}
+
+impl OutlinePen for PathPen {
+    fn move_to(&mut self, x: f32, y: f32) {
+        let (x, y) = self.point(x, y);
+        let _ = writeln!(self.out, "{} {} m", num(x), num(y));
+        self.current = (x, y);
+    }
+
+    fn line_to(&mut self, x: f32, y: f32) {
+        let (x, y) = self.point(x, y);
+        let _ = writeln!(self.out, "{} {} l", num(x), num(y));
+        self.current = (x, y);
+    }
+
+    fn quad_to(&mut self, cx: f32, cy: f32, x: f32, y: f32) {
+        // The cubic with the same curve: control points two thirds of the way to the quadratic's.
+        let (qx, qy) = self.point(cx, cy);
+        let (x, y) = self.point(x, y);
+        let (x0, y0) = self.current;
+        let c1 = (x0 + (qx - x0) * 2.0 / 3.0, y0 + (qy - y0) * 2.0 / 3.0);
+        let c2 = (x + (qx - x) * 2.0 / 3.0, y + (qy - y) * 2.0 / 3.0);
+        let _ = writeln!(
+            self.out,
+            "{} {} {} {} {} {} c",
+            num(c1.0),
+            num(c1.1),
+            num(c2.0),
+            num(c2.1),
+            num(x),
+            num(y)
+        );
+        self.current = (x, y);
+    }
+
+    fn curve_to(&mut self, cx0: f32, cy0: f32, cx1: f32, cy1: f32, x: f32, y: f32) {
+        let c1 = self.point(cx0, cy0);
+        let c2 = self.point(cx1, cy1);
+        let (x, y) = self.point(x, y);
+        let _ = writeln!(
+            self.out,
+            "{} {} {} {} {} {} c",
+            num(c1.0),
+            num(c1.1),
+            num(c2.0),
+            num(c2.1),
+            num(x),
+            num(y)
+        );
+        self.current = (x, y);
+    }
+
+    fn close(&mut self) {
+        self.out.push_str("h\n");
     }
 }
 
@@ -781,6 +1025,9 @@ pub struct StandardFont {
     base_font: String,
     subtype: &'static str,
     turkish: bool,
+    /// Only `/BaseFont` and `/Encoding`, as producers write a standard 14 font: no `/Widths`
+    /// and no descriptor, so a reader takes the font's own metrics.
+    pub bare: bool,
     used: BTreeMap<u8, char>,
 }
 
@@ -800,6 +1047,7 @@ impl StandardFont {
             base_font: base_font.to_owned(),
             subtype,
             turkish,
+            bare: false,
             used: BTreeMap::new(),
         }
     }
@@ -836,6 +1084,18 @@ impl StandardFont {
 
     /// Writes the font dictionary and its descriptor, with no font program.
     pub fn finish(self, pdf: &mut Pdf) {
+        if self.bare {
+            pdf.set(
+                self.id,
+                dictionary! {
+                    "Type" => "Font",
+                    "Subtype" => self.subtype,
+                    "BaseFont" => name(&self.base_font),
+                    "Encoding" => "WinAnsiEncoding",
+                },
+            );
+            return;
+        }
         let descriptor = self.metrics.descriptor(&self.base_font, false);
         let descriptor = pdf.add(descriptor);
         let first = self.used.keys().next().copied().unwrap_or(32);
@@ -947,6 +1207,17 @@ mod tests {
         assert_eq!(win_ansi('’'), Some(0x92));
         assert_eq!(win_ansi('ş'), None);
         assert_eq!(win_ansi('ı'), None);
+    }
+
+    #[test]
+    fn mac_roman_has_its_own_high_codes() {
+        assert_eq!(mac_roman('A'), Some(0x41));
+        assert_eq!(mac_roman('Ä'), Some(0x80));
+        assert_eq!(mac_roman('é'), Some(0x8E));
+        assert_eq!(mac_roman('ü'), Some(0x9F));
+        assert_eq!(mac_roman('ß'), Some(0xA7));
+        assert_eq!(mac_roman('–'), Some(0xD0));
+        assert_eq!(mac_roman('ş'), None);
     }
 
     #[test]

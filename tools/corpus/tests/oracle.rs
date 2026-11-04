@@ -4,8 +4,8 @@
 //! An encrypted file does not open without its password. A file that should not open, does
 //! not.
 //!
-//! A file with right-to-left or vertical text (`Expect::OpensUnordered`) is compared page by
-//! page by its characters, not their order. PDFium recovers the logical order of right-to-left
+//! A file with right-to-left or vertical text or a turned page (`Expect::OpensUnordered`) is
+//! compared page by page by its characters, not their order. PDFium recovers the logical order of right-to-left
 //! text from the visual one with a heuristic of its own: it reverses the text of a ligature
 //! glyph (lam-alef reads "ال" for "لا") and moves the neutral characters at the edge of a number
 //! or a Latin run. It reads each vertical column in order but puts the columns in an order of

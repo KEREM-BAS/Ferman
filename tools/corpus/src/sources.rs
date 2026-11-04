@@ -35,6 +35,16 @@ pub enum FontFile {
     NotoSerifJp,
     /// The same file at `wght` 600 (SemiBold), the letter's title.
     NotoSerifJpSemiBold,
+    /// IBM Plex Sans Hebrew Regular.
+    PlexSansHebrew,
+    /// Noto Sans SC (Simplified Chinese), a variable font used at `wght` 400. Fetched.
+    NotoSansSc,
+    /// Noto Sans TC (Traditional Chinese), a variable font used at `wght` 400. Fetched.
+    NotoSansTc,
+    /// Noto Sans KR (Korean), a variable font used at `wght` 400. Fetched.
+    NotoSansKr,
+    /// Source Sans 3 Regular, an OpenType font with CFF outlines. Fetched.
+    SourceSans3,
 }
 
 /// Where a font file lives and which lock pins it.
@@ -56,7 +66,7 @@ impl FontFile {
         const REGULAR: &[([u8; 4], f32)] = &[(*b"wght", 400.0)];
         const SEMI_BOLD: &[([u8; 4], f32)] = &[(*b"wght", 600.0)];
         match self {
-            Self::NotoSerifJp => REGULAR,
+            Self::NotoSerifJp | Self::NotoSansSc | Self::NotoSansTc | Self::NotoSansKr => REGULAR,
             Self::NotoSerifJpSemiBold => SEMI_BOLD,
             _ => &[],
         }
@@ -69,6 +79,9 @@ impl FontFile {
         match self {
             Self::NotoSerifJp => Some("NotoSerifJP-Regular"),
             Self::NotoSerifJpSemiBold => Some("NotoSerifJP-SemiBold"),
+            Self::NotoSansSc => Some("NotoSansSC-Regular"),
+            Self::NotoSansTc => Some("NotoSansTC-Regular"),
+            Self::NotoSansKr => Some("NotoSansKR-Regular"),
             _ => None,
         }
     }
@@ -92,6 +105,19 @@ impl FontFile {
             },
             Self::NotoSerifJp | Self::NotoSerifJpSemiBold => Origin::Fetched {
                 file: "NotoSerifJP-VF.ttf",
+            },
+            Self::PlexSansHebrew => bundled("plex-sans-hebrew", "IBMPlexSansHebrew-Regular.ttf"),
+            Self::NotoSansSc => Origin::Fetched {
+                file: "NotoSansSC-VF.ttf",
+            },
+            Self::NotoSansTc => Origin::Fetched {
+                file: "NotoSansTC-VF.ttf",
+            },
+            Self::NotoSansKr => Origin::Fetched {
+                file: "NotoSansKR-VF.ttf",
+            },
+            Self::SourceSans3 => Origin::Fetched {
+                file: "SourceSans3-Regular.otf",
             },
         }
     }

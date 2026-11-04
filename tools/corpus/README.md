@@ -37,7 +37,7 @@ Exit codes:
 
 ## The generators
 
-The first wave of ADR 0020, in the order of the README's rows. `tests/corpus/README.md` says what
+The first wave of ADR 0020 and the edit corpus of M3 (ROADMAP §7), in the order of the README's rows. `tests/corpus/README.md` says what
 each file covers.
 
 | Generator | Module | What it is |
@@ -54,15 +54,22 @@ each file covers.
 | `js-openaction` | `docs/scripts.rs` | A notice with document JavaScript |
 | `scan-tr`, `quote-ja-scan` | `docs/scans.rs` | Image-only scans: the rent-increase letter of `a3-11` and a Japanese quotation |
 | `long-500`, `imar-2400` | `docs/long.rs` | The long files of the performance budgets (not committed) |
+| `fatura-tr` | `docs/invoice.rs` | A Turkish invoice with a right-aligned amount column and its totals (E07) |
+| `fa-zwnj`, `he-para`, `zh-hans`, `zh-hant`, `ko-para` | `docs/paragraphs.rs` | One-page notices in Persian with ZWNJ, Hebrew, Simplified and Traditional Chinese and Korean (E10 to E12) |
+| `edit-e04-differences`, `edit-e05-fstype`, `edit-e15-helvetica`, `edit-e16-type3`, `edit-macroman`, `edit-90ms-rksj`, `edit-cff-cid` | `docs/encodings.rs` | The font and encoding cases: a glyph outside the encoding, a restricted `fsType`, standard 14 Helvetica, Type3, MacRoman, a predefined CMap, a CID-keyed CFF font |
+| `edit-e19-rotate`, `edit-e20-form-twice`, `edit-e21-actualtext`, `edit-e22-split-contents`, `edit-e23-shared-contents`, `edit-e26-inline-image` | `docs/edits.rs` | The structure cases: a turned page, a Form XObject placed twice, `/ActualText`, split and shared content streams, an inline image |
 
 The generators share a small PDF writer:
 
 - **`pdf.rs`:** objects, compressed streams, pages, the information dictionary and a fixed `/ID`,
   on lopdf.
-- **`font.rs`, `sfnt.rs`:** the three kinds of font producers write:
-  - composite `Identity-H` and `Identity-V` subsets, shaped by harfrust in the text's direction;
-  - simple TrueType WinAnsi subsets, with the `cmap` that subsetter leaves out put back;
-  - fonts named but not embedded.
+- **`font.rs`, `sfnt.rs`:** the kinds of font producers write:
+  - composite `Identity-H` and `Identity-V` subsets, shaped by harfrust in the text's direction:
+    `CIDFontType2`, or `CIDFontType0` with a CID-keyed `CIDFontType0C` program for a CFF face;
+  - simple TrueType WinAnsi or MacRoman subsets, with the `cmap` that subsetter leaves out put
+    back, optionally keeping glyphs no code shows or with a patched `OS/2.fsType`;
+  - simple Type3 fonts whose glyph procedures fill a face's outlines;
+  - fonts named but not embedded, with widths or, for a standard 14 font, without.
 - **`text.rs`:** lines, justification with `Tw` or `TJ`, page flow, marked content and the expected
   text. Right-to-left paragraphs get their levels from unicode-bidi and each line is drawn in visual
   order; text without spaces breaks at U+200B.
@@ -77,8 +84,9 @@ The generators share a small PDF writer:
 ## The fonts
 
 The generators read IBM Plex from `app/assets/fonts/`, pinned by `tools/fonts/fonts.lock`. Fonts
-Ferman does not bundle are listed in [`fonts.lock`](fonts.lock): EB Garamond and Noto Serif JP, both
-OFL-1.1, from google/fonts. A variable font is used at one instance (`FontFile::variations`): its
+Ferman does not bundle are listed in [`fonts.lock`](fonts.lock), all OFL-1.1: EB Garamond, Noto Serif JP
+and Noto Sans SC, TC and KR from google/fonts, and Source Sans 3 from adobe-fonts/source-sans, as
+google/fonts has no font with CFF outlines. A variable font is used at one instance (`FontFile::variations`): its
 metrics, its shaping and its subset take the same variations, and subsetter instances the subset. `fetch-fonts.sh` downloads them into `build/corpus-fonts/` (gitignored); a file already
 there with the right hash is kept. Every font is checked against its pinned SHA-256 before use, so a
 generator fails rather than make other bytes. The PDFs embed subsets, which the fonts' licences allow.

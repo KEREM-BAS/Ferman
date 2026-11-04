@@ -62,8 +62,8 @@ pub enum Expect {
         password: Option<&'static str>,
     },
     /// It opens without a password, with one page per page of the expected text and, on each
-    /// page, the same characters in any order: right-to-left and vertical text, which PDFium
-    /// puts in an order of its own (the expected text is in logical order).
+    /// page, the same characters in any order: right-to-left and vertical text and a turned
+    /// page, which PDFium puts in an order of its own (the expected text is in logical order).
     OpensUnordered,
     /// It cannot be opened.
     Fails,
