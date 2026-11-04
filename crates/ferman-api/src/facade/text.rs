@@ -13,7 +13,7 @@
 //! [`NotEditableReason::Restricted`] until the owner password unlocks it.
 
 use std::panic::AssertUnwindSafe;
-use std::sync::{Arc, PoisonError};
+use std::sync::Arc;
 use std::thread;
 
 use ferman_render::DocumentId;
@@ -110,37 +110,7 @@ impl Engine {
     ) -> Result<PageBlocks, ApiError> {
         guard_async(async move {
             let (model, text) = self.page_blocks(document, page).await?;
-            let restricted = model.read_only.is_none()
-                && model
-                    .security()
-                    .is_some_and(|security| security.restricted());
-            Ok(PageBlocks {
-                blocks: text
-                    .blocks
-                    .iter()
-                    .map(|block| BlockInfo {
-                        id: block.id,
-                        frame: block.bbox,
-                        lines: block
-                            .lines
-                            .iter()
-                            .map(|line| LineInfo {
-                                text: line.text.clone(),
-                                bbox: line.bbox,
-                                baseline: line.baseline,
-                            })
-                            .collect(),
-                        alignment: block.alignment,
-                        direction: block.direction,
-                        editability: if restricted {
-                            Editability::NotEditable(NotEditableReason::Restricted)
-                        } else {
-                            block.editability
-                        },
-                    })
-                    .collect(),
-                empty: text.empty,
-            })
+            Ok(page_blocks_info(&model, &text))
         })
         .await
     }
@@ -236,13 +206,11 @@ impl Engine {
                 ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                     .with_details("no such page")
             })?;
-        let cached = model
-            .blocks
-            .lock()
-            .unwrap_or_else(PoisonError::into_inner)
-            .get(index)
-            .cloned()
-            .flatten();
+        let (cached, store, generation) = {
+            let revised = model.revised();
+            let cached = revised.blocks.get(index).cloned().flatten();
+            (cached, Arc::clone(&revised.store), revised.generation)
+        };
         if let Some(text) = cached {
             return Ok((model, text));
         }
@@ -252,19 +220,22 @@ impl Engine {
             .name("ferman-text".to_owned())
             .stack_size(LAYOUT_STACK)
             .spawn(move || {
-                // The layout reads the shared model; only its cache slot changes.
+                // The layout reads the shared model and its snapshot; only its cache slot changes,
+                // and only while the snapshot is still the newest.
                 let result = guard(AssertUnwindSafe(|| {
                     let context = EditContext {
                         document: shared.read_only,
                         ..EditContext::default()
                     };
-                    let text = Arc::new(ferman_text::text_page(&shared.document, index, &context)?);
-                    if let Some(slot) = shared
-                        .blocks
-                        .lock()
-                        .unwrap_or_else(PoisonError::into_inner)
-                        .get_mut(index)
-                    {
+                    let text = Arc::new(ferman_text::text_page_revised(
+                        &shared.document,
+                        &store,
+                        index,
+                        &context,
+                    )?);
+                    let mut revised = shared.revised();
+                    let newest = revised.generation == generation;
+                    if let Some(slot) = revised.blocks.get_mut(index).filter(|_| newest) {
                         *slot = Some(Arc::clone(&text));
                     }
                     Ok(text)
@@ -291,4 +262,39 @@ fn find_block(
         .ok_or_else(|| {
             ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL).with_details("no such block")
         })
+}
+
+/// `text` as the API gives it, with the author's restrictions of `model` applied.
+pub(super) fn page_blocks_info(model: &Model, text: &PageText) -> PageBlocks {
+    let restricted = model.read_only.is_none()
+        && model
+            .security()
+            .is_some_and(|security| security.restricted());
+    PageBlocks {
+        blocks: text
+            .blocks
+            .iter()
+            .map(|block| BlockInfo {
+                id: block.id,
+                frame: block.bbox,
+                lines: block
+                    .lines
+                    .iter()
+                    .map(|line| LineInfo {
+                        text: line.text.clone(),
+                        bbox: line.bbox,
+                        baseline: line.baseline,
+                    })
+                    .collect(),
+                alignment: block.alignment,
+                direction: block.direction,
+                editability: if restricted {
+                    Editability::NotEditable(NotEditableReason::Restricted)
+                } else {
+                    block.editability
+                },
+            })
+            .collect(),
+        empty: text.empty,
+    }
 }

@@ -164,7 +164,7 @@ class FakeEngineService implements EngineService {
   /// staging, oldest first.
   final List<(int, int, String, String?)> savedAttachments = [];
 
-  /// The error [saveAttachment] throws, if any.
+  /// The error [saveAttachment], [save] and [saveAs] throw, if any.
   EngineException? saveFailure;
 
   /// Records the save; with [staging] it names a staged file there.
@@ -211,16 +211,215 @@ class FakeEngineService implements EngineService {
     yield SearchDone(textless: textless);
   }
 
+  /// The blocks of [page] of [document] as its applied edits left them.
+  PageBlocks _blocks(int document, int page) =>
+      _edited[(document, page)] ?? pageBlocks[page] ?? const PageBlocks();
+
   @override
   Future<PageBlocks> textBlocks(int document, int page) async =>
-      pageBlocks[page] ?? const PageBlocks();
+      _blocks(document, page);
 
-  TextBlock _block(int page, int id) =>
-      pageBlocks[page]?.blocks.where((block) => block.id == id).firstOrNull ??
+  TextBlock _block(int document, int page, int id) =>
+      _blocks(
+        document,
+        page,
+      ).blocks.where((block) => block.id == id).firstOrNull ??
       (throw const EngineException(
         kind: EngineErrorKind.notFound,
         messageKey: 'errorInternal',
       ));
+
+  /// Each document's edited pages, as their committed steps left them.
+  final Map<(int, int), PageBlocks> _edited = {};
+
+  /// Each document's committed steps, oldest first, and how many apply.
+  final Map<int, ({List<_FakeStep> steps, int current})> _histories = {};
+
+  /// The open transactions: document, page, block and the page as the
+  /// newest text would leave it.
+  final Map<int, ({int document, int page, int block, PageBlocks? applied})>
+  _transactions = {};
+  int _nextTransaction = 1;
+
+  /// The saves: document and the path of a Save as, oldest first.
+  final List<(int, String?)> saves = [];
+
+  /// Opens a transaction on a block of [pageBlocks], as the engine does: one
+  /// per document, never for a block that cannot be edited.
+  @override
+  Future<int> beginEdit(int document, int page, int block) async {
+    if (_transactions.values.any((open) => open.document == document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    final found = _block(document, page, block);
+    if (found.notEditable case final reason?) {
+      throw EngineException(
+        kind: EngineErrorKind.notEditable,
+        messageKey: reason.messageKey,
+      );
+    }
+    final id = _nextTransaction++;
+    _transactions[id] = (
+      document: document,
+      page: page,
+      block: block,
+      applied: null,
+    );
+    return id;
+  }
+
+  ({int document, int page, int block, PageBlocks? applied}) _open(
+    int transaction,
+  ) =>
+      _transactions[transaction] ??
+      (throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorInternal',
+      ));
+
+  /// Gives the block's lines the lines of [text] in their old boxes; another
+  /// number of lines is unsupported, as in the engine.
+  @override
+  Future<EditPreview> applyEdit(int transaction, String text) async {
+    final open = _open(transaction);
+    final before = _blocks(open.document, open.page);
+    final block = _block(open.document, open.page, open.block);
+    final texts = text.split('\n');
+    if (texts.length != block.lines.length) {
+      throw const EngineException(
+        kind: EngineErrorKind.unsupported,
+        messageKey: 'errorUnsupported',
+      );
+    }
+    final edited = TextBlock(
+      id: block.id,
+      frame: block.frame,
+      lines: [
+        for (final (i, line) in block.lines.indexed)
+          TextLine(
+            text: texts[i],
+            bbox: line.bbox,
+            baselineStart: line.baselineStart,
+            baselineEnd: line.baselineEnd,
+          ),
+      ],
+      alignment: block.alignment,
+      direction: block.direction,
+    );
+    final page = PageBlocks(
+      blocks: [
+        for (final other in before.blocks)
+          if (other.id == block.id) edited else other,
+      ],
+      empty: before.empty,
+    );
+    _transactions[transaction] = (
+      document: open.document,
+      page: open.page,
+      block: open.block,
+      applied: page,
+    );
+    return EditPreview(page: page);
+  }
+
+  ({List<_FakeStep> steps, int current}) _history(int document) =>
+      _histories[document] ?? (steps: const [], current: 0);
+
+  /// A new render key for every page of [document], as a reload gives.
+  RevisionInfo _reloaded(int document) => RevisionInfo(
+    current: _history(document).current,
+    renderKey: _renderKeys[document] = ++_lastRenderKey,
+  );
+
+  @override
+  Future<RevisionInfo> commitEdit(int transaction, String name) async {
+    final open = _open(transaction);
+    _transactions.remove(transaction);
+    final before = _blocks(open.document, open.page);
+    final after = open.applied;
+    final history = _history(open.document);
+    String texts(PageBlocks page) =>
+        page.blocks.map((block) => block.text).join('\u0000');
+    if (after == null || texts(after) == texts(before)) {
+      return RevisionInfo(current: history.current);
+    }
+    _edited[(open.document, open.page)] = after;
+    _histories[open.document] = (
+      steps: [
+        ...history.steps.take(history.current),
+        _FakeStep(
+          HistoryStep(name: name, time: DateTime.now()),
+          open.page,
+          before,
+          after,
+        ),
+      ],
+      current: history.current + 1,
+    );
+    return _reloaded(open.document);
+  }
+
+  @override
+  Future<RevisionInfo> rollbackEdit(int transaction) async {
+    final open = _open(transaction);
+    _transactions.remove(transaction);
+    return RevisionInfo(current: _history(open.document).current);
+  }
+
+  void _closed(int document, {required bool can}) {
+    if (!can || _transactions.values.any((o) => o.document == document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+  }
+
+  @override
+  Future<RevisionInfo> undo(int document) async {
+    final history = _history(document);
+    _closed(document, can: history.current > 0);
+    final step = history.steps[history.current - 1];
+    _edited[(document, step.page)] = step.before;
+    _histories[document] = (steps: history.steps, current: history.current - 1);
+    return _reloaded(document);
+  }
+
+  @override
+  Future<RevisionInfo> redo(int document) async {
+    final history = _history(document);
+    _closed(document, can: history.current < history.steps.length);
+    final step = history.steps[history.current];
+    _edited[(document, step.page)] = step.after;
+    _histories[document] = (steps: history.steps, current: history.current + 1);
+    return _reloaded(document);
+  }
+
+  @override
+  Future<EditHistory> history(int document) async {
+    final history = _history(document);
+    return EditHistory(
+      steps: [for (final step in history.steps) step.step],
+      current: history.current,
+    );
+  }
+
+  /// Records the save; [saveFailure] fails it.
+  @override
+  Future<void> save(int document) async {
+    if (saveFailure case final error?) throw error;
+    saves.add((document, null));
+  }
+
+  /// Records the save; [saveFailure] fails it.
+  @override
+  Future<void> saveAs(int document, String path) async {
+    if (saveFailure case final error?) throw error;
+    saves.add((document, path));
+  }
 
   /// The x of the caret before character [at] of [line].
   static double _x(TextLine line, int at) {
@@ -238,7 +437,7 @@ class FakeEngineService implements EngineService {
     int block,
     Offset point,
   ) async {
-    final found = _block(page, block);
+    final found = _block(document, page, block);
     var start = 0;
     var best = (distance: double.infinity, index: 0, rect: Rect.zero);
     for (final line in found.lines) {
@@ -272,9 +471,10 @@ class FakeEngineService implements EngineService {
     BlockPosition anchor,
     BlockPosition focus,
   ) async {
-    final blocks = pageBlocks[page]?.blocks ?? const <TextBlock>[];
-    int order(BlockPosition at) =>
-        blocks.indexWhere((block) => block.id == _block(page, at.block).id);
+    final blocks = _blocks(document, page).blocks;
+    int order(BlockPosition at) => blocks.indexWhere(
+      (block) => block.id == _block(document, page, at.block).id,
+    );
     final forward =
         order(anchor) < order(focus) ||
         (order(anchor) == order(focus) && anchor.index <= focus.index);
@@ -388,4 +588,14 @@ class FakeEngineService implements EngineService {
   Future<void> closeView(int view) async {
     await _views.remove(view)?.$2.close();
   }
+}
+
+/// One committed step of the fake's history: its page before and after.
+final class _FakeStep {
+  const new(this.step, this.page, this.before, this.after);
+
+  final HistoryStep step;
+  final int page;
+  final PageBlocks before;
+  final PageBlocks after;
 }

@@ -43,6 +43,7 @@ use ferman_core::interpret::{
     FontResource, GraphicsState, Matrix, OperatorEvent, Span, SpanSource, TextShow, TextSink,
     multiply,
 };
+use ferman_core::revision::RevisionStore;
 use ferman_fonts::FontProgram;
 
 use crate::TextError;
@@ -112,6 +113,33 @@ pub fn rewrite_block(
     block: &TextBlock,
     text: &str,
 ) -> Result<Outcome, TextError> {
+    rewrite_through(document, None, index, block, text)
+}
+
+/// [`rewrite_block`] for a block of the document as `revisions` changed it (its current revision
+/// and its open transaction), as [`text_page_revised`](crate::layout::text_page_revised) lays
+/// it out.
+///
+/// # Errors
+///
+/// As [`rewrite_block`].
+pub fn rewrite_block_revised(
+    document: &Document,
+    revisions: &RevisionStore,
+    index: usize,
+    block: &TextBlock,
+    text: &str,
+) -> Result<Outcome, TextError> {
+    rewrite_through(document, Some(revisions), index, block, text)
+}
+
+fn rewrite_through(
+    document: &Document,
+    revisions: Option<&RevisionStore>,
+    index: usize,
+    block: &TextBlock,
+    text: &str,
+) -> Result<Outcome, TextError> {
     if !block.editability.is_editable() {
         return Ok(Outcome::Unsupported(Unsupported::NotEditable));
     }
@@ -128,7 +156,10 @@ pub fn rewrite_block(
         return Ok(Outcome::Unsupported(Unsupported::LineCount));
     }
     let mut recorder = Recorder::default();
-    document.page_text(index, &mut recorder)?;
+    match revisions {
+        Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
+        None => document.page_text(index, &mut recorder)?,
+    }
     let page = Page::new(&recorder, document.structure().pages.get(index));
     let frame = Frame::of(block);
     let mut rewrite = Rewrite::default();

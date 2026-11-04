@@ -115,6 +115,10 @@ enum EngineErrorKind {
   /// Reading or writing failed for a reason without its own kind.
   io,
 
+  /// The text or the document cannot be edited; the message key names the
+  /// reason (ARCHITECTURE §6.5).
+  notEditable,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
@@ -918,7 +922,24 @@ enum NotEditableReason {
   tooComplexSplitOperator,
 
   /// The text is sheared.
-  tooComplexSkewed,
+  tooComplexSkewed;
+
+  /// The ARB key of the Edit panel's callout for this reason, the message
+  /// key of the engine's [EngineErrorKind.notEditable] error (a3-19).
+  String get messageKey => switch (this) {
+    imageOnly => 'editBodyImageOnly',
+    unknownText => 'editBodyUnknownText',
+    outlinedText => 'editBodyOutlinedText',
+    invisibleText => 'editBodyInvisibleText',
+    restricted => 'editBodyRestricted',
+    readOnly => 'editBodyReadOnly',
+    damaged => 'editBodyDamaged',
+    signatureAppearance => 'editBodySignature',
+    annotationOrField => 'editBodyAnnotation',
+    tooComplexLimits => 'editBodyLimits',
+    tooComplexSplitOperator => 'editBodySplit',
+    tooComplexSkewed => 'editBodySkewed',
+  };
 }
 
 /// How a block's lines sit in its frame.
@@ -1069,4 +1090,72 @@ class PageSelection {
 
   /// Its text for copying.
   final String text;
+}
+
+/// What a block's page would read after an edit is applied
+/// (ARCHITECTURE §3.6); the preview is not on the undo stack.
+@immutable
+class EditPreview {
+  /// Creates a preview.
+  const new({
+    required this.page,
+    this.missing = const [],
+    this.overflowing = false,
+  });
+
+  /// The page's blocks with the new text, or with the text before when
+  /// characters are [missing].
+  final PageBlocks page;
+
+  /// The characters no font of their line can draw, in the order they first
+  /// appear: the text was not applied (ARCHITECTURE §6.7).
+  final List<String> missing;
+
+  /// Whether a line runs past its block's frame.
+  final bool overflowing;
+}
+
+/// Where a document's history stands after a commit, rollback, undo or
+/// redo.
+@immutable
+class RevisionInfo {
+  /// Creates the position.
+  const new({required this.current, this.renderKey});
+
+  /// How many steps of the history apply: 0 is the document as opened.
+  final int current;
+
+  /// Every page's new render key when the engine reloaded the document;
+  /// bitmaps with an older one show the revision before. Null when nothing
+  /// shown changed.
+  final int? renderKey;
+}
+
+/// One committed step of a document's history.
+@immutable
+class HistoryStep {
+  /// Creates a step.
+  const new({required this.name, required this.time});
+
+  /// Its name as the app gave it at commit.
+  final String name;
+
+  /// When it was committed.
+  final DateTime time;
+}
+
+/// A document's history for the Undo history panel (a3-10).
+@immutable
+class EditHistory {
+  /// Creates a history.
+  const new({this.steps = const [], this.current = 0});
+
+  /// Every committed step, oldest first.
+  final List<HistoryStep> steps;
+
+  /// How many [steps] apply; the rest can be redone.
+  final int current;
+
+  /// The steps that can be redone, next first.
+  List<HistoryStep> get redoable => steps.sublist(current);
 }

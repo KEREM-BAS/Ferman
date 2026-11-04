@@ -58,6 +58,10 @@ pub struct Engine {
     pub(super) models: Mutex<HashMap<DocumentId, Arc<super::document::Model>>>,
     /// The cancel flags of the searches running (`search`).
     pub(super) searches: Mutex<HashMap<super::search::SearchId, Arc<AtomicBool>>>,
+    /// The document actors started, by document (`edit`).
+    pub(super) actors: Mutex<HashMap<DocumentId, super::edit::Actor>>,
+    /// The open edit transactions and their documents (`edit`).
+    pub(super) transactions: Mutex<HashMap<super::edit::TransactionId, DocumentId>>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -91,6 +95,8 @@ impl Engine {
             render,
             models: Mutex::default(),
             searches: Mutex::default(),
+            actors: Mutex::default(),
+            transactions: Mutex::default(),
         }
     }
 

@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1903623257;
+  int get rustContentHash => -1499499776;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -81,6 +81,17 @@ class FermanBridge
 
 abstract class FermanBridgeApi extends BaseApi {
   ApiVersion crateFrbApiVersion();
+
+  Future<EditPreview> crateFrbApplyEdit({
+    required BigInt transaction,
+    required String text,
+  });
+
+  Future<BigInt> crateFrbBeginEdit({
+    required BigInt document,
+    required int page,
+    required BigInt block,
+  });
 
   Future<Caret> crateFrbCaretAt({
     required BigInt document,
@@ -98,21 +109,36 @@ abstract class FermanBridgeApi extends BaseApi {
     required List<String> texts,
   });
 
+  Future<RevisionInfo> crateFrbCommitEdit({
+    required BigInt transaction,
+    required String name,
+  });
+
   Future<Uint8List> crateFrbDebugBytes({required int len});
 
   Future<void> crateFrbDebugPanic();
 
   Future<EngineInfo> crateFrbEngineInfo();
 
+  Future<History> crateFrbHistory({required BigInt document});
+
   Future<OpenedDocument> crateFrbOpen({required String path, String? password});
 
   Stream<ViewEvent> crateFrbOpenView({required BigInt document});
+
+  Future<RevisionInfo> crateFrbRedo({required BigInt document});
 
   Future<void> crateFrbRequestView({
     required BigInt view,
     required BigInt generation,
     required List<WantedItem> wanted,
   });
+
+  Future<RevisionInfo> crateFrbRollbackEdit({required BigInt transaction});
+
+  Future<void> crateFrbSave({required BigInt document});
+
+  Future<void> crateFrbSaveAs({required BigInt document, required String path});
 
   Future<String?> crateFrbSaveAttachment({
     required BigInt document,
@@ -143,6 +169,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required int page,
   });
+
+  Future<RevisionInfo> crateFrbUndo({required BigInt document});
 
   Future<Security?> crateFrbUnlockOwner({
     required BigInt document,
@@ -179,6 +207,64 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   TaskConstMeta get kCrateFrbApiVersionConstMeta =>
       const TaskConstMeta(debugName: "api_version", argNames: []);
+
+  @override
+  Future<EditPreview> crateFrbApplyEdit({
+    required BigInt transaction,
+    required String text,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(transaction);
+          var arg1 = cst_encode_String(text);
+          return wire.wire__crate__frb__apply_edit(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_edit_preview,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbApplyEditConstMeta,
+        argValues: [transaction, text],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbApplyEditConstMeta => const TaskConstMeta(
+    debugName: "apply_edit",
+    argNames: ["transaction", "text"],
+  );
+
+  @override
+  Future<BigInt> crateFrbBeginEdit({
+    required BigInt document,
+    required int page,
+    required BigInt block,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_u_32(page);
+          var arg2 = cst_encode_u_64(block);
+          return wire.wire__crate__frb__begin_edit(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_u_64,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbBeginEditConstMeta,
+        argValues: [document, page, block],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbBeginEditConstMeta => const TaskConstMeta(
+    debugName: "begin_edit",
+    argNames: ["document", "page", "block"],
+  );
 
   @override
   Future<Caret> crateFrbCaretAt({
@@ -285,6 +371,34 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<RevisionInfo> crateFrbCommitEdit({
+    required BigInt transaction,
+    required String name,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(transaction);
+          var arg1 = cst_encode_String(name);
+          return wire.wire__crate__frb__commit_edit(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbCommitEditConstMeta,
+        argValues: [transaction, name],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbCommitEditConstMeta => const TaskConstMeta(
+    debugName: "commit_edit",
+    argNames: ["transaction", "name"],
+  );
+
+  @override
   Future<Uint8List> crateFrbDebugBytes({required int len}) {
     return handler.executeNormal(
       NormalTask(
@@ -349,6 +463,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
       const TaskConstMeta(debugName: "engine_info", argNames: []);
 
   @override
+  Future<History> crateFrbHistory({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__history(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_history,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbHistoryConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbHistoryConstMeta =>
+      const TaskConstMeta(debugName: "history", argNames: ["document"]);
+
+  @override
   Future<OpenedDocument> crateFrbOpen({
     required String path,
     String? password,
@@ -404,6 +540,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<RevisionInfo> crateFrbRedo({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__redo(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbRedoConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbRedoConstMeta =>
+      const TaskConstMeta(debugName: "redo", argNames: ["document"]);
+
+  @override
   Future<void> crateFrbRequestView({
     required BigInt view,
     required BigInt generation,
@@ -432,6 +590,78 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "request_view",
     argNames: ["view", "generation", "wanted"],
   );
+
+  @override
+  Future<RevisionInfo> crateFrbRollbackEdit({required BigInt transaction}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(transaction);
+          return wire.wire__crate__frb__rollback_edit(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbRollbackEditConstMeta,
+        argValues: [transaction],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbRollbackEditConstMeta => const TaskConstMeta(
+    debugName: "rollback_edit",
+    argNames: ["transaction"],
+  );
+
+  @override
+  Future<void> crateFrbSave({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__save(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveConstMeta =>
+      const TaskConstMeta(debugName: "save", argNames: ["document"]);
+
+  @override
+  Future<void> crateFrbSaveAs({
+    required BigInt document,
+    required String path,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_String(path);
+          return wire.wire__crate__frb__save_as(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveAsConstMeta,
+        argValues: [document, path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveAsConstMeta =>
+      const TaskConstMeta(debugName: "save_as", argNames: ["document", "path"]);
 
   @override
   Future<String?> crateFrbSaveAttachment({
@@ -599,6 +829,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "text_blocks",
     argNames: ["document", "page"],
   );
+
+  @override
+  Future<RevisionInfo> crateFrbUndo({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__undo(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_revision_info,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbUndoConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbUndoConstMeta =>
+      const TaskConstMeta(debugName: "undo", argNames: ["document"]);
 
   @override
   Future<Security?> crateFrbUnlockOwner({
@@ -853,6 +1105,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  EditPreview dco_decode_edit_preview(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 3)
+      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    return EditPreview(
+      page: dco_decode_page_blocks(arr[0]),
+      missing: dco_decode_list_String(arr[1]),
+      overflowing: dco_decode_bool(arr[2]),
+    );
+  }
+
+  @protected
   EncryptionMethod dco_decode_encryption_method(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return EncryptionMethod.values[raw as int];
@@ -912,6 +1177,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  History dco_decode_history(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return History(
+      steps: dco_decode_list_history_step(arr[0]),
+      current: dco_decode_u_32(arr[1]),
+    );
+  }
+
+  @protected
+  HistoryStep dco_decode_history_step(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return HistoryStep(
+      name: dco_decode_String(arr[0]),
+      time: dco_decode_i_64(arr[1]),
+    );
+  }
+
+  @protected
   int dco_decode_i_16(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
@@ -921,6 +1210,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   int dco_decode_i_32(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as int;
+  }
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dcoDecodeI64(raw);
   }
 
   @protected
@@ -990,6 +1285,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   List<FontEntry> dco_decode_list_font_entry(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_font_entry).toList();
+  }
+
+  @protected
+  List<HistoryStep> dco_decode_list_history_step(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_history_step).toList();
   }
 
   @protected
@@ -1275,6 +1576,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   RepairKind dco_decode_repair_kind(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return RepairKind.values[raw as int];
+  }
+
+  @protected
+  RevisionInfo dco_decode_revision_info(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return RevisionInfo(
+      current: dco_decode_u_32(arr[0]),
+      renderKey: dco_decode_opt_box_autoadd_u_64(arr[1]),
+    );
   }
 
   @protected
@@ -1718,6 +2031,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  EditPreview sse_decode_edit_preview(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_page = sse_decode_page_blocks(deserializer);
+    var var_missing = sse_decode_list_String(deserializer);
+    var var_overflowing = sse_decode_bool(deserializer);
+    return EditPreview(
+      page: var_page,
+      missing: var_missing,
+      overflowing: var_overflowing,
+    );
+  }
+
+  @protected
   EncryptionMethod sse_decode_encryption_method(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
@@ -1784,6 +2110,22 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  History sse_decode_history(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_steps = sse_decode_list_history_step(deserializer);
+    var var_current = sse_decode_u_32(deserializer);
+    return History(steps: var_steps, current: var_current);
+  }
+
+  @protected
+  HistoryStep sse_decode_history_step(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_name = sse_decode_String(deserializer);
+    var var_time = sse_decode_i_64(deserializer);
+    return HistoryStep(name: var_name, time: var_time);
+  }
+
+  @protected
   int sse_decode_i_16(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt16();
@@ -1793,6 +2135,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   int sse_decode_i_32(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return deserializer.buffer.getInt32();
+  }
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return deserializer.buffer.getPlatformInt64();
   }
 
   @protected
@@ -1896,6 +2244,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var ans_ = <FontEntry>[];
     for (var idx_ = 0; idx_ < len_; ++idx_) {
       ans_.add(sse_decode_font_entry(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
+  List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <HistoryStep>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_history_step(deserializer));
     }
     return ans_;
   }
@@ -2306,6 +2666,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return RepairKind.values[inner];
+  }
+
+  @protected
+  RevisionInfo sse_decode_revision_info(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_current = sse_decode_u_32(deserializer);
+    var var_renderKey = sse_decode_opt_box_autoadd_u_64(deserializer);
+    return RevisionInfo(current: var_current, renderKey: var_renderKey);
   }
 
   @protected
@@ -2901,6 +3269,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_edit_preview(EditPreview self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_page_blocks(self.page, serializer);
+    sse_encode_list_String(self.missing, serializer);
+    sse_encode_bool(self.overflowing, serializer);
+  }
+
+  @protected
   void sse_encode_encryption_method(
     EncryptionMethod self,
     SseSerializer serializer,
@@ -2953,6 +3329,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_history(History self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_list_history_step(self.steps, serializer);
+    sse_encode_u_32(self.current, serializer);
+  }
+
+  @protected
+  void sse_encode_history_step(HistoryStep self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.name, serializer);
+    sse_encode_i_64(self.time, serializer);
+  }
+
+  @protected
   void sse_encode_i_16(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt16(self);
@@ -2962,6 +3352,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   void sse_encode_i_32(int self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     serializer.buffer.putInt32(self);
+  }
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    serializer.buffer.putPlatformInt64(self);
   }
 
   @protected
@@ -3050,6 +3446,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_i_32(self.length, serializer);
     for (final item in self) {
       sse_encode_font_entry(item, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_list_history_step(
+    List<HistoryStep> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_history_step(item, serializer);
     }
   }
 
@@ -3414,6 +3822,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   void sse_encode_repair_kind(RepairKind self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_32(self.current, serializer);
+    sse_encode_opt_box_autoadd_u_64(self.renderKey, serializer);
   }
 
   @protected

@@ -88,6 +88,51 @@ abstract interface class EngineService {
     BlockPosition focus,
   );
 
+  /// Opens the transaction that edits [block] of [page] of [document]
+  /// (ARCHITECTURE §3.6); returns its handle. A document has one at a time.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.notEditable] and the
+  /// reason's message for text or a document that cannot be edited, and with
+  /// [EngineErrorKind.invalidInput] while another transaction is open.
+  Future<int> beginEdit(int document, int page, int block);
+
+  /// Replaces the whole text of the [transaction]'s block with [text], its
+  /// lines separated by line feeds, one per line of the block; returns the
+  /// page as it would read.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.unsupported] for text
+  /// the engine cannot write yet, such as another number of lines.
+  Future<EditPreview> applyEdit(int transaction, String text);
+
+  /// Commits the [transaction] as the history step [name], dropping the
+  /// steps undone. A transaction that changed nothing adds no step.
+  Future<RevisionInfo> commitEdit(int transaction, String name);
+
+  /// Discards the [transaction]; the history does not change.
+  Future<RevisionInfo> rollbackEdit(int transaction);
+
+  /// Steps [document] back one step of its history.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
+  /// start of the history or while a transaction is open.
+  Future<RevisionInfo> undo(int document);
+
+  /// Steps [document] forward one step undone.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] with
+  /// nothing to redo or while a transaction is open.
+  Future<RevisionInfo> redo(int document);
+
+  /// The history of [document] (a3-10).
+  Future<EditHistory> history(int document);
+
+  /// Saves the committed steps of [document] to its file as an incremental
+  /// update, written safely (ADR 0008).
+  Future<void> save(int document);
+
+  /// Saves [document] as the file at [path]; later saves write there.
+  Future<void> saveAs(int document, String path);
+
   /// Opens a view of [document] that renders nothing until [requestView].
   Future<EngineView> openView(int document);
 
@@ -195,6 +240,35 @@ class UnavailableEngineService implements EngineService {
     BlockPosition anchor,
     BlockPosition focus,
   ) async => throw error;
+
+  @override
+  Future<int> beginEdit(int document, int page, int block) async => throw error;
+
+  @override
+  Future<EditPreview> applyEdit(int transaction, String text) async =>
+      throw error;
+
+  @override
+  Future<RevisionInfo> commitEdit(int transaction, String name) async =>
+      throw error;
+
+  @override
+  Future<RevisionInfo> rollbackEdit(int transaction) async => throw error;
+
+  @override
+  Future<RevisionInfo> undo(int document) async => throw error;
+
+  @override
+  Future<RevisionInfo> redo(int document) async => throw error;
+
+  @override
+  Future<EditHistory> history(int document) async => throw error;
+
+  @override
+  Future<void> save(int document) async => throw error;
+
+  @override
+  Future<void> saveAs(int document, String path) async => throw error;
 
   @override
   Future<EngineView> openView(int document) async => throw error;

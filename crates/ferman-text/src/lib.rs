@@ -59,9 +59,9 @@ pub use editability::{Complexity, EditContext, Editability, NotEditableReason};
 pub use extract::{GlyphLink, page_text};
 pub use layout::{
     Alignment, BlockId, Justification, Line, PageText, Table, TableCell, TableColumn, TextBlock,
-    TextChar, TextDirection, text_page,
+    TextChar, TextDirection, text_page, text_page_revised,
 };
-pub use rewrite::{Outcome, Rewrite, Splice, Unsupported, rewrite_block};
+pub use rewrite::{Outcome, Rewrite, Splice, Unsupported, rewrite_block, rewrite_block_revised};
 pub use search::{SearchOptions, find};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.

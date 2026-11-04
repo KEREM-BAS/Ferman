@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -228,6 +228,115 @@ Future<Selection> selection({
   anchor: anchor,
   focus: focus,
 );
+
+/// Opens a transaction that edits `block` of `page` of `document`; returns its handle.
+///
+/// See [`facade::Engine::begin_edit`].
+///
+/// # Errors
+///
+/// `NotEditable` with the reason's message, `InvalidInput` while another transaction is open,
+/// `NotFound` for a document or block that is not there.
+Future<BigInt> beginEdit({
+  required BigInt document,
+  required int page,
+  required BigInt block,
+}) => FermanBridge.instance.api.crateFrbBeginEdit(
+  document: document,
+  page: page,
+  block: block,
+);
+
+/// Replaces the text of the transaction's block, its lines separated by line feeds.
+///
+/// See [`facade::Engine::apply`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `Unsupported` for text not rewritten yet.
+Future<EditPreview> applyEdit({
+  required BigInt transaction,
+  required String text,
+}) => FermanBridge.instance.api.crateFrbApplyEdit(
+  transaction: transaction,
+  text: text,
+);
+
+/// Commits the transaction as the history step `name`.
+///
+/// See [`facade::Engine::commit`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+Future<RevisionInfo> commitEdit({
+  required BigInt transaction,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbCommitEdit(
+  transaction: transaction,
+  name: name,
+);
+
+/// Discards the transaction.
+///
+/// See [`facade::Engine::rollback`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
+    FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
+
+/// Steps `document` back one step of its history.
+///
+/// See [`facade::Engine::undo`].
+///
+/// # Errors
+///
+/// `InvalidInput` at the start or while a transaction is open, `NotFound` for a closed document.
+Future<RevisionInfo> undo({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbUndo(document: document);
+
+/// Steps `document` forward one step undone.
+///
+/// See [`facade::Engine::redo`].
+///
+/// # Errors
+///
+/// `InvalidInput` with nothing to redo or while a transaction is open, `NotFound` for a closed
+/// document.
+Future<RevisionInfo> redo({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbRedo(document: document);
+
+/// The history of `document` (a3-10).
+///
+/// See [`facade::Engine::history`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<History> history({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbHistory(document: document);
+
+/// Saves `document` to its file as an incremental update.
+///
+/// See [`facade::Engine::save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the file errors of the write.
+Future<void> save({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbSave(document: document);
+
+/// Saves `document` as the file at `path`; later saves write there.
+///
+/// See [`facade::Engine::save_as`].
+///
+/// # Errors
+///
+/// As [`save`].
+Future<void> saveAs({required BigInt document, required String path}) =>
+    FermanBridge.instance.api.crateFrbSaveAs(document: document, path: path);
 
 /// How a block's lines sit in its frame.
 enum Alignment {
@@ -548,6 +657,37 @@ class DocumentPermissions {
           assemble == other.assemble;
 }
 
+/// What a block's page would read after [`apply_edit`].
+class EditPreview {
+  /// The page's blocks with the new text; with the text before when characters are missing.
+  final PageBlocks page;
+
+  /// The characters no font of their line can draw, each as a string, in the order they
+  /// first appear: the text was not applied.
+  final List<String> missing;
+
+  /// Whether a line runs past the block's frame.
+  final bool overflowing;
+
+  const EditPreview({
+    required this.page,
+    required this.missing,
+    required this.overflowing,
+  });
+
+  @override
+  int get hashCode => page.hashCode ^ missing.hashCode ^ overflowing.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EditPreview &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          missing == other.missing &&
+          overflowing == other.overflowing;
+}
+
 /// How an encrypted document is encrypted.
 enum EncryptionMethod {
   /// RC4, with [`Security::key_bits`].
@@ -637,6 +777,9 @@ enum ErrorKind {
   /// Reading or writing failed for a reason without its own kind.
   io,
 
+  /// The text or the document cannot be edited; the message key names the reason.
+  notEditable,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
@@ -714,6 +857,50 @@ enum FontType {
 
   /// Anything else.
   other,
+}
+
+/// A document's history (a3-10).
+class History {
+  /// Every step, oldest first: those before `current` apply, the rest can be redone.
+  final List<HistoryStep> steps;
+
+  /// How many steps apply.
+  final int current;
+
+  const History({required this.steps, required this.current});
+
+  @override
+  int get hashCode => steps.hashCode ^ current.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is History &&
+          runtimeType == other.runtimeType &&
+          steps == other.steps &&
+          current == other.current;
+}
+
+/// One committed step of the history.
+class HistoryStep {
+  /// Its name as the UI gave it.
+  final String name;
+
+  /// When it was committed, in milliseconds since the Unix epoch.
+  final PlatformInt64 time;
+
+  const HistoryStep({required this.name, required this.time});
+
+  @override
+  int get hashCode => name.hashCode ^ time.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HistoryStep &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          time == other.time;
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -1270,6 +1457,28 @@ enum RepairKind {
 
   /// Objects the cross-reference data names could not be read.
   objectsUnreadable,
+}
+
+/// Where the history stands after a commit, rollback, undo or redo.
+class RevisionInfo {
+  /// How many steps apply: 0 is the document as opened.
+  final int current;
+
+  /// The pages' new render key when the render thread reloaded the document.
+  final BigInt? renderKey;
+
+  const RevisionInfo({required this.current, this.renderKey});
+
+  @override
+  int get hashCode => current.hashCode ^ renderKey.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RevisionInfo &&
+          runtimeType == other.runtimeType &&
+          current == other.current &&
+          renderKey == other.renderKey;
 }
 
 /// An event of a search's stream.

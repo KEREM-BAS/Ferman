@@ -35,6 +35,7 @@ use std::collections::HashMap;
 use std::ops::Range;
 
 use ferman_core::interpret::SpanSource;
+use ferman_core::revision::RevisionStore;
 use ferman_core::{CoreError, Document};
 
 use crate::TextError;
@@ -217,8 +218,36 @@ pub fn text_page(
     index: usize,
     context: &EditContext,
 ) -> Result<PageText, TextError> {
+    text_page_through(document, None, index, context)
+}
+
+/// [`text_page`] of the document as `revisions` changed it: its current revision and its open
+/// transaction.
+///
+/// # Errors
+///
+/// As [`text_page`].
+pub fn text_page_revised(
+    document: &Document,
+    revisions: &RevisionStore,
+    index: usize,
+    context: &EditContext,
+) -> Result<PageText, TextError> {
+    text_page_through(document, Some(revisions), index, context)
+}
+
+fn text_page_through(
+    document: &Document,
+    revisions: Option<&RevisionStore>,
+    index: usize,
+    context: &EditContext,
+) -> Result<PageText, TextError> {
     let mut collector = Collector::default();
-    let limited = match document.page_text(index, &mut collector) {
+    let interpreted = match revisions {
+        Some(revisions) => revisions.page_text(document, index, &mut collector),
+        None => document.page_text(index, &mut collector),
+    };
+    let limited = match interpreted {
         Ok(()) => false,
         Err(CoreError::ResourceLimit { .. }) => true,
         Err(err) => return Err(err.into()),

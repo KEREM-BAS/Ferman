@@ -5,6 +5,7 @@ import 'dart:ui' show Offset, Rect;
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary;
 
@@ -374,40 +375,7 @@ class FrbEngineService implements EngineService {
         document: BigInt.from(document),
         page: page,
       );
-      return PageBlocks(
-        blocks: [
-          for (final block in blocks.blocks)
-            TextBlock(
-              id: block.id.toInt(),
-              frame: _rect(block.frame),
-              lines: [
-                for (final line in block.lines)
-                  TextLine(
-                    text: line.text,
-                    bbox: _rect(line.bbox),
-                    baselineStart: Offset(
-                      line.baselineStart.x,
-                      line.baselineStart.y,
-                    ),
-                    baselineEnd: Offset(line.baselineEnd.x, line.baselineEnd.y),
-                  ),
-              ],
-              alignment: switch (block.alignment) {
-                bridge.Alignment.left => BlockAlignment.left,
-                bridge.Alignment.right => BlockAlignment.right,
-                bridge.Alignment.center => BlockAlignment.center,
-                bridge.Alignment.justified => BlockAlignment.justified,
-              },
-              direction: switch (block.direction) {
-                bridge.TextDirection.leftToRight => BlockDirection.leftToRight,
-                bridge.TextDirection.rightToLeft => BlockDirection.rightToLeft,
-                bridge.TextDirection.vertical => BlockDirection.vertical,
-              },
-              notEditable: _reason(block.notEditable),
-            ),
-        ],
-        empty: _reason(blocks.empty),
-      );
+      return _pageBlocks(blocks);
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -457,6 +425,142 @@ class FrbEngineService implements EngineService {
       throw _exception(error);
     }
   }
+
+  @override
+  Future<int> beginEdit(int document, int page, int block) async {
+    try {
+      final transaction = await bridge.beginEdit(
+        document: BigInt.from(document),
+        page: page,
+        block: BigInt.from(block),
+      );
+      return transaction.toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> applyEdit(int transaction, String text) async {
+    try {
+      final preview = await bridge.applyEdit(
+        transaction: BigInt.from(transaction),
+        text: text,
+      );
+      return EditPreview(
+        page: _pageBlocks(preview.page),
+        missing: preview.missing,
+        overflowing: preview.overflowing,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<RevisionInfo> commitEdit(int transaction, String name) => _revision(
+    () => bridge.commitEdit(transaction: BigInt.from(transaction), name: name),
+  );
+
+  @override
+  Future<RevisionInfo> rollbackEdit(int transaction) => _revision(
+    () => bridge.rollbackEdit(transaction: BigInt.from(transaction)),
+  );
+
+  @override
+  Future<RevisionInfo> undo(int document) =>
+      _revision(() => bridge.undo(document: BigInt.from(document)));
+
+  @override
+  Future<RevisionInfo> redo(int document) =>
+      _revision(() => bridge.redo(document: BigInt.from(document)));
+
+  static Future<RevisionInfo> _revision(
+    Future<bridge.RevisionInfo> Function() call,
+  ) async {
+    try {
+      final info = await call();
+      return RevisionInfo(
+        current: info.current,
+        // A render key is a 64-bit value: wrapped, not clamped.
+        renderKey: info.renderKey?.toSigned(64).toInt(),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditHistory> history(int document) async {
+    try {
+      final history = await bridge.history(document: BigInt.from(document));
+      return EditHistory(
+        steps: [
+          for (final step in history.steps)
+            HistoryStep(
+              name: step.name,
+              time: DateTime.fromMillisecondsSinceEpoch(step.time),
+            ),
+        ],
+        current: history.current,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> save(int document) async {
+    try {
+      await bridge.save(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> saveAs(int document, String path) async {
+    try {
+      await bridge.saveAs(document: BigInt.from(document), path: path);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static PageBlocks _pageBlocks(bridge.PageBlocks blocks) => PageBlocks(
+    blocks: [
+      for (final block in blocks.blocks)
+        TextBlock(
+          id: block.id.toInt(),
+          frame: _rect(block.frame),
+          lines: [
+            for (final line in block.lines)
+              TextLine(
+                text: line.text,
+                bbox: _rect(line.bbox),
+                baselineStart: Offset(
+                  line.baselineStart.x,
+                  line.baselineStart.y,
+                ),
+                baselineEnd: Offset(line.baselineEnd.x, line.baselineEnd.y),
+              ),
+          ],
+          alignment: switch (block.alignment) {
+            bridge.Alignment.left => BlockAlignment.left,
+            bridge.Alignment.right => BlockAlignment.right,
+            bridge.Alignment.center => BlockAlignment.center,
+            bridge.Alignment.justified => BlockAlignment.justified,
+          },
+          direction: switch (block.direction) {
+            bridge.TextDirection.leftToRight => BlockDirection.leftToRight,
+            bridge.TextDirection.rightToLeft => BlockDirection.rightToLeft,
+            bridge.TextDirection.vertical => BlockDirection.vertical,
+          },
+          notEditable: _reason(block.notEditable),
+        ),
+    ],
+    empty: _reason(blocks.empty),
+  );
 
   static Rect _rect(bridge.PageRect rect) =>
       Rect.fromLTRB(rect.left, rect.top, rect.right, rect.bottom);
@@ -511,21 +615,31 @@ class FrbEngineService implements EngineService {
 }
 
 EngineException _exception(bridge.ApiError error) => EngineException(
-  kind: switch (error.kind) {
-    bridge.ErrorKind.invalidInput => EngineErrorKind.invalidInput,
-    bridge.ErrorKind.notFound => EngineErrorKind.notFound,
-    bridge.ErrorKind.permissionDenied => EngineErrorKind.permissionDenied,
-    bridge.ErrorKind.passwordRequired => EngineErrorKind.passwordRequired,
-    bridge.ErrorKind.wrongPassword => EngineErrorKind.wrongPassword,
-    bridge.ErrorKind.damaged => EngineErrorKind.damaged,
-    bridge.ErrorKind.unsupported => EngineErrorKind.unsupported,
-    bridge.ErrorKind.resourceLimit => EngineErrorKind.resourceLimit,
-    bridge.ErrorKind.io => EngineErrorKind.io,
-    bridge.ErrorKind.internal => EngineErrorKind.internal,
-  },
+  kind: _kind(error.kind),
   messageKey: error.messageKey,
   details: error.details,
 );
+
+/// Every error kind of the bridge by name, with the app's kind it maps to,
+/// for the test of the mapping (the tests cannot import the bridge).
+@visibleForTesting
+Map<String, EngineErrorKind> get bridgeErrorKinds => {
+  for (final kind in bridge.ErrorKind.values) kind.name: _kind(kind),
+};
+
+EngineErrorKind _kind(bridge.ErrorKind kind) => switch (kind) {
+  bridge.ErrorKind.invalidInput => EngineErrorKind.invalidInput,
+  bridge.ErrorKind.notFound => EngineErrorKind.notFound,
+  bridge.ErrorKind.permissionDenied => EngineErrorKind.permissionDenied,
+  bridge.ErrorKind.passwordRequired => EngineErrorKind.passwordRequired,
+  bridge.ErrorKind.wrongPassword => EngineErrorKind.wrongPassword,
+  bridge.ErrorKind.damaged => EngineErrorKind.damaged,
+  bridge.ErrorKind.unsupported => EngineErrorKind.unsupported,
+  bridge.ErrorKind.resourceLimit => EngineErrorKind.resourceLimit,
+  bridge.ErrorKind.io => EngineErrorKind.io,
+  bridge.ErrorKind.notEditable => EngineErrorKind.notEditable,
+  bridge.ErrorKind.internal => EngineErrorKind.internal,
+};
 
 bridge.ViewItem _item(RenderItem item) => switch (item) {
   TileItem() => bridge.ViewItem(

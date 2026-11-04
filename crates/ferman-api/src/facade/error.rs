@@ -27,6 +27,9 @@ pub enum ErrorKind {
     ResourceLimit,
     /// Reading or writing failed for a reason without its own kind.
     Io,
+    /// The text, or the whole document, cannot be edited; the message key names the reason
+    /// (docs/ARCHITECTURE.md §6.5).
+    NotEditable,
     /// A bug in Ferman, including a caught panic. The UI shows a generic message and offers
     /// "Copy technical details".
     Internal,
@@ -46,6 +49,7 @@ impl ErrorKind {
             Self::Unsupported => "unsupported",
             Self::ResourceLimit => "resource_limit",
             Self::Io => "io",
+            Self::NotEditable => "not_editable",
             Self::Internal => "internal",
         }
     }
@@ -95,6 +99,52 @@ impl MessageKey {
     /// There was not enough memory for this document (a1-9f).
     pub const OUT_OF_MEMORY: Self = Self("errorOutOfMemory");
 
+    /// The page is an image, such as a scan (a3-11).
+    pub const EDIT_IMAGE_ONLY: Self = Self("editBodyImageOnly");
+    /// The text is drawn as vector shapes (a3-19).
+    pub const EDIT_OUTLINED_TEXT: Self = Self("editBodyOutlinedText");
+    /// The font does not say which letters its glyphs stand for (G39).
+    pub const EDIT_UNKNOWN_TEXT: Self = Self("editBodyUnknownText");
+    /// The text is invisible, such as recognised text over a scan (G39).
+    pub const EDIT_INVISIBLE_TEXT: Self = Self("editBodyInvisibleText");
+    /// The author's permissions forbid changes until the owner password (G27).
+    pub const EDIT_RESTRICTED: Self = Self("editBodyRestricted");
+    /// The document opened read-only, such as an XFA form (G39).
+    pub const EDIT_READ_ONLY: Self = Self("editBodyReadOnly");
+    /// The document was repaired, or its readers disagree (a1-9).
+    pub const EDIT_DAMAGED: Self = Self("editBodyDamaged");
+    /// The text is part of a signature (G35).
+    pub const EDIT_SIGNATURE: Self = Self("editBodySignature");
+    /// The text belongs to an annotation or a form field.
+    pub const EDIT_ANNOTATION: Self = Self("editBodyAnnotation");
+    /// The page hit a resource limit.
+    pub const EDIT_LIMITS: Self = Self("editBodyLimits");
+    /// An operator is split across two content streams.
+    pub const EDIT_SPLIT: Self = Self("editBodySplit");
+    /// The text is sheared.
+    pub const EDIT_SKEWED: Self = Self("editBodySkewed");
+
+    /// The message for text that cannot be edited for `reason`, the panel callout's (a3-19).
+    #[must_use]
+    pub fn not_editable(reason: ferman_text::NotEditableReason) -> Self {
+        use ferman_text::{Complexity, NotEditableReason as Reason};
+        match reason {
+            Reason::ImageOnly => Self::EDIT_IMAGE_ONLY,
+            Reason::UnknownText => Self::EDIT_UNKNOWN_TEXT,
+            Reason::OutlinedText => Self::EDIT_OUTLINED_TEXT,
+            Reason::InvisibleText => Self::EDIT_INVISIBLE_TEXT,
+            Reason::Restricted => Self::EDIT_RESTRICTED,
+            Reason::ReadOnly => Self::EDIT_READ_ONLY,
+            Reason::Damaged => Self::EDIT_DAMAGED,
+            Reason::SignatureAppearance => Self::EDIT_SIGNATURE,
+            Reason::AnnotationOrField => Self::EDIT_ANNOTATION,
+            Reason::TooComplex(Complexity::SplitOperator) => Self::EDIT_SPLIT,
+            Reason::TooComplex(Complexity::Skewed) => Self::EDIT_SKEWED,
+            // A reason added later reads as too complex until it gets its message.
+            _ => Self::EDIT_LIMITS,
+        }
+    }
+
     /// Every key the engine can return.
     pub const ALL: &'static [Self] = &[
         Self::INTERNAL,
@@ -110,6 +160,18 @@ impl MessageKey {
         Self::UNSUPPORTED,
         Self::TOO_COMPLEX,
         Self::OUT_OF_MEMORY,
+        Self::EDIT_IMAGE_ONLY,
+        Self::EDIT_OUTLINED_TEXT,
+        Self::EDIT_UNKNOWN_TEXT,
+        Self::EDIT_INVISIBLE_TEXT,
+        Self::EDIT_RESTRICTED,
+        Self::EDIT_READ_ONLY,
+        Self::EDIT_DAMAGED,
+        Self::EDIT_SIGNATURE,
+        Self::EDIT_ANNOTATION,
+        Self::EDIT_LIMITS,
+        Self::EDIT_SPLIT,
+        Self::EDIT_SKEWED,
     ];
 
     /// The ARB key, for example `"errorInternal"`.
@@ -157,6 +219,13 @@ impl ApiError {
     #[must_use]
     pub fn internal(details: impl Into<String>) -> Self {
         Self::new(ErrorKind::Internal, MessageKey::INTERNAL).with_details(details)
+    }
+
+    /// A [`ErrorKind::NotEditable`] error with the message for `reason`.
+    #[must_use]
+    pub fn not_editable(reason: ferman_text::NotEditableReason) -> Self {
+        Self::new(ErrorKind::NotEditable, MessageKey::not_editable(reason))
+            .with_details(format!("{reason:?}"))
     }
 
     /// The same error with technical `details`.
@@ -229,6 +298,18 @@ impl From<ferman_core::CoreError> for ApiError {
             CoreError::Unsupported(_) => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
             CoreError::ResourceLimit { .. } => (ErrorKind::ResourceLimit, MessageKey::TOO_COMPLEX),
             CoreError::OutOfMemory { .. } => (ErrorKind::ResourceLimit, MessageKey::OUT_OF_MEMORY),
+            // A call out of order: undo with nothing to undo, a second transaction.
+            CoreError::Write(
+                ferman_core::WriteError::TransactionOpen
+                | ferman_core::WriteError::NoTransaction
+                | ferman_core::WriteError::NothingToUndo
+                | ferman_core::WriteError::NothingToRedo,
+            ) => (ErrorKind::InvalidInput, MessageKey::INTERNAL),
+            // A block inside a form needs its placement, which the rewriter does not give yet;
+            // a repaired document is saved as a repaired copy, later.
+            CoreError::Write(
+                ferman_core::WriteError::Placement | ferman_core::WriteError::Repaired,
+            ) => (ErrorKind::Unsupported, MessageKey::UNSUPPORTED),
             _ => (ErrorKind::Internal, MessageKey::INTERNAL),
         };
         Self::new(kind, key).with_details(err.to_string())
@@ -395,6 +476,40 @@ mod tests {
             err.details.as_deref(),
             Some("internal error in ferman-core: revision lookup")
         );
+    }
+
+    #[test]
+    fn misuse_of_the_revisions_is_invalid_input() {
+        use ferman_core::{CoreError, WriteError};
+        for write in [
+            WriteError::TransactionOpen,
+            WriteError::NoTransaction,
+            WriteError::NothingToUndo,
+            WriteError::NothingToRedo,
+        ] {
+            let err = ApiError::from(CoreError::Write(write));
+            assert_eq!(err.kind, ErrorKind::InvalidInput, "{write:?}");
+        }
+        for write in [WriteError::Placement, WriteError::Repaired] {
+            let err = ApiError::from(CoreError::Write(write));
+            assert_eq!(err.kind, ErrorKind::Unsupported, "{write:?}");
+        }
+        let err = ApiError::from(CoreError::Write(WriteError::ObjectNumbers));
+        assert_eq!(err.kind, ErrorKind::Internal);
+    }
+
+    #[test]
+    fn text_that_cannot_be_edited_names_its_reason() {
+        use ferman_text::{Complexity, NotEditableReason};
+        let err = ApiError::not_editable(NotEditableReason::Restricted);
+        assert_eq!(err.kind, ErrorKind::NotEditable);
+        assert_eq!(err.message_key, MessageKey::EDIT_RESTRICTED);
+        assert_eq!(err.details.as_deref(), Some("Restricted"));
+        assert_eq!(
+            MessageKey::not_editable(NotEditableReason::TooComplex(Complexity::Skewed)),
+            MessageKey::EDIT_SKEWED
+        );
+        assert!(MessageKey::ALL.contains(&MessageKey::EDIT_LIMITS));
     }
 
     #[test]
