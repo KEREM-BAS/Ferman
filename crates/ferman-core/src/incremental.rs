@@ -140,7 +140,7 @@ impl RevisionStore {
 
 /// The update's `/ID`: the first string kept and a new random second one. A file without one
 /// gets two new strings, unless it is encrypted: its key was derived from the missing `/ID`.
-fn new_id(
+pub(crate) fn new_id(
     old: Option<&Object>,
     encrypted: bool,
     random: &mut Random<'_>,

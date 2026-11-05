@@ -4,16 +4,25 @@ import 'package:checks/src/check.dart';
 import 'package:checks/src/text.dart';
 import 'package:path/path.dart' as p;
 
-/// Every crate root forbids unsafe code, except ferman-api, which denies it
-/// so that the FRB-generated module alone can be allowed. No other
-/// `allow(unsafe_code)` exists anywhere in `crates/` (ADR 0010,
-/// ARCHITECTURE.md §8.1).
+/// Every crate root forbids unsafe code, except ferman-api and ferman-core,
+/// which deny it so that one module of each alone can be allowed: the
+/// FRB-generated module of ferman-api (behind the `frb` feature) and the
+/// `platform` module of ferman-core (the save sequence's system calls, M3
+/// plan question 1). No other `allow(unsafe_code)` exists anywhere in
+/// `crates/` (ADR 0010, ARCHITECTURE.md §8.1).
 final class UnsafeRootsCheck implements Check {
   /// Creates the check.
   const new();
 
-  /// The one crate whose library root denies instead of forbids.
+  /// The crate of the FRB-generated module.
   static const apiCrate = 'ferman-api';
+
+  /// The crates whose library root denies instead of forbids, each with the
+  /// one module its root may allow unsafe code on.
+  static const Map<String, String> allowedModules = {
+    apiCrate: 'frb_generated',
+    'ferman-core': 'platform',
+  };
 
   @override
   String get name => 'unsafe_roots';
@@ -58,14 +67,15 @@ final class UnsafeRootsCheck implements Check {
       final where = context.relative(root.path);
       final forbids = _innerLint('forbid').hasMatch(code);
       final denies = _innerLint('deny').hasMatch(code);
-      final isApiLibrary =
-          name == apiCrate && p.basename(root.path) == 'lib.rs';
-      if (isApiLibrary) {
+      final module = p.basename(root.path) == 'lib.rs'
+          ? allowedModules[name]
+          : null;
+      if (module != null) {
         if (!denies) problems.add('$where: missing #![deny(unsafe_code)]');
         if (forbids) {
           problems.add(
             '$where: must deny, not forbid, unsafe code '
-            '(forbid would block the FRB-generated module)',
+            '(forbid would block the $module module)',
           );
         }
       } else if (!forbids) {
@@ -78,9 +88,12 @@ final class UnsafeRootsCheck implements Check {
   static List<String> _checkOverrides(CheckContext context, File file) {
     final code = stripLineComments(file.readAsStringSync());
     final where = context.relative(file.path);
-    final allowed = where == 'crates/$apiCrate/src/lib.rs'
-        ? _frbGenerated.allMatches(code).toList()
-        : const <RegExpMatch>[];
+    final crate = allowedModules.keys
+        .where((crate) => where == 'crates/$crate/src/lib.rs')
+        .firstOrNull;
+    final allowed = crate == null
+        ? const <RegExpMatch>[]
+        : _moduleDeclaration(allowedModules[crate]!).allMatches(code).toList();
     final problems = <String>[];
     for (final match in _override.allMatches(code)) {
       if (!_unsafeCode.hasMatch(match.group(2)!)) continue;
@@ -91,9 +104,9 @@ final class UnsafeRootsCheck implements Check {
       if (span == null) {
         problems.add(
           '$where:$line: ${match.group(1)}(unsafe_code) outside the '
-          'FRB-generated module declaration',
+          'declaration of the one module its crate may allow it on',
         );
-      } else if (!_frbFeature.hasMatch(span.group(0)!)) {
+      } else if (crate == apiCrate && !_frbFeature.hasMatch(span.group(0)!)) {
         problems.add(
           '$where:$line: mod frb_generated must be behind '
           '#[cfg(feature = "frb")]',
@@ -125,9 +138,9 @@ final class UnsafeRootsCheck implements Check {
 
   static final _frbFeature = RegExp(r'cfg\s*\(\s*feature\s*=\s*"frb"\s*\)');
 
-  /// The outer attributes on `mod frb_generated;`, the only place where
+  /// The outer attributes on `mod <name>;`, the only places where
   /// `allow(unsafe_code)` is accepted.
-  static final _frbGenerated = RegExp(
-    r'(?:#\[[^\]]*\]\s*)+(?:pub(?:\s*\([^)]*\))?\s+)?mod\s+frb_generated\s*;',
+  static RegExp _moduleDeclaration(String name) => RegExp(
+    r'(?:#\[[^\]]*\]\s*)+(?:pub(?:\s*\([^)]*\))?\s+)?mod\s+' + name + r'\s*;',
   );
 }

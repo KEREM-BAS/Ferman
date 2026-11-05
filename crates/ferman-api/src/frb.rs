@@ -108,6 +108,20 @@ pub enum ErrorKind {
     Io,
     /// The text or the document cannot be edited; the message key names the reason.
     NotEditable,
+    /// A save found too little free space (a11-7).
+    DiskFull,
+    /// Another app holds the file, still after the retries (a11-7d).
+    FileLocked,
+    /// The new file could not replace the original (a11-7d).
+    RenameFailed,
+    /// The disk or network drive went away during a save (a11-7d).
+    VolumeGone,
+    /// The file has other hard links; Save as instead.
+    HardLinked,
+    /// The file belongs to someone else and its owner cannot be kept; Save as instead.
+    NotOwner,
+    /// The file changed on disk since it was opened or saved (a11-7b).
+    FileChangedOnDisk,
     /// A bug in Ferman, including a caught panic.
     Internal,
 }
@@ -121,6 +135,8 @@ pub struct ApiError {
     pub message_key: String,
     /// Technical details for "Copy technical details": structural facts only.
     pub details: Option<String>,
+    /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
+    pub offer_save_as: bool,
 }
 
 /// Why a document opened read-only (ARCHITECTURE §5.2). In M2 every document is view-only; this is
@@ -1484,10 +1500,105 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
 ///
 /// # Errors
 ///
-/// `NotFound` for a document that is not open, and the file errors of the write.
+/// `NotFound` for a document that is not open, `FileChangedOnDisk`, and the save failures with
+/// [`ApiError::offer_save_as`].
 pub async fn save(document: u64) -> Result<(), ApiError> {
     engine()?
         .save(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Saves `document` over a file that changed on disk ("Keep mine", a11-7b).
+///
+/// See [`facade::Engine::save_over_change`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+pub async fn save_over_change(document: u64) -> Result<(), ApiError> {
+    engine()?
+        .save_over_change(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+///
+/// See [`facade::Engine::save_copy`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+pub async fn save_copy(document: u64, path: String) -> Result<(), ApiError> {
+    engine()?
+        .save_copy(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Writes a repaired document rewritten whole as the file at `path`; its own file only with
+/// `replace_original`.
+///
+/// See [`facade::Engine::save_repaired_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file without `replace_original`, and the save failures.
+pub async fn save_repaired_copy(
+    document: u64,
+    path: String,
+    replace_original: bool,
+) -> Result<(), ApiError> {
+    engine()?
+        .save_repaired_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            replace_original,
+        )
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Optimize and clean: the document's file rewritten whole.
+///
+/// See [`facade::Engine::optimize_and_clean`].
+///
+/// # Errors
+///
+/// As [`save`]; `Unsupported` for a repaired document.
+pub async fn optimize_and_clean(document: u64) -> Result<(), ApiError> {
+    engine()?
+        .optimize_and_clean(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Whether Optimize and clean would break the document's signatures.
+///
+/// See [`facade::Engine::would_break_signatures`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn would_break_signatures(document: u64) -> Result<bool, ApiError> {
+    engine()?
+        .would_break_signatures(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Whether the document's file changed on disk since it was opened or saved; the app asks
+/// when its window regains focus (a11-7b).
+///
+/// See [`facade::Engine::check_external_change`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `Io` when the file cannot be read.
+pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
+    engine()?
+        .check_external_change(facade::DocumentId::from_raw(document))
         .await
         .map_err(api_error_dto)
 }
@@ -2155,10 +2266,18 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
             facade::ErrorKind::ResourceLimit => ErrorKind::ResourceLimit,
             facade::ErrorKind::Io => ErrorKind::Io,
             facade::ErrorKind::NotEditable => ErrorKind::NotEditable,
+            facade::ErrorKind::DiskFull => ErrorKind::DiskFull,
+            facade::ErrorKind::FileLocked => ErrorKind::FileLocked,
+            facade::ErrorKind::RenameFailed => ErrorKind::RenameFailed,
+            facade::ErrorKind::VolumeGone => ErrorKind::VolumeGone,
+            facade::ErrorKind::HardLinked => ErrorKind::HardLinked,
+            facade::ErrorKind::NotOwner => ErrorKind::NotOwner,
+            facade::ErrorKind::FileChangedOnDisk => ErrorKind::FileChangedOnDisk,
             facade::ErrorKind::Internal => ErrorKind::Internal,
         },
         message_key: err.message_key.as_str().to_owned(),
         details: err.details,
+        offer_save_as: err.offer_save_as,
     }
 }
 
@@ -2320,8 +2439,13 @@ mod tests {
                 kind: ErrorKind::Internal,
                 message_key: "errorInternal".to_owned(),
                 details: Some("no trailer".to_owned()),
+                offer_save_as: false,
             }
         );
+        let locked =
+            api_error_dto(ferman_core::CoreError::Save(ferman_core::SaveError::FileLocked).into());
+        assert_eq!(locked.kind, ErrorKind::FileLocked);
+        assert!(locked.offer_save_as);
         assert_eq!(
             api_error_dto(facade::ApiError::new(
                 facade::ErrorKind::NotFound,

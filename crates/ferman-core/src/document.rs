@@ -51,6 +51,8 @@ struct Encryption {
     decrypter: Decrypter,
     /// The encryption dictionary's object, when it is indirect: never rewritten or encrypted.
     id: Option<ObjectId>,
+    /// The encryption dictionary as the file has it, which a full rewrite writes again.
+    dict: lopdf::Dictionary,
 }
 
 /// An open document: its bytes, the lopdf model and what the open found.
@@ -244,6 +246,11 @@ impl Document {
             .as_ref()
             .map(|encryption| (&encryption.decrypter, encryption.id))
     }
+
+    /// An encrypted document's encryption dictionary, as the file has it.
+    pub(crate) fn encryption_dictionary(&self) -> Option<&lopdf::Dictionary> {
+        self.encryption.as_ref().map(|encryption| &encryption.dict)
+    }
 }
 
 /// The encryption dictionary named by the trailer, read from the file.
@@ -353,6 +360,7 @@ pub fn open(source: &Source, options: &OpenOptions) -> Result<Document, CoreErro
             access,
             decrypter,
             id,
+            dict,
         });
         encrypt_id = id;
     }

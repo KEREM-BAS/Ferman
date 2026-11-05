@@ -778,6 +778,7 @@ dependencies = [
  "aes",
  "flate2",
  "getrandom",
+ "libc",
  "lopdf",
  "md-5 0.11.0",
  "proptest",
@@ -787,6 +788,7 @@ dependencies = [
  "thiserror",
  "unicode-normalization",
  "weezl",
+ "windows-sys",
  "zeroize",
 ]
 

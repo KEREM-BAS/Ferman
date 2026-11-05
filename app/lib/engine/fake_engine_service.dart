@@ -696,19 +696,108 @@ class FakeEngineService implements EngineService {
     );
   }
 
-  /// Records the save; [saveFailure] fails it.
-  @override
-  Future<void> save(int document) async {
+  /// Makes the next document save ([save], [saveAs], [saveCopy],
+  /// [saveRepairedCopy], [optimizeAndClean]) fail with [kind], as the engine
+  /// reports it: Save as offered for every failure but a file changed on
+  /// disk.
+  void failNextSave(EngineErrorKind kind) => _nextSaveFailure = EngineException(
+    kind: kind,
+    messageKey: kind == EngineErrorKind.permissionDenied
+        ? 'errorFilePermissionDenied'
+        : 'errorFileRead',
+    offersSaveAs: kind != EngineErrorKind.fileChangedOnDisk,
+  );
+
+  EngineException? _nextSaveFailure;
+
+  /// Documents whose file changed on disk: [checkExternalChange] says so and
+  /// [save] fails with [EngineErrorKind.fileChangedOnDisk] until it saves
+  /// over the change.
+  final Set<int> changedOnDisk = {};
+
+  /// Documents that are signed, for [wouldBreakSignatures].
+  final Set<int> signed = {};
+
+  /// The copies [saveCopy] wrote: document and path.
+  final List<(int, String)> copies = [];
+
+  /// The repaired copies: document, path and whether it replaced the
+  /// original.
+  final List<(int, String, bool)> repairedCopies = [];
+
+  /// The documents [optimizeAndClean] rewrote, oldest first.
+  final List<int> optimized = [];
+
+  /// Throws [saveFailure], or the failure [failNextSave] set, once.
+  void _saving() {
     if (saveFailure case final error?) throw error;
+    if (_nextSaveFailure case final error?) {
+      _nextSaveFailure = null;
+      throw error;
+    }
+  }
+
+  /// Records the save; [saveFailure], [failNextSave] and [changedOnDisk]
+  /// fail it.
+  @override
+  Future<void> save(int document, {bool overChange = false}) async {
+    _saving();
+    if (!overChange && changedOnDisk.contains(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileRead',
+      );
+    }
+    changedOnDisk.remove(document);
     saves.add((document, null));
   }
 
-  /// Records the save; [saveFailure] fails it.
+  /// Records the save; [saveFailure] and [failNextSave] fail it.
   @override
   Future<void> saveAs(int document, String path) async {
-    if (saveFailure case final error?) throw error;
+    _saving();
     saves.add((document, path));
   }
+
+  /// Records the copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<void> saveCopy(int document, String path) async {
+    _saving();
+    copies.add((document, path));
+  }
+
+  /// Records the repaired copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<void> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+  }) async {
+    _saving();
+    repairedCopies.add((document, path, replaceOriginal));
+  }
+
+  /// Records the rewrite; [saveFailure], [failNextSave] and [changedOnDisk]
+  /// fail it.
+  @override
+  Future<void> optimizeAndClean(int document) async {
+    _saving();
+    if (changedOnDisk.contains(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileRead',
+      );
+    }
+    optimized.add(document);
+  }
+
+  @override
+  Future<bool> wouldBreakSignatures(int document) async =>
+      signed.contains(document);
+
+  @override
+  Future<bool> checkExternalChange(int document) async =>
+      changedOnDisk.contains(document);
 
   /// The x of the caret before character [at] of [line].
   static double _x(TextLine line, int at) {

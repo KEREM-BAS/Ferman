@@ -29,12 +29,20 @@
 //! ([`HistoryStep::substitutions`], [`RevisionInfo::substitutions`]), marked as announced after
 //! the first commit that names its font, so the UI says it once (G37).
 //!
-//! Saving writes the incremental update through ferman-core's safe write (temp file, flush,
-//! verify, rename). The atomic replace with its metadata, external changes and every failure of
-//! docs/ARCHITECTURE.md §7.8 come later (M3 W4).
+//! Saving (docs/ARCHITECTURE.md §7, ADR 0008) writes the committed revisions through ferman-core's
+//! save sequence ([`ferman_core::save::save_pdf`]): an incremental update by default, the whole
+//! file rewritten once [`Engine::optimize_and_clean`] has run (so the earlier revisions it dropped
+//! never come back), and a full rewrite to another file for a repaired document
+//! ([`Engine::save_repaired_copy`]). Each failure of §7.8 has its kind, and says whether Save as
+//! is the way out; the committed revisions stay as they were, so the save can be tried again.
+//! The actor keeps the file's stamp (size, modification time, SHA-256) from the open and from
+//! each save, and Save stops with [`ErrorKind::FileChangedOnDisk`] when the file changed under
+//! it (§7.5); [`Engine::check_external_change`] asks the same when the window regains focus.
+//! "Keep mine" is [`Engine::save_over_change`]; "Reload" is the app closing the document and
+//! opening it again, which drops the edits.
 
 use std::panic::AssertUnwindSafe;
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex, PoisonError};
@@ -42,6 +50,7 @@ use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ferman_core::revision::{self, RevisionStore};
+use ferman_core::save::FileStamp;
 use ferman_core::{CoreError, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::DocumentId;
@@ -269,6 +278,22 @@ type Job = Box<dyn FnOnce(&mut Session) + Send>;
 #[derive(Debug)]
 pub(super) struct Actor(mpsc::Sender<Job>);
 
+/// Where a save writes.
+pub(super) enum SaveTarget {
+    /// The document's file; `over_change` saves over a file that changed on disk ("Keep mine").
+    File { over_change: bool },
+    /// Another file, which later saves write to.
+    As(PathBuf),
+    /// Another file, while later saves still write to the document's.
+    Copy(PathBuf),
+}
+
+/// Whether `a` and `b` name the same file, links resolved.
+fn same_file(a: &Path, b: &Path) -> bool {
+    let resolve = |path: &Path| std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
+    resolve(a) == resolve(b)
+}
+
 /// The revised bytes for the render thread: the serial of the publish and what follows the
 /// original bytes.
 type Reload = Option<(u64, Arc<[u8]>)>;
@@ -285,6 +310,10 @@ pub(super) struct Session {
     steps: Vec<HistoryStep>,
     /// Where Save writes.
     path: PathBuf,
+    /// The file at `path` as it was opened or last saved.
+    stamp: FileStamp,
+    /// Whether Optimize and clean rewrote the file, so later saves rewrite it too.
+    rewritten: bool,
     fonts: Arc<Fonts>,
     /// The fonts the UI has been told of, by step and name.
     announced: Vec<(SubstitutionKind, String)>,
@@ -324,12 +353,15 @@ impl Session {
     pub(super) fn with_fonts(model: Arc<Model>, fonts: Arc<Fonts>) -> Self {
         let committed = Arc::clone(&model.revised().store);
         let path = model.path.clone();
+        let stamp = model.document.source().stamp();
         Self {
             model,
             committed,
             open: None,
             steps: Vec::new(),
             path,
+            stamp,
+            rewritten: false,
             fonts,
             announced: Vec::new(),
         }
@@ -703,14 +735,73 @@ impl Session {
         Ok(self.committed.incremental_update(&self.model.document)?)
     }
 
-    /// Writes the committed revisions to `path`, or to the document's file; Save then writes
-    /// to `path`. An open transaction is not saved.
-    pub(super) fn save(&mut self, path: Option<PathBuf>) -> Result<(), ApiError> {
-        let bytes = self.bytes()?;
-        let target = path.unwrap_or_else(|| self.path.clone());
-        ferman_core::save::safe_write(&target, &bytes, None)?;
-        self.path = target;
+    /// Writes the committed revisions as `target` says. An open transaction is not saved.
+    pub(super) fn save(&mut self, target: SaveTarget) -> Result<(), ApiError> {
+        let (path, check, moves) = match target {
+            SaveTarget::File { over_change } => (self.path.clone(), !over_change, true),
+            SaveTarget::As(path) => {
+                let same = same_file(&path, &self.path);
+                (path, same, true)
+            }
+            // A copy over the document's own file is a save of it.
+            SaveTarget::Copy(path) => {
+                let same = same_file(&path, &self.path);
+                (path, same, same)
+            }
+        };
+        let (bytes, original) = if self.rewritten {
+            (self.committed.full_rewrite(&self.model.document)?, None)
+        } else {
+            let original: &[u8] = self.model.document.source().bytes();
+            (self.bytes()?, Some(original))
+        };
+        let stamp =
+            ferman_core::save::save_pdf(&path, &bytes, original, check.then_some(&self.stamp))
+                .map_err(|err| ApiError::from(err).of_save())?;
+        if moves {
+            self.path = path;
+            self.stamp = stamp;
+        }
         Ok(())
+    }
+
+    /// Optimize and clean: the document's file rewritten whole (docs/ARCHITECTURE.md §7.3).
+    pub(super) fn optimize_and_clean(&mut self) -> Result<(), ApiError> {
+        if self.model.document.repair().is_some() {
+            return Err(CoreError::Write(WriteError::Repaired).into());
+        }
+        let bytes = self.committed.full_rewrite(&self.model.document)?;
+        self.stamp = ferman_core::save::save_pdf(&self.path, &bytes, None, Some(&self.stamp))
+            .map_err(|err| ApiError::from(err).of_save())?;
+        self.rewritten = true;
+        Ok(())
+    }
+
+    /// A repaired document rewritten whole as the file at `path`; its own file only with
+    /// `replace_original` (ADR 0008).
+    pub(super) fn save_repaired_copy(
+        &mut self,
+        path: &Path,
+        replace_original: bool,
+    ) -> Result<(), ApiError> {
+        let original = same_file(path, &self.path);
+        if original && !replace_original {
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("replacing the damaged original needs its confirmation"));
+        }
+        let bytes = self.committed.full_rewrite(&self.model.document)?;
+        let stamp =
+            ferman_core::save::save_pdf(path, &bytes, None, original.then_some(&self.stamp))
+                .map_err(|err| ApiError::from(err).of_save())?;
+        if original {
+            self.stamp = stamp;
+        }
+        Ok(())
+    }
+
+    /// Whether the document's file changed on disk since it was opened or saved.
+    pub(super) fn external_change(&self) -> Result<bool, ApiError> {
+        Ok(self.stamp.changed(&self.path)?)
     }
 
     fn closed(&self) -> Result<(), ApiError> {
@@ -988,14 +1079,31 @@ impl Engine {
     }
 
     /// Saves the committed revisions to the document's file as an incremental update: the
-    /// original bytes stay an exact prefix.
+    /// original bytes stay an exact prefix (after Optimize and clean, the file is rewritten
+    /// whole again).
     ///
     /// # Errors
     ///
     /// Returns `NotFound` for a document that is not open, `Unsupported` for a repaired one
-    /// (saved as a repaired copy instead, later), and the file errors of the write.
+    /// (saved with [`save_repaired_copy`](Self::save_repaired_copy) instead),
+    /// `FileChangedOnDisk` when the file changed since it was opened or saved, and the save
+    /// failures of docs/ARCHITECTURE.md §7.8 (`DiskFull`, `PermissionDenied`, `FileLocked`,
+    /// `RenameFailed`, `VolumeGone`, `HardLinked`, `NotOwner`, `Io`) with
+    /// [`ApiError::offer_save_as`]. The file and the committed revisions stay as they were.
     pub async fn save(&self, document: DocumentId) -> Result<(), ApiError> {
-        guard_async(async move { self.ask(document, |session| session.save(None)).await }).await
+        self.save_to(document, SaveTarget::File { over_change: false })
+            .await
+    }
+
+    /// Saves as [`save`](Self::save) does, over a file that changed on disk ("Keep mine",
+    /// a11-7b).
+    ///
+    /// # Errors
+    ///
+    /// As [`save`](Self::save), without `FileChangedOnDisk`.
+    pub async fn save_over_change(&self, document: DocumentId) -> Result<(), ApiError> {
+        self.save_to(document, SaveTarget::File { over_change: true })
+            .await
     }
 
     /// Saves the committed revisions as the file at `path`, as [`save`](Self::save) does; later
@@ -1003,10 +1111,97 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// As [`save`](Self::save).
+    /// As [`save`](Self::save); `FileChangedOnDisk` only when `path` is the document's file.
     pub async fn save_as(&self, document: DocumentId, path: PathBuf) -> Result<(), ApiError> {
+        self.save_to(document, SaveTarget::As(path)).await
+    }
+
+    /// Saves a copy of the committed revisions as the file at `path`; later saves still write
+    /// to the document's file. A copy over the document's own file is a save of it.
+    ///
+    /// # Errors
+    ///
+    /// As [`save`](Self::save); `FileChangedOnDisk` only when `path` is the document's file.
+    pub async fn save_copy(&self, document: DocumentId, path: PathBuf) -> Result<(), ApiError> {
+        self.save_to(document, SaveTarget::Copy(path)).await
+    }
+
+    async fn save_to(&self, document: DocumentId, target: SaveTarget) -> Result<(), ApiError> {
         guard_async(async move {
-            self.ask(document, move |session| session.save(Some(path)))
+            self.ask(document, move |session| session.save(target))
+                .await
+        })
+        .await
+    }
+
+    /// Optimize and clean (docs/ARCHITECTURE.md §7.3): the document's file rewritten whole,
+    /// without earlier revisions and unreferenced objects, streams compressed, encrypted with
+    /// its own key; later saves rewrite it whole too. It breaks signatures, so the UI asks
+    /// [`would_break_signatures`](Self::would_break_signatures) and warns first.
+    ///
+    /// # Errors
+    ///
+    /// As [`save`](Self::save); `Unsupported` for a repaired document.
+    pub async fn optimize_and_clean(&self, document: DocumentId) -> Result<(), ApiError> {
+        guard_async(async move { self.ask(document, Session::optimize_and_clean).await }).await
+    }
+
+    /// Writes a repaired document (a1-9) rewritten whole as the file at `path` (B103). Its own
+    /// damaged file is replaced only with `replace_original`, the user's confirmation
+    /// (ADR 0008); the document keeps its file either way.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` for the document's own file without `replace_original`, and the save
+    /// failures of [`save`](Self::save).
+    pub async fn save_repaired_copy(
+        &self,
+        document: DocumentId,
+        path: PathBuf,
+        replace_original: bool,
+    ) -> Result<(), ApiError> {
+        guard_async(async move {
+            self.ask(document, move |session| {
+                session.save_repaired_copy(&path, replace_original)
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Whether a full rewrite of the document (Optimize and clean) would break signatures: it
+    /// has a signed signature field (G35).
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open.
+    pub async fn would_break_signatures(&self, document: DocumentId) -> Result<bool, ApiError> {
+        guard_async(async move {
+            self.ask(document, |session| {
+                Ok(session
+                    .model
+                    .document
+                    .structure()
+                    .signatures
+                    .iter()
+                    .any(|signature| signature.signed))
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Whether the document's file changed on disk since it was opened or saved
+    /// (docs/ARCHITECTURE.md §7.5): size and modification time, then the SHA-256 when either
+    /// differs. The app asks when its window regains focus and shows a11-7b.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open, and `Io` when the file cannot be
+    /// read.
+    pub async fn check_external_change(&self, document: DocumentId) -> Result<bool, ApiError> {
+        guard_async(async move {
+            self.ask(document, |session| session.external_change())
                 .await
         })
         .await
@@ -1660,24 +1855,37 @@ mod tests {
         session.begin(0, block.id).unwrap();
     }
 
-    #[test]
-    fn save_writes_an_incremental_update_and_save_as_moves_the_target() {
-        let dir = std::env::temp_dir().join(format!("ferman-api-edit-{}", std::process::id()));
+    /// A session of a copy of the corpus file `name` as `file` in a new folder `dir`.
+    fn copied(name: &str, dir: &str, file: &str) -> (Session, PathBuf) {
+        let dir = std::env::temp_dir().join(format!("ferman-api-{dir}-{}", std::process::id()));
+        let _ = std::fs::remove_dir_all(&dir);
         std::fs::create_dir_all(&dir).unwrap();
-        let own = dir.join("own.pdf");
-        std::fs::copy(corpus("edit-e15-helvetica"), &own).unwrap();
+        let own = dir.join(file);
+        std::fs::copy(corpus(name), &own).unwrap();
         let source = ferman_core::Source::read(&own).unwrap();
         let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
-        let mut session = Session::new(Arc::new(Model::new(
-            document,
-            own.clone(),
-            None,
-            false,
-            None,
-        )));
+        let read_only = document
+            .repair()
+            .is_some()
+            .then_some(NotEditableReason::Damaged);
+        let model = Model::new(document, own.clone(), read_only, false, None);
+        (Session::new(Arc::new(model)), own)
+    }
+
+    fn file() -> SaveTarget {
+        SaveTarget::File { over_change: false }
+    }
+
+    #[test]
+    fn save_writes_an_incremental_update_and_save_as_moves_the_target() {
+        let (mut session, own) = copied("edit-e15-helvetica", "edit", "own.pdf");
+        let dir = own.parent().unwrap().to_path_buf();
         let original = std::fs::read(&own).unwrap();
         edit(&mut session, "Monday", "Friday", "Edited text");
-        session.save(None).unwrap();
+        session.save(file()).unwrap();
+        // A copy over its own file is a save: the next save does not see a change on disk.
+        session.save(SaveTarget::Copy(own.clone())).unwrap();
+        assert!(!session.external_change().unwrap());
         let written = std::fs::read(&own).unwrap();
         assert_eq!(written.get(..original.len()), Some(original.as_slice()));
         assert!(written.len() > original.len());
@@ -1691,10 +1899,16 @@ mod tests {
         let text = ferman_text::extract::page_text(&reopened, 0).unwrap();
         assert!(text.contains("Friday") && !text.contains("Monday"));
 
+        // A copy does not move the document's file.
+        let copy = dir.join("copy.pdf");
+        session.save(SaveTarget::Copy(copy.clone())).unwrap();
+        assert_eq!(std::fs::read(&copy).unwrap().len(), written.len());
+        assert_eq!(session.path, own);
+
         let other = dir.join("other.pdf");
-        session.save(Some(other.clone())).unwrap();
+        session.save(SaveTarget::As(other.clone())).unwrap();
         session.undo().unwrap();
-        session.save(None).unwrap();
+        session.save(file()).unwrap();
         assert_eq!(
             std::fs::read(&other).unwrap(),
             original,
@@ -1705,14 +1919,128 @@ mod tests {
     }
 
     #[test]
-    fn a_repaired_document_is_not_saved_over() {
-        let mut session = session("kira-tr-damaged", Some(NotEditableReason::Damaged));
+    fn a_failed_save_keeps_the_edits_and_can_be_tried_again() {
+        let (mut session, own) = copied("edit-e15-helvetica", "edit-failed", "own.pdf");
+        let original = std::fs::read(&own).unwrap();
+        edit(&mut session, "Monday", "Friday", "Edited text");
+        let link = own.with_file_name("link.pdf");
+        std::fs::hard_link(&own, &link).unwrap();
+        let err = session.save(file()).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::HardLinked);
+        assert!(err.offer_save_as);
+        assert_eq!(std::fs::read(&own).unwrap(), original);
+        assert_eq!(session.current(), 1, "the edit is kept");
+        std::fs::remove_file(&link).unwrap();
+        session.save(file()).unwrap();
+        let text = ferman_text::extract::page_text(
+            &ferman_core::open(
+                &ferman_core::Source::read(&own).unwrap(),
+                &ferman_core::OpenOptions::default(),
+            )
+            .unwrap(),
+            0,
+        )
+        .unwrap();
+        assert!(text.contains("Friday"));
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn a_file_changed_on_disk_stops_save_until_keep_mine() {
+        let (mut session, own) = copied("edit-e15-helvetica", "edit-changed", "own.pdf");
+        assert!(!session.external_change().unwrap());
+        edit(&mut session, "Monday", "Friday", "Edited text");
+        let mut theirs = std::fs::read(&own).unwrap();
+        theirs.extend_from_slice(
+            b"
+% another app
+",
+        );
+        std::fs::write(&own, &theirs).unwrap();
+        assert!(session.external_change().unwrap());
+        let err = session.save(file()).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::FileChangedOnDisk);
+        assert!(!err.offer_save_as);
+        assert!(!err.details.unwrap_or_default().contains("Friday"));
+        assert_eq!(std::fs::read(&own).unwrap(), theirs);
+        assert_eq!(session.current(), 1);
+        // Keep mine.
+        session
+            .save(SaveTarget::File { over_change: true })
+            .unwrap();
+        assert!(!session.external_change().unwrap());
+        assert_ne!(std::fs::read(&own).unwrap(), theirs);
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn optimize_and_clean_rewrites_the_file_and_later_saves_too() {
+        let (mut session, own) = copied("edit-e15-helvetica", "edit-clean", "own.pdf");
+        let original = std::fs::read(&own).unwrap();
+        edit(&mut session, "Monday", "Friday", "Edited text");
+        session.save(file()).unwrap();
+        session.optimize_and_clean().unwrap();
+        let cleaned = std::fs::read(&own).unwrap();
+        assert!(!cleaned.starts_with(&original), "a new file, not an update");
+        keep("api-optimize-helvetica", &cleaned);
+        let reopened = ferman_core::open(
+            &ferman_core::Source::from_bytes(cleaned.into()),
+            &ferman_core::OpenOptions::default(),
+        )
+        .unwrap();
+        assert!(reopened.repair().is_none());
+        let text = ferman_text::extract::page_text(&reopened, 0).unwrap();
+        assert!(text.contains("Friday") && !text.contains("Monday"));
+        // The next save rewrites again: the revisions before the clean do not come back.
+        session.undo().unwrap();
+        session.save(file()).unwrap();
+        let saved = std::fs::read(&own).unwrap();
+        assert!(!saved.starts_with(&original));
+        let text = ferman_text::extract::page_text(
+            &ferman_core::open(
+                &ferman_core::Source::from_bytes(saved.into()),
+                &ferman_core::OpenOptions::default(),
+            )
+            .unwrap(),
+            0,
+        )
+        .unwrap();
+        assert!(text.contains("Monday"));
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
+    }
+
+    #[test]
+    fn a_repaired_document_is_saved_only_as_a_repaired_copy() {
+        let (mut session, own) = copied("kira-tr-damaged", "repaired", "damaged.pdf");
         assert!(session.model.document.repair().is_some());
-        let target =
-            std::env::temp_dir().join(format!("ferman-api-repaired-{}.pdf", std::process::id()));
-        let err = session.save(Some(target.clone())).unwrap_err();
+        let damaged = std::fs::read(&own).unwrap();
+        let target = own.with_file_name("repaired.pdf");
+        let err = session.save(SaveTarget::As(target.clone())).unwrap_err();
         assert_eq!(err.kind, ErrorKind::Unsupported);
         assert!(!target.exists());
+        let err = session.optimize_and_clean().unwrap_err();
+        assert_eq!(err.kind, ErrorKind::Unsupported);
+
+        session.save_repaired_copy(&target, false).unwrap();
+        let repaired = ferman_core::open(
+            &ferman_core::Source::read(&target).unwrap(),
+            &ferman_core::OpenOptions::default(),
+        )
+        .unwrap();
+        assert!(repaired.repair().is_none());
+        assert_eq!(session.path, own, "the document keeps its file");
+
+        let err = session.save_repaired_copy(&own, false).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&own).unwrap(), damaged);
+        session.save_repaired_copy(&own, true).unwrap();
+        let replaced = ferman_core::open(
+            &ferman_core::Source::read(&own).unwrap(),
+            &ferman_core::OpenOptions::default(),
+        )
+        .unwrap();
+        assert!(replaced.repair().is_none());
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
     }
 
     /// A seeded xorshift generator: the same edits on every run.

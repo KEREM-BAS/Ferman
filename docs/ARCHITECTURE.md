@@ -732,7 +732,7 @@ Brief §3: never corrupt a user's file. Save through a temp file and an atomic r
 | 2. Write | all bytes | same | same |
 | 3. Flush file | `fsync` | `F_FULLFSYNC` (what Rust's `sync_all` does on Apple platforms) | `FlushFileBuffers` |
 | 4. Verify | re-read the trailer and cross-reference data; for incremental saves check that the original bytes are an exact prefix | same | same |
-| 5. Copy metadata | mode bits and, where allowed, owner and group | `fcopyfile` with `COPYFILE_METADATA` (ACLs, extended attributes, Finder tags, flags) | handled by `ReplaceFileW` |
+| 5. Copy metadata | mode bits and, where allowed, owner and group | `fcopyfile` with `COPYFILE_ACL \| COPYFILE_XATTR` (ACLs, extended attributes, Finder tags; not `COPYFILE_STAT`, which would copy the old modification time) | handled by `ReplaceFileW` |
 | 6. Replace | `rename(2)` | `rename(2)` | `ReplaceFileW`; fallback `MoveFileExW` with `MOVEFILE_REPLACE_EXISTING` and `MOVEFILE_WRITE_THROUGH` |
 | 7. Flush directory | `fsync` on the directory | `fsync` on the directory | not needed (`MOVEFILE_WRITE_THROUGH`) |
 
@@ -742,7 +742,7 @@ Brief §3: never corrupt a user's file. Save through a temp file and an atomic r
 - **Hard links:** a file with more than one link would lose them on rename. Ferman detects this and offers Save as instead of replacing silently (a state to draw under G40).
 - **Ownership:** if the user does not own the file and cannot restore its owner, Ferman offers Save as.
 - **macOS App Sandbox.** The owner answered [Q18](QUESTIONS.md#q18) on 2026-10-16: the sandbox stays on in every macOS build if M2 shows that this write and security-scoped bookmarks work under it; otherwise the Developer ID build drops it and keeps the hardened runtime. Under the sandbox the temp file comes from the system's item-replacement directory on the same volume (`FileManager.url(for: .itemReplacementDirectory, …)`) and `replaceItemAt` (`replaceItemAtURL` in Objective-C) performs the swap. **Proposed** with the M2 plan: M2 builds this path for "Save attachment as…" (a2-3b), the first file Ferman writes for the user, and M3 uses it again for the document writer ([ADR 0008](adr/0008-file-safety-and-saving.md)).
-- atomic-write-file is evaluated against this table in M3. If it does not cover `ReplaceFileW` and metadata preservation, ferman-core implements the sequence directly.
+- **Since M3 (W4).** atomic-write-file covers neither `ReplaceFileW` nor macOS metadata, so ferman-core implements the table itself (`save::save_pdf` for documents, `save::safe_write` for other files), with the calls the standard library lacks in its one unsafe module, `platform` ([ADR 0008](adr/0008-file-safety-and-saving.md), [ADR 0010](adr/0010-error-handling-no-panics.md)). Before step 1 it refuses a read-only or hard-linked target, deletes leftover temp files of crashed saves in the folder (older than the process's first save and than ten minutes) and checks free space for the file plus 1 MiB. Step 4 compares every byte read back and parses the cross-reference data; an incremental update must start with the original bytes. Step 5's `fcopyfile` is best effort; an owner that cannot be restored is `NotOwner`. Step 6 is retried after 50, 100, 200 and 400 ms while another app holds the file.
 
 ### 7.3 Incremental update and full rewrite
 
@@ -761,6 +761,7 @@ The design keeps versions for 30 days in a hidden folder next to the file (a9-8,
 - At open and after each save, the engine records size, modification time and SHA-256.
 - Before saving it checks size and modification time. If either differs, it hashes the file again. If the hash differs, the save stops and the UI shows a11-7b ("Compare", "Keep mine", "Reload"). Ferman does not pick a winner.
 - **Proposed:** an OS file-change notification also triggers the check while the document is open, so the banner can appear before the user saves. The crate is chosen and licence-checked in M3.
+- **Since M3 (W4, decision 9):** no notification crate. `save::FileStamp` holds the three values; `Engine::check_external_change` runs the check when the window regains focus, and a save stops with `FileChangedOnDisk`, which carries nothing of the document. "Keep mine" is `Engine::save_over_change`; "Reload" is the app closing the document and opening it again, which drops the edits; "Compare" waits for a diff view.
 
 ### 7.6 Autosave journal and recovery
 
@@ -805,6 +806,10 @@ Recovery/
 | Locked by another app | sharing violation after retries | "Close it in the other app, or Save as…" | a11-7d (G40) |
 | Rename failed | step 6 error | temp deleted, original untouched, Save as offered | a11-7d, "Couldn't replace the original" (G40) |
 | Volume disappeared | I/O error on a network drive | edits kept, Save as offered | a11-7d, "Drive disconnected" (G40) |
+| Hard links | the target has more than one link | Save as offered | to draw (G40) |
+| Owner cannot be kept | `fchown` fails for a file of another user | Save as offered | to draw (G40) |
+
+Since M3 (W4) each row is a `SaveError` of ferman-core (`DiskFull`, `PermissionDenied`, `FileLocked`, `RenameFailed`, `VolumeGone`, `HardLinked`, `NotOwner`, with `ChangedOnDisk` for section 7.5 and `Verify` for a file that does not read back) and an `ApiError` kind of the same name (`Verify` is `Io`), whose `offer_save_as` is true for all but `FileChangedOnDisk`. The actor's committed revisions do not change, so Save can be tried again.
 
 ## 8. Error handling
 
@@ -814,7 +819,7 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 
 - Each crate has its own `thiserror` enum: `CoreError`, `FontError`, `TextError`, `RenderError`, `OpsError`. Variants carry context (object id, page, operator offset), never document text.
 - No `unwrap`, `expect`, `panic`, `todo` or `unimplemented` in library code. Clippy enforces this with `unwrap_used`, `expect_used`, `panic`, `todo` and `unimplemented` denied outside tests. Parser modules also deny `indexing_slicing` and use checked arithmetic, because untrusted input must not be able to trigger a panic or a silent overflow.
-- `forbid(unsafe_code)` at every crate root except ferman-api. ferman-api uses `deny(unsafe_code)` and allows unsafe code only on the FRB-generated module behind the `frb` feature. That glue needs `extern "C"` exports and `unsafe` blocks, it is never edited by hand, and an inner `allow` cannot override `forbid`, hence the exception. A CI check fails on any `allow(unsafe_code)` outside that module ([roadmap](ROADMAP.md), M1 steps 1 and 3).
+- `forbid(unsafe_code)` at every crate root except ferman-api and ferman-core. ferman-api uses `deny(unsafe_code)` and allows unsafe code only on the FRB-generated module behind the `frb` feature; ferman-core (since M3, M3 plan question 1) only on its `platform` module, the save sequence's system calls (section 7.2). That glue needs `extern "C"` exports and `unsafe` blocks, it is never edited by hand, and an inner `allow` cannot override `forbid`, hence the exception. A CI check fails on any `allow(unsafe_code)` outside that module ([roadmap](ROADMAP.md), M1 steps 1 and 3).
 - pdfium-render is the other unsafe layer. Any further unsafe code (for example if ferman-render ever renders into a caller-owned buffer) is a documented, reviewed exception.
 - Public items are documented. `cargo fmt` and `clippy -D warnings` run in CI.
 
@@ -826,6 +831,8 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 | `PermissionDenied` | read-only file or folder | a1-9d on open, a11-7d on save (G28, G40) |
 | `FileLocked` | open in another app | a11-7d (G40) |
 | `DiskFull` | no space left | a11-7 |
+| `RenameFailed`, `VolumeGone` | the replace failed; the drive went away | a11-7d (G40) |
+| `HardLinked`, `NotOwner` | a file with other links; a file of another user | Save as offered (G40) |
 | `FileChangedOnDisk` | external modification | a11-7b |
 | `PasswordRequired`, `WrongPassword` | encrypted file | a1-8, a1-8b |
 | `Restricted` | owner-password permissions | a2-10a (G27) |
@@ -837,7 +844,7 @@ Fixed by brief §5 ([ADR 0010](adr/0010-error-handling-no-panics.md)).
 | `Cancelled` | job cancelled | none; expected |
 | `Internal` | a bug or a caught panic | generic message plus "Copy technical details" |
 
-- **Message keys.** The engine defines one closed `MessageKey` type whose values are ARB keys (lowerCamelCase, as gen-l10n requires, for example `errorSaveDiskFull`): a newtype with a private field, one constant per key and `MessageKey::ALL`. The first key is `errorInternal`. Its `&'static str` field cannot cross FRB, so the `frb` layer mirrors it as a `String`. A CI test checks that every key in `MessageKey::ALL` exists in `app_en.arb` and `app_tr.arb`; it is added with the first error strings in the ARB files (M1 step 10). The sentence states what happened and the way out; error codes never appear in it (a1-9b). Technical details stay secondary. **Since M2** the open path maps ferman-core's and ferman-render's errors to `NotFound`, `PermissionDenied`, `PasswordRequired`, `WrongPassword`, `Damaged` (with the `Diagnosis` as details), `Unsupported` (a file that is not a PDF has its own key), `ResourceLimit`, `Io` and `Internal`, with the keys `errorFileNotFound`, `errorFilePermissionDenied`, `errorFileRead`, `errorNotPdf`, `errorPasswordRequired`, `errorWrongPassword`, `errorDamaged`, `errorUnsupported`, `errorTooComplex` and `errorOutOfMemory`. `Restricted`, `Cancelled` and the save kinds arrive with the calls that produce them. The keys reach the ARB files, and the test that checks them, with the screens that show them.
+- **Message keys.** The engine defines one closed `MessageKey` type whose values are ARB keys (lowerCamelCase, as gen-l10n requires, for example `errorSaveDiskFull`): a newtype with a private field, one constant per key and `MessageKey::ALL`. The first key is `errorInternal`. Its `&'static str` field cannot cross FRB, so the `frb` layer mirrors it as a `String`. A CI test checks that every key in `MessageKey::ALL` exists in `app_en.arb` and `app_tr.arb`; it is added with the first error strings in the ARB files (M1 step 10). The sentence states what happened and the way out; error codes never appear in it (a1-9b). Technical details stay secondary. **Since M2** the open path maps ferman-core's and ferman-render's errors to `NotFound`, `PermissionDenied`, `PasswordRequired`, `WrongPassword`, `Damaged` (with the `Diagnosis` as details), `Unsupported` (a file that is not a PDF has its own key), `ResourceLimit`, `Io` and `Internal`, with the keys `errorFileNotFound`, `errorFilePermissionDenied`, `errorFileRead`, `errorNotPdf`, `errorPasswordRequired`, `errorWrongPassword`, `errorDamaged`, `errorUnsupported`, `errorTooComplex` and `errorOutOfMemory`. `Restricted` and `Cancelled` arrive with the calls that produce them. **Since M3 (W4)** the save calls return the kinds of section 7.8 with `offer_save_as`; their message keys are the open's `errorFilePermissionDenied` and `errorFileRead` until the a11-7 screens bring their own sentences, so the UI picks the state by kind. The keys reach the ARB files, and the test that checks them, with the screens that show them.
 
 ### 8.3 Panics at the boundary
 

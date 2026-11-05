@@ -378,9 +378,79 @@ Future<History> history({required BigInt document}) =>
 ///
 /// # Errors
 ///
-/// `NotFound` for a document that is not open, and the file errors of the write.
+/// `NotFound` for a document that is not open, `FileChangedOnDisk`, and the save failures with
+/// [`ApiError::offer_save_as`].
 Future<void> save({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbSave(document: document);
+
+/// Saves `document` over a file that changed on disk ("Keep mine", a11-7b).
+///
+/// See [`facade::Engine::save_over_change`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+Future<void> saveOverChange({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbSaveOverChange(document: document);
+
+/// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
+///
+/// See [`facade::Engine::save_copy`].
+///
+/// # Errors
+///
+/// As [`save`], without `FileChangedOnDisk`.
+Future<void> saveCopy({required BigInt document, required String path}) =>
+    FermanBridge.instance.api.crateFrbSaveCopy(document: document, path: path);
+
+/// Writes a repaired document rewritten whole as the file at `path`; its own file only with
+/// `replace_original`.
+///
+/// See [`facade::Engine::save_repaired_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file without `replace_original`, and the save failures.
+Future<void> saveRepairedCopy({
+  required BigInt document,
+  required String path,
+  required bool replaceOriginal,
+}) => FermanBridge.instance.api.crateFrbSaveRepairedCopy(
+  document: document,
+  path: path,
+  replaceOriginal: replaceOriginal,
+);
+
+/// Optimize and clean: the document's file rewritten whole.
+///
+/// See [`facade::Engine::optimize_and_clean`].
+///
+/// # Errors
+///
+/// As [`save`]; `Unsupported` for a repaired document.
+Future<void> optimizeAndClean({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbOptimizeAndClean(document: document);
+
+/// Whether Optimize and clean would break the document's signatures.
+///
+/// See [`facade::Engine::would_break_signatures`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<bool> wouldBreakSignatures({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbWouldBreakSignatures(document: document);
+
+/// Whether the document's file changed on disk since it was opened or saved; the app asks
+/// when its window regains focus (a11-7b).
+///
+/// See [`facade::Engine::check_external_change`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `Io` when the file cannot be read.
+Future<bool> checkExternalChange({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbCheckExternalChange(document: document);
 
 /// Saves `document` as the file at `path`; later saves write there.
 ///
@@ -418,10 +488,22 @@ class ApiError implements FrbException {
   /// Technical details for "Copy technical details": structural facts only.
   final String? details;
 
-  const ApiError({required this.kind, required this.messageKey, this.details});
+  /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
+  final bool offerSaveAs;
+
+  const ApiError({
+    required this.kind,
+    required this.messageKey,
+    this.details,
+    required this.offerSaveAs,
+  });
 
   @override
-  int get hashCode => kind.hashCode ^ messageKey.hashCode ^ details.hashCode;
+  int get hashCode =>
+      kind.hashCode ^
+      messageKey.hashCode ^
+      details.hashCode ^
+      offerSaveAs.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -430,7 +512,8 @@ class ApiError implements FrbException {
           runtimeType == other.runtimeType &&
           kind == other.kind &&
           messageKey == other.messageKey &&
-          details == other.details;
+          details == other.details &&
+          offerSaveAs == other.offerSaveAs;
 }
 
 /// The version of the API between the engine and the UI.
@@ -890,6 +973,27 @@ enum ErrorKind {
 
   /// The text or the document cannot be edited; the message key names the reason.
   notEditable,
+
+  /// A save found too little free space (a11-7).
+  diskFull,
+
+  /// Another app holds the file, still after the retries (a11-7d).
+  fileLocked,
+
+  /// The new file could not replace the original (a11-7d).
+  renameFailed,
+
+  /// The disk or network drive went away during a save (a11-7d).
+  volumeGone,
+
+  /// The file has other hard links; Save as instead.
+  hardLinked,
+
+  /// The file belongs to someone else and its owner cannot be kept; Save as instead.
+  notOwner,
+
+  /// The file changed on disk since it was opened or saved (a11-7b).
+  fileChangedOnDisk,
 
   /// A bug in Ferman, including a caught panic.
   internal,

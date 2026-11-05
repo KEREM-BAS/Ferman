@@ -25,6 +25,15 @@ zeroize.workspace = true
 # version lopdf already pulls, so Cargo.lock gains no package.
 getrandom = "0.4.3"
 
+# The save sequence's system calls the standard library lacks (`platform`, ADR 0008 and 0010, M3
+# plan question 1): statvfs and fcopyfile on Unix, ReplaceFileW and its kin on Windows. The
+# versions already in Cargo.lock.
+[target.'cfg(unix)'.dependencies]
+libc = "0.2.190"
+
+[target.'cfg(windows)'.dependencies]
+windows-sys = { version = "0.61.2", features = ["Win32_Foundation", "Win32_Storage_FileSystem"] }
+
 [features]
 # Entry points for the fuzz targets in fuzz/; nothing else enables it.
 fuzzing = []

@@ -77,6 +77,29 @@ Symbolic links are resolved and the target is replaced. Files with several hard 
 someone else, are not replaced silently: Ferman offers Save as. Sharing violations on Windows are
 retried briefly, then reported as "locked by another app".
 
+**Built in M3 (W4, M3 plan decision 2 and question 1):** ferman-core's own code, on M2's
+`safe_write`, not atomic-write-file: `save::save_pdf` for documents and `save::safe_write` for
+other files run the same sequence. The calls the standard library lacks live in one module,
+`platform`, the crate's only unsafe code (ADR 0010): `statvfs` and `GetDiskFreeSpaceExW` for the
+free-space check (the file's size plus 1 MiB), `GetFileInformationByHandle` for the Windows link
+count, `fcopyfile` with `COPYFILE_ACL | COPYFILE_XATTR` (ACLs and extended attributes, Finder tags
+among them; best effort, so a volume without them still saves; not `COPYFILE_STAT`, which would
+give the new file the old modification time), and `ReplaceFileW` with its `MoveFileExW`
+fallback; the hidden attribute, mode bits and `fchown` come from the standard library. A
+read-only target is refused like a hard-linked one. A replace that hits a sharing violation
+(`EBUSY`, `ETXTBSY` elsewhere) is tried again after 50, 100, 200 and 400 ms, then reported as
+`FileLocked`. Every failure is a typed `SaveError` (`DiskFull`, `PermissionDenied`, `FileLocked`,
+`RenameFailed`, `VolumeGone`, `HardLinked`, `NotOwner`, `ChangedOnDisk`, `Verify`) and an
+`ApiError` kind that says whether Save as is the way out; a fault seam in the tests fails every
+step with each error and checks that the original is unchanged and no temp file is left. The one
+exception: a `ReplaceFileW` that fails after deleting the original (`ERROR_UNABLE_TO_MOVE_REPLACEMENT`)
+leaves the verified temp file, then the only copy on disk, while the edits stay in memory. Temp
+files of crashed saves (the name pattern above, older than the process's first save and than ten
+minutes, so another instance's save in progress is never touched) are deleted by the next save in
+that folder. The crash test runs the sequence in a child process that stops itself (`exit`, no
+destructors, as a kill) at a seeded step or data offset, 100 points by default and 1,000 in CI
+(`FERMAN_CRASH_POINTS`), on Linux and macOS, and finds the old file or the new one, each opening.
+
 The macOS App Sandbox stays on if M2 shows that this sequence and security-scoped bookmarks work
 under it; otherwise the Developer ID build drops it ([Q18](../QUESTIONS.md#q18), answered on
 2026-10-16). Under the sandbox, a file granted through the panel is granted on its own, not its
@@ -103,6 +126,14 @@ again with the document writer.
   Save as (a1-11) always use it.
 - **Repair is always a full rewrite to a new file.** A damaged document (a1-9) is never appended to.
   "Save repaired copy…" writes a new file; replacing the original needs explicit confirmation.
+- **Built in M3 (W4):** `RevisionStore::full_rewrite` writes the objects reached from `/Root` and
+  `/Info` in their newest version, numbered again from 1, streams without a filter compressed with
+  Flate (XMP metadata left readable), one classic cross-reference table; an encrypted document is
+  encrypted again with its own key and ciphers for the new numbers, its encryption dictionary and
+  the first `/ID` string kept. Duplicate streams are not merged yet. After Optimize and clean, later
+  saves of that document rewrite the whole file too, so the revisions it dropped never come back.
+  `Engine::save_repaired_copy(path, replace_original)` refuses the document's own file without
+  the flag; `Engine::would_break_signatures` tells the UI to warn first.
 - Hidden is not removed. Content hidden by a crop stays in the file until a full rewrite or "Remove
   hidden information", and the copy says so ([G57](../DESIGN_GAPS.md#g57)).
 
@@ -119,6 +150,9 @@ At open and after each save the engine records size, modification time and SHA-2
 compares size and time; if either differs it hashes again, and if the hash differs the save stops and
 the UI shows a11-7b ("Compare", "Keep mine", "Reload"). Ferman never picks a winner. A file-system watcher
 that shows the banner earlier is proposed in [ARCHITECTURE.md](../ARCHITECTURE.md) section 7.5.
+**Built in M3 (W4, decision 9):** no watcher; `Engine::check_external_change` runs the same check
+when the window regains focus. "Keep mine" is `Engine::save_over_change`; "Reload" is the app
+closing the document and opening it again. "Compare" waits for a diff view.
 
 ### Autosave journal and recovery
 

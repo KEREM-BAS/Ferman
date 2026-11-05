@@ -149,6 +149,10 @@ jobs:
         shell: bash
         run: bash tools/corpus/fetch-fonts.sh
       - name: Test
+        # The save crash test kills a save at 1,000 points here (100 by default; on Windows it
+        # does not run).
+        env:
+          FERMAN_CRASH_POINTS: "1000"
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
         run: cargo test -p ferman-api --features frb --locked

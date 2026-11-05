@@ -301,7 +301,13 @@ void main() {
       () => service.redo(1),
       () => service.history(1),
       () => service.save(1),
+      () => service.save(1, overChange: true),
       () => service.saveAs(1, '/tmp/a.pdf'),
+      () => service.saveCopy(1, '/tmp/a.pdf'),
+      () => service.saveRepairedCopy(1, '/tmp/a.pdf'),
+      () => service.optimizeAndClean(1),
+      () => service.wouldBreakSignatures(1),
+      () => service.checkExternalChange(1),
     ]) {
       await expectLater(call(), throwsA(same(error)));
     }
@@ -323,5 +329,80 @@ void main() {
     for (final reason in NotEditableReason.values) {
       expect(arb[reason.messageKey], isA<String>(), reason: reason.name);
     }
+  });
+
+  group('saving', () {
+    test('the next save fails with each kind, Save as offered', () async {
+      final engine = FakeEngineService(pageBlocks: {0: _page});
+      for (final kind in [
+        EngineErrorKind.diskFull,
+        EngineErrorKind.permissionDenied,
+        EngineErrorKind.fileLocked,
+        EngineErrorKind.renameFailed,
+        EngineErrorKind.volumeGone,
+        EngineErrorKind.hardLinked,
+        EngineErrorKind.notOwner,
+        EngineErrorKind.io,
+      ]) {
+        engine.failNextSave(kind);
+        await expectLater(
+          engine.save(7),
+          throwsA(
+            isA<EngineException>()
+                .having((error) => error.kind, 'kind', kind)
+                .having((error) => error.offersSaveAs, 'offersSaveAs', true),
+          ),
+        );
+      }
+      expect(engine.saves, isEmpty);
+      await engine.save(7);
+      expect(engine.saves, [(7, null)], reason: 'a failure fails one save');
+      engine.failNextSave(EngineErrorKind.diskFull);
+      await expectLater(
+        engine.saveCopy(7, '/tmp/copy.pdf'),
+        _fails(EngineErrorKind.diskFull),
+      );
+      await engine.saveCopy(7, '/tmp/copy.pdf');
+      expect(engine.copies, [(7, '/tmp/copy.pdf')]);
+    });
+
+    test('a file changed on disk stops Save until Keep mine', () async {
+      final engine = FakeEngineService(pageBlocks: {0: _page})
+        ..changedOnDisk.add(7);
+      expect(await engine.checkExternalChange(7), isTrue);
+      await expectLater(
+        engine.save(7),
+        throwsA(
+          isA<EngineException>()
+              .having(
+                (error) => error.kind,
+                'kind',
+                EngineErrorKind.fileChangedOnDisk,
+              )
+              .having((error) => error.offersSaveAs, 'offersSaveAs', false),
+        ),
+      );
+      await expectLater(
+        engine.optimizeAndClean(7),
+        _fails(EngineErrorKind.fileChangedOnDisk),
+      );
+      await engine.save(7, overChange: true);
+      expect(await engine.checkExternalChange(7), isFalse);
+      expect(engine.saves, [(7, null)]);
+    });
+
+    test('optimize and clean, signatures and repaired copies', () async {
+      final engine = FakeEngineService(pageBlocks: {0: _page})..signed.add(7);
+      expect(await engine.wouldBreakSignatures(7), isTrue);
+      expect(await engine.wouldBreakSignatures(8), isFalse);
+      await engine.optimizeAndClean(7);
+      expect(engine.optimized, [7]);
+      await engine.saveRepairedCopy(8, '/tmp/fixed.pdf');
+      await engine.saveRepairedCopy(8, '/tmp/own.pdf', replaceOriginal: true);
+      expect(engine.repairedCopies, [
+        (8, '/tmp/fixed.pdf', false),
+        (8, '/tmp/own.pdf', true),
+      ]);
+    });
   });
 }

@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 1981533957;
+  int get rustContentHash => 1429374907;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -99,6 +99,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt block,
     required PagePoint point,
   });
+
+  Future<bool> crateFrbCheckExternalChange({required BigInt document});
 
   Future<EditPreview> crateFrbChooseFont({
     required BigInt transaction,
@@ -134,6 +136,8 @@ abstract class FermanBridgeApi extends BaseApi {
 
   Stream<ViewEvent> crateFrbOpenView({required BigInt document});
 
+  Future<void> crateFrbOptimizeAndClean({required BigInt document});
+
   Future<RevisionInfo> crateFrbRedo({required BigInt document});
 
   Future<void> crateFrbRequestView({
@@ -158,6 +162,19 @@ abstract class FermanBridgeApi extends BaseApi {
     required int index,
     required String path,
     String? staging,
+  });
+
+  Future<void> crateFrbSaveCopy({
+    required BigInt document,
+    required String path,
+  });
+
+  Future<void> crateFrbSaveOverChange({required BigInt document});
+
+  Future<void> crateFrbSaveRepairedCopy({
+    required BigInt document,
+    required String path,
+    required bool replaceOriginal,
   });
 
   Stream<SearchEvent> crateFrbSearch({
@@ -191,6 +208,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt document,
     required String password,
   });
+
+  Future<bool> crateFrbWouldBreakSignatures({required BigInt document});
 }
 
 class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
@@ -312,6 +331,31 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "caret_at",
     argNames: ["document", "page", "block", "point"],
   );
+
+  @override
+  Future<bool> crateFrbCheckExternalChange({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__check_external_change(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbCheckExternalChangeConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbCheckExternalChangeConstMeta =>
+      const TaskConstMeta(
+        debugName: "check_external_change",
+        argNames: ["document"],
+      );
 
   @override
   Future<EditPreview> crateFrbChooseFont({
@@ -607,6 +651,30 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<void> crateFrbOptimizeAndClean({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__optimize_and_clean(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbOptimizeAndCleanConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbOptimizeAndCleanConstMeta => const TaskConstMeta(
+    debugName: "optimize_and_clean",
+    argNames: ["document"],
+  );
+
+  @override
   Future<RevisionInfo> crateFrbRedo({required BigInt document}) {
     return handler.executeNormal(
       NormalTask(
@@ -794,6 +862,93 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbSaveAttachmentConstMeta => const TaskConstMeta(
     debugName: "save_attachment",
     argNames: ["document", "index", "path", "staging"],
+  );
+
+  @override
+  Future<void> crateFrbSaveCopy({
+    required BigInt document,
+    required String path,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_String(path);
+          return wire.wire__crate__frb__save_copy(port_, arg0, arg1);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveCopyConstMeta,
+        argValues: [document, path],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveCopyConstMeta => const TaskConstMeta(
+    debugName: "save_copy",
+    argNames: ["document", "path"],
+  );
+
+  @override
+  Future<void> crateFrbSaveOverChange({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__save_over_change(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveOverChangeConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveOverChangeConstMeta => const TaskConstMeta(
+    debugName: "save_over_change",
+    argNames: ["document"],
+  );
+
+  @override
+  Future<void> crateFrbSaveRepairedCopy({
+    required BigInt document,
+    required String path,
+    required bool replaceOriginal,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_String(path);
+          var arg2 = cst_encode_bool(replaceOriginal);
+          return wire.wire__crate__frb__save_repaired_copy(
+            port_,
+            arg0,
+            arg1,
+            arg2,
+          );
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbSaveRepairedCopyConstMeta,
+        argValues: [document, path, replaceOriginal],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbSaveRepairedCopyConstMeta => const TaskConstMeta(
+    debugName: "save_repaired_copy",
+    argNames: ["document", "path", "replaceOriginal"],
   );
 
   @override
@@ -999,6 +1154,31 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     argNames: ["document", "password"],
   );
 
+  @override
+  Future<bool> crateFrbWouldBreakSignatures({required BigInt document}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          return wire.wire__crate__frb__would_break_signatures(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_bool,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbWouldBreakSignaturesConstMeta,
+        argValues: [document],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbWouldBreakSignaturesConstMeta =>
+      const TaskConstMeta(
+        debugName: "would_break_signatures",
+        argNames: ["document"],
+      );
+
   @protected
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
@@ -1035,12 +1215,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ApiError dco_decode_api_error(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
-    if (arr.length != 3)
-      throw Exception('unexpected arr length: expect 3 but see ${arr.length}');
+    if (arr.length != 4)
+      throw Exception('unexpected arr length: expect 4 but see ${arr.length}');
     return ApiError(
       kind: dco_decode_error_kind(arr[0]),
       messageKey: dco_decode_String(arr[1]),
       details: dco_decode_opt_String(arr[2]),
+      offerSaveAs: dco_decode_bool(arr[3]),
     );
   }
 
@@ -2220,10 +2401,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     var var_kind = sse_decode_error_kind(deserializer);
     var var_messageKey = sse_decode_String(deserializer);
     var var_details = sse_decode_opt_String(deserializer);
+    var var_offerSaveAs = sse_decode_bool(deserializer);
     return ApiError(
       kind: var_kind,
       messageKey: var_messageKey,
       details: var_details,
+      offerSaveAs: var_offerSaveAs,
     );
   }
 
@@ -3898,6 +4081,7 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_error_kind(self.kind, serializer);
     sse_encode_String(self.messageKey, serializer);
     sse_encode_opt_String(self.details, serializer);
+    sse_encode_bool(self.offerSaveAs, serializer);
   }
 
   @protected

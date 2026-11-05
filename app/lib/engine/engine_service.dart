@@ -164,11 +164,47 @@ abstract interface class EngineService {
   Future<EditHistory> history(int document);
 
   /// Saves the committed steps of [document] to its file as an incremental
-  /// update, written safely (ADR 0008).
-  Future<void> save(int document);
+  /// update, written safely (ADR 0008); after [optimizeAndClean] the file is
+  /// rewritten whole.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.fileChangedOnDisk]
+  /// when the file changed since it was opened or saved, unless [overChange]
+  /// ("Keep mine", a11-7b), and with the save failures of ARCHITECTURE §7.8
+  /// ([EngineErrorKind.diskFull], [EngineErrorKind.permissionDenied],
+  /// [EngineErrorKind.fileLocked], [EngineErrorKind.renameFailed],
+  /// [EngineErrorKind.volumeGone], [EngineErrorKind.hardLinked],
+  /// [EngineErrorKind.notOwner], [EngineErrorKind.io]) and
+  /// [EngineException.offersSaveAs]. The file and the edits stay as they were.
+  /// "Reload" is closing the document and opening it again.
+  Future<void> save(int document, {bool overChange = false});
 
   /// Saves [document] as the file at [path]; later saves write there.
   Future<void> saveAs(int document, String path);
+
+  /// Saves a copy of [document] as the file at [path]; later saves still
+  /// write to its own file.
+  Future<void> saveCopy(int document, String path);
+
+  /// Writes a repaired [document] (a1-9) rewritten whole as the file at
+  /// [path] (B103). Its own damaged file only with [replaceOriginal], the
+  /// person's confirmation; otherwise [EngineErrorKind.invalidInput].
+  Future<void> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+  });
+
+  /// Optimize and clean: the file of [document] rewritten whole, without
+  /// earlier revisions and unreferenced objects (ARCHITECTURE §7.3). Ask
+  /// [wouldBreakSignatures] and warn first.
+  Future<void> optimizeAndClean(int document);
+
+  /// Whether [optimizeAndClean] would break signatures of [document] (G35).
+  Future<bool> wouldBreakSignatures(int document);
+
+  /// Whether the file of [document] changed on disk since it was opened or
+  /// saved; asked when the window regains focus (a11-7b).
+  Future<bool> checkExternalChange(int document);
 
   /// Opens a view of [document] that renders nothing until [requestView].
   Future<EngineView> openView(int document);
@@ -321,10 +357,30 @@ class UnavailableEngineService implements EngineService {
   Future<EditHistory> history(int document) async => throw error;
 
   @override
-  Future<void> save(int document) async => throw error;
+  Future<void> save(int document, {bool overChange = false}) async =>
+      throw error;
 
   @override
   Future<void> saveAs(int document, String path) async => throw error;
+
+  @override
+  Future<void> saveCopy(int document, String path) async => throw error;
+
+  @override
+  Future<void> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+  }) async => throw error;
+
+  @override
+  Future<void> optimizeAndClean(int document) async => throw error;
+
+  @override
+  Future<bool> wouldBreakSignatures(int document) async => throw error;
+
+  @override
+  Future<bool> checkExternalChange(int document) async => throw error;
 
   @override
   Future<EngineView> openView(int document) async => throw error;

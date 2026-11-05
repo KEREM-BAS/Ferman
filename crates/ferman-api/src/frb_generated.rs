@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1981533957;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1429374907;
 
 // Section: executor
 
@@ -142,6 +142,30 @@ fn wire__crate__frb__caret_at_impl(
                         let output_ok =
                             crate::frb::caret_at(api_document, api_page, api_block, api_point)
                                 .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__check_external_change_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "check_external_change",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::check_external_change(api_document).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -450,6 +474,30 @@ fn wire__crate__frb__open_view_impl(
         },
     )
 }
+fn wire__crate__frb__optimize_and_clean_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "optimize_and_clean",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::optimize_and_clean(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__redo_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -630,6 +678,89 @@ fn wire__crate__frb__save_attachment_impl(
                             api_index,
                             api_path,
                             api_staging,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__save_copy_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_copy",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_path = path.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::save_copy(api_document, api_path).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__save_over_change_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_over_change",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::save_over_change(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__save_repaired_copy_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    path: impl CstDecode<String>,
+    replace_original: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_repaired_copy",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_path = path.cst_decode();
+            let api_replace_original = replace_original.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::save_repaired_copy(
+                            api_document,
+                            api_path,
+                            api_replace_original,
                         )
                         .await?;
                         std::result::Result::Ok(output_ok)
@@ -833,6 +964,30 @@ fn wire__crate__frb__unlock_owner_impl(
         },
     )
 }
+fn wire__crate__frb__would_break_signatures_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "would_break_signatures",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::would_break_signatures(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 
 // Section: dart2rust
 
@@ -890,7 +1045,14 @@ impl CstDecode<crate::frb::ErrorKind> for i32 {
             7 => crate::frb::ErrorKind::ResourceLimit,
             8 => crate::frb::ErrorKind::Io,
             9 => crate::frb::ErrorKind::NotEditable,
-            10 => crate::frb::ErrorKind::Internal,
+            10 => crate::frb::ErrorKind::DiskFull,
+            11 => crate::frb::ErrorKind::FileLocked,
+            12 => crate::frb::ErrorKind::RenameFailed,
+            13 => crate::frb::ErrorKind::VolumeGone,
+            14 => crate::frb::ErrorKind::HardLinked,
+            15 => crate::frb::ErrorKind::NotOwner,
+            16 => crate::frb::ErrorKind::FileChangedOnDisk,
+            17 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", self),
         }
     }
@@ -1202,10 +1364,12 @@ impl SseDecode for crate::frb::ApiError {
         let mut var_kind = <crate::frb::ErrorKind>::sse_decode(deserializer);
         let mut var_messageKey = <String>::sse_decode(deserializer);
         let mut var_details = <Option<String>>::sse_decode(deserializer);
+        let mut var_offerSaveAs = <bool>::sse_decode(deserializer);
         return crate::frb::ApiError {
             kind: var_kind,
             message_key: var_messageKey,
             details: var_details,
+            offer_save_as: var_offerSaveAs,
         };
     }
 }
@@ -1430,7 +1594,14 @@ impl SseDecode for crate::frb::ErrorKind {
             7 => crate::frb::ErrorKind::ResourceLimit,
             8 => crate::frb::ErrorKind::Io,
             9 => crate::frb::ErrorKind::NotEditable,
-            10 => crate::frb::ErrorKind::Internal,
+            10 => crate::frb::ErrorKind::DiskFull,
+            11 => crate::frb::ErrorKind::FileLocked,
+            12 => crate::frb::ErrorKind::RenameFailed,
+            13 => crate::frb::ErrorKind::VolumeGone,
+            14 => crate::frb::ErrorKind::HardLinked,
+            15 => crate::frb::ErrorKind::NotOwner,
+            16 => crate::frb::ErrorKind::FileChangedOnDisk,
+            17 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", inner),
         };
     }
@@ -2786,6 +2957,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ApiError {
             self.kind.into_into_dart().into_dart(),
             self.message_key.into_into_dart().into_dart(),
             self.details.into_into_dart().into_dart(),
+            self.offer_save_as.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3037,7 +3209,14 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ErrorKind {
             Self::ResourceLimit => 7.into_dart(),
             Self::Io => 8.into_dart(),
             Self::NotEditable => 9.into_dart(),
-            Self::Internal => 10.into_dart(),
+            Self::DiskFull => 10.into_dart(),
+            Self::FileLocked => 11.into_dart(),
+            Self::RenameFailed => 12.into_dart(),
+            Self::VolumeGone => 13.into_dart(),
+            Self::HardLinked => 14.into_dart(),
+            Self::NotOwner => 15.into_dart(),
+            Self::FileChangedOnDisk => 16.into_dart(),
+            Self::Internal => 17.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -4028,6 +4207,7 @@ impl SseEncode for crate::frb::ApiError {
         <crate::frb::ErrorKind>::sse_encode(self.kind, serializer);
         <String>::sse_encode(self.message_key, serializer);
         <Option<String>>::sse_encode(self.details, serializer);
+        <bool>::sse_encode(self.offer_save_as, serializer);
     }
 }
 
@@ -4193,7 +4373,14 @@ impl SseEncode for crate::frb::ErrorKind {
                 crate::frb::ErrorKind::ResourceLimit => 7,
                 crate::frb::ErrorKind::Io => 8,
                 crate::frb::ErrorKind::NotEditable => 9,
-                crate::frb::ErrorKind::Internal => 10,
+                crate::frb::ErrorKind::DiskFull => 10,
+                crate::frb::ErrorKind::FileLocked => 11,
+                crate::frb::ErrorKind::RenameFailed => 12,
+                crate::frb::ErrorKind::VolumeGone => 13,
+                crate::frb::ErrorKind::HardLinked => 14,
+                crate::frb::ErrorKind::NotOwner => 15,
+                crate::frb::ErrorKind::FileChangedOnDisk => 16,
+                crate::frb::ErrorKind::Internal => 17,
                 _ => {
                     unimplemented!("");
                 }
@@ -5358,6 +5545,7 @@ mod io {
                 kind: self.kind.cst_decode(),
                 message_key: self.message_key.cst_decode(),
                 details: self.details.cst_decode(),
+                offer_save_as: self.offer_save_as.cst_decode(),
             }
         }
     }
@@ -6206,6 +6394,7 @@ mod io {
                 kind: Default::default(),
                 message_key: core::ptr::null_mut(),
                 details: core::ptr::null_mut(),
+                offer_save_as: Default::default(),
             }
         }
     }
@@ -6918,6 +7107,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__check_external_change(
+        port_: i64,
+        document: u64,
+    ) {
+        wire__crate__frb__check_external_change_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__choose_font(
         port_: i64,
         transaction: u64,
@@ -6999,6 +7196,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__optimize_and_clean(
+        port_: i64,
+        document: u64,
+    ) {
+        wire__crate__frb__optimize_and_clean_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__redo(port_: i64, document: u64) {
         wire__crate__frb__redo_impl(port_, document)
     }
@@ -7050,6 +7255,30 @@ mod io {
         staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_copy(
+        port_: i64,
+        document: u64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_copy_impl(port_, document, path)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_over_change(port_: i64, document: u64) {
+        wire__crate__frb__save_over_change_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_repaired_copy(
+        port_: i64,
+        document: u64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        replace_original: bool,
+    ) {
+        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original)
     }
 
     #[unsafe(no_mangle)]
@@ -7112,6 +7341,14 @@ mod io {
         password: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__unlock_owner_impl(port_, document, password)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__would_break_signatures(
+        port_: i64,
+        document: u64,
+    ) {
+        wire__crate__frb__would_break_signatures_impl(port_, document)
     }
 
     #[unsafe(no_mangle)]
@@ -7525,6 +7762,7 @@ mod io {
         kind: i32,
         message_key: *mut wire_cst_list_prim_u_8_strict,
         details: *mut wire_cst_list_prim_u_8_strict,
+        offer_save_as: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -8100,14 +8338,15 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                4,
+                "Expected 4 elements, got {}",
                 self_.length()
             );
             crate::frb::ApiError {
                 kind: self_.get(0).cst_decode(),
                 message_key: self_.get(1).cst_decode(),
                 details: self_.get(2).cst_decode(),
+                offer_save_as: self_.get(3).cst_decode(),
             }
         }
     }
@@ -9614,6 +9853,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__check_external_change(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__check_external_change_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__choose_font(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -9710,6 +9957,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__optimize_and_clean(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__optimize_and_clean_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__redo(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -9770,6 +10025,33 @@ mod web {
         staging: Option<String>,
     ) {
         wire__crate__frb__save_attachment_impl(port_, document, index, path, staging)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__save_copy(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        path: String,
+    ) {
+        wire__crate__frb__save_copy_impl(port_, document, path)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__save_over_change(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__save_over_change_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__save_repaired_copy(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        path: String,
+        replace_original: bool,
+    ) {
+        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original)
     }
 
     #[wasm_bindgen]
@@ -9835,6 +10117,14 @@ mod web {
         password: String,
     ) {
         wire__crate__frb__unlock_owner_impl(port_, document, password)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__would_break_signatures(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__would_break_signatures_impl(port_, document)
     }
 }
 #[cfg(target_family = "wasm")]

@@ -119,12 +119,34 @@ enum EngineErrorKind {
   /// reason (ARCHITECTURE §6.5).
   notEditable,
 
+  /// A save found too little free space (a11-7).
+  diskFull,
+
+  /// Another app holds the file, still after the retries (a11-7d, G40).
+  fileLocked,
+
+  /// The new file could not replace the original (a11-7d, G40).
+  renameFailed,
+
+  /// The disk or network drive went away during a save (a11-7d, G40).
+  volumeGone,
+
+  /// The file has other hard links, which replacing it would break.
+  hardLinked,
+
+  /// The file belongs to someone else and its owner cannot be kept.
+  notOwner,
+
+  /// The file changed on disk since it was opened or saved (a11-7b).
+  fileChangedOnDisk,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
 
 /// An error the engine returned. [messageKey] names the ARB string the UI
-/// shows; [details] holds structural facts only.
+/// shows; [details] holds structural facts only. [offersSaveAs] says that a
+/// failed save's way out is Save as (ARCHITECTURE §7.8).
 @immutable
 class EngineException implements Exception {
   /// Creates an exception.
@@ -132,6 +154,7 @@ class EngineException implements Exception {
     required this.messageKey,
     this.details,
     this.kind = EngineErrorKind.internal,
+    this.offersSaveAs = false,
   });
 
   /// What kind of failure this is.
@@ -142,6 +165,10 @@ class EngineException implements Exception {
 
   /// Technical details for "Copy technical details".
   final String? details;
+
+  /// Whether the UI offers Save as: a save that failed for a reason another
+  /// file avoids.
+  final bool offersSaveAs;
 
   @override
   String toString() =>

@@ -1482,6 +1482,7 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.kind = cst_encode_error_kind(apiObj.kind);
     wireObj.message_key = cst_encode_String(apiObj.messageKey);
     wireObj.details = cst_encode_opt_String(apiObj.details);
+    wireObj.offer_save_as = cst_encode_bool(apiObj.offerSaveAs);
   }
 
   @protected
@@ -2850,6 +2851,18 @@ class FermanBridgeWire implements BaseWire {
         void Function(int, int, int, int, ffi.Pointer<wire_cst_page_point>)
       >();
 
+  void wire__crate__frb__check_external_change(int port_, int document) {
+    return _wire__crate__frb__check_external_change(port_, document);
+  }
+
+  late final _wire__crate__frb__check_external_changePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__check_external_change',
+      );
+  late final _wire__crate__frb__check_external_change =
+      _wire__crate__frb__check_external_changePtr
+          .asFunction<void Function(int, int)>();
+
   void wire__crate__frb__choose_font(
     int port_,
     int transaction,
@@ -3058,6 +3071,18 @@ class FermanBridgeWire implements BaseWire {
         void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
       >();
 
+  void wire__crate__frb__optimize_and_clean(int port_, int document) {
+    return _wire__crate__frb__optimize_and_clean(port_, document);
+  }
+
+  late final _wire__crate__frb__optimize_and_cleanPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__optimize_and_clean',
+      );
+  late final _wire__crate__frb__optimize_and_clean =
+      _wire__crate__frb__optimize_and_cleanPtr
+          .asFunction<void Function(int, int)>();
+
   void wire__crate__frb__redo(int port_, int document) {
     return _wire__crate__frb__redo(port_, document);
   }
@@ -3193,6 +3218,77 @@ class FermanBridgeWire implements BaseWire {
               int,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
+
+  void wire__crate__frb__save_copy(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+  ) {
+    return _wire__crate__frb__save_copy(port_, document, path);
+  }
+
+  late final _wire__crate__frb__save_copyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_copy');
+  late final _wire__crate__frb__save_copy = _wire__crate__frb__save_copyPtr
+      .asFunction<
+        void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+      >();
+
+  void wire__crate__frb__save_over_change(int port_, int document) {
+    return _wire__crate__frb__save_over_change(port_, document);
+  }
+
+  late final _wire__crate__frb__save_over_changePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__save_over_change',
+      );
+  late final _wire__crate__frb__save_over_change =
+      _wire__crate__frb__save_over_changePtr
+          .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__save_repaired_copy(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    bool replace_original,
+  ) {
+    return _wire__crate__frb__save_repaired_copy(
+      port_,
+      document,
+      path,
+      replace_original,
+    );
+  }
+
+  late final _wire__crate__frb__save_repaired_copyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Bool,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_repaired_copy');
+  late final _wire__crate__frb__save_repaired_copy =
+      _wire__crate__frb__save_repaired_copyPtr
+          .asFunction<
+            void Function(
+              int,
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              bool,
             )
           >();
 
@@ -3347,6 +3443,18 @@ class FermanBridgeWire implements BaseWire {
           .asFunction<
             void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
           >();
+
+  void wire__crate__frb__would_break_signatures(int port_, int document) {
+    return _wire__crate__frb__would_break_signatures(port_, document);
+  }
+
+  late final _wire__crate__frb__would_break_signaturesPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__would_break_signatures',
+      );
+  late final _wire__crate__frb__would_break_signatures =
+      _wire__crate__frb__would_break_signaturesPtr
+          .asFunction<void Function(int, int)>();
 
   ffi.Pointer<wire_cst_extend_blocked> cst_new_box_autoadd_extend_blocked() {
     return _cst_new_box_autoadd_extend_blocked();
@@ -4430,6 +4538,9 @@ final class wire_cst_api_error extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> message_key;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> details;
+
+  @ffi.Bool()
+  external bool offer_save_as;
 }
 
 final class wire_cst_api_version extends ffi.Struct {

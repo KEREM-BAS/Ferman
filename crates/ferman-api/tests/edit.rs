@@ -11,7 +11,7 @@ use std::path::PathBuf;
 use std::sync::OnceLock;
 
 use ferman_api::facade::{
-    Engine, EngineConfig, ErrorKind, MessageKey, PageBlocks, PdfiumLibrary, block_on,
+    Engine, EngineConfig, ErrorKind, MessageKey, PageBlocks, Password, PdfiumLibrary, block_on,
 };
 
 /// One engine for the whole test binary: one render thread of a process may hold PDFium.
@@ -118,4 +118,66 @@ fn a_damaged_document_is_not_editable() {
     assert_eq!(err.kind, ErrorKind::NotEditable);
     assert_eq!(err.message_key, MessageKey::EDIT_DAMAGED);
     block_on(engine().close(damaged.id)).unwrap();
+}
+
+/// E24 (ROADMAP §7): an encrypted document edited after the owner password unlocked it, saved
+/// and opened again is still encrypted, with the password, and reads the new text; without the
+/// password it does not open, so the new objects are encrypted too. Here rather than in
+/// `edit_cases.rs`, whose cases run below the facade on files without passwords.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e24_an_encrypted_document_stays_encrypted_after_an_edit() {
+    let dir = std::env::temp_dir().join(format!("ferman-api-e24-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("payslip.pdf");
+    std::fs::copy(corpus("payslip-aes256"), &path).unwrap();
+    let original = std::fs::read(&path).unwrap();
+    let user = || Some(Password::new("Eylül2026maaşı".to_owned()));
+    let opened = block_on(engine().open(path.clone(), user())).unwrap();
+    let doc = opened.id;
+    block_on(engine().unlock_owner(doc, Password::new("bordro-yonetim-2026".to_owned()))).unwrap();
+
+    let page = block_on(engine().text_blocks(doc, 0)).unwrap();
+    let block = page
+        .blocks
+        .iter()
+        .find(|block| block.lines.iter().any(|line| line.text.contains("0187")))
+        .unwrap();
+    let text = block
+        .lines
+        .iter()
+        .map(|line| line.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    let tx = block_on(engine().begin_edit(doc, 0, block.id)).unwrap();
+    let preview = block_on(engine().apply(tx, text.replace("0187", "0188"))).unwrap();
+    assert!(preview.missing.is_empty());
+    block_on(engine().commit(tx, "Edited text".to_owned())).unwrap();
+    block_on(engine().save(doc)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+
+    let saved = std::fs::read(&path).unwrap();
+    assert_eq!(saved.get(..original.len()), Some(original.as_slice()));
+    let update = String::from_utf8_lossy(saved.get(original.len()..).unwrap());
+    assert!(
+        update.contains("/Encrypt"),
+        "the update's trailer keeps /Encrypt"
+    );
+    assert!(!update.contains("BRD-2026"), "no plaintext of the new text");
+    if let Some(out) = std::env::var_os("FERMAN_SAVED_DIR").filter(|dir| !dir.is_empty()) {
+        let out = PathBuf::from(out);
+        std::fs::create_dir_all(&out).unwrap();
+        std::fs::write(out.join("api-e24-payslip-aes256.pdf"), &saved).unwrap();
+    }
+    let err = block_on(engine().open(path.clone(), None)).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::PasswordRequired);
+    let reopened = block_on(engine().open(path.clone(), user())).unwrap();
+    assert!(reopened.security.is_some());
+    let text = lines(&block_on(engine().text_blocks(reopened.id, 0)).unwrap());
+    assert!(
+        text.contains("BRD-2026-09-0188") && !text.contains("BRD-2026-09-0187"),
+        "{text}"
+    );
+    block_on(engine().close(reopened.id)).unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
 }

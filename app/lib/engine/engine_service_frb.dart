@@ -693,9 +693,12 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> save(int document) async {
+  Future<void> save(int document, {bool overChange = false}) async {
     try {
-      await bridge.save(document: BigInt.from(document));
+      final id = BigInt.from(document);
+      await (overChange
+          ? bridge.saveOverChange(document: id)
+          : bridge.save(document: id));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -705,6 +708,59 @@ class FrbEngineService implements EngineService {
   Future<void> saveAs(int document, String path) async {
     try {
       await bridge.saveAs(document: BigInt.from(document), path: path);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> saveCopy(int document, String path) async {
+    try {
+      await bridge.saveCopy(document: BigInt.from(document), path: path);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+  }) async {
+    try {
+      await bridge.saveRepairedCopy(
+        document: BigInt.from(document),
+        path: path,
+        replaceOriginal: replaceOriginal,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> optimizeAndClean(int document) async {
+    try {
+      await bridge.optimizeAndClean(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<bool> wouldBreakSignatures(int document) async {
+    try {
+      return await bridge.wouldBreakSignatures(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<bool> checkExternalChange(int document) async {
+    try {
+      return await bridge.checkExternalChange(document: BigInt.from(document));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -801,6 +857,7 @@ EngineException _exception(bridge.ApiError error) => EngineException(
   kind: _kind(error.kind),
   messageKey: error.messageKey,
   details: error.details,
+  offersSaveAs: error.offerSaveAs,
 );
 
 /// Every error kind of the bridge by name, with the app's kind it maps to,
@@ -821,6 +878,13 @@ EngineErrorKind _kind(bridge.ErrorKind kind) => switch (kind) {
   bridge.ErrorKind.resourceLimit => EngineErrorKind.resourceLimit,
   bridge.ErrorKind.io => EngineErrorKind.io,
   bridge.ErrorKind.notEditable => EngineErrorKind.notEditable,
+  bridge.ErrorKind.diskFull => EngineErrorKind.diskFull,
+  bridge.ErrorKind.fileLocked => EngineErrorKind.fileLocked,
+  bridge.ErrorKind.renameFailed => EngineErrorKind.renameFailed,
+  bridge.ErrorKind.volumeGone => EngineErrorKind.volumeGone,
+  bridge.ErrorKind.hardLinked => EngineErrorKind.hardLinked,
+  bridge.ErrorKind.notOwner => EngineErrorKind.notOwner,
+  bridge.ErrorKind.fileChangedOnDisk => EngineErrorKind.fileChangedOnDisk,
   bridge.ErrorKind.internal => EngineErrorKind.internal,
 };
 

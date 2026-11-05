@@ -31,9 +31,17 @@
 //!   ([`Splice`](revision::Splice)), with copy-on-write for shared streams and forms (§6.6); and
 //!   the incremental writer, which appends the changes to the original bytes in the file's own
 //!   cross-reference form, encrypted with the document's key (§7.3).
-//! - [`save`]: [`safe_write`](save::safe_write), a file written through a temp file, flushed,
-//!   verified and renamed over the target (ADR 0008); M2 saves attachments with it
-//!   ([`Document::attachment_data`]).
+//! - [`save`]: the atomic save sequence of ADR 0008 and docs/ARCHITECTURE.md §7.2:
+//!   [`save_pdf`](save::save_pdf) writes a document through a temp file beside it, flushed,
+//!   verified, given the original's metadata and swapped in, with every failure of §7.8 a
+//!   [`SaveError`] and the external-change check of §7.5 ([`FileStamp`](save::FileStamp));
+//!   [`safe_write`](save::safe_write) is the same sequence for other files ("Save attachment
+//!   as…", [`Document::attachment_data`]).
+//! - `rewrite` (private): the full rewrite, [`RevisionStore::full_rewrite`](revision::RevisionStore::full_rewrite),
+//!   for Optimize and clean and a repaired document's copy (§7.3).
+//! - `platform` (private): the few file-system calls the standard library lacks
+//!   (`ReplaceFileW`, `fcopyfile`, free space, link counts), the crate's only unsafe code
+//!   (ADR 0010).
 //! - `content` (private): the content-stream lexer, operators with their operands and byte spans,
 //!   read leniently, with inline images (§6.1).
 //! - `appendix` (private): render-only appendices, the bytes after a document's that PDFium
@@ -46,11 +54,9 @@
 //!
 //! - The rest of the interpreter (§6.1): clipping, colour, marked content and Type3 glyph
 //!   procedures, M3.
-//! - The rest of `save`: `SaveMode`, the atomic replace and the full rewrite, §7 and ADR 0008.
-//!   M3. Its [`save::safe_write`] (temp file, flush, verify, atomic rename) is here since M2, for
-//!   "Save attachment as…".
 //! - `recovery`: the autosave `RecoveryJournal`, §7.6. M3.
-#![forbid(unsafe_code)]
+// Unsafe code is denied, and allowed only in `platform` (ADR 0010, M3 plan question 1).
+#![deny(unsafe_code)]
 
 mod appendix;
 mod content;
@@ -62,8 +68,11 @@ pub mod fuzzing;
 mod incremental;
 pub mod interpret;
 pub mod limits;
+#[allow(unsafe_code)]
+mod platform;
 pub mod repair;
 pub mod revision;
+mod rewrite;
 pub mod save;
 pub mod security;
 pub mod sniff;
@@ -168,6 +177,63 @@ pub enum CoreError {
     /// A change or a write that cannot be made.
     #[error("cannot write: {0}")]
     Write(WriteError),
+    /// A save failed (docs/ARCHITECTURE.md §7.8). The target is as it was and no temp file is
+    /// left.
+    #[error("cannot save: {0}")]
+    Save(SaveError),
+}
+
+/// What [`CoreError::Save`] is about: why a file could not be saved (docs/ARCHITECTURE.md §7.8).
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum SaveError {
+    /// Not enough free space, found before writing or while writing (`ENOSPC`,
+    /// `ERROR_DISK_FULL`).
+    DiskFull,
+    /// The file or its folder is read-only, or the system does not let Ferman write there
+    /// (`EACCES`, `EPERM`, `EROFS`, `ERROR_ACCESS_DENIED`).
+    PermissionDenied,
+    /// Another app holds the file, still after the retries (a Windows sharing violation,
+    /// `EBUSY`, `ETXTBSY`).
+    FileLocked,
+    /// The temp file was written but could not replace the target.
+    RenameFailed,
+    /// The disk or the network drive went away (`EIO`, `ENODEV`, `ENXIO`,
+    /// `ERROR_DEV_NOT_EXIST`, a lost network name).
+    VolumeGone,
+    /// The target has more than one hard link, which replacing it would break.
+    HardLinked,
+    /// The target belongs to someone else, and the new file could not be given its owner.
+    NotOwner,
+    /// The file changed on disk since it was opened or last saved (docs/ARCHITECTURE.md §7.5).
+    ChangedOnDisk,
+    /// What was read back is not what was written, or does not parse.
+    Verify,
+}
+
+impl SaveError {
+    /// Whether the way out is Save as: every failure but a file changed on disk, which a11-7b
+    /// resolves instead.
+    #[must_use]
+    pub const fn offers_save_as(self) -> bool {
+        !matches!(self, Self::ChangedOnDisk)
+    }
+}
+
+impl std::fmt::Display for SaveError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        f.write_str(match self {
+            Self::DiskFull => "the disk is full",
+            Self::PermissionDenied => "permission denied",
+            Self::FileLocked => "the file is locked by another app",
+            Self::RenameFailed => "the original could not be replaced",
+            Self::VolumeGone => "the drive is gone",
+            Self::HardLinked => "the file has other hard links",
+            Self::NotOwner => "the file's owner cannot be kept",
+            Self::ChangedOnDisk => "the file changed on disk",
+            Self::Verify => "the written file does not read back",
+        })
+    }
 }
 
 /// What [`CoreError::Write`] is about: misuse of the [`RevisionStore`](revision::RevisionStore)
