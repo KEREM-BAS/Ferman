@@ -95,25 +95,31 @@ class FmDocPanel extends ConsumerWidget {
               child: Row(
                 spacing: theme.space.space2,
                 children: [
-                  Flexible(
-                    child: ExcludeSemantics(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.panelTitle.copyWith(
-                          color: theme.colors.textPrimary,
+                  Expanded(
+                    child: Row(
+                      spacing: theme.space.space2,
+                      children: [
+                        Flexible(
+                          child: ExcludeSemantics(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.typography.panelTitle.copyWith(
+                                color: theme.colors.textPrimary,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (edited)
+                          Badge(
+                            label: l10n.editBadgeEdited,
+                            tone: BadgeTone.edited,
+                            dot: true,
+                          ),
+                      ],
                     ),
                   ),
-                  if (edited)
-                    Badge(
-                      label: l10n.editBadgeEdited,
-                      tone: BadgeTone.edited,
-                      dot: true,
-                    ),
-                  const Spacer(),
                   IconButton(
                     icon: IconName.ellipsis,
                     label: l10n.shellMore,
