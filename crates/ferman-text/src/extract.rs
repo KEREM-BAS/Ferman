@@ -800,7 +800,7 @@ fn logical(visual: &[(char, Option<usize>)]) -> Line {
 }
 
 /// The bracket that mirrors `c`, or `c`.
-fn mirror(c: char) -> char {
+pub(crate) fn mirror(c: char) -> char {
     match c {
         '(' => ')',
         ')' => '(',

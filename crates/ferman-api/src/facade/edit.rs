@@ -543,7 +543,8 @@ impl Session {
             // A font of the page may lend the characters without the library; the installed
             // and bundled fonts are still candidates.
             Outcome::Rewritten(rewrite) => !rewrite.substitutions.is_empty(),
-            Outcome::Unsupported(_) => false,
+            // Right-to-left text is shaped in the installed or bundled copy of its font.
+            Outcome::Unsupported(unsupported) => *unsupported == ferman_text::Unsupported::Shaping,
         };
         if library.is_none() && fell_back {
             let library = fonts.library();
@@ -1503,6 +1504,24 @@ mod tests {
         });
         session.fonts = Arc::new(fonts);
         session
+    }
+
+    #[test]
+    fn right_to_left_text_indexes_the_fonts_to_shape_in() {
+        // The first edit has no font library yet; the rewrite asks for one and gets it.
+        let mut session = bundled_session("he-para", false);
+        let (block, text) = paragraph(&session, "הרצל 24");
+        let tx = session.begin(0, block).unwrap();
+        let preview = session.apply(tx, &text.replacen("24", "42", 1)).unwrap();
+        assert!(preview.missing.is_empty());
+        assert!(preview.substitutions.is_empty());
+        session.commit(tx, "House number".to_owned()).unwrap();
+        assert!(
+            blocks(&session, 0)
+                .blocks
+                .iter()
+                .any(|b| b.text().contains("הרצל 42"))
+        );
     }
 
     #[test]

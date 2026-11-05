@@ -183,6 +183,22 @@ impl<'a> FontProgram<'a> {
         }
     }
 
+    /// The name of `glyph` that an sfnt's `post` (or `CFF `) table stores, the inverse of
+    /// [`glyph_for_name`](Self::glyph_for_name): how a shaped glyph of an installed font is found
+    /// in a subset of it. `None` for a name the program does not store, and for bare CFF and Type1
+    /// programs.
+    #[must_use]
+    pub fn glyph_name(&self, glyph: GlyphId) -> Option<String> {
+        match &self.repr {
+            Repr::Sfnt(font) => font
+                .glyph_names()
+                .get(skrifa::GlyphId::new(glyph.0))
+                .filter(|name| !name.is_synthesized())
+                .map(|name| name.as_str().to_owned()),
+            Repr::Cff(_) | Repr::Type1(_) => None,
+        }
+    }
+
     /// The glyph of CID `cid` in a CID-keyed CFF program, through its charset; in any other
     /// program the CID is the glyph's index (a TrueType program's `/CIDToGIDMap` is the
     /// caller's). `None` past the program's glyphs.
@@ -560,6 +576,7 @@ currentfile eexec
         assert_ne!(gbreve, GlyphId(0));
         assert_eq!(font.glyph_for_name("gbreve"), Some(gbreve));
         assert_eq!(font.glyph_for_name("no-such-glyph"), None);
+        assert_eq!(font.glyph_name(gbreve).as_deref(), Some("gbreve"));
         assert!(font.advance_width(gbreve).unwrap() > 0.0);
         assert_eq!(font.advance_width(GlyphId(font.glyph_count())), None);
         assert_eq!(font.glyph_for_char('\u{F041}'), None);
@@ -580,6 +597,7 @@ currentfile eexec
             None,
             "synthesized names find nothing"
         );
+        assert_eq!(font.glyph_name(GlyphId(1)).as_deref(), Some("alpha.sym"));
         assert_eq!(font.advance_width(GlyphId(2)), Some(900.0));
         assert_eq!(font.units_per_em(), 2048);
         assert_eq!(font.fs_type(), Some(4));

@@ -33,8 +33,8 @@ use std::collections::HashMap;
 
 use ferman_core::revision::{EmbeddedFont, EmbeddedProgram};
 use ferman_fonts::{
-    Coverage, Direction, Embedding, FaceId, FontLibrary, FontOrigin, FontProgram, SameFont,
-    SameFontQuery, ShapeRequest, ShapingFont, SimilarQuery, StyleMetrics, SubsetProgram,
+    Coverage, Direction, Embedding, FaceId, FontLibrary, FontOrigin, FontProgram, GlyphId,
+    SameFont, SameFontQuery, ShapeRequest, ShapingFont, SimilarQuery, StyleMetrics, SubsetProgram,
     find_same_font, rank_similar, strip_subset_tag, subset, with_text,
 };
 
@@ -237,22 +237,7 @@ pub(crate) fn resolve(
         }
         let mut left = chars.clone();
         if let (Some(library), Some(pdf)) = (sources.library, pdf) {
-            let style = style_of(pdf);
-            let widths = widths_of(pdf, font, glyphs);
-            let family = pdf
-                .program()
-                .and_then(|program| program.family_name())
-                .or_else(|| pdf.resource.base_font.clone());
-            let query = SameFontQuery {
-                postscript_name: pdf.resource.base_font.as_deref().unwrap_or_default(),
-                family: family.as_deref(),
-                weight: style.weight,
-                italic: style.italic,
-                stretch: 5,
-                units_per_em: pdf.program().map(|program| program.units_per_em()),
-                widths: &widths,
-            };
-            match find_same_font(library, &query) {
+            match same_font(library, pdf, font, glyphs, false) {
                 SameFont::Found { face, .. } => {
                     if let Some(new_name) = name(&resource)
                         && let Some((substitute, embedded, drawn)) =
@@ -441,6 +426,43 @@ pub(crate) fn resolve(
     Ok(resolved)
 }
 
+/// Step 2's search for `pdf` (key `key`) of a page whose glyphs are `glyphs`, confirmed by the
+/// PDF's widths. With `contextual`, the characters a shaper gives contextual forms (Arabic letters
+/// and marks) are left out of the widths: the first glyph the page sets for one may be any of its
+/// forms, whose width is not the character's nominal glyph's.
+pub(crate) fn same_font(
+    library: &FontLibrary,
+    pdf: &PdfFont,
+    key: u64,
+    glyphs: &[Glyph],
+    contextual: bool,
+) -> SameFont {
+    let style = style_of(pdf);
+    let mut widths = widths_of(pdf, key, glyphs);
+    if contextual {
+        widths.retain(|&(c, _)| {
+            !matches!(
+                unicode_bidi::bidi_class(c),
+                unicode_bidi::BidiClass::AL | unicode_bidi::BidiClass::NSM
+            )
+        });
+    }
+    let family = pdf
+        .program()
+        .and_then(|program| program.family_name())
+        .or_else(|| pdf.resource.base_font.clone());
+    let query = SameFontQuery {
+        postscript_name: pdf.resource.base_font.as_deref().unwrap_or_default(),
+        family: family.as_deref(),
+        weight: style.weight,
+        italic: style.italic,
+        stretch: 5,
+        units_per_em: pdf.program().map(|program| program.units_per_em()),
+        widths: &widths,
+    };
+    find_same_font(library, &query)
+}
+
 /// A font of the page that already encodes some of the missing characters through its own
 /// codes: an "embedded in this document" candidate (a3-3b).
 #[derive(Debug, Clone)]
@@ -492,7 +514,7 @@ pub(crate) fn restriction(font: &PdfFont) -> Option<Embedding> {
 }
 
 /// The PostScript name of `font` without its subset tag.
-fn font_name(font: Option<&PdfFont>) -> String {
+pub(crate) fn font_name(font: Option<&PdfFont>) -> String {
     font.and_then(|font| font.resource.base_font.as_deref())
         .map(|name| strip_subset_tag(name).to_owned())
         .unwrap_or_default()
@@ -620,41 +642,13 @@ fn substitute(
                 .iter()
                 .map(|(c, glyph)| (*glyph, c.to_string()))
                 .collect();
-            let subset = subset(data, index, &texts).ok()?;
+            let (embedded, codes) = embed(data, index, &texts, name.clone())?;
             let mut drawn = Vec::new();
             let mut glyphs = Vec::new();
-            let mut widths = Vec::new();
-            let mut texts = Vec::new();
-            for (c, old) in wanted {
-                let new = subset.new_glyph(old)?;
-                let width = subset.glyphs.iter().find(|glyph| glyph.new == new)?.width;
-                let code = new.to_be_bytes().to_vec();
-                if !widths.iter().any(|(cid, _)| *cid == u32::from(new)) {
-                    widths.push((u32::from(new), width));
-                    texts.push((code.clone(), c.to_string()));
-                }
-                glyphs.push((c, code, width / 1000.0));
+            for ((c, _), (_, code, width)) in wanted.into_iter().zip(codes) {
+                glyphs.push((c, code, width));
                 drawn.push(c);
             }
-            let descriptor = subset.descriptor;
-            let embedded = EmbeddedFont {
-                name: name.clone(),
-                base_font: subset.base_font,
-                program: match subset.program {
-                    SubsetProgram::TrueType(data) => EmbeddedProgram::TrueType(data),
-                    SubsetProgram::Cff(data) => EmbeddedProgram::Cff(data),
-                },
-                widths,
-                to_unicode: with_text(None, &texts),
-                ascent: descriptor.ascent,
-                descent: descriptor.descent,
-                cap_height: descriptor.cap_height,
-                x_height: descriptor.x_height,
-                bbox: descriptor.bbox,
-                italic_angle: descriptor.italic_angle,
-                flags: descriptor.flags,
-                stem_v: descriptor.stem_v,
-            };
             // Keys are hashes of font dictionaries; a substitute's is derived from its base's and
             // its place among the substitutes.
             let key = base
@@ -673,4 +667,57 @@ fn substitute(
             ))
         })
         .flatten()
+}
+
+/// Glyphs with their codes in a new font and their advances per unit of font size.
+pub(crate) type GlyphCodes = Vec<(GlyphId, Vec<u8>, f32)>;
+
+/// A new Type0 font named `name` (on the page) with the glyphs `wanted` of the font at `index` of
+/// `data`, each with the text its ToUnicode entry gives (an empty one reads as nothing): the font, and
+/// each wanted glyph's code and advance per unit of font size, in order.
+pub(crate) fn embed(
+    data: &[u8],
+    index: u32,
+    wanted: &[(GlyphId, String)],
+    name: Vec<u8>,
+) -> Option<(EmbeddedFont, GlyphCodes)> {
+    let subset = subset(data, index, wanted).ok()?;
+    let mut codes = Vec::new();
+    let mut widths = Vec::new();
+    let mut texts: Vec<(Vec<u8>, String)> = Vec::new();
+    for (old, text) in wanted {
+        let new = subset.new_glyph(*old)?;
+        let width = subset.glyphs.iter().find(|glyph| glyph.new == new)?.width;
+        let code = new.to_be_bytes().to_vec();
+        if !widths.iter().any(|(cid, _)| *cid == u32::from(new)) {
+            widths.push((u32::from(new), width));
+        }
+        match texts.iter_mut().find(|(seen, _)| *seen == code) {
+            // The first non-empty text a glyph is listed with.
+            Some((_, seen)) if seen.is_empty() => seen.clone_from(text),
+            Some(_) => {}
+            None => texts.push((code.clone(), text.clone())),
+        }
+        codes.push((*old, code, width / 1000.0));
+    }
+    let descriptor = subset.descriptor;
+    let embedded = EmbeddedFont {
+        name,
+        base_font: subset.base_font,
+        program: match subset.program {
+            SubsetProgram::TrueType(data) => EmbeddedProgram::TrueType(data),
+            SubsetProgram::Cff(data) => EmbeddedProgram::Cff(data),
+        },
+        widths,
+        to_unicode: with_text(None, &texts),
+        ascent: descriptor.ascent,
+        descent: descriptor.descent,
+        cap_height: descriptor.cap_height,
+        x_height: descriptor.x_height,
+        bbox: descriptor.bbox,
+        italic_angle: descriptor.italic_angle,
+        flags: descriptor.flags,
+        stem_v: descriptor.stem_v,
+    };
+    Some((embedded, codes))
 }

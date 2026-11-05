@@ -38,6 +38,10 @@
 //! set (E03, step 2: a new Type0 font); edit-e05-fstype, whose fonts forbid embedding (E05, step 3
 //! with the reason). The font libraries are filled from `app/assets/fonts` and
 //! `build/corpus-fonts`, never from the machine's fonts.
+//!
+//! The right-to-left cases (W3), shaped in the bundled IBM Plex fonts: E09's Arabic word beside
+//! report-ar's IBAN, in the subset's own glyphs and with marks the subset lacks (step 2); E10's
+//! Persian word with a ZWNJ on fa-zwnj; E11's Hebrew paragraph reflowed on he-para.
 // Test helpers fail loudly.
 #![allow(
     clippy::panic,
@@ -1003,6 +1007,89 @@ fn e12_japanese_predefined_cmap() {
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn cff_cid_font() {
     case("cff-cid", "edit-cff-cid", 0, "2 Kasım 2026", "6 Kasım 2022");
+}
+
+/// Edits the right-to-left block with `needle` on `page` of `file`, `from` replaced by `to`,
+/// shaped in the bundled fonts; the saved file must read back with `check` (the new text as
+/// extraction gives it). Returns the rewrite.
+fn rtl_case(
+    name: &str,
+    file: &str,
+    page: usize,
+    needle: &str,
+    (from, to): (&str, &str),
+    check: &str,
+) -> ferman_text::Rewrite {
+    let library = library(None);
+    let sources = FontSources {
+        library: Some(&library),
+        ..FontSources::default()
+    };
+    let text_of = |block: &TextBlock| {
+        let text = joined(block, "\n");
+        assert!(text.contains(from), "{name}: {text:?}");
+        text.replacen(from, to, 1)
+    };
+    let (saved, problems) = saved_text(name, corpus(file), page, needle, &text_of, None, &sources);
+    rendered_case(name, &saved, problems, page, check);
+    saved.rewrite
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e09_report_ar_word_beside_the_iban() {
+    // The IBAN and "(IBAN)" stay left to right; the new word's forms are the subset's own.
+    let rewrite = rtl_case(
+        "e09-report-ar",
+        "report-ar",
+        9,
+        "(IBAN)",
+        ("الدولي", "الجمعية"),
+        "رقم الحساب الجمعية",
+    );
+    assert!(rewrite.new_fonts.is_empty());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e09_report_ar_marks_the_subset_lacks_from_the_same_font() {
+    let rewrite = rtl_case(
+        "e09-report-ar-marks",
+        "report-ar",
+        9,
+        "(IBAN)",
+        ("الدولي", "الدُّوَلِيّ"),
+        "الحساب الدُّوَلِيّ",
+    );
+    assert_eq!(rewrite.new_fonts.len(), 1);
+    assert_eq!(rewrite.substitutions.len(), 1);
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e10_fa_zwnj_persian_word_with_a_non_joiner() {
+    // The non-joiner is not written, as in the document's own words.
+    rtl_case(
+        "e10-fa-zwnj",
+        "fa-zwnj",
+        0,
+        "برای هماهنگی",
+        ("تماس بگیرید", "تماس بگیرید که پاسخ داده می\u{200C}شود"),
+        "پاسخ داده میشود",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e11_he_para_sentence_reflows_right_to_left() {
+    rtl_case(
+        "e11-he-para",
+        "he-para",
+        0,
+        "השוכרים מתבקשים",
+        ("לשנה נוספת.", "לשנה נוספת, ולשלם עד יום 15 בחודש."),
+        "15 בחודש",
+    );
 }
 
 /// The block's lines joined as one paragraph by `joint`.

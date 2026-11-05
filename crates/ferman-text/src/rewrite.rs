@@ -60,10 +60,20 @@
 //!   what a disabled choice falls back to) writes the lines past the frame with `3 Tr`, invisible
 //!   but still in the text, since clipping paths and `q` are not allowed inside a text object.
 //!
+//! - **Right to left (ROADMAP §7 step 7, docs/ARCHITECTURE.md §6.10).** A block with a
+//!   right-to-left line is always laid out again, a justified one given line by line as one
+//!   paragraph. Its text is split into directional runs per paragraph by the `bidi` module
+//!   (numbers and an IBAN stay left to right), each run shaped in the installed or bundled copy
+//!   of its characters' font, since subsets drop the layout tables (without one:
+//!   [`Unsupported::Shaping`]). Each shaped glyph is the subset's glyph of the same `post` name
+//!   when its code reads back as the glyph's text; the others go into a new font of the same face
+//!   (step 2). Shaped advances and mark offsets become `TJ` numbers; ZWNJ is not written; a
+//!   justified paragraph's last line keeps the right edge.
+//!
 //! Simple fonts' strings are written as literal strings with `\(`, `\)`, `\\` and octal escapes;
 //! the original operator's string form is not visible here, since spans carry no bytes.
 //!
-//! Not rewritten yet ([`Unsupported`]): right-to-left and vertical lines (Identity-V is W3), a
+//! Not rewritten yet ([`Unsupported`]): vertical lines (Identity-V is W3), a
 //! new character only a composite font could draw whose predefined CMap is not bundled or that
 //! needs a copy of a form's font, lines whose operators are not a plain run of shows (marked
 //! content, colour or other operators inside, a show shared with another line, a split operator,
@@ -83,11 +93,18 @@ use ferman_core::interpret::{
 };
 use ferman_core::revision::{EmbeddedFont, FontCopy, RevisionStore, SimpleFontCopy};
 use ferman_core::structure::FontKind;
-use ferman_fonts::{FontProgram, glyph_names, strip_subset_tag, with_text};
+use ferman_fonts::{
+    Direction, Embedding, FaceInfo, FontLibrary, FontProgram, GlyphId, SameFont, ShapeRequest,
+    ShapedRun, ShapingFont, glyph_names, strip_subset_tag, with_text,
+};
 
 use crate::TextError;
-use crate::extract::{Collector, PdfFont, displayed, glyph_box};
-use crate::fallback::{self, FontSources, Miss, MissingGlyphs, Substitute, Substitution};
+use crate::bidi;
+use crate::extract::{Collector, PdfFont, displayed, glyph_box, mirror, single};
+use crate::fallback::{
+    self, FontSources, Miss, MissingGlyphs, MissingReason, Substitute, Substitution,
+    SubstitutionKind,
+};
 use crate::layout::{Alignment, Justification, Line, TextBlock, TextChar, TextDirection};
 use crate::reflow::{self, OverflowPlan};
 
@@ -164,7 +181,7 @@ pub enum Outcome {
 pub enum Unsupported {
     /// The block is not editable ([`TextBlock::editability`]).
     NotEditable,
-    /// The block runs right to left or vertically.
+    /// The block runs vertically.
     Direction,
     /// A new character could only come from a composite font of its line whose predefined CMap
     /// is not bundled, from a copy of a font of a form, or (in a form) from a new font.
@@ -173,6 +190,11 @@ pub enum Unsupported {
     Operators,
     /// The block's glyphs are not on the page: it comes from another revision.
     Stale,
+    /// The block runs right to left, and its text needs shaping in a font that is neither
+    /// installed nor bundled: the same font as one of its own, whose layout tables a subset
+    /// drops. Without a font library the rewrite always answers this, so the caller can index
+    /// the fonts and ask again.
+    Shaping,
 }
 
 /// The splices that give `block` of page `index` the text `text`, its lines separated by `\n`,
@@ -256,17 +278,30 @@ pub fn rewrite_block_fonts(
     if !block.editability.is_editable() {
         return Ok(Outcome::Unsupported(Unsupported::NotEditable));
     }
-    if block.direction != TextDirection::LeftToRight
+    if block.direction == TextDirection::Vertical
         || block
             .lines
             .iter()
-            .any(|line| line.direction != TextDirection::LeftToRight)
+            .any(|line| line.direction == TextDirection::Vertical)
     {
         return Ok(Outcome::Unsupported(Unsupported::Direction));
     }
     let texts: Vec<&str> = text.split('\n').collect();
+    // Right-to-left text is always shaped and laid out again; a justified paragraph given line
+    // by line is one paragraph.
+    let joined;
+    let text = if right_to_left(block)
+        && block.alignment == Alignment::Justified
+        && texts.len() == block.lines.len()
+    {
+        joined = texts.join(" ");
+        joined.as_str()
+    } else {
+        text
+    };
     let line_by_line = texts.len() == block.lines.len()
-        && matches!(block.alignment, Alignment::Left | Alignment::Justified);
+        && matches!(block.alignment, Alignment::Left | Alignment::Justified)
+        && !right_to_left(block);
     let mut recorder = Recorder::default();
     match revisions {
         Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
@@ -301,12 +336,14 @@ pub fn rewrite_block_fonts(
             choice,
             frame: &frame,
             substitutes,
+            sources,
         };
         inputs.attempt(copies)
     };
     let misses = match attempt(&[], Vec::new())? {
         Attempt::Done(rewrite) => return Ok(Outcome::Rewritten(rewrite)),
         Attempt::Unsupported(unsupported) => return Ok(Outcome::Unsupported(unsupported)),
+        Attempt::Glyphs(missing) => return Ok(Outcome::MissingGlyphs(missing)),
         Attempt::Missing(misses) => misses,
     };
     // Steps 2 and 3, then the block again with the new fonts.
@@ -342,6 +379,7 @@ pub fn rewrite_block_fonts(
             ..rewrite
         })),
         Attempt::Unsupported(unsupported) => Ok(Outcome::Unsupported(unsupported)),
+        Attempt::Glyphs(missing) => Ok(Outcome::MissingGlyphs(missing)),
         Attempt::Missing(misses) => Ok(Outcome::MissingGlyphs(MissingGlyphs {
             chars: misses.iter().map(|miss| (miss.c, miss.at)).collect(),
             font: String::new(),
@@ -424,7 +462,18 @@ fn lenders(recorder: &Recorder, misses: &[Miss]) -> Vec<fallback::PageFont> {
 enum Attempt {
     Done(Rewrite),
     Missing(Vec<Miss>),
+    /// Shaped glyphs no step can draw (right-to-left text).
+    Glyphs(MissingGlyphs),
     Unsupported(Unsupported),
+}
+
+/// Whether `block` or one of its lines runs right to left.
+fn right_to_left(block: &TextBlock) -> bool {
+    block.direction == TextDirection::RightToLeft
+        || block
+            .lines
+            .iter()
+            .any(|line| line.direction == TextDirection::RightToLeft)
 }
 
 /// What a pass of the rewrite reads.
@@ -438,6 +487,7 @@ struct Inputs<'a> {
     choice: Option<Choice>,
     frame: &'a Frame,
     substitutes: &'a [Substitute],
+    sources: &'a FontSources<'a>,
 }
 
 impl Inputs<'_> {
@@ -453,6 +503,7 @@ impl Inputs<'_> {
             choice,
             frame,
             substitutes,
+            sources,
         } = *self;
         if !line_by_line {
             return Ok(reflowed(
@@ -463,6 +514,7 @@ impl Inputs<'_> {
                 choice,
                 copies,
                 substitutes,
+                sources,
             ));
         }
         let mut rewrite = Rewrite::default();
@@ -509,6 +561,7 @@ impl Inputs<'_> {
                 choice,
                 copies,
                 substitutes,
+                sources,
             ));
         }
         (rewrite.fonts, rewrite.simple_fonts) = copies.finish();
@@ -517,6 +570,7 @@ impl Inputs<'_> {
 }
 
 /// The outcome of reflowing `block` to `text`.
+#[allow(clippy::too_many_arguments)]
 fn reflowed(
     page: &Page<'_>,
     block: &TextBlock,
@@ -525,21 +579,35 @@ fn reflowed(
     choice: Option<Choice>,
     mut copies: Copies<'_>,
     substitutes: &[Substitute],
+    sources: &FontSources<'_>,
 ) -> Attempt {
-    match page.block(block, text, others, choice, &mut copies, substitutes) {
+    match page.block(
+        block,
+        text,
+        others,
+        choice,
+        &mut copies,
+        substitutes,
+        sources,
+    ) {
         Err(unsupported) => Attempt::Unsupported(unsupported),
         Ok(Reflowed::Missing(missing)) => Attempt::Missing(missing),
+        Ok(Reflowed::Glyphs(missing)) => Attempt::Glyphs(missing),
         Ok(Reflowed::Splice {
             splices,
             overflow,
             chosen,
             hidden,
+            new_fonts,
+            substitutions,
         }) => {
             let (fonts, simple_fonts) = copies.finish();
             Attempt::Done(Rewrite {
                 splices,
                 fonts,
                 simple_fonts,
+                new_fonts,
+                substitutions,
                 overflow,
                 chosen,
                 hidden,
@@ -1041,7 +1109,12 @@ impl<'a> Page<'a> {
                 }),
             }
         }
-        let glyphs: Vec<usize> = units.iter().filter_map(|unit| unit.glyph).collect();
+        let mut glyphs: Vec<usize> = units.iter().filter_map(|unit| unit.glyph).collect();
+        // A right-to-left line's characters are logical, its glyphs visual.
+        if line.direction == TextDirection::RightToLeft {
+            glyphs.sort_unstable();
+            glyphs.dedup();
+        }
         if glyphs.is_empty()
             || glyphs
                 .windows(2)
@@ -1489,11 +1562,16 @@ enum Reflowed {
         overflow: Option<OverflowPlan>,
         chosen: Option<Choice>,
         hidden: usize,
+        /// Step 2's fonts for shaped glyphs the block's subsets lack (right-to-left text).
+        new_fonts: Vec<EmbeddedFont>,
+        substitutions: Vec<Substitution>,
     },
     Missing(Vec<Miss>),
+    Glyphs(MissingGlyphs),
 }
 
 /// One glyph of a reflowed block, at a character of the new text.
+#[derive(Clone)]
 struct Piece {
     /// The character's byte offset in the new text.
     at: usize,
@@ -1506,6 +1584,11 @@ struct Piece {
     width: f32,
     /// Whether its character is a space.
     blank: bool,
+    /// Its shaped advance less `width`, per unit of font size: a `TJ` number after it.
+    kern: f32,
+    /// Its shaped offset from the pen, per unit of font size: a `TJ` number before it, taken
+    /// back after it.
+    offset: f32,
 }
 
 impl Piece {
@@ -1523,7 +1606,7 @@ impl Piece {
 impl Page<'_> {
     /// The splice that lays `text` out in `block`'s frame (module documentation): one
     /// replacement of every operator from the block's first show to its last.
-    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::too_many_lines, clippy::too_many_arguments)]
     fn block(
         &self,
         block: &TextBlock,
@@ -1532,8 +1615,10 @@ impl Page<'_> {
         choice: Option<Choice>,
         copies: &mut Copies<'_>,
         substitutes: &[Substitute],
+        sources: &FontSources<'_>,
     ) -> Result<Reflowed, Unsupported> {
         let recorder = self.recorder;
+        let rtl = right_to_left(block);
         let glyphs = &recorder.collector.glyphs;
         let runs: Vec<Runs> = block
             .lines
@@ -1703,6 +1788,7 @@ impl Page<'_> {
         let mut encoder = Encoder::new(recorder, &shows, source, substitutes)?;
         let mut pieces: Vec<Piece> = Vec::new();
         let mut missing = Vec::new();
+        let mut kept_fonts: Vec<Option<u64>> = vec![None; fresh.len()];
         for (i, &(at, c)) in fresh.iter().enumerate() {
             let before = if i < prefix {
                 Some(i)
@@ -1721,6 +1807,13 @@ impl Page<'_> {
             if let Some((o, range, g)) = glyph
                 && kept(&range)
             {
+                if rtl {
+                    // Right-to-left text is shaped again, kept characters in their fonts.
+                    if let Some(slot) = kept_fonts.get_mut(i) {
+                        *slot = glyphs.get(g).map(|glyph| glyph.font);
+                    }
+                    continue;
+                }
                 // A kept glyph keeps its code, at its first character.
                 if o == range.start
                     && let Some(glyph) = glyphs.get(g)
@@ -1749,11 +1842,13 @@ impl Page<'_> {
                         hex: font.cmap.is_some(),
                         width: font.width(glyph.code, length),
                         blank: glyph.text.chars().all(char::is_whitespace),
+                        kern: 0.0,
+                        offset: 0.0,
                     });
                 }
                 continue;
             }
-            if c == '\n' || c == '\r' {
+            if c == '\n' || c == '\r' || rtl {
                 continue;
             }
             let c = if c.is_whitespace() { ' ' } else { c };
@@ -1772,6 +1867,8 @@ impl Page<'_> {
                     hex: chosen.hex,
                     width: chosen.width,
                     blank: c == ' ',
+                    kern: 0.0,
+                    offset: 0.0,
                 }),
                 None if c == ' ' => pieces.push(Piece {
                     at,
@@ -1783,6 +1880,8 @@ impl Page<'_> {
                     // a file without space glyphs is reflowed.
                     width: 0.25,
                     blank: true,
+                    kern: 0.0,
+                    offset: 0.0,
                 }),
                 None => missing.push(encoder.miss(&order, c, at)),
             }
@@ -1792,6 +1891,25 @@ impl Page<'_> {
                 return Err(Unsupported::CompositeFont);
             }
             return Ok(Reflowed::Missing(missing));
+        }
+        let shaping = if rtl {
+            let library = sources.library.ok_or(Unsupported::Shaping)?;
+            let originals: Vec<u64> = encoder.fonts.iter().map(|(key, ..)| *key).collect();
+            let default = state.font.ok_or(Unsupported::Operators)?;
+            Some(Shaping::new(
+                text, &fresh, kept_fonts, default, &originals, library, recorder,
+            )?)
+        } else {
+            None
+        };
+        // A shaped cluster's advance in points, at its first character, for the plan.
+        let mut shaped_points: HashMap<usize, f32> = HashMap::new();
+        if let Some(shaping) = &shaping {
+            for glyph in shaping.measure()? {
+                let size = encoder.size(glyph.font).unwrap_or(state.size);
+                *shaped_points.entry(glyph.at).or_default() +=
+                    (glyph.advance * size + state.char_spacing) * scaling * scale;
+            }
         }
 
         // Advances in text space without the justification, and in points for the plan.
@@ -1814,16 +1932,22 @@ impl Page<'_> {
                     .or_insert(advance(piece, state.char_spacing) * scale);
             }
         }
-        let points = |c: char| by_char.get(&c).copied().unwrap_or(0.0);
+        let points = |at: usize, c: char| {
+            if rtl {
+                shaped_points.get(&at).copied().unwrap_or(0.0)
+            } else {
+                by_char.get(&c).copied().unwrap_or(0.0)
+            }
+        };
         let page_box = self
             .page
             .map_or([f32::MIN, f32::MIN, f32::MAX, f32::MAX], |page| {
                 [0.0, 0.0, page.size.0, page.size.1]
             });
-        let overflow = reflow::overflow(framed, &planned, text, points, others, page_box);
+        let overflow = reflow::overflow_at(framed, &planned, text, points, others, page_box);
         let (plan, tracking, visible, chosen) = match &overflow {
             None => (
-                reflow::reflow(&planned, text, points),
+                reflow::reflow_at(&planned, text, points),
                 0.0,
                 usize::MAX,
                 None,
@@ -1836,14 +1960,14 @@ impl Page<'_> {
                     Some(Choice::Tighten),
                 ),
                 (Some(Choice::Extend), Ok(_), _) => (
-                    reflow::reflow(&frame, text, points),
+                    reflow::reflow_at(&frame, text, points),
                     0.0,
                     usize::MAX,
                     Some(Choice::Extend),
                 ),
                 // Keep and warn, also for a choice that is disabled.
                 _ => (
-                    reflow::reflow(&frame, text, points),
+                    reflow::reflow_at(&frame, text, points),
                     0.0,
                     frame.lines,
                     Some(Choice::Keep),
@@ -1851,6 +1975,38 @@ impl Page<'_> {
             },
         };
         let char_spacing = state.char_spacing - tracking / (scale * scaling);
+
+        // Each line's glyphs, from its start: shaped right-to-left lines in visual order.
+        let mut new_fonts = Vec::new();
+        let mut substitutions = Vec::new();
+        let line_sets: Vec<Vec<Piece>> = match &shaping {
+            None => plan
+                .lines
+                .iter()
+                .map(|line| {
+                    pieces
+                        .iter()
+                        .filter(|piece| line.range.contains(&piece.at))
+                        .cloned()
+                        .collect()
+                })
+                .collect(),
+            Some(shaping) => {
+                let shaped: Vec<Vec<ShapedGlyph>> = plan
+                    .lines
+                    .iter()
+                    .map(|line| shaping.line(line.range.clone()))
+                    .collect::<Result<_, _>>()?;
+                match shaping.pieces(&shaped, &mut encoder, copies)? {
+                    Ok(set) => {
+                        new_fonts = set.fonts;
+                        substitutions = set.substitutions;
+                        set.lines
+                    }
+                    Err(missing) => return Ok(Reflowed::Glyphs(missing)),
+                }
+            }
+        };
 
         // The operators.
         let before = first
@@ -1868,11 +2024,8 @@ impl Page<'_> {
         }
         let mut hidden = 0_usize;
         let mut end = None;
-        for (n, line) in plan.lines.iter().enumerate() {
-            let line_pieces: Vec<&Piece> = pieces
-                .iter()
-                .filter(|piece| line.range.contains(&piece.at))
-                .collect();
+        for (n, (line, set)) in plan.lines.iter().zip(&line_sets).enumerate() {
+            let line_pieces: Vec<&Piece> = set.iter().collect();
             if line_pieces.is_empty() {
                 continue;
             }
@@ -1885,7 +2038,7 @@ impl Page<'_> {
             }
             let natural: f32 = line_pieces
                 .iter()
-                .map(|piece| advance(piece, char_spacing))
+                .map(|piece| advance(piece, char_spacing) + piece.kern * piece.size * scaling)
                 .sum();
             let width = natural * scale;
             let room = frame.width - width;
@@ -1911,6 +2064,8 @@ impl Page<'_> {
             let offset = match frame.alignment {
                 Alignment::Right => room,
                 Alignment::Center => room / 2.0,
+                // A right-to-left paragraph's last line keeps the frame's right edge.
+                Alignment::Justified if rtl && stretch.is_none() => room,
                 Alignment::Left | Alignment::Justified => 0.0,
             };
             if word_spacing {
@@ -1961,10 +2116,16 @@ impl Page<'_> {
                 if unit == 0.0 {
                     return Err(Unsupported::Operators);
                 }
-                let mut shift = 0.0_f32;
+                let mut shift = (piece.kern - piece.offset) * piece.size * scaling;
                 if piece.bytes.is_empty() {
                     shift += advance(piece, char_spacing);
                 } else {
+                    if piece.offset != 0.0 {
+                        let n = ((-piece.offset * piece.size * scaling / unit) * 1000.0).round()
+                            / 1000.0;
+                        items.push(Item::Number(n));
+                        moved -= n * unit;
+                    }
                     match items.last_mut() {
                         Some(Item::Text(bytes)) => bytes.extend_from_slice(&piece.bytes),
                         _ => items.push(Item::Text(piece.bytes.clone())),
@@ -2038,6 +2199,8 @@ impl Page<'_> {
             overflow,
             chosen,
             hidden,
+            new_fonts,
+            substitutions,
         })
     }
 }
@@ -2132,6 +2295,14 @@ impl<'a> Encoder<'a> {
             source,
             composite: false,
         })
+    }
+
+    /// The size a font is set at.
+    fn size(&self, key: u64) -> Option<f32> {
+        self.fonts
+            .iter()
+            .find(|(font, ..)| *font == key)
+            .map(|(_, _, size)| *size)
     }
 
     /// The name a font is set by.
@@ -2351,6 +2522,509 @@ impl<'a> Encoder<'a> {
         }
         Ok(None)
     }
+}
+
+/// A code's bytes and its advance per unit of font size.
+type Code = (Vec<u8>, f32);
+
+/// A font of a right-to-left block with the installed or bundled copy of it that shapes its text.
+struct Shaper {
+    font: ShapingFont,
+    data: Vec<u8>,
+    index: u32,
+    face: FaceInfo,
+    /// Whether its licence lets glyphs it has and the subset lacks be embedded (step 2).
+    embeddable: bool,
+}
+
+/// One shaped glyph of a right-to-left block.
+struct ShapedGlyph {
+    /// The byte offset of its cluster in the new text.
+    at: usize,
+    /// The font of the block it is set in.
+    font: u64,
+    /// The glyph in the shaping font.
+    glyph: GlyphId,
+    /// The text it stands for, a mirrored bracket as the bracket it shows; empty for the second
+    /// glyph of a cluster.
+    text: String,
+    /// Its shaped advance per unit of font size.
+    advance: f32,
+    /// Its horizontal offset from the pen per unit of font size (a mark's place).
+    offset: f32,
+}
+
+/// What [`Shaping::pieces`] gives: each line's glyphs and the step 2 fonts they need.
+struct ShapedLines {
+    lines: Vec<Vec<Piece>>,
+    fonts: Vec<EmbeddedFont>,
+    substitutions: Vec<Substitution>,
+}
+
+/// A right-to-left block's new text, shaped (module documentation): each character in a font of
+/// the block, each run in the same font as installed or bundled, its glyphs found again in the
+/// block's subset by name.
+struct Shaping<'a> {
+    text: &'a str,
+    recorder: &'a Recorder,
+    /// The block's font of each character, by byte offset, ascending.
+    fonts: Vec<(usize, u64)>,
+    shapers: HashMap<u64, Shaper>,
+}
+
+impl<'a> Shaping<'a> {
+    /// The fonts of `text`'s characters `fresh`: a kept character's own (`kept`), a new one the
+    /// font of the character before it (or after it, else `default`), unless that font's copy
+    /// lacks it and another of the block's `originals` has it.
+    #[allow(clippy::too_many_arguments)]
+    fn new(
+        text: &'a str,
+        fresh: &[(usize, char)],
+        kept: Vec<Option<u64>>,
+        default: u64,
+        originals: &[u64],
+        library: &FontLibrary,
+        recorder: &'a Recorder,
+    ) -> Result<Self, Unsupported> {
+        let mut assigned = kept;
+        let mut last = None;
+        for slot in &mut assigned {
+            match slot {
+                Some(font) => last = Some(*font),
+                None => *slot = last,
+            }
+        }
+        let first = assigned.iter().flatten().next().copied().unwrap_or(default);
+        let mut keys: Vec<u64> = originals.to_vec();
+        for font in assigned.iter().flatten() {
+            if !keys.contains(font) {
+                keys.push(*font);
+            }
+        }
+        let mut shapers = HashMap::new();
+        for key in keys {
+            if let Some(shaper) = shaper(library, recorder, key) {
+                shapers.insert(key, shaper);
+            }
+        }
+        let covers = |key: u64, c: char| {
+            shapers.get(&key).is_some_and(|shaper| {
+                FontProgram::parse(&shaper.data)
+                    .ok()
+                    .and_then(|program| program.glyph_for_char(c))
+                    .is_some_and(|glyph| glyph.0 != 0)
+            })
+        };
+        let mut fonts = Vec::with_capacity(fresh.len());
+        for (&(at, c), slot) in fresh.iter().zip(&assigned) {
+            let mut font = slot.unwrap_or(first);
+            if !c.is_whitespace()
+                && !bidi::is_hidden(c.encode_utf8(&mut [0; 4]))
+                && !covers(font, c)
+                && let Some(&other) = originals.iter().find(|&&key| covers(key, c))
+            {
+                font = other;
+            }
+            if !shapers.contains_key(&font) {
+                return Err(Unsupported::Shaping);
+            }
+            fonts.push((at, font));
+        }
+        Ok(Self {
+            text,
+            recorder,
+            fonts,
+            shapers,
+        })
+    }
+
+    /// The block's font of the character at byte `at`.
+    fn font_at(&self, at: usize) -> Option<u64> {
+        let found = self.fonts.partition_point(|(start, _)| *start <= at);
+        self.fonts.get(found.checked_sub(1)?).map(|(_, font)| *font)
+    }
+
+    /// The glyphs of the run `range`, in its direction, in visual order.
+    fn run(&self, range: Range<usize>, rtl: bool) -> Result<Vec<ShapedGlyph>, Unsupported> {
+        let piece = self.text.get(range.clone()).ok_or(Unsupported::Shaping)?;
+        // The run's pieces of one font each, in logical order.
+        let mut segments: Vec<(Range<usize>, u64)> = Vec::new();
+        for (offset, c) in piece.char_indices() {
+            let at = range.start.saturating_add(offset);
+            let font = self.font_at(at).ok_or(Unsupported::Shaping)?;
+            let end = at.saturating_add(c.len_utf8());
+            match segments.last_mut() {
+                Some((segment, last)) if *last == font => segment.end = end,
+                _ => segments.push((at..end, font)),
+            }
+        }
+        if rtl {
+            segments.reverse();
+        }
+        let direction = if rtl {
+            Direction::RightToLeft
+        } else {
+            Direction::LeftToRight
+        };
+        let mut glyphs = Vec::new();
+        for (segment, font) in segments {
+            let shaper = self.shapers.get(&font).ok_or(Unsupported::Shaping)?;
+            let program = FontProgram::parse(&shaper.data).map_err(|_| Unsupported::Shaping)?;
+            let piece = self.text.get(segment.clone()).ok_or(Unsupported::Shaping)?;
+            let run = shaper
+                .font
+                .shape(&ShapeRequest::new(piece, direction))
+                .map_err(|_| Unsupported::Shaping)?;
+            let units = f32::from(run.units_per_em);
+            for (glyph, text) in run.glyphs.iter().zip(texts(&run, piece, &program, rtl)) {
+                // A zero width non-joiner only breaks a join: its glyph is not written.
+                if bidi::is_hidden(&text) {
+                    continue;
+                }
+                let text = match single(&text) {
+                    Some(c)
+                        if rtl
+                            && mirror(c) != c
+                            && program.glyph_for_char(mirror(c)) == Some(glyph.glyph) =>
+                    {
+                        mirror(c).to_string()
+                    }
+                    _ => text,
+                };
+                // shortcut: vertical mark offsets (`y_offset`) are not written; `Ts` per glyph
+                // when a font's marks need them.
+                #[allow(clippy::cast_precision_loss)]
+                let (advance, offset) = (
+                    glyph.x_advance as f32 / units,
+                    glyph.x_offset as f32 / units,
+                );
+                glyphs.push(ShapedGlyph {
+                    at: segment.start.saturating_add(glyph.cluster),
+                    font,
+                    glyph: glyph.glyph,
+                    text,
+                    advance,
+                    offset,
+                });
+            }
+        }
+        Ok(glyphs)
+    }
+
+    /// The glyphs of the line `range` of the text, in visual order from the left.
+    fn line(&self, range: Range<usize>) -> Result<Vec<ShapedGlyph>, Unsupported> {
+        let mut glyphs = Vec::new();
+        for run in bidi::visual_runs(self.text, range, true) {
+            glyphs.extend(self.run(run.range, run.rtl)?);
+        }
+        Ok(glyphs)
+    }
+
+    /// The glyphs of every paragraph, unbroken: the advances the plan measures.
+    fn measure(&self) -> Result<Vec<ShapedGlyph>, Unsupported> {
+        let mut glyphs = Vec::new();
+        let mut start = 0_usize;
+        for paragraph in self.text.split('\n') {
+            let end = start.saturating_add(paragraph.trim_end_matches('\r').len());
+            glyphs.extend(self.line(start..end)?);
+            start = start.saturating_add(paragraph.len()).saturating_add(1);
+        }
+        Ok(glyphs)
+    }
+
+    /// The lines' glyphs as codes of the block's fonts, or of new fonts of the same faces for
+    /// the glyphs the subsets lack (step 2, said once); the characters no step draws when a
+    /// glyph is `.notdef` or the face forbids embedding.
+    fn pieces(
+        &self,
+        lines: &[Vec<ShapedGlyph>],
+        encoder: &mut Encoder<'_>,
+        copies: &mut Copies<'_>,
+    ) -> Result<Result<ShapedLines, MissingGlyphs>, Unsupported> {
+        let fonts = &self.recorder.collector.fonts;
+        let mut found: HashMap<(u64, u32, String), Option<Code>> = HashMap::new();
+        let mut wanted: Vec<(u64, Vec<(GlyphId, String)>)> = Vec::new();
+        let mut undrawn: Vec<(char, usize, u64)> = Vec::new();
+        for glyph in lines.iter().flatten() {
+            if glyph.glyph.0 == 0 {
+                if let Some(c) = self
+                    .text
+                    .get(glyph.at..)
+                    .and_then(|rest| rest.chars().next())
+                {
+                    undrawn.push((c, glyph.at, glyph.font));
+                }
+                continue;
+            }
+            let key = (glyph.font, glyph.glyph.0, glyph.text.clone());
+            if found.contains_key(&key) {
+                continue;
+            }
+            let shaper = self.shapers.get(&glyph.font).ok_or(Unsupported::Shaping)?;
+            let pdf = fonts.get(&glyph.font).ok_or(Unsupported::Operators)?;
+            let code = embedded_code(pdf, &shaper.data, glyph.glyph, &glyph.text);
+            if code.is_none() {
+                let at = match wanted.iter().position(|(font, _)| *font == glyph.font) {
+                    Some(at) => at,
+                    None => {
+                        wanted.push((glyph.font, Vec::new()));
+                        wanted.len().saturating_sub(1)
+                    }
+                };
+                if let Some((_, list)) = wanted.get_mut(at) {
+                    // One ToUnicode text per glyph: a non-empty one wins over an empty one.
+                    match list.iter_mut().find(|(seen, _)| *seen == glyph.glyph) {
+                        Some((_, seen)) if seen.is_empty() => seen.clone_from(&glyph.text),
+                        Some(_) => {}
+                        None => list.push((glyph.glyph, glyph.text.clone())),
+                    }
+                }
+            }
+            found.insert(key, code);
+        }
+        let missing = |chars: Vec<(char, usize)>, font: u64, reason| MissingGlyphs {
+            chars,
+            font: fallback::font_name(fonts.get(&font)),
+            reason,
+            bold: false,
+            italic: false,
+            candidates: Vec::new(),
+        };
+        if let Some(&(_, _, font)) = undrawn.first() {
+            let chars = undrawn.iter().map(|&(c, at, _)| (c, at)).collect();
+            return Ok(Err(missing(chars, font, MissingReason::NotInstalled)));
+        }
+        // Step 2: the glyphs the subsets lack, from the same faces, in new fonts.
+        let mut created: HashMap<u64, (u64, HashMap<u32, Code>)> = HashMap::new();
+        let mut new_fonts = Vec::new();
+        let mut substitutions = Vec::new();
+        for (font, list) in &wanted {
+            let shaper = self.shapers.get(font).ok_or(Unsupported::Shaping)?;
+            if !shaper.embeddable {
+                let chars = lines
+                    .iter()
+                    .flatten()
+                    .filter(|glyph| glyph.font == *font)
+                    .filter(|glyph| list.iter().any(|(wanted, _)| *wanted == glyph.glyph))
+                    // Each character the glyph stands for, a ligature's too, at its place.
+                    .flat_map(|glyph| {
+                        self.text
+                            .get(glyph.at..)
+                            .unwrap_or_default()
+                            .char_indices()
+                            .take(glyph.text.chars().count())
+                            .map(move |(i, c)| (c, glyph.at.saturating_add(i)))
+                    })
+                    .collect();
+                let reason = MissingReason::NotEmbeddable {
+                    font: shaper.face.postscript_name.clone(),
+                    embedding: Embedding::of(&shaper.data, shaper.index),
+                };
+                return Ok(Err(missing(chars, *font, reason)));
+            }
+            // New fonts go into the page's resources, which a form's content cannot name.
+            if matches!(encoder.source, SpanSource::Form { .. }) {
+                return Err(Unsupported::CompositeFont);
+            }
+            let resource = encoder.name(*font).ok_or(Unsupported::Operators)?;
+            let name = copies.fresh_name(&resource)?;
+            copies.reserved.push(name.clone());
+            let (embedded, codes) = fallback::embed(&shaper.data, shaper.index, list, name.clone())
+                .ok_or(Unsupported::Shaping)?;
+            // Keys are hashes of font dictionaries; a new font's is derived from its base's.
+            let key =
+                font ^ 0x5B57_0F0C_0FFE_E100 ^ u64::try_from(new_fonts.len()).unwrap_or_default();
+            let size = encoder.size(*font).ok_or(Unsupported::Operators)?;
+            encoder.fonts.push((key, name, size));
+            let mut chars = String::new();
+            for (_, text) in list {
+                for c in text.chars().filter(|c| !c.is_whitespace()) {
+                    if !chars.contains(c) {
+                        chars.push(c);
+                    }
+                }
+            }
+            substitutions.push(Substitution {
+                kind: SubstitutionKind::SameFont,
+                chars,
+                from: fallback::font_name(fonts.get(font)),
+                to: shaper.face.postscript_name.clone(),
+                origin: shaper.face.origin,
+            });
+            new_fonts.push(embedded);
+            created.insert(
+                *font,
+                (
+                    key,
+                    codes
+                        .into_iter()
+                        .map(|(glyph, code, width)| (glyph.0, (code, width)))
+                        .collect(),
+                ),
+            );
+        }
+        let mut sets = Vec::with_capacity(lines.len());
+        for line in lines {
+            let mut pieces = Vec::with_capacity(line.len());
+            for glyph in line {
+                let size = encoder.size(glyph.font).ok_or(Unsupported::Operators)?;
+                let own = found
+                    .get(&(glyph.font, glyph.glyph.0, glyph.text.clone()))
+                    .cloned()
+                    .flatten();
+                let (font, (bytes, width)) = match own {
+                    Some(code) => (glyph.font, code),
+                    None => {
+                        let (key, codes) = created.get(&glyph.font).ok_or(Unsupported::Shaping)?;
+                        let code = codes.get(&glyph.glyph.0).ok_or(Unsupported::Shaping)?;
+                        (*key, code.clone())
+                    }
+                };
+                pieces.push(Piece {
+                    at: glyph.at,
+                    font,
+                    size,
+                    bytes,
+                    hex: true,
+                    width,
+                    blank: !glyph.text.is_empty() && glyph.text.chars().all(char::is_whitespace),
+                    kern: glyph.advance - width,
+                    offset: glyph.offset,
+                });
+            }
+            sets.push(pieces);
+        }
+        Ok(Ok(ShapedLines {
+            lines: sets,
+            fonts: new_fonts,
+            substitutions,
+        }))
+    }
+}
+
+/// The text each glyph of `run` (shaped from `text` in `program`) stands for, for ToUnicode:
+/// a cluster of one glyph per character gives each its character in logical order; in another
+/// cluster of several glyphs, a mark whose nominal glyph it is gets its own character (placed back
+/// on its letter by its position when the text is read) and the cluster's first glyph in logical
+/// order the rest (a lam-yeh ligature "لي" with its kasra drawn apart).
+fn texts(run: &ShapedRun, text: &str, program: &FontProgram<'_>, rtl: bool) -> Vec<String> {
+    let mut starts: Vec<usize> = run.glyphs.iter().map(|glyph| glyph.cluster).collect();
+    starts.push(text.len());
+    starts.sort_unstable();
+    starts.dedup();
+    let mut texts = vec![String::new(); run.glyphs.len()];
+    let mut clusters: Vec<(usize, Vec<usize>)> = Vec::new();
+    for (at, glyph) in run.glyphs.iter().enumerate() {
+        // Clusters are monotone (`ClusterLevel::MonotoneCharacters`), so a cluster's glyphs
+        // are adjacent.
+        match clusters
+            .last_mut()
+            .filter(|(start, _)| *start == glyph.cluster)
+        {
+            Some((_, members)) => members.push(at),
+            None => clusters.push((glyph.cluster, vec![at])),
+        }
+    }
+    for (start, mut members) in clusters {
+        if rtl {
+            members.reverse();
+        }
+        let end = starts
+            .get(starts.partition_point(|&next| next <= start))
+            .copied()
+            .unwrap_or(text.len());
+        let cluster = text.get(start..end).unwrap_or_default();
+        if members.len() > 1 && members.len() == cluster.chars().count() {
+            for (&member, c) in members.iter().zip(cluster.chars()) {
+                if let Some(slot) = texts.get_mut(member) {
+                    *slot = c.to_string();
+                }
+            }
+            continue;
+        }
+        let mut rest = cluster.to_owned();
+        let Some((&first, others)) = members.split_first() else {
+            continue;
+        };
+        for &member in others {
+            let Some(glyph) = run.glyphs.get(member) else {
+                continue;
+            };
+            let own = rest
+                .char_indices()
+                .find(|&(_, c)| program.glyph_for_char(c) == Some(glyph.glyph));
+            if let (Some((at, c)), Some(slot)) = (own, texts.get_mut(member)) {
+                *slot = c.to_string();
+                rest.remove(at);
+            }
+        }
+        if let Some(slot) = texts.get_mut(first) {
+            *slot = rest;
+        }
+    }
+    texts
+}
+
+/// The same font as `key`'s among `library`'s, ready to shape, with whether it may be embedded.
+fn shaper(library: &FontLibrary, recorder: &Recorder, key: u64) -> Option<Shaper> {
+    let pdf = recorder.collector.fonts.get(&key)?;
+    let (face, embeddable) =
+        match fallback::same_font(library, pdf, key, &recorder.collector.glyphs, true) {
+            SameFont::Found { face, .. } => (face, true),
+            SameFont::NotEmbeddable { face, .. } => (face, false),
+            SameFont::NotFound => return None,
+        };
+    library
+        .with_data(face.id, |data, index| {
+            Some(Shaper {
+                font: ShapingFont::new(data.to_vec(), index).ok()?,
+                data: data.to_vec(),
+                index,
+                face,
+                embeddable,
+            })
+        })
+        .flatten()
+}
+
+/// The code of `pdf` that draws the glyph `glyph` of the shaping font `data` and reads back as
+/// `text`, with its width per unit of font size: the subset's glyph of the same name.
+fn embedded_code(pdf: &PdfFont, data: &[u8], glyph: GlyphId, text: &str) -> Option<Code> {
+    if fallback::restriction(pdf).is_some() {
+        return None;
+    }
+    let name = FontProgram::parse(data).ok()?.glyph_name(glyph)?;
+    let program = pdf.program()?;
+    let own = program.glyph_for_name(&name).filter(|glyph| glyph.0 != 0)?;
+    // A glyph that stands for nothing must read as nothing, not as U+FFFD.
+    let reads = |found: Option<String>| found.as_deref() == Some(text);
+    let Some(cmap) = &pdf.cmap else {
+        // A simple font: a code its encoding gives the glyph, with the same text.
+        if text.is_empty() {
+            return None;
+        }
+        let code = (0..=u8::MAX).find(|&code| {
+            pdf.glyph(&program, code) == Some(own) && pdf.text(u32::from(code)) == text
+        })?;
+        return Some((vec![code], pdf.width(u32::from(code), 1)));
+    };
+    if !pdf.cmap_known || pdf.vertical() {
+        return None;
+    }
+    let cid = pdf.glyph_cid(&program, own)?;
+    if pdf.cid_glyph(&program, cid) != Some(own) {
+        return None;
+    }
+    let (code, length) = cmap.code_for_cid(cid)?;
+    let bytes = code
+        .to_be_bytes()
+        .get(4_usize.checked_sub(length)?..)?
+        .to_vec();
+    if cmap.codes(&bytes).collect::<Vec<_>>() != [(code, length)] {
+        return None;
+    }
+    let found = pdf.to_unicode.as_ref().and_then(|cmap| cmap.text(code));
+    reads(found).then(|| (bytes, pdf.width(code, length)))
 }
 
 /// The glyph name a copy of simple `font` gives a new code so that `program` draws `c` with it
@@ -2691,6 +3365,31 @@ fn hex_string(out: &mut Vec<u8>, bytes: &[u8]) {
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
     use super::*;
+
+    #[test]
+    fn a_ligature_with_a_mark_apart_gives_the_mark_its_own_text() {
+        let data = std::fs::read(concat!(
+            env!("CARGO_MANIFEST_DIR"),
+            "/../../app/assets/fonts/ibm-plex-sans-arabic/IBMPlexSansArabic-Regular.ttf"
+        ))
+        .unwrap();
+        let font = ShapingFont::new(data.clone(), 0).unwrap();
+        let program = FontProgram::parse(&data).unwrap();
+        // Plex Sans Arabic draws "لِي" as the lam-yeh ligature with the kasra apart; "بَ" as
+        // two clusters, the beh and the fatha.
+        for (text, expected) in [("لِي", vec!["\u{650}", "لي"]), ("بَ", vec!["\u{64e}", "ب"])]
+        {
+            let run = font
+                .shape(&ShapeRequest::new(text, Direction::RightToLeft))
+                .unwrap();
+            assert_eq!(texts(&run, text, &program, true), expected, "{text}");
+        }
+        // Left to right, one glyph per character keeps each its own.
+        let run = font
+            .shape(&ShapeRequest::new("IBAN", Direction::LeftToRight))
+            .unwrap();
+        assert_eq!(texts(&run, "IBAN", &program, false), ["I", "B", "A", "N"]);
+    }
 
     #[test]
     fn composite_runs_are_written_in_hex() {

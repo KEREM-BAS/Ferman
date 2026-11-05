@@ -163,6 +163,16 @@ impl ReflowPlan {
 /// documentation).
 #[must_use]
 pub fn reflow(frame: &Frame, text: &str, advance: impl Fn(char) -> f32) -> ReflowPlan {
+    reflow_at(frame, text, |_, c| advance(c))
+}
+
+/// [`reflow`] with an advance per character and its byte offset: shaped text, whose glyphs
+/// differ with their context.
+pub(crate) fn reflow_at(
+    frame: &Frame,
+    text: &str,
+    advance: impl Fn(usize, char) -> f32,
+) -> ReflowPlan {
     lay(frame, text, &advance, 0.0)
 }
 
@@ -175,6 +185,18 @@ pub fn overflow(
     frame: &Frame,
     text: &str,
     advance: impl Fn(char) -> f32,
+    others: &[TextBlock],
+    page: CharBox,
+) -> Option<OverflowPlan> {
+    overflow_at(block, frame, text, |_, c| advance(c), others, page)
+}
+
+/// [`overflow`] with an advance per character and its byte offset, as [`reflow_at`].
+pub(crate) fn overflow_at(
+    block: &TextBlock,
+    frame: &Frame,
+    text: &str,
+    advance: impl Fn(usize, char) -> f32,
     others: &[TextBlock],
     page: CharBox,
 ) -> Option<OverflowPlan> {
@@ -311,7 +333,7 @@ fn extend(
 fn tighten(
     frame: &Frame,
     text: &str,
-    advance: &dyn Fn(char) -> f32,
+    advance: &dyn Fn(usize, char) -> f32,
 ) -> Result<Tighten, TightenShort> {
     let mut over = 0;
     // Whole steps, so the amount tried is the amount shown.
@@ -334,12 +356,18 @@ fn tighten(
     Err(TightenShort { over })
 }
 
-fn lay(frame: &Frame, text: &str, advance: &dyn Fn(char) -> f32, tracking: f32) -> ReflowPlan {
+fn lay(
+    frame: &Frame,
+    text: &str,
+    advance: &dyn Fn(usize, char) -> f32,
+    tracking: f32,
+) -> ReflowPlan {
     let measure = |range: Range<usize>| -> f32 {
+        let start = range.start;
         text.get(range)
             .unwrap_or_default()
-            .chars()
-            .map(|c| advance(c) - tracking)
+            .char_indices()
+            .map(|(at, c)| advance(start.saturating_add(at), c) - tracking)
             .sum()
     };
     // The line's text without the spaces after it, and its length for fitting.

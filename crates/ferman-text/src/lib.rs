@@ -53,6 +53,7 @@
 //! - `journal`: the edit journal behind the review list. M3.
 #![forbid(unsafe_code)]
 
+mod bidi;
 pub mod collate;
 pub mod editability;
 pub mod extract;
