@@ -81,6 +81,14 @@ lru = { version = "0.19.0", default-features = false }
 # move with harfrust and subsetter. Default features off: `std` only, no autohinter shaping.
 skrifa = { version = "=0.48.0", default-features = false, features = ["std"] }
 read-fonts = { version = "=0.45.1", default-features = false, features = ["std"] }
+# Shaping (ADR 0007), pinned with skrifa and read-fonts (one fontations copy). Default features: `std`.
+harfrust = "=0.14.0"
+# Subsets of the fonts edited text embeds. Default features off: `variable-fonts` pulls a second
+# fontations stack (skrifa 0.42, write-fonts, kurbo).
+subsetter = { version = "=0.2.6", default-features = false }
+# The index of installed and bundled fonts. Default features off: no memory-mapping (unsafe) and no
+# fontconfig parsing; ferman-fonts walks the font directories itself, with limits.
+fontdb = { version = "=0.24.0", default-features = false, features = ["std", "fs"] }
 
 # Dev and test only; never in the shipped graph.
 insta = "1.49.0"
