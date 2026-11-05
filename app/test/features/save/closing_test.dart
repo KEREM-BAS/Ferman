@@ -14,6 +14,7 @@ import 'package:ferman/features/settings/editing_pane.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -22,6 +23,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_desktop_window.dart';
 import '../../helpers/fake_file_picker.dart';
+import '../../helpers/recording_file_access.dart';
 import '../onboarding/ferman_app_harness.dart';
 import '../viewer/text_layer_test.dart' show block;
 
@@ -47,9 +49,13 @@ class _GatedSaves extends FakeEngineService {
   final Completer<void> gate;
 
   @override
-  Future<void> save(int document, {bool overChange = false}) async {
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  }) async {
     await gate.future;
-    await super.save(document, overChange: overChange);
+    return await super.save(document, overChange: overChange, staging: staging);
   }
 }
 
@@ -445,6 +451,80 @@ void main() {
       expect(documents().active?.path, '/docs/bordro.pdf');
     });
 
+    testWidgets('the new name takes the word the app passes (a11-7f)', (
+      tester,
+    ) async {
+      await pumpRecovering(tester, const [changed]);
+      await container.read(documentRecoveryProvider.notifier).open({
+        changed,
+      }, suffix: 'kurtarılan');
+      await tester.pumpAndSettle();
+      expect(documents().active?.path, '/docs/fatura (kurtarılan).pdf');
+    });
+
+    testWidgets("an original is asked about again once its recent file's "
+        'bookmark reaches it (the macOS sandbox)', (tester) async {
+      final access = RecordingFileAccess();
+      engine = FakeEngineService()
+        ..recoveryRoot = '/recovery'
+        ..recoverable.add(changed)
+        ..recoveredDocuments['b'] = ekstre;
+      access.onAccess = () => engine.recoverable
+        ..clear()
+        ..add(
+          RecoverableDocument(
+            session: changed.session,
+            document: changed.document,
+            original: changed.original,
+            changes: changed.changes,
+          ),
+        );
+      await pumpFermanApp(
+        tester,
+        engine: engine,
+        home: '/docs',
+        fileAccess: access,
+        recentFiles: [
+          RecentEntry(
+            path: changed.original,
+            name: 'fatura.pdf',
+            opened: DateTime(2026),
+            bookmark: 'bookmark',
+          ),
+        ],
+      );
+      expect(access.accessed, ['bookmark']);
+      expect(find.byType(RecoveryDialog), findsOne);
+      expect(find.text('Changed on disk'), findsNothing);
+    });
+
+    testWidgets("an original's access ends with its copy, unless a tab holds "
+        'it', (tester) async {
+      final access = RecordingFileAccess();
+      engine = FakeEngineService()
+        ..recoveryRoot = '/recovery'
+        ..recoverable.addAll(const [clean, changed])
+        ..recoveredDocuments['b'] = ekstre;
+      await pumpFermanApp(
+        tester,
+        engine: engine,
+        home: '/docs',
+        fileAccess: access,
+      );
+      container = ProviderScope.containerOf(
+        tester.element(find.byType(FmStart)),
+      );
+      // The file reopened at launch, as its tab does before recovery asks.
+      container
+          .read(shellDocumentsProvider.notifier)
+          .add(
+            const ShellDocument(name: 'fatura.pdf', path: '/docs/fatura.pdf'),
+          );
+      await container.read(documentRecoveryProvider.notifier).open({changed});
+      await tester.pumpAndSettle();
+      expect(access.released, ['/docs/kira.pdf']);
+    });
+
     testWidgets('Cancel at the password keeps its copy', (tester) async {
       await pumpRecovering(tester, const [locked]);
       await tester.tap(find.widgetWithText(Button, 'Open 1 document'));
@@ -508,6 +588,92 @@ void main() {
       expect(container.read(documentEditorProvider).active, isNotNull);
       await click(tester);
       expect(find.byType(SignedEditDialog), findsNothing);
+    });
+
+    testWidgets('the first edit commits after Edit anyway, and no '
+        'transaction is left open', (tester) async {
+      await pumpSigned(tester);
+      await click(tester);
+      await tester.tap(find.widgetWithText(Button, 'Edit anyway'));
+      await tester.pumpAndSettle();
+      final editor = container.read(documentEditorProvider.notifier)
+        ..type('Madde 4');
+      await editor.finish();
+      await tester.pumpAndSettle();
+      expect(container.read(documentEditorProvider).history.current, 1);
+      expect(engine.openTransactions, 0);
+    });
+
+    /// A commit that reaches the engine unconfirmed: a tab that does not
+    /// know the document is signed, so opening the block did not ask.
+    Future<DocumentEditor> pumpUnconfirmedCommit(WidgetTester tester) async {
+      await pumpOpen(
+        tester,
+        files: const {'/docs/kira.pdf': kira},
+        unsaved: const [],
+        picked: const ['/docs/kira.pdf'],
+        pageBlocks: {
+          0: PageBlocks(blocks: [text]),
+        },
+      );
+      engine.signed.add(kira.id);
+      await click(tester);
+      expect(find.byType(SignedEditDialog), findsNothing);
+      final editor = container.read(documentEditorProvider.notifier)
+        ..type('Madde 4');
+      await editor.finish();
+      await tester.pumpAndSettle();
+      expect(find.byType(SignedEditDialog), findsOne);
+      expect(engine.openTransactions, 1);
+      return editor;
+    }
+
+    testWidgets('a commit the engine refuses keeps its transaction: Edit '
+        'anyway commits it', (tester) async {
+      await pumpUnconfirmedCommit(tester);
+      await tester.tap(find.widgetWithText(Button, 'Edit anyway'));
+      await tester.pumpAndSettle();
+      expect(container.read(documentEditorProvider).history.current, 1);
+      expect(engine.openTransactions, 0);
+      await click(tester);
+      expect(container.read(documentEditorProvider).active, isNotNull);
+    });
+
+    testWidgets('a save over the refused commit: Cancel still drops the '
+        'typing', (tester) async {
+      await pumpUnconfirmedCommit(tester);
+      final saver = container.read(documentSaverProvider.notifier);
+      await saver.save();
+      await tester.pumpAndSettle();
+      expect(find.byType(SignedEditDialog), findsOne);
+      await tester.tap(find.widgetWithText(Button, 'Cancel'));
+      await tester.pumpAndSettle();
+      expect(container.read(documentEditorProvider).history.current, 0);
+      expect(engine.openTransactions, 0);
+    });
+
+    testWidgets('a block opened over the refused commit leaves no orphan', (
+      tester,
+    ) async {
+      await pumpUnconfirmedCommit(tester);
+      await click(tester);
+      expect(engine.openTransactions, 1, reason: 'the same one still waits');
+      await tester.tap(find.widgetWithText(Button, 'Edit anyway'));
+      await tester.pumpAndSettle();
+      expect(container.read(documentEditorProvider).history.current, 1);
+      expect(engine.openTransactions, 0);
+    });
+
+    testWidgets('a commit the engine refuses keeps its transaction: Cancel '
+        'drops the typing', (tester) async {
+      await pumpUnconfirmedCommit(tester);
+      await tester.tap(find.widgetWithText(Button, 'Cancel'));
+      await tester.pumpAndSettle();
+      expect(container.read(documentEditorProvider).history.current, 0);
+      expect(engine.openTransactions, 0);
+      await click(tester);
+      expect(find.byType(SignedEditDialog), findsNothing);
+      expect(container.read(documentEditorProvider).active, isNotNull);
     });
 
     testWidgets('Edit a copy writes it unsigned and opens it', (tester) async {

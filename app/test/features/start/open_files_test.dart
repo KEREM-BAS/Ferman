@@ -81,7 +81,11 @@ final class _LoggedAccess implements FileAccess {
   Future<String?> staging(String path) async => null;
 
   @override
-  Future<bool> swapIn(String staged, String path) async => false;
+  Future<SwapFailure?> swapIn(String staged, String path) async =>
+      SwapFailure.other;
+
+  @override
+  Future<void> discardStaging(String directory) async {}
 }
 
 Future<void> controlO(WidgetTester tester) async {

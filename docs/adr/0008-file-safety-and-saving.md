@@ -77,6 +77,44 @@ Symbolic links are resolved and the target is replaced. Files with several hard 
 someone else, are not replaced silently: Ferman offers Save as. Sharing violations on Windows are
 retried briefly, then reported as "locked by another app".
 
+**Under the macOS App Sandbox (M3, W4, B139):** a file granted through the panel is granted on its
+own, so no temp file can go beside it. Every document save takes the staging directory the runner
+names (the item-replacement directory on the same volume; only under the sandbox, where
+`APP_SANDBOX_CONTAINER_ID` is set) and stops before the swap: `save::stage_pdf` runs all of the
+checks below there, the external-change check and the incremental prefix check included, and returns
+the temp file's path. The runner swaps it in (`replaceItemAt`, or `moveItem` for a new file), and
+only then `Engine::finish_save` records the new stamp and moves the document's file and saved
+revision. Until then the document is as it was, so a failed swap keeps the edits, leaves the original
+and deletes the staged file, and reads as the typed failures do (`SwapFailure`, from the Cocoa error;
+anything else is `RenameFailed`). What changes through `replaceItemAt`:
+
+| Check | Through the swap |
+|---|---|
+| Metadata | `replaceItemAt` keeps the original's permissions, ACLs, extended attributes and creation date itself (no `usingNewMetadataOnly`), so `keep_metadata` does not run |
+| Hard links | still refused: the swap gives the name a new file as a rename does, so the other links would stop following it (M2's attachment path skipped this; it no longer does) |
+| Owner | still refused for another user's file (`same_owner`): the runner has no call that restores an owner. Group is `replaceItemAt`'s |
+| Read-only target, free space, read-back, cross-reference parse, prefix | as in the sequence, on the volume of the staging directory |
+| Symbolic link | the runner resolves it first; the link stays |
+| Flush of the folder | `replaceItemAt`'s; Ferman has no handle on the folder under the sandbox |
+| Retry while locked | none: a sharing violation is a Windows failure, and `replaceItemAt` reports `EBUSY` as `FileLocked` at once |
+
+The one way the original could be disturbed is Foundation's own: a swap that fails after moving the
+original aside, which its documentation says it reports under `NSFileOriginalItemLocationKey`. That
+name is in no SDK header, so the runner reads it as a string. The runner then moves the original back,
+and it removes the staged file and only an empty staging directory, so nothing recursive can take the
+original with it. That path has never run; the owner's check on a sandboxed build covers the swap. A
+save the engine refuses before staging (changed on disk, confirmation) has its empty directory removed
+too (`FileAccess.discardStaging`). The app reads the swap's target only when the write's turn comes in
+the editor's queue, so a Save as ahead of it cannot send it to the old file, and every staged write
+goes through that queue, so one document has one staged file at a time. While a write waits for its
+swap, `check_external_change` says no change, so the window regaining focus then shows no false
+a11-7b; the next check sees anyone else's change. A process killed between the swap and `finish_save`
+loses nothing: the new file is in place, and the next launch offers the recovery files, whose recorded
+hash then reads as "changed on disk", so they open under a new name. A restored document starts access
+through its recent file's bookmark; without one its save fails with `PermissionDenied`, and Save as
+asks the panel for the grant. "Edit a copy" writes beside the signed file the same way, and asks where
+through Save as when the folder is not granted.
+
 **Built in M3 (W4, M3 plan decision 2 and question 1):** ferman-core's own code, on M2's
 `safe_write`, not atomic-write-file: `save::save_pdf` for documents and `save::safe_write` for
 other files run the same sequence. The calls the standard library lacks live in one module,

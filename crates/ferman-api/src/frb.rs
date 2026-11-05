@@ -139,6 +139,8 @@ pub struct ApiError {
     pub details: Option<String>,
     /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
     pub offer_save_as: bool,
+    /// On a failed save: no recovery copy of the unsaved edits exists either.
+    pub no_recovery_copy: bool,
 }
 
 /// Why a document opened read-only (ARCHITECTURE §5.2). In M2 every document is view-only; this is
@@ -1191,7 +1193,7 @@ pub async fn list_recoverable() -> Result<Vec<RecoverableDocument>, ApiError> {
 }
 
 /// Opens `document` of the crashed `session` with its unsaved changes as one unsaved step, with
-/// `password` for an encrypted one.
+/// `password` for an encrypted one; `suffix` is the localized word in a new name (a11-7f).
 ///
 /// See [`facade::Engine::restore_recovered`].
 ///
@@ -1203,9 +1205,15 @@ pub async fn restore_recovered(
     session: String,
     document: String,
     password: Option<String>,
+    suffix: Option<String>,
 ) -> Result<RestoredDocument, ApiError> {
     engine()?
-        .restore_recovered(session, document, password.map(facade::Password::new))
+        .restore_recovered(
+            session,
+            document,
+            password.map(facade::Password::new),
+            suffix,
+        )
         .await
         .map(|restored| RestoredDocument {
             opened: opened_document_dto(restored.opened),
@@ -1643,9 +1651,33 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
 ///
 /// `NotFound` for a document that is not open, `FileChangedOnDisk`, and the save failures with
 /// [`ApiError::offer_save_as`].
-pub async fn save(document: u64) -> Result<(), ApiError> {
+pub async fn save(document: u64, staging: Option<String>) -> Result<Option<String>, ApiError> {
     engine()?
-        .save(facade::DocumentId::from_raw(document))
+        .save(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
+        .await
+        .map(staged_dto)
+        .map_err(api_error_dto)
+}
+
+/// A staged save's temp file, for the platform layer to swap in.
+fn staged_dto(staged: Option<PathBuf>) -> Option<String> {
+    staged.map(|path| path.to_string_lossy().into_owned())
+}
+
+/// Ends a staged save once the platform layer tried the swap; whether the last recovery write
+/// failed.
+///
+/// See [`facade::Engine::finish_save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` when no save waits.
+pub async fn finish_save(document: u64, swapped: bool) -> Result<bool, ApiError> {
+    engine()?
+        .finish_save(facade::DocumentId::from_raw(document), swapped)
         .await
         .map_err(api_error_dto)
 }
@@ -1657,10 +1689,17 @@ pub async fn save(document: u64) -> Result<(), ApiError> {
 /// # Errors
 ///
 /// As [`save`], without `FileChangedOnDisk`.
-pub async fn save_over_change(document: u64) -> Result<(), ApiError> {
+pub async fn save_over_change(
+    document: u64,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .save_over_change(facade::DocumentId::from_raw(document))
+        .save_over_change(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1671,10 +1710,19 @@ pub async fn save_over_change(document: u64) -> Result<(), ApiError> {
 /// # Errors
 ///
 /// As [`save`], without `FileChangedOnDisk`.
-pub async fn save_copy(document: u64, path: String) -> Result<(), ApiError> {
+pub async fn save_copy(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .save_copy(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .save_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1690,14 +1738,17 @@ pub async fn save_repaired_copy(
     document: u64,
     path: String,
     replace_original: bool,
-) -> Result<(), ApiError> {
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
         .save_repaired_copy(
             facade::DocumentId::from_raw(document),
             PathBuf::from(path),
             replace_original,
+            staging.map(PathBuf::from),
         )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1708,10 +1759,17 @@ pub async fn save_repaired_copy(
 /// # Errors
 ///
 /// As [`save`]; `Unsupported` for a repaired document.
-pub async fn optimize_and_clean(document: u64) -> Result<(), ApiError> {
+pub async fn optimize_and_clean(
+    document: u64,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .optimize_and_clean(facade::DocumentId::from_raw(document))
+        .optimize_and_clean(
+            facade::DocumentId::from_raw(document),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1752,10 +1810,19 @@ pub async fn confirm_edit_signed(document: u64) -> Result<u64, ApiError> {
 /// # Errors
 ///
 /// `InvalidInput` for its own file, and the save failures.
-pub async fn save_unsigned_copy(document: u64, path: String) -> Result<(), ApiError> {
+pub async fn save_unsigned_copy(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .save_unsigned_copy(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .save_unsigned_copy(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -1781,10 +1848,19 @@ pub async fn check_external_change(document: u64) -> Result<bool, ApiError> {
 /// # Errors
 ///
 /// As [`save`].
-pub async fn save_as(document: u64, path: String) -> Result<(), ApiError> {
+pub async fn save_as(
+    document: u64,
+    path: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
     engine()?
-        .save_as(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .save_as(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(path),
+            staging.map(PathBuf::from),
+        )
         .await
+        .map(staged_dto)
         .map_err(api_error_dto)
 }
 
@@ -2452,6 +2528,7 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
         message_key: err.message_key.as_str().to_owned(),
         details: err.details,
         offer_save_as: err.offer_save_as,
+        no_recovery_copy: err.no_recovery_copy,
     }
 }
 
@@ -2614,6 +2691,7 @@ mod tests {
                 message_key: "errorInternal".to_owned(),
                 details: Some("no trailer".to_owned()),
                 offer_save_as: false,
+                no_recovery_copy: false,
             }
         );
         let locked =

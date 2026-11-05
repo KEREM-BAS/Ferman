@@ -423,7 +423,9 @@ denied outside tests; `missing_docs` as a warning, which `-D warnings` turns int
 `deny.toml` from [DEPENDENCIES.md](DEPENDENCIES.md); CI workflow with the three-system matrix; a
 `tests/corpus/README.md` skeleton with the provenance format.
 
-Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api. ferman-api uses
+Unsafe code: `forbid(unsafe_code)` at the root of every crate except ferman-api and, since M3,
+ferman-core, which denies it and allows it only in its `platform` module
+([ADR 0010](adr/0010-error-handling-no-panics.md)). ferman-api uses
 `#![deny(unsafe_code)]`, with `#[allow(unsafe_code)]` only on the FRB-generated module behind its
 `frb` feature. The generated glue needs `extern "C"` exports and `unsafe` blocks, and an inner
 `allow` cannot override `forbid`. This is the documented exception that

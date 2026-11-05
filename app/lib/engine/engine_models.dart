@@ -159,6 +159,7 @@ class EngineException implements Exception {
     this.details,
     this.kind = EngineErrorKind.internal,
     this.offersSaveAs = false,
+    this.noRecoveryCopy = false,
   });
 
   /// What kind of failure this is.
@@ -173,6 +174,10 @@ class EngineException implements Exception {
   /// Whether the UI offers Save as: a save that failed for a reason another
   /// file avoids.
   final bool offersSaveAs;
+
+  /// On a failed save: the last recovery write failed too, so no recovery
+  /// copy of the unsaved edits exists (ARCHITECTURE §7.8).
+  final bool noRecoveryCopy;
 
   @override
   String toString() =>

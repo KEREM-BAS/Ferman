@@ -225,8 +225,9 @@ impl Engine {
     /// opened from (the base copy, or the original when it has none and did not change) with
     /// every unsaved change as one unsaved step of its history; the file on disk is unchanged.
     /// When the original changed, the document saves to a new name beside it,
-    /// `<name> (recovered).pdf`, so neither is overwritten (a11-7f). The running session takes
-    /// the files over until a save or "Don't save".
+    /// `<name> (recovered).pdf` with `suffix` in the app's language in place of "recovered", so
+    /// neither is overwritten (a11-7f). The running session takes the files over until a save or
+    /// "Don't save".
     ///
     /// # Errors
     ///
@@ -240,6 +241,7 @@ impl Engine {
         session: String,
         document: String,
         password: Option<Password>,
+        suffix: Option<String>,
     ) -> Result<RestoredDocument, ApiError> {
         guard_async(async move {
             let (root, own) = self.recovery.root()?;
@@ -253,7 +255,7 @@ impl Engine {
             };
             let read = {
                 let dir = dir.clone();
-                off_thread(move || read_recovered(&dir, &options)).await?
+                off_thread(move || read_recovered(&dir, &options, suffix.as_deref())).await?
             };
             let Read {
                 source,
@@ -323,7 +325,11 @@ struct Read {
 
 /// Reads a crashed document's files in `dir` and opens what they hold, leaving them where they
 /// are.
-fn read_recovered(dir: &Path, options: &OpenOptions) -> Result<Read, ApiError> {
+fn read_recovered(
+    dir: &Path,
+    options: &OpenOptions,
+    suffix: Option<&str>,
+) -> Result<Read, ApiError> {
     let manifest = Manifest::read(dir).map_err(|err| match err {
         CoreError::Io { .. } => ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL)
             .with_details("no recovery files"),
@@ -351,7 +357,7 @@ fn read_recovered(dir: &Path, options: &OpenOptions) -> Result<Read, ApiError> {
             modified: None,
             sha256: [0; 32],
         };
-        (recovered_name(&manifest.original), missing)
+        (recovered_name(&manifest.original, suffix), missing)
     } else {
         (manifest.original.clone(), manifest.stamp.clone())
     };
@@ -368,8 +374,12 @@ fn read_recovered(dir: &Path, options: &OpenOptions) -> Result<Read, ApiError> {
 }
 
 /// A name beside `original` that no file has: `<stem> (recovered).pdf`, then
-/// `<stem> (recovered 2).pdf` and on (a11-7f).
-fn recovered_name(original: &Path) -> PathBuf {
+/// `<stem> (recovered 2).pdf` and on (a11-7f), with `suffix` for "recovered" unless it is empty
+/// or would name another folder.
+fn recovered_name(original: &Path, suffix: Option<&str>) -> PathBuf {
+    let word = suffix
+        .filter(|word| !word.is_empty() && !word.contains(['/', '\\']))
+        .unwrap_or("recovered");
     let stem = original
         .file_stem()
         .map(|stem| stem.to_string_lossy().into_owned())
@@ -380,9 +390,9 @@ fn recovered_name(original: &Path) -> PathBuf {
         .unwrap_or_default();
     let named = |n: u32| {
         let suffix = if n == 1 {
-            "(recovered)".to_owned()
+            format!("({word})")
         } else {
-            format!("(recovered {n})")
+            format!("({word} {n})")
         };
         original.with_file_name(format!("{stem} {suffix}{extension}"))
     };
@@ -421,13 +431,22 @@ mod tests {
         std::fs::create_dir_all(&dir).unwrap();
         let original = dir.join("iv fatura 4187.pdf");
         assert_eq!(
-            recovered_name(&original),
+            recovered_name(&original, None),
             dir.join("iv fatura 4187 (recovered).pdf")
         );
         std::fs::write(dir.join("iv fatura 4187 (recovered).pdf"), b"x").unwrap();
         assert_eq!(
-            recovered_name(&original),
+            recovered_name(&original, Some("../recovered")),
             dir.join("iv fatura 4187 (recovered 2).pdf")
+        );
+        assert_eq!(
+            recovered_name(&original, Some("kurtarılan")),
+            dir.join("iv fatura 4187 (kurtarılan).pdf")
+        );
+        std::fs::write(dir.join("iv fatura 4187 (kurtarılan).pdf"), b"x").unwrap();
+        assert_eq!(
+            recovered_name(&original, Some("kurtarılan")),
+            dir.join("iv fatura 4187 (kurtarılan 2).pdf")
         );
         std::fs::remove_dir_all(&dir).unwrap();
     }

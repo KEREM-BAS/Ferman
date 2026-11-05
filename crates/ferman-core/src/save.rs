@@ -22,8 +22,9 @@
 //!
 //! Under the macOS App Sandbox a file chosen in the save panel is granted on its own, not its
 //! folder, so the platform layer names a staging directory (the system's item-replacement
-//! directory on the same volume): the temp file is written and verified there, and the platform
-//! layer swaps it in with `replaceItemAt`, which keeps the metadata itself.
+//! directory on the same volume): the temp file is written and verified there ([`stage_pdf`],
+//! [`safe_write`]), and the platform layer swaps it in with `replaceItemAt`, which keeps the
+//! metadata itself but not a hard link or another user's ownership, so those are refused as ever.
 
 use std::fs::{self, File, Metadata, OpenOptions};
 use std::io::{self, ErrorKind, Read, Write};
@@ -86,6 +87,27 @@ impl FileStamp {
         }
         Ok(hash_file(&path)? != self.sha256)
     }
+
+    /// The stamp of `bytes` about to be a file, with no modification time yet.
+    fn of(bytes: &[u8]) -> Self {
+        Self {
+            size: u64::try_from(bytes.len()).unwrap_or(u64::MAX),
+            modified: None,
+            sha256: Sha256::digest(bytes).into(),
+        }
+    }
+
+    /// This stamp with the modification time of the file now at `path`: what a save swapped in
+    /// by the platform layer records once it is in place.
+    #[must_use]
+    pub fn settled(self, path: &Path) -> Self {
+        Self {
+            modified: fs::metadata(resolve(path))
+                .and_then(|metadata| metadata.modified())
+                .ok(),
+            ..self
+        }
+    }
 }
 
 /// The SHA-256 of the file at `path`, read a part at a time.
@@ -121,6 +143,51 @@ pub fn save_pdf(
     original: Option<&[u8]>,
     expected: Option<&FileStamp>,
 ) -> Result<FileStamp, CoreError> {
+    checked(target, bytes, original, expected)?;
+    let request = Request {
+        target,
+        bytes,
+        staging: None,
+        pdf: true,
+    };
+    write(&request, &mut std::thread::sleep)?;
+    Ok(FileStamp::of(bytes).settled(target))
+}
+
+/// Does what [`save_pdf`] does up to the swap, with the temp file in the directory `staging`:
+/// every check, and `target` not touched. Returns the verified temp file's path, for the platform
+/// layer to swap in, and the stamp to [settle](FileStamp::settled) once it has.
+///
+/// # Errors
+///
+/// As [`save_pdf`]; `target` is as it was and no temp file is left.
+pub fn stage_pdf(
+    target: &Path,
+    staging: &Path,
+    bytes: &[u8],
+    original: Option<&[u8]>,
+    expected: Option<&FileStamp>,
+) -> Result<(PathBuf, FileStamp), CoreError> {
+    checked(target, bytes, original, expected)?;
+    let request = Request {
+        target,
+        bytes,
+        staging: Some(staging),
+        pdf: true,
+    };
+    let staged = write(&request, &mut std::thread::sleep)?.ok_or(CoreError::Internal {
+        context: "a staged write without its temp file",
+    })?;
+    Ok((staged, FileStamp::of(bytes)))
+}
+
+/// The checks of a document's save before anything is written.
+fn checked(
+    target: &Path,
+    bytes: &[u8],
+    original: Option<&[u8]>,
+    expected: Option<&FileStamp>,
+) -> Result<(), CoreError> {
     if original.is_some_and(|original| !bytes.starts_with(original)) {
         return Err(CoreError::Internal {
             context: "an incremental update that does not start with the original",
@@ -131,21 +198,7 @@ pub fn save_pdf(
     {
         return Err(CoreError::Save(SaveError::ChangedOnDisk));
     }
-    let request = Request {
-        target,
-        bytes,
-        staging: None,
-        pdf: true,
-    };
-    write(&request, &mut std::thread::sleep)?;
-    let modified = fs::metadata(resolve(target))
-        .and_then(|metadata| metadata.modified())
-        .ok();
-    Ok(FileStamp {
-        size: u64::try_from(bytes.len()).unwrap_or(u64::MAX),
-        modified,
-        sha256: Sha256::digest(bytes).into(),
-    })
+    Ok(())
 }
 
 /// Writes `bytes` as the file at `target`, replacing what is there, through the same sequence
@@ -227,7 +280,8 @@ fn write(
             return Err(CoreError::Save(SaveError::PermissionDenied));
         }
         let links = platform::link_count(&target).map_err(|err| classify(Step::Inspect, &err))?;
-        if request.staging.is_none() && links > 1 {
+        // A swap through the platform layer breaks a hard link just as a rename does.
+        if links > 1 {
             return Err(CoreError::Save(SaveError::HardLinked));
         }
     }
@@ -244,7 +298,8 @@ fn write(
     let (temp, mut file) = create_temp(folder, &name.to_string_lossy())?;
     let written = write_verified(&mut file, &temp, request).and_then(|()| match &existing {
         Some(metadata) if request.staging.is_none() => keep_metadata(&target, metadata, &file),
-        _ => Ok(()),
+        Some(metadata) => same_owner(metadata, &file),
+        None => Ok(()),
     });
     drop(file);
     if let Err(err) = written {
@@ -402,6 +457,28 @@ fn keep_metadata(target: &Path, metadata: &Metadata, file: &File) -> Result<(), 
     }
     #[cfg(not(unix))]
     let _ = metadata;
+    Ok(())
+}
+
+/// Fails when a swap through the platform layer would give the file at `metadata` to the user
+/// who wrote `file`: `replaceItemAt` keeps the rest of the metadata, but no call there restores
+/// an owner.
+fn same_owner(metadata: &Metadata, file: &File) -> Result<(), CoreError> {
+    if fault(Step::Owner).is_err() {
+        return Err(CoreError::Save(SaveError::NotOwner));
+    }
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt as _;
+        let ours = file
+            .metadata()
+            .map_err(|err| classify(Step::Metadata, &err))?;
+        if metadata.uid() != ours.uid() {
+            return Err(CoreError::Save(SaveError::NotOwner));
+        }
+    }
+    #[cfg(not(unix))]
+    let _ = (metadata, file);
     Ok(())
 }
 
@@ -568,6 +645,74 @@ mod tests {
         assert_eq!(staged.parent(), Some(staging.as_path()));
         assert_eq!(fs::read(&staged).unwrap(), b"a,b\n");
         assert!(!target.exists());
+        fs::remove_dir_all(dir).unwrap();
+        fs::remove_dir_all(staging).unwrap();
+    }
+
+    #[test]
+    fn a_staged_save_checks_as_a_save_does_and_leaves_the_target_until_the_swap() {
+        let (old, new) = old_and_new();
+        let dir = temp_dir("stage");
+        let staging = temp_dir("stage-replacement");
+        let target = dir.join("doc.pdf");
+        fs::write(&target, &old).unwrap();
+        let opened = FileStamp::of(&old).settled(&target);
+
+        // Target untouched, the temp file verified, no modification time before the swap.
+        let (staged, stamp) = stage_pdf(&target, &staging, &new, None, Some(&opened)).unwrap();
+        assert_eq!(staged.parent(), Some(staging.as_path()));
+        assert_eq!(fs::read(&staged).unwrap(), new);
+        assert_eq!(fs::read(&target).unwrap(), old);
+        assert_eq!(names(&dir), ["doc.pdf"]);
+        assert_eq!(stamp.modified, None);
+        assert!(stamp.changed(&target).unwrap());
+
+        // The swap, then the stamp: this is the file now.
+        fs::rename(&staged, &target).unwrap();
+        let settled = stamp.settled(&target);
+        assert!(settled.modified.is_some());
+        assert!(!settled.changed(&target).unwrap());
+
+        // A file that changed under the document stops it, and so does a bad incremental update.
+        let err = stage_pdf(&target, &staging, &new, None, Some(&opened)).unwrap_err();
+        assert!(matches!(err, CoreError::Save(SaveError::ChangedOnDisk)));
+        let err = stage_pdf(&target, &staging, &old, Some(&new), None).unwrap_err();
+        assert!(matches!(err, CoreError::Internal { .. }));
+        // Bytes that are no PDF do not pass the read-back.
+        let err = stage_pdf(&target, &staging, b"not a pdf", None, None).unwrap_err();
+        assert!(matches!(err, CoreError::Save(SaveError::Verify)));
+        assert_eq!(fs::read(&target).unwrap(), new);
+        assert!(names(&staging).is_empty());
+        fs::remove_dir_all(dir).unwrap();
+        fs::remove_dir_all(staging).unwrap();
+    }
+
+    #[test]
+    fn a_staged_save_refuses_hard_links_and_an_owner_it_cannot_keep() {
+        let (old, new) = old_and_new();
+        let dir = temp_dir("stage-refused");
+        let staging = temp_dir("stage-refused-replacement");
+        let target = dir.join("doc.pdf");
+        fs::write(&target, &old).unwrap();
+
+        let err = with_fault(
+            |step| {
+                if step == Step::Owner {
+                    Err(ErrorKind::Other.into())
+                } else {
+                    Ok(())
+                }
+            },
+            || stage_pdf(&target, &staging, &new, None, None).unwrap_err(),
+        );
+        assert!(matches!(err, CoreError::Save(SaveError::NotOwner)));
+
+        fs::hard_link(&target, dir.join("other.pdf")).unwrap();
+        let err = stage_pdf(&target, &staging, &new, None, None).unwrap_err();
+        assert!(matches!(err, CoreError::Save(SaveError::HardLinked)));
+
+        assert_eq!(fs::read(&target).unwrap(), old);
+        assert!(names(&staging).is_empty());
         fs::remove_dir_all(dir).unwrap();
         fs::remove_dir_all(staging).unwrap();
     }

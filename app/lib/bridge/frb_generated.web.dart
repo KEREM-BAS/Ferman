@@ -965,6 +965,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.messageKey),
       cst_encode_opt_String(raw.details),
       cst_encode_bool(raw.offerSaveAs),
+      cst_encode_bool(raw.noRecoveryCopy),
     ].jsify()!;
   }
 
@@ -2604,6 +2605,12 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__engine_info(NativePortType port_) =>
       wasmModule.wire__crate__frb__engine_info(port_);
 
+  void wire__crate__frb__finish_save(
+    NativePortType port_,
+    JSAny document,
+    bool swapped,
+  ) => wasmModule.wire__crate__frb__finish_save(port_, document, swapped);
+
   void wire__crate__frb__history(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__history(port_, document);
 
@@ -2628,7 +2635,9 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__optimize_and_clean(
     NativePortType port_,
     JSAny document,
-  ) => wasmModule.wire__crate__frb__optimize_and_clean(port_, document);
+    String? staging,
+  ) =>
+      wasmModule.wire__crate__frb__optimize_and_clean(port_, document, staging);
 
   void wire__crate__frb__redo(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__redo(port_, document);
@@ -2657,11 +2666,13 @@ class FermanBridgeWire implements BaseWire {
     String session,
     String document,
     String? password,
+    String? suffix,
   ) => wasmModule.wire__crate__frb__restore_recovered(
     port_,
     session,
     document,
     password,
+    suffix,
   );
 
   void wire__crate__frb__rollback_edit(
@@ -2669,14 +2680,18 @@ class FermanBridgeWire implements BaseWire {
     JSAny transaction,
   ) => wasmModule.wire__crate__frb__rollback_edit(port_, transaction);
 
-  void wire__crate__frb__save(NativePortType port_, JSAny document) =>
-      wasmModule.wire__crate__frb__save(port_, document);
+  void wire__crate__frb__save(
+    NativePortType port_,
+    JSAny document,
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save(port_, document, staging);
 
   void wire__crate__frb__save_as(
     NativePortType port_,
     JSAny document,
     String path,
-  ) => wasmModule.wire__crate__frb__save_as(port_, document, path);
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_as(port_, document, path, staging);
 
   void wire__crate__frb__save_attachment(
     NativePortType port_,
@@ -2696,30 +2711,40 @@ class FermanBridgeWire implements BaseWire {
     NativePortType port_,
     JSAny document,
     String path,
-  ) => wasmModule.wire__crate__frb__save_copy(port_, document, path);
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_copy(port_, document, path, staging);
 
   void wire__crate__frb__save_over_change(
     NativePortType port_,
     JSAny document,
-  ) => wasmModule.wire__crate__frb__save_over_change(port_, document);
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_over_change(port_, document, staging);
 
   void wire__crate__frb__save_repaired_copy(
     NativePortType port_,
     JSAny document,
     String path,
     bool replace_original,
+    String? staging,
   ) => wasmModule.wire__crate__frb__save_repaired_copy(
     port_,
     document,
     path,
     replace_original,
+    staging,
   );
 
   void wire__crate__frb__save_unsigned_copy(
     NativePortType port_,
     JSAny document,
     String path,
-  ) => wasmModule.wire__crate__frb__save_unsigned_copy(port_, document, path);
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_unsigned_copy(
+    port_,
+    document,
+    path,
+    staging,
+  );
 
   void wire__crate__frb__search(
     NativePortType port_,
@@ -2868,6 +2893,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
 
   external void wire__crate__frb__engine_info(NativePortType port_);
 
+  external void wire__crate__frb__finish_save(
+    NativePortType port_,
+    JSAny document,
+    bool swapped,
+  );
+
   external void wire__crate__frb__history(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__keep_as_is(
@@ -2892,6 +2923,7 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external void wire__crate__frb__optimize_and_clean(
     NativePortType port_,
     JSAny document,
+    String? staging,
   );
 
   external void wire__crate__frb__redo(NativePortType port_, JSAny document);
@@ -2914,6 +2946,7 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String session,
     String document,
     String? password,
+    String? suffix,
   );
 
   external void wire__crate__frb__rollback_edit(
@@ -2921,12 +2954,17 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny transaction,
   );
 
-  external void wire__crate__frb__save(NativePortType port_, JSAny document);
+  external void wire__crate__frb__save(
+    NativePortType port_,
+    JSAny document,
+    String? staging,
+  );
 
   external void wire__crate__frb__save_as(
     NativePortType port_,
     JSAny document,
     String path,
+    String? staging,
   );
 
   external void wire__crate__frb__save_attachment(
@@ -2941,11 +2979,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     NativePortType port_,
     JSAny document,
     String path,
+    String? staging,
   );
 
   external void wire__crate__frb__save_over_change(
     NativePortType port_,
     JSAny document,
+    String? staging,
   );
 
   external void wire__crate__frb__save_repaired_copy(
@@ -2953,12 +2993,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny document,
     String path,
     bool replace_original,
+    String? staging,
   );
 
   external void wire__crate__frb__save_unsigned_copy(
     NativePortType port_,
     JSAny document,
     String path,
+    String? staging,
   );
 
   external void wire__crate__frb__search(

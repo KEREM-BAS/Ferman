@@ -179,12 +179,14 @@ class FrbEngineService implements EngineService {
     String session,
     String document, {
     String? password,
+    String? suffix,
   }) async {
     try {
       final restored = await bridge.restoreRecovered(
         session: session,
         document: document,
         password: password,
+        suffix: suffix,
       );
       return RestoredDocument(
         opened: _opened(restored.opened),
@@ -695,46 +697,27 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> save(int document, {bool overChange = false}) async {
-    try {
-      final id = BigInt.from(document);
-      await (overChange
-          ? bridge.saveOverChange(document: id)
-          : bridge.save(document: id));
-    } on bridge.ApiError catch (error) {
-      throw _exception(error);
-    }
-  }
-
-  @override
-  Future<void> saveAs(int document, String path) async {
-    try {
-      await bridge.saveAs(document: BigInt.from(document), path: path);
-    } on bridge.ApiError catch (error) {
-      throw _exception(error);
-    }
-  }
-
-  @override
-  Future<void> saveCopy(int document, String path) async {
-    try {
-      await bridge.saveCopy(document: BigInt.from(document), path: path);
-    } on bridge.ApiError catch (error) {
-      throw _exception(error);
-    }
-  }
-
-  @override
-  Future<void> saveRepairedCopy(
-    int document,
-    String path, {
-    bool replaceOriginal = false,
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
   }) async {
     try {
-      await bridge.saveRepairedCopy(
+      final id = BigInt.from(document);
+      return await (overChange
+          ? bridge.saveOverChange(document: id, staging: staging)
+          : bridge.save(document: id, staging: staging));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<bool> finishSave(int document, {required bool swapped}) async {
+    try {
+      return await bridge.finishSave(
         document: BigInt.from(document),
-        path: path,
-        replaceOriginal: replaceOriginal,
+        swapped: swapped,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -742,9 +725,57 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> optimizeAndClean(int document) async {
+  Future<String?> saveAs(int document, String path, {String? staging}) async {
     try {
-      await bridge.optimizeAndClean(document: BigInt.from(document));
+      return await bridge.saveAs(
+        document: BigInt.from(document),
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveCopy(int document, String path, {String? staging}) async {
+    try {
+      return await bridge.saveCopy(
+        document: BigInt.from(document),
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+    String? staging,
+  }) async {
+    try {
+      return await bridge.saveRepairedCopy(
+        document: BigInt.from(document),
+        path: path,
+        replaceOriginal: replaceOriginal,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> optimizeAndClean(int document, {String? staging}) async {
+    try {
+      return await bridge.optimizeAndClean(
+        document: BigInt.from(document),
+        staging: staging,
+      );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -772,11 +803,16 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> saveUnsignedCopy(int document, String path) async {
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async {
     try {
-      await bridge.saveUnsignedCopy(
+      return await bridge.saveUnsignedCopy(
         document: BigInt.from(document),
         path: path,
+        staging: staging,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -884,6 +920,7 @@ EngineException _exception(bridge.ApiError error) => EngineException(
   messageKey: error.messageKey,
   details: error.details,
   offersSaveAs: error.offerSaveAs,
+  noRecoveryCopy: error.noRecoveryCopy,
 );
 
 /// Every error kind of the bridge by name, with the app's kind it maps to,

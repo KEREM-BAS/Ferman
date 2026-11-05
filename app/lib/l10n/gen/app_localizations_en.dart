@@ -2342,6 +2342,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.';
 
   @override
+  String get saveFailedNoRecoveryCopy =>
+      'No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.';
+
+  @override
   String get saveTryAgain => 'Try again';
 
   @override
@@ -2502,6 +2506,9 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get recoveryChangedBody =>
       'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.';
+
+  @override
+  String get recoveryFileSuffix => 'recovered';
 
   @override
   String get signedTitle => 'Edit a signed document?';

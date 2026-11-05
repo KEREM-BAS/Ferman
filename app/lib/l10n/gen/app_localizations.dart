@@ -4029,6 +4029,12 @@ abstract class AppLocalizations {
   /// **'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.'**
   String get saveFailedOther;
 
+  /// After a11-7's and a11-7d's message when the recovery copy could not be written either (ARCHITECTURE §7.8, G40): the board's reassurance would not be true.
+  ///
+  /// In en, this message translates to:
+  /// **'No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.'**
+  String get saveFailedNoRecoveryCopy;
+
   /// Save failure dialog (a11-7d): saves again.
   ///
   /// In en, this message translates to:
@@ -4244,6 +4250,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.'**
   String get recoveryChangedBody;
+
+  /// a11-7f: the word in brackets in a restored document's new file name, “e-Arşiv fatura 4187 (recovered).pdf”. No slashes.
+  ///
+  /// In en, this message translates to:
+  /// **'recovered'**
+  String get recoveryFileSuffix;
 
   /// a3-16a: the question.
   ///

@@ -2337,6 +2337,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Ferman dosyayı yazamadı. Yeniden deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
 
   @override
+  String get saveFailedNoRecoveryCopy =>
+      'Kurtarma kopyası yok: Ferman onu da yazamadı; bu düzenlemeler siz kaydedene kadar yalnızca bu pencerede.';
+
+  @override
   String get saveTryAgain => 'Yeniden dene';
 
   @override
@@ -2495,6 +2499,9 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get recoveryChangedBody =>
       'Diskteki dosya, Ferman’ın kopyasından sonra değişti. Geri yüklenen sürüm yeni bir adla açılır; hiçbiri üzerine yazılmaz.';
+
+  @override
+  String get recoveryFileSuffix => 'kurtarılan';
 
   @override
   String get signedTitle => 'İmzalı bir belge düzenlensin mi?';

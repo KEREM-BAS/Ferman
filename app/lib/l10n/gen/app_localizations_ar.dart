@@ -2386,6 +2386,10 @@ class AppLocalizationsAr extends AppLocalizations {
       'تعذّر على Ferman كتابة الملف. أعد المحاولة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
 
   @override
+  String get saveFailedNoRecoveryCopy =>
+      'لا توجد نسخة استرداد: تعذّر على Ferman كتابتها أيضًا، لذا تبقى هذه التعديلات في هذه النافذة فقط حتى تحفظ.';
+
+  @override
   String get saveTryAgain => 'إعادة المحاولة';
 
   @override
@@ -2558,6 +2562,9 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String get recoveryChangedBody =>
       'تغيّر الملف على القرص بعد نسخة Ferman. تُفتح النسخة المستعادة باسم جديد، فلا يُستبدل أيٌّ منهما.';
+
+  @override
+  String get recoveryFileSuffix => 'مستعاد';
 
   @override
   String get signedTitle => 'هل تريد تحرير مستند موقّع؟';

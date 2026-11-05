@@ -53,11 +53,13 @@ abstract interface class EngineService {
   /// one unsaved step; the file on disk is unchanged. An encrypted one needs
   /// [password] again: [EngineErrorKind.passwordRequired] without it, then
   /// [EngineErrorKind.wrongPassword]. When the original changed, the
-  /// document saves to a new name beside it (a11-7f).
+  /// document saves to a new name beside it, with [suffix] in the app's
+  /// language in place of "recovered" (a11-7f).
   Future<RestoredDocument> restoreRecovered(
     String session,
     String document, {
     String? password,
+    String? suffix,
   });
 
   /// Deletes the recovery files of [document] of [session], or of the
@@ -213,30 +215,46 @@ abstract interface class EngineService {
   /// [EngineErrorKind.volumeGone], [EngineErrorKind.hardLinked],
   /// [EngineErrorKind.notOwner], [EngineErrorKind.io]) and
   /// [EngineException.offersSaveAs]. The file and the edits stay as they were.
+  ///
+  /// With [staging] (the macOS App Sandbox's replacement directory, ADR 0008)
+  /// this and every save below stops short of the file: the checked temp file
+  /// stays there and its path is returned for the platform to swap in, and
+  /// [finishSave] ends the save.
   /// "Reload" is closing the document and opening it again.
-  Future<void> save(int document, {bool overChange = false});
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  });
+
+  /// Ends a save staged with `staging` once the platform tried the swap:
+  /// [swapped], it counts as saved; otherwise [document] and its edits stay
+  /// as they were and the staged file goes. Whether the last recovery write
+  /// failed ([EngineException.noRecoveryCopy]).
+  Future<bool> finishSave(int document, {required bool swapped});
 
   /// Saves [document] as the file at [path]; later saves write there.
-  Future<void> saveAs(int document, String path);
+  Future<String?> saveAs(int document, String path, {String? staging});
 
   /// Saves a copy of [document] as the file at [path]; later saves still
   /// write to its own file.
-  Future<void> saveCopy(int document, String path);
+  Future<String?> saveCopy(int document, String path, {String? staging});
 
   /// Writes a repaired [document] (a1-9) rewritten whole as the file at
   /// [path] (B103). Its own damaged file only with [replaceOriginal], the
   /// person's confirmation; otherwise [EngineErrorKind.invalidInput].
-  Future<void> saveRepairedCopy(
+  Future<String?> saveRepairedCopy(
     int document,
     String path, {
     bool replaceOriginal = false,
+    String? staging,
   });
 
   /// Optimize and clean: the file of [document] rewritten whole, without
   /// earlier revisions and unreferenced objects (ARCHITECTURE §7.3). Ask
   /// [wouldBreakSignatures] and warn first; a signed document needs
   /// [confirmEditSigned].
-  Future<void> optimizeAndClean(int document);
+  Future<String?> optimizeAndClean(int document, {String? staging});
 
   /// Whether [optimizeAndClean] would break signatures of [document] (G35).
   Future<bool> wouldBreakSignatures(int document);
@@ -252,7 +270,11 @@ abstract interface class EngineService {
   /// The working copy of "Edit a copy" (a3-16a): [document] rewritten whole
   /// as the file at [path] without its signatures, which the app then opens
   /// in a new tab. The document and its file stay as they are.
-  Future<void> saveUnsignedCopy(int document, String path);
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  });
 
   /// Whether the file of [document] changed on disk since it was opened or
   /// saved; asked when the window regains focus (a11-7b).
@@ -345,6 +367,7 @@ class UnavailableEngineService implements EngineService {
     String session,
     String document, {
     String? password,
+    String? suffix,
   }) async => throw error;
 
   @override
@@ -435,24 +458,38 @@ class UnavailableEngineService implements EngineService {
   Future<EditHistory> history(int document) async => throw error;
 
   @override
-  Future<void> save(int document, {bool overChange = false}) async =>
-      throw error;
-
-  @override
-  Future<void> saveAs(int document, String path) async => throw error;
-
-  @override
-  Future<void> saveCopy(int document, String path) async => throw error;
-
-  @override
-  Future<void> saveRepairedCopy(
-    int document,
-    String path, {
-    bool replaceOriginal = false,
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
   }) async => throw error;
 
   @override
-  Future<void> optimizeAndClean(int document) async => throw error;
+  Future<bool> finishSave(int document, {required bool swapped}) async =>
+      throw error;
+
+  @override
+  Future<String?> saveAs(int document, String path, {String? staging}) async =>
+      throw error;
+
+  @override
+  Future<String?> saveCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async => throw error;
+
+  @override
+  Future<String?> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+    String? staging,
+  }) async => throw error;
+
+  @override
+  Future<String?> optimizeAndClean(int document, {String? staging}) async =>
+      throw error;
 
   @override
   Future<bool> wouldBreakSignatures(int document) async => throw error;
@@ -461,7 +498,11 @@ class UnavailableEngineService implements EngineService {
   Future<int> confirmEditSigned(int document) async => throw error;
 
   @override
-  Future<void> saveUnsignedCopy(int document, String path) async => throw error;
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async => throw error;
 
   @override
   Future<bool> checkExternalChange(int document) async => throw error;

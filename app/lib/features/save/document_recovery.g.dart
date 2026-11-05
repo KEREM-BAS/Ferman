@@ -62,7 +62,7 @@ final class DocumentRecoveryProvider
   }
 }
 
-String _$documentRecoveryHash() => r'8e9feb13d41b74861c2465a3b690afd4c20c8adb';
+String _$documentRecoveryHash() => r'88ec75deb489c14723ebc466cd3f7197eaf0fe06';
 
 /// Crash recovery at launch, as `documentRecoveryProvider`: [check] asks the
 /// engine once what a session that ended without cleaning up left (a1-12).

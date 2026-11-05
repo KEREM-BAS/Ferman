@@ -353,6 +353,69 @@ fn edit_saves_an_incremental_update() {
 
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_signed_file_changes_only_with_confirm_signed() {
+    let pdfium = pdfium_path();
+    let signed = corpus("kira-tr-signed");
+    let file = temp_pdf("signed");
+    std::fs::copy(&signed, &file).unwrap();
+    let file_str = file.to_str().unwrap();
+    let original = std::fs::read(&signed).unwrap();
+    let output = ferman(&[
+        "blocks", file_str, "--page", "1", "--json", "--pdfium", &pdfium,
+    ]);
+    let json: serde_json::Value = serde_json::from_str(stdout(&output)).unwrap();
+    let block = json["blocks"]
+        .as_array()
+        .unwrap()
+        .iter()
+        .find(|block| block["text"].as_str().unwrap().contains("0412"))
+        .unwrap();
+    let id = block["id"].as_u64().unwrap().to_string();
+    let new = block["text"].as_str().unwrap().replacen("0412", "0413", 1);
+    let edit = ["--page", "1", "--block", &id, "--text", &new];
+    let run = |command: &str, flags: &[&str]| {
+        let mut args = vec![command, file_str];
+        args.extend(flags);
+        args.extend(["--pdfium", &pdfium]);
+        ferman(&args)
+    };
+    let refused = |output: &Output| {
+        assert!(!output.status.success());
+        assert!(
+            stderr(output).contains("confirmation_required"),
+            "{}",
+            stderr(output)
+        );
+    };
+
+    refused(&run("edit", &edit));
+    refused(&run("verify-edit", &edit));
+    refused(&run("save", &["-o", file_str]));
+    assert_eq!(std::fs::read(&file).unwrap(), original);
+
+    let confirmed_edit = [
+        "--page",
+        "1",
+        "--block",
+        &id,
+        "--text",
+        &new,
+        "--confirm-signed",
+    ];
+    let output = run("verify-edit", &confirmed_edit);
+    assert!(output.status.success(), "{}", stderr(&output));
+    assert_eq!(std::fs::read(&file).unwrap(), original);
+    let output = run("save", &["-o", file_str, "--confirm-signed"]);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let output = run("edit", &confirmed_edit);
+    assert!(output.status.success(), "{}", stderr(&output));
+    let saved = std::fs::read(&file).unwrap();
+    assert!(saved.len() > original.len() && saved.starts_with(&original));
+    std::fs::remove_file(&file).unwrap();
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn save_writes_a_copy_that_opens() {
     let pdfium = pdfium_path();
     let file = corpus("edit-e04-differences");

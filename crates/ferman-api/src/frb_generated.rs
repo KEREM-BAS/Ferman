@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -154133349;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -2073326991;
 
 // Section: executor
 
@@ -426,6 +426,32 @@ fn wire__crate__frb__engine_info_impl(port_: flutter_rust_bridge::for_generated:
         },
     )
 }
+fn wire__crate__frb__finish_save_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    swapped: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "finish_save",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_swapped = swapped.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::finish_save(api_document, api_swapped).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__history_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -551,6 +577,7 @@ fn wire__crate__frb__open_view_impl(
 fn wire__crate__frb__optimize_and_clean_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -560,10 +587,12 @@ fn wire__crate__frb__optimize_and_clean_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::optimize_and_clean(api_document).await?;
+                        let output_ok =
+                            crate::frb::optimize_and_clean(api_document, api_staging).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -657,6 +686,7 @@ fn wire__crate__frb__restore_recovered_impl(
     session: impl CstDecode<String>,
     document: impl CstDecode<String>,
     password: impl CstDecode<Option<String>>,
+    suffix: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -668,12 +698,17 @@ fn wire__crate__frb__restore_recovered_impl(
             let api_session = session.cst_decode();
             let api_document = document.cst_decode();
             let api_password = password.cst_decode();
+            let api_suffix = suffix.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok =
-                            crate::frb::restore_recovered(api_session, api_document, api_password)
-                                .await?;
+                        let output_ok = crate::frb::restore_recovered(
+                            api_session,
+                            api_document,
+                            api_password,
+                            api_suffix,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -709,6 +744,7 @@ fn wire__crate__frb__rollback_edit_impl(
 fn wire__crate__frb__save_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -718,10 +754,11 @@ fn wire__crate__frb__save_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::save(api_document).await?;
+                        let output_ok = crate::frb::save(api_document, api_staging).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -734,6 +771,7 @@ fn wire__crate__frb__save_as_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
     path: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -744,10 +782,12 @@ fn wire__crate__frb__save_as_impl(
         move || {
             let api_document = document.cst_decode();
             let api_path = path.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::save_as(api_document, api_path).await?;
+                        let output_ok =
+                            crate::frb::save_as(api_document, api_path, api_staging).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -796,6 +836,7 @@ fn wire__crate__frb__save_copy_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
     path: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -806,10 +847,12 @@ fn wire__crate__frb__save_copy_impl(
         move || {
             let api_document = document.cst_decode();
             let api_path = path.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::save_copy(api_document, api_path).await?;
+                        let output_ok =
+                            crate::frb::save_copy(api_document, api_path, api_staging).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -821,6 +864,7 @@ fn wire__crate__frb__save_copy_impl(
 fn wire__crate__frb__save_over_change_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -830,10 +874,12 @@ fn wire__crate__frb__save_over_change_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::save_over_change(api_document).await?;
+                        let output_ok =
+                            crate::frb::save_over_change(api_document, api_staging).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -847,6 +893,7 @@ fn wire__crate__frb__save_repaired_copy_impl(
     document: impl CstDecode<u64>,
     path: impl CstDecode<String>,
     replace_original: impl CstDecode<bool>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -858,6 +905,7 @@ fn wire__crate__frb__save_repaired_copy_impl(
             let api_document = document.cst_decode();
             let api_path = path.cst_decode();
             let api_replace_original = replace_original.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
@@ -865,6 +913,7 @@ fn wire__crate__frb__save_repaired_copy_impl(
                             api_document,
                             api_path,
                             api_replace_original,
+                            api_staging,
                         )
                         .await?;
                         std::result::Result::Ok(output_ok)
@@ -879,6 +928,7 @@ fn wire__crate__frb__save_unsigned_copy_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
     path: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -889,11 +939,13 @@ fn wire__crate__frb__save_unsigned_copy_impl(
         move || {
             let api_document = document.cst_decode();
             let api_path = path.cst_decode();
+            let api_staging = staging.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok =
-                            crate::frb::save_unsigned_copy(api_document, api_path).await?;
+                            crate::frb::save_unsigned_copy(api_document, api_path, api_staging)
+                                .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1545,11 +1597,13 @@ impl SseDecode for crate::frb::ApiError {
         let mut var_messageKey = <String>::sse_decode(deserializer);
         let mut var_details = <Option<String>>::sse_decode(deserializer);
         let mut var_offerSaveAs = <bool>::sse_decode(deserializer);
+        let mut var_noRecoveryCopy = <bool>::sse_decode(deserializer);
         return crate::frb::ApiError {
             kind: var_kind,
             message_key: var_messageKey,
             details: var_details,
             offer_save_as: var_offerSaveAs,
+            no_recovery_copy: var_noRecoveryCopy,
         };
     }
 }
@@ -3204,6 +3258,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ApiError {
             self.message_key.into_into_dart().into_dart(),
             self.details.into_into_dart().into_dart(),
             self.offer_save_as.into_into_dart().into_dart(),
+            self.no_recovery_copy.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -4503,6 +4558,7 @@ impl SseEncode for crate::frb::ApiError {
         <String>::sse_encode(self.message_key, serializer);
         <Option<String>>::sse_encode(self.details, serializer);
         <bool>::sse_encode(self.offer_save_as, serializer);
+        <bool>::sse_encode(self.no_recovery_copy, serializer);
     }
 }
 
@@ -5887,6 +5943,7 @@ mod io {
                 message_key: self.message_key.cst_decode(),
                 details: self.details.cst_decode(),
                 offer_save_as: self.offer_save_as.cst_decode(),
+                no_recovery_copy: self.no_recovery_copy.cst_decode(),
             }
         }
     }
@@ -6779,6 +6836,7 @@ mod io {
                 message_key: core::ptr::null_mut(),
                 details: core::ptr::null_mut(),
                 offer_save_as: Default::default(),
+                no_recovery_copy: Default::default(),
             }
         }
     }
@@ -7608,6 +7666,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__finish_save(
+        port_: i64,
+        document: u64,
+        swapped: bool,
+    ) {
+        wire__crate__frb__finish_save_impl(port_, document, swapped)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__history(port_: i64, document: u64) {
         wire__crate__frb__history_impl(port_, document)
     }
@@ -7644,8 +7711,9 @@ mod io {
     pub extern "C" fn frbgen_ferman_wire__crate__frb__optimize_and_clean(
         port_: i64,
         document: u64,
+        staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__optimize_and_clean_impl(port_, document)
+        wire__crate__frb__optimize_and_clean_impl(port_, document, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -7678,8 +7746,9 @@ mod io {
         session: *mut wire_cst_list_prim_u_8_strict,
         document: *mut wire_cst_list_prim_u_8_strict,
         password: *mut wire_cst_list_prim_u_8_strict,
+        suffix: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__restore_recovered_impl(port_, session, document, password)
+        wire__crate__frb__restore_recovered_impl(port_, session, document, password, suffix)
     }
 
     #[unsafe(no_mangle)]
@@ -7688,8 +7757,12 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_wire__crate__frb__save(port_: i64, document: u64) {
-        wire__crate__frb__save_impl(port_, document)
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save(
+        port_: i64,
+        document: u64,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_impl(port_, document, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -7697,8 +7770,9 @@ mod io {
         port_: i64,
         document: u64,
         path: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__save_as_impl(port_, document, path)
+        wire__crate__frb__save_as_impl(port_, document, path, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -7717,13 +7791,18 @@ mod io {
         port_: i64,
         document: u64,
         path: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__save_copy_impl(port_, document, path)
+        wire__crate__frb__save_copy_impl(port_, document, path, staging)
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_over_change(port_: i64, document: u64) {
-        wire__crate__frb__save_over_change_impl(port_, document)
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_over_change(
+        port_: i64,
+        document: u64,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_over_change_impl(port_, document, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -7732,8 +7811,9 @@ mod io {
         document: u64,
         path: *mut wire_cst_list_prim_u_8_strict,
         replace_original: bool,
+        staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original)
+        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -7741,8 +7821,9 @@ mod io {
         port_: i64,
         document: u64,
         path: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
     ) {
-        wire__crate__frb__save_unsigned_copy_impl(port_, document, path)
+        wire__crate__frb__save_unsigned_copy_impl(port_, document, path, staging)
     }
 
     #[unsafe(no_mangle)]
@@ -8262,6 +8343,7 @@ mod io {
         message_key: *mut wire_cst_list_prim_u_8_strict,
         details: *mut wire_cst_list_prim_u_8_strict,
         offer_save_as: bool,
+        no_recovery_copy: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -8864,8 +8946,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                4,
-                "Expected 4 elements, got {}",
+                5,
+                "Expected 5 elements, got {}",
                 self_.length()
             );
             crate::frb::ApiError {
@@ -8873,6 +8955,7 @@ mod web {
                 message_key: self_.get(1).cst_decode(),
                 details: self_.get(2).cst_decode(),
                 offer_save_as: self_.get(3).cst_decode(),
+                no_recovery_copy: self_.get(4).cst_decode(),
             }
         }
     }
@@ -10528,6 +10611,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__finish_save(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        swapped: bool,
+    ) {
+        wire__crate__frb__finish_save_impl(port_, document, swapped)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__history(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -10572,8 +10664,9 @@ mod web {
     pub fn wire__crate__frb__optimize_and_clean(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__optimize_and_clean_impl(port_, document)
+        wire__crate__frb__optimize_and_clean_impl(port_, document, staging)
     }
 
     #[wasm_bindgen]
@@ -10609,8 +10702,9 @@ mod web {
         session: String,
         document: String,
         password: Option<String>,
+        suffix: Option<String>,
     ) {
-        wire__crate__frb__restore_recovered_impl(port_, session, document, password)
+        wire__crate__frb__restore_recovered_impl(port_, session, document, password, suffix)
     }
 
     #[wasm_bindgen]
@@ -10625,8 +10719,9 @@ mod web {
     pub fn wire__crate__frb__save(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_impl(port_, document)
+        wire__crate__frb__save_impl(port_, document, staging)
     }
 
     #[wasm_bindgen]
@@ -10634,8 +10729,9 @@ mod web {
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         path: String,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_as_impl(port_, document, path)
+        wire__crate__frb__save_as_impl(port_, document, path, staging)
     }
 
     #[wasm_bindgen]
@@ -10654,16 +10750,18 @@ mod web {
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         path: String,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_copy_impl(port_, document, path)
+        wire__crate__frb__save_copy_impl(port_, document, path, staging)
     }
 
     #[wasm_bindgen]
     pub fn wire__crate__frb__save_over_change(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_over_change_impl(port_, document)
+        wire__crate__frb__save_over_change_impl(port_, document, staging)
     }
 
     #[wasm_bindgen]
@@ -10672,8 +10770,9 @@ mod web {
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         path: String,
         replace_original: bool,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original)
+        wire__crate__frb__save_repaired_copy_impl(port_, document, path, replace_original, staging)
     }
 
     #[wasm_bindgen]
@@ -10681,8 +10780,9 @@ mod web {
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         path: String,
+        staging: Option<String>,
     ) {
-        wire__crate__frb__save_unsigned_copy_impl(port_, document, path)
+        wire__crate__frb__save_unsigned_copy_impl(port_, document, path, staging)
     }
 
     #[wasm_bindgen]

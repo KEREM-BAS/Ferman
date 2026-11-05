@@ -79,7 +79,7 @@ fn child(dir: &Path) -> ! {
         .unwrap()
         .id;
     edit(doc, "18.500", "19.500");
-    block_on(engine().save_copy(doc, dir.join("expected.pdf"))).unwrap();
+    block_on(engine().save_copy(doc, dir.join("expected.pdf"), None)).unwrap();
     let payslip = block_on(engine().open(
         dir.join("payslip.pdf"),
         Some(Password::new(USER.to_owned())),
@@ -176,6 +176,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
             secret.session.clone(),
             secret.document.clone(),
             password.map(|password| Password::new(password.to_owned())),
+            None,
         ))
     };
     assert_eq!(restore(None).unwrap_err().kind, ErrorKind::PasswordRequired);
@@ -193,16 +194,20 @@ fn a_killed_instance_is_restored_from_its_journal() {
     assert!(!found.original_changed);
     assert_eq!((found.changes, found.encrypted), (1, false));
 
-    let restored =
-        block_on(engine().restore_recovered(found.session.clone(), found.document.clone(), None))
-            .unwrap();
+    let restored = block_on(engine().restore_recovered(
+        found.session.clone(),
+        found.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap();
     assert_eq!(restored.path, dir.join("kira.pdf"));
     assert!(!restored.original_changed);
     assert!(restored.render_key.is_some());
     let doc = restored.opened.id;
     assert_eq!(block_on(engine().history(doc)).unwrap().current, 1);
     assert!(text(&block_on(engine().text_blocks(doc, 0)).unwrap()).contains("19.500"));
-    block_on(engine().save_copy(doc, dir.join("restored.pdf"))).unwrap();
+    block_on(engine().save_copy(doc, dir.join("restored.pdf"), None)).unwrap();
     assert_eq!(
         without_id(&std::fs::read(dir.join("restored.pdf")).unwrap()),
         without_id(&std::fs::read(dir.join("expected.pdf")).unwrap()),
@@ -222,6 +227,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
         listed_changed.session.clone(),
         listed_changed.document.clone(),
         None,
+        None,
     ))
     .unwrap();
     assert!(restored.original_changed);
@@ -229,7 +235,7 @@ fn a_killed_instance_is_restored_from_its_journal() {
     assert!(
         text(&block_on(engine().text_blocks(restored.opened.id, 0)).unwrap()).contains("19.500")
     );
-    block_on(engine().save(restored.opened.id)).unwrap();
+    block_on(engine().save(restored.opened.id, None)).unwrap();
     assert_eq!(std::fs::read(dir.join("changed.pdf")).unwrap(), changed);
     assert!(
         std::fs::read(dir.join("changed (recovered).pdf"))
@@ -249,11 +255,15 @@ fn a_killed_instance_is_restored_from_its_journal() {
         manifest.replace("\"base\": true", "\"base\": false"),
     )
     .unwrap();
-    let nobase =
-        block_on(engine().restore_recovered(nobase.session.clone(), nobase.document.clone(), None))
-            .unwrap()
-            .opened
-            .id;
+    let nobase = block_on(engine().restore_recovered(
+        nobase.session.clone(),
+        nobase.document.clone(),
+        None,
+        None,
+    ))
+    .unwrap()
+    .opened
+    .id;
     assert!(text(&block_on(engine().text_blocks(nobase, 0)).unwrap()).contains("19.500"));
     assert_eq!(std::fs::read(dir.join("nobase.pdf")).unwrap(), original);
 

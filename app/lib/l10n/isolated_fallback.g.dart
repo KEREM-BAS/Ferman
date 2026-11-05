@@ -2153,6 +2153,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get saveFailedOther => isolate(super.saveFailedOther);
 
   @override
+  String get saveFailedNoRecoveryCopy =>
+      isolate(super.saveFailedNoRecoveryCopy);
+
+  @override
   String get saveTryAgain => isolate(super.saveTryAgain);
 
   @override
@@ -2268,6 +2272,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get recoveryChangedBody => isolate(super.recoveryChangedBody);
+
+  @override
+  String get recoveryFileSuffix => isolate(super.recoveryFileSuffix);
 
   @override
   String get signedTitle => isolate(super.signedTitle);

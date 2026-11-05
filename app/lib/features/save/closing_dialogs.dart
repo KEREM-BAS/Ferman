@@ -387,7 +387,9 @@ class _RecoveryDialogState extends ConsumerState<RecoveryDialog> {
           autofocus: true,
           onPressed: checked == 0
               ? null
-              : () => unawaited(recovery.open(_checked)),
+              : () => unawaited(
+                  recovery.open(_checked, suffix: l10n.recoveryFileSuffix),
+                ),
           child: Text(l10n.recoveryOpen(checked, format.integer(checked))),
         ),
       ],

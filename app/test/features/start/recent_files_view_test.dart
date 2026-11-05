@@ -305,7 +305,11 @@ final class _FakeFileAccess implements FileAccess {
   Future<String?> staging(String path) async => null;
 
   @override
-  Future<bool> swapIn(String staged, String path) async => false;
+  Future<SwapFailure?> swapIn(String staged, String path) async =>
+      SwapFailure.other;
+
+  @override
+  Future<void> discardStaging(String directory) async {}
 }
 
 /// A fake engine that records each collation it is asked for.

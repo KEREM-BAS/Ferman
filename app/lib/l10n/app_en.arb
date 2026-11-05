@@ -3144,6 +3144,10 @@
   "@saveFailedOther": {
     "description": "Save failure dialog: any other failure."
   },
+  "saveFailedNoRecoveryCopy": "No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.",
+  "@saveFailedNoRecoveryCopy": {
+    "description": "After a11-7's and a11-7d's message when the recovery copy could not be written either (ARCHITECTURE §7.8, G40): the board's reassurance would not be true."
+  },
   "saveTryAgain": "Try again",
   "@saveTryAgain": {
     "description": "Save failure dialog (a11-7d): saves again."
@@ -3353,6 +3357,10 @@
   "recoveryChangedBody": "The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.",
   "@recoveryChangedBody": {
     "description": "a11-7f, without the board’s time and name, which the engine gives only once it opens (G40)."
+  },
+  "recoveryFileSuffix": "recovered",
+  "@recoveryFileSuffix": {
+    "description": "a11-7f: the word in brackets in a restored document's new file name, “e-Arşiv fatura 4187 (recovered).pdf”. No slashes."
   },
   "signedTitle": "Edit a signed document?",
   "@signedTitle": {

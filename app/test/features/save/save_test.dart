@@ -9,6 +9,7 @@ import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/platform/file_access.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -16,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_file_picker.dart';
+import '../../helpers/recording_file_access.dart';
 import '../onboarding/ferman_app_harness.dart';
 import '../shell/shell_host.dart' show futureVersion;
 
@@ -52,6 +54,7 @@ void main() {
     SaveState state = SaveState.unsaved,
     String path = '/docs/kira.pdf',
     OpenedDocument document = kira,
+    FileAccess fileAccess = const NoFileAccess(),
   }) async {
     engine = FakeEngineService(
       documents: {
@@ -63,7 +66,12 @@ void main() {
       },
     );
     picker = FakeFilePickerService(picked: [path]);
-    await pumpFermanApp(tester, engine: engine, picker: picker);
+    await pumpFermanApp(
+      tester,
+      engine: engine,
+      picker: picker,
+      fileAccess: fileAccess,
+    );
     container = ProviderScope.containerOf(tester.element(find.byType(FmStart)));
     await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
     await tester.sendKeyEvent(LogicalKeyboardKey.keyO);
@@ -126,6 +134,189 @@ void main() {
     expect(find.byType(SaveFailureDialog), findsNothing);
     expect(engine.saves, [(kira.id, null)]);
     expect(tab(tester).saveState, SaveState.saved);
+  });
+
+  group('under the macOS App Sandbox (ADR 0008)', () {
+    late RecordingFileAccess access;
+
+    Future<void> pumpStaged(
+      WidgetTester tester, {
+      OpenedDocument document = kira,
+    }) async {
+      access = RecordingFileAccess()..stagingDirectory = '/replacement';
+      await pumpSaved(tester, fileAccess: access, document: document);
+    }
+
+    testWidgets('Save stages the file, swaps it in, then counts as saved', (
+      tester,
+    ) async {
+      await pumpStaged(tester);
+      await control(tester, LogicalKeyboardKey.keyS);
+      expect(access.swapped, [('/replacement/staged.pdf', '/docs/kira.pdf')]);
+      expect(engine.saves, [(kira.id, null)]);
+      expect(tab(tester).saveState, SaveState.saved);
+    });
+
+    testWidgets('a failed swap keeps the edits and shows the failure; Try '
+        'again saves', (tester) async {
+      await pumpStaged(tester);
+      access.swapFailure = SwapFailure.permission;
+      await control(tester, LogicalKeyboardKey.keyS);
+      expect(engine.saves, isEmpty, reason: 'not recorded by the engine');
+      expect(tab(tester).saveState, SaveState.error);
+      expect(find.byType(SaveFailureDialog), findsOne);
+      expect(find.textContaining('You don’t have permission'), findsOne);
+      expect(find.text('Save as…'), findsOne);
+
+      access.swapFailure = null;
+      await tester.tap(find.text('Try again'));
+      await pumps(tester);
+      expect(engine.saves, [(kira.id, null)]);
+      expect(tab(tester).saveState, SaveState.saved);
+    });
+
+    testWidgets('a save the engine refuses leaves no staging directory', (
+      tester,
+    ) async {
+      await pumpStaged(tester);
+      engine.saveFailure = const EngineException(
+        kind: EngineErrorKind.fileChangedOnDisk,
+        messageKey: 'errorFileWrite',
+      );
+      await control(tester, LogicalKeyboardKey.keyS);
+      expect(access.swapped, isEmpty);
+      expect(access.discarded, ['/replacement']);
+      expect(tab(tester).unsaved, isTrue);
+    });
+
+    testWidgets('a Save right behind a Save as swaps over the new file', (
+      tester,
+    ) async {
+      await pumpStaged(tester);
+      final saver = container.read(documentSaverProvider.notifier)..openSheet();
+      final saveAs = saver.saveTo('/docs/other.pdf', copy: false);
+      final save = saver.save();
+      await Future.wait([saveAs, save]);
+      await pumps(tester);
+      expect(access.swapped.map((swap) => swap.$2), [
+        '/docs/other.pdf',
+        '/docs/other.pdf',
+      ]);
+    });
+
+    testWidgets('every failed swap has its message', (tester) async {
+      await pumpStaged(tester);
+      for (final (failure, text) in [
+        (SwapFailure.diskFull, 'The disk is full'),
+        (SwapFailure.locked, 'Another app has the file open'),
+        (SwapFailure.volumeGone, 'no longer connected'),
+        (SwapFailure.other, 'couldn’t put it in place'),
+      ]) {
+        access.swapFailure = failure;
+        await control(tester, LogicalKeyboardKey.keyS);
+        expect(find.textContaining(text), findsOne, reason: '$failure');
+        container.read(documentSaverProvider.notifier).dismissFailure();
+        await pumps(tester);
+      }
+    });
+
+    testWidgets('a failed swap says when no recovery copy exists', (
+      tester,
+    ) async {
+      await pumpStaged(tester);
+      engine.recoveryWriteFailed = true;
+      access.swapFailure = SwapFailure.other;
+      await control(tester, LogicalKeyboardKey.keyS);
+      expect(find.textContaining('No recovery copy exists'), findsOne);
+    });
+
+    testWidgets('Save as, a copy and Optimize and clean go the same way', (
+      tester,
+    ) async {
+      await pumpStaged(tester);
+      final saver = container.read(documentSaverProvider.notifier)..openSheet();
+      await saver.saveTo('/docs/other.pdf', copy: false);
+      await pumps(tester);
+      expect(engine.saves, [(kira.id, '/docs/other.pdf')]);
+      expect(tab(tester).path, '/docs/other.pdf');
+
+      saver.openSheet(copy: true);
+      await saver.saveTo('/docs/copy.pdf', copy: true);
+      await pumps(tester);
+      expect(engine.copies, [(kira.id, '/docs/copy.pdf')]);
+
+      await saver.optimizeAndClean();
+      await pumps(tester);
+      expect(engine.optimized, [kira.id]);
+      expect(access.swapped.map((swap) => swap.$2), [
+        '/docs/other.pdf',
+        '/docs/copy.pdf',
+        '/docs/other.pdf',
+      ]);
+    });
+
+    testWidgets('a failed Save as stays on the old file', (tester) async {
+      await pumpStaged(tester);
+      access.swapFailure = SwapFailure.permission;
+      final saver = container.read(documentSaverProvider.notifier)..openSheet();
+      await saver.saveTo('/docs/other.pdf', copy: false);
+      await pumps(tester);
+      expect(tab(tester).path, '/docs/kira.pdf');
+      expect(engine.saves, isEmpty);
+      expect(find.byType(SaveFailureDialog), findsOne);
+    });
+
+    testWidgets('the repaired copy goes the same way', (tester) async {
+      await pumpStaged(tester, document: repaired);
+      picker.saveTo = '/docs/kira-fixed.pdf';
+      final saver = container.read(documentSaverProvider.notifier);
+      await saver.saveRepairedCopy(tab(tester));
+      await pumps(tester);
+      expect(engine.repairedCopies, [
+        (repaired.id, '/docs/kira-fixed.pdf', false),
+      ]);
+      expect(access.swapped.single.$2, '/docs/kira-fixed.pdf');
+    });
+
+    test("the channel's reply names the failure", () async {
+      TestWidgetsFlutterBinding.ensureInitialized();
+      const channel = MethodChannel('test/swap');
+      Object? reply;
+      final messenger =
+          TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+            ..setMockMethodCallHandler(channel, (_) async => reply);
+      addTearDown(() => messenger.setMockMethodCallHandler(channel, null));
+      const files = PlatformFileAccess(channel);
+      Future<SwapFailure?> swap() => files.swapIn('/s', '/p');
+      reply = true;
+      expect(await swap(), isNull);
+      reply = 'locked';
+      expect(await swap(), SwapFailure.locked);
+      reply = false;
+      expect(await swap(), SwapFailure.other);
+      reply = 'nonsense';
+      expect(await swap(), SwapFailure.other);
+    });
+  });
+
+  testWidgets('a failure says when no recovery copy exists (ARCHITECTURE '
+      '§7.8)', (tester) async {
+    await pumpSaved(tester);
+    engine.saveFailure = const EngineException(
+      kind: EngineErrorKind.diskFull,
+      messageKey: 'errorFileWrite',
+      offersSaveAs: true,
+      noRecoveryCopy: true,
+    );
+    await control(tester, LogicalKeyboardKey.keyS);
+    expect(
+      find.text(
+        'The disk is full. Free some space or save somewhere else. Your '
+        'edits are kept. No recovery copy exists: Ferman couldn’t write one '
+        'either, so until you save, these edits are only in this window.',
+      ),
+      findsOne,
+    );
   });
 
   testWidgets('each failure of a11-7d says what happened; closing the dialog '

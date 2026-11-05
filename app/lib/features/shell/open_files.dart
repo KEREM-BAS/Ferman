@@ -107,8 +107,17 @@ class DocumentOpener extends _$DocumentOpener {
   /// nothing, when the file is gone, so the start screen asks what to do
   /// (a1-9e).
   Future<bool> openRecent(RecentEntry entry) async {
+    await _releasing[entry.path];
+    final path = await _reach(entry);
+    final missing = <String>{};
+    await open([path], missing: missing);
+    return missing.isEmpty;
+  }
+
+  /// Starts access to the file of [entry] through its bookmark, if it has
+  /// one, keeping the recent file up to date; where the file is now.
+  Future<String> _reach(RecentEntry entry) async {
     var path = entry.path;
-    await _releasing[path];
     if (entry.bookmark case final bookmark?) {
       final access = await ref.read(fileAccessProvider).access(bookmark);
       if (access != null && (access.path != path || access.renewed != null)) {
@@ -124,9 +133,21 @@ class DocumentOpener extends _$DocumentOpener {
             .catchError((Object _) {});
       }
     }
-    final missing = <String>{};
-    await open([path], missing: missing);
-    return missing.isEmpty;
+    return path;
+  }
+
+  /// Starts access to those of [paths] that are recent files with a
+  /// bookmark (crash recovery's originals): whether any was.
+  Future<bool> reachRecent(Iterable<String> paths) async {
+    var reached = false;
+    final recent = ref.read(recentFilesProvider);
+    for (final path in paths.toSet()) {
+      final entry = recent.where((entry) => entry.path == path).firstOrNull;
+      if (entry?.bookmark == null) continue;
+      await _reach(entry!);
+      reached = true;
+    }
+    return reached;
   }
 
   /// Opens the files open when the app last ran, in their tab order, when

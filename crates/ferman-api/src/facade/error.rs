@@ -232,6 +232,9 @@ pub struct ApiError {
     pub details: Option<String>,
     /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
     pub offer_save_as: bool,
+    /// On a failed save: the last recovery write failed too, so no recovery copy of the unsaved
+    /// edits exists (docs/ARCHITECTURE.md §7.8).
+    pub no_recovery_copy: bool,
 }
 
 impl ApiError {
@@ -243,6 +246,7 @@ impl ApiError {
             message_key,
             details: None,
             offer_save_as: false,
+            no_recovery_copy: false,
         }
     }
 

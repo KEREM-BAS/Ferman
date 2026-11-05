@@ -7,6 +7,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/platform/file_access.dart';
 import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
@@ -352,7 +353,8 @@ class DocumentEditor extends _$DocumentEditor {
     return _run(() async {
       await _close();
       final document = _document;
-      if (document == null) return;
+      // a3-16a waits on the typing just refused: its transaction stays.
+      if (document == null || _transaction != null) return;
       try {
         _transaction = await _engine.beginEdit(document, page, block.id);
       } on EngineException {
@@ -466,8 +468,44 @@ class DocumentEditor extends _$DocumentEditor {
           current: state.history.current,
         );
       }
+    } on EngineException catch (error) {
+      // The engine dropped the transaction and the history is as it was,
+      // unless the signed document waits for a3-16a: it stays open, for the
+      // commit after "Edit anyway" or the rollback after Cancel.
+      if (error.kind == EngineErrorKind.confirmationRequired) {
+        _transaction = transaction;
+        final tab = ref
+            .read(shellDocumentsProvider)
+            .documents
+            .where((tab) => tab.document?.id == document)
+            .firstOrNull;
+        if (tab == null) {
+          await _rollbackUnconfirmed();
+        } else {
+          ref
+              .read(documentSaverProvider.notifier)
+              .askSigned(
+                tab,
+                () => unawaited(commit()),
+                cancelled: () => unawaited(_run(_rollbackUnconfirmed)),
+              );
+        }
+      }
+    }
+  }
+
+  /// Drops the typing the person chose not to confirm (a3-16a's Cancel).
+  Future<void> _rollbackUnconfirmed() async {
+    final transaction = _transaction;
+    _transaction = null;
+    if (transaction == null) return;
+    _pending = null;
+    _applied = null;
+    state = state.copy(clearActive: true, clearPreview: true);
+    try {
+      await _engine.rollbackEdit(transaction);
     } on EngineException {
-      // The engine dropped the transaction; the history is as it was.
+      // Nothing more to drop.
     }
   }
 
@@ -682,7 +720,66 @@ class DocumentEditor extends _$DocumentEditor {
   Future<EngineException?> save({int? document, bool overChange = false}) {
     final target = document ?? _document;
     if (target == null) return Future.value();
-    return write(target, () => _engine.save(target, overChange: overChange));
+    return write(
+      target,
+      () => through(
+        target,
+        pathOf(target),
+        (staging) =>
+            _engine.save(target, overChange: overChange, staging: staging),
+      ),
+    );
+  }
+
+  /// The file of [document]'s tab. Read it only when the write's turn came:
+  /// a Save as ahead of it in the queue moves the document, and a swap over
+  /// the old path would replace the wrong file.
+  String? pathOf(int document) => ref
+      .read(shellDocumentsProvider)
+      .documents
+      .where((tab) => tab.document?.id == document)
+      .firstOrNull
+      ?.path;
+
+  /// Writes [document]'s file at [path] with [write]: under the macOS App
+  /// Sandbox [write] gets the staging directory the platform names, the
+  /// platform swaps in the file it stages, and the engine then records the
+  /// save (ADR 0008); elsewhere it writes the file itself. A failed swap
+  /// reads as the engine's failures do, with the file and the edits as they
+  /// were.
+  Future<void> through(
+    int document,
+    String? path,
+    Future<String?> Function(String? staging) write,
+  ) async {
+    final access = ref.read(fileAccessProvider);
+    final staging = path == null ? null : await access.staging(path);
+    final String? staged;
+    try {
+      staged = await write(staging);
+    } on Object {
+      if (staging != null) await access.discardStaging(staging);
+      rethrow;
+    }
+    if (staged == null || path == null) return;
+    final failure = await access.swapIn(staged, path);
+    final noRecoveryCopy = await _engine.finishSave(
+      document,
+      swapped: failure == null,
+    );
+    if (failure == null) return;
+    throw EngineException(
+      kind: switch (failure) {
+        SwapFailure.permission => EngineErrorKind.permissionDenied,
+        SwapFailure.diskFull => EngineErrorKind.diskFull,
+        SwapFailure.locked => EngineErrorKind.fileLocked,
+        SwapFailure.volumeGone => EngineErrorKind.volumeGone,
+        SwapFailure.other => EngineErrorKind.renameFailed,
+      },
+      messageKey: 'errorFileWrite',
+      offersSaveAs: true,
+      noRecoveryCopy: noRecoveryCopy,
+    );
   }
 
   /// Commits the typing, then writes [document] with [write] (a save, Save

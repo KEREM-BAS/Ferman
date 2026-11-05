@@ -7,7 +7,7 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
 // These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
@@ -146,7 +146,7 @@ Future<List<RecoverableDocument>> listRecoverable() =>
     FermanBridge.instance.api.crateFrbListRecoverable();
 
 /// Opens `document` of the crashed `session` with its unsaved changes as one unsaved step, with
-/// `password` for an encrypted one.
+/// `password` for an encrypted one; `suffix` is the localized word in a new name (a11-7f).
 ///
 /// See [`facade::Engine::restore_recovered`].
 ///
@@ -158,10 +158,12 @@ Future<RestoredDocument> restoreRecovered({
   required String session,
   required String document,
   String? password,
+  String? suffix,
 }) => FermanBridge.instance.api.crateFrbRestoreRecovered(
   session: session,
   document: document,
   password: password,
+  suffix: suffix,
 );
 
 /// Deletes the recovery files of `document` of `session`, or of the whole session without one
@@ -447,8 +449,25 @@ Future<History> history({required BigInt document}) =>
 ///
 /// `NotFound` for a document that is not open, `FileChangedOnDisk`, and the save failures with
 /// [`ApiError::offer_save_as`].
-Future<void> save({required BigInt document}) =>
-    FermanBridge.instance.api.crateFrbSave(document: document);
+Future<String?> save({required BigInt document, String? staging}) =>
+    FermanBridge.instance.api.crateFrbSave(
+      document: document,
+      staging: staging,
+    );
+
+/// Ends a staged save once the platform layer tried the swap; whether the last recovery write
+/// failed.
+///
+/// See [`facade::Engine::finish_save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` when no save waits.
+Future<bool> finishSave({required BigInt document, required bool swapped}) =>
+    FermanBridge.instance.api.crateFrbFinishSave(
+      document: document,
+      swapped: swapped,
+    );
 
 /// Saves `document` over a file that changed on disk ("Keep mine", a11-7b).
 ///
@@ -457,8 +476,11 @@ Future<void> save({required BigInt document}) =>
 /// # Errors
 ///
 /// As [`save`], without `FileChangedOnDisk`.
-Future<void> saveOverChange({required BigInt document}) =>
-    FermanBridge.instance.api.crateFrbSaveOverChange(document: document);
+Future<String?> saveOverChange({required BigInt document, String? staging}) =>
+    FermanBridge.instance.api.crateFrbSaveOverChange(
+      document: document,
+      staging: staging,
+    );
 
 /// Saves a copy of `document` as the file at `path`; later saves still write to its own file.
 ///
@@ -467,8 +489,15 @@ Future<void> saveOverChange({required BigInt document}) =>
 /// # Errors
 ///
 /// As [`save`], without `FileChangedOnDisk`.
-Future<void> saveCopy({required BigInt document, required String path}) =>
-    FermanBridge.instance.api.crateFrbSaveCopy(document: document, path: path);
+Future<String?> saveCopy({
+  required BigInt document,
+  required String path,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbSaveCopy(
+  document: document,
+  path: path,
+  staging: staging,
+);
 
 /// Writes a repaired document rewritten whole as the file at `path`; its own file only with
 /// `replace_original`.
@@ -478,14 +507,16 @@ Future<void> saveCopy({required BigInt document, required String path}) =>
 /// # Errors
 ///
 /// `InvalidInput` for its own file without `replace_original`, and the save failures.
-Future<void> saveRepairedCopy({
+Future<String?> saveRepairedCopy({
   required BigInt document,
   required String path,
   required bool replaceOriginal,
+  String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveRepairedCopy(
   document: document,
   path: path,
   replaceOriginal: replaceOriginal,
+  staging: staging,
 );
 
 /// Optimize and clean: the document's file rewritten whole.
@@ -495,8 +526,11 @@ Future<void> saveRepairedCopy({
 /// # Errors
 ///
 /// As [`save`]; `Unsupported` for a repaired document.
-Future<void> optimizeAndClean({required BigInt document}) =>
-    FermanBridge.instance.api.crateFrbOptimizeAndClean(document: document);
+Future<String?> optimizeAndClean({required BigInt document, String? staging}) =>
+    FermanBridge.instance.api.crateFrbOptimizeAndClean(
+      document: document,
+      staging: staging,
+    );
 
 /// Whether Optimize and clean would break the document's signatures.
 ///
@@ -526,12 +560,14 @@ Future<BigInt> confirmEditSigned({required BigInt document}) =>
 /// # Errors
 ///
 /// `InvalidInput` for its own file, and the save failures.
-Future<void> saveUnsignedCopy({
+Future<String?> saveUnsignedCopy({
   required BigInt document,
   required String path,
+  String? staging,
 }) => FermanBridge.instance.api.crateFrbSaveUnsignedCopy(
   document: document,
   path: path,
+  staging: staging,
 );
 
 /// Whether the document's file changed on disk since it was opened or saved; the app asks
@@ -552,8 +588,15 @@ Future<bool> checkExternalChange({required BigInt document}) =>
 /// # Errors
 ///
 /// As [`save`].
-Future<void> saveAs({required BigInt document, required String path}) =>
-    FermanBridge.instance.api.crateFrbSaveAs(document: document, path: path);
+Future<String?> saveAs({
+  required BigInt document,
+  required String path,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbSaveAs(
+  document: document,
+  path: path,
+  staging: staging,
+);
 
 /// How a block's lines sit in its frame.
 enum Alignment {
@@ -584,11 +627,15 @@ class ApiError implements FrbException {
   /// Whether the UI offers Save as: a save that failed for a reason another file avoids.
   final bool offerSaveAs;
 
+  /// On a failed save: no recovery copy of the unsaved edits exists either.
+  final bool noRecoveryCopy;
+
   const ApiError({
     required this.kind,
     required this.messageKey,
     this.details,
     required this.offerSaveAs,
+    required this.noRecoveryCopy,
   });
 
   @override
@@ -596,7 +643,8 @@ class ApiError implements FrbException {
       kind.hashCode ^
       messageKey.hashCode ^
       details.hashCode ^
-      offerSaveAs.hashCode;
+      offerSaveAs.hashCode ^
+      noRecoveryCopy.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -606,7 +654,8 @@ class ApiError implements FrbException {
           kind == other.kind &&
           messageKey == other.messageKey &&
           details == other.details &&
-          offerSaveAs == other.offerSaveAs;
+          offerSaveAs == other.offerSaveAs &&
+          noRecoveryCopy == other.noRecoveryCopy;
 }
 
 /// The version of the API between the engine and the UI.

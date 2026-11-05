@@ -85,7 +85,7 @@ fn an_edit_renders_undoes_redoes_and_saves() {
     assert_eq!((history.current, history.steps.len()), (0, 1));
     block_on(engine().redo(doc)).unwrap();
 
-    block_on(engine().save(doc)).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
     let saved = std::fs::read(&path).unwrap();
     assert_eq!(saved.get(..original.len()), Some(original.as_slice()));
     if let Some(out) = std::env::var_os("FERMAN_SAVED_DIR").filter(|dir| !dir.is_empty()) {
@@ -154,7 +154,7 @@ fn e24_an_encrypted_document_stays_encrypted_after_an_edit() {
     let preview = block_on(engine().apply(tx, text.replace("0187", "0188"))).unwrap();
     assert!(preview.missing.is_empty());
     block_on(engine().commit(tx, "Edited text".to_owned())).unwrap();
-    block_on(engine().save(doc)).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
     block_on(engine().close(doc)).unwrap();
 
     let saved = std::fs::read(&path).unwrap();
@@ -218,7 +218,7 @@ fn a_signed_document_commits_only_after_its_confirmation() {
     let tx = edit_amount(doc);
     let err = block_on(engine().commit(tx, "Edited text".to_owned())).unwrap_err();
     assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
-    let err = block_on(engine().save(doc)).unwrap_err();
+    let err = block_on(engine().save(doc, None)).unwrap_err();
     assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
     assert!(block_on(engine().would_break_signatures(doc)).unwrap());
     assert!(
@@ -236,7 +236,7 @@ fn a_signed_document_commits_only_after_its_confirmation() {
             .unwrap()
             .signature_invalidated
     );
-    block_on(engine().save(doc)).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
     block_on(engine().close(doc)).unwrap();
     let saved = std::fs::read(&path).unwrap();
     assert_eq!(saved.get(..original.len()), Some(original.as_slice()));
@@ -244,18 +244,18 @@ fn a_signed_document_commits_only_after_its_confirmation() {
     // Closing ends the confirmation: the file still counts as signed and asks again.
     let reopened = block_on(engine().open(path.clone(), None)).unwrap();
     assert!(reopened.signed);
-    let err = block_on(engine().optimize_and_clean(reopened.id)).unwrap_err();
+    let err = block_on(engine().optimize_and_clean(reopened.id, None)).unwrap_err();
     assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
 
     // "Edit a copy": the working copy is another file, unsigned, and asks nothing.
     let working = dir.join("signed (copy).pdf");
-    block_on(engine().save_unsigned_copy(reopened.id, working.clone())).unwrap();
+    block_on(engine().save_unsigned_copy(reopened.id, working.clone(), None)).unwrap();
     block_on(engine().close(reopened.id)).unwrap();
     assert_eq!(std::fs::read(&path).unwrap(), saved);
     let copy = block_on(engine().open(working, None)).unwrap();
     assert!(!copy.signed);
     assert!(copy.signatures.iter().all(|field| !field.signed));
-    block_on(engine().save(copy.id)).unwrap();
+    block_on(engine().save(copy.id, None)).unwrap();
     block_on(engine().close(copy.id)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }

@@ -100,7 +100,9 @@ class SaveFailureDialog extends ConsumerWidget {
     return Dialog(
       icon: icon,
       title: l10n.saveFailedTitle(bidiIsolate(failure.name)),
-      description: message,
+      description: error.noRecoveryCopy
+          ? '$message ${l10n.saveFailedNoRecoveryCopy}'
+          : message,
       onClose: ref.read(documentSaverProvider.notifier).closeFailureDialog,
       closeLabel: l10n.saveAsClose,
       actions: [

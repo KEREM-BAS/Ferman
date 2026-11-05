@@ -46,13 +46,17 @@ final class SaveFailure {
 @immutable
 final class SignedRequest {
   /// The question for [document].
-  const new({required this.document, required this.then});
+  const new({required this.document, required this.then, this.cancelled});
 
   /// The signed document's tab.
   final ShellDocument document;
 
   /// Goes on with what asked: opening the block, the save.
   final VoidCallback then;
+
+  /// Undoes what asked, when something waits on the answer: typing that
+  /// could not commit.
+  final VoidCallback? cancelled;
 }
 
 /// The a1-11 sheet asked for: [document]'s tab, as Save as or, with
@@ -146,24 +150,38 @@ class DocumentSaver extends _$DocumentSaver {
       document.signed && !_confirmed.contains(document.id);
 
   /// Shows a3-16a for [tab]; [then] goes on after "Edit anyway".
-  void askSigned(ShellDocument tab, VoidCallback then) => state = SaveFlow(
-    signed: SignedRequest(document: tab, then: then),
+  void askSigned(
+    ShellDocument tab,
+    VoidCallback then, {
+    VoidCallback? cancelled,
+  }) => state = SaveFlow(
+    // A save asking over the typing's question keeps what Cancel must drop.
+    signed: SignedRequest(
+      document: tab,
+      then: then,
+      cancelled: cancelled ?? state.signed?.cancelled,
+    ),
     changed: state.changed,
   );
 
   /// Closes a3-16a (Cancel, Esc): nothing changes.
-  void cancelSigned() => state = SaveFlow(changed: state.changed);
+  void cancelSigned() {
+    final cancelled = state.signed?.cancelled;
+    state = SaveFlow(changed: state.changed);
+    cancelled?.call();
+  }
 
   /// "Edit anyway": the engine's confirmation, then what asked goes on.
   /// When the engine refuses, nothing goes on.
   Future<void> editAnyway() async {
     final request = state.signed;
-    cancelSigned();
+    state = SaveFlow(changed: state.changed);
     final id = request?.document.document?.id;
     if (id == null) return;
     try {
       await _engine.confirmEditSigned(id);
     } on EngineException {
+      request?.cancelled?.call();
       return;
     }
     _confirmed.add(id);
@@ -191,11 +209,17 @@ class DocumentSaver extends _$DocumentSaver {
               offersSaveAs: true,
             );
           }
-          try {
-            await _engine.saveUnsignedCopy(id, path);
-          } on EngineException catch (error) {
-            return error;
-          }
+          // In the editor's queue: one document stages one file at a time.
+          final error = await _editor.write(
+            id,
+            () => _editor.through(
+              id,
+              path,
+              (staging) => _engine.saveUnsignedCopy(id, path, staging: staging),
+            ),
+            copy: true,
+          );
+          if (error != null) return error;
           unawaited(ref.read(documentOpenerProvider.notifier).open([path]));
           return null;
         },
@@ -258,13 +282,26 @@ class DocumentSaver extends _$DocumentSaver {
       if (copy) {
         return await _editor.write(
           id,
-          () => _engine.saveCopy(id, path),
+          () => _editor.through(
+            id,
+            path,
+            (staging) => _engine.saveCopy(id, path, staging: staging),
+          ),
           copy: true,
         );
       }
-      final error = await _editor.write(id, () => _engine.saveAs(id, path));
+      final error = await _editor.write(id, () async {
+        await _editor.through(
+          id,
+          path,
+          (staging) => _engine.saveAs(id, path, staging: staging),
+        );
+        // Within the write's turn, so the next write in the queue sees it.
+        ref
+            .read(documentOpenerProvider.notifier)
+            .savedAs(_editor.pathOf(id) ?? from, path);
+      });
       if (error == null) {
-        ref.read(documentOpenerProvider.notifier).savedAs(from, path);
         // The tab's file is another one now.
         _markChanged(id, changed: false);
       }
@@ -441,7 +478,14 @@ class DocumentSaver extends _$DocumentSaver {
     if (id == null) return Future.value();
     return _guard(
       tab,
-      () => _editor.write(id, () => _engine.optimizeAndClean(id)),
+      () => _editor.write(
+        id,
+        () => _editor.through(
+          id,
+          _editor.pathOf(id),
+          (staging) => _engine.optimizeAndClean(id, staging: staging),
+        ),
+      ),
       saveAs: () async => _openSheet(tab),
     );
   }
@@ -468,11 +512,21 @@ class DocumentSaver extends _$DocumentSaver {
           offersSaveAs: true,
         );
       }
-      try {
-        await _engine.saveRepairedCopy(id, path, replaceOriginal: replace);
-      } on EngineException catch (error) {
-        return error;
-      }
+      final error = await _editor.write(
+        id,
+        () => _editor.through(
+          id,
+          path,
+          (staging) => _engine.saveRepairedCopy(
+            id,
+            path,
+            replaceOriginal: replace,
+            staging: staging,
+          ),
+        ),
+        copy: true,
+      );
+      if (error != null) return error;
       if (!replace) {
         unawaited(ref.read(documentOpenerProvider.notifier).open([path]));
       }

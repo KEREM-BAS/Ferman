@@ -280,12 +280,13 @@ class FakeEngineService implements EngineService {
 
   /// Opens the [recoveredDocuments] entry, with its [recoveryPasswords]
   /// entry for an encrypted one; a changed original saves to
-  /// `<name> (recovered).pdf`.
+  /// `<name> (recovered).pdf`, with [suffix] for "recovered".
   @override
   Future<RestoredDocument> restoreRecovered(
     String session,
     String document, {
     String? password,
+    String? suffix,
   }) async {
     final found = recoverable.where(
       (found) => found.session == session && found.document == document,
@@ -319,7 +320,7 @@ class FakeEngineService implements EngineService {
     return RestoredDocument(
       opened: opened,
       path: entry.originalChanged
-          ? '$stem (recovered)${original.substring(stem.length)}'
+          ? '$stem (${suffix ?? 'recovered'})${original.substring(stem.length)}'
           : original,
       originalChanged: entry.originalChanged,
       renderKey: ++_lastRenderKey,
@@ -860,6 +861,9 @@ class FakeEngineService implements EngineService {
   /// The documents [optimizeAndClean] rewrote, oldest first.
   final List<int> optimized = [];
 
+  /// How many transactions are open, none of them lost to the app.
+  int get openTransactions => _transactions.length;
+
   /// Throws [saveFailure], or the failure [failNextSave] set, once.
   void _saving() {
     if (saveFailure case final error?) throw error;
@@ -869,10 +873,45 @@ class FakeEngineService implements EngineService {
     }
   }
 
+  /// What each staged save will record once [finishSave] says it is in
+  /// place.
+  final Map<int, void Function()> _staged = {};
+
+  /// Whether [finishSave] reports a failed recovery write.
+  bool recoveryWriteFailed = false;
+
+  /// [record] now, or with [staging] a staged file there and [record] at
+  /// [finishSave].
+  String? _write(int document, String? staging, void Function() record) {
+    if (staging == null) {
+      record();
+      return null;
+    }
+    _staged[document] = record;
+    return '$staging/staged.pdf';
+  }
+
+  @override
+  Future<bool> finishSave(int document, {required bool swapped}) async {
+    final record = _staged.remove(document);
+    if (record == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    if (swapped) record();
+    return recoveryWriteFailed;
+  }
+
   /// Records the save; [saveFailure], [failNextSave] and [changedOnDisk]
   /// fail it.
   @override
-  Future<void> save(int document, {bool overChange = false}) async {
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  }) async {
     _confirmed(document);
     _saving();
     if (!overChange && changedOnDisk.contains(document)) {
@@ -881,42 +920,49 @@ class FakeEngineService implements EngineService {
         messageKey: 'errorFileRead',
       );
     }
-    changedOnDisk.remove(document);
-    saves.add((document, null));
+    return _write(document, staging, () {
+      changedOnDisk.remove(document);
+      saves.add((document, null));
+    });
   }
 
   /// Records the save; [saveFailure] and [failNextSave] fail it.
   @override
-  Future<void> saveAs(int document, String path) async {
+  Future<String?> saveAs(int document, String path, {String? staging}) async {
     if (_history(document).current > 0) _confirmed(document);
     _saving();
-    saves.add((document, path));
+    return _write(document, staging, () => saves.add((document, path)));
   }
 
   /// Records the copy; [saveFailure] and [failNextSave] fail it.
   @override
-  Future<void> saveCopy(int document, String path) async {
+  Future<String?> saveCopy(int document, String path, {String? staging}) async {
     if (_history(document).current > 0) _confirmed(document);
     _saving();
-    copies.add((document, path));
+    return _write(document, staging, () => copies.add((document, path)));
   }
 
   /// Records the repaired copy; [saveFailure] and [failNextSave] fail it.
   @override
-  Future<void> saveRepairedCopy(
+  Future<String?> saveRepairedCopy(
     int document,
     String path, {
     bool replaceOriginal = false,
+    String? staging,
   }) async {
     _confirmed(document);
     _saving();
-    repairedCopies.add((document, path, replaceOriginal));
+    return _write(
+      document,
+      staging,
+      () => repairedCopies.add((document, path, replaceOriginal)),
+    );
   }
 
   /// Records the rewrite; [saveFailure], [failNextSave] and [changedOnDisk]
   /// fail it.
   @override
-  Future<void> optimizeAndClean(int document) async {
+  Future<String?> optimizeAndClean(int document, {String? staging}) async {
     _confirmed(document);
     _saving();
     if (changedOnDisk.contains(document)) {
@@ -925,7 +971,7 @@ class FakeEngineService implements EngineService {
         messageKey: 'errorFileRead',
       );
     }
-    optimized.add(document);
+    return _write(document, staging, () => optimized.add(document));
   }
 
   @override
@@ -938,9 +984,17 @@ class FakeEngineService implements EngineService {
 
   /// Records the copy; [saveFailure] and [failNextSave] fail it.
   @override
-  Future<void> saveUnsignedCopy(int document, String path) async {
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async {
     _saving();
-    unsignedCopies.add((document, path));
+    return _write(
+      document,
+      staging,
+      () => unsignedCopies.add((document, path)),
+    );
   }
 
   @override
