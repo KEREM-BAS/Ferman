@@ -116,7 +116,7 @@ embedding under the table above; otherwise the flow goes to step 3, with the rea
 of the document stays editable, and text in other fonts is not affected. The rule reads only the
 OS/2 table, so programs without one (bare CFF, Type1, Type3) are not restricted by it.
 
-The "embedding forbidden" state is not drawn yet ([G37](../DESIGN_GAPS.md#g37)).
+The "embedding forbidden" state is drawn in a3-17 ([G37](../DESIGN_GAPS.md#g37)). Since M3 W3 the engine follows this section: an embedded program with such an `fsType` lends no glyph to new text, and an installed copy that forbids embedding is listed with its permission and skipped (E05). Fonts with bit 8 (no subsetting) are skipped for now instead of being embedded whole.
 
 ### Fonts Ferman ships for step 3
 

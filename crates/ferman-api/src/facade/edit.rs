@@ -19,6 +19,16 @@
 //! docs/ARCHITECTURE.md §6.5); otherwise [`Engine::begin_edit`] fails with
 //! [`ErrorKind::NotEditable`] and the reason's message.
 //!
+//! Missing glyphs (docs/ARCHITECTURE.md §6.7, ADR 0006): step 1 is the rewriter's own; steps 2 and
+//! 3 look in the fonts [`Engine::set_font_settings`] names (the bundled directory, extra
+//! directories and, when allowed, the system's), indexed once on an actor thread the first time
+//! an edit needs them. The preview carries step 3's [`MissingGlyphInfo`]: with "Ask each time"
+//! the text waits for [`Engine::choose_font`] or [`Engine::keep_as_is`]; otherwise the closest
+//! candidate draws the characters provisionally and the commit is refused until one of the two
+//! is called, so nothing is substituted silently. Every substitution is recorded with its commit
+//! ([`HistoryStep::substitutions`], [`RevisionInfo::substitutions`]), marked as announced after
+//! the first commit that names its font, so the UI says it once (G37).
+//!
 //! Saving writes the incremental update through ferman-core's safe write (temp file, flush,
 //! verify, rename). The atomic replace with its metadata, external changes and every failure of
 //! docs/ARCHITECTURE.md §7.8 come later (M3 W4).
@@ -27,16 +37,19 @@ use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc;
-use std::sync::{Arc, PoisonError};
+use std::sync::{Arc, Mutex, PoisonError};
 use std::thread;
 use std::time::{SystemTime, UNIX_EPOCH};
 
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::{CoreError, WriteError};
+use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::DocumentId;
 use ferman_text::extract::CharBox;
 use ferman_text::{
-    BlockId, Choice, EditContext, Editability, NotEditableReason, Outcome, OverflowPlan, TextBlock,
+    BlockId, Choice, EditContext, Editability, FontCandidate, FontChoice, FontSources,
+    MissingGlyphs, MissingReason, NotEditableReason, Outcome, OverflowPlan, Substitution,
+    SubstitutionKind, TextBlock,
 };
 
 use super::document::Model;
@@ -72,9 +85,15 @@ impl TransactionId {
 pub struct EditPreview {
     /// The page's blocks with the new text; with the text before when characters are missing.
     pub page: PageBlocks,
-    /// The characters no font of their line can draw, in the order they first appear: the text
-    /// was not applied, and the missing-glyph steps decide (docs/ARCHITECTURE.md §6.7).
+    /// The characters no font could draw, each once in the order they first appear: the text
+    /// was not applied ([`glyphs`](Self::glyphs) says why and what step 3 offers).
     pub missing: Vec<char>,
+    /// Step 3's characters and candidates (docs/ARCHITECTURE.md §6.7): drawn provisionally in
+    /// the closest candidate until [`Engine::choose_font`] or [`Engine::keep_as_is`], or not
+    /// drawn at all (then [`missing`](Self::missing) lists them).
+    pub glyphs: Option<MissingGlyphInfo>,
+    /// The substitutions the applied text makes (steps 2 and 3).
+    pub substitutions: Vec<FontSubstitution>,
     /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
     pub overflowing: bool,
     /// The overflow choices with their amounts, when the reflowed text needs more lines than
@@ -88,6 +107,116 @@ pub struct EditPreview {
     pub dependents: Vec<DependentCell>,
 }
 
+/// Characters step 3 draws, or waits for a choice for.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MissingGlyphInfo {
+    /// Each missing character and its offset in the new text, in UTF-16 code units, in text
+    /// order.
+    pub chars: Vec<(char, u32)>,
+    /// The font they are missing from, its PostScript name without the subset tag.
+    pub font: String,
+    /// Why the same font did not draw them (step 2).
+    pub reason: MissingReason,
+    /// Whether the font is bold or italic, so only fonts of that style are offered.
+    pub bold: bool,
+    /// See [`bold`](Self::bold).
+    pub italic: bool,
+    /// The candidates, best first (a3-3b).
+    pub candidates: Vec<FontCandidate>,
+    /// Whether the first candidate draws them now, provisionally.
+    pub drawn: bool,
+}
+
+impl MissingGlyphInfo {
+    fn new(missing: MissingGlyphs, text: &str, drawn: bool) -> Self {
+        let utf16 = |at: usize| {
+            u32::try_from(text.get(..at).unwrap_or(text).encode_utf16().count()).unwrap_or(u32::MAX)
+        };
+        Self {
+            chars: missing
+                .chars
+                .iter()
+                .map(|&(c, at)| (c, utf16(at)))
+                .collect(),
+            font: missing.font,
+            reason: missing.reason,
+            bold: missing.bold,
+            italic: missing.italic,
+            candidates: missing.candidates,
+            drawn,
+        }
+    }
+}
+
+/// A substitution with whether the UI has been told of its font already.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontSubstitution {
+    /// The substitution.
+    pub substitution: Substitution,
+    /// Whether an earlier commit of this document named the same font in the same step: the
+    /// notice (step 2, a3-17) or the toast (a11-6) is said once.
+    pub announced: bool,
+}
+
+/// Where the fonts for missing glyphs come from (docs/ARCHITECTURE.md §6.7).
+#[derive(Debug, Clone, Default, PartialEq, Eq)]
+pub struct FontSettings {
+    /// The fonts bundled with the app (IBM Plex and the similar fonts of a3-3b).
+    pub bundled_dir: Option<PathBuf>,
+    /// Directories whose fonts count as installed, besides the system's.
+    pub font_dirs: Vec<PathBuf>,
+    /// Whether the fonts installed on this computer are used (off in tests, so they never
+    /// depend on the machine's fonts).
+    pub system_fonts: bool,
+    /// "Ask each time" (a11-1c): step 3 waits for a choice instead of drawing the closest
+    /// candidate.
+    pub ask_each_time: bool,
+}
+
+/// The engine's font settings and the library built from them, shared by the actors.
+#[derive(Debug, Default)]
+pub(super) struct Fonts {
+    state: Mutex<(FontSettings, Option<Arc<FontLibrary>>)>,
+}
+
+impl Fonts {
+    pub(super) fn set(&self, settings: FontSettings) {
+        let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        if state.0 != settings {
+            *state = (settings, None);
+        }
+    }
+
+    /// The library when it is built, and whether to ask each time.
+    fn cached(&self) -> (Option<Arc<FontLibrary>>, bool) {
+        let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        (state.1.clone(), state.0.ask_each_time)
+    }
+
+    /// The library, built now if it is not yet.
+    fn library(&self) -> Arc<FontLibrary> {
+        let mut state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
+        if let Some(library) = &state.1 {
+            return Arc::clone(library);
+        }
+        let settings = &state.0;
+        let limits = ScanLimits::default();
+        let mut library = FontLibrary::new();
+        if let Some(dir) = &settings.bundled_dir {
+            library.add_dir(dir, FontOrigin::Bundled, &limits);
+        }
+        for dir in &settings.font_dirs {
+            library.add_dir(dir, FontOrigin::Installed, &limits);
+        }
+        if settings.system_fonts {
+            library.add_system_fonts(&limits);
+        }
+        let library = Arc::new(library);
+        state.1 = Some(Arc::clone(&library));
+        library
+    }
+}
+
 /// A table cell that likely depends on the edited one.
 #[derive(Debug, Clone, Copy, PartialEq)]
 pub struct DependentCell {
@@ -98,13 +227,16 @@ pub struct DependentCell {
 }
 
 /// Where the document's history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RevisionInfo {
     /// How many steps of the history apply: 0 is the document as opened.
     pub current: u32,
     /// The pages' new render key when the render thread reloaded the revised document; `None`
     /// when nothing it shows changed, or it could not reload.
     pub render_key: Option<u64>,
+    /// The substitutions the commit made, for the "Font substituted" toast (a11-6); empty after
+    /// anything else.
+    pub substitutions: Vec<FontSubstitution>,
 }
 
 /// One committed step of the history.
@@ -117,6 +249,8 @@ pub struct HistoryStep {
     /// The lines Keep and warn left hidden past the block's frame: the warning the review list
     /// and the page thumbnail show (a3-12); 0 for none.
     pub hidden_lines: u32,
+    /// The characters it set in another font than their line's (a3-12's font rows).
+    pub substitutions: Vec<Substitution>,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -151,6 +285,9 @@ pub(super) struct Session {
     steps: Vec<HistoryStep>,
     /// Where Save writes.
     path: PathBuf,
+    fonts: Arc<Fonts>,
+    /// The fonts the UI has been told of, by step and name.
+    announced: Vec<(SubstitutionKind, String)>,
 }
 
 /// The open transaction.
@@ -169,10 +306,22 @@ struct Open {
     overflow: Option<OverflowPlan>,
     chosen: Option<Choice>,
     hidden: usize,
+    /// The newest text asked for, applied or not.
+    requested: Option<String>,
+    /// The step 3 choice made in this transaction.
+    font_choice: Option<FontChoice>,
+    /// The applied text's step 3 characters drawn without a choice, and its substitutions.
+    pending: Option<MissingGlyphs>,
+    substitutions: Vec<Substitution>,
 }
 
 impl Session {
+    #[cfg(test)]
     pub(super) fn new(model: Arc<Model>) -> Self {
+        Self::with_fonts(model, Arc::default())
+    }
+
+    pub(super) fn with_fonts(model: Arc<Model>, fonts: Arc<Fonts>) -> Self {
         let committed = Arc::clone(&model.revised().store);
         let path = model.path.clone();
         Self {
@@ -181,6 +330,8 @@ impl Session {
             open: None,
             steps: Vec::new(),
             path,
+            fonts,
+            announced: Vec::new(),
         }
     }
 
@@ -256,6 +407,10 @@ impl Session {
             overflow: None,
             chosen: None,
             hidden: 0,
+            requested: None,
+            font_choice: None,
+            pending: None,
+            substitutions: Vec::new(),
         });
         Ok(id)
     }
@@ -302,6 +457,53 @@ impl Session {
         self.write(transaction, &text, Some(choice))
     }
 
+    /// Draws step 3's characters in the candidate `postscript_name` of `origin` and returns
+    /// the page as it would read.
+    pub(super) fn choose_font(
+        &mut self,
+        transaction: TransactionId,
+        origin: FontOrigin,
+        postscript_name: String,
+    ) -> Result<EditPreview, ApiError> {
+        self.write_choice(
+            transaction,
+            FontChoice::Font {
+                origin,
+                postscript_name,
+            },
+        )
+    }
+
+    /// Keeps step 3's characters in the closest candidate ("Keep as is").
+    pub(super) fn keep_as_is(
+        &mut self,
+        transaction: TransactionId,
+    ) -> Result<EditPreview, ApiError> {
+        self.write_choice(transaction, FontChoice::KeepAsIs)
+    }
+
+    /// Writes the newest text asked for again with the step 3 choice `choice`; a choice that
+    /// cannot draw it is refused and the one before stays.
+    fn write_choice(
+        &mut self,
+        transaction: TransactionId,
+        choice: FontChoice,
+    ) -> Result<EditPreview, ApiError> {
+        let open = self.open(transaction)?;
+        let refused = || {
+            ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("no font choice is open, or that font cannot draw the characters")
+        };
+        let text = open.requested.clone().ok_or_else(refused)?;
+        let before = open.font_choice.replace(choice);
+        let preview = self.write(transaction, &text, None)?;
+        if !preview.missing.is_empty() {
+            self.open(transaction)?.font_choice = before;
+            return Err(refused());
+        }
+        Ok(preview)
+    }
+
     /// Rewrites the transaction's block to `text` with the overflow choice `choice`.
     fn write(
         &mut self,
@@ -312,18 +514,42 @@ impl Session {
         let context = self.context();
         let committed = Arc::clone(&self.committed);
         let model = Arc::clone(&self.model);
+        let fonts = Arc::clone(&self.fonts);
+        let announced = self.announced.clone();
         let document = &model.document;
         let open = self.open(transaction)?;
-        let outcome = ferman_text::rewrite_block_with(
-            document,
-            Some(&committed),
-            open.page,
-            &open.block,
-            text,
-            &open.others,
-            choice,
-        )?;
-        let (missing, overflowing) = match outcome {
+        open.requested = Some(text.to_owned());
+        let rewrite = |library: Option<&FontLibrary>, ask: bool, open: &Open| {
+            ferman_text::rewrite_block_fonts(
+                document,
+                Some(&committed),
+                open.page,
+                &open.block,
+                text,
+                &open.others,
+                choice,
+                &FontSources {
+                    library,
+                    ask,
+                    choice: open.font_choice.as_ref(),
+                },
+            )
+        };
+        let (library, ask) = fonts.cached();
+        let mut outcome = rewrite(library.as_deref(), ask, open)?;
+        // The fonts are indexed the first time an edit needs them.
+        let fell_back = match &outcome {
+            Outcome::MissingGlyphs(_) => true,
+            // A font of the page may lend the characters without the library; the installed
+            // and bundled fonts are still candidates.
+            Outcome::Rewritten(rewrite) => !rewrite.substitutions.is_empty(),
+            Outcome::Unsupported(_) => false,
+        };
+        if library.is_none() && fell_back {
+            let library = fonts.library();
+            outcome = rewrite(Some(&library), ask, open)?;
+        }
+        let (missing, overflowing, glyphs) = match outcome {
             Outcome::Rewritten(rewrite) => {
                 let splices: Vec<revision::Splice> = rewrite
                     .splices
@@ -336,19 +562,43 @@ impl Session {
                     .collect();
                 let mut working = (*committed).clone();
                 working.begin()?;
-                // The font copies the new codes need, in the same transaction as the splices
-                // that name them, so undo and redo cover both.
-                working.add_fonts(document, open.page, &rewrite.fonts)?;
+                // The font copies and new fonts the new codes need, in the same transaction as
+                // the splices that name them, so undo and redo cover both.
+                working.add_new_fonts(
+                    document,
+                    open.page,
+                    &rewrite.fonts,
+                    &rewrite.simple_fonts,
+                    &rewrite.new_fonts,
+                )?;
                 working.splice(document, open.page, &splices, &[])?;
                 open.working = Some(working);
                 open.text = Some(text.to_owned());
                 open.overflow = rewrite.overflow;
                 open.chosen = rewrite.chosen;
                 open.hidden = rewrite.hidden;
-                (Vec::new(), !rewrite.overflowing.is_empty())
+                let glyphs = rewrite
+                    .pending
+                    .clone()
+                    .map(|pending| MissingGlyphInfo::new(pending, text, true));
+                open.pending = rewrite.pending;
+                open.substitutions = rewrite.substitutions;
+                (Vec::new(), !rewrite.overflowing.is_empty(), glyphs)
             }
-            // The text before stays applied, with its overflow choice.
-            Outcome::MissingGlyphs(missing) => (missing, false),
+            // The text before stays applied, with its overflow choice and substitutions.
+            Outcome::MissingGlyphs(missing) => {
+                let mut chars: Vec<char> = Vec::new();
+                for &(c, _) in &missing.chars {
+                    if !chars.contains(&c) {
+                        chars.push(c);
+                    }
+                }
+                (
+                    chars,
+                    false,
+                    Some(MissingGlyphInfo::new(missing, text, false)),
+                )
+            }
             Outcome::Unsupported(unsupported) => {
                 return Err(
                     ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
@@ -358,9 +608,16 @@ impl Session {
         };
         let revisions = open.working.as_ref().unwrap_or(&committed);
         let page = ferman_text::text_page_revised(document, revisions, open.page, &context)?;
+        let substitutions = open
+            .substitutions
+            .iter()
+            .map(|substitution| announce(&announced, substitution))
+            .collect();
         Ok(EditPreview {
             page: page_blocks_info(&model, &page),
             missing,
+            glyphs,
+            substitutions,
             overflowing,
             overflow: open.overflow.clone(),
             chosen: open.chosen,
@@ -372,19 +629,33 @@ impl Session {
         &mut self,
         transaction: TransactionId,
         name: String,
-    ) -> Result<(u32, Reload), ApiError> {
-        self.open(transaction)?;
-        let (working, hidden) = self
-            .open
-            .take()
-            .map_or((None, 0), |open| (open.working, open.hidden));
+    ) -> Result<(u32, Reload, Vec<FontSubstitution>), ApiError> {
+        if self.open(transaction)?.pending.is_some() {
+            // Never silent: the provisional font waits for choose_font or keep_as_is.
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details(PENDING_CHOICE));
+        }
+        let (working, hidden, substitutions) = self.open.take().map_or_else(
+            || (None, 0, Vec::new()),
+            |open| (open.working, open.hidden, open.substitutions),
+        );
         let before = self.committed.current();
         let Some(mut working) = working else {
-            return Ok((self.current(), None));
+            return Ok((self.current(), None, Vec::new()));
         };
         // A transaction that changed nothing adds no step.
         if working.commit()? == before {
-            return Ok((self.current(), None));
+            return Ok((self.current(), None, Vec::new()));
+        }
+        let told: Vec<FontSubstitution> = substitutions
+            .iter()
+            .map(|substitution| announce(&self.announced, substitution))
+            .collect();
+        for substitution in &substitutions {
+            let key = (substitution.kind, substitution.to.clone());
+            if !self.announced.contains(&key) {
+                self.announced.push(key);
+            }
         }
         self.steps.truncate(before);
         self.steps.push(HistoryStep {
@@ -395,9 +666,10 @@ impl Session {
                 .and_then(|since| i64::try_from(since.as_millis()).ok())
                 .unwrap_or(0),
             hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
+            substitutions,
         });
         self.committed = Arc::new(working);
-        Ok((self.current(), self.publish()))
+        Ok((self.current(), self.publish(), told))
     }
 
     pub(super) fn rollback(&mut self, transaction: TransactionId) -> Result<u32, ApiError> {
@@ -476,7 +748,74 @@ impl Session {
     }
 }
 
+/// The details of the error a commit gets while a step 3 choice is pending.
+const PENDING_CHOICE: &str = "a font choice is pending: choose a font or keep as is";
+
+/// `substitution` with whether `announced` names its font.
+fn announce(
+    announced: &[(SubstitutionKind, String)],
+    substitution: &Substitution,
+) -> FontSubstitution {
+    FontSubstitution {
+        substitution: substitution.clone(),
+        announced: announced.contains(&(substitution.kind, substitution.to.clone())),
+    }
+}
+
 impl Engine {
+    /// Sets where the fonts for missing glyphs come from, and "Ask each time"; the fonts are
+    /// indexed again the next time an edit needs them.
+    ///
+    /// # Errors
+    ///
+    /// Returns an internal error only if the call panics.
+    pub async fn set_font_settings(&self, settings: FontSettings) -> Result<(), ApiError> {
+        guard_async(async move {
+            self.fonts.set(settings);
+            Ok(())
+        })
+        .await
+    }
+
+    /// Draws the characters step 3 offers candidates for in the candidate `postscript_name` of
+    /// `origin` (a3-3b), and returns the page as it would read; the choice holds for the rest of
+    /// the transaction.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a transaction that is not open, and `InvalidInput` when no text
+    /// waits for a font or the font cannot draw every character.
+    pub async fn choose_font(
+        &self,
+        transaction: TransactionId,
+        origin: FontOrigin,
+        postscript_name: String,
+    ) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| {
+                session.choose_font(transaction, origin, postscript_name)
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Keeps the characters step 3 drew provisionally in the closest candidate ("Keep as is"),
+    /// or draws them in it after "Ask each time", and returns the page as it would read.
+    ///
+    /// # Errors
+    ///
+    /// As [`choose_font`](Self::choose_font).
+    pub async fn keep_as_is(&self, transaction: TransactionId) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| session.keep_as_is(transaction))
+                .await
+        })
+        .await
+    }
+
     /// Opens a transaction that edits `block` of `page` of `document`.
     ///
     /// # Errors
@@ -558,7 +897,9 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// Returns `NotFound` for a transaction that is not open.
+    /// Returns `NotFound` for a transaction that is not open, and `InvalidInput` while step 3's
+    /// characters wait for [`choose_font`](Self::choose_font) or
+    /// [`keep_as_is`](Self::keep_as_is) (the transaction stays open).
     pub async fn commit(
         &self,
         transaction: TransactionId,
@@ -569,10 +910,19 @@ impl Engine {
             let result = self
                 .ask(document, move |session| session.commit(transaction, name))
                 .await;
-            // A failed commit ends the transaction too: the actor dropped it.
-            self.end_transaction(transaction);
-            let (current, reload) = result?;
-            Ok(self.revision_info(document, current, reload).await)
+            // A failed commit ends the transaction too: the actor dropped it, unless a font
+            // choice is pending.
+            let pending = result
+                .as_ref()
+                .err()
+                .is_some_and(|err| err.details.as_deref() == Some(PENDING_CHOICE));
+            if !pending {
+                self.end_transaction(transaction);
+            }
+            let (current, reload, substitutions) = result?;
+            let mut info = self.revision_info(document, current, reload).await;
+            info.substitutions = substitutions;
+            Ok(info)
         })
         .await
     }
@@ -593,6 +943,7 @@ impl Engine {
             Ok(RevisionInfo {
                 current,
                 render_key: None,
+                substitutions: Vec::new(),
             })
         })
         .await
@@ -703,12 +1054,13 @@ impl Engine {
             .get(&document)
             .cloned()
             .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+        let fonts = Arc::clone(&self.fonts);
         let (mailbox, inbox) = mpsc::channel::<Job>();
         thread::Builder::new()
             .name("ferman-edit".to_owned())
             .stack_size(ACTOR_STACK)
             .spawn(move || {
-                let mut session = Session::new(model);
+                let mut session = Session::with_fonts(model, fonts);
                 for job in inbox {
                     job(&mut session);
                 }
@@ -774,6 +1126,7 @@ impl Engine {
         RevisionInfo {
             current,
             render_key,
+            substitutions: Vec::new(),
         }
     }
 }
@@ -852,7 +1205,8 @@ mod tests {
                 .iter()
                 .any(|block| block.lines.iter().any(|line| line.text.contains(to)))
         );
-        session.commit(tx, name.to_owned()).unwrap()
+        let (current, reload, _) = session.commit(tx, name.to_owned()).unwrap();
+        (current, reload)
     }
 
     #[test]
@@ -918,7 +1272,7 @@ mod tests {
         assert_eq!(session.rollback(tx).unwrap_err().kind, ErrorKind::NotFound);
 
         let tx = session.begin(0, block.id).unwrap();
-        let (current, reload) = session.commit(tx, "Nothing".to_owned()).unwrap();
+        let (current, reload, _) = session.commit(tx, "Nothing".to_owned()).unwrap();
         assert_eq!((current, reload.is_none()), (0, true));
         assert!(session.history().steps.is_empty());
     }
@@ -1102,7 +1456,7 @@ mod tests {
     }
 
     #[test]
-    fn a_missing_glyph_is_reported_not_written() {
+    fn a_glyph_the_encoding_lacks_is_written_through_differences() {
         let mut session = session("edit-e04-differences", None);
         let block = blocks(&session, 0)
             .blocks
@@ -1119,8 +1473,115 @@ mod tests {
         let preview = session
             .apply(tx, &text.replacen("bedeli", "bedeliğ", 1))
             .unwrap();
+        // Step 1: no substitution, nothing to choose.
+        assert!(preview.missing.is_empty() && preview.glyphs.is_none());
+        assert!(preview.substitutions.is_empty());
+        let (current, _, substitutions) = session.commit(tx, "ğ".to_owned()).unwrap();
+        assert_eq!(current, 1);
+        assert!(substitutions.is_empty());
+        let lines: Vec<String> = blocks(&session, 0)
+            .blocks
+            .into_iter()
+            .flat_map(|block| block.lines.into_iter().map(|line| line.text))
+            .collect();
+        assert!(
+            lines.iter().any(|line| line.contains("bedeliğ")),
+            "{lines:?}"
+        );
+    }
+
+    /// A session on `name` whose fonts are the bundled ones only.
+    fn bundled_session(name: &str, ask_each_time: bool) -> Session {
+        let mut session = session(name, None);
+        let fonts = Fonts::default();
+        fonts.set(FontSettings {
+            bundled_dir: Some(
+                PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../app/assets/fonts"),
+            ),
+            ask_each_time,
+            ..FontSettings::default()
+        });
+        session.fonts = Arc::new(fonts);
+        session
+    }
+
+    #[test]
+    fn step_3_waits_for_a_choice_before_it_commits_and_says_so_once() {
+        let mut session = bundled_session("kira-tr", false);
+        let (_, text) = paragraph(&session, "Olağan bakım");
+        let typed = format!("{text} Ortak alan kuralları değiştirilemez.");
+        for round in 0..2 {
+            let (block, _) = paragraph(&session, "Olağan bakım");
+            let tx = session.begin(0, block).unwrap();
+            let preview = session.apply(tx, &typed).unwrap();
+            assert!(preview.missing.is_empty());
+            let glyphs = preview.glyphs.unwrap();
+            assert!(glyphs.drawn);
+            // The bundled fonts are offered even when a font of the page lends the character.
+            assert!(
+                glyphs
+                    .candidates
+                    .iter()
+                    .any(|c| c.origin == FontOrigin::Bundled),
+                "{:?}",
+                glyphs.candidates
+            );
+            // The offset is in UTF-16 code units.
+            let at = typed.rfind('ğ').unwrap();
+            let utf16 = u32::try_from(typed[..at].encode_utf16().count()).unwrap();
+            assert_eq!(glyphs.chars, [('ğ', utf16)]);
+            let to = preview.substitutions[0].substitution.to.clone();
+            assert_eq!(preview.substitutions[0].announced, round == 1);
+            // Never silent: the commit waits for the choice, the transaction stays open.
+            let refused = session.commit(tx, "Madde 6".to_owned()).unwrap_err();
+            assert_eq!(refused.details.as_deref(), Some(PENDING_CHOICE));
+            assert!(session.keep_as_is(tx).unwrap().glyphs.is_none());
+            let (_, _, told) = session.commit(tx, "Madde 6".to_owned()).unwrap();
+            assert_eq!(told[0].substitution.to, to);
+            assert_eq!(told[0].announced, round == 1);
+            assert_eq!(session.history().steps[0].substitutions.len(), 1);
+            let blocks = blocks(&session, 0);
+            assert!(
+                blocks
+                    .blocks
+                    .iter()
+                    .any(|b| b.text().contains("değiştirilemez"))
+            );
+            session.undo().unwrap();
+        }
+    }
+
+    #[test]
+    fn ask_each_time_applies_nothing_until_a_font_is_chosen() {
+        let mut session = bundled_session("kira-tr", true);
+        let (block, text) = paragraph(&session, "Olağan bakım");
+        let tx = session.begin(0, block).unwrap();
+        let typed = format!("{text} değişir");
+        let preview = session.apply(tx, &typed).unwrap();
         assert_eq!(preview.missing, ['ğ']);
+        let glyphs = preview.glyphs.unwrap();
+        assert!(!glyphs.drawn);
         assert!(session.open.as_ref().unwrap().working.is_none());
+        // A font without the character is refused; a usable one is drawn.
+        let partial = glyphs.candidates.iter().find(|c| !c.usable());
+        if let Some(partial) = partial {
+            assert!(
+                session
+                    .choose_font(tx, partial.origin, partial.postscript_name.clone())
+                    .is_err()
+            );
+        }
+        let usable = glyphs.candidates.iter().find(|c| c.usable()).unwrap();
+        let chosen = session
+            .choose_font(tx, usable.origin, usable.postscript_name.clone())
+            .unwrap();
+        assert!(chosen.missing.is_empty() && chosen.glyphs.is_none());
+        assert_eq!(
+            chosen.substitutions[0].substitution.to,
+            usable.postscript_name
+        );
+        let (current, _, told) = session.commit(tx, "Madde 6".to_owned()).unwrap();
+        assert_eq!((current, told.len()), (1, 1));
     }
 
     #[test]
@@ -1288,7 +1749,7 @@ mod tests {
                 continue;
             }
             let before = session.history().current;
-            let (current, _) = session
+            let (current, ..) = session
                 .commit(tx, format!("edit {}", revisions.len()))
                 .unwrap();
             if current == before {

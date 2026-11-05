@@ -9,8 +9,9 @@
 //!   cross-reference table names the original's as `/Prev` and points at every object it lists;
 //! - the update section holds only the edited content streams (or this page's copy of a shared
 //!   one, or the copy of an edited form), the page objects that name a copy, the new Type0,
-//!   CIDFont and ToUnicode objects of a font copy, and nothing else: every original font
-//!   dictionary stays as it is;
+//!   CIDFont and ToUnicode objects of a font copy, the font dictionary (and ToUnicode) of a
+//!   simple font copy with `/Differences`, the Type0, CIDFont, descriptor, program and ToUnicode
+//!   of a new embedded font, and nothing else: every original font dictionary stays as it is;
 //!   each edited stream's decoded bytes outside the replaced spans are identical (a placement's
 //!   `Do` may only draw another name);
 //! - PDFium opens the saved file with the same page count;
@@ -31,9 +32,12 @@
 //!
 //! Needs PDFium: `FERMAN_PDFIUM_PATH`, absolute (tools/pdfium/fetch.sh).
 //!
-//! Not here yet: E04's own edit (a "ğ" that only `/Differences` in a new font dictionary can
-//! encode) is missing-glyph step 1 of W3, so its file is edited within WinAnsi; kira-tr's subset
-//! TrueType font is simple, so E01 runs here.
+//! The missing-glyph cases (W3): E04's "ğ" through `/Differences` in a copy of its font (step 1);
+//! kira-tr's Madde 6 typing a "ğ" its EB Garamond subset lacks, with the bundled fonts only (E02,
+//! step 3: a chosen Plex candidate and "Keep as is") and with EB Garamond in the injected font
+//! set (E03, step 2: a new Type0 font); edit-e05-fstype, whose fonts forbid embedding (E05, step 3
+//! with the reason). The font libraries are filled from `app/assets/fonts` and
+//! `build/corpus-fonts`, never from the machine's fonts.
 // Test helpers fail loudly.
 #![allow(
     clippy::panic,
@@ -54,12 +58,14 @@ use ferman_core::filters::{DecodeParams, Filter, decode};
 use ferman_core::interpret::{OperatorEvent, Span, SpanSource, TextShow, TextSink};
 use ferman_core::revision::{Placement, RevisionStore, Splice};
 use ferman_core::{Document, OpenOptions, Source, open};
+use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::{
     EDIT_MARGIN, PdfiumStatus, RESOLUTIONS, RenderConfig, RenderThread, compare, device_region,
     render_page,
 };
 use ferman_text::{
-    Choice, EditContext, ExtendBlocked, Outcome, TextBlock, dependent_cells, rewrite_block_with,
+    Choice, EditContext, ExtendBlocked, FontChoice, FontSources, MissingReason, Outcome,
+    SubstitutionKind, TextBlock, dependent_cells, rewrite_block_fonts, rewrite_block_with,
     text_page,
 };
 use serde_json::json;
@@ -394,8 +400,20 @@ fn xref_problems(original: &[u8], saved: &[u8]) -> Vec<String> {
     problems
 }
 
-/// The byte checks of the module documentation, for an edit that made `fonts` font copies; the
-/// problems found.
+/// The new objects `rewrite`'s fonts take: three per composite copy, one per simple copy and its
+/// ToUnicode, five per new font.
+fn font_objects(rewrite: &ferman_text::Rewrite) -> usize {
+    3 * rewrite.fonts.len()
+        + rewrite
+            .simple_fonts
+            .iter()
+            .map(|copy| 1 + usize::from(copy.to_unicode.is_some()))
+            .sum::<usize>()
+        + 5 * rewrite.new_fonts.len()
+}
+
+/// The byte checks of the module documentation, for an edit whose fonts take `fonts` new
+/// objects; the problems found.
 fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits, fonts: usize) -> Vec<String> {
     if !saved.starts_with(original) {
         return vec!["the original is not a prefix of the saved file".to_owned()];
@@ -415,7 +433,10 @@ fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits, fonts: usize) -> 
             let data = object.data();
             data.windows(9).any(|window| window == b"begincmap")
         };
-        if old.is_none() && fonts > 0 && (font || to_unicode) {
+        let descriptor = object.is(b"/FontDescriptor");
+        let program =
+            object.raw.is_some() && (object.is(b"/Length1") || object.is(b"CIDFontType0C"));
+        if old.is_none() && fonts > 0 && (font || to_unicode || descriptor || program) {
             font_objects += 1;
             continue;
         }
@@ -453,10 +474,8 @@ fn byte_problems(original: &[u8], saved: &[u8], edits: &Edits, fonts: usize) -> 
             )),
         }
     }
-    if font_objects != 3 * fonts {
-        problems.push(format!(
-            "{font_objects} new font objects for {fonts} font copies"
-        ));
+    if font_objects != fonts {
+        problems.push(format!("{font_objects} new font objects, {fonts} expected"));
     }
     for source in edits.keys() {
         if !landed.contains(source) {
@@ -501,7 +520,15 @@ fn saved_case(
             .collect::<Vec<_>>()
             .join("\n")
     };
-    saved_text(name, original, page, from, &lines, None)
+    saved_text(
+        name,
+        original,
+        page,
+        from,
+        &lines,
+        None,
+        &FontSources::default(),
+    )
 }
 
 /// [`saved_case`] for the block with `needle`, given the whole new text and an overflow choice:
@@ -513,6 +540,7 @@ fn saved_text(
     needle: &str,
     text_of: &dyn Fn(&TextBlock) -> String,
     choice: Option<Choice>,
+    sources: &FontSources<'_>,
 ) -> (Saved, Vec<String>) {
     let doc = open(
         &Source::from_bytes(Arc::from(original.as_slice())),
@@ -528,7 +556,8 @@ fn saved_text(
         .cloned()
         .unwrap_or_else(|| panic!("{name}: no block with {needle:?}"));
     let text = text_of(&block);
-    let outcome = rewrite_block_with(&doc, None, page, &block, &text, &blocks, choice).unwrap();
+    let outcome =
+        rewrite_block_fonts(&doc, None, page, &block, &text, &blocks, choice, sources).unwrap();
     let Outcome::Rewritten(rewrite) = outcome else {
         panic!("{name}: {outcome:?}");
     };
@@ -562,7 +591,15 @@ fn saved_text(
     }
     let mut store = RevisionStore::new(&doc);
     store.begin().unwrap();
-    store.add_fonts(&doc, page, &rewrite.fonts).unwrap();
+    store
+        .add_new_fonts(
+            &doc,
+            page,
+            &rewrite.fonts,
+            &rewrite.simple_fonts,
+            &rewrite.new_fonts,
+        )
+        .unwrap();
     store.splice(&doc, page, &splices, &placements).unwrap();
     store.commit().unwrap();
     let path = saved_dir().join(format!("{name}.pdf"));
@@ -570,7 +607,7 @@ fn saved_text(
 
     // Everything after this reads the saved file from disk.
     let saved = std::fs::read(&path).unwrap();
-    let problems = byte_problems(&original, &saved, &edits, rewrite.fonts.len());
+    let problems = byte_problems(&original, &saved, &edits, font_objects(&rewrite));
     let saved = Saved {
         original,
         doc,
@@ -683,6 +720,163 @@ fn e04_file_edited_within_win_ansi() {
         "Moda Cad. No: 18",
         "Moda Cd. 18",
     );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e04_a_glyph_without_a_code_takes_one_through_differences() {
+    let rewrite = glyph_case(
+        "e04-differences",
+        "edit-e04-differences",
+        "Kira bedeli",
+        &|block| joined(block, "\n").replacen("Kira bedeli", "Kira değeri", 1),
+        &FontSources::default(),
+        "Kira değeri",
+    );
+    assert_eq!(rewrite.simple_fonts.len(), 1);
+    assert!(rewrite.new_fonts.is_empty() && rewrite.substitutions.is_empty());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e02_step_3_draws_a_chosen_bundled_font_and_keeps_the_closest() {
+    let library = library(None);
+    let ask = FontSources {
+        library: Some(&library),
+        ask: true,
+        choice: None,
+    };
+    let doc = open(
+        &Source::from_bytes(Arc::from(corpus("kira-tr").as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let block = text_page(&doc, 0, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| block.text().contains("Olağan bakım"))
+        .unwrap();
+    let text = joined(&block, " ") + MADDE_6;
+    // "Ask each time": the choice first, nothing written.
+    let outcome = rewrite_block_fonts(&doc, None, 0, &block, &text, &[], None, &ask).unwrap();
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        panic!("{outcome:?}");
+    };
+    assert_eq!(missing.reason, MissingReason::NotInstalled);
+    let plex = missing
+        .candidates
+        .iter()
+        .find(|c| c.origin == FontOrigin::Bundled && c.family == "IBM Plex Serif")
+        .unwrap()
+        .postscript_name
+        .clone();
+    let chosen = FontChoice::Font {
+        origin: FontOrigin::Bundled,
+        postscript_name: plex.clone(),
+    };
+    let rewrite = glyph_case(
+        "e02-kira-tr-chosen",
+        "kira-tr",
+        "Olağan bakım",
+        &|block| joined(block, " ") + MADDE_6,
+        &FontSources {
+            choice: Some(&chosen),
+            ..ask
+        },
+        "değiştirilemez",
+    );
+    assert_eq!(rewrite.new_fonts.len(), 1);
+    assert_eq!(rewrite.substitutions[0].kind, SubstitutionKind::Similar);
+    assert_eq!(rewrite.substitutions[0].to, plex);
+    assert!(rewrite.pending.is_none());
+    let keep = FontChoice::KeepAsIs;
+    let rewrite = glyph_case(
+        "e02-kira-tr-keep",
+        "kira-tr",
+        "Olağan bakım",
+        &|block| joined(block, " ") + MADDE_6,
+        &FontSources {
+            choice: Some(&keep),
+            ..ask
+        },
+        "değiştirilemez",
+    );
+    assert_eq!(
+        rewrite.substitutions[0].to,
+        missing.candidates[0].postscript_name
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e03_step_2_embeds_the_same_font_as_a_new_type0_font() {
+    let library = library(Some(garamond()));
+    let rewrite = glyph_case(
+        "e03-kira-tr-installed",
+        "kira-tr",
+        "Olağan bakım",
+        &|block| joined(block, " ") + MADDE_6,
+        &FontSources {
+            library: Some(&library),
+            ask: true,
+            choice: None,
+        },
+        "değiştirilemez",
+    );
+    let [substitution] = rewrite.substitutions.as_slice() else {
+        panic!("{:?}", rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::SameFont);
+    assert_eq!(substitution.to, "EBGaramond-Regular");
+    assert!(rewrite.pending.is_none());
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e05_fs_type_falls_to_step_3_with_the_reason() {
+    let library = library(Some(with_fs_type(garamond(), 2)));
+    let text_of =
+        |block: &TextBlock| joined(block, "\n").replacen("birlikte", "birlikte değişir", 1);
+    let ask = FontSources {
+        library: Some(&library),
+        ask: true,
+        choice: None,
+    };
+    let doc = open(
+        &Source::from_bytes(Arc::from(corpus("edit-e05-fstype").as_slice())),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    let block = text_page(&doc, 0, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| block.text().contains("birlikte"))
+        .unwrap();
+    let outcome =
+        rewrite_block_fonts(&doc, None, 0, &block, &text_of(&block), &[], None, &ask).unwrap();
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        panic!("{outcome:?}");
+    };
+    assert!(
+        matches!(missing.reason, MissingReason::NotEmbeddable { .. }),
+        "{:?}",
+        missing.reason
+    );
+    let keep = FontChoice::KeepAsIs;
+    let rewrite = glyph_case(
+        "e05-fstype",
+        "edit-e05-fstype",
+        "birlikte",
+        &text_of,
+        &FontSources {
+            choice: Some(&keep),
+            ..ask
+        },
+        "birlikte değişir",
+    );
+    assert_eq!(rewrite.substitutions[0].kind, SubstitutionKind::Similar);
 }
 
 #[test]
@@ -832,8 +1026,72 @@ fn reflow_case(
     choice: Option<Choice>,
     to: &str,
 ) -> ferman_text::Rewrite {
-    let (saved, problems) = saved_text(name, corpus(file), page, needle, text_of, choice);
+    let (saved, problems) = saved_text(
+        name,
+        corpus(file),
+        page,
+        needle,
+        text_of,
+        choice,
+        &FontSources::default(),
+    );
     rendered_case(name, &saved, problems, page, to);
+    saved.rewrite
+}
+
+fn root() -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../..")
+}
+
+/// The fonts bundled with the app, and `installed` as installed fonts: the font set a case
+/// injects, never the machine's.
+fn library(installed: Option<Vec<u8>>) -> FontLibrary {
+    let mut library = FontLibrary::new();
+    library.add_dir(
+        &root().join("app/assets/fonts"),
+        FontOrigin::Bundled,
+        &ScanLimits::default(),
+    );
+    if let Some(font) = installed {
+        library.add_bytes(font, FontOrigin::Installed).unwrap();
+    }
+    library
+}
+
+/// EB Garamond from `build/corpus-fonts` (tools/corpus/fetch-fonts.sh).
+fn garamond() -> Vec<u8> {
+    std::fs::read(root().join("build/corpus-fonts/EBGaramond-VF.ttf"))
+        .expect("build/corpus-fonts/EBGaramond-VF.ttf (run tools/corpus/fetch-fonts.sh)")
+}
+
+/// `font` with `OS/2.fsType` set to `fs_type`: an installed copy whose licence forbids embedding.
+fn with_fs_type(mut font: Vec<u8>, fs_type: u16) -> Vec<u8> {
+    let tables = u16::from_be_bytes([font[4], font[5]]) as usize;
+    for at in (12..12 + 16 * tables).step_by(16) {
+        if &font[at..at + 4] == b"OS/2" {
+            let offset = u32::from_be_bytes(font[at + 8..at + 12].try_into().unwrap()) as usize;
+            font[offset + 8..offset + 10].copy_from_slice(&fs_type.to_be_bytes());
+            return font;
+        }
+    }
+    panic!("no OS/2 table");
+}
+
+/// The sentence a3-3a types into Madde 6, whose "ğ" EB Garamond's subset lacks.
+const MADDE_6: &str = " Ortak alan kuralları değiştirilemez.";
+
+/// Saves the missing-glyph case `name`: the block with `needle` of `file` given `text_of`'s text
+/// with `sources`, every check run; returns the rewrite.
+fn glyph_case(
+    name: &str,
+    file: &str,
+    needle: &str,
+    text_of: &dyn Fn(&TextBlock) -> String,
+    sources: &FontSources<'_>,
+    to: &str,
+) -> ferman_text::Rewrite {
+    let (saved, problems) = saved_text(name, corpus(file), 0, needle, text_of, None, sources);
+    rendered_case(name, &saved, problems, 0, to);
     saved.rewrite
 }
 

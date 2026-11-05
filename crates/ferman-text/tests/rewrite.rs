@@ -538,9 +538,24 @@ fn standard_14_helvetica_edits_with_its_metrics() {
     assert!((length - expected).abs() < 0.05, "{length} {expected}");
 }
 
+/// The characters of a [`Outcome::MissingGlyphs`], each once; empty for another outcome.
+fn missing(outcome: &Outcome) -> Vec<char> {
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        return Vec::new();
+    };
+    let mut chars: Vec<char> = Vec::new();
+    for &(c, _) in &missing.chars {
+        if !chars.contains(&c) {
+            chars.push(c);
+        }
+    }
+    chars
+}
+
 #[test]
-fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
-    // E01 on E04's file: same length, then shorter; WinAnsi has no code for "ğ".
+fn win_ansi_truetype_subset_edits_and_adds_a_code_through_differences() {
+    // E01 on E04's file: same length, then shorter. WinAnsi has no code for "ğ", but the
+    // program has the glyph: step 1 gives it a free code in a copy of the font.
     edit(&corpus("edit-e04-differences"), 0, "18.500", "18.600");
     edit(
         &corpus("edit-e04-differences"),
@@ -552,10 +567,24 @@ fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
     let doc = document(&pdf);
     let target = block(&doc, 0, "Kira bedeli");
     let text = edited(&target, "bedeli", "bedeliğğ");
-    assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['ğ'])
-    );
+    let Outcome::Rewritten(rewrite) = rewrite_block(&doc, 0, &target, &text).unwrap() else {
+        panic!("not rewritten");
+    };
+    assert!(rewrite.fonts.is_empty() && rewrite.new_fonts.is_empty());
+    let [copy] = rewrite.simple_fonts.as_slice() else {
+        panic!("{:?}", rewrite.simple_fonts);
+    };
+    // One code for both, the first WinAnsi leaves unused, named for the glyph.
+    let [(code, name, width)] = copy.codes.as_slice() else {
+        panic!("{:?}", copy.codes);
+    };
+    assert_eq!((*code, name.as_str()), (129, "gbreve"));
+    assert!(*width > 0.0);
+    let splice = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
+    let name = String::from_utf8(copy.name.clone()).unwrap();
+    assert!(splice.contains(&format!("/{name} ")), "{splice}");
+    assert!(splice.contains("\\201\\201"), "{splice}");
+    assert!(rewrite.substitutions.is_empty() && rewrite.pending.is_none());
 }
 
 #[test]
@@ -574,8 +603,8 @@ fn type3_edits_within_its_char_procs() {
     let target = block(&doc, 0, "12 boxes");
     let text = edited(&target, "boxes", "Qboxez");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['Q', 'z'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['Q', 'z']
     );
 }
 
@@ -648,8 +677,8 @@ fn a_character_a_composite_subset_lacks_is_missing() {
     let target = block(&doc, 0, "一万九千五百元");
     let text = edited(&target, "一万九千五百元", "一万九千五百龘");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['龘'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['龘']
     );
 }
 
@@ -762,8 +791,8 @@ fn standard_14_with_differences_encodes_through_them() {
     let target = block(&doc, 0, "KarŞ");
     let text = edited(&target, "KarŞ", "İŞ");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['İ'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['İ']
     );
 }
 
@@ -932,8 +961,8 @@ fn a_replacement_character_is_never_written_as_an_unmapped_code() {
     let target = block(&doc, 0, "Price");
     let text = edited(&target, "Price", "Pr\u{FFFD}ce");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['\u{FFFD}'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['\u{FFFD}']
     );
 }
 

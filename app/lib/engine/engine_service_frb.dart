@@ -473,12 +473,129 @@ class FrbEngineService implements EngineService {
     }
   }
 
+  @override
+  Future<void> setFontSettings(FontSettings settings) async {
+    try {
+      await bridge.setFontSettings(
+        settings: bridge.FontSettings(
+          bundledDir: settings.bundledDir,
+          fontDirs: settings.fontDirs,
+          systemFonts: settings.systemFonts,
+          askEachTime: settings.askEachTime,
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  ) async {
+    try {
+      final preview = await bridge.chooseFont(
+        transaction: BigInt.from(transaction),
+        origin: switch (origin) {
+          FontOrigin.embedded => bridge.FontOrigin.embedded,
+          FontOrigin.installed => bridge.FontOrigin.installed,
+          FontOrigin.bundled => bridge.FontOrigin.bundled,
+        },
+        postscriptName: postscriptName,
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> keepAsIs(int transaction) async {
+    try {
+      final preview = await bridge.keepAsIs(
+        transaction: BigInt.from(transaction),
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static FontOrigin _origin(bridge.FontOrigin origin) => switch (origin) {
+    bridge.FontOrigin.embedded => FontOrigin.embedded,
+    bridge.FontOrigin.installed => FontOrigin.installed,
+    bridge.FontOrigin.bundled => FontOrigin.bundled,
+  };
+
+  static FontEmbedding _embedding(bridge.FontEmbedding embedding) =>
+      switch (embedding) {
+        bridge.FontEmbedding.installable => FontEmbedding.installable,
+        bridge.FontEmbedding.editable => FontEmbedding.editable,
+        bridge.FontEmbedding.previewAndPrint => FontEmbedding.previewAndPrint,
+        bridge.FontEmbedding.restricted => FontEmbedding.restricted,
+        bridge.FontEmbedding.noSubsetting => FontEmbedding.noSubsetting,
+        bridge.FontEmbedding.bitmapOnly => FontEmbedding.bitmapOnly,
+      };
+
+  static FontSubstitution _substitution(bridge.FontSubstitution value) =>
+      FontSubstitution(
+        kind: switch (value.kind) {
+          bridge.SubstitutionKind.sameFont => SubstitutionKind.sameFont,
+          bridge.SubstitutionKind.similar => SubstitutionKind.similar,
+        },
+        chars: value.chars,
+        fromFont: value.fromFont,
+        toFont: value.toFont,
+        origin: _origin(value.origin),
+        announced: value.announced,
+      );
+
+  static MissingGlyphs _glyphs(bridge.MissingGlyphs glyphs) => MissingGlyphs(
+    chars: [for (final c in glyphs.chars) MissingChar(text: c.text, at: c.at)],
+    font: glyphs.font,
+    reason: switch (glyphs.reason) {
+      bridge.MissingReasonKind.notInstalled => MissingReason.notInstalled,
+      bridge.MissingReasonKind.notEmbeddable => MissingReason.notEmbeddable,
+      bridge.MissingReasonKind.restricted => MissingReason.restricted,
+    },
+    reasonFont: glyphs.reasonFont,
+    reasonEmbedding: switch (glyphs.reasonEmbedding) {
+      null => null,
+      final embedding => _embedding(embedding),
+    },
+    bold: glyphs.bold,
+    italic: glyphs.italic,
+    candidates: [
+      for (final candidate in glyphs.candidates)
+        FontCandidate(
+          origin: _origin(candidate.origin),
+          postscriptName: candidate.postscriptName,
+          family: candidate.family,
+          covered: candidate.covered,
+          needed: candidate.needed,
+          similarity: candidate.similarity,
+          embedding: _embedding(candidate.embedding),
+          usable: candidate.usable,
+          preview: candidate.preview,
+        ),
+    ],
+    drawn: glyphs.drawn,
+  );
+
   static EditPreview _preview(bridge.EditPreview preview) {
     final plan = preview.overflow;
     final blocked = plan?.extendBlocked;
+    final glyphs = preview.glyphs;
     return EditPreview(
       page: _pageBlocks(preview.page),
       missing: preview.missing,
+      glyphs: glyphs == null ? null : _glyphs(glyphs),
+      substitutions: [
+        for (final substitution in preview.substitutions)
+          _substitution(substitution),
+      ],
       overflowing: preview.overflowing,
       overflow: plan == null
           ? null
@@ -541,6 +658,10 @@ class FrbEngineService implements EngineService {
         current: info.current,
         // A render key is a 64-bit value: wrapped, not clamped.
         renderKey: info.renderKey?.toSigned(64).toInt(),
+        substitutions: [
+          for (final substitution in info.substitutions)
+            _substitution(substitution),
+        ],
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -558,6 +679,10 @@ class FrbEngineService implements EngineService {
               name: step.name,
               time: DateTime.fromMillisecondsSinceEpoch(step.time),
               hiddenLines: step.hiddenLines,
+              substitutions: [
+                for (final substitution in step.substitutions)
+                  _substitution(substitution),
+              ],
             ),
         ],
         current: history.current,

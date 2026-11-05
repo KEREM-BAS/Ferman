@@ -7,8 +7,18 @@
 //!   through the font's ToUnicode CMap or encoding (Standard, WinAnsi, MacRoman, `/Differences`)
 //!   and whose glyph the font has: the embedded program's, a standard 14 font's metrics, a Type3
 //!   font's `/CharProcs`. The font of the character before it is tried first, then the one after
-//!   it, then the line's others. A character no font of the line can draw is reported
-//!   ([`Outcome::MissingGlyphs`]), never substituted; the missing-glyph steps come with W3.
+//!   it, then the line's others of the same face (the PostScript name without its subset tag):
+//!   a producer's Turkish letters in a composite copy of the face are used, another face's never.
+//!   A font whose embedded program's `fsType` allows at most preview and print lends no glyph to
+//!   new text (Q09).
+//! - **Missing glyphs (docs/ARCHITECTURE.md §6.7, ADR 0006).** Step 1: a glyph the embedded
+//!   program of a simple font (TrueType that is not symbolic, Type1) has but no code of its
+//!   encoding shows gets a free code (one the font draws nothing with) through `/Differences` in
+//!   a copy of the font ([`SimpleFontCopy`]) with the code's width and, when the font has one,
+//!   its ToUnicode entry, used only by the new codes. Steps 2 and 3 are
+//!   [`fallback`](crate::fallback)'s: the characters still missing get a new embedded font
+//!   ([`EmbeddedFont`]), or the block is not rewritten and the outcome is
+//!   [`Outcome::MissingGlyphs`]. Never substituted silently.
 //! - **Composite fonts (ROADMAP §7 step 4).** In a Type0 font (`CIDFontType0` or
 //!   `CIDFontType2`; `Identity-H`, an embedded CMap with its `usecmap` parents, or a bundled
 //!   predefined CMap such as `90ms-RKSJ-H`) a new character takes the code its ToUnicode CMap
@@ -71,11 +81,13 @@ use ferman_core::interpret::{
     FontResource, GraphicsState, Matrix, OperatorEvent, Span, SpanSource, TextShow, TextSink,
     multiply,
 };
-use ferman_core::revision::{FontCopy, RevisionStore};
-use ferman_fonts::{FontProgram, with_text};
+use ferman_core::revision::{EmbeddedFont, FontCopy, RevisionStore, SimpleFontCopy};
+use ferman_core::structure::FontKind;
+use ferman_fonts::{FontProgram, glyph_names, strip_subset_tag, with_text};
 
 use crate::TextError;
 use crate::extract::{Collector, PdfFont, displayed, glyph_box};
+use crate::fallback::{self, FontSources, Miss, MissingGlyphs, Substitute, Substitution};
 use crate::layout::{Alignment, Justification, Line, TextBlock, TextChar, TextDirection};
 use crate::reflow::{self, OverflowPlan};
 
@@ -96,8 +108,18 @@ pub struct Rewrite {
     /// One splice per changed line, in the block's line order; none when no line changed.
     pub splices: Vec<Splice>,
     /// The font copies the splices name, to add to the page's resources in the same
-    /// transaction before the splices ([`RevisionStore::add_fonts`]).
+    /// transaction before the splices ([`RevisionStore::add_new_fonts`]).
     pub fonts: Vec<FontCopy>,
+    /// The simple font copies with codes added through `/Differences` (step 1), added with
+    /// them.
+    pub simple_fonts: Vec<SimpleFontCopy>,
+    /// The new fonts the substituted characters are set in (steps 2 and 3), added with them.
+    pub new_fonts: Vec<EmbeddedFont>,
+    /// The substitutions those fonts make: the review list's and the toast's.
+    pub substitutions: Vec<Substitution>,
+    /// Step 3's characters drawn provisionally in the closest candidate, which the caller has
+    /// not chosen yet: the choice it may still make.
+    pub pending: Option<MissingGlyphs>,
     /// The lines, as indices into the block's lines, whose new text runs past the frame of a
     /// left-aligned block rewritten line by line: written as they are.
     pub overflowing: Vec<usize>,
@@ -124,12 +146,14 @@ pub enum Choice {
 
 /// What rewriting a block gives.
 #[derive(Debug, Clone, PartialEq)]
+// The rewrite is the common outcome; boxing it would only cost every caller.
+#[allow(clippy::large_enum_variant)]
 pub enum Outcome {
     /// The splices.
     Rewritten(Rewrite),
-    /// These characters, in the order they first appear, have no glyph in the fonts of their
-    /// line: the missing-glyph steps decide (docs/ARCHITECTURE.md §6.7).
-    MissingGlyphs(Vec<char>),
+    /// Characters no font of their line draws, which steps 1 and 2 could not draw either and
+    /// step 3 waits for a choice for (or has no candidate for): the text is not written.
+    MissingGlyphs(MissingGlyphs),
     /// The block cannot be rewritten yet.
     Unsupported(Unsupported),
 }
@@ -143,7 +167,7 @@ pub enum Unsupported {
     /// The block runs right to left or vertically.
     Direction,
     /// A new character could only come from a composite font of its line whose predefined CMap
-    /// is not bundled, or from a copy of a font of a form.
+    /// is not bundled, from a copy of a font of a form, or (in a form) from a new font.
     CompositeFont,
     /// A changed line's operators are not a plain run of shows (module documentation).
     Operators,
@@ -163,7 +187,7 @@ pub fn rewrite_block(
     block: &TextBlock,
     text: &str,
 ) -> Result<Outcome, TextError> {
-    rewrite_through(document, None, index, block, text, &[], None)
+    rewrite_block_with(document, None, index, block, text, &[], None)
 }
 
 /// [`rewrite_block`] for a block of the document as `revisions` changed it (its current revision
@@ -180,7 +204,7 @@ pub fn rewrite_block_revised(
     block: &TextBlock,
     text: &str,
 ) -> Result<Outcome, TextError> {
-    rewrite_through(document, Some(revisions), index, block, text, &[], None)
+    rewrite_block_with(document, Some(revisions), index, block, text, &[], None)
 }
 
 /// [`rewrite_block`] (or [`rewrite_block_revised`] with `revisions`) with the overflow choice
@@ -200,10 +224,26 @@ pub fn rewrite_block_with(
     others: &[TextBlock],
     choice: Option<Choice>,
 ) -> Result<Outcome, TextError> {
-    rewrite_through(document, revisions, index, block, text, others, choice)
+    rewrite_block_fonts(
+        document,
+        revisions,
+        index,
+        block,
+        text,
+        others,
+        choice,
+        &FontSources::default(),
+    )
 }
 
-fn rewrite_through(
+/// [`rewrite_block_with`] with the missing-glyph steps 2 and 3 looking in `sources`
+/// ([`fallback`](crate::fallback)).
+///
+/// # Errors
+///
+/// As [`rewrite_block`].
+#[allow(clippy::too_many_arguments)]
+pub fn rewrite_block_fonts(
     document: &Document,
     revisions: Option<&RevisionStore>,
     index: usize,
@@ -211,6 +251,7 @@ fn rewrite_through(
     text: &str,
     others: &[TextBlock],
     choice: Option<Choice>,
+    sources: &FontSources<'_>,
 ) -> Result<Outcome, TextError> {
     if !block.editability.is_editable() {
         return Ok(Outcome::Unsupported(Unsupported::NotEditable));
@@ -241,48 +282,238 @@ fn rewrite_through(
             &fresh
         }
     };
-    let mut copies = Copies {
-        document,
-        store,
-        page: index,
-        list: Vec::new(),
+    let attempt = |substitutes: &[Substitute], reserved: Vec<Vec<u8>>| {
+        let copies = Copies {
+            document,
+            store,
+            page: index,
+            list: Vec::new(),
+            simple: Vec::new(),
+            reserved,
+        };
+        let inputs = Inputs {
+            page: &page,
+            block,
+            text,
+            texts: &texts,
+            line_by_line,
+            others,
+            choice,
+            frame: &frame,
+            substitutes,
+        };
+        inputs.attempt(copies)
     };
-    let mut rewrite = Rewrite::default();
-    let mut missing: Vec<char> = Vec::new();
-    if !line_by_line {
-        return reflowed(&page, block, text, others, choice, copies);
+    let misses = match attempt(&[], Vec::new())? {
+        Attempt::Done(rewrite) => return Ok(Outcome::Rewritten(rewrite)),
+        Attempt::Unsupported(unsupported) => return Ok(Outcome::Unsupported(unsupported)),
+        Attempt::Missing(misses) => misses,
+    };
+    // Steps 2 and 3, then the block again with the new fonts.
+    let mut taken: Vec<Vec<u8>> = Vec::new();
+    let mut name = |base: &[u8]| {
+        let fresh = store.free_font_name(document, index, base, &taken).ok()?;
+        taken.push(fresh.clone());
+        Some(fresh)
+    };
+    let lenders = lenders(&recorder, &misses);
+    let resolved = match fallback::resolve(
+        &recorder.collector.fonts,
+        &recorder.collector.glyphs,
+        &misses,
+        &lenders,
+        sources,
+        &mut name,
+    ) {
+        Ok(resolved) => resolved,
+        Err(missing) => return Ok(Outcome::MissingGlyphs(missing)),
+    };
+    let reserved = resolved
+        .substitutes
+        .iter()
+        .filter(|substitute| !substitute.existing)
+        .map(|substitute| substitute.name.clone())
+        .collect();
+    match attempt(&resolved.substitutes, reserved)? {
+        Attempt::Done(rewrite) => Ok(Outcome::Rewritten(Rewrite {
+            new_fonts: resolved.fonts,
+            substitutions: resolved.substitutions,
+            pending: resolved.pending,
+            ..rewrite
+        })),
+        Attempt::Unsupported(unsupported) => Ok(Outcome::Unsupported(unsupported)),
+        Attempt::Missing(misses) => Ok(Outcome::MissingGlyphs(MissingGlyphs {
+            chars: misses.iter().map(|miss| (miss.c, miss.at)).collect(),
+            font: String::new(),
+            reason: fallback::MissingReason::NotInstalled,
+            bold: false,
+            italic: false,
+            candidates: Vec::new(),
+        })),
     }
-    for (at, (line, new)) in block.lines.iter().zip(texts.iter().copied()).enumerate() {
-        if line.text == new {
+}
+
+/// The fonts of the page's own content of another face than the missing characters' that encode
+/// some of them with their own codes, not restricted: step 3's embedded candidates.
+fn lenders(recorder: &Recorder, misses: &[Miss]) -> Vec<fallback::PageFont> {
+    let fonts = &recorder.collector.fonts;
+    let face = |key: u64| {
+        fonts
+            .get(&key)
+            .and_then(|font| font.resource.base_font.as_deref())
+            .map(strip_subset_tag)
+    };
+    let faces: Vec<Option<&str>> = misses.iter().map(|miss| face(miss.font)).collect();
+    let mut chars: Vec<char> = misses.iter().map(|miss| miss.c).collect();
+    chars.dedup();
+    let mut seen: Vec<u64> = Vec::new();
+    let mut lenders = Vec::new();
+    for event in &recorder.events {
+        let (Some(show), SpanSource::Page { .. }) = (event.show, event.span.source) else {
+            continue;
+        };
+        let Some(state) = recorder.shows.get(show).map(|show| &show.state) else {
+            continue;
+        };
+        let (Some(key), Some(name)) = (state.font, &state.font_name) else {
+            continue;
+        };
+        if seen.contains(&key) || faces.contains(&face(key)) {
             continue;
         }
-        match page.line(line, new, block.justification, &frame, &mut copies) {
-            Err(unsupported) => return Ok(Outcome::Unsupported(unsupported)),
-            Ok(Planned::Missing(chars)) => missing.extend(chars),
-            Ok(Planned::Splice(splice, over)) => {
-                rewrite.splices.push(splice);
-                if over {
-                    rewrite.overflowing.push(at);
+        seen.push(key);
+        let Some(font) = fonts.get(&key) else {
+            continue;
+        };
+        if fallback::restriction(font).is_some() {
+            continue;
+        }
+        let program = font.program();
+        let draws = |c: char| match font.cmap {
+            None => encode(font, program.as_ref(), c).is_some(),
+            Some(_) => encode_composite(font, program.as_ref(), c)
+                .is_some_and(|found| found.needs.is_none()),
+        };
+        let covered: Vec<char> = chars.iter().copied().filter(|&c| draws(c)).collect();
+        if covered.is_empty() {
+            continue;
+        }
+        let preview: Vec<String> = fallback::PREVIEW
+            .split(' ')
+            .map(|pair| pair.chars().filter(|&c| draws(c)).collect::<String>())
+            .filter(|pair| !pair.is_empty())
+            .collect();
+        let postscript_name = face(key).unwrap_or_default().to_owned();
+        lenders.push(fallback::PageFont {
+            key,
+            name: name.clone(),
+            family: program
+                .as_ref()
+                .and_then(FontProgram::family_name)
+                .unwrap_or_else(|| postscript_name.clone()),
+            postscript_name,
+            chars: covered,
+            preview: preview.join(" "),
+        });
+    }
+    lenders
+}
+
+/// What one pass of the rewrite gives.
+#[allow(clippy::large_enum_variant)]
+enum Attempt {
+    Done(Rewrite),
+    Missing(Vec<Miss>),
+    Unsupported(Unsupported),
+}
+
+/// What a pass of the rewrite reads.
+struct Inputs<'a> {
+    page: &'a Page<'a>,
+    block: &'a TextBlock,
+    text: &'a str,
+    texts: &'a [&'a str],
+    line_by_line: bool,
+    others: &'a [TextBlock],
+    choice: Option<Choice>,
+    frame: &'a Frame,
+    substitutes: &'a [Substitute],
+}
+
+impl Inputs<'_> {
+    /// One pass: the block line by line or reflowed, with the new fonts `substitutes`.
+    fn attempt(&self, mut copies: Copies<'_>) -> Result<Attempt, TextError> {
+        let Self {
+            page,
+            block,
+            text,
+            texts,
+            line_by_line,
+            others,
+            choice,
+            frame,
+            substitutes,
+        } = *self;
+        if !line_by_line {
+            return Ok(reflowed(
+                page,
+                block,
+                text,
+                others,
+                choice,
+                copies,
+                substitutes,
+            ));
+        }
+        let mut rewrite = Rewrite::default();
+        let mut missing: Vec<Miss> = Vec::new();
+        let mut start = 0_usize;
+        for (at, (line, new)) in block.lines.iter().zip(texts.iter().copied()).enumerate() {
+            let base = start;
+            start = start.saturating_add(new.len()).saturating_add(1);
+            if line.text == new {
+                continue;
+            }
+            let planned = page.line(
+                line,
+                new,
+                base,
+                block.justification,
+                frame,
+                &mut copies,
+                substitutes,
+            );
+            match planned {
+                Err(unsupported) => return Ok(Attempt::Unsupported(unsupported)),
+                Ok(Planned::Missing(misses)) => missing.extend(misses),
+                Ok(Planned::Splice(splice, over)) => {
+                    rewrite.splices.push(splice);
+                    if over {
+                        rewrite.overflowing.push(at);
+                    }
                 }
             }
         }
+        if !missing.is_empty() {
+            return Ok(Attempt::Missing(missing));
+        }
+        if block.alignment == Alignment::Justified && !rewrite.overflowing.is_empty() {
+            // A justified block is one paragraph: a line past its frame reflows it.
+            copies.list.clear();
+            copies.simple.clear();
+            return Ok(reflowed(
+                page,
+                block,
+                &texts.join(" "),
+                others,
+                choice,
+                copies,
+                substitutes,
+            ));
+        }
+        (rewrite.fonts, rewrite.simple_fonts) = copies.finish();
+        Ok(Attempt::Done(rewrite))
     }
-    if !missing.is_empty() {
-        let mut seen = Vec::new();
-        missing.retain(|c| {
-            let first = !seen.contains(c);
-            seen.push(*c);
-            first
-        });
-        return Ok(Outcome::MissingGlyphs(missing));
-    }
-    if block.alignment == Alignment::Justified && !rewrite.overflowing.is_empty() {
-        // A justified block is one paragraph: a line past its frame reflows it.
-        copies.list.clear();
-        return reflowed(&page, block, &texts.join(" "), others, choice, copies);
-    }
-    rewrite.fonts = copies.finish();
-    Ok(Outcome::Rewritten(rewrite))
 }
 
 /// The outcome of reflowing `block` to `text`.
@@ -293,32 +524,29 @@ fn reflowed(
     others: &[TextBlock],
     choice: Option<Choice>,
     mut copies: Copies<'_>,
-) -> Result<Outcome, TextError> {
-    Ok(match page.block(block, text, others, choice, &mut copies) {
-        Err(unsupported) => Outcome::Unsupported(unsupported),
-        Ok(Reflowed::Missing(mut missing)) => {
-            let mut seen = Vec::new();
-            missing.retain(|c| {
-                let first = !seen.contains(c);
-                seen.push(*c);
-                first
-            });
-            Outcome::MissingGlyphs(missing)
-        }
+    substitutes: &[Substitute],
+) -> Attempt {
+    match page.block(block, text, others, choice, &mut copies, substitutes) {
+        Err(unsupported) => Attempt::Unsupported(unsupported),
+        Ok(Reflowed::Missing(missing)) => Attempt::Missing(missing),
         Ok(Reflowed::Splice {
             splices,
             overflow,
             chosen,
             hidden,
-        }) => Outcome::Rewritten(Rewrite {
-            splices,
-            fonts: copies.finish(),
-            overflowing: Vec::new(),
-            overflow,
-            chosen,
-            hidden,
-        }),
-    })
+        }) => {
+            let (fonts, simple_fonts) = copies.finish();
+            Attempt::Done(Rewrite {
+                splices,
+                fonts,
+                simple_fonts,
+                overflow,
+                chosen,
+                hidden,
+                ..Rewrite::default()
+            })
+        }
+    }
 }
 
 /// The font copies a block's new codes need, one per font copied.
@@ -327,6 +555,19 @@ struct Copies<'a> {
     store: &'a RevisionStore,
     page: usize,
     list: Vec<Copied>,
+    simple: Vec<SimpleCopied>,
+    /// Names the new fonts of steps 2 and 3 take.
+    reserved: Vec<Vec<u8>>,
+}
+
+/// One simple font copy as the lines add codes to it (step 1).
+struct SimpleCopied {
+    base: u64,
+    key: u64,
+    to_unicode: Option<Vec<u8>>,
+    copy: SimpleFontCopy,
+    /// The character of each new code.
+    chars: Vec<char>,
 }
 
 /// One font copy as the lines add to it.
@@ -355,15 +596,7 @@ impl Copies<'_> {
         let at = match self.list.iter().position(|copied| copied.base == base) {
             Some(at) => at,
             None => {
-                let taken: Vec<Vec<u8>> = self
-                    .list
-                    .iter()
-                    .map(|copied| copied.copy.name.clone())
-                    .collect();
-                let fresh = self
-                    .store
-                    .free_font_name(self.document, self.page, name, &taken)
-                    .map_err(|_| Unsupported::Operators)?;
+                let fresh = self.fresh_name(name)?;
                 self.list.push(Copied {
                     base,
                     // Font keys are hashes of their dictionaries; a copy's is derived from its
@@ -393,15 +626,123 @@ impl Copies<'_> {
         Ok((copied.key, copied.copy.name.clone()))
     }
 
+    /// A name for a copy of the font named `name` that no font of the page, no copy and no new
+    /// font takes.
+    fn fresh_name(&self, name: &[u8]) -> Result<Vec<u8>, Unsupported> {
+        let taken: Vec<Vec<u8>> = self
+            .list
+            .iter()
+            .map(|copied| copied.copy.name.clone())
+            .chain(self.simple.iter().map(|copied| copied.copy.name.clone()))
+            .chain(self.reserved.iter().cloned())
+            .collect();
+        self.store
+            .free_font_name(self.document, self.page, name, &taken)
+            .map_err(|_| Unsupported::Operators)
+    }
+
+    /// The key, name and code of `c` in the simple copy of the font `base`, named `name` on the
+    /// page, whose program draws it as the glyph `glyph` (step 1): the copy's code for it, or a
+    /// free code of the font (one it draws nothing with and has no text for) given `glyph`
+    /// through `/Differences`, with `width` in thousandths of an em. `None` when no code is
+    /// free.
+    #[allow(clippy::too_many_arguments)]
+    fn add_simple(
+        &mut self,
+        base: u64,
+        name: &[u8],
+        font: &PdfFont,
+        program: Option<&FontProgram<'_>>,
+        c: char,
+        glyph: &str,
+        width: f32,
+    ) -> Result<Option<(u64, Vec<u8>, u8)>, Unsupported> {
+        let at = match self.simple.iter().position(|copied| copied.base == base) {
+            Some(at) => at,
+            None => {
+                let fresh = self.fresh_name(name)?;
+                self.simple.push(SimpleCopied {
+                    base,
+                    // Font keys are hashes of their dictionaries; a copy's is derived from its
+                    // original's.
+                    key: base ^ 0x5D1F_F0C0_FFEE_0002,
+                    to_unicode: font.resource.to_unicode.clone(),
+                    copy: SimpleFontCopy {
+                        base: name.to_vec(),
+                        name: fresh,
+                        codes: Vec::new(),
+                        to_unicode: None,
+                    },
+                    chars: Vec::new(),
+                });
+                self.simple.len().saturating_sub(1)
+            }
+        };
+        let copied = self.simple.get_mut(at).ok_or(Unsupported::Operators)?;
+        let found = copied
+            .chars
+            .iter()
+            .zip(&copied.copy.codes)
+            .find(|(seen, _)| **seen == c)
+            .map(|(_, (code, ..))| *code);
+        let code = match found {
+            Some(code) => code,
+            None => {
+                let used = |code: u8| copied.copy.codes.iter().any(|(at, ..)| *at == code);
+                let unmapped = |code: u8| {
+                    font.to_unicode
+                        .as_ref()
+                        .is_none_or(|cmap| cmap.text(u32::from(code)).is_none())
+                };
+                // The codes WinAnsi leaves unused first, then the rest of the upper half, then
+                // the lower; never 32, which `Tw` widens.
+                let Some(code) = [129_u8, 141, 143, 144, 157]
+                    .into_iter()
+                    .chain(128..=255)
+                    .chain(33..128)
+                    .find(|&code| !used(code) && unmapped(code) && !font.has_glyph(program, code))
+                else {
+                    return Ok(None);
+                };
+                copied.copy.codes.push((code, glyph.to_owned(), width));
+                copied.chars.push(c);
+                code
+            }
+        };
+        Ok(Some((copied.key, copied.copy.name.clone(), code)))
+    }
+
     /// The copies, each with its ToUnicode CMap.
-    fn finish(self) -> Vec<FontCopy> {
-        self.list
+    fn finish(self) -> (Vec<FontCopy>, Vec<SimpleFontCopy>) {
+        let copies = self
+            .list
             .into_iter()
             .map(|copied| FontCopy {
                 to_unicode: with_text(copied.to_unicode.as_deref(), &copied.texts),
                 ..copied.copy
             })
-            .collect()
+            .collect();
+        let simple = self
+            .simple
+            .into_iter()
+            .map(|copied| {
+                let texts: Vec<(Vec<u8>, String)> = copied
+                    .copy
+                    .codes
+                    .iter()
+                    .zip(&copied.chars)
+                    .map(|((code, ..), c)| (vec![*code], c.to_string()))
+                    .collect();
+                SimpleFontCopy {
+                    to_unicode: copied
+                        .to_unicode
+                        .as_deref()
+                        .map(|original| with_text(Some(original), &texts)),
+                    ..copied.copy
+                }
+            })
+            .collect();
+        (copies, simple)
     }
 }
 
@@ -489,7 +830,7 @@ struct Page<'a> {
 /// What a changed line gives.
 enum Planned {
     Splice(Splice, bool),
-    Missing(Vec<char>),
+    Missing(Vec<Miss>),
 }
 
 /// A line's glyphs and the operators that draw them.
@@ -776,14 +1117,18 @@ impl<'a> Page<'a> {
         Ok(head.span.range.start..tail.span.range.end)
     }
 
-    /// The splice for one changed line.
+    /// The splice for one changed line, whose new text `new` starts at byte `start` of the
+    /// block's.
+    #[allow(clippy::too_many_arguments)]
     fn line(
         &self,
         line: &Line,
         new: &str,
+        start: usize,
         justification: Option<Justification>,
         frame: &Frame,
         copies: &mut Copies<'_>,
+        substitutes: &[Substitute],
     ) -> Result<Planned, Unsupported> {
         let recorder = self.recorder;
         let glyphs = &recorder.collector.glyphs;
@@ -937,7 +1282,8 @@ impl<'a> Page<'a> {
         let middle = fresh
             .get(head_chars..fresh.len().saturating_sub(tail_chars))
             .ok_or(Unsupported::Operators)?;
-        let mut encoder = Encoder::new(recorder, &shows, source)?;
+        let offsets: Vec<usize> = new.char_indices().map(|(at, _)| at).collect();
+        let mut encoder = Encoder::new(recorder, &shows, source, substitutes)?;
         let font_of = |g: usize| glyphs.get(g).map(|glyph| glyph.font);
         let next_font = units
             .get(kept_tail)
@@ -992,7 +1338,7 @@ impl<'a> Page<'a> {
                 &mut cursor,
             );
         }
-        for &c in middle {
+        for (k, &c) in middle.iter().enumerate() {
             let previous = placed.last().map(|p| p.font);
             let order: Vec<u64> = previous
                 .into_iter()
@@ -1000,6 +1346,10 @@ impl<'a> Page<'a> {
                 .chain(encoder.fonts.iter().map(|(key, ..)| *key))
                 .collect();
             let chosen = encoder.choose(copies, &order, c)?;
+            let at = head_chars
+                .checked_add(k)
+                .and_then(|i| offsets.get(i))
+                .map_or(start, |&at| start.saturating_add(at));
             match chosen {
                 Some(Chosen {
                     font: key,
@@ -1032,7 +1382,7 @@ impl<'a> Page<'a> {
                     };
                 }
                 None if c == ' ' => cursor += space_gap,
-                None => missing.push(c),
+                None => missing.push(encoder.miss(&order, c, at)),
             }
         }
         for at in kept_tail..units.len() {
@@ -1140,7 +1490,7 @@ enum Reflowed {
         chosen: Option<Choice>,
         hidden: usize,
     },
-    Missing(Vec<char>),
+    Missing(Vec<Miss>),
 }
 
 /// One glyph of a reflowed block, at a character of the new text.
@@ -1181,6 +1531,7 @@ impl Page<'_> {
         others: &[TextBlock],
         choice: Option<Choice>,
         copies: &mut Copies<'_>,
+        substitutes: &[Substitute],
     ) -> Result<Reflowed, Unsupported> {
         let recorder = self.recorder;
         let glyphs = &recorder.collector.glyphs;
@@ -1349,7 +1700,7 @@ impl Page<'_> {
         };
         let kept = |range: &Range<usize>| range.end <= prefix || range.start >= tail_old;
 
-        let mut encoder = Encoder::new(recorder, &shows, source)?;
+        let mut encoder = Encoder::new(recorder, &shows, source, substitutes)?;
         let mut pieces: Vec<Piece> = Vec::new();
         let mut missing = Vec::new();
         for (i, &(at, c)) in fresh.iter().enumerate() {
@@ -1433,7 +1784,7 @@ impl Page<'_> {
                     width: 0.25,
                     blank: true,
                 }),
-                None => missing.push(c),
+                None => missing.push(encoder.miss(&order, c, at)),
             }
         }
         if !missing.is_empty() {
@@ -1719,8 +2070,14 @@ struct Chosen {
 struct Encoder<'a> {
     recorder: &'a Recorder,
     programs: HashMap<u64, Option<FontProgram<'a>>>,
-    /// The fonts with the name and size their shows set them with, then the font copies made.
+    /// Whether each font's program allows at most preview and print (Q09).
+    restricted: HashMap<u64, bool>,
+    /// The fonts with the name and size their shows set them with, then the font copies and new
+    /// fonts made.
     fonts: Vec<(u64, Vec<u8>, f32)>,
+    /// The font each copy and new font stands in for.
+    bases: HashMap<u64, u64>,
+    substitutes: &'a [Substitute],
     source: SpanSource,
     /// Whether a character was left out that only a composite font whose predefined CMap is
     /// not bundled, or a copy of a form's font, could draw.
@@ -1732,6 +2089,7 @@ impl<'a> Encoder<'a> {
         recorder: &'a Recorder,
         shows: &[usize],
         source: SpanSource,
+        substitutes: &'a [Substitute],
     ) -> Result<Self, Unsupported> {
         let mut fonts: Vec<(u64, Vec<u8>, f32)> = Vec::new();
         for &show in shows {
@@ -1746,10 +2104,31 @@ impl<'a> Encoder<'a> {
                 fonts.push((font, name.clone(), state.size));
             }
         }
+        let mut bases = HashMap::new();
+        // A new font is set at its base font's size; one whose base the shows do not set is not
+        // used.
+        for substitute in substitutes {
+            let size = fonts
+                .iter()
+                .find(|(key, ..)| *key == substitute.base)
+                .map(|(_, _, size)| *size);
+            if let Some(size) = size
+                && !fonts.iter().any(|(key, ..)| *key == substitute.key)
+            {
+                fonts.push((substitute.key, substitute.name.clone(), size));
+                // A font of the page keeps its own face, so it draws only what it lends.
+                if !substitute.existing {
+                    bases.insert(substitute.key, substitute.base);
+                }
+            }
+        }
         Ok(Self {
             recorder,
             programs: HashMap::new(),
+            restricted: HashMap::new(),
             fonts,
+            bases,
+            substitutes,
             source,
             composite: false,
         })
@@ -1763,8 +2142,49 @@ impl<'a> Encoder<'a> {
             .map(|(_, name, _)| name.clone())
     }
 
+    /// The font of the page `key` stands for: itself, or the original of a copy or new font.
+    fn base(&self, key: u64) -> u64 {
+        self.bases.get(&key).copied().unwrap_or(key)
+    }
+
+    /// The face of a font of the page: its PostScript name without the subset tag.
+    fn face(&self, key: u64) -> Option<&'a str> {
+        let font = self.recorder.collector.fonts.get(&self.base(key))?;
+        font.resource.base_font.as_deref().map(strip_subset_tag)
+    }
+
+    /// The fonts `order` names that a character may come from: the originals, without repeats,
+    /// of the first one's face (module documentation).
+    fn candidates(&self, order: &[u64]) -> Vec<u64> {
+        let face = order.first().map(|&key| self.face(key));
+        let mut keys: Vec<u64> = Vec::new();
+        for &key in order {
+            let key = self.base(key);
+            if !keys.contains(&key) && face.is_none_or(|face| self.face(key) == face) {
+                keys.push(key);
+            }
+        }
+        keys
+    }
+
+    /// `c` at byte `at`, missing from the fonts of `order`.
+    fn miss(&self, order: &[u64], c: char, at: usize) -> Miss {
+        let font = order
+            .first()
+            .map(|&key| self.base(key))
+            .or_else(|| self.fonts.first().map(|(key, ..)| *key))
+            .unwrap_or_default();
+        Miss {
+            c,
+            at,
+            font,
+            name: self.name(font).unwrap_or_default(),
+        }
+    }
+
     /// `c` in the first font of `order` that draws it (module documentation), making the font
-    /// copy it needs; `None` when none does.
+    /// copy it needs; then through `/Differences` in a copy of a simple font whose program has
+    /// it (step 1); then in a new font of steps 2 and 3. `None` when none does.
     fn choose(
         &mut self,
         copies: &mut Copies<'_>,
@@ -1772,17 +2192,26 @@ impl<'a> Encoder<'a> {
         c: char,
     ) -> Result<Option<Chosen>, Unsupported> {
         let recorder = self.recorder;
-        for &key in order {
+        let candidates = self.candidates(order);
+        let size_of = |fonts: &[(u64, Vec<u8>, f32)], key: u64| {
+            fonts
+                .iter()
+                .find(|(font, ..)| *font == key)
+                .map(|(_, _, size)| *size)
+        };
+        for &key in &candidates {
             let Some(font) = recorder.collector.fonts.get(&key) else {
                 continue;
             };
+            // Q09: a program that allows at most preview and print lends no glyph to new text.
+            let restricted = *self
+                .restricted
+                .entry(key)
+                .or_insert_with(|| fallback::restriction(font).is_some());
+            if restricted {
+                continue;
+            }
             let program = self.programs.entry(key).or_insert_with(|| font.program());
-            let size_of = |fonts: &[(u64, Vec<u8>, f32)], key: u64| {
-                fonts
-                    .iter()
-                    .find(|(font, ..)| *font == key)
-                    .map(|(_, _, size)| *size)
-            };
             if font.cmap.is_none() {
                 if let Some(code) = encode(font, program.as_ref(), c) {
                     return Ok(Some(Chosen {
@@ -1820,6 +2249,7 @@ impl<'a> Encoder<'a> {
             let (copy, copy_name) = copies.add(key, &name, font, &found.bytes, needs)?;
             if !self.fonts.iter().any(|(font, ..)| *font == copy) {
                 self.fonts.push((copy, copy_name, size));
+                self.bases.insert(copy, key);
             }
             return Ok(Some(Chosen {
                 font: copy,
@@ -1829,8 +2259,134 @@ impl<'a> Encoder<'a> {
                 size,
             }));
         }
+        // Step 1: a glyph of the program that no code shows, through `/Differences`.
+        if let SpanSource::Page { .. } = self.source {
+            for &key in &candidates {
+                let Some(font) = recorder.collector.fonts.get(&key) else {
+                    continue;
+                };
+                let Some(Some(program)) = self.programs.get(&key) else {
+                    continue;
+                };
+                let Some((glyph, width)) = differences_glyph(font, program, c) else {
+                    continue;
+                };
+                let named = self.fonts.iter().find(|(font, ..)| *font == key).cloned();
+                let Some((_, name, size)) = named else {
+                    continue;
+                };
+                let Some((copy, copy_name, code)) =
+                    copies.add_simple(key, &name, font, Some(program), c, &glyph, width)?
+                else {
+                    continue;
+                };
+                if !self.fonts.iter().any(|(font, ..)| *font == copy) {
+                    self.fonts.push((copy, copy_name, size));
+                    self.bases.insert(copy, key);
+                }
+                return Ok(Some(Chosen {
+                    font: copy,
+                    bytes: vec![code],
+                    width: width / 1000.0,
+                    hex: false,
+                    size,
+                }));
+            }
+        }
+        // New fonts go into the page's resources only: a form's block cannot name them.
+        if !matches!(self.source, SpanSource::Page { .. }) {
+            self.composite = true;
+            return Ok(None);
+        }
+        // Steps 2 and 3: a new font, or a font of the page, for the characters of this one, else
+        // any that has `c`.
+        let base = candidates.first().copied();
+        let mut lent: Vec<&Substitute> = self
+            .substitutes
+            .iter()
+            .filter(|substitute| self.fonts.iter().any(|(key, ..)| *key == substitute.key))
+            .collect();
+        lent.sort_by_key(|substitute| Some(substitute.base) != base);
+        for substitute in lent {
+            let size = size_of(&self.fonts, substitute.key).ok_or(Unsupported::Operators)?;
+            if !substitute.existing {
+                if let Some((_, code, width)) =
+                    substitute.glyphs.iter().find(|(drawn, ..)| *drawn == c)
+                {
+                    return Ok(Some(Chosen {
+                        font: substitute.key,
+                        bytes: code.clone(),
+                        width: *width,
+                        hex: true,
+                        size,
+                    }));
+                }
+                continue;
+            }
+            let Some(font) = recorder.collector.fonts.get(&substitute.key) else {
+                continue;
+            };
+            let program = font.program();
+            let chosen = match font.cmap {
+                None => encode(font, program.as_ref(), c).map(|code| Chosen {
+                    font: substitute.key,
+                    bytes: vec![code],
+                    width: font.width(u32::from(code), 1),
+                    hex: false,
+                    size,
+                }),
+                Some(_) => encode_composite(font, program.as_ref(), c)
+                    .filter(|found| found.needs.is_none())
+                    .map(|found| Chosen {
+                        font: substitute.key,
+                        bytes: found.bytes,
+                        width: found.width,
+                        hex: true,
+                        size,
+                    }),
+            };
+            if chosen.is_some() {
+                return Ok(chosen);
+            }
+        }
         Ok(None)
     }
+}
+
+/// The glyph name a copy of simple `font` gives a new code so that `program` draws `c` with it
+/// (step 1), and its width in thousandths of an em: a TrueType font that is not symbolic, by the
+/// name `post` gives the glyph `c` maps to (else its standard name, which readers map through
+/// the Unicode cmap), a Type1 program by a name of `c` it has.
+fn differences_glyph(font: &PdfFont, program: &FontProgram<'_>, c: char) -> Option<(String, f32)> {
+    let resource = &font.resource;
+    if c == char::REPLACEMENT_CHARACTER
+        || c.is_whitespace()
+        || (resource.symbolic && resource.kind == FontKind::TrueType)
+    {
+        return None;
+    }
+    let names = glyph_names(c);
+    let found = |glyph: Option<ferman_fonts::GlyphId>| glyph.filter(|glyph| glyph.0 != 0);
+    let (name, glyph) = match resource.kind {
+        FontKind::TrueType => {
+            let glyph = found(program.glyph_for_char(c))?;
+            let name = names
+                .iter()
+                .find(|name| program.glyph_for_name(name) == Some(glyph))
+                .or_else(|| names.first())?;
+            (name.clone(), glyph)
+        }
+        FontKind::Type1 | FontKind::MultipleMaster => names
+            .iter()
+            .find_map(|name| Some((name.clone(), found(program.glyph_for_name(name))?)))?,
+        _ => return None,
+    };
+    let units = f32::from(program.units_per_em());
+    if units <= 0.0 {
+        return None;
+    }
+    let width = (program.advance_width(glyph)? * 1000.0 / units).round();
+    width.is_finite().then_some((name, width))
 }
 
 /// The code of `font` that draws `c` and reads back as it: the lowest whose text is `c` and
