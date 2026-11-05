@@ -173,6 +173,17 @@ closing the document and opening it again. "Compare" waits for a diff view.
   never reaches disk. The folder is owner-only. Nothing in it is ever sent anywhere.
 - After a crash, the next launch shows a1-12. Recovery files are deleted after a successful save, "Don't
   save", or "Discard".
+- **Built in M3 (W4, decision 10):** a plain copy of the opened bytes up to 200 MB as `base.pdf` (no
+  clones yet), the manifest's stamp alone above it. The instance lock is a file lock the system releases
+  when the process ends (`File::try_lock`, which raises the workspace `rust-version` to 1.89), not a PID
+  check. A commit is journaled as its revision's objects, an undo or redo as every unsaved object, each
+  record with a sequence number and a checksum; snapshots are records too, so one reader (bounded, no
+  panics, a fuzzing entry point) serves both. Restoring opens the document as one unsaved step and moves
+  its files into the running session, which keeps them until a save or "Don't save"; a changed original
+  makes it save to `<name> (recovered).pdf`. The tests: a child process killed after its journal's sync
+  is restored with the revision it committed, byte for byte but the random second `/ID`; and nothing of
+  an encrypted document's new text or page text is found in plaintext anywhere under the folder
+  ([ARCHITECTURE.md](../ARCHITECTURE.md) section 7.6).
 
 ### Version history: the design's choice
 

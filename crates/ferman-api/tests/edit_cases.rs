@@ -43,6 +43,10 @@
 //! report-ar's IBAN, in the subset's own glyphs and with marks the subset lacks (step 2); E10's
 //! Persian word with a ZWNJ on fa-zwnj; E11's Hebrew paragraph reflowed on he-para.
 //!
+//! E25 (W4) edits the signed contract below the facade, as every case here does (the confirmation
+//! a signed document needs is the facade's, tested in `edit.rs`), and checks that the signature's
+//! `/ByteRange` still covers the same bytes and hashes to the digest its CMS holds.
+//!
 //! The vertical cases (W3, E13) on letter-ja-vertical: a date column's cells in its `Identity-V`
 //! font, the body's last column one cell longer, and the upright "19" across its column, in the
 //! subset's digits and in a new font of the installed Noto Serif JP chosen in step 3.
@@ -716,6 +720,85 @@ fn rendered_case(name: &str, saved_case: &Saved, mut problems: Vec<String>, page
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn e01_kira_tr_amount_in_a_subset_truetype() {
     case("e01-kira-tr", "kira-tr", 0, "18.500", "19.500");
+}
+
+/// The hexadecimal string `hex`, `<` and `>` included, as bytes; the padding stays.
+fn hex_string(hex: &[u8]) -> Vec<u8> {
+    let digit = |byte: u8| char::from(byte).to_digit(16).unwrap() as u8;
+    hex.strip_prefix(b"<")
+        .and_then(|hex| hex.strip_suffix(b">"))
+        .unwrap()
+        .as_chunks::<2>()
+        .0
+        .iter()
+        .map(|&[high, low]| digit(high) * 16 + digit(low))
+        .collect()
+}
+
+/// The SHA-256 the signer's `messageDigest` attribute holds: the first one in the CMS (a
+/// timestamp's own comes after it, in the unsigned attributes), found by its DER form: the OID
+/// 1.2.840.113549.1.9.4, then a SET of one OCTET STRING of 32 bytes.
+fn message_digest(cms: &[u8]) -> &[u8] {
+    const ATTRIBUTE: &[u8] = &[
+        0x06, 0x09, 0x2a, 0x86, 0x48, 0x86, 0xf7, 0x0d, 0x01, 0x09, 0x04, 0x31, 0x22, 0x04, 0x20,
+    ];
+    let at = find(cms, ATTRIBUTE, 0).expect("the CMS has a messageDigest attribute");
+    &cms[at + ATTRIBUTE.len()..at + ATTRIBUTE.len() + 32]
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e25_a_signed_range_survives_an_incremental_save() {
+    let name = "e25-kira-tr-signed";
+    let original = corpus("kira-tr-signed");
+    let (saved, problems) = saved_case(name, original.clone(), 0, "18.500", "19.500");
+    let file = std::fs::read(&saved.path).unwrap();
+
+    let structure = saved.doc.structure();
+    assert!(structure.signed());
+    let [start, first, second, last] = structure
+        .signatures
+        .iter()
+        .find(|signature| signature.signed)
+        .and_then(|signature| signature.byte_range)
+        .unwrap()
+        .map(|number| usize::try_from(number).unwrap());
+    let end = second + last;
+    assert_eq!(start, 0);
+    assert!(file.len() > end, "the edit follows the signed bytes");
+    assert_eq!(
+        file[..end],
+        original[..end],
+        "the signed bytes are the same"
+    );
+
+    // The two ranges hash to the digest the signature signed.
+    let mut signed = file[start..first].to_vec();
+    signed.extend_from_slice(&file[second..end]);
+    let signed = Source::from_bytes(signed.into());
+    let cms = hex_string(&file[first..second]);
+    assert_eq!(signed.sha256().as_slice(), message_digest(&cms));
+
+    // The revision the signature covers still opens as it was, and the new file still says it
+    // is signed.
+    let old = open(
+        &Source::from_bytes(file[..end].to_vec().into()),
+        &OpenOptions::default(),
+    )
+    .unwrap();
+    assert_eq!(old.page_count(), saved.doc.page_count());
+    assert!(old.repair().is_none());
+    assert!(
+        text_page(&old, 0, &EditContext::default())
+            .unwrap()
+            .blocks
+            .iter()
+            .any(|block| block.lines.iter().any(|line| line.text.contains("18.500")))
+    );
+    let new = open(&Source::from_bytes(file.into()), &OpenOptions::default()).unwrap();
+    assert!(new.structure().signed());
+
+    rendered_case(name, &saved, problems, 0, "19.500");
 }
 
 #[test]

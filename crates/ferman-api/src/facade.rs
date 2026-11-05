@@ -21,6 +21,7 @@ mod engine;
 mod error;
 mod guard;
 mod info;
+mod recovery;
 mod search;
 mod text;
 mod version;
@@ -29,13 +30,14 @@ pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
 pub use edit::{
-    DependentCell, EditPreview, FontSettings, FontSubstitution, History, HistoryStep,
-    MissingGlyphInfo, RevisionInfo, TransactionId,
+    ConfirmationToken, DependentCell, EditPreview, FontSettings, FontSubstitution, History,
+    HistoryStep, MissingGlyphInfo, RevisionInfo, TransactionId,
 };
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
+pub use recovery::{RecoverableDocument, RestoredDocument};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
 pub use text::{BlockInfo, Caret, LineInfo, PageBlocks, Selection, TextPosition};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};

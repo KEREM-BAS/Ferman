@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1429374907;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -154133349;
 
 // Section: executor
 
@@ -210,6 +210,7 @@ fn wire__crate__frb__choose_font_impl(
 fn wire__crate__frb__close_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
+    discard_recovery: impl CstDecode<bool>,
 ) {
     FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
         flutter_rust_bridge::for_generated::TaskInfo {
@@ -219,10 +220,12 @@ fn wire__crate__frb__close_impl(
         },
         move || {
             let api_document = document.cst_decode();
+            let api_discard_recovery = discard_recovery.cst_decode();
             move |context| async move {
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
-                        let output_ok = crate::frb::close(api_document).await?;
+                        let output_ok =
+                            crate::frb::close(api_document, api_discard_recovery).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -308,6 +311,30 @@ fn wire__crate__frb__commit_edit_impl(
         },
     )
 }
+fn wire__crate__frb__confirm_edit_signed_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "confirm_edit_signed",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::confirm_edit_signed(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__debug_bytes_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     len: impl CstDecode<u32>,
@@ -344,6 +371,33 @@ fn wire__crate__frb__debug_panic_impl(port_: flutter_rust_bridge::for_generated:
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::debug_panic().await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__discard_recovery_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    session: impl CstDecode<String>,
+    document: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "discard_recovery",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_session = session.cst_decode();
+            let api_document = document.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::discard_recovery(api_session, api_document).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -412,6 +466,26 @@ fn wire__crate__frb__keep_as_is_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::keep_as_is(api_transaction).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__list_recoverable_impl(port_: flutter_rust_bridge::for_generated::MessagePort) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "list_recoverable",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::list_recoverable().await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -570,6 +644,36 @@ fn wire__crate__frb__resolve_overflow_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::resolve_overflow(api_transaction, api_choice).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__restore_recovered_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    session: impl CstDecode<String>,
+    document: impl CstDecode<String>,
+    password: impl CstDecode<Option<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "restore_recovered",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_session = session.cst_decode();
+            let api_document = document.cst_decode();
+            let api_password = password.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::restore_recovered(api_session, api_document, api_password)
+                                .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -771,6 +875,33 @@ fn wire__crate__frb__save_repaired_copy_impl(
         },
     )
 }
+fn wire__crate__frb__save_unsigned_copy_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    path: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "save_unsigned_copy",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_path = path.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::save_unsigned_copy(api_document, api_path).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__search_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -861,6 +992,30 @@ fn wire__crate__frb__set_font_settings_impl(
         },
     )
 }
+fn wire__crate__frb__set_recovery_enabled_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    enabled: impl CstDecode<bool>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_recovery_enabled",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_enabled = enabled.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_recovery_enabled(api_enabled).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__show_layers_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -879,6 +1034,30 @@ fn wire__crate__frb__show_layers_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::show_layers(api_document, api_visible).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__start_recovery_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    root: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "start_recovery",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_root = root.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::start_recovery(api_root).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1052,7 +1231,8 @@ impl CstDecode<crate::frb::ErrorKind> for i32 {
             14 => crate::frb::ErrorKind::HardLinked,
             15 => crate::frb::ErrorKind::NotOwner,
             16 => crate::frb::ErrorKind::FileChangedOnDisk,
-            17 => crate::frb::ErrorKind::Internal,
+            17 => crate::frb::ErrorKind::ConfirmationRequired,
+            18 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", self),
         }
     }
@@ -1601,7 +1781,8 @@ impl SseDecode for crate::frb::ErrorKind {
             14 => crate::frb::ErrorKind::HardLinked,
             15 => crate::frb::ErrorKind::NotOwner,
             16 => crate::frb::ErrorKind::FileChangedOnDisk,
-            17 => crate::frb::ErrorKind::Internal,
+            17 => crate::frb::ErrorKind::ConfirmationRequired,
+            18 => crate::frb::ErrorKind::Internal,
             _ => unreachable!("Invalid variant for ErrorKind: {}", inner),
         };
     }
@@ -1783,9 +1964,11 @@ impl SseDecode for crate::frb::History {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_steps = <Vec<crate::frb::HistoryStep>>::sse_decode(deserializer);
         let mut var_current = <u32>::sse_decode(deserializer);
+        let mut var_signatureInvalidated = <bool>::sse_decode(deserializer);
         return crate::frb::History {
             steps: var_steps,
             current: var_current,
+            signature_invalidated: var_signatureInvalidated,
         };
     }
 }
@@ -2085,6 +2268,18 @@ impl SseDecode for Vec<u8> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::RecoverableDocument> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::RecoverableDocument>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::RepairFix> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2219,6 +2414,8 @@ impl SseDecode for crate::frb::OpenedDocument {
         let mut var_layers = <Vec<crate::frb::Layer>>::sse_decode(deserializer);
         let mut var_layersSwitchable = <bool>::sse_decode(deserializer);
         let mut var_signatures = <Vec<crate::frb::Signature>>::sse_decode(deserializer);
+        let mut var_signed = <bool>::sse_decode(deserializer);
+        let mut var_certification = <Option<u8>>::sse_decode(deserializer);
         let mut var_version = <String>::sse_decode(deserializer);
         let mut var_fileSize = <u64>::sse_decode(deserializer);
         let mut var_info = <crate::frb::DocumentInfo>::sse_decode(deserializer);
@@ -2241,6 +2438,8 @@ impl SseDecode for crate::frb::OpenedDocument {
             layers: var_layers,
             layers_switchable: var_layersSwitchable,
             signatures: var_signatures,
+            signed: var_signed,
+            certification: var_certification,
             version: var_version,
             file_size: var_fileSize,
             info: var_info,
@@ -2404,6 +2603,17 @@ impl SseDecode for Option<u64> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<u64>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<u8> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<u8>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2594,6 +2804,26 @@ impl SseDecode for crate::frb::ReadOnlyReason {
     }
 }
 
+impl SseDecode for crate::frb::RecoverableDocument {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_session = <String>::sse_decode(deserializer);
+        let mut var_document = <String>::sse_decode(deserializer);
+        let mut var_original = <String>::sse_decode(deserializer);
+        let mut var_originalChanged = <bool>::sse_decode(deserializer);
+        let mut var_changes = <u32>::sse_decode(deserializer);
+        let mut var_encrypted = <bool>::sse_decode(deserializer);
+        return crate::frb::RecoverableDocument {
+            session: var_session,
+            document: var_document,
+            original: var_original,
+            original_changed: var_originalChanged,
+            changes: var_changes,
+            encrypted: var_encrypted,
+        };
+    }
+}
+
 impl SseDecode for crate::frb::RepairFix {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2616,6 +2846,22 @@ impl SseDecode for crate::frb::RepairKind {
             2 => crate::frb::RepairKind::StreamLengthsCorrected,
             3 => crate::frb::RepairKind::ObjectsUnreadable,
             _ => unreachable!("Invalid variant for RepairKind: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::RestoredDocument {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_opened = <crate::frb::OpenedDocument>::sse_decode(deserializer);
+        let mut var_path = <String>::sse_decode(deserializer);
+        let mut var_originalChanged = <bool>::sse_decode(deserializer);
+        let mut var_renderKey = <Option<u64>>::sse_decode(deserializer);
+        return crate::frb::RestoredDocument {
+            opened: var_opened,
+            path: var_path,
+            original_changed: var_originalChanged,
+            render_key: var_renderKey,
         };
     }
 }
@@ -3216,7 +3462,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::ErrorKind {
             Self::HardLinked => 14.into_dart(),
             Self::NotOwner => 15.into_dart(),
             Self::FileChangedOnDisk => 16.into_dart(),
-            Self::Internal => 17.into_dart(),
+            Self::ConfirmationRequired => 17.into_dart(),
+            Self::Internal => 18.into_dart(),
             _ => unreachable!(),
         }
     }
@@ -3425,6 +3672,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::History {
         [
             self.steps.into_into_dart().into_dart(),
             self.current.into_into_dart().into_dart(),
+            self.signature_invalidated.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3604,6 +3852,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::OpenedDocument {
             self.layers.into_into_dart().into_dart(),
             self.layers_switchable.into_into_dart().into_dart(),
             self.signatures.into_into_dart().into_dart(),
+            self.signed.into_into_dart().into_dart(),
+            self.certification.into_into_dart().into_dart(),
             self.version.into_into_dart().into_dart(),
             self.file_size.into_into_dart().into_dart(),
             self.info.into_into_dart().into_dart(),
@@ -3837,6 +4087,31 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::ReadOnlyReason> for crate::fr
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RecoverableDocument {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.session.into_into_dart().into_dart(),
+            self.document.into_into_dart().into_dart(),
+            self.original.into_into_dart().into_dart(),
+            self.original_changed.into_into_dart().into_dart(),
+            self.changes.into_into_dart().into_dart(),
+            self.encrypted.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive
+    for crate::frb::RecoverableDocument
+{
+}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RecoverableDocument>
+    for crate::frb::RecoverableDocument
+{
+    fn into_into_dart(self) -> crate::frb::RecoverableDocument {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::RepairFix {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -3867,6 +4142,26 @@ impl flutter_rust_bridge::IntoDart for crate::frb::RepairKind {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RepairKind {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::RepairKind> for crate::frb::RepairKind {
     fn into_into_dart(self) -> crate::frb::RepairKind {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::RestoredDocument {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.opened.into_into_dart().into_dart(),
+            self.path.into_into_dart().into_dart(),
+            self.original_changed.into_into_dart().into_dart(),
+            self.render_key.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::RestoredDocument {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::RestoredDocument>
+    for crate::frb::RestoredDocument
+{
+    fn into_into_dart(self) -> crate::frb::RestoredDocument {
         self
     }
 }
@@ -4380,7 +4675,8 @@ impl SseEncode for crate::frb::ErrorKind {
                 crate::frb::ErrorKind::HardLinked => 14,
                 crate::frb::ErrorKind::NotOwner => 15,
                 crate::frb::ErrorKind::FileChangedOnDisk => 16,
-                crate::frb::ErrorKind::Internal => 17,
+                crate::frb::ErrorKind::ConfirmationRequired => 17,
+                crate::frb::ErrorKind::Internal => 18,
                 _ => {
                     unimplemented!("");
                 }
@@ -4550,6 +4846,7 @@ impl SseEncode for crate::frb::History {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <Vec<crate::frb::HistoryStep>>::sse_encode(self.steps, serializer);
         <u32>::sse_encode(self.current, serializer);
+        <bool>::sse_encode(self.signature_invalidated, serializer);
     }
 }
 
@@ -4799,6 +5096,16 @@ impl SseEncode for Vec<u8> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::RecoverableDocument> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::RecoverableDocument>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::RepairFix> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4918,6 +5225,8 @@ impl SseEncode for crate::frb::OpenedDocument {
         <Vec<crate::frb::Layer>>::sse_encode(self.layers, serializer);
         <bool>::sse_encode(self.layers_switchable, serializer);
         <Vec<crate::frb::Signature>>::sse_encode(self.signatures, serializer);
+        <bool>::sse_encode(self.signed, serializer);
+        <Option<u8>>::sse_encode(self.certification, serializer);
         <String>::sse_encode(self.version, serializer);
         <u64>::sse_encode(self.file_size, serializer);
         <crate::frb::DocumentInfo>::sse_encode(self.info, serializer);
@@ -5068,6 +5377,16 @@ impl SseEncode for Option<u64> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <u64>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<u8> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <u8>::sse_encode(value, serializer);
         }
     }
 }
@@ -5229,6 +5548,18 @@ impl SseEncode for crate::frb::ReadOnlyReason {
     }
 }
 
+impl SseEncode for crate::frb::RecoverableDocument {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.session, serializer);
+        <String>::sse_encode(self.document, serializer);
+        <String>::sse_encode(self.original, serializer);
+        <bool>::sse_encode(self.original_changed, serializer);
+        <u32>::sse_encode(self.changes, serializer);
+        <bool>::sse_encode(self.encrypted, serializer);
+    }
+}
+
 impl SseEncode for crate::frb::RepairFix {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -5252,6 +5583,16 @@ impl SseEncode for crate::frb::RepairKind {
             },
             serializer,
         );
+    }
+}
+
+impl SseEncode for crate::frb::RestoredDocument {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::OpenedDocument>::sse_encode(self.opened, serializer);
+        <String>::sse_encode(self.path, serializer);
+        <bool>::sse_encode(self.original_changed, serializer);
+        <Option<u64>>::sse_encode(self.render_key, serializer);
     }
 }
 
@@ -5697,6 +6038,12 @@ mod io {
             unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
         }
     }
+    impl CstDecode<u8> for *mut u8 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> u8 {
+            unsafe { *flutter_rust_bridge::for_generated::box_from_leak_ptr(self) }
+        }
+    }
     impl CstDecode<crate::frb::ViewItem> for *mut wire_cst_view_item {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::ViewItem {
@@ -5855,6 +6202,7 @@ mod io {
             crate::frb::History {
                 steps: self.steps.cst_decode(),
                 current: self.current.cst_decode(),
+                signature_invalidated: self.signature_invalidated.cst_decode(),
             }
         }
     }
@@ -6068,6 +6416,16 @@ mod io {
             }
         }
     }
+    impl CstDecode<Vec<crate::frb::RecoverableDocument>> for *mut wire_cst_list_recoverable_document {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RecoverableDocument> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::RepairFix>> for *mut wire_cst_list_repair_fix {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::RepairFix> {
@@ -6147,6 +6505,8 @@ mod io {
                 layers: self.layers.cst_decode(),
                 layers_switchable: self.layers_switchable.cst_decode(),
                 signatures: self.signatures.cst_decode(),
+                signed: self.signed.cst_decode(),
+                certification: self.certification.cst_decode(),
                 version: self.version.cst_decode(),
                 file_size: self.file_size.cst_decode(),
                 info: self.info.cst_decode(),
@@ -6246,12 +6606,36 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::RecoverableDocument> for wire_cst_recoverable_document {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RecoverableDocument {
+            crate::frb::RecoverableDocument {
+                session: self.session.cst_decode(),
+                document: self.document.cst_decode(),
+                original: self.original.cst_decode(),
+                original_changed: self.original_changed.cst_decode(),
+                changes: self.changes.cst_decode(),
+                encrypted: self.encrypted.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::RepairFix> for wire_cst_repair_fix {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::RepairFix {
             crate::frb::RepairFix {
                 kind: self.kind.cst_decode(),
                 count: self.count.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::RestoredDocument> for wire_cst_restored_document {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RestoredDocument {
+            crate::frb::RestoredDocument {
+                opened: self.opened.cst_decode(),
+                path: self.path.cst_decode(),
+                original_changed: self.original_changed.cst_decode(),
+                render_key: self.render_key.cst_decode(),
             }
         }
     }
@@ -6645,6 +7029,7 @@ mod io {
             Self {
                 steps: core::ptr::null_mut(),
                 current: Default::default(),
+                signature_invalidated: Default::default(),
             }
         }
     }
@@ -6743,6 +7128,8 @@ mod io {
                 layers: core::ptr::null_mut(),
                 layers_switchable: Default::default(),
                 signatures: core::ptr::null_mut(),
+                signed: Default::default(),
+                certification: core::ptr::null_mut(),
                 version: core::ptr::null_mut(),
                 file_size: Default::default(),
                 info: Default::default(),
@@ -6879,6 +7266,23 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_recoverable_document {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                session: core::ptr::null_mut(),
+                document: core::ptr::null_mut(),
+                original: core::ptr::null_mut(),
+                original_changed: Default::default(),
+                changes: Default::default(),
+                encrypted: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_recoverable_document {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_repair_fix {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -6888,6 +7292,21 @@ mod io {
         }
     }
     impl Default for wire_cst_repair_fix {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_restored_document {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                opened: Default::default(),
+                path: core::ptr::null_mut(),
+                original_changed: Default::default(),
+                render_key: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_restored_document {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -7125,8 +7544,12 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
-    pub extern "C" fn frbgen_ferman_wire__crate__frb__close(port_: i64, document: u64) {
-        wire__crate__frb__close_impl(port_, document)
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__close(
+        port_: i64,
+        document: u64,
+        discard_recovery: bool,
+    ) {
+        wire__crate__frb__close_impl(port_, document, discard_recovery)
     }
 
     #[unsafe(no_mangle)]
@@ -7153,6 +7576,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__confirm_edit_signed(
+        port_: i64,
+        document: u64,
+    ) {
+        wire__crate__frb__confirm_edit_signed_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__debug_bytes(port_: i64, len: u32) {
         wire__crate__frb__debug_bytes_impl(port_, len)
     }
@@ -7160,6 +7591,15 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__debug_panic(port_: i64) {
         wire__crate__frb__debug_panic_impl(port_)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__discard_recovery(
+        port_: i64,
+        session: *mut wire_cst_list_prim_u_8_strict,
+        document: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__discard_recovery_impl(port_, session, document)
     }
 
     #[unsafe(no_mangle)]
@@ -7175,6 +7615,11 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__keep_as_is(port_: i64, transaction: u64) {
         wire__crate__frb__keep_as_is_impl(port_, transaction)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__list_recoverable(port_: i64) {
+        wire__crate__frb__list_recoverable_impl(port_)
     }
 
     #[unsafe(no_mangle)]
@@ -7225,6 +7670,16 @@ mod io {
         choice: i32,
     ) {
         wire__crate__frb__resolve_overflow_impl(port_, transaction, choice)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__restore_recovered(
+        port_: i64,
+        session: *mut wire_cst_list_prim_u_8_strict,
+        document: *mut wire_cst_list_prim_u_8_strict,
+        password: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__restore_recovered_impl(port_, session, document, password)
     }
 
     #[unsafe(no_mangle)]
@@ -7282,6 +7737,15 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__save_unsigned_copy(
+        port_: i64,
+        document: u64,
+        path: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__save_unsigned_copy_impl(port_, document, path)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__search(
         port_: i64,
         document: u64,
@@ -7312,12 +7776,28 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_recovery_enabled(
+        port_: i64,
+        enabled: bool,
+    ) {
+        wire__crate__frb__set_recovery_enabled_impl(port_, enabled)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__show_layers(
         port_: i64,
         document: u64,
         visible: *mut wire_cst_list_bool,
     ) {
         wire__crate__frb__show_layers_impl(port_, document, visible)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__start_recovery(
+        port_: i64,
+        root: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__start_recovery_impl(port_, root)
     }
 
     #[unsafe(no_mangle)]
@@ -7455,6 +7935,11 @@ mod io {
 
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_u_64(value: u64) -> *mut u64 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_u_8(value: u8) -> *mut u8 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
     }
 
@@ -7701,6 +8186,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_recoverable_document(
+        len: i32,
+    ) -> *mut wire_cst_list_recoverable_document {
+        let wrap = wire_cst_list_recoverable_document {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_recoverable_document>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_repair_fix(
         len: i32,
     ) -> *mut wire_cst_list_repair_fix {
@@ -7901,6 +8400,7 @@ mod io {
     pub struct wire_cst_history {
         steps: *mut wire_cst_list_history_step,
         current: u32,
+        signature_invalidated: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -8035,6 +8535,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_recoverable_document {
+        ptr: *mut wire_cst_recoverable_document,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_repair_fix {
         ptr: *mut wire_cst_repair_fix,
         len: i32,
@@ -8089,6 +8595,8 @@ mod io {
         layers: *mut wire_cst_list_layer,
         layers_switchable: bool,
         signatures: *mut wire_cst_list_signature,
+        signed: bool,
+        certification: *mut u8,
         version: *mut wire_cst_list_prim_u_8_strict,
         file_size: u64,
         info: wire_cst_document_info,
@@ -8164,9 +8672,27 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_recoverable_document {
+        session: *mut wire_cst_list_prim_u_8_strict,
+        document: *mut wire_cst_list_prim_u_8_strict,
+        original: *mut wire_cst_list_prim_u_8_strict,
+        original_changed: bool,
+        changes: u32,
+        encrypted: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_repair_fix {
         kind: i32,
         count: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_restored_document {
+        opened: wire_cst_opened_document,
+        path: *mut wire_cst_list_prim_u_8_strict,
+        original_changed: bool,
+        render_key: *mut u64,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -8698,13 +9224,14 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                2,
-                "Expected 2 elements, got {}",
+                3,
+                "Expected 3 elements, got {}",
                 self_.length()
             );
             crate::frb::History {
                 steps: self_.get(0).cst_decode(),
                 current: self_.get(1).cst_decode(),
+                signature_invalidated: self_.get(2).cst_decode(),
             }
         }
     }
@@ -8969,6 +9496,18 @@ mod web {
             self.into_vec()
         }
     }
+    impl CstDecode<Vec<crate::frb::RecoverableDocument>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::RecoverableDocument> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::RepairFix>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -9074,8 +9613,8 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                21,
-                "Expected 21 elements, got {}",
+                23,
+                "Expected 23 elements, got {}",
                 self_.length()
             );
             crate::frb::OpenedDocument {
@@ -9089,17 +9628,19 @@ mod web {
                 layers: self_.get(7).cst_decode(),
                 layers_switchable: self_.get(8).cst_decode(),
                 signatures: self_.get(9).cst_decode(),
-                version: self_.get(10).cst_decode(),
-                file_size: self_.get(11).cst_decode(),
-                info: self_.get(12).cst_decode(),
-                language: self_.get(13).cst_decode(),
-                tagged: self_.get(14).cst_decode(),
-                linearized: self_.get(15).cst_decode(),
-                fonts: self_.get(16).cst_decode(),
-                security: self_.get(17).cst_decode(),
-                scripts: self_.get(18).cst_decode(),
-                form_fields: self_.get(19).cst_decode(),
-                scanned: self_.get(20).cst_decode(),
+                signed: self_.get(10).cst_decode(),
+                certification: self_.get(11).cst_decode(),
+                version: self_.get(12).cst_decode(),
+                file_size: self_.get(13).cst_decode(),
+                info: self_.get(14).cst_decode(),
+                language: self_.get(15).cst_decode(),
+                tagged: self_.get(16).cst_decode(),
+                linearized: self_.get(17).cst_decode(),
+                fonts: self_.get(18).cst_decode(),
+                security: self_.get(19).cst_decode(),
+                scripts: self_.get(20).cst_decode(),
+                form_fields: self_.get(21).cst_decode(),
+                scanned: self_.get(22).cst_decode(),
             }
         }
     }
@@ -9276,6 +9817,30 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::RecoverableDocument>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RecoverableDocument {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::RecoverableDocument {
+                session: self_.get(0).cst_decode(),
+                document: self_.get(1).cst_decode(),
+                original: self_.get(2).cst_decode(),
+                original_changed: self_.get(3).cst_decode(),
+                changes: self_.get(4).cst_decode(),
+                encrypted: self_.get(5).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::RepairFix>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -9293,6 +9858,28 @@ mod web {
             crate::frb::RepairFix {
                 kind: self_.get(0).cst_decode(),
                 count: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::RestoredDocument>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::RestoredDocument {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::frb::RestoredDocument {
+                opened: self_.get(0).cst_decode(),
+                path: self_.get(1).cst_decode(),
+                original_changed: self_.get(2).cst_decode(),
+                render_key: self_.get(3).cst_decode(),
             }
         }
     }
@@ -9874,8 +10461,9 @@ mod web {
     pub fn wire__crate__frb__close(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        discard_recovery: bool,
     ) {
-        wire__crate__frb__close_impl(port_, document)
+        wire__crate__frb__close_impl(port_, document, discard_recovery)
     }
 
     #[wasm_bindgen]
@@ -9905,6 +10493,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__confirm_edit_signed(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__confirm_edit_signed_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__debug_bytes(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         len: u32,
@@ -9915,6 +10511,15 @@ mod web {
     #[wasm_bindgen]
     pub fn wire__crate__frb__debug_panic(port_: flutter_rust_bridge::for_generated::MessagePort) {
         wire__crate__frb__debug_panic_impl(port_)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__discard_recovery(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        session: String,
+        document: Option<String>,
+    ) {
+        wire__crate__frb__discard_recovery_impl(port_, session, document)
     }
 
     #[wasm_bindgen]
@@ -9936,6 +10541,13 @@ mod web {
         transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__keep_as_is_impl(port_, transaction)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__list_recoverable(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+    ) {
+        wire__crate__frb__list_recoverable_impl(port_)
     }
 
     #[wasm_bindgen]
@@ -9989,6 +10601,16 @@ mod web {
         choice: i32,
     ) {
         wire__crate__frb__resolve_overflow_impl(port_, transaction, choice)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__restore_recovered(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        session: String,
+        document: String,
+        password: Option<String>,
+    ) {
+        wire__crate__frb__restore_recovered_impl(port_, session, document, password)
     }
 
     #[wasm_bindgen]
@@ -10055,6 +10677,15 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__save_unsigned_copy(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        path: String,
+    ) {
+        wire__crate__frb__save_unsigned_copy_impl(port_, document, path)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__search(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -10085,12 +10716,28 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__set_recovery_enabled(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        enabled: bool,
+    ) {
+        wire__crate__frb__set_recovery_enabled_impl(port_, enabled)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__show_layers(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
         visible: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__show_layers_impl(port_, document, visible)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__start_recovery(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        root: String,
+    ) {
+        wire__crate__frb__start_recovery_impl(port_, root)
     }
 
     #[wasm_bindgen]

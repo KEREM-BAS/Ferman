@@ -340,7 +340,7 @@ Blocks for a page are fetched lazily, when Edit mode shows the page or the point
 
 ```rust
 // Sketch, not final API.
-async fn begin_edit(doc: DocumentId, target: EditTarget, confirm: Option<ConfirmToken>) -> Result<TxnStart, ApiError>;
+async fn begin_edit(doc: DocumentId, target: EditTarget) -> Result<TxnId, ApiError>;
 async fn apply(txn: TxnId, op: EditOp) -> Result<EditPreview, ApiError>;
 async fn commit(txn: TxnId) -> Result<RevisionInfo, ApiError>;
 async fn rollback(txn: TxnId) -> Result<RevisionInfo, ApiError>;
@@ -348,7 +348,7 @@ async fn undo(doc: DocumentId) -> Result<RevisionInfo, ApiError>;
 async fn redo(doc: DocumentId) -> Result<RevisionInfo, ApiError>;
 ```
 
-- **begin_edit** opens the only transaction a document can have at a time. For a signed document without confirmation it returns `TxnStart::NeedsConfirmation { signatures }` and the UI shows the warning (section 6.9). It also refuses targets that are not editable, with the reason.
+- **begin_edit** opens the only transaction a document can have at a time. A signed document may begin and preview without confirmation; the commit and every write wait for it (section 6.9). It refuses targets that are not editable, with the reason.
 - **apply** takes an `EditOp`: insert, delete or replace text, set composing text (IME), set font, size, colour, alignment or spacing, resize the frame, resolve overflow, resolve a missing glyph. It returns an `EditPreview`: the updated block, changed page render keys, overflow state, missing-glyph state and warnings. The preview is rendered (section 5.4) but is not on the undo stack.
 - **commit** creates a new revision and pushes it on the document's revision stack. A new commit drops the redo branch.
 - **rollback** discards the transaction. The current revision does not change.
@@ -681,8 +681,10 @@ The same machinery serves translation overflow later (a3-13b, P4). The labels ar
 
 ### 6.9 Signed documents
 
-- ferman-core detects signatures at open: AcroForm `/SigFlags`, signature fields with values, DocMDP and certification signatures.
-- Before the first change to a signed document (edit, comment, fill or organize), `begin_edit` returns `NeedsConfirmation` and the UI warns that the signature will become invalid. Without the confirmation token the engine refuses to commit. a3-16a draws the dialog ("Edit a copy" as the default, "Edit anyway", "Cancel"), and a3-16b the banner that stays after "Edit anyway" ([G35](DESIGN_GAPS.md#g35)).
+- ferman-core detects signatures at open: AcroForm `/SigFlags`, signature fields with values and their `/ByteRange`, DocMDP and certification signatures. `Structure::signed` is a field with a value, a certification, or `/SigFlags` bit 2; empty signature fields alone do not count.
+- Before the first change to a signed document (edit, comment, fill or organize) the UI, which reads `signed` and `certification` from the open result, warns that the signature will become invalid. The engine enforces it: `begin_edit` and `apply` may preview, but a commit that changes something and every write (`save`, `save_as`, `save_copy`, `optimize_and_clean`, `save_repaired_copy`) fail with `ConfirmationRequired` until `confirm_edit_signed(document)` ran. The call returns a token and the document's actor keeps it until the document closes: per document, per session, never persisted (a document restored from recovery asks again), and the commit and save calls keep their signatures. The one write without it is the unchanged file copied byte for byte to another path, which leaves the signature valid. A refused commit leaves the transaction open, so it commits after the confirmation. a3-16a draws the dialog ("Edit a copy" as the default, "Edit anyway", "Cancel"), and a3-16b the banner that stays after "Edit anyway" ([G35](DESIGN_GAPS.md#g35)).
+- "Edit a copy" is `save_unsigned_copy(document, path)` and an ordinary `open` of that file: a full rewrite in which the signature fields stay, empty (no `/V`, no appearance), and the catalog's `/Perms` and `/DSS` and the form's `/SigFlags` go. It refuses the document's own file, and needs no confirmation because the signed original stays as it is.
+- `History.signature_invalidated` is the document-level flag behind the review list's signature row ([G42](DESIGN_GAPS.md#g42)): signed, and at least one step applies or the file was rewritten.
 - An incremental update leaves the signed bytes intact, so the old revision still verifies, but validators report the document as changed after signing. A full rewrite breaks the signature outright.
 - Signature validation is P3. Until then signatures appear in a2-14's neutral state, without a validity colour or a check ([G31](DESIGN_GAPS.md#g31)).
 
@@ -774,7 +776,7 @@ Location, per platform (the bundle identifier is `io.github.kerembas.ferman`, [Q
 ```text
 Recovery/
 └── <session id>/
-    ├── instance.lock            PID of the running instance
+    ├── instance.lock            locked by the running instance; its PID and start time
     └── <document id>/
         ├── manifest.json        original path, size, mtime, SHA-256, encrypted flag, last saved revision
         ├── base.pdf             clone or copy of the original, when cheap (see below)
@@ -784,14 +786,16 @@ Recovery/
 
 - **Physical log.** A journal record holds the objects a commit changed, serialised as PDF objects, plus the revision label. Replay is pure data. It does not depend on installed fonts or on engine behaviour, so it cannot diverge.
 - **Write cadence.** Records are appended and synced at most once per second. A snapshot is written every minute while there are unsaved changes, using the atomic sequence, and the journal restarts after it. The "Save a recovery copy every minute" switch (a11-1c) turns both off.
-- **Base copy (Proposed).** Recovery must not depend on the original staying unchanged. On the first unsaved change the engine stores a clone of the original (APFS `clonefile`, reflink on Btrfs, XFS or ReFS) or a plain copy for files up to 200 MB. Larger files on file systems without clones rely on the manifest hash; if the original changed, recovery marks it and opens the restored version under a new name, so neither is overwritten, as a11-7f draws it ([G40](DESIGN_GAPS.md#g40)).
+- **Base copy (M3 plan decision 10).** Recovery must not depend on the original staying unchanged. On the first unsaved change the engine stores a plain copy of the bytes the document was opened from for files up to 200 MB (clones through APFS `clonefile` or a reflink on Btrfs, XFS or ReFS are left for when large files make them matter). Larger files on file systems without clones rely on the manifest hash; if the original changed, recovery marks it and opens the restored version under a new name, so neither is overwritten, as a11-7f draws it ([G40](DESIGN_GAPS.md#g40)).
 - **Encrypted documents.** Recovery data is written encrypted with the document's own key, as the file itself would be. Plaintext never reaches disk. Restoring asks for the password again (a1-8).
 - **Privacy.** The recovery directory is created with owner-only permissions (0700 on Unix). Nothing in it is ever sent anywhere (a1-12: "Nothing was sent anywhere").
 - **Cleanup.** Files for a document are deleted after a successful save, after "Don't save", and after "Discard" in a1-12.
 
+Built in M3 (W4) as ferman-core's `recovery` module and ferman-api's recovery facade. The app names the folder once at launch (`Engine::start_recovery`, computed in Dart by `recoveryDirectory` as above); the session's name and each document's are 32 random hex digits. `instance.lock` is held with the standard library's `File::try_lock` while the instance runs, so the system lets it go however the process ends and a reused PID never makes a crashed session look live; the PID and start time in it are for people. Each actor records a commit as the objects of its revision and an undo or redo as every unsaved object, with a sequence number, so replay never needs the history: a record is its length, the first 8 bytes of its payload's SHA-256 and the payload, and the reader stops at the first torn or damaged one. A torn tail is cut off before anything is appended again, after a failed write or when a restored document takes its journal over, and the next record then holds every unsaved object. A commit at or below the saved revision's number (edit, save, undo, edit) is unsaved: no revision equals the file after it. Records are written at once and synced at most once per second, by the actor's one-second tick when nothing else comes; a snapshot is one such record of every unsaved object, written with `safe_write`, after which the journal restarts, and replay skips records the snapshot's sequence number covers. Everything is relative to the bytes in memory, so a document saved and edited again still restores exactly. The manifest is a flat JSON object (`original`, `size`, `modified_secs`, `modified_nanos`, `sha256`, `encrypted`, `saved_revision`, `base`). `Engine::list_recoverable` lists the documents of sessions whose lock is free, with whether the original changed (the stamp check of section 7.5) and the count of unsaved changes; `Engine::restore_recovered` opens one (with its password again when it is encrypted) as one unsaved step, moves its files into the running session once it has opened, and when the original changed saves to `<name> (recovered).pdf` beside it (a11-7f); `Engine::discard_recovery` deletes a document's or a session's files; `Engine::close_discarding` is "Don't save"; `Engine::set_recovery_enabled` is the a11-1c switch, after which the actors delete their files within a second. A recovery write that fails is logged and never fails an edit; telling the person that no recovery copy exists (section 7.8) waits for the a11-7 wording.
+
 ### 7.7 Crash safety
 
-- On launch, a session directory whose lock file names no live process belongs to a crashed session. The UI shows a1-12: "Ferman restored 2 documents", each checked; "Open 2 documents" or "Discard". Restored documents open as unsaved; files on disk are unchanged.
+- On launch, a session directory whose lock no live process holds belongs to a crashed session (a lock file still empty is a session starting, and is left alone). A document in it with no manifest or no record has nothing to restore, and is deleted. The UI shows a1-12: "Ferman restored 2 documents", each checked; "Open 2 documents" or "Discard". Restored documents open as unsaved; files on disk are unchanged.
 - A crash during step 6 of section 7.2 leaves either the old file or the new one, never a mix. A leftover temp file is deleted on the next save in that directory.
 - A panic in a document actor stops that document only (section 8.3). The UI offers to reopen it from the journal.
 - The crash log is written locally and copied only when the user presses "Copy crash log" (a1-12). The copy replaces paths and file names with placeholders (section 8.4).

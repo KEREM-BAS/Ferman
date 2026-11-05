@@ -140,6 +140,10 @@ enum EngineErrorKind {
   /// The file changed on disk since it was opened or saved (a11-7b).
   fileChangedOnDisk,
 
+  /// A change to a signed document waits for
+  /// `EngineService.confirmEditSigned` (a3-16a, G35).
+  confirmationRequired,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
@@ -507,6 +511,8 @@ class OpenedDocument {
     this.layers = const [],
     this.layersSwitchable = false,
     this.signatures = const [],
+    this.signed = false,
+    this.certification,
     this.version = '',
     this.fileSize = 0,
     this.info = const DocumentInfo(),
@@ -551,6 +557,13 @@ class OpenedDocument {
 
   /// Its signature fields.
   final List<Signature> signatures;
+
+  /// Whether a change would invalidate a signature, so it waits for
+  /// `EngineService.confirmEditSigned` (G35).
+  final bool signed;
+
+  /// The certification signature's DocMDP level (1 to 3), when certified.
+  final int? certification;
 
   /// Its PDF version, such as `"1.7"`.
   final String version;
@@ -598,6 +611,8 @@ class OpenedDocument {
     layers: layers,
     layersSwitchable: layersSwitchable,
     signatures: signatures,
+    signed: signed,
+    certification: certification,
     version: version,
     fileSize: fileSize,
     info: info,
@@ -1531,7 +1546,11 @@ class HistoryStep {
 @immutable
 class EditHistory {
   /// Creates a history.
-  const new({this.steps = const [], this.current = 0});
+  const new({
+    this.steps = const [],
+    this.current = 0,
+    this.signatureInvalidated = false,
+  });
 
   /// Every committed step, oldest first.
   final List<HistoryStep> steps;
@@ -1539,6 +1558,91 @@ class EditHistory {
   /// How many [steps] apply; the rest can be redone.
   final int current;
 
+  /// Whether the document as it stands no longer matches its signatures: the
+  /// signature row of the review list (a3-12, G42).
+  final bool signatureInvalidated;
+
   /// The steps that can be redone, next first.
   List<HistoryStep> get redoable => steps.sublist(current);
+}
+
+/// A document that a session which ended without cleaning up left recovery
+/// files for (a1-12).
+@immutable
+class RecoverableDocument {
+  /// Creates the entry.
+  const new({
+    required this.session,
+    required this.document,
+    required this.original,
+    this.originalChanged = false,
+    this.changes = 0,
+    this.encrypted = false,
+  });
+
+  /// The session's name, for `EngineService.restoreRecovered` and
+  /// `EngineService.discardRecovery`.
+  final String session;
+
+  /// The document's name in the session.
+  final String document;
+
+  /// The file the document saves to.
+  final String original;
+
+  /// Whether that file changed on disk since: the restored document opens
+  /// under a new name (a11-7f).
+  final bool originalChanged;
+
+  /// How many unsaved changes the files hold.
+  final int changes;
+
+  /// Whether restoring needs the document's password (a1-8).
+  final bool encrypted;
+
+  @override
+  bool operator ==(Object other) =>
+      other is RecoverableDocument &&
+      other.session == session &&
+      other.document == document &&
+      other.original == original &&
+      other.originalChanged == originalChanged &&
+      other.changes == changes &&
+      other.encrypted == encrypted;
+
+  @override
+  int get hashCode => Object.hash(
+    session,
+    document,
+    original,
+    originalChanged,
+    changes,
+    encrypted,
+  );
+}
+
+/// A document `EngineService.restoreRecovered` opened.
+@immutable
+class RestoredDocument {
+  /// Creates the result.
+  const new({
+    required this.opened,
+    required this.path,
+    this.originalChanged = false,
+    this.renderKey,
+  });
+
+  /// The document, as `EngineService.open` gives it.
+  final OpenedDocument opened;
+
+  /// The file it saves to: the original, or a new name beside it when the
+  /// original changed.
+  final String path;
+
+  /// Whether the original changed on disk since it was opened or saved.
+  final bool originalChanged;
+
+  /// Every page's render key with the restored changes; null when the engine
+  /// could not reload.
+  final int? renderKey;
 }

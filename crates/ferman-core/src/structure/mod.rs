@@ -301,6 +301,16 @@ pub enum Agreement {
 const SIZE_TOLERANCE: f32 = 0.05;
 
 impl Structure {
+    /// Whether the file holds a signature a change would invalidate (G35): a signature field
+    /// with a value, a certification, or `/SigFlags` saying the file must only be appended to.
+    /// Empty signature fields alone do not count.
+    #[must_use]
+    pub fn signed(&self) -> bool {
+        self.signatures.iter().any(|signature| signature.signed)
+            || self.certification.is_some()
+            || self.forms.sig_flags & 2 != 0
+    }
+
     /// Compares the pages with the sizes PDFium gives, in page order.
     #[must_use]
     pub fn agrees_with(&self, renderer: &[(f32, f32)]) -> Agreement {

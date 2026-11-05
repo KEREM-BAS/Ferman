@@ -40,6 +40,14 @@
 //! it (§7.5); [`Engine::check_external_change`] asks the same when the window regains focus.
 //! "Keep mine" is [`Engine::save_over_change`]; "Reload" is the app closing the document and
 //! opening it again, which drops the edits.
+//!
+//! Signed documents (docs/ARCHITECTURE.md §6.9, G35): a transaction may preview, but a commit that
+//! changes something and every write of a signed document fail with
+//! [`ErrorKind::ConfirmationRequired`] until [`Engine::confirm_edit_signed`] ran ("Edit anyway").
+//! The actor holds the confirmation until the document closes; it is never persisted, not even
+//! across a restore from the recovery files. The one write without it is a byte-for-byte copy of
+//! the unchanged file to another path, which leaves the signature valid. "Edit a copy" is
+//! [`Engine::save_unsigned_copy`] and an open of the new file.
 
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
@@ -47,8 +55,9 @@ use std::sync::atomic::{AtomicU64, Ordering};
 use std::sync::mpsc;
 use std::sync::{Arc, Mutex, PoisonError};
 use std::thread;
-use std::time::{SystemTime, UNIX_EPOCH};
+use std::time::{Instant, SystemTime, UNIX_EPOCH};
 
+use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
 use ferman_core::{CoreError, WriteError};
@@ -65,6 +74,7 @@ use super::document::Model;
 use super::engine::Engine;
 use super::error::{ApiError, ErrorKind, MessageKey};
 use super::guard::{guard, guard_async};
+use super::recovery::Recovery;
 use super::text::{PageBlocks, page_blocks_info};
 
 /// The stack of an actor thread: the interpreter recurses into nested objects, bounded by the
@@ -235,6 +245,19 @@ pub struct DependentCell {
     pub frame: CharBox,
 }
 
+/// The confirmation of the first change to a signed document (a3-16a, "Edit anyway"), for one
+/// document until it closes. The engine holds it: the calls it allows do not take it.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub struct ConfirmationToken(u64);
+
+impl ConfirmationToken {
+    /// The raw value, for the UI.
+    #[must_use]
+    pub fn get(self) -> u64 {
+        self.0
+    }
+}
+
 /// Where the document's history stands after a commit, rollback, undo or redo.
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RevisionInfo {
@@ -269,6 +292,9 @@ pub struct History {
     pub steps: Vec<HistoryStep>,
     /// How many steps apply.
     pub current: u32,
+    /// Whether the document as it stands no longer matches its signatures: the signature row of
+    /// the review list (a3-12, G42), named from the open result's signatures.
+    pub signature_invalidated: bool,
 }
 
 /// A message to an actor: a call to run on its session.
@@ -288,8 +314,17 @@ pub(super) enum SaveTarget {
     Copy(PathBuf),
 }
 
-/// Whether `a` and `b` name the same file, links resolved.
+/// Whether `a` and `b` name the same file, links resolved. On Unix the file's identity decides:
+/// macOS's `realpath` keeps the case it is given, so `A.PDF` and `a.pdf` on a volume that ignores
+/// case resolve to two paths, and an "other" path could replace the document's own file.
 fn same_file(a: &Path, b: &Path) -> bool {
+    #[cfg(unix)]
+    {
+        use std::os::unix::fs::MetadataExt as _;
+        if let (Ok(a), Ok(b)) = (std::fs::metadata(a), std::fs::metadata(b)) {
+            return (a.dev(), a.ino()) == (b.dev(), b.ino());
+        }
+    }
     let resolve = |path: &Path| std::fs::canonicalize(path).unwrap_or_else(|_| path.to_path_buf());
     resolve(a) == resolve(b)
 }
@@ -300,6 +335,9 @@ type Reload = Option<(u64, Arc<[u8]>)>;
 
 /// The transaction ids handed out; 0 is never one.
 static NEXT_TRANSACTION: AtomicU64 = AtomicU64::new(1);
+
+/// The confirmation tokens handed out.
+static NEXT_CONFIRMATION: AtomicU64 = AtomicU64::new(1);
 
 /// An actor's state: one document's revisions and its open transaction.
 pub(super) struct Session {
@@ -317,6 +355,15 @@ pub(super) struct Session {
     fonts: Arc<Fonts>,
     /// The fonts the UI has been told of, by step and name.
     announced: Vec<(SubstitutionKind, String)>,
+    /// The revision the file at `path` holds; `None` once a commit replaced it in the history.
+    saved: Option<usize>,
+    /// The recovery switch and the running session, shared by the actors.
+    recovery_config: Arc<Recovery>,
+    /// The document's recovery files, from its first unsaved change (docs/ARCHITECTURE.md
+    /// §7.6).
+    recovery: Option<DocumentRecovery>,
+    /// The confirmation of the first change to a signed document.
+    confirmation: Option<ConfirmationToken>,
 }
 
 /// The open transaction.
@@ -347,24 +394,69 @@ struct Open {
 impl Session {
     #[cfg(test)]
     pub(super) fn new(model: Arc<Model>) -> Self {
-        Self::with_fonts(model, Arc::default())
+        Self::with_engine(model, Arc::default(), Arc::default())
     }
 
-    pub(super) fn with_fonts(model: Arc<Model>, fonts: Arc<Fonts>) -> Self {
+    pub(super) fn with_engine(
+        model: Arc<Model>,
+        fonts: Arc<Fonts>,
+        recovery_config: Arc<Recovery>,
+    ) -> Self {
         let committed = Arc::clone(&model.revised().store);
         let path = model.path.clone();
-        let stamp = model.document.source().stamp();
+        let stamp = model.stamp.clone();
+        let recovery = model
+            .recovery
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .take();
+        // A restored document starts with its unsaved revision as one step, named by the UI.
+        let steps = (0..committed.current())
+            .map(|_| HistoryStep {
+                name: String::new(),
+                time: now_millis(),
+                hidden_lines: 0,
+                substitutions: Vec::new(),
+            })
+            .collect();
         Self {
             model,
             committed,
             open: None,
-            steps: Vec::new(),
+            steps,
             path,
             stamp,
             rewritten: false,
             fonts,
             announced: Vec::new(),
+            saved: Some(0),
+            recovery_config,
+            recovery,
+            confirmation: None,
         }
+    }
+
+    /// Whether the document holds signatures a change would invalidate.
+    fn signed(&self) -> bool {
+        self.model.document.structure().signed()
+    }
+
+    /// Fails while a signed document waits for its confirmation.
+    fn confirmed(&self) -> Result<(), ApiError> {
+        if self.signed() && self.confirmation.is_none() {
+            return Err(ApiError::new(
+                ErrorKind::ConfirmationRequired,
+                MessageKey::INTERNAL,
+            ));
+        }
+        Ok(())
+    }
+
+    /// The document's confirmation, made with the first call.
+    fn confirm(&mut self) -> ConfirmationToken {
+        *self.confirmation.get_or_insert_with(|| {
+            ConfirmationToken(NEXT_CONFIRMATION.fetch_add(1, Ordering::Relaxed))
+        })
     }
 
     fn context(&self) -> EditContext {
@@ -663,10 +755,15 @@ impl Session {
         transaction: TransactionId,
         name: String,
     ) -> Result<(u32, Reload, Vec<FontSubstitution>), ApiError> {
-        if self.open(transaction)?.pending.is_some() {
+        let open = self.open(transaction)?;
+        let changed = open.working.is_some();
+        if open.pending.is_some() {
             // Never silent: the provisional font waits for choose_font or keep_as_is.
             return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
                 .with_details(PENDING_CHOICE));
+        }
+        if changed {
+            self.confirmed()?;
         }
         let (working, hidden, substitutions) = self.open.take().map_or_else(
             || (None, 0, Vec::new()),
@@ -693,15 +790,12 @@ impl Session {
         self.steps.truncate(before);
         self.steps.push(HistoryStep {
             name,
-            time: SystemTime::now()
-                .duration_since(UNIX_EPOCH)
-                .ok()
-                .and_then(|since| i64::try_from(since.as_millis()).ok())
-                .unwrap_or(0),
+            time: now_millis(),
             hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
             substitutions,
         });
         self.committed = Arc::new(working);
+        self.journal(Change::Commit);
         Ok((self.current(), self.publish(), told))
     }
 
@@ -714,12 +808,14 @@ impl Session {
     pub(super) fn undo(&mut self) -> Result<(u32, Reload), ApiError> {
         self.closed()?;
         Arc::make_mut(&mut self.committed).undo()?;
+        self.journal(Change::Move);
         Ok((self.current(), self.publish()))
     }
 
     pub(super) fn redo(&mut self) -> Result<(u32, Reload), ApiError> {
         self.closed()?;
         Arc::make_mut(&mut self.committed).redo()?;
+        self.journal(Change::Move);
         Ok((self.current(), self.publish()))
     }
 
@@ -727,6 +823,7 @@ impl Session {
         History {
             steps: self.steps.clone(),
             current: self.current(),
+            signature_invalidated: self.signed() && (self.current() > 0 || self.rewritten),
         }
     }
 
@@ -737,6 +834,14 @@ impl Session {
 
     /// Writes the committed revisions as `target` says. An open transaction is not saved.
     pub(super) fn save(&mut self, target: SaveTarget) -> Result<(), ApiError> {
+        let own_file = match &target {
+            SaveTarget::File { .. } => true,
+            SaveTarget::As(path) | SaveTarget::Copy(path) => same_file(path, &self.path),
+        };
+        // The unchanged file copied elsewhere keeps its signature valid.
+        if own_file || self.committed.current() > 0 || self.rewritten {
+            self.confirmed()?;
+        }
         let (path, check, moves) = match target {
             SaveTarget::File { over_change } => (self.path.clone(), !over_change, true),
             SaveTarget::As(path) => {
@@ -761,12 +866,14 @@ impl Session {
         if moves {
             self.path = path;
             self.stamp = stamp;
+            self.saved_now();
         }
         Ok(())
     }
 
     /// Optimize and clean: the document's file rewritten whole (docs/ARCHITECTURE.md §7.3).
     pub(super) fn optimize_and_clean(&mut self) -> Result<(), ApiError> {
+        self.confirmed()?;
         if self.model.document.repair().is_some() {
             return Err(CoreError::Write(WriteError::Repaired).into());
         }
@@ -774,6 +881,7 @@ impl Session {
         self.stamp = ferman_core::save::save_pdf(&self.path, &bytes, None, Some(&self.stamp))
             .map_err(|err| ApiError::from(err).of_save())?;
         self.rewritten = true;
+        self.saved_now();
         Ok(())
     }
 
@@ -784,6 +892,7 @@ impl Session {
         path: &Path,
         replace_original: bool,
     ) -> Result<(), ApiError> {
+        self.confirmed()?;
         let original = same_file(path, &self.path);
         if original && !replace_original {
             return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
@@ -799,9 +908,90 @@ impl Session {
         Ok(())
     }
 
+    /// The working copy of "Edit a copy": the committed revisions rewritten whole and unsigned
+    /// as the file at `path`, never the document's own file. The document does not move.
+    pub(super) fn save_unsigned_copy(&self, path: &Path) -> Result<(), ApiError> {
+        if same_file(path, &self.path) {
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("the unsigned copy cannot replace the signed original"));
+        }
+        let bytes = self.committed.without_signatures(&self.model.document)?;
+        ferman_core::save::save_pdf(path, &bytes, None, None)
+            .map_err(|err| ApiError::from(err).of_save())?;
+        Ok(())
+    }
+
     /// Whether the document's file changed on disk since it was opened or saved.
     pub(super) fn external_change(&self) -> Result<bool, ApiError> {
         Ok(self.stamp.changed(&self.path)?)
+    }
+
+    /// Records the change that made the current revision in the recovery files, made with the
+    /// first unsaved change; with the switch off (a11-1c) or no session there are none. A
+    /// recovery write that fails is logged and never fails the edit.
+    fn journal(&mut self, change: Change) {
+        if change == Change::Commit
+            && self
+                .saved
+                .is_some_and(|saved| self.committed.current() <= saved)
+        {
+            self.saved = None;
+        }
+        let Some(session) = self.recovery_config.session() else {
+            self.discard_recovery();
+            return;
+        };
+        if self.recovery.is_none() {
+            match DocumentRecovery::new(&session, self.path.clone(), self.stamp.clone(), self.saved)
+            {
+                Ok(recovery) => self.recovery = Some(recovery),
+                Err(err) => tracing::warn!(error = %err, "no recovery files"),
+            }
+        }
+        if let Some(recovery) = &mut self.recovery
+            && let Err(err) = recovery.record(
+                &self.model.document,
+                &self.committed,
+                change,
+                Instant::now(),
+            )
+        {
+            tracing::warn!(error = %err, "the recovery journal could not be written");
+        }
+    }
+
+    /// The actor's tick, about once a second: syncs the journal and writes the minute's
+    /// snapshot; deletes the files once the switch is off.
+    pub(super) fn tick(&mut self) {
+        if self.recovery_config.session().is_none() {
+            self.discard_recovery();
+            return;
+        }
+        if let Some(recovery) = &mut self.recovery
+            && let Err(err) = recovery.tick(&self.model.document, &self.committed, Instant::now())
+        {
+            tracing::warn!(error = %err, "the recovery journal could not be written");
+        }
+    }
+
+    /// Deletes the recovery files ("Don't save", or the switch turned off).
+    pub(super) fn discard_recovery(&mut self) {
+        if let Some(mut recovery) = self.recovery.take()
+            && let Err(err) = recovery.clear()
+        {
+            tracing::warn!(error = %err, "the recovery files could not be deleted");
+        }
+    }
+
+    /// After a save of the current revision to `path`: its recovery files go.
+    fn saved_now(&mut self) {
+        let saved = self.committed.current();
+        self.saved = Some(saved);
+        if let Some(recovery) = &mut self.recovery
+            && let Err(err) = recovery.saved(saved, self.path.clone(), self.stamp.clone())
+        {
+            tracing::warn!(error = %err, "the recovery files could not be deleted");
+        }
     }
 
     fn closed(&self) -> Result<(), ApiError> {
@@ -811,13 +1001,13 @@ impl Session {
         Ok(())
     }
 
-    fn current(&self) -> u32 {
+    pub(super) fn current(&self) -> u32 {
         u32::try_from(self.committed.current()).unwrap_or(u32::MAX)
     }
 
     /// Publishes the committed revisions for the readers and returns the revised bytes for the
     /// render thread, or `None` when they cannot be written (logged).
-    fn publish(&self) -> Reload {
+    pub(super) fn publish(&self) -> Reload {
         let serial = {
             let mut revised = self.model.revised();
             revised.store = Arc::clone(&self.committed);
@@ -838,6 +1028,15 @@ impl Session {
             }
         }
     }
+}
+
+/// Now, in milliseconds since the Unix epoch.
+fn now_millis() -> i64 {
+    SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .ok()
+        .and_then(|since| i64::try_from(since.as_millis()).ok())
+        .unwrap_or(0)
 }
 
 /// The details of the error a commit gets while a step 3 choice is pending.
@@ -989,9 +1188,11 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// Returns `NotFound` for a transaction that is not open, and `InvalidInput` while step 3's
+    /// Returns `NotFound` for a transaction that is not open, `InvalidInput` while step 3's
     /// characters wait for [`choose_font`](Self::choose_font) or
-    /// [`keep_as_is`](Self::keep_as_is) (the transaction stays open).
+    /// [`keep_as_is`](Self::keep_as_is), and `ConfirmationRequired` for a change to a signed
+    /// document before [`confirm_edit_signed`](Self::confirm_edit_signed) (in both cases the
+    /// transaction stays open).
     pub async fn commit(
         &self,
         transaction: TransactionId,
@@ -1003,11 +1204,11 @@ impl Engine {
                 .ask(document, move |session| session.commit(transaction, name))
                 .await;
             // A failed commit ends the transaction too: the actor dropped it, unless a font
-            // choice is pending.
-            let pending = result
-                .as_ref()
-                .err()
-                .is_some_and(|err| err.details.as_deref() == Some(PENDING_CHOICE));
+            // choice or the signed document's confirmation is pending.
+            let pending = result.as_ref().err().is_some_and(|err| {
+                err.details.as_deref() == Some(PENDING_CHOICE)
+                    || err.kind == ErrorKind::ConfirmationRequired
+            });
             if !pending {
                 self.end_transaction(transaction);
             }
@@ -1086,10 +1287,12 @@ impl Engine {
     ///
     /// Returns `NotFound` for a document that is not open, `Unsupported` for a repaired one
     /// (saved with [`save_repaired_copy`](Self::save_repaired_copy) instead),
-    /// `FileChangedOnDisk` when the file changed since it was opened or saved, and the save
-    /// failures of docs/ARCHITECTURE.md §7.8 (`DiskFull`, `PermissionDenied`, `FileLocked`,
-    /// `RenameFailed`, `VolumeGone`, `HardLinked`, `NotOwner`, `Io`) with
-    /// [`ApiError::offer_save_as`]. The file and the committed revisions stay as they were.
+    /// `ConfirmationRequired` for a signed document before
+    /// [`confirm_edit_signed`](Self::confirm_edit_signed) (save, save as and copy alike, but for
+    /// the unchanged file copied to another path), `FileChangedOnDisk` when the file changed
+    /// since it was opened or saved, and the save failures of docs/ARCHITECTURE.md §7.8
+    /// (`DiskFull`, `PermissionDenied`, `FileLocked`, `RenameFailed`, `VolumeGone`, `HardLinked`,
+    /// `NotOwner`, `Io`) with [`ApiError::offer_save_as`]. The file and the committed revisions stay as they were.
     pub async fn save(&self, document: DocumentId) -> Result<(), ApiError> {
         self.save_to(document, SaveTarget::File { over_change: false })
             .await
@@ -1137,11 +1340,13 @@ impl Engine {
     /// Optimize and clean (docs/ARCHITECTURE.md §7.3): the document's file rewritten whole,
     /// without earlier revisions and unreferenced objects, streams compressed, encrypted with
     /// its own key; later saves rewrite it whole too. It breaks signatures, so the UI asks
-    /// [`would_break_signatures`](Self::would_break_signatures) and warns first.
+    /// [`would_break_signatures`](Self::would_break_signatures) and warns first, and on a signed
+    /// document it needs [`confirm_edit_signed`](Self::confirm_edit_signed).
     ///
     /// # Errors
     ///
-    /// As [`save`](Self::save); `Unsupported` for a repaired document.
+    /// As [`save`](Self::save), `ConfirmationRequired` even for an unchanged document;
+    /// `Unsupported` for a repaired document.
     pub async fn optimize_and_clean(&self, document: DocumentId) -> Result<(), ApiError> {
         guard_async(async move { self.ask(document, Session::optimize_and_clean).await }).await
     }
@@ -1152,8 +1357,10 @@ impl Engine {
     ///
     /// # Errors
     ///
-    /// `InvalidInput` for the document's own file without `replace_original`, and the save
-    /// failures of [`save`](Self::save).
+    /// `InvalidInput` for the document's own file without `replace_original`,
+    /// `ConfirmationRequired` for a signed document before
+    /// [`confirm_edit_signed`](Self::confirm_edit_signed), and the save failures of
+    /// [`save`](Self::save).
     pub async fn save_repaired_copy(
         &self,
         document: DocumentId,
@@ -1169,24 +1376,47 @@ impl Engine {
         .await
     }
 
-    /// Whether a full rewrite of the document (Optimize and clean) would break signatures: it
-    /// has a signed signature field (G35).
+    /// Whether a full rewrite of the document (Optimize and clean) would break signatures
+    /// (G35).
     ///
     /// # Errors
     ///
     /// Returns `NotFound` for a document that is not open.
     pub async fn would_break_signatures(&self, document: DocumentId) -> Result<bool, ApiError> {
+        guard_async(async move { self.ask(document, |session| Ok(session.signed())).await }).await
+    }
+
+    /// Confirms the first change to a signed document ("Edit anyway", a3-16a): commits and
+    /// writes of this document no longer fail with `ConfirmationRequired` until it closes. The
+    /// confirmation is the document's own and is never persisted; asking again returns the same
+    /// token.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open.
+    pub async fn confirm_edit_signed(
+        &self,
+        document: DocumentId,
+    ) -> Result<ConfirmationToken, ApiError> {
+        guard_async(async move { self.ask(document, |session| Ok(session.confirm())).await }).await
+    }
+
+    /// Writes the working copy of "Edit a copy" (a3-16a): the document's committed revisions
+    /// rewritten whole as the file at `path`, without its signatures, which the app then opens
+    /// as any file. The document and its file stay as they are. Needs no confirmation.
+    ///
+    /// # Errors
+    ///
+    /// `InvalidInput` for the document's own file, and the save failures of
+    /// [`save`](Self::save).
+    pub async fn save_unsigned_copy(
+        &self,
+        document: DocumentId,
+        path: PathBuf,
+    ) -> Result<(), ApiError> {
         guard_async(async move {
-            self.ask(document, |session| {
-                Ok(session
-                    .model
-                    .document
-                    .structure()
-                    .signatures
-                    .iter()
-                    .any(|signature| signature.signed))
-            })
-            .await
+            self.ask(document, move |session| session.save_unsigned_copy(&path))
+                .await
         })
         .await
     }
@@ -1207,8 +1437,22 @@ impl Engine {
         .await
     }
 
-    /// Ends the actor and the transactions of a document that closes.
-    pub(super) fn end_edits(&self, document: DocumentId) {
+    /// Ends the actor and the transactions of a document that closes; its recovery files go
+    /// with `discard_recovery` ("Don't save") and stay otherwise.
+    pub(super) async fn end_edits(&self, document: DocumentId, discard_recovery: bool) {
+        let running = self
+            .actors
+            .lock()
+            .unwrap_or_else(PoisonError::into_inner)
+            .contains_key(&document);
+        if discard_recovery && running {
+            let _ = self
+                .ask(document, |session| {
+                    session.discard_recovery();
+                    Ok(())
+                })
+                .await;
+        }
         self.actors
             .lock()
             .unwrap_or_else(PoisonError::into_inner)
@@ -1220,7 +1464,7 @@ impl Engine {
     }
 
     /// Runs `job` on the actor of `document`, started on first use, and awaits its result.
-    async fn ask<T: Send + 'static>(
+    pub(super) async fn ask<T: Send + 'static>(
         &self,
         document: DocumentId,
         job: impl FnOnce(&mut Session) -> Result<T, ApiError> + Send + 'static,
@@ -1251,14 +1495,24 @@ impl Engine {
             .cloned()
             .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
         let fonts = Arc::clone(&self.fonts);
+        let recovery = Arc::clone(&self.recovery);
         let (mailbox, inbox) = mpsc::channel::<Job>();
         thread::Builder::new()
             .name("ferman-edit".to_owned())
             .stack_size(ACTOR_STACK)
             .spawn(move || {
-                let mut session = Session::with_fonts(model, fonts);
-                for job in inbox {
-                    job(&mut session);
+                let mut session = Session::with_engine(model, fonts, recovery);
+                loop {
+                    match inbox.recv_timeout(SYNC_INTERVAL) {
+                        Ok(job) => job(&mut session),
+                        Err(mpsc::RecvTimeoutError::Timeout) => {}
+                        Err(mpsc::RecvTimeoutError::Disconnected) => break,
+                    }
+                    // After a job too: a steady stream of them would never time out.
+                    let _ = guard(AssertUnwindSafe(|| {
+                        session.tick();
+                        Ok(())
+                    }));
                 }
             })
             .map_err(|_| ApiError::internal("cannot start the edit actor"))?;
@@ -1287,7 +1541,7 @@ impl Engine {
 
     /// Hands the render thread the revised bytes, unless a newer revision was handed already,
     /// and awaits the new render key.
-    async fn revision_info(
+    pub(super) async fn revision_info(
         &self,
         document: DocumentId,
         current: u32,
@@ -1450,6 +1704,156 @@ mod tests {
         assert_eq!(history.current, 1);
         assert_eq!(history.steps.len(), 1);
         assert_eq!(history.steps.first().unwrap().name, "Second");
+    }
+
+    /// A copy of the signed corpus file in a folder of its own, opened as a session.
+    fn signed_copy(dir: &Path) -> Session {
+        let path = dir.join("signed.pdf");
+        std::fs::copy(corpus("kira-tr-signed"), &path).unwrap();
+        let source = ferman_core::Source::read(&path).unwrap();
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        Session::new(Arc::new(Model::new(document, path, None, false, None)))
+    }
+
+    fn temp_dir(name: &str) -> PathBuf {
+        let dir = std::env::temp_dir().join(format!("ferman-{name}-{}", std::process::id()));
+        std::fs::create_dir_all(&dir).unwrap();
+        dir
+    }
+
+    fn refused<T: std::fmt::Debug>(result: Result<T, ApiError>) {
+        assert_eq!(result.unwrap_err().kind, ErrorKind::ConfirmationRequired);
+    }
+
+    #[test]
+    fn a_signed_document_writes_nothing_before_its_confirmation() {
+        let dir = temp_dir("signed-writes");
+        let mut session = signed_copy(&dir);
+        let path = session.path.clone();
+        let before = std::fs::read(&path).unwrap();
+
+        // A preview needs no confirmation, the commit does, and the transaction stays open.
+        let block = blocks(&session, 0)
+            .blocks
+            .into_iter()
+            .find(|block| block.lines.iter().any(|l| l.text.contains("18.500")))
+            .unwrap();
+        let text: Vec<String> = block.lines.iter().map(|l| l.text.clone()).collect();
+        let tx = session.begin(0, block.id).unwrap();
+        session
+            .apply(tx, &text.join("\n").replacen("18.500", "19.500", 1))
+            .unwrap();
+        refused(session.commit(tx, "Edited".to_owned()));
+        assert_eq!(session.current(), 0);
+        assert!(session.open.is_some());
+        assert!(!session.history().signature_invalidated);
+        session.rollback(tx).unwrap();
+
+        // A commit that changed nothing asks nothing.
+        let tx = session.begin(0, block.id).unwrap();
+        assert_eq!(session.commit(tx, "Nothing".to_owned()).unwrap().0, 0);
+
+        refused(session.save(SaveTarget::File { over_change: false }));
+        refused(session.save(SaveTarget::File { over_change: true }));
+        refused(session.save(SaveTarget::As(path.clone())));
+        refused(session.save(SaveTarget::Copy(path.clone())));
+        refused(session.optimize_and_clean());
+        refused(session.save_repaired_copy(&dir.join("fixed.pdf"), false));
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+
+        // The unchanged file copied elsewhere keeps its signature valid.
+        let copy = dir.join("copy.pdf");
+        session.save(SaveTarget::Copy(copy.clone())).unwrap();
+        assert_eq!(std::fs::read(&copy).unwrap(), before);
+
+        // The working copy is unsigned, and never the original.
+        let working = dir.join("working.pdf");
+        session.save_unsigned_copy(&working).unwrap();
+        let source = ferman_core::Source::read(&working).unwrap();
+        let opened = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        assert!(!opened.structure().signed());
+        let err = session.save_unsigned_copy(&path).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::InvalidInput);
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+
+        // The confirmation is this document's: another session of the same file still asks.
+        let token = session.confirm();
+        assert_eq!(session.confirm(), token);
+        let other = signed_copy(&dir);
+        assert!(other.confirmed().is_err());
+        edit(&mut session, "18.500", "19.500", "Edited");
+        assert!(session.history().signature_invalidated);
+        session
+            .save(SaveTarget::File { over_change: false })
+            .unwrap();
+        let saved = std::fs::read(&path).unwrap();
+        assert_eq!(saved.get(..before.len()), Some(before.as_slice()));
+        session.undo().unwrap();
+        assert!(!session.history().signature_invalidated);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn a_restored_signed_document_asks_again() {
+        let dir = temp_dir("signed-restored");
+        let mut session = signed_copy(&dir);
+        let path = session.path.clone();
+        session.confirm();
+        edit(&mut session, "18.500", "19.500", "Edited");
+        let before = std::fs::read(&path).unwrap();
+
+        // A new actor over the published revision, as a restore starts one.
+        let mut restored = Session::new(Arc::clone(&session.model));
+        assert_eq!(restored.current(), 1);
+        assert!(restored.history().signature_invalidated);
+        refused(restored.save(SaveTarget::File { over_change: false }));
+        let copy = dir.join("copy.pdf");
+        refused(restored.save(SaveTarget::Copy(copy.clone())));
+        assert!(!copy.exists());
+        assert_eq!(std::fs::read(&path).unwrap(), before);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    /// The other name of the signed file never counts as another path: not a hard link, and not
+    /// the name in another case where the volume ignores case.
+    #[cfg(unix)]
+    #[test]
+    fn the_unsigned_copy_never_replaces_the_original_under_another_name() {
+        let dir = temp_dir("signed-alias");
+        let session = signed_copy(&dir);
+        let path = session.path.clone();
+        let before = std::fs::read(&path).unwrap();
+        let link = dir.join("link.pdf");
+        std::fs::hard_link(&path, &link).unwrap();
+        let upper = dir.join("SIGNED.PDF");
+        for alias in [Some(link), upper.exists().then_some(upper)]
+            .into_iter()
+            .flatten()
+        {
+            let err = session.save_unsigned_copy(&alias).unwrap_err();
+            assert_eq!(err.kind, ErrorKind::InvalidInput, "{}", alias.display());
+            assert_eq!(std::fs::read(&path).unwrap(), before);
+        }
+        assert!(!same_file(&path, &dir.join("other.pdf")));
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn optimize_and_clean_after_the_confirmation_keeps_the_row() {
+        let dir = temp_dir("signed-optimize");
+        let mut session = signed_copy(&dir);
+        session.confirm();
+        session.optimize_and_clean().unwrap();
+        assert!(session.history().signature_invalidated);
+        std::fs::remove_dir_all(&dir).unwrap();
+    }
+
+    #[test]
+    fn an_unsigned_document_needs_no_confirmation() {
+        let mut session = session("edit-e15-helvetica", None);
+        assert!(session.confirmed().is_ok());
+        edit(&mut session, "Monday", "Friday", "Edited");
+        assert!(!session.history().signature_invalidated);
     }
 
     #[test]
@@ -1874,6 +2278,53 @@ mod tests {
 
     fn file() -> SaveTarget {
         SaveTarget::File { over_change: false }
+    }
+
+    #[test]
+    fn the_recovery_files_follow_the_unsaved_changes() {
+        let (mut session, own) = copied("edit-e15-helvetica", "recovery", "own.pdf");
+        let config = Arc::new(Recovery::started(&own.parent().unwrap().join("Recovery")));
+        session.recovery_config = Arc::clone(&config);
+        edit(&mut session, "Monday", "Friday", "Edited text");
+        let dir = session.recovery.as_ref().unwrap().dir().to_path_buf();
+        for file in ["manifest.json", "base.pdf", "journal.log"] {
+            assert!(dir.join(file).is_file(), "{file}");
+        }
+        assert_eq!(
+            std::fs::read(dir.join("base.pdf")).unwrap(),
+            std::fs::read(&own).unwrap()
+        );
+        // A save deletes them; an undo past it makes them again.
+        session.save(file()).unwrap();
+        assert!(!dir.exists());
+        session.undo().unwrap();
+        assert!(dir.join("journal.log").is_file());
+        let manifest = ferman_core::recovery::Manifest::read(&dir).unwrap();
+        assert_eq!(manifest.saved_revision, 1);
+        assert_eq!(manifest.original, own);
+        // The switch off deletes them at the next tick, and nothing is written while it is.
+        config.set_enabled(false);
+        session.tick();
+        assert!(!dir.exists());
+        session.redo().unwrap();
+        assert!(!dir.exists());
+        config.set_enabled(true);
+        session.undo().unwrap();
+        let dir = session.recovery.as_ref().unwrap().dir().to_path_buf();
+        assert!(dir.join("journal.log").is_file());
+        // "Don't save".
+        session.discard_recovery();
+        assert!(!dir.exists());
+        // Undone past the save, a new edit is at the saved number and is still unsaved.
+        edit(&mut session, "Monday", "Sunday", "Edited text");
+        assert_eq!(session.current(), 1);
+        let dir = session.recovery.as_ref().unwrap().dir().to_path_buf();
+        assert!(dir.join("journal.log").is_file());
+        session.undo().unwrap();
+        session.redo().unwrap();
+        assert!(dir.join("journal.log").is_file());
+        session.discard_recovery();
+        std::fs::remove_dir_all(own.parent().unwrap()).unwrap();
     }
 
     #[test]

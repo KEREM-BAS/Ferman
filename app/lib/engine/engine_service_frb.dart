@@ -5,9 +5,11 @@ import 'dart:ui' show Offset, Rect;
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/engine/recovery_directory.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary;
+import 'package:path_provider/path_provider.dart';
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
 /// This file and the generated `app/lib/bridge/` are the only Dart code that
@@ -15,9 +17,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
 class FrbEngineService implements EngineService {
   new _();
 
-  /// Loads the engine library, checks its API version and returns the
-  /// service. Throws an [EngineUnavailableException] when the library cannot
-  /// be loaded or speaks an API version this app does not accept.
+  /// Loads the engine library, checks its API version, starts crash
+  /// recovery in the app data directory and returns the service. Throws an
+  /// [EngineUnavailableException] when the library cannot be loaded or
+  /// speaks an API version this app does not accept.
   static Future<FrbEngineService> start() async {
     final library = bundledEngineLibraryPath();
     try {
@@ -39,7 +42,25 @@ class FrbEngineService implements EngineService {
         engineApiVersion: engine,
       );
     }
+    await service._startRecovery();
     return service;
+  }
+
+  /// Starts crash recovery in [recoveryDirectory]. Without it the engine
+  /// keeps no recovery files, and everything else still works.
+  Future<void> _startRecovery() async {
+    try {
+      final root = recoveryDirectory(
+        os: Platform.operatingSystem,
+        environment: Platform.environment,
+        applicationSupport: Platform.isMacOS
+            ? (await getApplicationSupportDirectory()).path
+            : null,
+      );
+      if (root != null) await startRecovery(root);
+    } on Object {
+      // No recovery folder: the documents open and save without one.
+    }
   }
 
   @override
@@ -75,108 +96,7 @@ class FrbEngineService implements EngineService {
   @override
   Future<OpenedDocument> open(String path, {String? password}) async {
     try {
-      final document = await bridge.open(path: path, password: password);
-      return OpenedDocument(
-        id: document.id.toInt(),
-        readOnly: switch (document.readOnly) {
-          null => null,
-          bridge.ReadOnlyReason.repaired => ReadOnlyReason.repaired,
-          bridge.ReadOnlyReason.parsersDisagree =>
-            ReadOnlyReason.parsersDisagree,
-          bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
-        },
-        repairs: [
-          for (final fix in document.repairs)
-            RepairFix(
-              kind: switch (fix.kind) {
-                bridge.RepairKind.crossReferenceRebuilt =>
-                  RepairKind.crossReferenceRebuilt,
-                bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
-                bridge.RepairKind.streamLengthsCorrected =>
-                  RepairKind.streamLengthsCorrected,
-                bridge.RepairKind.objectsUnreadable =>
-                  RepairKind.objectsUnreadable,
-              },
-              count: fix.count,
-            ),
-        ],
-        rightToLeft: document.rightToLeft,
-        pages: [
-          for (final page in document.pages)
-            PageInfo(width: page.width, height: page.height, label: page.label),
-        ],
-        outline: [
-          for (final item in document.outline)
-            OutlineEntry(
-              title: item.title,
-              page: item.page,
-              depth: item.depth,
-              open: item.open,
-            ),
-        ],
-        attachments: [
-          for (final file in document.attachments)
-            Attachment(
-              name: file.name,
-              size: file.size?.toInt(),
-              modified: _date(file.modified),
-            ),
-        ],
-        layers: [
-          for (final layer in document.layers)
-            Layer(
-              name: layer.name,
-              visible: layer.visible,
-              locked: layer.locked,
-            ),
-        ],
-        layersSwitchable: document.layersSwitchable,
-        signatures: [
-          for (final field in document.signatures)
-            Signature(
-              field: field.field,
-              signed: field.signed,
-              signer: field.signer,
-              signedAt: _date(field.signedAt),
-              page: field.page,
-            ),
-        ],
-        version: document.version,
-        fileSize: document.fileSize.toInt(),
-        info: DocumentInfo(
-          title: document.info.title,
-          author: document.info.author,
-          subject: document.info.subject,
-          keywords: document.info.keywords,
-          creator: document.info.creator,
-          producer: document.info.producer,
-          created: _date(document.info.created),
-          modified: _date(document.info.modified),
-        ),
-        language: document.language,
-        tagged: document.tagged,
-        linearized: document.linearized,
-        fonts: [
-          for (final font in document.fonts)
-            FontEntry(
-              name: font.name,
-              kind: switch (font.kind) {
-                bridge.FontType.type1 => FontType.type1,
-                bridge.FontType.multipleMaster => FontType.multipleMaster,
-                bridge.FontType.trueType => FontType.trueType,
-                bridge.FontType.type0 => FontType.type0,
-                bridge.FontType.type3 => FontType.type3,
-                bridge.FontType.other => FontType.other,
-              },
-              embedded: font.embedded,
-              subset: font.subset,
-            ),
-        ],
-        security: _security(document.security),
-        scripts: document.scripts,
-        formFields: document.formFields,
-        scanned: document.scanned,
-      );
+      return _opened(await bridge.open(path: path, password: password));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -197,9 +117,86 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> close(int document) async {
+  Future<void> close(int document) => _close(document, discard: false);
+
+  @override
+  Future<void> closeDiscarding(int document) => _close(document, discard: true);
+
+  Future<void> _close(int document, {required bool discard}) async {
     try {
-      await bridge.close(document: BigInt.from(document));
+      await bridge.close(
+        document: BigInt.from(document),
+        discardRecovery: discard,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> startRecovery(String root) async {
+    try {
+      await bridge.startRecovery(root: root);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> setRecoveryEnabled({required bool enabled}) async {
+    try {
+      await bridge.setRecoveryEnabled(enabled: enabled);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<RecoverableDocument>> listRecoverable() async {
+    try {
+      return [
+        for (final found in await bridge.listRecoverable())
+          RecoverableDocument(
+            session: found.session,
+            document: found.document,
+            original: found.original,
+            originalChanged: found.originalChanged,
+            changes: found.changes,
+            encrypted: found.encrypted,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+  }) async {
+    try {
+      final restored = await bridge.restoreRecovered(
+        session: session,
+        document: document,
+        password: password,
+      );
+      return RestoredDocument(
+        opened: _opened(restored.opened),
+        path: restored.path,
+        originalChanged: restored.originalChanged,
+        renderKey: restored.renderKey?.toSigned(64).toInt(),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> discardRecovery(String session, {String? document}) async {
+    try {
+      await bridge.discardRecovery(session: session, document: document);
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -686,6 +683,7 @@ class FrbEngineService implements EngineService {
             ),
         ],
         current: history.current,
+        signatureInvalidated: history.signatureInvalidated,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -752,6 +750,30 @@ class FrbEngineService implements EngineService {
   Future<bool> wouldBreakSignatures(int document) async {
     try {
       return await bridge.wouldBreakSignatures(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<int> confirmEditSigned(int document) async {
+    try {
+      final token = await bridge.confirmEditSigned(
+        document: BigInt.from(document),
+      );
+      return token.toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> saveUnsignedCopy(int document, String path) async {
+    try {
+      await bridge.saveUnsignedCopy(
+        document: BigInt.from(document),
+        path: path,
+      );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -885,6 +907,7 @@ EngineErrorKind _kind(bridge.ErrorKind kind) => switch (kind) {
   bridge.ErrorKind.hardLinked => EngineErrorKind.hardLinked,
   bridge.ErrorKind.notOwner => EngineErrorKind.notOwner,
   bridge.ErrorKind.fileChangedOnDisk => EngineErrorKind.fileChangedOnDisk,
+  bridge.ErrorKind.confirmationRequired => EngineErrorKind.confirmationRequired,
   bridge.ErrorKind.internal => EngineErrorKind.internal,
 };
 
@@ -1013,6 +1036,105 @@ String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
 
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+/// The engine's document as the app's.
+OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
+  id: document.id.toInt(),
+  readOnly: switch (document.readOnly) {
+    null => null,
+    bridge.ReadOnlyReason.repaired => ReadOnlyReason.repaired,
+    bridge.ReadOnlyReason.parsersDisagree => ReadOnlyReason.parsersDisagree,
+    bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
+  },
+  repairs: [
+    for (final fix in document.repairs)
+      RepairFix(
+        kind: switch (fix.kind) {
+          bridge.RepairKind.crossReferenceRebuilt =>
+            RepairKind.crossReferenceRebuilt,
+          bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
+          bridge.RepairKind.streamLengthsCorrected =>
+            RepairKind.streamLengthsCorrected,
+          bridge.RepairKind.objectsUnreadable => RepairKind.objectsUnreadable,
+        },
+        count: fix.count,
+      ),
+  ],
+  rightToLeft: document.rightToLeft,
+  pages: [
+    for (final page in document.pages)
+      PageInfo(width: page.width, height: page.height, label: page.label),
+  ],
+  outline: [
+    for (final item in document.outline)
+      OutlineEntry(
+        title: item.title,
+        page: item.page,
+        depth: item.depth,
+        open: item.open,
+      ),
+  ],
+  attachments: [
+    for (final file in document.attachments)
+      Attachment(
+        name: file.name,
+        size: file.size?.toInt(),
+        modified: _date(file.modified),
+      ),
+  ],
+  layers: [
+    for (final layer in document.layers)
+      Layer(name: layer.name, visible: layer.visible, locked: layer.locked),
+  ],
+  layersSwitchable: document.layersSwitchable,
+  signed: document.signed,
+  certification: document.certification,
+  signatures: [
+    for (final field in document.signatures)
+      Signature(
+        field: field.field,
+        signed: field.signed,
+        signer: field.signer,
+        signedAt: _date(field.signedAt),
+        page: field.page,
+      ),
+  ],
+  version: document.version,
+  fileSize: document.fileSize.toInt(),
+  info: DocumentInfo(
+    title: document.info.title,
+    author: document.info.author,
+    subject: document.info.subject,
+    keywords: document.info.keywords,
+    creator: document.info.creator,
+    producer: document.info.producer,
+    created: _date(document.info.created),
+    modified: _date(document.info.modified),
+  ),
+  language: document.language,
+  tagged: document.tagged,
+  linearized: document.linearized,
+  fonts: [
+    for (final font in document.fonts)
+      FontEntry(
+        name: font.name,
+        kind: switch (font.kind) {
+          bridge.FontType.type1 => FontType.type1,
+          bridge.FontType.multipleMaster => FontType.multipleMaster,
+          bridge.FontType.trueType => FontType.trueType,
+          bridge.FontType.type0 => FontType.type0,
+          bridge.FontType.type3 => FontType.type3,
+          bridge.FontType.other => FontType.other,
+        },
+        embedded: font.embedded,
+        subset: font.subset,
+      ),
+  ],
+  security: _security(document.security),
+  scripts: document.scripts,
+  formFields: document.formFields,
+  scanned: document.scanned,
+);
 
 Security? _security(bridge.Security? security) => switch (security) {
   null => null,

@@ -23,8 +23,42 @@ abstract interface class EngineService {
   /// Throws an [EngineException] with the kind of the file's problem.
   Future<OpenedDocument> open(String path, {String? password});
 
-  /// Closes a document and ends its views.
+  /// Closes a document and ends its views. Its recovery files stay for the
+  /// next launch to offer (ARCHITECTURE §7.6).
   Future<void> close(int document);
+
+  /// Closes a document after "Don't save": as [close], and its recovery
+  /// files are deleted.
+  Future<void> closeDiscarding(int document);
+
+  /// Starts crash recovery in [root], the app data directory's recovery
+  /// folder (`recoveryDirectory`); again with the same root it does nothing.
+  /// From then on every edited document keeps a journal there until it is
+  /// saved or closed with [closeDiscarding].
+  Future<void> startRecovery(String root);
+
+  /// Turns the recovery files on or off ("Save a recovery copy every
+  /// minute", a11-1c); off, the engine deletes them within a second.
+  Future<void> setRecoveryEnabled({required bool enabled});
+
+  /// The documents that sessions which ended without cleaning up left
+  /// recovery files for (a1-12); empty before [startRecovery].
+  Future<List<RecoverableDocument>> listRecoverable();
+
+  /// Opens [document] of the crashed [session] with its unsaved changes as
+  /// one unsaved step; the file on disk is unchanged. An encrypted one needs
+  /// [password] again: [EngineErrorKind.passwordRequired] without it, then
+  /// [EngineErrorKind.wrongPassword]. When the original changed, the
+  /// document saves to a new name beside it (a11-7f).
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+  });
+
+  /// Deletes the recovery files of [document] of [session], or of the
+  /// whole session without one (Discard in a1-12).
+  Future<void> discardRecovery(String session, {String? document});
 
   /// Lifts [document]'s restrictions for the session with its owner
   /// [password] (a2-10, G106): its security after, or null when it is not
@@ -196,11 +230,25 @@ abstract interface class EngineService {
 
   /// Optimize and clean: the file of [document] rewritten whole, without
   /// earlier revisions and unreferenced objects (ARCHITECTURE §7.3). Ask
-  /// [wouldBreakSignatures] and warn first.
+  /// [wouldBreakSignatures] and warn first; a signed document needs
+  /// [confirmEditSigned].
   Future<void> optimizeAndClean(int document);
 
   /// Whether [optimizeAndClean] would break signatures of [document] (G35).
   Future<bool> wouldBreakSignatures(int document);
+
+  /// Confirms the first change to the signed [document] ("Edit anyway",
+  /// a3-16a). Until then [commitEdit] of a change and every write of it throw
+  /// an [EngineException] with [EngineErrorKind.confirmationRequired], but for
+  /// [saveCopy] of the unchanged file to another path and
+  /// [saveUnsignedCopy]. Holds until the document closes; the engine keeps it,
+  /// so the returned token is not passed back.
+  Future<int> confirmEditSigned(int document);
+
+  /// The working copy of "Edit a copy" (a3-16a): [document] rewritten whole
+  /// as the file at [path] without its signatures, which the app then opens
+  /// in a new tab. The document and its file stay as they are.
+  Future<void> saveUnsignedCopy(int document, String path);
 
   /// Whether the file of [document] changed on disk since it was opened or
   /// saved; asked when the window regains focus (a11-7b).
@@ -272,6 +320,29 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> close(int document) async => throw error;
+
+  @override
+  Future<void> closeDiscarding(int document) async => throw error;
+
+  @override
+  Future<void> startRecovery(String root) async => throw error;
+
+  @override
+  Future<void> setRecoveryEnabled({required bool enabled}) async => throw error;
+
+  @override
+  Future<List<RecoverableDocument>> listRecoverable() async => throw error;
+
+  @override
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+  }) async => throw error;
+
+  @override
+  Future<void> discardRecovery(String session, {String? document}) async =>
+      throw error;
 
   @override
   Future<Security?> unlockOwner(int document, String password) async =>
@@ -378,6 +449,12 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<bool> wouldBreakSignatures(int document) async => throw error;
+
+  @override
+  Future<int> confirmEditSigned(int document) async => throw error;
+
+  @override
+  Future<void> saveUnsignedCopy(int document, String path) async => throw error;
 
   @override
   Future<bool> checkExternalChange(int document) async => throw error;

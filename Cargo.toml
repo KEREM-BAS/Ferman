@@ -13,7 +13,7 @@ version = "0.1.0"
 edition = "2024"
 # The floor set by the planned dependencies (docs/DEPENDENCIES.md §6). The pinned toolchain in
 # rust-toolchain.toml (1.99.0) is what builds Ferman.
-rust-version = "1.88"
+rust-version = "1.89"
 license = "Apache-2.0"
 publish = false
 authors = ["The Ferman Authors"]

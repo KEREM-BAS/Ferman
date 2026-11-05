@@ -1,6 +1,7 @@
 //! Edit transactions through the facade (ROADMAP §7 step 2, docs/ARCHITECTURE.md §3.6): an edit
 //! of a copy of a corpus file, its preview, commit, render reload, undo, redo and save, and the
-//! file saved opened again; a damaged document refused.
+//! file saved opened again; a damaged document refused; a signed document's confirmation and
+//! its working copy.
 //!
 //! Needs PDFium: `FERMAN_PDFIUM_PATH`, absolute (tools/pdfium/fetch.sh). Each saved file is also
 //! written to `FERMAN_SAVED_DIR` when it is set, for CI's `qpdf --check`.
@@ -179,5 +180,82 @@ fn e24_an_encrypted_document_stays_encrypted_after_an_edit() {
         "{text}"
     );
     block_on(engine().close(reopened.id)).unwrap();
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
+/// A signed document previews without its confirmation and commits and saves with it; "Edit a
+/// copy" gives an unsigned file that edits without one (ROADMAP §7 step 10). The byte range is
+/// checked in `edit_cases.rs` (E25).
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_signed_document_commits_only_after_its_confirmation() {
+    let dir = std::env::temp_dir().join(format!("ferman-api-signed-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let path = dir.join("signed.pdf");
+    std::fs::copy(corpus("kira-tr-signed"), &path).unwrap();
+    let original = std::fs::read(&path).unwrap();
+    let edit_amount = |doc| {
+        let page = block_on(engine().text_blocks(doc, 0)).unwrap();
+        let block = page
+            .blocks
+            .iter()
+            .find(|block| block.lines.iter().any(|line| line.text.contains("18.500")))
+            .unwrap();
+        let text = block
+            .lines
+            .iter()
+            .map(|line| line.text.as_str())
+            .collect::<Vec<_>>()
+            .join("\n");
+        let tx = block_on(engine().begin_edit(doc, 0, block.id)).unwrap();
+        block_on(engine().apply(tx, text.replace("18.500", "19.500"))).unwrap();
+        tx
+    };
+
+    let opened = block_on(engine().open(path.clone(), None)).unwrap();
+    let doc = opened.id;
+    assert!(opened.signed);
+    let tx = edit_amount(doc);
+    let err = block_on(engine().commit(tx, "Edited text".to_owned())).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
+    let err = block_on(engine().save(doc)).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
+    assert!(block_on(engine().would_break_signatures(doc)).unwrap());
+    assert!(
+        !block_on(engine().history(doc))
+            .unwrap()
+            .signature_invalidated
+    );
+
+    // The same transaction commits after the confirmation.
+    block_on(engine().confirm_edit_signed(doc)).unwrap();
+    let info = block_on(engine().commit(tx, "Edited text".to_owned())).unwrap();
+    assert_eq!(info.current, 1);
+    assert!(
+        block_on(engine().history(doc))
+            .unwrap()
+            .signature_invalidated
+    );
+    block_on(engine().save(doc)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+    let saved = std::fs::read(&path).unwrap();
+    assert_eq!(saved.get(..original.len()), Some(original.as_slice()));
+
+    // Closing ends the confirmation: the file still counts as signed and asks again.
+    let reopened = block_on(engine().open(path.clone(), None)).unwrap();
+    assert!(reopened.signed);
+    let err = block_on(engine().optimize_and_clean(reopened.id)).unwrap_err();
+    assert_eq!(err.kind, ErrorKind::ConfirmationRequired);
+
+    // "Edit a copy": the working copy is another file, unsigned, and asks nothing.
+    let working = dir.join("signed (copy).pdf");
+    block_on(engine().save_unsigned_copy(reopened.id, working.clone())).unwrap();
+    block_on(engine().close(reopened.id)).unwrap();
+    assert_eq!(std::fs::read(&path).unwrap(), saved);
+    let copy = block_on(engine().open(working, None)).unwrap();
+    assert!(!copy.signed);
+    assert!(copy.signatures.iter().all(|field| !field.signed));
+    block_on(engine().save(copy.id)).unwrap();
+    block_on(engine().close(copy.id)).unwrap();
     std::fs::remove_dir_all(&dir).unwrap();
 }

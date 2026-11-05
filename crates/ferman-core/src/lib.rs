@@ -37,6 +37,10 @@
 //!   [`SaveError`] and the external-change check of §7.5 ([`FileStamp`](save::FileStamp));
 //!   [`safe_write`](save::safe_write) is the same sequence for other files ("Save attachment
 //!   as…", [`Document::attachment_data`]).
+//! - [`recovery`]: the recovery journal of §7.6 and §7.7: a session's lock
+//!   ([`RecoverySession`](recovery::RecoverySession)), each edited document's manifest, base copy,
+//!   journal and snapshots ([`DocumentRecovery`](recovery::DocumentRecovery)), and reading them
+//!   back after a crash ([`list`](recovery::list), [`restore`](recovery::restore)).
 //! - `rewrite` (private): the full rewrite, [`RevisionStore::full_rewrite`](revision::RevisionStore::full_rewrite),
 //!   for Optimize and clean and a repaired document's copy (§7.3).
 //! - `platform` (private): the few file-system calls the standard library lacks
@@ -54,7 +58,6 @@
 //!
 //! - The rest of the interpreter (§6.1): clipping, colour, marked content and Type3 glyph
 //!   procedures, M3.
-//! - `recovery`: the autosave `RecoveryJournal`, §7.6. M3.
 // Unsafe code is denied, and allowed only in `platform` (ADR 0010, M3 plan question 1).
 #![deny(unsafe_code)]
 
@@ -70,6 +73,7 @@ pub mod interpret;
 pub mod limits;
 #[allow(unsafe_code)]
 mod platform;
+pub mod recovery;
 pub mod repair;
 pub mod revision;
 mod rewrite;

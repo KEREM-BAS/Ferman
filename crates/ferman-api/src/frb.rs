@@ -122,6 +122,8 @@ pub enum ErrorKind {
     NotOwner,
     /// The file changed on disk since it was opened or saved (a11-7b).
     FileChangedOnDisk,
+    /// A change to a signed document waits for [`confirm_edit_signed`] (a3-16a).
+    ConfirmationRequired,
     /// A bug in Ferman, including a caught panic.
     Internal,
 }
@@ -210,6 +212,10 @@ pub struct OpenedDocument {
     pub layers_switchable: bool,
     /// Signature fields.
     pub signatures: Vec<Signature>,
+    /// Whether a change would invalidate a signature, so it waits for [`confirm_edit_signed`].
+    pub signed: bool,
+    /// The certification signature's `/DocMDP` permission level (1 to 3), when certified.
+    pub certification: Option<u8>,
     /// The PDF version in the header, such as "1.7".
     pub version: String,
     /// The file's size in bytes.
@@ -961,6 +967,9 @@ pub struct History {
     pub steps: Vec<HistoryStep>,
     /// How many steps apply.
     pub current: u32,
+    /// Whether the document as it stands no longer matches its signatures: the review list's
+    /// signature row (a3-12).
+    pub signature_invalidated: bool,
 }
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
@@ -1080,14 +1089,145 @@ pub async fn save_attachment(
         .map_err(api_error_dto)
 }
 
-/// Closes a document and ends its views.
+/// Closes a document and ends its views. With `discard_recovery` ("Don't save") its recovery
+/// files are deleted; otherwise they stay for the next launch to offer.
 ///
 /// # Errors
 ///
 /// `NotFound` for a document that is not open.
-pub async fn close(document: u64) -> Result<(), ApiError> {
+pub async fn close(document: u64, discard_recovery: bool) -> Result<(), ApiError> {
+    let engine = engine()?;
+    let document = facade::DocumentId::from_raw(document);
+    if discard_recovery {
+        engine.close_discarding(document).await
+    } else {
+        engine.close(document).await
+    }
+    .map_err(api_error_dto)
+}
+
+/// A document a session that ended without cleaning up left recovery files for (a1-12).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct RecoverableDocument {
+    /// The session's name.
+    pub session: String,
+    /// The document's name in the session.
+    pub document: String,
+    /// The file the document saves to.
+    pub original: String,
+    /// Whether that file changed on disk since: restoring opens it under a new name (a11-7f).
+    pub original_changed: bool,
+    /// How many unsaved changes the files hold.
+    pub changes: u32,
+    /// Whether restoring needs the document's password (a1-8).
+    pub encrypted: bool,
+}
+
+/// A document [`restore_recovered`] opened.
+#[derive(Debug, Clone, PartialEq)]
+pub struct RestoredDocument {
+    /// The document, as [`open`] gives it.
+    pub opened: OpenedDocument,
+    /// The file it saves to: the original, or a new name beside it when the original changed.
+    pub path: String,
+    /// Whether the original changed on disk since the document was opened or saved.
+    pub original_changed: bool,
+    /// The pages' render key with the restored changes, when PDFium reloaded.
+    pub render_key: Option<u64>,
+}
+
+/// Starts crash recovery in `root`, the app data directory's recovery folder; again with the
+/// same root it does nothing.
+///
+/// See [`facade::Engine::start_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` once started in another folder, and the file errors of making it.
+pub async fn start_recovery(root: String) -> Result<(), ApiError> {
     engine()?
-        .close(facade::DocumentId::from_raw(document))
+        .start_recovery(PathBuf::from(root))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Turns the recovery files on or off ("Save a recovery copy every minute", a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn set_recovery_enabled(enabled: bool) -> Result<(), ApiError> {
+    engine()?
+        .set_recovery_enabled(enabled)
+        .await
+        .map_err(api_error_dto)
+}
+
+/// The documents crashed sessions left recovery files for (a1-12).
+///
+/// See [`facade::Engine::list_recoverable`].
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+pub async fn list_recoverable() -> Result<Vec<RecoverableDocument>, ApiError> {
+    engine()?
+        .list_recoverable()
+        .await
+        .map(|found| {
+            found
+                .into_iter()
+                .map(|found| RecoverableDocument {
+                    session: found.session,
+                    document: found.document,
+                    original: found.original.to_string_lossy().into_owned(),
+                    original_changed: found.original_changed,
+                    changes: found.changes,
+                    encrypted: found.encrypted,
+                })
+                .collect()
+        })
+        .map_err(api_error_dto)
+}
+
+/// Opens `document` of the crashed `session` with its unsaved changes as one unsaved step, with
+/// `password` for an encrypted one.
+///
+/// See [`facade::Engine::restore_recovered`].
+///
+/// # Errors
+///
+/// `PasswordRequired`, `WrongPassword`, `NotFound` when the files are gone, and the errors of
+/// [`open`].
+pub async fn restore_recovered(
+    session: String,
+    document: String,
+    password: Option<String>,
+) -> Result<RestoredDocument, ApiError> {
+    engine()?
+        .restore_recovered(session, document, password.map(facade::Password::new))
+        .await
+        .map(|restored| RestoredDocument {
+            opened: opened_document_dto(restored.opened),
+            path: restored.path.to_string_lossy().into_owned(),
+            original_changed: restored.original_changed,
+            render_key: restored.render_key,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Deletes the recovery files of `document` of `session`, or of the whole session without one
+/// (Discard in a1-12).
+///
+/// See [`facade::Engine::discard_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` for names that are not a session's or a document's, `Io` when the files
+/// cannot be deleted.
+pub async fn discard_recovery(session: String, document: Option<String>) -> Result<(), ApiError> {
+    engine()?
+        .discard_recovery(session, document)
         .await
         .map_err(api_error_dto)
 }
@@ -1490,6 +1630,7 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                 })
                 .collect(),
             current: history.current,
+            signature_invalidated: history.signature_invalidated,
         })
         .map_err(api_error_dto)
 }
@@ -1584,6 +1725,36 @@ pub async fn optimize_and_clean(document: u64) -> Result<(), ApiError> {
 pub async fn would_break_signatures(document: u64) -> Result<bool, ApiError> {
     engine()?
         .would_break_signatures(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
+///
+/// See [`facade::Engine::confirm_edit_signed`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn confirm_edit_signed(document: u64) -> Result<u64, ApiError> {
+    engine()?
+        .confirm_edit_signed(facade::DocumentId::from_raw(document))
+        .await
+        .map(facade::ConfirmationToken::get)
+        .map_err(api_error_dto)
+}
+
+/// Writes the unsigned working copy of "Edit a copy" (a3-16a) as the file at `path`, which the
+/// app then opens.
+///
+/// See [`facade::Engine::save_unsigned_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file, and the save failures.
+pub async fn save_unsigned_copy(document: u64, path: String) -> Result<(), ApiError> {
+    engine()?
+        .save_unsigned_copy(facade::DocumentId::from_raw(document), PathBuf::from(path))
         .await
         .map_err(api_error_dto)
 }
@@ -2076,6 +2247,8 @@ fn opened_document_dto(document: facade::OpenedDocument) -> OpenedDocument {
             })
             .collect(),
         layers_switchable: document.layers_switchable,
+        signed: document.signed,
+        certification: document.certification,
         signatures: document
             .signatures
             .into_iter()
@@ -2273,6 +2446,7 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
             facade::ErrorKind::HardLinked => ErrorKind::HardLinked,
             facade::ErrorKind::NotOwner => ErrorKind::NotOwner,
             facade::ErrorKind::FileChangedOnDisk => ErrorKind::FileChangedOnDisk,
+            facade::ErrorKind::ConfirmationRequired => ErrorKind::ConfirmationRequired,
             facade::ErrorKind::Internal => ErrorKind::Internal,
         },
         message_key: err.message_key.as_str().to_owned(),
@@ -2352,7 +2526,7 @@ mod tests {
 
     #[test]
     fn a_stale_document_is_not_found() {
-        let err = block_on(close(u64::MAX)).unwrap_err();
+        let err = block_on(close(u64::MAX, false)).unwrap_err();
         assert_eq!(err.kind, ErrorKind::NotFound);
     }
 

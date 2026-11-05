@@ -230,3 +230,17 @@ pub fn open_document(input: &[u8]) {
         Err(err) => assert!(expected(&err), "opening: {err}"),
     }
 }
+
+/// The recovery journal's reader: records stay inside the data and their objects parse or fail
+/// with an expected error.
+pub fn recovery_journal(data: &[u8]) {
+    let limits = limits();
+    let mut total = 0usize;
+    for record in crate::recovery::records(data) {
+        total = total.saturating_add(record.body().len());
+        assert!(total <= data.len(), "records longer than the data");
+        if let Err(err) = crate::recovery::parse_objects(record.body(), &limits) {
+            assert!(expected(&err), "the journal reader: {err}");
+        }
+    }
+}

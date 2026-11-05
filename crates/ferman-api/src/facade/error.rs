@@ -45,6 +45,11 @@ pub enum ErrorKind {
     /// The file changed on disk since it was opened or saved (a11-7b): "Keep mine" saves
     /// anyway, "Reload" opens it again.
     FileChangedOnDisk,
+    /// A change to a signed document waits for [`Engine::confirm_edit_signed`]
+    /// (docs/ARCHITECTURE.md §6.9, a3-16a).
+    ///
+    /// [`Engine::confirm_edit_signed`]: super::Engine::confirm_edit_signed
+    ConfirmationRequired,
     /// A bug in Ferman, including a caught panic. The UI shows a generic message and offers
     /// "Copy technical details".
     Internal,
@@ -72,6 +77,7 @@ impl ErrorKind {
             Self::HardLinked => "hard_linked",
             Self::NotOwner => "not_owner",
             Self::FileChangedOnDisk => "file_changed_on_disk",
+            Self::ConfirmationRequired => "confirmation_required",
             Self::Internal => "internal",
         }
     }

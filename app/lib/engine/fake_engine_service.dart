@@ -231,6 +231,115 @@ class FakeEngineService implements EngineService {
     );
   }
 
+  /// The documents [closeDiscarding] closed, oldest first.
+  final List<int> closedDiscarding = [];
+
+  /// Closes as [close] does, and records the document.
+  @override
+  Future<void> closeDiscarding(int document) async {
+    closedDiscarding.add(document);
+    await close(document);
+  }
+
+  /// The folder [startRecovery] was given.
+  String? recoveryRoot;
+
+  /// What the a11-1c switch says ([setRecoveryEnabled]).
+  bool recoveryEnabled = true;
+
+  /// What [listRecoverable] lists once recovery started; [restoreRecovered]
+  /// and [discardRecovery] take documents out.
+  final List<RecoverableDocument> recoverable = [];
+
+  /// The documents [restoreRecovered] opens, by document name.
+  final Map<String, OpenedDocument> recoveredDocuments = {};
+
+  /// The passwords of [recoverable] documents that are encrypted, by
+  /// document name.
+  final Map<String, String> recoveryPasswords = {};
+
+  @override
+  Future<void> startRecovery(String root) async {
+    if (recoveryRoot case final started? when started != root) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    recoveryRoot = root;
+  }
+
+  @override
+  Future<void> setRecoveryEnabled({required bool enabled}) async =>
+      recoveryEnabled = enabled;
+
+  @override
+  Future<List<RecoverableDocument>> listRecoverable() async =>
+      recoveryRoot == null ? const [] : List.unmodifiable(recoverable);
+
+  /// Opens the [recoveredDocuments] entry, with its [recoveryPasswords]
+  /// entry for an encrypted one; a changed original saves to
+  /// `<name> (recovered).pdf`.
+  @override
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+  }) async {
+    final found = recoverable.where(
+      (found) => found.session == session && found.document == document,
+    );
+    final opened = recoveredDocuments[document];
+    if (recoveryRoot == null || found.isEmpty || opened == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.notFound,
+        messageKey: 'errorFileNotFound',
+      );
+    }
+    if (recoveryPasswords[document] case final expected?
+        when password != expected) {
+      throw password == null
+          ? const EngineException(
+              kind: EngineErrorKind.passwordRequired,
+              messageKey: 'errorPasswordRequired',
+            )
+          : const EngineException(
+              kind: EngineErrorKind.wrongPassword,
+              messageKey: 'errorWrongPassword',
+            );
+    }
+    final entry = found.first;
+    recoverable.remove(entry);
+    final original = entry.original;
+    final dot = original.lastIndexOf('.');
+    final stem = dot > original.lastIndexOf('/')
+        ? original.substring(0, dot)
+        : original;
+    return RestoredDocument(
+      opened: opened,
+      path: entry.originalChanged
+          ? '$stem (recovered)${original.substring(stem.length)}'
+          : original,
+      originalChanged: entry.originalChanged,
+      renderKey: ++_lastRenderKey,
+    );
+  }
+
+  @override
+  Future<void> discardRecovery(String session, {String? document}) async {
+    if (recoveryRoot == null) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    recoverable.removeWhere(
+      (found) =>
+          found.session == session &&
+          (document == null || found.document == document),
+    );
+  }
+
   /// Ends the document's views.
   @override
   Future<void> close(int document) async {
@@ -603,6 +712,7 @@ class FakeEngineService implements EngineService {
         messageKey: 'errorInternal',
       );
     }
+    if (open.applied != null) _confirmed(open.document);
     _transactions.remove(transaction);
     final before = _blocks(open.document, open.page);
     final after = open.applied;
@@ -693,6 +803,9 @@ class FakeEngineService implements EngineService {
     return EditHistory(
       steps: [for (final step in history.steps) step.step],
       current: history.current,
+      signatureInvalidated:
+          signed.contains(document) &&
+          (history.current > 0 || optimized.contains(document)),
     );
   }
 
@@ -715,8 +828,26 @@ class FakeEngineService implements EngineService {
   /// over the change.
   final Set<int> changedOnDisk = {};
 
-  /// Documents that are signed, for [wouldBreakSignatures].
+  /// Documents that are signed: [wouldBreakSignatures] says so, and commits
+  /// and writes throw [EngineErrorKind.confirmationRequired] until
+  /// [confirmEditSigned].
   final Set<int> signed = {};
+
+  /// The signed documents [confirmEditSigned] confirmed, with their tokens.
+  final Map<int, int> confirmations = {};
+
+  /// The working copies [saveUnsignedCopy] wrote: document and path.
+  final List<(int, String)> unsignedCopies = [];
+
+  /// Throws while the signed [document] waits for [confirmEditSigned].
+  void _confirmed(int document) {
+    if (signed.contains(document) && !confirmations.containsKey(document)) {
+      throw const EngineException(
+        kind: EngineErrorKind.confirmationRequired,
+        messageKey: 'errorInternal',
+      );
+    }
+  }
 
   /// The copies [saveCopy] wrote: document and path.
   final List<(int, String)> copies = [];
@@ -741,6 +872,7 @@ class FakeEngineService implements EngineService {
   /// fail it.
   @override
   Future<void> save(int document, {bool overChange = false}) async {
+    _confirmed(document);
     _saving();
     if (!overChange && changedOnDisk.contains(document)) {
       throw const EngineException(
@@ -755,6 +887,7 @@ class FakeEngineService implements EngineService {
   /// Records the save; [saveFailure] and [failNextSave] fail it.
   @override
   Future<void> saveAs(int document, String path) async {
+    if (_history(document).current > 0) _confirmed(document);
     _saving();
     saves.add((document, path));
   }
@@ -762,6 +895,7 @@ class FakeEngineService implements EngineService {
   /// Records the copy; [saveFailure] and [failNextSave] fail it.
   @override
   Future<void> saveCopy(int document, String path) async {
+    if (_history(document).current > 0) _confirmed(document);
     _saving();
     copies.add((document, path));
   }
@@ -773,6 +907,7 @@ class FakeEngineService implements EngineService {
     String path, {
     bool replaceOriginal = false,
   }) async {
+    _confirmed(document);
     _saving();
     repairedCopies.add((document, path, replaceOriginal));
   }
@@ -781,6 +916,7 @@ class FakeEngineService implements EngineService {
   /// fail it.
   @override
   Future<void> optimizeAndClean(int document) async {
+    _confirmed(document);
     _saving();
     if (changedOnDisk.contains(document)) {
       throw const EngineException(
@@ -794,6 +930,17 @@ class FakeEngineService implements EngineService {
   @override
   Future<bool> wouldBreakSignatures(int document) async =>
       signed.contains(document);
+
+  @override
+  Future<int> confirmEditSigned(int document) async =>
+      confirmations[document] ??= confirmations.length + 1;
+
+  /// Records the copy; [saveFailure] and [failNextSave] fail it.
+  @override
+  Future<void> saveUnsignedCopy(int document, String path) async {
+    _saving();
+    unsignedCopies.add((document, path));
+  }
 
   @override
   Future<bool> checkExternalChange(int document) async =>

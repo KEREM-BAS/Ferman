@@ -13,21 +13,26 @@
 //! new object number, AES with a random initialisation vector, and `/ID` keeps its first string,
 //! from which the key was derived. Signatures do not survive a rewrite, which is why the UI warns
 //! first. Duplicate streams are not merged.
+//!
+//! [`RevisionStore::without_signatures`] is the same rewrite for the working copy of a signed
+//! document (a3-16a, G35): the signature fields stay, empty, and nothing in the copy claims a
+//! signature, so editing it asks nothing. The signed original is not touched.
 // Offsets and sizes are checked (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::{BTreeMap, VecDeque};
+use std::collections::{BTreeMap, BTreeSet, VecDeque};
 use std::io::Write as _;
 
 use flate2::Compression;
 use flate2::write::ZlibEncoder;
-use lopdf::{Object, ObjectId, Stream};
+use lopdf::{Dictionary, Object, ObjectId, Stream};
 
 use crate::appendix::{indirect, object, offset};
 use crate::incremental::new_id;
 use crate::limits::{LimitKind, Limits};
 use crate::revision::RevisionStore;
 use crate::security::{Random, system_random};
+use crate::structure::Scope;
 use crate::{CoreError, Document, WriteError};
 
 impl RevisionStore {
@@ -42,6 +47,23 @@ impl RevisionStore {
     /// [`CoreError::OutOfMemory`].
     pub fn full_rewrite(&self, doc: &Document) -> Result<Vec<u8>, CoreError> {
         self.write_full(doc, &mut system_random)
+    }
+
+    /// `doc` with the current revision written as [`full_rewrite`](Self::full_rewrite) does,
+    /// unsigned: every signature field loses its value and its widgets' appearance (which draws
+    /// the signature), and the catalog its `/Perms` and `/DSS` and the form its `/SigFlags`.
+    ///
+    /// # Errors
+    ///
+    /// As [`full_rewrite`](Self::full_rewrite).
+    pub fn without_signatures(&self, doc: &Document) -> Result<Vec<u8>, CoreError> {
+        let mut unsigned = self.clone();
+        unsigned.begin()?;
+        for (id, object) in unsigned_objects(&self.scope(doc), doc) {
+            unsigned.put(id, object)?;
+        }
+        unsigned.commit()?;
+        unsigned.full_rewrite(doc)
     }
 
     /// [`full_rewrite`](Self::full_rewrite) with the random bytes from `random`.
@@ -160,6 +182,70 @@ impl RevisionStore {
         let _ = write!(out, "\nstartxref\n{xref_at}\n%%EOF\n");
         Ok(out)
     }
+}
+
+/// The objects that change when `doc`'s signatures go: the catalog, the form and every signature
+/// field and widget reached from `/Fields`, whose entries the specification makes references.
+fn unsigned_objects(scope: &Scope<'_>, doc: &Document) -> BTreeMap<ObjectId, Object> {
+    let mut changes = BTreeMap::new();
+    let Ok(Object::Reference(root)) = doc.xref().trailer.get(b"Root") else {
+        return changes;
+    };
+    let Some(mut catalog) = scope
+        .object(*root)
+        .and_then(|catalog| scope.dict(catalog))
+        .cloned()
+    else {
+        return changes;
+    };
+    let _ = catalog.remove(b"Perms");
+    let _ = catalog.remove(b"DSS");
+    if let Some(mut form) = scope.get_dict(&catalog, b"AcroForm").cloned() {
+        let mut stack: Vec<(ObjectId, Option<&[u8]>)> = references_in(scope, &form, b"Fields")
+            .into_iter()
+            .map(|field| (field, None))
+            .collect();
+        let mut seen = BTreeSet::new();
+        while let Some((id, parent)) = stack.pop() {
+            if !seen.insert(id) {
+                continue;
+            }
+            let Some(field) = scope.object(id).and_then(|field| scope.dict(field)) else {
+                continue;
+            };
+            let kind = scope.get_name(field, b"FT").or(parent);
+            stack.extend(
+                references_in(scope, field, b"Kids")
+                    .into_iter()
+                    .map(|kid| (kid, kind)),
+            );
+            if kind == Some(b"Sig") {
+                let mut field = field.clone();
+                let _ = field.remove(b"V");
+                let _ = field.remove(b"AP");
+                changes.insert(id, Object::Dictionary(field));
+            }
+        }
+        let _ = form.remove(b"SigFlags");
+        match catalog.get(b"AcroForm") {
+            Ok(Object::Reference(id)) => {
+                changes.insert(*id, Object::Dictionary(form));
+            }
+            _ => catalog.set("AcroForm", form),
+        }
+    }
+    changes.insert(*root, Object::Dictionary(catalog));
+    changes
+}
+
+/// The references in the array `dict[key]`.
+fn references_in(scope: &Scope<'_>, dict: &Dictionary, key: &[u8]) -> Vec<ObjectId> {
+    scope
+        .get_array(dict, key)
+        .into_iter()
+        .flatten()
+        .filter_map(|entry| entry.as_reference().ok())
+        .collect()
 }
 
 /// Queues the objects `value` refers to; a stream's `/Length` is written direct, so its object
@@ -310,24 +396,52 @@ mod tests {
     }
 
     #[test]
+    fn a_copy_without_signatures_keeps_its_empty_fields() {
+        let doc = opened(corpus("kira-tr-signed"), None);
+        assert!(doc.structure().signed());
+        let fields = doc.structure().signatures.len();
+        let copy = RevisionStore::new(&doc).without_signatures(&doc).unwrap();
+        assert!(!copy.windows(10).any(|window| window == b"/ByteRange"));
+        let again = opened(copy, None);
+        assert!(!again.structure().signed());
+        assert_eq!(again.structure().signatures.len(), fields);
+        assert_eq!(again.page_count(), doc.page_count());
+        // A document without signatures reads the same.
+        let plain = opened(corpus("kira-tr"), None);
+        assert!(!plain.structure().signed(), "empty fields are not signed");
+        let copy = RevisionStore::new(&plain)
+            .without_signatures(&plain)
+            .unwrap();
+        assert_eq!(
+            opened(copy, None).structure().signatures,
+            plain.structure().signatures
+        );
+    }
+
+    #[test]
     fn an_encrypted_document_stays_encrypted_with_its_key() {
         for (name, password) in [
             ("payslip-aes256", "Eylül2026maaşı"),
             ("payslip-aes128", "bordro2026"),
         ] {
             let doc = opened(corpus(name), Some(password));
-            let rewritten = RevisionStore::new(&doc).full_rewrite(&doc).unwrap();
-            let again = opened(rewritten.clone(), Some(password));
-            assert!(again.encryption().is_some(), "{name}");
-            assert_eq!(again.page_count(), doc.page_count());
-            let without = open(
-                &Source::from_bytes(rewritten.into()),
-                &OpenOptions::default(),
-            );
-            assert!(
-                matches!(without, Err(CoreError::PasswordRequired)),
-                "{name} still needs its password"
-            );
+            let store = RevisionStore::new(&doc);
+            for rewritten in [
+                store.full_rewrite(&doc).unwrap(),
+                store.without_signatures(&doc).unwrap(),
+            ] {
+                let again = opened(rewritten.clone(), Some(password));
+                assert!(again.encryption().is_some(), "{name}");
+                assert_eq!(again.page_count(), doc.page_count());
+                let without = open(
+                    &Source::from_bytes(rewritten.into()),
+                    &OpenOptions::default(),
+                );
+                assert!(
+                    matches!(without, Err(CoreError::PasswordRequired)),
+                    "{name} still needs its password"
+                );
+            }
         }
     }
 

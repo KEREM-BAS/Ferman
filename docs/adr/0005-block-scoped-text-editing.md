@@ -104,10 +104,12 @@ inside a text object). Result states are recorded in [G38](../DESIGN_GAPS.md#g38
 ### Signed documents
 
 ferman-core detects signatures and certification (DocMDP) at open. Before the first change to a signed
-document, `begin_edit` returns "needs confirmation" with the signatures it would invalidate, and the UI
-warns that they will become invalid. Without the confirmation the engine refuses to commit. The dialog
-is proposed in [G35](../DESIGN_GAPS.md#g35). Incremental saving keeps the signed bytes intact, so the
-signed revision still verifies, but validators will report changes after signing.
+document the UI warns that they will become invalid, and the engine enforces it: a transaction may
+preview, but its commit and every write fail with `ConfirmationRequired` until `confirm_edit_signed`
+ran, for that document, until it closes, never persisted. "Edit a copy" writes an unsigned working copy
+(`save_unsigned_copy`) that the app opens. The dialog is in [G35](../DESIGN_GAPS.md#g35). Incremental
+saving keeps the signed bytes intact, so the signed revision still verifies, but validators will report
+changes after signing.
 
 ### Acceptance test for every edit
 

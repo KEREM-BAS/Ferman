@@ -307,6 +307,8 @@ void main() {
       () => service.saveRepairedCopy(1, '/tmp/a.pdf'),
       () => service.optimizeAndClean(1),
       () => service.wouldBreakSignatures(1),
+      () => service.confirmEditSigned(1),
+      () => service.saveUnsignedCopy(1, '/tmp/a.pdf'),
       () => service.checkExternalChange(1),
     ]) {
       await expectLater(call(), throwsA(same(error)));
@@ -391,10 +393,43 @@ void main() {
       expect(engine.saves, [(7, null)]);
     });
 
+    test('a signed document commits after its confirmation', () async {
+      final engine = FakeEngineService(pageBlocks: {0: _page})..signed.add(7);
+      final block = (await engine.textBlocks(7, 0)).blocks.first;
+      final tx = await engine.beginEdit(7, 0, block.id);
+      await engine.applyEdit(tx, 'New text');
+      await expectLater(
+        engine.commitEdit(tx, 'Edited text'),
+        _fails(EngineErrorKind.confirmationRequired),
+      );
+      await expectLater(
+        engine.save(7),
+        _fails(EngineErrorKind.confirmationRequired),
+      );
+      // The unchanged file copied elsewhere and the working copy ask nothing.
+      await engine.saveCopy(7, '/tmp/copy.pdf');
+      await engine.saveUnsignedCopy(7, '/tmp/working.pdf');
+      expect(engine.unsignedCopies, [(7, '/tmp/working.pdf')]);
+      expect((await engine.history(7)).signatureInvalidated, isFalse);
+
+      final token = await engine.confirmEditSigned(7);
+      expect(await engine.confirmEditSigned(7), token);
+      final info = await engine.commitEdit(tx, 'Edited text');
+      expect(info.current, 1);
+      expect((await engine.history(7)).signatureInvalidated, isTrue);
+      await engine.save(7);
+      expect(engine.saves, [(7, null)]);
+    });
+
     test('optimize and clean, signatures and repaired copies', () async {
       final engine = FakeEngineService(pageBlocks: {0: _page})..signed.add(7);
       expect(await engine.wouldBreakSignatures(7), isTrue);
       expect(await engine.wouldBreakSignatures(8), isFalse);
+      await expectLater(
+        engine.optimizeAndClean(7),
+        _fails(EngineErrorKind.confirmationRequired),
+      );
+      await engine.confirmEditSigned(7);
       await engine.optimizeAndClean(7);
       expect(engine.optimized, [7]);
       await engine.saveRepairedCopy(8, '/tmp/fixed.pdf');

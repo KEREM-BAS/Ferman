@@ -9,7 +9,7 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
 // These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -104,13 +104,80 @@ Future<String?> saveAttachment({
   staging: staging,
 );
 
-/// Closes a document and ends its views.
+/// Closes a document and ends its views. With `discard_recovery` ("Don't save") its recovery
+/// files are deleted; otherwise they stay for the next launch to offer.
 ///
 /// # Errors
 ///
 /// `NotFound` for a document that is not open.
-Future<void> close({required BigInt document}) =>
-    FermanBridge.instance.api.crateFrbClose(document: document);
+Future<void> close({required BigInt document, required bool discardRecovery}) =>
+    FermanBridge.instance.api.crateFrbClose(
+      document: document,
+      discardRecovery: discardRecovery,
+    );
+
+/// Starts crash recovery in `root`, the app data directory's recovery folder; again with the
+/// same root it does nothing.
+///
+/// See [`facade::Engine::start_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` once started in another folder, and the file errors of making it.
+Future<void> startRecovery({required String root}) =>
+    FermanBridge.instance.api.crateFrbStartRecovery(root: root);
+
+/// Turns the recovery files on or off ("Save a recovery copy every minute", a11-1c).
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<void> setRecoveryEnabled({required bool enabled}) =>
+    FermanBridge.instance.api.crateFrbSetRecoveryEnabled(enabled: enabled);
+
+/// The documents crashed sessions left recovery files for (a1-12).
+///
+/// See [`facade::Engine::list_recoverable`].
+///
+/// # Errors
+///
+/// `Internal` only if the call panics.
+Future<List<RecoverableDocument>> listRecoverable() =>
+    FermanBridge.instance.api.crateFrbListRecoverable();
+
+/// Opens `document` of the crashed `session` with its unsaved changes as one unsaved step, with
+/// `password` for an encrypted one.
+///
+/// See [`facade::Engine::restore_recovered`].
+///
+/// # Errors
+///
+/// `PasswordRequired`, `WrongPassword`, `NotFound` when the files are gone, and the errors of
+/// [`open`].
+Future<RestoredDocument> restoreRecovered({
+  required String session,
+  required String document,
+  String? password,
+}) => FermanBridge.instance.api.crateFrbRestoreRecovered(
+  session: session,
+  document: document,
+  password: password,
+);
+
+/// Deletes the recovery files of `document` of `session`, or of the whole session without one
+/// (Discard in a1-12).
+///
+/// See [`facade::Engine::discard_recovery`].
+///
+/// # Errors
+///
+/// `InvalidInput` for names that are not a session's or a document's, `Io` when the files
+/// cannot be deleted.
+Future<void> discardRecovery({required String session, String? document}) =>
+    FermanBridge.instance.api.crateFrbDiscardRecovery(
+      session: session,
+      document: document,
+    );
 
 /// Shows the layers of `document` whose `visible` is true and hides the others, in the order of
 /// its `layers`, in every view. Returns every page's new render key: tiles and thumbnails with an
@@ -440,6 +507,32 @@ Future<void> optimizeAndClean({required BigInt document}) =>
 /// `NotFound` for a document that is not open.
 Future<bool> wouldBreakSignatures({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbWouldBreakSignatures(document: document);
+
+/// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
+///
+/// See [`facade::Engine::confirm_edit_signed`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<BigInt> confirmEditSigned({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbConfirmEditSigned(document: document);
+
+/// Writes the unsigned working copy of "Edit a copy" (a3-16a) as the file at `path`, which the
+/// app then opens.
+///
+/// See [`facade::Engine::save_unsigned_copy`].
+///
+/// # Errors
+///
+/// `InvalidInput` for its own file, and the save failures.
+Future<void> saveUnsignedCopy({
+  required BigInt document,
+  required String path,
+}) => FermanBridge.instance.api.crateFrbSaveUnsignedCopy(
+  document: document,
+  path: path,
+);
 
 /// Whether the document's file changed on disk since it was opened or saved; the app asks
 /// when its window regains focus (a11-7b).
@@ -995,6 +1088,9 @@ enum ErrorKind {
   /// The file changed on disk since it was opened or saved (a11-7b).
   fileChangedOnDisk,
 
+  /// A change to a signed document waits for [`confirm_edit_signed`] (a3-16a).
+  confirmationRequired,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
@@ -1309,10 +1405,19 @@ class History {
   /// How many steps apply.
   final int current;
 
-  const History({required this.steps, required this.current});
+  /// Whether the document as it stands no longer matches its signatures: the review list's
+  /// signature row (a3-12).
+  final bool signatureInvalidated;
+
+  const History({
+    required this.steps,
+    required this.current,
+    required this.signatureInvalidated,
+  });
 
   @override
-  int get hashCode => steps.hashCode ^ current.hashCode;
+  int get hashCode =>
+      steps.hashCode ^ current.hashCode ^ signatureInvalidated.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1320,7 +1425,8 @@ class History {
       other is History &&
           runtimeType == other.runtimeType &&
           steps == other.steps &&
-          current == other.current;
+          current == other.current &&
+          signatureInvalidated == other.signatureInvalidated;
 }
 
 /// One committed step of the history.
@@ -1617,6 +1723,12 @@ class OpenedDocument {
   /// Signature fields.
   final List<Signature> signatures;
 
+  /// Whether a change would invalidate a signature, so it waits for [`confirm_edit_signed`].
+  final bool signed;
+
+  /// The certification signature's `/DocMDP` permission level (1 to 3), when certified.
+  final int? certification;
+
   /// The PDF version in the header, such as "1.7".
   final String version;
 
@@ -1661,6 +1773,8 @@ class OpenedDocument {
     required this.layers,
     required this.layersSwitchable,
     required this.signatures,
+    required this.signed,
+    this.certification,
     required this.version,
     required this.fileSize,
     required this.info,
@@ -1686,6 +1800,8 @@ class OpenedDocument {
       layers.hashCode ^
       layersSwitchable.hashCode ^
       signatures.hashCode ^
+      signed.hashCode ^
+      certification.hashCode ^
       version.hashCode ^
       fileSize.hashCode ^
       info.hashCode ^
@@ -1713,6 +1829,8 @@ class OpenedDocument {
           layers == other.layers &&
           layersSwitchable == other.layersSwitchable &&
           signatures == other.signatures &&
+          signed == other.signed &&
+          certification == other.certification &&
           version == other.version &&
           fileSize == other.fileSize &&
           info == other.info &&
@@ -2046,6 +2164,57 @@ enum ReadOnlyReason {
   xfaOnly,
 }
 
+/// A document a session that ended without cleaning up left recovery files for (a1-12).
+class RecoverableDocument {
+  /// The session's name.
+  final String session;
+
+  /// The document's name in the session.
+  final String document;
+
+  /// The file the document saves to.
+  final String original;
+
+  /// Whether that file changed on disk since: restoring opens it under a new name (a11-7f).
+  final bool originalChanged;
+
+  /// How many unsaved changes the files hold.
+  final int changes;
+
+  /// Whether restoring needs the document's password (a1-8).
+  final bool encrypted;
+
+  const RecoverableDocument({
+    required this.session,
+    required this.document,
+    required this.original,
+    required this.originalChanged,
+    required this.changes,
+    required this.encrypted,
+  });
+
+  @override
+  int get hashCode =>
+      session.hashCode ^
+      document.hashCode ^
+      original.hashCode ^
+      originalChanged.hashCode ^
+      changes.hashCode ^
+      encrypted.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RecoverableDocument &&
+          runtimeType == other.runtimeType &&
+          session == other.session &&
+          document == other.document &&
+          original == other.original &&
+          originalChanged == other.originalChanged &&
+          changes == other.changes &&
+          encrypted == other.encrypted;
+}
+
 /// One thing repair did, for a1-9's "What Ferman repaired".
 class RepairFix {
   /// What was repaired.
@@ -2083,6 +2252,45 @@ enum RepairKind {
 
   /// Objects the cross-reference data names could not be read.
   objectsUnreadable,
+}
+
+/// A document [`restore_recovered`] opened.
+class RestoredDocument {
+  /// The document, as [`open`] gives it.
+  final OpenedDocument opened;
+
+  /// The file it saves to: the original, or a new name beside it when the original changed.
+  final String path;
+
+  /// Whether the original changed on disk since the document was opened or saved.
+  final bool originalChanged;
+
+  /// The pages' render key with the restored changes, when PDFium reloaded.
+  final BigInt? renderKey;
+
+  const RestoredDocument({
+    required this.opened,
+    required this.path,
+    required this.originalChanged,
+    this.renderKey,
+  });
+
+  @override
+  int get hashCode =>
+      opened.hashCode ^
+      path.hashCode ^
+      originalChanged.hashCode ^
+      renderKey.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RestoredDocument &&
+          runtimeType == other.runtimeType &&
+          opened == other.opened &&
+          path == other.path &&
+          originalChanged == other.originalChanged &&
+          renderKey == other.renderKey;
 }
 
 /// Where the history stands after a commit, rollback, undo or redo.

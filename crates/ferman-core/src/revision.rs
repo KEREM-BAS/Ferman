@@ -33,7 +33,7 @@ use crate::{CoreError, Document, WriteError, appendix, content, filters};
 /// The objects one commit replaces or adds, by object id.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ChangeSet {
-    objects: BTreeMap<ObjectId, Object>,
+    pub(crate) objects: BTreeMap<ObjectId, Object>,
 }
 
 impl ChangeSet {
@@ -591,6 +591,21 @@ impl RevisionStore {
         objects
     }
 
+    /// A store for `doc` whose one revision holds `objects`: a document restored from its
+    /// recovery files (`recovery`), every change unsaved. Without `unsaved` it has no revision.
+    pub(crate) fn restored(
+        doc: &Document,
+        objects: BTreeMap<ObjectId, Object>,
+        unsaved: bool,
+    ) -> Self {
+        let mut store = Self::new(doc);
+        if unsaved {
+            store.revisions.push(ChangeSet { objects });
+            store.current = 1;
+        }
+        store
+    }
+
     /// Fails while a transaction is open.
     pub(crate) fn closed(&self) -> Result<(), CoreError> {
         if self.open.is_some() {
@@ -628,7 +643,7 @@ impl RevisionStore {
     }
 
     /// A scope that reads through this store.
-    fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
+    pub(crate) fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
         Scope {
             doc: doc.model(),
             limits: doc.limits(),

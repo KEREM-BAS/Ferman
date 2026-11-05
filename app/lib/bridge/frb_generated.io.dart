@@ -105,6 +105,9 @@ abstract class FermanBridgeApiImplPlatform
   BigInt dco_decode_box_autoadd_u_64(dynamic raw);
 
   @protected
+  int dco_decode_box_autoadd_u_8(dynamic raw);
+
+  @protected
   ViewItem dco_decode_box_autoadd_view_item(dynamic raw);
 
   @protected
@@ -249,6 +252,9 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
 
   @protected
+  List<RecoverableDocument> dco_decode_list_recoverable_document(dynamic raw);
+
+  @protected
   List<RepairFix> dco_decode_list_repair_fix(dynamic raw);
 
   @protected
@@ -320,6 +326,9 @@ abstract class FermanBridgeApiImplPlatform
   BigInt? dco_decode_opt_box_autoadd_u_64(dynamic raw);
 
   @protected
+  int? dco_decode_opt_box_autoadd_u_8(dynamic raw);
+
+  @protected
   ViewItem? dco_decode_opt_box_autoadd_view_item(dynamic raw);
 
   @protected
@@ -359,10 +368,16 @@ abstract class FermanBridgeApiImplPlatform
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
 
   @protected
+  RecoverableDocument dco_decode_recoverable_document(dynamic raw);
+
+  @protected
   RepairFix dco_decode_repair_fix(dynamic raw);
 
   @protected
   RepairKind dco_decode_repair_kind(dynamic raw);
+
+  @protected
+  RestoredDocument dco_decode_restored_document(dynamic raw);
 
   @protected
   RevisionInfo dco_decode_revision_info(dynamic raw);
@@ -530,6 +545,9 @@ abstract class FermanBridgeApiImplPlatform
   BigInt sse_decode_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  int sse_decode_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
   ViewItem sse_decode_box_autoadd_view_item(SseDeserializer deserializer);
 
   @protected
@@ -688,6 +706,11 @@ abstract class FermanBridgeApiImplPlatform
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
 
   @protected
+  List<RecoverableDocument> sse_decode_list_recoverable_document(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<RepairFix> sse_decode_list_repair_fix(SseDeserializer deserializer);
 
   @protected
@@ -777,6 +800,9 @@ abstract class FermanBridgeApiImplPlatform
   BigInt? sse_decode_opt_box_autoadd_u_64(SseDeserializer deserializer);
 
   @protected
+  int? sse_decode_opt_box_autoadd_u_8(SseDeserializer deserializer);
+
+  @protected
   ViewItem? sse_decode_opt_box_autoadd_view_item(SseDeserializer deserializer);
 
   @protected
@@ -816,10 +842,18 @@ abstract class FermanBridgeApiImplPlatform
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
 
   @protected
+  RecoverableDocument sse_decode_recoverable_document(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RepairFix sse_decode_repair_fix(SseDeserializer deserializer);
 
   @protected
   RepairKind sse_decode_repair_kind(SseDeserializer deserializer);
+
+  @protected
+  RestoredDocument sse_decode_restored_document(SseDeserializer deserializer);
 
   @protected
   RevisionInfo sse_decode_revision_info(SseDeserializer deserializer);
@@ -1074,6 +1108,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Uint8> cst_encode_box_autoadd_u_8(int raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_u_8(cst_encode_u_8(raw));
+  }
+
+  @protected
   ffi.Pointer<wire_cst_view_item> cst_encode_box_autoadd_view_item(
     ViewItem raw,
   ) {
@@ -1295,6 +1335,17 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<wire_cst_list_recoverable_document>
+  cst_encode_list_recoverable_document(List<RecoverableDocument> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_recoverable_document(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_recoverable_document(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_list_repair_fix> cst_encode_list_repair_fix(
     List<RepairFix> raw,
   ) {
@@ -1458,6 +1509,12 @@ abstract class FermanBridgeApiImplPlatform
   ffi.Pointer<ffi.Uint64> cst_encode_opt_box_autoadd_u_64(BigInt? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_64(raw);
+  }
+
+  @protected
+  ffi.Pointer<ffi.Uint8> cst_encode_opt_box_autoadd_u_8(int? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_u_8(raw);
   }
 
   @protected
@@ -1749,6 +1806,9 @@ abstract class FermanBridgeApiImplPlatform
   void cst_api_fill_to_wire_history(History apiObj, wire_cst_history wireObj) {
     wireObj.steps = cst_encode_list_history_step(apiObj.steps);
     wireObj.current = cst_encode_u_32(apiObj.current);
+    wireObj.signature_invalidated = cst_encode_bool(
+      apiObj.signatureInvalidated,
+    );
   }
 
   @protected
@@ -1829,6 +1889,10 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.layers = cst_encode_list_layer(apiObj.layers);
     wireObj.layers_switchable = cst_encode_bool(apiObj.layersSwitchable);
     wireObj.signatures = cst_encode_list_signature(apiObj.signatures);
+    wireObj.signed_ = cst_encode_bool(apiObj.signed);
+    wireObj.certification = cst_encode_opt_box_autoadd_u_8(
+      apiObj.certification,
+    );
     wireObj.version = cst_encode_String(apiObj.version);
     wireObj.file_size = cst_encode_u_64(apiObj.fileSize);
     cst_api_fill_to_wire_document_info(apiObj.info, wireObj.info);
@@ -1936,12 +2000,36 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_recoverable_document(
+    RecoverableDocument apiObj,
+    wire_cst_recoverable_document wireObj,
+  ) {
+    wireObj.session = cst_encode_String(apiObj.session);
+    wireObj.document = cst_encode_String(apiObj.document);
+    wireObj.original = cst_encode_String(apiObj.original);
+    wireObj.original_changed = cst_encode_bool(apiObj.originalChanged);
+    wireObj.changes = cst_encode_u_32(apiObj.changes);
+    wireObj.encrypted = cst_encode_bool(apiObj.encrypted);
+  }
+
+  @protected
   void cst_api_fill_to_wire_repair_fix(
     RepairFix apiObj,
     wire_cst_repair_fix wireObj,
   ) {
     wireObj.kind = cst_encode_repair_kind(apiObj.kind);
     wireObj.count = cst_encode_u_32(apiObj.count);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_restored_document(
+    RestoredDocument apiObj,
+    wire_cst_restored_document wireObj,
+  ) {
+    cst_api_fill_to_wire_opened_document(apiObj.opened, wireObj.opened);
+    wireObj.path = cst_encode_String(apiObj.path);
+    wireObj.original_changed = cst_encode_bool(apiObj.originalChanged);
+    wireObj.render_key = cst_encode_opt_box_autoadd_u_64(apiObj.renderKey);
   }
 
   @protected
@@ -2300,6 +2388,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_u_64(BigInt self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_u_8(int self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_view_item(
     ViewItem self,
     SseSerializer serializer,
@@ -2495,6 +2586,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_recoverable_document(
+    List<RecoverableDocument> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_repair_fix(
     List<RepairFix> self,
     SseSerializer serializer,
@@ -2615,6 +2712,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_opt_box_autoadd_u_64(BigInt? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_u_8(int? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_view_item(
     ViewItem? self,
     SseSerializer serializer,
@@ -2663,10 +2763,22 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_recoverable_document(
+    RecoverableDocument self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_repair_fix(RepairFix self, SseSerializer serializer);
 
   @protected
   void sse_encode_repair_kind(RepairKind self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_restored_document(
+    RestoredDocument self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer);
@@ -2893,16 +3005,16 @@ class FermanBridgeWire implements BaseWire {
         void Function(int, int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
       >();
 
-  void wire__crate__frb__close(int port_, int document) {
-    return _wire__crate__frb__close(port_, document);
+  void wire__crate__frb__close(int port_, int document, bool discard_recovery) {
+    return _wire__crate__frb__close(port_, document, discard_recovery);
   }
 
   late final _wire__crate__frb__closePtr =
-      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
-        'frbgen_ferman_wire__crate__frb__close',
-      );
+      _lookup<
+        ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Bool)>
+      >('frbgen_ferman_wire__crate__frb__close');
   late final _wire__crate__frb__close = _wire__crate__frb__closePtr
-      .asFunction<void Function(int, int)>();
+      .asFunction<void Function(int, int, bool)>();
 
   void wire__crate__frb__close_view(int port_, int view) {
     return _wire__crate__frb__close_view(port_, view);
@@ -2966,6 +3078,18 @@ class FermanBridgeWire implements BaseWire {
         void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
       >();
 
+  void wire__crate__frb__confirm_edit_signed(int port_, int document) {
+    return _wire__crate__frb__confirm_edit_signed(port_, document);
+  }
+
+  late final _wire__crate__frb__confirm_edit_signedPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Uint64)>>(
+        'frbgen_ferman_wire__crate__frb__confirm_edit_signed',
+      );
+  late final _wire__crate__frb__confirm_edit_signed =
+      _wire__crate__frb__confirm_edit_signedPtr
+          .asFunction<void Function(int, int)>();
+
   void wire__crate__frb__debug_bytes(int port_, int len) {
     return _wire__crate__frb__debug_bytes(port_, len);
   }
@@ -2987,6 +3111,34 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__debug_panic = _wire__crate__frb__debug_panicPtr
       .asFunction<void Function(int)>();
+
+  void wire__crate__frb__discard_recovery(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> session,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> document,
+  ) {
+    return _wire__crate__frb__discard_recovery(port_, session, document);
+  }
+
+  late final _wire__crate__frb__discard_recoveryPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__discard_recovery');
+  late final _wire__crate__frb__discard_recovery =
+      _wire__crate__frb__discard_recoveryPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__engine_info(int port_) {
     return _wire__crate__frb__engine_info(port_);
@@ -3020,6 +3172,17 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__keep_as_is = _wire__crate__frb__keep_as_isPtr
       .asFunction<void Function(int, int)>();
+
+  void wire__crate__frb__list_recoverable(int port_) {
+    return _wire__crate__frb__list_recoverable(port_);
+  }
+
+  late final _wire__crate__frb__list_recoverablePtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64)>>(
+        'frbgen_ferman_wire__crate__frb__list_recoverable',
+      );
+  late final _wire__crate__frb__list_recoverable =
+      _wire__crate__frb__list_recoverablePtr.asFunction<void Function(int)>();
 
   void wire__crate__frb__open(
     int port_,
@@ -3135,6 +3298,42 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__resolve_overflow =
       _wire__crate__frb__resolve_overflowPtr
           .asFunction<void Function(int, int, int)>();
+
+  void wire__crate__frb__restore_recovered(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> session,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> password,
+  ) {
+    return _wire__crate__frb__restore_recovered(
+      port_,
+      session,
+      document,
+      password,
+    );
+  }
+
+  late final _wire__crate__frb__restore_recoveredPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__restore_recovered');
+  late final _wire__crate__frb__restore_recovered =
+      _wire__crate__frb__restore_recoveredPtr
+          .asFunction<
+            void Function(
+              int,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+              ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            )
+          >();
 
   void wire__crate__frb__rollback_edit(int port_, int transaction) {
     return _wire__crate__frb__rollback_edit(port_, transaction);
@@ -3292,6 +3491,30 @@ class FermanBridgeWire implements BaseWire {
             )
           >();
 
+  void wire__crate__frb__save_unsigned_copy(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+  ) {
+    return _wire__crate__frb__save_unsigned_copy(port_, document, path);
+  }
+
+  late final _wire__crate__frb__save_unsigned_copyPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_unsigned_copy');
+  late final _wire__crate__frb__save_unsigned_copy =
+      _wire__crate__frb__save_unsigned_copyPtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
   void wire__crate__frb__search(
     int port_,
     int document,
@@ -3377,6 +3600,18 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, ffi.Pointer<wire_cst_font_settings>)
           >();
 
+  void wire__crate__frb__set_recovery_enabled(int port_, bool enabled) {
+    return _wire__crate__frb__set_recovery_enabled(port_, enabled);
+  }
+
+  late final _wire__crate__frb__set_recovery_enabledPtr =
+      _lookup<ffi.NativeFunction<ffi.Void Function(ffi.Int64, ffi.Bool)>>(
+        'frbgen_ferman_wire__crate__frb__set_recovery_enabled',
+      );
+  late final _wire__crate__frb__set_recovery_enabled =
+      _wire__crate__frb__set_recovery_enabledPtr
+          .asFunction<void Function(int, bool)>();
+
   void wire__crate__frb__show_layers(
     int port_,
     int document,
@@ -3397,6 +3632,28 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_wire__crate__frb__show_layers');
   late final _wire__crate__frb__show_layers = _wire__crate__frb__show_layersPtr
       .asFunction<void Function(int, int, ffi.Pointer<wire_cst_list_bool>)>();
+
+  void wire__crate__frb__start_recovery(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> root,
+  ) {
+    return _wire__crate__frb__start_recovery(port_, root);
+  }
+
+  late final _wire__crate__frb__start_recoveryPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__start_recovery');
+  late final _wire__crate__frb__start_recovery =
+      _wire__crate__frb__start_recoveryPtr
+          .asFunction<
+            void Function(int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
 
   void wire__crate__frb__text_blocks(int port_, int document, int page) {
     return _wire__crate__frb__text_blocks(port_, document, page);
@@ -3655,6 +3912,17 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_u_64 = _cst_new_box_autoadd_u_64Ptr
       .asFunction<ffi.Pointer<ffi.Uint64> Function(int)>();
 
+  ffi.Pointer<ffi.Uint8> cst_new_box_autoadd_u_8(int value) {
+    return _cst_new_box_autoadd_u_8(value);
+  }
+
+  late final _cst_new_box_autoadd_u_8Ptr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Uint8> Function(ffi.Uint8)>>(
+        'frbgen_ferman_cst_new_box_autoadd_u_8',
+      );
+  late final _cst_new_box_autoadd_u_8 = _cst_new_box_autoadd_u_8Ptr
+      .asFunction<ffi.Pointer<ffi.Uint8> Function(int)>();
+
   ffi.Pointer<wire_cst_view_item> cst_new_box_autoadd_view_item() {
     return _cst_new_box_autoadd_view_item();
   }
@@ -3908,6 +4176,23 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_prim_u_8_strict');
   late final _cst_new_list_prim_u_8_strict = _cst_new_list_prim_u_8_strictPtr
       .asFunction<ffi.Pointer<wire_cst_list_prim_u_8_strict> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_recoverable_document>
+  cst_new_list_recoverable_document(int len) {
+    return _cst_new_list_recoverable_document(len);
+  }
+
+  late final _cst_new_list_recoverable_documentPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_recoverable_document> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_recoverable_document');
+  late final _cst_new_list_recoverable_document =
+      _cst_new_list_recoverable_documentPtr
+          .asFunction<
+            ffi.Pointer<wire_cst_list_recoverable_document> Function(int)
+          >();
 
   ffi.Pointer<wire_cst_list_repair_fix> cst_new_list_repair_fix(int len) {
     return _cst_new_list_repair_fix(len);
@@ -4471,6 +4756,30 @@ final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_recoverable_document extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> session;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> document;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> original;
+
+  @ffi.Bool()
+  external bool original_changed;
+
+  @ffi.Uint32()
+  external int changes;
+
+  @ffi.Bool()
+  external bool encrypted;
+}
+
+final class wire_cst_list_recoverable_document extends ffi.Struct {
+  external ffi.Pointer<wire_cst_recoverable_document> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
 final class wire_cst_repair_fix extends ffi.Struct {
   @ffi.Int32()
   external int kind;
@@ -4628,6 +4937,9 @@ final class wire_cst_history extends ffi.Struct {
 
   @ffi.Uint32()
   external int current;
+
+  @ffi.Bool()
+  external bool signature_invalidated;
 }
 
 final class wire_cst_opened_document extends ffi.Struct {
@@ -4653,6 +4965,11 @@ final class wire_cst_opened_document extends ffi.Struct {
   external bool layers_switchable;
 
   external ffi.Pointer<wire_cst_list_signature> signatures;
+
+  @ffi.Bool()
+  external bool signed_;
+
+  external ffi.Pointer<ffi.Uint8> certification;
 
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> version;
 
@@ -4681,6 +4998,17 @@ final class wire_cst_opened_document extends ffi.Struct {
 
   @ffi.Bool()
   external bool scanned;
+}
+
+final class wire_cst_restored_document extends ffi.Struct {
+  external wire_cst_opened_document opened;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> path;
+
+  @ffi.Bool()
+  external bool original_changed;
+
+  external ffi.Pointer<ffi.Uint64> render_key;
 }
 
 final class wire_cst_revision_info extends ffi.Struct {
