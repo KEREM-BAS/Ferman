@@ -478,7 +478,7 @@ class FrbEngineService implements EngineService {
     try {
       await bridge.setFontSettings(
         settings: bridge.FontSettings(
-          bundledDir: settings.bundledDir,
+          bundledDir: settings.bundledDir ?? bundledFontsDirectory(),
           fontDirs: settings.fontDirs,
           systemFonts: settings.systemFonts,
           askEachTime: settings.askEachTime,
@@ -920,6 +920,30 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
     _ => throw const EngineUnavailableException(
       EngineUnavailableReason.unsupportedPlatform,
     ),
+  };
+}
+
+/// The folder of the fonts the build bundles (`app/assets/fonts`, IBM
+/// Plex), as an absolute path next to the running executable: where
+/// Flutter puts the app's assets on each desktop system; null elsewhere.
+String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
+  final os = operatingSystem ?? Platform.operatingSystem;
+  final separator = os == 'windows' ? r'\' : '/';
+  final exe = executable ?? Platform.resolvedExecutable;
+  final cut = exe.lastIndexOf(separator);
+  final dir = cut < 0 ? '.' : exe.substring(0, cut);
+  String join(List<String> parts) => [dir, ...parts].join(separator);
+  const assets = ['flutter_assets', 'assets', 'fonts'];
+  return switch (os) {
+    'linux' || 'windows' => join(['data', ...assets]),
+    'macos' => join([
+      '..',
+      'Frameworks',
+      'App.framework',
+      'Resources',
+      ...assets,
+    ]),
+    _ => null,
   };
 }
 

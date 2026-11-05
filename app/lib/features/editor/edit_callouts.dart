@@ -5,6 +5,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/font_picker_dialog.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
@@ -12,7 +13,12 @@ import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The Edit panel's callouts for the text being edited (FmEditPanel): a3-4's
+/// The Edit panel's callouts for the text being edited (FmEditPanel):
+/// missing-glyph step 3's one warning (a3-3a, a3-17: "Missing character",
+/// "No font has this character" or "This font can’t be embedded") with
+/// Choose a font…, which opens the a3-3b picker ([FontPickerDialog]), and
+/// Keep as is; step 2's "Character added from this computer", said once;
+/// a3-4's
 /// "Text doesn't fit" with its three choices and the amounts the engine
 /// computed, each disabled one with a3-18's reason under it, and a3-9's
 /// "Totals don't update" while table cells depend on the edited one.
@@ -31,12 +37,17 @@ class EditCallouts extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final plan = ref.watch(documentEditorProvider.select((s) => s.asking));
+    final glyphs = ref.watch(documentEditorProvider.select((s) => s.glyphs));
+    final notice = ref.watch(documentEditorProvider.select((s) => s.notice));
+    final picking = ref.watch(documentEditorProvider.select((s) => s.picking));
     final dependents = ref.watch(
       documentEditorProvider.select(
         (s) => s.active == null ? 0 : s.preview?.dependents.length ?? 0,
       ),
     );
-    if (plan == null && dependents == 0) return const SizedBox.shrink();
+    if (plan == null && dependents == 0 && glyphs == null && notice == null) {
+      return const SizedBox.shrink();
+    }
     final editor = ref.read(documentEditorProvider.notifier);
     final gap = theme.space.space2;
     return Padding(
@@ -45,6 +56,38 @@ class EditCallouts extends ConsumerWidget {
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: gap,
         children: [
+          if (glyphs != null) ...[
+            _glyphWarning(l10n, glyphs),
+            Row(
+              spacing: theme.space.space1_5,
+              children: [
+                Button(
+                  size: ButtonSize.sm,
+                  onPressed: () => editor.showFontPicker(open: true),
+                  child: Text(l10n.editGlyphChoose),
+                ),
+                Button(
+                  size: ButtonSize.sm,
+                  variant: ButtonVariant.ghost,
+                  onPressed: () => unawaited(editor.keepAsIs()),
+                  child: Text(l10n.editGlyphKeep),
+                ),
+              ],
+            ),
+            if (picking) FontPickerDialog(glyphs: glyphs),
+          ],
+          if (notice != null)
+            Banner(
+              title: l10n.editGlyphAddedTitle,
+              child: Text(
+                l10n.editGlyphAddedBody(
+                  notice.chars.runes
+                      .map((c) => quoted(String.fromCharCode(c)))
+                      .join(', '),
+                  bidiIsolate(notice.toFont),
+                ),
+              ),
+            ),
           if (plan != null) ...[
             Banner(
               tone: BannerTone.warning,
@@ -88,6 +131,33 @@ class EditCallouts extends ConsumerWidget {
       ),
     );
   }
+}
+
+/// Step 3's warning for [glyphs]: why the font did not draw them and what
+/// Ferman does instead (a3-3a, a3-17).
+Widget _glyphWarning(AppLocalizations l10n, MissingGlyphs glyphs) {
+  final chars = quotedChars(glyphs);
+  final font = bidiIsolate(glyphs.reasonFont ?? glyphs.font);
+  final several = {for (final c in glyphs.chars) c.text}.length > 1;
+  final (title, body) = glyphs.candidates.isEmpty
+      ? (l10n.editGlyphNoneTitle, l10n.editGlyphNoneBody(chars))
+      : switch (glyphs.reason) {
+          MissingReason.notInstalled => (
+            l10n.editGlyphTitle,
+            several ? l10n.editGlyphBodyMany(chars) : l10n.editGlyphBody(chars),
+          ),
+          MissingReason.notEmbeddable => (
+            l10n.editGlyphLicenceTitle,
+            glyphs.reasonEmbedding == FontEmbedding.previewAndPrint
+                ? l10n.editGlyphLicenceBody(font, chars)
+                : l10n.editGlyphLicenceBodyRestricted(font, chars),
+          ),
+          MissingReason.restricted => (
+            l10n.editGlyphLicenceTitle,
+            l10n.editGlyphOwnFontBody(font, chars),
+          ),
+        };
+  return Banner(tone: BannerTone.warning, title: title, child: Text(body));
 }
 
 /// One overflow choice, with the reason it is disabled under it.
@@ -282,6 +352,35 @@ class HiddenLinesStatus extends ConsumerWidget {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// a11-6's "Font substituted" warning toast after a commit set characters
+/// in a similar font: "This block uses EB Garamond for ‘ğ’.", with
+/// Dismiss; it leaves after `DocumentEditor.toastTime`. Review is not
+/// offered until Review edits (B049, G128).
+class FontSubstitutedToast extends ConsumerWidget {
+  /// The toast of [substitution].
+  const new(this.substitution, {super.key});
+
+  /// The characters and the font they are set in.
+  final FontSubstitution substitution;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    return Toast(
+      tone: ToastTone.warning,
+      title: l10n.editFontSubstituted,
+      message: l10n.editFontSubstitutedBody(
+        bidiIsolate(substitution.toFont),
+        substitution.chars.runes
+            .map((c) => quoted(String.fromCharCode(c)))
+            .join(', '),
+      ),
+      onClose: ref.read(documentEditorProvider.notifier).dismissToast,
+      closeLabel: l10n.editFontSubstitutedDismiss,
     );
   }
 }

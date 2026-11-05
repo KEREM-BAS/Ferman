@@ -2164,4 +2164,129 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editBadgeEdited => 'معدّل';
+
+  @override
+  String get editGlyphTitle => 'حرف مفقود';
+
+  @override
+  String editGlyphBody(String chars) {
+    return 'لا يحتوي هذا الخط على الحرف $chars. سيستخدم Ferman خطًا مشابهًا لهذا الحرف.';
+  }
+
+  @override
+  String editGlyphBodyMany(String chars) {
+    return 'لا يحتوي هذا الخط على الأحرف $chars. سيستخدم Ferman خطًا مشابهًا لهذه الأحرف.';
+  }
+
+  @override
+  String get editGlyphChoose => 'اختيار خط…';
+
+  @override
+  String get editGlyphKeep => 'إبقاء كما هو';
+
+  @override
+  String get editGlyphNoneTitle => 'لا يوجد خط يحتوي هذا الحرف';
+
+  @override
+  String editGlyphNoneBody(String chars) {
+    return 'لا يحتوي هذا الخط ولا أي خط على هذا الجهاز على الحرف $chars. اختر خطًا يحتويه أو أبقِه كما هو.';
+  }
+
+  @override
+  String get editGlyphLicenceTitle => 'لا يمكن تضمين هذا الخط';
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) {
+    return 'خط $font مثبّت، لكن ترخيصه يسمح بالمعاينة والطباعة فقط. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) {
+    return 'خط $font مثبّت، لكن ترخيصه لا يسمح بتضمينه. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) {
+    return 'يسمح ترخيص خط $font في هذا المستند بالمعاينة والطباعة فقط، لذا لا يعيد Ferman استخدام أحرفه. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String get editGlyphAddedTitle => 'أُضيف الحرف من هذا الجهاز';
+
+  @override
+  String editGlyphAddedBody(String chars, String font) {
+    return 'أخذ Ferman الحرف $chars من خط $font المثبّت على هذا الجهاز وأضافه إلى خط المستند.';
+  }
+
+  @override
+  String get fontPickerTitle => 'اختيار خط لهذه الكتلة';
+
+  @override
+  String get fontPickerClose => 'إغلاق';
+
+  @override
+  String get fontPickerScope => 'الاستبدال';
+
+  @override
+  String get fontPickerScopeMissing => 'الأحرف المفقودة فقط';
+
+  @override
+  String get fontPickerScopeBlock => 'الكتلة كاملة';
+
+  @override
+  String get fontPickerSearch => 'البحث في الخطوط';
+
+  @override
+  String get fontPickerEmbedded => 'مضمّنة في هذا المستند';
+
+  @override
+  String get fontPickerInstalled => 'مثبّتة على هذا الجهاز';
+
+  @override
+  String get fontPickerBundled => 'خطوط مشابهة مرفقة مع Ferman';
+
+  @override
+  String get fontPickerClosest => 'الأقرب تطابقًا';
+
+  @override
+  String fontPickerHas(String chars) {
+    return 'يحتوي $chars';
+  }
+
+  @override
+  String fontPickerHasNone(String chars) {
+    return 'لا يحتوي $chars';
+  }
+
+  @override
+  String fontPickerHasSome(String covered, String needed) {
+    return '$covered من $needed أحرف';
+  }
+
+  @override
+  String get fontPickerNotEmbeddable => 'لا يمكن تضمينه';
+
+  @override
+  String fontPickerNoMatch(String query) {
+    return 'لا يوجد خط يطابق «$query».';
+  }
+
+  @override
+  String get fontPickerCancel => 'إلغاء';
+
+  @override
+  String fontPickerUse(String font) {
+    return 'استخدام $font';
+  }
+
+  @override
+  String get editFontSubstituted => 'استُبدل الخط';
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) {
+    return 'تستخدم هذه الكتلة خط $font للحرف $chars.';
+  }
+
+  @override
+  String get editFontSubstitutedDismiss => 'إغلاق';
 }

@@ -6,6 +6,8 @@ import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
+import 'package:ferman/settings/app_settings.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart'
     show ProviderListenableSelect;
@@ -79,6 +81,9 @@ final class EditorState {
     this.preview,
     this.settled = false,
     this.hidden = const [],
+    this.fontSettled = false,
+    this.picking = false,
+    this.toast,
   });
 
   /// The block being edited, or null.
@@ -97,6 +102,26 @@ final class EditorState {
   /// The lines "Keep and warn" left hidden in the steps that apply, the
   /// newest step of each block.
   final List<HiddenLines> hidden;
+
+  /// Whether step 3's question was answered with "Keep as is" while no
+  /// font could draw the characters, so the panel no longer asks.
+  final bool fontSettled;
+
+  /// Whether the a3-3b picker is open over the block being edited.
+  final bool picking;
+
+  /// The "Font substituted" toast of the last commit (a11-6), or null.
+  final FontSubstitution? toast;
+
+  /// Missing-glyph step 3 waiting for "Choose a font…" or "Keep as is"
+  /// (a3-3a, a3-17), or null.
+  MissingGlyphs? get glyphs => fontSettled ? null : preview?.glyphs;
+
+  /// Step 2's substitution the panel says once (a3-17: "Character added
+  /// from this computer"), or null.
+  FontSubstitution? get notice => preview?.substitutions
+      .where((s) => s.kind == SubstitutionKind.sameFont && !s.announced)
+      .firstOrNull;
 
   /// The overflow choices waiting for an answer, or null.
   OverflowPlan? get asking => settled ? null : preview?.overflow;
@@ -131,6 +156,10 @@ final class EditorState {
     bool clearPreview = false,
     bool? settled,
     List<HiddenLines>? hidden,
+    bool? fontSettled,
+    bool? picking,
+    FontSubstitution? toast,
+    bool clearToast = false,
   }) => EditorState(
     active: clearActive ? null : active ?? this.active,
     history: history ?? this.history,
@@ -138,6 +167,9 @@ final class EditorState {
     preview: clearPreview ? null : preview ?? this.preview,
     settled: settled ?? (!clearPreview && this.settled),
     hidden: hidden ?? this.hidden,
+    fontSettled: fontSettled ?? (!clearPreview && this.fontSettled),
+    picking: picking ?? (!clearPreview && this.picking),
+    toast: clearToast ? null : toast ?? this.toast,
   );
 }
 
@@ -174,6 +206,15 @@ typedef _Unanswered = ({
 /// by undoing that step and writing the text again with the choice, so
 /// either way it is one step.
 ///
+/// Text with characters its font lacks comes back with missing-glyph step
+/// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
+/// closest candidate, or not at all with "Ask each time" (the
+/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
+/// commit waits for the answer, and closing the editor in any other way
+/// answers "Keep as is" first. A commit that set characters in another
+/// font shows the "Font substituted" toast once ([EditorState.toast]).
+///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
 /// marks it saved, or "Couldn't save" when it fails.
@@ -186,12 +227,25 @@ class DocumentEditor extends _$DocumentEditor {
   /// [idleMs] as a duration.
   static const Duration idle = Duration(milliseconds: idleMs);
 
+  /// How long the "Font substituted" toast stays (a11-6: "the rest leave
+  /// after six seconds").
+  // shortcut: hovering or focusing the toast does not hold it yet; a
+  // toast region with that rule comes with the next toast that needs it.
+  static const int toastMs = 6000;
+
+  /// [toastMs] as a duration: not motion, so not a token.
+  static const Duration toastTime = Duration(milliseconds: toastMs);
+
   Future<void> _queue = Future.value();
+  Timer? _toastTimer;
   int? _document;
   int? _transaction;
   String _name = '';
   String? _pending;
   String? _applied;
+
+  /// The newest text sent to the engine, applied or not.
+  String? _requested;
   Timer? _idle;
 
   /// The block of each committed step, parallel to the history's steps;
@@ -205,7 +259,15 @@ class DocumentEditor extends _$DocumentEditor {
   EditorState build() {
     _document = ref.read(openDocumentProvider)?.id;
     ref
-      ..onDispose(() => _idle?.cancel())
+      ..onDispose(() {
+        _idle?.cancel();
+        _toastTimer?.cancel();
+      })
+      ..listen(
+        settingsProvider.select((s) => s.missingGlyphs),
+        (_, policy) => unawaited(_fonts(policy)),
+        fireImmediately: true,
+      )
       ..listen(openDocumentProvider.select((document) => document?.id), (
         _,
         next,
@@ -227,6 +289,19 @@ class DocumentEditor extends _$DocumentEditor {
     }
     return const EditorState();
   }
+
+  /// Tells the engine where the fonts for missing glyphs come from: this
+  /// computer's and Ferman's, and [policy]'s "Ask each time".
+  Future<void> _fonts(MissingGlyphPolicy policy) => _run(() async {
+    try {
+      await _engine.setFontSettings(
+        FontSettings(askEachTime: policy == MissingGlyphPolicy.ask),
+      );
+    } on Object {
+      // Missing glyphs then go without installed and bundled fonts; an
+      // engine that did not start has no edits either.
+    }
+  });
 
   /// Runs [step] after every step asked for before it.
   Future<void> _run(Future<void> Function() step) {
@@ -291,15 +366,13 @@ class DocumentEditor extends _$DocumentEditor {
         active.page,
         active.block.id,
       );
-      // shortcut: text the engine cannot write yet (characters no font
-      // has, right-to-left lines) stays unapplied without a word; the
-      // missing-glyph states come in W3.
+      _requested = text;
       final preview = await _engine.applyEdit(transaction, text);
       // Text with missing characters is not applied: the overflow stays
       // the one of the text applied before it.
       if (preview.missing.isEmpty) _applied = text;
       _unanswered = null;
-      state = state.copy(preview: preview, settled: false);
+      state = state.copy(preview: preview, settled: false, fontSettled: false);
       // Typing not yet committed is unsaved too: Save, and closing the tab
       // asks first.
       if (!_unsaved(active.document)) {
@@ -310,10 +383,11 @@ class DocumentEditor extends _$DocumentEditor {
     }
   }
 
-  /// Commits the typing so far as a step and keeps the editor open.
+  /// Commits the typing so far as a step and keeps the editor open, unless
+  /// missing-glyph step 3 waits for an answer: the idle commit.
   Future<void> commit() {
     _idle?.cancel();
-    return _run(_commit);
+    return _run(() => _commit(idle: true));
   }
 
   /// Commits the typing so far and closes the editor.
@@ -322,16 +396,24 @@ class DocumentEditor extends _$DocumentEditor {
     return _run(_close);
   }
 
-  Future<void> _commit() async {
+  Future<void> _commit({bool idle = false}) async {
     await _apply();
     final transaction = _transaction;
     if (transaction == null) return;
+    if (state.glyphs != null) {
+      // Never silent: the question stays until it is answered, and only
+      // leaving the editor answers it, with "Keep as is".
+      if (idle) return;
+      await _keep(transaction);
+      state = state.copy(picking: false);
+    }
     _transaction = null;
     final active = state.active;
     final document = active?.document ?? _document;
     try {
       final info = await _engine.commitEdit(transaction, _name);
       if (document == null) return;
+      _announce(info.substitutions);
       await _refresh(
         document,
         info,
@@ -357,6 +439,101 @@ class DocumentEditor extends _$DocumentEditor {
       }
     } on EngineException {
       // The engine dropped the transaction; the history is as it was.
+    }
+  }
+
+  /// Shows the "Font substituted" toast for the first of [substitutions]
+  /// the app was not told of yet (step 3 only: step 2 keeps the same font
+  /// and says so in the panel).
+  void _announce(List<FontSubstitution> substitutions) {
+    final next = substitutions
+        .where((s) => s.kind == SubstitutionKind.similar && !s.announced)
+        .firstOrNull;
+    if (next == null) return;
+    _toastTimer?.cancel();
+    _toastTimer = Timer(toastTime, dismissToast);
+    state = state.copy(toast: next);
+  }
+
+  /// Hides the "Font substituted" toast.
+  void dismissToast() {
+    _toastTimer?.cancel();
+    if (state.toast != null) state = state.copy(clearToast: true);
+  }
+
+  /// Opens or closes the a3-3b picker for the block being edited.
+  void showFontPicker({required bool open}) {
+    if (open && state.glyphs == null) return;
+    state = state.copy(picking: open);
+  }
+
+  /// Draws step 3's characters in [candidate] (a3-3b's "Use …") and closes
+  /// the picker.
+  Future<void> chooseFont(FontCandidate candidate) {
+    _idle?.cancel();
+    return _run(() async {
+      final transaction = _transaction;
+      state = state.copy(picking: false);
+      if (transaction == null || state.glyphs == null) return;
+      try {
+        final preview = await _engine.chooseFont(
+          transaction,
+          candidate.origin,
+          candidate.postscriptName,
+        );
+        _applied = _requested;
+        state = state.copy(preview: preview);
+      } on EngineException {
+        // The provisional font stays; the question too.
+      }
+      _restartIdle();
+    });
+  }
+
+  /// Keeps step 3's characters in the closest candidate (a3-3a's "Keep as
+  /// is").
+  Future<void> keepAsIs() {
+    _idle?.cancel();
+    return _run(() async {
+      state = state.copy(picking: false);
+      if (_transaction case final transaction? when state.glyphs != null) {
+        await _keep(transaction);
+      }
+      _restartIdle();
+    });
+  }
+
+  /// "Keep as is" in [transaction]. With no font to draw the characters
+  /// the engine refuses, and the text last applied stays, kept as is: a
+  /// font it drew provisionally would otherwise hold the commit back.
+  Future<void> _keep(int transaction) async {
+    try {
+      final preview = await _engine.keepAsIs(transaction);
+      _applied = _requested;
+      state = state.copy(preview: preview);
+    } on EngineException {
+      // shortcut: the characters no font has stay in the field but not in
+      // the page, until a11-1c's "Keep the original font and mark the
+      // character" (B074).
+      state = state.copy(fontSettled: true);
+      final drawn = _applied;
+      if (drawn == null || drawn == _requested) return;
+      try {
+        _requested = drawn;
+        var preview = await _engine.applyEdit(transaction, drawn);
+        if (preview.glyphs != null) {
+          preview = await _engine.keepAsIs(transaction);
+        }
+        state = state.copy(preview: preview);
+      } on EngineException {
+        // The commit says what the engine keeps.
+      }
+    }
+  }
+
+  void _restartIdle() {
+    if (state.active != null) {
+      _idle = Timer(idle, () => unawaited(commit()));
     }
   }
 

@@ -22,6 +22,7 @@ void main() {
         'pageLook': 'paper',
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
+        'missingGlyphs': 'similar',
       });
     });
 
@@ -51,6 +52,7 @@ void main() {
         'pageLook': 'paper',
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
+        'missingGlyphs': 'similar',
       });
     });
 
@@ -82,6 +84,17 @@ void main() {
       expect(json['version'], 3);
       expect(json['theme'], 'dark');
       expect(json['futureOption'], {'nested': true});
+    });
+
+    test('"Ask each time" round-trips, and an unknown policy is the '
+        'default', () {
+      const ask = AppSettings(missingGlyphs: MissingGlyphPolicy.ask);
+      expect(ask.toJson()['missingGlyphs'], 'ask');
+      expect(AppSettings.fromJson(ask.toJson()), ask);
+      expect(
+        AppSettings.fromJson(const {'missingGlyphs': 'keep'}).missingGlyphs,
+        MissingGlyphPolicy.similar,
+      );
     });
 
     test('an older version is written as the current one', () {

@@ -63,4 +63,35 @@ void main() {
       );
     });
   });
+
+  group('bundledFontsDirectory', () {
+    test("each desktop system's Flutter assets folder", () {
+      expect(
+        bundledFontsDirectory(
+          executable: '/opt/ferman/ferman',
+          operatingSystem: 'linux',
+        ),
+        '/opt/ferman/data/flutter_assets/assets/fonts',
+      );
+      expect(
+        bundledFontsDirectory(
+          executable: r'C:\Program Files\Ferman\ferman.exe',
+          operatingSystem: 'windows',
+        ),
+        r'C:\Program Files\Ferman\data\flutter_assets\assets\fonts',
+      );
+      expect(
+        bundledFontsDirectory(
+          executable: '/Applications/Ferman.app/Contents/MacOS/Ferman',
+          operatingSystem: 'macos',
+        ),
+        '/Applications/Ferman.app/Contents/MacOS/../Frameworks/'
+        'App.framework/Resources/flutter_assets/assets/fonts',
+      );
+      expect(
+        bundledFontsDirectory(executable: '/x', operatingSystem: 'android'),
+        isNull,
+      );
+    });
+  });
 }

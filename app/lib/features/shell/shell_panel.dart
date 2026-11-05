@@ -61,6 +61,8 @@ class FmDocPanel extends ConsumerWidget {
           documentEditorProvider.select(
             (s) =>
                 s.asking != null ||
+                s.glyphs != null ||
+                s.notice != null ||
                 (s.active != null &&
                     (s.preview?.dependents.isNotEmpty ?? false)),
           ),
