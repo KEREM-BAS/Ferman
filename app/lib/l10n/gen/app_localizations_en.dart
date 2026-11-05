@@ -2120,4 +2120,129 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editBadgeEdited => 'Edited';
+
+  @override
+  String get editGlyphTitle => 'Missing character';
+
+  @override
+  String editGlyphBody(String chars) {
+    return 'This font has no $chars. Ferman will use a similar font for this character.';
+  }
+
+  @override
+  String editGlyphBodyMany(String chars) {
+    return 'This font has no $chars. Ferman will use a similar font for these characters.';
+  }
+
+  @override
+  String get editGlyphChoose => 'Choose a font…';
+
+  @override
+  String get editGlyphKeep => 'Keep as is';
+
+  @override
+  String get editGlyphNoneTitle => 'No font has this character';
+
+  @override
+  String editGlyphNoneBody(String chars) {
+    return 'Neither this font nor any font on this computer has $chars. Choose a font that has it, or keep the character as is.';
+  }
+
+  @override
+  String get editGlyphLicenceTitle => 'This font can’t be embedded';
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) {
+    return '$font is installed, but its licence allows only preview and print. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) {
+    return '$font is installed, but its licence doesn’t allow embedding it. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) {
+    return 'The licence of $font in this document allows only preview and print, so Ferman doesn’t reuse its glyphs. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String get editGlyphAddedTitle => 'Character added from this computer';
+
+  @override
+  String editGlyphAddedBody(String chars, String font) {
+    return 'Ferman took $chars from $font installed on this computer and added it to the document’s font.';
+  }
+
+  @override
+  String get fontPickerTitle => 'Choose a font for this block';
+
+  @override
+  String get fontPickerClose => 'Close';
+
+  @override
+  String get fontPickerScope => 'Replace';
+
+  @override
+  String get fontPickerScopeMissing => 'Missing characters only';
+
+  @override
+  String get fontPickerScopeBlock => 'Whole block';
+
+  @override
+  String get fontPickerSearch => 'Search fonts';
+
+  @override
+  String get fontPickerEmbedded => 'Embedded in this document';
+
+  @override
+  String get fontPickerInstalled => 'Installed on this computer';
+
+  @override
+  String get fontPickerBundled => 'Similar fonts included with Ferman';
+
+  @override
+  String get fontPickerClosest => 'Closest match';
+
+  @override
+  String fontPickerHas(String chars) {
+    return 'Has $chars';
+  }
+
+  @override
+  String fontPickerHasNone(String chars) {
+    return 'No $chars';
+  }
+
+  @override
+  String fontPickerHasSome(String covered, String needed) {
+    return '$covered of $needed characters';
+  }
+
+  @override
+  String get fontPickerNotEmbeddable => 'Can’t be embedded';
+
+  @override
+  String fontPickerNoMatch(String query) {
+    return 'No font matches “$query”.';
+  }
+
+  @override
+  String get fontPickerCancel => 'Cancel';
+
+  @override
+  String fontPickerUse(String font) {
+    return 'Use $font';
+  }
+
+  @override
+  String get editFontSubstituted => 'Font substituted';
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) {
+    return 'This block uses $font for $chars.';
+  }
+
+  @override
+  String get editFontSubstitutedDismiss => 'Dismiss';
 }

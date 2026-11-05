@@ -29,6 +29,7 @@ final class AppSettings {
     this.pageLook = PageLook.paper,
     this.pageLayout = NewDocumentLayout.scroll,
     this.zoom = NewDocumentZoom.fitWidth,
+    this.missingGlyphs = MissingGlyphPolicy.similar,
     this.unknown = const {},
     this.version = currentVersion,
   });
@@ -70,6 +71,9 @@ final class AppSettings {
           NewDocumentLayout.scroll,
       zoom:
           pick(NewDocumentZoom.values, json[_zoom]) ?? NewDocumentZoom.fitWidth,
+      missingGlyphs:
+          pick(MissingGlyphPolicy.values, json[_missingGlyphs]) ??
+          MissingGlyphPolicy.similar,
       unknown: {
         for (final MapEntry(:key, :value) in json.entries)
           if (!_known.contains(key)) key: value,
@@ -98,6 +102,7 @@ final class AppSettings {
   static const String _pageLook = 'pageLook';
   static const String _pageLayout = 'pageLayout';
   static const String _zoom = 'zoom';
+  static const String _missingGlyphs = 'missingGlyphs';
   static const Set<String> _known = {
     _version,
     _theme,
@@ -113,6 +118,7 @@ final class AppSettings {
     _pageLook,
     _pageLayout,
     _zoom,
+    _missingGlyphs,
   };
 
   /// Settings → General → Theme.
@@ -162,6 +168,10 @@ final class AppSettings {
   /// Settings → General → Zoom of documents as they open (B034).
   final NewDocumentZoom zoom;
 
+  /// Settings → Editing → When a font is missing a character (a11-1c,
+  /// G36): what missing-glyph step 3 does.
+  final MissingGlyphPolicy missingGlyphs;
+
   /// Keys from a newer settings file, kept as they were.
   final Map<String, Object?> unknown;
 
@@ -187,6 +197,7 @@ final class AppSettings {
     _pageLook: pageLook.name,
     _pageLayout: pageLayout.name,
     _zoom: zoom.name,
+    _missingGlyphs: missingGlyphs.name,
   };
 
   /// A copy with the given values. The nullable choices take a function so
@@ -205,6 +216,7 @@ final class AppSettings {
     PageLook? pageLook,
     NewDocumentLayout? pageLayout,
     NewDocumentZoom? zoom,
+    MissingGlyphPolicy? missingGlyphs,
   }) => AppSettings(
     themeMode: themeMode ?? this.themeMode,
     languageCode: languageCode == null ? this.languageCode : languageCode(),
@@ -221,6 +233,7 @@ final class AppSettings {
     pageLook: pageLook ?? this.pageLook,
     pageLayout: pageLayout ?? this.pageLayout,
     zoom: zoom ?? this.zoom,
+    missingGlyphs: missingGlyphs ?? this.missingGlyphs,
     unknown: unknown,
     version: version,
   );
@@ -241,6 +254,7 @@ final class AppSettings {
       other.pageLook == pageLook &&
       other.pageLayout == pageLayout &&
       other.zoom == zoom &&
+      other.missingGlyphs == missingGlyphs &&
       other.version == version &&
       mapEquals(other.unknown, unknown);
 
@@ -259,6 +273,7 @@ final class AppSettings {
     pageLook,
     pageLayout,
     zoom,
+    missingGlyphs,
     version,
     Object.hashAllUnordered(unknown.keys),
   );
@@ -298,4 +313,16 @@ enum NewDocumentZoom {
 
   /// Actual size, 100 %.
   actual,
+}
+
+/// What missing-glyph step 3 does (a11-1c's "When a font is missing a
+/// character", G36). a11-1c's third choice, "Keep the original font and
+/// mark the character", is not built yet (B074).
+enum MissingGlyphPolicy {
+  /// "Use a similar font and say so": the closest candidate draws the
+  /// characters at once, said once; the default (Q09).
+  similar,
+
+  /// "Ask each time": nothing is drawn until a font is chosen.
+  ask,
 }

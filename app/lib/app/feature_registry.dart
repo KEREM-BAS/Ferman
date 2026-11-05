@@ -131,6 +131,10 @@ enum Feature {
   /// The review list of edits (Edit › Review edits).
   editReview('B049'),
 
+  /// The font picker's "Whole block" scope: the whole block in the chosen
+  /// font, not only its missing characters (a3-3b).
+  fontScopeWholeBlock('B137'),
+
   // Comments, forms and signatures.
 
   /// Comments and annotations: the Comment row's tools but Measure, its

@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -192509212;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 1981533957;
 
 // Section: executor
 
@@ -142,6 +142,39 @@ fn wire__crate__frb__caret_at_impl(
                         let output_ok =
                             crate::frb::caret_at(api_document, api_page, api_block, api_point)
                                 .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__choose_font_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    transaction: impl CstDecode<u64>,
+    origin: impl CstDecode<crate::frb::FontOrigin>,
+    postscript_name: impl CstDecode<String>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "choose_font",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_transaction = transaction.cst_decode();
+            let api_origin = origin.cst_decode();
+            let api_postscript_name = postscript_name.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::choose_font(
+                            api_transaction,
+                            api_origin,
+                            api_postscript_name,
+                        )
+                        .await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -331,6 +364,30 @@ fn wire__crate__frb__history_impl(
                 transform_result_dco::<_, _, crate::frb::ApiError>(
                     (move || async move {
                         let output_ok = crate::frb::history(api_document).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__keep_as_is_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    transaction: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "keep_as_is",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_transaction = transaction.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::keep_as_is(api_transaction).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -649,6 +706,30 @@ fn wire__crate__frb__selection_impl(
         },
     )
 }
+fn wire__crate__frb__set_font_settings_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    settings: impl CstDecode<crate::frb::FontSettings>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "set_font_settings",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_settings = settings.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::set_font_settings(api_settings).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__show_layers_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -843,6 +924,31 @@ impl CstDecode<crate::frb::FailReason> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::FontEmbedding> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FontEmbedding {
+        match self {
+            0 => crate::frb::FontEmbedding::Installable,
+            1 => crate::frb::FontEmbedding::Editable,
+            2 => crate::frb::FontEmbedding::PreviewAndPrint,
+            3 => crate::frb::FontEmbedding::Restricted,
+            4 => crate::frb::FontEmbedding::NoSubsetting,
+            5 => crate::frb::FontEmbedding::BitmapOnly,
+            _ => unreachable!("Invalid variant for FontEmbedding: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::FontOrigin> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::FontOrigin {
+        match self {
+            0 => crate::frb::FontOrigin::Embedded,
+            1 => crate::frb::FontOrigin::Installed,
+            2 => crate::frb::FontOrigin::Bundled,
+            _ => unreachable!("Invalid variant for FontOrigin: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::FontType> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::FontType {
@@ -882,6 +988,17 @@ impl CstDecode<crate::frb::ItemKind> for i32 {
             0 => crate::frb::ItemKind::Tile,
             1 => crate::frb::ItemKind::Thumbnail,
             _ => unreachable!("Invalid variant for ItemKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::MissingReasonKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::MissingReasonKind {
+        match self {
+            0 => crate::frb::MissingReasonKind::NotInstalled,
+            1 => crate::frb::MissingReasonKind::NotEmbeddable,
+            2 => crate::frb::MissingReasonKind::Restricted,
+            _ => unreachable!("Invalid variant for MissingReasonKind: {}", self),
         }
     }
 }
@@ -972,6 +1089,16 @@ impl CstDecode<crate::frb::SearchEventKind> for i32 {
             2 => crate::frb::SearchEventKind::Progress,
             3 => crate::frb::SearchEventKind::Done,
             _ => unreachable!("Invalid variant for SearchEventKind: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::SubstitutionKind> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::SubstitutionKind {
+        match self {
+            0 => crate::frb::SubstitutionKind::SameFont,
+            1 => crate::frb::SubstitutionKind::Similar,
+            _ => unreachable!("Invalid variant for SubstitutionKind: {}", self),
         }
     }
 }
@@ -1237,6 +1364,8 @@ impl SseDecode for crate::frb::EditPreview {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_page = <crate::frb::PageBlocks>::sse_decode(deserializer);
         let mut var_missing = <Vec<String>>::sse_decode(deserializer);
+        let mut var_glyphs = <Option<crate::frb::MissingGlyphs>>::sse_decode(deserializer);
+        let mut var_substitutions = <Vec<crate::frb::FontSubstitution>>::sse_decode(deserializer);
         let mut var_overflowing = <bool>::sse_decode(deserializer);
         let mut var_overflow = <Option<crate::frb::OverflowPlan>>::sse_decode(deserializer);
         let mut var_chosen = <Option<crate::frb::OverflowChoice>>::sse_decode(deserializer);
@@ -1244,6 +1373,8 @@ impl SseDecode for crate::frb::EditPreview {
         return crate::frb::EditPreview {
             page: var_page,
             missing: var_missing,
+            glyphs: var_glyphs,
+            substitutions: var_substitutions,
             overflowing: var_overflowing,
             overflow: var_overflow,
             chosen: var_chosen,
@@ -1353,6 +1484,48 @@ impl SseDecode for crate::frb::FailReason {
     }
 }
 
+impl SseDecode for crate::frb::FontCandidate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_origin = <crate::frb::FontOrigin>::sse_decode(deserializer);
+        let mut var_postscriptName = <String>::sse_decode(deserializer);
+        let mut var_family = <String>::sse_decode(deserializer);
+        let mut var_covered = <u32>::sse_decode(deserializer);
+        let mut var_needed = <u32>::sse_decode(deserializer);
+        let mut var_similarity = <f32>::sse_decode(deserializer);
+        let mut var_embedding = <crate::frb::FontEmbedding>::sse_decode(deserializer);
+        let mut var_usable = <bool>::sse_decode(deserializer);
+        let mut var_preview = <String>::sse_decode(deserializer);
+        return crate::frb::FontCandidate {
+            origin: var_origin,
+            postscript_name: var_postscriptName,
+            family: var_family,
+            covered: var_covered,
+            needed: var_needed,
+            similarity: var_similarity,
+            embedding: var_embedding,
+            usable: var_usable,
+            preview: var_preview,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FontEmbedding {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FontEmbedding::Installable,
+            1 => crate::frb::FontEmbedding::Editable,
+            2 => crate::frb::FontEmbedding::PreviewAndPrint,
+            3 => crate::frb::FontEmbedding::Restricted,
+            4 => crate::frb::FontEmbedding::NoSubsetting,
+            5 => crate::frb::FontEmbedding::BitmapOnly,
+            _ => unreachable!("Invalid variant for FontEmbedding: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::FontEntry {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1365,6 +1538,55 @@ impl SseDecode for crate::frb::FontEntry {
             kind: var_kind,
             embedded: var_embedded,
             subset: var_subset,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FontOrigin {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::FontOrigin::Embedded,
+            1 => crate::frb::FontOrigin::Installed,
+            2 => crate::frb::FontOrigin::Bundled,
+            _ => unreachable!("Invalid variant for FontOrigin: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FontSettings {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_bundledDir = <Option<String>>::sse_decode(deserializer);
+        let mut var_fontDirs = <Vec<String>>::sse_decode(deserializer);
+        let mut var_systemFonts = <bool>::sse_decode(deserializer);
+        let mut var_askEachTime = <bool>::sse_decode(deserializer);
+        return crate::frb::FontSettings {
+            bundled_dir: var_bundledDir,
+            font_dirs: var_fontDirs,
+            system_fonts: var_systemFonts,
+            ask_each_time: var_askEachTime,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::FontSubstitution {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_kind = <crate::frb::SubstitutionKind>::sse_decode(deserializer);
+        let mut var_chars = <String>::sse_decode(deserializer);
+        let mut var_fromFont = <String>::sse_decode(deserializer);
+        let mut var_toFont = <String>::sse_decode(deserializer);
+        let mut var_origin = <crate::frb::FontOrigin>::sse_decode(deserializer);
+        let mut var_announced = <bool>::sse_decode(deserializer);
+        return crate::frb::FontSubstitution {
+            kind: var_kind,
+            chars: var_chars,
+            from_font: var_fromFont,
+            to_font: var_toFont,
+            origin: var_origin,
+            announced: var_announced,
         };
     }
 }
@@ -1403,10 +1625,12 @@ impl SseDecode for crate::frb::HistoryStep {
         let mut var_name = <String>::sse_decode(deserializer);
         let mut var_time = <i64>::sse_decode(deserializer);
         let mut var_hiddenLines = <u32>::sse_decode(deserializer);
+        let mut var_substitutions = <Vec<crate::frb::FontSubstitution>>::sse_decode(deserializer);
         return crate::frb::HistoryStep {
             name: var_name,
             time: var_time,
             hidden_lines: var_hiddenLines,
+            substitutions: var_substitutions,
         };
     }
 }
@@ -1546,6 +1770,18 @@ impl SseDecode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::FontCandidate> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FontCandidate>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::FontEntry> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1553,6 +1789,18 @@ impl SseDecode for Vec<crate::frb::FontEntry> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::FontEntry>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::FontSubstitution> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::FontSubstitution>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -1589,6 +1837,18 @@ impl SseDecode for Vec<crate::frb::LineInfo> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<crate::frb::LineInfo>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<crate::frb::MissingChar> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::MissingChar>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -1702,6 +1962,57 @@ impl SseDecode for Vec<crate::frb::WantedItem> {
     }
 }
 
+impl SseDecode for crate::frb::MissingChar {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_text = <String>::sse_decode(deserializer);
+        let mut var_at = <u32>::sse_decode(deserializer);
+        return crate::frb::MissingChar {
+            text: var_text,
+            at: var_at,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::MissingGlyphs {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_chars = <Vec<crate::frb::MissingChar>>::sse_decode(deserializer);
+        let mut var_font = <String>::sse_decode(deserializer);
+        let mut var_reason = <crate::frb::MissingReasonKind>::sse_decode(deserializer);
+        let mut var_reasonFont = <Option<String>>::sse_decode(deserializer);
+        let mut var_reasonEmbedding = <Option<crate::frb::FontEmbedding>>::sse_decode(deserializer);
+        let mut var_bold = <bool>::sse_decode(deserializer);
+        let mut var_italic = <bool>::sse_decode(deserializer);
+        let mut var_candidates = <Vec<crate::frb::FontCandidate>>::sse_decode(deserializer);
+        let mut var_drawn = <bool>::sse_decode(deserializer);
+        return crate::frb::MissingGlyphs {
+            chars: var_chars,
+            font: var_font,
+            reason: var_reason,
+            reason_font: var_reasonFont,
+            reason_embedding: var_reasonEmbedding,
+            bold: var_bold,
+            italic: var_italic,
+            candidates: var_candidates,
+            drawn: var_drawn,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::MissingReasonKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::MissingReasonKind::NotInstalled,
+            1 => crate::frb::MissingReasonKind::NotEmbeddable,
+            2 => crate::frb::MissingReasonKind::Restricted,
+            _ => unreachable!("Invalid variant for MissingReasonKind: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::NotEditableReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -1812,6 +2123,28 @@ impl SseDecode for Option<crate::frb::FailReason> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::FailReason>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::FontEmbedding> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::FontEmbedding>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::MissingGlyphs> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::MissingGlyphs>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -2121,9 +2454,11 @@ impl SseDecode for crate::frb::RevisionInfo {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut var_current = <u32>::sse_decode(deserializer);
         let mut var_renderKey = <Option<u64>>::sse_decode(deserializer);
+        let mut var_substitutions = <Vec<crate::frb::FontSubstitution>>::sse_decode(deserializer);
         return crate::frb::RevisionInfo {
             current: var_current,
             render_key: var_renderKey,
+            substitutions: var_substitutions,
         };
     }
 }
@@ -2246,6 +2581,18 @@ impl SseDecode for crate::frb::Signature {
             signer: var_signer,
             signed_at: var_signedAt,
             page: var_page,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::SubstitutionKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::SubstitutionKind::SameFont,
+            1 => crate::frb::SubstitutionKind::Similar,
+            _ => unreachable!("Invalid variant for SubstitutionKind: {}", inner),
         };
     }
 }
@@ -2621,6 +2968,8 @@ impl flutter_rust_bridge::IntoDart for crate::frb::EditPreview {
         [
             self.page.into_into_dart().into_dart(),
             self.missing.into_into_dart().into_dart(),
+            self.glyphs.into_into_dart().into_dart(),
+            self.substitutions.into_into_dart().into_dart(),
             self.overflowing.into_into_dart().into_dart(),
             self.overflow.into_into_dart().into_dart(),
             self.chosen.into_into_dart().into_dart(),
@@ -2754,6 +3103,49 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::FailReason> for crate::frb::F
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontCandidate {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.origin.into_into_dart().into_dart(),
+            self.postscript_name.into_into_dart().into_dart(),
+            self.family.into_into_dart().into_dart(),
+            self.covered.into_into_dart().into_dart(),
+            self.needed.into_into_dart().into_dart(),
+            self.similarity.into_into_dart().into_dart(),
+            self.embedding.into_into_dart().into_dart(),
+            self.usable.into_into_dart().into_dart(),
+            self.preview.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontCandidate {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontCandidate> for crate::frb::FontCandidate {
+    fn into_into_dart(self) -> crate::frb::FontCandidate {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontEmbedding {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Installable => 0.into_dart(),
+            Self::Editable => 1.into_dart(),
+            Self::PreviewAndPrint => 2.into_dart(),
+            Self::Restricted => 3.into_dart(),
+            Self::NoSubsetting => 4.into_dart(),
+            Self::BitmapOnly => 5.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontEmbedding {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontEmbedding> for crate::frb::FontEmbedding {
+    fn into_into_dart(self) -> crate::frb::FontEmbedding {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::FontEntry {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -2768,6 +3160,63 @@ impl flutter_rust_bridge::IntoDart for crate::frb::FontEntry {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontEntry {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontEntry> for crate::frb::FontEntry {
     fn into_into_dart(self) -> crate::frb::FontEntry {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontOrigin {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Embedded => 0.into_dart(),
+            Self::Installed => 1.into_dart(),
+            Self::Bundled => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontOrigin {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontOrigin> for crate::frb::FontOrigin {
+    fn into_into_dart(self) -> crate::frb::FontOrigin {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontSettings {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.bundled_dir.into_into_dart().into_dart(),
+            self.font_dirs.into_into_dart().into_dart(),
+            self.system_fonts.into_into_dart().into_dart(),
+            self.ask_each_time.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontSettings {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontSettings> for crate::frb::FontSettings {
+    fn into_into_dart(self) -> crate::frb::FontSettings {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::FontSubstitution {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.kind.into_into_dart().into_dart(),
+            self.chars.into_into_dart().into_dart(),
+            self.from_font.into_into_dart().into_dart(),
+            self.to_font.into_into_dart().into_dart(),
+            self.origin.into_into_dart().into_dart(),
+            self.announced.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::FontSubstitution {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::FontSubstitution>
+    for crate::frb::FontSubstitution
+{
+    fn into_into_dart(self) -> crate::frb::FontSubstitution {
         self
     }
 }
@@ -2814,6 +3263,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::HistoryStep {
             self.name.into_into_dart().into_dart(),
             self.time.into_into_dart().into_dart(),
             self.hidden_lines.into_into_dart().into_dart(),
+            self.substitutions.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -2872,6 +3322,64 @@ impl flutter_rust_bridge::IntoDart for crate::frb::LineInfo {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::LineInfo {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::LineInfo> for crate::frb::LineInfo {
     fn into_into_dart(self) -> crate::frb::LineInfo {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::MissingChar {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.text.into_into_dart().into_dart(),
+            self.at.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingChar {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingChar> for crate::frb::MissingChar {
+    fn into_into_dart(self) -> crate::frb::MissingChar {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::MissingGlyphs {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.chars.into_into_dart().into_dart(),
+            self.font.into_into_dart().into_dart(),
+            self.reason.into_into_dart().into_dart(),
+            self.reason_font.into_into_dart().into_dart(),
+            self.reason_embedding.into_into_dart().into_dart(),
+            self.bold.into_into_dart().into_dart(),
+            self.italic.into_into_dart().into_dart(),
+            self.candidates.into_into_dart().into_dart(),
+            self.drawn.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingGlyphs {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingGlyphs> for crate::frb::MissingGlyphs {
+    fn into_into_dart(self) -> crate::frb::MissingGlyphs {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::MissingReasonKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::NotInstalled => 0.into_dart(),
+            Self::NotEmbeddable => 1.into_dart(),
+            Self::Restricted => 2.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::MissingReasonKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::MissingReasonKind>
+    for crate::frb::MissingReasonKind
+{
+    fn into_into_dart(self) -> crate::frb::MissingReasonKind {
         self
     }
 }
@@ -3189,6 +3697,7 @@ impl flutter_rust_bridge::IntoDart for crate::frb::RevisionInfo {
         [
             self.current.into_into_dart().into_dart(),
             self.render_key.into_into_dart().into_dart(),
+            self.substitutions.into_into_dart().into_dart(),
         ]
         .into_dart()
     }
@@ -3330,6 +3839,24 @@ impl flutter_rust_bridge::IntoDart for crate::frb::Signature {
 impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::Signature {}
 impl flutter_rust_bridge::IntoIntoDart<crate::frb::Signature> for crate::frb::Signature {
     fn into_into_dart(self) -> crate::frb::Signature {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::SubstitutionKind {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::SameFont => 0.into_dart(),
+            Self::Similar => 1.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::SubstitutionKind {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::SubstitutionKind>
+    for crate::frb::SubstitutionKind
+{
+    fn into_into_dart(self) -> crate::frb::SubstitutionKind {
         self
     }
 }
@@ -3613,6 +4140,8 @@ impl SseEncode for crate::frb::EditPreview {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <crate::frb::PageBlocks>::sse_encode(self.page, serializer);
         <Vec<String>>::sse_encode(self.missing, serializer);
+        <Option<crate::frb::MissingGlyphs>>::sse_encode(self.glyphs, serializer);
+        <Vec<crate::frb::FontSubstitution>>::sse_encode(self.substitutions, serializer);
         <bool>::sse_encode(self.overflowing, serializer);
         <Option<crate::frb::OverflowPlan>>::sse_encode(self.overflow, serializer);
         <Option<crate::frb::OverflowChoice>>::sse_encode(self.chosen, serializer);
@@ -3725,6 +4254,41 @@ impl SseEncode for crate::frb::FailReason {
     }
 }
 
+impl SseEncode for crate::frb::FontCandidate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::FontOrigin>::sse_encode(self.origin, serializer);
+        <String>::sse_encode(self.postscript_name, serializer);
+        <String>::sse_encode(self.family, serializer);
+        <u32>::sse_encode(self.covered, serializer);
+        <u32>::sse_encode(self.needed, serializer);
+        <f32>::sse_encode(self.similarity, serializer);
+        <crate::frb::FontEmbedding>::sse_encode(self.embedding, serializer);
+        <bool>::sse_encode(self.usable, serializer);
+        <String>::sse_encode(self.preview, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FontEmbedding {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FontEmbedding::Installable => 0,
+                crate::frb::FontEmbedding::Editable => 1,
+                crate::frb::FontEmbedding::PreviewAndPrint => 2,
+                crate::frb::FontEmbedding::Restricted => 3,
+                crate::frb::FontEmbedding::NoSubsetting => 4,
+                crate::frb::FontEmbedding::BitmapOnly => 5,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::FontEntry {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -3732,6 +4296,45 @@ impl SseEncode for crate::frb::FontEntry {
         <crate::frb::FontType>::sse_encode(self.kind, serializer);
         <bool>::sse_encode(self.embedded, serializer);
         <bool>::sse_encode(self.subset, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FontOrigin {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::FontOrigin::Embedded => 0,
+                crate::frb::FontOrigin::Installed => 1,
+                crate::frb::FontOrigin::Bundled => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::FontSettings {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Option<String>>::sse_encode(self.bundled_dir, serializer);
+        <Vec<String>>::sse_encode(self.font_dirs, serializer);
+        <bool>::sse_encode(self.system_fonts, serializer);
+        <bool>::sse_encode(self.ask_each_time, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::FontSubstitution {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <crate::frb::SubstitutionKind>::sse_encode(self.kind, serializer);
+        <String>::sse_encode(self.chars, serializer);
+        <String>::sse_encode(self.from_font, serializer);
+        <String>::sse_encode(self.to_font, serializer);
+        <crate::frb::FontOrigin>::sse_encode(self.origin, serializer);
+        <bool>::sse_encode(self.announced, serializer);
     }
 }
 
@@ -3769,6 +4372,7 @@ impl SseEncode for crate::frb::HistoryStep {
         <String>::sse_encode(self.name, serializer);
         <i64>::sse_encode(self.time, serializer);
         <u32>::sse_encode(self.hidden_lines, serializer);
+        <Vec<crate::frb::FontSubstitution>>::sse_encode(self.substitutions, serializer);
     }
 }
 
@@ -3888,12 +4492,32 @@ impl SseEncode for Vec<crate::frb::DependentCell> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::FontCandidate> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FontCandidate>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::FontEntry> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::FontEntry>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::FontSubstitution> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::FontSubstitution>::sse_encode(item, serializer);
         }
     }
 }
@@ -3924,6 +4548,16 @@ impl SseEncode for Vec<crate::frb::LineInfo> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <crate::frb::LineInfo>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<crate::frb::MissingChar> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::MissingChar>::sse_encode(item, serializer);
         }
     }
 }
@@ -4018,6 +4652,46 @@ impl SseEncode for Vec<crate::frb::WantedItem> {
     }
 }
 
+impl SseEncode for crate::frb::MissingChar {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.text, serializer);
+        <u32>::sse_encode(self.at, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::MissingGlyphs {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <Vec<crate::frb::MissingChar>>::sse_encode(self.chars, serializer);
+        <String>::sse_encode(self.font, serializer);
+        <crate::frb::MissingReasonKind>::sse_encode(self.reason, serializer);
+        <Option<String>>::sse_encode(self.reason_font, serializer);
+        <Option<crate::frb::FontEmbedding>>::sse_encode(self.reason_embedding, serializer);
+        <bool>::sse_encode(self.bold, serializer);
+        <bool>::sse_encode(self.italic, serializer);
+        <Vec<crate::frb::FontCandidate>>::sse_encode(self.candidates, serializer);
+        <bool>::sse_encode(self.drawn, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::MissingReasonKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::MissingReasonKind::NotInstalled => 0,
+                crate::frb::MissingReasonKind::NotEmbeddable => 1,
+                crate::frb::MissingReasonKind::Restricted => 2,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::NotEditableReason {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -4107,6 +4781,26 @@ impl SseEncode for Option<crate::frb::FailReason> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::FailReason>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::FontEmbedding> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::FontEmbedding>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::MissingGlyphs> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::MissingGlyphs>::sse_encode(value, serializer);
         }
     }
 }
@@ -4379,6 +5073,7 @@ impl SseEncode for crate::frb::RevisionInfo {
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
         <u32>::sse_encode(self.current, serializer);
         <Option<u64>>::sse_encode(self.render_key, serializer);
+        <Vec<crate::frb::FontSubstitution>>::sse_encode(self.substitutions, serializer);
     }
 }
 
@@ -4463,6 +5158,22 @@ impl SseEncode for crate::frb::Signature {
         <Option<String>>::sse_encode(self.signer, serializer);
         <Option<crate::frb::PdfDate>>::sse_encode(self.signed_at, serializer);
         <Option<u32>>::sse_encode(self.page, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::SubstitutionKind {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::SubstitutionKind::SameFont => 0,
+                crate::frb::SubstitutionKind::Similar => 1,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
     }
 }
 
@@ -4702,6 +5413,27 @@ mod io {
             CstDecode::<crate::frb::FailReason>::cst_decode(*wrap).into()
         }
     }
+    impl CstDecode<crate::frb::FontEmbedding> for *mut i32 {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontEmbedding {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::FontEmbedding>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::FontSettings> for *mut wire_cst_font_settings {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontSettings {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::FontSettings>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingGlyphs> for *mut wire_cst_missing_glyphs {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingGlyphs {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::MissingGlyphs>::cst_decode(*wrap).into()
+        }
+    }
     impl CstDecode<crate::frb::NotEditableReason> for *mut i32 {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::NotEditableReason {
@@ -4847,6 +5579,8 @@ mod io {
             crate::frb::EditPreview {
                 page: self.page.cst_decode(),
                 missing: self.missing.cst_decode(),
+                glyphs: self.glyphs.cst_decode(),
+                substitutions: self.substitutions.cst_decode(),
                 overflowing: self.overflowing.cst_decode(),
                 overflow: self.overflow.cst_decode(),
                 chosen: self.chosen.cst_decode(),
@@ -4876,6 +5610,22 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::FontCandidate> for wire_cst_font_candidate {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontCandidate {
+            crate::frb::FontCandidate {
+                origin: self.origin.cst_decode(),
+                postscript_name: self.postscript_name.cst_decode(),
+                family: self.family.cst_decode(),
+                covered: self.covered.cst_decode(),
+                needed: self.needed.cst_decode(),
+                similarity: self.similarity.cst_decode(),
+                embedding: self.embedding.cst_decode(),
+                usable: self.usable.cst_decode(),
+                preview: self.preview.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontEntry> for wire_cst_font_entry {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FontEntry {
@@ -4884,6 +5634,30 @@ mod io {
                 kind: self.kind.cst_decode(),
                 embedded: self.embedded.cst_decode(),
                 subset: self.subset.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FontSettings> for wire_cst_font_settings {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontSettings {
+            crate::frb::FontSettings {
+                bundled_dir: self.bundled_dir.cst_decode(),
+                font_dirs: self.font_dirs.cst_decode(),
+                system_fonts: self.system_fonts.cst_decode(),
+                ask_each_time: self.ask_each_time.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FontSubstitution> for wire_cst_font_substitution {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontSubstitution {
+            crate::frb::FontSubstitution {
+                kind: self.kind.cst_decode(),
+                chars: self.chars.cst_decode(),
+                from_font: self.from_font.cst_decode(),
+                to_font: self.to_font.cst_decode(),
+                origin: self.origin.cst_decode(),
+                announced: self.announced.cst_decode(),
             }
         }
     }
@@ -4903,6 +5677,7 @@ mod io {
                 name: self.name.cst_decode(),
                 time: self.time.cst_decode(),
                 hidden_lines: self.hidden_lines.cst_decode(),
+                substitutions: self.substitutions.cst_decode(),
             }
         }
     }
@@ -4987,9 +5762,29 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FontCandidate>> for *mut wire_cst_list_font_candidate {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontCandidate> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontEntry>> for *mut wire_cst_list_font_entry {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontEntry> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FontSubstitution>> for *mut wire_cst_list_font_substitution {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontSubstitution> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -5020,6 +5815,16 @@ mod io {
     impl CstDecode<Vec<crate::frb::LineInfo>> for *mut wire_cst_list_line_info {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::LineInfo> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::MissingChar>> for *mut wire_cst_list_missing_char {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::MissingChar> {
             let vec = unsafe {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
@@ -5113,6 +5918,31 @@ mod io {
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
             };
             vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
+    impl CstDecode<crate::frb::MissingChar> for wire_cst_missing_char {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingChar {
+            crate::frb::MissingChar {
+                text: self.text.cst_decode(),
+                at: self.at.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::MissingGlyphs> for wire_cst_missing_glyphs {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingGlyphs {
+            crate::frb::MissingGlyphs {
+                chars: self.chars.cst_decode(),
+                font: self.font.cst_decode(),
+                reason: self.reason.cst_decode(),
+                reason_font: self.reason_font.cst_decode(),
+                reason_embedding: self.reason_embedding.cst_decode(),
+                bold: self.bold.cst_decode(),
+                italic: self.italic.cst_decode(),
+                candidates: self.candidates.cst_decode(),
+                drawn: self.drawn.cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::frb::OpenedDocument> for wire_cst_opened_document {
@@ -5243,6 +6073,7 @@ mod io {
             crate::frb::RevisionInfo {
                 current: self.current.cst_decode(),
                 render_key: self.render_key.cst_decode(),
+                substitutions: self.substitutions.cst_decode(),
             }
         }
     }
@@ -5509,6 +6340,8 @@ mod io {
             Self {
                 page: Default::default(),
                 missing: core::ptr::null_mut(),
+                glyphs: core::ptr::null_mut(),
+                substitutions: core::ptr::null_mut(),
                 overflowing: Default::default(),
                 overflow: core::ptr::null_mut(),
                 chosen: core::ptr::null_mut(),
@@ -5551,6 +6384,26 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_font_candidate {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                origin: Default::default(),
+                postscript_name: core::ptr::null_mut(),
+                family: core::ptr::null_mut(),
+                covered: Default::default(),
+                needed: Default::default(),
+                similarity: Default::default(),
+                embedding: Default::default(),
+                usable: Default::default(),
+                preview: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_font_candidate {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_font_entry {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -5562,6 +6415,38 @@ mod io {
         }
     }
     impl Default for wire_cst_font_entry {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_font_settings {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                bundled_dir: core::ptr::null_mut(),
+                font_dirs: core::ptr::null_mut(),
+                system_fonts: Default::default(),
+                ask_each_time: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_font_settings {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_font_substitution {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                kind: Default::default(),
+                chars: core::ptr::null_mut(),
+                from_font: core::ptr::null_mut(),
+                to_font: core::ptr::null_mut(),
+                origin: Default::default(),
+                announced: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_font_substitution {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -5585,6 +6470,7 @@ mod io {
                 name: core::ptr::null_mut(),
                 time: Default::default(),
                 hidden_lines: Default::default(),
+                substitutions: core::ptr::null_mut(),
             }
         }
     }
@@ -5618,6 +6504,39 @@ mod io {
         }
     }
     impl Default for wire_cst_line_info {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_missing_char {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                text: core::ptr::null_mut(),
+                at: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_missing_char {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_missing_glyphs {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                chars: core::ptr::null_mut(),
+                font: core::ptr::null_mut(),
+                reason: Default::default(),
+                reason_font: core::ptr::null_mut(),
+                reason_embedding: core::ptr::null_mut(),
+                bold: Default::default(),
+                italic: Default::default(),
+                candidates: core::ptr::null_mut(),
+                drawn: Default::default(),
+            }
+        }
+    }
+    impl Default for wire_cst_missing_glyphs {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -5789,6 +6708,7 @@ mod io {
             Self {
                 current: Default::default(),
                 render_key: core::ptr::null_mut(),
+                substitutions: core::ptr::null_mut(),
             }
         }
     }
@@ -5998,6 +6918,16 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__choose_font(
+        port_: i64,
+        transaction: u64,
+        origin: i32,
+        postscript_name: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__choose_font_impl(port_, transaction, origin, postscript_name)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__close(port_: i64, document: u64) {
         wire__crate__frb__close_impl(port_, document)
     }
@@ -6043,6 +6973,11 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__history(port_: i64, document: u64) {
         wire__crate__frb__history_impl(port_, document)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__keep_as_is(port_: i64, transaction: u64) {
+        wire__crate__frb__keep_as_is_impl(port_, transaction)
     }
 
     #[unsafe(no_mangle)]
@@ -6140,6 +7075,14 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__set_font_settings(
+        port_: i64,
+        settings: *mut wire_cst_font_settings,
+    ) {
+        wire__crate__frb__set_font_settings_impl(port_, settings)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__show_layers(
         port_: i64,
         document: u64,
@@ -6187,6 +7130,27 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_fail_reason(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_font_embedding(value: i32) -> *mut i32 {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_font_settings()
+    -> *mut wire_cst_font_settings {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_font_settings::new_with_null_ptr(),
+        )
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_missing_glyphs()
+    -> *mut wire_cst_missing_glyphs {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(
+            wire_cst_missing_glyphs::new_with_null_ptr(),
+        )
     }
 
     #[unsafe(no_mangle)]
@@ -6340,12 +7304,40 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_font_candidate(
+        len: i32,
+    ) -> *mut wire_cst_list_font_candidate {
+        let wrap = wire_cst_list_font_candidate {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_font_candidate>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_font_entry(
         len: i32,
     ) -> *mut wire_cst_list_font_entry {
         let wrap = wire_cst_list_font_entry {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_font_entry>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_font_substitution(
+        len: i32,
+    ) -> *mut wire_cst_list_font_substitution {
+        let wrap = wire_cst_list_font_substitution {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_font_substitution>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -6386,6 +7378,20 @@ mod io {
         let wrap = wire_cst_list_line_info {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
                 <wire_cst_line_info>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_missing_char(
+        len: i32,
+    ) -> *mut wire_cst_list_missing_char {
+        let wrap = wire_cst_list_missing_char {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_missing_char>::new_with_null_ptr(),
                 len,
             ),
             len,
@@ -6590,6 +7596,8 @@ mod io {
     pub struct wire_cst_edit_preview {
         page: wire_cst_page_blocks,
         missing: *mut wire_cst_list_String,
+        glyphs: *mut wire_cst_missing_glyphs,
+        substitutions: *mut wire_cst_list_font_substitution,
         overflowing: bool,
         overflow: *mut wire_cst_overflow_plan,
         chosen: *mut i32,
@@ -6613,11 +7621,42 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_font_candidate {
+        origin: i32,
+        postscript_name: *mut wire_cst_list_prim_u_8_strict,
+        family: *mut wire_cst_list_prim_u_8_strict,
+        covered: u32,
+        needed: u32,
+        similarity: f32,
+        embedding: i32,
+        usable: bool,
+        preview: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_font_entry {
         name: *mut wire_cst_list_prim_u_8_strict,
         kind: i32,
         embedded: bool,
         subset: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_font_settings {
+        bundled_dir: *mut wire_cst_list_prim_u_8_strict,
+        font_dirs: *mut wire_cst_list_String,
+        system_fonts: bool,
+        ask_each_time: bool,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_font_substitution {
+        kind: i32,
+        chars: *mut wire_cst_list_prim_u_8_strict,
+        from_font: *mut wire_cst_list_prim_u_8_strict,
+        to_font: *mut wire_cst_list_prim_u_8_strict,
+        origin: i32,
+        announced: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6631,6 +7670,7 @@ mod io {
         name: *mut wire_cst_list_prim_u_8_strict,
         time: i64,
         hidden_lines: u32,
+        substitutions: *mut wire_cst_list_font_substitution,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6685,8 +7725,20 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_font_candidate {
+        ptr: *mut wire_cst_font_candidate,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_font_entry {
         ptr: *mut wire_cst_font_entry,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_font_substitution {
+        ptr: *mut wire_cst_font_substitution,
         len: i32,
     }
     #[repr(C)]
@@ -6705,6 +7757,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_line_info {
         ptr: *mut wire_cst_line_info,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_missing_char {
+        ptr: *mut wire_cst_missing_char,
         len: i32,
     }
     #[repr(C)]
@@ -6760,6 +7818,25 @@ mod io {
     pub struct wire_cst_list_wanted_item {
         ptr: *mut wire_cst_wanted_item,
         len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_missing_char {
+        text: *mut wire_cst_list_prim_u_8_strict,
+        at: u32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_missing_glyphs {
+        chars: *mut wire_cst_list_missing_char,
+        font: *mut wire_cst_list_prim_u_8_strict,
+        reason: i32,
+        reason_font: *mut wire_cst_list_prim_u_8_strict,
+        reason_embedding: *mut i32,
+        bold: bool,
+        italic: bool,
+        candidates: *mut wire_cst_list_font_candidate,
+        drawn: bool,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -6858,6 +7935,7 @@ mod io {
     pub struct wire_cst_revision_info {
         current: u32,
         render_key: *mut u64,
+        substitutions: *mut wire_cst_list_font_substitution,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -7218,17 +8296,19 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                6,
-                "Expected 6 elements, got {}",
+                8,
+                "Expected 8 elements, got {}",
                 self_.length()
             );
             crate::frb::EditPreview {
                 page: self_.get(0).cst_decode(),
                 missing: self_.get(1).cst_decode(),
-                overflowing: self_.get(2).cst_decode(),
-                overflow: self_.get(3).cst_decode(),
-                chosen: self_.get(4).cst_decode(),
-                dependents: self_.get(5).cst_decode(),
+                glyphs: self_.get(2).cst_decode(),
+                substitutions: self_.get(3).cst_decode(),
+                overflowing: self_.get(4).cst_decode(),
+                overflow: self_.get(5).cst_decode(),
+                chosen: self_.get(6).cst_decode(),
+                dependents: self_.get(7).cst_decode(),
             }
         }
     }
@@ -7276,6 +8356,33 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::FontCandidate>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontCandidate {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                9,
+                "Expected 9 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FontCandidate {
+                origin: self_.get(0).cst_decode(),
+                postscript_name: self_.get(1).cst_decode(),
+                family: self_.get(2).cst_decode(),
+                covered: self_.get(3).cst_decode(),
+                needed: self_.get(4).cst_decode(),
+                similarity: self_.get(5).cst_decode(),
+                embedding: self_.get(6).cst_decode(),
+                usable: self_.get(7).cst_decode(),
+                preview: self_.get(8).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::FontEntry>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -7295,6 +8402,52 @@ mod web {
                 kind: self_.get(1).cst_decode(),
                 embedded: self_.get(2).cst_decode(),
                 subset: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FontSettings>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontSettings {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                4,
+                "Expected 4 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FontSettings {
+                bundled_dir: self_.get(0).cst_decode(),
+                font_dirs: self_.get(1).cst_decode(),
+                system_fonts: self_.get(2).cst_decode(),
+                ask_each_time: self_.get(3).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::FontSubstitution>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontSubstitution {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                6,
+                "Expected 6 elements, got {}",
+                self_.length()
+            );
+            crate::frb::FontSubstitution {
+                kind: self_.get(0).cst_decode(),
+                chars: self_.get(1).cst_decode(),
+                from_font: self_.get(2).cst_decode(),
+                to_font: self_.get(3).cst_decode(),
+                origin: self_.get(4).cst_decode(),
+                announced: self_.get(5).cst_decode(),
             }
         }
     }
@@ -7326,14 +8479,15 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                3,
-                "Expected 3 elements, got {}",
+                4,
+                "Expected 4 elements, got {}",
                 self_.length()
             );
             crate::frb::HistoryStep {
                 name: self_.get(0).cst_decode(),
                 time: self_.get(1).cst_decode(),
                 hidden_lines: self_.get(2).cst_decode(),
+                substitutions: self_.get(3).cst_decode(),
             }
         }
     }
@@ -7444,11 +8598,35 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::FontCandidate>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontCandidate> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::FontEntry>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::FontEntry> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::FontSubstitution>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::FontSubstitution> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -7485,6 +8663,18 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::LineInfo> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
+    impl CstDecode<Vec<crate::frb::MissingChar>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::MissingChar> {
             self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
                 .unwrap()
                 .iter()
@@ -7586,6 +8776,53 @@ mod web {
                 .iter()
                 .map(CstDecode::cst_decode)
                 .collect()
+        }
+    }
+    impl CstDecode<crate::frb::MissingChar>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingChar {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::MissingChar {
+                text: self_.get(0).cst_decode(),
+                at: self_.get(1).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::MissingGlyphs>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingGlyphs {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                9,
+                "Expected 9 elements, got {}",
+                self_.length()
+            );
+            crate::frb::MissingGlyphs {
+                chars: self_.get(0).cst_decode(),
+                font: self_.get(1).cst_decode(),
+                reason: self_.get(2).cst_decode(),
+                reason_font: self_.get(3).cst_decode(),
+                reason_embedding: self_.get(4).cst_decode(),
+                bold: self_.get(5).cst_decode(),
+                italic: self_.get(6).cst_decode(),
+                candidates: self_.get(7).cst_decode(),
+                drawn: self_.get(8).cst_decode(),
+            }
         }
     }
     impl CstDecode<crate::frb::OpenedDocument>
@@ -7830,13 +9067,14 @@ mod web {
                 .unwrap();
             assert_eq!(
                 self_.length(),
-                2,
-                "Expected 2 elements, got {}",
+                3,
+                "Expected 3 elements, got {}",
                 self_.length()
             );
             crate::frb::RevisionInfo {
                 current: self_.get(0).cst_decode(),
                 render_key: self_.get(1).cst_decode(),
+                substitutions: self_.get(2).cst_decode(),
             }
         }
     }
@@ -8166,6 +9404,22 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::FontEmbedding>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontEmbedding {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::FontOrigin>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::FontOrigin {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::frb::FontType> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::FontType {
@@ -8210,6 +9464,14 @@ mod web {
             self.unchecked_into::<flutter_rust_bridge::for_generated::js_sys::Uint8Array>()
                 .to_vec()
                 .into()
+        }
+    }
+    impl CstDecode<crate::frb::MissingReasonKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::MissingReasonKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
     impl CstDecode<crate::frb::NotEditableReason>
@@ -8263,6 +9525,14 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::SearchEventKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::SubstitutionKind>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::SubstitutionKind {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -8344,6 +9614,16 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__choose_font(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        origin: i32,
+        postscript_name: String,
+    ) {
+        wire__crate__frb__choose_font_impl(port_, transaction, origin, postscript_name)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__close(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -8401,6 +9681,14 @@ mod web {
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__history_impl(port_, document)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__keep_as_is(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        transaction: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__keep_as_is_impl(port_, transaction)
     }
 
     #[wasm_bindgen]
@@ -8504,6 +9792,14 @@ mod web {
         focus: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__selection_impl(port_, document, page, anchor, focus)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__set_font_settings(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        settings: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__set_font_settings_impl(port_, settings)
     }
 
     #[wasm_bindgen]

@@ -2115,4 +2115,129 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editBadgeEdited => 'Düzenlendi';
+
+  @override
+  String get editGlyphTitle => 'Eksik karakter';
+
+  @override
+  String editGlyphBody(String chars) {
+    return 'Bu yazı tipinde $chars yok. Ferman bu karakter için benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String editGlyphBodyMany(String chars) {
+    return 'Bu yazı tipinde $chars yok. Ferman bu karakterler için benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String get editGlyphChoose => 'Yazı tipi seç…';
+
+  @override
+  String get editGlyphKeep => 'Böyle kalsın';
+
+  @override
+  String get editGlyphNoneTitle => 'Bu karakter hiçbir yazı tipinde yok';
+
+  @override
+  String editGlyphNoneBody(String chars) {
+    return 'Ne bu yazı tipinde ne de bu bilgisayardaki yazı tiplerinde $chars var. Bu karakteri içeren bir yazı tipi seçin ya da böyle bırakın.';
+  }
+
+  @override
+  String get editGlyphLicenceTitle => 'Bu yazı tipi gömülemiyor';
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) {
+    return '$font yüklü, ancak lisansı yalnızca önizleme ve yazdırmaya izin veriyor. Ferman $chars için bunun yerine benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) {
+    return '$font yüklü, ancak lisansı yazı tipinin gömülmesine izin vermiyor. Ferman $chars için bunun yerine benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) {
+    return 'Bu belgedeki $font yazı tipinin lisansı yalnızca önizleme ve yazdırmaya izin verdiği için Ferman onun karakterlerini yeniden kullanmıyor. Ferman $chars için bunun yerine benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String get editGlyphAddedTitle => 'Karakter bu bilgisayardan eklendi';
+
+  @override
+  String editGlyphAddedBody(String chars, String font) {
+    return 'Ferman $chars karakterini bu bilgisayarda yüklü $font yazı tipinden aldı ve belgenin yazı tipine ekledi.';
+  }
+
+  @override
+  String get fontPickerTitle => 'Bu blok için bir yazı tipi seçin';
+
+  @override
+  String get fontPickerClose => 'Kapat';
+
+  @override
+  String get fontPickerScope => 'Değiştir';
+
+  @override
+  String get fontPickerScopeMissing => 'Yalnızca eksik karakterler';
+
+  @override
+  String get fontPickerScopeBlock => 'Bloğun tamamı';
+
+  @override
+  String get fontPickerSearch => 'Yazı tiplerinde ara';
+
+  @override
+  String get fontPickerEmbedded => 'Bu belgeye gömülü';
+
+  @override
+  String get fontPickerInstalled => 'Bu bilgisayarda yüklü';
+
+  @override
+  String get fontPickerBundled => 'Ferman ile gelen benzer yazı tipleri';
+
+  @override
+  String get fontPickerClosest => 'En yakın eşleşme';
+
+  @override
+  String fontPickerHas(String chars) {
+    return '$chars var';
+  }
+
+  @override
+  String fontPickerHasNone(String chars) {
+    return '$chars yok';
+  }
+
+  @override
+  String fontPickerHasSome(String covered, String needed) {
+    return '$needed karakterin $covered tanesi';
+  }
+
+  @override
+  String get fontPickerNotEmbeddable => 'Gömülemez';
+
+  @override
+  String fontPickerNoMatch(String query) {
+    return '“$query” ile eşleşen yazı tipi yok.';
+  }
+
+  @override
+  String get fontPickerCancel => 'İptal';
+
+  @override
+  String fontPickerUse(String font) {
+    return '$font kullan';
+  }
+
+  @override
+  String get editFontSubstituted => 'Yazı tipi değiştirildi';
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) {
+    return 'Bu blok $chars için $font kullanıyor.';
+  }
+
+  @override
+  String get editFontSubstitutedDismiss => 'Kapat';
 }

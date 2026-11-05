@@ -28,7 +28,10 @@ mod version;
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
-pub use edit::{DependentCell, EditPreview, History, HistoryStep, RevisionInfo, TransactionId};
+pub use edit::{
+    DependentCell, EditPreview, FontSettings, FontSubstitution, History, HistoryStep,
+    MissingGlyphInfo, RevisionInfo, TransactionId,
+};
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
@@ -43,6 +46,7 @@ pub use ferman_core::structure::{
     Scripts, Signature,
 };
 pub use ferman_core::{Method, Password, Permissions, Repair, RepairReport, XrefProblem};
+pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
@@ -50,7 +54,7 @@ pub use ferman_render::{
 };
 pub use ferman_render::{EDIT_MARGIN, PageRaster, PixelDiff, RESOLUTIONS, compare, device_region};
 pub use ferman_text::{
-    Alignment, BlockId, Choice, Complexity, Editability, Extend, ExtendBlocked, Keep,
-    NotEditableReason, OverflowPlan, SearchOptions, TextDirection, Tighten, TightenShort,
-    collation_order,
+    Alignment, BlockId, Choice, Complexity, Editability, Extend, ExtendBlocked, FontCandidate,
+    Keep, MissingReason, NotEditableReason, OverflowPlan, SearchOptions, Substitution,
+    SubstitutionKind, TextDirection, Tighten, TightenShort, collation_order,
 };

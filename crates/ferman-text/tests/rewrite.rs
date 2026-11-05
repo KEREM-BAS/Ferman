@@ -22,8 +22,8 @@ use ferman_core::interpret::{
 };
 use ferman_core::{Document, OpenOptions, Source, open};
 use ferman_text::{
-    Choice, EditContext, Outcome, Rewrite, Splice, TextBlock, Unsupported, rewrite_block,
-    rewrite_block_with, text_page,
+    Choice, EditContext, Outcome, Rewrite, Splice, TextBlock, TextDirection, Unsupported,
+    rewrite_block, rewrite_block_with, text_page,
 };
 use unicode_normalization::UnicodeNormalization;
 
@@ -387,8 +387,8 @@ fn check(
         };
         assert_eq!(strip(old), strip(new), "{}", String::from_utf8_lossy(name));
     }
-    // Every glyph outside the block's edited lines is where it was: the lines whose glyphs a
-    // splice replaces (all of them where the block is reflowed).
+    // Every glyph outside the splices is where it was: the edited lines' glyphs that a splice
+    // replaces (all of them where the block is reflowed; a vertical column's one show).
     let edited_lines: Vec<usize> = target
         .lines
         .iter()
@@ -407,6 +407,7 @@ fn check(
         .iter()
         .flat_map(|&at| &target.lines[at].chars)
         .filter_map(|c| c.glyph.as_ref().map(|link| &link.span))
+        .filter(|span| inside(span, &old_ranges))
         .collect();
     let old_chars: Vec<_> = glyph_chars(before, page)
         .into_iter()
@@ -460,17 +461,21 @@ fn check(
         squeeze(text)
     };
     let model = text_page(after, page, &EditContext::default()).unwrap();
+    let is_replaced = |c: &&ferman_text::TextChar| {
+        c.glyph
+            .as_ref()
+            .is_some_and(|link| replaced(&link.span.source, &link.span.range.start))
+    };
+    // A vertical column writes only the show the change is in, so its whole line is read.
+    let vertical = target.direction == TextDirection::Vertical;
     let got: String = squeeze(
         &model
             .blocks
             .iter()
             .flat_map(|block| &block.lines)
+            .filter(|line| !vertical || line.chars.iter().any(|c| is_replaced(&c)))
             .flat_map(|line| &line.chars)
-            .filter(|c| {
-                c.glyph
-                    .as_ref()
-                    .is_some_and(|link| replaced(&link.span.source, &link.span.range.start))
-            })
+            .filter(|c| vertical || is_replaced(c))
             .map(|c| c.ch)
             .collect::<String>(),
     );
@@ -538,9 +543,24 @@ fn standard_14_helvetica_edits_with_its_metrics() {
     assert!((length - expected).abs() < 0.05, "{length} {expected}");
 }
 
+/// The characters of a [`Outcome::MissingGlyphs`], each once; empty for another outcome.
+fn missing(outcome: &Outcome) -> Vec<char> {
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        return Vec::new();
+    };
+    let mut chars: Vec<char> = Vec::new();
+    for &(c, _) in &missing.chars {
+        if !chars.contains(&c) {
+            chars.push(c);
+        }
+    }
+    chars
+}
+
 #[test]
-fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
-    // E01 on E04's file: same length, then shorter; WinAnsi has no code for "ğ".
+fn win_ansi_truetype_subset_edits_and_adds_a_code_through_differences() {
+    // E01 on E04's file: same length, then shorter. WinAnsi has no code for "ğ", but the
+    // program has the glyph: step 1 gives it a free code in a copy of the font.
     edit(&corpus("edit-e04-differences"), 0, "18.500", "18.600");
     edit(
         &corpus("edit-e04-differences"),
@@ -552,10 +572,24 @@ fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
     let doc = document(&pdf);
     let target = block(&doc, 0, "Kira bedeli");
     let text = edited(&target, "bedeli", "bedeliğğ");
-    assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['ğ'])
-    );
+    let Outcome::Rewritten(rewrite) = rewrite_block(&doc, 0, &target, &text).unwrap() else {
+        panic!("not rewritten");
+    };
+    assert!(rewrite.fonts.is_empty() && rewrite.new_fonts.is_empty());
+    let [copy] = rewrite.simple_fonts.as_slice() else {
+        panic!("{:?}", rewrite.simple_fonts);
+    };
+    // One code for both, the first WinAnsi leaves unused, named for the glyph.
+    let [(code, name, width)] = copy.codes.as_slice() else {
+        panic!("{:?}", copy.codes);
+    };
+    assert_eq!((*code, name.as_str()), (129, "gbreve"));
+    assert!(*width > 0.0);
+    let splice = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
+    let name = String::from_utf8(copy.name.clone()).unwrap();
+    assert!(splice.contains(&format!("/{name} ")), "{splice}");
+    assert!(splice.contains("\\201\\201"), "{splice}");
+    assert!(rewrite.substitutions.is_empty() && rewrite.pending.is_none());
 }
 
 #[test]
@@ -574,8 +608,8 @@ fn type3_edits_within_its_char_procs() {
     let target = block(&doc, 0, "12 boxes");
     let text = edited(&target, "boxes", "Qboxez");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['Q', 'z'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['Q', 'z']
     );
 }
 
@@ -648,20 +682,105 @@ fn a_character_a_composite_subset_lacks_is_missing() {
     let target = block(&doc, 0, "一万九千五百元");
     let text = edited(&target, "一万九千五百元", "一万九千五百龘");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['龘'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['龘']
+    );
+}
+
+/// The line with `needle` of the block holding it in `pdf`.
+fn line_of(pdf: &[u8], needle: &str) -> ferman_text::Line {
+    let doc = document(pdf);
+    block(&doc, 0, needle)
+        .lines
+        .into_iter()
+        .find(|line| line.text.contains(needle))
+        .unwrap()
+}
+
+#[test]
+fn a_vertical_column_keeps_its_cells() {
+    // E13: Identity-V, each new character in the cell of the one it replaces; only the
+    // column's show is written again.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, after) = edit(&pdf, 0, "十月十三日", "十月十二日");
+    assert_eq!(rewrite.splices.len(), 1);
+    assert!(rewrite.fonts.is_empty() && rewrite.overflowing.is_empty());
+    let (old, new) = (line_of(&pdf, "十月十三日"), line_of(&after, "十月十二日"));
+    assert_eq!(old.baseline, new.baseline);
+    for (a, b) in old.chars.iter().zip(&new.chars) {
+        assert!(close(a.bbox.unwrap(), b.bbox.unwrap()), "{a:?} {b:?}");
+    }
+}
+
+#[test]
+fn a_column_grown_past_its_frame_is_overflowing() {
+    // The date block's one column, one cell longer than its frame.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, _) = edit(&pdf, 0, "十月十三日", "十月十三日日");
+    assert_eq!(rewrite.overflowing, [0]);
+}
+
+#[test]
+fn a_top_aligned_column_grows_by_its_pitch() {
+    // The body's last column, one character longer: the full stop moves down a cell.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, after) = edit(&pdf, 0, "です。", "でした。");
+    assert!(rewrite.overflowing.is_empty());
+    let (old, new) = (line_of(&pdf, "です。"), line_of(&after, "でした。"));
+    let pitch = old.chars[1].bbox.unwrap()[1] - old.chars[0].bbox.unwrap()[1];
+    let moved = new.chars[3].bbox.unwrap()[1] - old.chars[2].bbox.unwrap()[1];
+    assert!((moved - pitch).abs() < 0.01, "{moved} {pitch}");
+}
+
+#[test]
+fn an_upright_run_is_written_whole_and_centred() {
+    // Tate-chu-yoko: "19" across the column, in its Identity-H font, centred in its cell.
+    let pdf = corpus("letter-ja-vertical");
+    let centre = |line: &ferman_text::Line, from: usize| {
+        let [left, _, _, _] = line.chars[from].bbox.unwrap();
+        let [_, _, right, _] = line.chars[from + 1].bbox.unwrap();
+        (left + right) / 2.0
+    };
+    let old = line_of(&pdf, "19万");
+    let at = old.chars.iter().position(|c| c.ch == '1').unwrap();
+    let (_, after) = edit(&pdf, 0, "19万", "91万");
+    let new = line_of(&after, "91万");
+    assert!((centre(&old, at) - centre(&new, at)).abs() < 0.01);
+    // Digits the subset lacks are missing glyphs (steps 2 and 3), never a vertical font.
+    let doc = document(&pdf);
+    let target = block(&doc, 0, "19万");
+    let text = edited(&target, "19万", "20万");
+    assert_eq!(
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['2', '0']
     );
 }
 
 #[test]
-fn a_vertical_block_is_not_rewritten_yet() {
-    // Identity-V reads, but vertical editing is W3.
+fn vertical_text_that_is_not_one_show_or_reflows_is_not_rewritten_yet() {
     let pdf = corpus("letter-ja-vertical");
     let doc = document(&pdf);
-    let target = block(&doc, 0, "二〇二六年十月十三日");
-    let text = edited(&target, "十三日", "十四日");
+    // Across the upright run and the vertical runs around it.
+    let target = block(&doc, 0, "19万");
+    let text = edited(&target, "賃料は 19万五", "賃料も 19円五");
     assert_eq!(
         rewrite_block(&doc, 0, &target, &text).unwrap(),
+        Outcome::Unsupported(Unsupported::Direction)
+    );
+    // A reflow of columns (kinsoku, columns from the right) is not written yet.
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.as_str())
+        .collect::<String>();
+    assert_eq!(
+        rewrite_block(&doc, 0, &target, &text).unwrap(),
+        Outcome::Unsupported(Unsupported::Direction)
+    );
+    // A bottom-aligned column keeps its length.
+    let target = block(&doc, 0, "敬具");
+    assert_eq!(
+        rewrite_block(&doc, 0, &target, "敬具具").unwrap(),
         Outcome::Unsupported(Unsupported::Direction)
     );
 }
@@ -762,8 +881,8 @@ fn standard_14_with_differences_encodes_through_them() {
     let target = block(&doc, 0, "KarŞ");
     let text = edited(&target, "KarŞ", "İŞ");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['İ'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['İ']
     );
 }
 
@@ -932,8 +1051,8 @@ fn a_replacement_character_is_never_written_as_an_unmapped_code() {
     let target = block(&doc, 0, "Price");
     let text = edited(&target, "Price", "Pr\u{FFFD}ce");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['\u{FFFD}'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['\u{FFFD}']
     );
 }
 

@@ -193,6 +193,96 @@ void main() {
     await expectLater(engine.save(7), _fails(EngineErrorKind.io));
   });
 
+  group('missing glyphs', () {
+    FakeEngineService engine() => FakeEngineService(
+      pageBlocks: {0: _page},
+      missingGlyphs: {1: FakeEngineService.madde6Glyphs},
+    );
+    const typed = 'Madde 4\nKira bedeli değişir';
+
+    test(
+      'step 3 draws the closest font provisionally until a choice',
+      () async {
+        final fake = engine();
+        final tx = await fake.beginEdit(7, 0, 1);
+        final preview = await fake.applyEdit(tx, typed);
+        expect(preview.missing, isEmpty, reason: 'drawn provisionally');
+        final glyphs = preview.glyphs!;
+        expect(glyphs.drawn, isTrue);
+        expect(glyphs.font, 'EBGaramond-Regular');
+        expect(glyphs.chars.single.text, 'ğ');
+        expect(glyphs.chars.single.at, typed.indexOf('ğ'));
+        // A partial candidate is listed, never used.
+        expect(glyphs.candidates.last.usable, isFalse);
+        expect(glyphs.candidates.last.covered, lessThan(1));
+        expect(preview.substitutions.single.toFont, 'IBMPlexSerif-Regular');
+        expect(preview.substitutions.single.announced, isFalse);
+        // Never silent: the commit waits for the choice, the transaction stays.
+        await expectLater(
+          fake.commitEdit(tx, 'Madde 4'),
+          _fails(EngineErrorKind.invalidInput),
+        );
+        await expectLater(
+          fake.chooseFont(tx, FontOrigin.bundled, 'IBMPlexSansArabic'),
+          _fails(EngineErrorKind.invalidInput),
+        );
+        final chosen = await fake.chooseFont(
+          tx,
+          FontOrigin.embedded,
+          'IBMPlexSerif',
+        );
+        expect(chosen.glyphs, isNull);
+        expect(chosen.substitutions.single.origin, FontOrigin.embedded);
+        final committed = await fake.commitEdit(tx, 'Madde 4');
+        expect(committed.current, 1);
+        expect(committed.substitutions.single.announced, isFalse);
+        final history = await fake.history(7);
+        expect(history.steps.single.substitutions.single.chars, 'ğ');
+
+        // The same font again is announced already.
+        final again = await fake.beginEdit(7, 0, 1);
+        await fake.applyEdit(again, '$typed ğ');
+        await fake.keepAsIs(again);
+        final second = await fake.commitEdit(again, 'Madde 4');
+        expect(second.substitutions.single.toFont, 'IBMPlexSerif-Regular');
+        expect(second.substitutions.single.announced, isFalse);
+      },
+    );
+
+    test('"Ask each time" applies nothing until a choice', () async {
+      final fake = engine();
+      await fake.setFontSettings(const FontSettings(askEachTime: true));
+      final tx = await fake.beginEdit(7, 0, 1);
+      final preview = await fake.applyEdit(tx, typed);
+      expect(preview.missing, ['ğ']);
+      expect(preview.glyphs!.drawn, isFalse);
+      expect(preview.page.blocks.first.text, contains('18.500'));
+      final kept = await fake.keepAsIs(tx);
+      expect(kept.missing, isEmpty);
+      expect(kept.page.blocks.first.text, typed);
+      expect(kept.substitutions.single.kind, SubstitutionKind.similar);
+    });
+
+    test('step 2 says where the glyph came from once', () async {
+      final fake = FakeEngineService(
+        pageBlocks: {0: _page},
+        sameFonts: {1: FakeEngineService.madde6SameFont},
+      );
+      for (final announced in [false, true]) {
+        final tx = await fake.beginEdit(7, 0, 1);
+        final preview = await fake.applyEdit(
+          tx,
+          '$typed${announced ? '!' : ''}',
+        );
+        expect(preview.glyphs, isNull);
+        expect(preview.substitutions.single.kind, SubstitutionKind.sameFont);
+        expect(preview.substitutions.single.announced, announced);
+        final committed = await fake.commitEdit(tx, 'Madde 4');
+        expect(committed.substitutions.single.announced, announced);
+      }
+    });
+  });
+
   test('every edit call of the unavailable engine throws its reason', () async {
     const error = EngineUnavailableException(
       EngineUnavailableReason.unsupportedPlatform,
@@ -202,6 +292,9 @@ void main() {
       () => service.beginEdit(1, 0, 1),
       () => service.applyEdit(1, ''),
       () => service.resolveOverflow(1, OverflowChoice.keep),
+      () => service.setFontSettings(const FontSettings()),
+      () => service.chooseFont(1, FontOrigin.bundled, 'IBMPlexSerif'),
+      () => service.keepAsIs(1),
       () => service.commitEdit(1, ''),
       () => service.rollbackEdit(1),
       () => service.undo(1),
