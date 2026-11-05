@@ -1,8 +1,12 @@
 import 'dart:async';
+import 'dart:ui' show AppExitResponse;
 
+import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/save/document_closer.dart';
+import 'package:ferman/features/save/document_recovery.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/app_language.dart';
@@ -50,7 +54,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// Ferman was started with before the first frame shows (for at most
 /// [_FermanAppState.launchWaitMs]), so a cold launch with a file skips Start
 /// (G25), then every later request as it comes. From then on the open
-/// tabs are stored for the next start ([DocumentOpener.recordOpen]).
+/// tabs are stored for the next start ([DocumentOpener.recordOpen]). Crash
+/// recovery asks once those are open (a1-12), and every way of quitting asks
+/// about unsaved documents first ([DocumentCloser.quit]).
 class FermanApp extends ConsumerStatefulWidget {
   /// Creates the root widget.
   const new({super.key});
@@ -65,12 +71,23 @@ class _FermanAppState extends ConsumerState<FermanApp> {
   static const int launchWaitMs = 500;
 
   StreamSubscription<List<String>>? _requests;
+  AppLifecycleListener? _exit;
 
   @override
   void initState() {
     super.initState();
     final requests = ref.read(openRequestsProvider);
     final opener = ref.read(documentOpenerProvider.notifier);
+    final closer = ref.read(documentCloserProvider.notifier);
+    ref.read(desktopWindowProvider).setCloseGuard(closer.quit);
+    // The system's own quit: the menu's ⌘Q, logging out.
+    _exit = AppLifecycleListener(
+      onExitRequested: () async =>
+          await closer.quit() ? AppExitResponse.exit : AppExitResponse.cancel,
+    );
+    // After the last documents are back, so a restored one takes its tab.
+    void recover() =>
+        unawaited(ref.read(documentRecoveryProvider.notifier).check());
     void listen() => _requests = requests.later.listen(
       (paths) => unawaited(opener.open(paths)),
     );
@@ -92,6 +109,7 @@ class _FermanAppState extends ConsumerState<FermanApp> {
     if (launch.isEmpty && !reopen) {
       listen();
       record();
+      recover();
       return;
     }
     final binding = WidgetsBinding.instance..deferFirstFrame();
@@ -111,6 +129,7 @@ class _FermanAppState extends ConsumerState<FermanApp> {
           // Recorded once the last documents are back, so a quit meanwhile
           // keeps them all.
           record();
+          recover();
         }),
       );
       // Later requests open after the launch's files.
@@ -121,6 +140,7 @@ class _FermanAppState extends ConsumerState<FermanApp> {
   @override
   void dispose() {
     unawaited(_requests?.cancel());
+    _exit?.dispose();
     super.dispose();
   }
 

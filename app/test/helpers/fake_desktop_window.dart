@@ -59,6 +59,12 @@ class FakeDesktopWindow implements DesktopWindow {
   @override
   Future<void> close() async => calls.add('close');
 
+  /// What [setCloseGuard] gave.
+  Future<bool> Function()? closeGuard;
+
+  @override
+  void setCloseGuard(Future<bool> Function() guard) => closeGuard = guard;
+
   @override
   Future<void> startDragging() async => calls.add('startDragging');
 

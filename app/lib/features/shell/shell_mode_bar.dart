@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -17,9 +17,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// panel toggle and Save.
 ///
 /// Save follows the active document (fix 4): with unsaved changes, or after
-/// a save that failed (G41), it saves them (`DocumentEditor.save`, as ⌘S
-/// or Ctrl+S does); otherwise it is disabled with "No changes to save"
-/// (FmWindow `saveTip`), or "Read-only".
+/// a save that failed (G41), it saves them (`DocumentSaver.save`, as ⌘S
+/// or Ctrl+S does); while saving it shows its loader (f4); otherwise it is
+/// disabled with "No changes to save" (FmWindow `saveTip`), or
+/// "Read-only".
 class ShellModeBar extends ConsumerWidget {
   /// The mode bar.
   const new({super.key});
@@ -110,13 +111,13 @@ class ShellModeBar extends ConsumerWidget {
             variant: ButtonVariant.primary,
             size: ButtonSize.sm,
             icon: IconName.save,
+            loading: active?.saveState == SaveState.saving,
             disabledReason: active?.saveState == SaveState.readOnly
                 ? l10n.shellReadOnly
                 : l10n.shellNoChangesToSave,
             onPressed: unsaved
-                ? () => unawaited(
-                    ref.read(documentEditorProvider.notifier).save(),
-                  )
+                ? () =>
+                      unawaited(ref.read(documentSaverProvider.notifier).save())
                 : null,
             child: Text(l10n.shellSave),
           ),

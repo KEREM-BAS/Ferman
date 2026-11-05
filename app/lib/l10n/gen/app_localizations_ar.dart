@@ -2289,4 +2289,417 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editFontSubstitutedDismiss => 'إغلاق';
+
+  @override
+  String get saveAsTitle => 'حفظ باسم';
+
+  @override
+  String get saveAsName => 'اسم الملف';
+
+  @override
+  String get saveAsNameEmpty => 'أدخل اسم ملف.';
+
+  @override
+  String get saveAsNameInvalid => 'لا يمكن أن يحتوي اسم الملف على / أو \\.';
+
+  @override
+  String get saveAsNameTaken =>
+      'يوجد ملف بهذا الاسم هناك. اختر اسمًا آخر أو استخدم «موقع آخر…».';
+
+  @override
+  String get saveAsWhere => 'الموقع';
+
+  @override
+  String get saveAsOtherLocation => 'موقع آخر…';
+
+  @override
+  String get saveAsFormat => 'التنسيق';
+
+  @override
+  String get saveAsPdf => 'PDF';
+
+  @override
+  String get saveAsPdfDescription =>
+      'ملف PDF قياسي. يبقى النص قابلًا للتحرير في Ferman والمحررات الأخرى.';
+
+  @override
+  String get saveAsPdfA => 'PDF/A-2b، للأرشفة';
+
+  @override
+  String get saveAsWeb => 'محسّن للويب';
+
+  @override
+  String get saveAsCopy => 'حفظ كنسخة';
+
+  @override
+  String saveAsCopyDescription(String name, String folder) {
+    return 'يبقى «$name» مفتوحًا دون تغيير، وتُحفظ النسخة في $folder.';
+  }
+
+  @override
+  String get saveAsComments => 'تضمين التعليقات والتعليقات التوضيحية';
+
+  @override
+  String get saveAsHistory => 'إزالة سجل التحرير من الملف';
+
+  @override
+  String get saveAsCancel => 'إلغاء';
+
+  @override
+  String get saveAsClose => 'إغلاق';
+
+  @override
+  String saveFailedTitle(String name) {
+    return 'تعذّر حفظ «$name»';
+  }
+
+  @override
+  String get saveFailedDiskFull =>
+      'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedPermission =>
+      'ليس لديك إذن بتغيير هذا الملف أو مجلده. احفظه في مكان آخر أو اطلب الإذن من مالكه. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedLocked =>
+      'الملف مفتوح ومقفل في تطبيق آخر. أغلقه هناك ثم أعد المحاولة، أو احفظ نسخة في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedRename =>
+      'كتب Ferman تغييراتك في ملف مؤقت، لكنه لم يتمكّن من وضعه مكان الملف الأصلي. لم يتغيّر الملف الأصلي، وتعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedVolume =>
+      'لم يعد القرص الذي يحوي هذا الملف متصلًا. أعد توصيله ثم أعد المحاولة، أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedHardLinked =>
+      'لهذا الملف روابط أخرى سيكسرها استبداله. احفظه في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedNotOwner =>
+      'هذا الملف ملك لشخص آخر، ولم يتمكّن Ferman من الإبقاء على مالكه. احفظه في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveFailedOther =>
+      'تعذّر على Ferman كتابة الملف. أعد المحاولة أو احفظ في مكان آخر. تعديلاتك محفوظة.';
+
+  @override
+  String get saveTryAgain => 'إعادة المحاولة';
+
+  @override
+  String get saveSomewhereElse => 'الحفظ في مكان آخر…';
+
+  @override
+  String get saveAsEllipsis => 'حفظ باسم…';
+
+  @override
+  String get saveToastDiskFull =>
+      'القرص ممتلئ. أفرغ بعض المساحة أو احفظ في مكان آخر.';
+
+  @override
+  String get saveToastOther =>
+      'تعديلاتك محفوظة. أعد المحاولة أو احفظ في مكان آخر.';
+
+  @override
+  String get saveToastDismiss => 'تجاهل';
+
+  @override
+  String fileChangedTitle(String name) {
+    return 'تغيّر «$name» على القرص.';
+  }
+
+  @override
+  String get fileChangedBody =>
+      'غيّره تطبيق آخر أو خدمة مزامنة أثناء فتحه. أعد تحميله أو احتفظ بنسختك أو قارن أولًا.';
+
+  @override
+  String get fileChangedCompare => 'مقارنة';
+
+  @override
+  String get fileChangedKeepMine => 'الاحتفاظ بنسختي';
+
+  @override
+  String get fileChangedReload => 'إعادة التحميل';
+
+  @override
+  String optimizeTitle(String name) {
+    return 'هل تريد تحسين «$name» وتنظيفه؟';
+  }
+
+  @override
+  String get optimizeSignedBody =>
+      'يعيد Ferman كتابة الملف كاملًا دون إصداراته السابقة. لن تبقى تواقيعه صالحة.';
+
+  @override
+  String get optimizeAction => 'تحسين وتنظيف';
+
+  @override
+  String get saveAsNameInvalidWindows =>
+      'لا يمكن أن يحتوي اسم الملف على أيٍّ من هذه: / \\ : * ? \" < > |';
+
+  @override
+  String get saveAsNameOpen =>
+      'هذا الملف مفتوح في علامة تبويب أخرى. أغلقه هناك أو اختر اسمًا آخر.';
+
+  @override
+  String saveAsCopyDescriptionHere(String name) {
+    return 'يبقى «$name» مفتوحًا دون تغيير، وتُحفظ النسخة بجواره.';
+  }
+
+  @override
+  String readOnlyFileTitle(String name) {
+    return '«$name» للقراءة فقط.';
+  }
+
+  @override
+  String get readOnlyFileBody =>
+      'لا يستطيع Ferman حفظ التغييرات في هذا الملف. لتحتفظ بتغييراتك، احفظ نسخة.';
+
+  @override
+  String get readOnlyFileSaveCopy => 'حفظ نسخة…';
+
+  @override
+  String closeUnsavedTitle(String name) {
+    return 'هل تريد حفظ التغييرات في «$name»؟';
+  }
+
+  @override
+  String closeUnsavedBody(String edits) {
+    return 'إذا لم تحفظ، ستضيع $edits التي أجريتها في هذه الجلسة.';
+  }
+
+  @override
+  String closingEdits(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted تعديل',
+      many: '$formatted تعديلًا',
+      few: '$formatted تعديلات',
+      two: 'تعديلان',
+      one: 'تعديل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeUnsavedSave => 'حفظ';
+
+  @override
+  String get closeUnsavedDiscard => 'عدم الحفظ';
+
+  @override
+  String quitReviewTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted مستند',
+      many: '$formatted مستندًا',
+      few: '$formatted مستندات',
+      two: 'مستندين',
+    );
+    return 'هل تريد حفظ التغييرات في $_temp0 قبل الإنهاء؟';
+  }
+
+  @override
+  String get quitReviewBody =>
+      'يحفظ Ferman المستندات المحدّدة ثم يُنهي عمله. تضيع تغييرات المستندات غير المحدّدة.';
+
+  @override
+  String get quitReviewSave => 'حفظ وإنهاء';
+
+  @override
+  String get quitReviewDiscard => 'إنهاء دون حفظ';
+
+  @override
+  String recoveryTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted مستند',
+      many: '$formatted مستندًا',
+      few: '$formatted مستندات',
+      two: 'مستندين',
+      one: 'مستندًا واحدًا',
+    );
+    return 'استعاد Ferman $_temp0';
+  }
+
+  @override
+  String get recoveryBody =>
+      'أُغلق Ferman على نحو غير متوقع. كانت في هذه المستندات تغييرات غير محفوظة، واحتفظ Ferman بنسخة من كلٍّ منها على هذا الجهاز.';
+
+  @override
+  String get recoveryNote =>
+      'تُفتح المستندات المستعادة كغير محفوظة؛ ولم تتغيّر الملفات على القرص. لم يُرسَل أي شيء إلى أي مكان.';
+
+  @override
+  String get recoveryDiscard => 'تجاهل النسخ';
+
+  @override
+  String recoveryOpen(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'فتح $formatted مستند',
+      many: 'فتح $formatted مستندًا',
+      few: 'فتح $formatted مستندات',
+      two: 'فتح المستندين',
+      one: 'فتح المستند',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recoveryChangedBadge => 'تغيّر على القرص';
+
+  @override
+  String get recoveryChangedBody =>
+      'تغيّر الملف على القرص بعد نسخة Ferman. تُفتح النسخة المستعادة باسم جديد، فلا يُستبدل أيٌّ منهما.';
+
+  @override
+  String get signedTitle => 'هل تريد تحرير مستند موقّع؟';
+
+  @override
+  String signedBodyBy(String name, String signer, String date) {
+    return 'في «$name» توقيع واحد من $signer بتاريخ $date. أي تغيير في المستند يجعل هذا التوقيع غير صالح.';
+  }
+
+  @override
+  String signedBody(String name, int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'في «$name» $formatted توقيع. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      many:
+          'في «$name» $formatted توقيعًا. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      few:
+          'في «$name» $formatted توقيعات. أي تغيير في المستند يجعل هذه التوقيعات غير صالحة.',
+      two:
+          'في «$name» توقيعان. أي تغيير في المستند يجعل هذين التوقيعين غير صالحين.',
+      one:
+          'في «$name» توقيع واحد. أي تغيير في المستند يجعل هذا التوقيع غير صالح.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signedEditCopy => 'تحرير نسخة';
+
+  @override
+  String get signedEditAnyway => 'التحرير على أي حال';
+
+  @override
+  String signedCopyHint(String name) {
+    return 'تُفتح النسخة في علامة تبويب جديدة باسم «$name». يبقى الأصل الموقّع كما هو.';
+  }
+
+  @override
+  String signedCopyName(String stem) {
+    return '$stem (نسخة)';
+  }
+
+  @override
+  String signedCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem (نسخة $numberString)';
+  }
+
+  @override
+  String signedBannerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'لم تعد التوقيعات في هذا المستند صالحة.',
+      two: 'لم يعد التوقيعان في هذا المستند صالحين.',
+      one: 'لم يعد التوقيع في هذا المستند صالحًا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String signedBannerBodyBy(String signer) {
+    return 'غيّرت المستند بعد أن وقّعه $signer. يبقى التوقيع عند الحفظ، لكنه سيظهر غير صالح.';
+  }
+
+  @override
+  String get signedBannerBody =>
+      'غيّرت المستند بعد توقيعه. تبقى التواقيع عند الحفظ، لكنها ستظهر غير صالحة.';
+
+  @override
+  String get signedBannerReview => 'مراجعة التعديلات';
+
+  @override
+  String signedReviewRow(String signer) {
+    return 'لم يعد توقيع $signer صالحًا';
+  }
+
+  @override
+  String get signedReviewRowOther => 'لم تعد التواقيع صالحة';
+
+  @override
+  String get settingsEditMarks => 'وضع علامة على النص المعدَّل';
+
+  @override
+  String get settingsEditMarksNote =>
+      'تظهر في Ferman فقط أثناء التحرير. لا تُحفظ في الملف ولا تُطبع أبدًا.';
+
+  @override
+  String get settingsMissingGlyphs => 'عندما ينقص خطًّا حرفٌ ما';
+
+  @override
+  String get settingsMissingGlyphsSimilar =>
+      'استخدام خط مشابه والإشارة إلى ذلك';
+
+  @override
+  String get settingsMissingGlyphsAsk => 'السؤال في كل مرة';
+
+  @override
+  String get settingsMissingGlyphsMark =>
+      'الإبقاء على الخط الأصلي ووضع علامة على الحرف';
+
+  @override
+  String get settingsFontForNewText => 'خط النص الجديد';
+
+  @override
+  String get settingsFontForNewTextMatch => 'مطابقة النص المحيط';
+
+  @override
+  String get settingsKeepVersions => 'الاحتفاظ بالإصدارات';
+
+  @override
+  String get settingsKeepVersions30 => '30 يومًا، بجانب الملف';
+
+  @override
+  String get settingsReflow =>
+      'السماح بإعادة تدفق الفقرات داخل إطارها أثناء الكتابة';
+
+  @override
+  String get settingsRecoveryCopies => 'حفظ نسخة استرداد كل دقيقة';
+
+  @override
+  String get settingsSaving => 'الحفظ';
+
+  @override
+  String get settingsSavingEnd => 'تُضاف التغييرات إلى نهاية الملف';
+
+  @override
+  String get settingsSavingEndBody =>
+      'يبقى الحفظ سريعًا، وتبقى التواقيع السابقة لتغييراتك سليمة. لا يعيد Ferman كتابة الملف كله إلا عندما تختار «التحسين والتنظيف».';
+
+  @override
+  String get settingsOptimize => 'التحسين والتنظيف';
+
+  @override
+  String get settingsOptimizeBody =>
+      'يعيد كتابة الملف كله لتصغيره. شغّله من لوحة الأوامر؛ لا يُستخدم من تلقاء نفسه أبدًا، ويحذّرك Ferman أولًا إذا كانت التواقيع ستصبح غير صالحة.';
+
+  @override
+  String get settingsRecoveryFolder => 'نسخ الاسترداد';
 }

@@ -31,6 +31,10 @@ abstract interface class EngineService {
   /// files are deleted.
   Future<void> closeDiscarding(int document);
 
+  /// The folder [startRecovery] was given, or null before it: where the
+  /// recovery copies are kept (a11-1c's Saving group).
+  String? get recoveryRoot;
+
   /// Starts crash recovery in [root], the app data directory's recovery
   /// folder (`recoveryDirectory`); again with the same root it does nothing.
   /// From then on every edited document keeps a journal there until it is
@@ -323,6 +327,9 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<void> closeDiscarding(int document) async => throw error;
+
+  @override
+  String? get recoveryRoot => null;
 
   @override
   Future<void> startRecovery(String root) async => throw error;

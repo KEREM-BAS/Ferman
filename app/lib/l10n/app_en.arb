@@ -3019,5 +3019,523 @@
   "editFontSubstitutedDismiss": "Dismiss",
   "@editFontSubstitutedDismiss": {
     "description": "Toast (a11-6): the name of the toast's close button."
+  },
+  "saveAsTitle": "Save as",
+  "@saveAsTitle": {
+    "description": "Save as sheet (a1-11): the title."
+  },
+  "saveAsName": "File name",
+  "@saveAsName": {
+    "description": "Save as sheet (a1-11): the file name field's label."
+  },
+  "saveAsNameEmpty": "Enter a file name.",
+  "@saveAsNameEmpty": {
+    "description": "Save as sheet: the error under an empty file name."
+  },
+  "saveAsNameInvalid": "A file name can’t contain / or \\.",
+  "@saveAsNameInvalid": {
+    "description": "Save as sheet: the error under a file name with a folder separator."
+  },
+  "saveAsNameTaken": "A file with this name is already there. Choose another name, or use Other location…",
+  "@saveAsNameTaken": {
+    "description": "Save as sheet: the error under a name a file in the chosen folder already has; the system panel of Other location… asks before replacing."
+  },
+  "saveAsWhere": "Where",
+  "@saveAsWhere": {
+    "description": "Save as sheet (a1-11): the label of the folder menu."
+  },
+  "saveAsOtherLocation": "Other location…",
+  "@saveAsOtherLocation": {
+    "description": "Save as sheet (a1-11): the folder menu's item that opens the system save panel (a1-11b)."
+  },
+  "saveAsFormat": "Format",
+  "@saveAsFormat": {
+    "description": "Save as sheet: the accessible name of the format choices."
+  },
+  "saveAsPdf": "PDF",
+  "@saveAsPdf": {
+    "description": "Save as sheet (a1-11): the standard PDF format."
+  },
+  "saveAsPdfDescription": "Standard PDF. Keeps text editable in Ferman and other editors.",
+  "@saveAsPdfDescription": {
+    "description": "Save as sheet (a1-11): the line under PDF."
+  },
+  "saveAsPdfA": "PDF/A-2b, for archiving",
+  "@saveAsPdfA": {
+    "description": "Save as sheet (a1-11): the archiving format, disabled until P4 (G111)."
+  },
+  "saveAsWeb": "Optimized for web",
+  "@saveAsWeb": {
+    "description": "Save as sheet (a1-11): the web format, disabled until M4 (G111)."
+  },
+  "saveAsCopy": "Save as a copy",
+  "@saveAsCopy": {
+    "description": "Save as sheet (a1-11): the checkbox that saves a copy and leaves the document as it was."
+  },
+  "saveAsCopyDescription": "“{name}” stays open and unchanged; the copy is saved in {folder}.",
+  "@saveAsCopyDescription": {
+    "description": "Save as sheet (a1-11b): the line under Save as a copy. {name} is the open file's name, {folder} the folder chosen in Where.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      },
+      "folder": {
+        "type": "String",
+        "example": "Projeler › 2026"
+      }
+    }
+  },
+  "saveAsComments": "Include comments and markup",
+  "@saveAsComments": {
+    "description": "Save as sheet (a1-11): a checkbox, disabled until saving without comments works."
+  },
+  "saveAsHistory": "Remove edit history from the file",
+  "@saveAsHistory": {
+    "description": "Save as sheet (a1-11): a checkbox, disabled until version history arrives."
+  },
+  "saveAsCancel": "Cancel",
+  "@saveAsCancel": {
+    "description": "Save as sheet: the button that closes it without saving."
+  },
+  "saveAsClose": "Close",
+  "@saveAsClose": {
+    "description": "Save dialogs: the name of the close button and of the backdrop."
+  },
+  "saveFailedTitle": "Couldn’t save “{name}”",
+  "@saveFailedTitle": {
+    "description": "Save failure dialog (a11-7, a11-7d): the title. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      }
+    }
+  },
+  "saveFailedDiskFull": "The disk is full. Free some space or save somewhere else. Your edits are kept.",
+  "@saveFailedDiskFull": {
+    "description": "Save failure dialog (a11-7): the disk is full."
+  },
+  "saveFailedPermission": "You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.",
+  "@saveFailedPermission": {
+    "description": "Save failure dialog (a11-7d): read-only file or permission denied."
+  },
+  "saveFailedLocked": "Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.",
+  "@saveFailedLocked": {
+    "description": "Save failure dialog (a11-7d): another app locks the file."
+  },
+  "saveFailedRename": "Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.",
+  "@saveFailedRename": {
+    "description": "Save failure dialog (a11-7d): the new file could not replace the original."
+  },
+  "saveFailedVolume": "The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.",
+  "@saveFailedVolume": {
+    "description": "Save failure dialog (a11-7d): the drive went away during the save."
+  },
+  "saveFailedHardLinked": "This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.",
+  "@saveFailedHardLinked": {
+    "description": "Save failure dialog (G40): the file has other hard links."
+  },
+  "saveFailedNotOwner": "This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.",
+  "@saveFailedNotOwner": {
+    "description": "Save failure dialog (G40): the file belongs to another user."
+  },
+  "saveFailedOther": "Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.",
+  "@saveFailedOther": {
+    "description": "Save failure dialog: any other failure."
+  },
+  "saveTryAgain": "Try again",
+  "@saveTryAgain": {
+    "description": "Save failure dialog (a11-7d): saves again."
+  },
+  "saveSomewhereElse": "Save somewhere else…",
+  "@saveSomewhereElse": {
+    "description": "Save failure dialog (a11-7): opens Save as when the disk is full."
+  },
+  "saveAsEllipsis": "Save as…",
+  "@saveAsEllipsis": {
+    "description": "Save failure dialog (a11-7d) and toast (f4): opens Save as."
+  },
+  "saveToastDiskFull": "The disk is full. Free some space or save somewhere else.",
+  "@saveToastDiskFull": {
+    "description": "Toast (f4): the message after a save failed on a full disk."
+  },
+  "saveToastOther": "Your edits are kept. Try again, or save somewhere else.",
+  "@saveToastOther": {
+    "description": "Toast (f4): the message after any other failed save."
+  },
+  "saveToastDismiss": "Dismiss",
+  "@saveToastDismiss": {
+    "description": "Toast (f4): the name of the close button."
+  },
+  "fileChangedTitle": "“{name}” changed on disk.",
+  "@fileChangedTitle": {
+    "description": "Bar (a11-7b): another app changed the open file. {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      }
+    }
+  },
+  "fileChangedBody": "Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.",
+  "@fileChangedBody": {
+    "description": "Bar (a11-7b): the sentence under the title."
+  },
+  "fileChangedCompare": "Compare",
+  "@fileChangedCompare": {
+    "description": "Bar (a11-7b): compare the two versions (disabled until Compare ships)."
+  },
+  "fileChangedKeepMine": "Keep mine",
+  "@fileChangedKeepMine": {
+    "description": "Bar (a11-7b): saves over the change."
+  },
+  "fileChangedReload": "Reload",
+  "@fileChangedReload": {
+    "description": "Bar (a11-7b): drops the edits and opens the file again."
+  },
+  "optimizeTitle": "Optimize and clean “{name}”?",
+  "@optimizeTitle": {
+    "description": "Warning before Optimize and clean breaks signatures (G35). {name} is the file name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      }
+    }
+  },
+  "optimizeSignedBody": "Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.",
+  "@optimizeSignedBody": {
+    "description": "Warning before Optimize and clean (G35): what happens to the signatures."
+  },
+  "optimizeAction": "Optimize and clean",
+  "@optimizeAction": {
+    "description": "Warning before Optimize and clean: the button that rewrites the file."
+  },
+  "saveAsNameInvalidWindows": "A file name can’t contain any of these: / \\ : * ? \" < > |",
+  "@saveAsNameInvalidWindows": {
+    "description": "Save as sheet on Windows: the error under a file name with a character Windows reserves."
+  },
+  "saveAsNameOpen": "This file is open in another tab. Close it there, or choose another name.",
+  "@saveAsNameOpen": {
+    "description": "Save as sheet: the error when the chosen file is the file of another open tab, which saving over would pull from under it."
+  },
+  "saveAsCopyDescriptionHere": "“{name}” stays open and unchanged; the copy is saved alongside it.",
+  "@saveAsCopyDescriptionHere": {
+    "description": "Save as sheet (a1-11): the line under Save as a copy while Where is the document's own folder. {name} is the open file's name.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      }
+    }
+  },
+  "readOnlyFileTitle": "“{name}” is read-only.",
+  "@readOnlyFileTitle": {
+    "description": "a1-9d: the banner's title on a file no one may write.",
+    "placeholders": {
+      "name": {
+        "type": "String",
+        "example": "Kira sözleşmesi.pdf"
+      }
+    }
+  },
+  "readOnlyFileBody": "Ferman can’t save changes to this file. To keep your changes, save a copy.",
+  "@readOnlyFileBody": {
+    "description": "a1-9d: the banner's text."
+  },
+  "readOnlyFileSaveCopy": "Save a copy…",
+  "@readOnlyFileSaveCopy": {
+    "description": "a1-9d: the banner's button, which opens the Save as sheet with Save as a copy checked."
+  },
+  "closeUnsavedTitle": "Save changes to “{name}”?",
+  "@closeUnsavedTitle": {
+    "description": "a1-10b: the question.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "closeUnsavedBody": "If you don’t save, your {edits} from this session will be lost.",
+  "@closeUnsavedBody": {
+    "description": "a1-10b: what is lost; {edits} is closingEdits.",
+    "placeholders": {
+      "edits": {
+        "type": "String"
+      }
+    }
+  },
+  "closingEdits": "{count, plural, =1{1 edit} other{{formatted} edits}}",
+  "@closingEdits": {
+    "description": "a1-10b, a1-12, a11-7e: how many edits.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "closeUnsavedSave": "Save",
+  "@closeUnsavedSave": {
+    "description": "a1-10b: the default button."
+  },
+  "closeUnsavedDiscard": "Don’t save",
+  "@closeUnsavedDiscard": {
+    "description": "a1-10b: closes without saving; the recovery copy goes."
+  },
+  "quitReviewTitle": "Save changes to {count, plural, other{{formatted} documents}} before quitting?",
+  "@quitReviewTitle": {
+    "description": "a11-7e: the question, for two documents or more.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "quitReviewBody": "Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.",
+  "@quitReviewBody": {
+    "description": "a11-7e."
+  },
+  "quitReviewSave": "Save and quit",
+  "@quitReviewSave": {
+    "description": "a11-7e."
+  },
+  "quitReviewDiscard": "Quit without saving",
+  "@quitReviewDiscard": {
+    "description": "a11-7e."
+  },
+  "recoveryTitle": "Ferman restored {count, plural, =1{1 document} other{{formatted} documents}}",
+  "@recoveryTitle": {
+    "description": "a1-12: the title.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryBody": "Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.",
+  "@recoveryBody": {
+    "description": "a1-12, without the board’s time, which the engine does not know (G40)."
+  },
+  "recoveryNote": "Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.",
+  "@recoveryNote": {
+    "description": "a1-12: under the list."
+  },
+  "recoveryDiscard": "Discard",
+  "@recoveryDiscard": {
+    "description": "a1-12: deletes every copy."
+  },
+  "recoveryOpen": "{count, plural, =1{Open 1 document} other{Open {formatted} documents}}",
+  "@recoveryOpen": {
+    "description": "a1-12: the default button; counts the checked rows.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "recoveryChangedBadge": "Changed on disk",
+  "@recoveryChangedBadge": {
+    "description": "a11-7f: the badge of a row whose original changed."
+  },
+  "recoveryChangedBody": "The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.",
+  "@recoveryChangedBody": {
+    "description": "a11-7f, without the board’s time and name, which the engine gives only once it opens (G40)."
+  },
+  "signedTitle": "Edit a signed document?",
+  "@signedTitle": {
+    "description": "a3-16a: the question."
+  },
+  "signedBodyBy": "“{name}” has 1 signature, by {signer} on {date}. Any change to the document makes that signature invalid.",
+  "@signedBodyBy": {
+    "description": "a3-16a: one signature whose signer and date the file gives.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "signer": {
+        "type": "String"
+      },
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "signedBody": "{count, plural, =1{“{name}” has 1 signature. Any change to the document makes that signature invalid.} other{“{name}” has {formatted} signatures. Any change to the document makes those signatures invalid.}}",
+  "@signedBody": {
+    "description": "a3-16a: any other number of signatures, or no name or date in the file.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "signedEditCopy": "Edit a copy",
+  "@signedEditCopy": {
+    "description": "a3-16a: the default button."
+  },
+  "signedEditAnyway": "Edit anyway",
+  "@signedEditAnyway": {
+    "description": "a3-16a."
+  },
+  "signedCopyHint": "The copy opens in a new tab as “{name}”. The signed original stays as it is.",
+  "@signedCopyHint": {
+    "description": "a3-16a: under the question.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "signedCopyName": "{stem} (copy)",
+  "@signedCopyName": {
+    "description": "a3-16a: the copy’s file name without its extension.",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      }
+    }
+  },
+  "signedCopyNameNumbered": "{stem} (copy {number})",
+  "@signedCopyNameNumbered": {
+    "description": "a3-16a: the same, when that name is taken; {number} is 2 or more.",
+    "placeholders": {
+      "stem": {
+        "type": "String"
+      },
+      "number": {
+        "type": "int",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "signedBannerTitle": "{count, plural, =1{The signature in this document is no longer valid.} other{The signatures in this document are no longer valid.}}",
+  "@signedBannerTitle": {
+    "description": "a3-16b: the bar after Edit anyway.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "signedBannerBodyBy": "You changed the document after {signer} signed it. Saving keeps the signature, but it will show as invalid.",
+  "@signedBannerBodyBy": {
+    "description": "a3-16b: one signer the file names.",
+    "placeholders": {
+      "signer": {
+        "type": "String"
+      }
+    }
+  },
+  "signedBannerBody": "You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.",
+  "@signedBannerBody": {
+    "description": "a3-16b: otherwise."
+  },
+  "signedBannerReview": "Review edits",
+  "@signedBannerReview": {
+    "description": "a3-16b: the bar’s button."
+  },
+  "signedReviewRow": "{signer}’s signature is no longer valid",
+  "@signedReviewRow": {
+    "description": "a3-12: the signature row, here at the top of the edit history (B049).",
+    "placeholders": {
+      "signer": {
+        "type": "String"
+      }
+    }
+  },
+  "signedReviewRowOther": "The signatures are no longer valid",
+  "@signedReviewRowOther": {
+    "description": "a3-12: the same without one named signer."
+  },
+  "settingsEditMarks": "Mark edited text",
+  "@settingsEditMarks": {
+    "description": "a11-1c."
+  },
+  "settingsEditMarksNote": "Shown only in Ferman while you edit. Never saved into the file or printed.",
+  "@settingsEditMarksNote": {
+    "description": "a11-1c."
+  },
+  "settingsMissingGlyphs": "When a font is missing a character",
+  "@settingsMissingGlyphs": {
+    "description": "a11-1c."
+  },
+  "settingsMissingGlyphsSimilar": "Use a similar font and say so",
+  "@settingsMissingGlyphsSimilar": {
+    "description": "a11-1c."
+  },
+  "settingsMissingGlyphsAsk": "Ask each time",
+  "@settingsMissingGlyphsAsk": {
+    "description": "a11-1c."
+  },
+  "settingsMissingGlyphsMark": "Keep the original font and mark the character",
+  "@settingsMissingGlyphsMark": {
+    "description": "a11-1c."
+  },
+  "settingsFontForNewText": "Font for new text",
+  "@settingsFontForNewText": {
+    "description": "a11-1c."
+  },
+  "settingsFontForNewTextMatch": "Match surrounding text",
+  "@settingsFontForNewTextMatch": {
+    "description": "a11-1c: the option shown, while Add text waits (B042)."
+  },
+  "settingsKeepVersions": "Keep versions",
+  "@settingsKeepVersions": {
+    "description": "a11-1c."
+  },
+  "settingsKeepVersions30": "30 days, next to the file",
+  "@settingsKeepVersions30": {
+    "description": "a11-1c: the option shown, while version history waits (B060)."
+  },
+  "settingsReflow": "Let paragraphs reflow inside their frame while typing",
+  "@settingsReflow": {
+    "description": "a11-1c."
+  },
+  "settingsRecoveryCopies": "Save a recovery copy every minute",
+  "@settingsRecoveryCopies": {
+    "description": "a11-1c: the switch the engine follows."
+  },
+  "settingsSaving": "Saving",
+  "@settingsSaving": {
+    "description": "a11-1c: the group of G43."
+  },
+  "settingsSavingEnd": "Changes are added to the end of the file",
+  "@settingsSavingEnd": {
+    "description": "a11-1c."
+  },
+  "settingsSavingEndBody": "Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.",
+  "@settingsSavingEndBody": {
+    "description": "a11-1c."
+  },
+  "settingsOptimize": "Optimize and clean",
+  "@settingsOptimize": {
+    "description": "a11-1c."
+  },
+  "settingsOptimizeBody": "Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.",
+  "@settingsOptimizeBody": {
+    "description": "a11-1c."
+  },
+  "settingsRecoveryFolder": "Recovery copies",
+  "@settingsRecoveryFolder": {
+    "description": "a11-1c: above the folder."
   }
 }

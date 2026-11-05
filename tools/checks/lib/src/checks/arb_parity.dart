@@ -42,6 +42,7 @@ final class ArbParityCheck implements Check {
     'shellConvertPowerPoint': 'a file format named after its product',
     'shellConvertHtml': 'a file format',
     'shellConvertMarkdown': 'a file format',
+    'saveAsPdf': 'a file format',
     'regionPaperA4': 'the ISO paper size name',
     'regionPaperLetter': 'the paper size name, used as is in Turkish',
     'propertiesVersionAcrobat': 'a version number and the product name',

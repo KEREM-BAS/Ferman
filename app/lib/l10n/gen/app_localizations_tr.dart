@@ -2240,4 +2240,397 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editFontSubstitutedDismiss => 'Kapat';
+
+  @override
+  String get saveAsTitle => 'Farklı kaydet';
+
+  @override
+  String get saveAsName => 'Dosya adı';
+
+  @override
+  String get saveAsNameEmpty => 'Bir dosya adı girin.';
+
+  @override
+  String get saveAsNameInvalid => 'Dosya adı / veya \\ içeremez.';
+
+  @override
+  String get saveAsNameTaken =>
+      'Bu adda bir dosya zaten var. Başka bir ad seçin ya da Başka bir konum… seçeneğini kullanın.';
+
+  @override
+  String get saveAsWhere => 'Konum';
+
+  @override
+  String get saveAsOtherLocation => 'Başka bir konum…';
+
+  @override
+  String get saveAsFormat => 'Biçim';
+
+  @override
+  String get saveAsPdf => 'PDF';
+
+  @override
+  String get saveAsPdfDescription =>
+      'Standart PDF. Metin Ferman’da ve diğer düzenleyicilerde düzenlenebilir kalır.';
+
+  @override
+  String get saveAsPdfA => 'PDF/A-2b, arşivleme için';
+
+  @override
+  String get saveAsWeb => 'Web için optimize edilmiş';
+
+  @override
+  String get saveAsCopy => 'Kopya olarak kaydet';
+
+  @override
+  String saveAsCopyDescription(String name, String folder) {
+    return '“$name” açık ve değişmeden kalır; kopya $folder klasörüne kaydedilir.';
+  }
+
+  @override
+  String get saveAsComments => 'Yorumları ve işaretlemeleri dâhil et';
+
+  @override
+  String get saveAsHistory => 'Düzenleme geçmişini dosyadan kaldır';
+
+  @override
+  String get saveAsCancel => 'İptal';
+
+  @override
+  String get saveAsClose => 'Kapat';
+
+  @override
+  String saveFailedTitle(String name) {
+    return '“$name” kaydedilemedi';
+  }
+
+  @override
+  String get saveFailedDiskFull =>
+      'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedPermission =>
+      'Bu dosyayı veya klasörünü değiştirme izniniz yok. Başka bir yere kaydedin ya da dosyanın sahibinden erişim isteyin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedLocked =>
+      'Dosya başka bir uygulamada açık ve kilitli. Oradan kapatıp yeniden deneyin ya da başka bir yere kopya kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedRename =>
+      'Ferman değişikliklerinizi geçici bir dosyaya yazdı ama özgün dosyanın yerine koyamadı. Özgün dosya değişmedi, düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedVolume =>
+      'Bu dosyanın bulunduğu sürücünün bağlantısı kesildi. Sürücüyü yeniden bağlayıp tekrar deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedHardLinked =>
+      'Bu dosyaya başka bağlantılar var ve dosyayı değiştirmek onları bozar. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedNotOwner =>
+      'Bu dosya başka birine ait ve Ferman sahibini koruyamadı. Başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveFailedOther =>
+      'Ferman dosyayı yazamadı. Yeniden deneyin ya da başka bir yere kaydedin. Düzenlemeleriniz korunuyor.';
+
+  @override
+  String get saveTryAgain => 'Yeniden dene';
+
+  @override
+  String get saveSomewhereElse => 'Başka bir yere kaydet…';
+
+  @override
+  String get saveAsEllipsis => 'Farklı kaydet…';
+
+  @override
+  String get saveToastDiskFull =>
+      'Disk dolu. Biraz yer açın ya da başka bir yere kaydedin.';
+
+  @override
+  String get saveToastOther =>
+      'Düzenlemeleriniz korunuyor. Yeniden deneyin ya da başka bir yere kaydedin.';
+
+  @override
+  String get saveToastDismiss => 'Kapat';
+
+  @override
+  String fileChangedTitle(String name) {
+    return '“$name” diskte değişti.';
+  }
+
+  @override
+  String get fileChangedBody =>
+      'Açıkken başka bir uygulama ya da eşitleme hizmeti değiştirdi. Yeniden yükleyin, kendi sürümünüzü koruyun ya da önce karşılaştırın.';
+
+  @override
+  String get fileChangedCompare => 'Karşılaştır';
+
+  @override
+  String get fileChangedKeepMine => 'Benimkini koru';
+
+  @override
+  String get fileChangedReload => 'Yeniden yükle';
+
+  @override
+  String optimizeTitle(String name) {
+    return '“$name” optimize edilip temizlensin mi?';
+  }
+
+  @override
+  String get optimizeSignedBody =>
+      'Ferman dosyanın tamamını önceki sürümleri olmadan yeniden yazar. İmzaları artık geçerli olmaz.';
+
+  @override
+  String get optimizeAction => 'Optimize et ve temizle';
+
+  @override
+  String get saveAsNameInvalidWindows =>
+      'Dosya adı şunları içeremez: / \\ : * ? \" < > |';
+
+  @override
+  String get saveAsNameOpen =>
+      'Bu dosya başka bir sekmede açık. Orada kapatın ya da başka bir ad seçin.';
+
+  @override
+  String saveAsCopyDescriptionHere(String name) {
+    return '“$name” açık ve değişmeden kalır; kopya yanına kaydedilir.';
+  }
+
+  @override
+  String readOnlyFileTitle(String name) {
+    return '“$name” salt okunur.';
+  }
+
+  @override
+  String get readOnlyFileBody =>
+      'Ferman bu dosyaya değişiklik kaydedemez. Değişikliklerinizi saklamak için bir kopya kaydedin.';
+
+  @override
+  String get readOnlyFileSaveCopy => 'Kopya kaydet…';
+
+  @override
+  String closeUnsavedTitle(String name) {
+    return '“$name” dosyasındaki değişiklikler kaydedilsin mi?';
+  }
+
+  @override
+  String closeUnsavedBody(String edits) {
+    return 'Kaydetmezseniz bu oturumdaki $edits kaybolur.';
+  }
+
+  @override
+  String closingEdits(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted düzenleme',
+      one: '1 düzenleme',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeUnsavedSave => 'Kaydet';
+
+  @override
+  String get closeUnsavedDiscard => 'Kaydetme';
+
+  @override
+  String quitReviewTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted belgedeki',
+    );
+    return 'Çıkmadan önce $_temp0 değişiklikler kaydedilsin mi?';
+  }
+
+  @override
+  String get quitReviewBody =>
+      'Ferman işaretli belgeleri kaydedip çıkar. İşaretsiz belgelerdeki değişiklikler kaybolur.';
+
+  @override
+  String get quitReviewSave => 'Kaydet ve çık';
+
+  @override
+  String get quitReviewDiscard => 'Kaydetmeden çık';
+
+  @override
+  String recoveryTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted belgeyi',
+    );
+    return 'Ferman $_temp0 geri yükledi';
+  }
+
+  @override
+  String get recoveryBody =>
+      'Ferman beklenmedik şekilde kapandı. Bu belgelerde kaydedilmemiş değişiklikler vardı ve Ferman her birinin bir kopyasını bu cihazda tuttu.';
+
+  @override
+  String get recoveryNote =>
+      'Geri yüklenen belgeler kaydedilmemiş olarak açılır; diskteki dosyalar değişmedi. Hiçbir yere bir şey gönderilmedi.';
+
+  @override
+  String get recoveryDiscard => 'Kopyaları sil';
+
+  @override
+  String recoveryOpen(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted belgeyi aç',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recoveryChangedBadge => 'Diskte değişti';
+
+  @override
+  String get recoveryChangedBody =>
+      'Diskteki dosya, Ferman’ın kopyasından sonra değişti. Geri yüklenen sürüm yeni bir adla açılır; hiçbiri üzerine yazılmaz.';
+
+  @override
+  String get signedTitle => 'İmzalı bir belge düzenlensin mi?';
+
+  @override
+  String signedBodyBy(String name, String signer, String date) {
+    return '“$name” belgesinde $signer tarafından $date tarihinde atılmış 1 imza var. Belgedeki her değişiklik bu imzayı geçersiz kılar.';
+  }
+
+  @override
+  String signedBody(String name, int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '“$name” belgesinde $formatted imza var. Belgedeki her değişiklik bu imzaları geçersiz kılar.',
+      one:
+          '“$name” belgesinde 1 imza var. Belgedeki her değişiklik bu imzayı geçersiz kılar.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signedEditCopy => 'Bir kopyayı düzenle';
+
+  @override
+  String get signedEditAnyway => 'Yine de düzenle';
+
+  @override
+  String signedCopyHint(String name) {
+    return 'Kopya yeni bir sekmede “$name” olarak açılır. İmzalı özgün belge olduğu gibi kalır.';
+  }
+
+  @override
+  String signedCopyName(String stem) {
+    return '$stem (kopya)';
+  }
+
+  @override
+  String signedCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem (kopya $numberString)';
+  }
+
+  @override
+  String signedBannerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Bu belgedeki imzalar artık geçerli değil.',
+      one: 'Bu belgedeki imza artık geçerli değil.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String signedBannerBodyBy(String signer) {
+    return 'Belgeyi $signer imzaladıktan sonra değiştirdiniz. Kaydettiğinizde imza belgede kalır ama geçersiz görünür.';
+  }
+
+  @override
+  String get signedBannerBody =>
+      'Belgeyi imzalandıktan sonra değiştirdiniz. Kaydettiğinizde imzalar belgede kalır ama geçersiz görünür.';
+
+  @override
+  String get signedBannerReview => 'Düzenlemeleri incele';
+
+  @override
+  String signedReviewRow(String signer) {
+    return '$signer imzası artık geçerli değil';
+  }
+
+  @override
+  String get signedReviewRowOther => 'İmzalar artık geçerli değil';
+
+  @override
+  String get settingsEditMarks => 'Düzenlenen metni işaretle';
+
+  @override
+  String get settingsEditMarksNote =>
+      'Yalnızca düzenlerken Ferman’da görünür. Dosyaya hiç kaydedilmez, yazdırılmaz.';
+
+  @override
+  String get settingsMissingGlyphs =>
+      'Bir yazı tipinde karakter eksik olduğunda';
+
+  @override
+  String get settingsMissingGlyphsSimilar =>
+      'Benzer bir yazı tipi kullan ve bunu söyle';
+
+  @override
+  String get settingsMissingGlyphsAsk => 'Her seferinde sor';
+
+  @override
+  String get settingsMissingGlyphsMark =>
+      'Özgün yazı tipini koru ve karakteri işaretle';
+
+  @override
+  String get settingsFontForNewText => 'Yeni metnin yazı tipi';
+
+  @override
+  String get settingsFontForNewTextMatch => 'Çevredeki metinle aynı';
+
+  @override
+  String get settingsKeepVersions => 'Sürümleri sakla';
+
+  @override
+  String get settingsKeepVersions30 => '30 gün, dosyanın yanında';
+
+  @override
+  String get settingsReflow =>
+      'Yazarken paragraflar çerçevelerinin içinde yeniden aksın';
+
+  @override
+  String get settingsRecoveryCopies => 'Her dakika bir kurtarma kopyası kaydet';
+
+  @override
+  String get settingsSaving => 'Kaydetme';
+
+  @override
+  String get settingsSavingEnd => 'Değişiklikler dosyanın sonuna eklenir';
+
+  @override
+  String get settingsSavingEndBody =>
+      'Kaydetme hızlı kalır, değişikliklerinizden önce atılan imzalar bozulmaz. Ferman tüm dosyayı yalnızca siz Optimize et ve temizle’yi seçtiğinizde yeniden yazar.';
+
+  @override
+  String get settingsOptimize => 'Optimize et ve temizle';
+
+  @override
+  String get settingsOptimizeBody =>
+      'Küçültmek için tüm dosyayı yeniden yazar. Komut paletinden çalıştırın; kendiliğinden hiç kullanılmaz ve imzalar geçersiz olacaksa Ferman önce sizi uyarır.';
+
+  @override
+  String get settingsRecoveryFolder => 'Kurtarma kopyaları';
 }

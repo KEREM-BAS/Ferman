@@ -3866,6 +3866,576 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Dismiss'**
   String get editFontSubstitutedDismiss;
+
+  /// Save as sheet (a1-11): the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as'**
+  String get saveAsTitle;
+
+  /// Save as sheet (a1-11): the file name field's label.
+  ///
+  /// In en, this message translates to:
+  /// **'File name'**
+  String get saveAsName;
+
+  /// Save as sheet: the error under an empty file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Enter a file name.'**
+  String get saveAsNameEmpty;
+
+  /// Save as sheet: the error under a file name with a folder separator.
+  ///
+  /// In en, this message translates to:
+  /// **'A file name can’t contain / or \\.'**
+  String get saveAsNameInvalid;
+
+  /// Save as sheet: the error under a name a file in the chosen folder already has; the system panel of Other location… asks before replacing.
+  ///
+  /// In en, this message translates to:
+  /// **'A file with this name is already there. Choose another name, or use Other location…'**
+  String get saveAsNameTaken;
+
+  /// Save as sheet (a1-11): the label of the folder menu.
+  ///
+  /// In en, this message translates to:
+  /// **'Where'**
+  String get saveAsWhere;
+
+  /// Save as sheet (a1-11): the folder menu's item that opens the system save panel (a1-11b).
+  ///
+  /// In en, this message translates to:
+  /// **'Other location…'**
+  String get saveAsOtherLocation;
+
+  /// Save as sheet: the accessible name of the format choices.
+  ///
+  /// In en, this message translates to:
+  /// **'Format'**
+  String get saveAsFormat;
+
+  /// Save as sheet (a1-11): the standard PDF format.
+  ///
+  /// In en, this message translates to:
+  /// **'PDF'**
+  String get saveAsPdf;
+
+  /// Save as sheet (a1-11): the line under PDF.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard PDF. Keeps text editable in Ferman and other editors.'**
+  String get saveAsPdfDescription;
+
+  /// Save as sheet (a1-11): the archiving format, disabled until P4 (G111).
+  ///
+  /// In en, this message translates to:
+  /// **'PDF/A-2b, for archiving'**
+  String get saveAsPdfA;
+
+  /// Save as sheet (a1-11): the web format, disabled until M4 (G111).
+  ///
+  /// In en, this message translates to:
+  /// **'Optimized for web'**
+  String get saveAsWeb;
+
+  /// Save as sheet (a1-11): the checkbox that saves a copy and leaves the document as it was.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as a copy'**
+  String get saveAsCopy;
+
+  /// Save as sheet (a1-11b): the line under Save as a copy. {name} is the open file's name, {folder} the folder chosen in Where.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” stays open and unchanged; the copy is saved in {folder}.'**
+  String saveAsCopyDescription(String name, String folder);
+
+  /// Save as sheet (a1-11): a checkbox, disabled until saving without comments works.
+  ///
+  /// In en, this message translates to:
+  /// **'Include comments and markup'**
+  String get saveAsComments;
+
+  /// Save as sheet (a1-11): a checkbox, disabled until version history arrives.
+  ///
+  /// In en, this message translates to:
+  /// **'Remove edit history from the file'**
+  String get saveAsHistory;
+
+  /// Save as sheet: the button that closes it without saving.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel'**
+  String get saveAsCancel;
+
+  /// Save dialogs: the name of the close button and of the backdrop.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get saveAsClose;
+
+  /// Save failure dialog (a11-7, a11-7d): the title. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t save “{name}”'**
+  String saveFailedTitle(String name);
+
+  /// Save failure dialog (a11-7): the disk is full.
+  ///
+  /// In en, this message translates to:
+  /// **'The disk is full. Free some space or save somewhere else. Your edits are kept.'**
+  String get saveFailedDiskFull;
+
+  /// Save failure dialog (a11-7d): read-only file or permission denied.
+  ///
+  /// In en, this message translates to:
+  /// **'You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.'**
+  String get saveFailedPermission;
+
+  /// Save failure dialog (a11-7d): another app locks the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.'**
+  String get saveFailedLocked;
+
+  /// Save failure dialog (a11-7d): the new file could not replace the original.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.'**
+  String get saveFailedRename;
+
+  /// Save failure dialog (a11-7d): the drive went away during the save.
+  ///
+  /// In en, this message translates to:
+  /// **'The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.'**
+  String get saveFailedVolume;
+
+  /// Save failure dialog (G40): the file has other hard links.
+  ///
+  /// In en, this message translates to:
+  /// **'This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.'**
+  String get saveFailedHardLinked;
+
+  /// Save failure dialog (G40): the file belongs to another user.
+  ///
+  /// In en, this message translates to:
+  /// **'This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.'**
+  String get saveFailedNotOwner;
+
+  /// Save failure dialog: any other failure.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.'**
+  String get saveFailedOther;
+
+  /// Save failure dialog (a11-7d): saves again.
+  ///
+  /// In en, this message translates to:
+  /// **'Try again'**
+  String get saveTryAgain;
+
+  /// Save failure dialog (a11-7): opens Save as when the disk is full.
+  ///
+  /// In en, this message translates to:
+  /// **'Save somewhere else…'**
+  String get saveSomewhereElse;
+
+  /// Save failure dialog (a11-7d) and toast (f4): opens Save as.
+  ///
+  /// In en, this message translates to:
+  /// **'Save as…'**
+  String get saveAsEllipsis;
+
+  /// Toast (f4): the message after a save failed on a full disk.
+  ///
+  /// In en, this message translates to:
+  /// **'The disk is full. Free some space or save somewhere else.'**
+  String get saveToastDiskFull;
+
+  /// Toast (f4): the message after any other failed save.
+  ///
+  /// In en, this message translates to:
+  /// **'Your edits are kept. Try again, or save somewhere else.'**
+  String get saveToastOther;
+
+  /// Toast (f4): the name of the close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get saveToastDismiss;
+
+  /// Bar (a11-7b): another app changed the open file. {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” changed on disk.'**
+  String fileChangedTitle(String name);
+
+  /// Bar (a11-7b): the sentence under the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.'**
+  String get fileChangedBody;
+
+  /// Bar (a11-7b): compare the two versions (disabled until Compare ships).
+  ///
+  /// In en, this message translates to:
+  /// **'Compare'**
+  String get fileChangedCompare;
+
+  /// Bar (a11-7b): saves over the change.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep mine'**
+  String get fileChangedKeepMine;
+
+  /// Bar (a11-7b): drops the edits and opens the file again.
+  ///
+  /// In en, this message translates to:
+  /// **'Reload'**
+  String get fileChangedReload;
+
+  /// Warning before Optimize and clean breaks signatures (G35). {name} is the file name.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimize and clean “{name}”?'**
+  String optimizeTitle(String name);
+
+  /// Warning before Optimize and clean (G35): what happens to the signatures.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.'**
+  String get optimizeSignedBody;
+
+  /// Warning before Optimize and clean: the button that rewrites the file.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimize and clean'**
+  String get optimizeAction;
+
+  /// Save as sheet on Windows: the error under a file name with a character Windows reserves.
+  ///
+  /// In en, this message translates to:
+  /// **'A file name can’t contain any of these: / \\ : * ? \" < > |'**
+  String get saveAsNameInvalidWindows;
+
+  /// Save as sheet: the error when the chosen file is the file of another open tab, which saving over would pull from under it.
+  ///
+  /// In en, this message translates to:
+  /// **'This file is open in another tab. Close it there, or choose another name.'**
+  String get saveAsNameOpen;
+
+  /// Save as sheet (a1-11): the line under Save as a copy while Where is the document's own folder. {name} is the open file's name.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” stays open and unchanged; the copy is saved alongside it.'**
+  String saveAsCopyDescriptionHere(String name);
+
+  /// a1-9d: the banner's title on a file no one may write.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” is read-only.'**
+  String readOnlyFileTitle(String name);
+
+  /// a1-9d: the banner's text.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman can’t save changes to this file. To keep your changes, save a copy.'**
+  String get readOnlyFileBody;
+
+  /// a1-9d: the banner's button, which opens the Save as sheet with Save as a copy checked.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a copy…'**
+  String get readOnlyFileSaveCopy;
+
+  /// a1-10b: the question.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes to “{name}”?'**
+  String closeUnsavedTitle(String name);
+
+  /// a1-10b: what is lost; {edits} is closingEdits.
+  ///
+  /// In en, this message translates to:
+  /// **'If you don’t save, your {edits} from this session will be lost.'**
+  String closeUnsavedBody(String edits);
+
+  /// a1-10b, a1-12, a11-7e: how many edits.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 edit} other{{formatted} edits}}'**
+  String closingEdits(int count, String formatted);
+
+  /// a1-10b: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Save'**
+  String get closeUnsavedSave;
+
+  /// a1-10b: closes without saving; the recovery copy goes.
+  ///
+  /// In en, this message translates to:
+  /// **'Don’t save'**
+  String get closeUnsavedDiscard;
+
+  /// a11-7e: the question, for two documents or more.
+  ///
+  /// In en, this message translates to:
+  /// **'Save changes to {count, plural, other{{formatted} documents}} before quitting?'**
+  String quitReviewTitle(int count, String formatted);
+
+  /// a11-7e.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.'**
+  String get quitReviewBody;
+
+  /// a11-7e.
+  ///
+  /// In en, this message translates to:
+  /// **'Save and quit'**
+  String get quitReviewSave;
+
+  /// a11-7e.
+  ///
+  /// In en, this message translates to:
+  /// **'Quit without saving'**
+  String get quitReviewDiscard;
+
+  /// a1-12: the title.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman restored {count, plural, =1{1 document} other{{formatted} documents}}'**
+  String recoveryTitle(int count, String formatted);
+
+  /// a1-12, without the board’s time, which the engine does not know (G40).
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.'**
+  String get recoveryBody;
+
+  /// a1-12: under the list.
+  ///
+  /// In en, this message translates to:
+  /// **'Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.'**
+  String get recoveryNote;
+
+  /// a1-12: deletes every copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Discard'**
+  String get recoveryDiscard;
+
+  /// a1-12: the default button; counts the checked rows.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Open 1 document} other{Open {formatted} documents}}'**
+  String recoveryOpen(int count, String formatted);
+
+  /// a11-7f: the badge of a row whose original changed.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed on disk'**
+  String get recoveryChangedBadge;
+
+  /// a11-7f, without the board’s time and name, which the engine gives only once it opens (G40).
+  ///
+  /// In en, this message translates to:
+  /// **'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.'**
+  String get recoveryChangedBody;
+
+  /// a3-16a: the question.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit a signed document?'**
+  String get signedTitle;
+
+  /// a3-16a: one signature whose signer and date the file gives.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” has 1 signature, by {signer} on {date}. Any change to the document makes that signature invalid.'**
+  String signedBodyBy(String name, String signer, String date);
+
+  /// a3-16a: any other number of signatures, or no name or date in the file.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{“{name}” has 1 signature. Any change to the document makes that signature invalid.} other{“{name}” has {formatted} signatures. Any change to the document makes those signatures invalid.}}'**
+  String signedBody(String name, int count, String formatted);
+
+  /// a3-16a: the default button.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit a copy'**
+  String get signedEditCopy;
+
+  /// a3-16a.
+  ///
+  /// In en, this message translates to:
+  /// **'Edit anyway'**
+  String get signedEditAnyway;
+
+  /// a3-16a: under the question.
+  ///
+  /// In en, this message translates to:
+  /// **'The copy opens in a new tab as “{name}”. The signed original stays as it is.'**
+  String signedCopyHint(String name);
+
+  /// a3-16a: the copy’s file name without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} (copy)'**
+  String signedCopyName(String stem);
+
+  /// a3-16a: the same, when that name is taken; {number} is 2 or more.
+  ///
+  /// In en, this message translates to:
+  /// **'{stem} (copy {number})'**
+  String signedCopyNameNumbered(String stem, int number);
+
+  /// a3-16b: the bar after Edit anyway.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{The signature in this document is no longer valid.} other{The signatures in this document are no longer valid.}}'**
+  String signedBannerTitle(int count);
+
+  /// a3-16b: one signer the file names.
+  ///
+  /// In en, this message translates to:
+  /// **'You changed the document after {signer} signed it. Saving keeps the signature, but it will show as invalid.'**
+  String signedBannerBodyBy(String signer);
+
+  /// a3-16b: otherwise.
+  ///
+  /// In en, this message translates to:
+  /// **'You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.'**
+  String get signedBannerBody;
+
+  /// a3-16b: the bar’s button.
+  ///
+  /// In en, this message translates to:
+  /// **'Review edits'**
+  String get signedBannerReview;
+
+  /// a3-12: the signature row, here at the top of the edit history (B049).
+  ///
+  /// In en, this message translates to:
+  /// **'{signer}’s signature is no longer valid'**
+  String signedReviewRow(String signer);
+
+  /// a3-12: the same without one named signer.
+  ///
+  /// In en, this message translates to:
+  /// **'The signatures are no longer valid'**
+  String get signedReviewRowOther;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Mark edited text'**
+  String get settingsEditMarks;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Shown only in Ferman while you edit. Never saved into the file or printed.'**
+  String get settingsEditMarksNote;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'When a font is missing a character'**
+  String get settingsMissingGlyphs;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Use a similar font and say so'**
+  String get settingsMissingGlyphsSimilar;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Ask each time'**
+  String get settingsMissingGlyphsAsk;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep the original font and mark the character'**
+  String get settingsMissingGlyphsMark;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Font for new text'**
+  String get settingsFontForNewText;
+
+  /// a11-1c: the option shown, while Add text waits (B042).
+  ///
+  /// In en, this message translates to:
+  /// **'Match surrounding text'**
+  String get settingsFontForNewTextMatch;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep versions'**
+  String get settingsKeepVersions;
+
+  /// a11-1c: the option shown, while version history waits (B060).
+  ///
+  /// In en, this message translates to:
+  /// **'30 days, next to the file'**
+  String get settingsKeepVersions30;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Let paragraphs reflow inside their frame while typing'**
+  String get settingsReflow;
+
+  /// a11-1c: the switch the engine follows.
+  ///
+  /// In en, this message translates to:
+  /// **'Save a recovery copy every minute'**
+  String get settingsRecoveryCopies;
+
+  /// a11-1c: the group of G43.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving'**
+  String get settingsSaving;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes are added to the end of the file'**
+  String get settingsSavingEnd;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.'**
+  String get settingsSavingEndBody;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Optimize and clean'**
+  String get settingsOptimize;
+
+  /// a11-1c.
+  ///
+  /// In en, this message translates to:
+  /// **'Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.'**
+  String get settingsOptimizeBody;
+
+  /// a11-1c: above the folder.
+  ///
+  /// In en, this message translates to:
+  /// **'Recovery copies'**
+  String get settingsRecoveryFolder;
 }
 
 class _AppLocalizationsDelegate

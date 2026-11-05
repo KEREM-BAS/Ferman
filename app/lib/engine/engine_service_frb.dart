@@ -134,9 +134,13 @@ class FrbEngineService implements EngineService {
   }
 
   @override
+  String? recoveryRoot;
+
+  @override
   Future<void> startRecovery(String root) async {
     try {
       await bridge.startRecovery(root: root);
+      recoveryRoot = root;
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }

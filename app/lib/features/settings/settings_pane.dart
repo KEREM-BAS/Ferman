@@ -5,8 +5,8 @@ import 'package:ferman/l10n/gen/app_localizations.dart';
 /// The 11 panes of Settings, in the order of a11-1's pane list
 /// (`FmSettings.dc.html` `NAV`).
 ///
-/// M1 builds General, Language and region and a Privacy skeleton; the
-/// other panes name their [feature] in the feature registry and are listed
+/// M1 builds General, Language and region and a Privacy skeleton, M3 Editing;
+/// the other panes name their [feature] in the feature registry and are listed
 /// and disabled with "Available in a future version" while it is there
 /// (G10).
 enum SettingsPane {
@@ -16,8 +16,8 @@ enum SettingsPane {
   /// Language and region (a11-1b).
   language('language', IconName.languages),
 
-  /// Editing (a11-1c): M3.
-  editing('editing', IconName.filePenLine, feature: Feature.settingsEditing),
+  /// Editing (a11-1c).
+  editing('editing', IconName.filePenLine),
 
   /// Fonts (a11-1d): M4 (coverage and system fonts arrive in M3).
   fonts('fonts', IconName.type, feature: Feature.settingsFonts),

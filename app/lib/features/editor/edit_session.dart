@@ -4,6 +4,7 @@ import 'dart:ui' show Rect;
 import 'package:ferman/design/components/components.dart' show SaveState;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/settings/app_settings.dart';
@@ -217,7 +218,9 @@ typedef _Unanswered = ({
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 @Riverpod(keepAlive: true)
 class DocumentEditor extends _$DocumentEditor {
   /// The coalescing rule's pause in milliseconds (PROGRESS, M3 decision
@@ -268,6 +271,11 @@ class DocumentEditor extends _$DocumentEditor {
         (_, policy) => unawaited(_fonts(policy)),
         fireImmediately: true,
       )
+      ..listen(
+        settingsProvider.select((s) => s.recoveryCopies),
+        (_, enabled) => unawaited(_recovery(enabled: enabled)),
+        fireImmediately: true,
+      )
       ..listen(openDocumentProvider.select((document) => document?.id), (
         _,
         next,
@@ -303,6 +311,15 @@ class DocumentEditor extends _$DocumentEditor {
     }
   });
 
+  /// Tells the engine a11-1c's "Save a recovery copy every minute".
+  Future<void> _recovery({required bool enabled}) async {
+    try {
+      await _engine.setRecoveryEnabled(enabled: enabled);
+    } on Object {
+      // An engine that did not start has no edits to recover.
+    }
+  }
+
   /// Runs [step] after every step asked for before it.
   Future<void> _run(Future<void> Function() step) {
     final next = _queue.then((_) => step());
@@ -312,13 +329,25 @@ class DocumentEditor extends _$DocumentEditor {
 
   /// Opens the editor on [block] of [page] with its caret at [caret],
   /// after committing the one open; its typing becomes the history step
-  /// [name]. A block the engine refuses opens nothing.
+  /// [name]. A block the engine refuses opens nothing. Before the first
+  /// change to a signed document it asks first (a3-16a) and opens the block
+  /// after "Edit anyway".
   Future<void> open(
     int page,
     TextBlock block, {
     required int caret,
     required String name,
   }) {
+    final tab = ref.read(shellDocumentsProvider).active;
+    final saver = ref.read(documentSaverProvider.notifier);
+    if (tab?.document case final document?
+        when document.id == _document && saver.needsConfirmation(document)) {
+      saver.askSigned(
+        tab!,
+        () => unawaited(open(page, block, caret: caret, name: name)),
+      );
+      return Future.value();
+    }
     _idle?.cancel();
     return _run(() async {
       await _close();
@@ -514,7 +543,7 @@ class DocumentEditor extends _$DocumentEditor {
     } on EngineException {
       // shortcut: the characters no font has stay in the field but not in
       // the page, until a11-1c's "Keep the original font and mark the
-      // character" (B074).
+      // character" (B140).
       state = state.copy(fontSettled: true);
       final drawn = _applied;
       if (drawn == null || drawn == _requested) return;
@@ -647,21 +676,65 @@ class DocumentEditor extends _$DocumentEditor {
   }
 
   /// Saves the committed steps to the document's file, after committing
-  /// the typing (ADR 0008).
-  Future<void> save() {
+  /// the typing (ADR 0008): those of [document], by default the one shown;
+  /// [overChange] saves over a change on disk ("Keep mine", a11-7b). The
+  /// engine's error, or null when it saved.
+  Future<EngineException?> save({int? document, bool overChange = false}) {
+    final target = document ?? _document;
+    if (target == null) return Future.value();
+    return write(target, () => _engine.save(target, overChange: overChange));
+  }
+
+  /// Commits the typing, then writes [document] with [write] (a save, Save
+  /// as, Optimize and clean). It marks the document saving, then saved (a
+  /// document the engine holds read-only stays so). When it fails, unsaved
+  /// edits show "Couldn't save", or unsaved when the file changed on disk
+  /// (a11-7b), and a document with none keeps the state it had; a [copy]
+  /// leaves its state as it is. The engine's error, or null when it wrote.
+  Future<EngineException?> write(
+    int document,
+    Future<void> Function() write, {
+    bool copy = false,
+  }) async {
     _idle?.cancel();
-    return _run(() async {
+    EngineException? failed;
+    await _run(() async {
       await _close();
-      final document = _document;
-      if (document == null) return;
-      _mark(document, SaveState.saving);
+      final before = ref
+          .read(shellDocumentsProvider)
+          .documents
+          .where((tab) => tab.document?.id == document)
+          .firstOrNull;
+      if (!copy) _mark(document, SaveState.saving);
       try {
-        await _engine.save(document);
-        _mark(document, SaveState.saved, savedAt: DateTime.now());
-      } on Object {
-        _mark(document, SaveState.error);
+        await write();
+        if (!copy) {
+          _mark(
+            document,
+            before?.document?.readOnly == null
+                ? SaveState.saved
+                : SaveState.readOnly,
+            savedAt: DateTime.now(),
+          );
+        }
+      } on Object catch (error) {
+        final engine = error is EngineException
+            ? error
+            : const EngineException(messageKey: 'errorInternal');
+        failed = engine;
+        if (!copy) {
+          _mark(document, switch (before) {
+            ShellDocument(unsaved: false, :final saveState?) => saveState,
+            _
+                when engine.kind == EngineErrorKind.fileChangedOnDisk ||
+                    engine.kind == EngineErrorKind.confirmationRequired =>
+              SaveState.unsaved,
+            _ => SaveState.error,
+          });
+        }
       }
     });
+    return failed;
   }
 
   /// Reads [document]'s history after [info] (null: on opening it) and,

@@ -222,6 +222,9 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
     }
     if (document == null) return const SizedBox.shrink();
     final viewer = ref.read(viewerProvider.notifier);
+    final invalidated = ref.watch(
+      documentEditorProvider.select((s) => s.history.signatureInvalidated),
+    );
     return ListView.builder(
       controller: _scroll,
       padding: EdgeInsetsDirectional.only(
@@ -259,6 +262,18 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
                       ),
                     },
                   ),
+                  // a3-16b: the signature's page once a change breaks it.
+                  null
+                      when invalidated &&
+                          document.signatures.any(
+                            (field) => field.signed && field.page == index,
+                          ) =>
+                    ThumbnailBadges(
+                      badges: const {ThumbnailBadge.warnings},
+                      tooltips: {
+                        ThumbnailBadge.warnings: l10n.signedBannerTitle(1),
+                      },
+                    ),
                   null => null,
                 },
                 child: switch (_images[index]) {

@@ -54,9 +54,9 @@ enum Feature {
   /// dragged over the window (a1-6).
   combineDropped('B104'),
 
-  /// Saving a repaired file as a new one: the repaired bar's "Save repaired
-  /// copy…" (a1-9).
-  saveRepairedCopy('B103'),
+  /// The Save as sheet's options "Include comments and markup" and "Remove
+  /// edit history from the file" (a1-11).
+  saveAsOptions('B138'),
 
   // Viewing.
 
@@ -102,8 +102,17 @@ enum Feature {
   /// works since W1 of M3.
   editingText('B041'),
 
-  /// Adding text boxes (Edit › Add text).
+  /// Adding text boxes: Edit › Add text and Settings › Editing › Font for
+  /// new text.
   addingTextBoxes('B042'),
+
+  /// a11-1c's "Keep the original font and mark the character" (Settings ›
+  /// Editing).
+  missingGlyphMark('B140'),
+
+  /// a11-1c's "Let paragraphs reflow inside their frame while typing": they
+  /// always do so far (Settings › Editing).
+  reflowSwitch('B141'),
 
   /// Adding images (Edit › Add image).
   addingImages('B043'),
@@ -125,7 +134,8 @@ enum Feature {
   /// background (Edit › Page marks).
   pageMarks('B046'),
 
-  /// Edit marks (Edit › Mark edited text).
+  /// Edit marks: Edit › Mark edited text and the switch in Settings ›
+  /// Editing.
   editMarks('B048'),
 
   /// The review list of edits (Edit › Review edits).
@@ -199,16 +209,19 @@ enum Feature {
 
   // Tools.
 
-  /// Compress: Start › Compress and Tools › Compress.
+  /// Compress: Start › Compress and Tools › Compress, and the Save as
+  /// sheet's "Optimized for web", which needs its image pipeline (G111).
   compress('B022'),
 
-  /// Compare: Start › Compare, Tools › Compare and the first-run tile.
+  /// Compare: Start › Compare, Tools › Compare, the first-run tile and the
+  /// changed-on-disk bar's Compare (a11-7b).
   compare('B027'),
 
   /// Accessibility tools: Tools › Accessibility and the first-run tile.
   accessibilityTools('B062'),
 
-  /// PDF/A and preflight (Tools row).
+  /// PDF/A and preflight: the Tools row and the Save as sheet's "PDF/A-2b,
+  /// for archiving" (G111).
   pdfAAndPreflight('B063'),
 
   /// Batch actions: Tools › Batch actions and the first-run tile.
@@ -217,7 +230,8 @@ enum Feature {
   /// Basic system print (Tools › Print).
   printing('B061'),
 
-  /// Version history (Tools › Version history).
+  /// Version history: Tools › Version history and Settings › Editing › Keep
+  /// versions.
   versionHistory('B060'),
 
   /// The AI assistant: the mode bar's AI button, Tools › AI assistant,
@@ -231,9 +245,6 @@ enum Feature {
 
   /// Searching Settings.
   settingsSearch('B073'),
-
-  /// Settings › Editing.
-  settingsEditing('B074'),
 
   /// Settings › Fonts.
   settingsFonts('B075'),

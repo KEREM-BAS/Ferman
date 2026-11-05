@@ -1,4 +1,3 @@
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
@@ -200,7 +199,7 @@ void main() {
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
   testWidgets("a repaired document shows a1-9's bar with the engine's "
-      'repairs, and Save repaired copy… disabled (B103)', (tester) async {
+      'repairs, and Save repaired copy… enabled (B103)', (tester) async {
     final container = await openAll(
       tester,
       FakeEngineService(documents: {'/docs/kira-tr-damaged.pdf': repaired}),
@@ -219,10 +218,8 @@ void main() {
     final save = tester.widget<Button>(
       find.widgetWithText(Button, 'Save repaired copy…'),
     );
-    expect(save.disabled, isTrue);
-    expect(save.onPressed, isNull);
-    expect(save.disabledReason, 'Available in a future version');
-    expect(Feature.saveRepairedCopy.backlog, 'B103');
+    expect(save.disabled, isFalse);
+    expect(save.onPressed, isNotNull);
 
     // Details lists the repairs; Copy details copies them.
     expect(find.text('What Ferman repaired'), findsNothing);

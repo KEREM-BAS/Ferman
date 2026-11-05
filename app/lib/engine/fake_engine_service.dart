@@ -242,6 +242,7 @@ class FakeEngineService implements EngineService {
   }
 
   /// The folder [startRecovery] was given.
+  @override
   String? recoveryRoot;
 
   /// What the a11-1c switch says ([setRecoveryEnabled]).

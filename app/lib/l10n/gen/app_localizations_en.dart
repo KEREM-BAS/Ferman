@@ -2245,4 +2245,397 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editFontSubstitutedDismiss => 'Dismiss';
+
+  @override
+  String get saveAsTitle => 'Save as';
+
+  @override
+  String get saveAsName => 'File name';
+
+  @override
+  String get saveAsNameEmpty => 'Enter a file name.';
+
+  @override
+  String get saveAsNameInvalid => 'A file name can’t contain / or \\.';
+
+  @override
+  String get saveAsNameTaken =>
+      'A file with this name is already there. Choose another name, or use Other location…';
+
+  @override
+  String get saveAsWhere => 'Where';
+
+  @override
+  String get saveAsOtherLocation => 'Other location…';
+
+  @override
+  String get saveAsFormat => 'Format';
+
+  @override
+  String get saveAsPdf => 'PDF';
+
+  @override
+  String get saveAsPdfDescription =>
+      'Standard PDF. Keeps text editable in Ferman and other editors.';
+
+  @override
+  String get saveAsPdfA => 'PDF/A-2b, for archiving';
+
+  @override
+  String get saveAsWeb => 'Optimized for web';
+
+  @override
+  String get saveAsCopy => 'Save as a copy';
+
+  @override
+  String saveAsCopyDescription(String name, String folder) {
+    return '“$name” stays open and unchanged; the copy is saved in $folder.';
+  }
+
+  @override
+  String get saveAsComments => 'Include comments and markup';
+
+  @override
+  String get saveAsHistory => 'Remove edit history from the file';
+
+  @override
+  String get saveAsCancel => 'Cancel';
+
+  @override
+  String get saveAsClose => 'Close';
+
+  @override
+  String saveFailedTitle(String name) {
+    return 'Couldn’t save “$name”';
+  }
+
+  @override
+  String get saveFailedDiskFull =>
+      'The disk is full. Free some space or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedPermission =>
+      'You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.';
+
+  @override
+  String get saveFailedLocked =>
+      'Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedRename =>
+      'Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.';
+
+  @override
+  String get saveFailedVolume =>
+      'The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedHardLinked =>
+      'This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedNotOwner =>
+      'This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedOther =>
+      'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveTryAgain => 'Try again';
+
+  @override
+  String get saveSomewhereElse => 'Save somewhere else…';
+
+  @override
+  String get saveAsEllipsis => 'Save as…';
+
+  @override
+  String get saveToastDiskFull =>
+      'The disk is full. Free some space or save somewhere else.';
+
+  @override
+  String get saveToastOther =>
+      'Your edits are kept. Try again, or save somewhere else.';
+
+  @override
+  String get saveToastDismiss => 'Dismiss';
+
+  @override
+  String fileChangedTitle(String name) {
+    return '“$name” changed on disk.';
+  }
+
+  @override
+  String get fileChangedBody =>
+      'Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.';
+
+  @override
+  String get fileChangedCompare => 'Compare';
+
+  @override
+  String get fileChangedKeepMine => 'Keep mine';
+
+  @override
+  String get fileChangedReload => 'Reload';
+
+  @override
+  String optimizeTitle(String name) {
+    return 'Optimize and clean “$name”?';
+  }
+
+  @override
+  String get optimizeSignedBody =>
+      'Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.';
+
+  @override
+  String get optimizeAction => 'Optimize and clean';
+
+  @override
+  String get saveAsNameInvalidWindows =>
+      'A file name can’t contain any of these: / \\ : * ? \" < > |';
+
+  @override
+  String get saveAsNameOpen =>
+      'This file is open in another tab. Close it there, or choose another name.';
+
+  @override
+  String saveAsCopyDescriptionHere(String name) {
+    return '“$name” stays open and unchanged; the copy is saved alongside it.';
+  }
+
+  @override
+  String readOnlyFileTitle(String name) {
+    return '“$name” is read-only.';
+  }
+
+  @override
+  String get readOnlyFileBody =>
+      'Ferman can’t save changes to this file. To keep your changes, save a copy.';
+
+  @override
+  String get readOnlyFileSaveCopy => 'Save a copy…';
+
+  @override
+  String closeUnsavedTitle(String name) {
+    return 'Save changes to “$name”?';
+  }
+
+  @override
+  String closeUnsavedBody(String edits) {
+    return 'If you don’t save, your $edits from this session will be lost.';
+  }
+
+  @override
+  String closingEdits(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted edits',
+      one: '1 edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeUnsavedSave => 'Save';
+
+  @override
+  String get closeUnsavedDiscard => 'Don’t save';
+
+  @override
+  String quitReviewTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted documents',
+    );
+    return 'Save changes to $_temp0 before quitting?';
+  }
+
+  @override
+  String get quitReviewBody =>
+      'Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.';
+
+  @override
+  String get quitReviewSave => 'Save and quit';
+
+  @override
+  String get quitReviewDiscard => 'Quit without saving';
+
+  @override
+  String recoveryTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted documents',
+      one: '1 document',
+    );
+    return 'Ferman restored $_temp0';
+  }
+
+  @override
+  String get recoveryBody =>
+      'Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.';
+
+  @override
+  String get recoveryNote =>
+      'Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.';
+
+  @override
+  String get recoveryDiscard => 'Discard';
+
+  @override
+  String recoveryOpen(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Open $formatted documents',
+      one: 'Open 1 document',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recoveryChangedBadge => 'Changed on disk';
+
+  @override
+  String get recoveryChangedBody =>
+      'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.';
+
+  @override
+  String get signedTitle => 'Edit a signed document?';
+
+  @override
+  String signedBodyBy(String name, String signer, String date) {
+    return '“$name” has 1 signature, by $signer on $date. Any change to the document makes that signature invalid.';
+  }
+
+  @override
+  String signedBody(String name, int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '“$name” has $formatted signatures. Any change to the document makes those signatures invalid.',
+      one:
+          '“$name” has 1 signature. Any change to the document makes that signature invalid.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signedEditCopy => 'Edit a copy';
+
+  @override
+  String get signedEditAnyway => 'Edit anyway';
+
+  @override
+  String signedCopyHint(String name) {
+    return 'The copy opens in a new tab as “$name”. The signed original stays as it is.';
+  }
+
+  @override
+  String signedCopyName(String stem) {
+    return '$stem (copy)';
+  }
+
+  @override
+  String signedCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem (copy $numberString)';
+  }
+
+  @override
+  String signedBannerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The signatures in this document are no longer valid.',
+      one: 'The signature in this document is no longer valid.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String signedBannerBodyBy(String signer) {
+    return 'You changed the document after $signer signed it. Saving keeps the signature, but it will show as invalid.';
+  }
+
+  @override
+  String get signedBannerBody =>
+      'You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.';
+
+  @override
+  String get signedBannerReview => 'Review edits';
+
+  @override
+  String signedReviewRow(String signer) {
+    return '$signer’s signature is no longer valid';
+  }
+
+  @override
+  String get signedReviewRowOther => 'The signatures are no longer valid';
+
+  @override
+  String get settingsEditMarks => 'Mark edited text';
+
+  @override
+  String get settingsEditMarksNote =>
+      'Shown only in Ferman while you edit. Never saved into the file or printed.';
+
+  @override
+  String get settingsMissingGlyphs => 'When a font is missing a character';
+
+  @override
+  String get settingsMissingGlyphsSimilar => 'Use a similar font and say so';
+
+  @override
+  String get settingsMissingGlyphsAsk => 'Ask each time';
+
+  @override
+  String get settingsMissingGlyphsMark =>
+      'Keep the original font and mark the character';
+
+  @override
+  String get settingsFontForNewText => 'Font for new text';
+
+  @override
+  String get settingsFontForNewTextMatch => 'Match surrounding text';
+
+  @override
+  String get settingsKeepVersions => 'Keep versions';
+
+  @override
+  String get settingsKeepVersions30 => '30 days, next to the file';
+
+  @override
+  String get settingsReflow =>
+      'Let paragraphs reflow inside their frame while typing';
+
+  @override
+  String get settingsRecoveryCopies => 'Save a recovery copy every minute';
+
+  @override
+  String get settingsSaving => 'Saving';
+
+  @override
+  String get settingsSavingEnd => 'Changes are added to the end of the file';
+
+  @override
+  String get settingsSavingEndBody =>
+      'Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.';
+
+  @override
+  String get settingsOptimize => 'Optimize and clean';
+
+  @override
+  String get settingsOptimizeBody =>
+      'Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.';
+
+  @override
+  String get settingsRecoveryFolder => 'Recovery copies';
 }

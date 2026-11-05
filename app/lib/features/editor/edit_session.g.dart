@@ -38,7 +38,9 @@ part of 'edit_session.dart';
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 
 @ProviderFor(DocumentEditor)
 final documentEditorProvider = DocumentEditorProvider._();
@@ -73,7 +75,9 @@ final documentEditorProvider = DocumentEditorProvider._();
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 final class DocumentEditorProvider
     extends $NotifierProvider<DocumentEditor, EditorState> {
   /// Edits the open document's text through the engine's transactions, as
@@ -106,7 +110,9 @@ final class DocumentEditorProvider
   ///
   /// Each commit, undo and redo marks the shell's document unsaved; [save]
   /// writes the committed steps to the file (an incremental update) and
-  /// marks it saved, or "Couldn't save" when it fails.
+  /// marks it saved, or "Couldn't save" when it fails, and returns the
+  /// failure for `documentSaverProvider` to show; [write] does the same for
+  /// Save as and Optimize and clean.
   DocumentEditorProvider._()
     : super(
         from: null,
@@ -134,7 +140,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
+String _$documentEditorHash() => r'bef2a6adac114c1e6caed99bafe3afb4872ef605';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).
@@ -166,7 +172,9 @@ String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
-/// marks it saved, or "Couldn't save" when it fails.
+/// marks it saved, or "Couldn't save" when it fails, and returns the
+/// failure for `documentSaverProvider` to show; [write] does the same for
+/// Save as and Optimize and clean.
 
 abstract class _$DocumentEditor extends $Notifier<EditorState> {
   EditorState build();

@@ -67,7 +67,12 @@ void main() {
         for (final pane in SettingsPane.values)
           if (pane.available) pane,
       ],
-      [SettingsPane.general, SettingsPane.language, SettingsPane.privacy],
+      [
+        SettingsPane.general,
+        SettingsPane.language,
+        SettingsPane.editing,
+        SettingsPane.privacy,
+      ],
     );
   });
 }

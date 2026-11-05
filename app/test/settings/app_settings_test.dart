@@ -23,6 +23,7 @@ void main() {
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
         'missingGlyphs': 'similar',
+        'recoveryCopies': true,
       });
     });
 
@@ -53,6 +54,7 @@ void main() {
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
         'missingGlyphs': 'similar',
+        'recoveryCopies': true,
       });
     });
 
