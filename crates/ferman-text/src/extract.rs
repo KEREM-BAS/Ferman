@@ -366,7 +366,7 @@ impl PdfFont {
     }
 
     /// The vertical advance of `code`, per unit of font size (negative: down the column).
-    fn vertical_advance(&self, code: u32, length: usize) -> f32 {
+    pub(crate) fn vertical_advance(&self, code: u32, length: usize) -> f32 {
         let font = &self.resource;
         let cid = self
             .cmap

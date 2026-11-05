@@ -42,6 +42,10 @@
 //! The right-to-left cases (W3), shaped in the bundled IBM Plex fonts: E09's Arabic word beside
 //! report-ar's IBAN, in the subset's own glyphs and with marks the subset lacks (step 2); E10's
 //! Persian word with a ZWNJ on fa-zwnj; E11's Hebrew paragraph reflowed on he-para.
+//!
+//! The vertical cases (W3, E13) on letter-ja-vertical: a date column's cells in its `Identity-V`
+//! font, the body's last column one cell longer, and the upright "19" across its column, in the
+//! subset's digits and in a new font of the installed Noto Serif JP chosen in step 3.
 // Test helpers fail loudly.
 #![allow(
     clippy::panic,
@@ -1090,6 +1094,62 @@ fn e11_he_para_sentence_reflows_right_to_left() {
         ("לשנה נוספת.", "לשנה נוספת, ולשלם עד יום 15 בחודש."),
         "15 בחודש",
     );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e13_letter_ja_vertical_column_keeps_its_cells() {
+    // Identity-V with /W2 and /DW2: the new character in the cell of the one it replaces.
+    case(
+        "e13-vertical-date",
+        "letter-ja-vertical",
+        0,
+        "十月十三日",
+        "十月十二日",
+    );
+    // The body's last column one character longer: the full stop down one cell.
+    case(
+        "e13-vertical-grows",
+        "letter-ja-vertical",
+        0,
+        "です。",
+        "でした。",
+    );
+}
+
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn e13_letter_ja_vertical_upright_run() {
+    // Tate-chu-yoko: "19" across its column, centred in its cell, in the subset's own digits.
+    case("e13-upright", "letter-ja-vertical", 0, "19万", "91万");
+    // "20": digits the subset lacks, in a new font of the installed Noto Serif JP chosen in step
+    // 3 (its variable font's default instance is ExtraLight, so step 2 does not take it as the
+    // Regular), compressed to one em with Tz when wider.
+    let library = library(Some(
+        std::fs::read(root().join("build/corpus-fonts/NotoSerifJP-VF.ttf"))
+            .expect("build/corpus-fonts/NotoSerifJP-VF.ttf (run tools/corpus/fetch-fonts.sh)"),
+    ));
+    let chosen = FontChoice::Font {
+        origin: FontOrigin::Installed,
+        postscript_name: "NotoSerifJP-ExtraLight".to_owned(),
+    };
+    let rewrite = glyph_case(
+        "e13-upright-step-3",
+        "letter-ja-vertical",
+        "19万",
+        &|block| joined(block, "\n").replacen("19万", "20万", 1),
+        &FontSources {
+            library: Some(&library),
+            ask: true,
+            choice: Some(&chosen),
+        },
+        "20万",
+    );
+    let [substitution] = rewrite.substitutions.as_slice() else {
+        panic!("{:?}", rewrite.substitutions);
+    };
+    assert_eq!(substitution.kind, SubstitutionKind::Similar);
+    assert_eq!(substitution.to, "NotoSerifJP-ExtraLight");
 }
 
 /// The block's lines joined as one paragraph by `joint`.

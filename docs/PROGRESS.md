@@ -1237,6 +1237,11 @@ integration tests; 18. closing documents. Two more are kept for CI fixes.
 | 13 | Spell-check and hyphenation (ROADMAP: "may move to M4") | M4, disabled with the future-version tooltip | BACKLOG |
 | 14 | The web build | Stays without an engine until phase 5, as the brief's platform order says (owner, 2026-11-04) | — |
 
+Decision 8 in W3: E13 reaches zero diff column by column (a column's cells, a top-aligned column one
+cell longer, the upright "19" as "91" and as "20" in a chosen font; ARCHITECTURE §6.11). Reflowing
+columns with kinsoku, changes across a column's shows and characters a vertical font lacks stay
+"not rewritten yet" (`Unsupported::Direction`, BACKLOG B136).
+
 ### Questions for the owner with the M3 plan
 
 **Answered by the owner on 2026-11-04: all four as proposed.** The `platform` module, the

@@ -69,13 +69,25 @@
 //!   when its code reads back as the glyph's text; the others go into a new font of the same face
 //!   (step 2). Shaped advances and mark offsets become `TJ` numbers; ZWNJ is not written; a
 //!   justified paragraph's last line keeps the right edge.
+//! - **Vertical text (ROADMAP §7 step 7, E13).** A block with a vertical line is rewritten
+//!   column by column, given one piece per column, and only the show the change falls in is
+//!   written again. In an `Identity-V` run each new character takes the cell of the one it
+//!   replaces, its advance from `/W2` or `/DW2`, and the run ends where it ended; a different
+//!   number of characters is written only in a column's last show of a top-aligned block, the
+//!   cells after them moved by the run's pitch (past the frame: [`Rewrite::overflowing`]). New
+//!   characters come from the ToUnicode CMap, so the subset's `vert` forms are found by their
+//!   text; the program's cmap lends only ideographs, which have no vertical form. An upright run
+//!   across the column (tate-chu-yoko, an `Identity-H` show) is written whole, centred where it
+//!   was and compressed with `Tz` to the wider of one em and its old width; it takes the
+//!   missing-glyph steps like horizontal text.
 //!
 //! Simple fonts' strings are written as literal strings with `\(`, `\)`, `\\` and octal escapes;
 //! the original operator's string form is not visible here, since spans carry no bytes.
 //!
-//! Not rewritten yet ([`Unsupported`]): vertical lines (Identity-V is W3), a
-//! new character only a composite font could draw whose predefined CMap is not bundled or that
-//! needs a copy of a form's font, lines whose operators are not a plain run of shows (marked
+//! Not rewritten yet ([`Unsupported`]): vertical text whose change crosses shows, needs a
+//! character its vertical font lacks (steps 2 and 3 make horizontal fonts) or a reflow of the
+//! columns (kinsoku, columns from the right), a new character only a composite font could draw
+//! whose predefined CMap is not bundled or that needs a copy of a form's font, lines whose operators are not a plain run of shows (marked
 //! content, colour or other operators inside, a show shared with another line, a split operator,
 //! different spacing between the shows, a shifted baseline), and the reflow of a block whose lines
 //! differ in spacing, colour or turn, are in several streams, or have a raised baseline. Marked
@@ -181,7 +193,9 @@ pub enum Outcome {
 pub enum Unsupported {
     /// The block is not editable ([`TextBlock::editability`]).
     NotEditable,
-    /// The block runs vertically.
+    /// The block runs vertically and the change is one the writer cannot place yet: across
+    /// shows of a column, a character the vertical font lacks, a reflow of the columns, or a
+    /// column of another length that is not the last show of a top-aligned block.
     Direction,
     /// A new character could only come from a composite font of its line whose predefined CMap
     /// is not bundled, from a copy of a font of a form, or (in a form) from a new font.
@@ -278,15 +292,16 @@ pub fn rewrite_block_fonts(
     if !block.editability.is_editable() {
         return Ok(Outcome::Unsupported(Unsupported::NotEditable));
     }
-    if block.direction == TextDirection::Vertical
+    let texts: Vec<&str> = text.split('\n').collect();
+    let vertical = block.direction == TextDirection::Vertical
         || block
             .lines
             .iter()
-            .any(|line| line.direction == TextDirection::Vertical)
-    {
+            .any(|line| line.direction == TextDirection::Vertical);
+    // Vertical text is rewritten column by column; its reflow is not written yet.
+    if vertical && texts.len() != block.lines.len() {
         return Ok(Outcome::Unsupported(Unsupported::Direction));
     }
-    let texts: Vec<&str> = text.split('\n').collect();
     // Right-to-left text is always shaped and laid out again; a justified paragraph given line
     // by line is one paragraph.
     let joined;
@@ -299,9 +314,10 @@ pub fn rewrite_block_fonts(
     } else {
         text
     };
-    let line_by_line = texts.len() == block.lines.len()
-        && matches!(block.alignment, Alignment::Left | Alignment::Justified)
-        && !right_to_left(block);
+    let line_by_line = vertical
+        || texts.len() == block.lines.len()
+            && matches!(block.alignment, Alignment::Left | Alignment::Justified)
+            && !right_to_left(block);
     let mut recorder = Recorder::default();
     match revisions {
         Some(revisions) => revisions.page_text(document, index, &mut recorder)?,
@@ -423,7 +439,8 @@ fn lenders(recorder: &Recorder, misses: &[Miss]) -> Vec<fallback::PageFont> {
         let Some(font) = fonts.get(&key) else {
             continue;
         };
-        if fallback::restriction(font).is_some() {
+        // A vertical font would draw the character down a column.
+        if fallback::restriction(font).is_some() || font.vertical() {
             continue;
         }
         let program = font.program();
@@ -526,15 +543,27 @@ impl Inputs<'_> {
             if line.text == new {
                 continue;
             }
-            let planned = page.line(
-                line,
-                new,
-                base,
-                block.justification,
-                frame,
-                &mut copies,
-                substitutes,
-            );
+            let planned = if line.direction == TextDirection::Vertical {
+                page.vertical_line(
+                    line,
+                    new,
+                    base,
+                    block.alignment == Alignment::Left,
+                    frame,
+                    &mut copies,
+                    substitutes,
+                )
+            } else {
+                page.line(
+                    line,
+                    new,
+                    base,
+                    block.justification,
+                    frame,
+                    &mut copies,
+                    substitutes,
+                )
+            };
             match planned {
                 Err(unsupported) => return Ok(Attempt::Unsupported(unsupported)),
                 Ok(Planned::Missing(misses)) => missing.extend(misses),
@@ -549,7 +578,13 @@ impl Inputs<'_> {
         if !missing.is_empty() {
             return Ok(Attempt::Missing(missing));
         }
-        if block.alignment == Alignment::Justified && !rewrite.overflowing.is_empty() {
+        if block.alignment == Alignment::Justified
+            && !rewrite.overflowing.is_empty()
+            && block
+                .lines
+                .iter()
+                .all(|line| line.direction != TextDirection::Vertical)
+        {
             // A justified block is one paragraph: a line past its frame reflows it.
             copies.list.clear();
             copies.simple.clear();
@@ -1090,10 +1125,8 @@ impl<'a> Page<'a> {
             .min_by(|&a, &b| distance(a).total_cmp(&distance(b)))
     }
 
-    /// A line's glyphs and the operators that draw them, when they are a plain run of shows.
-    fn runs(&self, line: &Line) -> Result<Runs, Unsupported> {
-        let recorder = self.recorder;
-        // The line's characters as glyphs, in content order.
+    /// A line's characters as units of one glyph each, and its glyphs in content order.
+    fn units(&self, line: &Line) -> Result<(Vec<Unit>, Vec<usize>), Unsupported> {
         let mut units: Vec<Unit> = Vec::new();
         for (at, c) in line.chars.iter().enumerate() {
             let glyph = match &c.glyph {
@@ -1122,6 +1155,13 @@ impl<'a> Page<'a> {
         {
             return Err(Unsupported::Operators);
         }
+        Ok((units, glyphs))
+    }
+
+    /// A line's glyphs and the operators that draw them, when they are a plain run of shows.
+    fn runs(&self, line: &Line) -> Result<Runs, Unsupported> {
+        let recorder = self.recorder;
+        let (units, glyphs) = self.units(line)?;
         let mut shows: Vec<usize> = glyphs
             .iter()
             .filter_map(|&g| recorder.glyph_shows.get(g).copied())
@@ -1325,15 +1365,7 @@ impl<'a> Page<'a> {
         // The unchanged start and end, cut at glyph boundaries.
         let old: Vec<char> = line.chars.iter().map(|c| c.ch).collect();
         let fresh: Vec<char> = new.chars().collect();
-        let prefix = old.iter().zip(&fresh).take_while(|(a, b)| a == b).count();
-        let room = old.len().min(fresh.len()).saturating_sub(prefix);
-        let suffix = old
-            .iter()
-            .rev()
-            .zip(fresh.iter().rev())
-            .take(room)
-            .take_while(|(a, b)| a == b)
-            .count();
+        let (prefix, suffix) = common_ends(&old, &fresh);
         let kept_head = units
             .iter()
             .take_while(|unit| unit.chars.end <= prefix)
@@ -1482,37 +1514,9 @@ impl<'a> Page<'a> {
         let mut sim = Sim::of(&before.state);
         restore(&mut out, &mut sim, state, Need::Both)?;
         let tj = events.iter().any(|event| event.name == b"TJ");
-        let name_of = |key: u64| encoder.name(key);
-        let mut natural = 0.0_f32;
-        let mut items: Vec<Item> = Vec::new();
-        let mut hex = false;
-        for glyph in &placed {
-            if sim.font != Some(glyph.font) || sim.size != glyph.size || glyph.hex != hex {
-                flush(&mut out, &mut items, tj, hex)?;
-                hex = glyph.hex;
-            }
-            if sim.font != Some(glyph.font) || sim.size != glyph.size {
-                let name = name_of(glyph.font).ok_or(Unsupported::Operators)?;
-                set_font(&mut out, &name, glyph.size)?;
-                sim.font = Some(glyph.font);
-                sim.size = glyph.size;
-            }
-            let unit = glyph.size * scaling / 1000.0;
-            let d = glyph.x - natural;
-            if d.abs() > 1e-4 && unit != 0.0 {
-                let n = ((-d / unit) * 1000.0).round() / 1000.0;
-                if n != 0.0 {
-                    items.push(Item::Number(n));
-                    natural -= n * unit;
-                }
-            }
-            match items.last_mut() {
-                Some(Item::Text(bytes)) => bytes.extend_from_slice(&glyph.bytes),
-                _ => items.push(Item::Text(glyph.bytes.clone())),
-            }
-            natural += glyph.step;
-        }
-        flush(&mut out, &mut items, tj, hex)?;
+        let natural = write_placed(&mut out, &mut sim, &placed, tj, scaling, None, &|key| {
+            encoder.name(key)
+        })?;
         sim.text_matrix = multiply([1.0, 0.0, 0.0, 1.0, natural, 0.0], state.text_matrix);
         sim.line_matrix = state.line_matrix;
         let target = &events.last().ok_or(Unsupported::Operators)?.state;
@@ -1553,6 +1557,336 @@ impl<'a> Page<'a> {
             over,
         ))
     }
+
+    /// The splice for one changed line of vertical text (ROADMAP §7 step 7, E13), whose new
+    /// text `new` starts at byte `start` of the block's: only the show the change falls in is
+    /// written again, and a change across shows is [`Unsupported::Direction`]. In a run of
+    /// vertical glyphs each new character takes the cell of the one it replaces and the run
+    /// ends where it ended; a different number of characters is written only in the line's
+    /// last show of a top-aligned block (`grows`), the cells after them moved by the run's
+    /// pitch. An upright run across the column (tate-chu-yoko) is written whole, centred where
+    /// it was and compressed with `Tz` to the wider of one em and its old width.
+    #[allow(clippy::too_many_arguments)]
+    fn vertical_line(
+        &self,
+        line: &Line,
+        new: &str,
+        start: usize,
+        grows: bool,
+        frame: &Frame,
+        copies: &mut Copies<'_>,
+        substitutes: &[Substitute],
+    ) -> Result<Planned, Unsupported> {
+        let recorder = self.recorder;
+        let glyphs = &recorder.collector.glyphs;
+        let (units, line_glyphs) = self.units(line)?;
+        let old: Vec<char> = line.chars.iter().map(|c| c.ch).collect();
+        let fresh: Vec<char> = new.chars().collect();
+        let (prefix, suffix) = common_ends(&old, &fresh);
+        // The characters the change touches; an insertion is anchored to the one before it.
+        let (lo, hi) = match old.len().saturating_sub(suffix) {
+            end if end > prefix => (prefix, end),
+            _ if prefix > 0 => (prefix.saturating_sub(1), prefix),
+            _ => (0, 1),
+        };
+        let touched: Vec<usize> = (0..units.len())
+            .filter(|&at| {
+                units
+                    .get(at)
+                    .is_some_and(|unit| unit.chars.start < hi && lo < unit.chars.end)
+            })
+            .collect();
+        let (Some(&t0), Some(&t_last)) = (touched.first(), touched.last()) else {
+            return Err(Unsupported::Operators);
+        };
+        let t1 = t_last.saturating_add(1);
+        let show_of = |at: usize| {
+            units
+                .get(at)
+                .and_then(|unit| unit.glyph)
+                .and_then(|g| recorder.glyph_shows.get(g).copied())
+        };
+        let show = show_of(t0).ok_or(Unsupported::Direction)?;
+        if touched.iter().any(|&at| show_of(at) != Some(show)) {
+            return Err(Unsupported::Direction);
+        }
+        let drawn = recorder.shows.get(show).ok_or(Unsupported::Operators)?;
+        if drawn
+            .glyphs
+            .clone()
+            .any(|g| line_glyphs.binary_search(&g).is_err())
+        {
+            return Err(Unsupported::Operators);
+        }
+        let event_at = *self.show_events.get(&show).ok_or(Unsupported::Operators)?;
+        let event = recorder
+            .events
+            .get(event_at)
+            .ok_or(Unsupported::Operators)?;
+        if !matches!(event.name.as_slice(), b"Tj" | b"TJ") || event.span.carried {
+            return Err(Unsupported::Operators);
+        }
+        let source = event.span.source;
+        let state = &drawn.state;
+        let key = state.font.ok_or(Unsupported::Operators)?;
+        let upright = !recorder
+            .collector
+            .fonts
+            .get(&key)
+            .ok_or(Unsupported::Operators)?
+            .vertical();
+        // An upright run stands across the column; a run turned along it is not one.
+        let [a, b, c, d, ..] = drawn.matrix;
+        if upright && (a <= 0.0 || d <= 0.0 || b.abs() > 1e-3 * a || c.abs() > 1e-3 * d) {
+            return Err(Unsupported::Direction);
+        }
+        // The show's units, the touched ones among them.
+        let s0 = (0..t0)
+            .rev()
+            .take_while(|&at| show_of(at) == Some(show))
+            .last()
+            .unwrap_or(t0);
+        let s1 = (t1..units.len())
+            .take_while(|&at| show_of(at) == Some(show))
+            .last()
+            .map_or(t1, |at| at.saturating_add(1));
+        let char_start = units.get(t0).map_or(0, |unit| unit.chars.start);
+        let char_end = units.get(t_last).map_or(old.len(), |unit| unit.chars.end);
+        let middle = fresh
+            .get(
+                char_start
+                    ..fresh
+                        .len()
+                        .saturating_sub(old.len().saturating_sub(char_end)),
+            )
+            .ok_or(Unsupported::Operators)?;
+        let offsets: Vec<usize> = new.char_indices().map(|(at, _)| at).collect();
+        let glyph_at = |at: usize| {
+            units
+                .get(at)
+                .and_then(|unit| unit.glyph)
+                .and_then(|g| glyphs.get(g))
+        };
+        // The new characters in the show's font, its copy or a new font of steps 2 and 3.
+        let mut encoder = Encoder::new(recorder, &[show], source, substitutes)?;
+        let order = [key];
+        let mut chosen = Vec::new();
+        let mut missing = Vec::new();
+        for (k, &c) in middle.iter().enumerate() {
+            match encoder.choose(copies, &order, c)? {
+                Some(found) => chosen.push(found),
+                // A new font is horizontal: no step 2 or 3 for a vertical run.
+                None if !upright => return Err(Unsupported::Direction),
+                None => {
+                    let at = char_start
+                        .checked_add(k)
+                        .and_then(|i| offsets.get(i))
+                        .map_or(start, |&at| start.saturating_add(at));
+                    missing.push(encoder.miss(&order, c, at));
+                }
+            }
+        }
+        if !missing.is_empty() {
+            return if encoder.composite {
+                Err(Unsupported::CompositeFont)
+            } else {
+                Ok(Planned::Missing(missing))
+            };
+        }
+        let kept = |at: usize| -> Option<Placed> {
+            let glyph = glyph_at(at)?;
+            let length = glyph.length.min(4);
+            let bytes = glyph.code.to_be_bytes();
+            Some(Placed {
+                font: glyph.font,
+                size: state.size,
+                hex: recorder
+                    .collector
+                    .fonts
+                    .get(&glyph.font)
+                    .is_some_and(|font| font.cmap.is_some()),
+                bytes: bytes.get(4_usize.saturating_sub(length)..)?.to_vec(),
+                x: glyph.offset,
+                step: glyph.step,
+                ink: !glyph.text.chars().all(char::is_whitespace),
+            })
+        };
+        let spacing = |bytes: &[u8]| {
+            state.char_spacing
+                + if bytes == [32] {
+                    state.word_spacing
+                } else {
+                    0.0
+                }
+        };
+        // Where the show's text space ends, after the number following its last glyph.
+        let last = (s0..s1)
+            .rev()
+            .find_map(glyph_at)
+            .ok_or(Unsupported::Operators)?;
+        let scaling = if upright {
+            state.horizontal_scaling
+        } else {
+            1.0
+        };
+        let old_end = last.offset + last.step - last.adjust * state.size * scaling / 1000.0;
+        let mut placed: Vec<Placed> = Vec::new();
+        let mut out = Vec::new();
+        let mut sim = Sim::of(state);
+        let (end, scaling, shift) = if upright {
+            // Every glyph again at Tz 100, then centred and compressed.
+            let unscaled = |at: usize| {
+                kept(at)
+                    .map(|mut glyph| {
+                        glyph.step /= state.horizontal_scaling;
+                        glyph
+                    })
+                    .ok_or(Unsupported::Operators)
+            };
+            let mut all: Vec<Placed> = Vec::new();
+            for at in s0..t0 {
+                all.push(unscaled(at)?);
+            }
+            for found in &chosen {
+                all.push(Placed {
+                    font: found.font,
+                    size: found.size,
+                    hex: found.hex,
+                    bytes: found.bytes.clone(),
+                    x: 0.0,
+                    step: found.width * found.size + spacing(&found.bytes),
+                    ink: true,
+                });
+            }
+            for at in t1..s1 {
+                all.push(unscaled(at)?);
+            }
+            let natural: f32 = all.iter().map(|glyph| glyph.step).sum();
+            let room = state.size.max(old_end);
+            let fit = if natural > room && natural > 0.0 {
+                room / natural
+            } else {
+                1.0
+            };
+            let mut x = (old_end - natural * fit) / 2.0;
+            for mut glyph in all {
+                glyph.x = x;
+                glyph.step *= fit;
+                x += glyph.step;
+                placed.push(glyph);
+            }
+            if fit != state.horizontal_scaling {
+                space(&mut out);
+                number(&mut out, fit * 100.0)?;
+                out.extend_from_slice(b" Tz");
+                sim.horizontal_scaling = fit;
+            }
+            (old_end, fit, 0.0)
+        } else {
+            // The cells of the touched glyphs, and the pitch of the run.
+            let cells: Vec<f32> = (t0..t1).filter_map(glyph_at).map(|g| g.offset).collect();
+            let run: Vec<f32> = (s0..s1).filter_map(glyph_at).map(|g| g.offset).collect();
+            let pitch = match (run.first(), run.last()) {
+                (Some(first), Some(last)) if run.len() > 1 => {
+                    (last - first) / (run.len().saturating_sub(1)) as f32
+                }
+                _ => last.step,
+            };
+            let (n, m) = (chosen.len(), cells.len());
+            let last_show = line_glyphs
+                .last()
+                .is_some_and(|&g| drawn.glyphs.end == g.saturating_add(1));
+            if n != m && !(grows && last_show) {
+                return Err(Unsupported::Direction);
+            }
+            let shift = (n as f32 - m as f32) * pitch;
+            for at in s0..t0 {
+                placed.push(kept(at).ok_or(Unsupported::Operators)?);
+            }
+            let fonts = &recorder.collector.fonts;
+            for (k, found) in chosen.iter().enumerate() {
+                let x = match cells.get(k) {
+                    Some(&cell) => cell,
+                    None => {
+                        let beyond = k.saturating_sub(m).saturating_add(1) as f32;
+                        cells.last().copied().unwrap_or(0.0) + beyond * pitch
+                    }
+                };
+                let code = found
+                    .bytes
+                    .iter()
+                    .fold(0_u32, |code, &byte| (code << 8) | u32::from(byte));
+                let advance = fonts
+                    .get(&encoder.base(found.font))
+                    .ok_or(Unsupported::Operators)?
+                    .vertical_advance(code, found.bytes.len());
+                placed.push(Placed {
+                    font: found.font,
+                    size: found.size,
+                    hex: found.hex,
+                    bytes: found.bytes.clone(),
+                    x,
+                    step: advance * found.size + spacing(&found.bytes),
+                    ink: true,
+                });
+            }
+            for at in t1..s1 {
+                let mut glyph = kept(at).ok_or(Unsupported::Operators)?;
+                glyph.x += shift;
+                placed.push(glyph);
+            }
+            if shift != 0.0
+                && need_after(
+                    recorder
+                        .events
+                        .get(event_at.saturating_add(1)..)
+                        .unwrap_or_default(),
+                ) != Need::Nothing
+            {
+                return Err(Unsupported::Direction);
+            }
+            (old_end + shift, 1.0, shift)
+        };
+        let tj = event.name == b"TJ";
+        write_placed(
+            &mut out,
+            &mut sim,
+            &placed,
+            tj,
+            scaling,
+            Some(end),
+            &|key| encoder.name(key),
+        )?;
+        restore(&mut out, &mut sim, state, Need::Nothing)?;
+        if !matches!(out.first(), Some(b'[' | b'(' | b'/' | b'<')) {
+            out.insert(0, b' ');
+        }
+        // Overflow: the column grown past the frame's end.
+        let over = shift < 0.0
+            && dot(line.baseline[1], frame.along) - shift * c.hypot(d) > frame.end + 0.5;
+        Ok(Planned::Splice(
+            Splice {
+                source,
+                range: event.span.range.clone(),
+                bytes: out,
+            },
+            over,
+        ))
+    }
+}
+
+/// How many characters `old` and `fresh` share at their start, and then at their end.
+fn common_ends(old: &[char], fresh: &[char]) -> (usize, usize) {
+    let prefix = old.iter().zip(fresh).take_while(|(a, b)| a == b).count();
+    let room = old.len().min(fresh.len()).saturating_sub(prefix);
+    let suffix = old
+        .iter()
+        .rev()
+        .zip(fresh.iter().rev())
+        .take(room)
+        .take_while(|(a, b)| a == b)
+        .count();
+    (prefix, suffix)
 }
 
 /// What a reflowed block gives.
@@ -3101,7 +3435,7 @@ fn encode_composite(
     program: Option<&FontProgram<'_>>,
     c: char,
 ) -> Option<Composite> {
-    if c == char::REPLACEMENT_CHARACTER || !font.cmap_known || font.vertical() {
+    if c == char::REPLACEMENT_CHARACTER || !font.cmap_known {
         return None;
     }
     let cmap = font.cmap.as_ref()?;
@@ -3127,6 +3461,11 @@ fn encode_composite(
             width: font.width(code, length),
             needs: None,
         });
+    }
+    // The program's cmap gives the horizontal form; in vertical text only an ideograph, which
+    // has no vertical form, is drawn by it. Others need the `vert` substitution the subset lacks.
+    if font.vertical() && !ideograph(c) {
+        return None;
     }
     let program = program?;
     let glyph = program.glyph_for_char(c).filter(|glyph| glyph.0 != 0)?;
@@ -3164,6 +3503,17 @@ fn encode_composite(
         width,
         needs,
     })
+}
+
+/// Whether `c` is a CJK unified or compatibility ideograph.
+fn ideograph(c: char) -> bool {
+    matches!(
+        c,
+        '\u{3400}'..='\u{4DBF}'
+            | '\u{4E00}'..='\u{9FFF}'
+            | '\u{F900}'..='\u{FAFF}'
+            | '\u{20000}'..='\u{323AF}'
+    )
 }
 
 /// What the operators after `events`' start need restored: nothing when the text object ends
@@ -3220,6 +3570,58 @@ fn flush(out: &mut Vec<u8>, items: &mut Vec<Item>, tj: bool, hex: bool) -> Resul
     }
     items.clear();
     Ok(())
+}
+
+/// Writes `placed` as shows from where the text matrix is, each glyph at its `x` along the
+/// writing direction through `TJ` numbers (thousandths of the font size times `scaling`, the
+/// `Tz` of horizontal text and 1 in vertical text), its fonts set with `name_of`'s names; then,
+/// with `end`, the number that takes the matrix there. Returns how far the shows advance.
+fn write_placed(
+    out: &mut Vec<u8>,
+    sim: &mut Sim,
+    placed: &[Placed],
+    tj: bool,
+    scaling: f32,
+    end: Option<f32>,
+    name_of: &dyn Fn(u64) -> Option<Vec<u8>>,
+) -> Result<f32, Unsupported> {
+    let mut natural = 0.0_f32;
+    let mut items: Vec<Item> = Vec::new();
+    let mut hex = false;
+    let number_to = |items: &mut Vec<Item>, natural: &mut f32, to: f32, size: f32| {
+        let unit = size * scaling / 1000.0;
+        let d = to - *natural;
+        if d.abs() > 1e-4 && unit != 0.0 {
+            let n = ((-d / unit) * 1000.0).round() / 1000.0;
+            if n != 0.0 {
+                items.push(Item::Number(n));
+                *natural -= n * unit;
+            }
+        }
+    };
+    for glyph in placed {
+        if sim.font != Some(glyph.font) || sim.size != glyph.size || glyph.hex != hex {
+            flush(out, &mut items, tj, hex)?;
+            hex = glyph.hex;
+        }
+        if sim.font != Some(glyph.font) || sim.size != glyph.size {
+            let name = name_of(glyph.font).ok_or(Unsupported::Operators)?;
+            set_font(out, &name, glyph.size)?;
+            sim.font = Some(glyph.font);
+            sim.size = glyph.size;
+        }
+        number_to(&mut items, &mut natural, glyph.x, glyph.size);
+        match items.last_mut() {
+            Some(Item::Text(bytes)) => bytes.extend_from_slice(&glyph.bytes),
+            _ => items.push(Item::Text(glyph.bytes.clone())),
+        }
+        natural += glyph.step;
+    }
+    if let Some(end) = end {
+        number_to(&mut items, &mut natural, end, sim.size);
+    }
+    flush(out, &mut items, tj, hex)?;
+    Ok(natural)
 }
 
 /// Emits what takes the text state from `sim` to `target`'s: the font and size, `Tc`, `Tw`,
