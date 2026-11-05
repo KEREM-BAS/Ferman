@@ -6,7 +6,10 @@
 //! of four hex digits and `uXXXX` to `uXXXXXX` one code point. Other names come from a table of
 //! the Latin names: the base encodings' names and Latin Extended-A, in Unicode order. An embedded
 //! Type1 program's built-in encoding comes from [`crate::type1`]; Symbol's and ZapfDingbats' arrive
-//! with the standard 14's metrics.
+//! with the standard 14's metrics, and MacExpertEncoding with the fonts that need it.
+//!
+//! Back from text to a code ([`SimpleEncoding::code_for_text`]) uses the same table, so a code
+//! whose glyph name the table does not know cannot be reached: such text finds no code.
 // A parser module: names and codes come from files (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -60,6 +63,12 @@ impl BaseEncoding {
                 .map(|&(_, c)| c),
             (Self::MacRoman, _) => None,
         }
+    }
+
+    /// Whether `code` is one of WinAnsiEncoding's unused codes, which read as the bullet but name
+    /// no glyph.
+    fn is_filler(self, code: u8) -> bool {
+        self == Self::WinAnsi && matches!(code, 0x7F | 0x81 | 0x8D | 0x8F | 0x90 | 0x9D)
     }
 }
 
@@ -131,6 +140,8 @@ const STANDARD_HIGH: [(u8, char); 54] = [
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct SimpleEncoding {
     texts: Vec<Option<String>>,
+    /// The base's unused codes that `/Differences` left alone: never a code for text.
+    fillers: Vec<u8>,
 }
 
 impl SimpleEncoding {
@@ -144,18 +155,31 @@ impl SimpleEncoding {
         let mut texts: Vec<Option<String>> = (0..=u8::MAX)
             .map(|code| base.and_then(|base| base.char(code)).map(String::from))
             .collect();
+        let mut fillers: Vec<u8> = (0..=u8::MAX)
+            .filter(|&code| base.is_some_and(|base| base.is_filler(code)))
+            .collect();
         for (code, name) in differences {
             if let Some(slot) = texts.get_mut(usize::from(code)) {
                 *slot = glyph_text(name);
+                fillers.retain(|&filler| filler != code);
             }
         }
-        Self { texts }
+        Self { texts, fillers }
     }
 
     /// The text of `code`.
     #[must_use]
     pub fn text(&self, code: u8) -> Option<&str> {
         self.texts.get(usize::from(code))?.as_deref()
+    }
+
+    /// The code whose text is `text`, the lowest when several are, or `None` when no code has it.
+    #[must_use]
+    pub fn code_for_text(&self, text: &str) -> Option<u8> {
+        (0..=u8::MAX)
+            .zip(&self.texts)
+            .find(|(code, slot)| slot.as_deref() == Some(text) && !self.fillers.contains(code))
+            .map(|(code, _)| code)
     }
 }
 
@@ -171,6 +195,22 @@ pub fn glyph_text(name: &str) -> Option<String> {
         text.push_str(&component(part)?);
     }
     Some(text)
+}
+
+/// The glyph names the table gives `c`, sorted, then its `uniXXXX` name: the names a font
+/// program may store the glyph of `c` under.
+#[must_use]
+pub fn glyph_names(c: char) -> Vec<String> {
+    let mut found: Vec<String> = names()
+        .iter()
+        .filter(|&(_, &named)| named == c)
+        .map(|(&name, _)| name.to_owned())
+        .collect();
+    found.sort();
+    if let Ok(unit) = u16::try_from(u32::from(c)) {
+        found.push(format!("uni{unit:04X}"));
+    }
+    found
 }
 
 /// One part of a ligature's name.
@@ -610,6 +650,83 @@ mod tests {
     }
 
     #[test]
+    fn every_code_of_a_base_encoding_comes_back_from_its_text() {
+        for base in [
+            BaseEncoding::Standard,
+            BaseEncoding::WinAnsi,
+            BaseEncoding::MacRoman,
+        ] {
+            let encoding = SimpleEncoding::new(Some(base), []);
+            let mut codes = 0;
+            for code in 0..=u8::MAX {
+                let Some(text) = encoding.text(code) else {
+                    continue;
+                };
+                if base.is_filler(code) {
+                    assert_eq!(
+                        encoding.code_for_text(text),
+                        Some(0x95),
+                        "{base:?} {code:#x}"
+                    );
+                } else {
+                    assert_eq!(
+                        encoding.code_for_text(text),
+                        Some(code),
+                        "{base:?} {code:#x}"
+                    );
+                    codes += 1;
+                }
+            }
+            let expected = match base {
+                BaseEncoding::Standard => 95 + 54,
+                BaseEncoding::WinAnsi => 256 - 32 - 6,
+                BaseEncoding::MacRoman => 95 + 127,
+            };
+            assert_eq!(codes, expected, "{base:?}");
+        }
+    }
+
+    #[test]
+    fn differences_and_builtin_encodings_come_back_from_their_text() {
+        let turkish = SimpleEncoding::new(
+            Some(BaseEncoding::WinAnsi),
+            [(0xD0, "Gbreve"), (0x81, "Scedilla"), (0xE0, "Gbreve")],
+        );
+        for code in 0..=u8::MAX {
+            if let Some(text) = turkish.text(code)
+                && code != 0xE0
+                && !(code != 0x81 && BaseEncoding::WinAnsi.is_filler(code))
+            {
+                assert_eq!(turkish.code_for_text(text), Some(code), "{code:#x}");
+            }
+        }
+        assert_eq!(
+            turkish.code_for_text("Ğ"),
+            Some(0xD0),
+            "the lowest code wins"
+        );
+        assert_eq!(
+            turkish.code_for_text("Ş"),
+            Some(0x81),
+            "a filler named by Differences"
+        );
+        assert_eq!(
+            turkish.code_for_text("Ð"),
+            None,
+            "the base's Eth was replaced"
+        );
+        assert_eq!(turkish.code_for_text("•"), Some(0x95));
+        assert_eq!(turkish.code_for_text("ğ"), None);
+        assert_eq!(turkish.code_for_text("ab"), None);
+        // A Type1 program's array encoding has no base.
+        let builtin = SimpleEncoding::new(None, [(0x41, "Scaron"), (0x42, "g42"), (0x43, "f_i")]);
+        assert_eq!(builtin.code_for_text("Š"), Some(0x41));
+        assert_eq!(builtin.code_for_text("fi"), Some(0x43));
+        assert_eq!(builtin.code_for_text("A"), None);
+        assert_eq!(SimpleEncoding::new(None, []).code_for_text(" "), None);
+    }
+
+    #[test]
     fn glyph_names_follow_the_glyph_list_rules() {
         assert_eq!(glyph_text("A").as_deref(), Some("A"));
         assert_eq!(glyph_text("seven").as_deref(), Some("7"));
@@ -633,5 +750,21 @@ mod tests {
         assert_eq!(glyph_text("multiply").as_deref(), Some("\u{D7}"));
         assert_eq!(glyph_text("ydieresis").as_deref(), Some("ÿ"));
         assert_eq!(glyph_text(".notdef"), None);
+    }
+
+    #[test]
+    fn characters_give_back_their_glyph_names() {
+        assert_eq!(glyph_names('ğ'), ["gbreve", "uni011F"]);
+        assert_eq!(
+            glyph_names('\u{A0}'),
+            ["nbspace", "nonbreakingspace", "uni00A0"]
+        );
+        assert_eq!(glyph_names('a'), ["a", "uni0061"]);
+        assert_eq!(glyph_names('😀'), Vec::<String>::new());
+        for c in ['ı', 'ş', '€', 'ﬁ', '7'] {
+            for name in glyph_names(c) {
+                assert_eq!(glyph_text(&name), Some(c.to_string()), "{name}");
+            }
+        }
     }
 }

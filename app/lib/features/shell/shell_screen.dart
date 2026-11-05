@@ -1,4 +1,7 @@
+import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/features/editor/edit_history_panel.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
@@ -59,6 +62,10 @@ class FmWindow extends ConsumerWidget {
     // A locked tab and an error tab show only the canvas (a1-8, a1-9b,
     // a1-9c: FmWindow with `mode=""` and `status={false}`).
     final bare = active != null && (active.locked || active.error != null);
+    // Edit's Undo history takes the right panel's place (a3-10).
+    final history =
+        ref.watch(shellModeProvider) == FermanMode.edit &&
+        ref.watch(editHistoryOpenProvider);
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -142,7 +149,9 @@ class FmWindow extends ConsumerWidget {
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,
-                              FmDocPanel(width: widths.panel),
+                              history
+                                  ? EditHistoryPanel(width: widths.panel)
+                                  : FmDocPanel(width: widths.panel),
                             ),
                           ),
                       ],

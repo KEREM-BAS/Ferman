@@ -10,6 +10,7 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/document_view.dart';
 import 'package:ferman/features/viewer/find_bar.dart';
+import 'package:ferman/features/viewer/text_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -124,6 +125,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     // own left-to-right geometry.
     final uiDirection = Directionality.of(context);
     final view = ref.watch(viewerProvider);
+    final selection = ref.watch(canvasSelectionProvider);
     ref.listen(documentPropertiesRequestProvider, (_, _) {
       final id = ref.read(viewerProvider)?.document.id;
       if (id != null) setState(() => _properties = id);
@@ -162,6 +164,14 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
         bindings: {
           if (opening != null)
             const SingleActivator(LogicalKeyboardKey.escape): cancelOpening,
+          // B106: the Select tool's text.
+          if (selection != null)
+            SingleActivator(
+              LogicalKeyboardKey.keyC,
+              meta: platform == ShortcutPlatform.mac,
+              control: platform != ShortcutPlatform.mac,
+            ): () =>
+                copySelection(selection),
         },
         child: Semantics(
           container: true,
@@ -257,6 +267,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                                 key: ValueKey(view.document.id),
                                                 uiDirection: uiDirection,
                                                 tools: mode == FermanMode.view,
+                                                edit: mode == FermanMode.edit,
                                               ),
                                             ),
                                           ),

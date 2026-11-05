@@ -58,6 +58,10 @@ pub struct Engine {
     pub(super) models: Mutex<HashMap<DocumentId, Arc<super::document::Model>>>,
     /// The cancel flags of the searches running (`search`).
     pub(super) searches: Mutex<HashMap<super::search::SearchId, Arc<AtomicBool>>>,
+    /// The document actors started, by document (`edit`).
+    pub(super) actors: Mutex<HashMap<DocumentId, super::edit::Actor>>,
+    /// The open edit transactions and their documents (`edit`).
+    pub(super) transactions: Mutex<HashMap<super::edit::TransactionId, DocumentId>>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -91,6 +95,8 @@ impl Engine {
             render,
             models: Mutex::default(),
             searches: Mutex::default(),
+            actors: Mutex::default(),
+            transactions: Mutex::default(),
         }
     }
 
@@ -216,6 +222,9 @@ mod tests {
         let path = std::env::temp_dir()
             .join(format!("ferman-api-missing-{}", std::process::id()))
             .join("libpdfium.so");
+        // The global engine of the other tests loads PDFium first, so this engine's brief claim
+        // never makes it fail with PdfiumInUse; with PDFium held, this one fails that way instead.
+        block_on(Engine::global().pdfium_status());
         let engine = engine(PdfiumLibrary::Path(path));
         match block_on(engine.pdfium_status()) {
             PdfiumStatus::Failed { reason } => {

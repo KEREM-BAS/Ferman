@@ -4,6 +4,7 @@ import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -25,7 +26,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// ([openFiles]) and, in the editor, the sidebar and panel toggles, moving
 /// between the open documents and, with a document open
 /// (`viewerProvider`), zoom, the fits, page turns, Go to page, Find and the
-/// View tools. On the start screen ([home]) only Settings and Open work.
+/// View tools; Save with unsaved changes, and undo and redo while the
+/// history has a step for them (`documentEditorProvider`). On the start
+/// screen ([home]) only Settings and Open work.
 /// Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
 /// Alt+F4, Ctrl+Q) are the window frame's, on every screen
@@ -68,6 +71,8 @@ class ShellCommandScope extends ConsumerWidget {
     final active = ref.read(shellDocumentsProvider).active;
     final panels = ref.read(shellPanelsProvider);
     final viewer = ref.read(viewerProvider.notifier);
+    final editor = ref.read(documentEditorProvider.notifier);
+    final edits = ref.read(documentEditorProvider);
     return {
       // Like the mode bar's toggles: a panel that stepped aside in a narrow
       // window comes back; one that cannot fit even alone leaves its keys
@@ -110,7 +115,12 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.selectTool: () => viewer.setTool(ViewerTool.select),
         ShellCommand.handTool: () => viewer.setTool(ViewerTool.hand),
         ShellCommand.marqueeZoom: () => viewer.setTool(ViewerTool.marquee),
+        if (edits.canUndo) ShellCommand.undo: () => unawaited(editor.undo()),
+        if (edits.canRedo) ShellCommand.redo: () => unawaited(editor.redo()),
       },
+      // Typing not yet committed counts too: Save commits it first.
+      if (active?.document != null && (active!.unsaved || edits.active != null))
+        ShellCommand.save: () => unawaited(editor.save()),
     };
   }
 
@@ -123,7 +133,8 @@ class ShellCommandScope extends ConsumerWidget {
       ref
         ..watch(shellDocumentsProvider)
         ..watch(shellPanelsProvider)
-        ..watch(viewerProvider.select((view) => view != null));
+        ..watch(viewerProvider.select((view) => view != null))
+        ..watch(documentEditorProvider);
     }
     return Actions(
       actions: {

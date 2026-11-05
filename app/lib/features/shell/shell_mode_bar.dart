@@ -1,6 +1,9 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -13,10 +16,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// toggle, the eight mode tabs, the AI button (only when AI is on), the
 /// panel toggle and Save.
 ///
-/// Save follows the active document (fix 4): with no unsaved changes it is
-/// disabled with "No changes to save" (FmWindow `saveTip`); with unsaved
-/// changes it would save, which comes in M3, so until then it is disabled
-/// with the future-version tooltip ([Feature.saving]).
+/// Save follows the active document (fix 4): with unsaved changes, or after
+/// a save that failed (G41), it saves them (`DocumentEditor.save`, as ⌘S
+/// or Ctrl+S does); otherwise it is disabled with "No changes to save"
+/// (FmWindow `saveTip`), or "Read-only".
 class ShellModeBar extends ConsumerWidget {
   /// The mode bar.
   const new({super.key});
@@ -107,9 +110,14 @@ class ShellModeBar extends ConsumerWidget {
             variant: ButtonVariant.primary,
             size: ButtonSize.sm,
             icon: IconName.save,
-            disabledReason: unsaved
-                ? Feature.saving.disabledReason(context)
+            disabledReason: active?.saveState == SaveState.readOnly
+                ? l10n.shellReadOnly
                 : l10n.shellNoChangesToSave,
+            onPressed: unsaved
+                ? () => unawaited(
+                    ref.read(documentEditorProvider.notifier).save(),
+                  )
+                : null,
             child: Text(l10n.shellSave),
           ),
         ],

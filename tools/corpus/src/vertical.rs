@@ -218,8 +218,20 @@ pub fn draw_column(
     if colored {
         page.content.fill_rgb((0, 0, 0));
     }
+    let bottom = y + style.tracking * style.size / 1000.0;
+    let align = page.vertical_align.unwrap_or("left");
+    page.record(
+        vec![crate::text::TruthLine {
+            text: text.clone(),
+            start: (x, top),
+            end: (x, bottom),
+            size: style.size,
+            vertical: true,
+        }],
+        align,
+    );
     page.lines.push(text);
-    Ok(y + style.tracking * style.size / 1000.0)
+    Ok(bottom)
 }
 
 #[cfg(test)]

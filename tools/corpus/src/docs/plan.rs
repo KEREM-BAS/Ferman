@@ -316,5 +316,7 @@ fn build(sources: &Sources) -> Result<Generated, String> {
         "ocg-plan",
         None,
     )?;
-    Ok(generated(bytes, expected))
+    // shortcut: no block ground truth yet; the room labels are centred in frames the page does
+    // not show, so their alignment and order need declaring first.
+    Ok(generated(bytes, expected.text))
 }

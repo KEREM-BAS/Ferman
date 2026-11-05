@@ -1,0 +1,11 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Teslim Tutanağı", "start": [72.00, 745.41], "end": [177.14, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Kadıköy şubesine 2 Kasım 2026 günü 12 koli yazıcı kâğıdı teslim edilmiştir.", "start": [72.00, 713.11], "end": [408.41, 713.11], "size": 11.00, "vertical": false},
+      {"text": "Teslim alan: Şule Işık, İdari İşler", "start": [72.00, 691.71], "end": [214.81, 691.71], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

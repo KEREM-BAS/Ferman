@@ -1,0 +1,14 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Duyuru", "start": [72.00, 523.52], "end": [123.86, 523.52], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tw", "column": 0, "cell": null, "lines": [
+      {"text": "Bina yönetimi, asansör bakımı nedeniyle 9 Kasım 2026 Pazartesi günü 09.00 ile 13.00", "start": [72.00, 492.67], "end": [523.28, 492.67], "size": 11.00, "vertical": false},
+      {"text": "arasında asansörün kullanılamayacağını bildirir. Anlayışınız için teşekkür ederiz.", "start": [72.00, 476.17], "end": [463.05, 476.17], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Yönetim Kurulu adına: Selin Öztürk", "start": [72.00, 300.00], "end": [209.53, 403.14], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

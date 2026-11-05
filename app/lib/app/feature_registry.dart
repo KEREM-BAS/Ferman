@@ -54,9 +54,6 @@ enum Feature {
   /// dragged over the window (a1-6).
   combineDropped('B104'),
 
-  /// Saving: the mode bar's Save while a document has unsaved changes.
-  saving('B031'),
-
   /// Saving a repaired file as a new one: the repaired bar's "Save repaired
   /// copy…" (a1-9).
   saveRepairedCopy('B103'),
@@ -100,8 +97,9 @@ enum Feature {
 
   // Editing.
 
-  /// Editing text: Edit › Edit text and the first-run tile "Edit text and
-  /// images".
+  /// Editing text in full (reflow, formatting, missing glyphs, every font
+  /// kind): the first-run tile "Edit text and images". Edit › Edit text
+  /// works since W1 of M3.
   editingText('B041'),
 
   /// Adding text boxes (Edit › Add text).
@@ -126,9 +124,6 @@ enum Feature {
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
   pageMarks('B046'),
-
-  /// Undo, redo and the edit history (Edit row).
-  undoAndHistory('B047'),
 
   /// Edit marks (Edit › Mark edited text).
   editMarks('B048'),
@@ -178,8 +173,8 @@ enum Feature {
 
   /// Text recognition: Start › Recognize text (OCR), Convert › Recognize
   /// text, the first-run tile, Settings › Text recognition, Settings ›
-  /// Privacy › Downloads you start and the Search results tab's "No text to
-  /// search".
+  /// Privacy › Downloads you start, the Search results tab's "No text to
+  /// search" and the Edit panel's callout on a scanned page (a3-11).
   ocr('B025'),
 
   // Protect.

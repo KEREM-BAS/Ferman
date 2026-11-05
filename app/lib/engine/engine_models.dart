@@ -3,7 +3,7 @@
 /// depends on the bridge (ARCHITECTURE §3, ADR 0003).
 library;
 
-import 'dart:ui' show Rect;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:flutter/foundation.dart';
 
@@ -114,6 +114,10 @@ enum EngineErrorKind {
 
   /// Reading or writing failed for a reason without its own kind.
   io,
+
+  /// The text or the document cannot be edited; the message key names the
+  /// reason (ARCHITECTURE §6.5).
+  notEditable,
 
   /// A bug in Ferman, including a caught panic.
   internal,
@@ -878,4 +882,280 @@ final class SearchDone extends SearchUpdate {
 
   /// Whether no page had text: a scan without a text layer (a2-3m).
   final bool textless;
+}
+
+/// Why text cannot be edited (ARCHITECTURE §6.5); the canvas's tooltip
+/// and the Edit panel's callout say so (a3-11, a3-19, G39).
+enum NotEditableReason {
+  /// The page has only images: a scan (a3-11).
+  imageOnly,
+
+  /// The glyphs have no usable Unicode mapping.
+  unknownText,
+
+  /// The text is drawn as vector shapes (a3-19).
+  outlinedText,
+
+  /// The text is invisible, such as recognised text over a scan.
+  invisibleText,
+
+  /// The author's permissions forbid changes until the owner password
+  /// unlocks them (G27).
+  restricted,
+
+  /// The document is read-only (an XFA-only form).
+  readOnly,
+
+  /// The document was repaired or its readers disagree.
+  damaged,
+
+  /// The text is inside a signature field.
+  signatureAppearance,
+
+  /// The text is inside an annotation or a form field.
+  annotationOrField,
+
+  /// The page hit a resource limit.
+  tooComplexLimits,
+
+  /// An operator is split across two content streams.
+  tooComplexSplitOperator,
+
+  /// The text is sheared.
+  tooComplexSkewed;
+
+  /// The ARB key of the Edit panel's callout for this reason, the message
+  /// key of the engine's [EngineErrorKind.notEditable] error (a3-19).
+  String get messageKey => switch (this) {
+    imageOnly => 'editBodyImageOnly',
+    unknownText => 'editBodyUnknownText',
+    outlinedText => 'editBodyOutlinedText',
+    invisibleText => 'editBodyInvisibleText',
+    restricted => 'editBodyRestricted',
+    readOnly => 'editBodyReadOnly',
+    damaged => 'editBodyDamaged',
+    signatureAppearance => 'editBodySignature',
+    annotationOrField => 'editBodyAnnotation',
+    tooComplexLimits => 'editBodyLimits',
+    tooComplexSplitOperator => 'editBodySplit',
+    tooComplexSkewed => 'editBodySkewed',
+  };
+}
+
+/// How a block's lines sit in its frame.
+enum BlockAlignment {
+  /// Flush left.
+  left,
+
+  /// Flush right.
+  right,
+
+  /// Centred.
+  center,
+
+  /// Flush on both sides, but for the last line.
+  justified,
+}
+
+/// The direction a block's text runs in.
+enum BlockDirection {
+  /// Left to right.
+  leftToRight,
+
+  /// Right to left.
+  rightToLeft,
+
+  /// Vertical columns, from the right.
+  vertical,
+}
+
+/// One line of a [TextBlock].
+@immutable
+class TextLine {
+  /// Creates a line.
+  const new({
+    required this.text,
+    required this.bbox,
+    required this.baselineStart,
+    required this.baselineEnd,
+  });
+
+  /// Its text in logical order.
+  final String text;
+
+  /// The box of its glyphs, in the page's displayed points (y down).
+  final Rect bbox;
+
+  /// Its baseline's start, in visual order.
+  final Offset baselineStart;
+
+  /// Its baseline's end.
+  final Offset baselineEnd;
+}
+
+/// A text block (paragraph frame) of a page (ARCHITECTURE §3.5).
+@immutable
+class TextBlock {
+  /// Creates a block.
+  const new({
+    required this.id,
+    required this.frame,
+    required this.lines,
+    this.alignment = BlockAlignment.left,
+    this.direction = BlockDirection.leftToRight,
+    this.notEditable,
+  });
+
+  /// Its id on its page.
+  final int id;
+
+  /// Its frame, in the page's displayed points (y down).
+  final Rect frame;
+
+  /// Its lines, from the first.
+  final List<TextLine> lines;
+
+  /// How its lines sit.
+  final BlockAlignment alignment;
+
+  /// The direction its text runs in.
+  final BlockDirection direction;
+
+  /// Why it cannot be edited; null when it can.
+  final NotEditableReason? notEditable;
+
+  /// Its text: the lines joined by line feeds.
+  String get text => lines.map((line) => line.text).join('\n');
+}
+
+/// A page's text blocks.
+@immutable
+class PageBlocks {
+  /// Creates the blocks of a page.
+  const new({this.blocks = const [], this.empty});
+
+  /// Its blocks in reading order.
+  final List<TextBlock> blocks;
+
+  /// Why a page without blocks has no text to edit:
+  /// [NotEditableReason.imageOnly] or [NotEditableReason.outlinedText].
+  final NotEditableReason? empty;
+}
+
+/// A caret in a block.
+@immutable
+class BlockCaret {
+  /// Creates a caret.
+  const new({required this.index, required this.rect});
+
+  /// Its index in the block's [TextBlock.text], in characters (code
+  /// points).
+  final int index;
+
+  /// Its box, of no width across its line, in the page's displayed points.
+  final Rect rect;
+}
+
+/// A caret index in one block of a page.
+@immutable
+class BlockPosition {
+  /// Creates a position.
+  const new({required this.block, required this.index});
+
+  /// The block's [TextBlock.id].
+  final int block;
+
+  /// The caret index in its text, in characters (code points).
+  final int index;
+
+  @override
+  bool operator ==(Object other) =>
+      other is BlockPosition && other.block == block && other.index == index;
+
+  @override
+  int get hashCode => Object.hash(block, index);
+}
+
+/// What a selection on a page covers.
+@immutable
+class PageSelection {
+  /// Creates a selection.
+  const new({this.page = 0, this.quads = const [], this.text = ''});
+
+  /// Its page, from 0. The engine's reply leaves it 0; the canvas sets it.
+  final int page;
+
+  /// The boxes to highlight, in the page's displayed points.
+  final List<Rect> quads;
+
+  /// Its text for copying.
+  final String text;
+}
+
+/// What a block's page would read after an edit is applied
+/// (ARCHITECTURE §3.6); the preview is not on the undo stack.
+@immutable
+class EditPreview {
+  /// Creates a preview.
+  const new({
+    required this.page,
+    this.missing = const [],
+    this.overflowing = false,
+  });
+
+  /// The page's blocks with the new text, or with the text before when
+  /// characters are [missing].
+  final PageBlocks page;
+
+  /// The characters no font of their line can draw, in the order they first
+  /// appear: the text was not applied (ARCHITECTURE §6.7).
+  final List<String> missing;
+
+  /// Whether a line runs past its block's frame.
+  final bool overflowing;
+}
+
+/// Where a document's history stands after a commit, rollback, undo or
+/// redo.
+@immutable
+class RevisionInfo {
+  /// Creates the position.
+  const new({required this.current, this.renderKey});
+
+  /// How many steps of the history apply: 0 is the document as opened.
+  final int current;
+
+  /// Every page's new render key when the engine reloaded the document;
+  /// bitmaps with an older one show the revision before. Null when nothing
+  /// shown changed.
+  final int? renderKey;
+}
+
+/// One committed step of a document's history.
+@immutable
+class HistoryStep {
+  /// Creates a step.
+  const new({required this.name, required this.time});
+
+  /// Its name as the app gave it at commit.
+  final String name;
+
+  /// When it was committed.
+  final DateTime time;
+}
+
+/// A document's history for the Undo history panel (a3-10).
+@immutable
+class EditHistory {
+  /// Creates a history.
+  const new({this.steps = const [], this.current = 0});
+
+  /// Every committed step, oldest first.
+  final List<HistoryStep> steps;
+
+  /// How many [steps] apply; the rest can be redone.
+  final int current;
+
+  /// The steps that can be redone, next first.
+  List<HistoryStep> get redoable => steps.sublist(current);
 }

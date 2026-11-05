@@ -3,11 +3,15 @@
 
 mod contracts;
 mod damaged;
+mod edits;
+mod encodings;
 mod files;
 mod forms;
+mod invoice;
 mod kira;
 mod letter;
 mod long;
+mod paragraphs;
 mod payslip;
 mod plan;
 mod report;
@@ -19,7 +23,7 @@ use crate::crypt::{self, Security};
 use crate::font::{Face, PdfFont, SimpleFont, StandardFont, Type0Font};
 use crate::pdf::{self, Info, Pdf};
 use crate::sources::{FontFile, Sources};
-use crate::text::{Align, FontKey, Fonts, PageText, Paragraph, Style, expected_text, lay_out};
+use crate::text::{Align, Expected, FontKey, Fonts, PageText, Paragraph, Style, expected, lay_out};
 use crate::vertical::Vertical;
 use crate::{Expect, Generated, Generator};
 use lopdf::{Dictionary, Object, ObjectId};
@@ -31,6 +35,7 @@ pub const GENERATORS: &[Generator] = &[
     kira::KIRA_TR,
     kira::KIRA_TR_DAMAGED,
     kira::KIRA_TR_RESTRICTED,
+    kira::KIRA_TR_SIGNED,
     damaged::TRUNCATED,
     damaged::DISAGREE_PAGES,
     payslip::PAYSLIP_AES256,
@@ -51,6 +56,25 @@ pub const GENERATORS: &[Generator] = &[
     scans::QUOTE_JA_SCAN,
     long::LONG_500,
     long::IMAR_2400,
+    invoice::FATURA_TR,
+    paragraphs::FA_ZWNJ,
+    paragraphs::HE_PARA,
+    paragraphs::ZH_HANS,
+    paragraphs::ZH_HANT,
+    paragraphs::KO_PARA,
+    encodings::EDIT_E04_DIFFERENCES,
+    encodings::EDIT_E05_FSTYPE,
+    encodings::EDIT_E15_HELVETICA,
+    encodings::EDIT_E16_TYPE3,
+    edits::EDIT_E19_ROTATE,
+    edits::EDIT_E20_FORM_TWICE,
+    edits::EDIT_E21_ACTUALTEXT,
+    edits::EDIT_E22_SPLIT_CONTENTS,
+    edits::EDIT_E23_SHARED_CONTENTS,
+    edits::EDIT_E26_INLINE_IMAGE,
+    encodings::EDIT_MACROMAN,
+    encodings::EDIT_90MS_RKSJ,
+    encodings::EDIT_CFF_CID,
 ];
 
 /// The `/Producer` of every generated file.
@@ -137,6 +161,24 @@ impl Doc {
         style.fallback = Some(composite);
         style.word_spacing = true;
         Ok(style)
+    }
+
+    /// A style in a simple embedded font of its own, without a fallback, justified with `TJ`.
+    /// [`Fonts::get_mut`] sets how it is written (encoding, kept glyphs, `fsType`, Type3).
+    ///
+    /// # Errors
+    ///
+    /// A message when the font cannot be read.
+    pub fn simple_style(
+        &mut self,
+        sources: &Sources,
+        file: FontFile,
+        size: f64,
+    ) -> Result<Style, String> {
+        let face = self.face(sources, file)?;
+        let font = SimpleFont::new(&mut self.pdf, face);
+        let key = self.fonts.add(PdfFont::Simple(font));
+        Ok(Style::new(key, size))
     }
 
     /// A style in one composite font, shaped, justified with `TJ`.
@@ -238,19 +280,25 @@ impl Doc {
         Ok(())
     }
 
-    /// Adds `pages` and returns their objects and expected text. Fonts are written later, by
-    /// [`Doc::close`].
-    pub fn add_pages(&mut self, pages: Vec<PageText>, size: (f64, f64)) -> (Vec<ObjectId>, String) {
+    /// Adds `pages` and returns their objects, expected text and blocks. Fonts are written later,
+    /// by [`Doc::close`].
+    pub fn add_pages(
+        &mut self,
+        pages: Vec<PageText>,
+        size: (f64, f64),
+    ) -> (Vec<ObjectId>, Expected) {
         let mut ids = Vec::with_capacity(pages.len());
         let mut texts = Vec::with_capacity(pages.len());
+        let mut truth = Vec::with_capacity(pages.len());
         for mut page in pages {
             texts.push(std::mem::take(&mut page.lines));
+            truth.push(page.truth());
             let extra = std::mem::take(&mut page.extra);
             let mut page = page.into_page(&self.fonts, size);
             page.extra = extra;
             ids.push(self.pdf.add_page(page));
         }
-        (ids, expected_text(&texts))
+        (ids, expected(&texts, &truth))
     }
 
     /// Writes the fonts, the catalog and the information dictionary, encrypts the document when
@@ -291,8 +339,13 @@ pub fn info(title: &str, author: &str, creator: &str, created: &str) -> Info {
 
 /// The generated files.
 #[must_use]
-pub fn generated(pdf: Vec<u8>, expected_text: String) -> Generated {
-    Generated { pdf, expected_text }
+pub fn generated(pdf: Vec<u8>, expected: impl Into<Expected>) -> Generated {
+    let Expected { text, blocks } = expected.into();
+    Generated {
+        pdf,
+        expected_text: text,
+        blocks,
+    }
 }
 
 /// An `/OpenAction` that shows the first page at its top.
@@ -320,7 +373,10 @@ mod tests {
 
     fn make(generator: &Generator) -> Vec<u8> {
         let root = Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
-        let [(_, pdf), _] = generator.outputs(&Sources::new(&root)).unwrap();
+        let (_, pdf) = generator
+            .outputs(&Sources::new(&root))
+            .unwrap()
+            .swap_remove(0);
         pdf
     }
 
@@ -385,6 +441,113 @@ mod tests {
             checked += 1;
         }
         assert!(checked > 40, "{checked} entries");
+    }
+
+    /// The dictionaries of `pdf` (streams' too) that have `key` set to the name `value`.
+    fn dicts_with(pdf: &[u8], key: &[u8], value: &[u8]) -> Vec<(lopdf::Document, ObjectId)> {
+        let doc = lopdf::Document::load_mem(pdf).unwrap();
+        let ids: Vec<ObjectId> = doc
+            .objects
+            .iter()
+            .filter(|(_, object)| {
+                let dict = match object {
+                    Object::Dictionary(dict) => dict,
+                    Object::Stream(stream) => &stream.dict,
+                    _ => return false,
+                };
+                dict.get(key)
+                    .and_then(Object::as_name)
+                    .is_ok_and(|name| name == value)
+            })
+            .map(|(id, _)| *id)
+            .collect();
+        ids.into_iter().map(|id| (doc.clone(), id)).collect()
+    }
+
+    #[test]
+    fn the_edit_fonts_are_written_as_their_cases_need() {
+        let fonts =
+            |generator: &Generator, value: &[u8]| dicts_with(&make(generator), b"Subtype", value);
+        // E15: Helvetica with neither widths nor a descriptor.
+        let found = fonts(&encodings::EDIT_E15_HELVETICA, b"Type1");
+        let (doc, id) = &found[0];
+        let font = doc.get_dictionary(*id).unwrap();
+        assert!(font.get(b"Widths").is_err() && font.get(b"FontDescriptor").is_err());
+        // E16: a glyph procedure per character.
+        let found = fonts(&encodings::EDIT_E16_TYPE3, b"Type3");
+        let (doc, id) = &found[0];
+        let procs = doc.get_dictionary(*id).unwrap().get(b"CharProcs").unwrap();
+        assert!(procs.as_dict().unwrap().len() > 20);
+        // The CFF font: CIDFontType0 with a CIDFontType0C program.
+        assert_eq!(fonts(&encodings::EDIT_CFF_CID, b"CIDFontType0").len(), 1);
+        assert_eq!(fonts(&encodings::EDIT_CFF_CID, b"CIDFontType0C").len(), 1);
+        // The predefined CMap.
+        let found = dicts_with(
+            &make(&encodings::EDIT_90MS_RKSJ),
+            b"Encoding",
+            b"90ms-RKSJ-H",
+        );
+        assert_eq!(found.len(), 1);
+        // The MacRoman font.
+        let found = dicts_with(
+            &make(&encodings::EDIT_MACROMAN),
+            b"Encoding",
+            b"MacRomanEncoding",
+        );
+        assert_eq!(found.len(), 1);
+    }
+
+    /// The embedded TrueType program of the first `/FontFile2` in `pdf`.
+    fn font_program(pdf: &[u8]) -> Vec<u8> {
+        let found = dicts_with(pdf, b"Type", b"FontDescriptor");
+        let (doc, id) = &found[0];
+        let file = doc.get_dictionary(*id).unwrap().get(b"FontFile2").unwrap();
+        let stream = doc.get_object(file.as_reference().unwrap()).unwrap();
+        stream.as_stream().unwrap().decompressed_content().unwrap()
+    }
+
+    #[test]
+    fn the_programs_keep_gbreve_and_forbid_embedding() {
+        use skrifa::MetadataProvider as _;
+        use skrifa::raw::TableProvider as _;
+        let program = font_program(&make(&encodings::EDIT_E04_DIFFERENCES));
+        let font = skrifa::FontRef::new(&program).unwrap();
+        assert!(font.charmap().map('ğ').is_some());
+        let program = font_program(&make(&encodings::EDIT_E05_FSTYPE));
+        let font = skrifa::FontRef::new(&program).unwrap();
+        assert_eq!(font.os2().unwrap().fs_type(), 2);
+        assert!(font.charmap().map('ğ').is_none());
+    }
+
+    #[test]
+    fn the_edit_pages_have_their_structures() {
+        let load = |generator: &Generator| lopdf::Document::load_mem(&make(generator)).unwrap();
+        let contents = |doc: &lopdf::Document, page: ObjectId| {
+            doc.get_dictionary(page)
+                .unwrap()
+                .get(b"Contents")
+                .unwrap()
+                .clone()
+        };
+        let doc = load(&edits::EDIT_E22_SPLIT_CONTENTS);
+        let page = doc.get_pages()[&1];
+        assert_eq!(contents(&doc, page).as_array().unwrap().len(), 2);
+        let doc = load(&edits::EDIT_E23_SHARED_CONTENTS);
+        let pages = doc.get_pages();
+        assert_eq!(contents(&doc, pages[&1]), contents(&doc, pages[&2]));
+        let doc = load(&edits::EDIT_E19_ROTATE);
+        let page = doc.get_dictionary(doc.get_pages()[&1]).unwrap();
+        assert_eq!(page.get(b"Rotate").unwrap().as_i64().unwrap(), 90);
+        let doc = load(&edits::EDIT_E26_INLINE_IMAGE);
+        let content = doc.get_page_content(doc.get_pages()[&1]);
+        let has = |needle: &[u8]| content.windows(needle.len()).any(|w| w == needle);
+        assert!(has(b"\nBI\n") && has(b"\nID ") && has(b"\nEI\n"));
+        let doc = load(&edits::EDIT_E21_ACTUALTEXT);
+        let content = doc.get_page_content(doc.get_pages()[&1]);
+        assert!(content.windows(11).any(|w| w == b"/ActualText"));
+        let doc = load(&edits::EDIT_E20_FORM_TWICE);
+        let content = doc.get_page_content(doc.get_pages()[&1]);
+        assert_eq!(content.windows(7).filter(|w| *w == b"/Fm1 Do").count(), 2);
     }
 
     #[test]

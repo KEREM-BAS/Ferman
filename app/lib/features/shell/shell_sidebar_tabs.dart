@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/find_state.dart';
@@ -86,6 +87,16 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
       _,
       key,
     ) {
+      _renderKey = key;
+      _stale.addAll(_images.keys);
+      _scheduleRequest();
+    });
+    // A commit, undo or redo changed the pages too.
+    ref.listenManual(documentEditorProvider.select((s) => s.renderKey), (
+      _,
+      key,
+    ) {
+      if (key == null || key <= _renderKey) return;
       _renderKey = key;
       _stale.addAll(_images.keys);
       _scheduleRequest();

@@ -130,23 +130,35 @@ fn references(model: &lopdf::Document, object: Option<&Object>) -> Vec<ObjectId>
 }
 
 /// `start + at`, as a cross-reference offset.
-fn offset(start: usize, at: usize) -> Result<u32, CoreError> {
+pub(crate) fn offset(start: usize, at: usize) -> Result<u32, CoreError> {
     start
         .checked_add(at)
         .and_then(|offset| u32::try_from(offset).ok())
         .ok_or(CoreError::Unsupported(Unsupported::FileSize))
 }
 
-/// Writes `value` as the indirect object `id`.
-fn indirect(out: &mut Vec<u8>, id: ObjectId, value: &Object) {
+/// Writes `value` as the indirect object `id`; a stream with a direct `/Length` of its data.
+pub(crate) fn indirect(out: &mut Vec<u8>, id: ObjectId, value: &Object) {
     out.extend(format!("{} {} obj\n", id.0, id.1).as_bytes());
-    object(out, value);
+    if let Object::Stream(stream) = value {
+        let mut dict = stream.dict.clone();
+        dict.set(
+            "Length",
+            i64::try_from(stream.content.len()).unwrap_or(i64::MAX),
+        );
+        object(out, &Object::Dictionary(dict));
+        out.extend(b"\nstream\n");
+        out.extend(&stream.content);
+        out.extend(b"\nendstream");
+    } else {
+        object(out, value);
+    }
     out.extend(b"\nendobj\n");
 }
 
 /// Writes a direct object. Strings are written in hex, which needs no escapes; a stream cannot be
 /// direct, so it is written as `null`.
-fn object(out: &mut Vec<u8>, value: &Object) {
+pub(crate) fn object(out: &mut Vec<u8>, value: &Object) {
     match value {
         Object::Null | Object::Stream(_) => out.extend(b"null"),
         Object::Boolean(value) => out.extend(if *value { &b"true"[..] } else { b"false" }),
@@ -187,7 +199,7 @@ fn object(out: &mut Vec<u8>, value: &Object) {
 }
 
 /// Writes a name, with `#` escapes for the bytes a name cannot hold as they are.
-fn name(out: &mut Vec<u8>, name: &[u8]) {
+pub(crate) fn name(out: &mut Vec<u8>, name: &[u8]) {
     out.push(b'/');
     for &byte in name {
         if is_regular(byte) && byte != b'#' && (0x21..=0x7E).contains(&byte) {

@@ -21,6 +21,7 @@ use std::collections::{BTreeMap, BTreeSet};
 use lopdf::{Dictionary, Object, ObjectId};
 
 use crate::limits::Limits;
+use crate::revision::RevisionStore;
 use crate::text_string;
 
 pub mod fonts;
@@ -327,12 +328,31 @@ pub(crate) struct Scope<'a> {
     pub(crate) page_of: BTreeMap<ObjectId, u32>,
     /// Each annotation's page, from the pages' `/Annots`.
     pub(crate) annotation_page: BTreeMap<ObjectId, u32>,
+    /// The revisions whose objects replace the model's, when reading an edited document.
+    pub(crate) overlay: Option<&'a RevisionStore>,
 }
 
 impl<'a> Scope<'a> {
+    /// Object `id`: its newest revision, or the model's.
+    pub(crate) fn object(&self, id: ObjectId) -> Option<&'a Object> {
+        self.overlay
+            .and_then(|overlay| overlay.lookup(id))
+            .or_else(|| self.doc.objects.get(&id))
+    }
+
     /// `object` with references followed.
     pub(crate) fn resolve(&self, object: &'a Object) -> Option<&'a Object> {
-        self.doc.dereference(object).ok().map(|(_, object)| object)
+        if self.overlay.is_none() {
+            return self.doc.dereference(object).ok().map(|(_, object)| object);
+        }
+        let mut object = object;
+        for _ in 0..=self.limits.max_nesting {
+            let Object::Reference(id) = object else {
+                return Some(object);
+            };
+            object = self.object(*id)?;
+        }
+        None
     }
 
     /// `object` as a dictionary, references followed.
@@ -436,6 +456,7 @@ pub(crate) fn scan(doc: &lopdf::Document, limits: &Limits) -> Structure {
         limits,
         page_of: BTreeMap::new(),
         annotation_page: BTreeMap::new(),
+        overlay: None,
     };
     for (index, id) in ids.iter().enumerate() {
         let Ok(index) = u32::try_from(index) else {

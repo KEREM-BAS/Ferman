@@ -1,0 +1,37 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 4, "cell": null, "lines": [
+      {"text": "賃貸借契約更新のご案内", "start": [517.28, 769.89], "end": [517.28, 586.89], "size": 15.00, "vertical": true}
+    ]},
+    {"align": "left", "justify": null, "column": 3, "cell": null, "lines": [
+      {"text": "二〇二六年十月十三日", "start": [477.30, 769.89], "end": [477.30, 659.22], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "left", "justify": null, "column": 2, "cell": null, "lines": [
+      {"text": "アイシェ・ユルマズ様", "start": [439.35, 769.89], "end": [439.35, 659.22], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "left", "justify": null, "column": 5, "cell": null, "lines": [
+      {"text": "拝啓　秋冷の候、ますますご清祥のこととお喜び申し上げます。さて、現在ご契約いただいて", "start": [401.14, 769.89], "end": [401.14, 303.06], "size": 10.50, "vertical": true},
+      {"text": "おります賃貸借契約は、二〇二六年十一月三十日をもって期間満了となります。つきましては、", "start": [380.66, 769.89], "end": [380.66, 291.93], "size": 10.50, "vertical": true},
+      {"text": "契約更新の手続きについて下記のとおりご案内申し上げます。更新後の月額賃料は19万五千円", "start": [360.19, 769.89], "end": [360.19, 303.06], "size": 10.50, "vertical": true},
+      {"text": "です。", "start": [339.71, 769.89], "end": [339.71, 737.13], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": null, "lines": [
+      {"text": "敬具", "start": [301.50, 321.52], "end": [301.50, 299.89], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "right", "justify": null, "column": 2, "cell": null, "lines": [
+      {"text": "株式会社モダ不動産　管理部", "start": [263.55, 443.95], "end": [263.55, 299.89], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "center", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "記", "start": [225.60, 540.14], "end": [225.60, 529.64], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "一、契約期間　二〇二六年十二月一日から二〇二八年十一月三十日まで", "start": [187.39, 758.76], "end": [187.39, 403.23], "size": 10.50, "vertical": true},
+      {"text": "二、月額賃料　十九万五千円（管理費を含む）", "start": [166.91, 758.76], "end": [166.91, 525.66], "size": 10.50, "vertical": true},
+      {"text": "三、更新料　新賃料の一か月分", "start": [146.44, 758.76], "end": [146.44, 603.57], "size": 10.50, "vertical": true},
+      {"text": "四、ご返送期限　二〇二六年十一月十三日（金）", "start": [125.96, 758.76], "end": [125.96, 514.53], "size": 10.50, "vertical": true}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "以上", "start": [105.75, 321.52], "end": [105.75, 299.89], "size": 10.50, "vertical": true}
+    ]}
+  ]}
+]}

@@ -1,6 +1,8 @@
 //! The standard security handler (ISO 32000-1 §7.6.3, ISO 32000-2 §7.6.4): passwords, file keys
 //! and decryption, for RC4 40 and 128 (revisions 2 and 3), AES-128 (revision 4) and AES-256
-//! (revisions 5 and 6), with crypt filters.
+//! (revisions 5 and 6), with crypt filters; and encryption of the objects an incremental update
+//! writes, with the same file key and ciphers, AES initialisation vectors from the system's random
+//! number generator.
 //!
 //! ferman-core decrypts the objects itself, after lopdf has parsed them as they stand, so the
 //! password never reaches lopdf, which would copy it into buffers that are freed without being
@@ -24,7 +26,25 @@ use zeroize::Zeroizing;
 
 use crate::limits::Limits;
 use crate::text_string;
-use crate::{CoreError, Unsupported};
+use crate::{CoreError, Unsupported, WriteError};
+
+/// Fills a buffer with random bytes: [`system_random`], or fixed bytes in tests.
+pub(crate) type Random<'r> = dyn FnMut(&mut [u8]) -> Result<(), CoreError> + 'r;
+
+/// Random bytes from the operating system.
+///
+/// # Errors
+///
+/// [`WriteError::Random`] when the system cannot give them.
+pub(crate) fn system_random(out: &mut [u8]) -> Result<(), CoreError> {
+    getrandom::fill(out).map_err(|_| CoreError::Write(WriteError::Random))
+}
+
+/// What a walk over an object's strings and streams does to them.
+enum Direction<'d, 'r> {
+    Decrypt,
+    Encrypt(&'d mut Random<'r>),
+}
 
 /// The padding string of Algorithm 2 (ISO 32000-1 §7.6.3.3).
 const PAD: [u8; 32] = [
@@ -819,7 +839,56 @@ impl Decrypter {
         object: &mut Object,
         limits: &Limits,
     ) -> Result<(), CoreError> {
-        self.walk(id, object, 0, limits)
+        self.walk(id, object, 0, limits, &mut Direction::Decrypt)
+    }
+
+    /// Encrypts every string and stream of object `id` in place, as [`decrypt_object`] decrypts
+    /// them, with the same exceptions; AES initialisation vectors come from `random`. Every
+    /// stream takes the default stream cipher: the streams Ferman writes have no `Crypt` filter.
+    ///
+    /// [`decrypt_object`]: Self::decrypt_object
+    pub(crate) fn encrypt_object(
+        &self,
+        id: ObjectId,
+        object: &mut Object,
+        random: &mut Random<'_>,
+        limits: &Limits,
+    ) -> Result<(), CoreError> {
+        self.walk(id, object, 0, limits, &mut Direction::Encrypt(random))
+    }
+
+    /// `data` of object `id` encrypted with `cipher`; AES data is stored as its IV, then the
+    /// ciphertext with PKCS #7 padding.
+    fn encrypt(
+        &self,
+        id: ObjectId,
+        cipher: Cipher,
+        data: &mut Vec<u8>,
+        random: &mut Random<'_>,
+    ) -> Result<(), CoreError> {
+        match cipher {
+            Cipher::Identity => Ok(()),
+            Cipher::Rc4 => rc4(&self.object_key(id, cipher), data),
+            Cipher::AesV2 | Cipher::AesV3 => {
+                let mut iv = [0u8; 16];
+                random(&mut iv)?;
+                *data = aes_cbc_encrypt(&self.object_key(id, cipher), &iv, data)?;
+                Ok(())
+            }
+        }
+    }
+
+    fn crypt(
+        &self,
+        id: ObjectId,
+        cipher: Cipher,
+        data: &mut Vec<u8>,
+        direction: &mut Direction<'_, '_>,
+    ) -> Result<(), CoreError> {
+        match direction {
+            Direction::Decrypt => self.decrypt(id, cipher, data),
+            Direction::Encrypt(random) => self.encrypt(id, cipher, data, random),
+        }
     }
 
     fn walk(
@@ -828,6 +897,7 @@ impl Decrypter {
         object: &mut Object,
         depth: u32,
         limits: &Limits,
+        direction: &mut Direction<'_, '_>,
     ) -> Result<(), CoreError> {
         if depth > limits.max_nesting {
             return Err(CoreError::ResourceLimit {
@@ -837,24 +907,27 @@ impl Decrypter {
         }
         let deeper = depth.saturating_add(1);
         match object {
-            Object::String(bytes, _) => self.decrypt(id, self.params.string, bytes)?,
+            Object::String(bytes, _) => self.crypt(id, self.params.string, bytes, direction)?,
             Object::Array(items) => {
                 for item in items {
-                    self.walk(id, item, deeper, limits)?;
+                    self.walk(id, item, deeper, limits, direction)?;
                 }
             }
-            Object::Dictionary(dict) => self.walk_dict(id, dict, deeper, limits)?,
+            Object::Dictionary(dict) => self.walk_dict(id, dict, deeper, limits, direction)?,
             Object::Stream(stream) => {
-                self.walk_dict(id, &mut stream.dict, deeper, limits)?;
+                self.walk_dict(id, &mut stream.dict, deeper, limits, direction)?;
                 let kind = stream.dict.get(b"Type").and_then(Object::as_name).ok();
                 if kind == Some(b"XRef")
                     || (kind == Some(b"Metadata") && !self.params.encrypt_metadata)
                 {
                     return Ok(());
                 }
-                let cipher = self.stream_cipher(&mut stream.dict)?;
+                let cipher = match direction {
+                    Direction::Decrypt => self.stream_cipher(&mut stream.dict)?,
+                    Direction::Encrypt(_) => self.params.stream,
+                };
                 let mut content = std::mem::take(&mut stream.content);
-                self.decrypt(id, cipher, &mut content)?;
+                self.crypt(id, cipher, &mut content, direction)?;
                 stream.set_content(content);
             }
             _ => {}
@@ -868,13 +941,14 @@ impl Decrypter {
         dict: &mut Dictionary,
         depth: u32,
         limits: &Limits,
+        direction: &mut Direction<'_, '_>,
     ) -> Result<(), CoreError> {
         let signature = dict.get(b"Type").and_then(Object::as_name).ok() == Some(b"Sig");
         for (key, value) in dict.iter_mut() {
             if signature && key.as_slice() == b"Contents" {
                 continue;
             }
-            self.walk(id, value, depth, limits)?;
+            self.walk(id, value, depth, limits, direction)?;
         }
         Ok(())
     }
@@ -976,6 +1050,53 @@ fn aes_cbc_decrypt(key: &[u8], data: &[u8]) -> Result<Vec<u8>, CoreError> {
     Ok(out)
 }
 
+/// AES-CBC encryption with a 16- or 32-byte key and PKCS #7 padding, stored as `iv` then the
+/// ciphertext, as [`aes_cbc_decrypt`] reads it.
+fn aes_cbc_encrypt(key: &[u8], iv: &[u8; 16], data: &[u8]) -> Result<Vec<u8>, CoreError> {
+    let memory = || CoreError::OutOfMemory {
+        context: "encrypting a stream",
+    };
+    // 1 to 16 bytes of padding, each holding the count.
+    let padding = 16usize.saturating_sub(data.len() % 16);
+    let mut padded = Vec::new();
+    padded
+        .try_reserve_exact(data.len().saturating_add(padding))
+        .map_err(|_| memory())?;
+    padded.extend_from_slice(data);
+    padded.resize(
+        data.len().saturating_add(padding),
+        u8::try_from(padding).unwrap_or(16),
+    );
+    let mut out = Vec::new();
+    out.try_reserve_exact(padded.len().saturating_add(16))
+        .map_err(|_| memory())?;
+    out.extend_from_slice(iv);
+    let mut previous = aes::Block::from(*iv);
+    let mut run = |encrypt: &dyn Fn(&mut aes::Block)| {
+        for chunk in padded.as_chunks::<16>().0 {
+            let mut block = aes::Block::from(*chunk);
+            for (byte, prev) in block.iter_mut().zip(previous.iter()) {
+                *byte ^= prev;
+            }
+            encrypt(&mut block);
+            out.extend_from_slice(&block);
+            previous = block;
+        }
+    };
+    match key.len() {
+        16 => {
+            let cipher = aes::Aes128::new_from_slice(key).map_err(|_| aes_key())?;
+            run(&|block| cipher.encrypt_block(block));
+        }
+        32 => {
+            let cipher = aes::Aes256::new_from_slice(key).map_err(|_| aes_key())?;
+            run(&|block| cipher.encrypt_block(block));
+        }
+        _ => return Err(aes_key()),
+    }
+    Ok(out)
+}
+
 fn aes_key() -> CoreError {
     CoreError::Internal {
         context: "an AES key of the wrong length",
@@ -1032,6 +1153,101 @@ mod tests {
         assert!(aes_cbc_decrypt(&key, &[1, 2, 3]).unwrap().is_empty());
         stored.extend([1, 2, 3]);
         assert_eq!(aes_cbc_decrypt(&key, &stored).unwrap(), b"hello, world");
+    }
+
+    #[test]
+    fn aes_cbc_encryption_pads_and_decrypts_back() {
+        for key in [&[3u8; 16][..], &[5u8; 32]] {
+            for length in [0, 1, 15, 16, 17, 32, 100] {
+                let data: Vec<u8> = (0..length).map(|n| n as u8).collect();
+                let stored = aes_cbc_encrypt(key, &[9; 16], &data).unwrap();
+                assert_eq!(&stored[..16], &[9; 16]);
+                assert_eq!(stored.len(), 16 + (length / 16 + 1) * 16, "{length}");
+                assert_eq!(aes_cbc_decrypt(key, &stored).unwrap(), data, "{length}");
+            }
+        }
+        // It agrees with the key derivation's AES-128 on whole blocks.
+        let block = [0x42u8; 16];
+        let stored = aes_cbc_encrypt(&[7; 16], &[1; 16], &block).unwrap();
+        assert_eq!(
+            &stored[16..32],
+            &aes128_cbc_encrypt(&[7; 16], &[1; 16], &block).unwrap()[..]
+        );
+        assert!(aes_cbc_encrypt(&[1; 7], &[0; 16], b"x").is_err());
+    }
+
+    #[test]
+    fn encrypting_an_object_mirrors_decrypting_it() {
+        use lopdf::{Stream, StringFormat, dictionary};
+        let hex = |byte: u8, len: usize| Object::String(vec![byte; len], StringFormat::Hexadecimal);
+        for (v, r, cfm, length) in [
+            (1, 2, None, 5),
+            (2, 3, None, 16),
+            (4, 4, Some("AESV2"), 16),
+            (5, 6, Some("AESV3"), 32),
+        ] {
+            let mut encrypt = dictionary! {
+                "Filter" => "Standard", "V" => v, "R" => r, "Length" => (length * 8) as i64,
+                "O" => hex(1, 48), "U" => hex(2, 48), "OE" => hex(3, 32), "UE" => hex(4, 32),
+                "Perms" => hex(5, 16), "P" => -4,
+            };
+            if let Some(cfm) = cfm {
+                encrypt.set(
+                    "CF",
+                    dictionary! { "StdCF" => dictionary! { "CFM" => cfm, "Length" => length as i64 } },
+                );
+                encrypt.set("StmF", "StdCF");
+                encrypt.set("StrF", "StdCF");
+            }
+            let params = Params::new(&encrypt, b"file id").unwrap();
+            let decrypter = Decrypter::new(params, Zeroizing::new(vec![0x5A; length]));
+            let plain = Object::Dictionary(dictionary! {
+                "Title" => Object::string_literal("Maaş bordrosu"),
+                "Kids" => vec![Object::string_literal("a"), 7.into()],
+                "V" => dictionary! { "Type" => "Sig", "Contents" => hex(0xAB, 8) },
+            });
+            let limits = Limits::default();
+            let mut counter = 0u8;
+            let mut random = |out: &mut [u8]| {
+                counter += 1;
+                out.fill(counter);
+                Ok(())
+            };
+            let mut object = plain.clone();
+            decrypter
+                .encrypt_object((12, 0), &mut object, &mut random, &limits)
+                .unwrap();
+            assert_ne!(object, plain, "R{r}");
+            // A signature's /Contents stays as it is.
+            let sig = object
+                .as_dict()
+                .unwrap()
+                .get(b"V")
+                .unwrap()
+                .as_dict()
+                .unwrap();
+            assert_eq!(sig.get(b"Contents").unwrap().as_str().unwrap(), &[0xAB; 8]);
+            decrypter
+                .decrypt_object((12, 0), &mut object, &limits)
+                .unwrap();
+            assert_eq!(object, plain, "R{r}");
+
+            let mut stream = Object::Stream(Stream::new(dictionary! {}, b"BT ET".to_vec()));
+            decrypter
+                .encrypt_object((3, 0), &mut stream, &mut random, &limits)
+                .unwrap();
+            assert_ne!(stream.as_stream().unwrap().content, b"BT ET");
+            decrypter
+                .decrypt_object((3, 0), &mut stream, &limits)
+                .unwrap();
+            assert_eq!(stream.as_stream().unwrap().content, b"BT ET", "R{r}");
+            // Cross-reference streams are never encrypted.
+            let mut xref = Object::Stream(Stream::new(dictionary! { "Type" => "XRef" }, vec![1]));
+            decrypter
+                .encrypt_object((4, 0), &mut xref, &mut random, &limits)
+                .unwrap();
+            assert_eq!(xref.as_stream().unwrap().content, [1]);
+        }
     }
 
     #[test]

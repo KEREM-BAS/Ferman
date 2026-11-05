@@ -11,6 +11,8 @@ repository.workspace = true
 
 [dependencies]
 thiserror.workspace = true
+skrifa.workspace = true
+read-fonts.workspace = true
 
 [lints]
 workspace = true

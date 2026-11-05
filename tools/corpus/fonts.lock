@@ -4,9 +4,10 @@
 #
 #   file <name in build/corpus-fonts/> <SHA-256> <URL>
 #
-# They go to build/corpus-fonts/ (gitignored): never committed and never shipped. Each is OFL-1.1
-# with no Reserved Font Name, from google/fonts at commit 47d54ca (2026-10-16); its licence file
-# comes with it. The PDFs embed subsets, which OFL-1.1 allows.
+# They go to build/corpus-fonts/ (gitignored): never committed and never shipped. Each is OFL-1.1,
+# from google/fonts at commit 47d54ca (2026-10-16) unless its entry says otherwise; its licence
+# file comes with it. The PDFs embed subsets, which OFL-1.1 allows, whether or not the font has a
+# Reserved Font Name (the Noto CJK fonts and Source Sans 3 reserve "Source").
 
 # kira-tr Madde 6: a font Ferman does not bundle, for the missing-glyph path (ROADMAP E02, E03).
 file EBGaramond-VF.ttf ef9512f92f6d579e5dc75af59a5a4b1b8b47d2eda89e00b954d44520e5369027 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/ebgaramond/EBGaramond%5Bwght%5D.ttf
@@ -17,3 +18,18 @@ file EBGaramond-OFL.txt 0985066662eb755ed3683ae5482a81a9195b49ce3f7e165cc2388b3d
 # GSUB vert and vrt2 features for vertical text.
 file NotoSerifJP-VF.ttf 2fd527ba12b6a44ec30d796d633360da0aeba6c5d4af1304ce12bb4dc15a7dfc https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notoserifjp/NotoSerifJP%5Bwght%5D.ttf
 file NotoSerifJP-OFL.txt 5e0da210fb04058a8c0087985d2d456b931c2579811a49655721d3cf0c36b6d6 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notoserifjp/OFL.txt
+
+# zh-hans, zh-hant and ko-para: horizontal Chinese and Korean in Identity-H composite fonts (ROADMAP
+# E12). Variable fonts, instanced at wght 400 (Regular).
+file NotoSansSC-VF.ttf a3041811a78c361b1de50f953c805e0244951c21c5bd412f7232ef0d899af0da https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssc/NotoSansSC%5Bwght%5D.ttf
+file NotoSansSC-OFL.txt 1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanssc/OFL.txt
+file NotoSansTC-VF.ttf 864727d210d54f2537bbe23b3a839436c3992af72de9322af5270897246bd44f https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanstc/NotoSansTC%5Bwght%5D.ttf
+file NotoSansTC-OFL.txt 1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanstc/OFL.txt
+file NotoSansKR-VF.ttf 194018e6b2b293a7964f037b25c0249ce1418bc9ab3c971060a03aa57861e252 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanskr/NotoSansKR%5Bwght%5D.ttf
+file NotoSansKR-OFL.txt 1c05c68c34f9708415aada51f17e1b0092d2cea709bf4a94cd38114f9e73d7d9 https://raw.githubusercontent.com/google/fonts/47d54ca1ebb14fd864695f1d39dc734f39017c33/ofl/notosanskr/OFL.txt
+
+# edit-cff-cid: a font with CFF outlines, embedded as a CID-keyed CFF program (CIDFontType0C).
+# google/fonts has no CFF fonts, so this one is from adobe-fonts/source-sans at commit 87b37a2
+# (2025-10-28), OFL-1.1 with the Reserved Font Name "Source".
+file SourceSans3-Regular.otf 08df266400933d3178d081a45f94a08814c3e55b4b7dd2e0ff69cb1329f13ab6 https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/OTF/SourceSans3-Regular.otf
+file SourceSans3-LICENSE.md 56af9b9c6715597e458284a474dc118a50a4150e9d547c70f7b4a33c3e6a9328 https://raw.githubusercontent.com/adobe-fonts/source-sans/87b37a2daaed80fcb8e8ccb0085c4d72ddade12e/LICENSE.md

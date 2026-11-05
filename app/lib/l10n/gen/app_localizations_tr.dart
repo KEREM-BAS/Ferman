@@ -1027,6 +1027,96 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String editHoverTip(String block) {
+    return 'Düzenlemek için tıklayın · $block';
+  }
+
+  @override
+  String get editNotEditableTitle => 'Bu metin düzenlenemez';
+
+  @override
+  String get editTipImageOnly =>
+      'Bu sayfada henüz metin yok · Düzenlemek için metni tanıyın';
+
+  @override
+  String get editBodyImageOnly =>
+      'Bu sayfa, taranmış bir belge gibi bir görüntü. Düzenlemek için metnini tanıyın.';
+
+  @override
+  String get editTipOutlinedText =>
+      'Bu metin şekillerle çizilmiş, düzenlenemez';
+
+  @override
+  String get editBodyOutlinedText =>
+      'Bu metin harflerle değil, vektör şekillerle çizilmiş. Ferman onu yeniden çizmeden değiştiremez.';
+
+  @override
+  String get editTipUnknownText => 'Ferman bu metnin harflerini okuyamıyor';
+
+  @override
+  String get editBodyUnknownText =>
+      'Yazı tipi, şekillerinin hangi harfler olduğunu söylemiyor; Ferman onu güvenle değiştiremez.';
+
+  @override
+  String get editTipInvisibleText => 'Bu metin görünmez';
+
+  @override
+  String get editBodyInvisibleText =>
+      'Bu, taramanın üzerindeki tanınmış metin gibi gizli bir metin. Ferman onu düzenlemez.';
+
+  @override
+  String get editTipRestricted => 'Yazarın izinleri düzenlemeye izin vermiyor';
+
+  @override
+  String get editBodyRestricted =>
+      'Düzenlemek için belgenin kilidini sahip parolasıyla açın.';
+
+  @override
+  String get editTipReadOnly => 'Bu belge salt okunur';
+
+  @override
+  String get editBodyReadOnly =>
+      'Ferman bu belgeyi yalnızca görüntülemek için açtı; metni değiştirilemez.';
+
+  @override
+  String get editTipDamaged => 'Bu belge onarıldı, düzenlenemez';
+
+  @override
+  String get editBodyDamaged =>
+      'Ferman bu dosyada sorunlar buldu ve onu yalnızca görüntülemek için açtı. Düzenlemek için onarılmış bir kopyasını kaydedin.';
+
+  @override
+  String get editTipSignature => 'Bu metin bir imzanın parçası';
+
+  @override
+  String get editBodySignature => 'Ferman imzaları hiçbir zaman düzenlemez.';
+
+  @override
+  String get editTipAnnotation => 'Bu metin bir yoruma veya form alanına ait';
+
+  @override
+  String get editBodyAnnotation =>
+      'Yorum veya Doldur ve İmzala modunda değiştirin.';
+
+  @override
+  String get editTipTooComplex => 'Ferman bu metni güvenle değiştiremez';
+
+  @override
+  String get editBodyLimits =>
+      'Bu sayfa, Ferman’ın güvenle yeniden yazması için fazla büyük veya karmaşık.';
+
+  @override
+  String get editBodySplit =>
+      'Çizim komutları sayfanın iki parçasına bölünmüş; Ferman onu güvenle yeniden yazamaz.';
+
+  @override
+  String get editBodySkewed =>
+      'Bu metin eğik; Ferman onu güvenle yeniden yazamaz.';
+
+  @override
+  String get viewerTextMenu => 'Metin';
+
+  @override
   String get viewerPageNumber => 'Sayfa numarası';
 
   @override
@@ -1913,4 +2003,30 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String get attachmentWriteFailed =>
       'Ferman dosyayı oraya yazamadı. Başka bir klasör seçin ya da diskte yer olduğunu ve diskin hâlâ bağlı olduğunu denetleyin.';
+
+  @override
+  String editStepText(String page) {
+    return 'Metin düzenlendi · sayfa $page';
+  }
+
+  @override
+  String get editHistoryClose => 'Geçmişi kapat';
+
+  @override
+  String get editHistorySteps => 'Adımlar';
+
+  @override
+  String editHistoryOpened(String name) {
+    return '$name açıldı';
+  }
+
+  @override
+  String get editHistoryNote =>
+      'Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.';
+
+  @override
+  String get editNothingToUndo => 'Geri alınacak bir şey yok';
+
+  @override
+  String get editNothingToRedo => 'Yinelenecek bir şey yok';
 }

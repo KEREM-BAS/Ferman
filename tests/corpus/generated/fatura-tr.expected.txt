@@ -1,0 +1,44 @@
+FATURA
+Moda Gayrimenkul Yönetimi A.Ş.
+Fatura no: MGY2026000418
+Caferağa Mah. Moda Cad. No: 18
+Fatura tarihi: 02.11.2026
+34710 Kadıköy/İstanbul
+Son ödeme tarihi: 16.11.2026
+Vergi dairesi: Kadıköy, VKN 6120458731
+Sayın Ayşe Yılmaz
+Bağdat Cad. No: 211 D: 7, 34728 Kadıköy/İstanbul
+Sıra
+Açıklama
+Miktar
+Birim fiyat
+Tutar (TL)
+1
+Ofis kirası, Kasım 2026
+1
+18.500,00
+18.500,00
+2
+Site aidatı
+1
+1.250,00
+1.250,00
+3
+Kapalı otopark yeri
+2
+750,00
+1.500,00
+4
+Ortak alan temizliği
+4
+425,00
+1.700,00
+Ara toplam
+22.950,00
+KDV %20
+4.590,00
+Genel toplam
+27.540,00
+Yalnız yirmi yedi bin beş yüz kırk Türk lirasıdır.
+Ödemenizi son ödeme tarihine kadar TR64 0001 2009 4520 0058 0012 34 numaralı hesaba,
+açıklamaya fatura numarasını yazarak yapabilirsiniz.

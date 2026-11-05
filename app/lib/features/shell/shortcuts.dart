@@ -848,10 +848,17 @@ class ShellCommandIntent extends Intent {
 /// A command without a handler is disabled, so its keys are not consumed
 /// and reach the widgets above (a disabled Tab still moves focus). A
 /// single-key command is disabled while focus is in a text field, where the
-/// key types a character.
+/// key types a character, and so are undo and redo ([textCommands]): there
+/// they undo the field's own typing.
 class ShellCommandAction extends Action<ShellCommandIntent> {
   /// An action with [handlers], one per working command.
   new(this.handlers);
+
+  /// The commands a text field with focus keeps for itself.
+  static const Set<ShellCommand> textCommands = {
+    ShellCommand.undo,
+    ShellCommand.redo,
+  };
 
   /// What each working command does.
   final Map<ShellCommand, VoidCallback> handlers;
@@ -864,7 +871,8 @@ class ShellCommandAction extends Action<ShellCommandIntent> {
 
   @override
   bool isEnabled(ShellCommandIntent intent) =>
-      handlers.containsKey(intent.command) && !(intent.plain && typing);
+      handlers.containsKey(intent.command) &&
+      !((intent.plain || textCommands.contains(intent.command)) && typing);
 
   @override
   Object? invoke(ShellCommandIntent intent) {

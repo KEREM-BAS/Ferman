@@ -409,7 +409,9 @@ fn aks1(sources: &Sources, fields: bool) -> Result<Generated, String> {
         name,
         None,
     )?;
-    Ok(generated(bytes, expected))
+    // shortcut: no block ground truth yet; the form's labels, boxes and choices need their cells
+    // and groups declared first.
+    Ok(generated(bytes, expected.text))
 }
 
 /// A circle as four Bézier curves (the usual 0.5523 control distance).

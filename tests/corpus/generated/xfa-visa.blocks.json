@@ -1,0 +1,13 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Lütfen bekleyin…", "start": [56.00, 761.89], "end": [160.56, 761.89], "size": 13.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Bu belge dinamik bir XFA formudur. Görüntüleyiciniz XFA formlarını desteklemiyorsa", "start": [56.00, 739.89], "end": [433.88, 739.89], "size": 10.00, "vertical": false},
+      {"text": "bu ileti formun içeriğiyle değişmez.", "start": [56.00, 724.89], "end": [211.99, 724.89], "size": 10.00, "vertical": false},
+      {"text": "This document is a dynamic XFA form. If your viewer does not support XFA forms,", "start": [56.00, 709.89], "end": [421.57, 709.89], "size": 10.00, "vertical": false},
+      {"text": "this message is not replaced by the contents of the form.", "start": [56.00, 694.89], "end": [310.05, 694.89], "size": 10.00, "vertical": false}
+    ]}
+  ]}
+]}

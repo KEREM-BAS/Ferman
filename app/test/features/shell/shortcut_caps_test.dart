@@ -438,24 +438,24 @@ void main() {
           [for (final entry in entries) ?entry.shortcut],
           reason: mode.id,
         );
-        // All disabled, the rows give the reason as their tooltip, without
-        // keys (G10); the viewing tools, waiting for a document, give none.
+        // The disabled rows give their reason as their tooltip, without
+        // keys (G10); the viewing tools, waiting for a document, and the
+        // Edit row's working tools (Edit text, Edit history) give none.
         final tooltips = _tooltipsOf(tester, menuFinder);
-        expect(
-          tooltips,
-          hasLength(
-            entries
-                .where(
-                  (entry) =>
-                      mode != FermanMode.view ||
-                      !_waitForDocument.contains(entry.label),
-                )
-                .length,
-          ),
-          reason: mode.id,
-        );
-        for (final tooltip in tooltips) {
-          expect(tooltip.message, futureVersion, reason: mode.id);
+        final disabled = [
+          for (final entry in entries)
+            if (entry.disabled &&
+                (mode != FermanMode.view ||
+                    !_waitForDocument.contains(entry.label)))
+              entry,
+        ];
+        expect(tooltips, hasLength(disabled.length), reason: mode.id);
+        for (final (index, tooltip) in tooltips.indexed) {
+          expect(
+            tooltip.message,
+            disabled[index].disabledReason,
+            reason: mode.id,
+          );
           expect(tooltip.shortcut, isNull, reason: mode.id);
         }
         await tester.pumpWidget(const SizedBox.shrink());

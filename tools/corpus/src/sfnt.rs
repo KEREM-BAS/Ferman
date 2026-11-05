@@ -82,13 +82,15 @@ fn cmap_table(map: &BTreeMap<char, u16>) -> Result<Vec<u8>, String> {
     Ok(table)
 }
 
-/// `font` with a (3,1) `cmap` for `map`, replacing any `cmap` it has, with the table directory,
-/// checksums and `head.checkSumAdjustment` rewritten.
+/// A font's tables by tag.
+pub type Tables = BTreeMap<[u8; 4], Vec<u8>>;
+
+/// The sfnt version and the tables of a single TrueType or OpenType font, by tag.
 ///
 /// # Errors
 ///
-/// A message when `font` is not a single TrueType font.
-pub fn with_cmap(font: &[u8], map: &BTreeMap<char, u16>) -> Result<Vec<u8>, String> {
+/// A message when `font` is not a single sfnt font.
+pub fn tables(font: &[u8]) -> Result<(u32, Tables), String> {
     let malformed = || "sfnt: malformed font".to_owned();
     let version = be32(font, 0).ok_or_else(malformed)?;
     let tables = be16(font, 4).ok_or_else(malformed)?;
@@ -106,7 +108,41 @@ pub fn with_cmap(font: &[u8], map: &BTreeMap<char, u16>) -> Result<Vec<u8>, Stri
         let data = font.get(offset..offset + length).ok_or_else(malformed)?;
         entries.insert(tag, data.to_vec());
     }
+    Ok((version, entries))
+}
+
+/// `font` with a (3,1) `cmap` for `map`, replacing any `cmap` it has, with the table directory,
+/// checksums and `head.checkSumAdjustment` rewritten.
+///
+/// # Errors
+///
+/// A message when `font` is not a single TrueType font.
+pub fn with_cmap(font: &[u8], map: &BTreeMap<char, u16>) -> Result<Vec<u8>, String> {
+    let (version, mut entries) = tables(font)?;
     entries.insert(*b"cmap", cmap_table(map)?);
+    assemble(version, entries)
+}
+
+/// `font` with the `OS/2` table `os2` (subsetter leaves it out), its `fsType` set to `fs_type`,
+/// as a font whose licence restricts embedding says it (2: Restricted License embedding).
+///
+/// # Errors
+///
+/// A message when `font` is not a single sfnt font or `os2` is too short.
+pub fn with_fs_type(font: &[u8], os2: &[u8], fs_type: u16) -> Result<Vec<u8>, String> {
+    let (version, mut entries) = tables(font)?;
+    let mut os2 = os2.to_vec();
+    os2.get_mut(8..10)
+        .ok_or("sfnt: OS/2 table too short")?
+        .copy_from_slice(&fs_type.to_be_bytes());
+    entries.insert(*b"OS/2", os2);
+    assemble(version, entries)
+}
+
+/// A font file from `entries`, with the table directory, checksums and
+/// `head.checkSumAdjustment` computed.
+fn assemble(version: u32, mut entries: Tables) -> Result<Vec<u8>, String> {
+    let malformed = || "sfnt: malformed font".to_owned();
     if let Some(head) = entries.get_mut(b"head") {
         head.get_mut(8..12).ok_or_else(malformed)?.fill(0);
     }
@@ -160,6 +196,7 @@ pub fn with_cmap(font: &[u8], map: &BTreeMap<char, u16>) -> Result<Vec<u8>, Stri
 mod tests {
     use super::*;
     use skrifa::raw::FontRead as _;
+    use skrifa::raw::TableProvider as _;
 
     #[test]
     fn the_cmap_maps_each_character() {
@@ -173,5 +210,21 @@ mod tests {
         assert_eq!(cmap4.map_codepoint('A').map(|g| g.to_u32()), Some(1));
         assert_eq!(cmap4.map_codepoint('ü').map(|g| g.to_u32()), Some(2));
         assert_eq!(cmap4.map_codepoint('B'), None);
+    }
+
+    #[test]
+    fn the_fs_type_is_patched_into_a_copied_os2_table() {
+        let root = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join("../..");
+        let font =
+            std::fs::read(root.join("app/assets/fonts/ibm-plex-sans/IBMPlexSans-Regular.ttf"))
+                .unwrap();
+        let (_, original) = tables(&font).unwrap();
+        let mut without = original.clone();
+        without.remove(b"OS/2");
+        let stripped = assemble(0x0001_0000, without).unwrap();
+        let patched = with_fs_type(&stripped, &original[b"OS/2"], 2).unwrap();
+        let os2 = skrifa::FontRef::new(&patched).unwrap().os2().unwrap();
+        assert_eq!(os2.fs_type(), 2);
+        assert!(with_fs_type(&stripped, &[0; 4], 2).is_err());
     }
 }

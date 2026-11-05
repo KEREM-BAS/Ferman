@@ -1,0 +1,4 @@
+Meeting room booking
+Room 3.14 is booked for the budget review on Monday, 9 November 2026.
+The meeting starts at 10:00 and ends at 12:30.
+Please return the key to the front desk afterwards.

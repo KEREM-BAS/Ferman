@@ -14,14 +14,15 @@ use std::collections::HashMap;
 use std::panic::AssertUnwindSafe;
 use std::path::PathBuf;
 use std::sync::atomic::{AtomicBool, Ordering};
-use std::sync::{Arc, Mutex, MutexGuard};
+use std::sync::{Arc, Mutex, MutexGuard, PoisonError};
 use std::thread;
 
+use ferman_core::revision::RevisionStore;
 use ferman_core::structure::{
     Agreement, Attachment, Direction, FontUse, Info, Layer, OutlineItem, Scripts, Signature,
 };
 use ferman_core::{Access, Method, OpenOptions, Password, Permissions, RepairReport, Source};
-use ferman_render::{DocumentId, PageSize, RenderThread, ViewId, ViewSink, Wanted};
+use ferman_render::{DocumentId, PageRaster, PageSize, RenderThread, ViewId, ViewSink, Wanted};
 use ferman_text::extract::PageText;
 
 use super::engine::Engine;
@@ -116,11 +117,69 @@ pub(super) struct Model {
     pub(super) owner_unlocked: AtomicBool,
     /// The text of each page once read, for searches after the first.
     pub(super) pages: Mutex<Vec<Option<Arc<ferman_text::extract::PageText>>>>,
+    /// Why no block of the document can be edited whatever the password: damaged or read-only.
+    pub(super) read_only: Option<ferman_text::NotEditableReason>,
+    /// The revisions the document actor last published, with the text model of each page of
+    /// them once laid out ([`Engine::text_blocks`]).
+    pub(super) revised: Mutex<Revised>,
+    /// The file the document saves to, until Save as names another (`edit`).
+    pub(super) path: PathBuf,
+    /// The serial of the last revision sent to the render thread, so an older one never follows
+    /// a newer one (`edit`).
+    pub(super) rendered: Mutex<u64>,
+}
+
+/// The document as the actor last published it: a snapshot of its committed revisions that
+/// readers share without blocking the actor (docs/ARCHITECTURE.md §4.3).
+#[derive(Debug)]
+pub(super) struct Revised {
+    pub(super) store: Arc<RevisionStore>,
+    /// How many times the actor published; a layout of an older snapshot is not kept.
+    pub(super) generation: u64,
+    /// The text model of each page once laid out, with `read_only` but without the author's
+    /// restrictions, which the owner password can lift.
+    pub(super) blocks: Vec<Option<Arc<ferman_text::PageText>>>,
 }
 
 impl Model {
+    /// The model of `document`, opened from `path`, with nothing laid out or revised yet.
+    pub(super) fn new(
+        document: ferman_core::Document,
+        path: PathBuf,
+        read_only: Option<ferman_text::NotEditableReason>,
+        layers_switchable: bool,
+        first: Option<Arc<PageText>>,
+    ) -> Self {
+        let count = document.page_count();
+        let mut texts = vec![None; count];
+        if let Some(slot) = texts.first_mut() {
+            *slot = first;
+        }
+        Self {
+            pages: Mutex::new(texts),
+            read_only,
+            revised: Mutex::new(Revised {
+                store: Arc::new(RevisionStore::new(&document)),
+                generation: 0,
+                blocks: vec![None; count],
+            }),
+            path,
+            rendered: Mutex::new(0),
+            document,
+            layers_switchable,
+            owner_unlocked: AtomicBool::new(false),
+        }
+    }
+}
+
+impl Model {
+    /// The snapshot the actor last published.
+    pub(super) fn revised(&self) -> MutexGuard<'_, Revised> {
+        self.revised.lock().unwrap_or_else(PoisonError::into_inner)
+    }
+
     /// The document's security now, `None` when it is not encrypted.
-    fn security(&self) -> Option<Security> {
+    pub(super) fn security(&self) -> Option<Security> {
         self.document.encryption().map(|encryption| Security {
             method: encryption.method,
             user_password_required: encryption.user_password_required,
@@ -172,7 +231,7 @@ impl Engine {
     ) -> Result<OpenedDocument, ApiError> {
         guard_async(async move {
             let render = self.render()?;
-            let (source, model, first) = parse(path, password.clone()).await?;
+            let (source, model, first) = parse(path.clone(), password.clone()).await?;
             // shortcut: ferman-core parses before PDFium loads, so the first page waits for both;
             // run them side by side if the first-page bench misses its budget.
             let rendered = render
@@ -239,18 +298,21 @@ impl Engine {
                     .as_ref()
                     .is_some_and(|text| text.text.trim().is_empty()),
             };
-            let mut texts = vec![None; model.page_count()];
-            if let Some(slot) = texts.first_mut() {
-                *slot = first;
-            }
+            let not_editable = opened.read_only.as_ref().map(|read_only| match read_only {
+                ReadOnly::Repaired(_) | ReadOnly::ParsersDisagree(_) => {
+                    ferman_text::NotEditableReason::Damaged
+                }
+                ReadOnly::XfaOnly => ferman_text::NotEditableReason::ReadOnly,
+            });
             self.models()?.insert(
                 rendered.id,
-                Arc::new(Model {
-                    pages: Mutex::new(texts),
-                    document: model,
+                Arc::new(Model::new(
+                    model,
+                    path,
+                    not_editable,
                     layers_switchable,
-                    owner_unlocked: AtomicBool::new(false),
-                }),
+                    first,
+                )),
             );
             Ok(opened)
         })
@@ -278,6 +340,9 @@ impl Engine {
                 let model = models
                     .get(&document)
                     .filter(|model| model.layers_switchable)
+                    // shortcut: the appendix is built from the file as opened, so it would hide
+                    // the edits; build it over the revisions when the Layers tab needs both.
+                    .filter(|model| model.revised().store.current() == 0)
                     .map(|model| &model.document)
                     .ok_or_else(|| {
                         ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
@@ -398,6 +463,7 @@ impl Engine {
     pub async fn close(&self, document: DocumentId) -> Result<(), ApiError> {
         guard_async(async {
             self.models()?.remove(&document);
+            self.end_edits(document);
             Ok(self.render()?.close_document(document).await?)
         })
         .await
@@ -441,6 +507,25 @@ impl Engine {
         Ok(self.render()?.close_view(view)?)
     }
 
+    /// Renders the whole of page `page` (of size `size`) of `document` at `dpi`, tile for tile as
+    /// the canvas gets it, for the pixel-diff harness ([`ferman_render::render_page`]).
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open, and the render thread's errors.
+    pub async fn render_page(
+        &self,
+        document: DocumentId,
+        page: u32,
+        size: PageSize,
+        dpi: u32,
+    ) -> Result<PageRaster, ApiError> {
+        guard_async(async {
+            Ok(ferman_render::render_page(self.render()?, document, page, size, dpi).await?)
+        })
+        .await
+    }
+
     /// The parsed models of the open documents.
     pub(super) fn models(
         &self,
@@ -451,7 +536,7 @@ impl Engine {
     }
 
     /// The render thread, or an internal error saying why it is not running.
-    fn render(&self) -> Result<&RenderThread, ApiError> {
+    pub(super) fn render(&self) -> Result<&RenderThread, ApiError> {
         self.render.as_ref().map_err(ApiError::internal)
     }
 }

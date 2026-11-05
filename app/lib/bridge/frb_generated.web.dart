@@ -38,6 +38,9 @@ abstract class FermanBridgeApiImplPlatform
   String dco_decode_String(dynamic raw);
 
   @protected
+  Alignment dco_decode_alignment(dynamic raw);
+
+  @protected
   ApiError dco_decode_api_error(dynamic raw);
 
   @protected
@@ -47,10 +50,19 @@ abstract class FermanBridgeApiImplPlatform
   Attachment dco_decode_attachment(dynamic raw);
 
   @protected
+  BlockInfo dco_decode_block_info(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
 
   @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
+
+  @protected
+  NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
+
+  @protected
+  PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
 
   @protected
   PdfDate dco_decode_box_autoadd_pdf_date(dynamic raw);
@@ -65,6 +77,9 @@ abstract class FermanBridgeApiImplPlatform
   Security dco_decode_box_autoadd_security(dynamic raw);
 
   @protected
+  TextPosition dco_decode_box_autoadd_text_position(dynamic raw);
+
+  @protected
   int dco_decode_box_autoadd_u_32(dynamic raw);
 
   @protected
@@ -77,6 +92,9 @@ abstract class FermanBridgeApiImplPlatform
   BuildProfile dco_decode_build_profile(dynamic raw);
 
   @protected
+  Caret dco_decode_caret(dynamic raw);
+
+  @protected
   CrateVersion dco_decode_crate_version(dynamic raw);
 
   @protected
@@ -84,6 +102,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   DocumentPermissions dco_decode_document_permissions(dynamic raw);
+
+  @protected
+  EditPreview dco_decode_edit_preview(dynamic raw);
 
   @protected
   EncryptionMethod dco_decode_encryption_method(dynamic raw);
@@ -107,10 +128,19 @@ abstract class FermanBridgeApiImplPlatform
   FontType dco_decode_font_type(dynamic raw);
 
   @protected
+  History dco_decode_history(dynamic raw);
+
+  @protected
+  HistoryStep dco_decode_history_step(dynamic raw);
+
+  @protected
   int dco_decode_i_16(dynamic raw);
 
   @protected
   int dco_decode_i_32(dynamic raw);
+
+  @protected
+  PlatformInt64 dco_decode_i_64(dynamic raw);
 
   @protected
   ItemKind dco_decode_item_kind(dynamic raw);
@@ -119,10 +149,16 @@ abstract class FermanBridgeApiImplPlatform
   Layer dco_decode_layer(dynamic raw);
 
   @protected
+  LineInfo dco_decode_line_info(dynamic raw);
+
+  @protected
   List<String> dco_decode_list_String(dynamic raw);
 
   @protected
   List<Attachment> dco_decode_list_attachment(dynamic raw);
+
+  @protected
+  List<BlockInfo> dco_decode_list_block_info(dynamic raw);
 
   @protected
   List<bool> dco_decode_list_bool(dynamic raw);
@@ -134,7 +170,13 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
 
   @protected
+  List<HistoryStep> dco_decode_list_history_step(dynamic raw);
+
+  @protected
   List<Layer> dco_decode_list_layer(dynamic raw);
+
+  @protected
+  List<LineInfo> dco_decode_list_line_info(dynamic raw);
 
   @protected
   List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
@@ -164,6 +206,9 @@ abstract class FermanBridgeApiImplPlatform
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
 
   @protected
+  NotEditableReason dco_decode_not_editable_reason(dynamic raw);
+
+  @protected
   OpenedDocument dco_decode_opened_document(dynamic raw);
 
   @protected
@@ -171,6 +216,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
+
+  @protected
+  NotEditableReason? dco_decode_opt_box_autoadd_not_editable_reason(
+    dynamic raw,
+  );
 
   @protected
   PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
@@ -194,7 +244,13 @@ abstract class FermanBridgeApiImplPlatform
   OutlineEntry dco_decode_outline_entry(dynamic raw);
 
   @protected
+  PageBlocks dco_decode_page_blocks(dynamic raw);
+
+  @protected
   PageInfo dco_decode_page_info(dynamic raw);
+
+  @protected
+  PagePoint dco_decode_page_point(dynamic raw);
 
   @protected
   PageRect dco_decode_page_rect(dynamic raw);
@@ -221,6 +277,9 @@ abstract class FermanBridgeApiImplPlatform
   RepairKind dco_decode_repair_kind(dynamic raw);
 
   @protected
+  RevisionInfo dco_decode_revision_info(dynamic raw);
+
+  @protected
   SearchEvent dco_decode_search_event(dynamic raw);
 
   @protected
@@ -236,7 +295,16 @@ abstract class FermanBridgeApiImplPlatform
   Security dco_decode_security(dynamic raw);
 
   @protected
+  Selection dco_decode_selection(dynamic raw);
+
+  @protected
   Signature dco_decode_signature(dynamic raw);
+
+  @protected
+  TextDirection dco_decode_text_direction(dynamic raw);
+
+  @protected
+  TextPosition dco_decode_text_position(dynamic raw);
 
   @protected
   int dco_decode_u_16(dynamic raw);
@@ -282,6 +350,9 @@ abstract class FermanBridgeApiImplPlatform
   String sse_decode_String(SseDeserializer deserializer);
 
   @protected
+  Alignment sse_decode_alignment(SseDeserializer deserializer);
+
+  @protected
   ApiError sse_decode_api_error(SseDeserializer deserializer);
 
   @protected
@@ -291,10 +362,21 @@ abstract class FermanBridgeApiImplPlatform
   Attachment sse_decode_attachment(SseDeserializer deserializer);
 
   @protected
+  BlockInfo sse_decode_block_info(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
+
+  @protected
+  NotEditableReason sse_decode_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  PagePoint sse_decode_box_autoadd_page_point(SseDeserializer deserializer);
 
   @protected
   PdfDate sse_decode_box_autoadd_pdf_date(SseDeserializer deserializer);
@@ -313,6 +395,11 @@ abstract class FermanBridgeApiImplPlatform
   Security sse_decode_box_autoadd_security(SseDeserializer deserializer);
 
   @protected
+  TextPosition sse_decode_box_autoadd_text_position(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   int sse_decode_box_autoadd_u_32(SseDeserializer deserializer);
 
   @protected
@@ -325,6 +412,9 @@ abstract class FermanBridgeApiImplPlatform
   BuildProfile sse_decode_build_profile(SseDeserializer deserializer);
 
   @protected
+  Caret sse_decode_caret(SseDeserializer deserializer);
+
+  @protected
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer);
 
   @protected
@@ -334,6 +424,9 @@ abstract class FermanBridgeApiImplPlatform
   DocumentPermissions sse_decode_document_permissions(
     SseDeserializer deserializer,
   );
+
+  @protected
+  EditPreview sse_decode_edit_preview(SseDeserializer deserializer);
 
   @protected
   EncryptionMethod sse_decode_encryption_method(SseDeserializer deserializer);
@@ -357,10 +450,19 @@ abstract class FermanBridgeApiImplPlatform
   FontType sse_decode_font_type(SseDeserializer deserializer);
 
   @protected
+  History sse_decode_history(SseDeserializer deserializer);
+
+  @protected
+  HistoryStep sse_decode_history_step(SseDeserializer deserializer);
+
+  @protected
   int sse_decode_i_16(SseDeserializer deserializer);
 
   @protected
   int sse_decode_i_32(SseDeserializer deserializer);
+
+  @protected
+  PlatformInt64 sse_decode_i_64(SseDeserializer deserializer);
 
   @protected
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
@@ -369,10 +471,16 @@ abstract class FermanBridgeApiImplPlatform
   Layer sse_decode_layer(SseDeserializer deserializer);
 
   @protected
+  LineInfo sse_decode_line_info(SseDeserializer deserializer);
+
+  @protected
   List<String> sse_decode_list_String(SseDeserializer deserializer);
 
   @protected
   List<Attachment> sse_decode_list_attachment(SseDeserializer deserializer);
+
+  @protected
+  List<BlockInfo> sse_decode_list_block_info(SseDeserializer deserializer);
 
   @protected
   List<bool> sse_decode_list_bool(SseDeserializer deserializer);
@@ -386,7 +494,13 @@ abstract class FermanBridgeApiImplPlatform
   List<FontEntry> sse_decode_list_font_entry(SseDeserializer deserializer);
 
   @protected
+  List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer);
+
+  @protected
   List<Layer> sse_decode_list_layer(SseDeserializer deserializer);
+
+  @protected
+  List<LineInfo> sse_decode_list_line_info(SseDeserializer deserializer);
 
   @protected
   List<OutlineEntry> sse_decode_list_outline_entry(
@@ -418,6 +532,11 @@ abstract class FermanBridgeApiImplPlatform
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
 
   @protected
+  NotEditableReason sse_decode_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   OpenedDocument sse_decode_opened_document(SseDeserializer deserializer);
 
   @protected
@@ -425,6 +544,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  NotEditableReason? sse_decode_opt_box_autoadd_not_editable_reason(
     SseDeserializer deserializer,
   );
 
@@ -452,7 +576,13 @@ abstract class FermanBridgeApiImplPlatform
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
 
   @protected
+  PageBlocks sse_decode_page_blocks(SseDeserializer deserializer);
+
+  @protected
   PageInfo sse_decode_page_info(SseDeserializer deserializer);
+
+  @protected
+  PagePoint sse_decode_page_point(SseDeserializer deserializer);
 
   @protected
   PageRect sse_decode_page_rect(SseDeserializer deserializer);
@@ -479,6 +609,9 @@ abstract class FermanBridgeApiImplPlatform
   RepairKind sse_decode_repair_kind(SseDeserializer deserializer);
 
   @protected
+  RevisionInfo sse_decode_revision_info(SseDeserializer deserializer);
+
+  @protected
   SearchEvent sse_decode_search_event(SseDeserializer deserializer);
 
   @protected
@@ -494,7 +627,16 @@ abstract class FermanBridgeApiImplPlatform
   Security sse_decode_security(SseDeserializer deserializer);
 
   @protected
+  Selection sse_decode_selection(SseDeserializer deserializer);
+
+  @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
+
+  @protected
+  TextDirection sse_decode_text_direction(SseDeserializer deserializer);
+
+  @protected
+  TextPosition sse_decode_text_position(SseDeserializer deserializer);
 
   @protected
   int sse_decode_u_16(SseDeserializer deserializer);
@@ -590,9 +732,34 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_block_info(BlockInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.id),
+      cst_encode_page_rect(raw.frame),
+      cst_encode_list_line_info(raw.lines),
+      cst_encode_alignment(raw.alignment),
+      cst_encode_text_direction(raw.direction),
+      cst_encode_opt_box_autoadd_not_editable_reason(raw.notEditable),
+    ].jsify()!;
+  }
+
+  @protected
   int cst_encode_box_autoadd_fail_reason(FailReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_fail_reason(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_not_editable_reason(NotEditableReason raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_not_editable_reason(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_page_point(PagePoint raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_page_point(raw);
   }
 
   @protected
@@ -620,6 +787,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_text_position(TextPosition raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_text_position(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_u_32(int raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_u_32(raw);
@@ -635,6 +808,15 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_box_autoadd_view_item(ViewItem raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_view_item(raw);
+  }
+
+  @protected
+  JSAny cst_encode_caret(Caret raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.index),
+      cst_encode_page_rect(raw.rect),
+    ].jsify()!;
   }
 
   @protected
@@ -677,6 +859,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_edit_preview(EditPreview raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_page_blocks(raw.page),
+      cst_encode_list_String(raw.missing),
+      cst_encode_bool(raw.overflowing),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_engine_info(EngineInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -700,12 +892,44 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_history(History raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_history_step(raw.steps),
+      cst_encode_u_32(raw.current),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_history_step(HistoryStep raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_String(raw.name), cst_encode_i_64(raw.time)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_i_64(PlatformInt64 raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return castNativeBigInt(raw);
+  }
+
+  @protected
   JSAny cst_encode_layer(Layer raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
       cst_encode_String(raw.name),
       cst_encode_bool(raw.visible),
       cst_encode_bool(raw.locked),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_line_info(LineInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.text),
+      cst_encode_page_rect(raw.bbox),
+      cst_encode_page_point(raw.baselineStart),
+      cst_encode_page_point(raw.baselineEnd),
     ].jsify()!;
   }
 
@@ -719,6 +943,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_attachment(List<Attachment> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_attachment).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_block_info(List<BlockInfo> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_block_info).toList().jsify()!;
   }
 
   @protected
@@ -740,9 +970,21 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_history_step(List<HistoryStep> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_history_step).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_layer(List<Layer> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_layer).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_line_info(List<LineInfo> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_line_info).toList().jsify()!;
   }
 
   @protected
@@ -840,6 +1082,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  int? cst_encode_opt_box_autoadd_not_editable_reason(NotEditableReason? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_not_editable_reason(raw);
+  }
+
+  @protected
   JSAny? cst_encode_opt_box_autoadd_pdf_date(PdfDate? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_pdf_date(raw);
@@ -887,6 +1135,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_page_blocks(PageBlocks raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_block_info(raw.blocks),
+      cst_encode_opt_box_autoadd_not_editable_reason(raw.empty),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_page_info(PageInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -894,6 +1151,12 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_f_32(raw.height),
       cst_encode_opt_String(raw.label),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_page_point(PagePoint raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_f_32(raw.x), cst_encode_f_32(raw.y)].jsify()!;
   }
 
   @protected
@@ -935,6 +1198,15 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_repair_kind(raw.kind),
       cst_encode_u_32(raw.count),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_revision_info(RevisionInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.current),
+      cst_encode_opt_box_autoadd_u_64(raw.renderKey),
     ].jsify()!;
   }
 
@@ -990,6 +1262,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_selection(Selection raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_page_rect(raw.quads),
+      cst_encode_String(raw.text),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_signature(Signature raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -999,6 +1280,12 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_pdf_date(raw.signedAt),
       cst_encode_opt_box_autoadd_u_32(raw.page),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_text_position(TextPosition raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_u_64(raw.block), cst_encode_u_32(raw.index)].jsify()!;
   }
 
   @protected
@@ -1050,6 +1337,9 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_alignment(Alignment raw);
+
+  @protected
   bool cst_encode_bool(bool raw);
 
   @protected
@@ -1080,6 +1370,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_item_kind(ItemKind raw);
 
   @protected
+  int cst_encode_not_editable_reason(NotEditableReason raw);
+
+  @protected
   int cst_encode_pdfium_state(PdfiumState raw);
 
   @protected
@@ -1093,6 +1386,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw);
+
+  @protected
+  int cst_encode_text_direction(TextDirection raw);
 
   @protected
   int cst_encode_u_16(int raw);
@@ -1131,6 +1427,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_String(String self, SseSerializer serializer);
 
   @protected
+  void sse_encode_alignment(Alignment self, SseSerializer serializer);
+
+  @protected
   void sse_encode_api_error(ApiError self, SseSerializer serializer);
 
   @protected
@@ -1140,11 +1439,26 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_attachment(Attachment self, SseSerializer serializer);
 
   @protected
+  void sse_encode_block_info(BlockInfo self, SseSerializer serializer);
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_not_editable_reason(
+    NotEditableReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_page_point(
+    PagePoint self,
     SseSerializer serializer,
   );
 
@@ -1167,6 +1481,12 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_box_autoadd_security(Security self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_text_position(
+    TextPosition self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_u_32(int self, SseSerializer serializer);
 
   @protected
@@ -1182,6 +1502,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_build_profile(BuildProfile self, SseSerializer serializer);
 
   @protected
+  void sse_encode_caret(Caret self, SseSerializer serializer);
+
+  @protected
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer);
 
   @protected
@@ -1192,6 +1515,9 @@ abstract class FermanBridgeApiImplPlatform
     DocumentPermissions self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_edit_preview(EditPreview self, SseSerializer serializer);
 
   @protected
   void sse_encode_encryption_method(
@@ -1218,10 +1544,19 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_font_type(FontType self, SseSerializer serializer);
 
   @protected
+  void sse_encode_history(History self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_history_step(HistoryStep self, SseSerializer serializer);
+
+  @protected
   void sse_encode_i_16(int self, SseSerializer serializer);
 
   @protected
   void sse_encode_i_32(int self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_i_64(PlatformInt64 self, SseSerializer serializer);
 
   @protected
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
@@ -1230,11 +1565,20 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_layer(Layer self, SseSerializer serializer);
 
   @protected
+  void sse_encode_line_info(LineInfo self, SseSerializer serializer);
+
+  @protected
   void sse_encode_list_String(List<String> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_attachment(
     List<Attachment> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_block_info(
+    List<BlockInfo> self,
     SseSerializer serializer,
   );
 
@@ -1254,7 +1598,16 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_history_step(
+    List<HistoryStep> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_layer(List<Layer> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_line_info(List<LineInfo> self, SseSerializer serializer);
 
   @protected
   void sse_encode_list_outline_entry(
@@ -1305,6 +1658,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_not_editable_reason(
+    NotEditableReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opened_document(
     OpenedDocument self,
     SseSerializer serializer,
@@ -1316,6 +1675,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_not_editable_reason(
+    NotEditableReason? self,
     SseSerializer serializer,
   );
 
@@ -1353,7 +1718,13 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
 
   @protected
+  void sse_encode_page_blocks(PageBlocks self, SseSerializer serializer);
+
+  @protected
   void sse_encode_page_info(PageInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_page_point(PagePoint self, SseSerializer serializer);
 
   @protected
   void sse_encode_page_rect(PageRect self, SseSerializer serializer);
@@ -1383,6 +1754,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_repair_kind(RepairKind self, SseSerializer serializer);
 
   @protected
+  void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer);
+
+  @protected
   void sse_encode_search_event(SearchEvent self, SseSerializer serializer);
 
   @protected
@@ -1401,7 +1775,16 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_security(Security self, SseSerializer serializer);
 
   @protected
+  void sse_encode_selection(Selection self, SseSerializer serializer);
+
+  @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_text_direction(TextDirection self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_text_position(TextPosition self, SseSerializer serializer);
 
   @protected
   void sse_encode_u_16(int self, SseSerializer serializer);
@@ -1439,6 +1822,33 @@ class FermanBridgeWire implements BaseWire {
   JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__frb__api_version() => wasmModule.wire__crate__frb__api_version();
 
+  void wire__crate__frb__apply_edit(
+    NativePortType port_,
+    JSAny transaction,
+    String text,
+  ) => wasmModule.wire__crate__frb__apply_edit(port_, transaction, text);
+
+  void wire__crate__frb__begin_edit(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  ) => wasmModule.wire__crate__frb__begin_edit(port_, document, page, block);
+
+  void wire__crate__frb__caret_at(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+    JSAny point,
+  ) => wasmModule.wire__crate__frb__caret_at(
+    port_,
+    document,
+    page,
+    block,
+    point,
+  );
+
   void wire__crate__frb__close(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__close(port_, document);
 
@@ -1451,6 +1861,12 @@ class FermanBridgeWire implements BaseWire {
     JSAny texts,
   ) => wasmModule.wire__crate__frb__collation_order(port_, locale, texts);
 
+  void wire__crate__frb__commit_edit(
+    NativePortType port_,
+    JSAny transaction,
+    String name,
+  ) => wasmModule.wire__crate__frb__commit_edit(port_, transaction, name);
+
   void wire__crate__frb__debug_bytes(NativePortType port_, int len) =>
       wasmModule.wire__crate__frb__debug_bytes(port_, len);
 
@@ -1459,6 +1875,9 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__engine_info(NativePortType port_) =>
       wasmModule.wire__crate__frb__engine_info(port_);
+
+  void wire__crate__frb__history(NativePortType port_, JSAny document) =>
+      wasmModule.wire__crate__frb__history(port_, document);
 
   void wire__crate__frb__open(
     NativePortType port_,
@@ -1472,6 +1891,9 @@ class FermanBridgeWire implements BaseWire {
     String sink,
   ) => wasmModule.wire__crate__frb__open_view(port_, document, sink);
 
+  void wire__crate__frb__redo(NativePortType port_, JSAny document) =>
+      wasmModule.wire__crate__frb__redo(port_, document);
+
   void wire__crate__frb__request_view(
     NativePortType port_,
     JSAny view,
@@ -1483,6 +1905,20 @@ class FermanBridgeWire implements BaseWire {
     generation,
     wanted,
   );
+
+  void wire__crate__frb__rollback_edit(
+    NativePortType port_,
+    JSAny transaction,
+  ) => wasmModule.wire__crate__frb__rollback_edit(port_, transaction);
+
+  void wire__crate__frb__save(NativePortType port_, JSAny document) =>
+      wasmModule.wire__crate__frb__save(port_, document);
+
+  void wire__crate__frb__save_as(
+    NativePortType port_,
+    JSAny document,
+    String path,
+  ) => wasmModule.wire__crate__frb__save_as(port_, document, path);
 
   void wire__crate__frb__save_attachment(
     NativePortType port_,
@@ -1512,11 +1948,34 @@ class FermanBridgeWire implements BaseWire {
     sink,
   );
 
+  void wire__crate__frb__selection(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny anchor,
+    JSAny focus,
+  ) => wasmModule.wire__crate__frb__selection(
+    port_,
+    document,
+    page,
+    anchor,
+    focus,
+  );
+
   void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
     JSAny visible,
   ) => wasmModule.wire__crate__frb__show_layers(port_, document, visible);
+
+  void wire__crate__frb__text_blocks(
+    NativePortType port_,
+    JSAny document,
+    int page,
+  ) => wasmModule.wire__crate__frb__text_blocks(port_, document, page);
+
+  void wire__crate__frb__undo(NativePortType port_, JSAny document) =>
+      wasmModule.wire__crate__frb__undo(port_, document);
 
   void wire__crate__frb__unlock_owner(
     NativePortType port_,
@@ -1534,6 +1993,27 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   external JSAny? /* flutter_rust_bridge::for_generated::WireSyncRust2DartDco */
   wire__crate__frb__api_version();
 
+  external void wire__crate__frb__apply_edit(
+    NativePortType port_,
+    JSAny transaction,
+    String text,
+  );
+
+  external void wire__crate__frb__begin_edit(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  );
+
+  external void wire__crate__frb__caret_at(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+    JSAny point,
+  );
+
   external void wire__crate__frb__close(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__close_view(NativePortType port_, JSAny view);
@@ -1544,11 +2024,19 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny texts,
   );
 
+  external void wire__crate__frb__commit_edit(
+    NativePortType port_,
+    JSAny transaction,
+    String name,
+  );
+
   external void wire__crate__frb__debug_bytes(NativePortType port_, int len);
 
   external void wire__crate__frb__debug_panic(NativePortType port_);
 
   external void wire__crate__frb__engine_info(NativePortType port_);
+
+  external void wire__crate__frb__history(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__open(
     NativePortType port_,
@@ -1562,11 +2050,26 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String sink,
   );
 
+  external void wire__crate__frb__redo(NativePortType port_, JSAny document);
+
   external void wire__crate__frb__request_view(
     NativePortType port_,
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__rollback_edit(
+    NativePortType port_,
+    JSAny transaction,
+  );
+
+  external void wire__crate__frb__save(NativePortType port_, JSAny document);
+
+  external void wire__crate__frb__save_as(
+    NativePortType port_,
+    JSAny document,
+    String path,
   );
 
   external void wire__crate__frb__save_attachment(
@@ -1585,11 +2088,27 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String sink,
   );
 
+  external void wire__crate__frb__selection(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny anchor,
+    JSAny focus,
+  );
+
   external void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
     JSAny visible,
   );
+
+  external void wire__crate__frb__text_blocks(
+    NativePortType port_,
+    JSAny document,
+    int page,
+  );
+
+  external void wire__crate__frb__undo(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__unlock_owner(
     NativePortType port_,

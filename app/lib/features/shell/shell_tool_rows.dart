@@ -1,6 +1,10 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/editor/edit_history_panel.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -96,23 +100,6 @@ ToolButton _future(
   active: active,
   hasMenu: hasMenu,
   showLabel: showLabel,
-  shortcut: shortcut,
-  disabled: true,
-  disabledReason: feature.disabledReason(context),
-);
-
-/// An icon button of [feature], which is not built yet.
-IconButton _futureIcon(
-  BuildContext context, {
-  required Feature feature,
-  required IconName icon,
-  required String label,
-  bool? active,
-  List<String>? shortcut,
-}) => IconButton(
-  icon: icon,
-  label: label,
-  active: active,
   shortcut: shortcut,
   disabled: true,
   disabledReason: feature.disabledReason(context),
@@ -480,6 +467,11 @@ class _ViewTools extends ConsumerWidget {
 /// Edit (FmWindow lines 67–84): Edit text, Add text, Add image, Link |
 /// Find & replace, Page marks | undo, redo, Edit history … Mark edited
 /// text, Review edits with its count.
+///
+/// Edit text, the only tool built, is on. Undo and redo work while the
+/// history has a step for them (`documentEditorProvider`), and say
+/// "Nothing to undo" or "Nothing to redo" otherwise (G126); Edit history
+/// shows or hides a3-10's panel in the right panel's place.
 class _EditTools extends ConsumerWidget {
   const new();
 
@@ -491,17 +483,20 @@ class _EditTools extends ConsumerWidget {
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final edits = ref.watch(shellDocumentsProvider).active?.editCount ?? 0;
     final review = Feature.editReview.disabledReason(context);
+    final document = ref.watch(viewerProvider.select((view) => view != null));
+    final editor = ref.watch(documentEditorProvider);
+    final historyOpen = ref.watch(editHistoryOpenProvider);
     return Toolbar(
       semanticLabel: l10n.shellEditTools,
       overflowLabel: l10n.moreTools,
       children: [
-        _future(
-          context,
-          feature: Feature.editingText,
+        // The only tool so far, always on: T has nothing to switch to.
+        ToolButton(
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
           active: true,
           shortcut: ShellCommand.editText.caps(platform),
+          onPressed: () {},
         ),
         _future(
           context,
@@ -547,26 +542,31 @@ class _EditTools extends ConsumerWidget {
         const ToolbarSeparator(),
         // Undo and redo mirror in right to left (FmWindow `data-fm-flip`;
         // `IconName.directional`).
-        _futureIcon(
-          context,
-          feature: Feature.undoAndHistory,
+        IconButton(
           icon: IconName.undo2,
           label: l10n.shellUndo,
           shortcut: ShellCommand.undo.caps(platform),
+          disabledReason: l10n.editNothingToUndo,
+          onPressed: document && editor.canUndo
+              ? () =>
+                    unawaited(ref.read(documentEditorProvider.notifier).undo())
+              : null,
         ),
-        _futureIcon(
-          context,
-          feature: Feature.undoAndHistory,
+        IconButton(
           icon: IconName.redo2,
           label: l10n.shellRedo,
           shortcut: ShellCommand.redo.caps(platform),
+          disabledReason: l10n.editNothingToRedo,
+          onPressed: document && editor.canRedo
+              ? () =>
+                    unawaited(ref.read(documentEditorProvider.notifier).redo())
+              : null,
         ),
-        _futureIcon(
-          context,
-          feature: Feature.undoAndHistory,
+        IconButton(
           icon: IconName.history,
           label: l10n.shellEditHistory,
-          active: false,
+          active: historyOpen,
+          onPressed: () => toggleEditHistory(ref),
         ),
         const ToolbarSpacer(),
         Switch(

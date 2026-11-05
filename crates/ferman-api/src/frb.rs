@@ -106,6 +106,8 @@ pub enum ErrorKind {
     ResourceLimit,
     /// Reading or writing failed for a reason without its own kind.
     Io,
+    /// The text or the document cannot be edited; the message key names the reason.
+    NotEditable,
     /// A bug in Ferman, including a caught panic.
     Internal,
 }
@@ -568,6 +570,174 @@ pub struct SearchEvent {
     pub textless: bool,
 }
 
+/// A point on a page in displayed points, y down.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct PagePoint {
+    /// From the left edge.
+    pub x: f32,
+    /// From the top edge.
+    pub y: f32,
+}
+
+/// How a block's lines sit in its frame.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Alignment {
+    /// Flush left (the top in vertical text).
+    Left,
+    /// Flush right (the bottom in vertical text).
+    Right,
+    /// Centred.
+    Center,
+    /// Flush on both sides, but for the last line.
+    Justified,
+}
+
+/// The direction a block's text runs in.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum TextDirection {
+    /// Left to right.
+    LeftToRight,
+    /// Right to left: Arabic, Persian, Hebrew.
+    RightToLeft,
+    /// Vertical columns, from the right.
+    Vertical,
+}
+
+/// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
+/// panel callout (a3-11, a3-19, G39). The facade's `TooComplex` comes as one value per cause.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum NotEditableReason {
+    /// The page has only images: a scan.
+    ImageOnly,
+    /// The glyphs have no usable Unicode mapping.
+    UnknownText,
+    /// The text is drawn as vector shapes.
+    OutlinedText,
+    /// The text is invisible, such as recognised text over a scan.
+    InvisibleText,
+    /// The author's permissions forbid changes until the owner password unlocks them.
+    Restricted,
+    /// The document is read-only (an XFA-only form).
+    ReadOnly,
+    /// The document was repaired or its readers disagree.
+    Damaged,
+    /// The text is inside a signature field.
+    SignatureAppearance,
+    /// The text is inside an annotation or a form field.
+    AnnotationOrField,
+    /// The page hit a resource limit.
+    TooComplexLimits,
+    /// An operator is split across two content streams.
+    TooComplexSplitOperator,
+    /// The text is sheared.
+    TooComplexSkewed,
+}
+
+/// One line of a [`BlockInfo`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct LineInfo {
+    /// Its text in logical order.
+    pub text: String,
+    /// The box of its glyphs.
+    pub bbox: PageRect,
+    /// Its baseline's start, in visual order.
+    pub baseline_start: PagePoint,
+    /// Its baseline's end.
+    pub baseline_end: PagePoint,
+}
+
+/// A text block (paragraph frame) of a page.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockInfo {
+    /// Its id, the same for the same content.
+    pub id: u64,
+    /// Its frame.
+    pub frame: PageRect,
+    /// Its lines, from the first.
+    pub lines: Vec<LineInfo>,
+    /// How its lines sit.
+    pub alignment: Alignment,
+    /// The direction its text runs in.
+    pub direction: TextDirection,
+    /// Why it cannot be edited; `None` when it can.
+    pub not_editable: Option<NotEditableReason>,
+}
+
+/// A page's text blocks.
+#[derive(Debug, Clone, PartialEq)]
+pub struct PageBlocks {
+    /// Its blocks in reading order.
+    pub blocks: Vec<BlockInfo>,
+    /// Why a page without blocks has no text: `ImageOnly` or `OutlinedText`.
+    pub empty: Option<NotEditableReason>,
+}
+
+/// A caret in a block.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct Caret {
+    /// Its index in the block's text (lines joined by line feeds), in characters.
+    pub index: u32,
+    /// Its box, of no width across its line.
+    pub rect: PageRect,
+}
+
+/// A caret index in one block of a page.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct TextPosition {
+    /// The block's id.
+    pub block: u64,
+    /// The caret index in its text.
+    pub index: u32,
+}
+
+/// What a selection covers.
+#[derive(Debug, Clone, PartialEq)]
+pub struct Selection {
+    /// The boxes to highlight.
+    pub quads: Vec<PageRect>,
+    /// Its text for copying.
+    pub text: String,
+}
+
+/// What a block's page would read after [`apply_edit`].
+#[derive(Debug, Clone, PartialEq)]
+pub struct EditPreview {
+    /// The page's blocks with the new text; with the text before when characters are missing.
+    pub page: PageBlocks,
+    /// The characters no font of their line can draw, each as a string, in the order they
+    /// first appear: the text was not applied.
+    pub missing: Vec<String>,
+    /// Whether a line runs past the block's frame.
+    pub overflowing: bool,
+}
+
+/// Where the history stands after a commit, rollback, undo or redo.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct RevisionInfo {
+    /// How many steps apply: 0 is the document as opened.
+    pub current: u32,
+    /// The pages' new render key when the render thread reloaded the document.
+    pub render_key: Option<u64>,
+}
+
+/// One committed step of the history.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct HistoryStep {
+    /// Its name as the UI gave it.
+    pub name: String,
+    /// When it was committed, in milliseconds since the Unix epoch.
+    pub time: i64,
+}
+
+/// A document's history (a3-10).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct History {
+    /// Every step, oldest first: those before `current` apply, the rest can be redone.
+    pub steps: Vec<HistoryStep>,
+    /// How many steps apply.
+    pub current: u32,
+}
+
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
 ///
@@ -805,6 +975,234 @@ pub async fn search(
         .map_err(api_error_dto)
 }
 
+/// The text blocks of `page` of `document` in reading order, with their editability.
+///
+/// See [`facade::Engine::text_blocks`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` for a page it does not have.
+pub async fn text_blocks(document: u64, page: u32) -> Result<PageBlocks, ApiError> {
+    engine()?
+        .text_blocks(facade::DocumentId::from_raw(document), page)
+        .await
+        .map(page_blocks_dto)
+        .map_err(api_error_dto)
+}
+
+/// The caret in `block` of `page` nearest `point`.
+///
+/// See [`facade::Engine::caret_at`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+pub async fn caret_at(
+    document: u64,
+    page: u32,
+    block: u64,
+    point: PagePoint,
+) -> Result<Caret, ApiError> {
+    engine()?
+        .caret_at(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+            [point.x, point.y],
+        )
+        .await
+        .map(|caret| Caret {
+            index: caret.index,
+            rect: rect_dto(caret.rect),
+        })
+        .map_err(api_error_dto)
+}
+
+/// What a selection from `anchor` to `focus` on `page` covers, either end first.
+///
+/// See [`facade::Engine::selection`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+pub async fn selection(
+    document: u64,
+    page: u32,
+    anchor: TextPosition,
+    focus: TextPosition,
+) -> Result<Selection, ApiError> {
+    let position = |at: TextPosition| facade::TextPosition {
+        block: facade::BlockId(at.block),
+        index: at.index,
+    };
+    engine()?
+        .selection(
+            facade::DocumentId::from_raw(document),
+            page,
+            position(anchor),
+            position(focus),
+        )
+        .await
+        .map(|selection| Selection {
+            quads: selection.quads.into_iter().map(rect_dto).collect(),
+            text: selection.text,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Opens a transaction that edits `block` of `page` of `document`; returns its handle.
+///
+/// See [`facade::Engine::begin_edit`].
+///
+/// # Errors
+///
+/// `NotEditable` with the reason's message, `InvalidInput` while another transaction is open,
+/// `NotFound` for a document or block that is not there.
+pub async fn begin_edit(document: u64, page: u32, block: u64) -> Result<u64, ApiError> {
+    engine()?
+        .begin_edit(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+        )
+        .await
+        .map(facade::TransactionId::get)
+        .map_err(api_error_dto)
+}
+
+/// Replaces the text of the transaction's block, its lines separated by line feeds.
+///
+/// See [`facade::Engine::apply`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `Unsupported` for text not rewritten yet.
+pub async fn apply_edit(transaction: u64, text: String) -> Result<EditPreview, ApiError> {
+    engine()?
+        .apply(facade::TransactionId::from_raw(transaction), text)
+        .await
+        .map(|preview| EditPreview {
+            page: page_blocks_dto(preview.page),
+            missing: preview.missing.into_iter().map(String::from).collect(),
+            overflowing: preview.overflowing,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Commits the transaction as the history step `name`.
+///
+/// See [`facade::Engine::commit`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+pub async fn commit_edit(transaction: u64, name: String) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .commit(facade::TransactionId::from_raw(transaction), name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Discards the transaction.
+///
+/// See [`facade::Engine::rollback`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+pub async fn rollback_edit(transaction: u64) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .rollback(facade::TransactionId::from_raw(transaction))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Steps `document` back one step of its history.
+///
+/// See [`facade::Engine::undo`].
+///
+/// # Errors
+///
+/// `InvalidInput` at the start or while a transaction is open, `NotFound` for a closed document.
+pub async fn undo(document: u64) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .undo(facade::DocumentId::from_raw(document))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// Steps `document` forward one step undone.
+///
+/// See [`facade::Engine::redo`].
+///
+/// # Errors
+///
+/// `InvalidInput` with nothing to redo or while a transaction is open, `NotFound` for a closed
+/// document.
+pub async fn redo(document: u64) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .redo(facade::DocumentId::from_raw(document))
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
+/// The history of `document` (a3-10).
+///
+/// See [`facade::Engine::history`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn history(document: u64) -> Result<History, ApiError> {
+    engine()?
+        .history(facade::DocumentId::from_raw(document))
+        .await
+        .map(|history| History {
+            steps: history
+                .steps
+                .into_iter()
+                .map(|step| HistoryStep {
+                    name: step.name,
+                    time: step.time,
+                })
+                .collect(),
+            current: history.current,
+        })
+        .map_err(api_error_dto)
+}
+
+/// Saves `document` to its file as an incremental update.
+///
+/// See [`facade::Engine::save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the file errors of the write.
+pub async fn save(document: u64) -> Result<(), ApiError> {
+    engine()?
+        .save(facade::DocumentId::from_raw(document))
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Saves `document` as the file at `path`; later saves write there.
+///
+/// See [`facade::Engine::save_as`].
+///
+/// # Errors
+///
+/// As [`save`].
+pub async fn save_as(document: u64, path: String) -> Result<(), ApiError> {
+    engine()?
+        .save_as(facade::DocumentId::from_raw(document), PathBuf::from(path))
+        .await
+        .map_err(api_error_dto)
+}
+
 /// Hands a search's events to its Dart stream.
 struct BridgeSearch(StreamSink<SearchEvent>);
 
@@ -865,6 +1263,89 @@ impl facade::SearchSink for BridgeSearch {
             },
         };
         self.0.add(event).is_ok()
+    }
+}
+
+/// A page's blocks as their mirror.
+fn page_blocks_dto(blocks: facade::PageBlocks) -> PageBlocks {
+    PageBlocks {
+        blocks: blocks
+            .blocks
+            .into_iter()
+            .map(|block| BlockInfo {
+                id: block.id.0,
+                frame: rect_dto(block.frame),
+                lines: block
+                    .lines
+                    .into_iter()
+                    .map(|line| LineInfo {
+                        text: line.text,
+                        bbox: rect_dto(line.bbox),
+                        baseline_start: point_dto(line.baseline[0]),
+                        baseline_end: point_dto(line.baseline[1]),
+                    })
+                    .collect(),
+                alignment: match block.alignment {
+                    facade::Alignment::Left => Alignment::Left,
+                    facade::Alignment::Right => Alignment::Right,
+                    facade::Alignment::Center => Alignment::Center,
+                    facade::Alignment::Justified => Alignment::Justified,
+                },
+                direction: match block.direction {
+                    facade::TextDirection::LeftToRight => TextDirection::LeftToRight,
+                    facade::TextDirection::RightToLeft => TextDirection::RightToLeft,
+                    facade::TextDirection::Vertical => TextDirection::Vertical,
+                },
+                not_editable: match block.editability {
+                    facade::Editability::Editable => None,
+                    facade::Editability::NotEditable(reason) => Some(reason_dto(reason)),
+                },
+            })
+            .collect(),
+        empty: blocks.empty.map(reason_dto),
+    }
+}
+
+/// A revision's position as its mirror.
+fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
+    RevisionInfo {
+        current: info.current,
+        render_key: info.render_key,
+    }
+}
+
+/// A page-space box `[left, top, right, bottom]` as its mirror.
+fn rect_dto([left, top, right, bottom]: [f32; 4]) -> PageRect {
+    PageRect {
+        left,
+        top,
+        right,
+        bottom,
+    }
+}
+
+/// A page-space point as its mirror.
+fn point_dto([x, y]: [f32; 2]) -> PagePoint {
+    PagePoint { x, y }
+}
+
+/// A reason a block cannot be edited, as its mirror. The facade's enum is non-exhaustive; a
+/// reason added later reads as too complex until it gets its mirror.
+fn reason_dto(reason: facade::NotEditableReason) -> NotEditableReason {
+    use facade::{Complexity, NotEditableReason as Reason};
+    match reason {
+        Reason::ImageOnly => NotEditableReason::ImageOnly,
+        Reason::UnknownText => NotEditableReason::UnknownText,
+        Reason::OutlinedText => NotEditableReason::OutlinedText,
+        Reason::InvisibleText => NotEditableReason::InvisibleText,
+        Reason::Restricted => NotEditableReason::Restricted,
+        Reason::ReadOnly => NotEditableReason::ReadOnly,
+        Reason::Damaged => NotEditableReason::Damaged,
+        Reason::SignatureAppearance => NotEditableReason::SignatureAppearance,
+        Reason::AnnotationOrField => NotEditableReason::AnnotationOrField,
+        Reason::TooComplex(Complexity::SplitOperator) => NotEditableReason::TooComplexSplitOperator,
+        Reason::TooComplex(Complexity::Skewed) => NotEditableReason::TooComplexSkewed,
+        _ => NotEditableReason::TooComplexLimits,
     }
 }
 
@@ -1230,6 +1711,7 @@ fn api_error_dto(err: facade::ApiError) -> ApiError {
             facade::ErrorKind::Unsupported => ErrorKind::Unsupported,
             facade::ErrorKind::ResourceLimit => ErrorKind::ResourceLimit,
             facade::ErrorKind::Io => ErrorKind::Io,
+            facade::ErrorKind::NotEditable => ErrorKind::NotEditable,
             facade::ErrorKind::Internal => ErrorKind::Internal,
         },
         message_key: err.message_key.as_str().to_owned(),
@@ -1285,6 +1767,25 @@ mod tests {
         assert!(wanted_facade(wanted).is_none());
         let err = block_on(request_view(1, 1, vec![wanted])).unwrap_err();
         assert_eq!(err.kind, ErrorKind::InvalidInput);
+    }
+
+    #[test]
+    fn stale_edit_handles_are_not_found() {
+        let err = block_on(apply_edit(u64::MAX, String::new())).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::NotFound);
+        let err = block_on(commit_edit(u64::MAX, String::new())).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::NotFound);
+        let err = block_on(undo(u64::MAX)).unwrap_err();
+        assert_eq!(err.kind, ErrorKind::NotFound);
+    }
+
+    #[test]
+    fn text_that_cannot_be_edited_crosses_with_its_message() {
+        let err = api_error_dto(facade::ApiError::not_editable(
+            facade::NotEditableReason::Restricted,
+        ));
+        assert_eq!(err.kind, ErrorKind::NotEditable);
+        assert_eq!(err.message_key, "editBodyRestricted");
     }
 
     #[test]

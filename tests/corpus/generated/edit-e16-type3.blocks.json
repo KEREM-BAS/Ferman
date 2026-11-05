@@ -1,0 +1,11 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Delivery note", "start": [72.00, 745.41], "end": [166.61, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Received in good order: 12 boxes of printer paper.", "start": [72.00, 713.11], "end": [318.86, 713.11], "size": 11.00, "vertical": false},
+      {"text": "Signed for the store by M. Kaya on 2 November 2026.", "start": [72.00, 691.71], "end": [334.79, 691.71], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

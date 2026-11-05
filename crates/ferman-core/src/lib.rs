@@ -25,6 +25,12 @@
 //! - [`interpret`]: the content interpreter for text: [`Document::page_text`] hands each show
 //!   operator and the fonts it uses, as plain [`FontResource`](interpret::FontResource) data, to a
 //!   [`TextSink`](interpret::TextSink), which returns the displacement (§6.1).
+//! - [`revision`]: the [`RevisionStore`](revision::RevisionStore), an overlay of changed objects
+//!   over the opened document, one [`ChangeSet`](revision::ChangeSet) per commit, with undo and
+//!   redo (§3.6); the splicer, which replaces byte ranges of content streams
+//!   ([`Splice`](revision::Splice)), with copy-on-write for shared streams and forms (§6.6); and
+//!   the incremental writer, which appends the changes to the original bytes in the file's own
+//!   cross-reference form, encrypted with the document's key (§7.3).
 //! - [`save`]: [`safe_write`](save::safe_write), a file written through a temp file, flushed,
 //!   verified and renamed over the target (ADR 0008); M2 saves attachments with it
 //!   ([`Document::attachment_data`]).
@@ -40,10 +46,9 @@
 //!
 //! - The rest of the interpreter (§6.1): clipping, colour, marked content and Type3 glyph
 //!   procedures, M3.
-//! - `revision`: the revision store, `RevisionId` and `ChangeSet`, §4.3. M3.
-//! - The rest of `save`: `SaveMode`, the incremental writer and the full rewrite, §7 and
-//!   ADR 0008. M3. Its [`save::safe_write`] (temp file, flush, verify, atomic rename) is here since
-//!   M2, for "Save attachment as…".
+//! - The rest of `save`: `SaveMode`, the atomic replace and the full rewrite, §7 and ADR 0008.
+//!   M3. Its [`save::safe_write`] (temp file, flush, verify, atomic rename) is here since M2, for
+//!   "Save attachment as…".
 //! - `recovery`: the autosave `RecoveryJournal`, §7.6. M3.
 #![forbid(unsafe_code)]
 
@@ -54,9 +59,11 @@ pub mod filters;
 #[cfg(feature = "fuzzing")]
 #[doc(hidden)]
 pub mod fuzzing;
+mod incremental;
 pub mod interpret;
 pub mod limits;
 pub mod repair;
+pub mod revision;
 pub mod save;
 pub mod security;
 pub mod sniff;
@@ -158,6 +165,68 @@ pub enum CoreError {
     /// Something in the file that Ferman does not support yet.
     #[error("not supported: {0}")]
     Unsupported(Unsupported),
+    /// A change or a write that cannot be made.
+    #[error("cannot write: {0}")]
+    Write(WriteError),
+}
+
+/// What [`CoreError::Write`] is about: misuse of the [`RevisionStore`](revision::RevisionStore)
+/// or a change it cannot make.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+#[non_exhaustive]
+pub enum WriteError {
+    /// A transaction is open: a second one cannot begin, and a document cannot be written.
+    TransactionOpen,
+    /// A change or a commit without a transaction.
+    NoTransaction,
+    /// Undo at the first revision.
+    NothingToUndo,
+    /// Redo at the newest revision.
+    NothingToRedo,
+    /// A page index past the document's pages.
+    NoSuchPage,
+    /// Two splices of one stream overlap.
+    OverlappingSplices,
+    /// A splice's range is not inside its stream's decoded data.
+    SpliceOutsideStream,
+    /// A splice's source is not a stream.
+    NotAStream {
+        /// Its object number.
+        object: u32,
+    },
+    /// A form spliced without its placement, or with one that is not a single `Do` of that form
+    /// in one of the page's content streams.
+    Placement,
+    /// A page stream spliced, or a placement drawn, in a stream that is not in the page's
+    /// `/Contents`.
+    NotOnPage,
+    /// No object number is left for a new object.
+    ObjectNumbers,
+    /// A repaired document: its rebuilt cross-reference data cannot be extended, so it is saved
+    /// as a repaired copy (a full rewrite) instead.
+    Repaired,
+    /// The system's random number generator failed.
+    Random,
+}
+
+impl std::fmt::Display for WriteError {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::TransactionOpen => f.write_str("a transaction is open"),
+            Self::NoTransaction => f.write_str("no transaction is open"),
+            Self::NothingToUndo => f.write_str("nothing to undo"),
+            Self::NothingToRedo => f.write_str("nothing to redo"),
+            Self::NoSuchPage => f.write_str("no such page"),
+            Self::OverlappingSplices => f.write_str("splices overlap"),
+            Self::SpliceOutsideStream => f.write_str("a splice outside its stream"),
+            Self::NotAStream { object } => write!(f, "object {object} is not a stream"),
+            Self::Placement => f.write_str("a form without its placement"),
+            Self::NotOnPage => f.write_str("a stream that is not on the page"),
+            Self::ObjectNumbers => f.write_str("no object number left"),
+            Self::Repaired => f.write_str("a repaired document cannot be updated"),
+            Self::Random => f.write_str("no random numbers"),
+        }
+    }
 }
 
 /// What [`CoreError::Unsupported`] is about.

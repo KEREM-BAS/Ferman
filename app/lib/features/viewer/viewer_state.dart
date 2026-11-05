@@ -16,7 +16,7 @@ part 'viewer_state.g.dart';
 
 /// The pointer tool of the View row (a2-1a, a2-2).
 enum ViewerTool {
-  /// The default pointer; selecting text comes with B106.
+  /// The default pointer, which selects page text (B106).
   select,
 
   /// Drags the pages.

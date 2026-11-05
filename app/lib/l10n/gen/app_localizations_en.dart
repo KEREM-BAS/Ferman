@@ -1020,6 +1020,98 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String editHoverTip(String block) {
+    return 'Click to edit · $block';
+  }
+
+  @override
+  String get editNotEditableTitle => 'This text can’t be edited';
+
+  @override
+  String get editTipImageOnly =>
+      'No text on this page yet · Recognize text to edit';
+
+  @override
+  String get editBodyImageOnly =>
+      'This page is an image, such as a scan. Recognize its text to edit it.';
+
+  @override
+  String get editTipOutlinedText =>
+      'This text is drawn as shapes, so it can’t be edited';
+
+  @override
+  String get editBodyOutlinedText =>
+      'This text is drawn as vector shapes, not letters. Ferman can’t change it without redrawing it.';
+
+  @override
+  String get editTipUnknownText => 'Ferman can’t read the letters of this text';
+
+  @override
+  String get editBodyUnknownText =>
+      'Its font doesn’t say which letters its shapes stand for, so Ferman can’t change it safely.';
+
+  @override
+  String get editTipInvisibleText => 'This text is invisible';
+
+  @override
+  String get editBodyInvisibleText =>
+      'It’s hidden text, such as recognized text over a scan. Ferman doesn’t edit it.';
+
+  @override
+  String get editTipRestricted =>
+      'The author’s permissions don’t allow editing';
+
+  @override
+  String get editBodyRestricted =>
+      'Unlock the document with its owner password to edit it.';
+
+  @override
+  String get editTipReadOnly => 'This document is read-only';
+
+  @override
+  String get editBodyReadOnly =>
+      'Ferman opened this document for viewing only, so its text can’t be changed.';
+
+  @override
+  String get editTipDamaged =>
+      'This document was repaired, so it can’t be edited';
+
+  @override
+  String get editBodyDamaged =>
+      'Ferman found problems in this file and opened it for viewing only. Save a repaired copy to edit it.';
+
+  @override
+  String get editTipSignature => 'This text is part of a signature';
+
+  @override
+  String get editBodySignature => 'Ferman never edits signatures.';
+
+  @override
+  String get editTipAnnotation =>
+      'This text belongs to a comment or form field';
+
+  @override
+  String get editBodyAnnotation => 'Change it in Comment or Fill & Sign mode.';
+
+  @override
+  String get editTipTooComplex => 'Ferman can’t change this text safely';
+
+  @override
+  String get editBodyLimits =>
+      'This page is too large or complex for Ferman to rewrite safely.';
+
+  @override
+  String get editBodySplit =>
+      'Its drawing instructions are split across two parts of the page, so Ferman can’t rewrite it safely.';
+
+  @override
+  String get editBodySkewed =>
+      'This text is slanted, so Ferman can’t rewrite it safely.';
+
+  @override
+  String get viewerTextMenu => 'Text';
+
+  @override
   String get viewerPageNumber => 'Page number';
 
   @override
@@ -1912,4 +2004,30 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String get attachmentWriteFailed =>
       'Ferman couldn’t write the file there. Choose another folder, or check that the disk has space and is still connected.';
+
+  @override
+  String editStepText(String page) {
+    return 'Edited text · page $page';
+  }
+
+  @override
+  String get editHistoryClose => 'Close history';
+
+  @override
+  String get editHistorySteps => 'Steps';
+
+  @override
+  String editHistoryOpened(String name) {
+    return 'Opened $name';
+  }
+
+  @override
+  String get editHistoryNote =>
+      'Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history.';
+
+  @override
+  String get editNothingToUndo => 'Nothing to undo';
+
+  @override
+  String get editNothingToRedo => 'Nothing to redo';
 }

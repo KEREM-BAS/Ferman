@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `pdf_date_dto`, `pdfium_status_dto`, `repair_fix_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -178,6 +178,181 @@ Stream<SearchEvent> search({
   options: options,
 );
 
+/// The text blocks of `page` of `document` in reading order, with their editability.
+///
+/// See [`facade::Engine::text_blocks`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, `InvalidInput` for a page it does not have.
+Future<PageBlocks> textBlocks({required BigInt document, required int page}) =>
+    FermanBridge.instance.api.crateFrbTextBlocks(
+      document: document,
+      page: page,
+    );
+
+/// The caret in `block` of `page` nearest `point`.
+///
+/// See [`facade::Engine::caret_at`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+Future<Caret> caretAt({
+  required BigInt document,
+  required int page,
+  required BigInt block,
+  required PagePoint point,
+}) => FermanBridge.instance.api.crateFrbCaretAt(
+  document: document,
+  page: page,
+  block: block,
+  point: point,
+);
+
+/// What a selection from `anchor` to `focus` on `page` covers, either end first.
+///
+/// See [`facade::Engine::selection`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open or a block the page does not have.
+Future<Selection> selection({
+  required BigInt document,
+  required int page,
+  required TextPosition anchor,
+  required TextPosition focus,
+}) => FermanBridge.instance.api.crateFrbSelection(
+  document: document,
+  page: page,
+  anchor: anchor,
+  focus: focus,
+);
+
+/// Opens a transaction that edits `block` of `page` of `document`; returns its handle.
+///
+/// See [`facade::Engine::begin_edit`].
+///
+/// # Errors
+///
+/// `NotEditable` with the reason's message, `InvalidInput` while another transaction is open,
+/// `NotFound` for a document or block that is not there.
+Future<BigInt> beginEdit({
+  required BigInt document,
+  required int page,
+  required BigInt block,
+}) => FermanBridge.instance.api.crateFrbBeginEdit(
+  document: document,
+  page: page,
+  block: block,
+);
+
+/// Replaces the text of the transaction's block, its lines separated by line feeds.
+///
+/// See [`facade::Engine::apply`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `Unsupported` for text not rewritten yet.
+Future<EditPreview> applyEdit({
+  required BigInt transaction,
+  required String text,
+}) => FermanBridge.instance.api.crateFrbApplyEdit(
+  transaction: transaction,
+  text: text,
+);
+
+/// Commits the transaction as the history step `name`.
+///
+/// See [`facade::Engine::commit`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+Future<RevisionInfo> commitEdit({
+  required BigInt transaction,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbCommitEdit(
+  transaction: transaction,
+  name: name,
+);
+
+/// Discards the transaction.
+///
+/// See [`facade::Engine::rollback`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open.
+Future<RevisionInfo> rollbackEdit({required BigInt transaction}) =>
+    FermanBridge.instance.api.crateFrbRollbackEdit(transaction: transaction);
+
+/// Steps `document` back one step of its history.
+///
+/// See [`facade::Engine::undo`].
+///
+/// # Errors
+///
+/// `InvalidInput` at the start or while a transaction is open, `NotFound` for a closed document.
+Future<RevisionInfo> undo({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbUndo(document: document);
+
+/// Steps `document` forward one step undone.
+///
+/// See [`facade::Engine::redo`].
+///
+/// # Errors
+///
+/// `InvalidInput` with nothing to redo or while a transaction is open, `NotFound` for a closed
+/// document.
+Future<RevisionInfo> redo({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbRedo(document: document);
+
+/// The history of `document` (a3-10).
+///
+/// See [`facade::Engine::history`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<History> history({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbHistory(document: document);
+
+/// Saves `document` to its file as an incremental update.
+///
+/// See [`facade::Engine::save`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open, and the file errors of the write.
+Future<void> save({required BigInt document}) =>
+    FermanBridge.instance.api.crateFrbSave(document: document);
+
+/// Saves `document` as the file at `path`; later saves write there.
+///
+/// See [`facade::Engine::save_as`].
+///
+/// # Errors
+///
+/// As [`save`].
+Future<void> saveAs({required BigInt document, required String path}) =>
+    FermanBridge.instance.api.crateFrbSaveAs(document: document, path: path);
+
+/// How a block's lines sit in its frame.
+enum Alignment {
+  /// Flush left (the top in vertical text).
+  left,
+
+  /// Flush right (the bottom in vertical text).
+  right,
+
+  /// Centred.
+  center,
+
+  /// Flush on both sides, but for the last line.
+  justified,
+}
+
 /// The error every fallible call returns; Dart receives it as an exception.
 class ApiError implements FrbException {
   /// What kind of failure this is.
@@ -252,6 +427,57 @@ class Attachment {
           modified == other.modified;
 }
 
+/// A text block (paragraph frame) of a page.
+class BlockInfo {
+  /// Its id, the same for the same content.
+  final BigInt id;
+
+  /// Its frame.
+  final PageRect frame;
+
+  /// Its lines, from the first.
+  final List<LineInfo> lines;
+
+  /// How its lines sit.
+  final Alignment alignment;
+
+  /// The direction its text runs in.
+  final TextDirection direction;
+
+  /// Why it cannot be edited; `None` when it can.
+  final NotEditableReason? notEditable;
+
+  const BlockInfo({
+    required this.id,
+    required this.frame,
+    required this.lines,
+    required this.alignment,
+    required this.direction,
+    this.notEditable,
+  });
+
+  @override
+  int get hashCode =>
+      id.hashCode ^
+      frame.hashCode ^
+      lines.hashCode ^
+      alignment.hashCode ^
+      direction.hashCode ^
+      notEditable.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlockInfo &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          frame == other.frame &&
+          lines == other.lines &&
+          alignment == other.alignment &&
+          direction == other.direction &&
+          notEditable == other.notEditable;
+}
+
 /// The build profile of the engine library.
 enum BuildProfile {
   /// Built with debug assertions on.
@@ -259,6 +485,28 @@ enum BuildProfile {
 
   /// Built with debug assertions off.
   release,
+}
+
+/// A caret in a block.
+class Caret {
+  /// Its index in the block's text (lines joined by line feeds), in characters.
+  final int index;
+
+  /// Its box, of no width across its line.
+  final PageRect rect;
+
+  const Caret({required this.index, required this.rect});
+
+  @override
+  int get hashCode => index.hashCode ^ rect.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Caret &&
+          runtimeType == other.runtimeType &&
+          index == other.index &&
+          rect == other.rect;
 }
 
 /// One engine crate and its version.
@@ -409,6 +657,37 @@ class DocumentPermissions {
           assemble == other.assemble;
 }
 
+/// What a block's page would read after [`apply_edit`].
+class EditPreview {
+  /// The page's blocks with the new text; with the text before when characters are missing.
+  final PageBlocks page;
+
+  /// The characters no font of their line can draw, each as a string, in the order they
+  /// first appear: the text was not applied.
+  final List<String> missing;
+
+  /// Whether a line runs past the block's frame.
+  final bool overflowing;
+
+  const EditPreview({
+    required this.page,
+    required this.missing,
+    required this.overflowing,
+  });
+
+  @override
+  int get hashCode => page.hashCode ^ missing.hashCode ^ overflowing.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is EditPreview &&
+          runtimeType == other.runtimeType &&
+          page == other.page &&
+          missing == other.missing &&
+          overflowing == other.overflowing;
+}
+
 /// How an encrypted document is encrypted.
 enum EncryptionMethod {
   /// RC4, with [`Security::key_bits`].
@@ -498,6 +777,9 @@ enum ErrorKind {
   /// Reading or writing failed for a reason without its own kind.
   io,
 
+  /// The text or the document cannot be edited; the message key names the reason.
+  notEditable,
+
   /// A bug in Ferman, including a caught panic.
   internal,
 }
@@ -577,6 +859,50 @@ enum FontType {
   other,
 }
 
+/// A document's history (a3-10).
+class History {
+  /// Every step, oldest first: those before `current` apply, the rest can be redone.
+  final List<HistoryStep> steps;
+
+  /// How many steps apply.
+  final int current;
+
+  const History({required this.steps, required this.current});
+
+  @override
+  int get hashCode => steps.hashCode ^ current.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is History &&
+          runtimeType == other.runtimeType &&
+          steps == other.steps &&
+          current == other.current;
+}
+
+/// One committed step of the history.
+class HistoryStep {
+  /// Its name as the UI gave it.
+  final String name;
+
+  /// When it was committed, in milliseconds since the Unix epoch.
+  final PlatformInt64 time;
+
+  const HistoryStep({required this.name, required this.time});
+
+  @override
+  int get hashCode => name.hashCode ^ time.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is HistoryStep &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          time == other.time;
+}
+
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
 enum ItemKind {
   /// A 512-pixel tile of a page at a zoom bucket.
@@ -614,6 +940,85 @@ class Layer {
           name == other.name &&
           visible == other.visible &&
           locked == other.locked;
+}
+
+/// One line of a [`BlockInfo`].
+class LineInfo {
+  /// Its text in logical order.
+  final String text;
+
+  /// The box of its glyphs.
+  final PageRect bbox;
+
+  /// Its baseline's start, in visual order.
+  final PagePoint baselineStart;
+
+  /// Its baseline's end.
+  final PagePoint baselineEnd;
+
+  const LineInfo({
+    required this.text,
+    required this.bbox,
+    required this.baselineStart,
+    required this.baselineEnd,
+  });
+
+  @override
+  int get hashCode =>
+      text.hashCode ^
+      bbox.hashCode ^
+      baselineStart.hashCode ^
+      baselineEnd.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is LineInfo &&
+          runtimeType == other.runtimeType &&
+          text == other.text &&
+          bbox == other.bbox &&
+          baselineStart == other.baselineStart &&
+          baselineEnd == other.baselineEnd;
+}
+
+/// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
+/// panel callout (a3-11, a3-19, G39). The facade's `TooComplex` comes as one value per cause.
+enum NotEditableReason {
+  /// The page has only images: a scan.
+  imageOnly,
+
+  /// The glyphs have no usable Unicode mapping.
+  unknownText,
+
+  /// The text is drawn as vector shapes.
+  outlinedText,
+
+  /// The text is invisible, such as recognised text over a scan.
+  invisibleText,
+
+  /// The author's permissions forbid changes until the owner password unlocks them.
+  restricted,
+
+  /// The document is read-only (an XFA-only form).
+  readOnly,
+
+  /// The document was repaired or its readers disagree.
+  damaged,
+
+  /// The text is inside a signature field.
+  signatureAppearance,
+
+  /// The text is inside an annotation or a form field.
+  annotationOrField,
+
+  /// The page hit a resource limit.
+  tooComplexLimits,
+
+  /// An operator is split across two content streams.
+  tooComplexSplitOperator,
+
+  /// The text is sheared.
+  tooComplexSkewed,
 }
 
 /// A document the engine opened.
@@ -794,6 +1199,28 @@ class OutlineEntry {
           open == other.open;
 }
 
+/// A page's text blocks.
+class PageBlocks {
+  /// Its blocks in reading order.
+  final List<BlockInfo> blocks;
+
+  /// Why a page without blocks has no text: `ImageOnly` or `OutlinedText`.
+  final NotEditableReason? empty;
+
+  const PageBlocks({required this.blocks, this.empty});
+
+  @override
+  int get hashCode => blocks.hashCode ^ empty.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PageBlocks &&
+          runtimeType == other.runtimeType &&
+          blocks == other.blocks &&
+          empty == other.empty;
+}
+
 /// One page of an [`OpenedDocument`], in points as displayed.
 class PageInfo {
   /// The width, after the crop box and `/Rotate`.
@@ -818,6 +1245,28 @@ class PageInfo {
           width == other.width &&
           height == other.height &&
           label == other.label;
+}
+
+/// A point on a page in displayed points, y down.
+class PagePoint {
+  /// From the left edge.
+  final double x;
+
+  /// From the top edge.
+  final double y;
+
+  const PagePoint({required this.x, required this.y});
+
+  @override
+  int get hashCode => x.hashCode ^ y.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is PagePoint &&
+          runtimeType == other.runtimeType &&
+          x == other.x &&
+          y == other.y;
 }
 
 /// A rectangle on a page in displayed points, y down.
@@ -1008,6 +1457,28 @@ enum RepairKind {
 
   /// Objects the cross-reference data names could not be read.
   objectsUnreadable,
+}
+
+/// Where the history stands after a commit, rollback, undo or redo.
+class RevisionInfo {
+  /// How many steps apply: 0 is the document as opened.
+  final int current;
+
+  /// The pages' new render key when the render thread reloaded the document.
+  final BigInt? renderKey;
+
+  const RevisionInfo({required this.current, this.renderKey});
+
+  @override
+  int get hashCode => current.hashCode ^ renderKey.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is RevisionInfo &&
+          runtimeType == other.runtimeType &&
+          current == other.current &&
+          renderKey == other.renderKey;
 }
 
 /// An event of a search's stream.
@@ -1223,6 +1694,28 @@ class Security {
           restricted == other.restricted;
 }
 
+/// What a selection covers.
+class Selection {
+  /// The boxes to highlight.
+  final List<PageRect> quads;
+
+  /// Its text for copying.
+  final String text;
+
+  const Selection({required this.quads, required this.text});
+
+  @override
+  int get hashCode => quads.hashCode ^ text.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Selection &&
+          runtimeType == other.runtimeType &&
+          quads == other.quads &&
+          text == other.text;
+}
+
 /// A signature field of an [`OpenedDocument`] (a2-14).
 class Signature {
   /// The field's full name.
@@ -1266,6 +1759,40 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// The direction a block's text runs in.
+enum TextDirection {
+  /// Left to right.
+  leftToRight,
+
+  /// Right to left: Arabic, Persian, Hebrew.
+  rightToLeft,
+
+  /// Vertical columns, from the right.
+  vertical,
+}
+
+/// A caret index in one block of a page.
+class TextPosition {
+  /// The block's id.
+  final BigInt block;
+
+  /// The caret index in its text.
+  final int index;
+
+  const TextPosition({required this.block, required this.index});
+
+  @override
+  int get hashCode => block.hashCode ^ index.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is TextPosition &&
+          runtimeType == other.runtimeType &&
+          block == other.block &&
+          index == other.index;
 }
 
 /// An event of a view's stream. The stream ends when the view closes, with its document or when

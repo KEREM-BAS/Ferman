@@ -1,10 +1,14 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/shell_state.dart';
+import 'package:ferman/features/viewer/not_editable.dart';
+import 'package:ferman/features/viewer/text_state.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
-import 'package:flutter/widgets.dart' hide Icon;
+// The widgets library has its own Banner (the debug ribbon).
+import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The right panel (building block `FmDocPanel.dc.html`): `--panel-w` wide
@@ -15,7 +19,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// mode (`kind="edit"`). With a document open the body holds its sections
 /// ([DocumentPanelSections]): File, Fonts in this document and Security,
 /// and in Edit mode only the fonts (its edit summary comes with editing,
-/// M3). More's menu is not drawn, so More stays disabled with the
+/// M3). In Edit mode, text the pointer found that cannot be edited puts
+/// a3-19's callout above them: "This text can't be edited" with the
+/// reason, and on a scan a3-11's Recognize text, disabled until P3 (B025,
+/// G39). More's menu is not drawn, so More stays disabled with the
 /// future-version tooltip (B068). The mode panels of later milestones
 /// (FmEditPanel, FmComments, FmFormPanel) take its place.
 class FmDocPanel extends ConsumerWidget {
@@ -35,6 +42,9 @@ class FmDocPanel extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(shellModeProvider);
     final document = ref.watch(shellDocumentsProvider).active;
+    final callout = mode == FermanMode.edit
+        ? ref.watch(editCalloutProvider)
+        : null;
     final title = mode == FermanMode.edit
         ? l10n.shellModeEdit
         : l10n.shellPanelDocument;
@@ -89,12 +99,38 @@ class FmDocPanel extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: document?.document == null
+              child: document?.document == null && callout == null
                   ? const SizedBox.shrink()
                   : SingleChildScrollView(
-                      child: DocumentPanelSections(
-                        tab: document!,
-                        edit: mode == FermanMode.edit,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          if (callout != null)
+                            Padding(
+                              padding: EdgeInsetsDirectional.all(
+                                theme.space.space3,
+                              ),
+                              child: Banner(
+                                tone: BannerTone.neutral,
+                                title: l10n.editNotEditableTitle,
+                                actions: [
+                                  if (callout == NotEditableReason.imageOnly)
+                                    Button(
+                                      size: ButtonSize.sm,
+                                      disabledReason: Feature.ocr
+                                          .disabledReason(context),
+                                      child: Text(l10n.shellToolRecognizeText),
+                                    ),
+                                ],
+                                child: Text(notEditableBody(l10n, callout)),
+                              ),
+                            ),
+                          if (document?.document != null)
+                            DocumentPanelSections(
+                              tab: document!,
+                              edit: mode == FermanMode.edit,
+                            ),
+                        ],
                       ),
                     ),
             ),

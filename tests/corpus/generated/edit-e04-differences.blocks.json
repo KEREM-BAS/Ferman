@@ -1,0 +1,14 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Ödeme Bildirimi", "start": [72.00, 745.41], "end": [187.84, 745.41], "size": 16.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Mülk: Moda Cad. No: 18 D: 4, Üsküdar", "start": [72.00, 713.11], "end": [258.46, 713.11], "size": 11.00, "vertical": false},
+      {"text": "Kira bedeli: 18.500 TL", "start": [72.00, 691.71], "end": [181.01, 691.71], "size": 11.00, "vertical": false},
+      {"text": "Son ödeme günü: 5 Ekim 2026", "start": [72.00, 670.31], "end": [223.33, 670.31], "size": 11.00, "vertical": false},
+      {"text": "Hesap: Moda Gayrimenkul, Üsküdar Merkez", "start": [72.00, 648.91], "end": [287.18, 648.91], "size": 11.00, "vertical": false},
+      {"text": "Not: Gecikme hâlinde bedel yüzde 2 artar.", "start": [72.00, 627.51], "end": [278.89, 627.51], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

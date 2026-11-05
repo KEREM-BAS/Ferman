@@ -1,0 +1,17 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "اطلاعیهی تمدید قرارداد اجاره", "start": [333.90, 743.35], "end": [523.28, 743.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "به اطلاع میرساند که قرارداد اجارهی واحد شماره ۱۲ این ساختمان در پایان آبان ماه به پایان میرسد.", "start": [94.32, 703.33], "end": [523.28, 703.33], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "justified", "justify": "tj", "column": 0, "cell": null, "lines": [
+      {"text": "مستأجران گرامی میتوانند درخواست تمدید را تا پایان هفتهی آینده به دفتر مدیریت ساختمان تحویل", "start": [72.00, 672.93], "end": [523.28, 672.93], "size": 12.00, "vertical": false},
+      {"text": "دهند.", "start": [496.79, 652.53], "end": [523.28, 652.53], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "right", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "برای هماهنگی بیشتر با دفتر مدیریت تماس بگیرید یا نامهی خود را در صندوق دفتر بگذارید.", "start": [134.92, 622.13], "end": [523.28, 622.13], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

@@ -338,8 +338,8 @@ class DocumentOpener extends _$DocumentOpener {
   /// shows (not Settings opened meanwhile). Its engine document closes,
   /// what its views kept goes, and on macOS the access its recent file
   /// started ends (B029).
-  // shortcut: closes without asking about unsaved changes, which nothing
-  // can make before the writer; a1-10b's question comes with it (M3).
+  // shortcut: closes without asking about unsaved changes; the callers
+  // keep an unsaved tab open until a1-10b's question comes (W4 of M3).
   void close(String path) {
     final tab = _tab(path);
     if (tab == null) return;
@@ -362,7 +362,10 @@ class DocumentOpener extends _$DocumentOpener {
   /// other documents…").
   void closeOthers(String path) {
     for (final document in ref.read(shellDocumentsProvider).documents) {
-      if (document.path case final other? when other != path) close(other);
+      if (document.path case final other?
+          when other != path && !document.unsaved) {
+        close(other);
+      }
     }
     ref.read(shellDocumentsProvider.notifier).focus(path);
   }

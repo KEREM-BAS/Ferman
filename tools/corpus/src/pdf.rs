@@ -238,13 +238,21 @@ impl Pdf {
     pub fn add_page(&mut self, page: Page) -> ObjectId {
         let content = self.stream(Dictionary::new(), page.content);
         let mut dict = dictionary! {
-            "Type" => "Page",
-            "Parent" => self.pages_id,
             "MediaBox" => rect(0.0, 0.0, page.size.0, page.size.1),
             "Resources" => page.resources,
             "Contents" => content,
         };
         for (key, value) in page.extra {
+            dict.set(key, value);
+        }
+        self.push_page(dict)
+    }
+
+    /// Adds a page dictionary as it is, with its `/Type` and `/Parent`, at the end of the page
+    /// tree: for pages whose `/Contents` are not one stream of their own.
+    pub fn push_page(&mut self, entries: Dictionary) -> ObjectId {
+        let mut dict = dictionary! { "Type" => "Page", "Parent" => self.pages_id };
+        for (key, value) in entries {
             dict.set(key, value);
         }
         let id = self.add(dict);

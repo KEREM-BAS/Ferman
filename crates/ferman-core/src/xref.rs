@@ -52,6 +52,21 @@ pub(crate) struct Xref {
     pub(crate) sections: u32,
     /// The highest object number plus one, from `/Size` or the entries.
     pub(crate) size: u32,
+    /// Where the newest section starts: the last `startxref`, which an update's `/Prev` names.
+    pub(crate) start: usize,
+    /// The form of each section read, newest first; an update writes the newest one's form.
+    pub(crate) forms: Vec<XrefForm>,
+}
+
+/// How a cross-reference section is written.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub(crate) enum XrefForm {
+    /// A classic `xref` table.
+    Table,
+    /// A cross-reference stream (PDF 1.5).
+    Stream,
+    /// A table whose trailer's `/XRefStm` names a stream with the compressed entries.
+    Hybrid,
 }
 
 impl Xref {
@@ -123,10 +138,11 @@ fn offset_u64(offset: usize) -> u64 {
     u64::try_from(offset).unwrap_or(u64::MAX)
 }
 
-/// One section: its entries and its trailer.
+/// One section: its entries, its trailer and whether it is a table.
 struct Section {
     entries: BTreeMap<u32, Entry>,
     trailer: Dictionary,
+    table: bool,
 }
 
 /// Reads and checks the cross-reference data of `data`, which starts at the `%PDF-` header.
@@ -145,7 +161,10 @@ pub(crate) fn read(data: &[u8], limits: &Limits) -> Result<Result<Xref, XrefProb
     if start >= data.len() {
         return Ok(Err(XrefProblem::StartxrefOutside));
     }
-    let mut xref = Xref::default();
+    let mut xref = Xref {
+        start,
+        ..Xref::default()
+    };
     let mut visited = BTreeSet::new();
     let mut next = Some(start);
     while let Some(offset) = next.take() {
@@ -158,6 +177,12 @@ pub(crate) fn read(data: &[u8], limits: &Limits) -> Result<Result<Xref, XrefProb
             Ok(section) => section,
             Err(problem) => return Ok(Err(problem)),
         };
+        xref.forms
+            .push(match (section.table, section.trailer.has(b"XRefStm")) {
+                (false, _) => XrefForm::Stream,
+                (true, false) => XrefForm::Table,
+                (true, true) => XrefForm::Hybrid,
+            });
         // A hybrid file: the hidden stream's entries fill the table's free entries.
         if let Some(stream) = integer_entry(&section.trailer, b"XRefStm")
             && visited.insert(stream)
@@ -315,7 +340,11 @@ fn table(
         Err(CoreError::Syntax { .. }) => return Ok(Err(malformed_at(at))),
         Err(other) => return Err(other),
     };
-    Ok(Ok(Section { entries, trailer }))
+    Ok(Ok(Section {
+        entries,
+        trailer,
+        table: true,
+    }))
 }
 
 /// A cross-reference stream at `offset`.
@@ -369,7 +398,11 @@ fn stream(
     ] {
         trailer.remove(key);
     }
-    Ok(Ok(Section { entries, trailer }))
+    Ok(Ok(Section {
+        entries,
+        trailer,
+        table: false,
+    }))
 }
 
 /// The entries of a decoded cross-reference stream, or `None` when `/W` or `/Index` is invalid.
