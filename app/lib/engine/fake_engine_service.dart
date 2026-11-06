@@ -33,8 +33,9 @@ class FakeEngineService implements EngineService {
   });
 
   /// Madde 6 of kira-tr in a3-3a and a3-3b: EB Garamond has no "ğ"; the
-  /// same font is not installed, Plex Serif is offered first and IBM Plex
-  /// Sans Arabic covers only part of the text.
+  /// same font is not installed, Plex Serif is offered first, then the two
+  /// similar fonts a3-3b shows, and IBM Plex Sans Arabic covers only part of
+  /// the text.
   static const madde6Glyphs = MissingGlyphs(
     chars: [MissingChar(text: 'ğ', at: 0)],
     font: 'EBGaramond-Regular',
@@ -56,6 +57,24 @@ class FakeEngineService implements EngineService {
         needed: 1,
         similarity: 0.9,
         preview: 'ğ',
+      ),
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'CormorantGaramond-Regular',
+        family: 'Cormorant Garamond',
+        covered: 1,
+        needed: 1,
+        similarity: 0.88,
+        preview: 'Ğğ İı Şş Çç Öö Üü',
+      ),
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'CrimsonPro-Regular',
+        family: 'Crimson Pro',
+        covered: 1,
+        needed: 1,
+        similarity: 0.86,
+        preview: 'Ğğ İı Şş Çç Öö Üü',
       ),
       FontCandidate(
         origin: FontOrigin.bundled,

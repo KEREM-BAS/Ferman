@@ -1,7 +1,8 @@
 # tools/fonts
 
-Installs IBM's unmodified IBM Plex TTF files into `app/assets/fonts/` from the IBM/plex
-GitHub release zips pinned in `fonts.lock`, and checks the committed copies offline
+Installs the unmodified bundled TTF files into `app/assets/fonts/`, IBM Plex from the IBM/plex
+GitHub release zips pinned in `fonts.lock` and the other families from the pinned URLs there,
+and checks the committed copies offline
 ([ADR 0013](../../docs/adr/0013-fonts-and-icons.md),
 [DEPENDENCIES.md §5.2](../../docs/DEPENDENCIES.md#52-fonts)).
 
@@ -46,6 +47,33 @@ Taken from the design system, not guessed:
   (450), Light, ExtraLight and Thin weights, and other italics. Adding one is a `fonts.lock`
   line plus a `pubspec.yaml` entry.
 
+### The handwriting and similar-font families
+
+Approved in [Q08](../../docs/QUESTIONS.md#q08) groups 3 and 4. Each folder holds its upstream
+licence as `LICENSE.txt` (upstream `OFL.txt` for the four OFL-1.1 families).
+
+| Folder | Source | Font revision | Files | Licence |
+|---|---|---|---|---|
+| `caveat/` | google/fonts `47d54ca` (2026-10-16), `ofl/caveat/Caveat[wght].ttf` | 2.000 | `Caveat-VariableFont_wght.ttf` (`wght` 400 to 700) | OFL-1.1 |
+| `dancing-script/` | google/fonts `47d54ca`, `ofl/dancingscript/DancingScript[wght].ttf` | 2.001 | `DancingScript-VariableFont_wght.ttf` (`wght` 400 to 700) | OFL-1.1, Reserved Font Name "Dancing Script" |
+| `homemade-apple/` | google/fonts `47d54ca`, `apache/homemadeapple/` | 1.001 | `HomemadeApple-Regular.ttf` | Apache-2.0 |
+| `cormorant-garamond/` | CatharsisFonts/Cormorant release v4.002 (`b149467`), `fonts/ttf/` | 4.002 | `CormorantGaramond-Regular.ttf` (400), `-SemiBold.ttf` (600) | OFL-1.1 |
+| `crimson-pro/` | Fonthausen/CrimsonPro `475ca6a` (2026-10-08, no release of these files), `fonts/ttf/` | 1.004 | `CrimsonPro-Regular.ttf` (400), `-SemiBold.ttf` (600) | OFL-1.1 |
+
+- **Static or variable.** The design asks for Caveat and Dancing Script at 500, and neither has a
+  static 500 upstream (Caveat's repository has Regular and Bold; Dancing Script's has OTFs and an old
+  TTF release). So they ship variable, unmodified: the app sets `FontVariation.weight(500)`, which
+  a test proves reaches the glyphs, and an embedded signature goes through `instance.rs`. Caveat has
+  no named instance at 500 (only 400 and 700), so a signature gives the coordinates itself. Cormorant
+  and Crimson ship static, because each named instance of a variable file would be its own a3-3b row.
+- **File names.** The two variable files are installed under the name Google Fonts' own downloads
+  use: flutter_tools reads an asset path as a URI, which breaks `[wght]`. The bytes are upstream's.
+- **Weights.** Cormorant and Crimson have 400 and 600, the design's. No italics: the design asks for
+  none, so italic text gets only Plex's italics among the bundled fonts.
+- **Embedding.** Every file has `fsType` 0; `coverage.py` fails on one that forbids a subset.
+- **Turkish.** All cover it except Homemade Apple, which upstream has no İ Ğ ğ Ş ş.
+- **Not similar fonts.** The bundled handwriting families are never ranked for a3-3b (`matching.rs`).
+
 ## Usage
 
 ```sh
@@ -64,7 +92,7 @@ python3 -I tools/fonts/coverage.py --pubspec   # the pubspec.yaml fonts block
   `app/assets/fonts/` that `fonts.lock` does not pin (a subset or converted copy, for example).
   OS metadata files that `.gitignore` also ignores (`.DS_Store`, `Thumbs.db`, `desktop.ini`)
   are not counted, so a folder opened in Finder or Explorer still verifies.
-- The install replaces only the `ibm-<package>/` folders named in `fonts.lock`; other files in
+- The install replaces only the folders named in `fonts.lock`; other files in
   the destination are left alone. The staging folder is a hidden folder inside the destination.
 - `LICENSE.txt` is released with CRLF line endings. Its hash is checked on the text with CRLF
   line endings whatever the checkout did to them, so a checkout with LF line endings still

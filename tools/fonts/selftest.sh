@@ -184,6 +184,31 @@ else
   else
     fail "a rejected install changed the installed fonts"
   fi
+
+  # The "file" records, from file:// URLs next to the package above.
+  folder=homemade-apple
+  # file_lock <out> [<sha to give the font>]: good.lock plus $folder from the committed copy.
+  file_lock() {
+    cat "$work/good.lock" >"$1"
+    tr -d '\r' <"$lock" | awk -v f="$folder" -v root="$(file_url "$fonts")" -v bad="${2:-}" '
+      $1 == "file" && $2 == f {
+        sha = ($3 != "LICENSE.txt" && bad != "") ? bad : $4
+        print $1, $2, $3, sha, root "/" $2 "/" $3
+      }
+    ' >>"$1"
+  }
+  file_lock "$work/file-good.lock"
+  expect 0 "pinned files install from their URLs" \
+    "$fetch" --lock "$work/file-good.lock" --cache "$work/cache-good" --dest "$work/dest-file"
+  if cmp -s "$work/dest-file/$folder/HomemadeApple-Regular.ttf" "$fonts/$folder/HomemadeApple-Regular.ttf"; then
+    pass "the installed file is byte-identical"
+  else
+    fail "the installed file differs"
+  fi
+  file_lock "$work/file-bad.lock" 2222222222222222222222222222222222222222222222222222222222222222
+  expect 1 "a pinned file with the wrong SHA-256 is rejected" \
+    "$fetch" --lock "$work/file-bad.lock" --cache "$work/cache-good" --dest "$work/dest-file"
+  expect_output "SHA-256 mismatch for $folder/HomemadeApple-Regular.ttf" "the failure names the file"
 fi
 
 # 8. Usage errors.

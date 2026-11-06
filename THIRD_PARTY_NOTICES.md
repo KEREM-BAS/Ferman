@@ -2,7 +2,7 @@
 
 Ferman's own code and documentation are licensed under the Apache License 2.0 (see [LICENSE](LICENSE)).
 
-This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export, the generated table of standard 14 font widths in ferman-text ([below](#standard-14-font-widths)) and the predefined CMaps bundled in ferman-fonts ([below](#adobe-cmap-resources)). `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
+This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export, the handwriting and similar fonts ([below](#handwriting-and-similar-fonts)), the generated table of standard 14 font widths in ferman-text ([below](#standard-14-font-widths)) and the predefined CMaps bundled in ferman-fonts ([below](#adobe-cmap-resources)). `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
 
 The export itself ships no licence files (see [docs/DESIGN_GAPS.md](docs/DESIGN_GAPS.md#g08)), and `design/` must not be edited. The licence texts therefore live here, outside `design/`.
 
@@ -162,6 +162,19 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 ```
+
+## Handwriting and similar fonts
+
+`app/assets/fonts/` bundles these unmodified, each with its upstream licence as `LICENSE.txt`, which
+the in-app licences view shows. Sources and hashes are in `tools/fonts/fonts.lock`.
+
+| Family | Copyright | Licence |
+|---|---|---|
+| Caveat | Copyright 2014 The Caveat Project Authors (<https://github.com/googlefonts/caveat>) | SIL Open Font License 1.1 |
+| Dancing Script | Copyright 2016 The Dancing Script Project Authors (<https://github.com/googlefonts/DancingScript>), with Reserved Font Name "Dancing Script" | SIL Open Font License 1.1 |
+| Homemade Apple | Copyright (c) 2010 by Font Diner, Inc. All rights reserved. | Apache License 2.0 |
+| Cormorant Garamond | Copyright 2015 the Cormorant Project Authors (github.com/CatharsisFonts/Cormorant) | SIL Open Font License 1.1 |
+| Crimson Pro | Copyright 2018 The Crimson Pro Project Authors (<https://github.com/Fonthausen/CrimsonPro>) | SIL Open Font License 1.1 |
 
 ## Standard 14 font widths
 

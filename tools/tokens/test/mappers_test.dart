@@ -184,7 +184,7 @@ void main() {
     });
 
     test('a stack without bundled families has no family', () {
-      expect(splitFontStack(['Caveat', 'cursive']).family, isNull);
+      expect(splitFontStack(['Noto Sans SC', 'cursive']).family, isNull);
     });
   });
 }

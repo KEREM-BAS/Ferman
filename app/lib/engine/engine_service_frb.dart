@@ -1380,8 +1380,7 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
   };
 }
 
-/// The folder of the fonts the build bundles (`app/assets/fonts`, IBM
-/// Plex), as an absolute path next to the running executable: where
+/// The folder of the fonts the build bundles (`app/assets/fonts`), as an absolute path next to the running executable: where
 /// Flutter puts the app's assets on each desktop system; null elsewhere.
 String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
   final os = operatingSystem ?? Platform.operatingSystem;

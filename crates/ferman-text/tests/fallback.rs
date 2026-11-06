@@ -260,7 +260,7 @@ fn e05_a_font_that_forbids_embedding_falls_to_step_3_with_the_reason() {
     let Outcome::Rewritten(written) = rewrite(&doc, &target, &text, &keep) else {
         panic!("not written");
     };
-    assert_eq!(written.substitutions[0].to, "IBMPlexSerif-Regular");
+    assert_eq!(written.substitutions[0].to, "CormorantGaramond-Regular");
     assert_eq!(written.substitutions[0].chars, "değişr");
 }
 

@@ -283,8 +283,12 @@ void main() {
     expect(find.text('Closest match'), findsOneWidget);
     expect(find.text('No ‘\u2068ğ\u2069’'), findsOneWidget);
     // The bundled candidate previews its letters in its own font.
-    final preview = tester.widget<Text>(find.text('Ğğ İı Şş Çç Öö Üü'));
-    expect(preview.style?.fontFamily, 'IBM Plex Serif');
+    final previews = tester.widgetList<Text>(find.text('Ğğ İı Şş Çç Öö Üü'));
+    expect(previews.map((preview) => preview.style?.fontFamily), [
+      'IBM Plex Serif',
+      'Cormorant Garamond',
+      'Crimson Pro',
+    ]);
     // "Whole block" waits (B137).
     final scope = tester.widget<SegmentedControl<bool>>(
       find.byType(SegmentedControl<bool>),

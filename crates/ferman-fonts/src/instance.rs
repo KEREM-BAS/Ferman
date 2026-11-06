@@ -250,9 +250,41 @@ mod tests {
 
     use crate::matching::{SameFont, SameFontQuery, find_same_font};
     use crate::program::{FontProgram, GlyphId};
-    use crate::subset::{SubsetProgram, subset_at};
-    use crate::system::{FontLibrary, FontOrigin};
-    use crate::test_fonts::corpus_font;
+    use crate::subset::{Embedding, SubsetProgram, subset_at};
+    use crate::system::{FaceInstance, FontLibrary, FontOrigin};
+    use crate::test_fonts::{corpus_font, plex};
+
+    /// The design's typed signatures use Caveat and Dancing Script at 500. Caveat has no named
+    /// instance there (its names are Regular and Bold), so a signature gives the coordinates.
+    #[test]
+    fn the_bundled_handwriting_fonts_subset_at_weight_500() {
+        for (path, name) in [
+            ("caveat/Caveat-VariableFont_wght.ttf", "Caveat-Medium"),
+            (
+                "dancing-script/DancingScript-VariableFont_wght.ttf",
+                "DancingScript-Medium",
+            ),
+        ] {
+            let data = plex(path);
+            assert!(Embedding::of(&data, 0).allows_subset(), "{name}");
+            let program = FontProgram::parse(&data).unwrap();
+            let glyph = program.glyph_for_char('ş').unwrap();
+            let glyphs = [(GlyphId(glyph.0), "ş".to_owned())];
+            let at = |wght: i32| FaceInstance {
+                postscript_name: name.to_owned(),
+                coordinates: vec![(*b"wght", wght * 65536)],
+            };
+            let medium = subset_at(&data, 0, &glyphs, Some(&at(500))).unwrap();
+            let regular = subset_at(&data, 0, &glyphs, Some(&at(400))).unwrap();
+            assert!(medium.base_font.ends_with(name), "{}", medium.base_font);
+            let (SubsetProgram::TrueType(medium), SubsetProgram::TrueType(regular)) =
+                (medium.program, regular.program)
+            else {
+                panic!("TrueType subsets");
+            };
+            assert_ne!(medium, regular, "{name}: the outlines follow the weight");
+        }
+    }
 
     /// EB Garamond's Bold instance, found by its name, subsets to bold outlines.
     #[test]
