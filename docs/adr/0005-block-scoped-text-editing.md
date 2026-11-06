@@ -96,8 +96,10 @@ stream boundaries when `/Contents` is an array.
 The design's three choices, with the brief's labels everywhere ([G54](../DESIGN_GAPS.md#g54)):
 **Extend block** (grows the frame; disabled with a reason if it would overlap other content),
 **Tighten spacing slightly** (within a small cap; disabled with a reason if it is not enough), and
-**Keep and warn** (no text is lost; lines that do not fit are clipped to the frame and the warning stays
-in the review list and on the thumbnail). Result states are recorded in [G38](../DESIGN_GAPS.md#g38).
+**Keep and warn** (no text is lost; lines that do not fit are hidden past the frame, and the warning
+stays in the review list and on the thumbnail; **Proposed (M3 W2):** the hidden lines are written with
+the invisible render mode `3 Tr` instead of a clip to the frame, because a clipping path cannot go
+inside a text object). Result states are recorded in [G38](../DESIGN_GAPS.md#g38).
 
 ### Signed documents
 

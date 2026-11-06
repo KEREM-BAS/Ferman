@@ -2436,7 +2436,7 @@ original file is an exact prefix of the saved file.
 | E10 | `fa-zwnj` | insert a Persian word containing ZWNJ | ZWNJ handling |
 | E11 | `he-para` | edit a Hebrew sentence | right-to-left reflow |
 | E12 | generated Japanese, `zh-hans`, `zh-hant`, `ko-para` | horizontal edits in Identity-H fonts | CID re-encoding, `/W` and `/DW` widths |
-| E13 | `letter-ja-vertical` | change the date run "19" in vertical text | Identity-V, `/W2` and `/DW2`, tate-chu-yoko; or "not editable" with the reason if deferred |
+| E13 | `letter-ja-vertical` | change the date run "19" in vertical text | Identity-V, `/W2` and `/DW2`, tate-chu-yoko; or "not editable" with the reason if deferred. Built in M3 W3 (`edit_cases` e13): a column's cells, a top-aligned column one cell longer, the upright "19" as "91" and as "20" in a chosen font; column reflow and kinsoku in the writer are deferred (BACKLOG B136) |
 | E14 | real-world LaTeX file | edit a paragraph in a Type1 font with `/Differences` | Type1 built-in and custom encodings |
 | E15 | generated | edit text in a standard-14 Helvetica font without an embedded program | standard-14 metrics |
 | E16 | generated | edit text in a Type3 font whose glyph procedures cover the new text | Type3 path |

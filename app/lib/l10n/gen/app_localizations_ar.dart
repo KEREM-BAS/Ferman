@@ -2059,4 +2059,234 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'لا شيء لإعادته';
+
+  @override
+  String get editOverflowTitle => 'النص لا يتسع';
+
+  @override
+  String editOverflowBody(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'تحتاج الفقرة المعدّلة إلى $n سطر أكثر من إطارها.',
+      many: 'تحتاج الفقرة المعدّلة إلى $n سطرًا أكثر من إطارها.',
+      few: 'تحتاج الفقرة المعدّلة إلى $n أسطر أكثر من إطارها.',
+      two: 'تحتاج الفقرة المعدّلة إلى سطرين أكثر من إطارها.',
+      one: 'تحتاج الفقرة المعدّلة إلى سطر واحد أكثر من إطارها.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowExtend(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'توسيع الكتلة بـ$n سطر',
+      many: 'توسيع الكتلة بـ$n سطرًا',
+      few: 'توسيع الكتلة بـ$n أسطر',
+      two: 'توسيع الكتلة بسطرين',
+      one: 'توسيع الكتلة بسطر واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowTighten(String percent) {
+    return 'تضييق التباعد قليلًا (−$percent)';
+  }
+
+  @override
+  String get editOverflowKeep => 'إبقاء مع تحذير';
+
+  @override
+  String editOverflowExtendLabelBelow(String label) {
+    return 'سطر $label يقع مباشرة أسفل هذه الكتلة.';
+  }
+
+  @override
+  String editOverflowExtendBelow(String text) {
+    return 'السطر «$text» يقع مباشرة أسفل هذه الكتلة.';
+  }
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      'توسيع الكتلة سيجعلها تتجاوز حافة الصفحة.';
+
+  @override
+  String editOverflowTightenShort(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'حتى أضيق تباعد مسموح يترك $n سطر زائد.',
+      many: 'حتى أضيق تباعد مسموح يترك $n سطرًا زائدًا.',
+      few: 'حتى أضيق تباعد مسموح يترك $n أسطر زائدة.',
+      two: 'حتى أضيق تباعد مسموح يترك سطرين زائدين.',
+      one: 'حتى أضيق تباعد مسموح يترك سطرًا واحدًا زائدًا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowHidden(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$n سطر مخفي',
+      many: '+$n سطرًا مخفيًا',
+      few: '+$n أسطر مخفية',
+      two: '+سطران مخفيان',
+      one: '+سطر واحد مخفي',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editTotalsTitle => 'لا تُحدَّث المجاميع';
+
+  @override
+  String get editTotalsBody =>
+      'يخزّن ملف PDF الأرقام كنص. لا تزال الخلايا المعلّمة تعرض المبالغ القديمة.';
+
+  @override
+  String editTotalsReview(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'مراجعة الـ$n خلية المعلّمة',
+      many: 'مراجعة الـ$n خلية المعلّمة',
+      few: 'مراجعة الخلايا الـ$n المعلّمة',
+      two: 'مراجعة الخليتين المعلّمتين',
+      one: 'مراجعة الخلية المعلّمة',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editBadgeEdited => 'معدّل';
+
+  @override
+  String get editGlyphTitle => 'حرف مفقود';
+
+  @override
+  String editGlyphBody(String chars) {
+    return 'لا يحتوي هذا الخط على الحرف $chars. سيستخدم Ferman خطًا مشابهًا لهذا الحرف.';
+  }
+
+  @override
+  String editGlyphBodyMany(String chars) {
+    return 'لا يحتوي هذا الخط على الأحرف $chars. سيستخدم Ferman خطًا مشابهًا لهذه الأحرف.';
+  }
+
+  @override
+  String get editGlyphChoose => 'اختيار خط…';
+
+  @override
+  String get editGlyphKeep => 'إبقاء كما هو';
+
+  @override
+  String get editGlyphNoneTitle => 'لا يوجد خط يحتوي هذا الحرف';
+
+  @override
+  String editGlyphNoneBody(String chars) {
+    return 'لا يحتوي هذا الخط ولا أي خط على هذا الجهاز على الحرف $chars. اختر خطًا يحتويه أو أبقِه كما هو.';
+  }
+
+  @override
+  String get editGlyphLicenceTitle => 'لا يمكن تضمين هذا الخط';
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) {
+    return 'خط $font مثبّت، لكن ترخيصه يسمح بالمعاينة والطباعة فقط. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) {
+    return 'خط $font مثبّت، لكن ترخيصه لا يسمح بتضمينه. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) {
+    return 'يسمح ترخيص خط $font في هذا المستند بالمعاينة والطباعة فقط، لذا لا يعيد Ferman استخدام أحرفه. سيستخدم Ferman خطًا مشابهًا للحرف $chars بدلًا منه.';
+  }
+
+  @override
+  String get editGlyphAddedTitle => 'أُضيف الحرف من هذا الجهاز';
+
+  @override
+  String editGlyphAddedBody(String chars, String font) {
+    return 'أخذ Ferman الحرف $chars من خط $font المثبّت على هذا الجهاز وأضافه إلى خط المستند.';
+  }
+
+  @override
+  String get fontPickerTitle => 'اختيار خط لهذه الكتلة';
+
+  @override
+  String get fontPickerClose => 'إغلاق';
+
+  @override
+  String get fontPickerScope => 'الاستبدال';
+
+  @override
+  String get fontPickerScopeMissing => 'الأحرف المفقودة فقط';
+
+  @override
+  String get fontPickerScopeBlock => 'الكتلة كاملة';
+
+  @override
+  String get fontPickerSearch => 'البحث في الخطوط';
+
+  @override
+  String get fontPickerEmbedded => 'مضمّنة في هذا المستند';
+
+  @override
+  String get fontPickerInstalled => 'مثبّتة على هذا الجهاز';
+
+  @override
+  String get fontPickerBundled => 'خطوط مشابهة مرفقة مع Ferman';
+
+  @override
+  String get fontPickerClosest => 'الأقرب تطابقًا';
+
+  @override
+  String fontPickerHas(String chars) {
+    return 'يحتوي $chars';
+  }
+
+  @override
+  String fontPickerHasNone(String chars) {
+    return 'لا يحتوي $chars';
+  }
+
+  @override
+  String fontPickerHasSome(String covered, String needed) {
+    return '$covered من $needed أحرف';
+  }
+
+  @override
+  String get fontPickerNotEmbeddable => 'لا يمكن تضمينه';
+
+  @override
+  String fontPickerNoMatch(String query) {
+    return 'لا يوجد خط يطابق «$query».';
+  }
+
+  @override
+  String get fontPickerCancel => 'إلغاء';
+
+  @override
+  String fontPickerUse(String font) {
+    return 'استخدام $font';
+  }
+
+  @override
+  String get editFontSubstituted => 'استُبدل الخط';
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) {
+    return 'تستخدم هذه الكتلة خط $font للحرف $chars.';
+  }
+
+  @override
+  String get editFontSubstitutedDismiss => 'إغلاق';
 }

@@ -7,6 +7,7 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/block_editor.dart';
+import 'package:ferman/features/editor/edit_callouts.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
@@ -801,13 +802,36 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   }
 
   /// Edit mode's hover frame, inline editor and tooltip (a3-1a, a3-1b,
-  /// a3-19).
+  /// a3-19); the tint of the table cells that depend on the edited one
+  /// (a3-9); and "+1 line hidden" beside each block whose last lines "Keep
+  /// and warn" hides (a3-4, a3-18), at the end of its line in its own
+  /// direction.
   List<Widget> _editLayer(BuildContext context, ViewerState state) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final hover = _hover;
     final block = hover?.block;
-    final active = ref.watch(documentEditorProvider).active;
+    final editorState = ref.watch(documentEditorProvider);
+    final active = editorState.active;
+    final dependents = active == null
+        ? const <Rect>[]
+        : [
+            for (final cell
+                in editorState.preview?.dependents ?? const <DependentCell>[])
+              ?_onCanvas(state, active.page, cell.frame),
+          ];
+    final hidden = [
+      for (final mark in editorState.hidden)
+        if (active?.page != mark.page || active?.block.id != mark.block)
+          (mark.page, mark.frame, mark.direction, mark.lines),
+      if (active != null && editorState.keptHidden > 0)
+        (
+          active.page,
+          active.block.frame,
+          active.block.direction,
+          editorState.keptHidden,
+        ),
+    ];
     if (!identical(active, _keyed)) {
       _keyed = active;
       _editorKey = GlobalKey();
@@ -841,6 +865,36 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       tip = reason == null ? null : notEditableTip(l10n, reason);
     }
     return [
+      for (final cell in dependents)
+        PositionedDirectional(
+          start: cell.left,
+          top: cell.top,
+          child: IgnorePointer(
+            child: SizedBox(
+              key: const ValueKey<String>('DocumentView.dependentCell'),
+              width: cell.width,
+              height: cell.height,
+              child: ColoredBox(color: theme.pageColors.glyphMissingBg),
+            ),
+          ),
+        ),
+      for (final (page, box, direction, lines) in hidden)
+        if (_onCanvas(state, page, box) case final at?)
+          PositionedDirectional(
+            top: at.bottom + HiddenLinesStatus.drop - HiddenLinesStatus.height,
+            start: direction == BlockDirection.rightToLeft
+                ? at.left - HiddenLinesStatus.gap
+                : at.right + HiddenLinesStatus.gap,
+            child: IgnorePointer(
+              child: FractionalTranslation(
+                translation: Offset(
+                  direction == BlockDirection.rightToLeft ? -1 : 0,
+                  0,
+                ),
+                child: HiddenLinesStatus(lines: lines),
+              ),
+            ),
+          ),
       if (frame != null && reason == null)
         PositionedDirectional(
           start: frame.left - TextEditBox.marginX,

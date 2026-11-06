@@ -68,6 +68,8 @@ icu_collator = "2.4.0"
 icu_locale_core = "2.4.0"
 # The bidi algorithm for right-to-left text (ferman-text), the version stringprep already pulls.
 unicode-bidi = { version = "0.3.18", default-features = false, features = ["hardcoded-data"] }
+# Line break opportunities (UAX #14) for reflow in ferman-text, tailored there with kinsoku.
+unicode-linebreak = "0.1.5"
 # Passwords and keys are wiped from memory when dropped (docs/ARCHITECTURE.md §9.2).
 zeroize = "1.9.1"
 # The render thread's request channel and its caches (ADR 0009). lru without its default hashbrown
@@ -79,6 +81,14 @@ lru = { version = "0.19.0", default-features = false }
 # move with harfrust and subsetter. Default features off: `std` only, no autohinter shaping.
 skrifa = { version = "=0.48.0", default-features = false, features = ["std"] }
 read-fonts = { version = "=0.45.1", default-features = false, features = ["std"] }
+# Shaping (ADR 0007), pinned with skrifa and read-fonts (one fontations copy). Default features: `std`.
+harfrust = "=0.14.0"
+# Subsets of the fonts edited text embeds. Default features off: `variable-fonts` pulls a second
+# fontations stack (skrifa 0.42, write-fonts, kurbo).
+subsetter = { version = "=0.2.6", default-features = false }
+# The index of installed and bundled fonts. Default features off: no memory-mapping (unsafe) and no
+# fontconfig parsing; ferman-fonts walks the font directories itself, with limits.
+fontdb = { version = "=0.24.0", default-features = false, features = ["std", "fs"] }
 
 # Dev and test only; never in the shipped graph.
 insta = "1.49.0"

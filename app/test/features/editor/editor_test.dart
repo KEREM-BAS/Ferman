@@ -183,8 +183,8 @@ void main() {
     expect(tab(tester).editCount, 1);
   });
 
-  testWidgets('the field keeps the block’s lines, and a click elsewhere '
-      'commits', (tester) async {
+  testWidgets('the field takes another number of lines, and a click '
+      'elsewhere commits', (tester) async {
     await pumpEditor(tester);
     await click(tester, const Offset(100, 306));
     final field = find.byType(EditableText);
@@ -192,21 +192,22 @@ void main() {
       tester.widget<EditableText>(field).controller.text,
       'Birinci satır\nİkinci satır',
     );
-    await tester.enterText(field, 'Birinci\nsatır\nİkinci');
+    await tester.enterText(field, 'İlk\nsatır\nİkinci');
     await tester.pump();
     expect(
       tester.widget<EditableText>(field).controller.text,
-      'Birinci satır\nİkinci satır',
+      'İlk\nsatır\nİkinci',
     );
-    await tester.enterText(field, 'İlk satır\nİkinci satır');
-    await tester.pump();
     await click(tester, const Offset(500, 200));
     expect(find.byType(EditableText), findsNothing);
     expect(editor(tester).history.current, 1);
-    expect((await engine.textBlocks(document.id, 0)).blocks.last.lines, [
-      isA<TextLine>().having((line) => line.text, 'text', 'İlk satır'),
-      isA<TextLine>().having((line) => line.text, 'text', 'İkinci satır'),
-    ]);
+    expect(
+      (await engine.textBlocks(
+        document.id,
+        0,
+      )).blocks.last.lines.map((line) => line.text),
+      ['İlk', 'satır', 'İkinci'],
+    );
   });
 
   testWidgets('1.5 s without typing commits and keeps the field open', (

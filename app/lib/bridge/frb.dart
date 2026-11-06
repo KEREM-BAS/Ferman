@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `opened_document_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -261,6 +261,60 @@ Future<EditPreview> applyEdit({
   transaction: transaction,
   text: text,
 );
+
+/// Writes the transaction's newest text again with the overflow choice `choice`.
+///
+/// See [`facade::Engine::resolve_overflow`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when its text does not overflow
+/// or the choice is disabled.
+Future<EditPreview> resolveOverflow({
+  required BigInt transaction,
+  required OverflowChoice choice,
+}) => FermanBridge.instance.api.crateFrbResolveOverflow(
+  transaction: transaction,
+  choice: choice,
+);
+
+/// Sets where the fonts for missing glyphs come from, and "Ask each time".
+///
+/// See [`facade::Engine::set_font_settings`].
+///
+/// # Errors
+///
+/// Only an internal error.
+Future<void> setFontSettings({required FontSettings settings}) =>
+    FermanBridge.instance.api.crateFrbSetFontSettings(settings: settings);
+
+/// Draws step 3's characters in the candidate `postscript_name` of `origin` (a3-3b).
+///
+/// See [`facade::Engine::choose_font`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when no text waits for a font
+/// or the font cannot draw every character.
+Future<EditPreview> chooseFont({
+  required BigInt transaction,
+  required FontOrigin origin,
+  required String postscriptName,
+}) => FermanBridge.instance.api.crateFrbChooseFont(
+  transaction: transaction,
+  origin: origin,
+  postscriptName: postscriptName,
+);
+
+/// Keeps step 3's characters in the closest candidate ("Keep as is").
+///
+/// See [`facade::Engine::keep_as_is`].
+///
+/// # Errors
+///
+/// As [`choose_font`].
+Future<EditPreview> keepAsIs({required BigInt transaction}) =>
+    FermanBridge.instance.api.crateFrbKeepAsIs(transaction: transaction);
 
 /// Commits the transaction as the history step `name`.
 ///
@@ -531,6 +585,28 @@ class CrateVersion {
           version == other.version;
 }
 
+/// A table cell that likely depends on the edited one.
+class DependentCell {
+  /// Its block's id.
+  final BigInt id;
+
+  /// Its frame.
+  final PageRect frame;
+
+  const DependentCell({required this.id, required this.frame});
+
+  @override
+  int get hashCode => id.hashCode ^ frame.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is DependentCell &&
+          runtimeType == other.runtimeType &&
+          id == other.id &&
+          frame == other.frame;
+}
+
 /// The document information dictionary (a2-7).
 class DocumentInfo {
   /// `/Title`.
@@ -662,21 +738,51 @@ class EditPreview {
   /// The page's blocks with the new text; with the text before when characters are missing.
   final PageBlocks page;
 
-  /// The characters no font of their line can draw, each as a string, in the order they
-  /// first appear: the text was not applied.
+  /// The characters no font could draw, each as a string, in the order they first appear:
+  /// the text was not applied ([`EditPreview::glyphs`] says why).
   final List<String> missing;
 
-  /// Whether a line runs past the block's frame.
+  /// Missing-glyph step 3: the characters, why the same font did not draw them and the
+  /// candidates; drawn provisionally in the closest one until [`choose_font`] or
+  /// [`keep_as_is`], or not drawn (then they are in [`EditPreview::missing`]).
+  final MissingGlyphs? glyphs;
+
+  /// The substitutions the applied text makes (steps 2 and 3).
+  final List<FontSubstitution> substitutions;
+
+  /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
   final bool overflowing;
+
+  /// The overflow choices, when the text needs more lines than the block's frame holds.
+  final OverflowPlan? overflow;
+
+  /// The choice the preview shows and a commit keeps: `Keep` until [`resolve_overflow`].
+  final OverflowChoice? chosen;
+
+  /// The table cells whose values likely depend on the edited one (a3-9).
+  final List<DependentCell> dependents;
 
   const EditPreview({
     required this.page,
     required this.missing,
+    this.glyphs,
+    required this.substitutions,
     required this.overflowing,
+    this.overflow,
+    this.chosen,
+    required this.dependents,
   });
 
   @override
-  int get hashCode => page.hashCode ^ missing.hashCode ^ overflowing.hashCode;
+  int get hashCode =>
+      page.hashCode ^
+      missing.hashCode ^
+      glyphs.hashCode ^
+      substitutions.hashCode ^
+      overflowing.hashCode ^
+      overflow.hashCode ^
+      chosen.hashCode ^
+      dependents.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -685,7 +791,12 @@ class EditPreview {
           runtimeType == other.runtimeType &&
           page == other.page &&
           missing == other.missing &&
-          overflowing == other.overflowing;
+          glyphs == other.glyphs &&
+          substitutions == other.substitutions &&
+          overflowing == other.overflowing &&
+          overflow == other.overflow &&
+          chosen == other.chosen &&
+          dependents == other.dependents;
 }
 
 /// How an encrypted document is encrypted.
@@ -784,6 +895,41 @@ enum ErrorKind {
   internal,
 }
 
+/// Why Extend is disabled (a3-18).
+class ExtendBlocked {
+  /// What is in the way.
+  final ExtendBlockedKind kind;
+
+  /// The block in the way, for `Block`.
+  final BigInt? block;
+
+  /// Its first line, for the UI's reason ("The IBAN line sits right below this block.").
+  final String text;
+
+  const ExtendBlocked({required this.kind, this.block, required this.text});
+
+  @override
+  int get hashCode => kind.hashCode ^ block.hashCode ^ text.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is ExtendBlocked &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          block == other.block &&
+          text == other.text;
+}
+
+/// What stands in the way of Extend.
+enum ExtendBlockedKind {
+  /// Another block of the page.
+  block,
+
+  /// The page's edge.
+  pageEdge,
+}
+
 /// Why an item was not rendered; the UI shows a2-13's placeholder with Try again.
 enum FailReason {
   /// The document has no such page.
@@ -800,6 +946,96 @@ enum FailReason {
 
   /// A bug in Ferman.
   internal,
+}
+
+/// A font step 3 offers (a3-3b).
+class FontCandidate {
+  /// Its group.
+  final FontOrigin origin;
+
+  /// Its PostScript name, which [`choose_font`] takes back.
+  final String postscriptName;
+
+  /// Its family, for the picker's row.
+  final String family;
+
+  /// How many of the missing characters it has, of how many.
+  final int covered;
+
+  /// See [`FontCandidate::covered`].
+  final int needed;
+
+  /// How close its metrics are to the original's, 0 to 1.
+  final double similarity;
+
+  /// Its permission.
+  final FontEmbedding embedding;
+
+  /// Whether it can draw every missing character (full coverage, a licence that allows it).
+  final bool usable;
+
+  /// The letters of "Ğğ İı Şş Çç Öö Üü" it has, for its preview.
+  final String preview;
+
+  const FontCandidate({
+    required this.origin,
+    required this.postscriptName,
+    required this.family,
+    required this.covered,
+    required this.needed,
+    required this.similarity,
+    required this.embedding,
+    required this.usable,
+    required this.preview,
+  });
+
+  @override
+  int get hashCode =>
+      origin.hashCode ^
+      postscriptName.hashCode ^
+      family.hashCode ^
+      covered.hashCode ^
+      needed.hashCode ^
+      similarity.hashCode ^
+      embedding.hashCode ^
+      usable.hashCode ^
+      preview.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FontCandidate &&
+          runtimeType == other.runtimeType &&
+          origin == other.origin &&
+          postscriptName == other.postscriptName &&
+          family == other.family &&
+          covered == other.covered &&
+          needed == other.needed &&
+          similarity == other.similarity &&
+          embedding == other.embedding &&
+          usable == other.usable &&
+          preview == other.preview;
+}
+
+/// A font's embedding permission (`OS/2.fsType`).
+enum FontEmbedding {
+  /// Installable embedding.
+  installable,
+
+  /// Editable embedding.
+  editable,
+
+  /// Preview and print only: never used for new text.
+  previewAndPrint,
+
+  /// Restricted licence: never embedded.
+  restricted,
+
+  /// The whole font only, no subset.
+  noSubsetting,
+
+  /// Bitmaps only.
+  bitmapOnly,
 }
 
 /// A font the pages use (a2-7, FmDocPanel's Fonts in this document).
@@ -836,6 +1072,108 @@ class FontEntry {
           kind == other.kind &&
           embedded == other.embedded &&
           subset == other.subset;
+}
+
+/// Where a font comes from: the groups of the a3-3b picker.
+enum FontOrigin {
+  /// Embedded in this document.
+  embedded,
+
+  /// Installed on this computer.
+  installed,
+
+  /// Included with Ferman.
+  bundled,
+}
+
+/// Where the fonts for missing glyphs come from.
+class FontSettings {
+  /// The directory of the fonts bundled with the app.
+  final String? bundledDir;
+
+  /// More directories whose fonts count as installed.
+  final List<String> fontDirs;
+
+  /// Whether the fonts installed on this computer are used.
+  final bool systemFonts;
+
+  /// "Ask each time" (a11-1c).
+  final bool askEachTime;
+
+  const FontSettings({
+    this.bundledDir,
+    required this.fontDirs,
+    required this.systemFonts,
+    required this.askEachTime,
+  });
+
+  @override
+  int get hashCode =>
+      bundledDir.hashCode ^
+      fontDirs.hashCode ^
+      systemFonts.hashCode ^
+      askEachTime.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FontSettings &&
+          runtimeType == other.runtimeType &&
+          bundledDir == other.bundledDir &&
+          fontDirs == other.fontDirs &&
+          systemFonts == other.systemFonts &&
+          askEachTime == other.askEachTime;
+}
+
+/// Characters set in another font than their line's (a3-12, a11-6).
+class FontSubstitution {
+  /// The step.
+  final SubstitutionKind kind;
+
+  /// The characters, each once.
+  final String chars;
+
+  /// The document's font.
+  final String fromFont;
+
+  /// The font they are drawn in.
+  final String toFont;
+
+  /// Where it comes from.
+  final FontOrigin origin;
+
+  /// Whether the UI has been told of this font already, so it says it once.
+  final bool announced;
+
+  const FontSubstitution({
+    required this.kind,
+    required this.chars,
+    required this.fromFont,
+    required this.toFont,
+    required this.origin,
+    required this.announced,
+  });
+
+  @override
+  int get hashCode =>
+      kind.hashCode ^
+      chars.hashCode ^
+      fromFont.hashCode ^
+      toFont.hashCode ^
+      origin.hashCode ^
+      announced.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FontSubstitution &&
+          runtimeType == other.runtimeType &&
+          kind == other.kind &&
+          chars == other.chars &&
+          fromFont == other.fromFont &&
+          toFont == other.toFont &&
+          origin == other.origin &&
+          announced == other.announced;
 }
 
 /// A font's type (a2-7's Type column).
@@ -889,10 +1227,26 @@ class HistoryStep {
   /// When it was committed, in milliseconds since the Unix epoch.
   final PlatformInt64 time;
 
-  const HistoryStep({required this.name, required this.time});
+  /// The lines Keep and warn left hidden: the warning of the review list; 0 for none.
+  final int hiddenLines;
+
+  /// The characters it set in another font (the review list's font rows); `announced` is
+  /// always true.
+  final List<FontSubstitution> substitutions;
+
+  const HistoryStep({
+    required this.name,
+    required this.time,
+    required this.hiddenLines,
+    required this.substitutions,
+  });
 
   @override
-  int get hashCode => name.hashCode ^ time.hashCode;
+  int get hashCode =>
+      name.hashCode ^
+      time.hashCode ^
+      hiddenLines.hashCode ^
+      substitutions.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -900,7 +1254,9 @@ class HistoryStep {
       other is HistoryStep &&
           runtimeType == other.runtimeType &&
           name == other.name &&
-          time == other.time;
+          time == other.time &&
+          hiddenLines == other.hiddenLines &&
+          substitutions == other.substitutions;
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -979,6 +1335,109 @@ class LineInfo {
           bbox == other.bbox &&
           baselineStart == other.baselineStart &&
           baselineEnd == other.baselineEnd;
+}
+
+/// A character of the new text that missing-glyph step 3 draws.
+class MissingChar {
+  /// The character.
+  final String text;
+
+  /// Its offset in the new text, in UTF-16 code units.
+  final int at;
+
+  const MissingChar({required this.text, required this.at});
+
+  @override
+  int get hashCode => text.hashCode ^ at.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MissingChar &&
+          runtimeType == other.runtimeType &&
+          text == other.text &&
+          at == other.at;
+}
+
+/// Missing-glyph step 3's characters and candidates.
+class MissingGlyphs {
+  /// The characters, in text order.
+  final List<MissingChar> chars;
+
+  /// The font they are missing from, its PostScript name without the subset tag.
+  final String font;
+
+  /// Why the same font did not draw them.
+  final MissingReasonKind reason;
+
+  /// For `NotEmbeddable`, the installed font's PostScript name.
+  final String? reasonFont;
+
+  /// For `NotEmbeddable` and `Restricted`, the permission.
+  final FontEmbedding? reasonEmbedding;
+
+  /// Whether the font is bold, so only bold candidates are offered.
+  final bool bold;
+
+  /// Whether it is italic, so only italic candidates are offered.
+  final bool italic;
+
+  /// The candidates, best first; empty when no font of the original's style has them.
+  final List<FontCandidate> candidates;
+
+  /// Whether the first usable candidate draws them now, provisionally.
+  final bool drawn;
+
+  const MissingGlyphs({
+    required this.chars,
+    required this.font,
+    required this.reason,
+    this.reasonFont,
+    this.reasonEmbedding,
+    required this.bold,
+    required this.italic,
+    required this.candidates,
+    required this.drawn,
+  });
+
+  @override
+  int get hashCode =>
+      chars.hashCode ^
+      font.hashCode ^
+      reason.hashCode ^
+      reasonFont.hashCode ^
+      reasonEmbedding.hashCode ^
+      bold.hashCode ^
+      italic.hashCode ^
+      candidates.hashCode ^
+      drawn.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is MissingGlyphs &&
+          runtimeType == other.runtimeType &&
+          chars == other.chars &&
+          font == other.font &&
+          reason == other.reason &&
+          reasonFont == other.reasonFont &&
+          reasonEmbedding == other.reasonEmbedding &&
+          bold == other.bold &&
+          italic == other.italic &&
+          candidates == other.candidates &&
+          drawn == other.drawn;
+}
+
+/// Why the same font did not draw the missing characters (step 2).
+enum MissingReasonKind {
+  /// The same font is neither installed nor bundled.
+  notInstalled,
+
+  /// The same font is installed, but its licence (`fsType`) forbids embedding it.
+  notEmbeddable,
+
+  /// The document's own font allows at most preview and print, so its glyphs are not reused.
+  restricted,
 }
 
 /// Why text cannot be edited (docs/ARCHITECTURE.md §6.5); the UI shows it in the tooltip and the
@@ -1197,6 +1656,69 @@ class OutlineEntry {
           page == other.page &&
           depth == other.depth &&
           open == other.open;
+}
+
+/// One of the overflow choices (a3-4).
+enum OverflowChoice {
+  /// "Extend block by N line(s)".
+  extend,
+
+  /// "Tighten spacing slightly (−x%)".
+  tighten,
+
+  /// "Keep and warn".
+  keep,
+}
+
+/// The overflow choices with their amounts (docs/ARCHITECTURE.md §6.8).
+class OverflowPlan {
+  /// How many lines go past the frame.
+  final int over;
+
+  /// Extend's N, when it is available.
+  final int? extendLines;
+
+  /// Why Extend is disabled, when it is.
+  final ExtendBlocked? extendBlocked;
+
+  /// Tighten's amount in percent, one decimal (the 0.6 of "−0.6%"), when it is available.
+  final double? tightenPercent;
+
+  /// The lines still over at the tightest allowed spacing, when Tighten is disabled.
+  final int? tightenShort;
+
+  /// The lines Keep and warn hides.
+  final int keepHidden;
+
+  const OverflowPlan({
+    required this.over,
+    this.extendLines,
+    this.extendBlocked,
+    this.tightenPercent,
+    this.tightenShort,
+    required this.keepHidden,
+  });
+
+  @override
+  int get hashCode =>
+      over.hashCode ^
+      extendLines.hashCode ^
+      extendBlocked.hashCode ^
+      tightenPercent.hashCode ^
+      tightenShort.hashCode ^
+      keepHidden.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is OverflowPlan &&
+          runtimeType == other.runtimeType &&
+          over == other.over &&
+          extendLines == other.extendLines &&
+          extendBlocked == other.extendBlocked &&
+          tightenPercent == other.tightenPercent &&
+          tightenShort == other.tightenShort &&
+          keepHidden == other.keepHidden;
 }
 
 /// A page's text blocks.
@@ -1467,10 +1989,18 @@ class RevisionInfo {
   /// The pages' new render key when the render thread reloaded the document.
   final BigInt? renderKey;
 
-  const RevisionInfo({required this.current, this.renderKey});
+  /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
+  final List<FontSubstitution> substitutions;
+
+  const RevisionInfo({
+    required this.current,
+    this.renderKey,
+    required this.substitutions,
+  });
 
   @override
-  int get hashCode => current.hashCode ^ renderKey.hashCode;
+  int get hashCode =>
+      current.hashCode ^ renderKey.hashCode ^ substitutions.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1478,7 +2008,8 @@ class RevisionInfo {
       other is RevisionInfo &&
           runtimeType == other.runtimeType &&
           current == other.current &&
-          renderKey == other.renderKey;
+          renderKey == other.renderKey &&
+          substitutions == other.substitutions;
 }
 
 /// An event of a search's stream.
@@ -1759,6 +2290,15 @@ class Signature {
           signer == other.signer &&
           signedAt == other.signedAt &&
           page == other.page;
+}
+
+/// Which missing-glyph step drew substituted characters.
+enum SubstitutionKind {
+  /// Step 2: the same font, installed or bundled ("Character added from this computer").
+  sameFont,
+
+  /// Step 3: a similar font.
+  similar,
 }
 
 /// The direction a block's text runs in.

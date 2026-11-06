@@ -704,20 +704,224 @@ pub struct Selection {
 pub struct EditPreview {
     /// The page's blocks with the new text; with the text before when characters are missing.
     pub page: PageBlocks,
-    /// The characters no font of their line can draw, each as a string, in the order they
-    /// first appear: the text was not applied.
+    /// The characters no font could draw, each as a string, in the order they first appear:
+    /// the text was not applied ([`EditPreview::glyphs`] says why).
     pub missing: Vec<String>,
-    /// Whether a line runs past the block's frame.
+    /// Missing-glyph step 3: the characters, why the same font did not draw them and the
+    /// candidates; drawn provisionally in the closest one until [`choose_font`] or
+    /// [`keep_as_is`], or not drawn (then they are in [`EditPreview::missing`]).
+    pub glyphs: Option<MissingGlyphs>,
+    /// The substitutions the applied text makes (steps 2 and 3).
+    pub substitutions: Vec<FontSubstitution>,
+    /// Whether a line of a left-aligned block rewritten line by line runs past its frame.
     pub overflowing: bool,
+    /// The overflow choices, when the text needs more lines than the block's frame holds.
+    pub overflow: Option<OverflowPlan>,
+    /// The choice the preview shows and a commit keeps: `Keep` until [`resolve_overflow`].
+    pub chosen: Option<OverflowChoice>,
+    /// The table cells whose values likely depend on the edited one (a3-9).
+    pub dependents: Vec<DependentCell>,
+}
+
+/// A character of the new text that missing-glyph step 3 draws.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct MissingChar {
+    /// The character.
+    pub text: String,
+    /// Its offset in the new text, in UTF-16 code units.
+    pub at: u32,
+}
+
+/// Why the same font did not draw the missing characters (step 2).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum MissingReasonKind {
+    /// The same font is neither installed nor bundled.
+    NotInstalled,
+    /// The same font is installed, but its licence (`fsType`) forbids embedding it.
+    NotEmbeddable,
+    /// The document's own font allows at most preview and print, so its glyphs are not reused.
+    Restricted,
+}
+
+/// A font's embedding permission (`OS/2.fsType`).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontEmbedding {
+    /// Installable embedding.
+    Installable,
+    /// Editable embedding.
+    Editable,
+    /// Preview and print only: never used for new text.
+    PreviewAndPrint,
+    /// Restricted licence: never embedded.
+    Restricted,
+    /// The whole font only, no subset.
+    NoSubsetting,
+    /// Bitmaps only.
+    BitmapOnly,
+}
+
+/// Where a font comes from: the groups of the a3-3b picker.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum FontOrigin {
+    /// Embedded in this document.
+    Embedded,
+    /// Installed on this computer.
+    Installed,
+    /// Included with Ferman.
+    Bundled,
+}
+
+/// A font step 3 offers (a3-3b).
+#[derive(Debug, Clone, PartialEq)]
+pub struct FontCandidate {
+    /// Its group.
+    pub origin: FontOrigin,
+    /// Its PostScript name, which [`choose_font`] takes back.
+    pub postscript_name: String,
+    /// Its family, for the picker's row.
+    pub family: String,
+    /// How many of the missing characters it has, of how many.
+    pub covered: u32,
+    /// See [`FontCandidate::covered`].
+    pub needed: u32,
+    /// How close its metrics are to the original's, 0 to 1.
+    pub similarity: f32,
+    /// Its permission.
+    pub embedding: FontEmbedding,
+    /// Whether it can draw every missing character (full coverage, a licence that allows it).
+    pub usable: bool,
+    /// The letters of "Ğğ İı Şş Çç Öö Üü" it has, for its preview.
+    pub preview: String,
+}
+
+/// Missing-glyph step 3's characters and candidates.
+#[derive(Debug, Clone, PartialEq)]
+pub struct MissingGlyphs {
+    /// The characters, in text order.
+    pub chars: Vec<MissingChar>,
+    /// The font they are missing from, its PostScript name without the subset tag.
+    pub font: String,
+    /// Why the same font did not draw them.
+    pub reason: MissingReasonKind,
+    /// For `NotEmbeddable`, the installed font's PostScript name.
+    pub reason_font: Option<String>,
+    /// For `NotEmbeddable` and `Restricted`, the permission.
+    pub reason_embedding: Option<FontEmbedding>,
+    /// Whether the font is bold, so only bold candidates are offered.
+    pub bold: bool,
+    /// Whether it is italic, so only italic candidates are offered.
+    pub italic: bool,
+    /// The candidates, best first; empty when no font of the original's style has them.
+    pub candidates: Vec<FontCandidate>,
+    /// Whether the first usable candidate draws them now, provisionally.
+    pub drawn: bool,
+}
+
+/// Which missing-glyph step drew substituted characters.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SubstitutionKind {
+    /// Step 2: the same font, installed or bundled ("Character added from this computer").
+    SameFont,
+    /// Step 3: a similar font.
+    Similar,
+}
+
+/// Characters set in another font than their line's (a3-12, a11-6).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontSubstitution {
+    /// The step.
+    pub kind: SubstitutionKind,
+    /// The characters, each once.
+    pub chars: String,
+    /// The document's font.
+    pub from_font: String,
+    /// The font they are drawn in.
+    pub to_font: String,
+    /// Where it comes from.
+    pub origin: FontOrigin,
+    /// Whether the UI has been told of this font already, so it says it once.
+    pub announced: bool,
+}
+
+/// Where the fonts for missing glyphs come from.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontSettings {
+    /// The directory of the fonts bundled with the app.
+    pub bundled_dir: Option<String>,
+    /// More directories whose fonts count as installed.
+    pub font_dirs: Vec<String>,
+    /// Whether the fonts installed on this computer are used.
+    pub system_fonts: bool,
+    /// "Ask each time" (a11-1c).
+    pub ask_each_time: bool,
+}
+
+/// One of the overflow choices (a3-4).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OverflowChoice {
+    /// "Extend block by N line(s)".
+    Extend,
+    /// "Tighten spacing slightly (−x%)".
+    Tighten,
+    /// "Keep and warn".
+    Keep,
+}
+
+/// What stands in the way of Extend.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum ExtendBlockedKind {
+    /// Another block of the page.
+    Block,
+    /// The page's edge.
+    PageEdge,
+}
+
+/// Why Extend is disabled (a3-18).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct ExtendBlocked {
+    /// What is in the way.
+    pub kind: ExtendBlockedKind,
+    /// The block in the way, for `Block`.
+    pub block: Option<u64>,
+    /// Its first line, for the UI's reason ("The IBAN line sits right below this block.").
+    pub text: String,
+}
+
+/// The overflow choices with their amounts (docs/ARCHITECTURE.md §6.8).
+#[derive(Debug, Clone, PartialEq)]
+pub struct OverflowPlan {
+    /// How many lines go past the frame.
+    pub over: u32,
+    /// Extend's N, when it is available.
+    pub extend_lines: Option<u32>,
+    /// Why Extend is disabled, when it is.
+    pub extend_blocked: Option<ExtendBlocked>,
+    /// Tighten's amount in percent, one decimal (the 0.6 of "−0.6%"), when it is available.
+    pub tighten_percent: Option<f32>,
+    /// The lines still over at the tightest allowed spacing, when Tighten is disabled.
+    pub tighten_short: Option<u32>,
+    /// The lines Keep and warn hides.
+    pub keep_hidden: u32,
+}
+
+/// A table cell that likely depends on the edited one.
+#[derive(Debug, Clone, Copy, PartialEq)]
+pub struct DependentCell {
+    /// Its block's id.
+    pub id: u64,
+    /// Its frame.
+    pub frame: PageRect,
 }
 
 /// Where the history stands after a commit, rollback, undo or redo.
-#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct RevisionInfo {
     /// How many steps apply: 0 is the document as opened.
     pub current: u32,
     /// The pages' new render key when the render thread reloaded the document.
     pub render_key: Option<u64>,
+    /// The substitutions the commit made, for the "Font substituted" toast; empty otherwise.
+    pub substitutions: Vec<FontSubstitution>,
 }
 
 /// One committed step of the history.
@@ -727,6 +931,11 @@ pub struct HistoryStep {
     pub name: String,
     /// When it was committed, in milliseconds since the Unix epoch.
     pub time: i64,
+    /// The lines Keep and warn left hidden: the warning of the review list; 0 for none.
+    pub hidden_lines: u32,
+    /// The characters it set in another font (the review list's font rows); `announced` is
+    /// always true.
+    pub substitutions: Vec<FontSubstitution>,
 }
 
 /// A document's history (a3-10).
@@ -1081,11 +1290,94 @@ pub async fn apply_edit(transaction: u64, text: String) -> Result<EditPreview, A
     engine()?
         .apply(facade::TransactionId::from_raw(transaction), text)
         .await
-        .map(|preview| EditPreview {
-            page: page_blocks_dto(preview.page),
-            missing: preview.missing.into_iter().map(String::from).collect(),
-            overflowing: preview.overflowing,
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Writes the transaction's newest text again with the overflow choice `choice`.
+///
+/// See [`facade::Engine::resolve_overflow`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when its text does not overflow
+/// or the choice is disabled.
+pub async fn resolve_overflow(
+    transaction: u64,
+    choice: OverflowChoice,
+) -> Result<EditPreview, ApiError> {
+    let choice = match choice {
+        OverflowChoice::Extend => facade::Choice::Extend,
+        OverflowChoice::Tighten => facade::Choice::Tighten,
+        OverflowChoice::Keep => facade::Choice::Keep,
+    };
+    engine()?
+        .resolve_overflow(facade::TransactionId::from_raw(transaction), choice)
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Sets where the fonts for missing glyphs come from, and "Ask each time".
+///
+/// See [`facade::Engine::set_font_settings`].
+///
+/// # Errors
+///
+/// Only an internal error.
+pub async fn set_font_settings(settings: FontSettings) -> Result<(), ApiError> {
+    engine()?
+        .set_font_settings(facade::FontSettings {
+            bundled_dir: settings.bundled_dir.map(PathBuf::from),
+            font_dirs: settings.font_dirs.into_iter().map(PathBuf::from).collect(),
+            system_fonts: settings.system_fonts,
+            ask_each_time: settings.ask_each_time,
         })
+        .await
+        .map_err(api_error_dto)
+}
+
+/// Draws step 3's characters in the candidate `postscript_name` of `origin` (a3-3b).
+///
+/// See [`facade::Engine::choose_font`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` when no text waits for a font
+/// or the font cannot draw every character.
+pub async fn choose_font(
+    transaction: u64,
+    origin: FontOrigin,
+    postscript_name: String,
+) -> Result<EditPreview, ApiError> {
+    let origin = match origin {
+        FontOrigin::Embedded => facade::FontOrigin::Embedded,
+        FontOrigin::Installed => facade::FontOrigin::Installed,
+        FontOrigin::Bundled => facade::FontOrigin::Bundled,
+    };
+    engine()?
+        .choose_font(
+            facade::TransactionId::from_raw(transaction),
+            origin,
+            postscript_name,
+        )
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Keeps step 3's characters in the closest candidate ("Keep as is").
+///
+/// See [`facade::Engine::keep_as_is`].
+///
+/// # Errors
+///
+/// As [`choose_font`].
+pub async fn keep_as_is(transaction: u64) -> Result<EditPreview, ApiError> {
+    engine()?
+        .keep_as_is(facade::TransactionId::from_raw(transaction))
+        .await
+        .map(edit_preview_dto)
         .map_err(api_error_dto)
 }
 
@@ -1168,6 +1460,17 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                 .map(|step| HistoryStep {
                     name: step.name,
                     time: step.time,
+                    hidden_lines: step.hidden_lines,
+                    substitutions: step
+                        .substitutions
+                        .into_iter()
+                        .map(|substitution| {
+                            substitution_dto(facade::FontSubstitution {
+                                substitution,
+                                announced: true,
+                            })
+                        })
+                        .collect(),
                 })
                 .collect(),
             current: history.current,
@@ -1306,11 +1609,151 @@ fn page_blocks_dto(blocks: facade::PageBlocks) -> PageBlocks {
     }
 }
 
+/// An edit preview as its mirror.
+fn edit_preview_dto(preview: facade::EditPreview) -> EditPreview {
+    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
+    EditPreview {
+        page: page_blocks_dto(preview.page),
+        missing: preview.missing.into_iter().map(String::from).collect(),
+        glyphs: preview.glyphs.map(missing_glyphs_dto),
+        substitutions: preview
+            .substitutions
+            .into_iter()
+            .map(substitution_dto)
+            .collect(),
+        overflowing: preview.overflowing,
+        overflow: preview.overflow.map(|plan| OverflowPlan {
+            over: count(plan.over),
+            extend_lines: plan.extend.as_ref().ok().map(|extend| count(extend.lines)),
+            extend_blocked: plan.extend.err().map(|blocked| match blocked {
+                facade::ExtendBlocked::Block { id, text } => ExtendBlocked {
+                    kind: ExtendBlockedKind::Block,
+                    block: Some(id.0),
+                    text,
+                },
+                facade::ExtendBlocked::PageEdge => ExtendBlocked {
+                    kind: ExtendBlockedKind::PageEdge,
+                    block: None,
+                    text: String::new(),
+                },
+            }),
+            tighten_percent: plan.tighten.as_ref().ok().map(|tighten| tighten.percent),
+            tighten_short: plan.tighten.err().map(|short| count(short.over)),
+            keep_hidden: count(plan.keep.hidden),
+        }),
+        chosen: preview.chosen.map(|choice| match choice {
+            facade::Choice::Extend => OverflowChoice::Extend,
+            facade::Choice::Tighten => OverflowChoice::Tighten,
+            facade::Choice::Keep => OverflowChoice::Keep,
+        }),
+        dependents: preview
+            .dependents
+            .into_iter()
+            .map(|cell| DependentCell {
+                id: cell.id.0,
+                frame: rect_dto(cell.frame),
+            })
+            .collect(),
+    }
+}
+
 /// A revision's position as its mirror.
 fn revision_dto(info: facade::RevisionInfo) -> RevisionInfo {
     RevisionInfo {
         current: info.current,
         render_key: info.render_key,
+        substitutions: info
+            .substitutions
+            .into_iter()
+            .map(substitution_dto)
+            .collect(),
+    }
+}
+
+/// A font's origin as its mirror.
+fn origin_dto(origin: facade::FontOrigin) -> FontOrigin {
+    match origin {
+        facade::FontOrigin::Embedded => FontOrigin::Embedded,
+        facade::FontOrigin::Installed => FontOrigin::Installed,
+        facade::FontOrigin::Bundled => FontOrigin::Bundled,
+    }
+}
+
+/// An embedding permission as its mirror.
+fn embedding_dto(embedding: facade::Embedding) -> FontEmbedding {
+    match embedding {
+        facade::Embedding::Installable => FontEmbedding::Installable,
+        facade::Embedding::Editable => FontEmbedding::Editable,
+        facade::Embedding::PreviewAndPrint => FontEmbedding::PreviewAndPrint,
+        facade::Embedding::Restricted => FontEmbedding::Restricted,
+        facade::Embedding::NoSubsetting => FontEmbedding::NoSubsetting,
+        facade::Embedding::BitmapOnly => FontEmbedding::BitmapOnly,
+    }
+}
+
+/// A substitution as its mirror.
+fn substitution_dto(told: facade::FontSubstitution) -> FontSubstitution {
+    let substitution = told.substitution;
+    FontSubstitution {
+        kind: match substitution.kind {
+            facade::SubstitutionKind::SameFont => SubstitutionKind::SameFont,
+            facade::SubstitutionKind::Similar => SubstitutionKind::Similar,
+        },
+        chars: substitution.chars,
+        from_font: substitution.from,
+        to_font: substitution.to,
+        origin: origin_dto(substitution.origin),
+        announced: told.announced,
+    }
+}
+
+/// Step 3's characters and candidates as their mirror.
+fn missing_glyphs_dto(missing: facade::MissingGlyphInfo) -> MissingGlyphs {
+    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
+    let (reason, reason_font, reason_embedding) = match missing.reason {
+        facade::MissingReason::NotInstalled => (MissingReasonKind::NotInstalled, None, None),
+        facade::MissingReason::NotEmbeddable { font, embedding } => (
+            MissingReasonKind::NotEmbeddable,
+            Some(font),
+            Some(embedding_dto(embedding)),
+        ),
+        facade::MissingReason::Restricted { embedding } => (
+            MissingReasonKind::Restricted,
+            None,
+            Some(embedding_dto(embedding)),
+        ),
+    };
+    MissingGlyphs {
+        chars: missing
+            .chars
+            .into_iter()
+            .map(|(c, at)| MissingChar {
+                text: c.to_string(),
+                at,
+            })
+            .collect(),
+        font: missing.font,
+        reason,
+        reason_font,
+        reason_embedding,
+        bold: missing.bold,
+        italic: missing.italic,
+        candidates: missing
+            .candidates
+            .into_iter()
+            .map(|candidate| FontCandidate {
+                origin: origin_dto(candidate.origin),
+                usable: candidate.usable(),
+                postscript_name: candidate.postscript_name,
+                family: candidate.family,
+                covered: count(candidate.coverage.covered),
+                needed: count(candidate.coverage.needed),
+                similarity: candidate.similarity,
+                embedding: embedding_dto(candidate.embedding),
+                preview: candidate.preview,
+            })
+            .collect(),
+        drawn: missing.drawn,
     }
 }
 

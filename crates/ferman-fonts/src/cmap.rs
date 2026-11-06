@@ -9,6 +9,11 @@
 //!
 //! Back from text or a CID to a code ([`CMap::code_for_text`], [`CMap::code_for_cid`]): several
 //! codes may stand for one, and the shortest, then the lowest, is taken.
+//!
+//! Predefined CMaps ([`CMap::predefined`]): `Identity-H` and `Identity-V`, and the ones bundled
+//! from Adobe's cmap-resources (BSD-3-Clause, `data/cmap-resources/`, files unmodified): only
+//! those a test document needs, `90ms-RKSJ-H` so far. A ToUnicode CMap gains entries through
+//! [`with_text`].
 // A parser module: offsets and values come from the data (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -16,6 +21,15 @@ use std::collections::HashMap;
 
 /// The longest code a CMap has, in bytes.
 const MAX_CODE: usize = 4;
+
+/// The predefined CMaps bundled from Adobe's cmap-resources, by name.
+const PREDEFINED: [(&[u8], &[u8]); 1] = [(
+    b"90ms-RKSJ-H",
+    include_bytes!("../data/cmap-resources/90ms-RKSJ-H"),
+)];
+
+/// How deep a predefined CMap's `usecmap` chain is followed.
+const MAX_PREDEFINED_DEPTH: usize = 4;
 
 /// A CMap: an encoding CMap of a composite font, or a ToUnicode CMap.
 #[derive(Debug, Clone, Default, PartialEq, Eq)]
@@ -164,6 +178,31 @@ impl CMap {
         }
     }
 
+    /// The predefined CMap `name`: `Identity-H`, `Identity-V` or one bundled from Adobe's
+    /// cmap-resources, with the predefined CMaps it uses; `None` for one not bundled.
+    #[must_use]
+    pub fn predefined(name: &[u8]) -> Option<Self> {
+        match name {
+            b"Identity-H" => return Some(Self::identity(false)),
+            b"Identity-V" => return Some(Self::identity(true)),
+            _ => {}
+        }
+        let find = |name: &[u8]| {
+            PREDEFINED
+                .iter()
+                .find(|(known, _)| *known == name)
+                .map(|(_, data)| Self::parse(data))
+        };
+        let mut cmap = find(name)?;
+        for _ in 0..MAX_PREDEFINED_DEPTH {
+            let Some(parent) = cmap.parent().and_then(find) else {
+                break;
+            };
+            cmap.inherit(&parent);
+        }
+        Some(cmap)
+    }
+
     /// Whether it writes vertically (`/WMode 1`).
     #[must_use]
     pub fn is_vertical(&self) -> bool {
@@ -306,6 +345,73 @@ impl CMap {
             })
             .min_by_key(|&(code, length)| (length, code))
     }
+}
+
+/// The ToUnicode CMap `original` (or, without one, a new CMap) with `added` codes, each its bytes
+/// and its text, as `bfchar` entries. Every code must be one `original` has no text for, so the
+/// new entries never change the text of a code it maps; a code of one to four bytes.
+#[must_use]
+pub fn with_text(original: Option<&[u8]>, added: &[(Vec<u8>, String)]) -> Vec<u8> {
+    let mut entries = Vec::new();
+    for chunk in added.chunks(100) {
+        entries.extend_from_slice(format!("{} beginbfchar\n", chunk.len()).as_bytes());
+        for (code, text) in chunk {
+            hex(&mut entries, code);
+            entries.push(b' ');
+            let units: Vec<u8> = text.encode_utf16().flat_map(u16::to_be_bytes).collect();
+            hex(&mut entries, &units);
+            entries.push(b'\n');
+        }
+        entries.extend_from_slice(b"endbfchar\n");
+    }
+    let Some(original) = original else {
+        let mut out = b"/CIDInit /ProcSet findresource begin\n12 dict begin\nbegincmap\n\
+/CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def\n\
+/CMapName /Adobe-Identity-UCS def\n/CMapType 2 def\n"
+            .to_vec();
+        let mut lengths: Vec<usize> = added
+            .iter()
+            .map(|(code, _)| code.len())
+            .filter(|length| (1..=MAX_CODE).contains(length))
+            .collect();
+        lengths.sort_unstable();
+        lengths.dedup();
+        out.extend_from_slice(format!("{} begincodespacerange\n", lengths.len()).as_bytes());
+        for length in lengths {
+            hex(&mut out, &vec![0; length]);
+            out.push(b' ');
+            hex(&mut out, &vec![0xFF; length]);
+            out.push(b'\n');
+        }
+        out.extend_from_slice(b"endcodespacerange\n");
+        out.extend(entries);
+        out.extend_from_slice(
+            b"endcmap\nCMapName currentdict /CMap defineresource pop\nend\nend\n",
+        );
+        return out;
+    };
+    // The entries go before the last `endcmap`, or at the end of a CMap without one.
+    let at = original
+        .windows(b"endcmap".len())
+        .rposition(|window| window == b"endcmap")
+        .unwrap_or(original.len());
+    let (head, tail) = original.split_at_checked(at).unwrap_or((original, &[]));
+    let mut out = head.to_vec();
+    if !out.ends_with(b"\n") {
+        out.push(b'\n');
+    }
+    out.extend(entries);
+    out.extend_from_slice(tail);
+    out
+}
+
+/// `<…>` with `bytes` in upper-case hex.
+fn hex(out: &mut Vec<u8>, bytes: &[u8]) {
+    out.push(b'<');
+    for byte in bytes {
+        out.extend_from_slice(format!("{byte:02X}").as_bytes());
+    }
+    out.push(b'>');
 }
 
 /// A code's bytes as a number, for codes of one to four bytes.
@@ -664,6 +770,50 @@ endbfrange",
         let codes: Vec<(u32, usize)> = cmap.codes(b"\x01\x02\x03").collect();
         assert_eq!(codes, [(0x0102, 2), (0x03, 1)]);
         assert_eq!(cmap.cid(0x0102, 2), Some(0x0102));
+    }
+
+    #[test]
+    fn predefined_cmaps_split_shift_jis_into_adobe_japan1_cids() {
+        let cmap = CMap::predefined(b"90ms-RKSJ-H").unwrap();
+        assert!(!cmap.is_vertical());
+        // "A", hiragana "あ" (JIS row 4, cell 2) and katakana "ア" (row 5, cell 2).
+        let codes: Vec<(u32, usize)> = cmap.codes(b"A\x82\xa0\x83\x41").collect();
+        assert_eq!(codes, [(0x41, 1), (0x82A0, 2), (0x8341, 2)]);
+        assert_eq!(cmap.cid(0x41, 1), Some(231 + 0x41 - 0x20));
+        assert_eq!(cmap.cid(0x82A0, 2), Some(843));
+        assert_eq!(cmap.cid(0x8341, 2), Some(926));
+        assert_eq!(cmap.code_for_cid(843), Some((0x82A0, 2)));
+        assert!(CMap::predefined(b"Identity-V").unwrap().is_vertical());
+        assert_eq!(CMap::predefined(b"Identity-H"), Some(CMap::identity(false)));
+        assert_eq!(CMap::predefined(b"GBK-EUC-H"), None, "not bundled");
+    }
+
+    #[test]
+    fn a_to_unicode_cmap_gains_entries_and_keeps_its_own() {
+        let added = [
+            (vec![0x00, 0x40], "ğ".to_owned()),
+            (vec![0x01, 0x00], "😀".to_owned()),
+        ];
+        let extended = CMap::parse(&with_text(Some(TO_UNICODE), &added));
+        assert_eq!(extended.text(0x40).as_deref(), Some("ğ"));
+        assert_eq!(extended.text(0x100).as_deref(), Some("😀"));
+        // Every code the original maps reads as before.
+        let original = CMap::parse(TO_UNICODE);
+        for code in [3, 0x11, 0x12, 0x20, 0x21, 0x22, 0x30, 0x31, 0x32, 0x33] {
+            assert_eq!(extended.text(code), original.text(code), "{code:#x}");
+        }
+        // Without an original, a CMap of its own with a codespace for the codes' lengths.
+        let fresh = CMap::parse(&with_text(None, &added));
+        assert_eq!(fresh.text(0x40).as_deref(), Some("ğ"));
+        assert_eq!(fresh.codes(b"\x00\x40").collect::<Vec<_>>(), [(0x40, 2)]);
+        // More than a hundred entries go in blocks of a hundred.
+        let many: Vec<(Vec<u8>, String)> = (0_u16..250)
+            .map(|code| (code.to_be_bytes().to_vec(), "x".to_owned()))
+            .collect();
+        let data = with_text(None, &many);
+        let text = String::from_utf8(data.clone()).unwrap();
+        assert_eq!(text.matches("beginbfchar").count(), 3);
+        assert_eq!(CMap::parse(&data).text(249).as_deref(), Some("x"));
     }
 
     #[test]

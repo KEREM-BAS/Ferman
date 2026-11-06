@@ -2661,5 +2661,363 @@
   "editNothingToRedo": "Nothing to redo",
   "@editNothingToRedo": {
     "description": "Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126)."
+  },
+  "editOverflowTitle": "Text doesn’t fit",
+  "@editOverflowTitle": {
+    "description": "Edit panel (a3-4, a3-18): the warning's title when the edited text needs more lines than its block's frame."
+  },
+  "editOverflowBody": "{count, plural, =1{The edited paragraph needs {n} more line than its frame.} other{The edited paragraph needs {n} more lines than its frame.}}",
+  "@editOverflowBody": {
+    "description": "Edit panel (a3-4, a3-18): the overflow warning's message. {n} is the number of lines written for the region; {count} picks the plural form.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "n": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "editOverflowExtend": "{count, plural, =1{Extend block by {n} line} other{Extend block by {n} lines}}",
+  "@editOverflowExtend": {
+    "description": "Edit panel (a3-4): the choice that grows the block's frame by the lines the engine computed. {n} is the number written for the region; {count} picks the plural form.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "n": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "editOverflowTighten": "Tighten spacing slightly (−{percent})",
+  "@editOverflowTighten": {
+    "description": "Edit panel (a3-4): the choice that tightens the block's spacing by the amount the engine computed. {percent} is the percentage written for the region, such as 0.6% or %0,6.",
+    "placeholders": {
+      "percent": {
+        "type": "String",
+        "example": "0.6%"
+      }
+    }
+  },
+  "editOverflowKeep": "Keep and warn",
+  "@editOverflowKeep": {
+    "description": "Edit panel (a3-4): the choice that keeps the frame and hides the lines that don't fit, with a warning on the page and its thumbnail."
+  },
+  "editOverflowExtendLabelBelow": "The {label} line sits right below this block.",
+  "@editOverflowExtendLabelBelow": {
+    "description": "Edit panel (a3-18): why Extend is disabled when a labelled line, such as 'IBAN: …', sits right below the block. {label} is the line's label in the document's own words.",
+    "placeholders": {
+      "label": {
+        "type": "String",
+        "example": "IBAN"
+      }
+    }
+  },
+  "editOverflowExtendBelow": "The line “{text}” sits right below this block.",
+  "@editOverflowExtendBelow": {
+    "description": "Edit panel (a3-18): why Extend is disabled when another line sits right below the block. {text} is the start of that line in the document's own words.",
+    "placeholders": {
+      "text": {
+        "type": "String",
+        "example": "Tarih 13.10.2026"
+      }
+    }
+  },
+  "editOverflowExtendPageEdge": "Extending the block would run it past the page’s edge.",
+  "@editOverflowExtendPageEdge": {
+    "description": "Edit panel (a3-18): why Extend is disabled when the block already reaches the edge of the page."
+  },
+  "editOverflowTightenShort": "{count, plural, =1{Even the tightest allowed spacing leaves {n} line over.} other{Even the tightest allowed spacing leaves {n} lines over.}}",
+  "@editOverflowTightenShort": {
+    "description": "Edit panel (a3-18): why Tighten is disabled. {n} is the number of lines still over, written for the region; {count} picks the plural form.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "n": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "editOverflowHidden": "{count, plural, =1{+{n} line hidden} other{+{n} lines hidden}}",
+  "@editOverflowHidden": {
+    "description": "Edit mode (a3-4, a3-18): the amber status in the page margin beside a block whose last lines Keep and warn hides, and the page thumbnail's warning. {n} is the number written for the region; {count} picks the plural form.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "n": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "editTotalsTitle": "Totals don’t update",
+  "@editTotalsTitle": {
+    "description": "Edit panel (a3-9): the warning's title after a number in a table cell was edited and other cells likely depend on it."
+  },
+  "editTotalsBody": "A PDF stores numbers as text. The marked cells still show the old amounts.",
+  "@editTotalsBody": {
+    "description": "Edit panel (a3-9): the warning's message; the cells that likely depend on the edited one are tinted on the page."
+  },
+  "editTotalsReview": "{count, plural, =1{Review the marked cell} other{Review the {n} marked cells}}",
+  "@editTotalsReview": {
+    "description": "Edit panel (a3-9): the button that opens the cells that likely depend on the edited one in Review edits. {n} is the number written for the region; {count} picks the plural form.",
+    "placeholders": {
+      "count": {
+        "type": "int",
+        "example": "1"
+      },
+      "n": {
+        "type": "String",
+        "example": "1"
+      }
+    }
+  },
+  "editBadgeEdited": "Edited",
+  "@editBadgeEdited": {
+    "description": "Edit panel heading (a3-9, FmEditPanel): the badge once the open block's text changed."
+  },
+  "editGlyphTitle": "Missing character",
+  "@editGlyphTitle": {
+    "description": "Edit panel (a3-3a, FmEditPanel): the title of the warning when the block's font has no glyph for a typed character (missing-glyph step 3)."
+  },
+  "editGlyphBody": "This font has no {chars}. Ferman will use a similar font for this character.",
+  "@editGlyphBody": {
+    "description": "Edit panel (a3-3a, FmEditPanel): the warning's message for one missing character. {chars} is the character in ‘ ’.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "editGlyphBodyMany": "This font has no {chars}. Ferman will use a similar font for these characters.",
+  "@editGlyphBodyMany": {
+    "description": "Edit panel (a3-3a): the warning's message for several missing characters. {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’, ‘Ğ’"
+      }
+    }
+  },
+  "editGlyphChoose": "Choose a font…",
+  "@editGlyphChoose": {
+    "description": "Edit panel (a3-3a, a3-17): the button that opens the font picker for the missing characters."
+  },
+  "editGlyphKeep": "Keep as is",
+  "@editGlyphKeep": {
+    "description": "Edit panel (a3-3a, a3-17): the button that keeps the missing characters as Ferman drew them."
+  },
+  "editGlyphNoneTitle": "No font has this character",
+  "@editGlyphNoneTitle": {
+    "description": "Edit panel (a3-17): the title when no font has the missing character."
+  },
+  "editGlyphNoneBody": "Neither this font nor any font on this computer has {chars}. Choose a font that has it, or keep the character as is.",
+  "@editGlyphNoneBody": {
+    "description": "Edit panel (a3-17): the message when no font has the missing character. {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ǧ’"
+      }
+    }
+  },
+  "editGlyphLicenceTitle": "This font can’t be embedded",
+  "@editGlyphLicenceTitle": {
+    "description": "Edit panel (a3-17): the title when the font's licence forbids embedding it for new text."
+  },
+  "editGlyphLicenceBody": "{font} is installed, but its licence allows only preview and print. Ferman will use a similar font for {chars} instead.",
+  "@editGlyphLicenceBody": {
+    "description": "Edit panel (a3-17): the message when the installed copy of the font allows only preview and print. {font} is the font's name; {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "Garamond Premier Pro"
+      },
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "editGlyphLicenceBodyRestricted": "{font} is installed, but its licence doesn’t allow embedding it. Ferman will use a similar font for {chars} instead.",
+  "@editGlyphLicenceBodyRestricted": {
+    "description": "Edit panel (a3-17, G37): the message when the installed copy of the font forbids embedding altogether. {font} is the font's name; {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "Garamond Premier Pro"
+      },
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "editGlyphOwnFontBody": "The licence of {font} in this document allows only preview and print, so Ferman doesn’t reuse its glyphs. Ferman will use a similar font for {chars} instead.",
+  "@editGlyphOwnFontBody": {
+    "description": "Edit panel (a3-17, G37, Q09): the message when the document's own font allows only preview and print. {font} is the font's name; {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "Garamond Premier Pro"
+      },
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "editGlyphAddedTitle": "Character added from this computer",
+  "@editGlyphAddedTitle": {
+    "description": "Edit panel (a3-17): the notice, said once, when missing-glyph step 2 took the character from the same font installed on this computer."
+  },
+  "editGlyphAddedBody": "Ferman took {chars} from {font} installed on this computer and added it to the document’s font.",
+  "@editGlyphAddedBody": {
+    "description": "Edit panel (a3-17): the step 2 notice's message. {chars} is the characters, each in ‘ ’ and separated by the list separator; {font} is the font's name.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      },
+      "font": {
+        "type": "String",
+        "example": "Garamond Premier Pro"
+      }
+    }
+  },
+  "fontPickerTitle": "Choose a font for this block",
+  "@fontPickerTitle": {
+    "description": "Font picker (a3-3b): the dialog's title."
+  },
+  "fontPickerClose": "Close",
+  "@fontPickerClose": {
+    "description": "Font picker (a3-3b): the close button's name."
+  },
+  "fontPickerScope": "Replace",
+  "@fontPickerScope": {
+    "description": "Font picker (a3-3b): the name of the scope control."
+  },
+  "fontPickerScopeMissing": "Missing characters only",
+  "@fontPickerScopeMissing": {
+    "description": "Font picker (a3-3b): the scope that sets only the missing characters in the chosen font."
+  },
+  "fontPickerScopeBlock": "Whole block",
+  "@fontPickerScopeBlock": {
+    "description": "Font picker (a3-3b): the scope that sets the whole block in the chosen font (not built yet)."
+  },
+  "fontPickerSearch": "Search fonts",
+  "@fontPickerSearch": {
+    "description": "Font picker (a3-3b): the search field's placeholder and name."
+  },
+  "fontPickerEmbedded": "Embedded in this document",
+  "@fontPickerEmbedded": {
+    "description": "Font picker (a3-3b): the group of the document's own fonts; shown in capitals."
+  },
+  "fontPickerInstalled": "Installed on this computer",
+  "@fontPickerInstalled": {
+    "description": "Font picker (a3-3b): the group of the installed fonts; shown in capitals."
+  },
+  "fontPickerBundled": "Similar fonts included with Ferman",
+  "@fontPickerBundled": {
+    "description": "Font picker (a3-3b): the group of the fonts that ship with Ferman; shown in capitals."
+  },
+  "fontPickerClosest": "Closest match",
+  "@fontPickerClosest": {
+    "description": "Font picker (a3-3b): the tag of the candidate whose metrics are closest to the original's."
+  },
+  "fontPickerHas": "Has {chars}",
+  "@fontPickerHas": {
+    "description": "Font picker (a3-3b): the coverage badge of a font with every missing character. {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "fontPickerHasNone": "No {chars}",
+  "@fontPickerHasNone": {
+    "description": "Font picker (a3-3b): the coverage badge of a font with none of the missing characters. {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "fontPickerHasSome": "{covered} of {needed} characters",
+  "@fontPickerHasSome": {
+    "description": "Font picker (a3-3b): the coverage badge of a font with some of the missing characters. {covered} and {needed} are numbers written for the region.",
+    "placeholders": {
+      "covered": {
+        "type": "String",
+        "example": "1"
+      },
+      "needed": {
+        "type": "String",
+        "example": "2"
+      }
+    }
+  },
+  "fontPickerNotEmbeddable": "Can’t be embedded",
+  "@fontPickerNotEmbeddable": {
+    "description": "Font picker (a3-3b, G37): the badge of a font whose licence forbids using it for new text."
+  },
+  "fontPickerNoMatch": "No font matches “{query}”.",
+  "@fontPickerNoMatch": {
+    "description": "Font picker (a3-3b): shown when the search finds no font. {query} is what was typed.",
+    "placeholders": {
+      "query": {
+        "type": "String",
+        "example": "Garamond"
+      }
+    }
+  },
+  "fontPickerCancel": "Cancel",
+  "@fontPickerCancel": {
+    "description": "Font picker (a3-3b): the button that closes it without a choice."
+  },
+  "fontPickerUse": "Use {font}",
+  "@fontPickerUse": {
+    "description": "Font picker (a3-3b): the button that sets the missing characters in the selected font. {font} is its name.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "EB Garamond"
+      }
+    }
+  },
+  "editFontSubstituted": "Font substituted",
+  "@editFontSubstituted": {
+    "description": "Toast (a11-6): the title after a commit set characters in a similar font, said once per font."
+  },
+  "editFontSubstitutedBody": "This block uses {font} for {chars}.",
+  "@editFontSubstitutedBody": {
+    "description": "Toast (a11-6): the message. {font} is the font's name; {chars} is the characters, each in ‘ ’ and separated by the list separator.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "EB Garamond"
+      },
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "editFontSubstitutedDismiss": "Dismiss",
+  "@editFontSubstitutedDismiss": {
+    "description": "Toast (a11-6): the name of the toast's close button."
   }
 }

@@ -56,10 +56,31 @@ abstract class FermanBridgeApiImplPlatform
   bool dco_decode_bool(dynamic raw);
 
   @protected
+  ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double dco_decode_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason dco_decode_box_autoadd_fail_reason(dynamic raw);
 
   @protected
+  FontEmbedding dco_decode_box_autoadd_font_embedding(dynamic raw);
+
+  @protected
+  FontSettings dco_decode_box_autoadd_font_settings(dynamic raw);
+
+  @protected
+  MissingGlyphs dco_decode_box_autoadd_missing_glyphs(dynamic raw);
+
+  @protected
   NotEditableReason dco_decode_box_autoadd_not_editable_reason(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
@@ -98,6 +119,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion dco_decode_crate_version(dynamic raw);
 
   @protected
+  DependentCell dco_decode_dependent_cell(dynamic raw);
+
+  @protected
   DocumentInfo dco_decode_document_info(dynamic raw);
 
   @protected
@@ -116,13 +140,34 @@ abstract class FermanBridgeApiImplPlatform
   ErrorKind dco_decode_error_kind(dynamic raw);
 
   @protected
+  ExtendBlocked dco_decode_extend_blocked(dynamic raw);
+
+  @protected
+  ExtendBlockedKind dco_decode_extend_blocked_kind(dynamic raw);
+
+  @protected
   double dco_decode_f_32(dynamic raw);
 
   @protected
   FailReason dco_decode_fail_reason(dynamic raw);
 
   @protected
+  FontCandidate dco_decode_font_candidate(dynamic raw);
+
+  @protected
+  FontEmbedding dco_decode_font_embedding(dynamic raw);
+
+  @protected
   FontEntry dco_decode_font_entry(dynamic raw);
+
+  @protected
+  FontOrigin dco_decode_font_origin(dynamic raw);
+
+  @protected
+  FontSettings dco_decode_font_settings(dynamic raw);
+
+  @protected
+  FontSubstitution dco_decode_font_substitution(dynamic raw);
 
   @protected
   FontType dco_decode_font_type(dynamic raw);
@@ -167,7 +212,16 @@ abstract class FermanBridgeApiImplPlatform
   List<CrateVersion> dco_decode_list_crate_version(dynamic raw);
 
   @protected
+  List<DependentCell> dco_decode_list_dependent_cell(dynamic raw);
+
+  @protected
+  List<FontCandidate> dco_decode_list_font_candidate(dynamic raw);
+
+  @protected
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
+
+  @protected
+  List<FontSubstitution> dco_decode_list_font_substitution(dynamic raw);
 
   @protected
   List<HistoryStep> dco_decode_list_history_step(dynamic raw);
@@ -177,6 +231,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<LineInfo> dco_decode_list_line_info(dynamic raw);
+
+  @protected
+  List<MissingChar> dco_decode_list_missing_char(dynamic raw);
 
   @protected
   List<OutlineEntry> dco_decode_list_outline_entry(dynamic raw);
@@ -206,6 +263,15 @@ abstract class FermanBridgeApiImplPlatform
   List<WantedItem> dco_decode_list_wanted_item(dynamic raw);
 
   @protected
+  MissingChar dco_decode_missing_char(dynamic raw);
+
+  @protected
+  MissingGlyphs dco_decode_missing_glyphs(dynamic raw);
+
+  @protected
+  MissingReasonKind dco_decode_missing_reason_kind(dynamic raw);
+
+  @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw);
 
   @protected
@@ -215,12 +281,30 @@ abstract class FermanBridgeApiImplPlatform
   String? dco_decode_opt_String(dynamic raw);
 
   @protected
+  ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
+
+  @protected
+  double? dco_decode_opt_box_autoadd_f_32(dynamic raw);
+
+  @protected
   FailReason? dco_decode_opt_box_autoadd_fail_reason(dynamic raw);
+
+  @protected
+  FontEmbedding? dco_decode_opt_box_autoadd_font_embedding(dynamic raw);
+
+  @protected
+  MissingGlyphs? dco_decode_opt_box_autoadd_missing_glyphs(dynamic raw);
 
   @protected
   NotEditableReason? dco_decode_opt_box_autoadd_not_editable_reason(
     dynamic raw,
   );
+
+  @protected
+  OverflowChoice? dco_decode_opt_box_autoadd_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan? dco_decode_opt_box_autoadd_overflow_plan(dynamic raw);
 
   @protected
   PdfDate? dco_decode_opt_box_autoadd_pdf_date(dynamic raw);
@@ -242,6 +326,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry dco_decode_outline_entry(dynamic raw);
+
+  @protected
+  OverflowChoice dco_decode_overflow_choice(dynamic raw);
+
+  @protected
+  OverflowPlan dco_decode_overflow_plan(dynamic raw);
 
   @protected
   PageBlocks dco_decode_page_blocks(dynamic raw);
@@ -299,6 +389,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Signature dco_decode_signature(dynamic raw);
+
+  @protected
+  SubstitutionKind dco_decode_substitution_kind(dynamic raw);
 
   @protected
   TextDirection dco_decode_text_direction(dynamic raw);
@@ -368,10 +461,43 @@ abstract class FermanBridgeApiImplPlatform
   bool sse_decode_bool(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked sse_decode_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double sse_decode_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason sse_decode_box_autoadd_fail_reason(SseDeserializer deserializer);
 
   @protected
+  FontEmbedding sse_decode_box_autoadd_font_embedding(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  FontSettings sse_decode_box_autoadd_font_settings(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  MissingGlyphs sse_decode_box_autoadd_missing_glyphs(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   NotEditableReason sse_decode_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice sse_decode_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan sse_decode_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -418,6 +544,9 @@ abstract class FermanBridgeApiImplPlatform
   CrateVersion sse_decode_crate_version(SseDeserializer deserializer);
 
   @protected
+  DependentCell sse_decode_dependent_cell(SseDeserializer deserializer);
+
+  @protected
   DocumentInfo sse_decode_document_info(SseDeserializer deserializer);
 
   @protected
@@ -438,13 +567,36 @@ abstract class FermanBridgeApiImplPlatform
   ErrorKind sse_decode_error_kind(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked sse_decode_extend_blocked(SseDeserializer deserializer);
+
+  @protected
+  ExtendBlockedKind sse_decode_extend_blocked_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   double sse_decode_f_32(SseDeserializer deserializer);
 
   @protected
   FailReason sse_decode_fail_reason(SseDeserializer deserializer);
 
   @protected
+  FontCandidate sse_decode_font_candidate(SseDeserializer deserializer);
+
+  @protected
+  FontEmbedding sse_decode_font_embedding(SseDeserializer deserializer);
+
+  @protected
   FontEntry sse_decode_font_entry(SseDeserializer deserializer);
+
+  @protected
+  FontOrigin sse_decode_font_origin(SseDeserializer deserializer);
+
+  @protected
+  FontSettings sse_decode_font_settings(SseDeserializer deserializer);
+
+  @protected
+  FontSubstitution sse_decode_font_substitution(SseDeserializer deserializer);
 
   @protected
   FontType sse_decode_font_type(SseDeserializer deserializer);
@@ -491,7 +643,22 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  List<DependentCell> sse_decode_list_dependent_cell(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FontCandidate> sse_decode_list_font_candidate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   List<FontEntry> sse_decode_list_font_entry(SseDeserializer deserializer);
+
+  @protected
+  List<FontSubstitution> sse_decode_list_font_substitution(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer);
@@ -501,6 +668,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<LineInfo> sse_decode_list_line_info(SseDeserializer deserializer);
+
+  @protected
+  List<MissingChar> sse_decode_list_missing_char(SseDeserializer deserializer);
 
   @protected
   List<OutlineEntry> sse_decode_list_outline_entry(
@@ -532,6 +702,17 @@ abstract class FermanBridgeApiImplPlatform
   List<WantedItem> sse_decode_list_wanted_item(SseDeserializer deserializer);
 
   @protected
+  MissingChar sse_decode_missing_char(SseDeserializer deserializer);
+
+  @protected
+  MissingGlyphs sse_decode_missing_glyphs(SseDeserializer deserializer);
+
+  @protected
+  MissingReasonKind sse_decode_missing_reason_kind(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   NotEditableReason sse_decode_not_editable_reason(
     SseDeserializer deserializer,
   );
@@ -543,12 +724,40 @@ abstract class FermanBridgeApiImplPlatform
   String? sse_decode_opt_String(SseDeserializer deserializer);
 
   @protected
+  ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  double? sse_decode_opt_box_autoadd_f_32(SseDeserializer deserializer);
+
+  @protected
   FailReason? sse_decode_opt_box_autoadd_fail_reason(
     SseDeserializer deserializer,
   );
 
   @protected
+  FontEmbedding? sse_decode_opt_box_autoadd_font_embedding(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  MissingGlyphs? sse_decode_opt_box_autoadd_missing_glyphs(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   NotEditableReason? sse_decode_opt_box_autoadd_not_editable_reason(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowChoice? sse_decode_opt_box_autoadd_overflow_choice(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  OverflowPlan? sse_decode_opt_box_autoadd_overflow_plan(
     SseDeserializer deserializer,
   );
 
@@ -574,6 +783,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   OutlineEntry sse_decode_outline_entry(SseDeserializer deserializer);
+
+  @protected
+  OverflowChoice sse_decode_overflow_choice(SseDeserializer deserializer);
+
+  @protected
+  OverflowPlan sse_decode_overflow_plan(SseDeserializer deserializer);
 
   @protected
   PageBlocks sse_decode_page_blocks(SseDeserializer deserializer);
@@ -631,6 +846,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Signature sse_decode_signature(SseDeserializer deserializer);
+
+  @protected
+  SubstitutionKind sse_decode_substitution_kind(SseDeserializer deserializer);
 
   @protected
   TextDirection sse_decode_text_direction(SseDeserializer deserializer);
@@ -745,15 +963,57 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_box_autoadd_extend_blocked(ExtendBlocked raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_extend_blocked(raw);
+  }
+
+  @protected
+  double cst_encode_box_autoadd_f_32(double raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_f_32(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_fail_reason(FailReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_fail_reason(raw);
   }
 
   @protected
+  int cst_encode_box_autoadd_font_embedding(FontEmbedding raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_font_embedding(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_font_settings(FontSettings raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_font_settings(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_missing_glyphs(MissingGlyphs raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_missing_glyphs(raw);
+  }
+
+  @protected
   int cst_encode_box_autoadd_not_editable_reason(NotEditableReason raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_not_editable_reason(raw);
+  }
+
+  @protected
+  int cst_encode_box_autoadd_overflow_choice(OverflowChoice raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_overflow_choice(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_overflow_plan(OverflowPlan raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_overflow_plan(raw);
   }
 
   @protected
@@ -829,6 +1089,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_dependent_cell(DependentCell raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_u_64(raw.id), cst_encode_page_rect(raw.frame)].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_document_info(DocumentInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -864,7 +1130,12 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_page_blocks(raw.page),
       cst_encode_list_String(raw.missing),
+      cst_encode_opt_box_autoadd_missing_glyphs(raw.glyphs),
+      cst_encode_list_font_substitution(raw.substitutions),
       cst_encode_bool(raw.overflowing),
+      cst_encode_opt_box_autoadd_overflow_plan(raw.overflow),
+      cst_encode_opt_box_autoadd_overflow_choice(raw.chosen),
+      cst_encode_list_dependent_cell(raw.dependents),
     ].jsify()!;
   }
 
@@ -881,6 +1152,32 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_extend_blocked(ExtendBlocked raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_extend_blocked_kind(raw.kind),
+      cst_encode_opt_box_autoadd_u_64(raw.block),
+      cst_encode_String(raw.text),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_font_candidate(FontCandidate raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_font_origin(raw.origin),
+      cst_encode_String(raw.postscriptName),
+      cst_encode_String(raw.family),
+      cst_encode_u_32(raw.covered),
+      cst_encode_u_32(raw.needed),
+      cst_encode_f_32(raw.similarity),
+      cst_encode_font_embedding(raw.embedding),
+      cst_encode_bool(raw.usable),
+      cst_encode_String(raw.preview),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_font_entry(FontEntry raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -888,6 +1185,30 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_font_type(raw.kind),
       cst_encode_bool(raw.embedded),
       cst_encode_bool(raw.subset),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_font_settings(FontSettings raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_String(raw.bundledDir),
+      cst_encode_list_String(raw.fontDirs),
+      cst_encode_bool(raw.systemFonts),
+      cst_encode_bool(raw.askEachTime),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_font_substitution(FontSubstitution raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_substitution_kind(raw.kind),
+      cst_encode_String(raw.chars),
+      cst_encode_String(raw.fromFont),
+      cst_encode_String(raw.toFont),
+      cst_encode_font_origin(raw.origin),
+      cst_encode_bool(raw.announced),
     ].jsify()!;
   }
 
@@ -903,7 +1224,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   JSAny cst_encode_history_step(HistoryStep raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
-    return [cst_encode_String(raw.name), cst_encode_i_64(raw.time)].jsify()!;
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_i_64(raw.time),
+      cst_encode_u_32(raw.hiddenLines),
+      cst_encode_list_font_substitution(raw.substitutions),
+    ].jsify()!;
   }
 
   @protected
@@ -964,9 +1290,27 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_dependent_cell(List<DependentCell> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_dependent_cell).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_font_candidate(List<FontCandidate> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_font_candidate).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_font_entry(List<FontEntry> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_font_entry).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_font_substitution(List<FontSubstitution> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_font_substitution).toList().jsify()!;
   }
 
   @protected
@@ -985,6 +1329,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_line_info(List<LineInfo> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_line_info).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_missing_char(List<MissingChar> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_missing_char).toList().jsify()!;
   }
 
   @protected
@@ -1042,6 +1392,28 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_missing_char(MissingChar raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_String(raw.text), cst_encode_u_32(raw.at)].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_missing_glyphs(MissingGlyphs raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_list_missing_char(raw.chars),
+      cst_encode_String(raw.font),
+      cst_encode_missing_reason_kind(raw.reason),
+      cst_encode_opt_String(raw.reasonFont),
+      cst_encode_opt_box_autoadd_font_embedding(raw.reasonEmbedding),
+      cst_encode_bool(raw.bold),
+      cst_encode_bool(raw.italic),
+      cst_encode_list_font_candidate(raw.candidates),
+      cst_encode_bool(raw.drawn),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_opened_document(OpenedDocument raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -1076,15 +1448,51 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny? cst_encode_opt_box_autoadd_extend_blocked(ExtendBlocked? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_extend_blocked(raw);
+  }
+
+  @protected
+  double? cst_encode_opt_box_autoadd_f_32(double? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_f_32(raw);
+  }
+
+  @protected
   int? cst_encode_opt_box_autoadd_fail_reason(FailReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_fail_reason(raw);
   }
 
   @protected
+  int? cst_encode_opt_box_autoadd_font_embedding(FontEmbedding? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_font_embedding(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_missing_glyphs(MissingGlyphs? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_missing_glyphs(raw);
+  }
+
+  @protected
   int? cst_encode_opt_box_autoadd_not_editable_reason(NotEditableReason? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_not_editable_reason(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_overflow_choice(OverflowChoice? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_overflow_choice(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_overflow_plan(OverflowPlan? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_overflow_plan(raw);
   }
 
   @protected
@@ -1131,6 +1539,19 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_u_32(raw.page),
       cst_encode_u_32(raw.depth),
       cst_encode_bool(raw.open),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_overflow_plan(OverflowPlan raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_32(raw.over),
+      cst_encode_opt_box_autoadd_u_32(raw.extendLines),
+      cst_encode_opt_box_autoadd_extend_blocked(raw.extendBlocked),
+      cst_encode_opt_box_autoadd_f_32(raw.tightenPercent),
+      cst_encode_opt_box_autoadd_u_32(raw.tightenShort),
+      cst_encode_u_32(raw.keepHidden),
     ].jsify()!;
   }
 
@@ -1207,6 +1628,7 @@ abstract class FermanBridgeApiImplPlatform
     return [
       cst_encode_u_32(raw.current),
       cst_encode_opt_box_autoadd_u_64(raw.renderKey),
+      cst_encode_list_font_substitution(raw.substitutions),
     ].jsify()!;
   }
 
@@ -1352,10 +1774,19 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_error_kind(ErrorKind raw);
 
   @protected
+  int cst_encode_extend_blocked_kind(ExtendBlockedKind raw);
+
+  @protected
   double cst_encode_f_32(double raw);
 
   @protected
   int cst_encode_fail_reason(FailReason raw);
+
+  @protected
+  int cst_encode_font_embedding(FontEmbedding raw);
+
+  @protected
+  int cst_encode_font_origin(FontOrigin raw);
 
   @protected
   int cst_encode_font_type(FontType raw);
@@ -1370,7 +1801,13 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_item_kind(ItemKind raw);
 
   @protected
+  int cst_encode_missing_reason_kind(MissingReasonKind raw);
+
+  @protected
   int cst_encode_not_editable_reason(NotEditableReason raw);
+
+  @protected
+  int cst_encode_overflow_choice(OverflowChoice raw);
 
   @protected
   int cst_encode_pdfium_state(PdfiumState raw);
@@ -1386,6 +1823,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_search_event_kind(SearchEventKind raw);
+
+  @protected
+  int cst_encode_substitution_kind(SubstitutionKind raw);
 
   @protected
   int cst_encode_text_direction(TextDirection raw);
@@ -1445,14 +1885,53 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_bool(bool self, SseSerializer serializer);
 
   @protected
+  void sse_encode_box_autoadd_extend_blocked(
+    ExtendBlocked self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_f_32(double self, SseSerializer serializer);
+
+  @protected
   void sse_encode_box_autoadd_fail_reason(
     FailReason self,
     SseSerializer serializer,
   );
 
   @protected
+  void sse_encode_box_autoadd_font_embedding(
+    FontEmbedding self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_font_settings(
+    FontSettings self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_missing_glyphs(
+    MissingGlyphs self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_box_autoadd_not_editable_reason(
     NotEditableReason self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_overflow_plan(
+    OverflowPlan self,
     SseSerializer serializer,
   );
 
@@ -1508,6 +1987,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_crate_version(CrateVersion self, SseSerializer serializer);
 
   @protected
+  void sse_encode_dependent_cell(DependentCell self, SseSerializer serializer);
+
+  @protected
   void sse_encode_document_info(DocumentInfo self, SseSerializer serializer);
 
   @protected
@@ -1532,13 +2014,40 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_error_kind(ErrorKind self, SseSerializer serializer);
 
   @protected
+  void sse_encode_extend_blocked(ExtendBlocked self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_extend_blocked_kind(
+    ExtendBlockedKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_f_32(double self, SseSerializer serializer);
 
   @protected
   void sse_encode_fail_reason(FailReason self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_candidate(FontCandidate self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_font_embedding(FontEmbedding self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_entry(FontEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_font_origin(FontOrigin self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_font_settings(FontSettings self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_font_substitution(
+    FontSubstitution self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_font_type(FontType self, SseSerializer serializer);
@@ -1592,8 +2101,26 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_dependent_cell(
+    List<DependentCell> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_font_candidate(
+    List<FontCandidate> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_font_entry(
     List<FontEntry> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_font_substitution(
+    List<FontSubstitution> self,
     SseSerializer serializer,
   );
 
@@ -1608,6 +2135,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_list_line_info(List<LineInfo> self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_list_missing_char(
+    List<MissingChar> self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_list_outline_entry(
@@ -1658,6 +2191,18 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_missing_char(MissingChar self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_missing_glyphs(MissingGlyphs self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_missing_reason_kind(
+    MissingReasonKind self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_not_editable_reason(
     NotEditableReason self,
     SseSerializer serializer,
@@ -1673,14 +2218,47 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_opt_String(String? self, SseSerializer serializer);
 
   @protected
+  void sse_encode_opt_box_autoadd_extend_blocked(
+    ExtendBlocked? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_f_32(double? self, SseSerializer serializer);
+
+  @protected
   void sse_encode_opt_box_autoadd_fail_reason(
     FailReason? self,
     SseSerializer serializer,
   );
 
   @protected
+  void sse_encode_opt_box_autoadd_font_embedding(
+    FontEmbedding? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_missing_glyphs(
+    MissingGlyphs? self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_opt_box_autoadd_not_editable_reason(
     NotEditableReason? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_choice(
+    OverflowChoice? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_overflow_plan(
+    OverflowPlan? self,
     SseSerializer serializer,
   );
 
@@ -1716,6 +2294,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_outline_entry(OutlineEntry self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_overflow_choice(
+    OverflowChoice self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_overflow_plan(OverflowPlan self, SseSerializer serializer);
 
   @protected
   void sse_encode_page_blocks(PageBlocks self, SseSerializer serializer);
@@ -1779,6 +2366,12 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_signature(Signature self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_substitution_kind(
+    SubstitutionKind self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_text_direction(TextDirection self, SseSerializer serializer);
@@ -1849,6 +2442,18 @@ class FermanBridgeWire implements BaseWire {
     point,
   );
 
+  void wire__crate__frb__choose_font(
+    NativePortType port_,
+    JSAny transaction,
+    int origin,
+    String postscript_name,
+  ) => wasmModule.wire__crate__frb__choose_font(
+    port_,
+    transaction,
+    origin,
+    postscript_name,
+  );
+
   void wire__crate__frb__close(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__close(port_, document);
 
@@ -1879,6 +2484,9 @@ class FermanBridgeWire implements BaseWire {
   void wire__crate__frb__history(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__history(port_, document);
 
+  void wire__crate__frb__keep_as_is(NativePortType port_, JSAny transaction) =>
+      wasmModule.wire__crate__frb__keep_as_is(port_, transaction);
+
   void wire__crate__frb__open(
     NativePortType port_,
     String path,
@@ -1905,6 +2513,13 @@ class FermanBridgeWire implements BaseWire {
     generation,
     wanted,
   );
+
+  void wire__crate__frb__resolve_overflow(
+    NativePortType port_,
+    JSAny transaction,
+    int choice,
+  ) =>
+      wasmModule.wire__crate__frb__resolve_overflow(port_, transaction, choice);
 
   void wire__crate__frb__rollback_edit(
     NativePortType port_,
@@ -1962,6 +2577,11 @@ class FermanBridgeWire implements BaseWire {
     focus,
   );
 
+  void wire__crate__frb__set_font_settings(
+    NativePortType port_,
+    JSAny settings,
+  ) => wasmModule.wire__crate__frb__set_font_settings(port_, settings);
+
   void wire__crate__frb__show_layers(
     NativePortType port_,
     JSAny document,
@@ -2014,6 +2634,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny point,
   );
 
+  external void wire__crate__frb__choose_font(
+    NativePortType port_,
+    JSAny transaction,
+    int origin,
+    String postscript_name,
+  );
+
   external void wire__crate__frb__close(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__close_view(NativePortType port_, JSAny view);
@@ -2038,6 +2665,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
 
   external void wire__crate__frb__history(NativePortType port_, JSAny document);
 
+  external void wire__crate__frb__keep_as_is(
+    NativePortType port_,
+    JSAny transaction,
+  );
+
   external void wire__crate__frb__open(
     NativePortType port_,
     String path,
@@ -2057,6 +2689,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny view,
     JSAny generation,
     JSAny wanted,
+  );
+
+  external void wire__crate__frb__resolve_overflow(
+    NativePortType port_,
+    JSAny transaction,
+    int choice,
   );
 
   external void wire__crate__frb__rollback_edit(
@@ -2094,6 +2732,11 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     int page,
     JSAny anchor,
     JSAny focus,
+  );
+
+  external void wire__crate__frb__set_font_settings(
+    NativePortType port_,
+    JSAny settings,
   );
 
   external void wire__crate__frb__show_layers(

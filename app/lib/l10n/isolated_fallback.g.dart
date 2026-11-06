@@ -1908,6 +1908,167 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get editNothingToRedo => isolate(super.editNothingToRedo);
+
+  @override
+  String get editOverflowTitle => isolate(super.editOverflowTitle);
+
+  @override
+  String editOverflowBody(int count, String n) =>
+      isolate(super.editOverflowBody(count, n));
+
+  @override
+  String editOverflowExtend(int count, String n) =>
+      isolate(super.editOverflowExtend(count, n));
+
+  @override
+  String editOverflowTighten(String percent) =>
+      isolate(super.editOverflowTighten(percent));
+
+  @override
+  String get editOverflowKeep => isolate(super.editOverflowKeep);
+
+  @override
+  String editOverflowExtendLabelBelow(String label) =>
+      isolate(super.editOverflowExtendLabelBelow(label));
+
+  @override
+  String editOverflowExtendBelow(String text) =>
+      isolate(super.editOverflowExtendBelow(text));
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      isolate(super.editOverflowExtendPageEdge);
+
+  @override
+  String editOverflowTightenShort(int count, String n) =>
+      isolate(super.editOverflowTightenShort(count, n));
+
+  @override
+  String editOverflowHidden(int count, String n) =>
+      isolate(super.editOverflowHidden(count, n));
+
+  @override
+  String get editTotalsTitle => isolate(super.editTotalsTitle);
+
+  @override
+  String get editTotalsBody => isolate(super.editTotalsBody);
+
+  @override
+  String editTotalsReview(int count, String n) =>
+      isolate(super.editTotalsReview(count, n));
+
+  @override
+  String get editBadgeEdited => isolate(super.editBadgeEdited);
+
+  @override
+  String get editGlyphTitle => isolate(super.editGlyphTitle);
+
+  @override
+  String editGlyphBody(String chars) => isolate(super.editGlyphBody(chars));
+
+  @override
+  String editGlyphBodyMany(String chars) =>
+      isolate(super.editGlyphBodyMany(chars));
+
+  @override
+  String get editGlyphChoose => isolate(super.editGlyphChoose);
+
+  @override
+  String get editGlyphKeep => isolate(super.editGlyphKeep);
+
+  @override
+  String get editGlyphNoneTitle => isolate(super.editGlyphNoneTitle);
+
+  @override
+  String editGlyphNoneBody(String chars) =>
+      isolate(super.editGlyphNoneBody(chars));
+
+  @override
+  String get editGlyphLicenceTitle => isolate(super.editGlyphLicenceTitle);
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) =>
+      isolate(super.editGlyphLicenceBody(font, chars));
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) =>
+      isolate(super.editGlyphLicenceBodyRestricted(font, chars));
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) =>
+      isolate(super.editGlyphOwnFontBody(font, chars));
+
+  @override
+  String get editGlyphAddedTitle => isolate(super.editGlyphAddedTitle);
+
+  @override
+  String editGlyphAddedBody(String chars, String font) =>
+      isolate(super.editGlyphAddedBody(chars, font));
+
+  @override
+  String get fontPickerTitle => isolate(super.fontPickerTitle);
+
+  @override
+  String get fontPickerClose => isolate(super.fontPickerClose);
+
+  @override
+  String get fontPickerScope => isolate(super.fontPickerScope);
+
+  @override
+  String get fontPickerScopeMissing => isolate(super.fontPickerScopeMissing);
+
+  @override
+  String get fontPickerScopeBlock => isolate(super.fontPickerScopeBlock);
+
+  @override
+  String get fontPickerSearch => isolate(super.fontPickerSearch);
+
+  @override
+  String get fontPickerEmbedded => isolate(super.fontPickerEmbedded);
+
+  @override
+  String get fontPickerInstalled => isolate(super.fontPickerInstalled);
+
+  @override
+  String get fontPickerBundled => isolate(super.fontPickerBundled);
+
+  @override
+  String get fontPickerClosest => isolate(super.fontPickerClosest);
+
+  @override
+  String fontPickerHas(String chars) => isolate(super.fontPickerHas(chars));
+
+  @override
+  String fontPickerHasNone(String chars) =>
+      isolate(super.fontPickerHasNone(chars));
+
+  @override
+  String fontPickerHasSome(String covered, String needed) =>
+      isolate(super.fontPickerHasSome(covered, needed));
+
+  @override
+  String get fontPickerNotEmbeddable => isolate(super.fontPickerNotEmbeddable);
+
+  @override
+  String fontPickerNoMatch(String query) =>
+      isolate(super.fontPickerNoMatch(query));
+
+  @override
+  String get fontPickerCancel => isolate(super.fontPickerCancel);
+
+  @override
+  String fontPickerUse(String font) => isolate(super.fontPickerUse(font));
+
+  @override
+  String get editFontSubstituted => isolate(super.editFontSubstituted);
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) =>
+      isolate(super.editFontSubstitutedBody(font, chars));
+
+  @override
+  String get editFontSubstitutedDismiss =>
+      isolate(super.editFontSubstitutedDismiss);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

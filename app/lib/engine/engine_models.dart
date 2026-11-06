@@ -1100,19 +1100,354 @@ class EditPreview {
   const new({
     required this.page,
     this.missing = const [],
+    this.glyphs,
+    this.substitutions = const [],
     this.overflowing = false,
+    this.overflow,
+    this.chosen,
+    this.dependents = const [],
   });
 
   /// The page's blocks with the new text, or with the text before when
   /// characters are [missing].
   final PageBlocks page;
 
-  /// The characters no font of their line can draw, in the order they first
-  /// appear: the text was not applied (ARCHITECTURE §6.7).
+  /// The characters no font could draw, in the order they first appear: the
+  /// text was not applied, and [glyphs] says why (ARCHITECTURE §6.7).
   final List<String> missing;
 
-  /// Whether a line runs past its block's frame.
+  /// Missing-glyph step 3: the characters, why the same font did not draw
+  /// them and the candidates (a3-3a, a3-3b). Drawn provisionally in the
+  /// closest candidate until `chooseFont` or `keepAsIs` when
+  /// [MissingGlyphs.drawn], else not drawn (they are in [missing]).
+  final MissingGlyphs? glyphs;
+
+  /// The substitutions the applied text makes (steps 2 and 3).
+  final List<FontSubstitution> substitutions;
+
+  /// Whether a line of a left-aligned block rewritten line by line runs past
+  /// its frame.
   final bool overflowing;
+
+  /// The overflow choices, when the text needs more lines than the block's
+  /// frame holds (a3-4, ARCHITECTURE §6.8).
+  final OverflowPlan? overflow;
+
+  /// The choice the preview shows and a commit keeps: [OverflowChoice.keep]
+  /// until `resolveOverflow` picks another.
+  final OverflowChoice? chosen;
+
+  /// The table cells whose values likely depend on the edited one (a3-9):
+  /// tinted, with "Totals don't update"; the engine never changes them.
+  final List<DependentCell> dependents;
+}
+
+/// Where a font comes from: the groups of the a3-3b picker.
+enum FontOrigin {
+  /// Embedded in this document.
+  embedded,
+
+  /// Installed on this computer.
+  installed,
+
+  /// Included with Ferman.
+  bundled,
+}
+
+/// A font's embedding permission (`OS/2.fsType`, ADR 0006).
+enum FontEmbedding {
+  /// Installable embedding.
+  installable,
+
+  /// Editable embedding.
+  editable,
+
+  /// Preview and print only: never used for new text.
+  previewAndPrint,
+
+  /// Restricted licence: never embedded.
+  restricted,
+
+  /// The whole font only, no subset.
+  noSubsetting,
+
+  /// Bitmaps only.
+  bitmapOnly,
+}
+
+/// Why the same font did not draw the missing characters (step 2, G37).
+enum MissingReason {
+  /// The same font is neither installed nor included with Ferman.
+  notInstalled,
+
+  /// The same font is installed, but its licence forbids embedding it.
+  notEmbeddable,
+
+  /// The document's own font allows at most preview and print, so its
+  /// glyphs are not reused for new text.
+  restricted,
+}
+
+/// A character missing-glyph step 3 draws.
+@immutable
+class MissingChar {
+  /// Creates the character.
+  const new({required this.text, required this.at});
+
+  /// The character.
+  final String text;
+
+  /// Its offset in the new text, in UTF-16 code units.
+  final int at;
+}
+
+/// A font step 3 offers (a3-3b).
+@immutable
+class FontCandidate {
+  /// Creates a candidate.
+  const new({
+    required this.origin,
+    required this.postscriptName,
+    required this.family,
+    required this.covered,
+    required this.needed,
+    this.similarity = 1,
+    this.embedding = FontEmbedding.installable,
+    this.usable = true,
+    this.preview = '',
+  });
+
+  /// Its group.
+  final FontOrigin origin;
+
+  /// Its PostScript name, which `chooseFont` takes back.
+  final String postscriptName;
+
+  /// Its family, for the picker's row.
+  final String family;
+
+  /// How many of the missing characters it has, of [needed].
+  final int covered;
+
+  /// How many characters are missing.
+  final int needed;
+
+  /// How close its metrics are to the original's, 0 to 1.
+  final double similarity;
+
+  /// Its permission.
+  final FontEmbedding embedding;
+
+  /// Whether it can draw every missing character (full coverage and a
+  /// licence that allows it).
+  final bool usable;
+
+  /// The letters of "Ğğ İı Şş Çç Öö Üü" it has.
+  final String preview;
+}
+
+/// Missing-glyph step 3's characters and candidates.
+@immutable
+class MissingGlyphs {
+  /// Creates the state.
+  const new({
+    required this.chars,
+    required this.font,
+    this.reason = MissingReason.notInstalled,
+    this.reasonFont,
+    this.reasonEmbedding,
+    this.bold = false,
+    this.italic = false,
+    this.candidates = const [],
+    this.drawn = false,
+  });
+
+  /// The characters, in text order.
+  final List<MissingChar> chars;
+
+  /// The font they are missing from.
+  final String font;
+
+  /// Why the same font did not draw them.
+  final MissingReason reason;
+
+  /// For [MissingReason.notEmbeddable], the installed font's name.
+  final String? reasonFont;
+
+  /// For [MissingReason.notEmbeddable] and [MissingReason.restricted], the
+  /// permission.
+  final FontEmbedding? reasonEmbedding;
+
+  /// Whether the font is bold, so only bold candidates are offered.
+  final bool bold;
+
+  /// Whether it is italic, so only italic candidates are offered.
+  final bool italic;
+
+  /// The candidates, best first; empty when no font of the original's style
+  /// has the characters ("No font has this character", G37).
+  final List<FontCandidate> candidates;
+
+  /// Whether the first usable candidate draws them now, provisionally.
+  final bool drawn;
+}
+
+/// Which missing-glyph step drew substituted characters.
+enum SubstitutionKind {
+  /// Step 2: the same font, from this computer ("Character added from this
+  /// computer", a3-17).
+  sameFont,
+
+  /// Step 3: a similar font.
+  similar,
+}
+
+/// Characters set in another font than their line's (a3-12, a11-6).
+@immutable
+class FontSubstitution {
+  /// Creates the substitution.
+  const new({
+    required this.kind,
+    required this.chars,
+    required this.fromFont,
+    required this.toFont,
+    required this.origin,
+    this.announced = false,
+  });
+
+  /// The step.
+  final SubstitutionKind kind;
+
+  /// The characters, each once.
+  final String chars;
+
+  /// The document's font.
+  final String fromFont;
+
+  /// The font they are drawn in.
+  final String toFont;
+
+  /// Where that font comes from.
+  final FontOrigin origin;
+
+  /// Whether the app has been told of this font already: the notice and the
+  /// "Font substituted" toast are said once.
+  final bool announced;
+}
+
+/// Where the fonts for missing glyphs come from (ARCHITECTURE §6.7).
+@immutable
+class FontSettings {
+  /// Creates the settings.
+  const new({
+    this.bundledDir,
+    this.fontDirs = const [],
+    this.systemFonts = true,
+    this.askEachTime = false,
+  });
+
+  /// The directory of the fonts included with Ferman.
+  final String? bundledDir;
+
+  /// More directories whose fonts count as installed.
+  final List<String> fontDirs;
+
+  /// Whether the fonts installed on this computer are used.
+  final bool systemFonts;
+
+  /// "Ask each time" (a11-1c): step 3 waits for a choice.
+  final bool askEachTime;
+}
+
+/// One of the overflow choices (a3-4).
+enum OverflowChoice {
+  /// "Extend block by N line(s)".
+  extend,
+
+  /// "Tighten spacing slightly (−x%)".
+  tighten,
+
+  /// "Keep and warn".
+  keep,
+}
+
+/// What stands in the way of [OverflowChoice.extend].
+enum ExtendBlockedKind {
+  /// Another block of the page.
+  block,
+
+  /// The page's edge.
+  pageEdge,
+}
+
+/// Why [OverflowChoice.extend] is disabled (a3-18).
+@immutable
+class ExtendBlocked {
+  /// Creates the reason.
+  const new({required this.kind, this.block, this.text = ''});
+
+  /// What is in the way.
+  final ExtendBlockedKind kind;
+
+  /// The block in the way, for [ExtendBlockedKind.block].
+  final int? block;
+
+  /// Its first line, which the reason names.
+  final String text;
+}
+
+/// The overflow choices with the amounts the engine computed for the block.
+@immutable
+class OverflowPlan {
+  /// Creates a plan.
+  const new({
+    required this.over,
+    required this.keepHidden,
+    this.extendLines,
+    this.extendBlocked,
+    this.tightenPercent,
+    this.tightenShort,
+  });
+
+  /// How many lines go past the frame.
+  final int over;
+
+  /// The N of "Extend block by N line(s)", when it is available.
+  final int? extendLines;
+
+  /// Why Extend is disabled, when it is.
+  final ExtendBlocked? extendBlocked;
+
+  /// The x of "Tighten spacing slightly (−x%)", one decimal, when it is
+  /// available.
+  final double? tightenPercent;
+
+  /// The lines still over at the tightest allowed spacing, when Tighten is
+  /// disabled.
+  final int? tightenShort;
+
+  /// The lines "Keep and warn" hides.
+  final int keepHidden;
+
+  /// Whether [choice] can be picked.
+  bool allows(OverflowChoice choice) => switch (choice) {
+    OverflowChoice.extend => extendLines != null,
+    OverflowChoice.tighten => tightenPercent != null,
+    OverflowChoice.keep => true,
+  };
+}
+
+/// A table cell that likely depends on an edited one.
+@immutable
+class DependentCell {
+  /// Creates the cell.
+  const new({required this.id, required this.frame});
+
+  /// Its block's id.
+  final int id;
+
+  /// Its frame, in the page's displayed points.
+  final Rect frame;
 }
 
 /// Where a document's history stands after a commit, rollback, undo or
@@ -1120,7 +1455,11 @@ class EditPreview {
 @immutable
 class RevisionInfo {
   /// Creates the position.
-  const new({required this.current, this.renderKey});
+  const new({
+    required this.current,
+    this.renderKey,
+    this.substitutions = const [],
+  });
 
   /// How many steps of the history apply: 0 is the document as opened.
   final int current;
@@ -1129,19 +1468,36 @@ class RevisionInfo {
   /// bitmaps with an older one show the revision before. Null when nothing
   /// shown changed.
   final int? renderKey;
+
+  /// The substitutions a commit made, for the "Font substituted" toast
+  /// (a11-6); empty after anything else.
+  final List<FontSubstitution> substitutions;
 }
 
 /// One committed step of a document's history.
 @immutable
 class HistoryStep {
   /// Creates a step.
-  const new({required this.name, required this.time});
+  const new({
+    required this.name,
+    required this.time,
+    this.hiddenLines = 0,
+    this.substitutions = const [],
+  });
 
   /// Its name as the app gave it at commit.
   final String name;
 
   /// When it was committed.
   final DateTime time;
+
+  /// The lines "Keep and warn" left hidden past the block's frame: the
+  /// warning of the review list and the page thumbnail (a3-12); 0 for none.
+  final int hiddenLines;
+
+  /// The characters it set in another font: the review list's font rows
+  /// (a3-12).
+  final List<FontSubstitution> substitutions;
 }
 
 /// A document's history for the Undo history panel (a3-10).

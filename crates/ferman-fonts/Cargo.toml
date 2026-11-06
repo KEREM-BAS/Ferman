@@ -13,6 +13,12 @@ repository.workspace = true
 thiserror.workspace = true
 skrifa.workspace = true
 read-fonts.workspace = true
+harfrust.workspace = true
+subsetter.workspace = true
+fontdb.workspace = true
+
+[dev-dependencies]
+flate2.workspace = true
 
 [lints]
 workspace = true

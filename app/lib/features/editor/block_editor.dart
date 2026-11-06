@@ -17,14 +17,24 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// [frame] is the block's frame on the canvas at [scale]. The field opens
 /// with the caret where the click put it and takes focus; each change goes
 /// to the engine (`DocumentEditor.type`), and losing focus or Esc commits
-/// and closes it (`DocumentEditor.finish`). The field keeps the block's
-/// number of lines: a line feed typed or deleted is refused, as the engine
-/// does not reflow yet (W2). For screen readers the block is a multi-line
-/// text field.
+/// and closes it (`DocumentEditor.finish`). The engine lays the text out
+/// again in the block's frame, so lines may come and go. While "Keep and
+/// warn" hides lines past the frame (a3-4), the text fades from 60% of the
+/// frame's height to 35% under an amber dashed edge at the frame's bottom;
+/// the canvas puts "+1 line hidden" beside it. For screen readers the
+/// block is a multi-line text field.
+///
+/// Text an input method is still composing (a Japanese or Korean IME,
+/// Turkish dead keys) shows in the field, underlined as the platform does,
+/// but goes to the engine only once the composition ends: one edit, never
+/// a step per keystroke of it (ROADMAP §7 step 7). Characters the block's
+/// font lacks (missing-glyph step 3, a3-3a) get the amber wavy underline
+/// on the page's missing-glyph tint, and the frame's label turns amber
+/// with the font's name, below the frame.
 // shortcut: the field draws the text in the UI font sized from the block's
-// lines and leaves the font label (TextEditBox `meta`) out, since the
-// engine's blocks name no font yet; the page shows the real result after
-// each commit (G126).
+// lines and leaves the font label (TextEditBox `meta`) out but for a3-3a's
+// warning, since the engine's blocks name no font yet; the page shows the
+// real result after each commit (G126).
 class BlockEditor extends ConsumerStatefulWidget {
   /// The editor of [edit], over [frame].
   const new({
@@ -57,7 +67,10 @@ class BlockEditor extends ConsumerStatefulWidget {
 }
 
 class _BlockEditorState extends ConsumerState<BlockEditor> {
-  late final TextEditingController _controller;
+  late final _MarkedController _controller;
+
+  /// The text last given to the engine.
+  late String _sent;
   final FocusNode _focus = FocusNode(debugLabel: 'BlockEditor');
 
   DocumentEditor get _editor => ref.read(documentEditorProvider.notifier);
@@ -69,8 +82,10 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
     // The engine counts the caret in code points, the field in UTF-16.
     final offset = String.fromCharCodes(text.runes.take(widget.edit.caret))
         .length;
-    _controller = TextEditingController(text: text)
-      ..selection = TextSelection.collapsed(offset: offset);
+    _sent = text;
+    _controller = _MarkedController(text: text)
+      ..selection = TextSelection.collapsed(offset: offset)
+      ..addListener(_changed);
     _focus.addListener(_focusChanged);
     // The canvas has focus from the click, so autofocus would not take it.
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -79,7 +94,19 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
   }
 
   void _focusChanged() {
-    if (!_focus.hasFocus) unawaited(_editor.finish());
+    // The a3-3b picker takes the focus for a while and gives it back.
+    if (!_focus.hasFocus && !ref.read(documentEditorProvider).picking) {
+      unawaited(_editor.finish());
+    }
+  }
+
+  /// Sends the field's text once no input method composes in it.
+  void _changed() {
+    final value = _controller.value;
+    if (value.isComposingRangeValid && !value.composing.isCollapsed) return;
+    if (value.text == _sent) return;
+    _sent = value.text;
+    _editor.type(value.text);
   }
 
   @override
@@ -87,17 +114,17 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
     _focus
       ..removeListener(_focusChanged)
       ..dispose();
-    _controller.dispose();
+    _controller
+      ..removeListener(_changed)
+      ..dispose();
     super.dispose();
   }
 
-  /// Refuses a change that adds or removes a line.
-  static TextEditingValue _sameLines(
-    TextEditingValue old,
-    TextEditingValue next,
-  ) => '\n'.allMatches(next.text).length == '\n'.allMatches(old.text).length
-      ? next
-      : old;
+  /// a3-4's mask: opaque to 60% of the frame, 35% at its bottom.
+  static const double fadeFrom = 0.6;
+
+  /// a3-4's `rgba(0,0,0,.35)` at the frame's bottom and past it.
+  static const double fadedAlpha = 0.35;
 
   @override
   Widget build(BuildContext context) {
@@ -114,7 +141,87 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
         frame.width + 2 * (TextEditBox.marginX - TextEditBox.paddingX);
     final height =
         frame.height + 2 * (TextEditBox.marginY - TextEditBox.paddingY);
+    final hidden = ref.watch(
+      documentEditorProvider.select((s) => s.keptHidden > 0),
+    );
+    final missing = ref.watch(documentEditorProvider.select((s) => s.glyphs));
+    _controller.marks = missing?.chars ?? const [];
+    _controller.markStyle = TextStyle(
+      backgroundColor: theme.pageColors.glyphMissingBg,
+      decoration: TextDecoration.underline,
+      decorationStyle: TextDecorationStyle.wavy,
+      decorationColor: theme.pageColors.glyphMissing,
+      decorationThickness: PageMark.missingGlyphThickness,
+    );
+    // The frame's bottom inside the field's box.
+    final bottom = frame.height + TextEditBox.marginY - TextEditBox.paddingY;
+    Widget field = EditableText(
+      controller: _controller,
+      focusNode: _focus,
+      maxLines: null,
+      keyboardType: TextInputType.multiline,
+      textDirection: block.direction == BlockDirection.rightToLeft
+          ? TextDirection.rtl
+          : TextDirection.ltr,
+      style: theme.typography.body.copyWith(
+        fontSize: fontSize,
+        height: pitch / fontSize,
+        color: theme.ramps.paper900,
+      ),
+      strutStyle: StrutStyle(
+        fontSize: fontSize,
+        height: pitch / fontSize,
+        forceStrutHeight: true,
+      ),
+      cursorColor: theme.pageColors.editCaret,
+      cursorWidth: TextCaret.width,
+      backgroundCursorColor: theme.colors.borderSubtle,
+      selectionColor: theme.pageColors.editSelection,
+    );
+    if (hidden) {
+      final ink = theme.ramps.paper900;
+      field = Stack(
+        clipBehavior: Clip.none,
+        children: [
+          ShaderMask(
+            blendMode: BlendMode.dstIn,
+            shaderCallback: (bounds) => LinearGradient(
+              begin: Alignment.topCenter,
+              end: Alignment.bottomCenter,
+              colors: [
+                ink,
+                ink,
+                ink.withValues(alpha: fadedAlpha),
+              ],
+              stops: [
+                0,
+                (bottom * fadeFrom / bounds.height).clamp(0, 1),
+                (bottom / bounds.height).clamp(0, 1),
+              ],
+            ).createShader(bounds),
+            child: field,
+          ),
+          PositionedDirectional(
+            start: 0,
+            end: 0,
+            top: bottom,
+            child: CustomPaint(
+              key: const ValueKey<String>('BlockEditor.overflowEdge'),
+              size: Size.fromHeight(theme.border.borderWidthStrong),
+              painter: _DashedEdge(
+                color: theme.pageColors.overflowMark,
+                width: theme.border.borderWidthStrong,
+              ),
+            ),
+          ),
+        ],
+      );
+    }
     return TextEditBox(
+      // a3-3a: nothing above the frame is free, so the label flips below.
+      meta: missing?.font,
+      metaWarning: missing != null,
+      metaPlacement: MetaPlacement.below,
       onStateChanged: (_) => unawaited(_editor.finish()),
       child: ColoredBox(
         color: theme.pageColors.pageBg,
@@ -124,35 +231,85 @@ class _BlockEditorState extends ConsumerState<BlockEditor> {
             maxWidth: width,
             minHeight: height,
           ),
-          child: EditableText(
-            controller: _controller,
-            focusNode: _focus,
-            maxLines: null,
-            keyboardType: TextInputType.multiline,
-            textDirection: block.direction == BlockDirection.rightToLeft
-                ? TextDirection.rtl
-                : TextDirection.ltr,
-            style: theme.typography.body.copyWith(
-              fontSize: fontSize,
-              height: pitch / fontSize,
-              color: theme.ramps.paper900,
-            ),
-            strutStyle: StrutStyle(
-              fontSize: fontSize,
-              height: pitch / fontSize,
-              forceStrutHeight: true,
-            ),
-            cursorColor: theme.pageColors.editCaret,
-            cursorWidth: TextCaret.width,
-            backgroundCursorColor: theme.colors.borderSubtle,
-            selectionColor: theme.pageColors.editSelection,
-            inputFormatters: const [
-              TextInputFormatter.withFunction(_sameLines),
-            ],
-            onChanged: _editor.type,
-          ),
+          child: field,
         ),
       ),
     );
   }
+}
+
+/// The field's controller, marking the characters of [marks] with
+/// [markStyle] while nothing is composed.
+class _MarkedController extends TextEditingController {
+  new({super.text});
+
+  List<MissingChar> marks = const [];
+  TextStyle? markStyle;
+
+  @override
+  TextSpan buildTextSpan({
+    required BuildContext context,
+    required bool withComposing,
+    TextStyle? style,
+  }) {
+    final text = this.text;
+    final marked = [
+      for (final mark in marks)
+        if (mark.at >= 0 &&
+            text.startsWith(mark.text, mark.at) &&
+            mark.text.isNotEmpty)
+          mark,
+    ]..sort((a, b) => a.at.compareTo(b.at));
+    if (marked.isEmpty || (withComposing && value.isComposingRangeValid)) {
+      return super.buildTextSpan(
+        context: context,
+        style: style,
+        withComposing: withComposing,
+      );
+    }
+    final children = <TextSpan>[];
+    var at = 0;
+    for (final mark in marked) {
+      if (mark.at < at) continue;
+      if (mark.at > at) {
+        children.add(TextSpan(text: text.substring(at, mark.at)));
+      }
+      at = mark.at + mark.text.length;
+      children.add(TextSpan(text: mark.text, style: markStyle));
+    }
+    if (at < text.length) children.add(TextSpan(text: text.substring(at)));
+    return TextSpan(style: style, children: children);
+  }
+}
+
+/// a3-4's `border-bottom: 1.5px dashed var(--overflow-mark)`, dashed as the
+/// TextEditBox hover frame is.
+class _DashedEdge extends CustomPainter {
+  const new({required this.color, required this.width});
+
+  final Color color;
+  final double width;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final paint = Paint()
+      ..color = color
+      ..strokeWidth = width;
+    final y = width / 2;
+    for (
+      var x = 0.0;
+      x < size.width;
+      x += TextEditBox.dashLength + TextEditBox.dashGap
+    ) {
+      canvas.drawLine(
+        Offset(x, y),
+        Offset(math.min(x + TextEditBox.dashLength, size.width), y),
+        paint,
+      );
+    }
+  }
+
+  @override
+  bool shouldRepaint(_DashedEdge old) =>
+      old.color != color || old.width != width;
 }

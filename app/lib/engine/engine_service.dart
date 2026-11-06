@@ -96,16 +96,53 @@ abstract interface class EngineService {
   /// [EngineErrorKind.invalidInput] while another transaction is open.
   Future<int> beginEdit(int document, int page, int block);
 
-  /// Replaces the whole text of the [transaction]'s block with [text], its
-  /// lines separated by line feeds, one per line of the block; returns the
-  /// page as it would read.
+  /// Replaces the whole text of the [transaction]'s block with [text]; returns
+  /// the page as it would read. One piece per line of a left-aligned or
+  /// justified block, separated by line feeds, rewrites the changed lines in
+  /// place; any other text is laid out again in the block's frame, a line
+  /// feed ending a paragraph. Text that needs more lines than the frame holds
+  /// comes back with [EditPreview.overflow] and "Keep and warn" applied, which
+  /// a commit keeps unless [resolveOverflow] picks another choice.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.unsupported] for text
-  /// the engine cannot write yet, such as another number of lines.
+  /// the engine cannot write yet, such as right-to-left lines.
   Future<EditPreview> applyEdit(int transaction, String text);
+
+  /// Writes the [transaction]'s newest text again with the overflow
+  /// [choice]; the transaction stays open.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] when the
+  /// text does not overflow or [choice] is disabled.
+  Future<EditPreview> resolveOverflow(int transaction, OverflowChoice choice);
+
+  /// Sets where the fonts for missing glyphs come from, and "Ask each time"
+  /// (a11-1c). The fonts are indexed again the next time an edit needs them.
+  Future<void> setFontSettings(FontSettings settings);
+
+  /// Draws the characters missing-glyph step 3 offers candidates for in the
+  /// candidate [postscriptName] of [origin] (a3-3b); the choice holds for
+  /// the rest of the [transaction].
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] when no
+  /// text waits for a font or the font cannot draw every character.
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  );
+
+  /// Keeps step 3's characters in the closest candidate ("Keep as is"), or
+  /// draws them in it after "Ask each time".
+  ///
+  /// Throws an [EngineException] as [chooseFont] does.
+  Future<EditPreview> keepAsIs(int transaction);
 
   /// Commits the [transaction] as the history step [name], dropping the
   /// steps undone. A transaction that changed nothing adds no step.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] while
+  /// step 3's characters wait for [chooseFont] or [keepAsIs]; the
+  /// transaction stays open.
   Future<RevisionInfo> commitEdit(int transaction, String name);
 
   /// Discards the [transaction]; the history does not change.
@@ -247,6 +284,25 @@ class UnavailableEngineService implements EngineService {
   @override
   Future<EditPreview> applyEdit(int transaction, String text) async =>
       throw error;
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async => throw error;
+
+  @override
+  Future<void> setFontSettings(FontSettings settings) async => throw error;
+
+  @override
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  ) async => throw error;
+
+  @override
+  Future<EditPreview> keepAsIs(int transaction) async => throw error;
 
   @override
   Future<RevisionInfo> commitEdit(int transaction, String name) async =>

@@ -138,6 +138,16 @@ jobs:
         run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - name: Clippy (ferman-api with the bridge feature)
         run: cargo clippy -p ferman-api --features frb --all-targets --locked -- -D warnings
+      - name: Cache the corpus fonts
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: build/corpus-fonts
+          key: corpus-fonts-${{ hashFiles('tools/corpus/fonts.lock') }}
+      - name: Corpus fonts
+        # Before the tests: the font and edit tests skip without them. The fonts the
+        # generators embed that Ferman does not bundle, checked by SHA-256.
+        shell: bash
+        run: bash tools/corpus/fetch-fonts.sh
       - name: Test
         run: cargo test --workspace --locked
       - name: Test (ferman-api with the bridge feature)
@@ -190,17 +200,10 @@ jobs:
           out="$(cargo run -q --locked -p ferman-cli -- --version)"
           echo "$out"
           [[ "$out" =~ ^ferman\ [0-9]+\.[0-9]+\.[0-9]+\ \(api\ [0-9]+\.[0-9]+\)$ ]]
-      - name: Cache the corpus fonts
-        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
-        with:
-          path: build/corpus-fonts
-          key: corpus-fonts-${{ hashFiles('tools/corpus/fonts.lock') }}
       - name: Corpus tool, the corpus check and the PDFium oracle (ADR 0020)
         shell: bash
         run: |
           set -euo pipefail
-          # The fonts the generators embed that Ferman does not bundle, checked by SHA-256.
-          bash tools/corpus/fetch-fonts.sh
           # A workspace of its own: every corpus file has its README row, generated files are current.
           cargo clippy --manifest-path tools/corpus/Cargo.toml --all-targets --locked -- -D warnings
           cargo test --manifest-path tools/corpus/Cargo.toml --locked

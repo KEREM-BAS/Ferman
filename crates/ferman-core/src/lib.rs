@@ -202,6 +202,9 @@ pub enum WriteError {
     NotOnPage,
     /// No object number is left for a new object.
     ObjectNumbers,
+    /// A font copy of a name that is not a composite font of the page, or under a name the
+    /// page uses already.
+    Font,
     /// A repaired document: its rebuilt cross-reference data cannot be extended, so it is saved
     /// as a repaired copy (a full rewrite) instead.
     Repaired,
@@ -223,6 +226,7 @@ impl std::fmt::Display for WriteError {
             Self::Placement => f.write_str("a form without its placement"),
             Self::NotOnPage => f.write_str("a stream that is not on the page"),
             Self::ObjectNumbers => f.write_str("no object number left"),
+            Self::Font => f.write_str("a font copy that does not fit the page"),
             Self::Repaired => f.write_str("a repaired document cannot be updated"),
             Self::Random => f.write_str("no random numbers"),
         }

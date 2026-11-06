@@ -62,6 +62,8 @@ pub struct Engine {
     pub(super) actors: Mutex<HashMap<DocumentId, super::edit::Actor>>,
     /// The open edit transactions and their documents (`edit`).
     pub(super) transactions: Mutex<HashMap<super::edit::TransactionId, DocumentId>>,
+    /// The font settings and library for missing glyphs, which the actors share (`edit`).
+    pub(super) fonts: Arc<super::edit::Fonts>,
 }
 
 /// The engine behind the free functions of the facade and the `frb` module.
@@ -97,6 +99,7 @@ impl Engine {
             searches: Mutex::default(),
             actors: Mutex::default(),
             transactions: Mutex::default(),
+            fonts: Arc::default(),
         }
     }
 

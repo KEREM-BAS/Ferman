@@ -21,6 +21,21 @@ part of 'edit_session.dart';
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
 ///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
+///
+/// Text with characters its font lacks comes back with missing-glyph step
+/// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
+/// closest candidate, or not at all with "Ask each time" (the
+/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
+/// commit waits for the answer, and closing the editor in any other way
+/// answers "Keep as is" first. A commit that set characters in another
+/// font shows the "Font substituted" toast once ([EditorState.toast]).
+///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
 /// marks it saved, or "Couldn't save" when it fails.
@@ -41,6 +56,21 @@ final documentEditorProvider = DocumentEditorProvider._();
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
 ///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
+///
+/// Text with characters its font lacks comes back with missing-glyph step
+/// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
+/// closest candidate, or not at all with "Ask each time" (the
+/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
+/// commit waits for the answer, and closing the editor in any other way
+/// answers "Keep as is" first. A commit that set characters in another
+/// font shows the "Font substituted" toast once ([EditorState.toast]).
+///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and
 /// marks it saved, or "Couldn't save" when it fails.
@@ -58,6 +88,21 @@ final class DocumentEditorProvider
   /// editor open; typing on begins a new transaction). Undo and redo commit
   /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
   /// one after another, in the order they were asked for.
+  ///
+  /// Text that no longer fits its block comes back with "Keep and warn"
+  /// applied and the overflow choices in [EditorState.asking]; [resolve]
+  /// picks another, in the open transaction or, once the typing committed,
+  /// by undoing that step and writing the text again with the choice, so
+  /// either way it is one step.
+  ///
+  /// Text with characters its font lacks comes back with missing-glyph step
+  /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
+  /// closest candidate, or not at all with "Ask each time" (the
+  /// [settingsProvider]'s policy, which the engine gets as it changes).
+  /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
+  /// commit waits for the answer, and closing the editor in any other way
+  /// answers "Keep as is" first. A commit that set characters in another
+  /// font shows the "Font substituted" toast once ([EditorState.toast]).
   ///
   /// Each commit, undo and redo marks the shell's document unsaved; [save]
   /// writes the committed steps to the file (an incremental update) and
@@ -89,7 +134,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'e32a9305ee0f93758758632e23bdfe91869826a9';
+String _$documentEditorHash() => r'22e99bee6098c4850915da017bc919170fb41f08';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).
@@ -103,6 +148,21 @@ String _$documentEditorHash() => r'e32a9305ee0f93758758632e23bdfe91869826a9';
 /// editor open; typing on begins a new transaction). Undo and redo commit
 /// the typing first, so ⌘Z undoes a typing burst. Every engine call runs
 /// one after another, in the order they were asked for.
+///
+/// Text that no longer fits its block comes back with "Keep and warn"
+/// applied and the overflow choices in [EditorState.asking]; [resolve]
+/// picks another, in the open transaction or, once the typing committed,
+/// by undoing that step and writing the text again with the choice, so
+/// either way it is one step.
+///
+/// Text with characters its font lacks comes back with missing-glyph step
+/// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
+/// closest candidate, or not at all with "Ask each time" (the
+/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
+/// commit waits for the answer, and closing the editor in any other way
+/// answers "Keep as is" first. A commit that set characters in another
+/// font shows the "Font substituted" toast once ([EditorState.toast]).
 ///
 /// Each commit, undo and redo marks the shell's document unsaved; [save]
 /// writes the committed steps to the file (an incremental update) and

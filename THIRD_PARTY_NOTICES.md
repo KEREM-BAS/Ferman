@@ -2,7 +2,7 @@
 
 Ferman's own code and documentation are licensed under the Apache License 2.0 (see [LICENSE](LICENSE)).
 
-This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export, and the generated table of standard 14 font widths in ferman-text ([below](#standard-14-font-widths)). `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
+This file covers third-party material that is **already in this repository** inside `design/`, the read-only Claude Design export, the generated table of standard 14 font widths in ferman-text ([below](#standard-14-font-widths)) and the predefined CMaps bundled in ferman-fonts ([below](#adobe-cmap-resources)). `design/` is a reference for the product design. It is never shipped in the app. The Ferman app will carry its own licence files for the fonts, icons and libraries it bundles, in `app/assets` and in an in-app licences view (see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md)).
 
 The export itself ships no licence files (see [docs/DESIGN_GAPS.md](docs/DESIGN_GAPS.md#g08)), and `design/` must not be edited. The licence texts therefore live here, outside `design/`.
 
@@ -173,3 +173,46 @@ built-in standard fonts are metric-compatible with Adobe's Core14 AFM files, so 
 AFM widths a reader uses. PDFium is BSD-3-Clause; its licence (`licenses/pdfium.txt` of the PDFium
 archive) ships with the app, see [docs/DEPENDENCIES.md](docs/DEPENDENCIES.md). Adobe's Core14 AFM
 files may be used, copied and distributed with their notice kept; Ferman ships none of them.
+
+## Adobe CMap resources
+
+`crates/ferman-fonts/data/cmap-resources/` holds predefined CMaps from Adobe's cmap-resources
+(<https://github.com/adobe-type-tools/cmap-resources>), unmodified, so that text drawn through them
+reads and edits right: `90ms-RKSJ-H` (version 11.006, Adobe-Japan1, SHA-256
+`e0b104bcc8dfb3c2d3e025e12c59182d7e0ee1b5df6f55bc8550d4b3fc83ecd3`). Each file keeps its own
+copyright and licence header, which is:
+
+```text
+Copyright 1990-2019 Adobe. All rights reserved.
+
+Redistribution and use in source and binary forms, with or
+without modification, are permitted provided that the
+following conditions are met:
+
+Redistributions of source code must retain the above
+copyright notice, this list of conditions and the following
+disclaimer.
+
+Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following
+disclaimer in the documentation and/or other materials
+provided with the distribution.
+
+Neither the name of Adobe nor the names of its contributors
+may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND
+CONTRIBUTORS "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES,
+INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF
+MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR
+CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION)
+HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR
+OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+```

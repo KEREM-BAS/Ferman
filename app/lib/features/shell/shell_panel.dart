@@ -2,6 +2,8 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/edit_callouts.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
@@ -22,8 +24,10 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// M3). In Edit mode, text the pointer found that cannot be edited puts
 /// a3-19's callout above them: "This text can't be edited" with the
 /// reason, and on a scan a3-11's Recognize text, disabled until P3 (B025,
-/// G39). More's menu is not drawn, so More stays disabled with the
-/// future-version tooltip (B068). The mode panels of later milestones
+/// G39). While a block is edited, the heading carries its "Edited" badge
+/// and [EditCallouts] come first: a3-4's overflow choices and a3-9's
+/// "Totals don't update". More's menu is not drawn, so More stays disabled
+/// with the future-version tooltip (B068). The mode panels of later milestones
 /// (FmEditPanel, FmComments, FmFormPanel) take its place.
 class FmDocPanel extends ConsumerWidget {
   /// The right panel.
@@ -42,9 +46,27 @@ class FmDocPanel extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final mode = ref.watch(shellModeProvider);
     final document = ref.watch(shellDocumentsProvider).active;
-    final callout = mode == FermanMode.edit
-        ? ref.watch(editCalloutProvider)
-        : null;
+    final edit = mode == FermanMode.edit;
+    final callout = edit ? ref.watch(editCalloutProvider) : null;
+    final edited =
+        edit &&
+        ref.watch(
+          documentEditorProvider.select(
+            (s) => s.active != null && s.preview != null,
+          ),
+        );
+    final editCallouts =
+        edit &&
+        ref.watch(
+          documentEditorProvider.select(
+            (s) =>
+                s.asking != null ||
+                s.glyphs != null ||
+                s.notice != null ||
+                (s.active != null &&
+                    (s.preview?.dependents.isNotEmpty ?? false)),
+          ),
+        );
     final title = mode == FermanMode.edit
         ? l10n.shellModeEdit
         : l10n.shellPanelDocument;
@@ -76,15 +98,28 @@ class FmDocPanel extends ConsumerWidget {
                 spacing: theme.space.space2,
                 children: [
                   Expanded(
-                    child: ExcludeSemantics(
-                      child: Text(
-                        title,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                        style: theme.typography.panelTitle.copyWith(
-                          color: theme.colors.textPrimary,
+                    child: Row(
+                      spacing: theme.space.space2,
+                      children: [
+                        Flexible(
+                          child: ExcludeSemantics(
+                            child: Text(
+                              title,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                              style: theme.typography.panelTitle.copyWith(
+                                color: theme.colors.textPrimary,
+                              ),
+                            ),
+                          ),
                         ),
-                      ),
+                        if (edited)
+                          Badge(
+                            label: l10n.editBadgeEdited,
+                            tone: BadgeTone.edited,
+                            dot: true,
+                          ),
+                      ],
                     ),
                   ),
                   IconButton(
@@ -99,12 +134,14 @@ class FmDocPanel extends ConsumerWidget {
               ),
             ),
             Expanded(
-              child: document?.document == null && callout == null
+              child:
+                  document?.document == null && callout == null && !editCallouts
                   ? const SizedBox.shrink()
                   : SingleChildScrollView(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.stretch,
                         children: [
+                          if (editCallouts) const EditCallouts(),
                           if (callout != null)
                             Padding(
                               padding: EdgeInsetsDirectional.all(

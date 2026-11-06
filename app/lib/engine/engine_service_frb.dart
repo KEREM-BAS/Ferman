@@ -447,14 +447,188 @@ class FrbEngineService implements EngineService {
         transaction: BigInt.from(transaction),
         text: text,
       );
-      return EditPreview(
-        page: _pageBlocks(preview.page),
-        missing: preview.missing,
-        overflowing: preview.overflowing,
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async {
+    try {
+      final preview = await bridge.resolveOverflow(
+        transaction: BigInt.from(transaction),
+        choice: switch (choice) {
+          OverflowChoice.extend => bridge.OverflowChoice.extend,
+          OverflowChoice.tighten => bridge.OverflowChoice.tighten,
+          OverflowChoice.keep => bridge.OverflowChoice.keep,
+        },
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> setFontSettings(FontSettings settings) async {
+    try {
+      await bridge.setFontSettings(
+        settings: bridge.FontSettings(
+          bundledDir: settings.bundledDir ?? bundledFontsDirectory(),
+          fontDirs: settings.fontDirs,
+          systemFonts: settings.systemFonts,
+          askEachTime: settings.askEachTime,
+        ),
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
+  }
+
+  @override
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  ) async {
+    try {
+      final preview = await bridge.chooseFont(
+        transaction: BigInt.from(transaction),
+        origin: switch (origin) {
+          FontOrigin.embedded => bridge.FontOrigin.embedded,
+          FontOrigin.installed => bridge.FontOrigin.installed,
+          FontOrigin.bundled => bridge.FontOrigin.bundled,
+        },
+        postscriptName: postscriptName,
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> keepAsIs(int transaction) async {
+    try {
+      final preview = await bridge.keepAsIs(
+        transaction: BigInt.from(transaction),
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static FontOrigin _origin(bridge.FontOrigin origin) => switch (origin) {
+    bridge.FontOrigin.embedded => FontOrigin.embedded,
+    bridge.FontOrigin.installed => FontOrigin.installed,
+    bridge.FontOrigin.bundled => FontOrigin.bundled,
+  };
+
+  static FontEmbedding _embedding(bridge.FontEmbedding embedding) =>
+      switch (embedding) {
+        bridge.FontEmbedding.installable => FontEmbedding.installable,
+        bridge.FontEmbedding.editable => FontEmbedding.editable,
+        bridge.FontEmbedding.previewAndPrint => FontEmbedding.previewAndPrint,
+        bridge.FontEmbedding.restricted => FontEmbedding.restricted,
+        bridge.FontEmbedding.noSubsetting => FontEmbedding.noSubsetting,
+        bridge.FontEmbedding.bitmapOnly => FontEmbedding.bitmapOnly,
+      };
+
+  static FontSubstitution _substitution(bridge.FontSubstitution value) =>
+      FontSubstitution(
+        kind: switch (value.kind) {
+          bridge.SubstitutionKind.sameFont => SubstitutionKind.sameFont,
+          bridge.SubstitutionKind.similar => SubstitutionKind.similar,
+        },
+        chars: value.chars,
+        fromFont: value.fromFont,
+        toFont: value.toFont,
+        origin: _origin(value.origin),
+        announced: value.announced,
+      );
+
+  static MissingGlyphs _glyphs(bridge.MissingGlyphs glyphs) => MissingGlyphs(
+    chars: [for (final c in glyphs.chars) MissingChar(text: c.text, at: c.at)],
+    font: glyphs.font,
+    reason: switch (glyphs.reason) {
+      bridge.MissingReasonKind.notInstalled => MissingReason.notInstalled,
+      bridge.MissingReasonKind.notEmbeddable => MissingReason.notEmbeddable,
+      bridge.MissingReasonKind.restricted => MissingReason.restricted,
+    },
+    reasonFont: glyphs.reasonFont,
+    reasonEmbedding: switch (glyphs.reasonEmbedding) {
+      null => null,
+      final embedding => _embedding(embedding),
+    },
+    bold: glyphs.bold,
+    italic: glyphs.italic,
+    candidates: [
+      for (final candidate in glyphs.candidates)
+        FontCandidate(
+          origin: _origin(candidate.origin),
+          postscriptName: candidate.postscriptName,
+          family: candidate.family,
+          covered: candidate.covered,
+          needed: candidate.needed,
+          similarity: candidate.similarity,
+          embedding: _embedding(candidate.embedding),
+          usable: candidate.usable,
+          preview: candidate.preview,
+        ),
+    ],
+    drawn: glyphs.drawn,
+  );
+
+  static EditPreview _preview(bridge.EditPreview preview) {
+    final plan = preview.overflow;
+    final blocked = plan?.extendBlocked;
+    final glyphs = preview.glyphs;
+    return EditPreview(
+      page: _pageBlocks(preview.page),
+      missing: preview.missing,
+      glyphs: glyphs == null ? null : _glyphs(glyphs),
+      substitutions: [
+        for (final substitution in preview.substitutions)
+          _substitution(substitution),
+      ],
+      overflowing: preview.overflowing,
+      overflow: plan == null
+          ? null
+          : OverflowPlan(
+              over: plan.over,
+              extendLines: plan.extendLines,
+              extendBlocked: blocked == null
+                  ? null
+                  : ExtendBlocked(
+                      kind: switch (blocked.kind) {
+                        bridge.ExtendBlockedKind.block =>
+                          ExtendBlockedKind.block,
+                        bridge.ExtendBlockedKind.pageEdge =>
+                          ExtendBlockedKind.pageEdge,
+                      },
+                      block: blocked.block?.toInt(),
+                      text: blocked.text,
+                    ),
+              tightenPercent: plan.tightenPercent,
+              tightenShort: plan.tightenShort,
+              keepHidden: plan.keepHidden,
+            ),
+      chosen: switch (preview.chosen) {
+        null => null,
+        bridge.OverflowChoice.extend => OverflowChoice.extend,
+        bridge.OverflowChoice.tighten => OverflowChoice.tighten,
+        bridge.OverflowChoice.keep => OverflowChoice.keep,
+      },
+      dependents: [
+        for (final cell in preview.dependents)
+          DependentCell(id: cell.id.toInt(), frame: _rect(cell.frame)),
+      ],
+    );
   }
 
   @override
@@ -484,6 +658,10 @@ class FrbEngineService implements EngineService {
         current: info.current,
         // A render key is a 64-bit value: wrapped, not clamped.
         renderKey: info.renderKey?.toSigned(64).toInt(),
+        substitutions: [
+          for (final substitution in info.substitutions)
+            _substitution(substitution),
+        ],
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -500,6 +678,11 @@ class FrbEngineService implements EngineService {
             HistoryStep(
               name: step.name,
               time: DateTime.fromMillisecondsSinceEpoch(step.time),
+              hiddenLines: step.hiddenLines,
+              substitutions: [
+                for (final substitution in step.substitutions)
+                  _substitution(substitution),
+              ],
             ),
         ],
         current: history.current,
@@ -737,6 +920,30 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
     _ => throw const EngineUnavailableException(
       EngineUnavailableReason.unsupportedPlatform,
     ),
+  };
+}
+
+/// The folder of the fonts the build bundles (`app/assets/fonts`, IBM
+/// Plex), as an absolute path next to the running executable: where
+/// Flutter puts the app's assets on each desktop system; null elsewhere.
+String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
+  final os = operatingSystem ?? Platform.operatingSystem;
+  final separator = os == 'windows' ? r'\' : '/';
+  final exe = executable ?? Platform.resolvedExecutable;
+  final cut = exe.lastIndexOf(separator);
+  final dir = cut < 0 ? '.' : exe.substring(0, cut);
+  String join(List<String> parts) => [dir, ...parts].join(separator);
+  const assets = ['flutter_assets', 'assets', 'fonts'];
+  return switch (os) {
+    'linux' || 'windows' => join(['data', ...assets]),
+    'macos' => join([
+      '..',
+      'Frameworks',
+      'App.framework',
+      'Resources',
+      ...assets,
+    ]),
+    _ => null,
   };
 }
 

@@ -25,7 +25,95 @@ class FakeEngineService implements EngineService {
     this.ownerPasswords = const {},
     this.holds = const {},
     this.pageBlocks = const {},
+    this.overflows = const {},
+    this.dependents = const {},
+    this.missingGlyphs = const {},
+    this.sameFonts = const {},
   });
+
+  /// Madde 6 of kira-tr in a3-3a and a3-3b: EB Garamond has no "ğ"; the
+  /// same font is not installed, Plex Serif is offered first and IBM Plex
+  /// Sans Arabic covers only part of the text.
+  static const madde6Glyphs = MissingGlyphs(
+    chars: [MissingChar(text: 'ğ', at: 0)],
+    font: 'EBGaramond-Regular',
+    candidates: [
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'IBMPlexSerif-Regular',
+        family: 'IBM Plex Serif',
+        covered: 1,
+        needed: 1,
+        similarity: 0.93,
+        preview: 'Ğğ İı Şş Çç Öö Üü',
+      ),
+      FontCandidate(
+        origin: FontOrigin.embedded,
+        postscriptName: 'IBMPlexSerif',
+        family: 'IBM Plex Serif',
+        covered: 1,
+        needed: 1,
+        similarity: 0.9,
+        preview: 'ğ',
+      ),
+      FontCandidate(
+        origin: FontOrigin.bundled,
+        postscriptName: 'IBMPlexSansArabic',
+        family: 'IBM Plex Sans Arabic',
+        covered: 0,
+        needed: 1,
+        similarity: 0.6,
+        usable: false,
+        preview: 'ı Çç Öö Üü',
+      ),
+    ],
+  );
+
+  /// The same font found on this computer for kira-tr's Madde 6 (a3-17):
+  /// "ğ" from EB Garamond.
+  static const madde6SameFont = FontSubstitution(
+    kind: SubstitutionKind.sameFont,
+    chars: 'ğ',
+    fromFont: 'EBGaramond-Regular',
+    toFont: 'EBGaramond-Regular',
+    origin: FontOrigin.installed,
+  );
+
+  /// The blocks, by id, whose font lacks [MissingGlyphs.chars]: text with
+  /// one of them goes through step 3 with these candidates (the characters'
+  /// offsets are the text's own).
+  final Map<int, MissingGlyphs> missingGlyphs;
+
+  /// The blocks, by id, whose missing characters step 2 takes from the same
+  /// font: text with one of them carries this substitution.
+  final Map<int, FontSubstitution> sameFonts;
+
+  /// The settings [setFontSettings] was given last.
+  FontSettings fontSettings = const FontSettings();
+
+  /// The fonts named by a committed substitution, by step.
+  final Set<(SubstitutionKind, String)> _announced = {};
+
+  /// The overflow of kira-tr's Madde 4 in a3-18: one line over, Extend
+  /// blocked by the IBAN line below, Tighten at −0.6%.
+  static const ibanOverflow = OverflowPlan(
+    over: 1,
+    extendBlocked: ExtendBlocked(
+      kind: ExtendBlockedKind.block,
+      block: 2,
+      text: 'IBAN: TR12 0006 4000 0011 2345 6789 01 · Alıcı: Mert Kaya',
+    ),
+    tightenPercent: 0.6,
+    keepHidden: 1,
+  );
+
+  /// The blocks, by id, whose text overflows with this plan when an edit
+  /// makes it longer.
+  final Map<int, OverflowPlan> overflows;
+
+  /// The table cells, by block id, that depend on each block's value; their
+  /// frames come from [pageBlocks].
+  final Map<int, List<int>> dependents;
 
   /// What [textBlocks] returns, by page, for every document; other pages
   /// have no blocks. [caretAt] and [selection] treat every character of a
@@ -235,10 +323,8 @@ class FakeEngineService implements EngineService {
   /// Each document's committed steps, oldest first, and how many apply.
   final Map<int, ({List<_FakeStep> steps, int current})> _histories = {};
 
-  /// The open transactions: document, page, block and the page as the
-  /// newest text would leave it.
-  final Map<int, ({int document, int page, int block, PageBlocks? applied})>
-  _transactions = {};
+  /// The open transactions.
+  final Map<int, _FakeTransaction> _transactions = {};
   int _nextTransaction = 1;
 
   /// The saves: document and the path of a Save as, oldest first.
@@ -262,50 +348,198 @@ class FakeEngineService implements EngineService {
       );
     }
     final id = _nextTransaction++;
-    _transactions[id] = (
-      document: document,
-      page: page,
-      block: block,
-      applied: null,
-    );
+    _transactions[id] = _FakeTransaction(document, page, block);
     return id;
   }
 
-  ({int document, int page, int block, PageBlocks? applied}) _open(
-    int transaction,
-  ) =>
+  _FakeTransaction _open(int transaction) =>
       _transactions[transaction] ??
       (throw const EngineException(
         kind: EngineErrorKind.notFound,
         messageKey: 'errorInternal',
       ));
 
-  /// Gives the block's lines the lines of [text] in their old boxes; another
-  /// number of lines is unsupported, as in the engine.
+  /// Gives the block one line per line of [text]: the old lines' boxes, and
+  /// further lines one line pitch below the last. A block of [overflows]
+  /// overflows with its plan whenever its text grows, "Keep and warn" until
+  /// [resolveOverflow] picks another choice.
+  ///
+  /// A block of [missingGlyphs] whose text has one of its characters goes
+  /// through step 3: with "Ask each time" and no choice the text is not
+  /// applied; otherwise the chosen candidate, or the first usable one
+  /// provisionally, draws them. A block of [sameFonts] carries its step 2
+  /// substitution.
   @override
   Future<EditPreview> applyEdit(int transaction, String text) async {
-    final open = _open(transaction);
-    final before = _blocks(open.document, open.page);
+    final open = _open(transaction)..requested = text;
     final block = _block(open.document, open.page, open.block);
-    final texts = text.split('\n');
-    if (texts.length != block.lines.length) {
-      throw const EngineException(
-        kind: EngineErrorKind.unsupported,
-        messageKey: 'errorUnsupported',
+    final missing = _missing(open, text);
+    if (missing != null && !missing.drawn) {
+      return _preview(open, missing: missing);
+    }
+    final same = sameFonts[open.block];
+    open
+      ..text = text
+      ..overflow = text.length > block.text.length
+          ? overflows[open.block]
+          : null
+      ..chosen = open.overflow == null ? null : OverflowChoice.keep
+      ..pending = open.chosenFont ? null : missing
+      ..substitutions = [
+        if (same != null &&
+            same.chars.runes.map(String.fromCharCode).any(text.contains))
+          same,
+        if (missing != null)
+          FontSubstitution(
+            kind: SubstitutionKind.similar,
+            chars: {for (final c in missing.chars) c.text}.join(),
+            fromFont: missing.font,
+            toFont: open.choice!.postscriptName,
+            origin: open.choice!.origin,
+          ),
+      ];
+    return _preview(open, missing: open.pending);
+  }
+
+  /// Step 3 for [text] in [open]'s block, the characters at their offsets:
+  /// drawn in [_FakeTransaction.choice] (set to the first usable candidate
+  /// without one, unless "Ask each time"); null without missing characters.
+  MissingGlyphs? _missing(_FakeTransaction open, String text) {
+    final template = missingGlyphs[open.block];
+    if (template == null) return null;
+    final letters = {for (final c in template.chars) c.text};
+    final chars = [
+      for (final (at, unit) in text.codeUnits.indexed)
+        if (letters.contains(String.fromCharCode(unit)))
+          MissingChar(text: String.fromCharCode(unit), at: at),
+    ];
+    if (chars.isEmpty) return null;
+    final usable = template.candidates.where((c) => c.usable);
+    if (!open.chosenFont) {
+      open.choice = fontSettings.askEachTime || usable.isEmpty
+          ? null
+          : usable.first;
+    }
+    return MissingGlyphs(
+      chars: chars,
+      font: template.font,
+      reason: template.reason,
+      reasonFont: template.reasonFont,
+      reasonEmbedding: template.reasonEmbedding,
+      bold: template.bold,
+      italic: template.italic,
+      candidates: template.candidates,
+      drawn: open.choice != null,
+    );
+  }
+
+  @override
+  Future<void> setFontSettings(FontSettings settings) async {
+    fontSettings = settings;
+  }
+
+  /// Draws step 3's characters in the candidate [postscriptName] of [origin]
+  /// of [missingGlyphs]; one that is not usable is refused.
+  @override
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  ) {
+    final open = _open(transaction);
+    final candidate = missingGlyphs[open.block]?.candidates
+        .where(
+          (c) =>
+              c.usable &&
+              c.origin == origin &&
+              c.postscriptName == postscriptName,
+        )
+        .firstOrNull;
+    return _choose(open, candidate);
+  }
+
+  @override
+  Future<EditPreview> keepAsIs(int transaction) {
+    final open = _open(transaction);
+    return _choose(
+      open,
+      missingGlyphs[open.block]?.candidates.where((c) => c.usable).firstOrNull,
+    );
+  }
+
+  Future<EditPreview> _choose(_FakeTransaction open, FontCandidate? candidate) {
+    final text = open.requested;
+    if (candidate == null || text == null || _missing(open, text) == null) {
+      return Future.error(
+        const EngineException(
+          kind: EngineErrorKind.invalidInput,
+          messageKey: 'errorInternal',
+        ),
       );
     }
+    open
+      ..choice = candidate
+      ..chosenFont = true;
+    return applyEdit(_transactionOf(open), text);
+  }
+
+  int _transactionOf(_FakeTransaction open) =>
+      _transactions.entries.firstWhere((entry) => entry.value == open).key;
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async {
+    final open = _open(transaction);
+    if (open.overflow?.allows(choice) != true) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
+    open.chosen = choice;
+    return _preview(open);
+  }
+
+  EditPreview _preview(_FakeTransaction open, {MissingGlyphs? missing}) {
+    final before = _blocks(open.document, open.page);
+    final block = _block(open.document, open.page, open.block);
+    final notApplied = missing != null && !missing.drawn;
+    final texts = (open.text ?? block.text).split('\n');
+    final last = block.lines.last;
+    final pitch = block.lines.length > 1
+        ? block.lines[1].bbox.top - block.lines[0].bbox.top
+        : last.bbox.height;
+    final lines = [
+      for (final (i, text) in texts.indexed)
+        if (i < block.lines.length)
+          TextLine(
+            text: text,
+            bbox: block.lines[i].bbox,
+            baselineStart: block.lines[i].baselineStart,
+            baselineEnd: block.lines[i].baselineEnd,
+          )
+        else
+          TextLine(
+            text: text,
+            bbox: last.bbox.shift(
+              Offset(0, pitch * (i - block.lines.length + 1)),
+            ),
+            baselineStart:
+                last.baselineStart +
+                Offset(0, pitch * (i - block.lines.length + 1)),
+            baselineEnd:
+                last.baselineEnd +
+                Offset(0, pitch * (i - block.lines.length + 1)),
+          ),
+    ];
     final edited = TextBlock(
       id: block.id,
-      frame: block.frame,
-      lines: [
-        for (final (i, line) in block.lines.indexed)
-          TextLine(
-            text: texts[i],
-            bbox: line.bbox,
-            baselineStart: line.baselineStart,
-            baselineEnd: line.baselineEnd,
-          ),
-      ],
+      frame: lines
+          .map((line) => line.bbox)
+          .fold(block.frame, (frame, box) => frame.expandToInclude(box)),
+      lines: lines,
       alignment: block.alignment,
       direction: block.direction,
     );
@@ -316,13 +550,37 @@ class FakeEngineService implements EngineService {
       ],
       empty: before.empty,
     );
-    _transactions[transaction] = (
-      document: open.document,
-      page: open.page,
-      block: open.block,
-      applied: page,
+    if (open.text != null) open.applied = page;
+    return EditPreview(
+      page: open.text == null ? before : page,
+      missing: notApplied
+          ? [
+              for (final c in {for (final c in missing.chars) c.text}) c,
+            ]
+          : const [],
+      glyphs: missing,
+      substitutions: [
+        for (final substitution in open.substitutions)
+          FontSubstitution(
+            kind: substitution.kind,
+            chars: substitution.chars,
+            fromFont: substitution.fromFont,
+            toFont: substitution.toFont,
+            origin: substitution.origin,
+            announced: _announced.contains((
+              substitution.kind,
+              substitution.toFont,
+            )),
+          ),
+      ],
+      overflow: open.overflow,
+      chosen: open.chosen,
+      dependents: [
+        for (final id in dependents[open.block] ?? const <int>[])
+          for (final cell in before.blocks.where((b) => b.id == id))
+            DependentCell(id: id, frame: cell.frame),
+      ],
     );
-    return EditPreview(page: page);
   }
 
   ({List<_FakeStep> steps, int current}) _history(int document) =>
@@ -334,9 +592,17 @@ class FakeEngineService implements EngineService {
     renderKey: _renderKeys[document] = ++_lastRenderKey,
   );
 
+  /// Refused while step 3's characters are drawn without a choice; the
+  /// transaction stays open.
   @override
   Future<RevisionInfo> commitEdit(int transaction, String name) async {
     final open = _open(transaction);
+    if (open.pending != null) {
+      throw const EngineException(
+        kind: EngineErrorKind.invalidInput,
+        messageKey: 'errorInternal',
+      );
+    }
     _transactions.remove(transaction);
     final before = _blocks(open.document, open.page);
     final after = open.applied;
@@ -351,7 +617,14 @@ class FakeEngineService implements EngineService {
       steps: [
         ...history.steps.take(history.current),
         _FakeStep(
-          HistoryStep(name: name, time: DateTime.now()),
+          HistoryStep(
+            name: name,
+            time: DateTime.now(),
+            hiddenLines: open.chosen == OverflowChoice.keep
+                ? open.overflow?.keepHidden ?? 0
+                : 0,
+            substitutions: open.substitutions,
+          ),
           open.page,
           before,
           after,
@@ -359,7 +632,23 @@ class FakeEngineService implements EngineService {
       ],
       current: history.current + 1,
     );
-    return _reloaded(open.document);
+    final told = [
+      for (final substitution in open.substitutions)
+        FontSubstitution(
+          kind: substitution.kind,
+          chars: substitution.chars,
+          fromFont: substitution.fromFont,
+          toFont: substitution.toFont,
+          origin: substitution.origin,
+          announced: !_announced.add((substitution.kind, substitution.toFont)),
+        ),
+    ];
+    final reloaded = _reloaded(open.document);
+    return RevisionInfo(
+      current: reloaded.current,
+      renderKey: reloaded.renderKey,
+      substitutions: told,
+    );
   }
 
   @override
@@ -588,6 +877,31 @@ class FakeEngineService implements EngineService {
   Future<void> closeView(int view) async {
     await _views.remove(view)?.$2.close();
   }
+}
+
+/// An open transaction of the fake: its block, the newest text and the page
+/// it leaves, and its overflow.
+final class _FakeTransaction {
+  new(this.document, this.page, this.block);
+
+  final int document;
+  final int page;
+  final int block;
+  String? text;
+  PageBlocks? applied;
+  OverflowPlan? overflow;
+  OverflowChoice? chosen;
+
+  /// The newest text asked for, applied or not.
+  String? requested;
+
+  /// The candidate step 3 draws in, and whether the app chose it.
+  FontCandidate? choice;
+  bool chosenFont = false;
+
+  /// Step 3's characters drawn without a choice, and the substitutions made.
+  MissingGlyphs? pending;
+  List<FontSubstitution> substitutions = const [];
 }
 
 /// One committed step of the fake's history: its page before and after.

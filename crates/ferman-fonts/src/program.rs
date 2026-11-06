@@ -16,6 +16,7 @@
 use std::sync::Arc;
 
 use read_fonts::ps::cff::CffFontRef;
+use read_fonts::ps::string::Sid;
 use read_fonts::ps::type1::Type1Font;
 use skrifa::instance::{LocationRef, Size};
 use skrifa::raw::TableProvider;
@@ -179,6 +180,53 @@ impl<'a> FontProgram<'a> {
                 .glyph_names()
                 .find(|&(_, glyph)| glyph == name)
                 .map(|(gid, _)| GlyphId(gid.to_u32())),
+        }
+    }
+
+    /// The name of `glyph` that an sfnt's `post` (or `CFF `) table stores, the inverse of
+    /// [`glyph_for_name`](Self::glyph_for_name): how a shaped glyph of an installed font is found
+    /// in a subset of it. `None` for a name the program does not store, and for bare CFF and Type1
+    /// programs.
+    #[must_use]
+    pub fn glyph_name(&self, glyph: GlyphId) -> Option<String> {
+        match &self.repr {
+            Repr::Sfnt(font) => font
+                .glyph_names()
+                .get(skrifa::GlyphId::new(glyph.0))
+                .filter(|name| !name.is_synthesized())
+                .map(|name| name.as_str().to_owned()),
+            Repr::Cff(_) | Repr::Type1(_) => None,
+        }
+    }
+
+    /// The glyph of CID `cid` in a CID-keyed CFF program, through its charset; in any other
+    /// program the CID is the glyph's index (a TrueType program's `/CIDToGIDMap` is the
+    /// caller's). `None` past the program's glyphs.
+    #[must_use]
+    pub fn glyph_for_cid(&self, cid: u32) -> Option<GlyphId> {
+        let glyph = match &self.repr {
+            Repr::Cff(cff) if cff.is_cid() => GlyphId(
+                cff.charset()?
+                    .glyph_id(Sid::new(u16::try_from(cid).ok()?))?
+                    .to_u32(),
+            ),
+            _ => GlyphId(cid),
+        };
+        (glyph.0 < self.glyph_count()).then_some(glyph)
+    }
+
+    /// The CID of `glyph`, the inverse of [`glyph_for_cid`](Self::glyph_for_cid).
+    #[must_use]
+    pub fn cid_for_glyph(&self, glyph: GlyphId) -> Option<u32> {
+        if glyph.0 >= self.glyph_count() {
+            return None;
+        }
+        match &self.repr {
+            Repr::Cff(cff) if cff.is_cid() => cff
+                .charset()?
+                .string_id(skrifa::GlyphId::new(glyph.0))
+                .map(|cid| u32::from(cid.to_u16())),
+            _ => Some(glyph.0),
         }
     }
 
@@ -528,6 +576,7 @@ currentfile eexec
         assert_ne!(gbreve, GlyphId(0));
         assert_eq!(font.glyph_for_name("gbreve"), Some(gbreve));
         assert_eq!(font.glyph_for_name("no-such-glyph"), None);
+        assert_eq!(font.glyph_name(gbreve).as_deref(), Some("gbreve"));
         assert!(font.advance_width(gbreve).unwrap() > 0.0);
         assert_eq!(font.advance_width(GlyphId(font.glyph_count())), None);
         assert_eq!(font.glyph_for_char('\u{F041}'), None);
@@ -548,6 +597,7 @@ currentfile eexec
             None,
             "synthesized names find nothing"
         );
+        assert_eq!(font.glyph_name(GlyphId(1)).as_deref(), Some("alpha.sym"));
         assert_eq!(font.advance_width(GlyphId(2)), Some(900.0));
         assert_eq!(font.units_per_em(), 2048);
         assert_eq!(font.fs_type(), Some(4));
@@ -584,6 +634,11 @@ currentfile eexec
         assert_eq!(font.advance_width(GlyphId(2)), Some(200.0));
         assert_eq!(font.advance_width(GlyphId(3)), None);
         assert_eq!(font.fs_type(), None);
+        // A name-keyed program's CIDs are its glyph indices.
+        assert_eq!(font.glyph_for_cid(2), Some(GlyphId(2)));
+        assert_eq!(font.glyph_for_cid(3), None);
+        assert_eq!(font.cid_for_glyph(GlyphId(1)), Some(1));
+        assert_eq!(font.cid_for_glyph(GlyphId(3)), None);
     }
 
     /// Every query on a program that parsed, so a damaged table shows up as a panic.
@@ -595,6 +650,7 @@ currentfile eexec
             font.style_name(),
         );
         let _ = (font.glyph_for_char('A'), font.glyph_for_name("A"));
+        let _ = (font.glyph_for_cid(1), font.cid_for_glyph(GlyphId(1)));
         for glyph in 0..font.glyph_count().min(8) {
             let _ = font.advance_width(GlyphId(glyph));
         }
