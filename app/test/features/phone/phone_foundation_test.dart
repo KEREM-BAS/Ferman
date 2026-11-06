@@ -80,9 +80,6 @@ void main() {
           await tester.pump(const Duration(milliseconds: 80));
           await gesture.up();
           await tester.pumpAndSettle();
-          // shortcut: the squeezed steps still overflow; drop this line once
-          // first run has its phone layout.
-          tester.takeException();
           expect(find.byType(LanguagePicker), findsNothing);
           expect(find.byType(WelcomeStep), findsOneWidget);
         });

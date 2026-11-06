@@ -1,6 +1,7 @@
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
 import 'package:ferman/features/onboarding/welcome_step.dart';
 import 'package:ferman/l10n/app_language.dart';
@@ -71,7 +72,8 @@ enum WelcomeFeature {
 }
 
 /// The feature grid of the last first-run step, board a1-2c-m1: ten tiles in
-/// two columns, each with an icon, the feature and its state (G12).
+/// two columns, each with an icon, the feature and its state (G12). At phone
+/// width the tiles take one column, where two would wrap every label (G129).
 class FeatureGrid extends ConsumerWidget {
   /// The grid.
   const new({super.key});
@@ -111,10 +113,11 @@ class FeatureGrid extends ConsumerWidget {
 
     const features = WelcomeFeature.values;
     final gap = theme.space.space2_5;
+    final perRow = WindowMetrics.isPhone(context) ? 1 : 2;
     return Column(
       spacing: gap,
       children: [
-        for (var i = 0; i < features.length; i += 2)
+        for (var i = 0; i < features.length; i += perRow)
           // The two tiles of a row stay as tall as each other, as the
           // board's grid row keeps them, when a long label grows one.
           IntrinsicHeight(
@@ -122,7 +125,7 @@ class FeatureGrid extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               spacing: gap,
               children: [
-                for (final feature in features.skip(i).take(2))
+                for (final feature in features.skip(i).take(perRow))
                   Expanded(child: _FeatureTile(feature, label(feature))),
               ],
             ),
@@ -197,7 +200,13 @@ class _FeatureTile extends StatelessWidget {
       container: true,
       label: '$label. $state',
       child: ExcludeSemantics(
-        child: shipped ? tile : Tooltip(message: state, child: tile),
+        child: shipped
+            ? tile
+            : Tooltip(
+                message: state,
+                opensOnTouch: WindowMetrics.isPhone(context),
+                child: tile,
+              ),
       ),
     );
   }

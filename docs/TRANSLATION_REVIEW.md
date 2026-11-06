@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-585 messages in `app_en.arb`; translated: Turkish 585, Arabic 585.
+586 messages in `app_en.arb`; translated: Turkish 586, Arabic 586.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -226,6 +226,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `onboardingLanguageSubtitleSystem` | {language} is selected because it’s your system language. You can change it any time in Settings › Language and region. | {language} sistem diliniz olduğu için seçildi. Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz. | اختيرت {language} لأنها لغة نظامك. يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة. | Text under the heading of the first-run language picker (a1-1) while the selected language is the operating system's. {language} is the language's own name, such as English or Türkçe. Settings › Language and region names the settings pane; keep the › separator. |
 | `onboardingLanguageSubtitle` | You can change it any time in Settings › Language and region. | Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz. | يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة. | Text under the heading of the first-run language picker (a1-1) once a language other than the system's is selected. Settings › Language and region names the settings pane; keep the › separator. |
 | `onboardingLanguageSearchPlaceholder` | Search languages · Dil ara · Sprache suchen · ابحث عن لغة | Dil ara · Search languages · Sprache suchen · ابحث عن لغة | ابحث عن لغة · Search languages · Dil ara · Sprache suchen | Placeholder of the search field of the first-run language picker (a1-1). It asks in several languages on purpose, so people who don't read the interface language can still find theirs: keep the other languages and put this language's phrase first. |
+| `onboardingLanguageSearchPlaceholderPhone` | Search · Ara · Suchen · بحث | Ara · Search · Suchen · بحث | بحث · Search · Ara · Suchen | Placeholder of the language search field at phone width (board a13-1b): the shorter form that fits one line. It shows the word in several languages on purpose, this language first. |
 | `onboardingLanguageSearchLabel` | Search languages | Dil ara | ابحث عن لغة | Screen-reader name of the search field of the first-run language picker (a1-1). |
 | `onboardingLanguageNoMatch` | No language matches “{query}”. | “{query}” ile eşleşen dil yok. | لا توجد لغة تطابق «{query}». | Shown in the first-run language picker (a1-1) when the search finds no language. {query} is what the person typed. |
 | `onboardingLanguageNoMatchBody` | Search by the language’s own name, its English name or its code. | Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın. | ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها. | The line under onboardingLanguageNoMatch in the first-run language picker's empty state (a1-1, a2-3m's EmptyState). |

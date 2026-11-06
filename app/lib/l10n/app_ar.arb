@@ -170,6 +170,7 @@
   "onboardingLanguageSubtitleSystem": "اختيرت {language} لأنها لغة نظامك. يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة.",
   "onboardingLanguageSubtitle": "يمكنك تغييرها في أي وقت من الإعدادات › اللغة والمنطقة.",
   "onboardingLanguageSearchPlaceholder": "ابحث عن لغة · Search languages · Dil ara · Sprache suchen",
+  "onboardingLanguageSearchPlaceholderPhone": "بحث · Search · Ara · Suchen",
   "onboardingLanguageSearchLabel": "ابحث عن لغة",
   "onboardingLanguageNoMatch": "لا توجد لغة تطابق «{query}».",
   "onboardingLanguageNoMatchBody": "ابحث باسم اللغة بلغتها أو باسمها الإنجليزي أو برمزها.",

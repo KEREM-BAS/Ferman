@@ -170,6 +170,7 @@
   "onboardingLanguageSubtitleSystem": "{language} sistem diliniz olduğu için seçildi. Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz.",
   "onboardingLanguageSubtitle": "Bunu istediğiniz zaman Ayarlar › Dil ve bölge bölümünden değiştirebilirsiniz.",
   "onboardingLanguageSearchPlaceholder": "Dil ara · Search languages · Sprache suchen · ابحث عن لغة",
+  "onboardingLanguageSearchPlaceholderPhone": "Ara · Search · Suchen · بحث",
   "onboardingLanguageSearchLabel": "Dil ara",
   "onboardingLanguageNoMatch": "“{query}” ile eşleşen dil yok.",
   "onboardingLanguageNoMatchBody": "Dilin kendi adıyla, İngilizce adıyla ya da koduyla arayın.",

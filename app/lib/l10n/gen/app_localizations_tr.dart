@@ -538,6 +538,10 @@ class AppLocalizationsTr extends AppLocalizations {
       'Dil ara · Search languages · Sprache suchen · ابحث عن لغة';
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      'Ara · Search · Suchen · بحث';
+
+  @override
   String get onboardingLanguageSearchLabel => 'Dil ara';
 
   @override
