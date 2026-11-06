@@ -55,6 +55,7 @@ The table below is generated from the ARB files by `tools/l10n`
 586 messages in `app_en.arb`; translated: Turkish 586, Arabic 586.
 597 messages in `app_en.arb`; translated: Turkish 597, Arabic 597.
 590 messages in `app_en.arb`; translated: Turkish 590, Arabic 590.
+588 messages in `app_en.arb`; translated: Turkish 588, Arabic 588.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -513,6 +514,9 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startMissingRemove` | Remove from list | Listeden kaldır | إزالة من القائمة | Button of a1-9e that takes the missing file off the recent files (a1-9e, remove). |
 | `startMissingLocate` | Locate… | Bul… | تحديد الموقع… | Button of a1-9e that opens the system open panel to find the file where it is now (a1-9e, locate). |
 | `startMissingClose` | Close | Kapat | إغلاق | Accessible name of a1-9e’s close button, which keeps the file in the list (G118). |
+| `selectSheetSearch` | Search | Ara | بحث | Phone: the search field over a long list in a bottom sheet (a13-8c, G129). |
+| `selectSheetNoMatch` | No matches | Eşleşme yok | لا توجد نتائج | Phone: shown when the search finds nothing in a bottom sheet's list (a13-8c). |
+| `selectSheetClose` | Close | Kapat | إغلاق | Phone: accessible name of the scrim behind a bottom sheet, which closes it. |
 | `errorInternal` | Something went wrong inside Ferman. Copy the technical details to report it. | Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın. | حدث خطأ داخل Ferman. انسخ التفاصيل التقنية للإبلاغ عنه. | The line of an error tab (a1-9b) for a bug in Ferman. |
 | `errorFileNotFound` | The file isn’t there any more. It may have been moved, renamed or deleted. | Dosya artık orada değil. Taşınmış, adı değiştirilmiş ya da silinmiş olabilir. | لم يعد الملف موجودًا. ربما نُقل أو أُعيدت تسميته أو حُذف. | The line of an error tab (a1-9b) for a file that is gone. |
 | `errorFilePermissionDenied` | This computer doesn’t let Ferman read the file. Check who may open it, or copy it to a folder of yours. | Bu bilgisayar Ferman’ın dosyayı okumasına izin vermiyor. Dosyayı kimlerin açabileceğine bakın ya da kendi klasörlerinizden birine kopyalayın. | لا يسمح هذا الجهاز لـ Ferman بقراءة الملف. تحقّق من صلاحيات فتحه، أو انسخه إلى أحد مجلداتك. | The line of an error tab (a1-9b) for a file the system does not let Ferman read (G119). |

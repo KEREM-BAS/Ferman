@@ -1549,6 +1549,15 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startMissingClose => 'Kapat';
 
   @override
+  String get selectSheetSearch => 'Ara';
+
+  @override
+  String get selectSheetNoMatch => 'Eşleşme yok';
+
+  @override
+  String get selectSheetClose => 'Kapat';
+
+  @override
   String get errorInternal =>
       'Ferman’ın içinde bir şeyler ters gitti. Bildirmek için teknik ayrıntıları kopyalayın.';
 

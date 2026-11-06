@@ -3,6 +3,7 @@ import 'dart:async';
 import 'package:ferman/design/components/core/kbd.dart';
 import 'package:ferman/design/components/foundation/anchored_layout.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart' show PointerDeviceKind;
 import 'package:flutter/services.dart';
@@ -325,6 +326,9 @@ class _TooltipBubble extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = context.ferman;
     final keys = shortcut;
+    final style = theme.typography.caption.copyWith(
+      color: theme.colors.textInverse,
+    );
     final bubble = Container(
       padding: EdgeInsetsDirectional.symmetric(
         horizontal: theme.space.space2,
@@ -339,13 +343,11 @@ class _TooltipBubble extends StatelessWidget {
         mainAxisSize: MainAxisSize.min,
         spacing: Tooltip.contentGap,
         children: [
-          Text(
-            message,
-            softWrap: false,
-            style: theme.typography.caption.copyWith(
-              color: theme.colors.textInverse,
-            ),
-          ),
+          if (WindowMetrics.isPhone(context))
+            // A phone is narrow enough for a long reason to need two lines.
+            Flexible(child: Text(message, style: style))
+          else
+            Text(message, softWrap: false, style: style),
           if (keys != null && keys.isNotEmpty) Kbd(keys, tone: KbdTone.inverse),
         ],
       ),
