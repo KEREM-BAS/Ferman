@@ -1,4 +1,5 @@
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart';
 
@@ -53,8 +54,8 @@ class CheckRow extends StatelessWidget {
       padding: const EdgeInsetsDirectional.only(top: boxTopMargin),
       child: SizedBox.square(dimension: boxSize, child: box),
     );
-    if (text == null && desc == null) return boxed;
-    return Row(
+    if (text == null && desc == null) return _fingerSized(context, boxed);
+    final row = Row(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.start,
       spacing: theme.space.space2,
@@ -86,6 +87,26 @@ class CheckRow extends StatelessWidget {
           ),
         ),
       ],
+    );
+    return _fingerSized(context, row);
+  }
+
+  /// [child] with room for a finger at phone width (G129), as it is
+  /// otherwise.
+  Widget _fingerSized(BuildContext context, Widget child) {
+    if (!WindowMetrics.isPhone(context)) return child;
+    final hit = context.ferman.density.hitMin;
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minHeight: hit,
+        minWidth: label == null && description == null ? hit : 0,
+      ),
+      child: Align(
+        widthFactor: 1,
+        heightFactor: 1,
+        alignment: AlignmentDirectional.centerStart,
+        child: child,
+      ),
     );
   }
 

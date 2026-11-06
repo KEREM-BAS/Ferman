@@ -1460,6 +1460,15 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get startMissingClose => isolate(super.startMissingClose);
 
   @override
+  String get selectSheetSearch => isolate(super.selectSheetSearch);
+
+  @override
+  String get selectSheetNoMatch => isolate(super.selectSheetNoMatch);
+
+  @override
+  String get selectSheetClose => isolate(super.selectSheetClose);
+
+  @override
   String get errorInternal => isolate(super.errorInternal);
 
   @override

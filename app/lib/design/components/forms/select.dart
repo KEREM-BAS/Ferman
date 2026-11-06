@@ -3,10 +3,15 @@ import 'dart:ui' show SemanticsRole;
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/popover.dart';
+import 'package:ferman/design/components/forms/text_field.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
+import 'package:ferman/design/components/overlays/dialog.dart';
 import 'package:ferman/design/components/overlays/menu.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
+import 'package:ferman/l10n/casing.dart';
+import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -169,6 +174,24 @@ class Select<T> extends StatefulWidget {
   /// `.fm-select` `padding-inline-end`.
   static const double endPadding = 4;
 
+  /// a13-8c: a list of more options than this has a search field.
+  static const int searchThreshold = 8;
+
+  /// a13-8c: a row of the bottom sheet (`min-height: 56px`).
+  static const double sheetRowHeight = 56;
+
+  /// a13-8c: the row's side padding (`padding: 0 24px`).
+  static const double sheetRowSide = 24;
+
+  /// a13-8c: the row's text (`font: 400 16px/1`).
+  static const double sheetRowTextSize = 16;
+
+  /// a13-8c: the check at the row's end (`size={{ 22 }}`).
+  static const double sheetCheckSize = 22;
+
+  /// a13-8c: the gap in the row (`gap: 16px`).
+  static const double sheetRowGap = 16;
+
   @override
   State<Select<T>> createState() => _SelectState<T>();
 
@@ -196,6 +219,9 @@ class _SelectState<T> extends State<Select<T>> {
   final ScrollController _scroll = ScrollController();
   final List<GlobalKey> _rowKeys = [];
 
+  /// What the bottom sheet's search field holds (a13-8c).
+  final TextEditingController _query = TextEditingController();
+
   FocusNode get _node =>
       widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'Select'));
 
@@ -215,6 +241,7 @@ class _SelectState<T> extends State<Select<T>> {
   void dispose() {
     _ownNode?.dispose();
     _scroll.dispose();
+    _query.dispose();
     super.dispose();
   }
 
@@ -222,11 +249,31 @@ class _SelectState<T> extends State<Select<T>> {
   /// options and options disabled with a reason.
   bool _reachable(int index) {
     final option = widget.options[index];
-    return !option.disabled || option.disabledReason != null;
+    return _matches(option) &&
+        (!option.disabled || option.disabledReason != null);
   }
+
+  /// Whether the bottom sheet's search keeps [option]; always without a
+  /// search, as on a desktop.
+  bool _matches(SelectOption<T> option) {
+    final query = _query.text.trim();
+    if (query.isEmpty) return true;
+    final casing = LocaleCasing.of(context);
+    return casing.lower(option.label).contains(casing.lower(query));
+  }
+
+  /// The search changed: keeps the highlight on a row still shown.
+  void _onQueryChanged(String _) => setState(() {
+    if (_highlight < 0 ||
+        _highlight >= widget.options.length ||
+        !_matches(widget.options[_highlight])) {
+      _highlight = _step(-1, 1);
+    }
+  });
 
   void _openList() {
     if (!_enabled || _open) return;
+    _query.clear();
     // A click opens the list too, and the keys go to the box from then on.
     _node.requestFocus();
     final selected = _selectedIndex;
@@ -345,6 +392,114 @@ class _SelectState<T> extends State<Select<T>> {
       _close(refocus: false);
     }
     return KeyEventResult.ignored;
+  }
+
+  /// The keys inside the bottom sheet, where focus has left the box: Enter
+  /// chooses, and Space too unless it is typed into the search.
+  KeyEventResult _onSheetKey(FocusNode node, KeyEvent event) {
+    if (event is KeyDownEvent) {
+      final key = event.logicalKey;
+      if (key == LogicalKeyboardKey.enter ||
+          (key == LogicalKeyboardKey.space &&
+              widget.options.length <= Select.searchThreshold)) {
+        _choose(_highlight);
+        return KeyEventResult.handled;
+      }
+    }
+    return _onKey(node, event);
+  }
+
+  /// The list as the phone's bottom sheet draws it (a13-8c, G129): a search
+  /// field over more than [Select.searchThreshold] options, and tall rows.
+  Widget _sheetList(BuildContext context) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    while (_rowKeys.length < widget.options.length) {
+      _rowKeys.add(GlobalKey(debugLabel: 'Select row ${_rowKeys.length}'));
+    }
+    final selected = _selectedIndex;
+    final name = widget.label ?? widget.semanticLabel;
+    final shown = [
+      for (var i = 0; i < widget.options.length; i++)
+        if (_matches(widget.options[i])) i,
+    ];
+    return _OnMount(
+      onMount: _reveal,
+      // Takes focus when the sheet opens, so the keys arrive without a
+      // keyboard popping up for the search.
+      child: Focus(
+        autofocus: true,
+        skipTraversal: true,
+        includeSemantics: false,
+        onKeyEvent: _onSheetKey,
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            if (widget.options.length > Select.searchThreshold)
+              Padding(
+                padding: const EdgeInsetsDirectional.fromSTEB(
+                  Dialog.sheetTitleSide,
+                  0,
+                  Dialog.sheetTitleSide,
+                  Dialog.sheetTitleBottom,
+                ),
+                child: TextField(
+                  controller: _query,
+                  icon: IconName.search,
+                  placeholder: l10n.selectSheetSearch,
+                  semanticLabel: l10n.selectSheetSearch,
+                  onChanged: _onQueryChanged,
+                ),
+              ),
+            Flexible(
+              child: Semantics(
+                container: true,
+                explicitChildNodes: true,
+                role: shown.isEmpty ? null : SemanticsRole.menu,
+                label: name,
+                child: shown.isEmpty
+                    ? Padding(
+                        padding: const EdgeInsetsDirectional.all(
+                          Select.sheetRowSide,
+                        ),
+                        child: Text(
+                          l10n.selectSheetNoMatch,
+                          style: theme.typography.body.copyWith(
+                            color: theme.colors.textSecondary,
+                          ),
+                        ),
+                      )
+                    : SingleChildScrollView(
+                        controller: _scroll,
+                        child: Column(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.stretch,
+                          children: [
+                            for (final i in shown)
+                              _SelectRow(
+                                key: _rowKeys[i],
+                                sheet: true,
+                                option: widget.options[i],
+                                selected: i == selected,
+                                highlighted: i == _highlight,
+                                onHover: () {
+                                  if (!widget.options[i].disabled &&
+                                      _highlight != i) {
+                                    setState(() => _highlight = i);
+                                  }
+                                },
+                                onPressed: () => _choose(i),
+                              ),
+                          ],
+                        ),
+                      ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 
   Widget _box(BuildContext context, Set<WidgetState> states) {
@@ -489,7 +644,22 @@ class _SelectState<T> extends State<Select<T>> {
       spacing: Field.gap,
       children: [
         if (label != null) Field.labelOf(context, label),
-        if (widget.menu case final menu?)
+        if (WindowMetrics.isPhone(context) && widget.menu == null)
+          Stack(
+            fit: StackFit.passthrough,
+            children: [
+              box,
+              Dialog(
+                open: _open,
+                sheet: true,
+                title: label ?? widget.semanticLabel ?? '',
+                onClose: _close,
+                closeLabel: AppLocalizations.of(context).selectSheetClose,
+                child: _sheetList(context),
+              ),
+            ],
+          )
+        else if (widget.menu case final menu?)
           Popover(
             open: _open,
             surface: false,
@@ -528,7 +698,11 @@ class _SelectRow extends StatelessWidget {
     required this.onHover,
     required this.onPressed,
     super.key,
+    this.sheet = false,
   });
+
+  /// Whether the row sits in the phone's bottom sheet (a13-8c).
+  final bool sheet;
 
   final SelectOption<Object?> option;
   final bool selected;
@@ -561,52 +735,54 @@ class _SelectRow extends StatelessWidget {
           child: GestureDetector(
             behavior: HitTestBehavior.opaque,
             onTap: disabled ? null : onPressed,
-            child: Container(
-              height: Select.rowHeight,
-              padding: EdgeInsetsDirectional.symmetric(
-                horizontal: theme.space.space2,
-              ),
-              decoration: BoxDecoration(
-                color: highlighted ? colors.surfaceSelectedStrong : null,
-                borderRadius: BorderRadius.all(
-                  Radius.circular(theme.radius.radiusSm),
-                ),
-              ),
-              child: Row(
-                spacing: theme.space.space2,
-                children: [
-                  SizedBox(
-                    width: theme.density.iconSm,
-                    child: selected
-                        ? Icon(
-                            IconName.check,
-                            size: theme.density.iconSm,
-                            strokeWidth: 2,
-                            // The Menu check: `.fm-menu__item svg` colours
-                            // it, over the span's accent (G78).
-                            color: disabled
-                                ? colors.iconDisabled
-                                : colors.iconSecondary,
-                          )
-                        : null,
-                  ),
-                  Expanded(
-                    child: Text(
-                      option.label,
-                      maxLines: 1,
-                      softWrap: false,
-                      overflow: TextOverflow.ellipsis,
-                      style: theme.typography.body.copyWith(
-                        color: disabled
-                            ? colors.textDisabled
-                            : colors.textPrimary,
-                        locale: option.locale,
+            child: sheet
+                ? _sheetRow(theme)
+                : Container(
+                    height: Select.rowHeight,
+                    padding: EdgeInsetsDirectional.symmetric(
+                      horizontal: theme.space.space2,
+                    ),
+                    decoration: BoxDecoration(
+                      color: highlighted ? colors.surfaceSelectedStrong : null,
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(theme.radius.radiusSm),
                       ),
                     ),
+                    child: Row(
+                      spacing: theme.space.space2,
+                      children: [
+                        SizedBox(
+                          width: theme.density.iconSm,
+                          child: selected
+                              ? Icon(
+                                  IconName.check,
+                                  size: theme.density.iconSm,
+                                  strokeWidth: 2,
+                                  // The Menu check: `.fm-menu__item svg`
+                                  // colours it, over the span's accent (G78).
+                                  color: disabled
+                                      ? colors.iconDisabled
+                                      : colors.iconSecondary,
+                                )
+                              : null,
+                        ),
+                        Expanded(
+                          child: Text(
+                            option.label,
+                            maxLines: 1,
+                            softWrap: false,
+                            overflow: TextOverflow.ellipsis,
+                            style: theme.typography.body.copyWith(
+                              color: disabled
+                                  ? colors.textDisabled
+                                  : colors.textPrimary,
+                              locale: option.locale,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
                   ),
-                ],
-              ),
-            ),
           ),
         ),
       ),
@@ -616,13 +792,54 @@ class _SelectRow extends StatelessWidget {
       // can be read without a pointer (G10).
       row = Tooltip(
         message: reason,
-        side: TooltipSide.right,
+        side: sheet ? TooltipSide.top : TooltipSide.right,
         open: highlighted ? true : null,
         excludeFromSemantics: true,
+        opensOnTouch: sheet,
         child: row,
       );
     }
     return row;
+  }
+
+  /// The row of a13-8c: the label, which may wrap, and the check at the end,
+  /// on the accent's tint when selected.
+  Widget _sheetRow(FermanTheme theme) {
+    final colors = theme.colors;
+    return Container(
+      constraints: const BoxConstraints(minHeight: Select.sheetRowHeight),
+      padding: const EdgeInsetsDirectional.symmetric(
+        horizontal: Select.sheetRowSide,
+      ),
+      color: selected
+          ? colors.accentSubtle
+          : highlighted
+          ? colors.surfaceSelectedStrong
+          : null,
+      child: Row(
+        spacing: Select.sheetRowGap,
+        children: [
+          Expanded(
+            child: Text(
+              option.label,
+              style: theme.typography.body.copyWith(
+                color: option.disabled
+                    ? colors.textDisabled
+                    : colors.textPrimary,
+                fontSize: Select.sheetRowTextSize,
+                locale: option.locale,
+              ),
+            ),
+          ),
+          if (selected)
+            Icon(
+              IconName.check,
+              size: Select.sheetCheckSize,
+              color: colors.textAccent,
+            ),
+        ],
+      ),
+    );
   }
 }
 

@@ -18,12 +18,16 @@ import 'package:flutter/widgets.dart';
 /// (the bundle's `onMouseDown` on the scrim). For screen readers the scrim
 /// is a dismiss target named by [dismissLabel] when both are set, and is
 /// silent otherwise, as Flutter's modal barrier is.
+///
+/// With [sheet] [child] sits at the bottom edge to edge, above the on-screen
+/// keyboard (the phone's bottom sheets, a13-8c, G129).
 class Scrim extends StatelessWidget {
   /// Dims the space behind [child].
   const new({
     required this.child,
     super.key,
     this.top = false,
+    this.sheet = false,
     this.onDismiss,
     this.dismissLabel,
   });
@@ -39,6 +43,9 @@ class Scrim extends StatelessWidget {
 
   /// Whether this is the palette's lighter scrim with [child] at the top.
   final bool top;
+
+  /// Whether [child] is a bottom sheet.
+  final bool sheet;
 
   /// Called on a pointer down on the scrim outside [child].
   final VoidCallback? onDismiss;
@@ -86,16 +93,22 @@ class Scrim extends StatelessWidget {
             child: barrier,
           ),
           Padding(
-            padding: EdgeInsetsDirectional.fromSTEB(
-              edge,
-              top && constraints.hasBoundedHeight
-                  ? constraints.maxHeight * topOffset
-                  : edge,
-              edge,
-              edge,
-            ),
+            padding: sheet
+                ? EdgeInsetsDirectional.only(
+                    bottom: MediaQuery.viewInsetsOf(context).bottom,
+                  )
+                : EdgeInsetsDirectional.fromSTEB(
+                    edge,
+                    top && constraints.hasBoundedHeight
+                        ? constraints.maxHeight * topOffset
+                        : edge,
+                    edge,
+                    edge,
+                  ),
             child: Align(
-              alignment: top
+              alignment: sheet
+                  ? AlignmentDirectional.bottomCenter
+                  : top
                   ? AlignmentDirectional.topCenter
                   : AlignmentDirectional.center,
               child: child,

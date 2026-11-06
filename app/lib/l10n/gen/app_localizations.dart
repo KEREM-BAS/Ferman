@@ -2727,6 +2727,24 @@ abstract class AppLocalizations {
   /// **'Close'**
   String get startMissingClose;
 
+  /// Phone: the search field over a long list in a bottom sheet (a13-8c, G129).
+  ///
+  /// In en, this message translates to:
+  /// **'Search'**
+  String get selectSheetSearch;
+
+  /// Phone: shown when the search finds nothing in a bottom sheet's list (a13-8c).
+  ///
+  /// In en, this message translates to:
+  /// **'No matches'**
+  String get selectSheetNoMatch;
+
+  /// Phone: accessible name of the scrim behind a bottom sheet, which closes it.
+  ///
+  /// In en, this message translates to:
+  /// **'Close'**
+  String get selectSheetClose;
+
   /// The line of an error tab (a1-9b) for a bug in Ferman.
   ///
   /// In en, this message translates to:

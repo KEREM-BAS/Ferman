@@ -2,6 +2,7 @@ import 'dart:async';
 
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -57,6 +58,31 @@ class _DefaultAppPromptState extends ConsumerState<DefaultAppPrompt> {
     }
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
+    final parts = [
+      Text(
+        l10n.defaultAppNow,
+        style: theme.typography.body.copyWith(
+          color: theme.colors.textSecondary,
+        ),
+      ),
+      Text(
+        bidiIsolate(handler.name),
+        style: theme.typography.body.copyWith(
+          fontWeight: theme.typeScale.weightMedium,
+        ),
+      ),
+      Icon(
+        IconName.arrowRight,
+        size: theme.density.iconMd,
+        color: theme.colors.iconSecondary,
+      ),
+      Text(
+        l10n.appName,
+        style: theme.typography.body.copyWith(
+          fontWeight: theme.typeScale.weightSemibold,
+        ),
+      ),
+    ];
 
     void answer({required bool never}) {
       ref.read(defaultAppAskedProvider.notifier).answer();
@@ -103,34 +129,14 @@ class _DefaultAppPromptState extends ConsumerState<DefaultAppPrompt> {
             Radius.circular(theme.radius.radiusMd),
           ),
         ),
-        child: Row(
-          spacing: theme.space.space3,
-          children: [
-            Text(
-              l10n.defaultAppNow,
-              style: theme.typography.body.copyWith(
-                color: theme.colors.textSecondary,
-              ),
-            ),
-            Text(
-              bidiIsolate(handler.name),
-              style: theme.typography.body.copyWith(
-                fontWeight: theme.typeScale.weightMedium,
-              ),
-            ),
-            Icon(
-              IconName.arrowRight,
-              size: theme.density.iconMd,
-              color: theme.colors.iconSecondary,
-            ),
-            Text(
-              l10n.appName,
-              style: theme.typography.body.copyWith(
-                fontWeight: theme.typeScale.weightSemibold,
-              ),
-            ),
-          ],
-        ),
+        child: WindowMetrics.isPhone(context)
+            // A long app name has no room on one line.
+            ? Wrap(
+                spacing: theme.space.space3,
+                crossAxisAlignment: WrapCrossAlignment.center,
+                children: parts,
+              )
+            : Row(spacing: theme.space.space3, children: parts),
       ),
     );
   }

@@ -1488,6 +1488,15 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startMissingClose => 'Close';
 
   @override
+  String get selectSheetSearch => 'Search';
+
+  @override
+  String get selectSheetNoMatch => 'No matches';
+
+  @override
+  String get selectSheetClose => 'Close';
+
+  @override
   String get errorInternal =>
       'Something went wrong inside Ferman. Copy the technical details to report it.';
 

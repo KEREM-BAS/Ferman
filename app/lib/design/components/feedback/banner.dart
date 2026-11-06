@@ -2,6 +2,7 @@ import 'package:ferman/design/components/core/icon_button.dart';
 import 'package:ferman/design/components/feedback/feedback_semantics.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 // The widgets library has its own Banner (the debug ribbon).
 import 'package:flutter/widgets.dart' hide Banner, Icon;
@@ -210,7 +211,10 @@ class Banner extends StatelessWidget {
                 IconButton(
                   icon: IconName.x,
                   label: dismissLabel ?? '',
-                  size: IconButtonSize.xs,
+                  // xs is 32 px at any density: too small for a finger.
+                  size: WindowMetrics.isPhone(context)
+                      ? IconButtonSize.sm
+                      : IconButtonSize.xs,
                   showTooltip: false,
                   onPressed: onDismiss,
                 ),

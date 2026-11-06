@@ -1953,6 +1953,18 @@
   "@startMissingClose": {
     "description": "Accessible name of a1-9e’s close button, which keeps the file in the list (G118)."
   },
+  "selectSheetSearch": "Search",
+  "@selectSheetSearch": {
+    "description": "Phone: the search field over a long list in a bottom sheet (a13-8c, G129)."
+  },
+  "selectSheetNoMatch": "No matches",
+  "@selectSheetNoMatch": {
+    "description": "Phone: shown when the search finds nothing in a bottom sheet's list (a13-8c)."
+  },
+  "selectSheetClose": "Close",
+  "@selectSheetClose": {
+    "description": "Phone: accessible name of the scrim behind a bottom sheet, which closes it."
+  },
   "errorInternal": "Something went wrong inside Ferman. Copy the technical details to report it.",
   "@errorInternal": {
     "description": "The line of an error tab (a1-9b) for a bug in Ferman."

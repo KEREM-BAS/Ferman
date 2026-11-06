@@ -7617,6 +7617,15 @@
           "declared": true
         },
         {
+          "ds": null,
+          "dart": "sheet",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "A bottom sheet at phone width (a13-8c, G129): the Select list.",
+          "declared": false
+        },
+        {
           "ds": "title",
           "dart": "title",
           "type": "String",
@@ -8081,6 +8090,15 @@
           "required": false,
           "default": false,
           "notes": "Command palette placement (14vh from the top).",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "sheet",
+          "type": "bool",
+          "required": false,
+          "default": false,
+          "notes": "The child at the bottom edge to edge, above the on-screen keyboard (a13-8c, G129).",
           "declared": false
         },
         {

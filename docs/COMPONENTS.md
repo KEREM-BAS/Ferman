@@ -2662,6 +2662,7 @@ Drawn in: 01 First run and files, 02 View, 04 Comment, 05a Fill, 05b Sign, 06 Or
 |---|---|---|---|---|---|---|
 | `open` | yes | `open` | `bool` | `true` |  |  |
 | `inline` | yes | `inline` | `bool` | `false` |  | Without scrim, modality or trap (boards, the gallery). |
+| — |  | `sheet` | `bool` | `false` |  | A bottom sheet at phone width (a13-8c, G129): the Select list. |
 | `title` | yes | `title` | `String` (required) |  |  | The question ("Apply 2 redactions?"). |
 | `description` | yes | `description` | `String?` |  |  |  |
 | `icon` | yes | `icon` | `IconName?` |  |  |  |
@@ -2786,6 +2787,7 @@ Tier: Behind dialogs (M2) and the palette (M4).
 | DS prop | Lint | Dart | Type | Default | Values | Notes |
 |---|---|---|---|---|---|---|
 | — |  | `top` | `bool` | `false` |  | Command palette placement (14vh from the top). |
+| — |  | `sheet` | `bool` | `false` |  | The child at the bottom edge to edge, above the on-screen keyboard (a13-8c, G129). |
 | — |  | `onDismiss` | `VoidCallback?` |  |  | Pointer down on the scrim. |
 | — |  | `child` | `Widget` (required) |  |  |  |
 | — |  | `dismissLabel` | `String?` |  |  | The accessible name of the scrim as a dismiss target ("Close"). |

@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:math' as math;
 import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/icon_button.dart';
@@ -6,6 +7,7 @@ import 'package:ferman/design/components/foundation/modal_scope.dart';
 import 'package:ferman/design/components/overlays/scrim.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -124,6 +126,14 @@ enum DialogButtonOrder {
 /// target. [inline] draws the box in place, without scrim, modality or trap
 /// (boards and the gallery); Escape inside it still calls [onClose].
 ///
+/// **Phone.** At phone width a modal box takes the card of a13-16c (G129):
+/// larger corners, a plain 24 px glyph above the title at 22 px, the head
+/// scrolling with the body, and the foot's buttons wrapping at the end under
+/// [footerStart]. With [sheet] it is instead the bottom sheet of a13-8c:
+/// edge to edge from the bottom, a grabber, the title, and [child] as it is,
+/// which does its own scrolling. A drag down on the grabber or title calls
+/// [onClose].
+///
 /// **Slots.** The footer buttons are widgets the screen composes.
 ///
 /// For screen readers the dialog is a dialog (an alert dialog for the
@@ -135,6 +145,7 @@ class Dialog extends StatefulWidget {
     super.key,
     this.open = true,
     this.inline = false,
+    this.sheet = false,
     this.description,
     this.icon,
     this.tone = DialogTone.standard,
@@ -174,12 +185,62 @@ class Dialog extends StatefulWidget {
   /// `fm-rise-in`: how far the box rises while it fades in.
   static const double riseDistance = 4;
 
+  /// a13-16c: the gap between the card's glyph, title, text and actions.
+  static const double phoneGap = 14;
+
+  /// a13-16c: the card's glyph (`size={{ 24 }}`).
+  static const double phoneGlyphSize = 24;
+
+  /// a13-16c: the card's padding.
+  static const double phonePadding = 24;
+
+  /// The padding around the row with the glyph and the 44 px close button,
+  /// so that the button's cross lines up with [phonePadding].
+  static const double phoneCloseInset = 12;
+
+  /// a13-16c: the title (`font: 400 22px/28px`).
+  static const double phoneTitleSize = 22;
+
+  /// The title's line height.
+  static const double phoneTitleHeight = 28 / 22;
+
+  /// a13-16c: the description (`font: 400 15px/21px`).
+  static const double phoneTextSize = 15;
+
+  /// The description's line height.
+  static const double phoneTextHeight = 21 / 15;
+
+  /// a13-8c: the tallest a bottom sheet gets (`height: 560px`).
+  static const double sheetMaxHeight = 560;
+
+  /// a13-8c: above the grabber (`padding-top: 10px`).
+  static const double sheetTop = 10;
+
+  /// a13-8c: the grabber's size (`width: 32px; height: 4px`) …
+  static const Size grabberSize = Size(32, 4);
+
+  /// … and what it keeps under it (`margin: 0 auto 12px`).
+  static const double grabberBottom = 12;
+
+  /// a13-8c: the title's side padding (`padding: 0 20px 10px`) …
+  static const double sheetTitleSide = 20;
+
+  /// … and what it keeps under it.
+  static const double sheetTitleBottom = 10;
+
+  /// How far a slow drag goes down before the sheet closes.
+  static const double sheetDragClose = 40;
+
   /// Whether the dialog is shown.
   final bool open;
 
   /// Whether to draw the box in place, without scrim, modality or focus
   /// trap.
   final bool inline;
+
+  /// Whether a modal dialog is a bottom sheet (a13-8c). Not a design-system
+  /// prop.
+  final bool sheet;
 
   /// The question the dialog asks ("Apply 2 redactions?").
   final String title;
@@ -248,6 +309,7 @@ class Dialog extends StatefulWidget {
     properties
       ..add(FlagProperty('open', value: open, ifFalse: 'closed'))
       ..add(FlagProperty('inline', value: inline, ifTrue: 'inline'))
+      ..add(FlagProperty('sheet', value: sheet, ifTrue: 'sheet'))
       ..add(StringProperty('title', title))
       ..add(StringProperty('description', description, defaultValue: null))
       ..add(EnumProperty<IconName>('icon', icon, defaultValue: null))
@@ -310,6 +372,9 @@ class _DialogState extends State<Dialog> {
   /// Whether the route the dialog sits in is the current one and its
   /// tickers run; null before the first [didChangeDependencies].
   bool? _routeVisible;
+
+  /// How far the current drag on the sheet's head has gone down.
+  double _sheetDrag = 0;
 
   bool get _modal => widget.open && !widget.inline;
 
@@ -426,6 +491,230 @@ class _DialogState extends State<Dialog> {
 
   void _close() => widget.onClose?.call();
 
+  /// The title at the phone's size (a13-16c, a13-8c).
+  Widget _phoneTitle(FermanTheme theme) => ExcludeSemantics(
+    child: Text(
+      widget.title,
+      style: theme.typography.dialogTitle.copyWith(
+        color: theme.colors.textPrimary,
+        fontSize: Dialog.phoneTitleSize,
+        height: Dialog.phoneTitleHeight,
+        fontWeight: theme.typeScale.weightRegular,
+      ),
+    ),
+  );
+
+  /// The bottom sheet: a grabber, the title and the child (a13-8c).
+  Widget _buildSheet(BuildContext context) {
+    final theme = context.ferman;
+    final colors = theme.colors;
+    final media = MediaQuery.of(context);
+    final maxHeight =
+        media.size.height - media.viewInsets.bottom - Dialog.verticalMargin;
+    return ConstrainedBox(
+      constraints: BoxConstraints(
+        minWidth: double.infinity,
+        maxHeight: math.max(0, math.min(Dialog.sheetMaxHeight, maxHeight)),
+      ),
+      child: DecoratedBox(
+        decoration: BoxDecoration(
+          color: colors.surfaceRaised,
+          borderRadius: BorderRadius.vertical(
+            top: Radius.circular(theme.radius.sheetRadius),
+          ),
+          boxShadow: theme.elevation.shadowDialog,
+        ),
+        child: DefaultTextStyle.merge(
+          style: TextStyle(color: colors.textPrimary),
+          child: Padding(
+            padding: EdgeInsetsDirectional.only(
+              top: Dialog.sheetTop,
+              bottom: media.viewInsets.bottom > 0 ? 0 : media.padding.bottom,
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                GestureDetector(
+                  behavior: HitTestBehavior.opaque,
+                  onVerticalDragStart: (_) => _sheetDrag = 0,
+                  onVerticalDragUpdate: (details) =>
+                      _sheetDrag += details.delta.dy,
+                  onVerticalDragEnd: (details) {
+                    if (_sheetDrag >= Dialog.sheetDragClose ||
+                        (details.primaryVelocity ?? 0) > 0) {
+                      _close();
+                    }
+                  },
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    children: [
+                      Center(
+                        child: Container(
+                          width: Dialog.grabberSize.width,
+                          height: Dialog.grabberSize.height,
+                          margin: const EdgeInsetsDirectional.only(
+                            bottom: Dialog.grabberBottom,
+                          ),
+                          decoration: BoxDecoration(
+                            color: colors.borderStrong,
+                            borderRadius: BorderRadius.all(
+                              Radius.circular(Dialog.grabberSize.height / 2),
+                            ),
+                          ),
+                        ),
+                      ),
+                      if (widget.title.isNotEmpty)
+                        Padding(
+                          padding: const EdgeInsetsDirectional.fromSTEB(
+                            Dialog.sheetTitleSide,
+                            0,
+                            Dialog.sheetTitleSide,
+                            Dialog.sheetTitleBottom,
+                          ),
+                          child: _phoneTitle(theme),
+                        ),
+                    ],
+                  ),
+                ),
+                Flexible(
+                  child: Focus(
+                    focusNode: _body,
+                    includeSemantics: false,
+                    child: widget.child ?? const SizedBox.shrink(),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  /// The card of a13-16c, for a modal dialog at phone width: the head and
+  /// the body scroll together, since a long title has no room beside a glyph
+  /// and a close button.
+  Widget _buildPhoneContent(
+    BuildContext context,
+    Widget? glyph, {
+    required List<Widget> buttons,
+    required List<Widget> end,
+  }) {
+    final theme = context.ferman;
+    final colors = theme.colors;
+    final description = widget.description;
+    final onClose = widget.onClose;
+    final body = widget.child;
+    final hasTop = glyph != null || onClose != null;
+    final hasFoot =
+        widget.footerStart != null || buttons.isNotEmpty || end.isNotEmpty;
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Flexible(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (hasTop)
+                  Padding(
+                    padding: const EdgeInsetsDirectional.fromSTEB(
+                      Dialog.phonePadding,
+                      Dialog.phoneCloseInset,
+                      Dialog.phoneCloseInset,
+                      Dialog.phoneCloseInset,
+                    ),
+                    child: Row(
+                      children: [
+                        ?glyph,
+                        const Spacer(),
+                        if (onClose != null)
+                          IconButton(
+                            icon: IconName.x,
+                            label: widget.closeLabel,
+                            size: IconButtonSize.sm,
+                            showTooltip: false,
+                            onPressed: onClose,
+                          ),
+                      ],
+                    ),
+                  ),
+                Padding(
+                  padding: EdgeInsetsDirectional.fromSTEB(
+                    Dialog.phonePadding,
+                    hasTop ? 0 : Dialog.phonePadding,
+                    Dialog.phonePadding,
+                    hasFoot ? Dialog.phoneGap : Dialog.phonePadding,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: Dialog.phoneGap,
+                    children: [
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        spacing: theme.space.space2,
+                        children: [
+                          _phoneTitle(theme),
+                          if (description != null)
+                            ExcludeSemantics(
+                              child: Text(
+                                description,
+                                style: theme.typography.prose.copyWith(
+                                  color: colors.textSecondary,
+                                  fontSize: Dialog.phoneTextSize,
+                                  height: Dialog.phoneTextHeight,
+                                ),
+                              ),
+                            ),
+                        ],
+                      ),
+                      if (body != null)
+                        Focus(
+                          focusNode: _body,
+                          includeSemantics: false,
+                          child: DefaultTextStyle.merge(
+                            style: theme.typography.prose.copyWith(
+                              color: colors.textPrimary,
+                            ),
+                            child: body,
+                          ),
+                        ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+        if (hasFoot)
+          Padding(
+            padding: const EdgeInsetsDirectional.fromSTEB(
+              Dialog.phonePadding,
+              0,
+              Dialog.phonePadding,
+              Dialog.phonePadding,
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: theme.space.space2,
+              children: [
+                ?widget.footerStart,
+                Wrap(
+                  alignment: WrapAlignment.end,
+                  spacing: theme.space.space2,
+                  runSpacing: theme.space.space2,
+                  children: [...buttons, ...end],
+                ),
+              ],
+            ),
+          ),
+      ],
+    );
+  }
+
   Widget _buildBox(BuildContext context, {required bool modal}) {
     final theme = context.ferman;
     final colors = theme.colors;
@@ -446,6 +735,7 @@ class _DialogState extends State<Dialog> {
       DialogTone.warning => (colors.warningBg, colors.warning),
       DialogTone.danger => (colors.dangerBg, colors.danger),
     };
+    final phone = modal && WindowMetrics.isPhone(context);
     final side = theme.space.space5;
     final head = Padding(
       padding: EdgeInsetsDirectional.fromSTEB(
@@ -568,30 +858,47 @@ class _DialogState extends State<Dialog> {
     final maxHeight = modal
         ? MediaQuery.sizeOf(context).height - Dialog.verticalMargin
         : double.infinity;
-    Widget box = ConstrainedBox(
-      constraints: BoxConstraints(
-        maxWidth: Dialog.widthOf(theme, widget.size),
-        minWidth: Dialog.widthOf(theme, widget.size),
-        maxHeight: maxHeight < 0 ? 0 : maxHeight,
-      ),
-      child: DecoratedBox(
-        decoration: BoxDecoration(
-          color: colors.surfaceRaised,
-          borderRadius: BorderRadius.all(
-            Radius.circular(theme.radius.radiusLg),
-          ),
-          boxShadow: theme.elevation.shadowDialog,
-        ),
-        child: DefaultTextStyle.merge(
-          style: TextStyle(color: colors.textPrimary),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: children,
-          ),
-        ),
-      ),
-    );
+    var box = modal && widget.sheet
+        ? _buildSheet(context)
+        : ConstrainedBox(
+            constraints: BoxConstraints(
+              maxWidth: Dialog.widthOf(theme, widget.size),
+              minWidth: Dialog.widthOf(theme, widget.size),
+              maxHeight: maxHeight < 0 ? 0 : maxHeight,
+            ),
+            child: DecoratedBox(
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                borderRadius: BorderRadius.all(
+                  Radius.circular(
+                    phone ? theme.radius.radiusXl : theme.radius.radiusLg,
+                  ),
+                ),
+                boxShadow: theme.elevation.shadowDialog,
+              ),
+              child: DefaultTextStyle.merge(
+                style: TextStyle(color: colors.textPrimary),
+                child: phone
+                    ? _buildPhoneContent(
+                        context,
+                        icon == null
+                            ? null
+                            : Icon(
+                                icon,
+                                size: Dialog.phoneGlyphSize,
+                                color: glyphColor,
+                              ),
+                        buttons: buttons.start,
+                        end: buttons.end,
+                      )
+                    : Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: children,
+                      ),
+              ),
+            ),
+          );
     box = Semantics(
       container: true,
       scopesRoute: modal,
@@ -639,6 +946,7 @@ class _DialogState extends State<Dialog> {
             // the dialog open in it, above the box, wherever the dialog sits.
             child: Overlay.wrap(
               child: Scrim(
+                sheet: widget.sheet,
                 onDismiss: widget.onClose,
                 dismissLabel: label.isEmpty ? null : label,
                 child: FocusScope(

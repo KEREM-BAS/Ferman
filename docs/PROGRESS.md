@@ -521,6 +521,7 @@ The web build's phone layout of the existing screens: first run, the start scree
 - [ ] First run: the language picker in one column, and the welcome steps stacked.
 - [ ] Start screen: home inside `FmPhone`, the way to Settings.
 - [ ] Settings: the pane list and each pane inside `FmPhone`.
+- [x] Everything that is not a screen: dialogs as the `a13-16c` card, the `Select` list as the `a13-8c` bottom sheet with search, menus, tooltips, notices, swept at 375 × 812 in en, tr and ar (`app/test/features/phone/phone_overlays_test.dart`).
 - [ ] Goldens from CI's Linux run, in light and dark × en, tr, ar.
 
 The report that a tap on Continue did not advance at 375 × 812 in a touch-emulated browser is **not reproduced**: a touch-kind pointer through the whole app at that size advances to the privacy step on Android, iOS and Linux (`app/test/features/phone/phone_foundation_test.dart`), so no fix is claimed for it. Widget tests do not run Flutter's web engine, so real browser input is not covered. Still to check on a real phone once first run has its layout (no screen may then be squeezed): that step was laid out with text columns about 35 px wide, which may have been what the viewer saw.
