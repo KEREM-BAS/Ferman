@@ -5,6 +5,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/review_list.dart';
+import 'package:ferman/features/settings/settings_save_failure.dart';
 import 'package:ferman/features/shell/shell_labels.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -13,6 +15,8 @@ import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/l10n/region.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -140,6 +144,17 @@ class _ViewTools extends ConsumerWidget {
     'book': PageLayout.book,
   };
 
+  /// The zoom typed into the zoom field (B127), or null when it is no
+  /// number. The region's digits and either decimal sign are read, with or
+  /// without a percent sign; `Viewer.zoomTo` holds it to 10 % to 1,600 %.
+  static double? typedZoom(String text, Region region) {
+    final value = NumberStepper.parse(
+      text.replaceAll(RegExp('[%\u066a\uff05\ufe6a]'), ''),
+      region,
+    );
+    return value == null ? null : value / 100;
+  }
+
   /// Applies a choice of the zoom menu or the Fit control.
   static void zoomChoice(Viewer viewer, String value) => switch (value) {
     'fit-width' || 'width' => viewer.fit(ZoomFit.width),
@@ -153,7 +168,8 @@ class _ViewTools extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
-    final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
+    final region = ref.watch(regionProvider).region;
+    final format = RegionFormat.forRegion(region);
     final view = ref.watch(
       viewerProvider.select(
         (view) => view == null
@@ -330,6 +346,16 @@ class _ViewTools extends ConsumerWidget {
               menu: zoomMenu(),
               onMenuSelected: (item) =>
                   chosen(item, (value) => zoomChoice(viewer, value)),
+              onTyped: live
+                  ? (text) {
+                      final zoom = typedZoom(text, region);
+                      if (zoom != null) viewer.zoomTo(zoom);
+                    }
+                  : null,
+              typingHint: l10n.shellZoomTypeHint(
+                percent((minZoom * 100).round()),
+                percent((maxZoom * 100).round()),
+              ),
               options: [
                 for (final (value, name, _) in zoomOptions)
                   SelectOption(value: value, label: name),
@@ -482,21 +508,35 @@ class _EditTools extends ConsumerWidget {
     final platform = ref.watch(shortcutPlatformProvider);
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final edits = ref.watch(shellDocumentsProvider).active?.editCount ?? 0;
-    final review = Feature.editReview.disabledReason(context);
     final document = ref.watch(viewerProvider.select((view) => view != null));
     final editor = ref.watch(documentEditorProvider);
     final historyOpen = ref.watch(editHistoryOpenProvider);
+    final reviewOpen = ref.watch(reviewListProvider.select((s) => s.open));
+    void toggleReview() => reviewOpen
+        ? ref.read(reviewListProvider.notifier).show(open: false)
+        : showReviewList(ref);
+    final forbidden =
+        ref
+            .watch(shellDocumentsProvider)
+            .active
+            ?.document
+            ?.security
+            ?.forbidsEditing ??
+        false;
     return Toolbar(
       semanticLabel: l10n.shellEditTools,
       overflowLabel: l10n.moreTools,
       children: [
-        // The only tool so far, always on: T has nothing to switch to.
+        // The only tool so far, always on: T has nothing to switch to. The
+        // author's permissions can forbid it (a2-10a, G27).
         ToolButton(
           icon: IconName.textCursor,
           label: l10n.shellToolEditText,
           active: true,
           shortcut: ShellCommand.editText.caps(platform),
-          onPressed: () {},
+          disabled: forbidden,
+          disabledReason: forbidden ? l10n.shellEditForbidden : null,
+          onPressed: forbidden ? null : () {},
         ),
         _future(
           context,
@@ -570,10 +610,14 @@ class _EditTools extends ConsumerWidget {
         ),
         const ToolbarSpacer(),
         Switch(
-          value: true,
+          value: ref.watch(settingsProvider.select((s) => s.markEdited)),
           label: l10n.shellMarkEditedText,
-          disabled: true,
-          disabledReason: Feature.editMarks.disabledReason(context),
+          onChanged: (value) => unawaited(
+            changeSetting(
+              ref,
+              (current) => current.copyWith(markEdited: value),
+            ),
+          ),
         ),
         ToolbarItem(
           // The count the row's badge shows stays in the menu entry; the
@@ -584,9 +628,8 @@ class _EditTools extends ConsumerWidget {
               bidiIsolate(format.integer(edits)),
             ),
             icon: IconName.listChecks,
-            disabled: true,
-            disabledReason: review,
           ),
+          onMenuSelected: (_) => toggleReview(),
           // `<div style="width:8px">` and the toolbar's 2 px gap after it,
           // part of the item so it leaves the row with the button.
           child: Padding(
@@ -597,7 +640,7 @@ class _EditTools extends ConsumerWidget {
               variant: ButtonVariant.ghost,
               size: ButtonSize.sm,
               icon: IconName.listChecks,
-              disabledReason: review,
+              onPressed: toggleReview,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 spacing: theme.space.space1_5,

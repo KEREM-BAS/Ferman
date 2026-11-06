@@ -50,10 +50,31 @@ abstract class FermanBridgeApiImplPlatform
   Attachment dco_decode_attachment(dynamic raw);
 
   @protected
+  BlockFont dco_decode_block_font(dynamic raw);
+
+  @protected
   BlockInfo dco_decode_block_info(dynamic raw);
 
   @protected
+  BlockStyle dco_decode_block_style(dynamic raw);
+
+  @protected
+  BlockStyleInfo dco_decode_block_style_info(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
+
+  @protected
+  Alignment dco_decode_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  BlockFont dco_decode_box_autoadd_block_font(dynamic raw);
+
+  @protected
+  BlockStyle dco_decode_box_autoadd_block_style(dynamic raw);
+
+  @protected
+  BlockStyleInfo dco_decode_box_autoadd_block_style_info(dynamic raw);
 
   @protected
   ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
@@ -84,6 +105,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
+
+  @protected
+  PageRect dco_decode_box_autoadd_page_rect(dynamic raw);
 
   @protected
   PdfDate dco_decode_box_autoadd_pdf_date(dynamic raw);
@@ -158,6 +182,9 @@ abstract class FermanBridgeApiImplPlatform
   FontCandidate dco_decode_font_candidate(dynamic raw);
 
   @protected
+  FontCoverage dco_decode_font_coverage(dynamic raw);
+
+  @protected
   FontEmbedding dco_decode_font_embedding(dynamic raw);
 
   @protected
@@ -219,6 +246,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontCandidate> dco_decode_list_font_candidate(dynamic raw);
+
+  @protected
+  List<FontCoverage> dco_decode_list_font_coverage(dynamic raw);
 
   @protected
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
@@ -285,6 +315,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  Alignment? dco_decode_opt_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  BlockFont? dco_decode_opt_box_autoadd_block_font(dynamic raw);
+
+  @protected
+  BlockStyleInfo? dco_decode_opt_box_autoadd_block_style_info(dynamic raw);
 
   @protected
   ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
@@ -382,6 +421,9 @@ abstract class FermanBridgeApiImplPlatform
   RestoredDocument dco_decode_restored_document(dynamic raw);
 
   @protected
+  Reverted dco_decode_reverted(dynamic raw);
+
+  @protected
   RevisionInfo dco_decode_revision_info(dynamic raw);
 
   @protected
@@ -470,10 +512,33 @@ abstract class FermanBridgeApiImplPlatform
   Attachment sse_decode_attachment(SseDeserializer deserializer);
 
   @protected
+  BlockFont sse_decode_block_font(SseDeserializer deserializer);
+
+  @protected
   BlockInfo sse_decode_block_info(SseDeserializer deserializer);
 
   @protected
+  BlockStyle sse_decode_block_style(SseDeserializer deserializer);
+
+  @protected
+  BlockStyleInfo sse_decode_block_style_info(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  Alignment sse_decode_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  BlockFont sse_decode_box_autoadd_block_font(SseDeserializer deserializer);
+
+  @protected
+  BlockStyle sse_decode_box_autoadd_block_style(SseDeserializer deserializer);
+
+  @protected
+  BlockStyleInfo sse_decode_box_autoadd_block_style_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ExtendBlocked sse_decode_box_autoadd_extend_blocked(
@@ -518,6 +583,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   PagePoint sse_decode_box_autoadd_page_point(SseDeserializer deserializer);
+
+  @protected
+  PageRect sse_decode_box_autoadd_page_rect(SseDeserializer deserializer);
 
   @protected
   PdfDate sse_decode_box_autoadd_pdf_date(SseDeserializer deserializer);
@@ -602,6 +670,9 @@ abstract class FermanBridgeApiImplPlatform
   FontCandidate sse_decode_font_candidate(SseDeserializer deserializer);
 
   @protected
+  FontCoverage sse_decode_font_coverage(SseDeserializer deserializer);
+
+  @protected
   FontEmbedding sse_decode_font_embedding(SseDeserializer deserializer);
 
   @protected
@@ -667,6 +738,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontCandidate> sse_decode_list_font_candidate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FontCoverage> sse_decode_list_font_coverage(
     SseDeserializer deserializer,
   );
 
@@ -745,6 +821,19 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  Alignment? sse_decode_opt_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  BlockFont? sse_decode_opt_box_autoadd_block_font(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  BlockStyleInfo? sse_decode_opt_box_autoadd_block_style_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
@@ -856,6 +945,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   RestoredDocument sse_decode_restored_document(SseDeserializer deserializer);
+
+  @protected
+  Reverted sse_decode_reverted(SseDeserializer deserializer);
 
   @protected
   RevisionInfo sse_decode_revision_info(SseDeserializer deserializer);
@@ -986,6 +1078,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_block_font(BlockFont raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_font_origin(raw.origin),
+      cst_encode_String(raw.postscriptName),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_block_info(BlockInfo raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -995,7 +1096,65 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_alignment(raw.alignment),
       cst_encode_text_direction(raw.direction),
       cst_encode_opt_box_autoadd_not_editable_reason(raw.notEditable),
+      cst_encode_opt_String(raw.language),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_block_style(BlockStyle raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_opt_box_autoadd_block_font(raw.font),
+      cst_encode_opt_box_autoadd_f_32(raw.size),
+      cst_encode_opt_box_autoadd_u_32(raw.colour),
+      cst_encode_opt_box_autoadd_alignment(raw.alignment),
+      cst_encode_opt_box_autoadd_f_32(raw.charSpacing),
+      cst_encode_opt_box_autoadd_f_32(raw.lineSpacing),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_block_style_info(BlockStyleInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.font),
+      cst_encode_String(raw.family),
+      cst_encode_bool(raw.bold),
+      cst_encode_bool(raw.italic),
+      cst_encode_opt_box_autoadd_block_font(raw.boldToggle),
+      cst_encode_opt_box_autoadd_block_font(raw.italicToggle),
+      cst_encode_f_32(raw.size),
+      cst_encode_opt_box_autoadd_u_32(raw.colour),
+      cst_encode_list_prim_u_32_strict(raw.documentColours),
+      cst_encode_alignment(raw.alignment),
+      cst_encode_f_32(raw.charSpacing),
+      cst_encode_f_32(raw.lineSpacing),
+      cst_encode_page_rect(raw.frame),
+    ].jsify()!;
+  }
+
+  @protected
+  int cst_encode_box_autoadd_alignment(Alignment raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_alignment(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_block_font(BlockFont raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_block_font(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_block_style(BlockStyle raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_block_style(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_block_style_info(BlockStyleInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_block_style_info(raw);
   }
 
   @protected
@@ -1056,6 +1215,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_box_autoadd_page_point(PagePoint raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_page_point(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_page_rect(PageRect raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_page_rect(raw);
   }
 
   @protected
@@ -1178,6 +1343,7 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_box_autoadd_overflow_plan(raw.overflow),
       cst_encode_opt_box_autoadd_overflow_choice(raw.chosen),
       cst_encode_list_dependent_cell(raw.dependents),
+      cst_encode_opt_String(raw.language),
     ].jsify()!;
   }
 
@@ -1220,6 +1386,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_font_coverage(FontCoverage raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.name),
+      cst_encode_opt_String(raw.shownAs),
+      cst_encode_String(raw.missingLetters),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_font_entry(FontEntry raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -1238,6 +1414,8 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_list_String(raw.fontDirs),
       cst_encode_bool(raw.systemFonts),
       cst_encode_bool(raw.askEachTime),
+      cst_encode_bool(raw.markMissing),
+      cst_encode_bool(raw.keepLines),
     ].jsify()!;
   }
 
@@ -1272,6 +1450,10 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_i_64(raw.time),
       cst_encode_u_32(raw.hiddenLines),
       cst_encode_list_font_substitution(raw.substitutions),
+      cst_encode_opt_box_autoadd_u_32(raw.page),
+      cst_encode_String(raw.before),
+      cst_encode_String(raw.after),
+      cst_encode_list_prim_u_32_strict(raw.reverts),
     ].jsify()!;
   }
 
@@ -1342,6 +1524,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_font_candidate(List<FontCandidate> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_font_candidate).toList().jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_font_coverage(List<FontCoverage> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_font_coverage).toList().jsify()!;
   }
 
   @protected
@@ -1496,6 +1684,24 @@ abstract class FermanBridgeApiImplPlatform
   String? cst_encode_opt_String(String? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_String(raw);
+  }
+
+  @protected
+  int? cst_encode_opt_box_autoadd_alignment(Alignment? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_alignment(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_block_font(BlockFont? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_block_font(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_block_style_info(BlockStyleInfo? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_block_style_info(raw);
   }
 
   @protected
@@ -1700,6 +1906,16 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_String(raw.path),
       cst_encode_bool(raw.originalChanged),
       cst_encode_opt_box_autoadd_u_64(raw.renderKey),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_reverted(Reverted raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_bool(raw.reverted),
+      cst_encode_list_prim_u_32_strict(raw.dependents),
+      cst_encode_revision_info(raw.revision),
     ].jsify()!;
   }
 
@@ -1960,10 +2176,46 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_attachment(Attachment self, SseSerializer serializer);
 
   @protected
+  void sse_encode_block_font(BlockFont self, SseSerializer serializer);
+
+  @protected
   void sse_encode_block_info(BlockInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_block_style(BlockStyle self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_block_style_info(
+    BlockStyleInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_alignment(
+    Alignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_font(
+    BlockFont self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_style(
+    BlockStyle self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_style_info(
+    BlockStyleInfo self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_extend_blocked(
@@ -2019,6 +2271,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_page_point(
     PagePoint self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_page_rect(
+    PageRect self,
     SseSerializer serializer,
   );
 
@@ -2116,6 +2374,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_font_candidate(FontCandidate self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_coverage(FontCoverage self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_embedding(FontEmbedding self, SseSerializer serializer);
 
   @protected
@@ -2193,6 +2454,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_font_candidate(
     List<FontCandidate> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_font_coverage(
+    List<FontCoverage> self,
     SseSerializer serializer,
   );
 
@@ -2306,6 +2573,24 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_alignment(
+    Alignment? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_block_font(
+    BlockFont? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_block_style_info(
+    BlockStyleInfo? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_extend_blocked(
@@ -2446,6 +2731,9 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_reverted(Reverted self, SseSerializer serializer);
+
+  @protected
   void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer);
 
   @protected
@@ -2533,6 +2821,20 @@ class FermanBridgeWire implements BaseWire {
     JSAny block,
   ) => wasmModule.wire__crate__frb__begin_edit(port_, document, page, block);
 
+  void wire__crate__frb__block_fonts(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  ) => wasmModule.wire__crate__frb__block_fonts(port_, document, page, block);
+
+  void wire__crate__frb__block_style(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  ) => wasmModule.wire__crate__frb__block_style(port_, document, page, block);
+
   void wire__crate__frb__caret_at(
     NativePortType port_,
     JSAny document,
@@ -2611,6 +2913,12 @@ class FermanBridgeWire implements BaseWire {
     bool swapped,
   ) => wasmModule.wire__crate__frb__finish_save(port_, document, swapped);
 
+  void wire__crate__frb__font_coverage(
+    NativePortType port_,
+    JSAny document,
+    String letters,
+  ) => wasmModule.wire__crate__frb__font_coverage(port_, document, letters);
+
   void wire__crate__frb__history(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__history(port_, document);
 
@@ -2619,6 +2927,13 @@ class FermanBridgeWire implements BaseWire {
 
   void wire__crate__frb__list_recoverable(NativePortType port_) =>
       wasmModule.wire__crate__frb__list_recoverable(port_);
+
+  void wire__crate__frb__move_block(
+    NativePortType port_,
+    JSAny transaction,
+    double dx,
+    double dy,
+  ) => wasmModule.wire__crate__frb__move_block(port_, transaction, dx, dy);
 
   void wire__crate__frb__open(
     NativePortType port_,
@@ -2654,6 +2969,12 @@ class FermanBridgeWire implements BaseWire {
     wanted,
   );
 
+  void wire__crate__frb__resize_block(
+    NativePortType port_,
+    JSAny transaction,
+    JSAny frame,
+  ) => wasmModule.wire__crate__frb__resize_block(port_, transaction, frame);
+
   void wire__crate__frb__resolve_overflow(
     NativePortType port_,
     JSAny transaction,
@@ -2674,6 +2995,26 @@ class FermanBridgeWire implements BaseWire {
     password,
     suffix,
   );
+
+  void wire__crate__frb__revert(
+    NativePortType port_,
+    JSAny document,
+    int step,
+    bool with_dependents,
+    String name,
+  ) => wasmModule.wire__crate__frb__revert(
+    port_,
+    document,
+    step,
+    with_dependents,
+    name,
+  );
+
+  void wire__crate__frb__revert_all(
+    NativePortType port_,
+    JSAny document,
+    String name,
+  ) => wasmModule.wire__crate__frb__revert_all(port_, document, name);
 
   void wire__crate__frb__rollback_edit(
     NativePortType port_,
@@ -2734,6 +3075,13 @@ class FermanBridgeWire implements BaseWire {
     staging,
   );
 
+  void wire__crate__frb__save_text(
+    NativePortType port_,
+    String path,
+    String text,
+    String? staging,
+  ) => wasmModule.wire__crate__frb__save_text(port_, path, text, staging);
+
   void wire__crate__frb__save_unsigned_copy(
     NativePortType port_,
     JSAny document,
@@ -2773,6 +3121,18 @@ class FermanBridgeWire implements BaseWire {
     anchor,
     focus,
   );
+
+  void wire__crate__frb__set_block_language(
+    NativePortType port_,
+    JSAny transaction,
+    String tag,
+  ) => wasmModule.wire__crate__frb__set_block_language(port_, transaction, tag);
+
+  void wire__crate__frb__set_block_style(
+    NativePortType port_,
+    JSAny transaction,
+    JSAny style,
+  ) => wasmModule.wire__crate__frb__set_block_style(port_, transaction, style);
 
   void wire__crate__frb__set_font_settings(
     NativePortType port_,
@@ -2830,6 +3190,20 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   );
 
   external void wire__crate__frb__begin_edit(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  );
+
+  external void wire__crate__frb__block_fonts(
+    NativePortType port_,
+    JSAny document,
+    int page,
+    JSAny block,
+  );
+
+  external void wire__crate__frb__block_style(
     NativePortType port_,
     JSAny document,
     int page,
@@ -2899,6 +3273,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     bool swapped,
   );
 
+  external void wire__crate__frb__font_coverage(
+    NativePortType port_,
+    JSAny document,
+    String letters,
+  );
+
   external void wire__crate__frb__history(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__keep_as_is(
@@ -2907,6 +3287,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
   );
 
   external void wire__crate__frb__list_recoverable(NativePortType port_);
+
+  external void wire__crate__frb__move_block(
+    NativePortType port_,
+    JSAny transaction,
+    double dx,
+    double dy,
+  );
 
   external void wire__crate__frb__open(
     NativePortType port_,
@@ -2935,6 +3322,12 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     JSAny wanted,
   );
 
+  external void wire__crate__frb__resize_block(
+    NativePortType port_,
+    JSAny transaction,
+    JSAny frame,
+  );
+
   external void wire__crate__frb__resolve_overflow(
     NativePortType port_,
     JSAny transaction,
@@ -2947,6 +3340,20 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String document,
     String? password,
     String? suffix,
+  );
+
+  external void wire__crate__frb__revert(
+    NativePortType port_,
+    JSAny document,
+    int step,
+    bool with_dependents,
+    String name,
+  );
+
+  external void wire__crate__frb__revert_all(
+    NativePortType port_,
+    JSAny document,
+    String name,
   );
 
   external void wire__crate__frb__rollback_edit(
@@ -2996,6 +3403,13 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String? staging,
   );
 
+  external void wire__crate__frb__save_text(
+    NativePortType port_,
+    String path,
+    String text,
+    String? staging,
+  );
+
   external void wire__crate__frb__save_unsigned_copy(
     NativePortType port_,
     JSAny document,
@@ -3017,6 +3431,18 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     int page,
     JSAny anchor,
     JSAny focus,
+  );
+
+  external void wire__crate__frb__set_block_language(
+    NativePortType port_,
+    JSAny transaction,
+    String tag,
+  );
+
+  external void wire__crate__frb__set_block_style(
+    NativePortType port_,
+    JSAny transaction,
+    JSAny style,
   );
 
   external void wire__crate__frb__set_font_settings(

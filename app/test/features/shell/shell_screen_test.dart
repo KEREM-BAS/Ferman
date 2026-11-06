@@ -531,13 +531,16 @@ void main() {
         'segments:Fit',
         'segments:Page layout',
       };
-      // Edit's tools that work since M3: Edit text, Edit history, and undo
-      // and redo with nothing to undo or redo yet.
+      // Edit's tools that work since M3: Edit text, Edit history, Review edits
+      // (the row's one button), and undo and redo with nothing to undo or redo
+      // yet.
       const working = {
         'Edit text': 'enabled',
         'icon:Undo': 'Nothing to undo',
         'icon:Redo': 'Nothing to redo',
         'icon:Edit history': 'enabled',
+        'switch:Mark edited text': 'enabled',
+        'button': 'enabled',
       };
       for (final mode in FermanMode.values) {
         for (final item in itemsOf(tester, mode)) {

@@ -66,7 +66,7 @@ enum MetaPlacement {
 ///   default in these states) with their resize cursors (mirrored at the
 ///   corners in right to left) and the [meta] label (such as
 ///   "IBM Plex Serif · 10.5 pt"); editing adds a faint ink tint. The
-///   handles do not resize yet (M3).
+///   handles resize through [onHandleDragged] where the caller takes it.
 ///
 /// The label is 18 px tall, ink on white (amber with a warning triangle
 /// when [metaWarning]) and sits where [metaPlacement] says: above the
@@ -105,6 +105,7 @@ class TextEditBox extends StatefulWidget {
     this.semanticLabel,
     this.onPressed,
     this.onStateChanged,
+    this.onHandleDragged,
     this.focusNode,
     this.autofocus = false,
   });
@@ -208,6 +209,11 @@ class TextEditBox extends StatefulWidget {
   /// Called with the state the keyboard asks for: editing on Enter while
   /// selected, selected on Escape while editing. Not a design-system prop.
   final ValueChanged<TextEditBoxState>? onStateChanged;
+
+  /// Called when a drag of a handle ends, with the handle (the frame's side or
+  /// corner it sits on, on the screen: -1, 0 or 1 across and down) and how far
+  /// it went. Not a design-system prop.
+  final void Function(Offset handle, Offset by)? onHandleDragged;
 
   /// The block's focus node; one is created when null.
   final FocusNode? focusNode;
@@ -473,26 +479,29 @@ class _TextEditBoxState extends State<TextEditBox> {
     final endDiagonal = rtl
         ? SystemMouseCursors.resizeUpLeftDownRight
         : SystemMouseCursors.resizeUpRightDownLeft;
-    Widget handle(MouseCursor cursor) => MouseRegion(
-      cursor: inert ? MouseCursor.defer : cursor,
-      child: ExcludeSemantics(
-        child: Container(
-          key: const ValueKey<String>('TextEditBox.handle'),
-          width: TextEditBox.handleSize,
-          height: TextEditBox.handleSize,
-          decoration: BoxDecoration(
-            color: fill,
-            border: Border.all(
-              color: border,
-              width: context.ferman.border.borderWidth,
-            ),
-            borderRadius: const BorderRadius.all(
-              Radius.circular(TextEditBox.radius),
-            ),
-          ),
-        ),
-      ),
-    );
+    // The handles' places in the order below, from top-start around, on the
+    // screen.
+    final side = rtl ? 1.0 : -1.0;
+    final places = <Offset>[
+      Offset(side, -1),
+      const Offset(0, -1),
+      Offset(-side, -1),
+      Offset(-side, 0),
+      Offset(-side, 1),
+      const Offset(0, 1),
+      Offset(side, 1),
+      Offset(side, 0),
+    ];
+    var next = 0;
+    Widget handle(MouseCursor cursor) {
+      final place = places[next++ % places.length];
+      return _HandleDrag(
+        place: place,
+        onDragged: inert ? null : widget.onHandleDragged,
+        child: _handle(cursor, inert, border, fill),
+      );
+    }
+
     Widget centredX(MouseCursor cursor) =>
         Center(heightFactor: 1, child: handle(cursor));
     Widget centredY(MouseCursor cursor) =>
@@ -526,6 +535,28 @@ class _TextEditBoxState extends State<TextEditBox> {
       ),
     ];
   }
+
+  Widget _handle(MouseCursor cursor, bool inert, Color border, Color fill) =>
+      MouseRegion(
+        cursor: inert ? MouseCursor.defer : cursor,
+        child: ExcludeSemantics(
+          child: Container(
+            key: const ValueKey<String>('TextEditBox.handle'),
+            width: TextEditBox.handleSize,
+            height: TextEditBox.handleSize,
+            decoration: BoxDecoration(
+              color: fill,
+              border: Border.all(
+                color: border,
+                width: context.ferman.border.borderWidth,
+              ),
+              borderRadius: const BorderRadius.all(
+                Radius.circular(TextEditBox.radius),
+              ),
+            ),
+          ),
+        ),
+      );
 
   /// The font label (`.fm-editbox__meta`), placed per
   /// [TextEditBox.metaPlacement].
@@ -786,5 +817,54 @@ class _RenderNegativeMargin extends RenderShiftedBox {
       return true;
     }
     return false;
+  }
+}
+
+/// Reports a drag of a handle when it ends.
+class _HandleDrag extends StatefulWidget {
+  const new({
+    required this.place,
+    required this.onDragged,
+    required this.child,
+  });
+
+  final Offset place;
+  final void Function(Offset handle, Offset by)? onDragged;
+  final Widget child;
+
+  @override
+  State<_HandleDrag> createState() => _HandleDragState();
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties
+      ..add(DiagnosticsProperty<Offset>('place', place))
+      ..add(
+        ObjectFlagProperty<void Function(Offset, Offset)>.has(
+          'onDragged',
+          onDragged,
+        ),
+      );
+  }
+}
+
+class _HandleDragState extends State<_HandleDrag> {
+  Offset _by = Offset.zero;
+
+  @override
+  Widget build(BuildContext context) {
+    final dragged = widget.onDragged;
+    if (dragged == null) return widget.child;
+    return GestureDetector(
+      behavior: HitTestBehavior.opaque,
+      excludeFromSemantics: true,
+      onPanStart: (_) => _by = Offset.zero,
+      onPanUpdate: (details) => _by += details.delta,
+      onPanEnd: (_) {
+        if (_by != Offset.zero) dragged(widget.place, _by);
+      },
+      child: widget.child,
+    );
   }
 }

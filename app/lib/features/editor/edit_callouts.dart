@@ -1,15 +1,16 @@
 import 'dart:async';
 
-import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/editor/font_picker_dialog.dart';
+import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
 // The widgets library has its own Banner (the debug ribbon).
+import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' hide Banner, Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
@@ -17,8 +18,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// missing-glyph step 3's one warning (a3-3a, a3-17: "Missing character",
 /// "No font has this character" or "This font can’t be embedded") with
 /// Choose a font…, which opens the a3-3b picker ([FontPickerDialog]), and
-/// Keep as is; step 2's "Character added from this computer", said once;
-/// a3-4's
+/// Keep as is; a11-1c's third choice, which keeps the characters unasked and
+/// says so; step 2's "Character added from this computer", said once; a3-4's
 /// "Text doesn't fit" with its three choices and the amounts the engine
 /// computed, each disabled one with a3-18's reason under it, and a3-9's
 /// "Totals don't update" while table cells depend on the edited one.
@@ -26,10 +27,13 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// The first choice that can apply is the primary button, Keep and warn the
 /// quiet one. Picking one goes to `DocumentEditor.resolve`, and the warning
 /// goes until text overflows again. "Review the marked cells" opens Review
-/// edits, which is not built yet (B049).
+/// edits (a3-12).
 class EditCallouts extends ConsumerWidget {
   /// The callouts of the open document's edit.
-  const new({super.key});
+  const new({super.key, this.padded = true});
+
+  /// Whether it brings its own inset: not inside a panel section's grid.
+  final bool padded;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -39,19 +43,26 @@ class EditCallouts extends ConsumerWidget {
     final plan = ref.watch(documentEditorProvider.select((s) => s.asking));
     final glyphs = ref.watch(documentEditorProvider.select((s) => s.glyphs));
     final notice = ref.watch(documentEditorProvider.select((s) => s.notice));
+    final marked = ref.watch(
+      documentEditorProvider.select((s) => s.markedChars),
+    );
     final picking = ref.watch(documentEditorProvider.select((s) => s.picking));
     final dependents = ref.watch(
       documentEditorProvider.select(
         (s) => s.active == null ? 0 : s.preview?.dependents.length ?? 0,
       ),
     );
-    if (plan == null && dependents == 0 && glyphs == null && notice == null) {
+    if (plan == null &&
+        dependents == 0 &&
+        glyphs == null &&
+        notice == null &&
+        marked.isEmpty) {
       return const SizedBox.shrink();
     }
     final editor = ref.read(documentEditorProvider.notifier);
     final gap = theme.space.space2;
     return Padding(
-      padding: EdgeInsetsDirectional.all(theme.space.space3),
+      padding: EdgeInsetsDirectional.all(padded ? theme.space.space3 : 0),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: gap,
@@ -76,6 +87,18 @@ class EditCallouts extends ConsumerWidget {
             ),
             if (picking) FontPickerDialog(glyphs: glyphs),
           ],
+          if (marked.isNotEmpty)
+            Banner(
+              tone: BannerTone.warning,
+              title: l10n.editGlyphTitle,
+              child: Text(
+                l10n.editGlyphMarkedBody(
+                  marked.runes
+                      .map((c) => quoted(String.fromCharCode(c)))
+                      .join(', '),
+                ),
+              ),
+            ),
           if (notice != null)
             Banner(
               title: l10n.editGlyphAddedTitle,
@@ -121,7 +144,7 @@ class EditCallouts extends ConsumerWidget {
               size: ButtonSize.sm,
               icon: IconName.filePenLine,
               fullWidth: true,
-              disabledReason: Feature.editReview.disabledReason(context),
+              onPressed: () => showReviewList(ref),
               child: Text(
                 l10n.editTotalsReview(dependents, format.integer(dependents)),
               ),
@@ -130,6 +153,12 @@ class EditCallouts extends ConsumerWidget {
         ],
       ),
     );
+  }
+
+  @override
+  void debugFillProperties(DiagnosticPropertiesBuilder properties) {
+    super.debugFillProperties(properties);
+    properties.add(FlagProperty('padded', value: padded, ifTrue: 'padded'));
   }
 }
 
@@ -359,7 +388,7 @@ class HiddenLinesStatus extends ConsumerWidget {
 /// a11-6's "Font substituted" warning toast after a commit set characters
 /// in a similar font: "This block uses EB Garamond for ‘ğ’.", with
 /// Dismiss; it leaves after `DocumentEditor.toastTime`. Review is not
-/// offered until Review edits (B049, G128).
+/// offered until the review list can name them (G128).
 class FontSubstitutedToast extends ConsumerWidget {
   /// The toast of [substitution].
   const new(this.substitution, {super.key});

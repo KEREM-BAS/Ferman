@@ -177,11 +177,12 @@ void main() {
     expect(find.text('Missing character'), findsOneWidget);
     expect(find.text(missingBody), findsOneWidget);
     expect(find.text('Choose a font…'), findsOneWidget);
-    // The frame's label warns, below the frame (a3-3a).
+    // The frame's label warns; nothing is above this block, so f1 keeps it
+    // there.
     final box = tester.widget<TextEditBox>(find.byType(TextEditBox));
     expect(box.meta, 'EBGaramond-Regular');
     expect(box.metaWarning, isTrue);
-    expect(box.metaPlacement, MetaPlacement.below);
+    expect(box.metaPlacement, MetaPlacement.above);
     // The amber wavy underline under "ğ" alone.
     final span = field(tester).controller.buildTextSpan(
       context: tester.element(find.byType(EditableText)),
@@ -362,6 +363,32 @@ void main() {
     await drain(tester);
   });
 
+  testWidgets('the third choice reaches the engine, applies the text, marks '
+      'the character and asks nothing', (tester) async {
+    await pumpEditor(tester);
+    await containerOf(tester)
+        .read(settingsProvider.notifier)
+        .change(
+          (s) =>
+              s.copyWith(missingGlyphs: MissingGlyphPolicy.mark, reflow: false),
+        );
+    await pumps(tester);
+    expect(engine.fontSettings.markMissing, isTrue);
+    expect(engine.fontSettings.askEachTime, isFalse);
+    expect(engine.fontSettings.keepLines, isTrue);
+    await typeMissing(tester);
+    expect(editor(tester).glyphs, isNull);
+    expect(editor(tester).preview?.missing, isEmpty);
+    expect(editor(tester).markedChars, 'ğ');
+    expect(find.text('Missing character'), findsOneWidget);
+    expect(find.text('Keep as is'), findsNothing);
+    await drain(tester);
+    expect(
+      editor(tester).history.steps.single.substitutions.single.kind,
+      SubstitutionKind.marked,
+    );
+  });
+
   testWidgets('step 2 says once where the character came from', (tester) async {
     await pumpEditor(tester, sameFont: true);
     await typeMissing(tester);
@@ -386,10 +413,192 @@ void main() {
     TextEditingValue value(WidgetTester tester) =>
         field(tester).controller.value;
 
-    Future<void> send(WidgetTester tester, TextEditingDelta delta) async {
-      tester.testTextInput.updateEditingValue(delta.apply(value(tester)));
+    /// What the platform sends for [delta].
+    Map<String, Object> encoded(TextEditingDelta delta) {
+      final (start, end, text) = switch (delta) {
+        TextEditingDeltaInsertion(
+          :final insertionOffset,
+          :final textInserted,
+        ) =>
+          (insertionOffset, insertionOffset, textInserted),
+        TextEditingDeltaReplacement(
+          :final replacedRange,
+          :final replacementText,
+        ) =>
+          (replacedRange.start, replacedRange.end, replacementText),
+        TextEditingDeltaDeletion(:final deletedRange) => (
+          deletedRange.start,
+          deletedRange.end,
+          '',
+        ),
+        _ => (-1, -1, ''),
+      };
+      return {
+        'oldText': delta.oldText,
+        'deltaText': text,
+        'deltaStart': start,
+        'deltaEnd': end,
+        'selectionBase': delta.selection.baseOffset,
+        'selectionExtent': delta.selection.extentOffset,
+        'composingBase': delta.composing.start,
+        'composingExtent': delta.composing.end,
+      };
+    }
+
+    /// Sends [deltas] down the channel in one message, as an engine does.
+    Future<void> sendAll(
+      WidgetTester tester,
+      List<TextEditingDelta> deltas,
+    ) async {
+      await TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+          .handlePlatformMessage(
+            SystemChannels.textInput.name,
+            SystemChannels.textInput.codec.encodeMethodCall(
+              MethodCall('TextInputClient.updateEditingStateWithDeltas', [
+                -1,
+                {'deltas': deltas.map(encoded).toList()},
+              ]),
+            ),
+            null,
+          );
       await pumps(tester);
     }
+
+    Future<void> send(WidgetTester tester, TextEditingDelta delta) =>
+        sendAll(tester, [delta]);
+
+    /// [text] replacing [range], composing from [start].
+    TextEditingDelta composed(
+      WidgetTester tester,
+      TextRange range,
+      String text, {
+      required int start,
+    }) {
+      final end = range.start + text.length;
+      return TextEditingDeltaReplacement(
+        oldText: value(tester).text,
+        replacementText: text,
+        replacedRange: range,
+        selection: TextSelection.collapsed(offset: end),
+        composing: TextRange(start: start, end: end),
+      );
+    }
+
+    testWidgets('the field asks for the delta model', (tester) async {
+      await pumpEditor(tester);
+      await clickParagraph(tester);
+      expect(tester.testTextInput.setClientArgs?['enableDeltaModel'], isTrue);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await pumps(tester);
+      await drain(tester);
+    });
+
+    testWidgets('a Korean sequence is one edit, its syllables included', (
+      tester,
+    ) async {
+      await pumpEditor(tester);
+      await clickParagraph(tester);
+      final at = value(tester).selection.baseOffset;
+      TextRange one(int offset) => TextRange(start: offset, end: offset + 1);
+      await send(
+        tester,
+        TextEditingDeltaInsertion(
+          oldText: value(tester).text,
+          textInserted: 'ㅎ',
+          insertionOffset: at,
+          selection: TextSelection.collapsed(offset: at + 1),
+          composing: one(at),
+        ),
+      );
+      await send(tester, composed(tester, one(at), '하', start: at));
+      await send(tester, composed(tester, one(at), '한', start: at));
+      // The next jamo closes 한 and composes the next syllable.
+      await send(
+        tester,
+        TextEditingDeltaInsertion(
+          oldText: value(tester).text,
+          textInserted: 'ㄱ',
+          insertionOffset: at + 1,
+          selection: TextSelection.collapsed(offset: at + 2),
+          composing: one(at + 1),
+        ),
+      );
+      expect(value(tester).text, contains('한ㄱ'));
+      expect(engine.applied, isEmpty);
+      await tester.pump(DocumentEditor.idle * 2);
+      await pumps(tester);
+      expect(editor(tester).history.current, 0);
+
+      // Finished in the same message as its last letter.
+      await sendAll(tester, [
+        composed(tester, one(at + 1), '그', start: at + 1),
+        TextEditingDeltaNonTextUpdate(
+          oldText: value(tester).text.replaceRange(at + 1, at + 2, '그'),
+          selection: TextSelection.collapsed(offset: at + 2),
+          composing: TextRange.empty,
+        ),
+      ]);
+      expect(engine.applied, hasLength(1));
+      expect(engine.applied.single, contains('한그'));
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await pumps(tester);
+      expect(editor(tester).history.current, 1);
+      await drain(tester);
+    });
+
+    testWidgets('Esc cancels a composition and keeps the editor open', (
+      tester,
+    ) async {
+      await pumpEditor(tester);
+      await clickParagraph(tester);
+      final before = value(tester).text;
+      final at = value(tester).selection.baseOffset;
+      await send(
+        tester,
+        TextEditingDeltaInsertion(
+          oldText: before,
+          textInserted: 'か',
+          insertionOffset: at,
+          selection: TextSelection.collapsed(offset: at + 1),
+          composing: TextRange(start: at, end: at + 1),
+        ),
+      );
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await pumps(tester);
+      expect(find.byType(EditableText), findsOneWidget);
+      expect(value(tester).text, before);
+      expect(value(tester).composing, TextRange.empty);
+      expect(engine.applied, isEmpty);
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await pumps(tester);
+      expect(find.byType(EditableText), findsNothing);
+      expect(editor(tester).history.current, 0);
+      await drain(tester);
+    });
+
+    testWidgets('leaving the field keeps a composition as one edit', (
+      tester,
+    ) async {
+      await pumpEditor(tester);
+      await clickParagraph(tester);
+      final at = value(tester).selection.baseOffset;
+      await send(
+        tester,
+        TextEditingDeltaInsertion(
+          oldText: value(tester).text,
+          textInserted: 'か',
+          insertionOffset: at,
+          selection: TextSelection.collapsed(offset: at + 1),
+          composing: TextRange(start: at, end: at + 1),
+        ),
+      );
+      field(tester).focusNode.unfocus();
+      await pumps(tester);
+      expect(engine.applied, hasLength(1));
+      expect(engine.applied.single, contains('か'));
+      expect(editor(tester).history.current, 1);
+      await drain(tester);
+    });
 
     testWidgets('composing text shows in the field and reaches the engine '
         'as one edit when the composition ends', (tester) async {

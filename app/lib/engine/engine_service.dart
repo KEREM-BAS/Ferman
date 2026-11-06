@@ -1,4 +1,4 @@
-import 'dart:ui' show Offset;
+import 'dart:ui' show Offset, Rect;
 
 import 'package:ferman/engine/engine_models.dart';
 
@@ -155,6 +155,20 @@ abstract interface class EngineService {
   /// text does not overflow or [choice] is disabled.
   Future<EditPreview> resolveOverflow(int transaction, OverflowChoice choice);
 
+  /// What the fonts of [document] need said beyond their status (a2-7): the
+  /// family drawn instead of one that is not embedded and which of [letters]
+  /// a subset cannot draw in an edit, read from the first page each font is
+  /// used on. A font with nothing to say has no entry.
+  Future<List<FontCoverage>> fontCoverage(int document, String letters);
+
+  /// Sets the language of the [transaction]'s block to [tag], stored as
+  /// `/Lang` around its operators; the transaction stays open (a3-14).
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] for a
+  /// tag that is not one, [EngineErrorKind.unsupported] for a block that
+  /// cannot be marked.
+  Future<EditPreview> setBlockLanguage(int transaction, String tag);
+
   /// Sets where the fonts for missing glyphs come from, and "Ask each time"
   /// (a11-1c). The fonts are indexed again the next time an edit needs them.
   Future<void> setFontSettings(FontSettings settings);
@@ -188,6 +202,36 @@ abstract interface class EngineService {
   /// Discards the [transaction]; the history does not change.
   Future<RevisionInfo> rollbackEdit(int transaction);
 
+  /// Gives the [transaction]'s block [style] (a3-2), laid out again in its
+  /// frame; what the transaction set before stays. A font that cannot draw
+  /// the block leaves it as it was, and [EditPreview.missing] names what the
+  /// font lacks.
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] for
+  /// numbers out of range and [EngineErrorKind.unsupported] for a style the
+  /// block cannot take (a vertical block, another font for right-to-left
+  /// text or in a form).
+  Future<EditPreview> setBlockStyle(int transaction, BlockStyle style);
+
+  /// Moves the [transaction]'s block by [by], in the page's displayed points.
+  ///
+  /// Throws an [EngineException] as [setBlockStyle] does.
+  Future<EditPreview> moveBlock(int transaction, Offset by);
+
+  /// Gives the [transaction]'s block the box [frame], in the page's displayed
+  /// points, its text reflowed in it (B016). Text that no longer fits comes
+  /// back with [EditPreview.overflow], as [applyEdit] gives it.
+  ///
+  /// Throws an [EngineException] as [setBlockStyle] does.
+  Future<EditPreview> resizeBlock(int transaction, Rect frame);
+
+  /// What the text panel shows of [block] of [page]; null for a block without
+  /// glyphs on the page.
+  Future<BlockStyleInfo?> blockStyle(int document, int page, int block);
+
+  /// The fonts the text panel's font field offers for [block], best first.
+  Future<List<FontCandidate>> blockFonts(int document, int page, int block);
+
   /// Steps [document] back one step of its history.
   ///
   /// Throws an [EngineException] with [EngineErrorKind.invalidInput] at the
@@ -200,8 +244,30 @@ abstract interface class EngineService {
   /// nothing to redo or while a transaction is open.
   Future<RevisionInfo> redo(int document);
 
+  /// Reverts history step [step] of [document] alone, as the new step [name]
+  /// that Undo takes back (a3-12). When later steps depend on it, nothing
+  /// changes and they come back, unless [withDependents] reverts them too
+  /// (a3-12b).
+  ///
+  /// Throws an [EngineException] with [EngineErrorKind.invalidInput] for a
+  /// step that does not apply or while a transaction is open.
+  Future<Reverted> revert(
+    int document,
+    int step,
+    String name, {
+    bool withDependents = false,
+  });
+
+  /// Takes [document] back to how it opened, as the new step [name] that
+  /// Undo takes back (a3-12b).
+  Future<RevisionInfo> revertAll(int document, String name);
+
   /// The history of [document] (a3-10).
   Future<EditHistory> history(int document);
+
+  /// Writes [text] to [path] through the safe write (a3-12's Export list);
+  /// with [staging], as [saveAttachment], the staged file's path comes back.
+  Future<String?> saveText(String path, String text, {String? staging});
 
   /// Saves the committed steps of [document] to its file as an incremental
   /// update, written safely (ADR 0008); after [optimizeAndClean] the file is
@@ -429,6 +495,14 @@ class UnavailableEngineService implements EngineService {
   ) async => throw error;
 
   @override
+  Future<List<FontCoverage>> fontCoverage(int document, String letters) async =>
+      throw error;
+
+  @override
+  Future<EditPreview> setBlockLanguage(int transaction, String tag) async =>
+      throw error;
+
+  @override
   Future<void> setFontSettings(FontSettings settings) async => throw error;
 
   @override
@@ -449,13 +523,52 @@ class UnavailableEngineService implements EngineService {
   Future<RevisionInfo> rollbackEdit(int transaction) async => throw error;
 
   @override
+  Future<EditPreview> setBlockStyle(int transaction, BlockStyle style) async =>
+      throw error;
+
+  @override
+  Future<EditPreview> moveBlock(int transaction, Offset by) async =>
+      throw error;
+
+  @override
+  Future<EditPreview> resizeBlock(int transaction, Rect frame) async =>
+      throw error;
+
+  @override
+  Future<BlockStyleInfo?> blockStyle(int document, int page, int block) async =>
+      throw error;
+
+  @override
+  Future<List<FontCandidate>> blockFonts(
+    int document,
+    int page,
+    int block,
+  ) async => throw error;
+
+  @override
   Future<RevisionInfo> undo(int document) async => throw error;
 
   @override
   Future<RevisionInfo> redo(int document) async => throw error;
 
   @override
+  Future<Reverted> revert(
+    int document,
+    int step,
+    String name, {
+    bool withDependents = false,
+  }) async => throw error;
+
+  @override
+  Future<RevisionInfo> revertAll(int document, String name) async =>
+      throw error;
+
+  @override
   Future<EditHistory> history(int document) async => throw error;
+
+  @override
+  Future<String?> saveText(String path, String text, {String? staging}) async =>
+      throw error;
 
   @override
   Future<String?> save(

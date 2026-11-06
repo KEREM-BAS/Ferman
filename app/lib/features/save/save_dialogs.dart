@@ -4,6 +4,7 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/save/save_as_sheet.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -58,6 +59,7 @@ class _SaveOverlaysState extends ConsumerState<SaveOverlays> {
           SaveFailureDialog(failure),
         if (flow.optimizing case final tab?) OptimizeWarningDialog(tab),
         if (flow.signed case final request?) SignedEditDialog(request.document),
+        const ReviewListDialogs(),
       ],
     );
   }
@@ -342,8 +344,8 @@ class SignedEditDialog extends ConsumerWidget {
 }
 
 /// a3-16b's bar: the signature no longer matches the document; saving keeps
-/// it, showing as invalid. Review edits waits for the review list (B049).
-class SignatureInvalidBar extends StatelessWidget {
+/// it, showing as invalid. Review edits opens the review list (a3-12).
+class SignatureInvalidBar extends ConsumerWidget {
   /// The bar of [document].
   const new(this.document, {super.key});
 
@@ -351,7 +353,7 @@ class SignatureInvalidBar extends StatelessWidget {
   final OpenedDocument document;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final signed = [
       for (final signature in document.signatures)
@@ -365,8 +367,7 @@ class SignatureInvalidBar extends StatelessWidget {
       actions: [
         Button(
           size: ButtonSize.sm,
-          disabled: true,
-          disabledReason: Feature.editReview.disabledReason(context),
+          onPressed: () => showReviewList(ref),
           child: Text(l10n.signedBannerReview),
         ),
       ],

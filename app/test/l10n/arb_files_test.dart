@@ -59,6 +59,7 @@ const Set<String> _sameInArabic = {
   'propertiesFontType3',
   'propertiesAes128', // encryption method names
   'propertiesAes256',
+  'languageWithRegion', // placeholders and parentheses only
 };
 
 /// Each Arabic string the design's Arabic boards draw for M1, by the ARB

@@ -27,6 +27,7 @@ RecentEntry recent(
   bool signed = false,
   bool form = false,
   bool scanned = false,
+  bool edited = false,
   DateTime? opened,
   String folder = '/docs',
 }) => RecentEntry(
@@ -38,6 +39,7 @@ RecentEntry recent(
   signed: signed,
   form: form,
   scanned: scanned,
+  edited: edited,
 );
 
 ProviderContainer containerOf(WidgetTester tester) =>
@@ -92,6 +94,23 @@ void main() {
       ['Signed', 'Form', 'Scanned'],
     );
     expect(badges[1].tone, BadgeTone.accent);
+  });
+
+  testWidgets('a file saved after an edit shows Edited ahead of the others '
+      '(B129)', (tester) async {
+    await pumpFermanApp(
+      tester,
+      recentFiles: [recent('Kira.pdf', edited: true, signed: true, form: true)],
+    );
+    final badge = tester.widget<Badge>(
+      find.descendant(
+        of: find.byType(RecentFilesView),
+        matching: find.byType(Badge),
+      ),
+    );
+    expect(badge.label, 'Edited');
+    expect(badge.tone, BadgeTone.edited);
+    expect(badge.icon, IconName.filePenLine);
   });
 
   testWidgets('recent files take the drop zone’s place (a1-4-m2): the drop '

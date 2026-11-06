@@ -615,6 +615,15 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get onboardingStartUsing => isolate(super.onboardingStartUsing);
 
   @override
+  String get onboardingEditTitle => isolate(super.onboardingEditTitle);
+
+  @override
+  String get onboardingEditBody => isolate(super.onboardingEditBody);
+
+  @override
+  String get onboardingEditGlyphs => isolate(super.onboardingEditGlyphs);
+
+  @override
   String get onboardingPrivacyTitle => isolate(super.onboardingPrivacyTitle);
 
   @override
@@ -1434,6 +1443,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.startOpenedYesterday(time));
 
   @override
+  String get startBadgeEdited => isolate(super.startBadgeEdited);
+
+  @override
   String get startBadgeSigned => isolate(super.startBadgeSigned);
 
   @override
@@ -1724,10 +1736,22 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   String get propertiesPartialNote => isolate(super.propertiesPartialNote);
 
   @override
+  String propertiesPartialMissing(String letters) =>
+      isolate(super.propertiesPartialMissing(letters));
+
+  @override
   String get propertiesSubset => isolate(super.propertiesSubset);
 
   @override
   String get propertiesSubsetNote => isolate(super.propertiesSubsetNote);
+
+  @override
+  String propertiesSubsetMissing(String letters) =>
+      isolate(super.propertiesSubsetMissing(letters));
+
+  @override
+  String propertiesShownInstead(String font) =>
+      isolate(super.propertiesShownInstead(font));
 
   @override
   String get propertiesNotEmbedded => isolate(super.propertiesNotEmbedded);
@@ -1969,6 +1993,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
   @override
   String editGlyphBodyMany(String chars) =>
       isolate(super.editGlyphBodyMany(chars));
+
+  @override
+  String editGlyphMarkedBody(String chars) =>
+      isolate(super.editGlyphMarkedBody(chars));
 
   @override
   String get editGlyphChoose => isolate(super.editGlyphChoose);
@@ -2381,6 +2409,260 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get settingsRecoveryFolder => isolate(super.settingsRecoveryFolder);
+
+  @override
+  String shellZoomTypeHint(String min, String max) =>
+      isolate(super.shellZoomTypeHint(min, max));
+
+  @override
+  String get shellEditForbidden => isolate(super.shellEditForbidden);
+
+  @override
+  String get editPanelTipClick => isolate(super.editPanelTipClick);
+
+  @override
+  String editPanelTipKeys(String key) => isolate(super.editPanelTipKeys(key));
+
+  @override
+  String get editPanelInSession => isolate(super.editPanelInSession);
+
+  @override
+  String get editPanelReview => isolate(super.editPanelReview);
+
+  @override
+  String get languageNameGerman => isolate(super.languageNameGerman);
+
+  @override
+  String get languageNameJapanese => isolate(super.languageNameJapanese);
+
+  @override
+  String languageWithRegion(String language, String region) =>
+      isolate(super.languageWithRegion(language, region));
+
+  @override
+  String get editLanguage => isolate(super.editLanguage);
+
+  @override
+  String get editCheckSpelling => isolate(super.editCheckSpelling);
+
+  @override
+  String get editHyphenate => isolate(super.editHyphenate);
+
+  @override
+  String editStepLanguage(String page) => isolate(super.editStepLanguage(page));
+
+  @override
+  String get reviewClose => isolate(super.reviewClose);
+
+  @override
+  String get reviewShow => isolate(super.reviewShow);
+
+  @override
+  String get reviewFilterAll => isolate(super.reviewFilterAll);
+
+  @override
+  String get reviewFilterText => isolate(super.reviewFilterText);
+
+  @override
+  String get reviewFilterFonts => isolate(super.reviewFilterFonts);
+
+  @override
+  String get reviewFilterWarnings => isolate(super.reviewFilterWarnings);
+
+  @override
+  String get reviewEmptyTitle => isolate(super.reviewEmptyTitle);
+
+  @override
+  String get reviewEmptyBody => isolate(super.reviewEmptyBody);
+
+  @override
+  String get reviewNothing => isolate(super.reviewNothing);
+
+  @override
+  String get reviewRevertAll => isolate(super.reviewRevertAll);
+
+  @override
+  String get reviewExportList => isolate(super.reviewExportList);
+
+  @override
+  String get reviewGoTo => isolate(super.reviewGoTo);
+
+  @override
+  String get reviewRevert => isolate(super.reviewRevert);
+
+  @override
+  String get reviewStepReverted => isolate(super.reviewStepReverted);
+
+  @override
+  String get reviewStepRevertedAll => isolate(super.reviewStepRevertedAll);
+
+  @override
+  String get reviewWhereSignature => isolate(super.reviewWhereSignature);
+
+  @override
+  String reviewWhereSignaturePage(String page) =>
+      isolate(super.reviewWhereSignaturePage(page));
+
+  @override
+  String reviewWhereText(String page) => isolate(super.reviewWhereText(page));
+
+  @override
+  String reviewWhereFont(String page) => isolate(super.reviewWhereFont(page));
+
+  @override
+  String reviewWhereWarning(String page) =>
+      isolate(super.reviewWhereWarning(page));
+
+  @override
+  String reviewExportName(String name) => isolate(super.reviewExportName(name));
+
+  @override
+  String get reviewExportFailed => isolate(super.reviewExportFailed);
+
+  @override
+  String reviewRevertAllBody(String name) =>
+      isolate(super.reviewRevertAllBody(name));
+
+  @override
+  String reviewDependentBody(String later, String change) =>
+      isolate(super.reviewDependentBody(later, change));
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) =>
+      isolate(super.reviewDependentsBody(count, shown, change));
+
+  @override
+  String reviewKeptWarning(int count, String shown) =>
+      isolate(super.reviewKeptWarning(count, shown));
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) =>
+      isolate(super.reviewRevertAllTitle(count, shown));
+
+  @override
+  String reviewRevertAllButton(int count, String shown) =>
+      isolate(super.reviewRevertAllButton(count, shown));
+
+  @override
+  String reviewDependentTitle(int count, String shown) =>
+      isolate(super.reviewDependentTitle(count, shown));
+
+  @override
+  String reviewDependentButton(int count, String shown) =>
+      isolate(super.reviewDependentButton(count, shown));
+
+  @override
+  String get editPanelTitle => isolate(super.editPanelTitle);
+
+  @override
+  String get editPanelText => isolate(super.editPanelText);
+
+  @override
+  String get editPanelSize => isolate(super.editPanelSize);
+
+  @override
+  String get editPanelColour => isolate(super.editPanelColour);
+
+  @override
+  String get editPanelColoursDocument =>
+      isolate(super.editPanelColoursDocument);
+
+  @override
+  String get editPanelColoursStandard =>
+      isolate(super.editPanelColoursStandard);
+
+  @override
+  String get editPanelFontsDocument => isolate(super.editPanelFontsDocument);
+
+  @override
+  String get editPanelFontsDevice => isolate(super.editPanelFontsDevice);
+
+  @override
+  String get editPanelBold => isolate(super.editPanelBold);
+
+  @override
+  String get editPanelItalic => isolate(super.editPanelItalic);
+
+  @override
+  String get editPanelUnderline => isolate(super.editPanelUnderline);
+
+  @override
+  String get editPanelNoBold => isolate(super.editPanelNoBold);
+
+  @override
+  String get editPanelNoItalic => isolate(super.editPanelNoItalic);
+
+  @override
+  String get editPanelNoUnderline => isolate(super.editPanelNoUnderline);
+
+  @override
+  String get editPanelAlignment => isolate(super.editPanelAlignment);
+
+  @override
+  String get editPanelAlignLeft => isolate(super.editPanelAlignLeft);
+
+  @override
+  String get editPanelAlignCenter => isolate(super.editPanelAlignCenter);
+
+  @override
+  String get editPanelAlignRight => isolate(super.editPanelAlignRight);
+
+  @override
+  String get editPanelAlignJustify => isolate(super.editPanelAlignJustify);
+
+  @override
+  String get editPanelSpacing => isolate(super.editPanelSpacing);
+
+  @override
+  String get editPanelCharacter => isolate(super.editPanelCharacter);
+
+  @override
+  String get editPanelLine => isolate(super.editPanelLine);
+
+  @override
+  String get editPanelBefore => isolate(super.editPanelBefore);
+
+  @override
+  String get editPanelAfter => isolate(super.editPanelAfter);
+
+  @override
+  String get editPanelPosition => isolate(super.editPanelPosition);
+
+  @override
+  String get editPanelWidth => isolate(super.editPanelWidth);
+
+  @override
+  String get editPanelHeight => isolate(super.editPanelHeight);
+
+  @override
+  String get editPanelReset => isolate(super.editPanelReset);
+
+  @override
+  String get editPanelHint => isolate(super.editPanelHint);
+
+  @override
+  String get editBarLabel => isolate(super.editBarLabel);
+
+  @override
+  String get editBarLink => isolate(super.editBarLink);
+
+  @override
+  String get editBarHighlight => isolate(super.editBarHighlight);
+
+  @override
+  String get editBarComment => isolate(super.editBarComment);
+
+  @override
+  String get editBarReplace => isolate(super.editBarReplace);
+
+  @override
+  String editStepStyle(String page) => isolate(super.editStepStyle(page));
+
+  @override
+  String editStepMoved(String page) => isolate(super.editStepMoved(page));
+
+  @override
+  String editStepResized(String page) => isolate(super.editStepResized(page));
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

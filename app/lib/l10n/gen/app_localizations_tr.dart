@@ -582,6 +582,17 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboardingStartUsing => 'Ferman’ı kullanmaya başla';
 
   @override
+  String get onboardingEditTitle => 'Her PDF’i bir belge gibi düzenleyin';
+
+  @override
+  String get onboardingEditBody =>
+      'Herhangi bir metne tıklayıp yazın. Ferman özgün yazı tipini, boyutu ve aralıkları korur, paragrafı çerçevesinin içinde yeniden yerleştirir.';
+
+  @override
+  String get onboardingEditGlyphs =>
+      'Bir yazı tipinde bir karakter eksikse Ferman hangisi olduğunu ve yerine ne kullanacağını söyler.';
+
+  @override
   String get onboardingPrivacyTitle => 'Her şey cihazınızda kalır';
 
   @override
@@ -667,7 +678,7 @@ class AppLocalizationsTr extends AppLocalizations {
   String get onboardingFreeSupport => 'Projeyi destekleyin';
 
   @override
-  String get onboardingFeatureEditing => 'Metin ve görsel düzenleme';
+  String get onboardingFeatureEditing => 'Metin düzenleme';
 
   @override
   String get onboardingFeatureOcr => 'Metin tanıma (OCR)';
@@ -1465,6 +1476,9 @@ class AppLocalizationsTr extends AppLocalizations {
   }
 
   @override
+  String get startBadgeEdited => 'Düzenlendi';
+
+  @override
   String get startBadgeSigned => 'İmzalı';
 
   @override
@@ -1829,10 +1843,25 @@ class AppLocalizationsTr extends AppLocalizations {
       'Alt küme: yalnızca dosyada zaten bulunan karakterler.';
 
   @override
+  String propertiesPartialMissing(String letters) {
+    return '$letters yok.';
+  }
+
+  @override
   String get propertiesSubset => 'Alt küme';
 
   @override
   String get propertiesSubsetNote => 'Yalnızca zaten kullanılan karakterler.';
+
+  @override
+  String propertiesSubsetMissing(String letters) {
+    return '$letters yazmak için yedek yazı tipi gerekir.';
+  }
+
+  @override
+  String propertiesShownInstead(String font) {
+    return 'Ferman bunun yerine $font gösteriyor.';
+  }
 
   @override
   String get propertiesNotEmbedded => 'Gömülü değil';
@@ -2127,6 +2156,11 @@ class AppLocalizationsTr extends AppLocalizations {
   @override
   String editGlyphBodyMany(String chars) {
     return 'Bu yazı tipinde $chars yok. Ferman bu karakterler için benzer bir yazı tipi kullanacak.';
+  }
+
+  @override
+  String editGlyphMarkedBody(String chars) {
+    return 'Bu yazı tipinde $chars yok. Ferman özgün yazı tipini koruyor ve eksik olanı işaretliyor.';
   }
 
   @override
@@ -2640,4 +2674,324 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get settingsRecoveryFolder => 'Kurtarma kopyaları';
+
+  @override
+  String shellZoomTypeHint(String min, String max) {
+    return '$min ile $max arasında bir yakınlaştırma yazın';
+  }
+
+  @override
+  String get shellEditForbidden => 'Yazar düzenlemeye izin vermiyor';
+
+  @override
+  String get editPanelTipClick =>
+      'Bloğunu seçmek için herhangi bir metne tıklayın. İmleci yerleştirmek için yeniden tıklayın.';
+
+  @override
+  String editPanelTipKeys(String key) {
+    return 'Tab bloklar arasında gezinir; Enter düzenlemeyi başlatır. Tüm blokları göstermek için $key tuşunu basılı tutun.';
+  }
+
+  @override
+  String get editPanelInSession => 'bu oturumda';
+
+  @override
+  String get editPanelReview => 'İncele';
+
+  @override
+  String get languageNameGerman => 'Almanca';
+
+  @override
+  String get languageNameJapanese => 'Japonca';
+
+  @override
+  String languageWithRegion(String language, String region) {
+    return '$language ($region)';
+  }
+
+  @override
+  String get editLanguage => 'Dil';
+
+  @override
+  String get editCheckSpelling => 'Yazım denetimi';
+
+  @override
+  String get editHyphenate => 'Tireleme';
+
+  @override
+  String editStepLanguage(String page) {
+    return 'Dil değiştirildi · sayfa $page';
+  }
+
+  @override
+  String get reviewClose => 'İncelemeyi kapat';
+
+  @override
+  String get reviewShow => 'Göster';
+
+  @override
+  String get reviewFilterAll => 'Tümü';
+
+  @override
+  String get reviewFilterText => 'Metin';
+
+  @override
+  String get reviewFilterFonts => 'Yazı tipleri';
+
+  @override
+  String get reviewFilterWarnings => 'Uyarılar';
+
+  @override
+  String get reviewEmptyTitle => 'Henüz düzenleme yok';
+
+  @override
+  String get reviewEmptyBody =>
+      'Bu oturumda yaptığınız değişiklikler burada görünür. Liste belgeyi kapattığınızda temizlenir; önceki oturumlar Sürüm geçmişi’nde.';
+
+  @override
+  String get reviewNothing => 'Henüz düzenleme yok';
+
+  @override
+  String get reviewRevertAll => 'Tümünü geri al…';
+
+  @override
+  String get reviewExportList => 'Listeyi dışa aktar…';
+
+  @override
+  String get reviewGoTo => 'Git';
+
+  @override
+  String get reviewRevert => 'Geri al';
+
+  @override
+  String get reviewStepReverted => 'Bir düzenleme geri alındı';
+
+  @override
+  String get reviewStepRevertedAll => 'Tüm düzenlemeler geri alındı';
+
+  @override
+  String get reviewWhereSignature => 'İmza';
+
+  @override
+  String reviewWhereSignaturePage(String page) {
+    return 'Sayfa $page · imza';
+  }
+
+  @override
+  String reviewWhereText(String page) {
+    return 'Sayfa $page · metin';
+  }
+
+  @override
+  String reviewWhereFont(String page) {
+    return 'Sayfa $page · yazı tipi';
+  }
+
+  @override
+  String reviewWhereWarning(String page) {
+    return 'Sayfa $page · korunan uyarı';
+  }
+
+  @override
+  String reviewExportName(String name) {
+    return '$name düzenlemeleri';
+  }
+
+  @override
+  String get reviewExportFailed => 'Liste kaydedilemedi.';
+
+  @override
+  String reviewRevertAllBody(String name) {
+    return '“$name”, açtığınızdaki hâline döner. Belgeyi kapatana kadar Geri al ile düzenlemeleri geri getirebilirsiniz.';
+  }
+
+  @override
+  String reviewDependentBody(String later, String change) {
+    return '“$later” bu değişiklikten sonra aynı cümleye yazıldı. “$change” geri alınırsa o da kaldırılır.';
+  }
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$shown sonraki düzenleme bu değişikliğe bağlı. “$change” geri alınırsa onlar da kaldırılır.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewKeptWarning(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown satır gizli — taşma korundu',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown düzenlemenin tümü geri alınsın mı?',
+      one: 'Düzenleme geri alınsın mı?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown düzenlemeyi geri al',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Buna bağlı $shown düzenleme de geri alınsın mı?',
+      one: 'Buna bağlı düzenleme de geri alınsın mı?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown düzenlemeyi de geri al',
+      one: 'İkisini de geri al',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editPanelTitle => 'Metin bloğu';
+
+  @override
+  String get editPanelText => 'Metin';
+
+  @override
+  String get editPanelSize => 'Boyut';
+
+  @override
+  String get editPanelColour => 'Metin rengi';
+
+  @override
+  String get editPanelColoursDocument => 'Bu belgede';
+
+  @override
+  String get editPanelColoursStandard => 'Standart';
+
+  @override
+  String get editPanelFontsDocument => 'Bu belgede';
+
+  @override
+  String get editPanelFontsDevice => 'Bu cihazda';
+
+  @override
+  String get editPanelBold => 'Kalın';
+
+  @override
+  String get editPanelItalic => 'İtalik';
+
+  @override
+  String get editPanelUnderline => 'Altı çizili';
+
+  @override
+  String get editPanelNoBold =>
+      'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek başka bir kalınlığı yok.';
+
+  @override
+  String get editPanelNoItalic =>
+      'Bu yazı tipinin bu bilgisayarda bu metni çizebilecek bir italiği yok.';
+
+  @override
+  String get editPanelNoUnderline =>
+      'PDF yazı tiplerinde geçilecek bir altı çizili biçim yoktur ve Ferman sahtesini çizmez.';
+
+  @override
+  String get editPanelAlignment => 'Hizalama';
+
+  @override
+  String get editPanelAlignLeft => 'Sola hizala';
+
+  @override
+  String get editPanelAlignCenter => 'Ortala';
+
+  @override
+  String get editPanelAlignRight => 'Sağa hizala';
+
+  @override
+  String get editPanelAlignJustify => 'İki yana yasla';
+
+  @override
+  String get editPanelSpacing => 'Aralık';
+
+  @override
+  String get editPanelCharacter => 'Karakter';
+
+  @override
+  String get editPanelLine => 'Satır';
+
+  @override
+  String get editPanelBefore => 'Önce';
+
+  @override
+  String get editPanelAfter => 'Sonra';
+
+  @override
+  String get editPanelPosition => 'Konum ve boyut';
+
+  @override
+  String get editPanelWidth => 'Genişlik';
+
+  @override
+  String get editPanelHeight => 'Yükseklik';
+
+  @override
+  String get editPanelReset => 'Metin stilini sıfırla';
+
+  @override
+  String get editPanelHint =>
+      'Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin.';
+
+  @override
+  String get editBarLabel => 'Seçimi biçimlendir';
+
+  @override
+  String get editBarLink => 'Bağlantı ekle';
+
+  @override
+  String get editBarHighlight => 'Vurgula (yorum ekler)';
+
+  @override
+  String get editBarComment => 'Seçime yorum ekle';
+
+  @override
+  String get editBarReplace => 'Bu sözcükleri bul ve değiştir';
+
+  @override
+  String editStepStyle(String page) {
+    return 'Metin stili değiştirildi · sayfa $page';
+  }
+
+  @override
+  String editStepMoved(String page) {
+    return 'Metin bloğu taşındı · sayfa $page';
+  }
+
+  @override
+  String editStepResized(String page) {
+    return 'Metin bloğu boyutlandırıldı · sayfa $page';
+  }
 }

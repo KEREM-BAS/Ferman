@@ -79,9 +79,20 @@ enum GoldenLanguage {
 
   /// Arabic with the Saudi Arabia region: the Arabic boards draw
   /// Arabic-Indic digits (G34).
-  ar(Locale('ar', 'SA'), 'SA');
+  ar(Locale('ar', 'SA'), 'SA'),
+
+  /// German, not translated yet: a12-1de checks the layout with the fallback
+  /// strings (ROADMAP §7). Not in [matrix].
+  de(Locale('de', 'DE'), 'DE'),
+
+  /// Japanese, not translated yet: a12-1ja checks the layout with the
+  /// fallback strings (ROADMAP §7). Not in [matrix].
+  ja(Locale('ja', 'JP'), 'JP');
 
   new(this.systemLocale, this.regionCode);
+
+  /// The languages every screen's goldens are drawn in (gate S4).
+  static const List<GoldenLanguage> matrix = [en, tr, ar];
 
   /// The operating system's locale in the golden.
   final Locale systemLocale;
@@ -133,7 +144,11 @@ String goldenFileName(
 /// [overrides] replace further providers (the shell's mode), and [engine]
 /// the fake engine. [muteTickers] false keeps the tickers running for the
 /// capture, for a screen with a modal Dialog, which hides while they are
-/// muted.
+/// muted. [cleanUp] runs once the image is compared: what the screen left
+/// open that flutter_test would refuse, a mouse or a toast's timer.
+/// [layoutPortals] counts the open `OverlayPortal.overlayChildLayoutBuilder`s:
+/// each lays itself out anew every frame with a frame callback, which is no
+/// ticker and never stops.
 ///
 /// Determinism: animations that end are run to their end; the spinners,
 /// which never end, are brought to the start of a turn (the design
@@ -162,6 +177,8 @@ Future<void> windowGoldenTest({
   List<Override> overrides = const [],
   EngineService? engine,
   bool muteTickers = true,
+  Future<void> Function(WidgetTester tester)? cleanUp,
+  int layoutPortals = 0,
 }) {
   final fileName = goldenFileName(screen, chrome, theme, language);
   late ValueNotifier<bool> tickers;
@@ -233,7 +250,7 @@ Future<void> windowGoldenTest({
           await _settle(tester);
         }
         await _alignSpinners(tester);
-        _expectOnlySpinnersRun(tester);
+        _expectOnlySpinnersRun(tester, layoutPortals);
         // A modal Dialog hides while its tickers are muted, so a screen
         // that shows one keeps them; it has nothing left to animate.
         if (muteTickers) {
@@ -242,7 +259,7 @@ Future<void> windowGoldenTest({
         await tester.pump();
         expect(
           tester.binding.transientCallbackCount,
-          0,
+          layoutPortals,
           reason: 'every ticker is stopped before the capture',
         );
         _expectSystemFallbackFonts(tester, fileName);
@@ -256,8 +273,10 @@ Future<void> windowGoldenTest({
       },
       // Not an interaction: the debug values set for the golden are reset
       // once it has been compared, before flutter_test checks them.
-      whilePerforming: (tester) async =>
-          () async => _resetDebugValues(),
+      whilePerforming: (tester) async => () async {
+        await cleanUp?.call(tester);
+        _resetDebugValues();
+      },
     ),
   );
 }
@@ -323,10 +342,10 @@ Future<void> _alignSpinners(WidgetTester tester) async {
 
 /// Every animation still running is a spinner's turn: nothing else is
 /// stopped mid-flight by [TickerMode].
-void _expectOnlySpinnersRun(WidgetTester tester) {
+void _expectOnlySpinnersRun(WidgetTester tester, int layoutPortals) {
   expect(
     tester.binding.transientCallbackCount,
-    _spinnerTurns(tester).length,
+    _spinnerTurns(tester).length + layoutPortals,
     reason: 'only spinners still animate after settling',
   );
 }

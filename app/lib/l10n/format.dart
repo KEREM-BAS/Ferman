@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui' show Locale;
 
 import 'package:ferman/l10n/region.dart';
 import 'package:intl/date_symbol_data_custom.dart';
@@ -363,3 +364,21 @@ int _lengthDigits(LengthUnit unit) => switch (unit) {
   LengthUnit.millimetre || LengthUnit.point => 1,
   LengthUnit.centimetre || LengthUnit.inch => 2,
 };
+
+/// The locale of a document's `/Lang`, such as `tr-TR`; null when it gives
+/// none or something that is no language tag (the file is untrusted).
+Locale? documentLocale(String? language) {
+  if (language == null ||
+      !RegExp(r'^[A-Za-z]{2,3}(-[A-Za-z0-9]{2,8})*$').hasMatch(language)) {
+    return null;
+  }
+  final parts = language.split('-');
+  return Locale.fromSubtags(
+    languageCode: parts.first,
+    scriptCode: parts.skip(1).where((part) => part.length == 4).firstOrNull,
+    countryCode: parts
+        .skip(1)
+        .where((part) => part.length == 2 || part.length == 3)
+        .firstOrNull,
+  );
+}

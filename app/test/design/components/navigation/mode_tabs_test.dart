@@ -83,6 +83,29 @@ BoxDecoration _tabDecoration(WidgetTester tester, String label) {
 }
 
 void main() {
+  testWidgets('a disabled mode names its reason, ignores the pointer and the '
+      'arrow keys pass over it', (tester) async {
+    final changes = <FermanMode>[];
+    await tester.pumpWidget(
+      componentHost(
+        ModeTabs(
+          value: FermanMode.view,
+          labelOf: _labelOf,
+          semanticLabel: 'Mode',
+          disabledReasons: const {FermanMode.edit: 'Not allowed'},
+          onChanged: changes.add,
+        ),
+      ),
+    );
+    await tester.tap(find.text(_labels[FermanMode.edit]!));
+    await tester.pump();
+    expect(changes, isEmpty);
+    await focusFirstTabStop(tester);
+    await tester.sendKeyEvent(LogicalKeyboardKey.arrowRight);
+    await tester.pumpAndSettle();
+    expect(changes, [FermanMode.comment]);
+  });
+
   setUp(() {
     FocusManager.instance.highlightStrategy =
         FocusHighlightStrategy.alwaysTraditional;

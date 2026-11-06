@@ -1,4 +1,5 @@
 import 'package:ferman/app/router.dart';
+import 'package:ferman/features/onboarding/edit_step.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/privacy_step.dart';
@@ -17,6 +18,9 @@ enum OnboardingStep {
   /// The language picker (a1-1).
   language,
 
+  /// Edit any PDF like a document (a1-2a).
+  edit,
+
   /// Everything stays on your device (a1-2b).
   privacy,
 
@@ -24,19 +28,15 @@ enum OnboardingStep {
   free,
 }
 
-/// First run: the language picker (a1-1), then two welcome steps, the
-/// privacy facts (a1-2b) and the free-forever step (a1-2c), under the bare
-/// title bar.
+/// First run: the language picker (a1-1), then three welcome steps, the
+/// editing specimen (a1-2a), the privacy facts (a1-2b) and the free-forever
+/// step (a1-2c), under the bare title bar.
 ///
 /// The router shows it instead of the start screen while
 /// `AppSettings.onboardingCompleted` is false. "Start using Ferman", Skip
 /// and Esc on a welcome step finish first run: they set
 /// `onboardingCompleted` and go to the start screen, which every later
 /// launch opens directly.
-///
-/// The design's three welcome steps start with a1-2a ("Edit any PDF like a
-/// document"), whose specimen is a live editing frame; it joins the flow
-/// with the editor in M3, so M1 counts two steps ("1 of 2", "2 of 2").
 ///
 /// The step is state, not a route: the link to Settings › Privacy pushes
 /// the settings over this screen, and closing them comes back to the same
@@ -61,7 +61,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
   final FocusNode _focus = FocusNode(debugLabel: 'OnboardingScreen');
 
   /// The welcome steps after the language picker.
-  static const int _welcomeSteps = 2;
+  static const int _welcomeSteps = 3;
 
   @override
   void dispose() {
@@ -102,12 +102,23 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     final Widget content;
     switch (_step) {
       case OnboardingStep.language:
-        content = LanguagePicker(
-          onContinue: () => _show(OnboardingStep.privacy),
+        content = LanguagePicker(onContinue: () => _show(OnboardingStep.edit));
+      case OnboardingStep.edit:
+        // a1-2a's footer has Skip and Next, no Back.
+        content = WelcomeStep(
+          step: 1,
+          count: _welcomeSteps,
+          title: l10n.onboardingEditTitle,
+          paragraphs: [l10n.onboardingEditBody, l10n.onboardingEditGlyphs],
+          aside: const EditSpecimen(),
+          asideWidth: _editAsideWidth,
+          nextLabel: l10n.onboardingNext,
+          onNext: () => _show(OnboardingStep.privacy),
+          onSkip: _finish,
         );
       case OnboardingStep.privacy:
         content = WelcomeStep(
-          step: 1,
+          step: 2,
           count: _welcomeSteps,
           title: l10n.onboardingPrivacyTitle,
           paragraphs: [l10n.onboardingPrivacyBody],
@@ -117,12 +128,12 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
           ),
           nextLabel: l10n.onboardingNext,
           onNext: () => _show(OnboardingStep.free),
-          onBack: () => _show(OnboardingStep.language),
+          onBack: () => _show(OnboardingStep.edit),
           onSkip: _finish,
         );
       case OnboardingStep.free:
         content = WelcomeStep(
-          step: 2,
+          step: 3,
           count: _welcomeSteps,
           title: l10n.onboardingFreeTitle,
           paragraphs: [l10n.onboardingFreeBody],
@@ -142,6 +153,9 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
       child: Focus(focusNode: _focus, autofocus: true, child: content),
     );
   }
+
+  /// The end column of a1-2a (`minmax(0,560px)`).
+  static const double _editAsideWidth = 560;
 
   /// The end column of a1-2c (`minmax(0,540px)`).
   static const double _freeAsideWidth = 540;

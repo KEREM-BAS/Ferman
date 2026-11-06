@@ -34,6 +34,7 @@ final class ArbParityCheck implements Check {
   /// purpose, each with the reason. Reviewed like the S6 allowlist: add a
   /// key only when the text is the same in Turkish.
   static const Map<String, String> repositorySameInTurkish = {
+    'languageWithRegion': 'placeholders and parentheses only',
     'appName': 'the product name, never translated',
     'shellMoreDocumentsBadge': 'a plus sign and a count ("+3")',
     'shellToolEimza': 'e-imza, the Turkish name of the electronic signature',

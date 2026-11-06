@@ -1192,6 +1192,24 @@ abstract class AppLocalizations {
   /// **'Start using Ferman'**
   String get onboardingStartUsing;
 
+  /// Heading of the first-run editing step (a1-2a).
+  ///
+  /// In en, this message translates to:
+  /// **'Edit any PDF like a document'**
+  String get onboardingEditTitle;
+
+  /// First paragraph of the first-run editing step (a1-2a).
+  ///
+  /// In en, this message translates to:
+  /// **'Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.'**
+  String get onboardingEditBody;
+
+  /// Second paragraph of the first-run editing step (a1-2a).
+  ///
+  /// In en, this message translates to:
+  /// **'When a font is missing a character, Ferman tells you which one and what it will use instead.'**
+  String get onboardingEditGlyphs;
+
   /// Heading of the first-run privacy step (a1-2b).
   ///
   /// In en, this message translates to:
@@ -1339,7 +1357,7 @@ abstract class AppLocalizations {
   /// Feature tile on the last first-run welcome step (a1-2c).
   ///
   /// In en, this message translates to:
-  /// **'Edit text and images'**
+  /// **'Edit text'**
   String get onboardingFeatureEditing;
 
   /// Feature tile on the last first-run welcome step (a1-2c). OCR is optical character recognition.
@@ -2679,6 +2697,12 @@ abstract class AppLocalizations {
   /// **'Yesterday {time}'**
   String startOpenedYesterday(String time);
 
+  /// Recent files (a1-4, FmStart): the badge of a file saved after an edit in Ferman.
+  ///
+  /// In en, this message translates to:
+  /// **'Edited'**
+  String get startBadgeEdited;
+
   /// Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral).
   ///
   /// In en, this message translates to:
@@ -3225,11 +3249,17 @@ abstract class AppLocalizations {
   /// **'Partial'**
   String get propertiesPartial;
 
-  /// Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3).
+  /// Note under a subset font in the right panel (FmDocPanel); propertiesPartialMissing follows it when letters are missing.
   ///
   /// In en, this message translates to:
   /// **'Subset: only characters already in the file.'**
   String get propertiesPartialNote;
+
+  /// After propertiesPartialNote: the letters the subset lacks, each in single quotation marks (FmDocPanel's "No ‘ğ’, ‘Ğ’.").
+  ///
+  /// In en, this message translates to:
+  /// **'No {letters}.'**
+  String propertiesPartialMissing(String letters);
 
   /// A subset font in the properties dialog (a2-7).
   ///
@@ -3237,11 +3267,23 @@ abstract class AppLocalizations {
   /// **'Subset'**
   String get propertiesSubset;
 
-  /// Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3).
+  /// Note under a subset font in the properties dialog (a2-7); propertiesSubsetMissing follows it when letters are missing.
   ///
   /// In en, this message translates to:
   /// **'Only the characters already used.'**
   String get propertiesSubsetNote;
+
+  /// After propertiesSubsetNote: the letters the subset lacks, each in single quotation marks (a2-7).
+  ///
+  /// In en, this message translates to:
+  /// **'Typing {letters} needs a substitute.'**
+  String propertiesSubsetMissing(String letters);
+
+  /// Note under a font that is not embedded (a2-7, FmDocPanel): the font the page is drawn in.
+  ///
+  /// In en, this message translates to:
+  /// **'Ferman is showing {font} instead.'**
+  String propertiesShownInstead(String font);
 
   /// A font whose program is not in the file (a2-7).
   ///
@@ -3686,6 +3728,12 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'This font has no {chars}. Ferman will use a similar font for these characters.'**
   String editGlyphBodyMany(String chars);
+
+  /// Edit panel: the warning's message with Settings › Editing › Keep the original font and mark the character (a11-1c). {chars} is the characters, each in ‘ ’.
+  ///
+  /// In en, this message translates to:
+  /// **'This font has no {chars}. Ferman keeps the original font and marks what’s missing.'**
+  String editGlyphMarkedBody(String chars);
 
   /// Edit panel (a3-3a, a3-17): the button that opens the font picker for the missing characters.
   ///
@@ -4329,7 +4377,7 @@ abstract class AppLocalizations {
   /// **'Review edits'**
   String get signedBannerReview;
 
-  /// a3-12: the signature row, here at the top of the edit history (B049).
+  /// a3-12: the signature row, at the top of the review list.
   ///
   /// In en, this message translates to:
   /// **'{signer}’s signature is no longer valid'**
@@ -4448,6 +4496,486 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Recovery copies'**
   String get settingsRecoveryFolder;
+
+  /// View row: what a screen reader says the zoom field takes (a2-2, B127). {min} and {max} are percentages already written for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Type a zoom from {min} to {max}'**
+  String shellZoomTypeHint(String min, String max);
+
+  /// Tooltip of the Edit tab and the Edit text tool on a document whose permissions forbid changes (a2-10a rTip, G27).
+  ///
+  /// In en, this message translates to:
+  /// **'The author doesn’t allow editing'**
+  String get shellEditForbidden;
+
+  /// Edit panel (a3-1a): the first tip.
+  ///
+  /// In en, this message translates to:
+  /// **'Click any text to select its block. Click again to place the caret.'**
+  String get editPanelTipClick;
+
+  /// Edit panel (a3-1a): the second tip. {key} is the key cap of Option or Alt, drawn as a key.
+  ///
+  /// In en, this message translates to:
+  /// **'Tab moves between blocks; Enter starts editing. Hold {key} to show every block.'**
+  String editPanelTipKeys(String key);
+
+  /// Edit panel (a3-1a): after the badge with the number of edits, as in "3 edits in this session".
+  ///
+  /// In en, this message translates to:
+  /// **'in this session'**
+  String get editPanelInSession;
+
+  /// Edit panel (a3-1a): the button that opens the list of edits, after their number.
+  ///
+  /// In en, this message translates to:
+  /// **'Review'**
+  String get editPanelReview;
+
+  /// The German language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs).
+  ///
+  /// In en, this message translates to:
+  /// **'German'**
+  String get languageNameGerman;
+
+  /// The Japanese language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs).
+  ///
+  /// In en, this message translates to:
+  /// **'Japanese'**
+  String get languageNameJapanese;
+
+  /// A text block's language with its region, in the status bar (a3-14: "English (United Kingdom)").
+  ///
+  /// In en, this message translates to:
+  /// **'{language} ({region})'**
+  String languageWithRegion(String language, String region);
+
+  /// Edit panel: title of the section with the language of the block being edited, and the name of its select (a3-14, FmEditPanel t.lang).
+  ///
+  /// In en, this message translates to:
+  /// **'Language'**
+  String get editLanguage;
+
+  /// Edit panel, Language section: the switch that spell-checks the block (a3-14, FmEditPanel t.spell).
+  ///
+  /// In en, this message translates to:
+  /// **'Check spelling'**
+  String get editCheckSpelling;
+
+  /// Edit panel, Language section: the switch that hyphenates the block (a3-14, FmEditPanel t.hyph).
+  ///
+  /// In en, this message translates to:
+  /// **'Hyphenate'**
+  String get editHyphenate;
+
+  /// Edit mode: the name of a history step that changed only the language of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed language · page {page}'**
+  String editStepLanguage(String page);
+
+  /// a3-12: the panel’s close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close review'**
+  String get reviewClose;
+
+  /// a3-12: the filter’s accessible name.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get reviewShow;
+
+  /// a3-12: filter.
+  ///
+  /// In en, this message translates to:
+  /// **'All'**
+  String get reviewFilterAll;
+
+  /// a3-12: filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get reviewFilterText;
+
+  /// a3-12: filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Fonts'**
+  String get reviewFilterFonts;
+
+  /// a3-12: filter.
+  ///
+  /// In en, this message translates to:
+  /// **'Warnings'**
+  String get reviewFilterWarnings;
+
+  /// a3-12b: the empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'No edits yet'**
+  String get reviewEmptyTitle;
+
+  /// a3-12b: the empty list.
+  ///
+  /// In en, this message translates to:
+  /// **'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.'**
+  String get reviewEmptyBody;
+
+  /// a3-12b: why Revert all and Export list are disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'No edits yet'**
+  String get reviewNothing;
+
+  /// a3-12: footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert all…'**
+  String get reviewRevertAll;
+
+  /// a3-12: footer.
+  ///
+  /// In en, this message translates to:
+  /// **'Export list…'**
+  String get reviewExportList;
+
+  /// a3-12: a row’s button.
+  ///
+  /// In en, this message translates to:
+  /// **'Go to'**
+  String get reviewGoTo;
+
+  /// a3-12: a row’s button.
+  ///
+  /// In en, this message translates to:
+  /// **'Revert'**
+  String get reviewRevert;
+
+  /// a3-10: the history step of a revert from the review list.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted an edit'**
+  String get reviewStepReverted;
+
+  /// a3-10: the history step of Revert all.
+  ///
+  /// In en, this message translates to:
+  /// **'Reverted all edits'**
+  String get reviewStepRevertedAll;
+
+  /// a3-12: where the signature row is when several signatures on different pages are gone.
+  ///
+  /// In en, this message translates to:
+  /// **'Signature'**
+  String get reviewWhereSignature;
+
+  /// a3-12: where the signature row is, with one signer. {page} is formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} · signature'**
+  String reviewWhereSignaturePage(String page);
+
+  /// a3-12: where a row is. {page} is formatted for the region. The block has no name (G125).
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} · text'**
+  String reviewWhereText(String page);
+
+  /// a3-12: where a row is.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} · font'**
+  String reviewWhereFont(String page);
+
+  /// a3-12: where a row is.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} · kept warning'**
+  String reviewWhereWarning(String page);
+
+  /// a3-12: the file name Export list suggests, without its extension.
+  ///
+  /// In en, this message translates to:
+  /// **'{name} edits'**
+  String reviewExportName(String name);
+
+  /// a3-12: Export list failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The list couldn’t be saved.'**
+  String get reviewExportFailed;
+
+  /// a3-12b: Revert all’s question. The board also names the time it opened, which the app does not keep.
+  ///
+  /// In en, this message translates to:
+  /// **'“{name}” goes back to how it was when you opened it. Undo brings the edits back until you close the document.'**
+  String reviewRevertAllBody(String name);
+
+  /// a3-12b: an edit a later edit depends on (G42).
+  ///
+  /// In en, this message translates to:
+  /// **'“{later}” was typed into the sentence after this change. Reverting “{change}” removes it too.'**
+  String reviewDependentBody(String later, String change);
+
+  /// a3-12b: the same with several later edits, always two or more. {shown} is {count} formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, other{{shown} later edits build on this change. Reverting “{change}” removes them too.}}'**
+  String reviewDependentsBody(int count, String shown, String change);
+
+  /// a3-12: a kept warning’s row.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{{shown} line hidden — overflow kept} other{{shown} lines hidden — overflow kept}}'**
+  String reviewKeptWarning(int count, String shown);
+
+  /// a3-12b.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Revert the edit?} other{Revert all {shown} edits?}}'**
+  String reviewRevertAllTitle(int count, String shown);
+
+  /// a3-12b.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Revert {shown} edit} other{Revert {shown} edits}}'**
+  String reviewRevertAllButton(int count, String shown);
+
+  /// a3-12b (G42).
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Also revert the edit that depends on it?} other{Also revert the {shown} edits that depend on it?}}'**
+  String reviewDependentTitle(int count, String shown);
+
+  /// a3-12b (G42). {shown} counts the edit asked about too.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{Revert both} other{Revert all {shown}}}'**
+  String reviewDependentButton(int count, String shown);
+
+  /// a3-2 (FmEditPanel t.title): the title of the right panel while a block is edited.
+  ///
+  /// In en, this message translates to:
+  /// **'Text block'**
+  String get editPanelTitle;
+
+  /// a3-2: section.
+  ///
+  /// In en, this message translates to:
+  /// **'Text'**
+  String get editPanelText;
+
+  /// a3-2: the font size field's screen-reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Size'**
+  String get editPanelSize;
+
+  /// a3-2: the colour popover's screen-reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Text color'**
+  String get editPanelColour;
+
+  /// a3-2: colours section of the colour popover.
+  ///
+  /// In en, this message translates to:
+  /// **'In this document'**
+  String get editPanelColoursDocument;
+
+  /// a3-2: colours section of the colour popover.
+  ///
+  /// In en, this message translates to:
+  /// **'Standard'**
+  String get editPanelColoursStandard;
+
+  /// a3-2: fonts section of the font popover.
+  ///
+  /// In en, this message translates to:
+  /// **'In this document'**
+  String get editPanelFontsDocument;
+
+  /// a3-2: fonts section of the font popover.
+  ///
+  /// In en, this message translates to:
+  /// **'On this device'**
+  String get editPanelFontsDevice;
+
+  /// a3-2: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Bold'**
+  String get editPanelBold;
+
+  /// a3-2: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Italic'**
+  String get editPanelItalic;
+
+  /// a3-2: button.
+  ///
+  /// In en, this message translates to:
+  /// **'Underline'**
+  String get editPanelUnderline;
+
+  /// a3-2: why Bold is disabled; bold is never faked.
+  ///
+  /// In en, this message translates to:
+  /// **'This font has no other weight on this computer that can draw this text.'**
+  String get editPanelNoBold;
+
+  /// a3-2: why Italic is disabled; italic is never faked.
+  ///
+  /// In en, this message translates to:
+  /// **'This font has no italic on this computer that can draw this text.'**
+  String get editPanelNoItalic;
+
+  /// a3-2: why Underline is disabled.
+  ///
+  /// In en, this message translates to:
+  /// **'A PDF font has no underline to switch to, and Ferman does not draw a false one.'**
+  String get editPanelNoUnderline;
+
+  /// a3-2: the alignment group's screen-reader name.
+  ///
+  /// In en, this message translates to:
+  /// **'Alignment'**
+  String get editPanelAlignment;
+
+  /// a3-2: segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Align left'**
+  String get editPanelAlignLeft;
+
+  /// a3-2: segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Center'**
+  String get editPanelAlignCenter;
+
+  /// a3-2: segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Align right'**
+  String get editPanelAlignRight;
+
+  /// a3-2: segment.
+  ///
+  /// In en, this message translates to:
+  /// **'Justify'**
+  String get editPanelAlignJustify;
+
+  /// a3-2: section.
+  ///
+  /// In en, this message translates to:
+  /// **'Spacing'**
+  String get editPanelSpacing;
+
+  /// a3-2: spacing between characters.
+  ///
+  /// In en, this message translates to:
+  /// **'Character'**
+  String get editPanelCharacter;
+
+  /// a3-2: spacing between lines.
+  ///
+  /// In en, this message translates to:
+  /// **'Line'**
+  String get editPanelLine;
+
+  /// a3-2: spacing before the block.
+  ///
+  /// In en, this message translates to:
+  /// **'Before'**
+  String get editPanelBefore;
+
+  /// a3-2: spacing after the block.
+  ///
+  /// In en, this message translates to:
+  /// **'After'**
+  String get editPanelAfter;
+
+  /// a3-2: section.
+  ///
+  /// In en, this message translates to:
+  /// **'Position and size'**
+  String get editPanelPosition;
+
+  /// a3-2: field.
+  ///
+  /// In en, this message translates to:
+  /// **'Width'**
+  String get editPanelWidth;
+
+  /// a3-2: field.
+  ///
+  /// In en, this message translates to:
+  /// **'Height'**
+  String get editPanelHeight;
+
+  /// a3-2: button in the heading.
+  ///
+  /// In en, this message translates to:
+  /// **'Reset text style'**
+  String get editPanelReset;
+
+  /// a3-2: the note at the panel's end.
+  ///
+  /// In en, this message translates to:
+  /// **'Text reflows inside the frame. Drag a handle to resize it.'**
+  String get editPanelHint;
+
+  /// a3-1c: the accessible name of the floating format bar.
+  ///
+  /// In en, this message translates to:
+  /// **'Format selection'**
+  String get editBarLabel;
+
+  /// a3-1c: button, disabled until links work.
+  ///
+  /// In en, this message translates to:
+  /// **'Add link'**
+  String get editBarLink;
+
+  /// a3-1c: button, disabled until comments work.
+  ///
+  /// In en, this message translates to:
+  /// **'Highlight (adds a comment)'**
+  String get editBarHighlight;
+
+  /// a3-1c: button, disabled until comments work.
+  ///
+  /// In en, this message translates to:
+  /// **'Comment on selection'**
+  String get editBarComment;
+
+  /// a3-1c: button, disabled until find and replace works.
+  ///
+  /// In en, this message translates to:
+  /// **'Find and replace these words'**
+  String get editBarReplace;
+
+  /// a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Changed text style · page {page}'**
+  String editStepStyle(String page);
+
+  /// a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Moved text block · page {page}'**
+  String editStepMoved(String page);
+
+  /// a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.
+  ///
+  /// In en, this message translates to:
+  /// **'Resized text block · page {page}'**
+  String editStepResized(String page);
 }
 
 class _AppLocalizationsDelegate

@@ -83,6 +83,12 @@ class ShellModeBar extends ConsumerWidget {
                 labelOf: l10n.modeLabel,
                 semanticLabel: l10n.shellModeLabel,
                 onChanged: ref.read(shellModeProvider.notifier).select,
+                // The author's permissions (a2-10a, G27); the owner password
+                // lifts them. Comment and Fill & Sign follow in M4 (B121).
+                disabledReasons: {
+                  if (active?.document?.security?.forbidsEditing ?? false)
+                    FermanMode.edit: l10n.shellEditForbidden,
+                },
               ),
             ),
           ),
@@ -112,9 +118,12 @@ class ShellModeBar extends ConsumerWidget {
             size: ButtonSize.sm,
             icon: IconName.save,
             loading: active?.saveState == SaveState.saving,
-            disabledReason: active?.saveState == SaveState.readOnly
-                ? l10n.shellReadOnly
-                : l10n.shellNoChangesToSave,
+            // Also what a screen reader says of the busy button (B012).
+            disabledReason: switch (active?.saveState) {
+              SaveState.readOnly => l10n.shellReadOnly,
+              SaveState.saving => l10n.shellSaving,
+              _ => l10n.shellNoChangesToSave,
+            },
             onPressed: unsaved
                 ? () =>
                       unawaited(ref.read(documentSaverProvider.notifier).save())

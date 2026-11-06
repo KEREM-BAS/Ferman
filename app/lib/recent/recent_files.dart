@@ -21,6 +21,7 @@ final class RecentEntry {
     this.locked = false,
     this.form = false,
     this.scanned = false,
+    this.edited = false,
     this.bookmark,
   });
 
@@ -44,6 +45,7 @@ final class RecentEntry {
       locked: json['locked'] == true,
       form: json['form'] == true,
       scanned: json['scanned'] == true,
+      edited: json['edited'] == true,
       bookmark: switch (json['bookmark']) {
         final String bookmark when bookmark.isNotEmpty => bookmark,
         _ => null,
@@ -80,6 +82,10 @@ final class RecentEntry {
   /// "Scanned" badge of a1-4).
   final bool scanned;
 
+  /// Whether it was saved after an edit in Ferman (the "Edited" badge of
+  /// a1-4, ahead of the others).
+  final bool edited;
+
   /// A security-scoped bookmark of the file (macOS, base64), which reaches
   /// it again after a restart under the App Sandbox (Q18); null elsewhere.
   final String? bookmark;
@@ -95,6 +101,7 @@ final class RecentEntry {
     if (locked) 'locked': true,
     if (form) 'form': true,
     if (scanned) 'scanned': true,
+    if (edited) 'edited': true,
     if (bookmark != null) 'bookmark': bookmark,
   };
 
@@ -109,6 +116,7 @@ final class RecentEntry {
     bool? locked,
     bool? form,
     bool? scanned,
+    bool? edited,
     String? bookmark,
   }) => RecentEntry(
     path: path ?? this.path,
@@ -120,6 +128,7 @@ final class RecentEntry {
     locked: locked ?? this.locked,
     form: form ?? this.form,
     scanned: scanned ?? this.scanned,
+    edited: edited ?? this.edited,
     bookmark: bookmark ?? this.bookmark,
   );
 
@@ -135,6 +144,7 @@ final class RecentEntry {
       other.locked == locked &&
       other.form == form &&
       other.scanned == scanned &&
+      other.edited == edited &&
       other.bookmark == bookmark;
 
   @override
@@ -148,6 +158,7 @@ final class RecentEntry {
     locked,
     form,
     scanned,
+    edited,
     bookmark,
   );
 
@@ -259,6 +270,7 @@ class RecentFiles extends _$RecentFiles {
     bool? locked,
     bool? form,
     bool? scanned,
+    bool? edited,
     String? bookmark,
   }) {
     RecentEntry? old;
@@ -274,6 +286,7 @@ class RecentFiles extends _$RecentFiles {
           locked: locked,
           form: form,
           scanned: scanned,
+          edited: edited,
           bookmark: bookmark,
         ) ??
         RecentEntry(
@@ -285,6 +298,7 @@ class RecentFiles extends _$RecentFiles {
           locked: locked ?? false,
           form: form ?? false,
           scanned: scanned ?? false,
+          edited: edited ?? false,
           bookmark: bookmark,
         );
     final rest = [
@@ -298,6 +312,13 @@ class RecentFiles extends _$RecentFiles {
         if (file.pinned || unpinned++ < limit) file,
     ]);
   }
+
+  /// Gives the file at [path] the "Edited" badge: it was saved after an
+  /// edit. A file off the list stays off it.
+  Future<void> saveEdited(String path) => _save([
+    for (final file in state)
+      if (file.path == path) file.copyWith(edited: true) else file,
+  ]);
 
   /// Pins the file at [path], or unpins it when [pinned] is false.
   Future<void> pin(String path, {required bool pinned}) => _save([
@@ -332,6 +353,7 @@ class RecentFiles extends _$RecentFiles {
             pinned: file.pinned || (at?.pinned ?? false),
             signed: sameFile && file.signed,
             locked: sameFile && file.locked,
+            edited: sameFile && file.edited,
             bookmark: bookmark ?? (sameFile ? file.bookmark : null),
           )
         else if (file.path != to)

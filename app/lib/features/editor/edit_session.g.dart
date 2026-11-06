@@ -30,7 +30,9 @@ part of 'edit_session.dart';
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -67,7 +69,9 @@ final documentEditorProvider = DocumentEditorProvider._();
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another
@@ -102,7 +106,9 @@ final class DocumentEditorProvider
   /// Text with characters its font lacks comes back with missing-glyph step
   /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
   /// closest candidate, or not at all with "Ask each time" (the
-  /// [settingsProvider]'s policy, which the engine gets as it changes).
+  /// [settingsProvider]'s policy, which the engine gets as it changes). With
+  /// "Keep the original font and mark the character" nothing waits: the text
+  /// applies, and [EditorState.markedChars] names the characters.
   /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
   /// commit waits for the answer, and closing the editor in any other way
   /// answers "Keep as is" first. A commit that set characters in another
@@ -140,7 +146,7 @@ final class DocumentEditorProvider
   }
 }
 
-String _$documentEditorHash() => r'98bcd0b1cec645f31ee03e602ad85c68fd090c5d';
+String _$documentEditorHash() => r'f5658d683ff16317e98081f680fd2ac4f7632f8d';
 
 /// Edits the open document's text through the engine's transactions, as
 /// `documentEditorProvider` (ARCHITECTURE §3.6).
@@ -164,7 +170,9 @@ String _$documentEditorHash() => r'98bcd0b1cec645f31ee03e602ad85c68fd090c5d';
 /// Text with characters its font lacks comes back with missing-glyph step
 /// 3 in [EditorState.glyphs] (ADR 0006): drawn provisionally in the
 /// closest candidate, or not at all with "Ask each time" (the
-/// [settingsProvider]'s policy, which the engine gets as it changes).
+/// [settingsProvider]'s policy, which the engine gets as it changes). With
+/// "Keep the original font and mark the character" nothing waits: the text
+/// applies, and [EditorState.markedChars] names the characters.
 /// [chooseFont] and [keepAsIs] answer it in the open transaction; the idle
 /// commit waits for the answer, and closing the editor in any other way
 /// answers "Keep as is" first. A commit that set characters in another

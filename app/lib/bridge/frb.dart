@@ -7,9 +7,9 @@ import 'frb_generated.dart';
 
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart';
 
-// These functions are ignored because they are not marked as `pub`: `api_error_dto`, `api_version_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
+// These functions are ignored because they are not marked as `pub`: `alignment_dto`, `api_error_dto`, `api_version_dto`, `block_font_dto`, `block_font_from_dto`, `edit_preview_dto`, `embedding_dto`, `engine_info_dto`, `engine`, `font_candidate_dto`, `fonts_dto`, `item_dto`, `missing_glyphs_dto`, `opened_document_dto`, `origin_dto`, `outline_dto`, `page_blocks_dto`, `pdf_date_dto`, `pdfium_status_dto`, `point_dto`, `reason_dto`, `rect_dto`, `repair_fix_dto`, `revision_dto`, `security_dto`, `staged_dto`, `subset_tag`, `substitution_dto`, `view_event`, `wanted_facade`
 // These types are ignored because they are neither used by any `pub` functions nor (for structs and enums) marked `#[frb(unignore)]`: `BridgeSearch`, `BridgeSink`
-// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
+// These function are ignored because they are on traits that is not defined in current crate (put an empty `#[frb]` on it to unignore): `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `assert_fields_are_eq`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `clone`, `deliver`, `deliver`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `eq`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`, `fmt`
 
 /// Returns the API version this library speaks; the app compares it at start-up and shows an
 /// error screen on a mismatch.
@@ -101,6 +101,23 @@ Future<String?> saveAttachment({
   document: document,
   index: index,
   path: path,
+  staging: staging,
+);
+
+/// Writes `text` to `path` through the safe write: the review list's export (a3-12).
+///
+/// See [`facade::Engine::save_text`].
+///
+/// # Errors
+///
+/// The file errors of the write.
+Future<String?> saveText({
+  required String path,
+  required String text,
+  String? staging,
+}) => FermanBridge.instance.api.crateFrbSaveText(
+  path: path,
+  text: text,
   staging: staging,
 );
 
@@ -260,6 +277,22 @@ Future<PageBlocks> textBlocks({required BigInt document, required int page}) =>
       page: page,
     );
 
+/// What the document's fonts need said beyond their status, by font name: the family drawn
+/// instead of one that is not embedded, the `letters` a subset lacks.
+///
+/// See [`facade::Engine::font_coverage`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+Future<List<FontCoverage>> fontCoverage({
+  required BigInt document,
+  required String letters,
+}) => FermanBridge.instance.api.crateFrbFontCoverage(
+  document: document,
+  letters: letters,
+);
+
 /// The caret in `block` of `page` nearest `point`.
 ///
 /// See [`facade::Engine::caret_at`].
@@ -331,6 +364,22 @@ Future<EditPreview> applyEdit({
   text: text,
 );
 
+/// Sets the language of the transaction's block to the tag `tag`, stored as `/Lang`.
+///
+/// See [`facade::Engine::set_block_language`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for a tag that is not one,
+/// `Unsupported` for a block that cannot be marked.
+Future<EditPreview> setBlockLanguage({
+  required BigInt transaction,
+  required String tag,
+}) => FermanBridge.instance.api.crateFrbSetBlockLanguage(
+  transaction: transaction,
+  tag: tag,
+);
+
 /// Writes the transaction's newest text again with the overflow choice `choice`.
 ///
 /// See [`facade::Engine::resolve_overflow`].
@@ -385,6 +434,90 @@ Future<EditPreview> chooseFont({
 Future<EditPreview> keepAsIs({required BigInt transaction}) =>
     FermanBridge.instance.api.crateFrbKeepAsIs(transaction: transaction);
 
+/// Gives the transaction's block `style`, laid out again in its frame (a3-2).
+///
+/// See [`facade::Engine::set_block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for numbers out of range,
+/// `Unsupported` for a style the block cannot take.
+Future<EditPreview> setBlockStyle({
+  required BigInt transaction,
+  required BlockStyle style,
+}) => FermanBridge.instance.api.crateFrbSetBlockStyle(
+  transaction: transaction,
+  style: style,
+);
+
+/// Moves the transaction's block by `dx` and `dy` in page space.
+///
+/// See [`facade::Engine::move_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+Future<EditPreview> moveBlock({
+  required BigInt transaction,
+  required double dx,
+  required double dy,
+}) => FermanBridge.instance.api.crateFrbMoveBlock(
+  transaction: transaction,
+  dx: dx,
+  dy: dy,
+);
+
+/// Gives the transaction's block the box `frame`, its text reflowed in it (B016).
+///
+/// See [`facade::Engine::resize_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+Future<EditPreview> resizeBlock({
+  required BigInt transaction,
+  required PageRect frame,
+}) => FermanBridge.instance.api.crateFrbResizeBlock(
+  transaction: transaction,
+  frame: frame,
+);
+
+/// What the text panel shows of `block` of `page` of `document`; none for a block without glyphs
+/// on the page.
+///
+/// See [`facade::Engine::block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a document or block that is not there, `InvalidInput` for a page it does not
+/// have.
+Future<BlockStyleInfo?> blockStyle({
+  required BigInt document,
+  required int page,
+  required BigInt block,
+}) => FermanBridge.instance.api.crateFrbBlockStyle(
+  document: document,
+  page: page,
+  block: block,
+);
+
+/// The fonts a3-2's font field offers for `block` of `page` of `document`, best first.
+///
+/// See [`facade::Engine::block_fonts`].
+///
+/// # Errors
+///
+/// As [`block_style`].
+Future<List<FontCandidate>> blockFonts({
+  required BigInt document,
+  required int page,
+  required BigInt block,
+}) => FermanBridge.instance.api.crateFrbBlockFonts(
+  document: document,
+  page: page,
+  block: block,
+);
+
 /// Commits the transaction as the history step `name`.
 ///
 /// See [`facade::Engine::commit`].
@@ -430,6 +563,42 @@ Future<RevisionInfo> undo({required BigInt document}) =>
 /// document.
 Future<RevisionInfo> redo({required BigInt document}) =>
     FermanBridge.instance.api.crateFrbRedo(document: document);
+
+/// Reverts step `step` of `document` alone, or with the later steps that depend on it when
+/// `with_dependents` (a3-12, a3-12b).
+///
+/// See [`facade::Engine::revert`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a step that does not apply or while a transaction is open,
+/// `ConfirmationRequired` for a signed document before its confirmation, `NotFound` for a closed
+/// document.
+Future<Reverted> revert({
+  required BigInt document,
+  required int step,
+  required bool withDependents,
+  required String name,
+}) => FermanBridge.instance.api.crateFrbRevert(
+  document: document,
+  step: step,
+  withDependents: withDependents,
+  name: name,
+);
+
+/// Takes `document` back to how it opened, as a new step (a3-12b's Revert all).
+///
+/// See [`facade::Engine::revert_all`].
+///
+/// # Errors
+///
+/// `InvalidInput` while a transaction is open, `ConfirmationRequired` for a signed document before
+/// its confirmation, `NotFound` for a closed document.
+Future<RevisionInfo> revertAll({
+  required BigInt document,
+  required String name,
+}) =>
+    FermanBridge.instance.api.crateFrbRevertAll(document: document, name: name);
 
 /// The history of `document` (a3-10).
 ///
@@ -706,6 +875,28 @@ class Attachment {
           modified == other.modified;
 }
 
+/// A font a block is set in (a3-2).
+class BlockFont {
+  /// Its group.
+  final FontOrigin origin;
+
+  /// Its PostScript name.
+  final String postscriptName;
+
+  const BlockFont({required this.origin, required this.postscriptName});
+
+  @override
+  int get hashCode => origin.hashCode ^ postscriptName.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlockFont &&
+          runtimeType == other.runtimeType &&
+          origin == other.origin &&
+          postscriptName == other.postscriptName;
+}
+
 /// A text block (paragraph frame) of a page.
 class BlockInfo {
   /// Its id, the same for the same content.
@@ -726,6 +917,9 @@ class BlockInfo {
   /// Why it cannot be edited; `None` when it can.
   final NotEditableReason? notEditable;
 
+  /// Its language tag, else the document's.
+  final String? language;
+
   const BlockInfo({
     required this.id,
     required this.frame,
@@ -733,6 +927,7 @@ class BlockInfo {
     required this.alignment,
     required this.direction,
     this.notEditable,
+    this.language,
   });
 
   @override
@@ -742,7 +937,8 @@ class BlockInfo {
       lines.hashCode ^
       alignment.hashCode ^
       direction.hashCode ^
-      notEditable.hashCode;
+      notEditable.hashCode ^
+      language.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -754,7 +950,153 @@ class BlockInfo {
           lines == other.lines &&
           alignment == other.alignment &&
           direction == other.direction &&
-          notEditable == other.notEditable;
+          notEditable == other.notEditable &&
+          language == other.language;
+}
+
+/// What to change in a block (a3-2); what is `None` stays as it is.
+class BlockStyle {
+  /// The font the whole block is set in.
+  final BlockFont? font;
+
+  /// The font size in points.
+  final double? size;
+
+  /// The fill colour, `0xRRGGBB`.
+  final int? colour;
+
+  /// How the lines sit.
+  final Alignment? alignment;
+
+  /// The space between characters, in percent of the em.
+  final double? charSpacing;
+
+  /// The distance between baselines, in multiples of the font size.
+  final double? lineSpacing;
+
+  const BlockStyle({
+    this.font,
+    this.size,
+    this.colour,
+    this.alignment,
+    this.charSpacing,
+    this.lineSpacing,
+  });
+
+  @override
+  int get hashCode =>
+      font.hashCode ^
+      size.hashCode ^
+      colour.hashCode ^
+      alignment.hashCode ^
+      charSpacing.hashCode ^
+      lineSpacing.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlockStyle &&
+          runtimeType == other.runtimeType &&
+          font == other.font &&
+          size == other.size &&
+          colour == other.colour &&
+          alignment == other.alignment &&
+          charSpacing == other.charSpacing &&
+          lineSpacing == other.lineSpacing;
+}
+
+/// What the text panel shows of a block (a3-2).
+class BlockStyleInfo {
+  /// Its first font's PostScript name, without the subset tag.
+  final String font;
+
+  /// Its first font's family.
+  final String family;
+
+  /// Whether its first font is bold.
+  final bool bold;
+
+  /// Whether its first font is italic.
+  final bool italic;
+
+  /// The face with the bold state turned over that can draw the whole block; none disables
+  /// Bold (never faked).
+  final BlockFont? boldToggle;
+
+  /// The same for Italic.
+  final BlockFont? italicToggle;
+
+  /// Its largest font size in points.
+  final double size;
+
+  /// Its fill colour, `0xRRGGBB`; none for a pattern or a colour space without a conversion.
+  final int? colour;
+
+  /// The page's text colours, the most used first, at most eight.
+  final Uint32List documentColours;
+
+  /// How its lines sit.
+  final Alignment alignment;
+
+  /// The space between characters, in percent of the em.
+  final double charSpacing;
+
+  /// The distance between baselines, in multiples of the font size.
+  final double lineSpacing;
+
+  /// Its box in page space.
+  final PageRect frame;
+
+  const BlockStyleInfo({
+    required this.font,
+    required this.family,
+    required this.bold,
+    required this.italic,
+    this.boldToggle,
+    this.italicToggle,
+    required this.size,
+    this.colour,
+    required this.documentColours,
+    required this.alignment,
+    required this.charSpacing,
+    required this.lineSpacing,
+    required this.frame,
+  });
+
+  @override
+  int get hashCode =>
+      font.hashCode ^
+      family.hashCode ^
+      bold.hashCode ^
+      italic.hashCode ^
+      boldToggle.hashCode ^
+      italicToggle.hashCode ^
+      size.hashCode ^
+      colour.hashCode ^
+      documentColours.hashCode ^
+      alignment.hashCode ^
+      charSpacing.hashCode ^
+      lineSpacing.hashCode ^
+      frame.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is BlockStyleInfo &&
+          runtimeType == other.runtimeType &&
+          font == other.font &&
+          family == other.family &&
+          bold == other.bold &&
+          italic == other.italic &&
+          boldToggle == other.boldToggle &&
+          italicToggle == other.italicToggle &&
+          size == other.size &&
+          colour == other.colour &&
+          documentColours == other.documentColours &&
+          alignment == other.alignment &&
+          charSpacing == other.charSpacing &&
+          lineSpacing == other.lineSpacing &&
+          frame == other.frame;
 }
 
 /// The build profile of the engine library.
@@ -987,6 +1329,9 @@ class EditPreview {
   /// The table cells whose values likely depend on the edited one (a3-9).
   final List<DependentCell> dependents;
 
+  /// The block's language tag as a commit leaves it (a3-14).
+  final String? language;
+
   const EditPreview({
     required this.page,
     required this.missing,
@@ -996,6 +1341,7 @@ class EditPreview {
     this.overflow,
     this.chosen,
     required this.dependents,
+    this.language,
   });
 
   @override
@@ -1007,7 +1353,8 @@ class EditPreview {
       overflowing.hashCode ^
       overflow.hashCode ^
       chosen.hashCode ^
-      dependents.hashCode;
+      dependents.hashCode ^
+      language.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1021,7 +1368,8 @@ class EditPreview {
           overflowing == other.overflowing &&
           overflow == other.overflow &&
           chosen == other.chosen &&
-          dependents == other.dependents;
+          dependents == other.dependents &&
+          language == other.language;
 }
 
 /// How an encrypted document is encrypted.
@@ -1266,6 +1614,37 @@ class FontCandidate {
           preview == other.preview;
 }
 
+/// What Properties says about a font beyond its status (a2-7, FmDocPanel).
+class FontCoverage {
+  /// Its name, without a subset's `ABCDEF+` tag, as in [`FontEntry::name`].
+  final String name;
+
+  /// The family a font that is not embedded is drawn in, when it is another font.
+  final String? shownAs;
+
+  /// For a subset, the letters asked about that an edit cannot draw in it.
+  final String missingLetters;
+
+  const FontCoverage({
+    required this.name,
+    this.shownAs,
+    required this.missingLetters,
+  });
+
+  @override
+  int get hashCode =>
+      name.hashCode ^ shownAs.hashCode ^ missingLetters.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is FontCoverage &&
+          runtimeType == other.runtimeType &&
+          name == other.name &&
+          shownAs == other.shownAs &&
+          missingLetters == other.missingLetters;
+}
+
 /// A font's embedding permission (`OS/2.fsType`).
 enum FontEmbedding {
   /// Installable embedding.
@@ -1349,11 +1728,19 @@ class FontSettings {
   /// "Ask each time" (a11-1c).
   final bool askEachTime;
 
+  /// "Keep the original font and mark the character" (a11-1c).
+  final bool markMissing;
+
+  /// Reflow while typing turned off (a11-1c): only a line feed ends a line.
+  final bool keepLines;
+
   const FontSettings({
     this.bundledDir,
     required this.fontDirs,
     required this.systemFonts,
     required this.askEachTime,
+    required this.markMissing,
+    required this.keepLines,
   });
 
   @override
@@ -1361,7 +1748,9 @@ class FontSettings {
       bundledDir.hashCode ^
       fontDirs.hashCode ^
       systemFonts.hashCode ^
-      askEachTime.hashCode;
+      askEachTime.hashCode ^
+      markMissing.hashCode ^
+      keepLines.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1371,7 +1760,9 @@ class FontSettings {
           bundledDir == other.bundledDir &&
           fontDirs == other.fontDirs &&
           systemFonts == other.systemFonts &&
-          askEachTime == other.askEachTime;
+          askEachTime == other.askEachTime &&
+          markMissing == other.markMissing &&
+          keepLines == other.keepLines;
 }
 
 /// Characters set in another font than their line's (a3-12, a11-6).
@@ -1493,11 +1884,28 @@ class HistoryStep {
   /// always true.
   final List<FontSubstitution> substitutions;
 
+  /// The page of the block it changed; `None` for a revert and a restored step.
+  final int? page;
+
+  /// The block's text before it: the review list's before; empty for a revert and a restored
+  /// step.
+  final String before;
+
+  /// The block's text after it: the review list's after.
+  final String after;
+
+  /// The steps this one reverted, by index; empty for an edit.
+  final Uint32List reverts;
+
   const HistoryStep({
     required this.name,
     required this.time,
     required this.hiddenLines,
     required this.substitutions,
+    this.page,
+    required this.before,
+    required this.after,
+    required this.reverts,
   });
 
   @override
@@ -1505,7 +1913,11 @@ class HistoryStep {
       name.hashCode ^
       time.hashCode ^
       hiddenLines.hashCode ^
-      substitutions.hashCode;
+      substitutions.hashCode ^
+      page.hashCode ^
+      before.hashCode ^
+      after.hashCode ^
+      reverts.hashCode;
 
   @override
   bool operator ==(Object other) =>
@@ -1515,7 +1927,11 @@ class HistoryStep {
           name == other.name &&
           time == other.time &&
           hiddenLines == other.hiddenLines &&
-          substitutions == other.substitutions;
+          substitutions == other.substitutions &&
+          page == other.page &&
+          before == other.before &&
+          after == other.after &&
+          reverts == other.reverts;
 }
 
 /// Whether a [`ViewItem`] is a tile or a thumbnail.
@@ -2342,6 +2758,38 @@ class RestoredDocument {
           renderKey == other.renderKey;
 }
 
+/// What a revert did.
+class Reverted {
+  /// Whether the step was reverted; `false` when later steps depend on it and were not asked
+  /// to go with it.
+  final bool reverted;
+
+  /// The steps that depend on it, by index, oldest first.
+  final Uint32List dependents;
+
+  /// Where the history stands.
+  final RevisionInfo revision;
+
+  const Reverted({
+    required this.reverted,
+    required this.dependents,
+    required this.revision,
+  });
+
+  @override
+  int get hashCode =>
+      reverted.hashCode ^ dependents.hashCode ^ revision.hashCode;
+
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      other is Reverted &&
+          runtimeType == other.runtimeType &&
+          reverted == other.reverted &&
+          dependents == other.dependents &&
+          revision == other.revision;
+}
+
 /// Where the history stands after a commit, rollback, undo or redo.
 class RevisionInfo {
   /// How many steps apply: 0 is the document as opened.
@@ -2660,6 +3108,9 @@ enum SubstitutionKind {
 
   /// Step 3: a similar font.
   similar,
+
+  /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
+  marked,
 }
 
 /// The direction a block's text runs in.

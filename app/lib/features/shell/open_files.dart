@@ -434,7 +434,11 @@ class DocumentOpener extends _$DocumentOpener {
             document: tab.document,
           ),
         );
-    _remember(to, pages: tab.pageCount);
+    _remember(
+      to,
+      pages: tab.pageCount,
+      edited: tab.editCount > 0 ? true : null,
+    );
   }
 
   /// Shows the document crash recovery opened in a tab of its own, unsaved
@@ -610,6 +614,7 @@ class DocumentOpener extends _$DocumentOpener {
     bool? locked,
     bool? form,
     bool? scanned,
+    bool? edited,
   }) {
     final now = DateTime.now();
     unawaited(
@@ -628,6 +633,7 @@ class DocumentOpener extends _$DocumentOpener {
                   locked: locked,
                   form: form,
                   scanned: scanned,
+                  edited: edited,
                   bookmark: bookmark,
                 ),
           )

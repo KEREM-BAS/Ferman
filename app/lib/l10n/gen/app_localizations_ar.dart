@@ -580,6 +580,17 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingStartUsing => 'بدء استخدام Ferman';
 
   @override
+  String get onboardingEditTitle => 'حرّر أي ملف PDF كما لو كان مستندًا';
+
+  @override
+  String get onboardingEditBody =>
+      'انقر أي نص واكتب. يحافظ Ferman على الخط الأصلي وحجمه وتباعده، ويعيد توزيع الفقرة داخل إطارها.';
+
+  @override
+  String get onboardingEditGlyphs =>
+      'عندما يفتقد الخط حرفًا ما، يخبرك Ferman بهذا الحرف وبما سيستخدمه بدلًا منه.';
+
+  @override
   String get onboardingPrivacyTitle => 'يبقى كل شيء على جهازك';
 
   @override
@@ -663,7 +674,7 @@ class AppLocalizationsAr extends AppLocalizations {
   String get onboardingFreeSupport => 'دعم المشروع';
 
   @override
-  String get onboardingFeatureEditing => 'تحرير النصوص والصور';
+  String get onboardingFeatureEditing => 'تحرير النصوص';
 
   @override
   String get onboardingFeatureOcr => 'التعرّف على النص (OCR)';
@@ -1464,6 +1475,9 @@ class AppLocalizationsAr extends AppLocalizations {
   }
 
   @override
+  String get startBadgeEdited => 'معدّل';
+
+  @override
   String get startBadgeSigned => 'موقّع';
 
   @override
@@ -1853,10 +1867,25 @@ class AppLocalizationsAr extends AppLocalizations {
       'مجموعة فرعية: الأحرف الموجودة في الملف فقط.';
 
   @override
+  String propertiesPartialMissing(String letters) {
+    return 'لا يتضمن $letters.';
+  }
+
+  @override
   String get propertiesSubset => 'مجموعة فرعية';
 
   @override
   String get propertiesSubsetNote => 'الأحرف المستخدمة فقط.';
+
+  @override
+  String propertiesSubsetMissing(String letters) {
+    return 'كتابة $letters تحتاج إلى خط بديل.';
+  }
+
+  @override
+  String propertiesShownInstead(String font) {
+    return 'يعرض Ferman الخط $font بدلًا منه.';
+  }
 
   @override
   String get propertiesNotEmbedded => 'غير مضمَّن';
@@ -2176,6 +2205,11 @@ class AppLocalizationsAr extends AppLocalizations {
   @override
   String editGlyphBodyMany(String chars) {
     return 'لا يحتوي هذا الخط على الأحرف $chars. سيستخدم Ferman خطًا مشابهًا لهذه الأحرف.';
+  }
+
+  @override
+  String editGlyphMarkedBody(String chars) {
+    return 'لا يحتوي هذا الخط على $chars. يُبقي Ferman الخط الأصلي ويضع علامة على ما ينقصه.';
   }
 
   @override
@@ -2709,4 +2743,338 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get settingsRecoveryFolder => 'نسخ الاسترداد';
+
+  @override
+  String shellZoomTypeHint(String min, String max) {
+    return 'اكتب نسبة تكبير من $min إلى $max';
+  }
+
+  @override
+  String get shellEditForbidden => 'لا يسمح المؤلف بالتحرير';
+
+  @override
+  String get editPanelTipClick =>
+      'انقر على أي نص لتحديد كتلته. انقر مرة أخرى لوضع المؤشر.';
+
+  @override
+  String editPanelTipKeys(String key) {
+    return 'ينتقل Tab بين الكتل ويبدأ Enter التحرير. اضغط مع الاستمرار على $key لإظهار كل الكتل.';
+  }
+
+  @override
+  String get editPanelInSession => 'في هذه الجلسة';
+
+  @override
+  String get editPanelReview => 'مراجعة';
+
+  @override
+  String get languageNameGerman => 'الألمانية';
+
+  @override
+  String get languageNameJapanese => 'اليابانية';
+
+  @override
+  String languageWithRegion(String language, String region) {
+    return '$language ($region)';
+  }
+
+  @override
+  String get editLanguage => 'اللغة';
+
+  @override
+  String get editCheckSpelling => 'التدقيق الإملائي';
+
+  @override
+  String get editHyphenate => 'الوصل بشرطة';
+
+  @override
+  String editStepLanguage(String page) {
+    return 'تغيير اللغة · الصفحة $page';
+  }
+
+  @override
+  String get reviewClose => 'إغلاق المراجعة';
+
+  @override
+  String get reviewShow => 'عرض';
+
+  @override
+  String get reviewFilterAll => 'الكل';
+
+  @override
+  String get reviewFilterText => 'النص';
+
+  @override
+  String get reviewFilterFonts => 'الخطوط';
+
+  @override
+  String get reviewFilterWarnings => 'التحذيرات';
+
+  @override
+  String get reviewEmptyTitle => 'لا توجد تعديلات بعد';
+
+  @override
+  String get reviewEmptyBody =>
+      'تظهر هنا التغييرات التي تجريها في هذه الجلسة. تُمسح القائمة عند إغلاق المستند، والجلسات السابقة في سجل الإصدارات.';
+
+  @override
+  String get reviewNothing => 'لا توجد تعديلات بعد';
+
+  @override
+  String get reviewRevertAll => 'التراجع عن الكل…';
+
+  @override
+  String get reviewExportList => 'تصدير القائمة…';
+
+  @override
+  String get reviewGoTo => 'الانتقال';
+
+  @override
+  String get reviewRevert => 'تراجع';
+
+  @override
+  String get reviewStepReverted => 'تم التراجع عن تعديل';
+
+  @override
+  String get reviewStepRevertedAll => 'تم التراجع عن كل التعديلات';
+
+  @override
+  String get reviewWhereSignature => 'التوقيع';
+
+  @override
+  String reviewWhereSignaturePage(String page) {
+    return 'الصفحة $page · التوقيع';
+  }
+
+  @override
+  String reviewWhereText(String page) {
+    return 'الصفحة $page · النص';
+  }
+
+  @override
+  String reviewWhereFont(String page) {
+    return 'الصفحة $page · الخط';
+  }
+
+  @override
+  String reviewWhereWarning(String page) {
+    return 'الصفحة $page · تحذير محفوظ';
+  }
+
+  @override
+  String reviewExportName(String name) {
+    return 'تعديلات $name';
+  }
+
+  @override
+  String get reviewExportFailed => 'تعذّر حفظ القائمة.';
+
+  @override
+  String reviewRevertAllBody(String name) {
+    return 'يعود «$name» إلى ما كان عليه عند فتحه. يمكنك استعادة التعديلات بالأمر «تراجع» حتى تغلق المستند.';
+  }
+
+  @override
+  String reviewDependentBody(String later, String change) {
+    return 'كُتب «$later» في الجملة بعد هذا التغيير. التراجع عن «$change» يزيله أيضًا.';
+  }
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          'يعتمد $shown تعديل لاحق على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      many:
+          'يعتمد $shown تعديلًا لاحقًا على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      few:
+          'تعتمد $shown تعديلات لاحقة على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+      two:
+          'يعتمد تعديلان لاحقان على هذا التغيير. التراجع عن «$change» يزيلها أيضًا.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewKeptWarning(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown سطر مخفي — أُبقي التجاوز',
+      many: '$shown سطرًا مخفيًا — أُبقي التجاوز',
+      few: '$shown أسطر مخفية — أُبقي التجاوز',
+      two: 'سطران مخفيان — أُبقي التجاوز',
+      one: '$shown سطر مخفي — أُبقي التجاوز',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هل تريد التراجع عن التعديلات الـ$shown كلها؟',
+      one: 'هل تريد التراجع عن التعديل؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'التراجع عن $shown تعديل',
+      many: 'التراجع عن $shown تعديلًا',
+      few: 'التراجع عن $shown تعديلات',
+      two: 'التراجع عن تعديلين',
+      one: 'التراجع عن تعديل واحد',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'هل تريد أيضًا التراجع عن التعديلات الـ$shown المعتمدة عليه؟',
+      one: 'هل تريد أيضًا التراجع عن التعديل المعتمد عليه؟',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'التراجع عن الـ$shown كلها',
+      one: 'التراجع عن كليهما',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editPanelTitle => 'كتلة نص';
+
+  @override
+  String get editPanelText => 'النص';
+
+  @override
+  String get editPanelSize => 'الحجم';
+
+  @override
+  String get editPanelColour => 'لون النص';
+
+  @override
+  String get editPanelColoursDocument => 'في هذا المستند';
+
+  @override
+  String get editPanelColoursStandard => 'قياسية';
+
+  @override
+  String get editPanelFontsDocument => 'في هذا المستند';
+
+  @override
+  String get editPanelFontsDevice => 'على هذا الجهاز';
+
+  @override
+  String get editPanelBold => 'غامق';
+
+  @override
+  String get editPanelItalic => 'مائل';
+
+  @override
+  String get editPanelUnderline => 'تسطير';
+
+  @override
+  String get editPanelNoBold =>
+      'لا يتوفر لهذا الخط على هذا الكمبيوتر وزن آخر يمكنه رسم هذا النص.';
+
+  @override
+  String get editPanelNoItalic =>
+      'لا يتوفر لهذا الخط على هذا الكمبيوتر شكل مائل يمكنه رسم هذا النص.';
+
+  @override
+  String get editPanelNoUnderline =>
+      'لا يوجد في خطوط PDF شكل مسطّر للتبديل إليه، ولا يرسم Ferman تسطيرًا زائفًا.';
+
+  @override
+  String get editPanelAlignment => 'المحاذاة';
+
+  @override
+  String get editPanelAlignLeft => 'محاذاة لليسار';
+
+  @override
+  String get editPanelAlignCenter => 'توسيط';
+
+  @override
+  String get editPanelAlignRight => 'محاذاة لليمين';
+
+  @override
+  String get editPanelAlignJustify => 'ضبط';
+
+  @override
+  String get editPanelSpacing => 'التباعد';
+
+  @override
+  String get editPanelCharacter => 'الأحرف';
+
+  @override
+  String get editPanelLine => 'الأسطر';
+
+  @override
+  String get editPanelBefore => 'قبل';
+
+  @override
+  String get editPanelAfter => 'بعد';
+
+  @override
+  String get editPanelPosition => 'الموضع والحجم';
+
+  @override
+  String get editPanelWidth => 'العرض';
+
+  @override
+  String get editPanelHeight => 'الارتفاع';
+
+  @override
+  String get editPanelReset => 'إعادة تعيين نمط النص';
+
+  @override
+  String get editPanelHint =>
+      'يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم.';
+
+  @override
+  String get editBarLabel => 'تنسيق التحديد';
+
+  @override
+  String get editBarLink => 'إضافة رابط';
+
+  @override
+  String get editBarHighlight => 'تمييز (يضيف تعليقًا)';
+
+  @override
+  String get editBarComment => 'التعليق على التحديد';
+
+  @override
+  String get editBarReplace => 'البحث عن هذه الكلمات واستبدالها';
+
+  @override
+  String editStepStyle(String page) {
+    return 'تغيير نمط النص · الصفحة $page';
+  }
+
+  @override
+  String editStepMoved(String page) {
+    return 'نقل كتلة النص · الصفحة $page';
+  }
+
+  @override
+  String editStepResized(String page) {
+    return 'تغيير حجم كتلة النص · الصفحة $page';
+  }
 }

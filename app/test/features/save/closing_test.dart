@@ -15,6 +15,7 @@ import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/recent/recent_files.dart';
+import 'package:ferman/settings/app_settings.dart';
 import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -749,6 +750,24 @@ void main() {
       await tester.pumpAndSettle();
       expect(container.read(settingsProvider).recoveryCopies, isFalse);
       expect(engine.recoveryEnabled, isFalse);
+      await tester.tap(
+        find.text('Keep the original font and mark the character'),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        container.read(settingsProvider).missingGlyphs,
+        MissingGlyphPolicy.mark,
+      );
+      expect(engine.fontSettings.markMissing, isTrue);
+      await tester.tap(
+        find.widgetWithText(
+          Switch,
+          'Let paragraphs reflow inside their frame while typing',
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(container.read(settingsProvider).reflow, isFalse);
+      expect(engine.fontSettings.keepLines, isTrue);
     });
   });
 }

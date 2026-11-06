@@ -795,6 +795,18 @@
   "@onboardingStartUsing": {
     "description": "Button on the last first-run welcome step that ends first run and opens the start screen (a1-2c)."
   },
+  "onboardingEditTitle": "Edit any PDF like a document",
+  "@onboardingEditTitle": {
+    "description": "Heading of the first-run editing step (a1-2a)."
+  },
+  "onboardingEditBody": "Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.",
+  "@onboardingEditBody": {
+    "description": "First paragraph of the first-run editing step (a1-2a)."
+  },
+  "onboardingEditGlyphs": "When a font is missing a character, Ferman tells you which one and what it will use instead.",
+  "@onboardingEditGlyphs": {
+    "description": "Second paragraph of the first-run editing step (a1-2a)."
+  },
   "onboardingPrivacyTitle": "Everything stays on your device",
   "@onboardingPrivacyTitle": {
     "description": "Heading of the first-run privacy step (a1-2b)."
@@ -891,7 +903,7 @@
   "@onboardingFreeSupport": {
     "description": "Link to ways of supporting Ferman on the last first-run welcome step (a1-2c)."
   },
-  "onboardingFeatureEditing": "Edit text and images",
+  "onboardingFeatureEditing": "Edit text",
   "@onboardingFeatureEditing": {
     "description": "Feature tile on the last first-run welcome step (a1-2c)."
   },
@@ -1911,6 +1923,10 @@
       }
     }
   },
+  "startBadgeEdited": "Edited",
+  "@startBadgeEdited": {
+    "description": "Recent files (a1-4, FmStart): the badge of a file saved after an edit in Ferman."
+  },
   "startBadgeSigned": "Signed",
   "@startBadgeSigned": {
     "description": "Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral)."
@@ -2381,7 +2397,17 @@
   },
   "propertiesPartialNote": "Subset: only characters already in the file.",
   "@propertiesPartialNote": {
-    "description": "Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3)."
+    "description": "Note under a subset font in the right panel (FmDocPanel); propertiesPartialMissing follows it when letters are missing."
+  },
+  "propertiesPartialMissing": "No {letters}.",
+  "@propertiesPartialMissing": {
+    "description": "After propertiesPartialNote: the letters the subset lacks, each in single quotation marks (FmDocPanel's \"No ‘ğ’, ‘Ğ’.\").",
+    "placeholders": {
+      "letters": {
+        "type": "String",
+        "example": "‘ğ’, ‘Ğ’"
+      }
+    }
   },
   "propertiesSubset": "Subset",
   "@propertiesSubset": {
@@ -2389,7 +2415,27 @@
   },
   "propertiesSubsetNote": "Only the characters already used.",
   "@propertiesSubsetNote": {
-    "description": "Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3)."
+    "description": "Note under a subset font in the properties dialog (a2-7); propertiesSubsetMissing follows it when letters are missing."
+  },
+  "propertiesSubsetMissing": "Typing {letters} needs a substitute.",
+  "@propertiesSubsetMissing": {
+    "description": "After propertiesSubsetNote: the letters the subset lacks, each in single quotation marks (a2-7).",
+    "placeholders": {
+      "letters": {
+        "type": "String",
+        "example": "‘ğ’"
+      }
+    }
+  },
+  "propertiesShownInstead": "Ferman is showing {font} instead.",
+  "@propertiesShownInstead": {
+    "description": "Note under a font that is not embedded (a2-7, FmDocPanel): the font the page is drawn in.",
+    "placeholders": {
+      "font": {
+        "type": "String",
+        "example": "IBM Plex Sans"
+      }
+    }
   },
   "propertiesNotEmbedded": "Not embedded",
   "@propertiesNotEmbedded": {
@@ -2807,6 +2853,16 @@
       "chars": {
         "type": "String",
         "example": "‘ğ’, ‘Ğ’"
+      }
+    }
+  },
+  "editGlyphMarkedBody": "This font has no {chars}. Ferman keeps the original font and marks what’s missing.",
+  "@editGlyphMarkedBody": {
+    "description": "Edit panel: the warning's message with Settings › Editing › Keep the original font and mark the character (a11-1c). {chars} is the characters, each in ‘ ’.",
+    "placeholders": {
+      "chars": {
+        "type": "String",
+        "example": "‘ğ’"
       }
     }
   },
@@ -3463,7 +3519,7 @@
   },
   "signedReviewRow": "{signer}’s signature is no longer valid",
   "@signedReviewRow": {
-    "description": "a3-12: the signature row, here at the top of the edit history (B049).",
+    "description": "a3-12: the signature row, at the top of the review list.",
     "placeholders": {
       "signer": {
         "type": "String"
@@ -3545,5 +3601,455 @@
   "settingsRecoveryFolder": "Recovery copies",
   "@settingsRecoveryFolder": {
     "description": "a11-1c: above the folder."
+  },
+  "shellZoomTypeHint": "Type a zoom from {min} to {max}",
+  "@shellZoomTypeHint": {
+    "description": "View row: what a screen reader says the zoom field takes (a2-2, B127). {min} and {max} are percentages already written for the region.",
+    "placeholders": {
+      "min": {
+        "type": "String"
+      },
+      "max": {
+        "type": "String"
+      }
+    }
+  },
+  "shellEditForbidden": "The author doesn’t allow editing",
+  "@shellEditForbidden": {
+    "description": "Tooltip of the Edit tab and the Edit text tool on a document whose permissions forbid changes (a2-10a rTip, G27)."
+  },
+  "editPanelTipClick": "Click any text to select its block. Click again to place the caret.",
+  "@editPanelTipClick": {
+    "description": "Edit panel (a3-1a): the first tip."
+  },
+  "editPanelTipKeys": "Tab moves between blocks; Enter starts editing. Hold {key} to show every block.",
+  "@editPanelTipKeys": {
+    "description": "Edit panel (a3-1a): the second tip. {key} is the key cap of Option or Alt, drawn as a key.",
+    "placeholders": {
+      "key": {
+        "type": "String"
+      }
+    }
+  },
+  "editPanelInSession": "in this session",
+  "@editPanelInSession": {
+    "description": "Edit panel (a3-1a): after the badge with the number of edits, as in \"3 edits in this session\"."
+  },
+  "editPanelReview": "Review",
+  "@editPanelReview": {
+    "description": "Edit panel (a3-1a): the button that opens the list of edits, after their number."
+  },
+  "languageNameGerman": "German",
+  "@languageNameGerman": {
+    "description": "The German language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs)."
+  },
+  "languageNameJapanese": "Japanese",
+  "@languageNameJapanese": {
+    "description": "The Japanese language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs)."
+  },
+  "languageWithRegion": "{language} ({region})",
+  "@languageWithRegion": {
+    "description": "A text block's language with its region, in the status bar (a3-14: \"English (United Kingdom)\").",
+    "placeholders": {
+      "language": {
+        "type": "String"
+      },
+      "region": {
+        "type": "String"
+      }
+    }
+  },
+  "editLanguage": "Language",
+  "@editLanguage": {
+    "description": "Edit panel: title of the section with the language of the block being edited, and the name of its select (a3-14, FmEditPanel t.lang)."
+  },
+  "editCheckSpelling": "Check spelling",
+  "@editCheckSpelling": {
+    "description": "Edit panel, Language section: the switch that spell-checks the block (a3-14, FmEditPanel t.spell)."
+  },
+  "editHyphenate": "Hyphenate",
+  "@editHyphenate": {
+    "description": "Edit panel, Language section: the switch that hyphenates the block (a3-14, FmEditPanel t.hyph)."
+  },
+  "editStepLanguage": "Changed language · page {page}",
+  "@editStepLanguage": {
+    "description": "Edit mode: the name of a history step that changed only the language of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewClose": "Close review",
+  "@reviewClose": {
+    "description": "a3-12: the panel’s close button."
+  },
+  "reviewShow": "Show",
+  "@reviewShow": {
+    "description": "a3-12: the filter’s accessible name."
+  },
+  "reviewFilterAll": "All",
+  "@reviewFilterAll": {
+    "description": "a3-12: filter."
+  },
+  "reviewFilterText": "Text",
+  "@reviewFilterText": {
+    "description": "a3-12: filter."
+  },
+  "reviewFilterFonts": "Fonts",
+  "@reviewFilterFonts": {
+    "description": "a3-12: filter."
+  },
+  "reviewFilterWarnings": "Warnings",
+  "@reviewFilterWarnings": {
+    "description": "a3-12: filter."
+  },
+  "reviewEmptyTitle": "No edits yet",
+  "@reviewEmptyTitle": {
+    "description": "a3-12b: the empty list."
+  },
+  "reviewEmptyBody": "Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.",
+  "@reviewEmptyBody": {
+    "description": "a3-12b: the empty list."
+  },
+  "reviewNothing": "No edits yet",
+  "@reviewNothing": {
+    "description": "a3-12b: why Revert all and Export list are disabled."
+  },
+  "reviewRevertAll": "Revert all…",
+  "@reviewRevertAll": {
+    "description": "a3-12: footer."
+  },
+  "reviewExportList": "Export list…",
+  "@reviewExportList": {
+    "description": "a3-12: footer."
+  },
+  "reviewGoTo": "Go to",
+  "@reviewGoTo": {
+    "description": "a3-12: a row’s button."
+  },
+  "reviewRevert": "Revert",
+  "@reviewRevert": {
+    "description": "a3-12: a row’s button."
+  },
+  "reviewStepReverted": "Reverted an edit",
+  "@reviewStepReverted": {
+    "description": "a3-10: the history step of a revert from the review list."
+  },
+  "reviewStepRevertedAll": "Reverted all edits",
+  "@reviewStepRevertedAll": {
+    "description": "a3-10: the history step of Revert all."
+  },
+  "reviewWhereSignature": "Signature",
+  "@reviewWhereSignature": {
+    "description": "a3-12: where the signature row is when several signatures on different pages are gone."
+  },
+  "reviewWhereSignaturePage": "Page {page} · signature",
+  "@reviewWhereSignaturePage": {
+    "description": "a3-12: where the signature row is, with one signer. {page} is formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewWhereText": "Page {page} · text",
+  "@reviewWhereText": {
+    "description": "a3-12: where a row is. {page} is formatted for the region. The block has no name (G125).",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewWhereFont": "Page {page} · font",
+  "@reviewWhereFont": {
+    "description": "a3-12: where a row is.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewWhereWarning": "Page {page} · kept warning",
+  "@reviewWhereWarning": {
+    "description": "a3-12: where a row is.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewExportName": "{name} edits",
+  "@reviewExportName": {
+    "description": "a3-12: the file name Export list suggests, without its extension.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewExportFailed": "The list couldn’t be saved.",
+  "@reviewExportFailed": {
+    "description": "a3-12: Export list failed."
+  },
+  "reviewRevertAllBody": "“{name}” goes back to how it was when you opened it. Undo brings the edits back until you close the document.",
+  "@reviewRevertAllBody": {
+    "description": "a3-12b: Revert all’s question. The board also names the time it opened, which the app does not keep.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewDependentBody": "“{later}” was typed into the sentence after this change. Reverting “{change}” removes it too.",
+  "@reviewDependentBody": {
+    "description": "a3-12b: an edit a later edit depends on (G42).",
+    "placeholders": {
+      "later": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewDependentsBody": "{count, plural, other{{shown} later edits build on this change. Reverting “{change}” removes them too.}}",
+  "@reviewDependentsBody": {
+    "description": "a3-12b: the same with several later edits, always two or more. {shown} is {count} formatted for the region.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      },
+      "change": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewKeptWarning": "{count, plural, =1{{shown} line hidden — overflow kept} other{{shown} lines hidden — overflow kept}}",
+  "@reviewKeptWarning": {
+    "description": "a3-12: a kept warning’s row.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewRevertAllTitle": "{count, plural, =1{Revert the edit?} other{Revert all {shown} edits?}}",
+  "@reviewRevertAllTitle": {
+    "description": "a3-12b.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewRevertAllButton": "{count, plural, =1{Revert {shown} edit} other{Revert {shown} edits}}",
+  "@reviewRevertAllButton": {
+    "description": "a3-12b.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewDependentTitle": "{count, plural, =1{Also revert the edit that depends on it?} other{Also revert the {shown} edits that depend on it?}}",
+  "@reviewDependentTitle": {
+    "description": "a3-12b (G42).",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewDependentButton": "{count, plural, =1{Revert both} other{Revert all {shown}}}",
+  "@reviewDependentButton": {
+    "description": "a3-12b (G42). {shown} counts the edit asked about too.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "shown": {
+        "type": "String"
+      }
+    }
+  },
+  "editPanelTitle": "Text block",
+  "@editPanelTitle": {
+    "description": "a3-2 (FmEditPanel t.title): the title of the right panel while a block is edited."
+  },
+  "editPanelText": "Text",
+  "@editPanelText": {
+    "description": "a3-2: section."
+  },
+  "editPanelSize": "Size",
+  "@editPanelSize": {
+    "description": "a3-2: the font size field's screen-reader name."
+  },
+  "editPanelColour": "Text color",
+  "@editPanelColour": {
+    "description": "a3-2: the colour popover's screen-reader name."
+  },
+  "editPanelColoursDocument": "In this document",
+  "@editPanelColoursDocument": {
+    "description": "a3-2: colours section of the colour popover."
+  },
+  "editPanelColoursStandard": "Standard",
+  "@editPanelColoursStandard": {
+    "description": "a3-2: colours section of the colour popover."
+  },
+  "editPanelFontsDocument": "In this document",
+  "@editPanelFontsDocument": {
+    "description": "a3-2: fonts section of the font popover."
+  },
+  "editPanelFontsDevice": "On this device",
+  "@editPanelFontsDevice": {
+    "description": "a3-2: fonts section of the font popover."
+  },
+  "editPanelBold": "Bold",
+  "@editPanelBold": {
+    "description": "a3-2: button."
+  },
+  "editPanelItalic": "Italic",
+  "@editPanelItalic": {
+    "description": "a3-2: button."
+  },
+  "editPanelUnderline": "Underline",
+  "@editPanelUnderline": {
+    "description": "a3-2: button."
+  },
+  "editPanelNoBold": "This font has no other weight on this computer that can draw this text.",
+  "@editPanelNoBold": {
+    "description": "a3-2: why Bold is disabled; bold is never faked."
+  },
+  "editPanelNoItalic": "This font has no italic on this computer that can draw this text.",
+  "@editPanelNoItalic": {
+    "description": "a3-2: why Italic is disabled; italic is never faked."
+  },
+  "editPanelNoUnderline": "A PDF font has no underline to switch to, and Ferman does not draw a false one.",
+  "@editPanelNoUnderline": {
+    "description": "a3-2: why Underline is disabled."
+  },
+  "editPanelAlignment": "Alignment",
+  "@editPanelAlignment": {
+    "description": "a3-2: the alignment group's screen-reader name."
+  },
+  "editPanelAlignLeft": "Align left",
+  "@editPanelAlignLeft": {
+    "description": "a3-2: segment."
+  },
+  "editPanelAlignCenter": "Center",
+  "@editPanelAlignCenter": {
+    "description": "a3-2: segment."
+  },
+  "editPanelAlignRight": "Align right",
+  "@editPanelAlignRight": {
+    "description": "a3-2: segment."
+  },
+  "editPanelAlignJustify": "Justify",
+  "@editPanelAlignJustify": {
+    "description": "a3-2: segment."
+  },
+  "editPanelSpacing": "Spacing",
+  "@editPanelSpacing": {
+    "description": "a3-2: section."
+  },
+  "editPanelCharacter": "Character",
+  "@editPanelCharacter": {
+    "description": "a3-2: spacing between characters."
+  },
+  "editPanelLine": "Line",
+  "@editPanelLine": {
+    "description": "a3-2: spacing between lines."
+  },
+  "editPanelBefore": "Before",
+  "@editPanelBefore": {
+    "description": "a3-2: spacing before the block."
+  },
+  "editPanelAfter": "After",
+  "@editPanelAfter": {
+    "description": "a3-2: spacing after the block."
+  },
+  "editPanelPosition": "Position and size",
+  "@editPanelPosition": {
+    "description": "a3-2: section."
+  },
+  "editPanelWidth": "Width",
+  "@editPanelWidth": {
+    "description": "a3-2: field."
+  },
+  "editPanelHeight": "Height",
+  "@editPanelHeight": {
+    "description": "a3-2: field."
+  },
+  "editPanelReset": "Reset text style",
+  "@editPanelReset": {
+    "description": "a3-2: button in the heading."
+  },
+  "editPanelHint": "Text reflows inside the frame. Drag a handle to resize it.",
+  "@editPanelHint": {
+    "description": "a3-2: the note at the panel's end."
+  },
+  "editBarLabel": "Format selection",
+  "@editBarLabel": {
+    "description": "a3-1c: the accessible name of the floating format bar."
+  },
+  "editBarLink": "Add link",
+  "@editBarLink": {
+    "description": "a3-1c: button, disabled until links work."
+  },
+  "editBarHighlight": "Highlight (adds a comment)",
+  "@editBarHighlight": {
+    "description": "a3-1c: button, disabled until comments work."
+  },
+  "editBarComment": "Comment on selection",
+  "@editBarComment": {
+    "description": "a3-1c: button, disabled until comments work."
+  },
+  "editBarReplace": "Find and replace these words",
+  "@editBarReplace": {
+    "description": "a3-1c: button, disabled until find and replace works."
+  },
+  "editStepStyle": "Changed text style · page {page}",
+  "@editStepStyle": {
+    "description": "a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "editStepMoved": "Moved text block · page {page}",
+  "@editStepMoved": {
+    "description": "a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "editStepResized": "Resized text block · page {page}",
+  "@editStepResized": {
+    "description": "a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
   }
 }

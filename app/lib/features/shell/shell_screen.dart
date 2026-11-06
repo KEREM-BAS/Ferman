@@ -1,7 +1,10 @@
+import 'dart:math' as math;
+
 import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/editor/edit_history_panel.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/shell/shell_canvas.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
 import 'package:ferman/features/shell/shell_mode_bar.dart';
@@ -66,6 +69,10 @@ class FmWindow extends ConsumerWidget {
     final history =
         ref.watch(shellModeProvider) == FermanMode.edit &&
         ref.watch(editHistoryOpenProvider);
+    // So does Review edits (a3-12).
+    final review =
+        ref.watch(shellModeProvider) == FermanMode.edit &&
+        ref.watch(reviewListProvider.select((list) => list.open));
     return ShellCommandScope(
       onOpenSettings: onOpenSettings,
       child: LayoutBuilder(
@@ -149,7 +156,21 @@ class FmWindow extends ConsumerWidget {
                           ShellRegion.panel.wrap(
                             resizable(
                               ShellSide.panel,
-                              history
+                              review
+                                  // a3-12 is wider than it, room allowing.
+                                  ? ReviewListPanel(
+                                      width: math.max(
+                                        widths.panel,
+                                        math.min(
+                                          ReviewListPanel.boardWidth,
+                                          room -
+                                              (shown.sidebar
+                                                  ? widths.sidebar
+                                                  : 0),
+                                        ),
+                                      ),
+                                    )
+                                  : history
                                   ? EditHistoryPanel(width: widths.panel)
                                   : FmDocPanel(width: widths.panel),
                             ),

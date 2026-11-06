@@ -1,8 +1,11 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/editor/block_language.dart';
+import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/find_state.dart';
+import 'package:ferman/features/viewer/text_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -24,17 +27,18 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// ⌘G (Ctrl+G) opens for a page number or label ([_PageField], a2-13),
 /// and the zoom is the one the view shows, also under a fit; while the
 /// document is not shown yet (locked) they are disabled. Then the
-/// text language of the selection when there is one ([language], FmWindow
-/// `statusLang`; none in M1). At the end, the active document's save state
-/// through `SaveIndicator`, the saved time in the region's format; nothing
-/// while the document is still opening. Region values keep their own order
-/// in right-to-left text ([bidiIsolate]: "2:32 PM" never splits).
+/// text language of the block being edited or of the canvas selection when
+/// there is one ([language], FmWindow `statusLang`). At the end, the active
+/// document's save state through `SaveIndicator`, the saved time in the
+/// region's format; nothing while the document is still opening. Region
+/// values keep their own order in right-to-left text ([bidiIsolate]: "2:32 PM"
+/// never splits).
 class ShellStatusBar extends ConsumerWidget {
   /// The status bar.
   const new({super.key, this.language});
 
-  /// The language of the selected text (FmWindow `statusLang`), or null to
-  /// leave it out.
+  /// The language to show (FmWindow `statusLang`); null takes the selection's
+  /// and leaves it out without one.
   final String? language;
 
   /// FmWindow's zoom readout: `min-width: 40px`.
@@ -89,7 +93,12 @@ class ShellStatusBar extends ConsumerWidget {
       onPressed: action,
     );
 
-    final language = this.language;
+    final tag =
+        ref.watch(documentEditorProvider.select((s) => s.language)) ??
+        ref.watch(canvasSelectionProvider.select((s) => s?.language));
+    // The "· spelling" a3-14 adds comes with spell-check (B150).
+    final language =
+        this.language ?? (tag == null ? null : blockLanguageName(context, tag));
     return Container(
       height: theme.density.statusbarH,
       padding: EdgeInsetsDirectional.only(

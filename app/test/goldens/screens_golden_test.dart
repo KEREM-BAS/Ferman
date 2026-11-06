@@ -73,7 +73,7 @@ Future<void> _golden(
 Future<void> main() async {
   for (final screen in _screens) {
     for (final theme in GoldenTheme.values) {
-      for (final language in GoldenLanguage.values) {
+      for (final language in GoldenLanguage.matrix) {
         await _golden(screen, GoldenChrome.mac, theme, language);
       }
     }
@@ -82,7 +82,7 @@ Future<void> main() async {
   // Ctrl shortcuts.
   final general = _screens.firstWhere((s) => s.name == 'settings_general');
   for (final theme in GoldenTheme.values) {
-    for (final language in GoldenLanguage.values) {
+    for (final language in GoldenLanguage.matrix) {
       await _golden(general, GoldenChrome.win, theme, language);
     }
   }

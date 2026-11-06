@@ -16,12 +16,12 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The Editing pane of Settings, board a11-1c, with the Saving group of G43.
 ///
-/// What a missing character does (the first two choices, G36) and "Save a
-/// recovery copy every minute" work and are stored; the engine follows both
-/// (`documentEditorProvider`). Mark edited text (B048), the third choice
-/// (B140), Font for new text (B042), Keep versions (B060) and the reflow
-/// switch (B141) are drawn and disabled through the feature registry. There is
-/// no overflow default and no switch for the signed-document warning (G43).
+/// Mark edited text works and is stored; the canvas follows it. What a
+/// missing character does (G36), the reflow switch and "Save a recovery copy
+/// every minute" work and are stored too, and the engine follows them
+/// (`documentEditorProvider`). Font for new text (B042) and Keep versions
+/// (B060) are drawn and disabled through the feature registry. There is no
+/// overflow default and no switch for the signed-document warning (G43).
 ///
 /// The Saving group explains saving, and names the folder of the recovery
 /// copies with Show in Finder or its likes; the web has no such folder.
@@ -82,10 +82,14 @@ class EditingPane extends ConsumerWidget {
           spacing: theme.space.space2,
           children: [
             Switch(
-              value: true,
+              value: settings.markEdited,
               label: l10n.settingsEditMarks,
-              disabled: true,
-              disabledReason: Feature.editMarks.disabledReason(context),
+              onChanged: (value) => unawaited(
+                changeSetting(
+                  ref,
+                  (current) => current.copyWith(markEdited: value),
+                ),
+              ),
             ),
             ExcludeSemantics(
               child: Directionality(
@@ -158,8 +162,9 @@ class EditingPane extends ConsumerWidget {
             for (final (value, label) in [
               (MissingGlyphPolicy.similar, l10n.settingsMissingGlyphsSimilar),
               (MissingGlyphPolicy.ask, l10n.settingsMissingGlyphsAsk),
+              (MissingGlyphPolicy.mark, l10n.settingsMissingGlyphsMark),
             ])
-              Radio<MissingGlyphPolicy?>(
+              Radio<MissingGlyphPolicy>(
                 value: value,
                 groupValue: settings.missingGlyphs,
                 label: label,
@@ -170,13 +175,6 @@ class EditingPane extends ConsumerWidget {
                   ),
                 ),
               ),
-            Radio<MissingGlyphPolicy?>(
-              value: null,
-              groupValue: settings.missingGlyphs,
-              label: l10n.settingsMissingGlyphsMark,
-              disabled: true,
-              disabledReason: Feature.missingGlyphMark.disabledReason(context),
-            ),
           ],
         ),
         Row(
@@ -213,10 +211,11 @@ class EditingPane extends ConsumerWidget {
           ],
         ),
         Switch(
-          value: true,
+          value: settings.reflow,
           label: l10n.settingsReflow,
-          disabled: true,
-          disabledReason: Feature.reflowSwitch.disabledReason(context),
+          onChanged: (enabled) => unawaited(
+            changeSetting(ref, (current) => current.copyWith(reflow: enabled)),
+          ),
         ),
         Switch(
           value: settings.recoveryCopies,

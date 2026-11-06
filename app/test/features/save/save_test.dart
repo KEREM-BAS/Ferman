@@ -10,6 +10,7 @@ import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
 import 'package:ferman/platform/file_access.dart';
+import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -443,6 +444,40 @@ void main() {
     expect(engine.saves, isEmpty);
     expect(tab(tester).path, '/docs/kira.pdf');
     expect(tab(tester).saveState, SaveState.unsaved);
+  });
+
+  group('the Edited badge of the recent files (B129)', () {
+    RecentEntry? entry(WidgetTester tester, String path) =>
+        containerOf(tester)
+            .read(recentFilesProvider)
+            .where((file) => file.path == path)
+            .firstOrNull;
+
+    void edit(WidgetTester tester) => containerOf(tester)
+        .read(shellDocumentsProvider.notifier)
+        .replace(
+          tab(tester).path!,
+          tab(tester).withSave(SaveState.unsaved, editCount: 2),
+        );
+
+    testWidgets('a save with no edits leaves it off', (tester) async {
+      await pumpSaved(tester);
+      await control(tester, LogicalKeyboardKey.keyS);
+      expect(tab(tester).saveState, SaveState.saved);
+      expect(entry(tester, '/docs/kira.pdf')!.edited, isFalse);
+    });
+
+    testWidgets('Save as after an edit gives the new file the badge', (
+      tester,
+    ) async {
+      await pumpSaved(tester);
+      edit(tester);
+      containerOf(tester)
+          .read(documentOpenerProvider.notifier)
+          .savedAs('/docs/kira.pdf', '/docs/new.pdf');
+      await pumps(tester);
+      expect(entry(tester, '/docs/new.pdf')!.edited, isTrue);
+    });
   });
 
   testWidgets("a copy onto the document's own file saves it", (tester) async {

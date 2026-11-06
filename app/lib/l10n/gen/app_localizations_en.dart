@@ -580,6 +580,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingStartUsing => 'Start using Ferman';
 
   @override
+  String get onboardingEditTitle => 'Edit any PDF like a document';
+
+  @override
+  String get onboardingEditBody =>
+      'Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.';
+
+  @override
+  String get onboardingEditGlyphs =>
+      'When a font is missing a character, Ferman tells you which one and what it will use instead.';
+
+  @override
   String get onboardingPrivacyTitle => 'Everything stays on your device';
 
   @override
@@ -663,7 +674,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingFreeSupport => 'Support the project';
 
   @override
-  String get onboardingFeatureEditing => 'Edit text and images';
+  String get onboardingFeatureEditing => 'Edit text';
 
   @override
   String get onboardingFeatureOcr => 'Text recognition (OCR)';
@@ -1460,6 +1471,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get startBadgeEdited => 'Edited';
+
+  @override
   String get startBadgeSigned => 'Signed';
 
   @override
@@ -1829,10 +1843,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Subset: only characters already in the file.';
 
   @override
+  String propertiesPartialMissing(String letters) {
+    return 'No $letters.';
+  }
+
+  @override
   String get propertiesSubset => 'Subset';
 
   @override
   String get propertiesSubsetNote => 'Only the characters already used.';
+
+  @override
+  String propertiesSubsetMissing(String letters) {
+    return 'Typing $letters needs a substitute.';
+  }
+
+  @override
+  String propertiesShownInstead(String font) {
+    return 'Ferman is showing $font instead.';
+  }
 
   @override
   String get propertiesNotEmbedded => 'Not embedded';
@@ -2132,6 +2161,11 @@ class AppLocalizationsEn extends AppLocalizations {
   @override
   String editGlyphBodyMany(String chars) {
     return 'This font has no $chars. Ferman will use a similar font for these characters.';
+  }
+
+  @override
+  String editGlyphMarkedBody(String chars) {
+    return 'This font has no $chars. Ferman keeps the original font and marks what’s missing.';
   }
 
   @override
@@ -2645,4 +2679,326 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get settingsRecoveryFolder => 'Recovery copies';
+
+  @override
+  String shellZoomTypeHint(String min, String max) {
+    return 'Type a zoom from $min to $max';
+  }
+
+  @override
+  String get shellEditForbidden => 'The author doesn’t allow editing';
+
+  @override
+  String get editPanelTipClick =>
+      'Click any text to select its block. Click again to place the caret.';
+
+  @override
+  String editPanelTipKeys(String key) {
+    return 'Tab moves between blocks; Enter starts editing. Hold $key to show every block.';
+  }
+
+  @override
+  String get editPanelInSession => 'in this session';
+
+  @override
+  String get editPanelReview => 'Review';
+
+  @override
+  String get languageNameGerman => 'German';
+
+  @override
+  String get languageNameJapanese => 'Japanese';
+
+  @override
+  String languageWithRegion(String language, String region) {
+    return '$language ($region)';
+  }
+
+  @override
+  String get editLanguage => 'Language';
+
+  @override
+  String get editCheckSpelling => 'Check spelling';
+
+  @override
+  String get editHyphenate => 'Hyphenate';
+
+  @override
+  String editStepLanguage(String page) {
+    return 'Changed language · page $page';
+  }
+
+  @override
+  String get reviewClose => 'Close review';
+
+  @override
+  String get reviewShow => 'Show';
+
+  @override
+  String get reviewFilterAll => 'All';
+
+  @override
+  String get reviewFilterText => 'Text';
+
+  @override
+  String get reviewFilterFonts => 'Fonts';
+
+  @override
+  String get reviewFilterWarnings => 'Warnings';
+
+  @override
+  String get reviewEmptyTitle => 'No edits yet';
+
+  @override
+  String get reviewEmptyBody =>
+      'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.';
+
+  @override
+  String get reviewNothing => 'No edits yet';
+
+  @override
+  String get reviewRevertAll => 'Revert all…';
+
+  @override
+  String get reviewExportList => 'Export list…';
+
+  @override
+  String get reviewGoTo => 'Go to';
+
+  @override
+  String get reviewRevert => 'Revert';
+
+  @override
+  String get reviewStepReverted => 'Reverted an edit';
+
+  @override
+  String get reviewStepRevertedAll => 'Reverted all edits';
+
+  @override
+  String get reviewWhereSignature => 'Signature';
+
+  @override
+  String reviewWhereSignaturePage(String page) {
+    return 'Page $page · signature';
+  }
+
+  @override
+  String reviewWhereText(String page) {
+    return 'Page $page · text';
+  }
+
+  @override
+  String reviewWhereFont(String page) {
+    return 'Page $page · font';
+  }
+
+  @override
+  String reviewWhereWarning(String page) {
+    return 'Page $page · kept warning';
+  }
+
+  @override
+  String reviewExportName(String name) {
+    return '$name edits';
+  }
+
+  @override
+  String get reviewExportFailed => 'The list couldn’t be saved.';
+
+  @override
+  String reviewRevertAllBody(String name) {
+    return '“$name” goes back to how it was when you opened it. Undo brings the edits back until you close the document.';
+  }
+
+  @override
+  String reviewDependentBody(String later, String change) {
+    return '“$later” was typed into the sentence after this change. Reverting “$change” removes it too.';
+  }
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$shown later edits build on this change. Reverting “$change” removes them too.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewKeptWarning(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown lines hidden — overflow kept',
+      one: '$shown line hidden — overflow kept',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert all $shown edits?',
+      one: 'Revert the edit?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert $shown edits',
+      one: 'Revert $shown edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Also revert the $shown edits that depend on it?',
+      one: 'Also revert the edit that depends on it?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert all $shown',
+      one: 'Revert both',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editPanelTitle => 'Text block';
+
+  @override
+  String get editPanelText => 'Text';
+
+  @override
+  String get editPanelSize => 'Size';
+
+  @override
+  String get editPanelColour => 'Text color';
+
+  @override
+  String get editPanelColoursDocument => 'In this document';
+
+  @override
+  String get editPanelColoursStandard => 'Standard';
+
+  @override
+  String get editPanelFontsDocument => 'In this document';
+
+  @override
+  String get editPanelFontsDevice => 'On this device';
+
+  @override
+  String get editPanelBold => 'Bold';
+
+  @override
+  String get editPanelItalic => 'Italic';
+
+  @override
+  String get editPanelUnderline => 'Underline';
+
+  @override
+  String get editPanelNoBold =>
+      'This font has no other weight on this computer that can draw this text.';
+
+  @override
+  String get editPanelNoItalic =>
+      'This font has no italic on this computer that can draw this text.';
+
+  @override
+  String get editPanelNoUnderline =>
+      'A PDF font has no underline to switch to, and Ferman does not draw a false one.';
+
+  @override
+  String get editPanelAlignment => 'Alignment';
+
+  @override
+  String get editPanelAlignLeft => 'Align left';
+
+  @override
+  String get editPanelAlignCenter => 'Center';
+
+  @override
+  String get editPanelAlignRight => 'Align right';
+
+  @override
+  String get editPanelAlignJustify => 'Justify';
+
+  @override
+  String get editPanelSpacing => 'Spacing';
+
+  @override
+  String get editPanelCharacter => 'Character';
+
+  @override
+  String get editPanelLine => 'Line';
+
+  @override
+  String get editPanelBefore => 'Before';
+
+  @override
+  String get editPanelAfter => 'After';
+
+  @override
+  String get editPanelPosition => 'Position and size';
+
+  @override
+  String get editPanelWidth => 'Width';
+
+  @override
+  String get editPanelHeight => 'Height';
+
+  @override
+  String get editPanelReset => 'Reset text style';
+
+  @override
+  String get editPanelHint =>
+      'Text reflows inside the frame. Drag a handle to resize it.';
+
+  @override
+  String get editBarLabel => 'Format selection';
+
+  @override
+  String get editBarLink => 'Add link';
+
+  @override
+  String get editBarHighlight => 'Highlight (adds a comment)';
+
+  @override
+  String get editBarComment => 'Comment on selection';
+
+  @override
+  String get editBarReplace => 'Find and replace these words';
+
+  @override
+  String editStepStyle(String page) {
+    return 'Changed text style · page $page';
+  }
+
+  @override
+  String editStepMoved(String page) {
+    return 'Moved text block · page $page';
+  }
+
+  @override
+  String editStepResized(String page) {
+    return 'Resized text block · page $page';
+  }
 }

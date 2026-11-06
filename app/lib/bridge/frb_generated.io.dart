@@ -48,10 +48,31 @@ abstract class FermanBridgeApiImplPlatform
   Attachment dco_decode_attachment(dynamic raw);
 
   @protected
+  BlockFont dco_decode_block_font(dynamic raw);
+
+  @protected
   BlockInfo dco_decode_block_info(dynamic raw);
 
   @protected
+  BlockStyle dco_decode_block_style(dynamic raw);
+
+  @protected
+  BlockStyleInfo dco_decode_block_style_info(dynamic raw);
+
+  @protected
   bool dco_decode_bool(dynamic raw);
+
+  @protected
+  Alignment dco_decode_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  BlockFont dco_decode_box_autoadd_block_font(dynamic raw);
+
+  @protected
+  BlockStyle dco_decode_box_autoadd_block_style(dynamic raw);
+
+  @protected
+  BlockStyleInfo dco_decode_box_autoadd_block_style_info(dynamic raw);
 
   @protected
   ExtendBlocked dco_decode_box_autoadd_extend_blocked(dynamic raw);
@@ -82,6 +103,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   PagePoint dco_decode_box_autoadd_page_point(dynamic raw);
+
+  @protected
+  PageRect dco_decode_box_autoadd_page_rect(dynamic raw);
 
   @protected
   PdfDate dco_decode_box_autoadd_pdf_date(dynamic raw);
@@ -156,6 +180,9 @@ abstract class FermanBridgeApiImplPlatform
   FontCandidate dco_decode_font_candidate(dynamic raw);
 
   @protected
+  FontCoverage dco_decode_font_coverage(dynamic raw);
+
+  @protected
   FontEmbedding dco_decode_font_embedding(dynamic raw);
 
   @protected
@@ -217,6 +244,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontCandidate> dco_decode_list_font_candidate(dynamic raw);
+
+  @protected
+  List<FontCoverage> dco_decode_list_font_coverage(dynamic raw);
 
   @protected
   List<FontEntry> dco_decode_list_font_entry(dynamic raw);
@@ -283,6 +313,15 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   String? dco_decode_opt_String(dynamic raw);
+
+  @protected
+  Alignment? dco_decode_opt_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  BlockFont? dco_decode_opt_box_autoadd_block_font(dynamic raw);
+
+  @protected
+  BlockStyleInfo? dco_decode_opt_box_autoadd_block_style_info(dynamic raw);
 
   @protected
   ExtendBlocked? dco_decode_opt_box_autoadd_extend_blocked(dynamic raw);
@@ -380,6 +419,9 @@ abstract class FermanBridgeApiImplPlatform
   RestoredDocument dco_decode_restored_document(dynamic raw);
 
   @protected
+  Reverted dco_decode_reverted(dynamic raw);
+
+  @protected
   RevisionInfo dco_decode_revision_info(dynamic raw);
 
   @protected
@@ -468,10 +510,33 @@ abstract class FermanBridgeApiImplPlatform
   Attachment sse_decode_attachment(SseDeserializer deserializer);
 
   @protected
+  BlockFont sse_decode_block_font(SseDeserializer deserializer);
+
+  @protected
   BlockInfo sse_decode_block_info(SseDeserializer deserializer);
 
   @protected
+  BlockStyle sse_decode_block_style(SseDeserializer deserializer);
+
+  @protected
+  BlockStyleInfo sse_decode_block_style_info(SseDeserializer deserializer);
+
+  @protected
   bool sse_decode_bool(SseDeserializer deserializer);
+
+  @protected
+  Alignment sse_decode_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  BlockFont sse_decode_box_autoadd_block_font(SseDeserializer deserializer);
+
+  @protected
+  BlockStyle sse_decode_box_autoadd_block_style(SseDeserializer deserializer);
+
+  @protected
+  BlockStyleInfo sse_decode_box_autoadd_block_style_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ExtendBlocked sse_decode_box_autoadd_extend_blocked(
@@ -516,6 +581,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   PagePoint sse_decode_box_autoadd_page_point(SseDeserializer deserializer);
+
+  @protected
+  PageRect sse_decode_box_autoadd_page_rect(SseDeserializer deserializer);
 
   @protected
   PdfDate sse_decode_box_autoadd_pdf_date(SseDeserializer deserializer);
@@ -600,6 +668,9 @@ abstract class FermanBridgeApiImplPlatform
   FontCandidate sse_decode_font_candidate(SseDeserializer deserializer);
 
   @protected
+  FontCoverage sse_decode_font_coverage(SseDeserializer deserializer);
+
+  @protected
   FontEmbedding sse_decode_font_embedding(SseDeserializer deserializer);
 
   @protected
@@ -665,6 +736,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   List<FontCandidate> sse_decode_list_font_candidate(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  List<FontCoverage> sse_decode_list_font_coverage(
     SseDeserializer deserializer,
   );
 
@@ -743,6 +819,19 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   String? sse_decode_opt_String(SseDeserializer deserializer);
+
+  @protected
+  Alignment? sse_decode_opt_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  BlockFont? sse_decode_opt_box_autoadd_block_font(
+    SseDeserializer deserializer,
+  );
+
+  @protected
+  BlockStyleInfo? sse_decode_opt_box_autoadd_block_style_info(
+    SseDeserializer deserializer,
+  );
 
   @protected
   ExtendBlocked? sse_decode_opt_box_autoadd_extend_blocked(
@@ -856,6 +945,9 @@ abstract class FermanBridgeApiImplPlatform
   RestoredDocument sse_decode_restored_document(SseDeserializer deserializer);
 
   @protected
+  Reverted sse_decode_reverted(SseDeserializer deserializer);
+
+  @protected
   RevisionInfo sse_decode_revision_info(SseDeserializer deserializer);
 
   @protected
@@ -958,6 +1050,41 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Int32> cst_encode_box_autoadd_alignment(Alignment raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return wire.cst_new_box_autoadd_alignment(cst_encode_alignment(raw));
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_block_font> cst_encode_box_autoadd_block_font(
+    BlockFont raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_block_font();
+    cst_api_fill_to_wire_block_font(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_block_style> cst_encode_box_autoadd_block_style(
+    BlockStyle raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_block_style();
+    cst_api_fill_to_wire_block_style(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_block_style_info>
+  cst_encode_box_autoadd_block_style_info(BlockStyleInfo raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_block_style_info();
+    cst_api_fill_to_wire_block_style_info(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
   ffi.Pointer<wire_cst_extend_blocked> cst_encode_box_autoadd_extend_blocked(
     ExtendBlocked raw,
   ) {
@@ -1046,6 +1173,16 @@ abstract class FermanBridgeApiImplPlatform
     // Codec=Cst (C-struct based), see doc to use other codecs
     final ptr = wire.cst_new_box_autoadd_page_point();
     cst_api_fill_to_wire_page_point(raw, ptr.ref);
+    return ptr;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_page_rect> cst_encode_box_autoadd_page_rect(
+    PageRect raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ptr = wire.cst_new_box_autoadd_page_rect();
+    cst_api_fill_to_wire_page_rect(raw, ptr.ref);
     return ptr;
   }
 
@@ -1205,6 +1342,18 @@ abstract class FermanBridgeApiImplPlatform
     final ans = wire.cst_new_list_font_candidate(raw.length);
     for (var i = 0; i < raw.length; ++i) {
       cst_api_fill_to_wire_font_candidate(raw[i], ans.ref.ptr[i]);
+    }
+    return ans;
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_list_font_coverage> cst_encode_list_font_coverage(
+    List<FontCoverage> raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    final ans = wire.cst_new_list_font_coverage(raw.length);
+    for (var i = 0; i < raw.length; ++i) {
+      cst_api_fill_to_wire_font_coverage(raw[i], ans.ref.ptr[i]);
     }
     return ans;
   }
@@ -1402,6 +1551,29 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  ffi.Pointer<ffi.Int32> cst_encode_opt_box_autoadd_alignment(Alignment? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_alignment(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_block_font> cst_encode_opt_box_autoadd_block_font(
+    BlockFont? raw,
+  ) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? ffi.nullptr : cst_encode_box_autoadd_block_font(raw);
+  }
+
+  @protected
+  ffi.Pointer<wire_cst_block_style_info>
+  cst_encode_opt_box_autoadd_block_style_info(BlockStyleInfo? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null
+        ? ffi.nullptr
+        : cst_encode_box_autoadd_block_style_info(raw);
+  }
+
+  @protected
   ffi.Pointer<wire_cst_extend_blocked>
   cst_encode_opt_box_autoadd_extend_blocked(ExtendBlocked? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
@@ -1563,6 +1735,15 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_block_font(
+    BlockFont apiObj,
+    wire_cst_block_font wireObj,
+  ) {
+    wireObj.origin = cst_encode_font_origin(apiObj.origin);
+    wireObj.postscript_name = cst_encode_String(apiObj.postscriptName);
+  }
+
+  @protected
   void cst_api_fill_to_wire_block_info(
     BlockInfo apiObj,
     wire_cst_block_info wireObj,
@@ -1575,6 +1756,70 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.not_editable = cst_encode_opt_box_autoadd_not_editable_reason(
       apiObj.notEditable,
     );
+    wireObj.language = cst_encode_opt_String(apiObj.language);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_block_style(
+    BlockStyle apiObj,
+    wire_cst_block_style wireObj,
+  ) {
+    wireObj.font = cst_encode_opt_box_autoadd_block_font(apiObj.font);
+    wireObj.size = cst_encode_opt_box_autoadd_f_32(apiObj.size);
+    wireObj.colour = cst_encode_opt_box_autoadd_u_32(apiObj.colour);
+    wireObj.alignment = cst_encode_opt_box_autoadd_alignment(apiObj.alignment);
+    wireObj.char_spacing = cst_encode_opt_box_autoadd_f_32(apiObj.charSpacing);
+    wireObj.line_spacing = cst_encode_opt_box_autoadd_f_32(apiObj.lineSpacing);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_block_style_info(
+    BlockStyleInfo apiObj,
+    wire_cst_block_style_info wireObj,
+  ) {
+    wireObj.font = cst_encode_String(apiObj.font);
+    wireObj.family = cst_encode_String(apiObj.family);
+    wireObj.bold = cst_encode_bool(apiObj.bold);
+    wireObj.italic = cst_encode_bool(apiObj.italic);
+    wireObj.bold_toggle = cst_encode_opt_box_autoadd_block_font(
+      apiObj.boldToggle,
+    );
+    wireObj.italic_toggle = cst_encode_opt_box_autoadd_block_font(
+      apiObj.italicToggle,
+    );
+    wireObj.size = cst_encode_f_32(apiObj.size);
+    wireObj.colour = cst_encode_opt_box_autoadd_u_32(apiObj.colour);
+    wireObj.document_colours = cst_encode_list_prim_u_32_strict(
+      apiObj.documentColours,
+    );
+    wireObj.alignment = cst_encode_alignment(apiObj.alignment);
+    wireObj.char_spacing = cst_encode_f_32(apiObj.charSpacing);
+    wireObj.line_spacing = cst_encode_f_32(apiObj.lineSpacing);
+    cst_api_fill_to_wire_page_rect(apiObj.frame, wireObj.frame);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_block_font(
+    BlockFont apiObj,
+    ffi.Pointer<wire_cst_block_font> wireObj,
+  ) {
+    cst_api_fill_to_wire_block_font(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_block_style(
+    BlockStyle apiObj,
+    ffi.Pointer<wire_cst_block_style> wireObj,
+  ) {
+    cst_api_fill_to_wire_block_style(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_block_style_info(
+    BlockStyleInfo apiObj,
+    ffi.Pointer<wire_cst_block_style_info> wireObj,
+  ) {
+    cst_api_fill_to_wire_block_style_info(apiObj, wireObj.ref);
   }
 
   @protected
@@ -1615,6 +1860,14 @@ abstract class FermanBridgeApiImplPlatform
     ffi.Pointer<wire_cst_page_point> wireObj,
   ) {
     cst_api_fill_to_wire_page_point(apiObj, wireObj.ref);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_box_autoadd_page_rect(
+    PageRect apiObj,
+    ffi.Pointer<wire_cst_page_rect> wireObj,
+  ) {
+    cst_api_fill_to_wire_page_rect(apiObj, wireObj.ref);
   }
 
   @protected
@@ -1728,6 +1981,7 @@ abstract class FermanBridgeApiImplPlatform
     );
     wireObj.chosen = cst_encode_opt_box_autoadd_overflow_choice(apiObj.chosen);
     wireObj.dependents = cst_encode_list_dependent_cell(apiObj.dependents);
+    wireObj.language = cst_encode_opt_String(apiObj.language);
   }
 
   @protected
@@ -1769,6 +2023,16 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  void cst_api_fill_to_wire_font_coverage(
+    FontCoverage apiObj,
+    wire_cst_font_coverage wireObj,
+  ) {
+    wireObj.name = cst_encode_String(apiObj.name);
+    wireObj.shown_as = cst_encode_opt_String(apiObj.shownAs);
+    wireObj.missing_letters = cst_encode_String(apiObj.missingLetters);
+  }
+
+  @protected
   void cst_api_fill_to_wire_font_entry(
     FontEntry apiObj,
     wire_cst_font_entry wireObj,
@@ -1788,6 +2052,8 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.font_dirs = cst_encode_list_String(apiObj.fontDirs);
     wireObj.system_fonts = cst_encode_bool(apiObj.systemFonts);
     wireObj.ask_each_time = cst_encode_bool(apiObj.askEachTime);
+    wireObj.mark_missing = cst_encode_bool(apiObj.markMissing);
+    wireObj.keep_lines = cst_encode_bool(apiObj.keepLines);
   }
 
   @protected
@@ -1823,6 +2089,10 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.substitutions = cst_encode_list_font_substitution(
       apiObj.substitutions,
     );
+    wireObj.page = cst_encode_opt_box_autoadd_u_32(apiObj.page);
+    wireObj.before = cst_encode_String(apiObj.before);
+    wireObj.after = cst_encode_String(apiObj.after);
+    wireObj.reverts = cst_encode_list_prim_u_32_strict(apiObj.reverts);
   }
 
   @protected
@@ -2031,6 +2301,16 @@ abstract class FermanBridgeApiImplPlatform
     wireObj.path = cst_encode_String(apiObj.path);
     wireObj.original_changed = cst_encode_bool(apiObj.originalChanged);
     wireObj.render_key = cst_encode_opt_box_autoadd_u_64(apiObj.renderKey);
+  }
+
+  @protected
+  void cst_api_fill_to_wire_reverted(
+    Reverted apiObj,
+    wire_cst_reverted wireObj,
+  ) {
+    wireObj.reverted = cst_encode_bool(apiObj.reverted);
+    wireObj.dependents = cst_encode_list_prim_u_32_strict(apiObj.dependents);
+    cst_api_fill_to_wire_revision_info(apiObj.revision, wireObj.revision);
   }
 
   @protected
@@ -2296,10 +2576,46 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_attachment(Attachment self, SseSerializer serializer);
 
   @protected
+  void sse_encode_block_font(BlockFont self, SseSerializer serializer);
+
+  @protected
   void sse_encode_block_info(BlockInfo self, SseSerializer serializer);
 
   @protected
+  void sse_encode_block_style(BlockStyle self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_block_style_info(
+    BlockStyleInfo self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_bool(bool self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_box_autoadd_alignment(
+    Alignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_font(
+    BlockFont self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_style(
+    BlockStyle self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_block_style_info(
+    BlockStyleInfo self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_box_autoadd_extend_blocked(
@@ -2355,6 +2671,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_page_point(
     PagePoint self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_page_rect(
+    PageRect self,
     SseSerializer serializer,
   );
 
@@ -2452,6 +2774,9 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_font_candidate(FontCandidate self, SseSerializer serializer);
 
   @protected
+  void sse_encode_font_coverage(FontCoverage self, SseSerializer serializer);
+
+  @protected
   void sse_encode_font_embedding(FontEmbedding self, SseSerializer serializer);
 
   @protected
@@ -2529,6 +2854,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_font_candidate(
     List<FontCandidate> self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_font_coverage(
+    List<FontCoverage> self,
     SseSerializer serializer,
   );
 
@@ -2642,6 +2973,24 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_opt_String(String? self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_opt_box_autoadd_alignment(
+    Alignment? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_block_font(
+    BlockFont? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_block_style_info(
+    BlockStyleInfo? self,
+    SseSerializer serializer,
+  );
 
   @protected
   void sse_encode_opt_box_autoadd_extend_blocked(
@@ -2780,6 +3129,9 @@ abstract class FermanBridgeApiImplPlatform
     RestoredDocument self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_reverted(Reverted self, SseSerializer serializer);
 
   @protected
   void sse_encode_revision_info(RevisionInfo self, SseSerializer serializer);
@@ -2935,6 +3287,42 @@ class FermanBridgeWire implements BaseWire {
         >
       >('frbgen_ferman_wire__crate__frb__begin_edit');
   late final _wire__crate__frb__begin_edit = _wire__crate__frb__begin_editPtr
+      .asFunction<void Function(int, int, int, int)>();
+
+  void wire__crate__frb__block_fonts(
+    int port_,
+    int document,
+    int page,
+    int block,
+  ) {
+    return _wire__crate__frb__block_fonts(port_, document, page, block);
+  }
+
+  late final _wire__crate__frb__block_fontsPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32, ffi.Uint64)
+        >
+      >('frbgen_ferman_wire__crate__frb__block_fonts');
+  late final _wire__crate__frb__block_fonts = _wire__crate__frb__block_fontsPtr
+      .asFunction<void Function(int, int, int, int)>();
+
+  void wire__crate__frb__block_style(
+    int port_,
+    int document,
+    int page,
+    int block,
+  ) {
+    return _wire__crate__frb__block_style(port_, document, page, block);
+  }
+
+  late final _wire__crate__frb__block_stylePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Uint32, ffi.Uint64)
+        >
+      >('frbgen_ferman_wire__crate__frb__block_style');
+  late final _wire__crate__frb__block_style = _wire__crate__frb__block_stylePtr
       .asFunction<void Function(int, int, int, int)>();
 
   void wire__crate__frb__caret_at(
@@ -3163,6 +3551,30 @@ class FermanBridgeWire implements BaseWire {
   late final _wire__crate__frb__finish_save = _wire__crate__frb__finish_savePtr
       .asFunction<void Function(int, int, bool)>();
 
+  void wire__crate__frb__font_coverage(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> letters,
+  ) {
+    return _wire__crate__frb__font_coverage(port_, document, letters);
+  }
+
+  late final _wire__crate__frb__font_coveragePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__font_coverage');
+  late final _wire__crate__frb__font_coverage =
+      _wire__crate__frb__font_coveragePtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
   void wire__crate__frb__history(int port_, int document) {
     return _wire__crate__frb__history(port_, document);
   }
@@ -3195,6 +3607,24 @@ class FermanBridgeWire implements BaseWire {
       );
   late final _wire__crate__frb__list_recoverable =
       _wire__crate__frb__list_recoverablePtr.asFunction<void Function(int)>();
+
+  void wire__crate__frb__move_block(
+    int port_,
+    int transaction,
+    double dx,
+    double dy,
+  ) {
+    return _wire__crate__frb__move_block(port_, transaction, dx, dy);
+  }
+
+  late final _wire__crate__frb__move_blockPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(ffi.Int64, ffi.Uint64, ffi.Float, ffi.Float)
+        >
+      >('frbgen_ferman_wire__crate__frb__move_block');
+  late final _wire__crate__frb__move_block = _wire__crate__frb__move_blockPtr
+      .asFunction<void Function(int, int, double, double)>();
 
   void wire__crate__frb__open(
     int port_,
@@ -3307,6 +3737,30 @@ class FermanBridgeWire implements BaseWire {
             void Function(int, int, int, ffi.Pointer<wire_cst_list_wanted_item>)
           >();
 
+  void wire__crate__frb__resize_block(
+    int port_,
+    int transaction,
+    ffi.Pointer<wire_cst_page_rect> frame,
+  ) {
+    return _wire__crate__frb__resize_block(port_, transaction, frame);
+  }
+
+  late final _wire__crate__frb__resize_blockPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_page_rect>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__resize_block');
+  late final _wire__crate__frb__resize_block =
+      _wire__crate__frb__resize_blockPtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_page_rect>)
+          >();
+
   void wire__crate__frb__resolve_overflow(
     int port_,
     int transaction,
@@ -3362,6 +3816,68 @@ class FermanBridgeWire implements BaseWire {
               ffi.Pointer<wire_cst_list_prim_u_8_strict>,
             )
           >();
+
+  void wire__crate__frb__revert(
+    int port_,
+    int document,
+    int step,
+    bool with_dependents,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__revert(
+      port_,
+      document,
+      step,
+      with_dependents,
+      name,
+    );
+  }
+
+  late final _wire__crate__frb__revertPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Uint32,
+            ffi.Bool,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__revert');
+  late final _wire__crate__frb__revert = _wire__crate__frb__revertPtr
+      .asFunction<
+        void Function(
+          int,
+          int,
+          int,
+          bool,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
+  void wire__crate__frb__revert_all(
+    int port_,
+    int document,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> name,
+  ) {
+    return _wire__crate__frb__revert_all(port_, document, name);
+  }
+
+  late final _wire__crate__frb__revert_allPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__revert_all');
+  late final _wire__crate__frb__revert_all = _wire__crate__frb__revert_allPtr
+      .asFunction<
+        void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+      >();
 
   void wire__crate__frb__rollback_edit(int port_, int transaction) {
     return _wire__crate__frb__rollback_edit(port_, transaction);
@@ -3561,6 +4077,36 @@ class FermanBridgeWire implements BaseWire {
             )
           >();
 
+  void wire__crate__frb__save_text(
+    int port_,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> path,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> text,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> staging,
+  ) {
+    return _wire__crate__frb__save_text(port_, path, text, staging);
+  }
+
+  late final _wire__crate__frb__save_textPtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__save_text');
+  late final _wire__crate__frb__save_text = _wire__crate__frb__save_textPtr
+      .asFunction<
+        void Function(
+          int,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+        )
+      >();
+
   void wire__crate__frb__save_unsigned_copy(
     int port_,
     int document,
@@ -3662,6 +4208,54 @@ class FermanBridgeWire implements BaseWire {
           ffi.Pointer<wire_cst_text_position>,
         )
       >();
+
+  void wire__crate__frb__set_block_language(
+    int port_,
+    int transaction,
+    ffi.Pointer<wire_cst_list_prim_u_8_strict> tag,
+  ) {
+    return _wire__crate__frb__set_block_language(port_, transaction, tag);
+  }
+
+  late final _wire__crate__frb__set_block_languagePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_list_prim_u_8_strict>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__set_block_language');
+  late final _wire__crate__frb__set_block_language =
+      _wire__crate__frb__set_block_languagePtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_list_prim_u_8_strict>)
+          >();
+
+  void wire__crate__frb__set_block_style(
+    int port_,
+    int transaction,
+    ffi.Pointer<wire_cst_block_style> style,
+  ) {
+    return _wire__crate__frb__set_block_style(port_, transaction, style);
+  }
+
+  late final _wire__crate__frb__set_block_stylePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Pointer<wire_cst_block_style>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__set_block_style');
+  late final _wire__crate__frb__set_block_style =
+      _wire__crate__frb__set_block_stylePtr
+          .asFunction<
+            void Function(int, int, ffi.Pointer<wire_cst_block_style>)
+          >();
 
   void wire__crate__frb__set_font_settings(
     int port_,
@@ -3795,6 +4389,54 @@ class FermanBridgeWire implements BaseWire {
       _wire__crate__frb__would_break_signaturesPtr
           .asFunction<void Function(int, int)>();
 
+  ffi.Pointer<ffi.Int32> cst_new_box_autoadd_alignment(int value) {
+    return _cst_new_box_autoadd_alignment(value);
+  }
+
+  late final _cst_new_box_autoadd_alignmentPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<ffi.Int32> Function(ffi.Int32)>>(
+        'frbgen_ferman_cst_new_box_autoadd_alignment',
+      );
+  late final _cst_new_box_autoadd_alignment = _cst_new_box_autoadd_alignmentPtr
+      .asFunction<ffi.Pointer<ffi.Int32> Function(int)>();
+
+  ffi.Pointer<wire_cst_block_font> cst_new_box_autoadd_block_font() {
+    return _cst_new_box_autoadd_block_font();
+  }
+
+  late final _cst_new_box_autoadd_block_fontPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_cst_block_font> Function()>>(
+        'frbgen_ferman_cst_new_box_autoadd_block_font',
+      );
+  late final _cst_new_box_autoadd_block_font =
+      _cst_new_box_autoadd_block_fontPtr
+          .asFunction<ffi.Pointer<wire_cst_block_font> Function()>();
+
+  ffi.Pointer<wire_cst_block_style> cst_new_box_autoadd_block_style() {
+    return _cst_new_box_autoadd_block_style();
+  }
+
+  late final _cst_new_box_autoadd_block_stylePtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_cst_block_style> Function()>>(
+        'frbgen_ferman_cst_new_box_autoadd_block_style',
+      );
+  late final _cst_new_box_autoadd_block_style =
+      _cst_new_box_autoadd_block_stylePtr
+          .asFunction<ffi.Pointer<wire_cst_block_style> Function()>();
+
+  ffi.Pointer<wire_cst_block_style_info>
+  cst_new_box_autoadd_block_style_info() {
+    return _cst_new_box_autoadd_block_style_info();
+  }
+
+  late final _cst_new_box_autoadd_block_style_infoPtr =
+      _lookup<
+        ffi.NativeFunction<ffi.Pointer<wire_cst_block_style_info> Function()>
+      >('frbgen_ferman_cst_new_box_autoadd_block_style_info');
+  late final _cst_new_box_autoadd_block_style_info =
+      _cst_new_box_autoadd_block_style_infoPtr
+          .asFunction<ffi.Pointer<wire_cst_block_style_info> Function()>();
+
   ffi.Pointer<wire_cst_extend_blocked> cst_new_box_autoadd_extend_blocked() {
     return _cst_new_box_autoadd_extend_blocked();
   }
@@ -3913,6 +4555,17 @@ class FermanBridgeWire implements BaseWire {
   late final _cst_new_box_autoadd_page_point =
       _cst_new_box_autoadd_page_pointPtr
           .asFunction<ffi.Pointer<wire_cst_page_point> Function()>();
+
+  ffi.Pointer<wire_cst_page_rect> cst_new_box_autoadd_page_rect() {
+    return _cst_new_box_autoadd_page_rect();
+  }
+
+  late final _cst_new_box_autoadd_page_rectPtr =
+      _lookup<ffi.NativeFunction<ffi.Pointer<wire_cst_page_rect> Function()>>(
+        'frbgen_ferman_cst_new_box_autoadd_page_rect',
+      );
+  late final _cst_new_box_autoadd_page_rect = _cst_new_box_autoadd_page_rectPtr
+      .asFunction<ffi.Pointer<wire_cst_page_rect> Function()>();
 
   ffi.Pointer<wire_cst_pdf_date> cst_new_box_autoadd_pdf_date() {
     return _cst_new_box_autoadd_pdf_date();
@@ -4108,6 +4761,19 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_cst_new_list_font_candidate');
   late final _cst_new_list_font_candidate = _cst_new_list_font_candidatePtr
       .asFunction<ffi.Pointer<wire_cst_list_font_candidate> Function(int)>();
+
+  ffi.Pointer<wire_cst_list_font_coverage> cst_new_list_font_coverage(int len) {
+    return _cst_new_list_font_coverage(len);
+  }
+
+  late final _cst_new_list_font_coveragePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Pointer<wire_cst_list_font_coverage> Function(ffi.Int32)
+        >
+      >('frbgen_ferman_cst_new_list_font_coverage');
+  late final _cst_new_list_font_coverage = _cst_new_list_font_coveragePtr
+      .asFunction<ffi.Pointer<wire_cst_list_font_coverage> Function(int)>();
 
   ffi.Pointer<wire_cst_list_font_entry> cst_new_list_font_entry(int len) {
     return _cst_new_list_font_entry(len);
@@ -4412,6 +5078,20 @@ final class wire_cst_list_wanted_item extends ffi.Struct {
   external int len;
 }
 
+final class wire_cst_page_rect extends ffi.Struct {
+  @ffi.Float()
+  external double left;
+
+  @ffi.Float()
+  external double top;
+
+  @ffi.Float()
+  external double right;
+
+  @ffi.Float()
+  external double bottom;
+}
+
 final class wire_cst_search_options extends ffi.Struct {
   @ffi.Bool()
   external bool match_case;
@@ -4434,6 +5114,27 @@ final class wire_cst_text_position extends ffi.Struct {
   external int index;
 }
 
+final class wire_cst_block_font extends ffi.Struct {
+  @ffi.Int32()
+  external int origin;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> postscript_name;
+}
+
+final class wire_cst_block_style extends ffi.Struct {
+  external ffi.Pointer<wire_cst_block_font> font;
+
+  external ffi.Pointer<ffi.Float> size;
+
+  external ffi.Pointer<ffi.Uint32> colour;
+
+  external ffi.Pointer<ffi.Int32> alignment;
+
+  external ffi.Pointer<ffi.Float> char_spacing;
+
+  external ffi.Pointer<ffi.Float> line_spacing;
+}
+
 final class wire_cst_font_settings extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> bundled_dir;
 
@@ -4444,6 +5145,12 @@ final class wire_cst_font_settings extends ffi.Struct {
 
   @ffi.Bool()
   external bool ask_each_time;
+
+  @ffi.Bool()
+  external bool mark_missing;
+
+  @ffi.Bool()
+  external bool keep_lines;
 }
 
 final class wire_cst_list_bool extends ffi.Struct {
@@ -4451,6 +5158,47 @@ final class wire_cst_list_bool extends ffi.Struct {
 
   @ffi.Int32()
   external int len;
+}
+
+final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
+  external ffi.Pointer<ffi.Uint32> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_block_style_info extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> font;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> family;
+
+  @ffi.Bool()
+  external bool bold;
+
+  @ffi.Bool()
+  external bool italic;
+
+  external ffi.Pointer<wire_cst_block_font> bold_toggle;
+
+  external ffi.Pointer<wire_cst_block_font> italic_toggle;
+
+  @ffi.Float()
+  external double size;
+
+  external ffi.Pointer<ffi.Uint32> colour;
+
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> document_colours;
+
+  @ffi.Int32()
+  external int alignment;
+
+  @ffi.Float()
+  external double char_spacing;
+
+  @ffi.Float()
+  external double line_spacing;
+
+  external wire_cst_page_rect frame;
 }
 
 final class wire_cst_extend_blocked extends ffi.Struct {
@@ -4626,20 +5374,6 @@ final class wire_cst_list_attachment extends ffi.Struct {
   external int len;
 }
 
-final class wire_cst_page_rect extends ffi.Struct {
-  @ffi.Float()
-  external double left;
-
-  @ffi.Float()
-  external double top;
-
-  @ffi.Float()
-  external double right;
-
-  @ffi.Float()
-  external double bottom;
-}
-
 final class wire_cst_line_info extends ffi.Struct {
   external ffi.Pointer<wire_cst_list_prim_u_8_strict> text;
 
@@ -4672,6 +5406,8 @@ final class wire_cst_block_info extends ffi.Struct {
   external int direction;
 
   external ffi.Pointer<ffi.Int32> not_editable;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> language;
 }
 
 final class wire_cst_list_block_info extends ffi.Struct {
@@ -4703,6 +5439,21 @@ final class wire_cst_dependent_cell extends ffi.Struct {
 
 final class wire_cst_list_dependent_cell extends ffi.Struct {
   external ffi.Pointer<wire_cst_dependent_cell> ptr;
+
+  @ffi.Int32()
+  external int len;
+}
+
+final class wire_cst_font_coverage extends ffi.Struct {
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> name;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> shown_as;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> missing_letters;
+}
+
+final class wire_cst_list_font_coverage extends ffi.Struct {
+  external ffi.Pointer<wire_cst_font_coverage> ptr;
 
   @ffi.Int32()
   external int len;
@@ -4762,6 +5513,14 @@ final class wire_cst_history_step extends ffi.Struct {
   external int hidden_lines;
 
   external ffi.Pointer<wire_cst_list_font_substitution> substitutions;
+
+  external ffi.Pointer<ffi.Uint32> page;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> before;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> after;
+
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> reverts;
 }
 
 final class wire_cst_list_history_step extends ffi.Struct {
@@ -4826,13 +5585,6 @@ final class wire_cst_list_page_info extends ffi.Struct {
 
 final class wire_cst_list_page_rect extends ffi.Struct {
   external ffi.Pointer<wire_cst_page_rect> ptr;
-
-  @ffi.Int32()
-  external int len;
-}
-
-final class wire_cst_list_prim_u_32_strict extends ffi.Struct {
-  external ffi.Pointer<ffi.Uint32> ptr;
 
   @ffi.Int32()
   external int len;
@@ -4993,6 +5745,8 @@ final class wire_cst_edit_preview extends ffi.Struct {
   external ffi.Pointer<ffi.Int32> chosen;
 
   external ffi.Pointer<wire_cst_list_dependent_cell> dependents;
+
+  external ffi.Pointer<wire_cst_list_prim_u_8_strict> language;
 }
 
 final class wire_cst_pdfium_status extends ffi.Struct {
@@ -5103,6 +5857,15 @@ final class wire_cst_revision_info extends ffi.Struct {
   external ffi.Pointer<ffi.Uint64> render_key;
 
   external ffi.Pointer<wire_cst_list_font_substitution> substitutions;
+}
+
+final class wire_cst_reverted extends ffi.Struct {
+  @ffi.Bool()
+  external bool reverted;
+
+  external ffi.Pointer<wire_cst_list_prim_u_32_strict> dependents;
+
+  external wire_cst_revision_info revision;
 }
 
 final class wire_cst_search_event extends ffi.Struct {

@@ -15,13 +15,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// G12: only features that have shipped keep the green check and its
 /// "Included" label; the others are neutral and say "Available in a future
 /// version" instead, while any of their [features] is in the feature
-/// registry. In M1 only the interface languages have shipped.
+/// registry. Editing text shipped in M3 and the interface languages in M1.
 enum WelcomeFeature {
-  /// Edit text and images: M3 (text), P2 (images).
-  editing(
-    IconName.filePenLine,
-    features: {Feature.editingText, Feature.addingImages},
-  ),
+  /// Edit text: included since text editing shipped in M3 (G12);
+  /// images join the label with P2 (B043).
+  editing(IconName.filePenLine),
 
   /// Text recognition (OCR): P3.
   ocr(IconName.scanText, features: {Feature.ocr}),
@@ -63,7 +61,7 @@ enum WelcomeFeature {
 
   /// The features of the registry the tile covers; the tile says
   /// "Included" only once all of them have shipped and left the registry
-  /// (none for the interface languages, which shipped in M1).
+  /// (none for what has shipped).
   final Set<Feature> features;
 
   /// Whether this version has the feature.

@@ -2,8 +2,8 @@ import 'dart:async';
 
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
-import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/editor/review_list.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
@@ -17,6 +17,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 void toggleEditHistory(WidgetRef ref) {
   final open = !ref.read(editHistoryOpenProvider);
   ref.read(editHistoryOpenProvider.notifier).show(open: open);
+  if (open) ref.read(reviewListProvider.notifier).show(open: false);
   if (open && !ref.read<ShellPanels>(shellPanelsProvider).panel) {
     toggleShellSide(ref, ShellSide.panel);
   }
@@ -58,7 +59,6 @@ class EditHistoryPanel extends ConsumerWidget {
       width: theme.border.borderWidth,
     );
     final rows = [
-      if (history.signatureInvalidated) const _SignatureRow(),
       if (name != null)
         _Step(
           label: l10n.editHistoryOpened(bidiIsolate(name)),
@@ -165,41 +165,6 @@ class EditHistoryPanel extends ConsumerWidget {
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
     super.debugFillProperties(properties);
     properties.add(DoubleProperty('width', width, defaultValue: null));
-  }
-}
-
-/// The signature row (a3-12, G42) until the review list comes (B049): the
-/// document no longer matches its signatures.
-class _SignatureRow extends ConsumerWidget {
-  const new();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = context.ferman;
-    final l10n = AppLocalizations.of(context);
-    final document = ref.watch(shellDocumentsProvider).active?.document;
-    final signers = [
-      for (final signature in document?.signatures ?? const <Signature>[])
-        if (signature.signed) signature.signer,
-    ];
-    return Padding(
-      padding: EdgeInsetsDirectional.all(theme.space.space2),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        spacing: theme.space.space2,
-        children: [
-          Icon(IconName.signature, color: theme.colors.warningSolid),
-          Expanded(
-            child: Text(switch (signers) {
-              [final String signer] => l10n.signedReviewRow(
-                bidiIsolate(signer),
-              ),
-              _ => l10n.signedReviewRowOther,
-            }, style: theme.typography.body),
-          ),
-        ],
-      ),
-    );
   }
 }
 

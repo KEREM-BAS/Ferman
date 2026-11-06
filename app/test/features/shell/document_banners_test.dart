@@ -146,6 +146,48 @@ void main() {
     expect(active().document!.id, restricted.id);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
 
+  testWidgets("a restricted document's Edit tab gives the author's reason "
+      'and stays shut; the owner password opens it (a2-10a, B121)', (
+    tester,
+  ) async {
+    final engine = FakeEngineService(
+      documents: {'/docs/kira-tr-restricted.pdf': restricted},
+      ownerPasswords: {restricted.id: 'Kaya-Moda-18'},
+    );
+    final container = await openAll(tester, engine);
+    ModeTabs tabs() => tester.widget<ModeTabs>(find.byType(ModeTabs));
+    expect(
+      tabs().disabledReasons[FermanMode.edit],
+      'The author doesn’t allow editing',
+    );
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+    expect(container.read(shellModeProvider), FermanMode.view);
+
+    await tester.tap(find.text('Unlock with owner password…'));
+    await tester.pumpAndSettle();
+    await tester.enterText(find.byType(EditableText), 'Kaya-Moda-18');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(tabs().disabledReasons, isEmpty);
+    await tester.tap(find.text('Edit'));
+    await tester.pumpAndSettle();
+    expect(container.read(shellModeProvider), FermanMode.edit);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('a restriction that allows changes leaves Edit open', (
+    tester,
+  ) async {
+    final engine = FakeEngineService(
+      documents: {'/docs/no-print.pdf': noPrinting},
+    );
+    await openAll(tester, engine);
+    expect(
+      tester.widget<ModeTabs>(find.byType(ModeTabs)).disabledReasons,
+      isEmpty,
+    );
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets("permissions the board's sentence does not describe get the "
       'neutral one', (tester) async {
     await openAll(

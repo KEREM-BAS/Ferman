@@ -570,11 +570,12 @@ void main() {
         ];
         expect(entries.map((item) => item.label), outside);
         // Edit's tools that work since M3.
-        const working = {
+        final working = {
           'Edit text': null,
           'Undo': 'Nothing to undo',
           'Redo': 'Nothing to redo',
           'Edit history': null,
+          'Review edits (${bidiIsolate('0')})': null,
         };
         for (final entry in entries) {
           final works =

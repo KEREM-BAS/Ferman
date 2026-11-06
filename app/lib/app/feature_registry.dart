@@ -97,22 +97,9 @@ enum Feature {
 
   // Editing.
 
-  /// Editing text in full (reflow, formatting, missing glyphs, every font
-  /// kind): the first-run tile "Edit text and images". Edit › Edit text
-  /// works since W1 of M3.
-  editingText('B041'),
-
   /// Adding text boxes: Edit › Add text and Settings › Editing › Font for
   /// new text.
   addingTextBoxes('B042'),
-
-  /// a11-1c's "Keep the original font and mark the character" (Settings ›
-  /// Editing).
-  missingGlyphMark('B140'),
-
-  /// a11-1c's "Let paragraphs reflow inside their frame while typing": they
-  /// always do so far (Settings › Editing).
-  reflowSwitch('B141'),
 
   /// Adding images (Edit › Add image).
   addingImages('B043'),
@@ -133,13 +120,6 @@ enum Feature {
   /// Page marks: watermark, header and footer, Bates numbering and page
   /// background (Edit › Page marks).
   pageMarks('B046'),
-
-  /// Edit marks: Edit › Mark edited text and the switch in Settings ›
-  /// Editing.
-  editMarks('B048'),
-
-  /// The review list of edits (Edit › Review edits).
-  editReview('B049'),
 
   /// The font picker's "Whole block" scope: the whole block in the chosen
   /// font, not only its missing characters (a3-3b).
@@ -255,8 +235,18 @@ enum Feature {
   /// Settings › Advanced.
   settingsAdvanced('B077'),
 
+  /// Spacing before and after a block in the text panel (a3-2): Spacing ›
+  /// Before and After.
+  blockSpacingAround('B160'),
+
+  /// Reset text style in the text panel's heading (a3-2).
+  blockStyleReset('B162'),
+
   /// Choosing document languages (Settings › Language and region › Add).
   documentLanguages('B081'),
+
+  /// Check spelling and Hyphenate in the Edit panel's Language section.
+  spellCheck('B150'),
 
   /// The update check: Settings › Updates and Settings › Privacy › Check
   /// for updates.

@@ -6,6 +6,7 @@ import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/start/start_screen.dart';
+import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -50,11 +51,13 @@ const OpenedDocument kira = OpenedDocument(
 
 Future<ProviderContainer> open(
   WidgetTester tester,
-  Map<String, OpenedDocument> documents,
-) async {
+  Map<String, OpenedDocument> documents, {
+  Map<int, List<FontCoverage>> fontCoverages = const {},
+}) async {
   final engine = FakeEngineService(
     documents: documents,
     ownerPasswords: {restricted.id: 'Kaya-Moda-18'},
+    fontCoverages: fontCoverages,
   );
   await pumpFermanApp(
     tester,
@@ -106,6 +109,95 @@ String badgeBeside(WidgetTester tester, String row) {
 }
 
 void main() {
+  testWidgets("Edit mode's panel shows a3-1a's tips and, with edits, their "
+      'number and Review; the tips leave no File section', (
+    tester,
+  ) async {
+    final container = await open(tester, {'/home/mert/kira.pdf': kira});
+    container.read(shellModeProvider.notifier).select(FermanMode.edit);
+    await tester.pumpAndSettle();
+    expect(
+      inPanel(
+        find.text(
+          'Click any text to select its block. Click again to place the '
+          'caret.',
+        ),
+      ),
+      findsOne,
+    );
+    expect(inPanel(find.byType(Kbd)), findsOne);
+    expect(inPanel(find.text('in this session')), findsNothing);
+
+    final documents = container.read(shellDocumentsProvider.notifier);
+    final tab = container.read(shellDocumentsProvider).active!;
+    documents.replace(tab.path!, tab.withSave(SaveState.unsaved, editCount: 3));
+    await tester.pumpAndSettle();
+    expect(inPanel(find.text('3 edits')), findsOne);
+    expect(inPanel(find.text('in this session')), findsOne);
+    final review = tester.widget<Button>(
+      find.ancestor(
+        of: inPanel(find.text('Review')),
+        matching: find.byType(Button),
+      ),
+    );
+    expect(review.onPressed, isNotNull);
+    expect(review.disabledReason, isNull);
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('the zoom field takes a typed number; the menu stays (B127)', (
+    tester,
+  ) async {
+    final container = await open(tester, {'/home/mert/kira.pdf': kira});
+    final field = find.byWidgetPredicate(
+      (widget) => widget is Select<String> && widget.semanticLabel == 'Zoom',
+    );
+    double zoom() => container.read(viewerProvider)!.zoom;
+
+    Future<void> type(String text) async {
+      await tester.tap(field);
+      await tester.pumpAndSettle();
+      expect(find.text('Marquee zoom'), findsWidgets);
+      await tester.sendKeyEvent(LogicalKeyboardKey.digit1);
+      await tester.pumpAndSettle();
+      final input = find.descendant(
+        of: field,
+        matching: find.byType(EditableText),
+      );
+      expect(tester.widget<EditableText>(input).controller.text, '1');
+      await tester.enterText(input, text);
+    }
+
+    await type('150');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(zoom(), closeTo(1.5, 0.0001));
+
+    await type('%250');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(zoom(), closeTo(2.5, 0.0001));
+
+    // Past the limits it stops at them.
+    await type('90000');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(zoom(), closeTo(16, 0.0001));
+
+    // Not a number, and Escape: the zoom stays.
+    await type('abc');
+    await tester.testTextInput.receiveAction(TextInputAction.done);
+    await tester.pumpAndSettle();
+    expect(zoom(), closeTo(16, 0.0001));
+    await type('75');
+    await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+    await tester.pumpAndSettle();
+    expect(zoom(), closeTo(16, 0.0001));
+    expect(
+      find.descendant(of: field, matching: find.byType(EditableText)),
+      findsNothing,
+    );
+  }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
   testWidgets('the right panel shows the file, its fonts and its security; '
       'Edit mode only the fonts (FmDocPanel)', (tester) async {
     final container = await open(tester, {
@@ -142,6 +234,60 @@ void main() {
     expect(inPanel(find.text('File')), findsNothing);
     expect(inPanel(find.text('Security')), findsNothing);
   }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+  testWidgets('the fonts name the substitute and the letters a subset lacks '
+      '(a2-7, B122)', (tester) async {
+    await open(
+      tester,
+      {'/home/mert/Kira sözleşmesi.pdf': kira},
+      fontCoverages: {
+        kira.id: const [
+          FontCoverage(name: 'Helvetica', shownAs: 'IBM Plex Sans'),
+          FontCoverage(name: 'Garamond Premier Pro', missingLetters: 'ğĞ'),
+        ],
+      },
+    );
+    await controlD(tester);
+    final note = bidiIsolate('‘ğ’, ‘Ğ’');
+    expect(
+      inDialog(
+        find.text(
+          'Only the characters already used. '
+          'Typing $note needs a substitute.',
+        ),
+      ),
+      findsOne,
+    );
+    expect(
+      inDialog(
+        find.text('Ferman is showing ${bidiIsolate('IBM Plex Sans')} instead.'),
+      ),
+      findsOne,
+    );
+  });
+
+  testWidgets('a2-7: five missing letters name four and go on', (tester) async {
+    await open(
+      tester,
+      {'/home/mert/Kira sözleşmesi.pdf': kira},
+      fontCoverages: {
+        kira.id: const [
+          FontCoverage(name: 'Garamond Premier Pro', missingLetters: 'abcde'),
+        ],
+      },
+    );
+    await controlD(tester);
+    final note = bidiIsolate('‘a’, ‘b’, ‘c’, ‘d’ …');
+    expect(
+      inDialog(
+        find.text(
+          'Only the characters already used. '
+          'Typing $note needs a substitute.',
+        ),
+      ),
+      findsOne,
+    );
+  });
 
   testWidgets('Ctrl+D shows a2-7: the summary, the fonts and the Advanced '
       "tab's scripts row; Done closes it", (tester) async {
