@@ -91,15 +91,17 @@ test('the map parses and every board in it exists in the design export', async (
   const scanned = new Set((await scanDesign(DESIGN_DIR)).map((b) => b.id));
   for (const pair of map.pairs) assert.ok(scanned.has(pair.board), `${pair.id}: ${pair.board} is not a board of design/`);
   for (const pair of map.pairs.filter((p) => p.golden)) assert.match(pair.golden, GOLDEN_NAME, pair.id);
+  assert.deepEqual(map.phoneGoldenSize, { width: 393, height: 852 });
+  assert.throws(() => validateMap({ goldenSize: { width: 16, height: 8 }, pairs: [{ board: 'a1-1', golden: 'start_phone_light_en.png' }] }, { boardIds: new Set(['a1-1']) }), /phoneGoldenSize/);
 });
 
-test('the map covers the M1 set, and CI renders every board it names (@m1 and @m2)', async () => {
+test('the map covers the M1 set, and CI renders every board it names (@m1, @m2 and @phone)', async () => {
   const list = await loadBoards(path.join(TOOL_DIR, 'boards.json'));
   const map = await loadMap(MAP_FILE, await known());
   const boards = new Set(map.pairs.map((p) => p.board));
   for (const id of list.sets.m1) assert.ok(boards.has(id), `${id} of @m1 has no pair`);
-  const rendered = new Set([...list.sets.m1, ...list.sets.m2]);
-  for (const id of boards) assert.ok(rendered.has(id), `${id} is not in @m1 or @m2, which CI renders`);
+  const rendered = new Set([...list.sets.m1, ...list.sets.m2, ...list.sets.phone]);
+  for (const id of boards) assert.ok(rendered.has(id), `${id} is not in @m1, @m2 or @phone, which CI renders`);
   assert.deepEqual(
     map.pairs.filter((p) => p.notCompared).map((p) => p.board),
     ['a1-2c', 'a1-5', 'a11-1', 'a11-1w', 'a12-2b', 'a12-2d', 'a11-1h'],

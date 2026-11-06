@@ -39,6 +39,9 @@ enum Feature {
   /// bar's "+", ⌘O or Ctrl+O, Start › Open file… and Open a PDF.
   openFilesOnWeb('B116'),
 
+  /// The phone's file browser: the navigation bar's Files.
+  phoneFiles('B138'),
+
   /// Creating a PDF: Start › Create PDF, the drop zone's New blank PDF and
   /// Convert › Create PDF.
   createPdf('B019'),

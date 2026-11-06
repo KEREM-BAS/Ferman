@@ -3584,6 +3584,36 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Nothing to redo'**
   String get editNothingToRedo;
+
+  /// Phone navigation bar: its name for screen readers (FmPhone, tabsLabel).
+  ///
+  /// In en, this message translates to:
+  /// **'Sections'**
+  String get phoneSections;
+
+  /// Phone navigation bar: the start screen (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Home'**
+  String get phoneTabHome;
+
+  /// Phone navigation bar: the file browser (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Files'**
+  String get phoneTabFiles;
+
+  /// Phone navigation bar: Scan to PDF (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Scan'**
+  String get phoneTabScan;
+
+  /// Phone navigation bar: Settings (FmPhone).
+  ///
+  /// In en, this message translates to:
+  /// **'Settings'**
+  String get phoneTabSettings;
 }
 
 class _AppLocalizationsDelegate

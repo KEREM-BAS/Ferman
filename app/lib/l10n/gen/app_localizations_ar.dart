@@ -2059,4 +2059,19 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'لا شيء لإعادته';
+
+  @override
+  String get phoneSections => 'الأقسام';
+
+  @override
+  String get phoneTabHome => 'الرئيسية';
+
+  @override
+  String get phoneTabFiles => 'الملفات';
+
+  @override
+  String get phoneTabScan => 'مسح';
+
+  @override
+  String get phoneTabSettings => 'الإعدادات';
 }

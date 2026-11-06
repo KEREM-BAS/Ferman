@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-125 entries: 102 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing.
+126 entries: 103 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 14 | 11 | 1 | 1 | 2 | 1 | 1 |
+| Entries | 59 | 35 | 14 | 11 | 1 | 1 | 2 | 1 | 2 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -198,6 +198,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G124](#g124) | missing state | M2 | Sidebar › Attachments | No board draws what follows Save attachment as…: success, or a file that cannot be written | Decided |
 | [G125](#g125) | ambiguity | M3 | Edit: hover and not-editable text | a3-1a names a block by its heading and offers "Click to edit" before typing works; a3-19's tooltip position | Decided |
 | [G126](#g126) | missing state | M3 | Edit: editing a block, Undo history | a3-1b edits in the document's font with a font label and two clicks; a3-10 names steps in detail; no copy for Undo and Redo with nothing to do | Decided |
+| [G129](#g129) | missing state | P5 | Web build on a phone | Two phone variants and no browser one; no width where the phone layout starts; the desktop tooltip has no touch | Decided |
 
 ## Entries
 
@@ -1864,3 +1865,16 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** One click on an editable block opens its editor with the caret at the click: the solid editing frame and a multi-line text field over the block on the page's white, in the UI font sized from the block's lines, without the font label; the page shows the real result after each commit. The field keeps the block's number of lines until reflow (W2). A step is named "Edited text · page N", the page written for the region; the first row is "Opened" and the file name, without a time (the opening is not a step of the engine's history), and the note drops the board number. With nothing to undo or redo, Undo and Redo are disabled with "Nothing to undo" and "Nothing to redo". Edit history is a toggle that puts the panel in the right panel's place, opening the panel when it was closed; Close history brings the right panel back.
 - **Status:** Decided.
 - **Evidence:** `design/03a Edit text.dc.html` (a3-1b and its note), `design/03b Edit content.dc.html` (a3-10, its `history` list and note). Implemented in `app/lib/features/editor/` and `app/lib/features/shell/shell_tool_rows.dart`; tests in `app/test/features/editor/editor_test.dart`.
+
+<a id="g129"></a>
+
+### G129 · The web build at phone width
+
+- **Type:** missing state
+- **Milestone:** P5, brought forward as B135
+- **Area:** Web build: first run, start screen, Settings
+- **Artboards:** `a13-1b`, `a13-2e`, `a13-15`, `a13-15b`, `FmPhone`
+- **Gap or conflict:** The phone boards draw an iPhone with iOS conventions and a Pixel with Material ones, each inside a device with its own status and gesture bars. No board draws a phone's browser, says at what width the phone layout starts, or says how a phone reads a disabled control's reason, which the desktop shows on hover.
+- **Decision:** One phone variant, the boards' Material one: a top app bar and a four-section navigation bar fit a browser, whose own back button stands in for iOS's and whose URL bar leaves no room for a large title. No FAB: `a13-2e`, the empty home the web build always shows, draws none. The device itself (bezel, status bar, gesture bar) is the browser's and is not drawn (`FmPhone`). The layout goes by width, never by platform: under `WindowMetrics.phoneMaxWidth`, 768 px, the phone layout and the touch density apply. 768 px is measured, not chosen by eye: on first run, the start screen and Settings in English, Turkish and Arabic, the desktop layouts overflow at 700 px and do not at 768 px, except Settings › Language and region, which overflows up to 900 px (a tablet width, left for the tablet step). The phone boards are 393 and 412 px, so nothing drawn for a phone is near it, and the narrowest tablet board is wider. Between 768 and 1023 px the web build keeps the desktop layout. A touch on a disabled control shows its reason as a tooltip, at once and for 2.5 s after the finger lifts. `/editor` with no document goes to the start screen at phone width, since the shell has no phone layout and the web build cannot open a document.
+- **Status:** Decided.
+- **Evidence:** `design/FmPhone.dc.html`, `design/13a Mobile core.dc.html`, `design/13b Mobile tasks.dc.html`. Implemented in `app/lib/design/window_metrics.dart`, `app/lib/app/app.dart`, `app/lib/app/router.dart`, `app/lib/design/components/core/tooltip.dart` and `app/lib/features/phone/fm_phone.dart`; tests in `app/test/features/phone/phone_foundation_test.dart`.

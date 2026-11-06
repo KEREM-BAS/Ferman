@@ -1908,6 +1908,21 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get editNothingToRedo => isolate(super.editNothingToRedo);
+
+  @override
+  String get phoneSections => isolate(super.phoneSections);
+
+  @override
+  String get phoneTabHome => isolate(super.phoneTabHome);
+
+  @override
+  String get phoneTabFiles => isolate(super.phoneTabFiles);
+
+  @override
+  String get phoneTabScan => isolate(super.phoneTabScan);
+
+  @override
+  String get phoneTabSettings => isolate(super.phoneTabSettings);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

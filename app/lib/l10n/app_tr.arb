@@ -579,5 +579,10 @@
   "editHistoryOpened": "{name} açıldı",
   "editHistoryNote": "Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir.",
   "editNothingToUndo": "Geri alınacak bir şey yok",
-  "editNothingToRedo": "Yinelenecek bir şey yok"
+  "editNothingToRedo": "Yinelenecek bir şey yok",
+  "phoneSections": "Bölümler",
+  "phoneTabHome": "Ana sayfa",
+  "phoneTabFiles": "Dosyalar",
+  "phoneTabScan": "Tara",
+  "phoneTabSettings": "Ayarlar"
 }

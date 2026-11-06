@@ -579,5 +579,10 @@
   "editHistoryOpened": "فتح {name}",
   "editHistoryNote": "انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات.",
   "editNothingToUndo": "لا شيء للتراجع عنه",
-  "editNothingToRedo": "لا شيء لإعادته"
+  "editNothingToRedo": "لا شيء لإعادته",
+  "phoneSections": "الأقسام",
+  "phoneTabHome": "الرئيسية",
+  "phoneTabFiles": "الملفات",
+  "phoneTabScan": "مسح",
+  "phoneTabSettings": "الإعدادات"
 }

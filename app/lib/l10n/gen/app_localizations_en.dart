@@ -2030,4 +2030,19 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'Nothing to redo';
+
+  @override
+  String get phoneSections => 'Sections';
+
+  @override
+  String get phoneTabHome => 'Home';
+
+  @override
+  String get phoneTabFiles => 'Files';
+
+  @override
+  String get phoneTabScan => 'Scan';
+
+  @override
+  String get phoneTabSettings => 'Settings';
 }

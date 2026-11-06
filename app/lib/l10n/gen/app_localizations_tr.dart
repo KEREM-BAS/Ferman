@@ -2029,4 +2029,19 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'Yinelenecek bir şey yok';
+
+  @override
+  String get phoneSections => 'Bölümler';
+
+  @override
+  String get phoneTabHome => 'Ana sayfa';
+
+  @override
+  String get phoneTabFiles => 'Dosyalar';
+
+  @override
+  String get phoneTabScan => 'Tara';
+
+  @override
+  String get phoneTabSettings => 'Ayarlar';
 }

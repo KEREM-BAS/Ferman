@@ -2661,5 +2661,25 @@
   "editNothingToRedo": "Nothing to redo",
   "@editNothingToRedo": {
     "description": "Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126)."
+  },
+  "phoneSections": "Sections",
+  "@phoneSections": {
+    "description": "Phone navigation bar: its name for screen readers (FmPhone, tabsLabel)."
+  },
+  "phoneTabHome": "Home",
+  "@phoneTabHome": {
+    "description": "Phone navigation bar: the start screen (FmPhone)."
+  },
+  "phoneTabFiles": "Files",
+  "@phoneTabFiles": {
+    "description": "Phone navigation bar: the file browser (FmPhone)."
+  },
+  "phoneTabScan": "Scan",
+  "@phoneTabScan": {
+    "description": "Phone navigation bar: Scan to PDF (FmPhone)."
+  },
+  "phoneTabSettings": "Settings",
+  "@phoneTabSettings": {
+    "description": "Phone navigation bar: Settings (FmPhone)."
   }
 }

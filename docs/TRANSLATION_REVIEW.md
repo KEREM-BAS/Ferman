@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-580 messages in `app_en.arb`; translated: Turkish 580, Arabic 580.
+585 messages in `app_en.arb`; translated: Turkish 585, Arabic 585.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -636,5 +636,10 @@ The table below is generated from the ARB files by `tools/l10n`
 | `editHistoryNote` | Click a step to go back to it. Greyed steps can be redone until you make a new change. History is kept until you close the document; saved versions are in Version history. | Geri dönmek için bir adıma tıklayın. Soluk adımlar, yeni bir değişiklik yapana kadar yinelenebilir. Geçmiş, belgeyi kapatana kadar saklanır; kaydedilen sürümler Sürüm geçmişi’ndedir. | انقر على خطوة للعودة إليها. يمكن إعادة الخطوات الرمادية إلى أن تُجري تغييرًا جديدًا. يُحتفظ بالسجل إلى أن تغلق المستند، والإصدارات المحفوظة في سجل الإصدارات. | Undo history panel (a3-10): the note at the bottom of the panel. |
 | `editNothingToUndo` | Nothing to undo | Geri alınacak bir şey yok | لا شيء للتراجع عنه | Edit tool row: why Undo is disabled, as its tooltip, when the document has no step to undo (G126). |
 | `editNothingToRedo` | Nothing to redo | Yinelenecek bir şey yok | لا شيء لإعادته | Edit tool row: why Redo is disabled, as its tooltip, when no step was undone (G126). |
+| `phoneSections` | Sections | Bölümler | الأقسام | Phone navigation bar: its name for screen readers (FmPhone, tabsLabel). |
+| `phoneTabHome` | Home | Ana sayfa | الرئيسية | Phone navigation bar: the start screen (FmPhone). |
+| `phoneTabFiles` | Files | Dosyalar | الملفات | Phone navigation bar: the file browser (FmPhone). |
+| `phoneTabScan` | Scan | Tara | مسح | Phone navigation bar: Scan to PDF (FmPhone). |
+| `phoneTabSettings` | Settings | Ayarlar | الإعدادات | Phone navigation bar: Settings (FmPhone). |
 
 <!-- END GENERATED TRANSLATION TABLE -->
