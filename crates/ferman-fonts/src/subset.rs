@@ -214,7 +214,11 @@ pub fn subset_at(
     // subsetter adds a name record's offset and length in u16, which overflows on a hostile font.
     if font.name().is_ok_and(|name| {
         name.name_record().iter().any(|record| {
-            record.string_offset().to_u32() + u32::from(record.length()) > u32::from(u16::MAX)
+            record
+                .string_offset()
+                .to_u32()
+                .saturating_add(u32::from(record.length()))
+                > u32::from(u16::MAX)
         })
     }) {
         return Err(FontError::Subsetting);
