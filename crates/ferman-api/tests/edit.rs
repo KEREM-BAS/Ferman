@@ -109,6 +109,87 @@ fn an_edit_renders_undoes_redoes_and_saves() {
     std::fs::remove_dir_all(&dir).unwrap();
 }
 
+/// Commits `to` for the first word of block `index` on page 0, as a history step.
+fn edit_block(doc: ferman_api::facade::DocumentId, index: usize, to: &str) {
+    let page = block_on(engine().text_blocks(doc, 0)).unwrap();
+    let block = page.blocks.get(index).unwrap();
+    let text = block
+        .lines
+        .iter()
+        .map(|line| line.text.as_str())
+        .collect::<Vec<_>>()
+        .join("\n");
+    let word = text.split_whitespace().next().unwrap();
+    let tx = block_on(engine().begin_edit(doc, 0, block.id)).unwrap();
+    block_on(engine().apply(tx, text.replacen(word, to, 1))).unwrap();
+    block_on(engine().commit(tx, "Edited".to_owned())).unwrap();
+}
+
+/// Page 0 of the file at `path` as PDFium draws it, opened from disk.
+fn raster(path: &std::path::Path) -> ferman_render::PageRaster {
+    let opened = block_on(engine().open(path.to_path_buf(), None)).unwrap();
+    let size = ferman_render::PageSize {
+        width: opened.pages[0].size.width,
+        height: opened.pages[0].size.height,
+    };
+    let raster = block_on(engine().render_page(opened.id, 0, size, 150)).unwrap();
+    block_on(engine().close(opened.id)).unwrap();
+    raster
+}
+
+/// a3-12: a step reverted alone leaves what the other edit alone would have, and Revert all what
+/// the file had: not one pixel differs, the file reopened from disk, and the original stays an
+/// exact prefix.
+#[test]
+#[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
+fn a_revert_saves_the_pixels_of_never_having_made_the_edit() {
+    let dir = std::env::temp_dir().join(format!("ferman-api-revert-test-{}", std::process::id()));
+    std::fs::create_dir_all(&dir).unwrap();
+    let copy = |name: &str| {
+        let path = dir.join(name);
+        std::fs::copy(corpus("edit-e15-helvetica"), &path).unwrap();
+        path
+    };
+    let original = copy("original.pdf");
+    let original_bytes = std::fs::read(&original).unwrap();
+
+    // Only the second block edited.
+    let only = copy("only.pdf");
+    let doc = block_on(engine().open(only.clone(), None)).unwrap().id;
+    edit_block(doc, 1, "Second");
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+
+    // Both edited, the first reverted.
+    let reverted = copy("reverted.pdf");
+    let doc = block_on(engine().open(reverted.clone(), None)).unwrap().id;
+    edit_block(doc, 0, "First");
+    edit_block(doc, 1, "Second");
+    let result = block_on(engine().revert(doc, 0, false, "Reverted".to_owned())).unwrap();
+    assert!(result.reverted, "{:?}", result.dependents);
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+    let saved = std::fs::read(&reverted).unwrap();
+    assert_eq!(
+        saved.get(..original_bytes.len()),
+        Some(original_bytes.as_slice())
+    );
+    let diff = ferman_render::compare(&raster(&only), &raster(&reverted), None, 0).unwrap();
+    assert_eq!(diff.differing, 0);
+
+    // Revert all, saved: the document as it opened.
+    let all = copy("all.pdf");
+    let doc = block_on(engine().open(all.clone(), None)).unwrap().id;
+    edit_block(doc, 0, "First");
+    edit_block(doc, 1, "Second");
+    block_on(engine().revert_all(doc, "Reverted all".to_owned())).unwrap();
+    block_on(engine().save(doc, None)).unwrap();
+    block_on(engine().close(doc)).unwrap();
+    let diff = ferman_render::compare(&raster(&original), &raster(&all), None, 0).unwrap();
+    assert_eq!(diff.differing, 0);
+    std::fs::remove_dir_all(&dir).unwrap();
+}
+
 #[test]
 #[ignore = "needs PDFium: tools/pdfium/fetch.sh + FERMAN_PDFIUM_PATH"]
 fn a_damaged_document_is_not_editable() {

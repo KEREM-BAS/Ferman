@@ -301,6 +301,7 @@ mod tests {
                         column,
                     }),
                     editability: crate::Editability::Editable,
+                    language: None,
                 });
             }
         }

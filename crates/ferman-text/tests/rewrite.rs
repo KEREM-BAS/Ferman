@@ -1246,3 +1246,24 @@ fn kira_tr_madde_4_grows_past_the_iban_line() {
         Err(ferman_text::ExtendBlocked::Block { ref text, .. }) if text.starts_with("IBAN")
     ));
 }
+
+#[test]
+fn a_glyph_an_actual_text_covers_in_its_own_show_leaves_the_line_unsupported() {
+    // Replacing only the first show would leave the second glyph drawn beside the new text.
+    let content =
+        b"/Span <</ActualText (fi)>> BDC BT /F1 12 Tf 72 700 Td (\\001) Tj (\\001) Tj ET EMC";
+    let mut bytes = b"%PDF-1.7\n1 0 obj <</Type/Catalog/Pages 2 0 R>> endobj\n\
+        2 0 obj <</Type/Pages/Kids[3 0 R]/Count 1>> endobj\n\
+        3 0 obj <</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R\
+        /Resources<</Font<</F1<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>>>>>>> endobj\n"
+        .to_vec();
+    bytes.extend_from_slice(format!("4 0 obj <</Length {}>> stream\n", content.len()).as_bytes());
+    bytes.extend_from_slice(content);
+    bytes.extend_from_slice(b"\nendstream endobj\ntrailer <</Root 1 0 R>>\n");
+    let doc = document(&bytes);
+    let target = block(&doc, 0, "fi");
+    assert!(matches!(
+        rewrite_block(&doc, 0, &target, "fo").unwrap(),
+        Outcome::Unsupported(Unsupported::Operators)
+    ));
+}

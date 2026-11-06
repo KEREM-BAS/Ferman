@@ -826,7 +826,7 @@ fn open_journal(path: &Path) -> io::Result<File> {
 }
 
 /// `payload` with its length and checksum in front.
-fn frame(payload: &[u8]) -> Result<Vec<u8>, CoreError> {
+pub(crate) fn frame(payload: &[u8]) -> Result<Vec<u8>, CoreError> {
     let len = u32::try_from(payload.len()).map_err(|_| CoreError::OutOfMemory {
         context: "a recovery record",
     })?;
@@ -1666,6 +1666,10 @@ mod tests {
             for entry in fs::read_dir(dir).unwrap().flatten() {
                 if entry.path().is_dir() {
                     dirs.push(entry.path());
+                    continue;
+                }
+                // The session holds it locked, and Windows refuses to read it (os error 33).
+                if entry.file_name() == LOCK {
                     continue;
                 }
                 let data = fs::read(entry.path()).unwrap();

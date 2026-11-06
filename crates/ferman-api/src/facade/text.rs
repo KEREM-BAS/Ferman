@@ -16,6 +16,7 @@ use std::panic::AssertUnwindSafe;
 use std::sync::Arc;
 use std::thread;
 
+use ferman_core::structure::FontUse;
 use ferman_render::DocumentId;
 use ferman_text::extract::CharBox;
 use ferman_text::{
@@ -56,6 +57,8 @@ pub struct BlockInfo {
     pub direction: TextDirection,
     /// Whether it can be edited, and why not.
     pub editability: Editability,
+    /// Its language tag, else the document's.
+    pub language: Option<String>,
 }
 
 /// One line of a block.
@@ -76,6 +79,52 @@ pub struct Caret {
     pub index: u32,
     /// Its box, of no width across its line (no height in a vertical line).
     pub rect: CharBox,
+}
+
+/// What Properties says about a font beyond its status (a2-7, FmDocPanel, B122).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontCoverage {
+    /// Its `/BaseFont`, a subset's tag included.
+    pub name: String,
+    /// The family PDFium draws a font that is not embedded in, when it is another font.
+    pub shown_as: Option<String>,
+    /// For a subset, the letters asked about that an edit cannot draw in it.
+    pub missing_letters: String,
+}
+
+/// The pages [`Engine::font_coverage`] reads for each of its two answers. A font first used
+/// beyond them has no answer, so a document whose every page has its own font stays quick.
+const COVERAGE_PAGES: usize = 16;
+
+/// Whether `family`, which PDFium reports, is the font named `name`: "Times New Roman" is
+/// `TimesNewRomanPSMT`, "Arial" is `Arial,Bold`.
+fn same_face(family: &str, name: &str) -> bool {
+    let plain = |text: &str| -> String {
+        text.chars()
+            .filter(char::is_ascii_alphanumeric)
+            .map(|c| c.to_ascii_lowercase())
+            .collect()
+    };
+    plain(name).starts_with(&plain(family))
+}
+
+/// Whether `name` carries a subset's tag: six capital letters and `+`.
+fn is_subset(name: &str) -> bool {
+    name.split_once('+')
+        .is_some_and(|(tag, _)| tag.len() == 6 && tag.bytes().all(|b| b.is_ascii_uppercase()))
+}
+
+/// The first page each of `fonts` that is `wanted` is used on, at most [`COVERAGE_PAGES`].
+fn first_pages(fonts: &[FontUse], wanted: impl Fn(&FontUse) -> bool) -> Vec<u32> {
+    let mut pages: Vec<u32> = fonts
+        .iter()
+        .filter(|font| wanted(font))
+        .filter_map(|font| font.pages.first().copied())
+        .collect();
+    pages.sort_unstable();
+    pages.dedup();
+    pages.truncate(COVERAGE_PAGES);
+    pages
 }
 
 /// A place in a page's text: a caret index in one block.
@@ -111,6 +160,96 @@ impl Engine {
         guard_async(async move {
             let (model, text) = self.page_blocks(document, page).await?;
             Ok(page_blocks_info(&model, &text))
+        })
+        .await
+    }
+
+    /// What the fonts of `document` need said beyond their status, from the first page each is
+    /// used on: the family PDFium draws a font that is not embedded in, and which of `letters` a
+    /// subset cannot draw in an edit. A font with nothing to say has no entry.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open, or `Internal` when its thread cannot
+    /// start or the render thread has stopped.
+    pub async fn font_coverage(
+        &self,
+        document: DocumentId,
+        letters: String,
+    ) -> Result<Vec<FontCoverage>, ApiError> {
+        guard_async(async move {
+            let model = self
+                .models()?
+                .get(&document)
+                .cloned()
+                .ok_or_else(|| ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL))?;
+            let fonts = &model.document.structure().fonts;
+            let pages = first_pages(fonts, |font| !font.embedded);
+            let drawn = if pages.is_empty() {
+                Vec::new()
+            } else {
+                self.render()?.page_fonts(document, pages).await?
+            };
+            let mut coverage: Vec<FontCoverage> = fonts
+                .iter()
+                .filter(|font| !font.embedded)
+                .filter_map(|font| {
+                    let (_, family) = drawn.iter().find(|(name, _)| *name == font.name)?;
+                    let family = family.trim();
+                    (!family.is_empty() && !same_face(family, &font.name)).then(|| FontCoverage {
+                        name: font.name.clone(),
+                        shown_as: Some(family.to_owned()),
+                        missing_letters: String::new(),
+                    })
+                })
+                .collect();
+
+            let pages = first_pages(fonts, |font| font.embedded && is_subset(&font.name));
+            let shared = Arc::clone(&model);
+            let (reply, receiver) = futures_channel::oneshot::channel();
+            thread::Builder::new()
+                .name("ferman-text".to_owned())
+                .stack_size(LAYOUT_STACK)
+                .spawn(move || {
+                    let result = guard(AssertUnwindSafe(|| {
+                        let mut subsets: Vec<(String, String)> = Vec::new();
+                        for page in pages {
+                            let Ok(index) = usize::try_from(page) else {
+                                continue;
+                            };
+                            // A page a limit stops leaves its fonts without an answer.
+                            let Ok(found) =
+                                ferman_text::missing_letters(&shared.document, index, &letters)
+                            else {
+                                continue;
+                            };
+                            for font in found {
+                                if is_subset(&font.0)
+                                    && !subsets.iter().any(|(name, _)| *name == font.0)
+                                {
+                                    subsets.push(font);
+                                }
+                            }
+                        }
+                        Ok::<_, ApiError>(subsets)
+                    }));
+                    let _ = reply.send(result);
+                })
+                .map_err(|_| ApiError::internal("cannot start the text thread"))?;
+            let subsets = receiver
+                .await
+                .map_err(|_canceled| ApiError::internal("the text thread stopped"))??;
+            coverage.extend(
+                subsets
+                    .into_iter()
+                    .filter(|(_, missing)| !missing.is_empty())
+                    .map(|(name, missing_letters)| FontCoverage {
+                        name,
+                        shown_as: None,
+                        missing_letters,
+                    }),
+            );
+            Ok(coverage)
         })
         .await
     }
@@ -293,8 +432,23 @@ pub(super) fn page_blocks_info(model: &Model, text: &PageText) -> PageBlocks {
                 } else {
                     block.editability
                 },
+                language: block
+                    .language
+                    .clone()
+                    .or_else(|| model.document.structure().language.clone()),
             })
             .collect(),
         empty: text.empty,
+    }
+}
+
+#[cfg(test)]
+mod tests {
+    #[test]
+    fn a_family_of_the_same_name_is_no_substitute() {
+        assert!(super::same_face("Times New Roman", "TimesNewRomanPSMT"));
+        assert!(super::same_face("Arial", "Arial,Bold"));
+        assert!(!super::same_face("Helvetica Neue", "Helvetica"));
+        assert!(!super::same_face("Arial", "Helvetica"));
     }
 }

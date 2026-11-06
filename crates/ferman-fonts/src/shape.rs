@@ -166,6 +166,19 @@ impl ShapingFont {
     /// [`FontError::ProgramTooLarge`] over [`MAX_PROGRAM`], [`FontError::Malformed`] for bytes
     /// that hold no font.
     pub fn new(data: Vec<u8>, index: u32) -> Result<Self, FontError> {
+        Self::new_at(data, index, None)
+    }
+
+    /// [`ShapingFont::new`] at a named instance of a variable font: its advances and positions.
+    ///
+    /// # Errors
+    ///
+    /// As [`ShapingFont::new`].
+    pub fn new_at(
+        data: Vec<u8>,
+        index: u32,
+        instance: Option<&crate::FaceInstance>,
+    ) -> Result<Self, FontError> {
         if data.len() > MAX_PROGRAM {
             return Err(FontError::ProgramTooLarge {
                 size: u64::try_from(data.len()).unwrap_or(u64::MAX),
@@ -180,6 +193,18 @@ impl ShapingFont {
                 context: "units per em",
             });
         }
+        let font = match instance {
+            Some(instance) => font
+                .instance_builder()
+                .variations(instance.coordinates.iter().map(|(tag, _)| {
+                    harfrust::font::Variation::new(
+                        harfrust::Tag::new(tag),
+                        instance.value(tag).unwrap_or_default(),
+                    )
+                }))
+                .build(),
+            None => font,
+        };
         Ok(Self {
             shaper: Box::new(Harfrust { font }),
         })

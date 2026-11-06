@@ -5,8 +5,10 @@
 //! Lines follow the content order, which is the reading order of the documents Ferman makes and of
 //! most others; columns and blocks are M3's (`layout`). A word break goes where a space glyph is,
 //! or where the gap to the next glyph passes a fifth of the font size. A right-to-left line is
-//! stored in visual order, so it is read back with the bidi algorithm (UAX #9): each glyph keeps
-//! its own text (a lam-alef ligature stays "لا"), and brackets at right-to-left levels are mirrored.
+//! stored in visual order, so it is read back with the bidi algorithm (UAX #9), which sees the line
+//! from the right, as it was typed: each glyph keeps its own text (a lam-alef ligature stays "لا"),
+//! and brackets at right-to-left levels are mirrored. `/ActualText` replaces the glyphs it covers
+//! where it orders right-to-left text or their text is unknown.
 // Positions and widths come from files (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
@@ -28,6 +30,11 @@ use crate::standard14;
 
 /// The gap, as a share of the font size, from which two glyphs are two words.
 const WORD_GAP: f32 = 0.2;
+
+/// The bytes of `/ActualText` a page may add: one large string that a file's `/Properties` resource
+/// shares among many sequences must not grow the text without bound. Past it, glyphs read as
+/// their own text.
+const ACTUAL_TEXT_LIMIT: usize = 1 << 20;
 
 /// A box `[left, top, right, bottom]`.
 pub type CharBox = [f32; 4];
@@ -60,6 +67,7 @@ pub fn page_text(document: &Document, index: usize) -> Result<String, TextError>
 pub fn page_layout(document: &Document, index: usize) -> Result<PageText, TextError> {
     let mut collector = Collector::default();
     document.page_text(index, &mut collector)?;
+    collector.finish();
     let page = document.structure().pages.get(index);
     let glyphs = &collector.glyphs;
     let mut out = PageText::default();
@@ -496,6 +504,21 @@ pub(crate) struct Glyph {
     pub(crate) char_spacing: f32,
     /// Whether text space is sheared in page space, so its boxes are not rectangles.
     pub(crate) skewed: bool,
+    /// The `/ActualText` of the marked content this glyph opens: it stands for the sequence.
+    pub(crate) actual: Option<String>,
+    /// Whether a sequence's `/ActualText` stands for this glyph, on an earlier glyph.
+    pub(crate) covered: bool,
+}
+
+impl Glyph {
+    /// The text it reads as.
+    fn reads(&self) -> &str {
+        match &self.actual {
+            Some(text) => text,
+            None if self.covered => "",
+            None => &self.text,
+        }
+    }
 }
 
 /// The sink that places glyphs.
@@ -510,6 +533,61 @@ pub(crate) struct Collector {
     pub(crate) paths: bool,
     /// The stream or form of the operator before this one.
     last_source: Option<SpanSource>,
+    /// The glyph the open `/ActualText` sits on, and the bytes placed on this page.
+    actual_at: Option<usize>,
+    actual_bytes: usize,
+    /// The innermost `/Lang` and `/MCID` of the marked content around each show that has one,
+    /// by the show's stream and offset.
+    pub(crate) show_languages: HashMap<(SpanSource, usize), String>,
+    pub(crate) show_mcids: HashMap<(SpanSource, usize), i64>,
+}
+
+impl Collector {
+    /// Ends a sequence left open at the end of the page.
+    pub(crate) fn finish(&mut self) {
+        if let Some(at) = self.actual_at.take() {
+            self.close_actual(at);
+        }
+    }
+
+    /// Ends the `/ActualText` on glyph `at`. It counts where it gives the logical order of the
+    /// right-to-left characters the glyphs draw, or where the glyphs' own text is unknown.
+    /// Otherwise each glyph reads as itself and keeps its own box and font: other text is out of
+    /// date, since an edit keeps the marked content around a line (E21).
+    // shortcut: an edit to an anagram of a right-to-left sequence reads as the old text; upgrade
+    // when the rewrite updates `/ActualText`.
+    fn close_actual(&mut self, at: usize) {
+        let Some(glyphs) = self.glyphs.get_mut(at..) else {
+            return;
+        };
+        let says: Vec<char> = glyphs
+            .first()
+            .and_then(|glyph| glyph.actual.as_deref())
+            .unwrap_or_default()
+            .chars()
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        let draws: Vec<char> = glyphs
+            .iter()
+            .flat_map(|glyph| glyph.text.chars())
+            .filter(|c| !c.is_whitespace())
+            .collect();
+        let unknown = draws.is_empty() || draws.contains(&char::REPLACEMENT_CHARACTER);
+        let sorted = |chars: &[char]| {
+            let mut chars = chars.to_vec();
+            chars.sort_unstable();
+            chars
+        };
+        let orders = says != draws
+            && says.iter().copied().any(right_to_left)
+            && sorted(&says) == sorted(&draws);
+        if !unknown && !orders {
+            for glyph in glyphs {
+                glyph.actual = None;
+                glyph.covered = false;
+            }
+        }
+    }
 }
 
 impl TextSink for Collector {
@@ -530,6 +608,11 @@ impl TextSink for Collector {
             _ => {}
         }
         self.last_source = Some(source);
+        if !operator.marked.iter().any(|m| m.actual_text.is_some())
+            && let Some(at) = self.actual_at.take()
+        {
+            self.close_actual(at);
+        }
     }
 
     fn show(&mut self, show: &TextShow<'_>) -> (f32, f32) {
@@ -547,8 +630,24 @@ impl TextSink for Collector {
         let size = state.size * d.hypot(c);
         let skewed =
             (a * c + b * d).abs() > 1e-3 * (a.hypot(b) * c.hypot(d)).max(f32::MIN_POSITIVE);
+        // The outermost sequence's text stands for everything inside it.
+        let actual = show
+            .marked
+            .iter()
+            .find_map(|marked| marked.actual_text.as_deref())
+            .filter(|text| {
+                self.actual_at.is_some()
+                    || self.actual_bytes.saturating_add(text.len()) <= ACTUAL_TEXT_LIMIT
+            });
         let show_index = self.shows;
         self.shows = self.shows.saturating_add(1);
+        let key = (show.span.source, show.span.range.start);
+        if let Some(lang) = show.marked.iter().rev().find_map(|m| m.lang.as_ref()) {
+            self.show_languages.insert(key, lang.clone());
+        }
+        if let Some(mcid) = show.marked.iter().rev().find_map(|m| m.mcid) {
+            self.show_mcids.insert(key, mcid);
+        }
         let mut advance = 0.0_f32;
         let mut index = 0_usize;
         for item in show.items {
@@ -586,7 +685,16 @@ impl TextSink for Collector {
                 } else {
                     [advance + step, state.rise]
                 };
+                let opens = actual
+                    .filter(|_| self.actual_at.is_none())
+                    .map(str::to_owned);
+                if let Some(text) = &opens {
+                    self.actual_at = Some(self.glyphs.len());
+                    self.actual_bytes = self.actual_bytes.saturating_add(text.len());
+                }
                 self.glyphs.push(Glyph {
+                    covered: actual.is_some() && opens.is_none(),
+                    actual: opens,
                     text: font.text(code),
                     start: apply(show.matrix, origin),
                     end: apply(show.matrix, reach),
@@ -663,13 +771,13 @@ pub(crate) fn line_groups(glyphs: &[Glyph]) -> Vec<Vec<(usize, &Glyph)>> {
 pub(crate) fn words(line: &[(usize, &Glyph)]) -> Line {
     let rtl = line
         .iter()
-        .any(|(_, glyph)| glyph.text.chars().any(right_to_left));
+        .any(|(_, glyph)| glyph.reads().chars().any(right_to_left));
     // A combining mark comes before its base in a right-to-left line's visual order; it stays
     // with that base. Such a line is read left to right, as it shows, whatever order drew it.
     let mut units: Vec<(Vec<&Glyph>, usize, &Glyph)> = Vec::new();
     let mut marks = Vec::new();
     for &(at, glyph) in line {
-        if rtl && !glyph.text.is_empty() && glyph.text.chars().all(is_mark) {
+        if rtl && !glyph.reads().is_empty() && glyph.reads().chars().all(is_mark) {
             marks.push((at, glyph));
         } else {
             let marks = std::mem::take(&mut marks)
@@ -683,34 +791,63 @@ pub(crate) fn words(line: &[(usize, &Glyph)]) -> Line {
         units.sort_by(|(_, _, a), (_, _, b)| a.start[0].total_cmp(&b.start[0]));
     }
     let mut visual: Line = Vec::new();
+    // `/ActualText` is logical already: one character stands for it through the reordering.
+    let mut actual: HashMap<usize, &str> = HashMap::new();
     let mut previous: Option<&Glyph> = None;
     for (marks, at, glyph) in &units {
-        if let Some(last) = previous {
+        if let Some(last) = previous.filter(|_| !glyph.covered) {
             let gap = if last.vertical {
                 last.end[1] - glyph.start[1]
             } else {
                 glyph.start[0] - last.end[0]
             };
             let spaced = visual.last().is_some_and(|(c, _)| c.is_whitespace())
-                || glyph.text.starts_with(char::is_whitespace);
+                || glyph.reads().starts_with(char::is_whitespace);
             if !spaced && gap > glyph.size.max(last.size) * WORD_GAP {
                 visual.push((' ', None));
             }
         }
-        let logical = with_marks(glyph, marks);
         let area = Some(*at);
-        // A right-to-left unit is reversed here, so reading the line back restores it.
-        if logical.chars().any(right_to_left) {
-            visual.extend(logical.chars().rev().map(|c| (c, area)));
+        if let Some(text) = &glyph.actual {
+            for mark in marks {
+                visual.extend(mark.reads().chars().map(|c| (c, area)));
+            }
+            if let Some(stand_in) = stand_in(text) {
+                visual.push((stand_in, area));
+                actual.insert(*at, text);
+            }
         } else {
-            visual.extend(logical.chars().map(|c| (c, area)));
+            let logical = with_marks(glyph, marks);
+            // A right-to-left unit is reversed here, so reading the line back restores it.
+            if logical.chars().any(right_to_left) {
+                visual.extend(logical.chars().rev().map(|c| (c, area)));
+            } else {
+                visual.extend(logical.chars().map(|c| (c, area)));
+            }
         }
         previous = Some(glyph);
     }
     for (at, mark) in marks {
-        visual.extend(mark.text.chars().map(|c| (c, Some(at))));
+        visual.extend(mark.reads().chars().map(|c| (c, Some(at))));
     }
-    if rtl { logical(&visual) } else { visual }
+    let read = if rtl { logical(&visual) } else { visual };
+    if actual.is_empty() {
+        return read;
+    }
+    read.into_iter()
+        .flat_map(|(c, area)| {
+            let text = area.and_then(|at| actual.get(&at).copied());
+            let chars: Vec<char> = text.map_or_else(|| vec![c], |text| text.chars().collect());
+            chars.into_iter().map(move |c| (c, area))
+        })
+        .collect()
+}
+
+/// The character whose direction stands for `text`: its first strong one, or its first.
+fn stand_in(text: &str) -> Option<char> {
+    text.chars()
+        .find(|&c| matches!(bidi_class(c), BidiClass::L | BidiClass::R | BidiClass::AL))
+        .or_else(|| text.chars().next())
 }
 
 /// The box a glyph covers in page space, `[left, bottom, right, top]`: its advance across, and
@@ -736,7 +873,7 @@ pub(crate) fn glyph_box(glyph: &Glyph) -> CharBox {
 /// (lam-alef, ta-ra) a mark goes after the letter it sits over, whose share of the width holds it
 /// (the first letter is on the right), or before an alef.
 fn with_marks(glyph: &Glyph, marks: &[&Glyph]) -> String {
-    let letters: Vec<char> = glyph.text.chars().collect();
+    let letters: Vec<char> = glyph.reads().chars().collect();
     let last = letters.len().saturating_sub(1);
     let width = glyph.end[0] - glyph.start[0];
     let mut after: Vec<Vec<char>> = vec![Vec::new(); letters.len().max(1)];
@@ -758,7 +895,7 @@ fn with_marks(glyph: &Glyph, marks: &[&Glyph]) -> String {
             letter = letter.saturating_sub(1);
         }
         if let Some(slot) = after.get_mut(letter) {
-            slot.extend(mark.text.chars());
+            slot.extend(mark.reads().chars());
         }
     }
     letters
@@ -780,22 +917,78 @@ pub(crate) fn right_to_left(c: char) -> bool {
 
 /// A right-to-left line in visual order, read back into logical order with each character's box,
 /// its brackets mirrored at right-to-left levels.
+///
+/// The algorithm's rules look back along the typed text, so it runs on the line from the right:
+/// a number after Arabic letters is an Arabic number whose "%" stays outside it (W2, W5), and a
+/// bracket takes its direction from what comes before it (N0). Left-to-right runs come out
+/// reversed, and are turned back.
 fn logical(visual: &[(char, Option<usize>)]) -> Line {
-    let text: String = visual.iter().map(|(c, _)| c).collect();
+    let text: String = stand_ins(visual).into_iter().rev().collect();
     let info = BidiInfo::new(&text, Some(Level::rtl()));
     let Some(paragraph) = info.paragraphs.first() else {
         return visual.to_vec();
     };
     // Levels per byte, then one per character, with the line rules (L1) applied.
     let levels = info.reordered_levels_per_char(paragraph, paragraph.range.clone());
-    let chars: Vec<(char, Option<usize>)> = visual
+    let typed: Vec<((char, Option<usize>), bool)> = visual
         .iter()
+        .rev()
         .zip(&levels)
-        .map(|(&(c, area), level)| (if level.is_rtl() { mirror(c) } else { c }, area))
+        .map(|(&(c, area), level)| {
+            let rtl = level.is_rtl();
+            ((if rtl { mirror(c) } else { c }, area), rtl)
+        })
         .collect();
-    BidiInfo::reorder_visual(&levels)
-        .into_iter()
-        .filter_map(|at| chars.get(at).copied())
+    typed
+        .chunk_by(|(_, a), (_, b)| a == b)
+        .flat_map(|run| {
+            let rtl = run.first().is_some_and(|&(_, rtl)| rtl);
+            let chars = run.iter().map(|&(item, _)| item);
+            if rtl {
+                chars.collect::<Vec<_>>()
+            } else {
+                chars.rev().collect()
+            }
+        })
+        .collect()
+}
+
+/// What the algorithm reads for each character of a visual line, one for one, in the same order:
+/// brackets as typed (a right-to-left line shows them mirrored), a paragraph separator as a space
+/// (the line is one paragraph), and a number that stands right of Latin letters as a letter.
+/// "ISO 9001" and the typed "9001 ISO" draw alike; the left-to-right reading is the common one,
+/// and from the right the number would come first and lose the letters' context.
+fn stand_ins(visual: &[(char, Option<usize>)]) -> Vec<char> {
+    let mut latin = false;
+    let mut digit = false;
+    visual
+        .iter()
+        .map(|&(c, _)| {
+            let class = bidi_class(c);
+            let joins = match class {
+                BidiClass::L => {
+                    latin = true;
+                    false
+                }
+                BidiClass::EN => latin,
+                // A sign is part of a Latin number after its digits only.
+                BidiClass::ET => {
+                    latin = latin && digit;
+                    latin
+                }
+                BidiClass::WS | BidiClass::CS | BidiClass::ES => false,
+                _ => {
+                    latin = false;
+                    false
+                }
+            };
+            digit = class == BidiClass::EN;
+            match class {
+                _ if joins => 'a',
+                BidiClass::B => ' ',
+                _ => mirror(c),
+            }
+        })
         .collect()
 }
 
@@ -847,6 +1040,8 @@ pub(crate) fn test_glyph(text: &str, start: [f32; 2]) -> Glyph {
         adjust: 0.0,
         char_spacing: 0.0,
         skewed: false,
+        actual: None,
+        covered: false,
     }
 }
 
@@ -1082,6 +1277,117 @@ dup 65 /Gbreve put dup 66 /idieresis put readonly def currentfile eexec";
         assert_eq!(text(lines(&glyphs)), ["عام 2025 (جديد)"]);
         let ligature = [glyph("لا", 0.0, 0.0), glyph("ب", 5.0, 0.0)];
         assert_eq!(text(lines(&ligature)), ["بلا"]);
+    }
+
+    /// A line as a generator draws it from the left, one glyph per character.
+    fn drawn(visual: &str) -> Vec<Glyph> {
+        (0_u8..)
+            .zip(visual.chars())
+            .map(|(i, c)| glyph(&c.to_string(), f32::from(i) * 5.0, 0.0))
+            .collect()
+    }
+
+    #[test]
+    fn a_right_to_left_line_is_read_from_the_right() {
+        for (visual, typed) in [
+            // A sign at the sentence's end: the number is an Arabic number (W2), the sign outside.
+            (".%30 وحنب", "بنحو 30%."),
+            (".%6.4 ىلإ %7.25 نم", "من 7.25% إلى 6.4%."),
+            // The bracket opens after Arabic letters; the IBAN is a run of its own.
+            ("JO14 AHCB 34 :(IBAN) يلودلا", "الدولي (IBAN): JO14 AHCB 34"),
+            // Letters with digits stay one run, with a Latin number's sign after its digits.
+            ("ISO 9001 ةداهش", "شهادة ISO 9001"),
+            ("Price 30% off رعس", "سعر Price 30% off"),
+            ("ىلإ A-1/2 نم", "من A-1/2 إلى"),
+            // Hebrew digits are European numbers: the sign stays with them (W5).
+            (".30% לש", "של 30%."),
+            ("2,156,500 رانيد", "دينار 2,156,500"),
+            ("20-10 نم", "من 10-20"),
+        ] {
+            assert_eq!(text(lines(&drawn(visual))), [typed], "{visual}");
+        }
+    }
+
+    #[test]
+    fn a_line_break_in_a_glyphs_text_stays_one_paragraph() {
+        let glyphs = [
+            glyph("ب", 0.0, 0.0),
+            glyph("\n", 5.0, 0.0),
+            glyph("ا", 10.0, 0.0),
+        ];
+        let read: Vec<char> = lines(&glyphs)[0].iter().map(|&(c, _)| c).collect();
+        assert_eq!(read, ['ا', '\n', 'ب']);
+    }
+
+    #[test]
+    fn actual_text_replaces_the_glyphs_it_covers() {
+        let covered = |text: &str, x: f32| Glyph {
+            covered: true,
+            ..glyph(text, x, 0.0)
+        };
+        // In a right-to-left line it is logical already, whatever order drew it, and the words
+        // around it read as they do; a gap inside the sequence is no word break.
+        let glyphs = [
+            Glyph {
+                actual: Some("30%.".to_owned()),
+                ..glyph("x", 0.0, 0.0)
+            },
+            covered("y", 20.0),
+            glyph("ب", 30.0, 0.0),
+        ];
+        let line = &lines(&glyphs)[0];
+        let read: String = line.iter().map(|&(c, _)| c).collect();
+        assert_eq!(read, "ب 30%.");
+        // Every character of it has the box of the glyph it sits on.
+        assert_eq!(line.get(2), Some(&('3', Some(0))));
+        // In a left-to-right line too; an empty one hides its glyphs.
+        let glyphs = [
+            glyph("a", 0.0, 0.0),
+            Glyph {
+                actual: Some("fi".to_owned()),
+                ..glyph("x", 5.0, 0.0)
+            },
+            Glyph {
+                actual: Some(String::new()),
+                ..glyph("x", 10.0, 0.0)
+            },
+            covered("y", 15.0),
+        ];
+        assert_eq!(text(lines(&glyphs)), ["afi"]);
+    }
+
+    #[test]
+    fn actual_text_counts_where_it_orders_the_glyphs_or_they_are_unknown() {
+        let closed = |says: &str, first: &str, second: &str| {
+            let mut collector = Collector {
+                glyphs: vec![
+                    Glyph {
+                        actual: Some(says.to_owned()),
+                        ..glyph(first, 0.0, 0.0)
+                    },
+                    Glyph {
+                        covered: true,
+                        ..glyph(second, 5.0, 0.0)
+                    },
+                ],
+                actual_at: Some(0),
+                ..Collector::default()
+            };
+            collector.finish();
+            let [opens, follows] = collector.glyphs.as_slice() else {
+                panic!("two glyphs");
+            };
+            assert_eq!(opens.actual.is_some(), follows.covered, "{says}");
+            opens.actual.is_some()
+        };
+        assert!(closed("بن", "ن", "ب"), "the logical order");
+        assert!(closed("xy", "\u{FFFD}", "b"), "unknown glyphs");
+        assert!(!closed("a b", "a", "b"), "the same text and order");
+        // An edit changed the glyphs; the old text no longer says what the page shows, even
+        // with the same digits.
+        assert!(!closed("cd", "a", "b"));
+        assert!(!closed("ba", "a", "b"));
+        assert!(!closed("", "a", "b"));
     }
 
     #[test]

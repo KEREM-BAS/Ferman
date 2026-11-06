@@ -42,8 +42,8 @@ use std::sync::Arc;
 use ferman_core::Password;
 use lru::LruCache;
 use pdfium_render::prelude::{
-    PdfBitmap, PdfBitmapFormat, PdfDocument, PdfPage, PdfPageIndex, PdfRenderConfig, Pdfium,
-    PdfiumError, PdfiumInternalError,
+    PdfBitmap, PdfBitmapFormat, PdfDocument, PdfPage, PdfPageIndex, PdfPageObjectsCommon,
+    PdfRenderConfig, Pdfium, PdfiumError, PdfiumInternalError,
 };
 
 use crate::RenderError;
@@ -53,6 +53,10 @@ use crate::tiles::{FailReason, Item, PageSize, PixelRect};
 /// The pixels rendered around a tile on every side and cut away, so no glyph the tile shows
 /// crosses the edge of PDFium's bitmap (module documentation).
 const TILE_MARGIN: u32 = 32;
+
+/// The page objects read for a page's fonts, so a page of very many objects cannot hold up the
+/// render thread for long.
+const MAX_FONT_OBJECTS: usize = 20_000;
 
 /// One document in PDFium.
 pub(crate) struct LoadedDocument<'p> {
@@ -171,6 +175,24 @@ impl<'p> LoadedDocument<'p> {
             .and_then(|page| self.sizes.get(page))
             .copied()
             .ok_or(FailReason::NoSuchPage)
+    }
+
+    /// The fonts the text objects of page `index` use, each once: the PDF's name for the font
+    /// (a subset's tag included) and the family PDFium draws it in, which for a font that is not
+    /// embedded is the substitute it chose. At most [`MAX_FONT_OBJECTS`] objects are read.
+    pub(crate) fn page_fonts(&mut self, index: u32) -> Result<Vec<(String, String)>, FailReason> {
+        let page = self.page(index)?;
+        let mut fonts: Vec<(String, String)> = Vec::new();
+        for object in page.objects().iter().take(MAX_FONT_OBJECTS) {
+            if let Some(text) = object.as_text_object() {
+                let font = text.font();
+                let name = font.name();
+                if !fonts.iter().any(|(known, _)| *known == name) {
+                    fonts.push((name, font.family()));
+                }
+            }
+        }
+        Ok(fonts)
     }
 
     /// The loaded page `index`, loading it (and closing the least recently used one) if needed.

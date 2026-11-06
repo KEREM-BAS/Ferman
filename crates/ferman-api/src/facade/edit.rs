@@ -75,9 +75,9 @@ use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::DocumentId;
 use ferman_text::extract::CharBox;
 use ferman_text::{
-    BlockId, Choice, EditContext, Editability, FontCandidate, FontChoice, FontSources,
-    MissingGlyphs, MissingReason, NotEditableReason, Outcome, OverflowPlan, Substitution,
-    SubstitutionKind, TextBlock,
+    BlockId, BlockStyle, BlockStyleInfo, Choice, EditContext, Editability, FontCandidate,
+    FontChoice, FontSources, MissingGlyphs, MissingReason, NotEditableReason, Outcome,
+    OverflowPlan, Substitution, SubstitutionKind, TextBlock,
 };
 
 use super::document::Model;
@@ -134,6 +134,14 @@ pub struct EditPreview {
     /// The table cells whose values likely depend on the edited one (a3-9): the UI tints them
     /// and says "Totals don't update"; the engine never changes them.
     pub dependents: Vec<DependentCell>,
+    /// The block's language tag as a commit leaves it: the one [`Engine::set_block_language`]
+    /// asked for, else the block's own, else the document's.
+    pub language: Option<String>,
+}
+
+/// The overflow choice the open transaction has written, to write again with its new language.
+fn open_choice(open: Option<&Open>) -> Option<Choice> {
+    open.and_then(|open| open.chosen)
 }
 
 /// Characters step 3 draws, or waits for a choice for.
@@ -200,6 +208,11 @@ pub struct FontSettings {
     /// "Ask each time" (a11-1c): step 3 waits for a choice instead of drawing the closest
     /// candidate.
     pub ask_each_time: bool,
+    /// "Keep the original font and mark the character" (a11-1c): step 3 keeps the characters in
+    /// their font without a glyph.
+    pub mark_missing: bool,
+    /// Reflow while typing turned off (a11-1c): only a line feed ends a line.
+    pub keep_lines: bool,
 }
 
 /// The engine's font settings and the library built from them, shared by the actors.
@@ -216,10 +229,16 @@ impl Fonts {
         }
     }
 
-    /// The library when it is built, and whether to ask each time.
-    fn cached(&self) -> (Option<Arc<FontLibrary>>, bool) {
+    /// The library when it is built, and whether to ask each time, mark and keep the lines.
+    fn cached(&self) -> (Option<Arc<FontLibrary>>, (bool, bool, bool)) {
         let state = self.state.lock().unwrap_or_else(PoisonError::into_inner);
-        (state.1.clone(), state.0.ask_each_time)
+        let settings = &state.0;
+        let flags = (
+            settings.ask_each_time,
+            settings.mark_missing,
+            settings.keep_lines,
+        );
+        (state.1.clone(), flags)
     }
 
     /// The library, built now if it is not yet.
@@ -293,6 +312,15 @@ pub struct HistoryStep {
     pub hidden_lines: u32,
     /// The characters it set in another font than their line's (a3-12's font rows).
     pub substitutions: Vec<Substitution>,
+    /// The page of the block it changed; `None` for a revert and a restored step.
+    pub page: Option<u32>,
+    /// The block's text before it, for the review list (a3-12); empty for a revert and a
+    /// restored step.
+    pub before: String,
+    /// The block's text after it; see `before`.
+    pub after: String,
+    /// The steps this one reverted, by index; empty for an edit.
+    pub reverts: Vec<u32>,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -305,6 +333,18 @@ pub struct History {
     /// Whether the document as it stands no longer matches its signatures: the signature row of
     /// the review list (a3-12, G42), named from the open result's signatures.
     pub signature_invalidated: bool,
+}
+
+/// What [`Engine::revert`] did.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reverted {
+    /// Whether the step was reverted; `false` when later steps depend on it and were not asked
+    /// to go with it, and the history is as it was.
+    pub reverted: bool,
+    /// The steps that depend on it, by index, oldest first.
+    pub dependents: Vec<u32>,
+    /// Where the history stands.
+    pub revision: RevisionInfo,
 }
 
 /// A message to an actor: a call to run on its session.
@@ -378,6 +418,9 @@ pub(super) struct Session {
     committed: Arc<RevisionStore>,
     open: Option<Open>,
     steps: Vec<HistoryStep>,
+    /// The frame each step's block had before it, by step: what a later edit depends on
+    /// (a3-12b).
+    frames: Vec<Option<[f32; 4]>>,
     /// Where Save writes.
     path: PathBuf,
     /// The file at `path` as it was opened or last saved.
@@ -420,8 +463,12 @@ struct Open {
     hidden: usize,
     /// The newest text asked for, applied or not.
     requested: Option<String>,
+    /// The language tag asked for, written as `/Lang` around the block's operators.
+    language: Option<String>,
     /// The step 3 choice made in this transaction.
     font_choice: Option<FontChoice>,
+    /// The style the panel set in this transaction (a3-2).
+    style: BlockStyle,
     /// The applied text's step 3 characters drawn without a choice, and its substitutions.
     pending: Option<MissingGlyphs>,
     substitutions: Vec<Substitution>,
@@ -453,6 +500,10 @@ impl Session {
                 time: now_millis(),
                 hidden_lines: 0,
                 substitutions: Vec::new(),
+                page: None,
+                before: String::new(),
+                after: String::new(),
+                reverts: Vec::new(),
             })
             .collect();
         Self {
@@ -460,6 +511,7 @@ impl Session {
             committed,
             open: None,
             steps,
+            frames: Vec::new(),
             path,
             stamp,
             rewritten: false,
@@ -570,7 +622,9 @@ impl Session {
             chosen: None,
             hidden: 0,
             requested: None,
+            language: None,
             font_choice: None,
+            style: BlockStyle::default(),
             pending: None,
             substitutions: Vec::new(),
         });
@@ -617,6 +671,22 @@ impl Session {
             .filter(|_| available)
             .ok_or_else(disabled)?;
         self.write(transaction, &text, Some(choice))
+    }
+
+    /// Writes `tag` as the block's language, with the newest text asked for or the block's own.
+    pub(super) fn set_block_language(
+        &mut self,
+        transaction: TransactionId,
+        tag: String,
+    ) -> Result<EditPreview, ApiError> {
+        if !ferman_text::valid_language_tag(&tag) {
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("not a language tag"));
+        }
+        let open = self.open(transaction)?;
+        open.language = Some(tag);
+        let text = open.requested.clone().unwrap_or_else(|| open.block.text());
+        self.write(transaction, &text, open_choice(self.open.as_ref()))
     }
 
     /// Draws step 3's characters in the candidate `postscript_name` of `origin` and returns
@@ -666,6 +736,110 @@ impl Session {
         Ok(preview)
     }
 
+    /// Writes the transaction's newest text, or the block's own, with `style` over what the
+    /// transaction set already. A style that cannot be written is dropped again: the text stays as
+    /// it was applied before, and the preview says what a font lacks.
+    pub(super) fn set_style(
+        &mut self,
+        transaction: TransactionId,
+        style: BlockStyle,
+    ) -> Result<EditPreview, ApiError> {
+        if !style.valid() {
+            return Err(ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                .with_details("a block style out of range"));
+        }
+        let open = self.open(transaction)?;
+        let merged = open.style.merged(style);
+        let before = std::mem::replace(&mut open.style, merged);
+        let text = open
+            .requested
+            .clone()
+            .unwrap_or_else(|| ferman_text::paragraph_text(&open.block));
+        let choice = open.chosen;
+        let requested = open.requested.clone();
+        let written = self.write(transaction, &text, choice);
+        let refused = written
+            .as_ref()
+            .map_or(true, |preview| !preview.missing.is_empty());
+        if refused {
+            let open = self.open(transaction)?;
+            open.style = before;
+            open.requested = requested;
+        }
+        written
+    }
+
+    /// Moves the transaction's block by `by` in page space, without changing its size.
+    pub(super) fn move_block(
+        &mut self,
+        transaction: TransactionId,
+        by: [f32; 2],
+    ) -> Result<EditPreview, ApiError> {
+        let open = self.open(transaction)?;
+        let [left, top, right, bottom] = open.style.frame.unwrap_or(open.block.bbox);
+        let frame = [left + by[0], top + by[1], right + by[0], bottom + by[1]];
+        self.set_style(
+            transaction,
+            BlockStyle {
+                frame: Some(frame),
+                ..BlockStyle::default()
+            },
+        )
+    }
+
+    /// What the text panel shows of `block` of `page`, as the committed revisions lay it out.
+    pub(super) fn block_style(
+        &self,
+        page: u32,
+        block: BlockId,
+    ) -> Result<Option<BlockStyleInfo>, ApiError> {
+        let (index, found) = self.committed_block(page, block)?;
+        let library = self.fonts.library();
+        Ok(ferman_text::block_style(
+            &self.model.document,
+            &self.committed,
+            index,
+            &found,
+            Some(&library),
+        )?)
+    }
+
+    /// The fonts a3-2's font field offers for `block` of `page`.
+    pub(super) fn block_fonts(
+        &self,
+        page: u32,
+        block: BlockId,
+    ) -> Result<Vec<FontCandidate>, ApiError> {
+        let (index, found) = self.committed_block(page, block)?;
+        let library = self.fonts.library();
+        Ok(ferman_text::block_fonts(
+            &self.model.document,
+            &self.committed,
+            index,
+            &found,
+            Some(&library),
+        )?)
+    }
+
+    fn committed_block(&self, page: u32, block: BlockId) -> Result<(usize, TextBlock), ApiError> {
+        let index = self.page_index(page)?;
+        let text = ferman_text::text_page_revised(
+            &self.model.document,
+            &self.committed,
+            index,
+            &self.context(),
+        )?;
+        let found = text
+            .blocks
+            .into_iter()
+            .find(|candidate| candidate.id == block)
+            .ok_or_else(|| {
+                ApiError::new(ErrorKind::NotFound, MessageKey::INTERNAL)
+                    .with_details("no such block")
+            })?;
+        Ok((index, found))
+    }
+
     /// Rewrites the transaction's block to `text` with the overflow choice `choice`.
     fn write(
         &mut self,
@@ -681,8 +855,9 @@ impl Session {
         let document = &model.document;
         let open = self.open(transaction)?;
         open.requested = Some(text.to_owned());
-        let rewrite = |library: Option<&FontLibrary>, ask: bool, open: &Open| {
-            ferman_text::rewrite_block_fonts(
+        let (library, (ask, mark, keep_lines)) = fonts.cached();
+        let rewrite = |library: Option<&FontLibrary>, open: &Open| {
+            ferman_text::rewrite_block_styled(
                 document,
                 Some(&committed),
                 open.page,
@@ -693,12 +868,14 @@ impl Session {
                 &FontSources {
                     library,
                     ask,
+                    mark,
+                    keep_lines,
                     choice: open.font_choice.as_ref(),
                 },
+                &open.style,
             )
         };
-        let (library, ask) = fonts.cached();
-        let mut outcome = rewrite(library.as_deref(), ask, open)?;
+        let mut outcome = rewrite(library.as_deref(), open)?;
         // The fonts are indexed the first time an edit needs them.
         let fell_back = match &outcome {
             Outcome::MissingGlyphs(_) => true,
@@ -710,12 +887,30 @@ impl Session {
         };
         if library.is_none() && fell_back {
             let library = fonts.library();
-            outcome = rewrite(Some(&library), ask, open)?;
+            outcome = rewrite(Some(&library), open)?;
         }
         let (missing, overflowing, glyphs) = match outcome {
             Outcome::Rewritten(rewrite) => {
-                let splices: Vec<revision::Splice> = rewrite
-                    .splices
+                let splices = match open
+                    .language
+                    .as_deref()
+                    .filter(|&tag| open.block.language.as_deref() != Some(tag))
+                {
+                    Some(tag) => ferman_text::with_language(
+                        document,
+                        Some(&committed),
+                        open.page,
+                        &open.block,
+                        tag,
+                        rewrite.splices,
+                    )?
+                    .map_err(|unsupported| {
+                        ApiError::new(ErrorKind::Unsupported, MessageKey::UNSUPPORTED)
+                            .with_details(format!("no language written: {unsupported:?}"))
+                    })?,
+                    None => rewrite.splices,
+                };
+                let splices: Vec<revision::Splice> = splices
                     .into_iter()
                     .map(|splice| revision::Splice {
                         source: splice.source,
@@ -785,6 +980,11 @@ impl Session {
             overflow: open.overflow.clone(),
             chosen: open.chosen,
             dependents: open.dependents.clone(),
+            language: open
+                .language
+                .clone()
+                .or_else(|| open.block.language.clone())
+                .or_else(|| document.structure().language.clone()),
         })
     }
 
@@ -803,10 +1003,14 @@ impl Session {
         if changed {
             self.confirmed()?;
         }
-        let (working, hidden, substitutions) = self.open.take().map_or_else(
-            || (None, 0, Vec::new()),
-            |open| (open.working, open.hidden, open.substitutions),
-        );
+        let Some(open) = self.open.take() else {
+            return Ok((self.current(), None, Vec::new()));
+        };
+        let (working, hidden, substitutions) = (open.working, open.hidden, open.substitutions);
+        let page = u32::try_from(open.page).ok();
+        let frame = open.block.bbox;
+        let text_before = open.block.text();
+        let text_after = open.text.unwrap_or_default();
         let before = self.committed.current();
         let Some(mut working) = working else {
             return Ok((self.current(), None, Vec::new()));
@@ -831,10 +1035,185 @@ impl Session {
             time: now_millis(),
             hidden_lines: u32::try_from(hidden).unwrap_or(u32::MAX),
             substitutions,
+            page,
+            before: text_before,
+            after: text_after,
+            reverts: Vec::new(),
         });
+        self.frames.resize(before, None);
+        self.frames.push(Some(frame));
         self.committed = Arc::new(working);
         self.journal(Change::Commit);
         Ok((self.current(), self.publish(), told))
+    }
+
+    /// The edits that still count: applied, not reverted, and not a revert themselves.
+    fn live_steps(&self) -> Vec<usize> {
+        let applied = self
+            .steps
+            .get(..self.committed.current())
+            .unwrap_or_default();
+        let gone: Vec<u32> = applied
+            .iter()
+            .flat_map(|step| step.reverts.iter().copied())
+            .collect();
+        applied
+            .iter()
+            .enumerate()
+            .filter(|(index, step)| {
+                step.reverts.is_empty()
+                    && u32::try_from(*index).is_ok_and(|index| !gone.contains(&index))
+            })
+            .map(|(index, _)| index)
+            .collect()
+    }
+
+    /// Whether `later` builds on `earlier` whatever their bytes say: it changed the same block,
+    /// or `earlier` added resources to the page that `later`'s text may draw with.
+    fn builds_on(&self, later: usize, earlier: usize) -> bool {
+        let (Some(a), Some(b)) = (self.steps.get(earlier), self.steps.get(later)) else {
+            return false;
+        };
+        // A restored step does not know its page, so it may be `later`'s.
+        if a.page.is_some() && b.page.is_some() && a.page != b.page {
+            return false;
+        }
+        let frame = |step: usize| self.frames.get(step).copied().flatten();
+        let overlapping = matches!((frame(earlier), frame(later)), (Some(a), Some(b))
+            if a[0] < b[2] && b[0] < a[2] && a[1] < b[3] && b[1] < a[3]);
+        overlapping
+            || !self
+                .committed
+                .revisions()
+                .get(earlier)
+                .is_some_and(ferman_core::revision::ChangeSet::streams_only)
+    }
+
+    /// `set`, the steps to revert, grown by every live step that depends on one of them, and the
+    /// open transaction that reverts them all. Bytes that cannot be taken out name the later
+    /// step sharing the object.
+    fn revert_plan(
+        &self,
+        mut set: Vec<usize>,
+        live: &[usize],
+    ) -> Result<(Vec<usize>, RevisionStore), ApiError> {
+        loop {
+            for &later in live {
+                if !set.contains(&later)
+                    && set
+                        .iter()
+                        .any(|&step| later > step && self.builds_on(later, step))
+                {
+                    set.push(later);
+                }
+            }
+            set.sort_unstable();
+            let mut working = (*self.committed).clone();
+            working.begin()?;
+            let mut stuck = None;
+            for &step in set.iter().rev() {
+                if !working.revert_revision(&self.model.document, step)? {
+                    stuck = Some(step);
+                    break;
+                }
+            }
+            let Some(stuck) = stuck else {
+                return Ok((set, working));
+            };
+            let revisions = self.committed.revisions();
+            let shares = |later: usize| {
+                let (Some(a), Some(b)) = (revisions.get(stuck), revisions.get(later)) else {
+                    return false;
+                };
+                a.ids().any(|id| b.ids().any(|other| other == id))
+            };
+            let next = live
+                .iter()
+                .copied()
+                .find(|&later| later > stuck && !set.contains(&later) && shares(later))
+                .ok_or_else(|| {
+                    ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                        .with_details("a later change holds this step's bytes")
+                })?;
+            set.push(next);
+        }
+    }
+
+    /// Commits `working`, which reverts `reverts`, as the step `name`.
+    fn commit_revert(
+        &mut self,
+        mut working: RevisionStore,
+        name: String,
+        reverts: Vec<u32>,
+    ) -> Result<(u32, Reload), ApiError> {
+        let before = self.committed.current();
+        working.commit()?;
+        self.steps.truncate(before);
+        self.steps.push(HistoryStep {
+            name,
+            time: now_millis(),
+            hidden_lines: 0,
+            substitutions: Vec::new(),
+            page: None,
+            before: String::new(),
+            after: String::new(),
+            reverts,
+        });
+        self.frames.resize(before, None);
+        self.frames.push(None);
+        self.committed = Arc::new(working);
+        self.journal(Change::Commit);
+        Ok((self.current(), self.publish()))
+    }
+
+    /// Reverts `step` alone as a new step `name`, which Undo takes back. With later steps that
+    /// depend on it, they go too if `with_dependents`; otherwise nothing changes and the
+    /// dependents come back (G42): both, or neither.
+    pub(super) fn revert(
+        &mut self,
+        step: u32,
+        with_dependents: bool,
+        name: String,
+    ) -> Result<(bool, Vec<u32>, u32, Reload), ApiError> {
+        self.closed()?;
+        self.confirmed()?;
+        let live = self.live_steps();
+        let index = usize::try_from(step)
+            .ok()
+            .filter(|index| live.contains(index))
+            .ok_or_else(|| {
+                ApiError::new(ErrorKind::InvalidInput, MessageKey::INTERNAL)
+                    .with_details("that step does not apply")
+            })?;
+        let (set, working) = self.revert_plan(vec![index], &live)?;
+        let all: Vec<u32> = set
+            .iter()
+            .filter_map(|&step| u32::try_from(step).ok())
+            .collect();
+        let dependents: Vec<u32> = all.iter().copied().filter(|&other| other != step).collect();
+        if !dependents.is_empty() && !with_dependents {
+            return Ok((false, dependents, self.current(), None));
+        }
+        let (current, reload) = self.commit_revert(working, name, all)?;
+        Ok((true, dependents, current, reload))
+    }
+
+    /// Takes the document back to how it opened as a new step `name`, which Undo takes back.
+    pub(super) fn revert_all(&mut self, name: String) -> Result<(u32, Reload), ApiError> {
+        self.closed()?;
+        self.confirmed()?;
+        let live = self.live_steps();
+        if live.is_empty() {
+            return Ok((self.current(), None));
+        }
+        let mut working = (*self.committed).clone();
+        working.begin()?;
+        working.revert_all(&self.model.document)?;
+        let reverts = live
+            .iter()
+            .filter_map(|&step| u32::try_from(step).ok())
+            .collect();
+        self.commit_revert(working, name, reverts)
     }
 
     pub(super) fn rollback(&mut self, transaction: TransactionId) -> Result<u32, ApiError> {
@@ -1247,6 +1626,29 @@ impl Engine {
         .await
     }
 
+    /// Sets the language of the transaction's block to the tag `tag` (a3-14), written as `/Lang`
+    /// on marked content around its operators, which draws nothing, and returns the page as it
+    /// would read; the transaction stays open, and a commit makes it one step with its text.
+    ///
+    /// # Errors
+    ///
+    /// `NotFound` for a transaction that is not open, `InvalidInput` for a tag that is not one,
+    /// `Unsupported` for a block drawn in a way that cannot be marked.
+    pub async fn set_block_language(
+        &self,
+        transaction: TransactionId,
+        tag: String,
+    ) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| {
+                session.set_block_language(transaction, tag)
+            })
+            .await
+        })
+        .await
+    }
+
     /// Keeps the characters step 3 drew provisionally in the closest candidate ("Keep as is"),
     /// or draws them in it after "Ask each time", and returns the page as it would read.
     ///
@@ -1338,6 +1740,108 @@ impl Engine {
         .await
     }
 
+    /// Gives the transaction's block `style` (a3-2) over what the transaction set already, laid
+    /// out again in its frame, and returns the page as it would read. A font that cannot draw the
+    /// block leaves it as it was, and the preview names the characters it lacks.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a transaction that is not open, `InvalidInput` for numbers out of
+    /// range, and `Unsupported` for a style the block cannot take (a vertical block, another font
+    /// for right-to-left text or in a form, another box for a turned block).
+    pub async fn set_block_style(
+        &self,
+        transaction: TransactionId,
+        style: BlockStyle,
+    ) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| {
+                session.set_style(transaction, style)
+            })
+            .await
+        })
+        .await
+    }
+
+    /// Moves the transaction's block by `by` in page space and returns the page as it would read.
+    ///
+    /// # Errors
+    ///
+    /// As [`set_block_style`](Self::set_block_style).
+    pub async fn move_block(
+        &self,
+        transaction: TransactionId,
+        by: [f32; 2],
+    ) -> Result<EditPreview, ApiError> {
+        guard_async(async move {
+            let document = self.transaction_document(transaction)?;
+            self.ask(document, move |session| session.move_block(transaction, by))
+                .await
+        })
+        .await
+    }
+
+    /// Gives the transaction's block the box `frame` in page space, its text reflowed in it, and
+    /// returns the page as it would read. Text that no longer fits comes back with the overflow
+    /// choices, as [`apply`](Self::apply) gives them.
+    ///
+    /// # Errors
+    ///
+    /// As [`set_block_style`](Self::set_block_style).
+    pub async fn resize_block(
+        &self,
+        transaction: TransactionId,
+        frame: CharBox,
+    ) -> Result<EditPreview, ApiError> {
+        self.set_block_style(
+            transaction,
+            BlockStyle {
+                frame: Some(frame),
+                ..BlockStyle::default()
+            },
+        )
+        .await
+    }
+
+    /// What the text panel shows of `block` of `page` of `document` (a3-2); `None` for a block
+    /// without glyphs on the page.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open or a block the page does not have,
+    /// `InvalidInput` for a page it does not have, or the error of reading the page.
+    pub async fn block_style(
+        &self,
+        document: DocumentId,
+        page: u32,
+        block: BlockId,
+    ) -> Result<Option<BlockStyleInfo>, ApiError> {
+        guard_async(async move {
+            self.ask(document, move |session| session.block_style(page, block))
+                .await
+        })
+        .await
+    }
+
+    /// The fonts a3-2's font field offers for `block` of `page` of `document`, best first.
+    ///
+    /// # Errors
+    ///
+    /// As [`block_style`](Self::block_style).
+    pub async fn block_fonts(
+        &self,
+        document: DocumentId,
+        page: u32,
+        block: BlockId,
+    ) -> Result<Vec<FontCandidate>, ApiError> {
+        guard_async(async move {
+            self.ask(document, move |session| session.block_fonts(page, block))
+                .await
+        })
+        .await
+    }
+
     /// Commits the transaction as the step `name` of the history, dropping the steps undone,
     /// and has the render thread show it. A transaction that changed nothing adds no step.
     ///
@@ -1420,6 +1924,59 @@ impl Engine {
     pub async fn redo(&self, document: DocumentId) -> Result<RevisionInfo, ApiError> {
         guard_async(async move {
             let (current, reload) = self.ask(document, Session::redo).await?;
+            Ok(self.revision_info(document, current, reload).await)
+        })
+        .await
+    }
+
+    /// Reverts history step `step` (from 0) alone, as a new step `name` that Undo takes back; the
+    /// steps around it stay (a3-12). When later steps depend on it they are named and nothing
+    /// changes, unless `with_dependents` reverts them too (a3-12b).
+    ///
+    /// # Errors
+    ///
+    /// Returns `InvalidInput` for a step that does not apply or was reverted, while a transaction
+    /// is open, or when a later change holds the step's bytes and no step can be named;
+    /// `ConfirmationRequired` for a signed document before its confirmation; `NotFound` for a
+    /// document that is not open.
+    pub async fn revert(
+        &self,
+        document: DocumentId,
+        step: u32,
+        with_dependents: bool,
+        name: String,
+    ) -> Result<Reverted, ApiError> {
+        guard_async(async move {
+            let (reverted, dependents, current, reload) = self
+                .ask(document, move |session| {
+                    session.revert(step, with_dependents, name)
+                })
+                .await?;
+            Ok(Reverted {
+                reverted,
+                dependents,
+                revision: self.revision_info(document, current, reload).await,
+            })
+        })
+        .await
+    }
+
+    /// Takes the document back to how it opened, as a new step `name` that Undo takes back
+    /// (a3-12b's Revert all).
+    ///
+    /// # Errors
+    ///
+    /// Returns `InvalidInput` while a transaction is open, `ConfirmationRequired` for a signed
+    /// document before its confirmation, and `NotFound` for a document that is not open.
+    pub async fn revert_all(
+        &self,
+        document: DocumentId,
+        name: String,
+    ) -> Result<RevisionInfo, ApiError> {
+        guard_async(async move {
+            let (current, reload) = self
+                .ask(document, move |session| session.revert_all(name))
+                .await?;
             Ok(self.revision_info(document, current, reload).await)
         })
         .await
@@ -1875,6 +2432,98 @@ mod tests {
         (current, reload)
     }
 
+    /// The block texts of page 0, joined.
+    fn page_text(session: &Session) -> String {
+        blocks(session, 0)
+            .blocks
+            .iter()
+            .flat_map(|block| block.lines.iter().map(|line| line.text.clone()))
+            .collect::<Vec<_>>()
+            .join("\n")
+    }
+
+    #[test]
+    fn a_step_reverts_alone_and_undo_brings_it_back() {
+        let mut session = session("edit-e15-helvetica", None);
+        let opened = page_text(&session);
+        let first_words: Vec<String> = blocks(&session, 0)
+            .blocks
+            .iter()
+            .filter_map(|block| block.lines.first())
+            .filter_map(|line| line.text.split(' ').next().map(str::to_owned))
+            .collect();
+        assert!(first_words.len() >= 2, "two blocks: {first_words:?}");
+        edit(&mut session, &first_words[0], "Ax", "first");
+        edit(&mut session, &first_words[1], "By", "second");
+        let edited = page_text(&session);
+        let history = session.history();
+        assert_eq!(history.steps[0].page, Some(0));
+        assert!(history.steps[0].before.contains(&first_words[0]));
+        assert!(history.steps[0].after.contains("Ax"));
+
+        // Another block on the page stays: its bytes do not touch the first edit's.
+        let (done, dependents, current, reload) =
+            session.revert(0, false, "reverted".to_owned()).unwrap();
+        assert!(done);
+        assert!(dependents.is_empty());
+        assert_eq!(current, 3);
+        assert!(reload.is_some());
+        let text = page_text(&session);
+        assert!(!text.contains("Ax"), "{text}");
+        assert!(text.contains("By"), "{text}");
+        assert_eq!(session.history().steps[2].reverts, vec![0]);
+        // A step reverted cannot be reverted again.
+        assert!(session.revert(0, true, "again".to_owned()).is_err());
+
+        session.undo().unwrap();
+        assert_eq!(page_text(&session), edited);
+        session.redo().unwrap();
+        session.revert(1, false, "second too".to_owned()).unwrap();
+        assert_eq!(page_text(&session), opened);
+        session.bytes().unwrap();
+    }
+
+    #[test]
+    fn a_step_a_later_edit_builds_on_is_refused_until_asked() {
+        let mut session = session("edit-e15-helvetica", None);
+        let opened = page_text(&session);
+        edit(&mut session, "Monday", "Friday", "first");
+        edit(&mut session, "Friday", "Sunday", "second");
+        let edited = page_text(&session);
+
+        let (done, dependents, current, reload) =
+            session.revert(0, false, "reverted".to_owned()).unwrap();
+        assert!(!done);
+        assert_eq!(dependents, vec![1]);
+        assert_eq!(current, 2);
+        assert!(reload.is_none());
+        assert_eq!(page_text(&session), edited);
+
+        let (done, dependents, current, _) =
+            session.revert(0, true, "reverted".to_owned()).unwrap();
+        assert!(done);
+        assert_eq!(dependents, vec![1]);
+        assert_eq!(current, 3);
+        assert_eq!(page_text(&session), opened);
+        assert_eq!(session.history().steps[2].reverts, vec![0, 1]);
+    }
+
+    #[test]
+    fn revert_all_goes_back_to_the_opened_file_and_undo_brings_the_edits_back() {
+        let mut session = session("edit-e15-helvetica", None);
+        let opened = page_text(&session);
+        edit(&mut session, "Monday", "Friday", "first");
+        edit(&mut session, "Friday", "Sunday", "second");
+        let edited = page_text(&session);
+        let (current, _) = session.revert_all("all".to_owned()).unwrap();
+        assert_eq!(current, 3);
+        assert_eq!(page_text(&session), opened);
+        assert!(session.live_steps().is_empty());
+        session.undo().unwrap();
+        assert_eq!(page_text(&session), edited);
+        assert_eq!(session.live_steps(), vec![0, 1]);
+    }
+
     #[test]
     fn an_edit_commits_publishes_and_undoes() {
         let mut session = session("edit-e15-helvetica", None);
@@ -2240,6 +2889,76 @@ mod tests {
     }
 
     #[test]
+    fn a_style_is_one_step_and_undoes_to_the_original() {
+        let mut session = session("kira-tr", None);
+        let original = saved(&session);
+        let (block, _) = paragraph(&session, "Kira süresi 01.11.2026");
+        let info = session.block_style(0, block).unwrap().unwrap();
+        assert!(info.size > 0.0);
+        assert!(!info.document_colours.is_empty());
+        let transaction = session.begin(0, block).unwrap();
+        let preview = session
+            .set_style(
+                transaction,
+                BlockStyle {
+                    colour: Some(0x00C8_1E1E),
+                    char_spacing: Some(1.0),
+                    ..BlockStyle::default()
+                },
+            )
+            .unwrap();
+        assert!(preview.missing.is_empty());
+        // A later change in the same transaction builds on the first.
+        session.move_block(transaction, [2.0, 0.0]).unwrap();
+        let (current, reload, _) = session.commit(transaction, "Style".to_owned()).unwrap();
+        assert_eq!(current, 1);
+        assert!(reload.is_some());
+        session.undo().unwrap();
+        assert_eq!(saved(&session), original);
+    }
+
+    #[test]
+    fn a_style_out_of_range_changes_nothing() {
+        let mut session = session("kira-tr", None);
+        let (block, _) = paragraph(&session, "Kira süresi 01.11.2026");
+        let transaction = session.begin(0, block).unwrap();
+        let error = session
+            .set_style(
+                transaction,
+                BlockStyle {
+                    size: Some(0.0),
+                    ..BlockStyle::default()
+                },
+            )
+            .unwrap_err();
+        assert_eq!(error.kind, ErrorKind::InvalidInput);
+        let (current, reload, _) = session.commit(transaction, "Style".to_owned()).unwrap();
+        assert_eq!((current, reload.is_none()), (0, true));
+    }
+
+    #[test]
+    fn a_font_without_the_characters_leaves_the_block_as_it_was() {
+        let mut session = session("kira-tr", None);
+        let (block, _) = paragraph(&session, "Kira süresi 01.11.2026");
+        let transaction = session.begin(0, block).unwrap();
+        let preview = session
+            .set_style(
+                transaction,
+                BlockStyle {
+                    font: Some(ferman_text::BlockFont {
+                        origin: FontOrigin::Bundled,
+                        postscript_name: "NoSuchFont".to_owned(),
+                    }),
+                    ..BlockStyle::default()
+                },
+            )
+            .unwrap();
+        assert!(!preview.missing.is_empty());
+        let (current, ..) = session.commit(transaction, "Style".to_owned()).unwrap();
+        assert_eq!(current, 0);
+    }
+
+    #[test]
     fn a_table_cell_names_the_cells_that_depend_on_it() {
         // E07: a price flags its row's amount and the totals below.
         let mut session = session("fatura-tr", None);
@@ -2269,6 +2988,92 @@ mod tests {
                 .iter()
                 .all(|cell| cell.frame[2] > cell.frame[0])
         );
+    }
+
+    #[test]
+    fn a_block_language_is_marked_around_its_operators_and_survives_a_text_edit() {
+        let mut session = session("fatura-tr", None);
+        let page = blocks(&session, 0);
+        let price = page
+            .blocks
+            .iter()
+            .find(|block| block.text() == "1.250,00")
+            .unwrap();
+        let (left, right) = (price.bbox[0], price.bbox[2]);
+        assert_eq!(price.language, None);
+        let others: Vec<String> = page
+            .blocks
+            .iter()
+            .filter(|block| block.id != price.id)
+            .map(TextBlock::text)
+            .collect();
+
+        // The language alone is a step, and the preview names it.
+        let tx = session.begin(0, price.id).unwrap();
+        let preview = session.set_block_language(tx, "en-GB".to_owned()).unwrap();
+        assert_eq!(preview.language.as_deref(), Some("en-GB"));
+        assert_eq!(session.commit(tx, "Language".to_owned()).unwrap().0, 1);
+        let page = blocks(&session, 0);
+        let marked: Vec<_> = page
+            .blocks
+            .iter()
+            .filter(|block| block.language.as_deref() == Some("en-GB"))
+            .collect();
+        assert_eq!(marked.len(), 1, "only the block is marked");
+        assert_eq!(marked[0].text(), "1.250,00");
+        assert_eq!(marked[0].bbox[0], left);
+        assert_eq!(marked[0].bbox[2], right);
+        let rest: Vec<String> = page
+            .blocks
+            .iter()
+            .filter(|block| block.id != marked[0].id)
+            .map(TextBlock::text)
+            .collect();
+        assert_eq!(rest, others);
+
+        // Text typed later stays inside the mark, and keeps the right edge.
+        let tx = session.begin(0, marked[0].id).unwrap();
+        session.apply(tx, "11.350,00").unwrap();
+        session.commit(tx, "Text".to_owned()).unwrap();
+        let page = blocks(&session, 0);
+        let edited = page
+            .blocks
+            .iter()
+            .find(|block| block.text() == "11.350,00")
+            .unwrap();
+        assert_eq!(edited.language.as_deref(), Some("en-GB"));
+        assert!((edited.bbox[2] - right).abs() < 0.5);
+
+        // The language and the text in one transaction, in either order, make one step.
+        let tx = session.begin(0, edited.id).unwrap();
+        session.apply(tx, "12.350,00").unwrap();
+        session.set_block_language(tx, "de".to_owned()).unwrap();
+        session.apply(tx, "13.350,00").unwrap();
+        session.commit(tx, "Both".to_owned()).unwrap();
+        let page = blocks(&session, 0);
+        let edited = page
+            .blocks
+            .iter()
+            .find(|block| block.text() == "13.350,00")
+            .unwrap();
+        assert_eq!(edited.language.as_deref(), Some("de"));
+
+        let tx = session.begin(0, edited.id).unwrap();
+        let err = session
+            .set_block_language(tx, "en) Tj (evil".to_owned())
+            .unwrap_err();
+        assert_eq!(err.kind, ErrorKind::InvalidInput);
+    }
+
+    #[test]
+    fn a_tagged_document_gives_its_blocks_their_structure_language() {
+        let session = session("tez-tr", None);
+        let languages: Vec<Option<String>> = (0..session.model.document.page_count())
+            .flat_map(|page| blocks(&session, page).blocks)
+            .map(|block| block.language)
+            .collect();
+        assert!(languages.iter().any(|l| l.as_deref() == Some("en-US")));
+        assert!(languages.iter().any(Option::is_none));
     }
 
     #[test]
@@ -2319,6 +3124,81 @@ mod tests {
         });
         session.fonts = Arc::new(fonts);
         session
+    }
+
+    #[test]
+    fn the_third_choice_keeps_the_font_and_reads_the_character_back() {
+        // A composite subset (kira-tr's Madde 6) and a simple font (e04).
+        for (name, starts, typed) in [
+            ("kira-tr", "Olağan bakım", "değişir ğ"),
+            ("edit-e04-differences", "Kira bedeli", "ⱥ"),
+        ] {
+            let mut session = bundled_session(name, false);
+            let fonts = Fonts::default();
+            fonts.set(FontSettings {
+                bundled_dir: None,
+                mark_missing: true,
+                ..FontSettings::default()
+            });
+            session.fonts = Arc::new(fonts);
+            let (block, text) = paragraph(&session, starts);
+            let tx = session.begin(0, block).unwrap();
+            let preview = session.apply(tx, &format!("{text} {typed}")).unwrap();
+            assert!(
+                preview.missing.is_empty() && preview.glyphs.is_none(),
+                "{name}"
+            );
+            let [marked] = preview.substitutions.as_slice() else {
+                panic!("{name}: {:?}", preview.substitutions);
+            };
+            assert_eq!(marked.substitution.kind, SubstitutionKind::Marked);
+            assert_eq!(marked.substitution.from, marked.substitution.to);
+            let lines: Vec<String> = preview
+                .page
+                .blocks
+                .iter()
+                .flat_map(|block| block.lines.iter().map(|line| line.text.clone()))
+                .collect();
+            let last = typed.chars().next_back().unwrap();
+            assert!(
+                lines.iter().any(|line| line.contains(last)),
+                "{name}: {lines:?}"
+            );
+            // Nothing waits for an answer.
+            let (current, _, told) = session.commit(tx, "Mark".to_owned()).unwrap();
+            assert_eq!((current, told.len()), (1, 1), "{name}");
+        }
+    }
+
+    #[test]
+    fn with_reflow_off_only_a_line_feed_ends_a_line() {
+        let lines_of = |keep_lines: bool| {
+            let mut session = bundled_session("kira-tr", false);
+            let fonts = Fonts::default();
+            fonts.set(FontSettings {
+                keep_lines,
+                ..FontSettings::default()
+            });
+            session.fonts = Arc::new(fonts);
+            let (block, text) = paragraph(&session, "Olağan bakım");
+            let tx = session.begin(0, block).unwrap();
+            // One paragraph: the block's lines as one, without any new character.
+            let preview = session.apply(tx, &text.replace('\n', " ")).unwrap();
+            let edited = preview
+                .page
+                .blocks
+                .iter()
+                .find(|block| {
+                    block
+                        .lines
+                        .first()
+                        .is_some_and(|line| line.text.contains("Olağan bakım"))
+                })
+                .unwrap();
+            edited.lines.len()
+        };
+        assert!(lines_of(false) > 1);
+        assert_eq!(lines_of(true), 1);
     }
 
     #[test]

@@ -1,0 +1,17 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "賃貸契約更新のお知らせ", "start": [72.00, 743.35], "end": [269.46, 743.35], "size": 18.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "拝啓、現在ご利用中の東京都品川区の事務所について、賃貸借契約は二〇二六年十", "start": [72.00, 703.33], "end": [515.76, 703.33], "size": 12.00, "vertical": false},
+      {"text": "一月三十日に満了します。", "start": [72.00, 682.93], "end": [215.04, 682.93], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "更新をご希望の場合は、十一月十五日までに管理事務所へご連絡ください。", "start": [72.00, 652.53], "end": [480.00, 652.53], "size": 12.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "更新後の月額賃料は十九万五千円です。", "start": [72.00, 622.13], "end": [287.04, 622.13], "size": 12.00, "vertical": false}
+    ]}
+  ]}
+]}

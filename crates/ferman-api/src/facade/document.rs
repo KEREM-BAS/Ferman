@@ -482,6 +482,41 @@ impl Engine {
         .await
     }
 
+    /// Writes `text` to `path` through the safe write: the review list's export (a3-12). With
+    /// `staging`, as [`save_attachment`](Self::save_attachment), the staged path comes back for
+    /// the platform layer to swap in.
+    ///
+    /// # Errors
+    ///
+    /// The file errors of the write.
+    pub async fn save_text(
+        &self,
+        path: PathBuf,
+        text: String,
+        staging: Option<PathBuf>,
+    ) -> Result<Option<PathBuf>, ApiError> {
+        guard_async(async move {
+            let (reply, receiver) = futures_channel::oneshot::channel();
+            thread::Builder::new()
+                .name(PARSE_THREAD.to_owned())
+                .spawn(move || {
+                    let result = guard(AssertUnwindSafe(move || {
+                        Ok(ferman_core::save::safe_write(
+                            &path,
+                            text.as_bytes(),
+                            staging.as_deref(),
+                        )?)
+                    }));
+                    let _ = reply.send(result);
+                })
+                .map_err(|_| ApiError::internal("cannot start the writing thread"))?;
+            receiver
+                .await
+                .map_err(|_canceled| ApiError::internal("the writing thread stopped"))?
+        })
+        .await
+    }
+
     /// Closes a document: its views end and PDFium lets it go. Its recovery files stay, for
     /// the next launch to offer; [`close_discarding`](Self::close_discarding) deletes them.
     ///

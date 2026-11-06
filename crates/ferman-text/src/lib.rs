@@ -49,6 +49,8 @@
 //!   else ranked similar fonts, and the [`Substitution`]s made; never silent (ADR 0006).
 //! - [`totals`] (since M3): [`dependent_cells`], the table cells whose value likely depends on an
 //!   edited one (a3-9), flagged, never changed.
+//! - [`style`] (since M3): a3-2's [`BlockStyle`], which [`rewrite_block_styled`] writes, and the
+//!   [`BlockStyleInfo`] the panel reads.
 //! - `edit`: `EditOp` and `BlockEditor`. M3.
 //! - `journal`: the edit journal behind the review list. M3.
 #![forbid(unsafe_code)]
@@ -65,6 +67,7 @@ pub mod reflow;
 pub mod rewrite;
 pub mod search;
 mod standard14;
+pub mod style;
 pub mod totals;
 
 pub use collate::collation_order;
@@ -84,10 +87,12 @@ pub use reflow::{
     TIGHTEN_CAP, Tighten, TightenShort, overflow, reflow,
 };
 pub use rewrite::{
-    Choice, Outcome, Rewrite, Splice, Unsupported, rewrite_block, rewrite_block_fonts,
-    rewrite_block_revised, rewrite_block_with,
+    Choice, Outcome, Rewrite, Splice, Unsupported, block_fonts, block_style, missing_letters,
+    rewrite_block, rewrite_block_fonts, rewrite_block_revised, rewrite_block_styled,
+    rewrite_block_with, valid_language_tag, with_language,
 };
 pub use search::{SearchOptions, find};
+pub use style::{BlockFont, BlockStyle, BlockStyleInfo, paragraph_text};
 pub use totals::{amount, dependent_cells};
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.

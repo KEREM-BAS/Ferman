@@ -9,12 +9,15 @@
 //! and showing operators, marked content (`BMC`, `BDC`, `EMC`) and `Do` for forms, with cycle
 //! detection and the recursion limit. Every operator has a [`Span`]: the stream of the page's
 //! `/Contents` or the form it is in, and its bytes in that stream's decoded data. Type3 fonts come
-//! with their glyph procedures' names and `d0` or `d1` metrics; the procedures are not drawn.
+//! with their glyph procedures' names and `d0` or `d1` metrics. Glyph procedures and tiling patterns
+//! are walked once a page, under the same limits as forms, and what they draw reaches no sink: it
+//! is not the page's text. The whole walk stops at [`Limits::page_time`].
 // The interpreter reads values from files (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use std::collections::{BTreeMap, BTreeSet};
+use std::collections::{BTreeMap, BTreeSet, HashMap, HashSet};
 use std::ops::Range;
+use std::time::Instant;
 
 use lopdf::{Dictionary, Object, ObjectId};
 
@@ -332,13 +335,41 @@ impl Document {
     ///
     /// # Errors
     ///
-    /// [`CoreError::ResourceLimit`] past the operators per page, the form recursion, the `q`
-    /// or marked-content nesting, the `usecmap` depth, the decoded size per revision (counted over what this
+    /// [`CoreError::ResourceLimit`] past the operators per page, the form, Type3 and pattern
+    /// recursion, the time per page, the `q` or marked-content nesting, the `usecmap` depth, the decoded size per revision (counted over what this
     /// interpretation holds at once: the page's content, the forms being drawn and the fonts'
     /// CMaps) or another of the document's [`Limits`](crate::limits::Limits); a content stream
     /// that cannot be decoded is skipped.
     pub fn page_text(&self, index: usize, sink: &mut dyn TextSink) -> Result<(), CoreError> {
         self.page_text_through(None, index, sink)
+    }
+
+    /// The language of each marked-content id of page `index`, from its structure elements'
+    /// `/Lang` (ISO 32000-2 §14.9.2), for the ids in `wanted`; empty for a page or document
+    /// without any.
+    #[must_use]
+    pub fn marked_content_languages(
+        &self,
+        index: usize,
+        wanted: &HashSet<i64>,
+    ) -> HashMap<i64, String> {
+        let scope = Scope {
+            doc: self.model(),
+            limits: self.limits(),
+            page_of: BTreeMap::new(),
+            annotation_page: BTreeMap::new(),
+            overlay: None,
+        };
+        self.structure()
+            .pages
+            .get(index)
+            .and_then(|page| match scope.object(page.id) {
+                Some(Object::Dictionary(dict)) => Some(crate::structure::marked_content_languages(
+                    &scope, dict, wanted,
+                )),
+                _ => None,
+            })
+            .unwrap_or_default()
     }
 
     /// [`page_text`](Self::page_text), reading objects through `overlay`'s revisions.
@@ -352,6 +383,7 @@ impl Document {
             return Ok(());
         };
         let limits = self.limits();
+        let deadline = Instant::now().checked_add(limits.page_time);
         let scope = Scope {
             doc: self.model(),
             limits,
@@ -376,6 +408,7 @@ impl Document {
             let Ok(id) = stream.as_reference() else {
                 continue;
             };
+            in_time(deadline, limits)?;
             if let Some(data) = decoded(&scope, &mut used, stream)? {
                 content.push((SpanSource::Page { stream: id }, data));
             }
@@ -388,9 +421,28 @@ impl Document {
             marked: Vec::new(),
             operators: 0,
             decoded: used,
+            muted: false,
+            walked: BTreeSet::new(),
+            deadline,
         };
         walk.run(&content, resources, GraphicsState::default())
     }
+}
+
+/// Fails once `deadline` has passed: the cooperative check of [`Limits::page_time`].
+fn in_time(deadline: Option<Instant>, limits: &Limits) -> Result<(), CoreError> {
+    if deadline.is_some_and(|deadline| Instant::now() >= deadline) {
+        return Err(CoreError::ResourceLimit {
+            limit: LimitKind::PageTime,
+            max: u64::try_from(limits.page_time.as_millis()).unwrap_or(u64::MAX),
+        });
+    }
+    Ok(())
+}
+
+/// An object as a key of [`Walk::walked`], the same as a font's [`FontResource::key`].
+fn object_key((number, generation): ObjectId) -> u64 {
+    (u64::from(number) << 16) | u64::from(generation)
 }
 
 /// A stream's decoded bytes, or `None` when it cannot be decoded; their size is added to `used`.
@@ -440,7 +492,7 @@ struct Walk<'a, 's> {
     scope: &'a Scope<'a>,
     sink: &'s mut dyn TextSink,
     announced: BTreeSet<u64>,
-    /// The forms being drawn, outermost first.
+    /// The forms, glyph procedures and tiling patterns being walked, outermost first.
     forms: Vec<ObjectId>,
     /// The open marked content, outermost first.
     marked: Vec<MarkedContent>,
@@ -449,6 +501,14 @@ struct Walk<'a, 's> {
     ///
     /// [`Limits::max_revision_decoded`]: crate::limits::Limits::max_revision_decoded
     decoded: u64,
+    /// Inside a glyph procedure or a pattern: no operator reaches the sink, and fonts are looked
+    /// at only for their own glyph procedures, so nothing is shown either.
+    muted: bool,
+    /// The Type3 fonts, glyph procedures and patterns walked already: each costs one walk a page,
+    /// however often it is used, so a wide graph of them stays linear.
+    walked: BTreeSet<u64>,
+    /// When [`Limits::page_time`] runs out.
+    deadline: Option<Instant>,
 }
 
 impl<'a> Walk<'a, '_> {
@@ -466,6 +526,7 @@ impl<'a> Walk<'a, '_> {
         let base = self.marked.len();
         let mut carried = Vec::new();
         for (source, data) in streams {
+            in_time(self.deadline, limits)?;
             let (operators, left) =
                 content::operators_after(data, limits, std::mem::take(&mut carried))?;
             carried = left;
@@ -477,18 +538,24 @@ impl<'a> Walk<'a, '_> {
                         max: limits.max_operators_per_page,
                     });
                 }
+                // A clock read per 256 operators costs nothing next to interpreting them.
+                if self.operators & 0xFF == 0 {
+                    in_time(self.deadline, limits)?;
+                }
                 let span = Span {
                     source: *source,
                     range: op.span.clone(),
                     carried: op.carried,
                 };
                 self.step(op, &span, resources, &mut state, &mut saved, base)?;
-                self.sink.operator(&OperatorEvent {
-                    name: &op.name,
-                    span: &span,
-                    state: &state,
-                    marked: &self.marked,
-                });
+                if !self.muted {
+                    self.sink.operator(&OperatorEvent {
+                        name: &op.name,
+                        span: &span,
+                        state: &state,
+                        marked: &self.marked,
+                    });
+                }
             }
         }
         self.marked.truncate(base);
@@ -569,6 +636,9 @@ impl<'a> Walk<'a, '_> {
                 let target = colour(state, op);
                 target.components = components;
                 target.pattern = pattern;
+                if let Some(Ok(name)) = op.operands.last().map(Object::as_name) {
+                    self.pattern(resources, name)?;
+                }
             }
             b"G" | b"g" | b"RG" | b"rg" | b"K" | b"k" => {
                 let space: &[u8] = match op.name.as_slice() {
@@ -717,30 +787,91 @@ impl<'a> Walk<'a, '_> {
             .and_then(|resources| scope.get_dict(resources, b"Font"))
             .and_then(|fonts| fonts.get(name).ok())
         {
-            Some(entry) => self.announce(entry),
+            Some(entry) => self.announce(entry, resources),
             None => Ok(None),
         }
     }
 
-    /// The font dictionary `entry`, announced to the sink the first time.
-    fn announce(&mut self, entry: &'a Object) -> Result<Option<u64>, CoreError> {
+    /// The font dictionary `entry`, announced to the sink the first time; inside a glyph procedure
+    /// or a pattern, only its glyph procedures are walked.
+    fn announce(
+        &mut self,
+        entry: &'a Object,
+        resources: Option<&'a Dictionary>,
+    ) -> Result<Option<u64>, CoreError> {
         let scope = self.scope;
         let Some(dict) = scope.dict(entry) else {
             return Ok(None);
         };
         let key = match entry {
-            Object::Reference((number, generation)) => {
-                (u64::from(*number) << 16) | u64::from(*generation)
-            }
+            Object::Reference(id) => object_key(*id),
             // A direct font dictionary is keyed by where it is, which is stable for a model.
             _ => u64::try_from(std::ptr::from_ref(dict).addr()).unwrap_or(0) | (1 << 63),
         };
+        if self.muted {
+            self.glyph_procedures(key, dict, resources)?;
+            return Ok(None);
+        }
         if !self.announced.contains(&key) {
-            let font = font_resource(scope, dict, key, &mut self.decoded)?;
+            let font = font_resource(scope, dict, key, &mut self.decoded, self.deadline)?;
             self.announced.insert(key);
             self.sink.font(&font);
+            self.glyph_procedures(key, dict, resources)?;
         }
         Ok(Some(key))
+    }
+
+    /// Walks a Type3 font's glyph procedures, the first time.
+    fn glyph_procedures(
+        &mut self,
+        key: u64,
+        font: &'a Dictionary,
+        resources: Option<&'a Dictionary>,
+    ) -> Result<(), CoreError> {
+        let scope = self.scope;
+        if scope.get_name(font, b"Subtype") != Some(b"Type3") || !self.walked.insert(key) {
+            return Ok(());
+        }
+        // Without its own, a Type3 font uses the resources of the content that shows it.
+        let own = scope.get_dict(font, b"Resources").or(resources);
+        for (_, procedure) in scope.get_dict(font, b"CharProcs").into_iter().flatten() {
+            self.aside(procedure, own)?;
+        }
+        Ok(())
+    }
+
+    /// Walks the tiling pattern `name` of `resources`, the first time. A shading pattern has no
+    /// content.
+    fn pattern(&mut self, resources: Option<&'a Dictionary>, name: &[u8]) -> Result<(), CoreError> {
+        let scope = self.scope;
+        match resources
+            .and_then(|resources| scope.get_dict(resources, b"Pattern"))
+            .and_then(|patterns| patterns.get(name).ok())
+        {
+            Some(entry) => self.aside(entry, resources),
+            None => Ok(()),
+        }
+    }
+
+    /// Walks a glyph procedure or a pattern, once a page, for the limits alone.
+    fn aside(
+        &mut self,
+        entry: &'a Object,
+        resources: Option<&'a Dictionary>,
+    ) -> Result<(), CoreError> {
+        let scope = self.scope;
+        let (Ok(id), Some(Object::Stream(stream))) = (entry.as_reference(), scope.resolve(entry))
+        else {
+            return Ok(());
+        };
+        if !self.walked.insert(object_key(id)) {
+            return Ok(());
+        }
+        let own = scope.get_dict(&stream.dict, b"Resources").or(resources);
+        let muted = std::mem::replace(&mut self.muted, true);
+        let result = self.descend(id, entry, own, GraphicsState::default());
+        self.muted = muted;
+        result
     }
 
     /// Applies the `/ExtGState` resource `name`: of its parameters, only `/Font` places text.
@@ -759,7 +890,7 @@ impl<'a> Walk<'a, '_> {
             return Ok(());
         };
         if let (Some(entry), Some(size)) = (font.first(), font.get(1).and_then(number)) {
-            state.font = self.announce(entry)?;
+            state.font = self.announce(entry, resources)?;
             state.font_name = None;
             state.size = size;
         }
@@ -792,7 +923,7 @@ impl<'a> Walk<'a, '_> {
         MarkedContent {
             mcid: properties.and_then(|p| scope.get_int(p, b"MCID")),
             actual_text: properties.and_then(|p| scope.get_text(p, b"ActualText")),
-            lang: properties.and_then(|p| scope.get_text(p, b"Lang")),
+            lang: properties.and_then(|p| scope.get_language(p)),
             optional_content,
             tag,
         }
@@ -821,16 +952,6 @@ impl<'a> Walk<'a, '_> {
         if scope.get_name(&stream.dict, b"Subtype") != Some(b"Form") || self.forms.contains(&id) {
             return Ok(());
         }
-        if u32::try_from(self.forms.len()).map_or(true, |depth| depth >= scope.limits.max_recursion)
-        {
-            return Err(CoreError::ResourceLimit {
-                limit: LimitKind::Recursion,
-                max: u64::from(scope.limits.max_recursion),
-            });
-        }
-        let Some(content) = decoded(scope, &mut self.decoded, entry)? else {
-            return Ok(());
-        };
         let mut state = state.clone();
         if let Some(m) = scope
             .get_array(&stream.dict, b"Matrix")
@@ -842,9 +963,35 @@ impl<'a> Walk<'a, '_> {
         // A form's text starts with its own `BT`; one drawn inside a text object starts afresh.
         (state.text_matrix, state.line_matrix) = (IDENTITY, IDENTITY);
         let own = scope.get_dict(&stream.dict, b"Resources").or(resources);
+        self.descend(id, entry, own, state)
+    }
+
+    /// Interprets the stream `entry` one level deeper, within the recursion limit.
+    fn descend(
+        &mut self,
+        id: ObjectId,
+        entry: &'a Object,
+        resources: Option<&'a Dictionary>,
+        state: GraphicsState,
+    ) -> Result<(), CoreError> {
+        let scope = self.scope;
+        if u32::try_from(self.forms.len()).map_or(true, |depth| depth >= scope.limits.max_recursion)
+        {
+            return Err(CoreError::ResourceLimit {
+                limit: LimitKind::Recursion,
+                max: u64::from(scope.limits.max_recursion),
+            });
+        }
+        let Some(content) = decoded(scope, &mut self.decoded, entry)? else {
+            return Ok(());
+        };
         let size = u64::try_from(content.len()).unwrap_or(u64::MAX);
         self.forms.push(id);
-        let result = self.run(&[(SpanSource::Form { form: id }, content)], own, state);
+        let result = self.run(
+            &[(SpanSource::Form { form: id }, content)],
+            resources,
+            state,
+        );
         self.forms.pop();
         // The form's content is dropped here, so it no longer counts.
         self.decoded = self.decoded.saturating_sub(size);
@@ -877,8 +1024,8 @@ fn matrix(operands: &[Object]) -> Option<Matrix> {
 ///
 /// # Errors
 ///
-/// [`CoreError::ResourceLimit`] past [`Limits::max_usecmap_depth`] or the decoded size per
-/// revision.
+/// [`CoreError::ResourceLimit`] past [`Limits::max_usecmap_depth`], the decoded size per
+/// revision or the time per page.
 ///
 /// [`Limits::max_usecmap_depth`]: crate::limits::Limits::max_usecmap_depth
 fn font_resource(
@@ -886,6 +1033,7 @@ fn font_resource(
     dict: &Dictionary,
     key: u64,
     used: &mut u64,
+    deadline: Option<Instant>,
 ) -> Result<FontResource, CoreError> {
     let kind = crate::structure::fonts::kind(scope.get_name(dict, b"Subtype"));
     let numbers = |dict: &Dictionary, key: &[u8]| -> Vec<f32> {
@@ -1002,7 +1150,7 @@ fn font_resource(
         .ok()
         .or_else(|| <[f32; 4]>::try_from(numbers(dict, b"FontBBox")).ok());
     let char_procs = if kind == FontKind::Type3 {
-        char_procs(scope, dict, &program_limits)
+        char_procs(scope, dict, &program_limits, deadline)?
     } else {
         Vec::new()
     };
@@ -1069,14 +1217,21 @@ fn font_resource(
 }
 
 /// A Type3 font's glyph procedures with the metrics their `d0` or `d1` gives; each is decoded
-/// within `limits`, and only its first operator is read.
-fn char_procs(scope: &Scope<'_>, dict: &Dictionary, limits: &Limits) -> Vec<CharProc> {
+/// within `limits`, and only its first operator is read. Every entry may name one large stream, so
+/// the clock is read before each.
+fn char_procs(
+    scope: &Scope<'_>,
+    dict: &Dictionary,
+    limits: &Limits,
+    deadline: Option<Instant>,
+) -> Result<Vec<CharProc>, CoreError> {
     let Some(procs) = scope.get_dict(dict, b"CharProcs") else {
-        return Vec::new();
+        return Ok(Vec::new());
     };
     procs
         .iter()
         .map(|(name, proc)| {
+            in_time(deadline, scope.limits)?;
             let first = decoded_within(scope, proc, limits)
                 // `d0` or `d1` comes first, so a prefix is enough.
                 .and_then(|data| content::operators(data.get(..1024).unwrap_or(&data), limits).ok())
@@ -1092,11 +1247,11 @@ fn char_procs(scope: &Scope<'_>, dict: &Dictionary, limits: &Limits) -> Vec<Char
                 }
                 _ => (None, None),
             };
-            CharProc {
+            Ok(CharProc {
                 name: String::from_utf8_lossy(name).into_owned(),
                 width,
                 bbox,
-            }
+            })
         })
         .collect()
 }
@@ -1165,6 +1320,7 @@ fn cid(value: f32) -> Option<u32> {
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
     use std::sync::Arc;
+    use std::time::Duration;
 
     use lopdf::{Stream, dictionary};
 
@@ -1519,6 +1675,244 @@ mod tests {
             with(content.len() - 1),
             Some(LimitKind::RevisionDecodedSize)
         );
+    }
+
+    /// What draws the next level of a chain.
+    #[derive(Clone, Copy)]
+    enum Level {
+        Form,
+        Pattern,
+        Type3,
+    }
+
+    impl Level {
+        /// The resource category, and the content that uses the resource `N` of it.
+        fn uses(self) -> (&'static str, &'static [u8]) {
+            match self {
+                Self::Form => ("XObject", b"/N Do"),
+                Self::Pattern => ("Pattern", b"/Pattern cs /N scn"),
+                Self::Type3 => ("Font", b"/N 1 Tf"),
+            }
+        }
+
+        /// A new object of this kind with `content` and `resources`, for its user's resources.
+        fn add(self, doc: &mut lopdf::Document, content: &[u8], resources: Dictionary) -> ObjectId {
+            match self {
+                Self::Form => doc.add_object(Stream::new(
+                    dictionary! { "Subtype" => "Form", "Resources" => resources },
+                    content.to_vec(),
+                )),
+                Self::Pattern => doc.add_object(Stream::new(
+                    dictionary! { "PatternType" => 1, "Resources" => resources },
+                    content.to_vec(),
+                )),
+                Self::Type3 => {
+                    let proc = doc.add_object(Stream::new(dictionary! {}, content.to_vec()));
+                    doc.add_object(dictionary! {
+                        "Type" => "Font", "Subtype" => "Type3", "Resources" => resources,
+                        "CharProcs" => dictionary! { "a" => proc },
+                    })
+                }
+            }
+        }
+    }
+
+    /// A page drawing a chain of `depth` levels, each of the kind `levels` gives in turn.
+    fn level_chain(depth: usize, levels: &[Level]) -> Document {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let mut next: Option<(Level, ObjectId)> = None;
+        let uses = |next: Option<(Level, ObjectId)>| match next {
+            Some((level, id)) => {
+                let (category, content) = level.uses();
+                let names = dictionary! { "N" => id };
+                let mut resources = Dictionary::new();
+                resources.set(category, names);
+                (content, resources)
+            }
+            None => (&b""[..], Dictionary::new()),
+        };
+        for at in 0..depth {
+            let level = levels[at % levels.len()];
+            let (content, resources) = uses(next);
+            next = Some((level, level.add(&mut doc, content, resources)));
+        }
+        let (content, resources) = uses(next);
+        opened(doc, resources, content)
+    }
+
+    #[test]
+    fn type3_and_pattern_recursion_past_the_limit_is_a_resource_limit() {
+        let limit = Limits::default().max_recursion as usize;
+        for levels in [
+            &[Level::Type3][..],
+            &[Level::Pattern],
+            // The three share one depth.
+            &[Level::Form, Level::Pattern, Level::Type3],
+        ] {
+            let page =
+                |depth| limit_of(level_chain(depth, levels).page_text(0, &mut Recorder::default()));
+            assert_eq!(page(limit), None);
+            assert_eq!(page(limit + 1), Some(LimitKind::Recursion));
+        }
+    }
+
+    /// A page with a font and a pattern that use themselves, and a pattern `/W` whose levels each
+    /// use the next twice, `depth` levels down.
+    fn self_using(depth: usize) -> Document {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let (font, proc, pattern) = (
+            doc.new_object_id(),
+            doc.new_object_id(),
+            doc.new_object_id(),
+        );
+        doc.objects.insert(
+            proc,
+            Object::Stream(Stream::new(dictionary! {}, b"500 0 d0 /T 1 Tf".to_vec())),
+        );
+        doc.objects.insert(
+            font,
+            Object::Dictionary(dictionary! {
+                "Type" => "Font", "Subtype" => "Type3",
+                "CharProcs" => dictionary! { "a" => proc },
+                "Resources" => dictionary! { "Font" => dictionary! { "T" => font } },
+            }),
+        );
+        doc.objects.insert(
+            pattern,
+            Object::Stream(Stream::new(
+                dictionary! {
+                    "PatternType" => 1,
+                    "Resources" => dictionary! { "Pattern" => dictionary! { "P" => pattern } },
+                },
+                b"/P scn".to_vec(),
+            )),
+        );
+        let mut wide = doc.add_object(Stream::new(dictionary! { "PatternType" => 1 }, Vec::new()));
+        for _ in 0..depth {
+            wide = doc.add_object(Stream::new(
+                dictionary! {
+                    "PatternType" => 1,
+                    "Resources" => dictionary! { "Pattern" => dictionary! { "W" => wide } },
+                },
+                b"/W scn /W scn".to_vec(),
+            ));
+        }
+        let resources = dictionary! {
+            "Font" => dictionary! { "T" => font },
+            "Pattern" => dictionary! { "P" => pattern, "W" => wide },
+        };
+        opened(doc, resources, b"BT /T 1 Tf ET /P scn /W scn")
+    }
+
+    #[test]
+    fn cycles_and_wide_graphs_of_glyphs_and_patterns_end_at_once() {
+        let mut recorder = Recorder::default();
+        // Each of the 30 levels uses the next twice: 2^30 walks if each were walked every time.
+        self_using(30).page_text(0, &mut recorder).unwrap();
+        let names: Vec<&str> = recorder.ops.iter().map(|op| op.0.as_str()).collect();
+        assert_eq!(names, ["BT", "Tf", "ET", "scn", "scn"]);
+    }
+
+    #[test]
+    fn what_glyphs_and_patterns_draw_is_not_the_pages_text() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let inner = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "TrueType", "BaseFont" => "Inner",
+        });
+        let fonts = dictionary! { "Font" => dictionary! { "I" => inner } };
+        let drawn = b"BT /I 9 Tf (hidden) Tj ET";
+        let proc = doc.add_object(Stream::new(dictionary! {}, drawn.to_vec()));
+        let font = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type3",
+            "CharProcs" => dictionary! { "a" => proc }, "Resources" => fonts.clone(),
+        });
+        let pattern = doc.add_object(Stream::new(
+            dictionary! { "PatternType" => 1, "Resources" => fonts },
+            drawn.to_vec(),
+        ));
+        let page = opened(
+            doc,
+            dictionary! {
+                "Font" => dictionary! { "T" => font },
+                "Pattern" => dictionary! { "P" => pattern },
+            },
+            b"/P scn BT /T 1 Tf (a) Tj ET",
+        );
+        let mut recorder = Recorder::default();
+        page.page_text(0, &mut recorder).unwrap();
+        let shows: Vec<&str> = recorder.shows.iter().map(|show| show.0.as_str()).collect();
+        assert_eq!(shows, ["a"]);
+        assert_eq!(recorder.fonts.len(), 1);
+        assert_eq!(recorder.fonts[0].kind, FontKind::Type3);
+        let names: Vec<&str> = recorder.ops.iter().map(|op| op.0.as_str()).collect();
+        assert_eq!(names, ["scn", "BT", "Tf", "Tj", "ET"]);
+    }
+
+    /// A chain of `depth` forms that each draw the next twice: 2^`depth` operators.
+    fn exponential_forms(depth: usize) -> Document {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        let mut next = doc.add_object(Stream::new(dictionary! { "Subtype" => "Form" }, Vec::new()));
+        for _ in 0..depth {
+            next = doc.add_object(Stream::new(
+                dictionary! {
+                    "Subtype" => "Form",
+                    "Resources" => dictionary! { "XObject" => dictionary! { "X" => next } },
+                },
+                b"/X Do /X Do".to_vec(),
+            ));
+        }
+        let resources = dictionary! { "XObject" => dictionary! { "X" => next } };
+        opened(doc, resources, b"/X Do")
+    }
+
+    #[test]
+    fn a_page_past_its_time_is_a_resource_limit() {
+        // The operator limit would never end this page: only the clock can.
+        let mut doc = exponential_forms(30);
+        doc.limits = Limits {
+            page_time: Duration::from_millis(20),
+            max_operators_per_page: u64::MAX,
+            ..Limits::default()
+        };
+        assert_eq!(
+            limit_of(doc.page_text(0, &mut Recorder::default())),
+            Some(LimitKind::PageTime)
+        );
+        // Without a usable deadline nothing is refused; with none left, every page is.
+        let mut quick = document(b"BT /F1 10 Tf (A) Tj ET", b"");
+        quick.limits.page_time = Duration::MAX;
+        assert_eq!(limit_of(quick.page_text(0, &mut Recorder::default())), None);
+        quick.limits.page_time = Duration::ZERO;
+        assert_eq!(
+            limit_of(quick.page_text(0, &mut Recorder::default())),
+            Some(LimitKind::PageTime)
+        );
+    }
+
+    #[test]
+    fn glyph_procedures_naming_one_large_stream_stop_at_the_time_limit() {
+        let mut doc = crate::structure::tests::doc_with(vec![dictionary! {}], dictionary! {});
+        // Decoded once per entry when the font is read, this would take far longer than 5 s.
+        let large = doc.add_object(Stream::new(dictionary! {}, vec![b' '; 4 << 20]));
+        let mut procs = Dictionary::new();
+        for at in 0..50_000 {
+            procs.set(format!("g{at}"), large);
+        }
+        let font = doc.add_object(dictionary! {
+            "Type" => "Font", "Subtype" => "Type3", "CharProcs" => procs,
+        });
+        let mut page = opened(
+            doc,
+            dictionary! { "Font" => dictionary! { "T" => font } },
+            b"BT /T 1 Tf ET",
+        );
+        page.limits.page_time = Duration::from_millis(20);
+        let started = Instant::now();
+        assert_eq!(
+            limit_of(page.page_text(0, &mut Recorder::default())),
+            Some(LimitKind::PageTime)
+        );
+        assert!(started.elapsed() < Duration::from_secs(5));
     }
 
     /// A page with a Type0 font whose embedded CMap uses a chain of `depth` CMap streams;

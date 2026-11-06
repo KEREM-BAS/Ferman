@@ -1,0 +1,13 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "The committee met on 12 May and read the report on rents in three districts. The", "start": [72.00, 750.56], "end": [490.29, 750.56], "size": 11.00, "vertical": false},
+      {"text": "tables in the second chapter give the rents of each year, and the notes explain how they", "start": [72.00, 734.06], "end": [520.21, 734.06], "size": 11.00, "vertical": false},
+      {"text": "were measured.", "start": [72.00, 717.56], "end": [154.73, 717.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "The second survey, made in 2025, repeats the first one in each of the same districts, so", "start": [72.00, 691.06], "end": [518.46, 691.06], "size": 11.00, "vertical": false},
+      {"text": "the two can be compared line by line.", "start": [72.00, 674.56], "end": [263.67, 674.56], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

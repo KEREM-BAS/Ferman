@@ -753,6 +753,8 @@ pub struct SimpleFont {
     pub fs_type: Option<u16>,
     /// A `Type3` font whose glyph procedures fill the face's outlines, instead of TrueType.
     pub type3: bool,
+    /// A `Type1` font with an embedded program, instead of TrueType, as `dvips` writes it.
+    pub type1: Option<Type1Encoding>,
     used: BTreeMap<u8, char>,
     cache: BTreeMap<char, Option<Glyph>>,
 }
@@ -767,6 +769,7 @@ impl SimpleFont {
             kept: Vec::new(),
             fs_type: None,
             type3: false,
+            type1: None,
             used: BTreeMap::new(),
             cache: BTreeMap::new(),
         }
@@ -783,6 +786,9 @@ impl SimpleFont {
     }
 
     fn encode_uncached(&mut self, c: char) -> Option<Glyph> {
+        if self.type1.is_some() {
+            return self.encode_type1(c);
+        }
         let code = if self.mac_roman {
             mac_roman(c)?
         } else {
@@ -800,6 +806,31 @@ impl SimpleFont {
         })
     }
 
+    /// A Type1 font's glyph, as TeX sets it: codes in an order of the font's own, and no space
+    /// glyph, the space being a `TJ` adjustment.
+    fn encode_type1(&mut self, c: char) -> Option<Glyph> {
+        let gid = self.face.glyph(c)?;
+        let width = self.face.advance(gid);
+        if c == ' ' {
+            return Some(Glyph {
+                code: Vec::new(),
+                gid: 0,
+                width: 0.0,
+                advance: width,
+                space: true,
+            });
+        }
+        let code = u8::try_from(33 + self.used.len()).ok()?;
+        self.used.insert(code, c);
+        Some(Glyph {
+            code: vec![code],
+            gid,
+            width,
+            advance: width,
+            space: false,
+        })
+    }
+
     /// Writes the font dictionary, the descriptor and the subset.
     ///
     /// # Errors
@@ -808,6 +839,10 @@ impl SimpleFont {
     pub fn finish(self, pdf: &mut Pdf) -> Result<(), String> {
         if self.type3 {
             self.finish_type3(pdf);
+            return Ok(());
+        }
+        if let Some(encoding) = self.type1 {
+            self.finish_type1(pdf, encoding);
             return Ok(());
         }
         let mut remap = GlyphRemapper::new();
@@ -866,6 +901,61 @@ impl SimpleFont {
         (first, last, widths)
     }
 
+    /// Writes the font as `Type1`: a program of the used glyphs, its codes in `/Differences` or
+    /// in the program's own encoding.
+    fn finish_type1(self, pdf: &mut Pdf, encoding: Type1Encoding) {
+        let scale = 1000.0 / self.face.units_per_em();
+        let glyphs: Vec<(u8, String, Vec<u8>)> = self
+            .used
+            .iter()
+            .map(|(code, c)| {
+                let gid = self.face.glyph(*c).unwrap_or(0);
+                let mut pen = CharstringPen::new(scale);
+                // The side bearing is zero: the outline's own coordinates are kept.
+                pen.number(0);
+                pen.number(self.face.advance(gid).round() as i32);
+                pen.out.push(13);
+                self.face.draw_outline(gid, &mut pen);
+                pen.out.push(14);
+                (*code, glyph_name(*c), pen.out)
+            })
+            .collect();
+        let tag = subset_tag(&format!("t1{}{:?}", self.face.postscript_name, self.used));
+        let base_font = format!("{tag}+{}", self.face.postscript_name);
+        let program = type1_program(&base_font, &self.face.bbox, &glyphs, encoding);
+        let lengths = dictionary! {
+            "Length1" => i64::try_from(program.clear).unwrap_or(0),
+            "Length2" => i64::try_from(program.encrypted).unwrap_or(0),
+            "Length3" => i64::try_from(program.trailer).unwrap_or(0),
+        };
+        let file = pdf.stream(lengths, program.bytes);
+        let mut descriptor = self.face.descriptor(&base_font, true);
+        descriptor.set("FontFile", file);
+        let descriptor = pdf.add(descriptor);
+        let (first, last, widths) = self.widths();
+        let mut font = dictionary! {
+            "Type" => "Font",
+            "Subtype" => "Type1",
+            "BaseFont" => name(&base_font),
+            "FirstChar" => i64::from(first),
+            "LastChar" => i64::from(last),
+            "Widths" => widths,
+            "FontDescriptor" => descriptor,
+        };
+        if encoding == Type1Encoding::Differences {
+            let mut differences = Vec::new();
+            for (code, glyph, _) in &glyphs {
+                differences.push(Object::Integer(i64::from(*code)));
+                differences.push(name(glyph));
+            }
+            font.set(
+                "Encoding",
+                dictionary! { "Type" => "Encoding", "Differences" => differences },
+            );
+        }
+        pdf.set(self.id, font);
+    }
+
     /// Writes the font as `Type3`: one glyph procedure per code, the face's outline in
     /// thousandths of an em, named `uniXXXX` in `/Differences`, with a `/ToUnicode` CMap.
     fn finish_type3(self, pdf: &mut Pdf) {
@@ -919,6 +1009,227 @@ impl SimpleFont {
                 "ToUnicode" => cmap,
             },
         );
+    }
+}
+
+/// Where a Type1 font's codes are named.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum Type1Encoding {
+    /// In the font dictionary's `/Differences`; the program says `StandardEncoding`.
+    Differences,
+    /// In the program's own encoding array; the font dictionary has no `/Encoding`.
+    BuiltIn,
+}
+
+/// The Type1 name of `c`: the Adobe names of the characters the stand-ins use, `uniXXXX` beyond.
+fn glyph_name(c: char) -> String {
+    const NAMES: [(char, &str); 17] = [
+        ('0', "zero"),
+        ('1', "one"),
+        ('2', "two"),
+        ('3', "three"),
+        ('4', "four"),
+        ('5', "five"),
+        ('6', "six"),
+        ('7', "seven"),
+        ('8', "eight"),
+        ('9', "nine"),
+        ('.', "period"),
+        (',', "comma"),
+        (':', "colon"),
+        (';', "semicolon"),
+        ('-', "hyphen"),
+        ('(', "parenleft"),
+        (')', "parenright"),
+    ];
+    if c.is_ascii_alphabetic() {
+        return c.to_string();
+    }
+    NAMES.iter().find(|(from, _)| *from == c).map_or_else(
+        || format!("uni{:04X}", u32::from(c)),
+        |(_, glyph)| (*glyph).to_owned(),
+    )
+}
+
+/// Type1 encryption (Adobe Type 1 Font Format §7.1) of four zero bytes and `plain`.
+fn type1_encrypt(plain: &[u8], key: u16) -> Vec<u8> {
+    let mut r = key;
+    [0u8; 4]
+        .iter()
+        .chain(plain)
+        .map(|byte| {
+            let cipher = byte ^ (r >> 8) as u8;
+            r = u16::from(cipher)
+                .wrapping_add(r)
+                .wrapping_mul(52845)
+                .wrapping_add(22719);
+            cipher
+        })
+        .collect()
+}
+
+/// A Type1 program and the lengths of its three parts.
+struct Type1Program {
+    bytes: Vec<u8>,
+    clear: usize,
+    encrypted: usize,
+    trailer: usize,
+}
+
+/// The program of `glyphs` (code, name, unencrypted charstring).
+fn type1_program(
+    base_font: &str,
+    bbox: &[f64; 4],
+    glyphs: &[(u8, String, Vec<u8>)],
+    encoding: Type1Encoding,
+) -> Type1Program {
+    let encoding = match encoding {
+        Type1Encoding::Differences => "/Encoding StandardEncoding def\n".to_owned(),
+        Type1Encoding::BuiltIn => {
+            let mut array =
+                "/Encoding 256 array\n0 1 255 {1 index exch /.notdef put} for\n".to_owned();
+            for (code, glyph, _) in glyphs {
+                let _ = writeln!(array, "dup {code} /{glyph} put");
+            }
+            array + "readonly def\n"
+        }
+    };
+    let clear = format!(
+        "%!PS-AdobeFont-1.0: {base_font} 1.0\n12 dict begin\n/FontName /{base_font} def\n/PaintType 0 def\n/FontType 1 def\n/FontMatrix [0.001 0 0 0.001 0 0] readonly def\n{encoding}/FontBBox {{{} {} {} {}}} readonly def\ncurrentdict end\ncurrentfile eexec\n",
+        bbox[0].round(),
+        bbox[1].round(),
+        bbox[2].round(),
+        bbox[3].round(),
+    )
+    .into_bytes();
+    let mut private = format!(
+        "dup /Private 8 dict dup begin\n/RD {{string currentfile exch readstring pop}} executeonly def\n/ND {{noaccess def}} executeonly def\n/NP {{noaccess put}} executeonly def\n/BlueValues [] def\n/MinFeature {{16 16}} def\n/password 5839 def\n2 index /CharStrings {} dict dup begin\n",
+        glyphs.len() + 1
+    )
+    .into_bytes();
+    let mut charstring = |glyph: &str, plain: &[u8]| {
+        let cipher = type1_encrypt(plain, 4330);
+        private.extend_from_slice(format!("/{glyph} {} RD ", cipher.len()).as_bytes());
+        private.extend_from_slice(&cipher);
+        private.extend_from_slice(b" ND\n");
+    };
+    // `0 500 hsbw endchar`.
+    charstring(".notdef", &[139, 248, 136, 13, 14]);
+    for (_, glyph, plain) in glyphs {
+        charstring(glyph, plain);
+    }
+    private.extend_from_slice(
+        b"end\nend\nreadonly put\nnoaccess put\ndup /FontName get exch definefont pop\nmark currentfile closefile\n",
+    );
+    let encrypted = type1_encrypt(&private, 55665);
+    let mut trailer = Vec::new();
+    for _ in 0..8 {
+        trailer.extend_from_slice(&[b'0'; 64]);
+        trailer.push(b'\n');
+    }
+    trailer.extend_from_slice(b"cleartomark\n");
+    let (clear_len, encrypted_len, trailer_len) = (clear.len(), encrypted.len(), trailer.len());
+    Type1Program {
+        bytes: [clear, encrypted, trailer].concat(),
+        clear: clear_len,
+        encrypted: encrypted_len,
+        trailer: trailer_len,
+    }
+}
+
+/// An outline as a Type1 charstring, unencrypted, in whole thousandths of an em.
+struct CharstringPen {
+    out: Vec<u8>,
+    scale: f64,
+    current: (i32, i32),
+}
+
+impl CharstringPen {
+    fn new(scale: f64) -> Self {
+        Self {
+            out: Vec::new(),
+            scale,
+            current: (0, 0),
+        }
+    }
+
+    /// A charstring number (Adobe Type 1 Font Format §6.2).
+    fn number(&mut self, value: i32) {
+        match value {
+            -107..=107 => self.out.push((value + 139) as u8),
+            108..=1131 => {
+                let rest = value - 108;
+                self.out.push((rest / 256 + 247) as u8);
+                self.out.push((rest % 256) as u8);
+            }
+            -1131..=-108 => {
+                let rest = -value - 108;
+                self.out.push((rest / 256 + 251) as u8);
+                self.out.push((rest % 256) as u8);
+            }
+            _ => {
+                self.out.push(255);
+                self.out.extend_from_slice(&value.to_be_bytes());
+            }
+        }
+    }
+
+    fn scaled(&self, x: f64, y: f64) -> (i32, i32) {
+        (
+            (x * self.scale).round() as i32,
+            (y * self.scale).round() as i32,
+        )
+    }
+
+    /// The point relative to the current one, which it becomes.
+    fn delta(&mut self, to: (i32, i32)) {
+        self.number(to.0 - self.current.0);
+        self.number(to.1 - self.current.1);
+        self.current = to;
+    }
+}
+
+impl OutlinePen for CharstringPen {
+    fn move_to(&mut self, x: f32, y: f32) {
+        let to = self.scaled(f64::from(x), f64::from(y));
+        self.delta(to);
+        self.out.push(21);
+    }
+
+    fn line_to(&mut self, x: f32, y: f32) {
+        let to = self.scaled(f64::from(x), f64::from(y));
+        self.delta(to);
+        self.out.push(5);
+    }
+
+    fn quad_to(&mut self, cx: f32, cy: f32, x: f32, y: f32) {
+        // The cubic with the same curve, in font units before rounding.
+        let (x0, y0) = (
+            f64::from(self.current.0) / self.scale,
+            f64::from(self.current.1) / self.scale,
+        );
+        let (qx, qy, x, y) = (f64::from(cx), f64::from(cy), f64::from(x), f64::from(y));
+        let c1 = self.scaled(x0 + (qx - x0) * 2.0 / 3.0, y0 + (qy - y0) * 2.0 / 3.0);
+        let c2 = self.scaled(x + (qx - x) * 2.0 / 3.0, y + (qy - y) * 2.0 / 3.0);
+        let end = self.scaled(x, y);
+        self.delta(c1);
+        self.delta(c2);
+        self.delta(end);
+        self.out.push(8);
+    }
+
+    fn curve_to(&mut self, cx0: f32, cy0: f32, cx1: f32, cy1: f32, x: f32, y: f32) {
+        let c1 = self.scaled(f64::from(cx0), f64::from(cy0));
+        let c2 = self.scaled(f64::from(cx1), f64::from(cy1));
+        let end = self.scaled(f64::from(x), f64::from(y));
+        self.delta(c1);
+        self.delta(c2);
+        self.delta(end);
+        self.out.push(8);
+    }
+
+    fn close(&mut self) {
+        self.out.push(9);
     }
 }
 

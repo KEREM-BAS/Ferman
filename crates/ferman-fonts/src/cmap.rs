@@ -400,9 +400,21 @@ pub fn with_text(original: Option<&[u8]>, added: &[(Vec<u8>, String)]) -> Vec<u8
     if !out.ends_with(b"\n") {
         out.push(b'\n');
     }
-    out.extend(entries);
+    out.extend_from_slice(&entries);
     out.extend_from_slice(tail);
-    out
+    // An original left open at the end (`[`, `<`, a stray `endcmap` in a string) would swallow the
+    // entries or read differently around them; before everything, nothing is open.
+    let mut expected = CMap::parse(original);
+    for (code, text) in added {
+        if let Some(number) = number(code) {
+            expected.text.insert(number, (code.len(), text.clone()));
+        }
+    }
+    if CMap::parse(&out) == expected {
+        out
+    } else {
+        [entries.as_slice(), original].concat()
+    }
 }
 
 /// `<…>` with `bytes` in upper-case hex.
@@ -623,6 +635,22 @@ fn regular(byte: u8) -> bool {
 #[allow(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 mod tests {
     use super::*;
+
+    /// Found by the `to_unicode` fuzz target: a `[` the original never closes.
+    #[test]
+    fn added_text_survives_an_original_left_open() {
+        for original in [
+            &b"1 beginbfchar <41> <0041> endbfchar [ endcmap\n"[..],
+            b"1 beginbfchar <41> <0041> endbfchar <",
+            b"1 beginbfchar <41> <0041> endbfchar (",
+            b"1 beginbfchar <41> <0041> endbfchar (endcmap",
+        ] {
+            let written = with_text(Some(original), &[(vec![0x42], "ş".to_owned())]);
+            let cmap = CMap::parse(&written);
+            assert_eq!(cmap.text(0x42).as_deref(), Some("ş"));
+            assert_eq!(cmap.text(0x41).as_deref(), Some("A"));
+        }
+    }
 
     const TO_UNICODE: &[u8] = b"/CIDInit /ProcSet findresource begin 12 dict begin begincmap
 /CIDSystemInfo << /Registry (Adobe) /Ordering (UCS) /Supplement 0 >> def

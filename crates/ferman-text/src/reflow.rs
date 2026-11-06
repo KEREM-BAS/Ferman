@@ -176,6 +176,33 @@ pub(crate) fn reflow_at(
     lay(frame, text, &advance, 0.0)
 }
 
+/// `frame` grown along its lines about the edge or centre its alignment keeps, so that only a line
+/// feed ends a line of `text`: reflow while typing turned off (a11-1c).
+pub(crate) fn unwrapped(frame: &Frame, text: &str, advance: impl Fn(usize, char) -> f32) -> Frame {
+    let widest = reflow_at(
+        &Frame {
+            width: f32::MAX,
+            ..*frame
+        },
+        text,
+        advance,
+    )
+    .lines
+    .iter()
+    .fold(frame.width, |widest, line| widest.max(line.width));
+    let grown = widest - frame.width;
+    let back = match frame.alignment {
+        Alignment::Left | Alignment::Justified => 0.0,
+        Alignment::Right => grown,
+        Alignment::Center => grown / 2.0,
+    };
+    Frame {
+        origin: add(frame.origin, scale(frame.along, -back)),
+        width: widest,
+        ..*frame
+    }
+}
+
 /// The overflow choices of `text` in `block`'s `frame`, or `None` when it fits. `others` are the
 /// page's blocks (the block itself among them is skipped) and `page` the page's box in page
 /// space.
@@ -651,6 +678,7 @@ mod tests {
             column: 0,
             cell: None,
             editability: crate::Editability::Editable,
+            language: None,
         }
     }
 

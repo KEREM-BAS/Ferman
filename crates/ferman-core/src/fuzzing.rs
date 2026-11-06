@@ -4,13 +4,17 @@
 // Fuzzing helpers: a broken promise panics on purpose.
 #![allow(clippy::panic)]
 
+use std::collections::BTreeMap;
+
+use lopdf::{Dictionary, Object, ObjectId, StringFormat};
 use zeroize::Zeroizing;
 
 use crate::CoreError;
 use crate::content;
-use crate::document::{OpenOptions, open};
+use crate::document::{Document, OpenOptions, open};
 use crate::interpret::{FontResource, TextShow, TextSink};
 use crate::limits::Limits;
+use crate::revision::RevisionStore;
 use crate::security::{Decrypter, Params, Password};
 use crate::source::Source;
 use crate::syntax::Parser;
@@ -231,16 +235,304 @@ pub fn open_document(input: &[u8]) {
     }
 }
 
-/// The recovery journal's reader: records stay inside the data and their objects parse or fail
-/// with an expected error.
+/// The recovery journal's reader on `data` as it is, framed as one record (a checksum random bytes
+/// never pass) and as a record's objects, and the manifest parser: records stay inside the data,
+/// their objects parse or fail with an expected error, and a manifest it accepts reads back the
+/// same from the JSON it writes.
 pub fn recovery_journal(data: &[u8]) {
     let limits = limits();
-    let mut total = 0usize;
-    for record in crate::recovery::records(data) {
-        total = total.saturating_add(record.body().len());
-        assert!(total <= data.len(), "records longer than the data");
-        if let Err(err) = crate::recovery::parse_objects(record.body(), &limits) {
+    let parse = |body: &[u8]| {
+        if let Err(err) = crate::recovery::parse_objects(body, &limits) {
             assert!(expected(&err), "the journal reader: {err}");
         }
+    };
+    parse(data);
+    let framed = match crate::recovery::frame(data) {
+        Ok(framed) => framed,
+        Err(err) => panic!("framing: {err}"),
+    };
+    for bytes in [data, &framed] {
+        let mut total = 0usize;
+        for record in crate::recovery::records(bytes) {
+            total = total.saturating_add(record.body().len());
+            assert!(total <= bytes.len(), "records longer than the data");
+            parse(record.body());
+        }
+    }
+    if let Some(manifest) = crate::recovery::Manifest::parse(data) {
+        assert_eq!(
+            crate::recovery::Manifest::parse(manifest.to_json().as_bytes()),
+            Some(manifest),
+            "a manifest does not read back"
+        );
+    }
+}
+
+/// Each stream of page `index`'s `/Contents` as `store` has it, with its decoded data, for the
+/// `edit_script` target.
+///
+/// # Errors
+///
+/// [`WriteError::NoSuchPage`](crate::WriteError::NoSuchPage), and the errors of decoding a stream.
+pub fn page_streams(
+    doc: &Document,
+    store: &RevisionStore,
+    index: usize,
+) -> Result<Vec<(ObjectId, Vec<u8>)>, CoreError> {
+    store.page_streams(doc, index)
+}
+
+/// The first `count` bytes of `script`, or all it has, moved past them.
+fn take<'a>(script: &mut &'a [u8], count: usize) -> &'a [u8] {
+    let (head, tail) = script.split_at(count.min(script.len()));
+    *script = tail;
+    head
+}
+
+/// A little-endian array from `script`, padded with zeros.
+fn take_array<const N: usize>(script: &mut &[u8]) -> [u8; N] {
+    let mut bytes = [0; N];
+    for (to, from) in bytes.iter_mut().zip(take(script, N)) {
+        *to = *from;
+    }
+    bytes
+}
+
+/// A direct object for the writer from `script`, of any kind.
+fn script_object(script: &mut &[u8], depth: u32) -> Object {
+    let [tag] = take_array(script);
+    let length = usize::from(tag >> 4);
+    // A name holds no NUL (ISO 32000-2 §7.3.5), and it is never empty.
+    let name = |script: &mut &[u8]| {
+        let mut name = vec![b'K'];
+        name.extend(take(script, length).iter().filter(|byte| **byte != 0));
+        name
+    };
+    let deeper = depth.saturating_add(1);
+    match tag & 0x0F {
+        1 => Object::Boolean(length % 2 == 1),
+        2 => Object::Integer(i64::from_le_bytes(take_array(script))),
+        3 => Object::Real(f32::from(i16::from_le_bytes(take_array(script))) / 4.0),
+        4 => Object::Name(name(script)),
+        5 => Object::String(take(script, length).to_vec(), StringFormat::Literal),
+        6 => Object::String(
+            take(script, length.saturating_mul(16)).to_vec(),
+            StringFormat::Hexadecimal,
+        ),
+        7 if depth < 4 => Object::Array(
+            (0..length % 5)
+                .map(|_| script_object(script, deeper))
+                .collect(),
+        ),
+        8 if depth < 4 => {
+            let mut dict = Dictionary::new();
+            for _ in 0..length % 5 {
+                let key = name(script);
+                dict.set(key, script_object(script, deeper));
+            }
+            Object::Dictionary(dict)
+        }
+        9 => Object::Reference((u32::from(tag).saturating_add(1), u16::from(tag & 1))),
+        _ => Object::Null,
+    }
+}
+
+/// Whether two dictionaries hold the same entries, but for the `/Length` the writer sets.
+fn same_entries(written: &Dictionary, read: &Dictionary) -> bool {
+    let entries = |dict: &Dictionary| dict.iter().filter(|(key, _)| *key != b"Length").count();
+    entries(written) == entries(read)
+        && written
+            .iter()
+            .filter(|(key, _)| *key != b"Length")
+            .all(|(key, value)| read.get(key).is_ok_and(|other| same_object(value, other)))
+}
+
+/// Whether the object read back is the one written: a string in either form, a number whichever
+/// way it reads (a real without a fraction is written as an integer).
+fn same_object(written: &Object, read: &Object) -> bool {
+    let number = |object: &Object| match object {
+        Object::Integer(value) => Some(value.to_string()),
+        Object::Real(value) => Some(value.to_string()),
+        _ => None,
+    };
+    match (written, read) {
+        (Object::String(a, _), Object::String(b, _)) => a == b,
+        (Object::Array(a), Object::Array(b)) => {
+            a.len() == b.len() && a.iter().zip(b).all(|(a, b)| same_object(a, b))
+        }
+        (Object::Dictionary(a), Object::Dictionary(b)) => same_entries(a, b),
+        (Object::Stream(a), Object::Stream(b)) => {
+            a.content == b.content && same_entries(&a.dict, &b.dict)
+        }
+        (Object::Real(_), _) | (_, Object::Real(_)) => number(written) == number(read),
+        _ => written == read,
+    }
+}
+
+/// A file of one empty page in the classic form or the modern one (object streams and a
+/// cross-reference stream).
+fn built_file(modern: bool) -> Vec<u8> {
+    use lopdf::dictionary;
+
+    let mut doc = lopdf::Document::with_version("1.7");
+    let pages = doc.new_object_id();
+    let page = doc.add_object(dictionary! {
+        "Type" => "Page", "Parent" => pages,
+        "MediaBox" => vec![0.into(), 0.into(), 612.into(), 792.into()],
+    });
+    let kids = dictionary! { "Type" => "Pages", "Kids" => vec![page.into()], "Count" => 1 };
+    doc.objects.insert(pages, Object::Dictionary(kids));
+    let catalog = doc.add_object(dictionary! { "Type" => "Catalog", "Pages" => pages });
+    doc.trailer.set("Root", catalog);
+    let mut bytes = Vec::new();
+    let saved = if modern {
+        doc.save_modern(&mut bytes).map(drop)
+    } else {
+        doc.save_to(&mut bytes).map(drop)
+    };
+    if let Err(err) = saved {
+        panic!("building a file: {err}");
+    }
+    bytes
+}
+
+/// `bytes` opened with `password` under the fuzzing limits.
+fn open_with(bytes: &[u8], password: Option<&str>) -> Result<Document, CoreError> {
+    let options = OpenOptions {
+        password: password.map(|password| Password::new(password.to_owned())),
+        limits: limits(),
+    };
+    open(&Source::from_bytes(bytes.into()), &options)
+}
+
+/// One transaction's change from `script`: a new key on a page, a new stream or a new object.
+fn script_change(
+    script: &mut &[u8],
+    doc: &Document,
+    store: &mut RevisionStore,
+    op: u8,
+) -> Result<(), CoreError> {
+    let value = script_object(script, 0);
+    match op & 0x07 {
+        0 | 1 => {
+            let pages = &doc.structure().pages;
+            let Some(page) = pages.get(usize::from(op >> 3) % pages.len().max(1)) else {
+                return Ok(());
+            };
+            let mut dict = doc
+                .model()
+                .get_dictionary(page.id)
+                .cloned()
+                .unwrap_or_default();
+            dict.set("FermanFuzz", value);
+            store.put(page.id, Object::Dictionary(dict))
+        }
+        2 | 3 => {
+            let [length] = take_array(script);
+            let content = take(script, usize::from(length)).to_vec();
+            let mut dict = Dictionary::new();
+            dict.set("FermanFuzz", value);
+            store
+                .add(Object::Stream(lopdf::Stream::new(dict, content)))
+                .map(drop)
+        }
+        _ => store.add(value).map(drop),
+    }
+}
+
+/// The incremental writer: `input` as a file when it opens clean, and as a script of changes to
+/// that file or to the built file or encrypted corpus file its first byte chooses. Two generations
+/// are written, each on the last: the file before stays an exact prefix, the update reopens without
+/// repair and with the same pages, and every object written reads back.
+pub fn writer_round_trip(input: &[u8]) {
+    const ENCRYPTED: [(&[u8], &str); 3] = [
+        (
+            include_bytes!("../../../tests/corpus/generated/payslip-aes128.pdf"),
+            "bordro2026",
+        ),
+        (
+            include_bytes!("../../../tests/corpus/generated/payslip-aes256.pdf"),
+            "Eylül2026maaşı",
+        ),
+        (
+            include_bytes!("../../../tests/corpus/generated/payslip-rc4-40.pdf"),
+            "bordro2026",
+        ),
+    ];
+
+    let mut script = input;
+    let opens_clean = open_with(input, None).is_ok_and(|doc| doc.repair().is_none());
+    let (mut bytes, password) = if opens_clean {
+        (input.to_vec(), None)
+    } else {
+        let [choice] = take_array(&mut script);
+        match usize::from(choice % 5)
+            .checked_sub(2)
+            .and_then(|at| ENCRYPTED.get(at))
+        {
+            Some((file, password)) => (file.to_vec(), Some(*password)),
+            None => (built_file(choice % 5 == 1), None),
+        }
+    };
+
+    let mut written = BTreeMap::new();
+    for _ in 0..2 {
+        let doc = match open_with(&bytes, password) {
+            Ok(doc) => doc,
+            Err(err) => panic!("a file that opened does not reopen: {err}"),
+        };
+        let mut store = RevisionStore::new(&doc);
+        for _ in 0..8 {
+            let [op] = take_array(&mut script);
+            match op & 0x07 {
+                6 => drop(store.undo()),
+                7 => drop(store.redo()),
+                _ => {
+                    if let Err(err) = store
+                        .begin()
+                        .and_then(|()| script_change(&mut script, &doc, &mut store, op))
+                    {
+                        assert!(expected(&err), "a change: {err}");
+                    }
+                    if op & 0x80 != 0 {
+                        store.rollback();
+                    } else if let Err(err) = store.commit() {
+                        panic!("a commit: {err}");
+                    }
+                }
+            }
+        }
+        let saved = match store.incremental_update(&doc) {
+            Ok(saved) => saved,
+            Err(err) => {
+                assert!(expected(&err), "the writer: {err}");
+                return;
+            }
+        };
+        assert!(saved.starts_with(&bytes), "the file before changed");
+        written.extend(
+            store
+                .committed()
+                .into_iter()
+                .map(|(id, value)| (id, value.clone())),
+        );
+        let reopened = match open_with(&saved, password) {
+            Ok(reopened) => reopened,
+            // The update may be the one cross-reference section past the limit.
+            Err(CoreError::ResourceLimit { .. }) => return,
+            Err(err) => panic!("the update does not reopen: {err}"),
+        };
+        assert!(reopened.repair().is_none(), "the update needs repair");
+        assert_eq!(reopened.page_count(), doc.page_count(), "the pages changed");
+        for (id, value) in &written {
+            match reopened.model().objects.get(id).ok_or("missing") {
+                Ok(read) => assert!(
+                    same_object(value, read),
+                    "object {id:?} was written as {value:?} and reads {read:?}"
+                ),
+                Err(err) => panic!("object {id:?} does not read back: {err}"),
+            }
+        }
+        bytes = saved;
     }
 }

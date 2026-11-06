@@ -37,6 +37,28 @@ for the right-to-left and vertical files, whose order PDFium guesses).
 - **Damaged on purpose.** Truncated, malformed and hostile files are welcome. Say what is wrong with
   them in the "covers" column.
 
+## Edit corpus and ground truth
+
+The cases of [ROADMAP §7](../../docs/ROADMAP.md#7-m3-edit-text-core) run in
+`crates/ferman-api/tests/edit_cases.rs` at 72, 150 and 300 dpi. Every generated file but `form-aks1-tr`,
+`form-aks1-flat`, `ocg-plan` and `truncated` has its ground truth in `generated/<name>.blocks.json`,
+which the generator writes from its own layout: blocks, lines, alignment and columns. The text model
+must match it 100%. There is no hand-labelled real-world ground truth yet.
+
+| Case | File |
+|---|---|
+| E01, E02, E03, E06 | `kira-tr` |
+| E04, E05 | `edit-e04-differences`, `edit-e05-fstype` |
+| E07, E08 | `fatura-tr`, `tez-tr` |
+| E09, E10, E11 | `report-ar`, `fa-zwnj`, `he-para` |
+| E12 | `ja-para`, `zh-hans`, `zh-hant`, `ko-para`, and with a predefined CMap `edit-90ms-rksj` |
+| E13 | `letter-ja-vertical` (column by column; reflow is B136, P2) |
+| E14, E17, E18 | **stand-ins:** `edit-e14-latex-standin`, `edit-e17-kerned-standin`, `edit-e18-columns-standin`, until the owner's real LaTeX, Word, Google Docs and LibreOffice files come |
+| E15, E16 | `edit-e15-helvetica`, `edit-e16-type3` |
+| E19 to E23 | `edit-e19-rotate`, `edit-e20-form-twice`, `edit-e21-actualtext`, `edit-e22-split-contents`, `edit-e23-shared-contents` |
+| E24, E25, E26 | `payslip-aes256`, `kira-tr-signed`, `edit-e26-inline-image` |
+| No case of their own | `edit-macroman` (MacRoman), `edit-cff-cid` (CFF CID-keyed) |
+
 ## Columns
 
 | Column | What goes in it |
@@ -49,6 +71,8 @@ for the right-to-left and vertical files, whose order PDFium guesses).
 | Added | The milestone that added it (`M2`, `M3`, …) |
 
 ## Files
+
+`app/integration_test/corpus_pdfs.dart` holds base64 copies of `kira-tr` and `kira-tr-signed` for Flow A, because the sandboxed macOS app cannot read this folder. When either file changes here, embed it again with its new SHA-256.
 
 | File | Source | Licence | SHA-256 | Covers | Added |
 |---|---|---|---|---|---|
@@ -95,3 +119,7 @@ for the right-to-left and vertical files, whose order PDFium guesses).
 | `generated/edit-macroman.pdf` | `tools/corpus generate --only edit-macroman` | generated | `90d7b2bb982f7a2718e5367fac112a3df497d5361d844e9168a5409b9a7e40d0` | A 1-page German delivery confirmation in an IBM Plex Serif simple TrueType subset with `/MacRomanEncoding` (ä, é, ô, ü, ß, the en dash and curly quotes at their MacRoman codes) | M3 |
 | `generated/edit-90ms-rksj.pdf` | `tools/corpus generate --only edit-90ms-rksj` | generated | `6f5c3a343173bb3ed60cf1ecd9fe5602889b3b44ebb153c1084b62691f597976` | A 1-page Japanese notice in kana through the predefined CMap `90ms-RKSJ-H` (Shift-JIS codes): a Type0 font over a `CIDFontType2` with `/CIDSystemInfo` Adobe-Japan1-2, a Noto Serif JP (`wght` 400) subset embedded and a `/CIDToGIDMap` stream from the Adobe-Japan1 CIDs (JIS X 0208 rows 1, 4 and 5 from CIDs 633, 842 and 925) to its glyphs; `/DW` 1000 and a `/ToUnicode` CMap. Embedded rather than named, so every reader draws the same glyphs; PDFium reads the same text without the `/ToUnicode`, from the CMap and Adobe-Japan1 alone | M3 |
 | `generated/edit-cff-cid.pdf` | `tools/corpus generate --only edit-cff-cid` | generated | `3854e231b846bcb7c37eeb0dc9932b4bac273c43ca833eb453d0eec8b5691a0f` | A 1-page Turkish delivery record in Source Sans 3, an OpenType font with CFF outlines, as an `Identity-H` Type0 font over a `CIDFontType0` whose `/FontFile3` is a CID-keyed `CIDFontType0C` subset (subsetter makes the name-keyed CFF CID-keyed, CID = glyph) | M3 |
+| `generated/edit-e14-latex-standin.pdf` | `tools/corpus generate --only edit-e14-latex-standin` | generated | `57e0b88ed66499dc0a3f9a41ac478dd91d72eab1f01de88dfdbf46c901cf2f19` | **Stand-in** for E14's real LaTeX file, which has not come: a 1-page English text in two embedded Type1 fonts (`/FontFile`, IBM Plex Serif's outlines as charstrings), codes in an order of their own, no space glyph (spaces are `TJ` numbers), no ToUnicode; one font names its codes in `/Differences`, the other in the program's encoding array | M3 |
+| `generated/edit-e17-kerned-standin.pdf` | `tools/corpus generate --only edit-e17-kerned-standin` | generated | `fa510ba3d6a75cf420c3a94a06cdf1980875cd63343e9a5b81b5c1515ab38469` | **Stand-in** for E17's real Word and Google Docs files, which have not come: 2 pages of English lines with kerning numbers in `TJ`, page 1 in a simple TrueType font with a pair table of the generator's, page 2 in a composite font with IBM Plex Sans's own kerning | M3 |
+| `generated/edit-e18-columns-standin.pdf` | `tools/corpus generate --only edit-e18-columns-standin` | generated | `27d58a1d24a01b0af35aacb13b95aeb389cdca8f8b62b09973009480b6989190` | **Stand-in** for E18's real LibreOffice file, which has not come: a 1-page Turkish notice in two columns whose lines take turns in one text object, each placed by a `Td` relative to the other column's line. Extraction reads it in drawing order (BACKLOG B160) | M3 |
+| `generated/ja-para.pdf` | `tools/corpus generate --only ja-para` | generated | `964d4e48b787dcc09e5860419ba0b5cbacb12d5ec1daeed6c25f31fef4d01b5e` | E12: a 1-page Japanese notice, horizontal, in a Noto Serif JP (`wght` 400) composite `Identity-H` subset, shaped, with `/W` widths and a ToUnicode CMap | M3 |

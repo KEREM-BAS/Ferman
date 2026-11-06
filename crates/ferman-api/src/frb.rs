@@ -293,6 +293,17 @@ pub struct FontEntry {
     pub subset: bool,
 }
 
+/// What Properties says about a font beyond its status (a2-7, FmDocPanel).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct FontCoverage {
+    /// Its name, without a subset's `ABCDEF+` tag, as in [`FontEntry::name`].
+    pub name: String,
+    /// The family a font that is not embedded is drawn in, when it is another font.
+    pub shown_as: Option<String>,
+    /// For a subset, the letters asked about that an edit cannot draw in it.
+    pub missing_letters: String,
+}
+
 /// How an encrypted document is encrypted.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum EncryptionMethod {
@@ -685,6 +696,8 @@ pub struct BlockInfo {
     pub direction: TextDirection,
     /// Why it cannot be edited; `None` when it can.
     pub not_editable: Option<NotEditableReason>,
+    /// Its language tag, else the document's.
+    pub language: Option<String>,
 }
 
 /// A page's text blocks.
@@ -745,6 +758,8 @@ pub struct EditPreview {
     pub chosen: Option<OverflowChoice>,
     /// The table cells whose values likely depend on the edited one (a3-9).
     pub dependents: Vec<DependentCell>,
+    /// The block's language tag as a commit leaves it (a3-14).
+    pub language: Option<String>,
 }
 
 /// A character of the new text that missing-glyph step 3 draws.
@@ -818,6 +833,64 @@ pub struct FontCandidate {
     pub preview: String,
 }
 
+/// A font a block is set in (a3-2).
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct BlockFont {
+    /// Its group.
+    pub origin: FontOrigin,
+    /// Its PostScript name.
+    pub postscript_name: String,
+}
+
+/// What to change in a block (a3-2); what is `None` stays as it is.
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockStyle {
+    /// The font the whole block is set in.
+    pub font: Option<BlockFont>,
+    /// The font size in points.
+    pub size: Option<f32>,
+    /// The fill colour, `0xRRGGBB`.
+    pub colour: Option<u32>,
+    /// How the lines sit.
+    pub alignment: Option<Alignment>,
+    /// The space between characters, in percent of the em.
+    pub char_spacing: Option<f32>,
+    /// The distance between baselines, in multiples of the font size.
+    pub line_spacing: Option<f32>,
+}
+
+/// What the text panel shows of a block (a3-2).
+#[derive(Debug, Clone, PartialEq)]
+pub struct BlockStyleInfo {
+    /// Its first font's PostScript name, without the subset tag.
+    pub font: String,
+    /// Its first font's family.
+    pub family: String,
+    /// Whether its first font is bold.
+    pub bold: bool,
+    /// Whether its first font is italic.
+    pub italic: bool,
+    /// The face with the bold state turned over that can draw the whole block; none disables
+    /// Bold (never faked).
+    pub bold_toggle: Option<BlockFont>,
+    /// The same for Italic.
+    pub italic_toggle: Option<BlockFont>,
+    /// Its largest font size in points.
+    pub size: f32,
+    /// Its fill colour, `0xRRGGBB`; none for a pattern or a colour space without a conversion.
+    pub colour: Option<u32>,
+    /// The page's text colours, the most used first, at most eight.
+    pub document_colours: Vec<u32>,
+    /// How its lines sit.
+    pub alignment: Alignment,
+    /// The space between characters, in percent of the em.
+    pub char_spacing: f32,
+    /// The distance between baselines, in multiples of the font size.
+    pub line_spacing: f32,
+    /// Its box in page space.
+    pub frame: PageRect,
+}
+
 /// Missing-glyph step 3's characters and candidates.
 #[derive(Debug, Clone, PartialEq)]
 pub struct MissingGlyphs {
@@ -848,6 +921,8 @@ pub enum SubstitutionKind {
     SameFont,
     /// Step 3: a similar font.
     Similar,
+    /// Step 3's "Keep the original font and mark the character": no other font, and no glyph.
+    Marked,
 }
 
 /// Characters set in another font than their line's (a3-12, a11-6).
@@ -878,6 +953,10 @@ pub struct FontSettings {
     pub system_fonts: bool,
     /// "Ask each time" (a11-1c).
     pub ask_each_time: bool,
+    /// "Keep the original font and mark the character" (a11-1c).
+    pub mark_missing: bool,
+    /// Reflow while typing turned off (a11-1c): only a line feed ends a line.
+    pub keep_lines: bool,
 }
 
 /// One of the overflow choices (a3-4).
@@ -960,6 +1039,27 @@ pub struct HistoryStep {
     /// The characters it set in another font (the review list's font rows); `announced` is
     /// always true.
     pub substitutions: Vec<FontSubstitution>,
+    /// The page of the block it changed; `None` for a revert and a restored step.
+    pub page: Option<u32>,
+    /// The block's text before it: the review list's before; empty for a revert and a restored
+    /// step.
+    pub before: String,
+    /// The block's text after it: the review list's after.
+    pub after: String,
+    /// The steps this one reverted, by index; empty for an edit.
+    pub reverts: Vec<u32>,
+}
+
+/// What a revert did.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct Reverted {
+    /// Whether the step was reverted; `false` when later steps depend on it and were not asked
+    /// to go with it.
+    pub reverted: bool,
+    /// The steps that depend on it, by index, oldest first.
+    pub dependents: Vec<u32>,
+    /// Where the history stands.
+    pub revision: RevisionInfo,
 }
 
 /// A document's history (a3-10).
@@ -1086,6 +1186,25 @@ pub async fn save_attachment(
             PathBuf::from(path),
             staging.map(PathBuf::from),
         )
+        .await
+        .map(|staged| staged.map(|path| path.to_string_lossy().into_owned()))
+        .map_err(api_error_dto)
+}
+
+/// Writes `text` to `path` through the safe write: the review list's export (a3-12).
+///
+/// See [`facade::Engine::save_text`].
+///
+/// # Errors
+///
+/// The file errors of the write.
+pub async fn save_text(
+    path: String,
+    text: String,
+    staging: Option<String>,
+) -> Result<Option<String>, ApiError> {
+    engine()?
+        .save_text(PathBuf::from(path), text, staging.map(PathBuf::from))
         .await
         .map(|staged| staged.map(|path| path.to_string_lossy().into_owned()))
         .map_err(api_error_dto)
@@ -1363,6 +1482,41 @@ pub async fn text_blocks(document: u64, page: u32) -> Result<PageBlocks, ApiErro
         .map_err(api_error_dto)
 }
 
+/// What the document's fonts need said beyond their status, by font name: the family drawn
+/// instead of one that is not embedded, the `letters` a subset lacks.
+///
+/// See [`facade::Engine::font_coverage`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn font_coverage(document: u64, letters: String) -> Result<Vec<FontCoverage>, ApiError> {
+    let coverage = engine()?
+        .font_coverage(facade::DocumentId::from_raw(document), letters)
+        .await
+        .map_err(api_error_dto)?;
+    let mut entries: Vec<FontCoverage> = Vec::new();
+    for font in coverage {
+        let name = subset_tag(&font.name).1;
+        // Subsets of one font share an entry, as they share a row: any of them may be edited.
+        if let Some(entry) = entries.iter_mut().find(|entry| entry.name == name) {
+            let new: String = font
+                .missing_letters
+                .chars()
+                .filter(|&c| !entry.missing_letters.contains(c))
+                .collect();
+            entry.missing_letters.push_str(&new);
+        } else {
+            entries.push(FontCoverage {
+                name: name.to_owned(),
+                shown_as: font.shown_as,
+                missing_letters: font.missing_letters,
+            });
+        }
+    }
+    Ok(entries)
+}
+
 /// The caret in `block` of `page` nearest `point`.
 ///
 /// See [`facade::Engine::caret_at`].
@@ -1458,6 +1612,22 @@ pub async fn apply_edit(transaction: u64, text: String) -> Result<EditPreview, A
         .map_err(api_error_dto)
 }
 
+/// Sets the language of the transaction's block to the tag `tag`, stored as `/Lang`.
+///
+/// See [`facade::Engine::set_block_language`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for a tag that is not one,
+/// `Unsupported` for a block that cannot be marked.
+pub async fn set_block_language(transaction: u64, tag: String) -> Result<EditPreview, ApiError> {
+    engine()?
+        .set_block_language(facade::TransactionId::from_raw(transaction), tag)
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
 /// Writes the transaction's newest text again with the overflow choice `choice`.
 ///
 /// See [`facade::Engine::resolve_overflow`].
@@ -1496,6 +1666,8 @@ pub async fn set_font_settings(settings: FontSettings) -> Result<(), ApiError> {
             font_dirs: settings.font_dirs.into_iter().map(PathBuf::from).collect(),
             system_fonts: settings.system_fonts,
             ask_each_time: settings.ask_each_time,
+            mark_missing: settings.mark_missing,
+            keep_lines: settings.keep_lines,
         })
         .await
         .map_err(api_error_dto)
@@ -1542,6 +1714,135 @@ pub async fn keep_as_is(transaction: u64) -> Result<EditPreview, ApiError> {
         .keep_as_is(facade::TransactionId::from_raw(transaction))
         .await
         .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives the transaction's block `style`, laid out again in its frame (a3-2).
+///
+/// See [`facade::Engine::set_block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a transaction that is not open, `InvalidInput` for numbers out of range,
+/// `Unsupported` for a style the block cannot take.
+pub async fn set_block_style(transaction: u64, style: BlockStyle) -> Result<EditPreview, ApiError> {
+    engine()?
+        .set_block_style(
+            facade::TransactionId::from_raw(transaction),
+            facade::BlockStyle {
+                font: style.font.map(block_font_from_dto),
+                size: style.size,
+                colour: style.colour,
+                alignment: style.alignment.map(|alignment| match alignment {
+                    Alignment::Left => facade::Alignment::Left,
+                    Alignment::Right => facade::Alignment::Right,
+                    Alignment::Center => facade::Alignment::Center,
+                    Alignment::Justified => facade::Alignment::Justified,
+                }),
+                char_spacing: style.char_spacing,
+                line_spacing: style.line_spacing,
+                frame: None,
+            },
+        )
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Moves the transaction's block by `dx` and `dy` in page space.
+///
+/// See [`facade::Engine::move_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+pub async fn move_block(transaction: u64, dx: f32, dy: f32) -> Result<EditPreview, ApiError> {
+    engine()?
+        .move_block(facade::TransactionId::from_raw(transaction), [dx, dy])
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// Gives the transaction's block the box `frame`, its text reflowed in it (B016).
+///
+/// See [`facade::Engine::resize_block`].
+///
+/// # Errors
+///
+/// As [`set_block_style`].
+pub async fn resize_block(transaction: u64, frame: PageRect) -> Result<EditPreview, ApiError> {
+    engine()?
+        .resize_block(
+            facade::TransactionId::from_raw(transaction),
+            [frame.left, frame.top, frame.right, frame.bottom],
+        )
+        .await
+        .map(edit_preview_dto)
+        .map_err(api_error_dto)
+}
+
+/// What the text panel shows of `block` of `page` of `document`; none for a block without glyphs
+/// on the page.
+///
+/// See [`facade::Engine::block_style`].
+///
+/// # Errors
+///
+/// `NotFound` for a document or block that is not there, `InvalidInput` for a page it does not
+/// have.
+pub async fn block_style(
+    document: u64,
+    page: u32,
+    block: u64,
+) -> Result<Option<BlockStyleInfo>, ApiError> {
+    engine()?
+        .block_style(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+        )
+        .await
+        .map(|info| {
+            info.map(|info| BlockStyleInfo {
+                font: info.font,
+                family: info.family,
+                bold: info.bold,
+                italic: info.italic,
+                bold_toggle: info.bold_toggle.map(block_font_dto),
+                italic_toggle: info.italic_toggle.map(block_font_dto),
+                size: info.size,
+                colour: info.colour,
+                document_colours: info.document_colours,
+                alignment: alignment_dto(info.alignment),
+                char_spacing: info.char_spacing,
+                line_spacing: info.line_spacing,
+                frame: rect_dto(info.frame),
+            })
+        })
+        .map_err(api_error_dto)
+}
+
+/// The fonts a3-2's font field offers for `block` of `page` of `document`, best first.
+///
+/// See [`facade::Engine::block_fonts`].
+///
+/// # Errors
+///
+/// As [`block_style`].
+pub async fn block_fonts(
+    document: u64,
+    page: u32,
+    block: u64,
+) -> Result<Vec<FontCandidate>, ApiError> {
+    engine()?
+        .block_fonts(
+            facade::DocumentId::from_raw(document),
+            page,
+            facade::BlockId(block),
+        )
+        .await
+        .map(|fonts| fonts.into_iter().map(font_candidate_dto).collect())
         .map_err(api_error_dto)
 }
 
@@ -1606,6 +1907,54 @@ pub async fn redo(document: u64) -> Result<RevisionInfo, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// Reverts step `step` of `document` alone, or with the later steps that depend on it when
+/// `with_dependents` (a3-12, a3-12b).
+///
+/// See [`facade::Engine::revert`].
+///
+/// # Errors
+///
+/// `InvalidInput` for a step that does not apply or while a transaction is open,
+/// `ConfirmationRequired` for a signed document before its confirmation, `NotFound` for a closed
+/// document.
+pub async fn revert(
+    document: u64,
+    step: u32,
+    with_dependents: bool,
+    name: String,
+) -> Result<Reverted, ApiError> {
+    engine()?
+        .revert(
+            facade::DocumentId::from_raw(document),
+            step,
+            with_dependents,
+            name,
+        )
+        .await
+        .map(|reverted| Reverted {
+            reverted: reverted.reverted,
+            dependents: reverted.dependents,
+            revision: revision_dto(reverted.revision),
+        })
+        .map_err(api_error_dto)
+}
+
+/// Takes `document` back to how it opened, as a new step (a3-12b's Revert all).
+///
+/// See [`facade::Engine::revert_all`].
+///
+/// # Errors
+///
+/// `InvalidInput` while a transaction is open, `ConfirmationRequired` for a signed document before
+/// its confirmation, `NotFound` for a closed document.
+pub async fn revert_all(document: u64, name: String) -> Result<RevisionInfo, ApiError> {
+    engine()?
+        .revert_all(facade::DocumentId::from_raw(document), name)
+        .await
+        .map(revision_dto)
+        .map_err(api_error_dto)
+}
+
 /// The history of `document` (a3-10).
 ///
 /// See [`facade::Engine::history`].
@@ -1635,6 +1984,10 @@ pub async fn history(document: u64) -> Result<History, ApiError> {
                             })
                         })
                         .collect(),
+                    page: step.page,
+                    before: step.before,
+                    after: step.after,
+                    reverts: step.reverts,
                 })
                 .collect(),
             current: history.current,
@@ -1946,17 +2299,13 @@ fn page_blocks_dto(blocks: facade::PageBlocks) -> PageBlocks {
                         baseline_end: point_dto(line.baseline[1]),
                     })
                     .collect(),
-                alignment: match block.alignment {
-                    facade::Alignment::Left => Alignment::Left,
-                    facade::Alignment::Right => Alignment::Right,
-                    facade::Alignment::Center => Alignment::Center,
-                    facade::Alignment::Justified => Alignment::Justified,
-                },
+                alignment: alignment_dto(block.alignment),
                 direction: match block.direction {
                     facade::TextDirection::LeftToRight => TextDirection::LeftToRight,
                     facade::TextDirection::RightToLeft => TextDirection::RightToLeft,
                     facade::TextDirection::Vertical => TextDirection::Vertical,
                 },
+                language: block.language,
                 not_editable: match block.editability {
                     facade::Editability::Editable => None,
                     facade::Editability::NotEditable(reason) => Some(reason_dto(reason)),
@@ -2012,6 +2361,53 @@ fn edit_preview_dto(preview: facade::EditPreview) -> EditPreview {
                 frame: rect_dto(cell.frame),
             })
             .collect(),
+        language: preview.language,
+    }
+}
+
+/// A font candidate as its mirror.
+fn font_candidate_dto(candidate: facade::FontCandidate) -> FontCandidate {
+    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
+    FontCandidate {
+        origin: origin_dto(candidate.origin),
+        usable: candidate.usable(),
+        postscript_name: candidate.postscript_name,
+        family: candidate.family,
+        covered: count(candidate.coverage.covered),
+        needed: count(candidate.coverage.needed),
+        similarity: candidate.similarity,
+        embedding: embedding_dto(candidate.embedding),
+        preview: candidate.preview,
+    }
+}
+
+/// An alignment as its mirror.
+fn alignment_dto(alignment: facade::Alignment) -> Alignment {
+    match alignment {
+        facade::Alignment::Left => Alignment::Left,
+        facade::Alignment::Right => Alignment::Right,
+        facade::Alignment::Center => Alignment::Center,
+        facade::Alignment::Justified => Alignment::Justified,
+    }
+}
+
+/// A block's font as its mirror.
+fn block_font_dto(font: facade::BlockFont) -> BlockFont {
+    BlockFont {
+        origin: origin_dto(font.origin),
+        postscript_name: font.postscript_name,
+    }
+}
+
+/// A block's font from its mirror.
+fn block_font_from_dto(font: BlockFont) -> facade::BlockFont {
+    facade::BlockFont {
+        origin: match font.origin {
+            FontOrigin::Embedded => facade::FontOrigin::Embedded,
+            FontOrigin::Installed => facade::FontOrigin::Installed,
+            FontOrigin::Bundled => facade::FontOrigin::Bundled,
+        },
+        postscript_name: font.postscript_name,
     }
 }
 
@@ -2056,6 +2452,7 @@ fn substitution_dto(told: facade::FontSubstitution) -> FontSubstitution {
         kind: match substitution.kind {
             facade::SubstitutionKind::SameFont => SubstitutionKind::SameFont,
             facade::SubstitutionKind::Similar => SubstitutionKind::Similar,
+            facade::SubstitutionKind::Marked => SubstitutionKind::Marked,
         },
         chars: substitution.chars,
         from_font: substitution.from,
@@ -2067,7 +2464,6 @@ fn substitution_dto(told: facade::FontSubstitution) -> FontSubstitution {
 
 /// Step 3's characters and candidates as their mirror.
 fn missing_glyphs_dto(missing: facade::MissingGlyphInfo) -> MissingGlyphs {
-    let count = |n: usize| u32::try_from(n).unwrap_or(u32::MAX);
     let (reason, reason_font, reason_embedding) = match missing.reason {
         facade::MissingReason::NotInstalled => (MissingReasonKind::NotInstalled, None, None),
         facade::MissingReason::NotEmbeddable { font, embedding } => (
@@ -2099,17 +2495,7 @@ fn missing_glyphs_dto(missing: facade::MissingGlyphInfo) -> MissingGlyphs {
         candidates: missing
             .candidates
             .into_iter()
-            .map(|candidate| FontCandidate {
-                origin: origin_dto(candidate.origin),
-                usable: candidate.usable(),
-                postscript_name: candidate.postscript_name,
-                family: candidate.family,
-                covered: count(candidate.coverage.covered),
-                needed: count(candidate.coverage.needed),
-                similarity: candidate.similarity,
-                embedding: embedding_dto(candidate.embedding),
-                preview: candidate.preview,
-            })
+            .map(font_candidate_dto)
             .collect(),
         drawn: missing.drawn,
     }

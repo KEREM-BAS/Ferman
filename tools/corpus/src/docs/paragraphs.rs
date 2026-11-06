@@ -9,6 +9,7 @@
 //! - `zh-hans`, `zh-hant`, `ko-para`: Simplified Chinese, Traditional Chinese and Korean in Noto
 //!   Sans SC, TC and KR at `wght` 400, horizontal (E12). Chinese breaks between characters with
 //!   the kinsoku rules; Korean breaks at spaces.
+//! - `ja-para`: Japanese in Noto Serif JP at `wght` 400, horizontal (E12), broken as Chinese is.
 
 use super::{Doc, generated, info, open_first, opens};
 use crate::kinsoku::breakable;
@@ -50,6 +51,13 @@ pub const ZH_HANT: Generator = Generator {
 pub const KO_PARA: Generator = Generator {
     name: "ko-para",
     build: ko,
+    expect: opens(),
+};
+
+/// The Japanese notice.
+pub const JA_PARA: Generator = Generator {
+    name: "ja-para",
+    build: ja,
     expect: opens(),
 };
 
@@ -169,6 +177,27 @@ fn he(sources: &Sources) -> Result<Generated, String> {
             ],
             author: "משרד הניהול",
             created: "D:20261102100000+02'00'",
+        },
+    )
+}
+
+fn ja(sources: &Sources) -> Result<Generated, String> {
+    notice(
+        sources,
+        &Notice {
+            name: "ja-para",
+            lang: "ja-JP",
+            font: FontFile::NotoSerifJp,
+            rtl: false,
+            cjk: true,
+            title: "賃貸契約更新のお知らせ",
+            paragraphs: [
+                "拝啓、現在ご利用中の東京都品川区の事務所について、賃貸借契約は二〇二六年十一月三十日に満了します。",
+                "更新をご希望の場合は、十一月十五日までに管理事務所へご連絡ください。",
+                "更新後の月額賃料は十九万五千円です。",
+            ],
+            author: "管理事務所",
+            created: "D:20261102100000+09'00'",
         },
     )
 }
