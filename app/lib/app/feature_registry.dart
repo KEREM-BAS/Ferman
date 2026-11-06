@@ -176,10 +176,6 @@ enum Feature {
 
   // Pages.
 
-  /// Organize's dialogs: Insert, Extract, Replace, Crop and Page labels, from
-  /// the tool row, the page menu and the selection panel.
-  organizeDialogs('B190'),
-
   // Convert.
 
   /// Converting PDFs to other formats: Start › Convert, the Convert row's

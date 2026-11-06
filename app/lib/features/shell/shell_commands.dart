@@ -6,6 +6,9 @@ import 'package:ferman/design/components/components.dart' show FermanMode;
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/organize/crop_session.dart';
+import 'package:ferman/features/organize/extract_pages_dialog.dart';
+import 'package:ferman/features/organize/insert_file_dialog.dart';
 import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_closer.dart';
@@ -133,7 +136,7 @@ class ShellCommandScope extends ConsumerWidget {
         if (edits.canUndo) ShellCommand.undo: () => unawaited(editor.undo()),
         if (edits.canRedo) ShellCommand.redo: () => unawaited(editor.redo()),
         if (ref.read(shellModeProvider) == FermanMode.organize &&
-            ref.read(organizeRefusalProvider) == null)
+            !ref.read(cropShowingProvider))
           ..._organizeHandlers(ref),
       },
       // Typing not yet committed counts too: Save commits it first.
@@ -151,14 +154,25 @@ class ShellCommandScope extends ConsumerWidget {
     final document = ref.read(openDocumentProvider);
     final selected = ref.read(selectedPagesProvider);
     final commands = ref.read(pageCommandsProvider.notifier);
+    final changes = ref.read(organizeRefusalProvider) == null;
     return {
-      if (document != null)
+      if (document != null) ...{
         ShellCommand.selectAllPages: () =>
             ref.read(pageSelectionProvider.notifier).all([
               for (var i = 0; i < document.pages.length; i++)
                 document.pageHandle(i),
             ]),
-      if (selected.isNotEmpty) ...{
+        ShellCommand.extractPages: () => showExtractPagesDialog(
+          ref,
+          document,
+          ref.read(shellDocumentsProvider).active?.name ?? '',
+          organizeSelection(ref),
+        ),
+        if (changes)
+          ShellCommand.insertFromFile: () =>
+              showInsertFileDialog(ref, document, organizeSelection(ref)),
+      },
+      if (changes && selected.isNotEmpty) ...{
         ShellCommand.rotateLeft: () => unawaited(commands.rotate(-1)),
         ShellCommand.rotateRight: () => unawaited(commands.rotate(1)),
         ShellCommand.duplicatePages: () => unawaited(commands.duplicate()),

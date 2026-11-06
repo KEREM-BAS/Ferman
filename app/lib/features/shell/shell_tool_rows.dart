@@ -894,7 +894,7 @@ class _OrganizeTools extends ConsumerWidget {
     final document = ref.watch(viewerProvider.select((view) => view?.document));
     final name = ref.watch(shellDocumentsProvider).active?.name ?? '';
     // Extract only reads; the others change the document.
-    final changes = document != null && document.readOnly == null;
+    final changes = document != null && refusal == null;
     final crop = ref.watch(cropShowingProvider);
     final live = ref.watch(viewerProvider.select((view) => view != null));
     final combineTab = ref.watch(

@@ -8,6 +8,7 @@ import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/jobs/background_jobs.dart';
 import 'package:ferman/features/organize/combine.dart';
+import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -43,14 +44,17 @@ class OrganizeDialog extends _$OrganizeDialog {
   void close() => state = null;
 }
 
-/// The pages Organize's commands act on, as indices.
-///
-/// shortcut: the reader's page alone, until the page grid's selection joins.
-List<int> organizeSelection(WidgetRef ref) =>
-    switch (ref.read(viewerProvider)) {
-      final view? => [view.currentPage],
-      null => const [],
-    };
+/// The pages Organize's dialogs start from, as indices: the grid's selection,
+/// or the reader's page without one.
+List<int> organizeSelection(WidgetRef ref) {
+  final view = ref.read(viewerProvider);
+  if (view == null) return const [];
+  final selected = [
+    for (final handle in ref.read(selectedPagesProvider))
+      ?view.document.pageIndexOf(handle),
+  ];
+  return selected.isEmpty ? [view.currentPage] : selected;
+}
 
 /// The name of the open tab of [document].
 String _nameOf(WidgetRef ref, int document) =>

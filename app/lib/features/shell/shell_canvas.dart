@@ -268,7 +268,13 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                       child: Stack(
                                         children: [
                                           Positioned.fill(
-                                            child: mode == FermanMode.organize
+                                            child:
+                                                mode == FermanMode.organize &&
+                                                    // a6-4 works on the
+                                                    // reader's page.
+                                                    !ref.watch(
+                                                      cropShowingProvider,
+                                                    )
                                                 // G32: the grid follows the
                                                 // UI's direction, its pages
                                                 // never mirror.

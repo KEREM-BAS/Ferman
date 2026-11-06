@@ -63,11 +63,11 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 
 ## Summary
 
-149 entries: 126 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is.
+155 entries: 132 Decided, 0 Needs owner, 23 Resolved. The owner's answers of 2026-10-15 moved G06, G07, G09 and G15 from Needs owner to Decided, and those of 2026-10-16 moved G01 to G03, G25, G26, G33, G36, G51 to G53, G56 and G60. G62 to G99 were found in M1. On 2026-10-17 the design export of 519d42a resolved G11 to G13, G24 to G28, G31, G34 to G38, G40 to G44, G59, G61 and G89, and settled G10, G29, G30, G32 and G39 in part (they stay Decided). G100 to G111 were found while planning M2, G112 came with the logo export of 2026-10-19, G113 with the test corpus, G114 with the open path, G115 with search, G116 with the open panel, G117 with drag and drop, G118 with the recent files, G119 with the error tabs, and G120 and G121 with the tab state and closing; G116 was resolved by them. G125 came with M3's text layer, G126 with its first editing, G127 with its overflow choices and table cells, G128 with its missing glyphs, font picker and input methods. G140 and G141 came with its text panel and format bar, and G129 with the web build's phone layout. G142 to G157 were found while planning M4 and recorded in its W0 (the ids G130 to G139 are not used). On 2026-11-06 G33 and G111 moved to M4, where their remaining work is. G160 to G165 came with Organize in M4's W1.
 
 | Milestone | M1 | M2 | M3 | M4 | M5 | P2 | P3 | P4 | P5 |
 |---|---|---|---|---|---|---|---|---|---|
-| Entries | 59 | 35 | 17 | 29 | 1 | 1 | 2 | 1 | 2 |
+| Entries | 59 | 35 | 17 | 35 | 1 | 1 | 2 | 1 | 2 |
 | Resolved | 4 | 10 | 9 | 0 | 0 | 0 | 0 | 0 | 0 |
 
 | ID | Type | Milestone | Area | Gap or conflict | Status |
@@ -221,6 +221,12 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 | [G157](#g157) | ambiguity | M4 | Command palette | a11-2 folds Turkish case; the document's own text in another UI language needs it too | Decided |
 | [G158](#g158) | conflict | M4 | Fill & Sign: typed signature | Homemade Apple has no İ Ğ ğ Ş ş, though the inventory read the design as saying every style covers them | Decided |
 | [G159](#g159) | conflict | M4 | Organize: combine | a6-3's "Keep form fields and signatures" says signatures travel, and question 6 of the M4 plan removes them | Decided |
+| [G160](#g160) | missing state | M4 | Organize: page grid | a6-1 draws no selection of differing pages and no reason for a command that cannot run | Decided |
+| [G161](#g161) | missing state | M4 | Organize: page grid | No board draws files over the grid, and how Organize treats the sidebar and a phone-width status bar | Decided |
+| [G162](#g162) | missing state | M4 | Organize: crop | a6-4 names a range but draws no field for it, and scales its handles with the board's zoom | Decided |
+| [G163](#g163) | conflict | M4 | Organize: page labels | a6-5 has no A, B, C style though documents use it, and draws none of its errors | Decided |
+| [G164](#g164) | missing state | M4 | Organize: replace | G45 does not say what a replace with a different count does | Decided |
+| [G165](#g165) | missing state | M4 | Organize: Create PDF and Combine | No board draws Create PDF; a6-3 draws Excel as converted and its result with page images | Decided |
 
 ## Entries
 
@@ -1620,7 +1626,7 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Artboards:** `a1-6`; related: `a1-4-m2`, `a6-1`
 - **Gap or conflict:** a1-6 draws files dragged over the start screen ("Drop files anywhere in this window") with two targets, "Open in 3 tabs" and "Combine into one PDF", and its note says that dropping onto an open document's page grid inserts pages instead (6.1). No board draws files dragged over a document window or its tab strip. Combining files waits for M4 (a1-4-m2: "Create PDF and Combine files wait for M4"), and so does Organize's page grid.
 - **Decision:** **Proposed, part of the [M2 plan](PROGRESS.md#m2-plan):** in M2 the start screen (the whole window, as a1-6 draws) and a document window (its canvas and its tab strip) take drops, with a1-6's overlay and per-file notes; each PDF opens in a new tab, and a file that isn't a PDF follows [G11](#g11) and [G28](#g28). a1-6's "Combine into one PDF" target stays visible and disabled with "Available in a future version" until M4, and inserting pages by a drop on the page grid comes with Organize in M4 ([B104](BACKLOG.md#open)).
-- **Status:** Decided; the decision is Proposed with the M2 plan. Built in W3: the start screen and the editor take drops on the whole window, its title bar included, and show a1-6's overlay over the screen below the title bar; first run and Settings take none. What the overlay can show while files are dragged: [G117](#g117).
+- **Status:** Decided; the decision is Proposed with the M2 plan. Built in W3: the start screen and the editor take drops on the whole window, its title bar included, and show a1-6's overlay over the screen below the title bar; first run and Settings take none. What the overlay can show while files are dragged: [G117](#g117). Since M4's W1 the page grid takes the place of the overlay while files are over it ([G161](#g161)), and a1-6's Combine target is B191.
 - **Evidence:** `design/01 First run and files.dc.html` lines 123 (the a1-4-m2 note) and 130–132 (a1-6 and its note); `design/FmStart.dc.html` lines 41–52 (the drag-over overlay) and 59 (`drop`, `dropTabs`, `dropCombine`). Implemented in `app/lib/features/shell/file_drop.dart`, used by `app/lib/app/window_frame.dart`.
 
 <a id="g106"></a>
@@ -2194,3 +2200,81 @@ Each entry starts with an HTML anchor, so other documents can link to it as `DES
 - **Decision:** The answer wins. The checkbox keeps form fields, and an empty signature field stays as a field; a signature's value and its appearance do not travel, and a row whose input is signed says so before anything is written (`CombineFileInfo.signed`). The label and note change with the Combine tab (commit 11 of the M4 plan).
 - **Status:** Decided.
 - **Evidence:** `design/06 Organize.dc.html` line 79; [PROGRESS.md](PROGRESS.md#questions-for-the-owner-with-the-m4-plan), question 6.
+
+<a id="g160"></a>
+
+### G160 · Page grid: mixed selections and refused commands
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: page grid
+- **Artboards:** `a6-1`
+- **Gap or conflict:** a6-1's panel shows one size and one rotation, and draws no selection whose pages differ. Its commands are drawn working, with no reason for an empty selection or for deleting every page.
+- **Decision:** The panel's Size and Rotation read "Mixed" for pages that differ. The commands say "Select pages first" with no selection, and Delete says "A document keeps at least one page" with every page selected. Extract, Replace, Insert and Crop stay enabled without a selection: their dialogs name their pages, starting from the reader's page.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/organize/organize_panel.dart`, `app/lib/features/organize/page_commands.dart`; `app/test/features/organize/page_grid_test.dart`.
+
+<a id="g161"></a>
+
+### G161 · Page grid: files over it, the sidebar, a phone-width status bar
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: page grid
+- **Artboards:** `a6-1`, `a6-1b`, `a1-6`
+- **Gap or conflict:** No board draws files dragged over the grid. a6-1 has no sidebar, though the other modes have one, and no board draws its status bar at phone width.
+- **Decision:** Files over the grid show a6-1b's marker and a status line instead of a1-6's overlay ([G105](#g105), [G117](#g117)), and a drop inserts at the marker. Organize closes the sidebar and gives it back on leaving. Below phone width the status bar hides the zoom.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/organize/page_grid.dart`, `app/lib/features/shell/file_drop.dart`, `app/lib/features/shell/shell_status_bar.dart`.
+
+<a id="g162"></a>
+
+### G162 · Crop: the range, its handles and its toast
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: crop
+- **Artboards:** `a6-4`
+- **Gap or conflict:** a6-4's select names a range but draws no field for one. Its scrim is the literal `rgba(20,19,17,.42)`, and its handles and size label are scaled by the board's `zoom: 0.7`.
+- **Decision:** A range field goes under the Pages radio, and empty means every page. The scrim uses the `surfaceScrim` token, as the literals check asks. Handles and the size label are drawn at real size (14 px). The toast carries [G57](#g57)'s "hidden, not removed" copy. The tool works on the reader's page, so the grid gives way to the reader while it shows.
+- **Status:** Decided.
+- **Evidence:** `design/06 Organize.dc.html` (a6-4); `app/lib/features/organize/crop_overlay.dart`, `app/lib/features/organize/crop_panel.dart`, `app/lib/features/shell/shell_canvas.dart`.
+
+<a id="g163"></a>
+
+### G163 · Page labels: A, B, C and the errors
+
+- **Type:** conflict
+- **Milestone:** M4
+- **Area:** Organize: page labels
+- **Artboards:** `a6-5`
+- **Gap or conflict:** a6-5 lists no A, B, C style, so a document using one would lose it in the dialog. It draws no errors, and its note cites "(3.8b)".
+- **Decision:** The dialog adds A, B, C. Ranges must cover the pages in order without gaps, and say so when they do not; none covering any page removes the labels. The note drops "(3.8b)", which means nothing to a reader.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/organize/page_labels_dialog.dart`; `app/test/features/organize/organize_logic_test.dart`.
+
+<a id="g164"></a>
+
+### G164 · Replace with a different count, and locked source files
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: replace
+- **Artboards:** none ([G45](#g45))
+- **Gap or conflict:** [G45](#g45) does not say what happens when a replacement has fewer or more pages than it replaces, or how Insert and Replace ask for a locked file's password.
+- **Decision:** A different count shows a note: fewer delete the rest, more go after the last. A locked file takes the same inline password as Combine's row. One file per page in Extract uses the folder panel (ADR 0018) with no staging; its grant under the macOS sandbox is an owner check.
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/organize/replace_pages_dialog.dart`, `app/lib/features/organize/page_source_field.dart`, `app/lib/features/organize/extract_pages_dialog.dart`.
+
+<a id="g165"></a>
+
+### G165 · Create PDF, and what a6-3 draws ahead of the engine
+
+- **Type:** missing state
+- **Milestone:** M4
+- **Area:** Organize: Create PDF and Combine
+- **Artboards:** `a6-3`, `a1-5`, `a7-1`
+- **Gap or conflict:** No board draws Create PDF's dialog. a6-3 draws an Excel row as converted, which needs P3, and thumbnails in its result. Split's folder has no staging directory, since a shared one goes at the first swap.
+- **Decision:** The dialog is built from design-system components: blank page, files, and the clipboard disabled (B176). An Excel or Word row shows disabled and holds Combine back until P3 (B175). The result shows blank sheets (B196). Split writes through the folder panel's grant ([G143](#g143)).
+- **Status:** Decided.
+- **Evidence:** `app/lib/features/organize/organize_dialogs.dart`, `app/lib/features/organize/combine_tab.dart`, `app/lib/features/organize/split_dialog.dart`.

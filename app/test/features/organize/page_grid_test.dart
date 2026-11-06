@@ -3,6 +3,11 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/organize/crop_overlay.dart';
+import 'package:ferman/features/organize/extract_pages_dialog.dart';
+import 'package:ferman/features/organize/insert_blank_dialog.dart';
+import 'package:ferman/features/organize/insert_file_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/organize_panel.dart';
 import 'package:ferman/features/organize/page_commands.dart';
 import 'package:ferman/features/organize/page_grid.dart';
@@ -382,12 +387,6 @@ void main() {
         await tester.pumpAndSettle();
         expect(find.text('2 pages'), findsOne);
         expect(find.text('Rotate left'), findsWidgets);
-        final menu = tester.widget<Menu>(find.byType(Menu));
-        final dialog = menu.items.where(
-          (item) => item.label == 'Extract as new PDF…',
-        );
-        expect(dialog.single.disabled, isTrue);
-        expect(dialog.single.disabledReason, 'Available in a future version');
         await tester.tap(find.text('Delete 2 pages'));
         await tester.pumpAndSettle();
         expect(_order(container).length, 10);
@@ -407,6 +406,111 @@ void main() {
         kind: PointerDeviceKind.mouse,
       );
       await tester.pumpAndSettle();
+      expect(_selected(container), {104});
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+  });
+
+  group('the dialogs on the selection', () {
+    testWidgets('the page menu opens them on the selection', (tester) async {
+      await _open(tester, _engine());
+      await tester.tap(_page(2), kind: PointerDeviceKind.mouse);
+      await tester.pump();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.tap(_page(3), kind: PointerDeviceKind.mouse);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        _page(3),
+        buttons: kSecondaryButton,
+        kind: PointerDeviceKind.mouse,
+      );
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Extract as new PDF…'));
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<ExtractPagesDialog>(find.byType(ExtractPagesDialog))
+            .pages,
+        [1, 2],
+      );
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('the panel inserts after the last page selected', (
+      tester,
+    ) async {
+      final engine = _engine();
+      final container = await _open(tester, engine);
+      container.read(pageSelectionProvider.notifier).all([101, 103]);
+      await tester.pumpAndSettle();
+      await tester.tap(
+        find.descendant(
+          of: find.byType(OrganizePanel),
+          matching: find.text('Blank page'),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(
+        tester.widget<InsertBlankDialog>(find.byType(InsertBlankDialog)).pages,
+        [1, 3],
+      );
+      await tester.tap(find.text('Insert 1 page'));
+      await tester.pumpAndSettle();
+      expect(_order(container).length, 13);
+      expect(container.read(organizeDialogProvider), isNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('a document that forbids assembling refuses what changes it, '
+        'and still extracts', (tester) async {
+      final engine = _engine()
+        ..opGates[(9, DocumentOp.organize)] = OpGate.forbidden;
+      final container = await _open(tester, engine);
+      container.read(pageSelectionProvider.notifier).only(100);
+      await tester.pumpAndSettle();
+      expect(_tool(tester, 'Crop').onPressed, isNull);
+      expect(_tool(tester, 'Replace').onPressed, isNull);
+      expect(_tool(tester, 'Extract').onPressed, isNotNull);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('Extract and Insert from file have their keys', (tester) async {
+      final container = await _open(tester, _engine());
+      container.read(pageSelectionProvider.notifier).only(104);
+      await tester.pumpAndSettle();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyE);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.altLeft);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+      expect(
+        tester
+            .widget<ExtractPagesDialog>(find.byType(ExtractPagesDialog))
+            .pages,
+        [4],
+      );
+      container.read(organizeDialogProvider.notifier).close();
+      await tester.pumpAndSettle();
+      await tester.sendKeyDownEvent(LogicalKeyboardKey.controlLeft);
+      await tester.sendKeyEvent(LogicalKeyboardKey.keyI);
+      await tester.sendKeyUpEvent(LogicalKeyboardKey.controlLeft);
+      await tester.pumpAndSettle();
+      expect(find.byType(InsertFileDialog), findsOne);
+    }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
+
+    testWidgets('Crop shows the reader, on the first page selected, and comes '
+        'back to the grid', (tester) async {
+      final container = await _open(tester, _engine());
+      container.read(pageSelectionProvider.notifier).only(104);
+      await tester.pumpAndSettle();
+      await tester.tap(find.widgetWithText(ToolButton, 'Crop'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PageGrid), findsNothing);
+      expect(find.byType(DocumentView), findsOne);
+      expect(find.byType(CropOverlay), findsOne);
+      expect(container.read(viewerProvider)!.currentPage, 4);
+      await tester.tap(find.widgetWithText(Button, 'Cancel'));
+      await tester.pumpAndSettle();
+      expect(find.byType(PageGrid), findsOne);
+      expect(find.byType(CropOverlay), findsNothing);
       expect(_selected(container), {104});
     }, variant: TargetPlatformVariant.only(TargetPlatform.linux));
   });

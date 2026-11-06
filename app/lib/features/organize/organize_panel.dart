@@ -3,7 +3,12 @@ import 'dart:async';
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/organize/extract_pages_dialog.dart';
+import 'package:ferman/features/organize/insert_blank_dialog.dart';
+import 'package:ferman/features/organize/insert_file_dialog.dart';
+import 'package:ferman/features/organize/organize_dialogs.dart';
 import 'package:ferman/features/organize/page_commands.dart';
+import 'package:ferman/features/organize/replace_pages_dialog.dart';
 import 'package:ferman/features/shell/document_properties.dart';
 import 'package:ferman/features/shell/shell_panel.dart';
 import 'package:ferman/features/shell/shell_state.dart';
@@ -28,15 +33,9 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
   final commands = ref.read(pageCommandsProvider.notifier);
   final refusal = ref.read(organizeRefusalProvider)?.call(l10n);
   final deleteRefusal = ref.read(deleteRefusalProvider)?.call(l10n);
-  final dialogs = Feature.organizeDialogs.disabledReason(context);
-  MenuItem dialog(String label, IconName icon, {List<String>? shortcut}) =>
-      MenuItem(
-        label: label,
-        icon: icon,
-        shortcut: shortcut,
-        disabled: true,
-        disabledReason: dialogs,
-      );
+  final document = ref.read(openDocumentProvider);
+  final name = ref.read(shellDocumentsProvider).active?.name ?? '';
+  final pages = organizeSelection(ref);
   ContextMenuController().show(
     context: context,
     contextMenuBuilder: (context) => CustomSingleChildLayout(
@@ -72,15 +71,34 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
               disabled: refusal != null,
               disabledReason: refusal,
             ),
-            dialog(
-              l10n.organizeMenuExtract,
-              IconName.fileOutput,
+            MenuItem(
+              id: 'extract',
+              label: l10n.organizeMenuExtract,
+              icon: IconName.fileOutput,
               shortcut: ShellCommand.extractPages.caps(platform),
             ),
             const MenuItem.divider(),
-            dialog(l10n.organizeMenuInsertBlank, IconName.filePlus2),
-            dialog(l10n.organizeMenuInsertFile, IconName.folderOpen),
-            dialog(l10n.organizeMenuReplace, IconName.replace),
+            MenuItem(
+              id: 'blank',
+              label: l10n.organizeMenuInsertBlank,
+              icon: IconName.filePlus2,
+              disabled: refusal != null,
+              disabledReason: refusal,
+            ),
+            MenuItem(
+              id: 'file',
+              label: l10n.organizeMenuInsertFile,
+              icon: IconName.folderOpen,
+              disabled: refusal != null,
+              disabledReason: refusal,
+            ),
+            MenuItem(
+              id: 'replace',
+              label: l10n.organizeMenuReplace,
+              icon: IconName.replace,
+              disabled: refusal != null,
+              disabledReason: refusal,
+            ),
             const MenuItem.divider(),
             MenuItem(
               id: 'delete',
@@ -94,6 +112,18 @@ void showPageMenu(BuildContext context, WidgetRef ref, Offset position) {
           onClose: ContextMenuController.removeAny,
           onSelected: (item) {
             ContextMenuController.removeAny();
+            if (document != null) {
+              switch (item.id) {
+                case 'extract':
+                  showExtractPagesDialog(ref, document, name, pages);
+                case 'blank':
+                  showInsertBlankDialog(ref, document, pages);
+                case 'file':
+                  showInsertFileDialog(ref, document, pages);
+                case 'replace':
+                  showReplacePagesDialog(ref, document, pages);
+              }
+            }
             unawaited(switch (item.id) {
               'left' => commands.rotate(-1),
               'right' => commands.rotate(1),
@@ -149,7 +179,6 @@ class OrganizePanel extends ConsumerWidget {
     final refusal = ref.watch(organizeRefusalProvider)?.call(l10n);
     final deleteRefusal = ref.watch(deleteRefusalProvider)?.call(l10n);
     final commands = ref.read(pageCommandsProvider.notifier);
-    final dialogs = Feature.organizeDialogs.disabledReason(context);
     final line = BorderSide(
       color: theme.colors.borderSubtle,
       width: theme.border.borderWidth,
@@ -313,14 +342,26 @@ class OrganizePanel extends ConsumerWidget {
                             command(
                               IconName.fileOutput,
                               l10n.organizePanelExtract,
-                              disabledReason: dialogs,
+                              onPressed: () async => showExtractPagesDialog(
+                                ref,
+                                document,
+                                tab.name,
+                                indices,
+                              ),
                             ),
                           ),
                           pair(
                             command(
                               IconName.replace,
                               l10n.organizePanelReplace,
-                              disabledReason: dialogs,
+                              onPressed: refusal != null
+                                  ? null
+                                  : () async => showReplacePagesDialog(
+                                      ref,
+                                      document,
+                                      indices,
+                                    ),
+                              disabledReason: refusal,
                             ),
                             command(
                               IconName.trash2,
@@ -346,12 +387,26 @@ class OrganizePanel extends ConsumerWidget {
                           command(
                             IconName.filePlus2,
                             l10n.organizePanelBlankPage,
-                            disabledReason: dialogs,
+                            onPressed: refusal != null
+                                ? null
+                                : () async => showInsertBlankDialog(
+                                    ref,
+                                    document,
+                                    indices,
+                                  ),
+                            disabledReason: refusal,
                           ),
                           command(
                             IconName.folderOpen,
                             l10n.organizePanelFromFile,
-                            disabledReason: dialogs,
+                            onPressed: refusal != null
+                                ? null
+                                : () async => showInsertFileDialog(
+                                    ref,
+                                    document,
+                                    indices,
+                                  ),
+                            disabledReason: refusal,
                           ),
                           command(
                             IconName.scan,
