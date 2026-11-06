@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/onboarding/edit_step.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -39,6 +40,7 @@ void main() {
   group('every step at phone width', () {
     for (final screen in const [
       M1Screen.languagePicker,
+      M1Screen.editStep,
       M1Screen.privacyStep,
       M1Screen.freeStep,
     ]) {
@@ -89,7 +91,7 @@ void main() {
         await _open(tester, screen, size: const Size(320, 480));
         final label = screen == M1Screen.languagePicker
             ? 'Continue'
-            : screen == M1Screen.privacyStep
+            : screen == M1Screen.editStep || screen == M1Screen.privacyStep
             ? 'Next'
             : 'Start using Ferman';
         final bottom = tester.getBottomLeft(find.text(label)).dy;
@@ -216,7 +218,9 @@ void main() {
       await tester.pumpAndSettle();
       await tester.tap(find.text('Back'));
       await tester.pumpAndSettle();
-      expect(find.byType(LanguagePicker), findsOneWidget);
+      // a1-2a's footer has Skip and Next, no Back.
+      expect(find.byType(EditSpecimen), findsOneWidget);
+      expect(find.text('Back'), findsNothing);
     });
 
     testWidgets('Skip finishes first run', (tester) async {

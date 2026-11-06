@@ -1,10 +1,16 @@
 //! The text model against the generators' ground truth (ROADMAP §7 step 1): for every generated
 //! file with a `<name>.blocks.json`, every page's blocks in reading order, their lines (text and
 //! baseline), alignment, justification method, column and table cell match what `tools/corpus` drew, 100%.
+//!
+//! The 95% check of step 1 counts the blocks that match over the corpus and over the hand-labelled
+//! real-world files in `tests/corpus/real-world/` (`<name>.pdf` and `<name>.blocks.json`). That
+//! folder does not exist until the owner's files come (M3 question 4), so today the check sees only
+//! generated files and proves no more than the 100% test does; it fails on a real file's labels
+//! the day they arrive.
 // Test helpers fail loudly.
 #![allow(clippy::panic, clippy::unwrap_used, clippy::expect_used)]
 
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::sync::Arc;
 
 use ferman_core::{OpenOptions, Password, Source, open};
@@ -18,15 +24,6 @@ const PASSWORDS: [(&str, &str); 4] = [
     ("payslip-aes256", "Eylül2026maaşı"),
     ("payslip-rc4-128", "bordro2026"),
     ("payslip-rc4-40", "bordro2026"),
-];
-
-/// Pages whose text extraction is known to differ (BACKLOG B112, as in `corpus.rs`): their
-/// lines' text is not compared.
-const KNOWN_TEXT: [(&str, usize); 4] = [
-    ("report-ar", 7),
-    ("report-ar", 8),
-    ("report-ar", 9),
-    ("report-ar", 10),
 ];
 
 /// Files whose ground truth measures other widths than the ones a reader draws: `edit-e15-helvetica`
@@ -64,13 +61,27 @@ fn point(value: &Value) -> (f32, f32) {
     (x as f32, y as f32)
 }
 
-#[test]
-fn every_generated_file_lays_out_as_its_generator_drew_it() {
-    let dir = PathBuf::from(env!("CARGO_MANIFEST_DIR")).join("../../tests/corpus/generated");
+/// What the files of `dir` with a `<name>.blocks.json` match.
+#[derive(Default)]
+struct Tally {
+    /// Blocks in the ground truth.
+    blocks: usize,
+    /// The ground truth's blocks found as drawn.
+    matched: usize,
+    /// Pages all of whose blocks match.
+    pages: usize,
+    /// Every mismatch, to file as a case.
+    failures: Vec<String>,
+}
+
+/// The model of every file of `dir` against its block ground truth.
+fn tally(dir: &Path) -> Tally {
     // The files too large to commit are performance files, not layout cases.
-    let large = std::fs::read_to_string(dir.join(".gitignore")).unwrap();
-    let mut names: Vec<String> = std::fs::read_dir(&dir)
-        .unwrap()
+    let large = std::fs::read_to_string(dir.join(".gitignore")).unwrap_or_default();
+    let Ok(entries) = std::fs::read_dir(dir) else {
+        return Tally::default();
+    };
+    let mut names: Vec<String> = entries
         .filter_map(|entry| {
             let name = entry.unwrap().file_name().into_string().unwrap();
             name.strip_suffix(".blocks.json").map(str::to_owned)
@@ -83,10 +94,8 @@ fn every_generated_file_lays_out_as_its_generator_drew_it() {
         })
         .collect();
     names.sort();
-    assert!(names.len() >= 30, "{names:?}");
     let only = std::env::var("FERMAN_LAYOUT_ONLY").ok();
-    let mut failures = Vec::new();
-    let mut checked = 0_usize;
+    let mut tally = Tally::default();
     for name in &names {
         if only.as_deref().is_some_and(|only| only != name) {
             continue;
@@ -114,10 +123,13 @@ fn every_generated_file_lays_out_as_its_generator_drew_it() {
             let blocks = want["blocks"].as_array().unwrap();
             if want["empty"] == "image" {
                 if !model.blocks.is_empty() || model.empty != Some(NotEditableReason::ImageOnly) {
-                    failures.push(format!("{name} page {page}: not an image-only page"));
+                    tally
+                        .failures
+                        .push(format!("{name} page {page}: not an image-only page"));
                 }
                 continue;
             }
+            tally.blocks += blocks.len();
             if model.blocks.len() != blocks.len() {
                 let got: Vec<String> = model
                     .blocks
@@ -128,14 +140,13 @@ fn every_generated_file_lays_out_as_its_generator_drew_it() {
                     .iter()
                     .map(|b| b["lines"][0]["text"].as_str().unwrap_or_default())
                     .collect();
-                failures.push(format!(
+                tally.failures.push(format!(
                     "{name} page {page}: {} blocks, {} expected\n  got {got:?}\n  want {wanted:?}",
                     model.blocks.len(),
                     blocks.len()
                 ));
                 continue;
             }
-            let known = KNOWN_TEXT.contains(&(name.as_str(), page));
             for (at, (got, want)) in model.blocks.iter().zip(blocks).enumerate() {
                 let lines = want["lines"].as_array().unwrap();
                 let head = lines[0]["text"].as_str().unwrap_or_default();
@@ -169,7 +180,7 @@ fn every_generated_file_lays_out_as_its_generator_drew_it() {
                 } else {
                     for (n, (line, want)) in got.lines.iter().zip(lines).enumerate() {
                         let text = want["text"].as_str().unwrap();
-                        if !known && squeeze(&line.text) != squeeze(text) {
+                        if squeeze(&line.text) != squeeze(text) {
                             problems.push(format!("line {n}: «{}», want «{text}»", line.text));
                         }
                         #[allow(clippy::cast_possible_truncation)]
@@ -195,21 +206,66 @@ fn every_generated_file_lays_out_as_its_generator_drew_it() {
                         }
                     }
                 }
-                if !problems.is_empty() {
-                    failures.push(format!(
+                if problems.is_empty() {
+                    tally.matched += 1;
+                } else {
+                    tally.failures.push(format!(
                         "{name} page {page} block {at} «{head}»: {}",
                         problems.join("; ")
                     ));
                 }
             }
-            checked += 1;
+            tally.pages += 1;
         }
     }
+    tally
+}
+
+fn corpus_dir(name: &str) -> PathBuf {
+    PathBuf::from(env!("CARGO_MANIFEST_DIR"))
+        .join("../../tests/corpus")
+        .join(name)
+}
+
+#[test]
+fn every_generated_file_lays_out_as_its_generator_drew_it() {
+    let files = std::fs::read_dir(corpus_dir("generated"))
+        .unwrap()
+        .filter(|entry| {
+            let entry = entry.as_ref().unwrap();
+            entry
+                .file_name()
+                .to_string_lossy()
+                .ends_with(".blocks.json")
+        })
+        .count();
+    assert!(files >= 30, "{files} files with ground truth");
+    let tally = tally(&corpus_dir("generated"));
+    assert!(tally.pages >= 30, "{} pages", tally.pages);
     assert!(
-        failures.is_empty(),
-        "{} failures ({checked} pages matched):\n{}",
-        failures.len(),
-        failures.join("\n")
+        tally.failures.is_empty(),
+        "{} failures ({} pages matched):\n{}",
+        tally.failures.len(),
+        tally.pages,
+        tally.failures.join("\n")
+    );
+}
+
+#[test]
+#[ignore = "needs tests/corpus/real-world, which waits for the owner's files"]
+fn at_least_95_percent_of_the_corpus_blocks_match_their_ground_truth() {
+    let (generated, real) = (
+        tally(&corpus_dir("generated")),
+        tally(&corpus_dir("real-world")),
+    );
+    let blocks = generated.blocks + real.blocks;
+    let matched = generated.matched + real.matched;
+    assert!(blocks > 0);
+    assert!(
+        matched * 100 >= blocks * 95,
+        "{matched} of {blocks} blocks match:\n{}\n{}",
+        generated.failures.join("\n"),
+        real.failures.join("\n")
     );
 }
 

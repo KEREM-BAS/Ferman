@@ -22,7 +22,8 @@ use ferman_core::interpret::{
 };
 use ferman_core::{Document, OpenOptions, Source, open};
 use ferman_text::{
-    EditContext, Outcome, Rewrite, Splice, TextBlock, Unsupported, rewrite_block, text_page,
+    Choice, EditContext, Outcome, Rewrite, Splice, TextBlock, TextDirection, Unsupported,
+    rewrite_block, rewrite_block_with, text_page,
 };
 use unicode_normalization::UnicodeNormalization;
 
@@ -386,19 +387,27 @@ fn check(
         };
         assert_eq!(strip(old), strip(new), "{}", String::from_utf8_lossy(name));
     }
-    // Every glyph outside the block's edited lines is where it was.
+    // Every glyph outside the splices is where it was: the edited lines' glyphs that a splice
+    // replaces (all of them where the block is reflowed; a vertical column's one show).
     let edited_lines: Vec<usize> = target
         .lines
         .iter()
-        .zip(text.split('\n'))
         .enumerate()
-        .filter(|(_, (line, new))| line.text != *new)
+        .filter(|(_, line)| {
+            line.chars.iter().any(|c| {
+                c.glyph
+                    .as_ref()
+                    .is_some_and(|link| inside(&link.span, &old_ranges))
+            })
+        })
         .map(|(at, _)| at)
         .collect();
+    let line_by_line = text.split('\n').count() == target.lines.len();
     let edited_spans: Vec<&Span> = edited_lines
         .iter()
         .flat_map(|&at| &target.lines[at].chars)
         .filter_map(|c| c.glyph.as_ref().map(|link| &link.span))
+        .filter(|span| inside(span, &old_ranges))
         .collect();
     let old_chars: Vec<_> = glyph_chars(before, page)
         .into_iter()
@@ -441,24 +450,32 @@ fn check(
     }
     // The new lines read back as the new text, once per placement of a form: the codes decode
     // to it.
-    let wanted: String = squeeze(
-        &edited_lines
-            .iter()
-            .map(|&at| text.split('\n').nth(at).unwrap())
-            .collect::<String>(),
-    );
+    let wanted: String = if line_by_line {
+        squeeze(
+            &edited_lines
+                .iter()
+                .map(|&at| text.split('\n').nth(at).unwrap())
+                .collect::<String>(),
+        )
+    } else {
+        squeeze(text)
+    };
     let model = text_page(after, page, &EditContext::default()).unwrap();
+    let is_replaced = |c: &&ferman_text::TextChar| {
+        c.glyph
+            .as_ref()
+            .is_some_and(|link| replaced(&link.span.source, &link.span.range.start))
+    };
+    // A vertical column writes only the show the change is in, so its whole line is read.
+    let vertical = target.direction == TextDirection::Vertical;
     let got: String = squeeze(
         &model
             .blocks
             .iter()
             .flat_map(|block| &block.lines)
+            .filter(|line| !vertical || line.chars.iter().any(|c| is_replaced(&c)))
             .flat_map(|line| &line.chars)
-            .filter(|c| {
-                c.glyph
-                    .as_ref()
-                    .is_some_and(|link| replaced(&link.span.source, &link.span.range.start))
-            })
+            .filter(|c| vertical || is_replaced(c))
             .map(|c| c.ch)
             .collect::<String>(),
     );
@@ -526,9 +543,24 @@ fn standard_14_helvetica_edits_with_its_metrics() {
     assert!((length - expected).abs() < 0.05, "{length} {expected}");
 }
 
+/// The characters of a [`Outcome::MissingGlyphs`], each once; empty for another outcome.
+fn missing(outcome: &Outcome) -> Vec<char> {
+    let Outcome::MissingGlyphs(missing) = outcome else {
+        return Vec::new();
+    };
+    let mut chars: Vec<char> = Vec::new();
+    for &(c, _) in &missing.chars {
+        if !chars.contains(&c) {
+            chars.push(c);
+        }
+    }
+    chars
+}
+
 #[test]
-fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
-    // E01 on E04's file: same length, then shorter; WinAnsi has no code for "ğ".
+fn win_ansi_truetype_subset_edits_and_adds_a_code_through_differences() {
+    // E01 on E04's file: same length, then shorter. WinAnsi has no code for "ğ", but the
+    // program has the glyph: step 1 gives it a free code in a copy of the font.
     edit(&corpus("edit-e04-differences"), 0, "18.500", "18.600");
     edit(
         &corpus("edit-e04-differences"),
@@ -540,10 +572,24 @@ fn win_ansi_truetype_subset_edits_and_reports_a_missing_glyph() {
     let doc = document(&pdf);
     let target = block(&doc, 0, "Kira bedeli");
     let text = edited(&target, "bedeli", "bedeliğğ");
-    assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['ğ'])
-    );
+    let Outcome::Rewritten(rewrite) = rewrite_block(&doc, 0, &target, &text).unwrap() else {
+        panic!("not rewritten");
+    };
+    assert!(rewrite.fonts.is_empty() && rewrite.new_fonts.is_empty());
+    let [copy] = rewrite.simple_fonts.as_slice() else {
+        panic!("{:?}", rewrite.simple_fonts);
+    };
+    // One code for both, the first WinAnsi leaves unused, named for the glyph.
+    let [(code, name, width)] = copy.codes.as_slice() else {
+        panic!("{:?}", copy.codes);
+    };
+    assert_eq!((*code, name.as_str()), (129, "gbreve"));
+    assert!(*width > 0.0);
+    let splice = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
+    let name = String::from_utf8(copy.name.clone()).unwrap();
+    assert!(splice.contains(&format!("/{name} ")), "{splice}");
+    assert!(splice.contains("\\201\\201"), "{splice}");
+    assert!(rewrite.substitutions.is_empty() && rewrite.pending.is_none());
 }
 
 #[test]
@@ -562,8 +608,8 @@ fn type3_edits_within_its_char_procs() {
     let target = block(&doc, 0, "12 boxes");
     let text = edited(&target, "boxes", "Qboxez");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['Q', 'z'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['Q', 'z']
     );
 }
 
@@ -581,15 +627,161 @@ fn mac_roman_edits() {
 #[test]
 fn mixed_simple_and_composite_lines_keep_their_composite_glyphs() {
     // A Turkish line drawn in a WinAnsi font with "ı" from a composite one: the composite runs
-    // keep their codes, a new "ı" needs the composite font (step 4).
+    // keep their codes, and a new "ı" takes the composite font's code (step 4).
     edit(&corpus("edit-e21-actualtext"), 0, "Pazartesi", "Pazar");
-    let pdf = corpus("edit-e21-actualtext");
+    let (rewrite, _) = edit(&corpus("edit-e21-actualtext"), 0, "Pazartesi", "Pazarı");
+    assert!(rewrite.fonts.is_empty(), "the font's own code, no copy");
+}
+
+#[test]
+fn identity_h_truetype_cid_fonts_edit_with_their_own_codes() {
+    // E12: CIDFontType2 subsets with Identity-H, characters of the subsets reordered.
+    for (file, from, to) in [
+        ("zh-hans", "一万九千五百元", "一万五千九百元"),
+        ("zh-hant", "十一月十五日", "十一月五十日"),
+        ("ko-para", "11월 30일에", "11월 03일에"),
+    ] {
+        let (rewrite, after) = edit(&corpus(file), 0, from, to);
+        assert!(rewrite.fonts.is_empty(), "{file}");
+        // Composite strings are hex, two bytes a code.
+        let splice = String::from_utf8(rewrite.splices[0].bytes.clone()).unwrap();
+        assert!(
+            splice.contains('<') && !splice.contains('('),
+            "{file}: {splice}"
+        );
+        assert!(
+            squeeze(&ferman_text::page_text(&document(&after), 0).unwrap()).contains(&squeeze(to))
+        );
+    }
+}
+
+#[test]
+fn a_cff_cid_font_edits_through_its_charset() {
+    // CIDFontType0 with a CID-keyed CFF program (FontFile3/CIDFontType0C).
+    let (rewrite, _) = edit(&corpus("edit-cff-cid"), 0, "2 Kasım 2026", "6 Kasım 2022");
+    assert!(rewrite.fonts.is_empty());
+    edit(&corpus("edit-cff-cid"), 0, "Şule Işık", "Işık Şule");
+}
+
+#[test]
+fn a_predefined_cmap_encodes_shift_jis() {
+    // 90ms-RKSJ-H: two-byte Shift-JIS codes whose Adobe-Japan1 CIDs the CIDToGIDMap stream
+    // maps to the subset's glyphs.
+    let (rewrite, _) = edit(&corpus("edit-90ms-rksj"), 0, "マンションの", "ションマンの");
+    let splice = String::from_utf8(rewrite.splices[0].bytes.clone()).unwrap();
+    // "シ" is JIS row 5, cell 23: Shift-JIS 83 56.
+    assert!(splice.contains("<8356"), "{splice}");
+    edit(&corpus("edit-90ms-rksj"), 0, "おしらせ", "おしらせします");
+}
+
+#[test]
+fn a_character_a_composite_subset_lacks_is_missing() {
+    // The subset has no cmap and no glyph for it: reported, never substituted.
+    let pdf = corpus("zh-hans");
     let doc = document(&pdf);
-    let target = block(&doc, 0, "Pazartesi");
-    let text = edited(&target, "Pazartesi", "Salı");
+    let target = block(&doc, 0, "一万九千五百元");
+    let text = edited(&target, "一万九千五百元", "一万九千五百龘");
+    assert_eq!(
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['龘']
+    );
+}
+
+/// The line with `needle` of the block holding it in `pdf`.
+fn line_of(pdf: &[u8], needle: &str) -> ferman_text::Line {
+    let doc = document(pdf);
+    block(&doc, 0, needle)
+        .lines
+        .into_iter()
+        .find(|line| line.text.contains(needle))
+        .unwrap()
+}
+
+#[test]
+fn a_vertical_column_keeps_its_cells() {
+    // E13: Identity-V, each new character in the cell of the one it replaces; only the
+    // column's show is written again.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, after) = edit(&pdf, 0, "十月十三日", "十月十二日");
+    assert_eq!(rewrite.splices.len(), 1);
+    assert!(rewrite.fonts.is_empty() && rewrite.overflowing.is_empty());
+    let (old, new) = (line_of(&pdf, "十月十三日"), line_of(&after, "十月十二日"));
+    assert_eq!(old.baseline, new.baseline);
+    for (a, b) in old.chars.iter().zip(&new.chars) {
+        assert!(close(a.bbox.unwrap(), b.bbox.unwrap()), "{a:?} {b:?}");
+    }
+}
+
+#[test]
+fn a_column_grown_past_its_frame_is_overflowing() {
+    // The date block's one column, one cell longer than its frame.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, _) = edit(&pdf, 0, "十月十三日", "十月十三日日");
+    assert_eq!(rewrite.overflowing, [0]);
+}
+
+#[test]
+fn a_top_aligned_column_grows_by_its_pitch() {
+    // The body's last column, one character longer: the full stop moves down a cell.
+    let pdf = corpus("letter-ja-vertical");
+    let (rewrite, after) = edit(&pdf, 0, "です。", "でした。");
+    assert!(rewrite.overflowing.is_empty());
+    let (old, new) = (line_of(&pdf, "です。"), line_of(&after, "でした。"));
+    let pitch = old.chars[1].bbox.unwrap()[1] - old.chars[0].bbox.unwrap()[1];
+    let moved = new.chars[3].bbox.unwrap()[1] - old.chars[2].bbox.unwrap()[1];
+    assert!((moved - pitch).abs() < 0.01, "{moved} {pitch}");
+}
+
+#[test]
+fn an_upright_run_is_written_whole_and_centred() {
+    // Tate-chu-yoko: "19" across the column, in its Identity-H font, centred in its cell.
+    let pdf = corpus("letter-ja-vertical");
+    let centre = |line: &ferman_text::Line, from: usize| {
+        let [left, _, _, _] = line.chars[from].bbox.unwrap();
+        let [_, _, right, _] = line.chars[from + 1].bbox.unwrap();
+        (left + right) / 2.0
+    };
+    let old = line_of(&pdf, "19万");
+    let at = old.chars.iter().position(|c| c.ch == '1').unwrap();
+    let (_, after) = edit(&pdf, 0, "19万", "91万");
+    let new = line_of(&after, "91万");
+    assert!((centre(&old, at) - centre(&new, at)).abs() < 0.01);
+    // Digits the subset lacks are missing glyphs (steps 2 and 3), never a vertical font.
+    let doc = document(&pdf);
+    let target = block(&doc, 0, "19万");
+    let text = edited(&target, "19万", "20万");
+    assert_eq!(
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['2', '0']
+    );
+}
+
+#[test]
+fn vertical_text_that_is_not_one_show_or_reflows_is_not_rewritten_yet() {
+    let pdf = corpus("letter-ja-vertical");
+    let doc = document(&pdf);
+    // Across the upright run and the vertical runs around it.
+    let target = block(&doc, 0, "19万");
+    let text = edited(&target, "賃料は 19万五", "賃料も 19円五");
     assert_eq!(
         rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::Unsupported(Unsupported::CompositeFont)
+        Outcome::Unsupported(Unsupported::Direction)
+    );
+    // A reflow of columns (kinsoku, columns from the right) is not written yet.
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.as_str())
+        .collect::<String>();
+    assert_eq!(
+        rewrite_block(&doc, 0, &target, &text).unwrap(),
+        Outcome::Unsupported(Unsupported::Direction)
+    );
+    // A bottom-aligned column keeps its length.
+    let target = block(&doc, 0, "敬具");
+    assert_eq!(
+        rewrite_block(&doc, 0, &target, "敬具具").unwrap(),
+        Outcome::Unsupported(Unsupported::Direction)
     );
 }
 
@@ -689,8 +881,8 @@ fn standard_14_with_differences_encodes_through_them() {
     let target = block(&doc, 0, "KarŞ");
     let text = edited(&target, "KarŞ", "İŞ");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['İ'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['İ']
     );
 }
 
@@ -758,7 +950,8 @@ fn lines_justified_by_adjustments_give_new_spaces_the_mean_adjustment() {
         block(&doc, 0, "Aaaa").justification,
         Some(ferman_text::Justification::Adjustments)
     );
-    let (rewrite, _) = edit(&pdf, 0, "cccc dddd", "cc dd ee");
+    // Shorter, so the line stays in its frame and is rewritten line by line.
+    let (rewrite, _) = edit(&pdf, 0, "cccc dddd", "cc dd e");
     let bytes = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
     assert_eq!(bytes.matches("-800").count(), 4, "{bytes}");
 }
@@ -811,10 +1004,6 @@ fn what_w1_does_not_rewrite_says_why() {
     let doc = document(&pdf);
     let target = block(&doc, 0, "One line");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, "One\nline").unwrap(),
-        Outcome::Unsupported(Unsupported::LineCount)
-    );
-    assert_eq!(
         rewrite_block(&doc, 0, &target, "One line").unwrap(),
         Outcome::Rewritten(Rewrite::default())
     );
@@ -862,7 +1051,219 @@ fn a_replacement_character_is_never_written_as_an_unmapped_code() {
     let target = block(&doc, 0, "Price");
     let text = edited(&target, "Price", "Pr\u{FFFD}ce");
     assert_eq!(
-        rewrite_block(&doc, 0, &target, &text).unwrap(),
-        Outcome::MissingGlyphs(vec!['\u{FFFD}'])
+        missing(&rewrite_block(&doc, 0, &target, &text).unwrap()),
+        ['\u{FFFD}']
     );
+}
+
+/// Reflows the block with `needle` on `page` of `pdf` to `text` with `choice`, checks the result
+/// as [`edit`] does and returns the rewrite, the new file and the block's lines after.
+fn reflow_edit(
+    pdf: &[u8],
+    page: usize,
+    needle: &str,
+    text: &str,
+    choice: Option<Choice>,
+) -> (Rewrite, Vec<u8>, Vec<String>) {
+    let before = document(pdf);
+    let model = text_page(&before, page, &EditContext::default()).unwrap();
+    let target = block(&before, page, needle);
+    let outcome =
+        rewrite_block_with(&before, None, page, &target, text, &model.blocks, choice).unwrap();
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{needle:?} → {text:?}: {outcome:?}");
+    };
+    assert!(!rewrite.splices.is_empty());
+    let (after_pdf, placed) = apply(pdf, &rewrite.splices);
+    let after = document(&after_pdf);
+    check(&before, &after, page, &target, text, &rewrite, &placed);
+    let first = text.split_whitespace().next().unwrap();
+    let lines = text_page(&after, page, &EditContext::default())
+        .unwrap()
+        .blocks
+        .into_iter()
+        .find(|block| {
+            block
+                .lines
+                .first()
+                .is_some_and(|l| l.text.starts_with(first))
+        })
+        .map(|block| block.lines.into_iter().map(|line| line.text).collect())
+        .unwrap_or_default();
+    (rewrite, after_pdf, lines)
+}
+
+const PARAGRAPH: &[u8] = b"BT /F1 12 Tf 14 TL 72 700 Td (The quick brown fox jumps over the) Tj T* \
+(lazy dog and runs far away to) Tj T* (the green hills.) Tj ET BT /F1 12 Tf 72 600 Td (Below) Tj ET";
+
+#[test]
+fn a_paragraph_reflows_into_fewer_lines() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let (rewrite, _, lines) = reflow_edit(
+        &pdf,
+        0,
+        "quick",
+        "The quick brown fox jumps over the lazy dog.",
+        None,
+    );
+    assert_eq!(rewrite.overflow, None);
+    assert_eq!(rewrite.chosen, None);
+    assert_eq!(lines, ["The quick brown fox jumps over the", "lazy dog."]);
+}
+
+#[test]
+fn overflow_offers_the_three_choices_and_writes_each() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let text = "The quick brown fox jumps over the lazy dog and runs far away to the green \
+                hills, where it sleeps until the morning comes.";
+    // No choice yet: Keep and warn, the line past the frame written invisible.
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "quick", text, None);
+    let plan = rewrite.overflow.clone().unwrap();
+    assert_eq!(plan.over, 1);
+    assert_eq!(plan.keep.hidden, 1);
+    assert_eq!(plan.extend.as_ref().unwrap().lines, 1);
+    assert_eq!(rewrite.chosen, Some(Choice::Keep));
+    assert_eq!(rewrite.hidden, 1);
+    assert_eq!(lines.len(), 4, "{lines:?}");
+    let (_, data) = stream(&after, 5);
+    assert!(find(&data, b" 3 Tr", 0).is_some());
+    // The hidden text is still in the file.
+    let extracted = ferman_text::extract::page_text(&document(&after), 0).unwrap();
+    assert!(extracted.contains("morning"), "{extracted}");
+
+    let (rewrite, _, lines) = reflow_edit(&pdf, 0, "quick", text, Some(Choice::Extend));
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Extend), 0));
+    assert_eq!(lines.len(), 4);
+
+    // Too much for tightening: the choice falls back to Keep.
+    assert!(plan.tighten.is_err());
+    let (rewrite, ..) = reflow_edit(&pdf, 0, "quick", text, Some(Choice::Tighten));
+    assert_eq!(rewrite.chosen, Some(Choice::Keep));
+}
+
+#[test]
+fn tightening_writes_the_planned_tracking() {
+    let pdf = fixture(TIMES, &[], PARAGRAPH);
+    let text = "The quick brown fox jumps over the lazy dog and runs far away to the green hills.";
+    // A word of the last line growing a letter at a time: the first overflow is less than a
+    // letter, which tightening within the cap fits.
+    let (longer, rewrite) = (1..60)
+        .find_map(|n| {
+            let longer = text.replace("green", &format!("green{}", "x".repeat(n)));
+            let (rewrite, ..) = reflow_edit(&pdf, 0, "quick", &longer, None);
+            rewrite
+                .overflow
+                .as_ref()
+                .is_some_and(|plan| plan.tighten.is_ok())
+                .then_some((longer, rewrite))
+        })
+        .expect("an overflow that tightening fits");
+    let tighten = rewrite.overflow.unwrap().tighten.unwrap();
+    assert!(tighten.percent > 0.0 && tighten.percent <= 2.0);
+    assert_eq!(rewrite.hidden, 1);
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "quick", &longer, Some(Choice::Tighten));
+    assert_eq!((rewrite.chosen, rewrite.hidden), (Some(Choice::Tighten), 0));
+    assert_eq!(lines.len(), 3, "{lines:?}");
+    let (_, data) = stream(&after, 5);
+    assert!(find(&data, b" Tc", 0).is_some());
+}
+
+#[test]
+fn a_right_aligned_cell_keeps_its_right_edge() {
+    // E07: the amounts of fatura-tr's table are right-aligned cells.
+    let pdf = corpus("fatura-tr");
+    let target = block(&document(&pdf), 0, "1.250,00");
+    assert_eq!(target.alignment, ferman_text::Alignment::Right);
+    let end = target.lines[0].baseline[1];
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "1.250,00", "11.250,00", None);
+    assert_eq!((rewrite.overflow, lines.len()), (None, 1));
+    let moved = block(&document(&after), 0, "11.250,00");
+    let new_end = moved.lines[0].baseline[1];
+    assert!(
+        (new_end[0] - end[0]).abs() < 0.05 && (new_end[1] - end[1]).abs() < 0.05,
+        "{end:?} → {new_end:?}"
+    );
+}
+
+#[test]
+fn a_one_line_cell_grows_along_its_line_and_never_wraps() {
+    // A longer amount with a space (thousands spaced), in a right-aligned cell whose frame is its old text: the
+    // cell stays one line, its right edge kept, and nothing overflows into hiding.
+    let pdf = corpus("fatura-tr");
+    let end = block(&document(&pdf), 0, "1.250,00").lines[0].baseline[1];
+    let (rewrite, after, lines) = reflow_edit(&pdf, 0, "1.250,00", "11 250,00", None);
+    assert_eq!(
+        (rewrite.overflow, rewrite.hidden, lines.len()),
+        (None, 0, 1)
+    );
+    let new_end = block(&document(&after), 0, "11 250,00").lines[0].baseline[1];
+    assert!((new_end[0] - end[0]).abs() < 0.05, "{end:?} → {new_end:?}");
+}
+
+#[test]
+fn a_paragraph_justified_by_adjustments_stretches_its_spaces_by_tj() {
+    // E08: tez-tr's ÖZET, an Identity-H font whose space is a two-byte code, justified by TJ.
+    let pdf = corpus("tez-tr");
+    let doc = document(&pdf);
+    let target = block(&doc, 2, "Bu tez");
+    assert_eq!(
+        target.justification,
+        Some(ferman_text::Justification::Adjustments)
+    );
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.clone())
+        .collect::<Vec<_>>()
+        .join(" ")
+        .replacen("üç ilçesinde", "dört ilçesinde", 1);
+    let outcome = rewrite_block_with(&doc, None, 2, &target, &text, &[], None).unwrap();
+    let Outcome::Rewritten(rewrite) = outcome else {
+        panic!("{outcome:?}")
+    };
+    let bytes = String::from_utf8_lossy(&rewrite.splices[0].bytes).into_owned();
+    let first = bytes.split(" Tm ").nth(1).unwrap();
+    assert!(first.starts_with('[') && first.contains("> -"), "{first}");
+}
+
+#[test]
+fn kira_tr_madde_4_grows_past_the_iban_line() {
+    // E06 at the text level: the sentence needs a third line, and the IBAN line blocks Extend.
+    let pdf = corpus("kira-tr");
+    let target = block(&document(&pdf), 0, "aylık kira bedeli olan");
+    let text = target
+        .lines
+        .iter()
+        .map(|line| line.text.clone())
+        .collect::<Vec<_>>()
+        .join(" ")
+        + " Kiracı, gecikme hâlinde kiraya verene yazılı bildirimde bulunur.";
+    let (rewrite, _, lines) = reflow_edit(&pdf, 0, "aylık kira bedeli olan", &text, None);
+    let plan = rewrite.overflow.unwrap_or_else(|| panic!("{lines:?}"));
+    assert_eq!(plan.over, 1);
+    assert!(matches!(
+        plan.extend,
+        Err(ferman_text::ExtendBlocked::Block { ref text, .. }) if text.starts_with("IBAN")
+    ));
+}
+
+#[test]
+fn a_glyph_an_actual_text_covers_in_its_own_show_leaves_the_line_unsupported() {
+    // Replacing only the first show would leave the second glyph drawn beside the new text.
+    let content =
+        b"/Span <</ActualText (fi)>> BDC BT /F1 12 Tf 72 700 Td (\\001) Tj (\\001) Tj ET EMC";
+    let mut bytes = b"%PDF-1.7\n1 0 obj <</Type/Catalog/Pages 2 0 R>> endobj\n\
+        2 0 obj <</Type/Pages/Kids[3 0 R]/Count 1>> endobj\n\
+        3 0 obj <</Type/Page/Parent 2 0 R/MediaBox[0 0 612 792]/Contents 4 0 R\
+        /Resources<</Font<</F1<</Type/Font/Subtype/Type1/BaseFont/Helvetica>>>>>>>> endobj\n"
+        .to_vec();
+    bytes.extend_from_slice(format!("4 0 obj <</Length {}>> stream\n", content.len()).as_bytes());
+    bytes.extend_from_slice(content);
+    bytes.extend_from_slice(b"\nendstream endobj\ntrailer <</Root 1 0 R>>\n");
+    let doc = document(&bytes);
+    let target = block(&doc, 0, "fi");
+    assert!(matches!(
+        rewrite_block(&doc, 0, &target, "fo").unwrap(),
+        Outcome::Unsupported(Unsupported::Operators)
+    ));
 }

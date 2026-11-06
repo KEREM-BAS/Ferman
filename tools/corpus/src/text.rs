@@ -116,7 +116,14 @@ impl Fonts {
         let mut runs: Vec<Run> = Vec::new();
         let mut pending = String::new();
         let mut pending_font = None;
+        let mut previous = None;
         for c in text.chars() {
+            let kern = style
+                .kerning
+                .iter()
+                .find(|(a, b, _)| Some(*a) == previous && *b == c)
+                .map_or(0.0, |(_, _, kern)| *kern);
+            previous = Some(c);
             let borrowed = style
                 .borrowed
                 .filter(|(_, chars)| chars.contains(c))
@@ -145,7 +152,12 @@ impl Fonts {
             pending_font = target;
             match glyph {
                 Some(glyph) => match runs.last_mut() {
-                    Some(last) if last.font == style.font => last.glyphs.push(glyph),
+                    Some(last) if last.font == style.font => {
+                        if let Some(before) = last.glyphs.last_mut() {
+                            before.advance -= kern;
+                        }
+                        last.glyphs.push(glyph);
+                    }
                     _ => runs.push(style.run(style.font, vec![glyph], 0)),
                 },
                 None => pending.push(c),
@@ -200,6 +212,8 @@ pub struct Style {
     /// Whether the text is in a right-to-left paragraph: the bidi algorithm orders it, and a
     /// justified paragraph's last line sits on the right.
     pub rtl: bool,
+    /// Pairs a simple font tightens by this many thousandths of an em, as Word kerns.
+    pub kerning: &'static [(char, char, f64)],
 }
 
 impl Style {
@@ -216,6 +230,7 @@ impl Style {
             char_spacing: 0.0,
             borrowed: None,
             rtl: false,
+            kerning: &[],
         }
     }
 

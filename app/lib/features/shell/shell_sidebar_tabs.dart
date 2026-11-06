@@ -213,8 +213,18 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
     final format = RegionFormat.forRegion(ref.watch(regionProvider).region);
     final document = ref.watch(viewerProvider.select((v) => v?.document));
     final current = ref.watch(viewerProvider.select((v) => v?.currentPage));
+    // a3-4's warning badge: lines "Keep and warn" hides, by page.
+    final hidden = <int, int>{};
+    for (final mark in ref.watch(
+      documentEditorProvider.select((s) => s.hidden),
+    )) {
+      hidden[mark.page] = (hidden[mark.page] ?? 0) + mark.lines;
+    }
     if (document == null) return const SizedBox.shrink();
     final viewer = ref.read(viewerProvider.notifier);
+    final invalidated = ref.watch(
+      documentEditorProvider.select((s) => s.history.signatureInvalidated),
+    );
     return ListView.builder(
       controller: _scroll,
       padding: EdgeInsetsDirectional.only(
@@ -242,6 +252,30 @@ class _SidebarPagesState extends ConsumerState<SidebarPages> {
                 selected: index == current,
                 semanticLabel: l10n.sidebarPage(label),
                 onPressed: () => viewer.goToPage(index),
+                badges: switch (hidden[index]) {
+                  final lines? => ThumbnailBadges(
+                    badges: const {ThumbnailBadge.warnings},
+                    tooltips: {
+                      ThumbnailBadge.warnings: l10n.editOverflowHidden(
+                        lines,
+                        format.integer(lines),
+                      ),
+                    },
+                  ),
+                  // a3-16b: the signature's page once a change breaks it.
+                  null
+                      when invalidated &&
+                          document.signatures.any(
+                            (field) => field.signed && field.page == index,
+                          ) =>
+                    ThumbnailBadges(
+                      badges: const {ThumbnailBadge.warnings},
+                      tooltips: {
+                        ThumbnailBadge.warnings: l10n.signedBannerTitle(1),
+                      },
+                    ),
+                  null => null,
+                },
                 child: switch (_images[index]) {
                   final image? => RawImage(image: image, fit: BoxFit.fill),
                   // A blank page until the thumbnail arrives, never the

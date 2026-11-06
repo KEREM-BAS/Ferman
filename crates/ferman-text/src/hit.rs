@@ -354,6 +354,7 @@ mod tests {
             column: 0,
             cell: None,
             editability: Editability::Editable,
+            language: None,
         }
     }
 

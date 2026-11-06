@@ -51,6 +51,7 @@ class FermanInteractive extends StatefulWidget {
     this.activateOnEnter = true,
     this.disabled = false,
     this.disabledReason,
+    this.builderShowsReason = false,
     this.selected = false,
     this.selectable,
     this.toggled,
@@ -95,6 +96,11 @@ class FermanInteractive extends StatefulWidget {
   /// Why the control is disabled; shown as its tooltip and semantics hint
   /// while it is disabled (G10).
   final String? disabledReason;
+
+  /// Whether [builder] draws the tooltip of [disabledReason] itself, inside
+  /// this control's semantics node: a tab's, whose tooltip must not come
+  /// between it and its tab bar.
+  final bool builderShowsReason;
 
   /// Whether the control is the selected one of a set (a tab, a segment).
   final bool selected;
@@ -361,7 +367,7 @@ class _FermanInteractiveState extends State<FermanInteractive> {
       onFocus: focusable ? _node.requestFocus : null,
       child: result,
     );
-    if (message != null) {
+    if (message != null && !(_showsReason && widget.builderShowsReason)) {
       final name = widget.tooltip;
       result = Tooltip(
         message: _showsReason && widget.namedReason && name != null

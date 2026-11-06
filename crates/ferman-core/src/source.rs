@@ -7,6 +7,7 @@ use std::fs::File;
 use std::io::Read;
 use std::path::Path;
 use std::sync::Arc;
+use std::time::SystemTime;
 
 use sha2::{Digest, Sha256};
 
@@ -20,6 +21,8 @@ const CHUNK: usize = 1 << 20;
 pub struct Source {
     bytes: Arc<[u8]>,
     sha256: [u8; 32],
+    /// The file's modification time when it was read, for the external-change check.
+    modified: Option<SystemTime>,
 }
 
 impl fmt::Debug for Source {
@@ -39,7 +42,9 @@ impl Source {
     /// when its buffer cannot be reserved.
     pub fn read(path: &Path) -> Result<Self, CoreError> {
         let mut file = File::open(path).map_err(io)?;
-        let expected = file.metadata().map_err(io)?.len();
+        let metadata = file.metadata().map_err(io)?;
+        let modified = metadata.modified().ok();
+        let expected = metadata.len();
         let expected = usize::try_from(expected).map_err(|_| CoreError::OutOfMemory {
             context: "the file's buffer",
         })?;
@@ -73,6 +78,7 @@ impl Source {
         Ok(Self {
             bytes: bytes.into(),
             sha256: hasher.finalize().into(),
+            modified,
         })
     }
 
@@ -80,7 +86,11 @@ impl Source {
     #[must_use]
     pub fn from_bytes(bytes: Arc<[u8]>) -> Self {
         let sha256 = Sha256::digest(&bytes).into();
-        Self { bytes, sha256 }
+        Self {
+            bytes,
+            sha256,
+            modified: None,
+        }
     }
 
     /// The bytes, shared with the render thread without a copy.
@@ -93,6 +103,17 @@ impl Source {
     #[must_use]
     pub fn sha256(&self) -> &[u8; 32] {
         &self.sha256
+    }
+
+    /// The size, modification time and SHA-256 of the file as it was read, which a save checks
+    /// before replacing it (docs/ARCHITECTURE.md §7.5).
+    #[must_use]
+    pub fn stamp(&self) -> crate::save::FileStamp {
+        crate::save::FileStamp {
+            size: u64::try_from(self.bytes.len()).unwrap_or(u64::MAX),
+            modified: self.modified,
+            sha256: self.sha256,
+        }
     }
 
     /// The number of bytes.

@@ -19,6 +19,25 @@ final class BookmarkAccess {
   final String? renewed;
 }
 
+/// Why [FileAccess.swapIn] could not put a file in place.
+enum SwapFailure {
+  /// No permission to change the file or its folder, or the volume is
+  /// read-only.
+  permission,
+
+  /// The volume is full.
+  diskFull,
+
+  /// Another app holds the file.
+  locked,
+
+  /// The file's folder or volume is gone.
+  volumeGone,
+
+  /// Anything else, or no answer from the runner.
+  other,
+}
+
 /// Reaching files again after a restart under the macOS App Sandbox (Q18,
 /// ADR 0021): a security-scoped bookmark made while the user's grant holds
 /// (the open panel, a drop, "Open with"), resolved when the file is opened
@@ -49,9 +68,13 @@ abstract interface class FileAccess {
   Future<String?> staging(String path);
 
   /// Puts the written file [staged] in place of [path] (`replaceItemAt`)
-  /// and removes its staging directory; false when it could not, and the
-  /// staged file is gone either way.
-  Future<bool> swapIn(String staged, String path);
+  /// and removes its staging directory; why not when it could not, or null,
+  /// and the staged file is gone either way.
+  Future<SwapFailure?> swapIn(String staged, String path);
+
+  /// Removes the empty [directory] that [staging] named, when the engine
+  /// stopped before staging anything (a refused save).
+  Future<void> discardStaging(String directory);
 }
 
 /// No bookmarks: Windows, Linux and the web, and tests by default.
@@ -75,7 +98,11 @@ final class NoFileAccess implements FileAccess {
   Future<String?> staging(String path) async => null;
 
   @override
-  Future<bool> swapIn(String staged, String path) async => false;
+  Future<SwapFailure?> swapIn(String staged, String path) async =>
+      SwapFailure.other;
+
+  @override
+  Future<void> discardStaging(String directory) async {}
 }
 
 /// The runner's file access over the `ferman/files` channel
@@ -158,17 +185,30 @@ final class PlatformFileAccess implements FileAccess {
   }
 
   @override
-  Future<bool> swapIn(String staged, String path) async {
+  Future<SwapFailure?> swapIn(String staged, String path) async {
     try {
-      return await _channel.invokeMethod<bool>('swapIn', {
-            'staged': staged,
-            'path': path,
-          }) ??
-          false;
+      final reply = await _channel.invokeMethod<Object?>('swapIn', {
+        'staged': staged,
+        'path': path,
+      });
+      return reply == true
+          ? null
+          : SwapFailure.values.asNameMap()[reply] ?? SwapFailure.other;
     } on MissingPluginException {
-      return false;
+      return SwapFailure.other;
     } on PlatformException {
-      return false;
+      return SwapFailure.other;
+    }
+  }
+
+  @override
+  Future<void> discardStaging(String directory) async {
+    try {
+      await _channel.invokeMethod<void>('discardStaging', directory);
+    } on MissingPluginException {
+      return;
+    } on PlatformException {
+      return;
     }
   }
 }

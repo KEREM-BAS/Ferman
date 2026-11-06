@@ -599,7 +599,10 @@ final class _Details {
     file.name,
     line,
     ?pages(file),
-    if (file.signed) l10n.startBadgeSigned,
+    if (file.edited)
+      l10n.startBadgeEdited
+    else if (file.signed)
+      l10n.startBadgeSigned,
   ].join(', ');
 }
 
@@ -869,12 +872,19 @@ class _PinButtonState extends State<_PinButton> {
   }
 }
 
-/// The badge of a recent file (a1-4, a1-4-m2), one at most: the neutral
-/// "Signed" when it carried signatures, else the accent "Form" when it has
-/// form fields, else the neutral "Scanned" when its first page has no text.
-/// "Edited" waits for editing (M3).
+/// The badge of a recent file (a1-4, a1-4-m2), one at most: "Edited" when it
+/// was saved after an edit, else the neutral "Signed" when it carried
+/// signatures, else the accent "Form" when it has form fields, else the
+/// neutral "Scanned" when its first page has no text.
 Widget? _badge(BuildContext context, RecentEntry file) {
   final l10n = AppLocalizations.of(context);
+  if (file.edited) {
+    return Badge(
+      label: l10n.startBadgeEdited,
+      icon: IconName.filePenLine,
+      tone: BadgeTone.edited,
+    );
+  }
   if (file.signed) {
     return Badge(label: l10n.startBadgeSigned, icon: IconName.signature);
   }

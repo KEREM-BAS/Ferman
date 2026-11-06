@@ -15,9 +15,25 @@
 //!   (E23).
 //! - `edit-e26-inline-image`: lines beside an inline image (`BI … ID … EI`), 16 by 16 grey
 //!   pixels whose bytes are all above 0x7F, so none reads as `EI` (E26).
+//!
+//! Three generated stand-ins for the real-world files of E14, E17 and E18, which the owner has not
+//! made yet (`docs/PROGRESS.md`, M3 question 4). They copy what those producers write as far as
+//! this tool knows it, and do not replace the real files:
+//!
+//! - `edit-e14-latex-standin`: as `dvips` and `pdflatex` write Type1 fonts: an embedded `/FontFile`
+//!   subset (IBM Plex Serif's outlines), codes in an order of the font's own, no space glyph
+//!   (spaces are `TJ` adjustments) and no ToUnicode. One font names its codes in `/Differences`, the
+//!   other in the program's own encoding (E14).
+//! - `edit-e17-kerned-standin`: lines with kerning numbers in `TJ`: page 1 as Word writes a simple
+//!   TrueType font (a pair table of its own), page 2 as Google Docs writes a composite one (the
+//!   font's own kerning, shaped) (E17).
+//! - `edit-e18-columns-standin`: two columns whose lines take turns in one text object, each placed
+//!   by a `Td` relative to the other column's line: an edit that keeps no state invariant moves the
+//!   other column (E18).
 
 use super::{Doc, generated, info, open_first, opens};
-use crate::pdf::{self, num, rect, text};
+use crate::font::{PdfFont, Type1Encoding};
+use crate::pdf::{self, Content, num, rect, text};
 use crate::sources::{FontFile, Sources};
 use crate::text::{Align, Expected, Flow, Frame, PageText, PageTruth, Paragraph, Style, expected};
 use crate::{Expect, Generated, Generator};
@@ -63,6 +79,27 @@ pub const EDIT_E26_INLINE_IMAGE: Generator = Generator {
     name: "edit-e26-inline-image",
     build: e26,
     expect: opens(),
+};
+
+/// Stand-in for E14's LaTeX file: Type1 fonts with `/Differences` and a built-in encoding.
+pub const EDIT_E14_LATEX_STANDIN: Generator = Generator {
+    name: "edit-e14-latex-standin",
+    build: e14,
+    expect: opens(),
+};
+
+/// Stand-in for E17's Word and Google Docs files: kerning numbers in `TJ`.
+pub const EDIT_E17_KERNED_STANDIN: Generator = Generator {
+    name: "edit-e17-kerned-standin",
+    build: e17,
+    expect: opens(),
+};
+
+/// Stand-in for E18's LibreOffice file: two columns whose operators interleave.
+pub const EDIT_E18_COLUMNS_STANDIN: Generator = Generator {
+    name: "edit-e18-columns-standin",
+    build: e18,
+    expect: Expect::OpensUnordered,
 };
 
 const LEFT: f64 = 72.0;
@@ -371,4 +408,172 @@ fn e26(sources: &Sources) -> Result<Generated, String> {
         expected(&[lines], &[truth]),
         "edit-e26-inline-image",
     )
+}
+
+/// A style in a Type1 font of its own, written with `encoding`.
+fn type1(doc: &mut Doc, sources: &Sources, encoding: Type1Encoding) -> Result<Style, String> {
+    let style = doc.simple_style(sources, FontFile::PlexSerif, 11.0)?;
+    if let Some(PdfFont::Simple(font)) = doc.fonts.get_mut(style.font) {
+        font.type1 = Some(encoding);
+    }
+    Ok(style)
+}
+
+fn e14(sources: &Sources) -> Result<Generated, String> {
+    let mut doc = Doc::new("1.5");
+    let differences = type1(&mut doc, sources, Type1Encoding::Differences)?;
+    let built_in = type1(&mut doc, sources, Type1Encoding::BuiltIn)?;
+    let mut flow = Flow::new(Frame {
+        x: LEFT,
+        top: TOP,
+        bottom: 80.0,
+        width: WIDTH,
+    });
+    for (style, paragraph) in [
+        (
+            &differences,
+            "The committee met on 12 May and read the report on rents in three districts. The tables in the second chapter give the rents of each year, and the notes explain how they were measured.",
+        ),
+        (
+            &built_in,
+            "The second survey, made in 2025, repeats the first one in each of the same districts, so the two can be compared line by line.",
+        ),
+    ] {
+        flow.paragraph(
+            &mut doc.fonts,
+            &Paragraph::new(style, paragraph)
+                .aligned(Align::Left)
+                .spaced(0.0, 10.0),
+        )?;
+    }
+    usual(doc, flow.into_pages(), "edit-e14-latex-standin")
+}
+
+/// The pairs the Word page tightens.
+const KERNING: &[(char, char, f64)] = &[
+    ('T', 'o', 70.0),
+    ('A', 'V', 80.0),
+    ('V', 'A', 80.0),
+    ('A', 'T', 60.0),
+    ('T', 'A', 60.0),
+    ('W', 'a', 40.0),
+    ('L', 'T', 70.0),
+    ('Y', 'o', 60.0),
+    ('r', '.', 30.0),
+];
+
+fn e17(sources: &Sources) -> Result<Generated, String> {
+    let mut doc = Doc::new("1.7");
+    let mut word = doc.simple_style(sources, FontFile::PlexSans, 11.0)?;
+    word.kerning = KERNING;
+    let docs = doc.composite_style(sources, FontFile::PlexSans, 11.0)?;
+    let mut pages = Vec::new();
+    for style in [&word, &docs] {
+        let mut flow = Flow::new(Frame {
+            x: LEFT,
+            top: TOP,
+            bottom: 80.0,
+            width: WIDTH,
+        });
+        for paragraph in [
+            "To AVATAR Travel LTD: Your Way Ahead, in a Year.",
+            "To Walter AVAT: Your order, sent on 12 May, is on its Way to You.",
+        ] {
+            flow.paragraph(
+                &mut doc.fonts,
+                &Paragraph::new(style, paragraph)
+                    .aligned(Align::Left)
+                    .spaced(0.0, 10.0),
+            )?;
+        }
+        pages.extend(flow.into_pages());
+    }
+    usual(doc, pages, "edit-e17-kerned-standin")
+}
+
+/// A line's origin and operators.
+type TextObject = (f64, f64, Vec<String>);
+
+/// `page` without its content, and the text objects it held as (x, y, the operators between the
+/// `Td` and the `ET`), for lines `draw_line` wrote: `BT`, `x y Td`, then the rest.
+fn text_objects(mut page: PageText) -> Result<(PageText, Vec<TextObject>), String> {
+    let content = std::mem::replace(&mut page.content, Content::new()).into_bytes();
+    let content = String::from_utf8_lossy(&content).into_owned();
+    let mut objects = Vec::new();
+    let mut lines = content.lines();
+    while let Some(line) = lines.next() {
+        if line != "BT" {
+            return Err(format!("not a text object: {line}"));
+        }
+        let origin = lines.next().ok_or("no Td")?;
+        let mut parts = origin.split(' ');
+        let x = parts.next().and_then(|x| x.parse().ok()).ok_or("no x")?;
+        let y = parts.next().and_then(|y| y.parse().ok()).ok_or("no y")?;
+        let ops = lines
+            .by_ref()
+            .take_while(|op| *op != "ET")
+            .map(str::to_owned)
+            .collect();
+        objects.push((x, y, ops));
+    }
+    Ok((page, objects))
+}
+
+fn e18(sources: &Sources) -> Result<Generated, String> {
+    let mut doc = Doc::new("1.7");
+    let style = body(&mut doc, sources)?;
+    let width = (WIDTH - 24.0) / 2.0;
+    let column = |doc: &mut Doc, x: f64, paragraphs: [&str; 2]| {
+        let mut flow = Flow::new(Frame {
+            x,
+            top: TOP,
+            bottom: 80.0,
+            width,
+        });
+        for paragraph in paragraphs {
+            flow.paragraph(
+                &mut doc.fonts,
+                &Paragraph::new(&style, paragraph)
+                    .aligned(Align::Left)
+                    .spaced(0.0, 14.0),
+            )?;
+        }
+        flow.into_pages()
+            .into_iter()
+            .next()
+            .ok_or_else(|| "no page".to_owned())
+            .and_then(text_objects)
+    };
+    let (mut page, left) = column(
+        &mut doc,
+        LEFT,
+        [
+            "Apartman kurulu, asansör bakımının Kasım ayında yapılmasına karar verdi. Bakım süresince asansör kullanılamayacaktır.",
+            "Bakım bedeli aidatlardan karşılanır ve kat maliklerinden ayrıca ücret alınmaz.",
+        ],
+    )?;
+    let (mut right_page, right) = column(
+        &mut doc,
+        LEFT + width + 24.0,
+        [
+            "Çatı onarımı için üç firmadan teklif alındı. Teklifler yönetim odasında incelenebilir ve toplantıda oylanacaktır.",
+            "Bir sonraki toplantı 14 Aralık 2026 Pazartesi günü saat 19.00 da yapılacaktır.",
+        ],
+    )?;
+    page.take_text(&mut right_page, unmoved);
+    // The lines take turns, in one text object, each placed from the one before it.
+    let (mut at_x, mut at_y) = (0.0, 0.0);
+    page.content.op("BT");
+    for index in 0..left.len().max(right.len()) {
+        for (x, y, ops) in [left.get(index), right.get(index)].into_iter().flatten() {
+            page.content
+                .op(&format!("{} {} Td", num(x - at_x), num(y - at_y)));
+            (at_x, at_y) = (*x, *y);
+            for op in ops {
+                page.content.op(op);
+            }
+        }
+    }
+    page.content.op("ET");
+    usual(doc, vec![page], "edit-e18-columns-standin")
 }

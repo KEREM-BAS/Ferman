@@ -131,6 +131,10 @@ List<TextFitProblem> textFitProblems(
     final size = paragraph.size;
     final text = paragraph.text.toPlainText(includeSemanticsLabels: false);
     if (text.trim().isEmpty) continue;
+    // shortcut: a text with inline widgets (the edit samples) is not measured,
+    // a bare painter cannot lay it out without their sizes; upgrade if such a
+    // text is ever more than a sample.
+    if (paragraph.text.containsInlineWidget) continue;
     final rect = MatrixUtils.transformRect(
       paragraph.getTransformTo(null),
       Offset.zero & size,
@@ -245,3 +249,14 @@ List<String> describeErrors(List<FlutterErrorDetails> errors) => [
   for (final error in errors)
     error.exceptionAsString().split('\n').first.trim(),
 ];
+
+extension on InlineSpan {
+  bool get containsInlineWidget {
+    var found = false;
+    visitChildren((span) {
+      found = span is WidgetSpan;
+      return !found;
+    });
+    return found;
+  }
+}

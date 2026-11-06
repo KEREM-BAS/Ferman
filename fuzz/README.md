@@ -52,9 +52,20 @@ cargo deny --manifest-path fuzz/Cargo.toml check
 | `security_handler` | the standard security handler: the encryption dictionary, passwords for revisions 2 to 6, decryption | a length byte, the password, an encryption dictionary, then the data to decrypt |
 | `cmap` | ferman-fonts' CMap reader: codespace, CIDs and ToUnicode text, then splitting and looking up codes | arbitrary bytes as a CMap, and as a string to split |
 | `type1` | ferman-fonts' Type1 parser: PFB segments, the clear text before `eexec`, the built-in encoding | arbitrary bytes as a font program |
+| `subsetting` | ferman-fonts' subsetter (through the crate subsetter): the kept glyphs, new ids, widths and text | a font (below), then glyphs with their text |
+| `shaping` | ferman-fonts' shaping (through harfrust): every direction, a script, language and features, then clusters to text | a font (below), a control byte, then text |
+| `line_breaking` | ferman-text's line breaks: UAX #14 with the kinsoku and Hangul tailoring | arbitrary bytes as UTF-8 and as mixed scripts |
 | `interpreter` | ferman-core's text interpreter: graphics and text state, shows, forms drawing themselves, the limits | arbitrary bytes as a page's content and as a form it draws |
 | `content_lexer` | ferman-core's content-stream lexer: operators, operands, spans and inline images | arbitrary bytes as a content stream |
+| `reencode` | text back to codes: `SimpleEncoding` with `/Differences` and CMaps with `usecmap`; a code found reads back as the text or CID | arbitrary bytes as both |
+| `to_unicode` | ToUnicode writing (`with_text`): added codes read back with their text, the original's keep theirs | a length, an original CMap, then entries of code and character |
+| `rewrite_block` | ferman-text's rewrite on a one-page file the target builds: every block's splices stay in the content, in order and apart | flags and lengths, then new text, shown bytes, CMap and font program |
+| `font_program` | font programs: `FontProgram`, built-in encoding, shaping and subsetting; a subset reads back. Seed `corpus/font_program` with small fonts | arbitrary bytes as a font program |
+| `type1_program` | Type1 through `FontProgram`, past `eexec`: the target encrypts the input's header text, `/Private` text and charstrings | a flags byte (PFB or not), then parts split on a zero byte |
 | `open_document` | the whole open path: header, cross-reference data, repair, security, lopdf and the structure scan | arbitrary bytes as a file; the password `fuzz` when the first byte is odd |
+| `recovery_journal` | the recovery journal's records and their objects, and the manifest parser, whose manifests must read back from the JSON they write | arbitrary bytes, as they are, framed as one record (the checksum random bytes never pass), and as a record's objects and a manifest |
+| `writer_round_trip` | the incremental writer: changes, undo and redo over two generations; the file before stays a prefix, the update reopens without repair, every object written reads back | arbitrary bytes as a file when they open clean, and as a script of changes to it, or to the classic, modern or encrypted (AES-128, AES-256, RC4) file the first byte chooses |
+| `edit_script` | rewriting blocks of corpus pages through ferman-text and the splicer, undo, redo and saves: only the splices' bytes change, a saved file keeps the original as a prefix and reopens with the same content, undoing everything gives back the original | a corpus file from the first byte, then a script of operations on its pages and blocks, with the new text |
 
 The filter targets' checks are in `src/lib.rs`:
 
@@ -68,7 +79,16 @@ sections). Besides not panicking, they may fail with any error but an internal o
 memory, and `xref_repair` checks that a rebuilt table reads back clean from the flat copy lopdf
 gets. `open_document` runs lopdf too, so it finds lopdf's panics, which ferman-api catches as a
 last resort; a panic found there is reported upstream and worked around in ferman-core where it
-can be. Seed `corpus/open_document` and `corpus/xref_repair` with the PDFs of `tests/corpus/`.
+can be. Seed `corpus/open_document`, `corpus/xref_repair` and `corpus/writer_round_trip` with the PDFs
+of `tests/corpus/`.
+
+`subsetting` and `shaping` take their font from `font_case` in `src/lib.rs`: patches to a bundled
+font (IBM Plex Sans Arabic, TrueType), so they get past the table directory without a seed, or a
+whole font. `font_program` takes its font the same way. To reach CFF, CI and the nightly run pass
+`seeds/fonts` to these three: `tiny-cff` is the bytes `01 00 00` followed by a small OpenType/CFF
+font drawn by `seeds/make_cff_seed.py` for this purpose, with no third-party outlines. Run them by
+hand with `cargo fuzz run font_program corpus/font_program seeds/fonts`. Their text comes from
+`text_from`, so every script turns up.
 
 AddressSanitizer and libFuzzer's time and memory limits catch the rest.
 

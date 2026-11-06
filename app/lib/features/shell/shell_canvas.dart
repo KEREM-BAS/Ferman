@@ -1,5 +1,9 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/features/editor/edit_callouts.dart';
+import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/save/document_saver.dart';
+import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
 import 'package:ferman/features/shell/document_banners.dart';
 import 'package:ferman/features/shell/document_properties.dart';
@@ -136,10 +140,22 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
     final problem = ref.watch(documentOpenerProvider);
     // B110: an attachment that was not saved, in the same place.
     final unsaved = ref.watch(attachmentSaverProvider);
+    // a11-6: the "Font substituted" toast of an edit's commit.
+    final substituted = ref.watch(
+      documentEditorProvider.select((s) => s.toast),
+    );
+    // f4: a save that failed, once its dialog closed.
+    final saveFailure = ref.watch(
+      documentSaverProvider.select((s) => s.toast ? s.failure : null),
+    );
     final toastChild = problem != null
         ? OpenProblemToast(problem)
+        : saveFailure != null
+        ? SaveFailureToast(saveFailure)
         : unsaved != null
         ? AttachmentSaveToast(unsaved)
+        : substituted != null
+        ? FontSubstitutedToast(substituted)
         : null;
     final problemToast = toastChild == null
         ? null
@@ -302,6 +318,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                         setState(() => _ownerUnlock = null),
                                   ),
                                 ),
+                              const Positioned.fill(child: SaveOverlays()),
                               ?problemToast,
                             ],
                           ),

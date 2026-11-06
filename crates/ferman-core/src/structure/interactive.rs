@@ -35,6 +35,9 @@ pub struct Forms {
     /// Whether the form needs an XFA viewer: XFA with no AcroForm fields, or `/NeedsRendering`.
     /// Ferman ships a PDFium without XFA, so such a form opens read-only with an explanation.
     pub xfa_only: bool,
+    /// `/SigFlags`: bit 1 says signature fields exist, bit 2 that the file holds signatures an
+    /// update must only append to (ISO 32000-2 §12.7.3).
+    pub sig_flags: u32,
 }
 
 /// One signature field (a2-14): shown neutrally until checking arrives (G31).
@@ -50,6 +53,8 @@ pub struct Signature {
     pub signed_at: Option<PdfDate>,
     /// The page of its widget.
     pub page: Option<u32>,
+    /// `/ByteRange` as the signature writes it: the offset and length of the two signed ranges.
+    pub byte_range: Option<[u64; 4]>,
 }
 
 /// Document JavaScript (Q13, G100): Ferman never runs it and tells the user it is there.
@@ -156,6 +161,10 @@ pub(crate) fn forms(scope: &Scope<'_>) -> (Forms, Vec<Signature>) {
     };
     let mut forms = Forms {
         has_xfa: form.has(b"XFA"),
+        sig_flags: scope
+            .get_int(form, b"SigFlags")
+            .and_then(|flags| u32::try_from(flags).ok())
+            .unwrap_or(0),
         ..Forms::default()
     };
     let mut signatures = Vec::new();
@@ -237,7 +246,18 @@ fn signature(scope: &Scope<'_>, field: &Object, dict: &Dictionary, name: String)
         signer: value.and_then(|value| scope.get_text(value, b"Name")),
         signed_at: value.and_then(|value| scope.get_date(value, b"M")),
         page,
+        byte_range: value.and_then(|value| byte_range(scope, value)),
     }
+}
+
+/// The signature's `/ByteRange`: exactly four offsets and lengths that are not negative.
+fn byte_range(scope: &Scope<'_>, value: &Dictionary) -> Option<[u64; 4]> {
+    let numbers = scope
+        .get_array(value, b"ByteRange")?
+        .iter()
+        .map(|number| u64::try_from(scope.resolve(number)?.as_i64().ok()?).ok())
+        .collect::<Option<Vec<u64>>>()?;
+    <[u64; 4]>::try_from(numbers).ok()
 }
 
 /// The `/DocMDP` level of a certification signature (`/Perms /DocMDP`), 2 by default.
@@ -440,6 +460,62 @@ mod tests {
                 ("Notlar", true, false, 0)
             ]
         );
+    }
+
+    /// A document whose form has one signature field with `value` and `/SigFlags` `flags`.
+    fn signature_form(flags: i64, value: Option<Object>) -> Document {
+        let mut doc = doc_with(vec![dictionary! {}], dictionary! {});
+        let mut field = dictionary! { "FT" => "Sig", "T" => Object::string_literal("imza") };
+        if let Some(value) = value {
+            field.set("V", value);
+        }
+        let field = doc.add_object(field);
+        catalog_set(
+            &mut doc,
+            "AcroForm",
+            dictionary! { "Fields" => vec![field.into()], "SigFlags" => flags },
+        );
+        doc
+    }
+
+    #[test]
+    fn a_signed_document_is_a_value_a_certification_or_append_only() {
+        let signed = |doc: &Document| scan(doc, &Limits::default()).signed();
+        assert!(!signed(&signature_form(1, None)), "an empty field");
+        assert!(!signed(&signature_form(-1, None)), "flags out of range");
+        assert!(signed(&signature_form(3, None)), "append only");
+        let value = dictionary! { "Type" => "Sig" };
+        assert!(signed(&signature_form(0, Some(value.into()))));
+
+        // A certification, with its level; an unknown level reads as the default.
+        for (level, expected) in [(1, 1), (3, 3), (9, 2)] {
+            let mut doc = signature_form(0, None);
+            let reference = dictionary! {
+                "TransformMethod" => "DocMDP",
+                "TransformParams" => dictionary! { "P" => level },
+            };
+            let signature = dictionary! { "Reference" => vec![Object::from(reference)] };
+            let signature = doc.add_object(signature);
+            catalog_set(&mut doc, "Perms", dictionary! { "DocMDP" => signature });
+            let structure = scan(&doc, &Limits::default());
+            assert_eq!(structure.certification, Some(expected));
+            assert!(structure.signed());
+        }
+    }
+
+    #[test]
+    fn a_byte_range_is_four_numbers_that_are_not_negative() {
+        let range = |numbers: Vec<Object>| {
+            let value = dictionary! { "Type" => "Sig", "ByteRange" => numbers };
+            scan(&signature_form(3, Some(value.into())), &Limits::default()).signatures[0]
+                .byte_range
+        };
+        let numbers = |list: &[i64]| list.iter().map(|&n| Object::Integer(n)).collect();
+        assert_eq!(range(numbers(&[0, 10, 20, 30])), Some([0, 10, 20, 30]));
+        assert_eq!(range(numbers(&[0, 10, 20])), None);
+        assert_eq!(range(numbers(&[0, 10, 20, 30, 40])), None);
+        assert_eq!(range(numbers(&[0, -10, 20, 30])), None);
+        assert_eq!(range(vec![Object::Null; 4]), None);
     }
 
     #[test]

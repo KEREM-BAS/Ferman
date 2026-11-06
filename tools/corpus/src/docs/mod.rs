@@ -75,6 +75,10 @@ pub const GENERATORS: &[Generator] = &[
     encodings::EDIT_MACROMAN,
     encodings::EDIT_90MS_RKSJ,
     encodings::EDIT_CFF_CID,
+    edits::EDIT_E14_LATEX_STANDIN,
+    edits::EDIT_E17_KERNED_STANDIN,
+    edits::EDIT_E18_COLUMNS_STANDIN,
+    paragraphs::JA_PARA,
 ];
 
 /// The `/Producer` of every generated file.

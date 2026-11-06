@@ -8,6 +8,7 @@ void main() {
     test('defaults follow the system and onboarding is not done', () {
       const settings = AppSettings();
       expect(settings.themeMode, AppThemeMode.system);
+      expect(settings.markEdited, isTrue);
       expect(settings.languageCode, isNull);
       expect(settings.regionCode, isNull);
       expect(settings.paperSize, isNull);
@@ -22,6 +23,10 @@ void main() {
         'pageLook': 'paper',
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
+        'missingGlyphs': 'similar',
+        'recoveryCopies': true,
+        'reflow': true,
+        'markEdited': true,
       });
     });
 
@@ -51,7 +56,20 @@ void main() {
         'pageLook': 'paper',
         'pageLayout': 'scroll',
         'zoom': 'fitWidth',
+        'missingGlyphs': 'similar',
+        'recoveryCopies': true,
+        'reflow': true,
+        'markEdited': true,
       });
+    });
+
+    test('the third choice and reflow off round-trip', () {
+      const settings = AppSettings(
+        missingGlyphs: MissingGlyphPolicy.mark,
+        reflow: false,
+      );
+      expect(settings.toJson()['missingGlyphs'], 'mark');
+      expect(AppSettings.fromJson(settings.toJson()), settings);
     });
 
     test('unreadable values fall back to the defaults', () {
@@ -82,6 +100,17 @@ void main() {
       expect(json['version'], 3);
       expect(json['theme'], 'dark');
       expect(json['futureOption'], {'nested': true});
+    });
+
+    test('"Ask each time" round-trips, and an unknown policy is the '
+        'default', () {
+      const ask = AppSettings(missingGlyphs: MissingGlyphPolicy.ask);
+      expect(ask.toJson()['missingGlyphs'], 'ask');
+      expect(AppSettings.fromJson(ask.toJson()), ask);
+      expect(
+        AppSettings.fromJson(const {'missingGlyphs': 'keep'}).missingGlyphs,
+        MissingGlyphPolicy.similar,
+      );
     });
 
     test('an older version is written as the current one', () {

@@ -5,6 +5,7 @@ import 'package:ferman/design/components/additions/save_indicator.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/save/file_exists.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/platform/file_access.dart';
@@ -106,8 +107,17 @@ class DocumentOpener extends _$DocumentOpener {
   /// nothing, when the file is gone, so the start screen asks what to do
   /// (a1-9e).
   Future<bool> openRecent(RecentEntry entry) async {
+    await _releasing[entry.path];
+    final path = await _reach(entry);
+    final missing = <String>{};
+    await open([path], missing: missing);
+    return missing.isEmpty;
+  }
+
+  /// Starts access to the file of [entry] through its bookmark, if it has
+  /// one, keeping the recent file up to date; where the file is now.
+  Future<String> _reach(RecentEntry entry) async {
     var path = entry.path;
-    await _releasing[path];
     if (entry.bookmark case final bookmark?) {
       final access = await ref.read(fileAccessProvider).access(bookmark);
       if (access != null && (access.path != path || access.renewed != null)) {
@@ -123,9 +133,21 @@ class DocumentOpener extends _$DocumentOpener {
             .catchError((Object _) {});
       }
     }
-    final missing = <String>{};
-    await open([path], missing: missing);
-    return missing.isEmpty;
+    return path;
+  }
+
+  /// Starts access to those of [paths] that are recent files with a
+  /// bookmark (crash recovery's originals): whether any was.
+  Future<bool> reachRecent(Iterable<String> paths) async {
+    var reached = false;
+    final recent = ref.read(recentFilesProvider);
+    for (final path in paths.toSet()) {
+      final entry = recent.where((entry) => entry.path == path).firstOrNull;
+      if (entry?.bookmark == null) continue;
+      await _reach(entry!);
+      reached = true;
+    }
+    return reached;
   }
 
   /// Opens the files open when the app last ran, in their tab order, when
@@ -337,14 +359,14 @@ class DocumentOpener extends _$DocumentOpener {
   /// was the last, and the start screen when no tab is left and the editor
   /// shows (not Settings opened meanwhile). Its engine document closes,
   /// what its views kept goes, and on macOS the access its recent file
-  /// started ends (B029).
-  // shortcut: closes without asking about unsaved changes; the callers
-  // keep an unsaved tab open until a1-10b's question comes (W4 of M3).
-  void close(String path) {
+  /// started ends (B029). It does not ask about unsaved changes:
+  /// `documentCloserProvider` does (a1-10b); with [discard] ("Don't save")
+  /// its recovery files go too.
+  void close(String path, {bool discard = false}) {
     final tab = _tab(path);
     if (tab == null) return;
     final documents = ref.read(shellDocumentsProvider.notifier)..remove(path);
-    final releasing = _release(path, tab.document);
+    final releasing = _release(path, tab.document, discard: discard);
     _releasing[path] = releasing;
     unawaited(
       releasing.whenComplete(
@@ -358,8 +380,8 @@ class DocumentOpener extends _$DocumentOpener {
     }
   }
 
-  /// Closes every tab but the one of [path] and shows it (a1-10's "Close
-  /// other documents…").
+  /// Closes every clean tab but the one of [path] and shows it (a1-10's
+  /// "Close other documents…"); `documentCloserProvider` asks about the rest.
   void closeOthers(String path) {
     for (final document in ref.read(shellDocumentsProvider).documents) {
       if (document.path case final other?
@@ -372,16 +394,103 @@ class DocumentOpener extends _$DocumentOpener {
 
   /// Lets go of [document], closed with its tab, and then of the file at
   /// [path]: the file is read until the engine closes it.
-  Future<void> _release(String path, OpenedDocument? document) async {
+  Future<void> _release(
+    String path,
+    OpenedDocument? document, {
+    bool discard = false,
+  }) async {
     if (document != null) {
       ref.invalidate(documentMemoryProvider(document.id));
-      await ref
-          .read(engineServiceProvider)
-          .close(document.id)
+      final engine = ref.read(engineServiceProvider);
+      await (discard
+              ? engine.closeDiscarding(document.id)
+              : engine.close(document.id))
           .catchError((Object _) {});
     }
     await ref.read(fileAccessProvider).release(path).catchError((Object _) {});
   }
+
+  /// Moves the tab of [from] to the file at [to], where Save as wrote its
+  /// document (a1-11): later saves write there, and [to] goes first in the
+  /// recent files.
+  void savedAs(String from, String to) {
+    final tab = _tab(from);
+    if (tab == null || from == to) return;
+    ref
+        .read(shellDocumentsProvider.notifier)
+        .replace(
+          from,
+          ShellDocument(
+            name: fileName(to),
+            path: to,
+            // a1-9d's lock said the old file could not be written.
+            icon: tab.icon == IconName.lock && tab.document?.readOnly == null
+                ? IconName.fileText
+                : tab.icon,
+            saveState: tab.saveState,
+            savedAt: tab.savedAt,
+            pageCount: tab.pageCount,
+            editCount: tab.editCount,
+            document: tab.document,
+          ),
+        );
+    _remember(
+      to,
+      pages: tab.pageCount,
+      edited: tab.editCount > 0 ? true : null,
+    );
+  }
+
+  /// Shows the document crash recovery opened in a tab of its own, unsaved
+  /// with its [changes] (a1-12), in place of the tab the file reopened in;
+  /// one under a new name (a11-7f) is no recent file until it is saved.
+  void restored(RestoredDocument restored, {required int changes}) {
+    final path = restored.path;
+    final documents = ref.read(shellDocumentsProvider.notifier);
+    final tab = ShellDocument(
+      name: fileName(path),
+      path: path,
+      document: restored.opened,
+      pageCount: restored.opened.pages.length,
+      saveState: SaveState.unsaved,
+      editCount: changes,
+    );
+    if (_tab(path) case final old?) {
+      documents
+        ..replace(path, tab)
+        ..focus(path);
+      if (old.document case final document?) {
+        ref.invalidate(documentMemoryProvider(document.id));
+        unawaited(
+          ref
+              .read(engineServiceProvider)
+              .close(document.id)
+              .catchError((Object _) {}),
+        );
+      }
+    } else {
+      documents.add(tab);
+    }
+    if (!restored.originalChanged) _rememberOpened(path, restored.opened);
+    final router = ref.read(routerProvider);
+    if (router.state.uri.path == Routes.start) router.go(Routes.editor);
+  }
+
+  /// Shows the toast of a document that recovery could not open; its files
+  /// stay for the next launch.
+  void reportRestoreFailed(String path, EngineException error) =>
+      state = OpenProblem(name: fileName(path), error: error);
+
+  /// Shows the toast of a file that is gone, whose tab stays (a11-7b's
+  /// Reload).
+  void reportMissing(String path) => state = OpenProblem(
+    name: fileName(path),
+    error: const EngineException(
+      kind: EngineErrorKind.notFound,
+      messageKey: 'errorFileNotFound',
+    ),
+    path: path,
+  );
 
   /// Opens the file of the problem again (a1-9f's Try again).
   Future<void> retry() async {
@@ -404,23 +513,28 @@ class DocumentOpener extends _$DocumentOpener {
       final document = await ref
           .read(engineServiceProvider)
           .open(path, password: password);
+      // a1-9d: a file no one may write opens read-only too.
+      final readOnlyFile = document.readOnly == null && fileReadOnly(path);
       return ShellDocument(
         name: name,
         path: path,
         document: document,
-        // Why it is read-only (a1-9's wrench, a11-7c's file-x, G102's lock),
-        // else a2-10a's shield while the author's restrictions apply.
+        // Why it is read-only (a1-9's wrench, a11-7c's file-x, G102's and
+        // a1-9d's lock), else a2-10a's shield while the author's restrictions
+        // apply.
         icon: switch (document.readOnly) {
           ReadOnlyReason.repaired => IconName.wrench,
           ReadOnlyReason.xfaOnly => IconName.fileX,
           ReadOnlyReason.parsersDisagree => IconName.lock,
           null =>
-            document.security?.restricted ?? false
+            readOnlyFile
+                ? IconName.lock
+                : document.security?.restricted ?? false
                 ? IconName.shield
                 : IconName.fileText,
         },
         pageCount: document.pages.length,
-        saveState: document.readOnly == null
+        saveState: document.readOnly == null && !readOnlyFile
             ? SaveState.saved
             : SaveState.readOnly,
       );
@@ -500,6 +614,7 @@ class DocumentOpener extends _$DocumentOpener {
     bool? locked,
     bool? form,
     bool? scanned,
+    bool? edited,
   }) {
     final now = DateTime.now();
     unawaited(
@@ -518,6 +633,7 @@ class DocumentOpener extends _$DocumentOpener {
                   locked: locked,
                   form: form,
                   scanned: scanned,
+                  edited: edited,
                   bookmark: bookmark,
                 ),
           )

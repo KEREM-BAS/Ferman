@@ -21,6 +21,7 @@ mod engine;
 mod error;
 mod guard;
 mod info;
+mod recovery;
 mod search;
 mod text;
 mod version;
@@ -28,13 +29,17 @@ mod version;
 pub use blocking::block_on;
 pub use debug::{DEBUG_BYTES_MAX, DEBUG_PANIC_RELEASE_DETAILS, debug_bytes, debug_panic};
 pub use document::{OpenedDocument, PageInfo, ReadOnly, Security};
-pub use edit::{EditPreview, History, HistoryStep, RevisionInfo, TransactionId};
+pub use edit::{
+    ConfirmationToken, DependentCell, EditPreview, FontSettings, FontSubstitution, History,
+    HistoryStep, MissingGlyphInfo, Reverted, RevisionInfo, TransactionId,
+};
 pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_info};
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
+pub use recovery::{RecoverableDocument, RestoredDocument};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
-pub use text::{BlockInfo, Caret, LineInfo, PageBlocks, Selection, TextPosition};
+pub use text::{BlockInfo, Caret, FontCoverage, LineInfo, PageBlocks, Selection, TextPosition};
 pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
@@ -43,6 +48,7 @@ pub use ferman_core::structure::{
     Scripts, Signature,
 };
 pub use ferman_core::{Method, Password, Permissions, Repair, RepairReport, XrefProblem};
+pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,
     Rendered, ThumbnailRequest, TilePosition, TileRequest, ViewEvent, ViewId, ViewSink, Wanted,
@@ -50,6 +56,8 @@ pub use ferman_render::{
 };
 pub use ferman_render::{EDIT_MARGIN, PageRaster, PixelDiff, RESOLUTIONS, compare, device_region};
 pub use ferman_text::{
-    Alignment, BlockId, Complexity, Editability, NotEditableReason, SearchOptions, TextDirection,
+    Alignment, BlockFont, BlockId, BlockStyle, BlockStyleInfo, Choice, Complexity, Editability,
+    Extend, ExtendBlocked, FontCandidate, Keep, MissingReason, NotEditableReason, OverflowPlan,
+    SearchOptions, Substitution, SubstitutionKind, TextDirection, Tighten, TightenShort,
     collation_order,
 };

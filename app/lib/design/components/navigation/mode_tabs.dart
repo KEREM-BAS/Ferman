@@ -69,6 +69,7 @@ class ModeTabs extends StatefulWidget {
     this.onChanged,
     this.variant = ModeTabsVariant.segmented,
     this.showIcons = false,
+    this.disabledReasons = const {},
   });
 
   /// The modes shown, in order; all eight by default.
@@ -85,6 +86,11 @@ class ModeTabs extends StatefulWidget {
 
   /// Whether each tab shows its mode's icon before the label.
   final bool showIcons;
+
+  /// The modes that cannot be chosen, with why (a2-10a, G27): each tab stays
+  /// reachable by pointer and focus to show its reason, and the arrow keys
+  /// pass over it. Not a design-system prop.
+  final Map<FermanMode, String> disabledReasons;
 
   /// The accessible name of the strip (the design's `label`, "Mode").
   final String semanticLabel;
@@ -180,7 +186,12 @@ class _ModeTabsState extends State<ModeTabs> {
     final modes = widget.modes;
     final from = modes.indexWhere((mode) => _nodes[mode]?.hasFocus ?? false);
     if (from < 0) return KeyEventResult.ignored;
-    final to = RovingFocus.target(from, modes.length, step, (_) => true);
+    final to = RovingFocus.target(
+      from,
+      modes.length,
+      step,
+      (index) => !widget.disabledReasons.containsKey(modes[index]),
+    );
     if (to == null) return KeyEventResult.handled;
     final next = modes[to];
     if (next != widget.value) onChanged(next);
@@ -217,7 +228,11 @@ class _ModeTabsState extends State<ModeTabs> {
           selected: mode == widget.value,
           segmented: segmented,
           focusNode: _nodeFor(mode)..skipTraversal = mode != stop,
-          onPressed: onChanged == null ? null : () => onChanged(mode),
+          disabledReason: widget.disabledReasons[mode],
+          onPressed:
+              onChanged == null || widget.disabledReasons.containsKey(mode)
+              ? null
+              : () => onChanged(mode),
         ),
     ];
     // `.fm-modetabs` `padding: 2px` inside the scrolling box: the clip edge
@@ -298,7 +313,11 @@ class _ModeTab extends StatelessWidget {
     required this.segmented,
     required this.focusNode,
     required this.onPressed,
+    this.disabledReason,
   });
+
+  /// Why the tab cannot be chosen; null when it can.
+  final String? disabledReason;
 
   final String label;
 
@@ -317,6 +336,8 @@ class _ModeTab extends StatelessWidget {
   Widget build(BuildContext context) => FermanInteractive(
     focusNode: focusNode,
     onPressed: onPressed,
+    disabledReason: disabledReason,
+    builderShowsReason: true,
     selected: selected,
     semanticsRole: SemanticsRole.tab,
     isButton: false,
@@ -328,8 +349,8 @@ class _ModeTab extends StatelessWidget {
       // the strip collapses. It sits inside the tab's semantics node: an
       // overlay anchor between a tab bar and its tabs would break the tab
       // bar. The label is the tab's accessible name either way.
-      message: label,
-      open: iconsOnly ? null : false,
+      message: disabledReason ?? label,
+      open: iconsOnly || disabledReason != null ? null : false,
       // The tab's own keyboard focus, which the tooltip's listener below
       // the tab's focus node does not see: after the delay, closed by
       // Escape.
@@ -365,6 +386,9 @@ class _ModeTab extends StatelessWidget {
                 ...theme.elevation.shadowSm,
               ];
       }
+    } else if (disabledReason != null) {
+      foreground = colors.textDisabled;
+      iconColor = colors.iconDisabled;
     } else if (hovered) {
       foreground = colors.textPrimary;
       iconColor = colors.iconSecondary;

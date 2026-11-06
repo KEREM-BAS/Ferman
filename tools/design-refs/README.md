@@ -32,7 +32,7 @@ node tools/design-refs compare                    # goldens against references: 
 
 | Option | Meaning |
 |---|---|
-| `--only <ids>` | Render only these ids: comma-separated, repeatable. A board id renders the board and its [language variants](#language-variants), `<id>.<lang>` one variant. `@m1`, `@m2` and `@langs` expand the sets of `boards.json` (see [What is captured](#what-is-captured)); `ds-additions` is the DS additions sheet. |
+| `--only <ids>` | Render only these ids: comma-separated, repeatable. A board id renders the board and its [language variants](#language-variants), `<id>.<lang>` one variant. `@m1`, `@m2`, `@m3` and `@langs` expand the sets of `boards.json` (see [What is captured](#what-is-captured)); `ds-additions` is the DS additions sheet. |
 | `--out <dir>` | Output directory. Default: `build/design-refs` in the repository, whatever the working directory. Refused inside `design/`, also through a symlink, and regardless of case on a case-insensitive filesystem (macOS, Windows): the check compares real paths (of the nearest existing folder when `<dir>` does not exist yet). |
 | `--twice` | Render the same boards again in a freshly launched browser and fail unless every PNG has the same SHA-256. For a board that differs, both renders and a pixel diff go to `<out>/_diffs/<id>.first.png`, `.second.png` and `.diff.png`. |
 | `--jobs <n>` | Boards rendered in parallel. Default: the number of CPUs, at most 4. The output does not depend on it. |
@@ -146,7 +146,7 @@ What they do not mean:
 
 `compare-map.json` lists every pair. `goldenSize` is the contract with the goldens: a whole
 window at 1440 × 900 and a device pixel ratio of 1, named
-`<screen>_<mac|win>_<light|dark>_<en|tr|ar>.png` with the screens of the golden matrix. `phoneGoldenSize`
+`<screen>_<mac|win>_<light|dark>_<en|tr|ar|de|ja>.png` with the screens of the golden matrix. `phoneGoldenSize`
 is the same for a phone golden: a whole 393 × 852 screen, `<screen>_phone_<light|dark>_<en|tr|ar>.png`.
 Each pair:
 
@@ -165,18 +165,18 @@ Each pair:
 
 Every run checks the map (unknown keys, unknown boards and variants, golden names and languages,
 rectangle sizes, masks inside the frame) and stops with exit code 66 on a problem. The tests check
-that it names every board of the `@m1` set, and only boards of that set, which CI renders, and that
+that it names every board of the `@m1` set, and only boards of `@m1`, `@m2` and `@m3`, which CI renders, and that
 each M1 build board is compared in English, Turkish and Arabic.
 
 | Pair | Golden | Crop and masks | Why |
 |---|---|---|---|
 | `f6-mac` | `shell_edit_mac_light_en` | board 0, 182, 1440 × 79; golden top 79 rows | Fix 6's macOS title bar and mode bar strip (Edit mode). |
 | `f6-win` | `shell_edit_win_light_en` | board 0, 318, 1440 × 79; golden top 79 rows | Fix 6's Windows strip. |
-| `f6a` | `shell_edit_win_light_en` | board 0, 45, 1440 × 900; canvas masked | The Windows editor window, Edit mode. |
+| `f6a` | `edit_main_win_light_en` | board 0, 45, 1440 × 900 | The Windows editor window, Edit mode (M3). |
 | `a1-1` | `language_picker_mac_light_en` | | Language picker, macOS, light, English. |
-| `a1-2b` | `welcome_privacy_mac_light_en` | | The privacy welcome step (the app's 1 of 2 against the board's 2 of 3). |
+| `a1-2b` | `welcome_privacy_mac_light_en` | | The privacy welcome step (2 of 3, as the board). |
 | `a1-2c` | none | | Superseded by `a1-2c-m1`. |
-| `a1-2c-m1`, `-tr`, `-ar` | `welcome_free_mac_light_<en\|tr\|ar>` | | Welcome step 2 of 2, M1 build (G12, G13). |
+| `a1-2c-m1`, `-tr`, `-ar` | `welcome_free_mac_light_<en\|tr\|ar>` | | Welcome step 3 of 3 against the M1 build's 2 of 2, where the app also includes editing (G12, G13). |
 | `a1-5` | none | | Superseded by `a1-5-m1`. |
 | `a1-5-m1`, `-tr`, `-ar` | `start_mac_light_<en\|tr\|ar>` | | The empty start screen, M1 build. |
 | `a11-1` | none | | Superseded by `a11-1-m1`. |
@@ -189,16 +189,13 @@ each M1 build board is compared in English, Turkish and Arabic.
 | `a12-2c` | `settings_language_mac_light_ar` | | Settings Language and region in Arabic. |
 | `a12-2d` | none | | German board: no German golden in M1. |
 | `a2-1b` | `shell_view_mac_light_en` | canvas masked | The macOS chrome, light (ROADMAP step 8). |
-| `a3-1d` | `shell_edit_mac_dark_en` | canvas masked | The macOS chrome, dark (ROADMAP step 8). |
-| `a12-1tr` | `shell_edit_mac_light_tr` | canvas masked | The macOS chrome in Turkish, Edit mode. |
-| `a12-1ar` | `shell_edit_mac_light_ar` | canvas masked (mirrored, 264, 123) | The macOS chrome in Arabic, right to left, Edit mode. |
+| `a3-1d` | `edit_main_mac_dark_en` | | The main editor, dark (M3). |
+| `a12-1tr` | `edit_main_mac_light_tr` | | The main editor in Turkish (M3). |
+| `a12-1ar` | `edit_main_mac_light_ar` | | The main editor in Arabic, right to left (M3). |
 | `a11-1h` | none | | Superseded by `a11-1h-m1`. |
 | `a11-1h-m1`, `-tr`, `-ar` | `settings_privacy_mac_light_<en\|tr\|ar>` | | Settings Privacy, M1 build: the switches off and disabled (G89). |
 
-The canvas mask is 960 × 751 at 216, 123: FmWindow's canvas between the sidebar (216 px) and the
-right panel (264 px), below the title bar, mode bar and tool row (38 + 40 + 45 px) and above the
-status bar (26 px), as measured in the `a2-1b`, `a3-1d` and `f6a` renders. It hides the document
-those boards draw; M1 opens none.
+No pair masks the canvas since M3 (B098); the masks of the edited document are gone. The M3 boards' pairs are in `compare-map.json`, and the spec sheets `a3-12b`, `a3-17`, `a3-18` and `a11-7d`, which are no windows, are `notCompared` with the goldens that draw their states.
 
 How the fix-board crops were found. The renders of `f6` (3468 × 1433) and `f6a` (3468 × 1008)
 are wider than a window, because the fix sections stretch to the widest section of their page,
@@ -214,7 +211,7 @@ rows of the `f6a` window (Windows) and of the `a3-1c` render (a light macOS Edit
 them, with 0 differing pixels and 1 − SSIM 0. After a design re-export, measure again: the boards'
 box positions can move.
 
-In CI, the design-references workflow runs `compare` after rendering the M1 boards, appends
+In CI, the design-references workflow runs `compare` after rendering the M1, M2 and M3 boards, appends
 `report.md` to the job's step summary and uploads `build/design-compare/` as the
 `design-compare` artifact.
 
@@ -265,7 +262,7 @@ npm ci
 npx playwright-core install-deps chromium-headless-shell   # system libraries and fonts (apt)
 exe=$(./fetch-chromium.sh "$RUNNER_TEMP/chromium")   # an assignment, so a failure fails the step
 echo "FERMAN_CHROMIUM=$exe" >> "$GITHUB_ENV"
-node index.mjs --only @m1,@m2,@phone --twice               # pull requests; a manual run renders every board twice
+node index.mjs --only @m1,@m2,@m3,@phone --twice               # pull requests; a manual run renders every board twice
 node index.mjs compare                              # then the report, appended to the step summary
 ```
 

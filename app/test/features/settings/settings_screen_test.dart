@@ -105,7 +105,7 @@ void main() {
       }
       expect(
         SettingsPane.values.where((pane) => !pane.available),
-        hasLength(8),
+        hasLength(7),
       );
     });
 
@@ -138,7 +138,7 @@ void main() {
       await pumpFermanApp(tester);
       await _openAndSettle(tester, 'privacy');
       expect(find.text('Ferman collects nothing.'), findsOneWidget);
-      expect(SettingsPane.fromPath('editing'), SettingsPane.general);
+      expect(SettingsPane.fromPath('fonts'), SettingsPane.general);
       expect(SettingsPane.fromPath('language'), SettingsPane.language);
       expect(SettingsPane.fromPath(null), SettingsPane.general);
     });

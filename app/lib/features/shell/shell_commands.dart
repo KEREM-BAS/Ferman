@@ -5,6 +5,8 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/save/document_closer.dart';
+import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
@@ -26,8 +28,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 /// ([openFiles]) and, in the editor, the sidebar and panel toggles, moving
 /// between the open documents and, with a document open
 /// (`viewerProvider`), zoom, the fits, page turns, Go to page, Find and the
-/// View tools; Save with unsaved changes, and undo and redo while the
-/// history has a step for them (`documentEditorProvider`). On the start
+/// View tools; Save with unsaved changes, Save as and Save a copy
+/// (`documentSaverProvider`), and undo and redo while the history has a
+/// step for them (`documentEditorProvider`). On the start
 /// screen ([home]) only Settings and Open work.
 /// Every other command is
 /// disabled, so its keys pass through. The window's own commands (⌘M, ⌘Q,
@@ -73,6 +76,7 @@ class ShellCommandScope extends ConsumerWidget {
     final viewer = ref.read(viewerProvider.notifier);
     final editor = ref.read(documentEditorProvider.notifier);
     final edits = ref.read(documentEditorProvider);
+    final saver = ref.read(documentSaverProvider.notifier);
     return {
       // Like the mode bar's toggles: a panel that stepped aside in a narrow
       // window comes back; one that cannot fit even alone leaves its keys
@@ -84,10 +88,9 @@ class ShellCommandScope extends ConsumerWidget {
         ShellCommand.togglePanel: () => toggleShellSide(ref, ShellSide.panel),
       ShellCommand.settings: ?onOpenSettings,
       ShellCommand.open: ?onOpenFiles,
-      // An unsaved document waits for a1-10b's question (M3).
-      if (active?.path case final path? when !active!.unsaved)
+      if (active?.path case final path?)
         ShellCommand.closeDocument: () =>
-            ref.read(documentOpenerProvider.notifier).close(path),
+            unawaited(ref.read(documentCloserProvider.notifier).close(path)),
       if (count > 1) ...{
         ShellCommand.nextDocument: documents.activateNext,
         ShellCommand.showAllDocuments: ref
@@ -120,7 +123,11 @@ class ShellCommandScope extends ConsumerWidget {
       },
       // Typing not yet committed counts too: Save commits it first.
       if (active?.document != null && (active!.unsaved || edits.active != null))
-        ShellCommand.save: () => unawaited(editor.save()),
+        ShellCommand.save: () => unawaited(saver.save()),
+      if (active?.document != null) ...{
+        ShellCommand.saveAs: saver.openSheet,
+        ShellCommand.saveCopy: () => saver.openSheet(copy: true),
+      },
     };
   }
 
@@ -208,7 +215,7 @@ VoidCallback? openFiles(BuildContext context, WidgetRef ref) {
 /// frame holds: the start screen, first run, Settings and the editor.
 ///
 /// Minimize minimizes [window]; close and quit close it, as the caption
-/// buttons do (the window asks about unsaved documents from M3 on, G40).
+/// buttons do, and the window asks about unsaved documents (G40).
 /// Nothing is bound where the system draws the window
 /// ([DesktopWindow.platform] null). The keys follow the shortcut table's
 /// conventions for the system (`shortcutPlatformProvider`).

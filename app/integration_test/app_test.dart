@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:io';
 import 'dart:ui' as ui;
 
@@ -15,6 +16,8 @@ import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:integration_test/integration_test.dart';
+
+import 'corpus_pdfs.dart';
 
 // One file on purpose: on Linux desktop, `flutter test integration_test`
 // cannot start the app a second time for a second file ("The log reader
@@ -269,6 +272,211 @@ void main() {
       await engine.close(document.id);
     });
 
+    group('Flow A', () {
+      late Directory dir;
+
+      setUp(() async {
+        // The temporary directory: the sandboxed macOS app may write only
+        // inside its own container.
+        dir = await Directory.systemTemp.createTemp('ferman-flow-a');
+        addTearDown(() => dir.delete(recursive: true));
+      });
+
+      // Opens a document that goes without leaving recovery files behind, in
+      // the app's real recovery folder, even when the test fails.
+      Future<int> open(String path) async {
+        final id = (await engine.open(path)).id;
+        addTearDown(() async {
+          try {
+            await engine.closeDiscarding(id);
+          } on EngineException {
+            // The test closed it.
+          }
+        });
+        return id;
+      }
+
+      test('open, edit, undo, redo, save, reopen and compare', () async {
+        final original = base64Decode(kiraTrPdf);
+        final file = File('${dir.path}/kira-tr.pdf')
+          ..writeAsBytesSync(original);
+        final document = await open(file.path);
+        final before = [
+          for (var page = 0; page < 3; page++)
+            await _pageText(engine, document, page),
+        ];
+        final pixels = [
+          for (var page = 0; page < 3; page++)
+            await _thumbnail(engine, document, page),
+        ];
+
+        final transaction = await _beginFee(engine, document);
+        final preview = await engine.applyEdit(
+          transaction.$1,
+          transaction.$2.replaceFirst('18.500', '19.500'),
+        );
+        expect(preview.overflowing, isFalse);
+        expect(preview.missing, isEmpty);
+        final committed = await engine.commitEdit(transaction.$1, 'Fee');
+        expect(committed.current, 1);
+        // The review list (a3-12) has the step, with nothing to warn about.
+        final history = await engine.history(document);
+        expect(history.steps.single.name, 'Fee');
+        expect(history.steps.single.hiddenLines, 0);
+        expect(history.signatureInvalidated, isFalse);
+        final edited = before.first.replaceFirst('18.500', '19.500');
+        expect(await _pageText(engine, document, 0), edited);
+        final changed = await _thumbnail(engine, document, 0);
+        expect(changed, isNot(pixels.first));
+
+        expect((await engine.undo(document)).current, 0);
+        expect(await _pageText(engine, document, 0), before.first);
+        expect(await _thumbnail(engine, document, 0), pixels.first);
+        expect((await engine.history(document)).redoable, hasLength(1));
+
+        expect((await engine.redo(document)).current, 1);
+        expect(await _pageText(engine, document, 0), edited);
+        expect(await _thumbnail(engine, document, 0), changed);
+        // Nothing reached the file before the save.
+        expect(file.readAsBytesSync(), original);
+
+        expect(await engine.save(document), isNull);
+        await engine.close(document);
+        // An incremental update: every byte of the original stays.
+        final saved = file.readAsBytesSync();
+        expect(saved.length, greaterThan(original.length));
+        expect(saved.sublist(0, original.length), original);
+
+        final reopened = await open(file.path);
+        expect(await _pageText(engine, reopened, 0), edited);
+        expect(await _thumbnail(engine, reopened, 0), changed);
+        for (final page in [1, 2]) {
+          expect(await _pageText(engine, reopened, page), before[page]);
+          expect(await _thumbnail(engine, reopened, page), pixels[page]);
+        }
+      });
+
+      test('a signed document asks before its first change', () async {
+        final original = base64Decode(kiraTrSignedPdf);
+        final file = File('${dir.path}/kira-tr-signed.pdf')
+          ..writeAsBytesSync(original);
+        final isConfirmationRequired = throwsA(
+          isA<EngineException>().having(
+            (error) => error.kind,
+            'kind',
+            EngineErrorKind.confirmationRequired,
+          ),
+        );
+        final document = await open(file.path);
+        final transaction = await _beginFee(engine, document);
+        await engine.applyEdit(
+          transaction.$1,
+          transaction.$2.replaceFirst('18.500', '19.500'),
+        );
+        await expectLater(
+          engine.commitEdit(transaction.$1, 'Fee'),
+          isConfirmationRequired,
+        );
+        expect(file.readAsBytesSync(), original);
+
+        // "Edit anyway" (a3-16a): the same transaction commits.
+        await engine.confirmEditSigned(document);
+        expect((await engine.commitEdit(transaction.$1, 'Fee')).current, 1);
+        expect((await engine.history(document)).signatureInvalidated, isTrue);
+        expect(await engine.save(document), isNull);
+        await engine.close(document);
+        // The signed revision stays in the file, byte for byte.
+        final saved = file.readAsBytesSync();
+        expect(saved.sublist(0, original.length), original);
+
+        // Closing ends the confirmation: the file still counts as signed.
+        final reopened = await open(file.path);
+        expect(await _pageText(engine, reopened, 0), contains('19.500'));
+        final again = await _beginFee(engine, reopened, fee: '19.500');
+        await engine.applyEdit(
+          again.$1,
+          again.$2.replaceFirst('19.500', '20.500'),
+        );
+        await expectLater(
+          engine.commitEdit(again.$1, 'Fee'),
+          isConfirmationRequired,
+        );
+        await engine.rollbackEdit(again.$1);
+      });
+
+      test('unsaved edits come back after the engine restarts', () async {
+        final original = base64Decode(kiraTrPdf);
+        final file = File('${dir.path}/kira-tr.pdf')
+          ..writeAsBytesSync(original);
+        final document = await open(file.path);
+        final transaction = await _beginFee(engine, document);
+        await engine.applyEdit(
+          transaction.$1,
+          transaction.$2.replaceFirst('18.500', '19.500'),
+        );
+        await engine.commitEdit(transaction.$1, 'Fee');
+        final edited = await _pageText(engine, document, 0);
+        await engine.close(document);
+
+        // shortcut: the engine is one per process and this test cannot start
+        // a second one, so the files move to a session whose lock nobody
+        // holds, what a killed instance leaves. crates/ferman-api/tests/
+        // recovery.rs kills a real process; a test driver that relaunches the
+        // app could do the same here.
+        final name = _lastSegment(dir);
+        final root = Directory(engine.recoveryRoot!);
+        final files = _recoveryFilesOf(root, name);
+        final session = DateTime.now().microsecondsSinceEpoch.toRadixString(16);
+        final crashed = Directory('${root.path}/$session')..createSync();
+        File('${crashed.path}/instance.lock').writeAsStringSync('0\n0\n');
+        addTearDown(() async {
+          try {
+            await engine.discardRecovery(session);
+          } on EngineException {
+            // Restoring took the files.
+          }
+        });
+        await _renameRetrying(files, '${crashed.path}/${_lastSegment(files)}');
+
+        final recoverable = (await engine.listRecoverable())
+            .where((found) => found.original.contains(name))
+            .single;
+        expect(recoverable.session, session);
+        expect(recoverable.changes, 1);
+        expect(recoverable.originalChanged, isFalse);
+        expect(recoverable.encrypted, isFalse);
+
+        final restored = await engine.restoreRecovered(
+          recoverable.session,
+          recoverable.document,
+        );
+        final id = restored.opened.id;
+        addTearDown(() async {
+          try {
+            await engine.closeDiscarding(id);
+          } on EngineException {
+            // The test closed it.
+          }
+        });
+        expect(restored.originalChanged, isFalse);
+        expect(await _pageText(engine, id, 0), edited);
+        // The change is unsaved: the file on disk is as it was.
+        expect(file.readAsBytesSync(), original);
+
+        expect(await engine.save(id), isNull);
+        await engine.close(id);
+        // A save deletes the recovery files.
+        expect(
+          (await engine.listRecoverable()).where(
+            (found) => found.original.contains(name),
+          ),
+          isEmpty,
+        );
+        final reopened = await open(file.path);
+        expect(await _pageText(engine, reopened, 0), edited);
+      });
+    });
+
     test('a 1 MiB byte vector crosses the bridge', () async {
       const length = 1024 * 1024;
       // One warm-up call, then 20 timed ones; the minimum and the median
@@ -294,6 +502,76 @@ void main() {
       );
     });
   });
+}
+
+/// The transaction on the block of kira-tr's page 1 with the monthly [fee],
+/// and that block's text.
+Future<(int, String)> _beginFee(
+  EngineService engine,
+  int document, {
+  String fee = '18.500',
+}) async {
+  final page = await engine.textBlocks(document, 0);
+  final block = page.blocks.firstWhere((block) => block.text.contains(fee));
+  return (await engine.beginEdit(document, 0, block.id), block.text);
+}
+
+/// The text of [page] of [document], block by block.
+Future<String> _pageText(EngineService engine, int document, int page) async =>
+    (await engine.textBlocks(
+      document,
+      page,
+    )).blocks.map((block) => block.text).join('\n\n');
+
+/// A bitmap of [page] of [document] as it stands.
+Future<Uint8List> _thumbnail(
+  EngineService engine,
+  int document,
+  int page,
+) async {
+  final view = await engine.openView(document);
+  await engine.requestView(view.id, 1, [
+    WantedItem(
+      ThumbnailItem(page: page, size: 512),
+      RenderPriority.visibleThumbnail,
+    ),
+  ]);
+  final update = await view.updates.firstWhere(
+    (update) => update is RenderedItem,
+  );
+  await engine.closeView(view.id);
+  return (update as RenderedItem).pixels;
+}
+
+/// The recovery files of the document whose manifest names [name], in any
+/// session under [root].
+Directory _recoveryFilesOf(Directory root, String name) {
+  for (final session in root.listSync().whereType<Directory>()) {
+    for (final files in session.listSync().whereType<Directory>()) {
+      final manifest = File('${files.path}/manifest.json');
+      if (manifest.existsSync() && manifest.readAsStringSync().contains(name)) {
+        return files;
+      }
+    }
+  }
+  throw StateError('No recovery files name $name');
+}
+
+String _lastSegment(Directory directory) =>
+    directory.uri.pathSegments.lastWhere((part) => part.isNotEmpty);
+
+/// Renames [from] to [to], retrying while Windows still has a file of it open
+/// just after the document closed.
+Future<void> _renameRetrying(Directory from, String to) async {
+  for (var attempt = 0; ; attempt++) {
+    try {
+      await from.rename(to);
+      return;
+    } on FileSystemException {
+      if (attempt == 20) rethrow;
+      await Future<void>.delayed(const Duration(milliseconds: 100));
+    }
+  }
 }
 
 /// A one-page PDF of 200 × 100 points filled red, with an exact

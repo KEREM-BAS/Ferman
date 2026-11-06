@@ -320,7 +320,7 @@ built; the ones that need a design answer are also listed for the lead to record
     unframed neighbours put it; the overhang takes the pointer where the parent's bounds cover it. The
     focus ring is page-tuned like the frame: 2 px of page white, then `--edit-box` out to 4 px, in
     both themes. The eight handles show the resize cursors of `editing.css` (mirrored in right to
-    left) and resize nothing until block resizing comes in M3 (B016).
+    left) and resize through `onHandleDragged` (B016).
 32. **TextCaret inside text.** In a baseline `WidgetSpan`, the span applies the text scaler, so the
     caret takes the unscaled em size from the ambient `DefaultTextStyle` (the caller sets it with
     `DefaultTextStyle.merge`) and is never scaled twice. It runs no blink timer while its
@@ -986,6 +986,8 @@ Drawn in: 01 First run and files, 02 View, 03a Edit text, 03b Edit content, 03c 
 | — |  | `focusNode` | `FocusNode?` |  |  | The focus node of the box; one is created when null. |
 | — |  | `menu` | `List<MenuItem>?` |  |  | A Menu that opens instead of the list (a2-2's zoom menu). |
 | — |  | `onMenuSelected` | `ValueChanged<MenuItem>?` |  |  | Called with the activated item of menu. |
+| — |  | `onTyped` | `ValueChanged<String>?` |  |  | Makes the box take typing (a2-2's zoom field): a digit key turns it into a text field; called with the text when it finishes. |
+| — |  | `typingHint` | `String?` |  |  | What a screen reader says the box takes while onTyped is set. |
 
 Item type `SelectOption` → `SelectOption<T>` (declared in the lint config):
 
@@ -1473,6 +1475,7 @@ Drawn in: FmWindow.
 | `showIcons` |  | `showIcons` | `bool` | `false` |  |  |
 | `label` |  | `semanticLabel` | `String` (required) | `"Mode"` |  | Required in Dart: the caller passes the localized "Mode"; components hold no English strings (decision 20). |
 | — |  | `labelOf` | `String Function(FermanMode mode)` (required) |  |  | The localized name of a mode, shown on its tab, from the ARB files; FermanMode carries no label. |
+| — |  | `disabledReasons` | `Map<FermanMode, String>` | `"{}"` |  | The modes that cannot be chosen, with why (a2-10a, G27): a tooltip on the tab, skipped by the arrow keys. |
 
 Item type `FermanMode` → `FermanMode` (declared in the lint config):
 

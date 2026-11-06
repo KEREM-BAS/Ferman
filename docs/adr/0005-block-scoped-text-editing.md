@@ -96,16 +96,20 @@ stream boundaries when `/Contents` is an array.
 The design's three choices, with the brief's labels everywhere ([G54](../DESIGN_GAPS.md#g54)):
 **Extend block** (grows the frame; disabled with a reason if it would overlap other content),
 **Tighten spacing slightly** (within a small cap; disabled with a reason if it is not enough), and
-**Keep and warn** (no text is lost; lines that do not fit are clipped to the frame and the warning stays
-in the review list and on the thumbnail). Result states are recorded in [G38](../DESIGN_GAPS.md#g38).
+**Keep and warn** (no text is lost; lines that do not fit are hidden past the frame, and the warning
+stays in the review list and on the thumbnail; **Proposed (M3 W2):** the hidden lines are written with
+the invisible render mode `3 Tr` instead of a clip to the frame, because a clipping path cannot go
+inside a text object). Result states are recorded in [G38](../DESIGN_GAPS.md#g38).
 
 ### Signed documents
 
 ferman-core detects signatures and certification (DocMDP) at open. Before the first change to a signed
-document, `begin_edit` returns "needs confirmation" with the signatures it would invalidate, and the UI
-warns that they will become invalid. Without the confirmation the engine refuses to commit. The dialog
-is proposed in [G35](../DESIGN_GAPS.md#g35). Incremental saving keeps the signed bytes intact, so the
-signed revision still verifies, but validators will report changes after signing.
+document the UI warns that they will become invalid, and the engine enforces it: a transaction may
+preview, but its commit and every write fail with `ConfirmationRequired` until `confirm_edit_signed`
+ran, for that document, until it closes, never persisted. "Edit a copy" writes an unsigned working copy
+(`save_unsigned_copy`) that the app opens. The dialog is in [G35](../DESIGN_GAPS.md#g35). Incremental
+saving keeps the signed bytes intact, so the signed revision still verifies, but validators will report
+changes after signing.
 
 ### Acceptance test for every edit
 
@@ -151,9 +155,22 @@ Every edit case in the test suite runs this check, through the facade or `ferman
 
 ### Follow-up
 
-- M2: the interpreter, fonts and text model for viewing, search and hit testing.
+- M2: the interpreter, fonts and text model for viewing, search and hit testing. Built.
 - M3: editing, re-encoding, splicing, overflow, missing glyphs, the signed-document warning, the review
-  list, the incremental writer and the full acceptance suite.
+  list, the incremental writer and the full acceptance suite. Built.
+
+### As built (closing M3, 2026-11-06)
+
+`crates/ferman-text/src/rewrite.rs` and `crates/ferman-api/tests/edit_cases.rs` follow this decision,
+with these limits, each in BACKLOG or PROGRESS:
+
+- Vertical text is written column by column (E13): columns do not reflow and kinsoku is not applied in
+  the writer, and such an edit is refused as not rewritten yet. That moved to P2 ([BACKLOG](../BACKLOG.md) B136).
+- `/ActualText` is kept, not updated, by an edit (E21).
+- E14, E17 and E18 run on generated stand-ins until the owner's real files come.
+- The hidden lines of Keep and warn as `3 Tr` stay Proposed until the owner decides.
+- Reverting an edit a later edit builds on asks "Revert both", as a3-12b draws ([G42](../DESIGN_GAPS.md#g42));
+  ROADMAP §7's older wording says "refused".
 
 ## Alternatives considered
 

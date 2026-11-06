@@ -69,7 +69,7 @@ void main() {
         for (final pane in SettingsPane.values)
           if (!pane.available) pane.path,
       ];
-      expect(disabled, hasLength(8));
+      expect(disabled, hasLength(7));
       for (final element in find.byType(PhoneSettingsRow).evaluate()) {
         final row = element.widget as PhoneSettingsRow;
         expect(row.onPressed == null, row.disabledReason == _future);
@@ -173,7 +173,7 @@ void main() {
     testWidgets('a disabled row says why under touch', (tester) async {
       await pumpFermanApp(tester, size: goldenPhoneSize);
       await _open(tester);
-      await tester.tap(_row('Editing'));
+      await tester.tap(_row('Fonts'));
       await tester.pump();
       expect(find.text(_future), findsOneWidget);
       expect(find.byType(PhoneSettingsList), findsOneWidget);
@@ -272,6 +272,7 @@ void main() {
         null,
         SettingsPane.general,
         SettingsPane.language,
+        SettingsPane.editing,
         SettingsPane.privacy,
       ]) {
         testWidgets('${pane?.path ?? 'list'} in $code at $width', (

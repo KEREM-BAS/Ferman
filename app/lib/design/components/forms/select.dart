@@ -4,6 +4,7 @@ import 'dart:ui' show SemanticsRole;
 
 import 'package:ferman/design/components/core/tooltip.dart';
 import 'package:ferman/design/components/forms/field.dart';
+import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/components/forms/popover.dart';
 import 'package:ferman/design/components/forms/text_field.dart';
 import 'package:ferman/design/components/foundation/interactive.dart';
@@ -122,6 +123,8 @@ class Select<T> extends StatefulWidget {
     this.focusNode,
     this.menu,
     this.onMenuSelected,
+    this.onTyped,
+    this.typingHint,
   });
 
   /// The label above the box; null shows none.
@@ -165,6 +168,16 @@ class Select<T> extends StatefulWidget {
 
   /// Called with the item of [menu] the user activates.
   final ValueChanged<MenuItem>? onMenuSelected;
+
+  /// Called with the text the user typed, once they finish (Enter or
+  /// leaving the box; Escape drops it). Non-null makes the box take typing
+  /// (a2-2's zoom field): a digit key, on the box or in its open list or
+  /// menu, turns the box into a text field holding that digit. A click still
+  /// opens the list or menu. Not a design-system prop.
+  final ValueChanged<String>? onTyped;
+
+  /// What a screen reader says the box takes while [onTyped] is set.
+  final String? typingHint;
 
   /// `.fm-menu__item` `height`: a row of the open list.
   static const double rowHeight = 28;
@@ -224,6 +237,13 @@ class _SelectState<T> extends State<Select<T>> {
   /// What the bottom sheet's search field holds (a13-8c).
   final TextEditingController _query = TextEditingController();
 
+  /// A decimal digit of any script, as the region may write its own.
+  static final RegExp _digit = RegExp(r'^\p{Nd}$', unicode: true);
+
+  bool _typing = false;
+  final TextEditingController _draft = TextEditingController();
+  final FocusNode _draftNode = FocusNode(debugLabel: 'Select draft');
+
   FocusNode get _node =>
       widget.focusNode ?? (_ownNode ??= FocusNode(debugLabel: 'Select'));
 
@@ -233,9 +253,16 @@ class _SelectState<T> extends State<Select<T>> {
       widget.options.indexWhere((option) => option.value == widget.value);
 
   @override
+  void initState() {
+    super.initState();
+    _draftNode.addListener(_onDraftFocus);
+  }
+
+  @override
   void didUpdateWidget(Select<T> oldWidget) {
     super.didUpdateWidget(oldWidget);
     if (!_enabled && _open) _open = false;
+    if (!_enabled || widget.onTyped == null) _typing = false;
     if (_highlight >= widget.options.length) _highlight = -1;
   }
 
@@ -244,7 +271,57 @@ class _SelectState<T> extends State<Select<T>> {
     _ownNode?.dispose();
     _scroll.dispose();
     _query.dispose();
+    _draftNode
+      ..removeListener(_onDraftFocus)
+      ..dispose();
+    _draft.dispose();
     super.dispose();
+  }
+
+  /// The digit [event] types into the box, or null.
+  String? _typedDigit(KeyEvent event) {
+    if (event is! KeyDownEvent || widget.onTyped == null || !_enabled) {
+      return null;
+    }
+    final keys = HardwareKeyboard.instance;
+    // ⌘1 and its like belong to the shortcut table.
+    if (keys.isMetaPressed || keys.isControlPressed || keys.isAltPressed) {
+      return null;
+    }
+    final character = event.character;
+    return character != null && _digit.hasMatch(character) ? character : null;
+  }
+
+  void _startTyping(String digit) {
+    _draft.value = TextEditingValue(
+      text: digit,
+      selection: TextSelection.collapsed(offset: digit.length),
+    );
+    setState(() {
+      _open = false;
+      _typing = true;
+    });
+    // The field exists from the next frame on.
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (mounted && _typing) _draftNode.requestFocus();
+    });
+  }
+
+  void _endTyping({required bool commit, required bool refocus}) {
+    if (!_typing) return;
+    setState(() => _typing = false);
+    if (refocus) {
+      // The box is back from the next frame on.
+      WidgetsBinding.instance.addPostFrameCallback((_) {
+        if (mounted) _node.requestFocus();
+      });
+    }
+    if (commit) widget.onTyped?.call(_draft.text);
+  }
+
+  /// Leaving the field finishes the typing, as a stepper's draft does.
+  void _onDraftFocus() {
+    if (!_draftNode.hasFocus) _endTyping(commit: true, refocus: false);
   }
 
   /// Whether the highlight can rest on the option at [index]: enabled
@@ -366,6 +443,10 @@ class _SelectState<T> extends State<Select<T>> {
   KeyEventResult _onKey(FocusNode node, KeyEvent event) {
     if (event is! KeyDownEvent && event is! KeyRepeatEvent) {
       return KeyEventResult.ignored;
+    }
+    if (_typedDigit(event) case final digit?) {
+      _startTyping(digit);
+      return KeyEventResult.handled;
     }
     final key = event.logicalKey;
     if (!_open) {
@@ -566,6 +647,60 @@ class _SelectState<T> extends State<Select<T>> {
     );
   }
 
+  /// The box while it takes typing: the same box with the same chevron, its
+  /// text a field.
+  Widget _typingBox(BuildContext context) {
+    final theme = context.ferman;
+    return Focus(
+      canRequestFocus: false,
+      skipTraversal: true,
+      includeSemantics: false,
+      onKeyEvent: (_, event) {
+        if (event is! KeyDownEvent ||
+            event.logicalKey != LogicalKeyboardKey.escape) {
+          return KeyEventResult.ignored;
+        }
+        _endTyping(commit: false, refocus: true);
+        return KeyEventResult.handled;
+      },
+      child: FieldBox(
+        size: widget.size,
+        focused: true,
+        padding: EdgeInsetsDirectional.only(
+          start: FieldBox.sidePaddingOf(theme, widget.size),
+          end: Select.endPadding,
+        ),
+        child: Row(
+          spacing: FieldBox.contentGap,
+          children: [
+            Expanded(
+              child: Semantics(
+                label: widget.label ?? widget.semanticLabel,
+                hint: widget.typingHint,
+                child: FieldInput(
+                  controller: _draft,
+                  focusNode: _draftNode,
+                  style: FieldBox.textStyleOf(
+                    theme,
+                    widget.size,
+                    color: theme.colors.textPrimary,
+                  ),
+                  onEditingComplete: () =>
+                      _endTyping(commit: true, refocus: true),
+                ),
+              ),
+            ),
+            Icon(
+              IconName.chevronDown,
+              size: theme.density.iconSm,
+              color: theme.colors.iconSecondary,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget _list(BuildContext context) {
     final theme = context.ferman;
     while (_rowKeys.length < widget.options.length) {
@@ -622,33 +757,36 @@ class _SelectState<T> extends State<Select<T>> {
   Widget build(BuildContext context) {
     final label = widget.label;
     final selected = _selectedIndex;
-    final box = Focus(
-      canRequestFocus: false,
-      skipTraversal: true,
-      includeSemantics: false,
-      onKeyEvent: _onKey,
-      child: FermanInteractive(
-        onPressed: _enabled ? _activate : null,
-        onTap: _enabled ? _toggle : null,
-        disabled: widget.disabled,
-        disabledReason: widget.disabledReason,
-        semanticLabel: label ?? widget.semanticLabel,
-        focusNode: _node,
-        builder: (context, states, _) => Semantics(
-          expanded: _open,
-          value: selected >= 0 ? widget.options[selected].label : null,
-          // The highlighted option's reason, while the list is open (G10).
-          hint:
-              _open &&
-                  _highlight >= 0 &&
-                  _highlight < widget.options.length &&
-                  widget.options[_highlight].disabled
-              ? widget.options[_highlight].disabledReason
-              : null,
-          child: _box(context, states),
-        ),
-      ),
-    );
+    final box = _typing
+        ? _typingBox(context)
+        : Focus(
+            canRequestFocus: false,
+            skipTraversal: true,
+            includeSemantics: false,
+            onKeyEvent: _onKey,
+            child: FermanInteractive(
+              onPressed: _enabled ? _activate : null,
+              onTap: _enabled ? _toggle : null,
+              disabled: widget.disabled,
+              disabledReason: widget.disabledReason,
+              semanticLabel: label ?? widget.semanticLabel,
+              focusNode: _node,
+              builder: (context, states, _) => Semantics(
+                expanded: _open,
+                value: selected >= 0 ? widget.options[selected].label : null,
+                // The highlighted option's reason, while the list is open
+                // (G10).
+                hint:
+                    _open &&
+                        _highlight >= 0 &&
+                        _highlight < widget.options.length &&
+                        widget.options[_highlight].disabled
+                    ? widget.options[_highlight].disabledReason
+                    : widget.typingHint,
+                child: _box(context, states),
+              ),
+            ),
+          );
     return Column(
       mainAxisSize: MainAxisSize.min,
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -676,15 +814,28 @@ class _SelectState<T> extends State<Select<T>> {
             surface: false,
             onDismiss: _close,
             anchor: box,
-            child: Menu(
-              autofocus: true,
-              semanticLabel: label ?? widget.semanticLabel,
-              items: menu,
-              onClose: _close,
-              onSelected: (item) {
-                _close();
-                widget.onMenuSelected?.call(item);
+            // The menu has the focus while it is open; a digit it does not
+            // want reaches this box's typing.
+            child: Focus(
+              canRequestFocus: false,
+              skipTraversal: true,
+              includeSemantics: false,
+              onKeyEvent: (_, event) {
+                final digit = _typedDigit(event);
+                if (digit == null) return KeyEventResult.ignored;
+                _startTyping(digit);
+                return KeyEventResult.handled;
               },
+              child: Menu(
+                autofocus: true,
+                semanticLabel: label ?? widget.semanticLabel,
+                items: menu,
+                onClose: _close,
+                onSelected: (item) {
+                  _close();
+                  widget.onMenuSelected?.call(item);
+                },
+              ),
             ),
           )
         else

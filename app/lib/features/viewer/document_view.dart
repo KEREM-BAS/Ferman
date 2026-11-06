@@ -7,6 +7,8 @@ import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/editor/block_editor.dart';
+import 'package:ferman/features/editor/edit_callouts.dart';
+import 'package:ferman/features/editor/edit_marks.dart';
 import 'package:ferman/features/editor/edit_session.dart';
 import 'package:ferman/features/viewer/find_state.dart';
 import 'package:ferman/features/viewer/not_editable.dart';
@@ -16,8 +18,10 @@ import 'package:ferman/features/viewer/viewer_state.dart';
 import 'package:ferman/l10n/format.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/l10n/locale_providers.dart';
+import 'package:ferman/settings/settings_providers.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/gestures.dart';
+import 'package:flutter/semantics.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -138,6 +142,10 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   /// What the pointer is over: a page, the block there, and where.
   _Target? _hover;
 
+  /// Whether Alt (Option) is held: every editable block shows its frame
+  /// (a3-1a).
+  bool _revealing = false;
+
   /// The inline editor's key, new for each block edited, and its edit.
   GlobalKey _editorKey = GlobalKey();
   ActiveEdit? _keyed;
@@ -154,6 +162,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
   @override
   void initState() {
     super.initState();
+    HardwareKeyboard.instance.addHandler(_onKey);
     _renderKey = ref.read(layerVisibilityProvider)?.renderKey ?? 0;
     ref.listenManual(layerVisibilityProvider.select((s) => s?.renderKey ?? 0), (
       _,
@@ -187,7 +196,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
         if (_hover case _Target(:final local)) _hoverAt(_targetAt(local));
       },
     );
+    SemanticsBinding.instance.addSemanticsEnabledListener(_semanticsChanged);
     unawaited(_open());
+  }
+
+  void _semanticsChanged() {
+    if (mounted) setState(() {});
   }
 
   @override
@@ -204,6 +218,8 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
 
   @override
   void dispose() {
+    HardwareKeyboard.instance.removeHandler(_onKey);
+    SemanticsBinding.instance.removeSemanticsEnabledListener(_semanticsChanged);
     ContextMenuController.removeAny();
     unawaited(_updates?.cancel());
     final view = _view;
@@ -215,6 +231,12 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
       image.dispose();
     }
     super.dispose();
+  }
+
+  bool _onKey(KeyEvent event) {
+    final alt = HardwareKeyboard.instance.isAltPressed;
+    if (alt != _revealing) setState(() => _revealing = alt);
+    return false;
   }
 
   Future<void> _open() async {
@@ -521,7 +543,9 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     final box = _editorKey.currentContext?.findRenderObject();
     return box is RenderBox &&
         box.hasSize &&
-        (Offset.zero & box.size).contains(box.globalToLocal(position));
+        (Offset.zero & box.size)
+            .inflate(TextEditBox.marginX + TextEditBox.handleOffset)
+            .contains(box.globalToLocal(position));
   }
 
   /// Opens the inline editor on [target]'s block with the engine's caret
@@ -616,6 +640,7 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
               page: target.page,
               quads: selection.quads,
               text: selection.text,
+              language: block.language,
             ),
           );
     } on Object {
@@ -800,21 +825,83 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     ).shift(-state.offset);
   }
 
-  /// Edit mode's hover frame, inline editor and tooltip (a3-1a, a3-1b,
-  /// a3-19).
+  /// The marks of the lines the steps that apply changed (f3), on the pages
+  /// in view.
+  List<EditMark> _editMarks(ViewerState state, EditorState editor) {
+    final size = context.ferman.size;
+    return [
+      for (final edited in editor.edited)
+        if (state.placement.rects.elementAtOrNull(edited.page) case final rect?
+            when rect.overlaps(state.visible))
+          if (blockOver(
+                _blocksOf(edited.page)?.blocks ?? const <TextBlock>[],
+                edited.frame,
+              )
+              case final block?)
+            if (_onCanvas(state, edited.page, block.frame) case final frame?)
+              for (final line in changedLines(edited.before, block.lines))
+                if (_onCanvas(state, edited.page, line.bbox) case final box?)
+                  editMark(
+                    line: box,
+                    frame: frame,
+                    baseline:
+                        rect.topLeft +
+                        line.baselineStart * state.scale -
+                        state.offset,
+                    direction: block.direction,
+                    barGap: size.editMarkBarGap,
+                    barWidth: size.editMarkBarW,
+                  ),
+    ];
+  }
+
+  /// Edit mode's edit marks (f3); hover frame, inline editor and tooltip
+  /// (a3-1a, a3-1b, a3-19); the tint of the table cells that depend on the
+  /// edited one (a3-9); and "+1 line hidden" beside each block whose last
+  /// lines "Keep and warn" hides (a3-4, a3-18), at the end of its line in its
+  /// own direction.
   List<Widget> _editLayer(BuildContext context, ViewerState state) {
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final hover = _hover;
     final block = hover?.block;
-    final active = ref.watch(documentEditorProvider).active;
+    final editorState = ref.watch(documentEditorProvider);
+    final active = editorState.active;
+    final dependents = active == null
+        ? const <Rect>[]
+        : [
+            for (final cell
+                in editorState.preview?.dependents ?? const <DependentCell>[])
+              ?_onCanvas(state, active.page, cell.frame),
+          ];
+    final marks = ref.watch(settingsProvider.select((s) => s.markEdited))
+        ? _editMarks(state, editorState)
+        : const <EditMark>[];
+    final hidden = [
+      for (final mark in editorState.hidden)
+        if (active?.page != mark.page ||
+            !(active?.block.frame.overlaps(mark.frame) ?? false))
+          (mark.page, mark.frame, mark.direction, mark.lines),
+      if (active != null && editorState.keptHidden > 0)
+        (
+          active.page,
+          active.block.frame,
+          active.block.direction,
+          editorState.keptHidden,
+        ),
+    ];
     if (!identical(active, _keyed)) {
       _keyed = active;
-      _editorKey = GlobalKey();
+      if (!(active?.followed ?? false)) _editorKey = GlobalKey();
     }
     final editing = active == null
         ? null
         : _onCanvas(state, active.page, active.block.frame);
+    final editingPage = active == null
+        ? null
+        : state.placement.rects
+              .elementAtOrNull(active.page)
+              ?.shift(-state.offset);
     // The block being edited shows its editor, not the hover frame and tip.
     final onEditor =
         hover != null &&
@@ -824,6 +911,17 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
         ? null
         : _onCanvas(state, hover.page, block.frame);
     final reason = block != null ? block.notEditable : hover?.empty;
+    final revealed = !_revealing
+        ? const <Rect>[]
+        : [
+            for (final (page, rect) in state.placement.rects.indexed)
+              if (rect != null && rect.overlaps(state.visible))
+                for (final each
+                    in _blocksOf(page)?.blocks ?? const <TextBlock>[])
+                  if (each.notEditable == null &&
+                      (active?.page != page || active?.block.id != each.id))
+                    ?_onCanvas(state, page, each.frame),
+          ];
     final String? tip;
     if (onEditor) {
       tip = null;
@@ -840,35 +938,185 @@ class _DocumentViewState extends ConsumerState<DocumentView> {
     } else {
       tip = reason == null ? null : notEditableTip(l10n, reason);
     }
+    // For a screen reader the visible pages' blocks are nodes in reading
+    // order, the open one its editor. Nobody else pays for asking the
+    // engine ahead of the pointer.
+    final language = ref.watch(openDocumentProvider.select((d) => d?.language));
+    var order = 0.0;
+    double? editorOrder;
+    final reading = <Widget>[];
+    if (SemanticsBinding.instance.semanticsEnabled) {
+      for (final (page, rect) in state.placement.rects.indexed) {
+        if (rect == null || !rect.overlaps(state.visible)) continue;
+        for (final block in _blocksOf(page)?.blocks ?? const <TextBlock>[]) {
+          if (active?.page == page && active?.block.id == block.id) {
+            editorOrder = order++;
+            continue;
+          }
+          final at = _onCanvas(state, page, block.frame);
+          if (at == null) continue;
+          final rtl = block.direction == BlockDirection.rightToLeft;
+          final locked = block.notEditable;
+          reading.add(
+            PositionedDirectional(
+              start: at.left,
+              top: at.top,
+              width: at.width,
+              height: at.height,
+              child: Semantics(
+                key: ValueKey<String>('DocumentView.block.$page.${block.id}'),
+                container: true,
+                sortKey: OrdinalSortKey(order++),
+                localeForSubtree: documentLocale(block.language),
+                label: block.text,
+                textDirection: rtl ? TextDirection.rtl : TextDirection.ltr,
+                hint: locked == null ? null : notEditableTip(l10n, locked),
+                onTap: locked != null
+                    ? null
+                    : () => unawaited(
+                        _openEditor(
+                          _Target(
+                            page: page,
+                            point: rtl
+                                ? block.frame.topRight
+                                : block.frame.topLeft,
+                            local: at.topLeft,
+                            block: block,
+                          ),
+                        ),
+                      ),
+                child: const SizedBox.expand(),
+              ),
+            ),
+          );
+        }
+      }
+    }
     return [
-      if (frame != null && reason == null)
+      if (marks.isNotEmpty)
+        Positioned.fill(
+          child: IgnorePointer(
+            child: CustomPaint(
+              key: const ValueKey<String>('DocumentView.editMarks'),
+              painter: EditMarksPainter(
+                marks: marks,
+                color: theme.pageColors.editMark,
+                devicePixelRatio: MediaQuery.devicePixelRatioOf(context),
+              ),
+            ),
+          ),
+        ),
+      for (final cell in dependents)
         PositionedDirectional(
-          start: frame.left - TextEditBox.marginX,
-          top: frame.top - TextEditBox.marginY,
+          start: cell.left,
+          top: cell.top,
+          child: IgnorePointer(
+            child: SizedBox(
+              key: const ValueKey<String>('DocumentView.dependentCell'),
+              width: cell.width,
+              height: cell.height,
+              child: ColoredBox(color: theme.pageColors.glyphMissingBg),
+            ),
+          ),
+        ),
+      for (final (page, box, direction, lines) in hidden)
+        if (_onCanvas(state, page, box) case final at?)
+          PositionedDirectional(
+            top: at.bottom + HiddenLinesStatus.drop - HiddenLinesStatus.height,
+            start: direction == BlockDirection.rightToLeft
+                ? at.left - HiddenLinesStatus.gap
+                : at.right + HiddenLinesStatus.gap,
+            child: IgnorePointer(
+              child: FractionalTranslation(
+                translation: Offset(
+                  direction == BlockDirection.rightToLeft ? -1 : 0,
+                  0,
+                ),
+                child: HiddenLinesStatus(lines: lines),
+              ),
+            ),
+          ),
+      // The box's layout slot is the block's frame: its own negative margin
+      // makes the overhang.
+      for (final dashed in [
+        ...revealed,
+        if (frame != null && reason == null && !_revealing) frame,
+      ])
+        PositionedDirectional(
+          start: dashed.left,
+          top: dashed.top,
           child: IgnorePointer(
             child: TextEditBox(
               state: TextEditBoxState.hover,
               inert: true,
               child: SizedBox(
                 width:
-                    frame.width +
+                    dashed.width +
                     2 * (TextEditBox.marginX - TextEditBox.paddingX),
                 height:
-                    frame.height +
+                    dashed.height +
                     2 * (TextEditBox.marginY - TextEditBox.paddingY),
               ),
             ),
           ),
         ),
-      if (active != null && editing != null)
-        PositionedDirectional(
-          start: editing.left - TextEditBox.marginX,
-          top: editing.top - TextEditBox.marginY,
-          child: BlockEditor(
-            key: _editorKey,
-            edit: active,
-            frame: editing,
-            scale: state.scale,
+      if ((active != null && editing != null && editingPage != null) ||
+          reading.isNotEmpty)
+        // The keys sort among themselves only in a group of their own.
+        Positioned.fill(
+          child: Semantics(
+            container: true,
+            explicitChildNodes: true,
+            localeForSubtree: documentLocale(language),
+            child: Stack(
+              children: [
+                ...reading,
+                if (active != null && editing != null && editingPage != null)
+                  // Around the Stack, not the editor: the frame's handles
+                  // overhang the editor's slot, and a node of that size would
+                  // stop their hit tests.
+                  Positioned.fill(
+                    child: Semantics(
+                      container: true,
+                      sortKey: OrdinalSortKey(editorOrder ?? order),
+                      child: Stack(
+                        children: [
+                          PositionedDirectional(
+                            start: editing.left,
+                            top: editing.top,
+                            child: BlockEditor(
+                              key: _editorKey,
+                              edit: active,
+                              frame: editing,
+                              scale: state.scale,
+                              uiDirection: widget.uiDirection,
+                              metaPlacement: metaPlacementFor(
+                                frame: editing,
+                                page: editingPage,
+                                others: [
+                                  for (final each
+                                      in _blocksOf(active.page)?.blocks ??
+                                          const <TextBlock>[])
+                                    if (each.id != active.block.id)
+                                      ?_onCanvas(
+                                        state,
+                                        active.page,
+                                        each.frame,
+                                      ),
+                                  ...dependents,
+                                ],
+                                room:
+                                    theme.size.editboxMetaH +
+                                    2 * TextEditBox.metaGap,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+              ],
+            ),
           ),
         ),
       if (hover != null && tip != null)
@@ -1221,13 +1469,17 @@ class _PointerTip extends StatelessWidget {
   static const double lockSize = 12;
   static const double lockStroke = 2;
 
+  /// a3-19's `padding: 5px 9px`; a3-1a's plain tip is 4 px 8 px.
+  static const double lockPaddingX = 9;
+  static const double lockPaddingY = 5;
+
   @override
   Widget build(BuildContext context) {
     final theme = context.ferman;
     return Container(
       padding: EdgeInsetsDirectional.symmetric(
-        horizontal: theme.space.space2,
-        vertical: theme.space.space1,
+        horizontal: locked ? lockPaddingX : theme.space.space2,
+        vertical: locked ? lockPaddingY : theme.space.space1,
       ),
       decoration: BoxDecoration(
         color: theme.colors.surfaceInverse,

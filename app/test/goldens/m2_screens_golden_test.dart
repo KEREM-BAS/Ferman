@@ -371,7 +371,7 @@ Future<void> main() async {
   final engine = _Engine();
   for (final screen in _screens) {
     for (final theme in GoldenTheme.values) {
-      for (final language in GoldenLanguage.values) {
+      for (final language in GoldenLanguage.matrix) {
         await windowGoldenTest(
           screen: screen.name,
           chrome: GoldenChrome.mac,

@@ -25,6 +25,13 @@ Future<void> main() async {
       'a13-15b',
     ),
     (
+      'settings_editing',
+      Routes.settingsPane(SettingsPane.editing.path),
+      null,
+      null,
+      null,
+    ),
+    (
       'settings_privacy',
       Routes.settingsPane(SettingsPane.privacy.path),
       null,

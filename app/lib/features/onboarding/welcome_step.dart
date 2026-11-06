@@ -7,9 +7,9 @@ import 'package:ferman/l10n/locale_providers.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-/// The frame of a first-run welcome step (a1-2b, a1-2c): the step counter,
-/// the headline and the text at the start, [aside] at the end, and the
-/// footer with Skip, the step dots, Back and Next.
+/// The frame of a first-run welcome step (a1-2a, a1-2b, a1-2c): the step
+/// counter, the headline and the text at the start, [aside] at the end, and
+/// the footer with Skip, the step dots, Back and Next.
 ///
 /// The two columns are at most [startWidth] and [asideWidth] wide with
 /// [columnGap] between them, centred (`grid-template-columns:
@@ -55,7 +55,7 @@ class WelcomeStep extends ConsumerWidget {
   /// The content of the end column.
   final Widget aside;
 
-  /// The end column's largest width (a1-2b 520 px, a1-2c 540 px).
+  /// The end column's largest width (a1-2a 560 px, a1-2b 520 px, a1-2c 540 px).
   final double asideWidth;
 
   /// The label of the main button ("Next", "Start using Ferman").
@@ -412,7 +412,7 @@ class WelcomeStep extends ConsumerWidget {
 
 /// The step dots in the footer: the current step a 20 × 6 pill in the
 /// accent colour, the others 6 px dots in the strong border colour, 8 px
-/// apart. Screen readers hear "Step 1 of 2" (a1-2a note).
+/// apart. Screen readers hear "Step 1 of 3" (a1-2a note).
 class _StepDots extends StatelessWidget {
   const new({required this.step, required this.count, required this.label});
 

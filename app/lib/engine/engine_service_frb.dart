@@ -5,9 +5,11 @@ import 'dart:ui' show Offset, Rect;
 import 'package:ferman/bridge/frb.dart' as bridge;
 import 'package:ferman/bridge/frb_generated.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/engine/recovery_directory.dart';
 import 'package:flutter/foundation.dart' show visibleForTesting;
 import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
     show ExternalLibrary;
+import 'package:path_provider/path_provider.dart';
 
 /// The [EngineService] backed by the Rust engine through flutter_rust_bridge.
 /// This file and the generated `app/lib/bridge/` are the only Dart code that
@@ -15,9 +17,10 @@ import 'package:flutter_rust_bridge/flutter_rust_bridge_for_generated.dart'
 class FrbEngineService implements EngineService {
   new _();
 
-  /// Loads the engine library, checks its API version and returns the
-  /// service. Throws an [EngineUnavailableException] when the library cannot
-  /// be loaded or speaks an API version this app does not accept.
+  /// Loads the engine library, checks its API version, starts crash
+  /// recovery in the app data directory and returns the service. Throws an
+  /// [EngineUnavailableException] when the library cannot be loaded or
+  /// speaks an API version this app does not accept.
   static Future<FrbEngineService> start() async {
     final library = bundledEngineLibraryPath();
     try {
@@ -39,7 +42,25 @@ class FrbEngineService implements EngineService {
         engineApiVersion: engine,
       );
     }
+    await service._startRecovery();
     return service;
+  }
+
+  /// Starts crash recovery in [recoveryDirectory]. Without it the engine
+  /// keeps no recovery files, and everything else still works.
+  Future<void> _startRecovery() async {
+    try {
+      final root = recoveryDirectory(
+        os: Platform.operatingSystem,
+        environment: Platform.environment,
+        applicationSupport: Platform.isMacOS
+            ? (await getApplicationSupportDirectory()).path
+            : null,
+      );
+      if (root != null) await startRecovery(root);
+    } on Object {
+      // No recovery folder: the documents open and save without one.
+    }
   }
 
   @override
@@ -75,108 +96,7 @@ class FrbEngineService implements EngineService {
   @override
   Future<OpenedDocument> open(String path, {String? password}) async {
     try {
-      final document = await bridge.open(path: path, password: password);
-      return OpenedDocument(
-        id: document.id.toInt(),
-        readOnly: switch (document.readOnly) {
-          null => null,
-          bridge.ReadOnlyReason.repaired => ReadOnlyReason.repaired,
-          bridge.ReadOnlyReason.parsersDisagree =>
-            ReadOnlyReason.parsersDisagree,
-          bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
-        },
-        repairs: [
-          for (final fix in document.repairs)
-            RepairFix(
-              kind: switch (fix.kind) {
-                bridge.RepairKind.crossReferenceRebuilt =>
-                  RepairKind.crossReferenceRebuilt,
-                bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
-                bridge.RepairKind.streamLengthsCorrected =>
-                  RepairKind.streamLengthsCorrected,
-                bridge.RepairKind.objectsUnreadable =>
-                  RepairKind.objectsUnreadable,
-              },
-              count: fix.count,
-            ),
-        ],
-        rightToLeft: document.rightToLeft,
-        pages: [
-          for (final page in document.pages)
-            PageInfo(width: page.width, height: page.height, label: page.label),
-        ],
-        outline: [
-          for (final item in document.outline)
-            OutlineEntry(
-              title: item.title,
-              page: item.page,
-              depth: item.depth,
-              open: item.open,
-            ),
-        ],
-        attachments: [
-          for (final file in document.attachments)
-            Attachment(
-              name: file.name,
-              size: file.size?.toInt(),
-              modified: _date(file.modified),
-            ),
-        ],
-        layers: [
-          for (final layer in document.layers)
-            Layer(
-              name: layer.name,
-              visible: layer.visible,
-              locked: layer.locked,
-            ),
-        ],
-        layersSwitchable: document.layersSwitchable,
-        signatures: [
-          for (final field in document.signatures)
-            Signature(
-              field: field.field,
-              signed: field.signed,
-              signer: field.signer,
-              signedAt: _date(field.signedAt),
-              page: field.page,
-            ),
-        ],
-        version: document.version,
-        fileSize: document.fileSize.toInt(),
-        info: DocumentInfo(
-          title: document.info.title,
-          author: document.info.author,
-          subject: document.info.subject,
-          keywords: document.info.keywords,
-          creator: document.info.creator,
-          producer: document.info.producer,
-          created: _date(document.info.created),
-          modified: _date(document.info.modified),
-        ),
-        language: document.language,
-        tagged: document.tagged,
-        linearized: document.linearized,
-        fonts: [
-          for (final font in document.fonts)
-            FontEntry(
-              name: font.name,
-              kind: switch (font.kind) {
-                bridge.FontType.type1 => FontType.type1,
-                bridge.FontType.multipleMaster => FontType.multipleMaster,
-                bridge.FontType.trueType => FontType.trueType,
-                bridge.FontType.type0 => FontType.type0,
-                bridge.FontType.type3 => FontType.type3,
-                bridge.FontType.other => FontType.other,
-              },
-              embedded: font.embedded,
-              subset: font.subset,
-            ),
-        ],
-        security: _security(document.security),
-        scripts: document.scripts,
-        formFields: document.formFields,
-        scanned: document.scanned,
-      );
+      return _opened(await bridge.open(path: path, password: password));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -197,9 +117,92 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> close(int document) async {
+  Future<void> close(int document) => _close(document, discard: false);
+
+  @override
+  Future<void> closeDiscarding(int document) => _close(document, discard: true);
+
+  Future<void> _close(int document, {required bool discard}) async {
     try {
-      await bridge.close(document: BigInt.from(document));
+      await bridge.close(
+        document: BigInt.from(document),
+        discardRecovery: discard,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  String? recoveryRoot;
+
+  @override
+  Future<void> startRecovery(String root) async {
+    try {
+      await bridge.startRecovery(root: root);
+      recoveryRoot = root;
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> setRecoveryEnabled({required bool enabled}) async {
+    try {
+      await bridge.setRecoveryEnabled(enabled: enabled);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<RecoverableDocument>> listRecoverable() async {
+    try {
+      return [
+        for (final found in await bridge.listRecoverable())
+          RecoverableDocument(
+            session: found.session,
+            document: found.document,
+            original: found.original,
+            originalChanged: found.originalChanged,
+            changes: found.changes,
+            encrypted: found.encrypted,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<RestoredDocument> restoreRecovered(
+    String session,
+    String document, {
+    String? password,
+    String? suffix,
+  }) async {
+    try {
+      final restored = await bridge.restoreRecovered(
+        session: session,
+        document: document,
+        password: password,
+        suffix: suffix,
+      );
+      return RestoredDocument(
+        opened: _opened(restored.opened),
+        path: restored.path,
+        originalChanged: restored.originalChanged,
+        renderKey: restored.renderKey?.toSigned(64).toInt(),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> discardRecovery(String session, {String? document}) async {
+    try {
+      await bridge.discardRecovery(session: session, document: document);
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -392,7 +395,7 @@ class FrbEngineService implements EngineService {
       final caret = await bridge.caretAt(
         document: BigInt.from(document),
         page: page,
-        block: BigInt.from(block),
+        block: _wireBlockId(block),
         point: bridge.PagePoint(x: point.dx, y: point.dy),
       );
       return BlockCaret(index: caret.index, rect: _rect(caret.rect));
@@ -409,7 +412,7 @@ class FrbEngineService implements EngineService {
     BlockPosition focus,
   ) async {
     bridge.TextPosition position(BlockPosition at) =>
-        bridge.TextPosition(block: BigInt.from(at.block), index: at.index);
+        bridge.TextPosition(block: _wireBlockId(at.block), index: at.index);
     try {
       final selection = await bridge.selection(
         document: BigInt.from(document),
@@ -432,7 +435,7 @@ class FrbEngineService implements EngineService {
       final transaction = await bridge.beginEdit(
         document: BigInt.from(document),
         page: page,
-        block: BigInt.from(block),
+        block: _wireBlockId(block),
       );
       return transaction.toInt();
     } on bridge.ApiError catch (error) {
@@ -447,10 +450,77 @@ class FrbEngineService implements EngineService {
         transaction: BigInt.from(transaction),
         text: text,
       );
-      return EditPreview(
-        page: _pageBlocks(preview.page),
-        missing: preview.missing,
-        overflowing: preview.overflowing,
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> setBlockLanguage(int transaction, String tag) async {
+    try {
+      final preview = await bridge.setBlockLanguage(
+        transaction: BigInt.from(transaction),
+        tag: tag,
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> resolveOverflow(
+    int transaction,
+    OverflowChoice choice,
+  ) async {
+    try {
+      final preview = await bridge.resolveOverflow(
+        transaction: BigInt.from(transaction),
+        choice: switch (choice) {
+          OverflowChoice.extend => bridge.OverflowChoice.extend,
+          OverflowChoice.tighten => bridge.OverflowChoice.tighten,
+          OverflowChoice.keep => bridge.OverflowChoice.keep,
+        },
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<FontCoverage>> fontCoverage(int document, String letters) async {
+    try {
+      final coverage = await bridge.fontCoverage(
+        document: BigInt.from(document),
+        letters: letters,
+      );
+      return [
+        for (final font in coverage)
+          FontCoverage(
+            name: font.name,
+            shownAs: font.shownAs,
+            missingLetters: font.missingLetters,
+          ),
+      ];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> setFontSettings(FontSettings settings) async {
+    try {
+      await bridge.setFontSettings(
+        settings: bridge.FontSettings(
+          bundledDir: settings.bundledDir ?? bundledFontsDirectory(),
+          fontDirs: settings.fontDirs,
+          systemFonts: settings.systemFonts,
+          askEachTime: settings.askEachTime,
+          markMissing: settings.markMissing,
+          keepLines: settings.keepLines,
+        ),
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -458,9 +528,298 @@ class FrbEngineService implements EngineService {
   }
 
   @override
+  Future<EditPreview> chooseFont(
+    int transaction,
+    FontOrigin origin,
+    String postscriptName,
+  ) async {
+    try {
+      final preview = await bridge.chooseFont(
+        transaction: BigInt.from(transaction),
+        origin: switch (origin) {
+          FontOrigin.embedded => bridge.FontOrigin.embedded,
+          FontOrigin.installed => bridge.FontOrigin.installed,
+          FontOrigin.bundled => bridge.FontOrigin.bundled,
+        },
+        postscriptName: postscriptName,
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> keepAsIs(int transaction) async {
+    try {
+      final preview = await bridge.keepAsIs(
+        transaction: BigInt.from(transaction),
+      );
+      return _preview(preview);
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  static FontOrigin _origin(bridge.FontOrigin origin) => switch (origin) {
+    bridge.FontOrigin.embedded => FontOrigin.embedded,
+    bridge.FontOrigin.installed => FontOrigin.installed,
+    bridge.FontOrigin.bundled => FontOrigin.bundled,
+  };
+
+  static FontEmbedding _embedding(bridge.FontEmbedding embedding) =>
+      switch (embedding) {
+        bridge.FontEmbedding.installable => FontEmbedding.installable,
+        bridge.FontEmbedding.editable => FontEmbedding.editable,
+        bridge.FontEmbedding.previewAndPrint => FontEmbedding.previewAndPrint,
+        bridge.FontEmbedding.restricted => FontEmbedding.restricted,
+        bridge.FontEmbedding.noSubsetting => FontEmbedding.noSubsetting,
+        bridge.FontEmbedding.bitmapOnly => FontEmbedding.bitmapOnly,
+      };
+
+  static FontSubstitution _substitution(bridge.FontSubstitution value) =>
+      FontSubstitution(
+        kind: switch (value.kind) {
+          bridge.SubstitutionKind.sameFont => SubstitutionKind.sameFont,
+          bridge.SubstitutionKind.similar => SubstitutionKind.similar,
+          bridge.SubstitutionKind.marked => SubstitutionKind.marked,
+        },
+        chars: value.chars,
+        fromFont: value.fromFont,
+        toFont: value.toFont,
+        origin: _origin(value.origin),
+        announced: value.announced,
+      );
+
+  static MissingGlyphs _glyphs(bridge.MissingGlyphs glyphs) => MissingGlyphs(
+    chars: [for (final c in glyphs.chars) MissingChar(text: c.text, at: c.at)],
+    font: glyphs.font,
+    reason: switch (glyphs.reason) {
+      bridge.MissingReasonKind.notInstalled => MissingReason.notInstalled,
+      bridge.MissingReasonKind.notEmbeddable => MissingReason.notEmbeddable,
+      bridge.MissingReasonKind.restricted => MissingReason.restricted,
+    },
+    reasonFont: glyphs.reasonFont,
+    reasonEmbedding: switch (glyphs.reasonEmbedding) {
+      null => null,
+      final embedding => _embedding(embedding),
+    },
+    bold: glyphs.bold,
+    italic: glyphs.italic,
+    candidates: [
+      for (final candidate in glyphs.candidates) _candidate(candidate),
+    ],
+    drawn: glyphs.drawn,
+  );
+
+  static FontCandidate _candidate(bridge.FontCandidate candidate) =>
+      FontCandidate(
+        origin: _origin(candidate.origin),
+        postscriptName: candidate.postscriptName,
+        family: candidate.family,
+        covered: candidate.covered,
+        needed: candidate.needed,
+        similarity: candidate.similarity,
+        embedding: _embedding(candidate.embedding),
+        usable: candidate.usable,
+        preview: candidate.preview,
+      );
+
+  static EditPreview _preview(bridge.EditPreview preview) {
+    final plan = preview.overflow;
+    final blocked = plan?.extendBlocked;
+    final glyphs = preview.glyphs;
+    return EditPreview(
+      page: _pageBlocks(preview.page),
+      missing: preview.missing,
+      glyphs: glyphs == null ? null : _glyphs(glyphs),
+      substitutions: [
+        for (final substitution in preview.substitutions)
+          _substitution(substitution),
+      ],
+      overflowing: preview.overflowing,
+      overflow: plan == null
+          ? null
+          : OverflowPlan(
+              over: plan.over,
+              extendLines: plan.extendLines,
+              extendBlocked: blocked == null
+                  ? null
+                  : ExtendBlocked(
+                      kind: switch (blocked.kind) {
+                        bridge.ExtendBlockedKind.block =>
+                          ExtendBlockedKind.block,
+                        bridge.ExtendBlockedKind.pageEdge =>
+                          ExtendBlockedKind.pageEdge,
+                      },
+                      block: blocked.block?.toSigned(64).toInt(),
+                      text: blocked.text,
+                    ),
+              tightenPercent: plan.tightenPercent,
+              tightenShort: plan.tightenShort,
+              keepHidden: plan.keepHidden,
+            ),
+      chosen: switch (preview.chosen) {
+        null => null,
+        bridge.OverflowChoice.extend => OverflowChoice.extend,
+        bridge.OverflowChoice.tighten => OverflowChoice.tighten,
+        bridge.OverflowChoice.keep => OverflowChoice.keep,
+      },
+      dependents: [
+        for (final cell in preview.dependents)
+          DependentCell(
+            id: cell.id.toSigned(64).toInt(),
+            frame: _rect(cell.frame),
+          ),
+      ],
+      language: preview.language,
+    );
+  }
+
+  @override
   Future<RevisionInfo> commitEdit(int transaction, String name) => _revision(
     () => bridge.commitEdit(transaction: BigInt.from(transaction), name: name),
   );
+
+  static bridge.FontOrigin _bridgeOrigin(FontOrigin origin) => switch (origin) {
+    FontOrigin.embedded => bridge.FontOrigin.embedded,
+    FontOrigin.installed => bridge.FontOrigin.installed,
+    FontOrigin.bundled => bridge.FontOrigin.bundled,
+  };
+
+  static BlockAlignment _alignment(bridge.Alignment alignment) =>
+      switch (alignment) {
+        bridge.Alignment.left => BlockAlignment.left,
+        bridge.Alignment.right => BlockAlignment.right,
+        bridge.Alignment.center => BlockAlignment.center,
+        bridge.Alignment.justified => BlockAlignment.justified,
+      };
+
+  static BlockFont? _blockFont(bridge.BlockFont? font) => font == null
+      ? null
+      : BlockFont(
+          origin: _origin(font.origin),
+          postscriptName: font.postscriptName,
+        );
+
+  @override
+  Future<EditPreview> setBlockStyle(int transaction, BlockStyle style) async {
+    try {
+      return _preview(
+        await bridge.setBlockStyle(
+          transaction: BigInt.from(transaction),
+          style: bridge.BlockStyle(
+            font: switch (style.font) {
+              final font? => bridge.BlockFont(
+                origin: _bridgeOrigin(font.origin),
+                postscriptName: font.postscriptName,
+              ),
+              null => null,
+            },
+            size: style.size,
+            colour: style.colour,
+            alignment: switch (style.alignment) {
+              BlockAlignment.left => bridge.Alignment.left,
+              BlockAlignment.right => bridge.Alignment.right,
+              BlockAlignment.center => bridge.Alignment.center,
+              BlockAlignment.justified => bridge.Alignment.justified,
+              null => null,
+            },
+            charSpacing: style.charSpacing,
+            lineSpacing: style.lineSpacing,
+          ),
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> moveBlock(int transaction, Offset by) async {
+    try {
+      return _preview(
+        await bridge.moveBlock(
+          transaction: BigInt.from(transaction),
+          dx: by.dx,
+          dy: by.dy,
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<EditPreview> resizeBlock(int transaction, Rect frame) async {
+    try {
+      return _preview(
+        await bridge.resizeBlock(
+          transaction: BigInt.from(transaction),
+          frame: bridge.PageRect(
+            left: frame.left,
+            top: frame.top,
+            right: frame.right,
+            bottom: frame.bottom,
+          ),
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<BlockStyleInfo?> blockStyle(int document, int page, int block) async {
+    try {
+      final info = await bridge.blockStyle(
+        document: BigInt.from(document),
+        page: page,
+        block: BigInt.from(block),
+      );
+      if (info == null) return null;
+      return BlockStyleInfo(
+        font: info.font,
+        family: info.family,
+        bold: info.bold,
+        italic: info.italic,
+        boldToggle: _blockFont(info.boldToggle),
+        italicToggle: _blockFont(info.italicToggle),
+        size: info.size,
+        colour: info.colour,
+        documentColours: info.documentColours,
+        alignment: _alignment(info.alignment),
+        charSpacing: info.charSpacing,
+        lineSpacing: info.lineSpacing,
+        frame: Rect.fromLTRB(
+          info.frame.left,
+          info.frame.top,
+          info.frame.right,
+          info.frame.bottom,
+        ),
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<List<FontCandidate>> blockFonts(
+    int document,
+    int page,
+    int block,
+  ) async {
+    try {
+      final fonts = await bridge.blockFonts(
+        document: BigInt.from(document),
+        page: page,
+        block: BigInt.from(block),
+      );
+      return [for (final font in fonts) _candidate(font)];
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
 
   @override
   Future<RevisionInfo> rollbackEdit(int transaction) => _revision(
@@ -484,7 +843,48 @@ class FrbEngineService implements EngineService {
         current: info.current,
         // A render key is a 64-bit value: wrapped, not clamped.
         renderKey: info.renderKey?.toSigned(64).toInt(),
+        substitutions: [
+          for (final substitution in info.substitutions)
+            _substitution(substitution),
+        ],
       );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<Reverted> revert(
+    int document,
+    int step,
+    String name, {
+    bool withDependents = false,
+  }) async {
+    final dependents = <int>[];
+    var done = false;
+    final revision = await _revision(() async {
+      final result = await bridge.revert(
+        document: BigInt.from(document),
+        step: step,
+        withDependents: withDependents,
+        name: name,
+      );
+      dependents.addAll(result.dependents);
+      done = result.reverted;
+      return result.revision;
+    });
+    return Reverted(reverted: done, revision: revision, dependents: dependents);
+  }
+
+  @override
+  Future<RevisionInfo> revertAll(int document, String name) => _revision(
+    () => bridge.revertAll(document: BigInt.from(document), name: name),
+  );
+
+  @override
+  Future<String?> saveText(String path, String text, {String? staging}) async {
+    try {
+      return await bridge.saveText(path: path, text: text, staging: staging);
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -500,9 +900,19 @@ class FrbEngineService implements EngineService {
             HistoryStep(
               name: step.name,
               time: DateTime.fromMillisecondsSinceEpoch(step.time),
+              hiddenLines: step.hiddenLines,
+              substitutions: [
+                for (final substitution in step.substitutions)
+                  _substitution(substitution),
+              ],
+              page: step.page,
+              before: step.before,
+              after: step.after,
+              reverts: step.reverts.toList(),
             ),
         ],
         current: history.current,
+        signatureInvalidated: history.signatureInvalidated,
       );
     } on bridge.ApiError catch (error) {
       throw _exception(error);
@@ -510,18 +920,132 @@ class FrbEngineService implements EngineService {
   }
 
   @override
-  Future<void> save(int document) async {
+  Future<String?> save(
+    int document, {
+    bool overChange = false,
+    String? staging,
+  }) async {
     try {
-      await bridge.save(document: BigInt.from(document));
+      final id = BigInt.from(document);
+      return await (overChange
+          ? bridge.saveOverChange(document: id, staging: staging)
+          : bridge.save(document: id, staging: staging));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
   }
 
   @override
-  Future<void> saveAs(int document, String path) async {
+  Future<bool> finishSave(int document, {required bool swapped}) async {
     try {
-      await bridge.saveAs(document: BigInt.from(document), path: path);
+      return await bridge.finishSave(
+        document: BigInt.from(document),
+        swapped: swapped,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveAs(int document, String path, {String? staging}) async {
+    try {
+      return await bridge.saveAs(
+        document: BigInt.from(document),
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveCopy(int document, String path, {String? staging}) async {
+    try {
+      return await bridge.saveCopy(
+        document: BigInt.from(document),
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveRepairedCopy(
+    int document,
+    String path, {
+    bool replaceOriginal = false,
+    String? staging,
+  }) async {
+    try {
+      return await bridge.saveRepairedCopy(
+        document: BigInt.from(document),
+        path: path,
+        replaceOriginal: replaceOriginal,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> optimizeAndClean(int document, {String? staging}) async {
+    try {
+      return await bridge.optimizeAndClean(
+        document: BigInt.from(document),
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<bool> wouldBreakSignatures(int document) async {
+    try {
+      return await bridge.wouldBreakSignatures(document: BigInt.from(document));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<int> confirmEditSigned(int document) async {
+    try {
+      final token = await bridge.confirmEditSigned(
+        document: BigInt.from(document),
+      );
+      return token.toInt();
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<String?> saveUnsignedCopy(
+    int document,
+    String path, {
+    String? staging,
+  }) async {
+    try {
+      return await bridge.saveUnsignedCopy(
+        document: BigInt.from(document),
+        path: path,
+        staging: staging,
+      );
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<bool> checkExternalChange(int document) async {
+    try {
+      return await bridge.checkExternalChange(document: BigInt.from(document));
     } on bridge.ApiError catch (error) {
       throw _exception(error);
     }
@@ -531,7 +1055,7 @@ class FrbEngineService implements EngineService {
     blocks: [
       for (final block in blocks.blocks)
         TextBlock(
-          id: block.id.toInt(),
+          id: block.id.toSigned(64).toInt(),
           frame: _rect(block.frame),
           lines: [
             for (final line in block.lines)
@@ -545,18 +1069,14 @@ class FrbEngineService implements EngineService {
                 baselineEnd: Offset(line.baselineEnd.x, line.baselineEnd.y),
               ),
           ],
-          alignment: switch (block.alignment) {
-            bridge.Alignment.left => BlockAlignment.left,
-            bridge.Alignment.right => BlockAlignment.right,
-            bridge.Alignment.center => BlockAlignment.center,
-            bridge.Alignment.justified => BlockAlignment.justified,
-          },
+          alignment: _alignment(block.alignment),
           direction: switch (block.direction) {
             bridge.TextDirection.leftToRight => BlockDirection.leftToRight,
             bridge.TextDirection.rightToLeft => BlockDirection.rightToLeft,
             bridge.TextDirection.vertical => BlockDirection.vertical,
           },
           notEditable: _reason(block.notEditable),
+          language: block.language,
         ),
     ],
     empty: _reason(blocks.empty),
@@ -614,10 +1134,17 @@ class FrbEngineService implements EngineService {
       (await bridge.debugBytes(len: length)).length;
 }
 
+/// A block id as the engine's `u64`. Block ids are hashes using all 64 bits, so
+/// the app's `int` holds them with `toSigned(64)`; `toInt()` alone would clamp
+/// half of them to the same value.
+BigInt _wireBlockId(int block) => BigInt.from(block).toUnsigned(64);
+
 EngineException _exception(bridge.ApiError error) => EngineException(
   kind: _kind(error.kind),
   messageKey: error.messageKey,
   details: error.details,
+  offersSaveAs: error.offerSaveAs,
+  noRecoveryCopy: error.noRecoveryCopy,
 );
 
 /// Every error kind of the bridge by name, with the app's kind it maps to,
@@ -638,6 +1165,14 @@ EngineErrorKind _kind(bridge.ErrorKind kind) => switch (kind) {
   bridge.ErrorKind.resourceLimit => EngineErrorKind.resourceLimit,
   bridge.ErrorKind.io => EngineErrorKind.io,
   bridge.ErrorKind.notEditable => EngineErrorKind.notEditable,
+  bridge.ErrorKind.diskFull => EngineErrorKind.diskFull,
+  bridge.ErrorKind.fileLocked => EngineErrorKind.fileLocked,
+  bridge.ErrorKind.renameFailed => EngineErrorKind.renameFailed,
+  bridge.ErrorKind.volumeGone => EngineErrorKind.volumeGone,
+  bridge.ErrorKind.hardLinked => EngineErrorKind.hardLinked,
+  bridge.ErrorKind.notOwner => EngineErrorKind.notOwner,
+  bridge.ErrorKind.fileChangedOnDisk => EngineErrorKind.fileChangedOnDisk,
+  bridge.ErrorKind.confirmationRequired => EngineErrorKind.confirmationRequired,
   bridge.ErrorKind.internal => EngineErrorKind.internal,
 };
 
@@ -740,8 +1275,131 @@ String bundledEngineLibraryPath({String? executable, String? operatingSystem}) {
   };
 }
 
+/// The folder of the fonts the build bundles (`app/assets/fonts`, IBM
+/// Plex), as an absolute path next to the running executable: where
+/// Flutter puts the app's assets on each desktop system; null elsewhere.
+String? bundledFontsDirectory({String? executable, String? operatingSystem}) {
+  final os = operatingSystem ?? Platform.operatingSystem;
+  final separator = os == 'windows' ? r'\' : '/';
+  final exe = executable ?? Platform.resolvedExecutable;
+  final cut = exe.lastIndexOf(separator);
+  final dir = cut < 0 ? '.' : exe.substring(0, cut);
+  String join(List<String> parts) => [dir, ...parts].join(separator);
+  const assets = ['flutter_assets', 'assets', 'fonts'];
+  return switch (os) {
+    'linux' || 'windows' => join(['data', ...assets]),
+    'macos' => join([
+      '..',
+      'Frameworks',
+      'App.framework',
+      'Resources',
+      ...assets,
+    ]),
+    _ => null,
+  };
+}
+
 /// Starts the engine for this platform.
 Future<EngineService> startEngine() => FrbEngineService.start();
+
+/// The engine's document as the app's.
+OpenedDocument _opened(bridge.OpenedDocument document) => OpenedDocument(
+  id: document.id.toInt(),
+  readOnly: switch (document.readOnly) {
+    null => null,
+    bridge.ReadOnlyReason.repaired => ReadOnlyReason.repaired,
+    bridge.ReadOnlyReason.parsersDisagree => ReadOnlyReason.parsersDisagree,
+    bridge.ReadOnlyReason.xfaOnly => ReadOnlyReason.xfaOnly,
+  },
+  repairs: [
+    for (final fix in document.repairs)
+      RepairFix(
+        kind: switch (fix.kind) {
+          bridge.RepairKind.crossReferenceRebuilt =>
+            RepairKind.crossReferenceRebuilt,
+          bridge.RepairKind.trailerRebuilt => RepairKind.trailerRebuilt,
+          bridge.RepairKind.streamLengthsCorrected =>
+            RepairKind.streamLengthsCorrected,
+          bridge.RepairKind.objectsUnreadable => RepairKind.objectsUnreadable,
+        },
+        count: fix.count,
+      ),
+  ],
+  rightToLeft: document.rightToLeft,
+  pages: [
+    for (final page in document.pages)
+      PageInfo(width: page.width, height: page.height, label: page.label),
+  ],
+  outline: [
+    for (final item in document.outline)
+      OutlineEntry(
+        title: item.title,
+        page: item.page,
+        depth: item.depth,
+        open: item.open,
+      ),
+  ],
+  attachments: [
+    for (final file in document.attachments)
+      Attachment(
+        name: file.name,
+        size: file.size?.toInt(),
+        modified: _date(file.modified),
+      ),
+  ],
+  layers: [
+    for (final layer in document.layers)
+      Layer(name: layer.name, visible: layer.visible, locked: layer.locked),
+  ],
+  layersSwitchable: document.layersSwitchable,
+  signed: document.signed,
+  certification: document.certification,
+  signatures: [
+    for (final field in document.signatures)
+      Signature(
+        field: field.field,
+        signed: field.signed,
+        signer: field.signer,
+        signedAt: _date(field.signedAt),
+        page: field.page,
+      ),
+  ],
+  version: document.version,
+  fileSize: document.fileSize.toInt(),
+  info: DocumentInfo(
+    title: document.info.title,
+    author: document.info.author,
+    subject: document.info.subject,
+    keywords: document.info.keywords,
+    creator: document.info.creator,
+    producer: document.info.producer,
+    created: _date(document.info.created),
+    modified: _date(document.info.modified),
+  ),
+  language: document.language,
+  tagged: document.tagged,
+  linearized: document.linearized,
+  fonts: [
+    for (final font in document.fonts)
+      FontEntry(
+        name: font.name,
+        kind: switch (font.kind) {
+          bridge.FontType.type1 => FontType.type1,
+          bridge.FontType.multipleMaster => FontType.multipleMaster,
+          bridge.FontType.trueType => FontType.trueType,
+          bridge.FontType.type0 => FontType.type0,
+          bridge.FontType.type3 => FontType.type3,
+          bridge.FontType.other => FontType.other,
+        },
+        embedded: font.embedded,
+        subset: font.subset,
+      ),
+  ],
+  security: _security(document.security),
+  scripts: document.scripts,
+  formFields: document.formFields,
+  scanned: document.scanned,
+);
 
 Security? _security(bridge.Security? security) => switch (security) {
   null => null,

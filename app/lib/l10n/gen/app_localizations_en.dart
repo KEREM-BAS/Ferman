@@ -584,6 +584,17 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingStartUsing => 'Start using Ferman';
 
   @override
+  String get onboardingEditTitle => 'Edit any PDF like a document';
+
+  @override
+  String get onboardingEditBody =>
+      'Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame.';
+
+  @override
+  String get onboardingEditGlyphs =>
+      'When a font is missing a character, Ferman tells you which one and what it will use instead.';
+
+  @override
   String get onboardingPrivacyTitle => 'Everything stays on your device';
 
   @override
@@ -667,7 +678,7 @@ class AppLocalizationsEn extends AppLocalizations {
   String get onboardingFreeSupport => 'Support the project';
 
   @override
-  String get onboardingFeatureEditing => 'Edit text and images';
+  String get onboardingFeatureEditing => 'Edit text';
 
   @override
   String get onboardingFeatureOcr => 'Text recognition (OCR)';
@@ -1519,6 +1530,9 @@ class AppLocalizationsEn extends AppLocalizations {
   }
 
   @override
+  String get startBadgeEdited => 'Edited';
+
+  @override
   String get startBadgeSigned => 'Signed';
 
   @override
@@ -1897,10 +1911,25 @@ class AppLocalizationsEn extends AppLocalizations {
       'Subset: only characters already in the file.';
 
   @override
+  String propertiesPartialMissing(String letters) {
+    return 'No $letters.';
+  }
+
+  @override
   String get propertiesSubset => 'Subset';
 
   @override
   String get propertiesSubsetNote => 'Only the characters already used.';
+
+  @override
+  String propertiesSubsetMissing(String letters) {
+    return 'Typing $letters needs a substitute.';
+  }
+
+  @override
+  String propertiesShownInstead(String font) {
+    return 'Ferman is showing $font instead.';
+  }
 
   @override
   String get propertiesNotEmbedded => 'Not embedded';
@@ -2098,6 +2127,948 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get editNothingToRedo => 'Nothing to redo';
+
+  @override
+  String get editOverflowTitle => 'Text doesn’t fit';
+
+  @override
+  String editOverflowBody(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The edited paragraph needs $n more lines than its frame.',
+      one: 'The edited paragraph needs $n more line than its frame.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowExtend(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Extend block by $n lines',
+      one: 'Extend block by $n line',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowTighten(String percent) {
+    return 'Tighten spacing slightly (−$percent)';
+  }
+
+  @override
+  String get editOverflowKeep => 'Keep and warn';
+
+  @override
+  String editOverflowExtendLabelBelow(String label) {
+    return 'The $label line sits right below this block.';
+  }
+
+  @override
+  String editOverflowExtendBelow(String text) {
+    return 'The line “$text” sits right below this block.';
+  }
+
+  @override
+  String get editOverflowExtendPageEdge =>
+      'Extending the block would run it past the page’s edge.';
+
+  @override
+  String editOverflowTightenShort(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Even the tightest allowed spacing leaves $n lines over.',
+      one: 'Even the tightest allowed spacing leaves $n line over.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String editOverflowHidden(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '+$n lines hidden',
+      one: '+$n line hidden',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editTotalsTitle => 'Totals don’t update';
+
+  @override
+  String get editTotalsBody =>
+      'A PDF stores numbers as text. The marked cells still show the old amounts.';
+
+  @override
+  String editTotalsReview(int count, String n) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Review the $n marked cells',
+      one: 'Review the marked cell',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editBadgeEdited => 'Edited';
+
+  @override
+  String get editGlyphTitle => 'Missing character';
+
+  @override
+  String editGlyphBody(String chars) {
+    return 'This font has no $chars. Ferman will use a similar font for this character.';
+  }
+
+  @override
+  String editGlyphBodyMany(String chars) {
+    return 'This font has no $chars. Ferman will use a similar font for these characters.';
+  }
+
+  @override
+  String editGlyphMarkedBody(String chars) {
+    return 'This font has no $chars. Ferman keeps the original font and marks what’s missing.';
+  }
+
+  @override
+  String get editGlyphChoose => 'Choose a font…';
+
+  @override
+  String get editGlyphKeep => 'Keep as is';
+
+  @override
+  String get editGlyphNoneTitle => 'No font has this character';
+
+  @override
+  String editGlyphNoneBody(String chars) {
+    return 'Neither this font nor any font on this computer has $chars. Choose a font that has it, or keep the character as is.';
+  }
+
+  @override
+  String get editGlyphLicenceTitle => 'This font can’t be embedded';
+
+  @override
+  String editGlyphLicenceBody(String font, String chars) {
+    return '$font is installed, but its licence allows only preview and print. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String editGlyphLicenceBodyRestricted(String font, String chars) {
+    return '$font is installed, but its licence doesn’t allow embedding it. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String editGlyphOwnFontBody(String font, String chars) {
+    return 'The licence of $font in this document allows only preview and print, so Ferman doesn’t reuse its glyphs. Ferman will use a similar font for $chars instead.';
+  }
+
+  @override
+  String get editGlyphAddedTitle => 'Character added from this computer';
+
+  @override
+  String editGlyphAddedBody(String chars, String font) {
+    return 'Ferman took $chars from $font installed on this computer and added it to the document’s font.';
+  }
+
+  @override
+  String get fontPickerTitle => 'Choose a font for this block';
+
+  @override
+  String get fontPickerClose => 'Close';
+
+  @override
+  String get fontPickerScope => 'Replace';
+
+  @override
+  String get fontPickerScopeMissing => 'Missing characters only';
+
+  @override
+  String get fontPickerScopeBlock => 'Whole block';
+
+  @override
+  String get fontPickerSearch => 'Search fonts';
+
+  @override
+  String get fontPickerEmbedded => 'Embedded in this document';
+
+  @override
+  String get fontPickerInstalled => 'Installed on this computer';
+
+  @override
+  String get fontPickerBundled => 'Similar fonts included with Ferman';
+
+  @override
+  String get fontPickerClosest => 'Closest match';
+
+  @override
+  String fontPickerHas(String chars) {
+    return 'Has $chars';
+  }
+
+  @override
+  String fontPickerHasNone(String chars) {
+    return 'No $chars';
+  }
+
+  @override
+  String fontPickerHasSome(String covered, String needed) {
+    return '$covered of $needed characters';
+  }
+
+  @override
+  String get fontPickerNotEmbeddable => 'Can’t be embedded';
+
+  @override
+  String fontPickerNoMatch(String query) {
+    return 'No font matches “$query”.';
+  }
+
+  @override
+  String get fontPickerCancel => 'Cancel';
+
+  @override
+  String fontPickerUse(String font) {
+    return 'Use $font';
+  }
+
+  @override
+  String get editFontSubstituted => 'Font substituted';
+
+  @override
+  String editFontSubstitutedBody(String font, String chars) {
+    return 'This block uses $font for $chars.';
+  }
+
+  @override
+  String get editFontSubstitutedDismiss => 'Dismiss';
+
+  @override
+  String get saveAsTitle => 'Save as';
+
+  @override
+  String get saveAsName => 'File name';
+
+  @override
+  String get saveAsNameEmpty => 'Enter a file name.';
+
+  @override
+  String get saveAsNameInvalid => 'A file name can’t contain / or \\.';
+
+  @override
+  String get saveAsNameTaken =>
+      'A file with this name is already there. Choose another name, or use Other location…';
+
+  @override
+  String get saveAsWhere => 'Where';
+
+  @override
+  String get saveAsOtherLocation => 'Other location…';
+
+  @override
+  String get saveAsFormat => 'Format';
+
+  @override
+  String get saveAsPdf => 'PDF';
+
+  @override
+  String get saveAsPdfDescription =>
+      'Standard PDF. Keeps text editable in Ferman and other editors.';
+
+  @override
+  String get saveAsPdfA => 'PDF/A-2b, for archiving';
+
+  @override
+  String get saveAsWeb => 'Optimized for web';
+
+  @override
+  String get saveAsCopy => 'Save as a copy';
+
+  @override
+  String saveAsCopyDescription(String name, String folder) {
+    return '“$name” stays open and unchanged; the copy is saved in $folder.';
+  }
+
+  @override
+  String get saveAsComments => 'Include comments and markup';
+
+  @override
+  String get saveAsHistory => 'Remove edit history from the file';
+
+  @override
+  String get saveAsCancel => 'Cancel';
+
+  @override
+  String get saveAsClose => 'Close';
+
+  @override
+  String saveFailedTitle(String name) {
+    return 'Couldn’t save “$name”';
+  }
+
+  @override
+  String get saveFailedDiskFull =>
+      'The disk is full. Free some space or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedPermission =>
+      'You don’t have permission to change this file or its folder. Save it somewhere else, or ask the owner for access. Your edits are kept.';
+
+  @override
+  String get saveFailedLocked =>
+      'Another app has the file open and locked. Close it there and try again, or save a copy somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedRename =>
+      'Ferman wrote your changes to a temporary file but couldn’t put it in place of the original. The original is unchanged and your edits are kept.';
+
+  @override
+  String get saveFailedVolume =>
+      'The drive with this file is no longer connected. Reconnect it and try again, or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedHardLinked =>
+      'This file has other links to it, which replacing it would break. Save it somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedNotOwner =>
+      'This file belongs to someone else, and Ferman couldn’t keep its owner. Save it somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedOther =>
+      'Ferman couldn’t write the file. Try again, or save somewhere else. Your edits are kept.';
+
+  @override
+  String get saveFailedNoRecoveryCopy =>
+      'No recovery copy exists: Ferman couldn’t write one either, so until you save, these edits are only in this window.';
+
+  @override
+  String get saveTryAgain => 'Try again';
+
+  @override
+  String get saveSomewhereElse => 'Save somewhere else…';
+
+  @override
+  String get saveAsEllipsis => 'Save as…';
+
+  @override
+  String get saveToastDiskFull =>
+      'The disk is full. Free some space or save somewhere else.';
+
+  @override
+  String get saveToastOther =>
+      'Your edits are kept. Try again, or save somewhere else.';
+
+  @override
+  String get saveToastDismiss => 'Dismiss';
+
+  @override
+  String fileChangedTitle(String name) {
+    return '“$name” changed on disk.';
+  }
+
+  @override
+  String get fileChangedBody =>
+      'Another app or a sync service changed it while it was open. Reload it, keep your version, or compare first.';
+
+  @override
+  String get fileChangedCompare => 'Compare';
+
+  @override
+  String get fileChangedKeepMine => 'Keep mine';
+
+  @override
+  String get fileChangedReload => 'Reload';
+
+  @override
+  String optimizeTitle(String name) {
+    return 'Optimize and clean “$name”?';
+  }
+
+  @override
+  String get optimizeSignedBody =>
+      'Ferman rewrites the whole file without its earlier versions. Its signatures will no longer be valid.';
+
+  @override
+  String get optimizeAction => 'Optimize and clean';
+
+  @override
+  String get saveAsNameInvalidWindows =>
+      'A file name can’t contain any of these: / \\ : * ? \" < > |';
+
+  @override
+  String get saveAsNameOpen =>
+      'This file is open in another tab. Close it there, or choose another name.';
+
+  @override
+  String saveAsCopyDescriptionHere(String name) {
+    return '“$name” stays open and unchanged; the copy is saved alongside it.';
+  }
+
+  @override
+  String readOnlyFileTitle(String name) {
+    return '“$name” is read-only.';
+  }
+
+  @override
+  String get readOnlyFileBody =>
+      'Ferman can’t save changes to this file. To keep your changes, save a copy.';
+
+  @override
+  String get readOnlyFileSaveCopy => 'Save a copy…';
+
+  @override
+  String closeUnsavedTitle(String name) {
+    return 'Save changes to “$name”?';
+  }
+
+  @override
+  String closeUnsavedBody(String edits) {
+    return 'If you don’t save, your $edits from this session will be lost.';
+  }
+
+  @override
+  String closingEdits(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted edits',
+      one: '1 edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get closeUnsavedSave => 'Save';
+
+  @override
+  String get closeUnsavedDiscard => 'Don’t save';
+
+  @override
+  String quitReviewTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted documents',
+    );
+    return 'Save changes to $_temp0 before quitting?';
+  }
+
+  @override
+  String get quitReviewBody =>
+      'Ferman saves the checked documents, then quits. Changes to unchecked documents are lost.';
+
+  @override
+  String get quitReviewSave => 'Save and quit';
+
+  @override
+  String get quitReviewDiscard => 'Quit without saving';
+
+  @override
+  String recoveryTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted documents',
+      one: '1 document',
+    );
+    return 'Ferman restored $_temp0';
+  }
+
+  @override
+  String get recoveryBody =>
+      'Ferman closed unexpectedly. These documents had unsaved changes, and Ferman had kept a copy of each on this device.';
+
+  @override
+  String get recoveryNote =>
+      'Restored documents open as unsaved; the files on disk haven’t changed. Nothing was sent anywhere.';
+
+  @override
+  String get recoveryDiscard => 'Discard';
+
+  @override
+  String recoveryOpen(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Open $formatted documents',
+      one: 'Open 1 document',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get recoveryChangedBadge => 'Changed on disk';
+
+  @override
+  String get recoveryChangedBody =>
+      'The file on disk changed after Ferman’s copy. The restored version opens under a new name, so neither is overwritten.';
+
+  @override
+  String get recoveryFileSuffix => 'recovered';
+
+  @override
+  String get signedTitle => 'Edit a signed document?';
+
+  @override
+  String signedBodyBy(String name, String signer, String date) {
+    return '“$name” has 1 signature, by $signer on $date. Any change to the document makes that signature invalid.';
+  }
+
+  @override
+  String signedBody(String name, int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '“$name” has $formatted signatures. Any change to the document makes those signatures invalid.',
+      one:
+          '“$name” has 1 signature. Any change to the document makes that signature invalid.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get signedEditCopy => 'Edit a copy';
+
+  @override
+  String get signedEditAnyway => 'Edit anyway';
+
+  @override
+  String signedCopyHint(String name) {
+    return 'The copy opens in a new tab as “$name”. The signed original stays as it is.';
+  }
+
+  @override
+  String signedCopyName(String stem) {
+    return '$stem (copy)';
+  }
+
+  @override
+  String signedCopyNameNumbered(String stem, int number) {
+    final intl.NumberFormat numberNumberFormat =
+        intl.NumberFormat.decimalPattern(localeName);
+    final String numberString = numberNumberFormat.format(number);
+
+    return '$stem (copy $numberString)';
+  }
+
+  @override
+  String signedBannerTitle(int count) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'The signatures in this document are no longer valid.',
+      one: 'The signature in this document is no longer valid.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String signedBannerBodyBy(String signer) {
+    return 'You changed the document after $signer signed it. Saving keeps the signature, but it will show as invalid.';
+  }
+
+  @override
+  String get signedBannerBody =>
+      'You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid.';
+
+  @override
+  String get signedBannerReview => 'Review edits';
+
+  @override
+  String signedReviewRow(String signer) {
+    return '$signer’s signature is no longer valid';
+  }
+
+  @override
+  String get signedReviewRowOther => 'The signatures are no longer valid';
+
+  @override
+  String get settingsEditMarks => 'Mark edited text';
+
+  @override
+  String get settingsEditMarksNote =>
+      'Shown only in Ferman while you edit. Never saved into the file or printed.';
+
+  @override
+  String get settingsMissingGlyphs => 'When a font is missing a character';
+
+  @override
+  String get settingsMissingGlyphsSimilar => 'Use a similar font and say so';
+
+  @override
+  String get settingsMissingGlyphsAsk => 'Ask each time';
+
+  @override
+  String get settingsMissingGlyphsMark =>
+      'Keep the original font and mark the character';
+
+  @override
+  String get settingsFontForNewText => 'Font for new text';
+
+  @override
+  String get settingsFontForNewTextMatch => 'Match surrounding text';
+
+  @override
+  String get settingsKeepVersions => 'Keep versions';
+
+  @override
+  String get settingsKeepVersions30 => '30 days, next to the file';
+
+  @override
+  String get settingsReflow =>
+      'Let paragraphs reflow inside their frame while typing';
+
+  @override
+  String get settingsRecoveryCopies => 'Save a recovery copy every minute';
+
+  @override
+  String get settingsSaving => 'Saving';
+
+  @override
+  String get settingsSavingEnd => 'Changes are added to the end of the file';
+
+  @override
+  String get settingsSavingEndBody =>
+      'Saving stays fast, and signatures made before your changes stay intact. Ferman rewrites the whole file only when you choose Optimize and clean.';
+
+  @override
+  String get settingsOptimize => 'Optimize and clean';
+
+  @override
+  String get settingsOptimizeBody =>
+      'Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid.';
+
+  @override
+  String get settingsRecoveryFolder => 'Recovery copies';
+
+  @override
+  String shellZoomTypeHint(String min, String max) {
+    return 'Type a zoom from $min to $max';
+  }
+
+  @override
+  String get shellEditForbidden => 'The author doesn’t allow editing';
+
+  @override
+  String get editPanelTipClick =>
+      'Click any text to select its block. Click again to place the caret.';
+
+  @override
+  String editPanelTipKeys(String key) {
+    return 'Tab moves between blocks; Enter starts editing. Hold $key to show every block.';
+  }
+
+  @override
+  String get editPanelInSession => 'in this session';
+
+  @override
+  String get editPanelReview => 'Review';
+
+  @override
+  String get languageNameGerman => 'German';
+
+  @override
+  String get languageNameJapanese => 'Japanese';
+
+  @override
+  String languageWithRegion(String language, String region) {
+    return '$language ($region)';
+  }
+
+  @override
+  String get editLanguage => 'Language';
+
+  @override
+  String get editCheckSpelling => 'Check spelling';
+
+  @override
+  String get editHyphenate => 'Hyphenate';
+
+  @override
+  String editStepLanguage(String page) {
+    return 'Changed language · page $page';
+  }
+
+  @override
+  String get reviewClose => 'Close review';
+
+  @override
+  String get reviewShow => 'Show';
+
+  @override
+  String get reviewFilterAll => 'All';
+
+  @override
+  String get reviewFilterText => 'Text';
+
+  @override
+  String get reviewFilterFonts => 'Fonts';
+
+  @override
+  String get reviewFilterWarnings => 'Warnings';
+
+  @override
+  String get reviewEmptyTitle => 'No edits yet';
+
+  @override
+  String get reviewEmptyBody =>
+      'Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history.';
+
+  @override
+  String get reviewNothing => 'No edits yet';
+
+  @override
+  String get reviewRevertAll => 'Revert all…';
+
+  @override
+  String get reviewExportList => 'Export list…';
+
+  @override
+  String get reviewGoTo => 'Go to';
+
+  @override
+  String get reviewRevert => 'Revert';
+
+  @override
+  String get reviewStepReverted => 'Reverted an edit';
+
+  @override
+  String get reviewStepRevertedAll => 'Reverted all edits';
+
+  @override
+  String get reviewWhereSignature => 'Signature';
+
+  @override
+  String reviewWhereSignaturePage(String page) {
+    return 'Page $page · signature';
+  }
+
+  @override
+  String reviewWhereText(String page) {
+    return 'Page $page · text';
+  }
+
+  @override
+  String reviewWhereFont(String page) {
+    return 'Page $page · font';
+  }
+
+  @override
+  String reviewWhereWarning(String page) {
+    return 'Page $page · kept warning';
+  }
+
+  @override
+  String reviewExportName(String name) {
+    return '$name edits';
+  }
+
+  @override
+  String get reviewExportFailed => 'The list couldn’t be saved.';
+
+  @override
+  String reviewRevertAllBody(String name) {
+    return '“$name” goes back to how it was when you opened it. Undo brings the edits back until you close the document.';
+  }
+
+  @override
+  String reviewDependentBody(String later, String change) {
+    return '“$later” was typed into the sentence after this change. Reverting “$change” removes it too.';
+  }
+
+  @override
+  String reviewDependentsBody(int count, String shown, String change) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other:
+          '$shown later edits build on this change. Reverting “$change” removes them too.',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewKeptWarning(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$shown lines hidden — overflow kept',
+      one: '$shown line hidden — overflow kept',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert all $shown edits?',
+      one: 'Revert the edit?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewRevertAllButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert $shown edits',
+      one: 'Revert $shown edit',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentTitle(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Also revert the $shown edits that depend on it?',
+      one: 'Also revert the edit that depends on it?',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String reviewDependentButton(int count, String shown) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'Revert all $shown',
+      one: 'Revert both',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get editPanelTitle => 'Text block';
+
+  @override
+  String get editPanelText => 'Text';
+
+  @override
+  String get editPanelSize => 'Size';
+
+  @override
+  String get editPanelColour => 'Text color';
+
+  @override
+  String get editPanelColoursDocument => 'In this document';
+
+  @override
+  String get editPanelColoursStandard => 'Standard';
+
+  @override
+  String get editPanelFontsDocument => 'In this document';
+
+  @override
+  String get editPanelFontsDevice => 'On this device';
+
+  @override
+  String get editPanelBold => 'Bold';
+
+  @override
+  String get editPanelItalic => 'Italic';
+
+  @override
+  String get editPanelUnderline => 'Underline';
+
+  @override
+  String get editPanelNoBold =>
+      'This font has no other weight on this computer that can draw this text.';
+
+  @override
+  String get editPanelNoItalic =>
+      'This font has no italic on this computer that can draw this text.';
+
+  @override
+  String get editPanelNoUnderline =>
+      'A PDF font has no underline to switch to, and Ferman does not draw a false one.';
+
+  @override
+  String get editPanelAlignment => 'Alignment';
+
+  @override
+  String get editPanelAlignLeft => 'Align left';
+
+  @override
+  String get editPanelAlignCenter => 'Center';
+
+  @override
+  String get editPanelAlignRight => 'Align right';
+
+  @override
+  String get editPanelAlignJustify => 'Justify';
+
+  @override
+  String get editPanelSpacing => 'Spacing';
+
+  @override
+  String get editPanelCharacter => 'Character';
+
+  @override
+  String get editPanelLine => 'Line';
+
+  @override
+  String get editPanelBefore => 'Before';
+
+  @override
+  String get editPanelAfter => 'After';
+
+  @override
+  String get editPanelPosition => 'Position and size';
+
+  @override
+  String get editPanelWidth => 'Width';
+
+  @override
+  String get editPanelHeight => 'Height';
+
+  @override
+  String get editPanelReset => 'Reset text style';
+
+  @override
+  String get editPanelHint =>
+      'Text reflows inside the frame. Drag a handle to resize it.';
+
+  @override
+  String get editBarLabel => 'Format selection';
+
+  @override
+  String get editBarLink => 'Add link';
+
+  @override
+  String get editBarHighlight => 'Highlight (adds a comment)';
+
+  @override
+  String get editBarComment => 'Comment on selection';
+
+  @override
+  String get editBarReplace => 'Find and replace these words';
+
+  @override
+  String editStepStyle(String page) {
+    return 'Changed text style · page $page';
+  }
+
+  @override
+  String editStepMoved(String page) {
+    return 'Moved text block · page $page';
+  }
+
+  @override
+  String editStepResized(String page) {
+    return 'Resized text block · page $page';
+  }
 
   @override
   String get phoneSections => 'Sections';

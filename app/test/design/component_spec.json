@@ -1828,6 +1828,24 @@
           "default": null,
           "notes": "Called with the activated item of menu.",
           "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "onTyped",
+          "type": "ValueChanged<String>?",
+          "required": false,
+          "default": null,
+          "notes": "Makes the box take typing (a2-2's zoom field): a digit key turns it into a text field; called with the text when it finishes.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "typingHint",
+          "type": "String?",
+          "required": false,
+          "default": null,
+          "notes": "What a screen reader says the box takes while onTyped is set.",
+          "declared": false
         }
       ],
       "itemTypes": [
@@ -3597,6 +3615,15 @@
           "required": true,
           "default": null,
           "notes": "The localized name of a mode, shown on its tab, from the ARB files; FermanMode carries no label.",
+          "declared": false
+        },
+        {
+          "ds": null,
+          "dart": "disabledReasons",
+          "type": "Map<FermanMode, String>",
+          "required": false,
+          "default": "{}",
+          "notes": "The modes that cannot be chosen, with why (a2-10a, G27): a tooltip on the tab, skipped by the arrow keys.",
           "declared": false
         }
       ],

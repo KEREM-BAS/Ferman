@@ -1,4 +1,5 @@
 import 'package:ferman/app/app.dart';
+import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/engine/fake_engine_service.dart';
@@ -31,7 +32,8 @@ const Size boardSize = Size(1440, 900);
 /// are [openRequests]: fakes by default that open nothing. The recent files
 /// start as [recentFiles], kept in memory, and [fileAccess] makes their
 /// bookmarks (none by default); [home] is the directory shown as "~";
-/// [defaultApp] answers which app opens PDF files (nothing by default).
+/// [defaultApp] answers which app opens PDF files (nothing by default);
+/// [window] replaces the window without a title bar.
 Future<MemorySettingsStore> pumpFermanApp(
   WidgetTester tester, {
   AppSettings settings = const AppSettings(onboardingCompleted: true),
@@ -45,6 +47,7 @@ Future<MemorySettingsStore> pumpFermanApp(
   FileAccess fileAccess = const NoFileAccess(),
   String? home,
   DefaultPdfApp defaultApp = const NoDefaultPdfApp(),
+  DesktopWindow? window,
 }) async {
   tester.view
     ..physicalSize = size
@@ -67,6 +70,7 @@ Future<MemorySettingsStore> pumpFermanApp(
         fileAccessProvider.overrideWithValue(fileAccess),
         homeDirectoryProvider.overrideWithValue(home),
         defaultPdfAppProvider.overrideWithValue(defaultApp),
+        if (window != null) desktopWindowProvider.overrideWithValue(window),
         recentFilesStoreProvider.overrideWithValue(
           MemoryRecentFilesStore(recentFiles),
         ),

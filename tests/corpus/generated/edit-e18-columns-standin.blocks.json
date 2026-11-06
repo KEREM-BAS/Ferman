@@ -1,0 +1,22 @@
+{"pages": [
+  {"empty": null, "blocks": [
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Apartman kurulu, asansör bakımının Kasım", "start": [72.00, 750.56], "end": [283.74, 750.56], "size": 11.00, "vertical": false},
+      {"text": "ayında yapılmasına karar verdi. Bakım", "start": [72.00, 734.06], "end": [258.63, 734.06], "size": 11.00, "vertical": false},
+      {"text": "süresince asansör kullanılamayacaktır.", "start": [72.00, 717.56], "end": [263.16, 717.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 0, "cell": null, "lines": [
+      {"text": "Bakım bedeli aidatlardan karşılanır ve kat", "start": [72.00, 687.06], "end": [275.61, 687.06], "size": 11.00, "vertical": false},
+      {"text": "maliklerinden ayrıca ücret alınmaz.", "start": [72.00, 670.56], "end": [244.25, 670.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Çatı onarımı için üç firmadan teklif alındı.", "start": [309.64, 750.56], "end": [510.33, 750.56], "size": 11.00, "vertical": false},
+      {"text": "Teklifler yönetim odasında incelenebilir ve", "start": [309.64, 734.06], "end": [517.94, 734.06], "size": 11.00, "vertical": false},
+      {"text": "toplantıda oylanacaktır.", "start": [309.64, 717.56], "end": [426.09, 717.56], "size": 11.00, "vertical": false}
+    ]},
+    {"align": "left", "justify": null, "column": 1, "cell": null, "lines": [
+      {"text": "Bir sonraki toplantı 14 Aralık 2026", "start": [309.64, 687.06], "end": [479.04, 687.06], "size": 11.00, "vertical": false},
+      {"text": "Pazartesi günü saat 19.00 da yapılacaktır.", "start": [309.64, 670.56], "end": [515.55, 670.56], "size": 11.00, "vertical": false}
+    ]}
+  ]}
+]}

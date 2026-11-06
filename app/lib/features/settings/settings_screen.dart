@@ -6,6 +6,7 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/features/phone/fm_phone.dart';
+import 'package:ferman/features/settings/editing_pane.dart';
 import 'package:ferman/features/settings/general_pane.dart';
 import 'package:ferman/features/settings/language_region_pane.dart';
 import 'package:ferman/features/settings/phone_settings.dart';
@@ -36,8 +37,8 @@ import 'package:go_router/go_router.dart';
 /// (Ctrl+W on Windows and Linux, the shortcut table's
 /// `ShellCommand.closeDocument`) close it too, back to the screen below.
 ///
-/// Built panes: General, Language and region, Privacy (a skeleton). The
-/// others are listed and disabled with "Available in a future version"
+/// Built panes: General, Language and region, Editing, Privacy (a skeleton).
+/// The others are listed and disabled with "Available in a future version"
 /// (G10), as is the settings search ("Search filters every pane"), each
 /// through its feature in the feature registry ([Feature]).
 ///
@@ -357,6 +358,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
 
   Widget _paneBody(SettingsPane pane) => switch (pane) {
     SettingsPane.language => const LanguageRegionPane(),
+    SettingsPane.editing => const EditingPane(),
     SettingsPane.privacy => const PrivacyPane(),
     _ => const GeneralPane(),
   };

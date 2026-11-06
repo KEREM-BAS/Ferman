@@ -27,13 +27,14 @@ use std::ops::Range;
 use lopdf::{Dictionary, Object, ObjectId, Stream};
 
 use crate::interpret::{Span, SpanSource, TextSink};
+use crate::limits::LimitKind;
 use crate::structure::{Scope, inherited};
 use crate::{CoreError, Document, WriteError, appendix, content, filters};
 
 /// The objects one commit replaces or adds, by object id.
 #[derive(Debug, Clone, Default, PartialEq)]
 pub struct ChangeSet {
-    objects: BTreeMap<ObjectId, Object>,
+    pub(crate) objects: BTreeMap<ObjectId, Object>,
 }
 
 impl ChangeSet {
@@ -52,6 +53,15 @@ impl ChangeSet {
     #[must_use]
     pub fn is_empty(&self) -> bool {
         self.objects.is_empty()
+    }
+
+    /// Whether it changes streams only: no page dictionary, so no resource a later edit of the
+    /// page could use.
+    #[must_use]
+    pub fn streams_only(&self) -> bool {
+        self.objects
+            .values()
+            .all(|object| matches!(object, Object::Stream(_)))
     }
 }
 
@@ -77,6 +87,82 @@ pub struct Placement {
     pub draw: Span,
 }
 
+/// A copy of a composite font of a page for the new codes of an edit (ROADMAP §7 step 4): new
+/// Type0 and CIDFont dictionaries with the original's keys, its descriptor and program shared, a
+/// `/W` with more widths and a new ToUnicode CMap. The original dictionaries stay as they are.
+#[derive(Debug, Clone, PartialEq)]
+pub struct FontCopy {
+    /// The name the page's `/Font` resources give the font copied.
+    pub base: Vec<u8>,
+    /// The copy's name there, which no font of the page uses
+    /// ([`RevisionStore::free_font_name`]).
+    pub name: Vec<u8>,
+    /// CIDs the descendant's `/W` lacks, with their widths in thousandths of an em.
+    pub widths: Vec<(u32, f32)>,
+    /// The copy's ToUnicode CMap.
+    pub to_unicode: Vec<u8>,
+}
+
+/// A copy of a simple font of a page with codes added through `/Differences` (missing-glyph step
+/// 1, ADR 0006): a new font dictionary with the original's keys, its descriptor and program
+/// shared, an `/Encoding` dictionary whose `/Differences` name the new codes' glyphs, `/Widths`
+/// with their widths and, when the original has one, a new ToUnicode CMap. The original
+/// dictionary stays as it is.
+#[derive(Debug, Clone, PartialEq)]
+pub struct SimpleFontCopy {
+    /// The name the page's `/Font` resources give the font copied.
+    pub base: Vec<u8>,
+    /// The copy's name there ([`RevisionStore::free_font_name`]).
+    pub name: Vec<u8>,
+    /// The new codes, each with its glyph name and its width in thousandths of an em.
+    pub codes: Vec<(u8, String, f32)>,
+    /// The copy's ToUnicode CMap, for an original with one.
+    pub to_unicode: Option<Vec<u8>>,
+}
+
+/// The program of an [`EmbeddedFont`].
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum EmbeddedProgram {
+    /// A TrueType program: `/FontFile2` of a `CIDFontType2` font, `/CIDToGIDMap /Identity`.
+    TrueType(Vec<u8>),
+    /// A bare CID-keyed CFF program: `/FontFile3` (`/CIDFontType0C`) of a `CIDFontType0` font.
+    Cff(Vec<u8>),
+}
+
+/// A new font for an edit's substituted glyphs (missing-glyph steps 2 and 3, ADR 0006): a Type0
+/// font with `Identity-H` over a CIDFont whose CIDs are the subset's glyph ids, its descriptor,
+/// its program and a ToUnicode CMap, all new objects.
+#[derive(Debug, Clone, PartialEq)]
+pub struct EmbeddedFont {
+    /// Its name in the page's `/Font` resources, which no font of the page uses.
+    pub name: Vec<u8>,
+    /// `/BaseFont` and `/FontName`: the subset's `ABCDEF+Name`.
+    pub base_font: String,
+    /// The subset program.
+    pub program: EmbeddedProgram,
+    /// The CIDs and their widths in thousandths of an em, for `/W`.
+    pub widths: Vec<(u32, f32)>,
+    /// The ToUnicode CMap.
+    pub to_unicode: Vec<u8>,
+    /// The descriptor's `/Ascent`, `/Descent`, `/CapHeight` and `/FontBBox`, in thousandths of
+    /// an em.
+    pub ascent: f32,
+    /// `/Descent`.
+    pub descent: f32,
+    /// `/CapHeight`.
+    pub cap_height: f32,
+    /// `/XHeight`, when the font says.
+    pub x_height: Option<f32>,
+    /// `/FontBBox`.
+    pub bbox: [f32; 4],
+    /// `/ItalicAngle`.
+    pub italic_angle: f32,
+    /// `/Flags`.
+    pub flags: u32,
+    /// `/StemV`.
+    pub stem_v: f32,
+}
+
 /// The revisions of one opened document. It belongs to that document: every method takes the
 /// [`Document`] it was made for.
 #[derive(Debug, Clone, Default)]
@@ -87,6 +173,9 @@ pub struct RevisionStore {
     current: usize,
     /// The open transaction.
     open: Option<ChangeSet>,
+    /// The decoded size of each stream the open transaction keeps, for
+    /// [`Limits::max_revision_decoded`](crate::limits::Limits::max_revision_decoded).
+    open_decoded: BTreeMap<ObjectId, u64>,
     /// The first number past the document's objects.
     base_size: u32,
 }
@@ -117,6 +206,7 @@ impl RevisionStore {
             return Err(CoreError::Write(WriteError::TransactionOpen));
         }
         self.open = Some(ChangeSet::default());
+        self.open_decoded.clear();
         Ok(())
     }
 
@@ -137,6 +227,7 @@ impl RevisionStore {
             .open
             .take()
             .ok_or(CoreError::Write(WriteError::NoTransaction))?;
+        self.open_decoded.clear();
         if !changes.is_empty() {
             self.revisions.truncate(self.current);
             self.revisions.push(changes);
@@ -148,6 +239,7 @@ impl RevisionStore {
     /// Discards the open transaction, if any.
     pub fn rollback(&mut self) {
         self.open = None;
+        self.open_decoded.clear();
     }
 
     /// Steps back one revision; returns the current one.
@@ -176,6 +268,134 @@ impl RevisionStore {
         }
         self.current = self.current.saturating_add(1);
         Ok(self.current)
+    }
+
+    /// Undoes applied revision `revision` alone in the open transaction, the revisions after it
+    /// staying: an object nothing changed since goes back to its version before; a stream later
+    /// revisions changed elsewhere gets those bytes back in place. `false`, with the transaction
+    /// as it was, when a later change touches the same bytes or object: the later one depends on
+    /// it. An object the revision added becomes null, so nothing it wrote is left in the file.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`], [`WriteError::NothingToUndo`] for a revision that does not
+    /// apply, and the errors of decoding a stream within the document's limits.
+    pub fn revert_revision(&mut self, doc: &Document, revision: usize) -> Result<bool, CoreError> {
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        let changes = self
+            .revisions
+            .get(revision)
+            .filter(|_| revision < self.current)
+            .ok_or(CoreError::Write(WriteError::NothingToUndo))?;
+        let mut queued = Vec::with_capacity(changes.objects.len());
+        for (&id, after) in &changes.objects {
+            let restored = if self.lookup(id) == Some(after) {
+                self.version_before(doc, id, revision)
+                    .cloned()
+                    .unwrap_or(Object::Null)
+            } else if let Some(merged) = self.merged_without(doc, id, revision)? {
+                merged
+            } else {
+                return Ok(false);
+            };
+            queued.push((id, restored));
+        }
+        for (id, object) in queued {
+            self.put(id, object)?;
+        }
+        Ok(true)
+    }
+
+    /// Puts every object the applied revisions changed back as the document opened with it, in
+    /// the open transaction; an object they added becomes null.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`].
+    pub fn revert_all(&mut self, doc: &Document) -> Result<(), CoreError> {
+        let originals: Vec<(ObjectId, Object)> = self
+            .committed()
+            .into_keys()
+            .map(|id| {
+                let original = doc.model().objects.get(&id).cloned();
+                (id, original.unwrap_or(Object::Null))
+            })
+            .collect();
+        for (id, object) in originals {
+            self.put(id, object)?;
+        }
+        Ok(())
+    }
+
+    /// Object `id` before revision `revision`; `None` when that revision added it.
+    fn version_before<'a>(
+        &'a self,
+        doc: &'a Document,
+        id: ObjectId,
+        revision: usize,
+    ) -> Option<&'a Object> {
+        self.revisions
+            .get(..revision)
+            .unwrap_or_default()
+            .iter()
+            .rev()
+            .find_map(|changes| changes.objects.get(&id))
+            .or_else(|| doc.model().objects.get(&id))
+    }
+
+    /// The newest version of stream `id` with revision `revision`'s change taken out, following
+    /// that change's bytes through every later version; `None` when one of them touches them.
+    fn merged_without(
+        &self,
+        doc: &Document,
+        id: ObjectId,
+        revision: usize,
+    ) -> Result<Option<Object>, CoreError> {
+        let version = |changes: &ChangeSet| changes.objects.get(&id).cloned();
+        let (Some(Object::Stream(before)), Some(Object::Stream(after))) = (
+            self.version_before(doc, id, revision),
+            self.revisions.get(revision).and_then(version),
+        ) else {
+            return Ok(None);
+        };
+        let original = decoded(before, doc)?;
+        let mut newest = decoded(&after, doc)?;
+        let (start, end, original_end) = changed(&newest, &original);
+        let replacement = original
+            .get(start..original_end)
+            .unwrap_or_default()
+            .to_vec();
+        let mut range = start..end;
+        let mut latest = after;
+        let later = self
+            .revisions
+            .get(revision.saturating_add(1)..self.current)
+            .unwrap_or_default();
+        for object in later.iter().chain(self.open.iter()).filter_map(version) {
+            let Object::Stream(stream) = object else {
+                return Ok(None);
+            };
+            let next = decoded(&stream, doc)?;
+            latest = stream;
+            if next == newest {
+                continue;
+            }
+            let (from, old_end, new_end) = changed(&newest, &next);
+            if old_end < range.start {
+                range.start = range.start.saturating_add(new_end).saturating_sub(old_end);
+                range.end = range.end.saturating_add(new_end).saturating_sub(old_end);
+            } else if from <= range.end {
+                return Ok(None);
+            }
+            newest = next;
+        }
+        Ok(Some(Object::Stream(respliced(
+            &latest,
+            &[(range, replacement)],
+            doc,
+        )?)))
     }
 
     /// How many revisions apply: 0 is the document as opened.
@@ -216,8 +436,8 @@ impl RevisionStore {
     /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`],
     /// [`WriteError::OverlappingSplices`], [`WriteError::SpliceOutsideStream`],
     /// [`WriteError::NotAStream`], [`WriteError::Placement`], [`WriteError::NotOnPage`],
-    /// [`WriteError::ObjectNumbers`], and the errors of decoding a stream within the
-    /// document's limits.
+    /// [`WriteError::ObjectNumbers`], the errors of decoding a stream within the document's
+    /// limits, and [`CoreError::ResourceLimit`] past the decoded size per revision.
     pub fn splice(
         &mut self,
         doc: &Document,
@@ -329,10 +549,160 @@ impl RevisionStore {
         if page_changed {
             queued.push((page, Object::Dictionary(dict)));
         }
-        for (id, object) in queued {
-            self.put(id, object)?;
+        self.put_counted(doc, queued)
+    }
+
+    /// A name for a copy of the font page `index` names `base` that its `/Font` resources and
+    /// `taken` do not use: `base` with a numbered suffix.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoSuchPage`], and [`CoreError::Internal`] when no suffix is free.
+    pub fn free_font_name(
+        &self,
+        doc: &Document,
+        index: usize,
+        base: &[u8],
+        taken: &[Vec<u8>],
+    ) -> Result<Vec<u8>, CoreError> {
+        let page = page_id(doc, index)?;
+        let (_, fonts) = self.page_resources(doc, page, b"Font");
+        for suffix in 1..=10_000u32 {
+            let mut candidate = base.to_vec();
+            let _ = write!(candidate, "_{suffix}");
+            if !fonts.has(&candidate) && !taken.contains(&candidate) {
+                return Ok(candidate);
+            }
         }
-        Ok(())
+        Err(CoreError::Internal {
+            context: "a free resource name for a font copy",
+        })
+    }
+
+    /// Adds `fonts` to page `index`'s `/Font` resources in the open transaction: each a new
+    /// Type0 dictionary whose descendant is a new CIDFont dictionary, both copies of the
+    /// original's with [`FontCopy`]'s widths and ToUnicode. The page's `/Resources` become a
+    /// direct copy with the new names; every original object stays as it is. On an error the
+    /// transaction stays as it was.
+    ///
+    /// # Errors
+    ///
+    /// [`WriteError::NoTransaction`], [`WriteError::NoSuchPage`], [`WriteError::Font`] for a name
+    /// that is not a composite font of the page or a copy's name that is taken, and
+    /// [`WriteError::ObjectNumbers`], and [`CoreError::ResourceLimit`] past the decoded size per
+    /// revision.
+    pub fn add_fonts(
+        &mut self,
+        doc: &Document,
+        index: usize,
+        fonts: &[FontCopy],
+    ) -> Result<(), CoreError> {
+        self.add_new_fonts(doc, index, fonts, &[], &[])
+    }
+
+    /// [`add_fonts`](Self::add_fonts) with the simple font copies `simple` (each a new font
+    /// dictionary, a copy of the original's with the new codes in its `/Encoding`'s
+    /// `/Differences` and `/Widths`, and its ToUnicode) and the new fonts `embedded` (each a
+    /// Type0 font, its CIDFont, descriptor, program and ToUnicode CMap), all in one change of the
+    /// page's resources.
+    ///
+    /// # Errors
+    ///
+    /// As [`add_fonts`](Self::add_fonts); [`WriteError::Font`] also for a simple copy of a font
+    /// that is not a simple font of the page, and a new font's name that is taken.
+    pub fn add_new_fonts(
+        &mut self,
+        doc: &Document,
+        index: usize,
+        fonts: &[FontCopy],
+        simple: &[SimpleFontCopy],
+        embedded: &[EmbeddedFont],
+    ) -> Result<(), CoreError> {
+        if self.open.is_none() {
+            return Err(CoreError::Write(WriteError::NoTransaction));
+        }
+        if fonts.is_empty() && simple.is_empty() && embedded.is_empty() {
+            return Ok(());
+        }
+        let page = page_id(doc, index)?;
+        let wrong = || CoreError::Write(WriteError::Font);
+        let (mut resources, mut entries) = self.page_resources(doc, page, b"Font");
+        let mut queued: Vec<(ObjectId, Object)> = Vec::new();
+        let mut next = self.next_number();
+        {
+            let scope = self.scope(doc);
+            for copy in fonts {
+                if entries.has(&copy.name) {
+                    return Err(wrong());
+                }
+                let original = entries.get(&copy.base).ok().ok_or_else(wrong)?;
+                let mut type0 = scope.dict(original).cloned().ok_or_else(wrong)?;
+                let descendant = scope
+                    .get_array(&type0, b"DescendantFonts")
+                    .and_then(|fonts| fonts.first())
+                    .and_then(|font| scope.dict(font))
+                    .ok_or_else(wrong)?;
+                if scope.get_name(&type0, b"Subtype") != Some(b"Type0") {
+                    return Err(wrong());
+                }
+                let mut cid_font = descendant.clone();
+                let mut widths = scope
+                    .get_array(descendant, b"W")
+                    .cloned()
+                    .unwrap_or_default();
+                for &(cid, width) in &copy.widths {
+                    widths.push(Object::Integer(i64::from(cid)));
+                    widths.push(Object::Array(vec![Object::Real(width)]));
+                }
+                cid_font.set("W", Object::Array(widths));
+                let cid_font = queue_new(&mut queued, &mut next, Object::Dictionary(cid_font))?;
+                let to_unicode =
+                    Object::Stream(Stream::new(Dictionary::new(), copy.to_unicode.clone()));
+                let to_unicode = queue_new(&mut queued, &mut next, to_unicode)?;
+                type0.set(
+                    "DescendantFonts",
+                    Object::Array(vec![Object::Reference(cid_font)]),
+                );
+                type0.set("ToUnicode", Object::Reference(to_unicode));
+                let type0 = queue_new(&mut queued, &mut next, Object::Dictionary(type0))?;
+                entries.set(copy.name.clone(), Object::Reference(type0));
+            }
+            for copy in simple {
+                if entries.has(&copy.name) {
+                    return Err(wrong());
+                }
+                let original = entries.get(&copy.base).ok().ok_or_else(wrong)?;
+                let mut font = scope.dict(original).cloned().ok_or_else(wrong)?;
+                if !matches!(
+                    scope.get_name(&font, b"Subtype"),
+                    Some(b"TrueType" | b"Type1" | b"MMType1")
+                ) {
+                    return Err(wrong());
+                }
+                simple_copy(&scope, &mut font, copy);
+                if let Some(to_unicode) = &copy.to_unicode {
+                    let stream = Object::Stream(Stream::new(Dictionary::new(), to_unicode.clone()));
+                    font.set(
+                        "ToUnicode",
+                        Object::Reference(queue_new(&mut queued, &mut next, stream)?),
+                    );
+                }
+                let font = queue_new(&mut queued, &mut next, Object::Dictionary(font))?;
+                entries.set(copy.name.clone(), Object::Reference(font));
+            }
+        }
+        for font in embedded {
+            if entries.has(&font.name) {
+                return Err(wrong());
+            }
+            let type0 = embedded_font(font, &mut queued, &mut next)?;
+            entries.set(font.name.clone(), Object::Reference(type0));
+        }
+        let mut dict = self.dictionary(doc, page)?;
+        resources.set("Font", entries);
+        dict.set("Resources", resources);
+        queued.push((page, Object::Dictionary(dict)));
+        self.put_counted(doc, queued)
     }
 
     /// Object `id` in the open transaction or the current revisions, without the model's.
@@ -358,6 +728,21 @@ impl RevisionStore {
             }
         }
         objects
+    }
+
+    /// A store for `doc` whose one revision holds `objects`: a document restored from its
+    /// recovery files (`recovery`), every change unsaved. Without `unsaved` it has no revision.
+    pub(crate) fn restored(
+        doc: &Document,
+        objects: BTreeMap<ObjectId, Object>,
+        unsaved: bool,
+    ) -> Self {
+        let mut store = Self::new(doc);
+        if unsaved {
+            store.revisions.push(ChangeSet { objects });
+            store.current = 1;
+        }
+        store
     }
 
     /// Fails while a transaction is open.
@@ -388,16 +773,68 @@ impl RevisionStore {
         Ok(())
     }
 
+    /// Puts `queued` in the open transaction, or nothing when its streams, decoded, would pass the
+    /// decoded size per revision. A new version of a stream replaces the old one's share.
+    fn put_counted(
+        &mut self,
+        doc: &Document,
+        queued: Vec<(ObjectId, Object)>,
+    ) -> Result<(), CoreError> {
+        let mut sizes = self.open_decoded.clone();
+        for (id, object) in &queued {
+            if let Object::Stream(stream) = object {
+                let size = decoded(stream, doc)?.len();
+                sizes.insert(*id, u64::try_from(size).unwrap_or(u64::MAX));
+            } else {
+                sizes.remove(id);
+            }
+        }
+        let max = doc.limits().max_revision_decoded;
+        let total = sizes
+            .values()
+            .fold(0, |sum: u64, size| sum.saturating_add(*size));
+        if total > max {
+            return Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                max,
+            });
+        }
+        self.open_decoded = sizes;
+        for (id, object) in queued {
+            self.put(id, object)?;
+        }
+        Ok(())
+    }
+
     /// Adds `object` as a new object in the open transaction (the splicer queues its own).
-    #[cfg(test)]
+    #[cfg(any(test, feature = "fuzzing"))]
     pub(crate) fn add(&mut self, object: Object) -> Result<ObjectId, CoreError> {
         let id = (free(self.next_number())?, 0);
         self.put(id, object)?;
         Ok(id)
     }
 
+    /// Each stream of page `index`'s `/Contents` with its decoded data, in order.
+    #[cfg(feature = "fuzzing")]
+    pub(crate) fn page_streams(
+        &self,
+        doc: &Document,
+        index: usize,
+    ) -> Result<Vec<(ObjectId, Vec<u8>)>, CoreError> {
+        let page = doc
+            .structure()
+            .pages
+            .get(index)
+            .map(|page| page.id)
+            .ok_or(CoreError::Write(WriteError::NoSuchPage))?;
+        self.contents(doc, page)
+            .into_iter()
+            .map(|id| Ok((id, decoded(&self.stream(doc, id)?, doc)?)))
+            .collect()
+    }
+
     /// A scope that reads through this store.
-    fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
+    pub(crate) fn scope<'a>(&'a self, doc: &'a Document) -> Scope<'a> {
         Scope {
             doc: doc.model(),
             limits: doc.limits(),
@@ -451,6 +888,11 @@ impl RevisionStore {
 
     /// Copies of page `id`'s inherited `/Resources` and of their `/XObject`, both direct.
     fn page_xobjects(&self, doc: &Document, id: ObjectId) -> (Dictionary, Dictionary) {
+        self.page_resources(doc, id, b"XObject")
+    }
+
+    /// Copies of page `id`'s inherited `/Resources` and of their entry `key`, both direct.
+    fn page_resources(&self, doc: &Document, id: ObjectId, key: &[u8]) -> (Dictionary, Dictionary) {
         let scope = self.scope(doc);
         let Some(Object::Dictionary(dict)) = scope.object(id) else {
             return (Dictionary::new(), Dictionary::new());
@@ -458,7 +900,7 @@ impl RevisionStore {
         let resources =
             inherited(&scope, dict, b"Resources").and_then(|value| value.as_dict().ok());
         let xobjects = resources
-            .and_then(|resources| scope.get_dict(resources, b"XObject"))
+            .and_then(|resources| scope.get_dict(resources, key))
             .cloned()
             .unwrap_or_default();
         (resources.cloned().unwrap_or_default(), xobjects)
@@ -514,6 +956,15 @@ impl RevisionStore {
     }
 }
 
+/// The object id of page `index`.
+fn page_id(doc: &Document, index: usize) -> Result<ObjectId, CoreError> {
+    doc.structure()
+        .pages
+        .get(index)
+        .map(|page| page.id)
+        .ok_or(CoreError::Write(WriteError::NoSuchPage))
+}
+
 /// `number` as a new object's number; the last two are kept for the writer's `/Size` and its
 /// cross-reference stream.
 fn free(number: u32) -> Result<u32, CoreError> {
@@ -533,6 +984,176 @@ fn queue_new(
     *next = next.saturating_add(1);
     queued.push((id, object));
     Ok(id)
+}
+
+/// Gives `font`, a copy of a simple font's dictionary, `copy`'s codes: a direct `/Encoding`
+/// dictionary with the original's base and `/Differences` and the new codes after them, and
+/// direct `/FirstChar`, `/LastChar` and `/Widths` that cover the new codes.
+fn simple_copy(scope: &Scope<'_>, font: &mut Dictionary, copy: &SimpleFontCopy) {
+    let mut encoding = Dictionary::new();
+    encoding.set("Type", Object::Name(b"Encoding".to_vec()));
+    let mut differences = Vec::new();
+    match font
+        .get(b"Encoding")
+        .ok()
+        .and_then(|value| scope.resolve(value))
+    {
+        Some(Object::Name(name)) => encoding.set("BaseEncoding", Object::Name(name.clone())),
+        Some(Object::Dictionary(old)) => {
+            if let Some(base) = scope.get_name(old, b"BaseEncoding") {
+                encoding.set("BaseEncoding", Object::Name(base.to_vec()));
+            }
+            if let Some(old) = scope.get_array(old, b"Differences") {
+                differences.extend(
+                    old.iter()
+                        .map(|item| scope.resolve(item).unwrap_or(item).clone()),
+                );
+            }
+        }
+        _ => {}
+    }
+    for (code, name, _) in &copy.codes {
+        differences.push(Object::Integer(i64::from(*code)));
+        differences.push(Object::Name(name.as_bytes().to_vec()));
+    }
+    encoding.set("Differences", Object::Array(differences));
+    font.set("Encoding", Object::Dictionary(encoding));
+
+    let first = scope
+        .get_int(font, b"FirstChar")
+        .and_then(|first| u8::try_from(first).ok());
+    let old: Vec<Object> = scope
+        .get_array(font, b"Widths")
+        .map(|widths| {
+            widths
+                .iter()
+                .map(|width| scope.resolve(width).unwrap_or(width).clone())
+                .collect()
+        })
+        .unwrap_or_default();
+    let first = first.unwrap_or(0);
+    let last = u8::try_from(
+        usize::from(first)
+            .saturating_add(old.len())
+            .saturating_sub(1),
+    )
+    .unwrap_or(u8::MAX);
+    let low = copy
+        .codes
+        .iter()
+        .map(|(code, ..)| *code)
+        .fold(first, u8::min);
+    let high = copy
+        .codes
+        .iter()
+        .map(|(code, ..)| *code)
+        .fold(last.max(first), u8::max);
+    let mut widths: Vec<Object> = (low..=high)
+        .map(|code| {
+            usize::from(code)
+                .checked_sub(usize::from(first))
+                .and_then(|at| old.get(at))
+                .cloned()
+                .unwrap_or(Object::Integer(0))
+        })
+        .collect();
+    for (code, _, width) in &copy.codes {
+        if let Some(slot) = widths.get_mut(usize::from(code.saturating_sub(low))) {
+            *slot = Object::Real(*width);
+        }
+    }
+    font.set("FirstChar", Object::Integer(i64::from(low)));
+    font.set("LastChar", Object::Integer(i64::from(high)));
+    font.set("Widths", Object::Array(widths));
+}
+
+/// Queues the objects of `font` and returns its Type0 dictionary's id.
+fn embedded_font(
+    font: &EmbeddedFont,
+    queued: &mut Vec<(ObjectId, Object)>,
+    next: &mut u32,
+) -> Result<ObjectId, CoreError> {
+    let name = || Object::Name(font.base_font.as_bytes().to_vec());
+    let (data, file_key, subtype, cid_subtype) = match &font.program {
+        EmbeddedProgram::TrueType(data) => (data, "FontFile2", None, "CIDFontType2"),
+        EmbeddedProgram::Cff(data) => (data, "FontFile3", Some("CIDFontType0C"), "CIDFontType0"),
+    };
+    let mut file = Dictionary::new();
+    if let Some(subtype) = subtype {
+        file.set("Subtype", Object::Name(subtype.as_bytes().to_vec()));
+    }
+    if subtype.is_none() {
+        file.set("Length1", i64::try_from(data.len()).unwrap_or(i64::MAX));
+    }
+    let file = queue_new(queued, next, Object::Stream(compressed(file, data)?))?;
+    let mut descriptor = Dictionary::new();
+    descriptor.set("Type", Object::Name(b"FontDescriptor".to_vec()));
+    descriptor.set("FontName", name());
+    descriptor.set("Flags", i64::from(font.flags));
+    descriptor.set(
+        "FontBBox",
+        Object::Array(font.bbox.iter().map(|&v| Object::Real(v)).collect()),
+    );
+    descriptor.set("ItalicAngle", Object::Real(font.italic_angle));
+    descriptor.set("Ascent", Object::Real(font.ascent));
+    descriptor.set("Descent", Object::Real(font.descent));
+    descriptor.set("CapHeight", Object::Real(font.cap_height));
+    if let Some(x_height) = font.x_height {
+        descriptor.set("XHeight", Object::Real(x_height));
+    }
+    descriptor.set("StemV", Object::Real(font.stem_v));
+    descriptor.set(file_key, Object::Reference(file));
+    let descriptor = queue_new(queued, next, Object::Dictionary(descriptor))?;
+    let mut system = Dictionary::new();
+    system.set("Registry", Object::string_literal("Adobe"));
+    system.set("Ordering", Object::string_literal("Identity"));
+    system.set("Supplement", 0);
+    let mut widths = Vec::new();
+    for &(cid, width) in &font.widths {
+        widths.push(Object::Integer(i64::from(cid)));
+        widths.push(Object::Array(vec![Object::Real(width)]));
+    }
+    let mut cid_font = Dictionary::new();
+    cid_font.set("Type", Object::Name(b"Font".to_vec()));
+    cid_font.set("Subtype", Object::Name(cid_subtype.as_bytes().to_vec()));
+    cid_font.set("BaseFont", name());
+    cid_font.set("CIDSystemInfo", Object::Dictionary(system));
+    cid_font.set("FontDescriptor", Object::Reference(descriptor));
+    cid_font.set("DW", 0);
+    cid_font.set("W", Object::Array(widths));
+    if matches!(font.program, EmbeddedProgram::TrueType(_)) {
+        cid_font.set("CIDToGIDMap", Object::Name(b"Identity".to_vec()));
+    }
+    let cid_font = queue_new(queued, next, Object::Dictionary(cid_font))?;
+    let to_unicode = queue_new(
+        queued,
+        next,
+        Object::Stream(compressed(Dictionary::new(), &font.to_unicode)?),
+    )?;
+    let mut type0 = Dictionary::new();
+    type0.set("Type", Object::Name(b"Font".to_vec()));
+    type0.set("Subtype", Object::Name(b"Type0".to_vec()));
+    type0.set("BaseFont", name());
+    type0.set("Encoding", Object::Name(b"Identity-H".to_vec()));
+    type0.set(
+        "DescendantFonts",
+        Object::Array(vec![Object::Reference(cid_font)]),
+    );
+    type0.set("ToUnicode", Object::Reference(to_unicode));
+    queue_new(queued, next, Object::Dictionary(type0))
+}
+
+/// A stream of `data` with `dict`, compressed with Flate.
+fn compressed(mut dict: Dictionary, data: &[u8]) -> Result<Stream, CoreError> {
+    let mut encoder = flate2::write::ZlibEncoder::new(Vec::new(), flate2::Compression::default());
+    let bytes = encoder
+        .write_all(data)
+        .and_then(|()| encoder.finish())
+        .map_err(|_| CoreError::Internal {
+            context: "compressing a font stream",
+        })?;
+    dict.set("Filter", Object::Name(b"FlateDecode".to_vec()));
+    Ok(Stream::new(dict, bytes))
 }
 
 /// A stream's replacements: ranges of its decoded data and their new bytes.
@@ -574,6 +1195,25 @@ fn respliced(
         dict.set("DL", i64::try_from(data.len()).unwrap_or(i64::MAX));
     }
     Ok(Stream::new(dict, compressed))
+}
+
+/// Where `a` and `b` differ, as their common prefix and suffix leave it: the start, the end in
+/// `a` and the end in `b`.
+fn changed(a: &[u8], b: &[u8]) -> (usize, usize, usize) {
+    let start = a.iter().zip(b).take_while(|(x, y)| x == y).count();
+    let room = a.len().min(b.len()).saturating_sub(start);
+    let suffix = a
+        .iter()
+        .rev()
+        .zip(b.iter().rev())
+        .take(room)
+        .take_while(|(x, y)| x == y)
+        .count();
+    (
+        start,
+        a.len().saturating_sub(suffix),
+        b.len().saturating_sub(suffix),
+    )
 }
 
 /// `data` with each range of `edits` replaced by its bytes. Every other byte stays as it is.
@@ -659,6 +1299,7 @@ mod tests {
     use std::sync::Arc;
 
     use crate::interpret::{OperatorEvent, TextShow};
+    use crate::limits::Limits;
     use crate::{OpenOptions, Password, Source, open};
 
     /// Every operator of a page in content order, by name, with its span.
@@ -1141,5 +1782,185 @@ mod tests {
             0,
             "nothing entered the transaction"
         );
+    }
+
+    #[test]
+    fn new_fonts_are_new_objects_and_the_original_stays() {
+        let doc = open_bytes(
+            &std::fs::read(corpus("edit-e04-differences.pdf")).unwrap(),
+            None,
+        )
+        .unwrap();
+        let mut store = RevisionStore::new(&doc);
+        let page = page_id(&doc, 0).unwrap();
+        let (_, fonts) = store.page_resources(&doc, page, b"Font");
+        let (base, original) = fonts.iter().next().unwrap();
+        let original = *original.as_reference().as_ref().unwrap();
+        let simple = SimpleFontCopy {
+            base: base.clone(),
+            name: b"F9_1".to_vec(),
+            codes: vec![(129, "gbreve".to_owned(), 556.0)],
+            to_unicode: None,
+        };
+        let embedded = EmbeddedFont {
+            name: b"F9_2".to_vec(),
+            base_font: "ABCDEF+Test".to_owned(),
+            program: EmbeddedProgram::TrueType(vec![0, 1, 0, 0]),
+            widths: vec![(1, 500.0)],
+            to_unicode: b"begincmap endcmap".to_vec(),
+            ascent: 900.0,
+            descent: -200.0,
+            cap_height: 700.0,
+            x_height: None,
+            bbox: [0.0, -200.0, 1000.0, 900.0],
+            italic_angle: 0.0,
+            flags: 4,
+            stem_v: 80.0,
+        };
+        assert!(matches!(
+            store.add_new_fonts(&doc, 0, &[], std::slice::from_ref(&simple), &[]),
+            Err(CoreError::Write(WriteError::NoTransaction))
+        ));
+        store.begin().unwrap();
+        store
+            .add_new_fonts(
+                &doc,
+                0,
+                &[],
+                std::slice::from_ref(&simple),
+                std::slice::from_ref(&embedded),
+            )
+            .unwrap();
+        // The copy, the new font's five objects and the page.
+        assert_eq!(store.open.as_ref().unwrap().len(), 7);
+        assert!(
+            store.lookup(original).is_none(),
+            "the original is untouched"
+        );
+        let scope = store.scope(&doc);
+        let (_, fonts) = store.page_resources(&doc, page, b"Font");
+        let copy = scope.dict(fonts.get(b"F9_1").unwrap()).unwrap();
+        let differences = scope
+            .get_array(scope.get_dict(copy, b"Encoding").unwrap(), b"Differences")
+            .unwrap();
+        assert_eq!(
+            differences[differences.len() - 2..],
+            [Object::Integer(129), Object::Name(b"gbreve".to_vec())]
+        );
+        let first = scope.get_int(copy, b"FirstChar").unwrap();
+        let widths = scope.get_array(copy, b"Widths").unwrap();
+        assert_eq!(
+            widths[usize::try_from(129 - first).unwrap()],
+            Object::Real(556.0)
+        );
+        let type0 = scope.dict(fonts.get(b"F9_2").unwrap()).unwrap();
+        assert_eq!(scope.get_name(type0, b"Encoding"), Some(&b"Identity-H"[..]));
+        let cid_font = scope
+            .dict(&scope.get_array(type0, b"DescendantFonts").unwrap()[0])
+            .unwrap();
+        assert_eq!(
+            scope.get_name(cid_font, b"Subtype"),
+            Some(&b"CIDFontType2"[..])
+        );
+        let descriptor = scope.get_dict(cid_font, b"FontDescriptor").unwrap();
+        assert!(descriptor.has(b"FontFile2"));
+        // A name the page has is refused, and the transaction stays as it was.
+        let taken = SimpleFontCopy {
+            name: base.clone(),
+            ..simple
+        };
+        assert!(matches!(
+            store.add_new_fonts(&doc, 0, &[], &[taken], &[]),
+            Err(CoreError::Write(WriteError::Font))
+        ));
+        assert_eq!(store.open.as_ref().unwrap().len(), 7);
+    }
+
+    #[test]
+    fn a_transaction_past_the_decoded_size_per_revision_changes_nothing() {
+        let bytes = std::fs::read(corpus("edit-e15-helvetica.pdf")).unwrap();
+        let mut doc = open_bytes(&bytes, None).unwrap();
+        let (page, span) = first_show(&doc).unwrap();
+        let SpanSource::Page { stream } = span.source else {
+            unreachable!()
+        };
+        let size = data(&doc, stream).len();
+        let replaced = span.range.len();
+        let splice = |grown: usize| Splice {
+            source: span.source,
+            range: span.range.clone(),
+            bytes: vec![b' '; replaced + grown],
+        };
+        // The stream may grow by 10 bytes.
+        doc.limits = Limits {
+            max_revision_decoded: u64::try_from(size + 10).unwrap(),
+            ..Limits::default()
+        };
+        let mut store = RevisionStore::new(&doc);
+        store.begin().unwrap();
+        store.splice(&doc, page, &[splice(10)], &[]).unwrap();
+        let before = store.open.clone();
+        // The next version replaces the stream's share: it is not added to it.
+        let span_now = 0..size + 10;
+        let over = Splice {
+            source: span.source,
+            range: span_now,
+            bytes: vec![b' '; size + 11],
+        };
+        assert!(matches!(
+            store.splice(&doc, page, &[over], &[]),
+            Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                ..
+            })
+        ));
+        assert_eq!(store.open, before, "the transaction stays as it was");
+        let same = Splice {
+            source: span.source,
+            range: 0..size + 10,
+            bytes: vec![b' '; size + 10],
+        };
+        store.splice(&doc, page, &[same], &[]).unwrap();
+
+        // A new transaction starts counting afresh, after a commit and after a rollback.
+        store.commit().unwrap();
+        store.begin().unwrap();
+        let kept = Splice {
+            source: span.source,
+            range: 0..1,
+            bytes: b" ".to_vec(),
+        };
+        store
+            .splice(&doc, page, std::slice::from_ref(&kept), &[])
+            .unwrap();
+        store.rollback();
+        store.begin().unwrap();
+        store.splice(&doc, page, &[kept], &[]).unwrap();
+
+        // New fonts' streams count too, and nothing enters the transaction when they pass it.
+        let font = EmbeddedFont {
+            name: b"Ferman1".to_vec(),
+            base_font: "ABCDEF+Test".to_owned(),
+            program: EmbeddedProgram::TrueType(vec![0; 64]),
+            to_unicode: Vec::new(),
+            widths: Vec::new(),
+            bbox: [0.0; 4],
+            italic_angle: 0.0,
+            ascent: 0.0,
+            descent: 0.0,
+            cap_height: 0.0,
+            x_height: None,
+            flags: 4,
+            stem_v: 0.0,
+        };
+        let before = store.open.clone();
+        assert!(matches!(
+            store.add_new_fonts(&doc, page, &[], &[], &[font]),
+            Err(CoreError::ResourceLimit {
+                limit: LimitKind::RevisionDecodedSize,
+                ..
+            })
+        ));
+        assert_eq!(store.open, before);
     }
 }
