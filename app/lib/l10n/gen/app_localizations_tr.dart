@@ -3077,4 +3077,105 @@ class AppLocalizationsTr extends AppLocalizations {
 
   @override
   String get phoneTabSettings => 'Ayarlar';
+
+  @override
+  String jobPageOf(String page, String pages) {
+    return 'Sayfa $page / $pages';
+  }
+
+  @override
+  String jobPausedAtPage(String page) {
+    return '$page. sayfada duraklatıldı';
+  }
+
+  @override
+  String get jobFailedDiskFull => 'Disk dolu. Biraz yer açıp yeniden deneyin.';
+
+  @override
+  String jobCopyingTitle(String name) {
+    return '$name kopyalanıyor';
+  }
+
+  @override
+  String jobCopiedTitle(String name) {
+    return '$name kopyalandı';
+  }
+
+  @override
+  String jobCopyFailedTitle(String name) {
+    return '$name kopyalanamadı';
+  }
+
+  @override
+  String get tasksTitle => 'Arka plan görevleri';
+
+  @override
+  String get tasksClose => 'Paneli kapat';
+
+  @override
+  String get tasksOpen => 'Arka plan görevlerini göster veya gizle';
+
+  @override
+  String get tasksEmptyTitle => 'Arka plan görevi yok';
+
+  @override
+  String get tasksEmptyBody =>
+      'Dosya sıkıştırma gibi uzun işler, siz çalışmaya devam ederken burada yürür.';
+
+  @override
+  String tasksRunning(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted görev sürüyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskPause => 'Duraklat';
+
+  @override
+  String get taskResume => 'Sürdür';
+
+  @override
+  String get taskShow => 'Göster';
+
+  @override
+  String get taskDismiss => 'Kapat';
+
+  @override
+  String taskCancelTitle(String task) {
+    return '“$task” iptal edilsin mi?';
+  }
+
+  @override
+  String get taskCancelBody =>
+      'Şimdiye kadarki işi silinir ve geride dosya kalmaz.';
+
+  @override
+  String get taskKeepRunning => 'Sürmeye devam etsin';
+
+  @override
+  String get taskCancelConfirm => 'Görevi iptal et';
+
+  @override
+  String tasksQuitTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted arka plan görevi hâlâ sürüyor',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tasksQuitBody =>
+      'Çıkmak onları iptal eder; geride yarım dosya kalmaz.';
+
+  @override
+  String get tasksQuitKeep => 'Çalışmaya devam et';
+
+  @override
+  String get tasksQuitConfirm => 'Görevleri iptal et ve çık';
 }

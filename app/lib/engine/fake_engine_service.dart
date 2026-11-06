@@ -425,6 +425,63 @@ class FakeEngineService implements EngineService {
     yield SearchDone(textless: textless);
   }
 
+  /// The jobs started and not ended, by handle.
+  final Map<int, StreamController<JobUpdate>> _jobs = {};
+
+  /// The arguments of every [copyDocumentJob], oldest first.
+  final List<(int document, String output, String? staging)> copyJobs = [];
+
+  /// The jobs [pauseJob], [resumeJob] and [cancelJob] were asked about, in
+  /// order, as "pause 1".
+  final List<String> jobCalls = [];
+
+  int _nextJob = 1;
+
+  /// Starts a job that waits: drive it with [reportJob] and [endJob].
+  @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) {
+    copyJobs.add((document, output, staging));
+    final job = _nextJob++;
+    final updates = _jobs[job] = StreamController<JobUpdate>()
+      ..add(JobUpdate(job: job, state: JobState.running));
+    return updates.stream;
+  }
+
+  /// Sends [update] to its job's stream.
+  void reportJob(JobUpdate update) => _jobs[update.job]?.add(update);
+
+  /// Sends [update], the job's last, and closes its stream.
+  void endJob(JobUpdate update) {
+    final updates = _jobs.remove(update.job);
+    updates?.add(update);
+    unawaited(updates?.close());
+  }
+
+  /// Parks the job at once.
+  @override
+  Future<void> pauseJob(int job) async {
+    jobCalls.add('pause $job');
+    reportJob(JobUpdate(job: job, state: JobState.paused));
+  }
+
+  /// Lets the job go on at once.
+  @override
+  Future<void> resumeJob(int job) async {
+    jobCalls.add('resume $job');
+    reportJob(JobUpdate(job: job, state: JobState.running));
+  }
+
+  /// Ends the job as cancelled at once.
+  @override
+  Future<void> cancelJob(int job) async {
+    jobCalls.add('cancel $job');
+    endJob(JobUpdate(job: job, state: JobState.cancelled));
+  }
+
   /// The blocks of [page] of [document] as its applied edits left them.
   PageBlocks _blocks(int document, int page) =>
       _edited[(document, page)] ?? pageBlocks[page] ?? const PageBlocks();

@@ -2751,6 +2751,82 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
 
   @override
   String get phoneTabSettings => isolate(super.phoneTabSettings);
+
+  @override
+  String jobPageOf(String page, String pages) =>
+      isolate(super.jobPageOf(page, pages));
+
+  @override
+  String jobPausedAtPage(String page) => isolate(super.jobPausedAtPage(page));
+
+  @override
+  String get jobFailedDiskFull => isolate(super.jobFailedDiskFull);
+
+  @override
+  String jobCopyingTitle(String name) => isolate(super.jobCopyingTitle(name));
+
+  @override
+  String jobCopiedTitle(String name) => isolate(super.jobCopiedTitle(name));
+
+  @override
+  String jobCopyFailedTitle(String name) =>
+      isolate(super.jobCopyFailedTitle(name));
+
+  @override
+  String get tasksTitle => isolate(super.tasksTitle);
+
+  @override
+  String get tasksClose => isolate(super.tasksClose);
+
+  @override
+  String get tasksOpen => isolate(super.tasksOpen);
+
+  @override
+  String get tasksEmptyTitle => isolate(super.tasksEmptyTitle);
+
+  @override
+  String get tasksEmptyBody => isolate(super.tasksEmptyBody);
+
+  @override
+  String tasksRunning(int count, String formatted) =>
+      isolate(super.tasksRunning(count, formatted));
+
+  @override
+  String get taskPause => isolate(super.taskPause);
+
+  @override
+  String get taskResume => isolate(super.taskResume);
+
+  @override
+  String get taskShow => isolate(super.taskShow);
+
+  @override
+  String get taskDismiss => isolate(super.taskDismiss);
+
+  @override
+  String taskCancelTitle(String task) => isolate(super.taskCancelTitle(task));
+
+  @override
+  String get taskCancelBody => isolate(super.taskCancelBody);
+
+  @override
+  String get taskKeepRunning => isolate(super.taskKeepRunning);
+
+  @override
+  String get taskCancelConfirm => isolate(super.taskCancelConfirm);
+
+  @override
+  String tasksQuitTitle(int count, String formatted) =>
+      isolate(super.tasksQuitTitle(count, formatted));
+
+  @override
+  String get tasksQuitBody => isolate(super.tasksQuitBody);
+
+  @override
+  String get tasksQuitKeep => isolate(super.tasksQuitKeep);
+
+  @override
+  String get tasksQuitConfirm => isolate(super.tasksQuitConfirm);
 }
 
 final class _IsolatedFallbackLocalizationsDelegate

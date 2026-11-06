@@ -366,6 +366,73 @@ class FrbEngineService implements EngineService {
       .where((update) => update != null)
       .cast<SearchUpdate>();
 
+  @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) => bridge
+      .startCopyDocumentJob(
+        document: BigInt.from(document),
+        output: output,
+        staging: staging,
+      )
+      .handleError(
+        (Object error) => throw _exception(error as bridge.ApiError),
+        test: (error) => error is bridge.ApiError,
+      )
+      .map(
+        (event) => JobUpdate(
+          job: event.job.toInt(),
+          state: switch (event.state) {
+            bridge.JobState.running => JobState.running,
+            bridge.JobState.paused => JobState.paused,
+            bridge.JobState.done => JobState.done,
+            bridge.JobState.failed => JobState.failed,
+            bridge.JobState.cancelled => JobState.cancelled,
+          },
+          progress: event.progress,
+          messageKey: event.messageKey,
+          params: {for (final (key, value) in event.params) key: value},
+          outputs: [
+            for (final output in event.outputs)
+              JobOutputFile(path: output.path, staged: output.staged),
+          ],
+          revision: event.revision,
+          error: switch (event.error) {
+            final error? => _exception(error),
+            null => null,
+          },
+        ),
+      );
+
+  @override
+  Future<void> pauseJob(int job) async {
+    try {
+      await bridge.pauseJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> resumeJob(int job) async {
+    try {
+      await bridge.resumeJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
+  Future<void> cancelJob(int job) async {
+    try {
+      await bridge.cancelJob(job: BigInt.from(job));
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
   /// The UTF-16 offset of the character at [chars] in [text].
   static int _units(String text, int chars) => text.runes
       .take(chars)

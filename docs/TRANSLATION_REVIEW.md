@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-839 messages in `app_en.arb`; translated: Turkish 839, Arabic 839.
+863 messages in `app_en.arb`; translated: Turkish 863, Arabic 863.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -895,5 +895,29 @@ The table below is generated from the ARB files by `tools/l10n`
 | `phoneTabFiles` | Files | Dosyalar | الملفات | Phone navigation bar: the file browser (FmPhone). |
 | `phoneTabScan` | Scan | Tara | مسح | Phone navigation bar: Scan to PDF (FmPhone). |
 | `phoneTabSettings` | Settings | Ayarlar | الإعدادات | Phone navigation bar: Settings (FmPhone). |
+| `jobPageOf` | Page {page} of {pages} | Sayfa {page} / {pages} | الصفحة {page} من {pages} | a11-6b: where a background task is. |
+| `jobPausedAtPage` | Paused at page {page} | {page}. sayfada duraklatıldı | متوقفة مؤقتًا عند الصفحة {page} | a11-6b: a paused task's place. |
+| `jobFailedDiskFull` | The disk is full. Free some space and try again. | Disk dolu. Biraz yer açıp yeniden deneyin. | القرص ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى. | a11-6b: why a background task failed. |
+| `jobCopyingTitle` | Copying {name} | {name} kopyalanıyor | جارٍ نسخ {name} | a11-6b: the title of a task that copies a document. |
+| `jobCopiedTitle` | Copied {name} | {name} kopyalandı | تم نسخ {name} | a11-6b: the title of the finished copy. |
+| `jobCopyFailedTitle` | Couldn’t copy {name} | {name} kopyalanamadı | تعذّر نسخ {name} | a11-6b: the title of a failed copy. |
+| `tasksTitle` | Background tasks | Arka plan görevleri | المهام في الخلفية | a11-6b: the drawer's title and its region's name. |
+| `tasksClose` | Close drawer | Paneli kapat | إغلاق اللوحة | a11-6b: the drawer's close button. |
+| `tasksOpen` | Show or hide background tasks | Arka plan görevlerini göster veya gizle | إظهار المهام في الخلفية أو إخفاؤها | Status bar: screen-reader name of the task line, which opens the drawer. |
+| `tasksEmptyTitle` | No background tasks | Arka plan görevi yok | لا توجد مهام في الخلفية | G49: the empty drawer. |
+| `tasksEmptyBody` | Long work, such as compressing a file, runs here while you keep working. | Dosya sıkıştırma gibi uzun işler, siz çalışmaya devam ederken burada yürür. | تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك. | G49: the empty drawer. |
+| `tasksRunning` | {count, plural, =1{1 task running} other{{formatted} tasks running}} | {count, plural, other{{formatted} görev sürüyor}} | {count, plural, other{{formatted} مهام قيد التنفيذ}} | Status bar: several background tasks in the one task line. |
+| `taskPause` | Pause | Duraklat | إيقاف مؤقت | a11-6b: pauses a task. |
+| `taskResume` | Resume | Sürdür | متابعة | a11-6b: resumes a paused task. |
+| `taskShow` | Show | Göster | إظهار | a11-6b: shows a finished task's file in the file manager. |
+| `taskDismiss` | Dismiss | Kapat | إغلاق | a11-6b: takes a finished task's row away. |
+| `taskCancelTitle` | Cancel “{task}”? | “{task}” iptal edilsin mi? | هل تريد إلغاء ”{task}“؟ | G49: the question before a running task is cancelled; task is its title. |
+| `taskCancelBody` | Its work so far is discarded, and no file is left behind. | Şimdiye kadarki işi silinir ve geride dosya kalmaz. | يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف. | G49: the question before a running task is cancelled. |
+| `taskKeepRunning` | Keep running | Sürmeye devam etsin | متابعة التنفيذ | G49: leaves the task running. |
+| `taskCancelConfirm` | Cancel task | Görevi iptal et | إلغاء المهمة | G49: cancels the task. |
+| `tasksQuitTitle` | {count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}} | {count, plural, other{{formatted} arka plan görevi hâlâ sürüyor}} | {count, plural, other{لا تزال {formatted} من المهام قيد التنفيذ في الخلفية}} | Quitting with background tasks running: the question. |
+| `tasksQuitBody` | Quitting cancels them, and they leave no partial files. | Çıkmak onları iptal eder; geride yarım dosya kalmaz. | يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة. | Quitting with background tasks running. |
+| `tasksQuitKeep` | Keep working | Çalışmaya devam et | مواصلة العمل | Quitting with background tasks running: stays in the app. |
+| `tasksQuitConfirm` | Cancel tasks and quit | Görevleri iptal et ve çık | إلغاء المهام والإنهاء | Quitting with background tasks running: goes on. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

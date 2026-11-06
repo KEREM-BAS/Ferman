@@ -27,6 +27,9 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw);
 
   @protected
+  RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw);
+
+  @protected
   RustStreamSink<SearchEvent> dco_decode_StreamSink_search_event_Dco(
     dynamic raw,
   );
@@ -66,6 +69,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment dco_decode_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  ApiError dco_decode_box_autoadd_api_error(dynamic raw);
 
   @protected
   BlockFont dco_decode_box_autoadd_block_font(dynamic raw);
@@ -230,6 +236,15 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind dco_decode_item_kind(dynamic raw);
 
   @protected
+  JobEvent dco_decode_job_event(dynamic raw);
+
+  @protected
+  JobOutput dco_decode_job_output(dynamic raw);
+
+  @protected
+  JobState dco_decode_job_state(dynamic raw);
+
+  @protected
   Layer dco_decode_layer(dynamic raw);
 
   @protected
@@ -269,6 +284,9 @@ abstract class FermanBridgeApiImplPlatform
   List<HistoryStep> dco_decode_list_history_step(dynamic raw);
 
   @protected
+  List<JobOutput> dco_decode_list_job_output(dynamic raw);
+
+  @protected
   List<Layer> dco_decode_list_layer(dynamic raw);
 
   @protected
@@ -294,6 +312,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw);
+
+  @protected
+  List<(String, String)> dco_decode_list_record_string_string(dynamic raw);
 
   @protected
   List<RecoverableDocument> dco_decode_list_recoverable_document(dynamic raw);
@@ -333,6 +354,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment? dco_decode_opt_box_autoadd_alignment(dynamic raw);
+
+  @protected
+  ApiError? dco_decode_opt_box_autoadd_api_error(dynamic raw);
 
   @protected
   BlockFont? dco_decode_opt_box_autoadd_block_font(dynamic raw);
@@ -430,6 +454,9 @@ abstract class FermanBridgeApiImplPlatform
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw);
 
   @protected
+  (String, String) dco_decode_record_string_string(dynamic raw);
+
+  @protected
   RecoverableDocument dco_decode_recoverable_document(dynamic raw);
 
   @protected
@@ -508,6 +535,11 @@ abstract class FermanBridgeApiImplPlatform
   AnyhowException sse_decode_AnyhowException(SseDeserializer deserializer);
 
   @protected
+  RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RustStreamSink<SearchEvent> sse_decode_StreamSink_search_event_Dco(
     SseDeserializer deserializer,
   );
@@ -549,6 +581,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment sse_decode_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer);
 
   @protected
   BlockFont sse_decode_box_autoadd_block_font(SseDeserializer deserializer);
@@ -741,6 +776,15 @@ abstract class FermanBridgeApiImplPlatform
   ItemKind sse_decode_item_kind(SseDeserializer deserializer);
 
   @protected
+  JobEvent sse_decode_job_event(SseDeserializer deserializer);
+
+  @protected
+  JobOutput sse_decode_job_output(SseDeserializer deserializer);
+
+  @protected
+  JobState sse_decode_job_state(SseDeserializer deserializer);
+
+  @protected
   Layer sse_decode_layer(SseDeserializer deserializer);
 
   @protected
@@ -790,6 +834,9 @@ abstract class FermanBridgeApiImplPlatform
   List<HistoryStep> sse_decode_list_history_step(SseDeserializer deserializer);
 
   @protected
+  List<JobOutput> sse_decode_list_job_output(SseDeserializer deserializer);
+
+  @protected
   List<Layer> sse_decode_list_layer(SseDeserializer deserializer);
 
   @protected
@@ -817,6 +864,11 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Uint8List sse_decode_list_prim_u_8_strict(SseDeserializer deserializer);
+
+  @protected
+  List<(String, String)> sse_decode_list_record_string_string(
+    SseDeserializer deserializer,
+  );
 
   @protected
   List<RecoverableDocument> sse_decode_list_recoverable_document(
@@ -862,6 +914,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   Alignment? sse_decode_opt_box_autoadd_alignment(SseDeserializer deserializer);
+
+  @protected
+  ApiError? sse_decode_opt_box_autoadd_api_error(SseDeserializer deserializer);
 
   @protected
   BlockFont? sse_decode_opt_box_autoadd_block_font(
@@ -981,6 +1036,11 @@ abstract class FermanBridgeApiImplPlatform
   ReadOnlyReason sse_decode_read_only_reason(SseDeserializer deserializer);
 
   @protected
+  (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  );
+
+  @protected
   RecoverableDocument sse_decode_recoverable_document(
     SseDeserializer deserializer,
   );
@@ -1061,6 +1121,19 @@ abstract class FermanBridgeApiImplPlatform
   String cst_encode_AnyhowException(AnyhowException raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     throw UnimplementedError();
+  }
+
+  @protected
+  String cst_encode_StreamSink_job_event_Dco(RustStreamSink<JobEvent> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_String(
+      raw.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_job_event,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+    );
   }
 
   @protected
@@ -1185,6 +1258,12 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_box_autoadd_alignment(Alignment raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_alignment(raw);
+  }
+
+  @protected
+  JSAny cst_encode_box_autoadd_api_error(ApiError raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_api_error(raw);
   }
 
   @protected
@@ -1528,6 +1607,30 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_job_event(JobEvent raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_u_64(raw.job),
+      cst_encode_job_state(raw.state),
+      cst_encode_opt_box_autoadd_f_32(raw.progress),
+      cst_encode_opt_String(raw.messageKey),
+      cst_encode_list_record_string_string(raw.params),
+      cst_encode_list_job_output(raw.outputs),
+      cst_encode_opt_box_autoadd_u_32(raw.revision),
+      cst_encode_opt_box_autoadd_api_error(raw.error),
+    ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_job_output(JobOutput raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [
+      cst_encode_String(raw.path),
+      cst_encode_opt_String(raw.staged),
+    ].jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_layer(Layer raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return [
@@ -1615,6 +1718,12 @@ abstract class FermanBridgeApiImplPlatform
   }
 
   @protected
+  JSAny cst_encode_list_job_output(List<JobOutput> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_job_output).toList().jsify()!;
+  }
+
+  @protected
   JSAny cst_encode_list_layer(List<Layer> raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.map(cst_encode_layer).toList().jsify()!;
@@ -1666,6 +1775,12 @@ abstract class FermanBridgeApiImplPlatform
   JSAny cst_encode_list_prim_u_8_strict(Uint8List raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw.jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_list_record_string_string(List<(String, String)> raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw.map(cst_encode_record_string_string).toList().jsify()!;
   }
 
   @protected
@@ -1760,6 +1875,12 @@ abstract class FermanBridgeApiImplPlatform
   int? cst_encode_opt_box_autoadd_alignment(Alignment? raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return raw == null ? null : cst_encode_box_autoadd_alignment(raw);
+  }
+
+  @protected
+  JSAny? cst_encode_opt_box_autoadd_api_error(ApiError? raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return raw == null ? null : cst_encode_box_autoadd_api_error(raw);
   }
 
   @protected
@@ -1957,6 +2078,12 @@ abstract class FermanBridgeApiImplPlatform
       cst_encode_opt_String(raw.tag),
       cst_encode_opt_String(raw.reason),
     ].jsify()!;
+  }
+
+  @protected
+  JSAny cst_encode_record_string_string((String, String) raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return [cst_encode_String(raw.$1), cst_encode_String(raw.$2)].jsify()!;
   }
 
   @protected
@@ -2186,6 +2313,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_item_kind(ItemKind raw);
 
   @protected
+  int cst_encode_job_state(JobState raw);
+
+  @protected
   int cst_encode_missing_reason_kind(MissingReasonKind raw);
 
   @protected
@@ -2240,6 +2370,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_StreamSink_job_event_Dco(
+    RustStreamSink<JobEvent> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_StreamSink_search_event_Dco(
     RustStreamSink<SearchEvent> self,
     SseSerializer serializer,
@@ -2287,6 +2423,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_box_autoadd_alignment(
     Alignment self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_box_autoadd_api_error(
+    ApiError self,
     SseSerializer serializer,
   );
 
@@ -2522,6 +2664,15 @@ abstract class FermanBridgeApiImplPlatform
   void sse_encode_item_kind(ItemKind self, SseSerializer serializer);
 
   @protected
+  void sse_encode_job_event(JobEvent self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_job_output(JobOutput self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_job_state(JobState self, SseSerializer serializer);
+
+  @protected
   void sse_encode_layer(Layer self, SseSerializer serializer);
 
   @protected
@@ -2588,6 +2739,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_list_job_output(
+    List<JobOutput> self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_list_layer(List<Layer> self, SseSerializer serializer);
 
   @protected
@@ -2626,6 +2783,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_list_prim_u_8_strict(
     Uint8List self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_list_record_string_string(
+    List<(String, String)> self,
     SseSerializer serializer,
   );
 
@@ -2692,6 +2855,12 @@ abstract class FermanBridgeApiImplPlatform
   @protected
   void sse_encode_opt_box_autoadd_alignment(
     Alignment? self,
+    SseSerializer serializer,
+  );
+
+  @protected
+  void sse_encode_opt_box_autoadd_api_error(
+    ApiError? self,
     SseSerializer serializer,
   );
 
@@ -2840,6 +3009,12 @@ abstract class FermanBridgeApiImplPlatform
   );
 
   @protected
+  void sse_encode_record_string_string(
+    (String, String) self,
+    SseSerializer serializer,
+  );
+
+  @protected
   void sse_encode_recoverable_document(
     RecoverableDocument self,
     SseSerializer serializer,
@@ -2961,6 +3136,9 @@ class FermanBridgeWire implements BaseWire {
     int page,
     JSAny block,
   ) => wasmModule.wire__crate__frb__block_style(port_, document, page, block);
+
+  void wire__crate__frb__cancel_job(NativePortType port_, JSAny job) =>
+      wasmModule.wire__crate__frb__cancel_job(port_, job);
 
   void wire__crate__frb__caret_at(
     NativePortType port_,
@@ -3088,6 +3266,9 @@ class FermanBridgeWire implements BaseWire {
   ) =>
       wasmModule.wire__crate__frb__optimize_and_clean(port_, document, staging);
 
+  void wire__crate__frb__pause_job(NativePortType port_, JSAny job) =>
+      wasmModule.wire__crate__frb__pause_job(port_, job);
+
   void wire__crate__frb__redo(NativePortType port_, JSAny document) =>
       wasmModule.wire__crate__frb__redo(port_, document);
 
@@ -3129,6 +3310,9 @@ class FermanBridgeWire implements BaseWire {
     password,
     suffix,
   );
+
+  void wire__crate__frb__resume_job(NativePortType port_, JSAny job) =>
+      wasmModule.wire__crate__frb__resume_job(port_, job);
 
   void wire__crate__frb__revert(
     NativePortType port_,
@@ -3284,6 +3468,20 @@ class FermanBridgeWire implements BaseWire {
     JSAny visible,
   ) => wasmModule.wire__crate__frb__show_layers(port_, document, visible);
 
+  void wire__crate__frb__start_copy_document_job(
+    NativePortType port_,
+    JSAny document,
+    String output,
+    String? staging,
+    String sink,
+  ) => wasmModule.wire__crate__frb__start_copy_document_job(
+    port_,
+    document,
+    output,
+    staging,
+    sink,
+  );
+
   void wire__crate__frb__start_recovery(NativePortType port_, String root) =>
       wasmModule.wire__crate__frb__start_recovery(port_, root);
 
@@ -3343,6 +3541,8 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     int page,
     JSAny block,
   );
+
+  external void wire__crate__frb__cancel_job(NativePortType port_, JSAny job);
 
   external void wire__crate__frb__caret_at(
     NativePortType port_,
@@ -3454,6 +3654,8 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String? staging,
   );
 
+  external void wire__crate__frb__pause_job(NativePortType port_, JSAny job);
+
   external void wire__crate__frb__redo(NativePortType port_, JSAny document);
 
   external void wire__crate__frb__request_view(
@@ -3482,6 +3684,8 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     String? password,
     String? suffix,
   );
+
+  external void wire__crate__frb__resume_job(NativePortType port_, JSAny job);
 
   external void wire__crate__frb__revert(
     NativePortType port_,
@@ -3600,6 +3804,14 @@ extension type FermanBridgeWasmModule._(JSObject _) implements JSObject {
     NativePortType port_,
     JSAny document,
     JSAny visible,
+  );
+
+  external void wire__crate__frb__start_copy_document_job(
+    NativePortType port_,
+    JSAny document,
+    String output,
+    String? staging,
+    String sink,
   );
 
   external void wire__crate__frb__start_recovery(

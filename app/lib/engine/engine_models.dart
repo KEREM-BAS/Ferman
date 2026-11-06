@@ -931,6 +931,88 @@ class EngineView {
   final Stream<ViewUpdate> updates;
 }
 
+/// How long a finished job offers its result (a11-6b), as the engine keeps it.
+const Duration jobResultKept = Duration(hours: 1);
+
+/// How long a quit waits for the jobs it cancelled; a job that has not reached
+/// its next step by then leaves its temp folder to the next launch's sweep, and
+/// never a partial output.
+const Duration jobQuitWait = Duration(seconds: 5);
+
+/// Where a job stands (a11-6b).
+enum JobState {
+  /// It works.
+  running,
+
+  /// It is parked between two steps.
+  paused,
+
+  /// It finished: the last update.
+  done,
+
+  /// It failed: the last update.
+  failed,
+
+  /// It was cancelled: the last update.
+  cancelled,
+}
+
+/// A file a job finished.
+@immutable
+class JobOutputFile {
+  /// Creates a file.
+  const new({required this.path, this.staged});
+
+  /// Where it belongs.
+  final String path;
+
+  /// Under the macOS App Sandbox, the verified file waiting for the swap into
+  /// [path], which is not touched yet.
+  final String? staged;
+}
+
+/// What a running job reports. The first update has its handle, the last says
+/// how it ended.
+@immutable
+class JobUpdate {
+  /// Creates an update.
+  const new({
+    required this.job,
+    required this.state,
+    this.progress,
+    this.messageKey,
+    this.params = const {},
+    this.outputs = const [],
+    this.revision,
+    this.error,
+  });
+
+  /// The job's handle.
+  final int job;
+
+  /// Where it stands.
+  final JobState state;
+
+  /// How far it is, 0 to 1; null when unknown.
+  final double? progress;
+
+  /// The ARB key of where it is, such as `jobPageOf`.
+  final String? messageKey;
+
+  /// The key's parameters.
+  final Map<String, String> params;
+
+  /// The files it wrote ([JobState.done]).
+  final List<JobOutputFile> outputs;
+
+  /// How many steps of the document's history it read ([JobState.done]): edits
+  /// since are not in its result.
+  final int? revision;
+
+  /// Why it failed ([JobState.failed]).
+  final EngineException? error;
+}
+
 /// How a search matches (a2-4a).
 @immutable
 class SearchOptions {

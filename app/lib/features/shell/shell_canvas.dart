@@ -2,6 +2,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/edit_callouts.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
+import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/save/document_saver.dart';
 import 'package:ferman/features/save/save_dialogs.dart';
 import 'package:ferman/features/shell/attachment_save.dart';
@@ -164,6 +166,15 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
             end: theme.space.space4,
             child: SizedBox(width: Toast.width, child: toastChild),
           );
+    // a11-6b: below the dialogs, at the canvas's bottom end.
+    final taskDrawer = ref.watch(backgroundJobsProvider.select((s) => s.open))
+        ? PositionedDirectional(
+            top: theme.space.space2,
+            bottom: theme.space.space2,
+            end: theme.space.space3,
+            child: const TaskDrawer(),
+          )
+        : null;
     // a1-7: a file still opening, with its Cancel (also Esc).
     final opening = active != null && active.loading ? active.path : null;
     void cancelOpening() =>
@@ -228,6 +239,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                       )
                                     : OpenErrorTab(active),
                               ),
+                              ?taskDrawer,
                               ?problemToast,
                             ],
                           ),
@@ -250,6 +262,7 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                   cancelLabel: l10n.openingCancel,
                                 ),
                               ),
+                              ?taskDrawer,
                               ?problemToast,
                             ],
                           ),
@@ -318,9 +331,18 @@ class _ShellCanvasState extends ConsumerState<ShellCanvas> {
                                         setState(() => _ownerUnlock = null),
                                   ),
                                 ),
+                              ?taskDrawer,
                               const Positioned.fill(child: SaveOverlays()),
                               ?problemToast,
                             ],
+                          ),
+                        )
+                      : taskDrawer != null
+                      ? Directionality(
+                          textDirection: uiDirection,
+                          child: Stack(
+                            fit: StackFit.expand,
+                            children: [taskDrawer],
                           ),
                         )
                       : const SizedBox.expand(),

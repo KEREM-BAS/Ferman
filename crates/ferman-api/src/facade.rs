@@ -6,7 +6,8 @@
 //! ([`engine_info`], async). Since M2 it opens and closes documents and runs views of their pages
 //! ([`Engine::open`], [`Engine::open_view`]); since M3 it gives each page's text blocks, carets
 //! and selections ([`Engine::text_blocks`]), and edits them in transactions with undo, redo and
-//! saving ([`Engine::begin_edit`], one actor per document). The [`Engine`] owns the long-lived
+//! saving ([`Engine::begin_edit`], one actor per document); since M4 it runs background jobs
+//! ([`Engine::start_job`]). The [`Engine`] owns the long-lived
 //! parts (the render thread that loads PDFium); the free functions use the process's
 //! [global](Engine::global) engine.
 //! Every entry point runs inside [`guard`] or [`guard_async`], which turn a panic into an
@@ -21,6 +22,7 @@ mod engine;
 mod error;
 mod guard;
 mod info;
+mod jobs;
 mod recovery;
 mod search;
 mod text;
@@ -37,6 +39,10 @@ pub use engine::{Engine, EngineConfig, PDFIUM_PATH_ENV, PdfiumLibrary, engine_in
 pub use error::{ApiError, ErrorKind, MessageKey};
 pub use guard::{guard, guard_async};
 pub use info::{BuildProfile, CrateVersion, EngineInfo, PdfiumStatus};
+pub use jobs::{
+    JOB_STALE, JobChange, JobEvent, JobId, JobOutput, JobResult, JobRun, JobSink, JobSnapshot,
+    JobStop,
+};
 pub use recovery::{RecoverableDocument, RestoredDocument};
 pub use search::{SearchEvent, SearchId, SearchMatch, SearchSink};
 pub use text::{BlockInfo, Caret, FontCoverage, LineInfo, PageBlocks, Selection, TextPosition};

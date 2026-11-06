@@ -557,6 +557,51 @@ pub struct PageRect {
     pub bottom: f32,
 }
 
+/// How far a job is (a11-6b).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum JobState {
+    /// It works.
+    Running,
+    /// It is parked between two steps.
+    Paused,
+    /// It finished: the last event.
+    Done,
+    /// It failed: the last event.
+    Failed,
+    /// It was cancelled: the last event.
+    Cancelled,
+}
+
+/// A file a job finished.
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct JobOutput {
+    /// Where it belongs.
+    pub path: String,
+    /// Under the macOS App Sandbox, the file waiting for the platform layer's swap into `path`.
+    pub staged: Option<String>,
+}
+
+/// An event of a job's stream.
+#[derive(Debug, Clone, PartialEq)]
+pub struct JobEvent {
+    /// The job's handle.
+    pub job: u64,
+    /// Where it stands.
+    pub state: JobState,
+    /// How far it is, 0 to 1, when known.
+    pub progress: Option<f32>,
+    /// The ARB key of where it is, such as `jobPageOf`.
+    pub message_key: Option<String>,
+    /// The key's parameters.
+    pub params: Vec<(String, String)>,
+    /// The files it wrote (`Done`).
+    pub outputs: Vec<JobOutput>,
+    /// How many steps of the document's history it read (`Done`).
+    pub revision: Option<u32>,
+    /// Why it failed (`Failed`).
+    pub error: Option<ApiError>,
+}
+
 /// One match of a search.
 #[derive(Debug, Clone, PartialEq)]
 pub struct SearchMatch {
@@ -1484,6 +1529,59 @@ pub async fn search(
         .map_err(api_error_dto)
 }
 
+/// Copies `document` as its revisions stand now to the new file `output` as a background job. The
+/// stream's first event has the job's handle; its last says how it ended.
+///
+/// # Errors
+///
+/// `InvalidInput` when `output` exists, `NotFound` for a document that is not open.
+pub async fn start_copy_document_job(
+    document: u64,
+    output: String,
+    staging: Option<String>,
+    sink: StreamSink<JobEvent>,
+) -> Result<(), ApiError> {
+    engine()?
+        .copy_document_job(
+            facade::DocumentId::from_raw(document),
+            PathBuf::from(output),
+            staging.map(PathBuf::from),
+            Box::new(BridgeJob(sink)),
+        )
+        .map(drop)
+        .map_err(api_error_dto)
+}
+
+/// Parks a job at its next checkpoint. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn pause_job(job: u64) -> Result<(), ApiError> {
+    engine()?.pause_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
+/// Lets a paused job go on. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn resume_job(job: u64) -> Result<(), ApiError> {
+    engine()?.resume_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
+/// Cancels a job at its next checkpoint; it leaves nothing. A job that ended ignores it.
+///
+/// # Errors
+///
+/// `Internal` if the engine cannot start.
+pub async fn cancel_job(job: u64) -> Result<(), ApiError> {
+    engine()?.cancel_job(facade::JobId::from_raw(job));
+    Ok(())
+}
+
 /// The text blocks of `page` of `document` in reading order, with their editability.
 ///
 /// See [`facade::Engine::text_blocks`].
@@ -2292,6 +2390,51 @@ pub async fn save_as(
         .await
         .map(staged_dto)
         .map_err(api_error_dto)
+}
+
+/// Hands a job's events to its Dart stream; a stream nobody reads does not stop the job.
+struct BridgeJob(StreamSink<JobEvent>);
+
+impl facade::JobSink for BridgeJob {
+    fn deliver(&mut self, event: facade::JobEvent) {
+        let path = |path: PathBuf| path.to_string_lossy().into_owned();
+        let mut dto = JobEvent {
+            job: event.job.get(),
+            state: if event.paused {
+                JobState::Paused
+            } else {
+                JobState::Running
+            },
+            progress: event.progress,
+            message_key: event.message.map(|key| key.as_str().to_owned()),
+            params: event.params,
+            outputs: Vec::new(),
+            revision: None,
+            error: None,
+        };
+        match event.result {
+            None => {}
+            Some(facade::JobResult::Done {
+                outputs, revision, ..
+            }) => {
+                dto.state = JobState::Done;
+                dto.revision = revision;
+                dto.outputs = outputs
+                    .into_iter()
+                    .map(|output| JobOutput {
+                        path: path(output.path),
+                        staged: output.staged.map(path),
+                    })
+                    .collect();
+            }
+            Some(facade::JobResult::Failed(err)) => {
+                dto.state = JobState::Failed;
+                dto.error = Some(api_error_dto(err));
+            }
+            Some(facade::JobResult::Cancelled) => dto.state = JobState::Cancelled,
+        }
+        let _ = self.0.add(dto);
+    }
 }
 
 /// Hands a search's events to its Dart stream.

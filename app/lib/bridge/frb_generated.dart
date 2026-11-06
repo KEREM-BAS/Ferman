@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => -366251377;
+  int get rustContentHash => -685114643;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -104,6 +104,8 @@ abstract class FermanBridgeApi extends BaseApi {
     required int page,
     required BigInt block,
   });
+
+  Future<void> crateFrbCancelJob({required BigInt job});
 
   Future<Caret> crateFrbCaretAt({
     required BigInt document,
@@ -187,6 +189,8 @@ abstract class FermanBridgeApi extends BaseApi {
     String? staging,
   });
 
+  Future<void> crateFrbPauseJob({required BigInt job});
+
   Future<RevisionInfo> crateFrbRedo({required BigInt document});
 
   Future<void> crateFrbRequestView({
@@ -211,6 +215,8 @@ abstract class FermanBridgeApi extends BaseApi {
     String? password,
     String? suffix,
   });
+
+  Future<void> crateFrbResumeJob({required BigInt job});
 
   Future<Reverted> crateFrbRevert({
     required BigInt document,
@@ -301,6 +307,12 @@ abstract class FermanBridgeApi extends BaseApi {
   Future<BigInt> crateFrbShowLayers({
     required BigInt document,
     required List<bool> visible,
+  });
+
+  Stream<JobEvent> crateFrbStartCopyDocumentJob({
+    required BigInt document,
+    required String output,
+    String? staging,
   });
 
   Future<void> crateFrbStartRecovery({required String root});
@@ -467,6 +479,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "block_style",
     argNames: ["document", "page", "block"],
   );
+
+  @override
+  Future<void> crateFrbCancelJob({required BigInt job}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(job);
+          return wire.wire__crate__frb__cancel_job(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbCancelJobConstMeta,
+        argValues: [job],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbCancelJobConstMeta =>
+      const TaskConstMeta(debugName: "cancel_job", argNames: ["job"]);
 
   @override
   Future<Caret> crateFrbCaretAt({
@@ -1042,6 +1076,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Future<void> crateFrbPauseJob({required BigInt job}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(job);
+          return wire.wire__crate__frb__pause_job(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbPauseJobConstMeta,
+        argValues: [job],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbPauseJobConstMeta =>
+      const TaskConstMeta(debugName: "pause_job", argNames: ["job"]);
+
+  @override
   Future<RevisionInfo> crateFrbRedo({required BigInt document}) {
     return handler.executeNormal(
       NormalTask(
@@ -1186,6 +1242,28 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     debugName: "restore_recovered",
     argNames: ["session", "document", "password", "suffix"],
   );
+
+  @override
+  Future<void> crateFrbResumeJob({required BigInt job}) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(job);
+          return wire.wire__crate__frb__resume_job(port_, arg0);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_unit,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbResumeJobConstMeta,
+        argValues: [job],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbResumeJobConstMeta =>
+      const TaskConstMeta(debugName: "resume_job", argNames: ["job"]);
 
   @override
   Future<Reverted> crateFrbRevert({
@@ -1729,6 +1807,48 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   );
 
   @override
+  Stream<JobEvent> crateFrbStartCopyDocumentJob({
+    required BigInt document,
+    required String output,
+    String? staging,
+  }) {
+    final sink = RustStreamSink<JobEvent>();
+    unawaited(
+      handler.executeNormal(
+        NormalTask(
+          callFfi: (port_) {
+            var arg0 = cst_encode_u_64(document);
+            var arg1 = cst_encode_String(output);
+            var arg2 = cst_encode_opt_String(staging);
+            var arg3 = cst_encode_StreamSink_job_event_Dco(sink);
+            return wire.wire__crate__frb__start_copy_document_job(
+              port_,
+              arg0,
+              arg1,
+              arg2,
+              arg3,
+            );
+          },
+          codec: DcoCodec(
+            decodeSuccessData: dco_decode_unit,
+            decodeErrorData: dco_decode_api_error,
+          ),
+          constMeta: kCrateFrbStartCopyDocumentJobConstMeta,
+          argValues: [document, output, staging, sink],
+          apiImpl: this,
+        ),
+      ),
+    );
+    return sink.stream;
+  }
+
+  TaskConstMeta get kCrateFrbStartCopyDocumentJobConstMeta =>
+      const TaskConstMeta(
+        debugName: "start_copy_document_job",
+        argNames: ["document", "output", "staging", "sink"],
+      );
+
+  @override
   Future<void> crateFrbStartRecovery({required String root}) {
     return handler.executeNormal(
       NormalTask(
@@ -1857,6 +1977,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   AnyhowException dco_decode_AnyhowException(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return AnyhowException(raw as String);
+  }
+
+  @protected
+  RustStreamSink<JobEvent> dco_decode_StreamSink_job_event_Dco(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    throw UnimplementedError();
   }
 
   @protected
@@ -2003,6 +2129,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Alignment dco_decode_box_autoadd_alignment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return dco_decode_alignment(raw);
+  }
+
+  @protected
+  ApiError dco_decode_box_autoadd_api_error(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return dco_decode_api_error(raw);
   }
 
   @protected
@@ -2475,6 +2607,42 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  JobEvent dco_decode_job_event(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 8)
+      throw Exception('unexpected arr length: expect 8 but see ${arr.length}');
+    return JobEvent(
+      job: dco_decode_u_64(arr[0]),
+      state: dco_decode_job_state(arr[1]),
+      progress: dco_decode_opt_box_autoadd_f_32(arr[2]),
+      messageKey: dco_decode_opt_String(arr[3]),
+      params: dco_decode_list_record_string_string(arr[4]),
+      outputs: dco_decode_list_job_output(arr[5]),
+      revision: dco_decode_opt_box_autoadd_u_32(arr[6]),
+      error: dco_decode_opt_box_autoadd_api_error(arr[7]),
+    );
+  }
+
+  @protected
+  JobOutput dco_decode_job_output(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2)
+      throw Exception('unexpected arr length: expect 2 but see ${arr.length}');
+    return JobOutput(
+      path: dco_decode_String(arr[0]),
+      staged: dco_decode_opt_String(arr[1]),
+    );
+  }
+
+  @protected
+  JobState dco_decode_job_state(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return JobState.values[raw as int];
+  }
+
+  @protected
   Layer dco_decode_layer(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -2568,6 +2736,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<JobOutput> dco_decode_list_job_output(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_job_output).toList();
+  }
+
+  @protected
   List<Layer> dco_decode_list_layer(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return (raw as List<dynamic>).map(dco_decode_layer).toList();
@@ -2619,6 +2793,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Uint8List dco_decode_list_prim_u_8_strict(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw as Uint8List;
+  }
+
+  @protected
+  List<(String, String)> dco_decode_list_record_string_string(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return (raw as List<dynamic>).map(dco_decode_record_string_string).toList();
   }
 
   @protected
@@ -2743,6 +2923,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Alignment? dco_decode_opt_box_autoadd_alignment(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return raw == null ? null : dco_decode_box_autoadd_alignment(raw);
+  }
+
+  @protected
+  ApiError? dco_decode_opt_box_autoadd_api_error(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return raw == null ? null : dco_decode_box_autoadd_api_error(raw);
   }
 
   @protected
@@ -2992,6 +3178,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ReadOnlyReason dco_decode_read_only_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return ReadOnlyReason.values[raw as int];
+  }
+
+  @protected
+  (String, String) dco_decode_record_string_string(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    final arr = raw as List<dynamic>;
+    if (arr.length != 2) {
+      throw Exception('Expected 2 elements, got ${arr.length}');
+    }
+    return (dco_decode_String(arr[0]), dco_decode_String(arr[1]));
   }
 
   @protected
@@ -3285,6 +3481,14 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  RustStreamSink<JobEvent> sse_decode_StreamSink_job_event_Dco(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    throw UnimplementedError('Unreachable ()');
+  }
+
+  @protected
   RustStreamSink<SearchEvent> sse_decode_StreamSink_search_event_Dco(
     SseDeserializer deserializer,
   ) {
@@ -3441,6 +3645,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   Alignment sse_decode_box_autoadd_alignment(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     return (sse_decode_alignment(deserializer));
+  }
+
+  @protected
+  ApiError sse_decode_box_autoadd_api_error(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    return (sse_decode_api_error(deserializer));
   }
 
   @protected
@@ -3973,6 +4183,44 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  JobEvent sse_decode_job_event(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_job = sse_decode_u_64(deserializer);
+    var var_state = sse_decode_job_state(deserializer);
+    var var_progress = sse_decode_opt_box_autoadd_f_32(deserializer);
+    var var_messageKey = sse_decode_opt_String(deserializer);
+    var var_params = sse_decode_list_record_string_string(deserializer);
+    var var_outputs = sse_decode_list_job_output(deserializer);
+    var var_revision = sse_decode_opt_box_autoadd_u_32(deserializer);
+    var var_error = sse_decode_opt_box_autoadd_api_error(deserializer);
+    return JobEvent(
+      job: var_job,
+      state: var_state,
+      progress: var_progress,
+      messageKey: var_messageKey,
+      params: var_params,
+      outputs: var_outputs,
+      revision: var_revision,
+      error: var_error,
+    );
+  }
+
+  @protected
+  JobOutput sse_decode_job_output(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_path = sse_decode_String(deserializer);
+    var var_staged = sse_decode_opt_String(deserializer);
+    return JobOutput(path: var_path, staged: var_staged);
+  }
+
+  @protected
+  JobState sse_decode_job_state(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return JobState.values[inner];
+  }
+
+  @protected
   Layer sse_decode_layer(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     var var_name = sse_decode_String(deserializer);
@@ -4139,6 +4387,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  List<JobOutput> sse_decode_list_job_output(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <JobOutput>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_job_output(deserializer));
+    }
+    return ans_;
+  }
+
+  @protected
   List<Layer> sse_decode_list_layer(SseDeserializer deserializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
 
@@ -4231,6 +4491,20 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var len_ = sse_decode_i_32(deserializer);
     return deserializer.buffer.getUint8List(len_);
+  }
+
+  @protected
+  List<(String, String)> sse_decode_list_record_string_string(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    var len_ = sse_decode_i_32(deserializer);
+    var ans_ = <(String, String)>[];
+    for (var idx_ = 0; idx_ < len_; ++idx_) {
+      ans_.add(sse_decode_record_string_string(deserializer));
+    }
+    return ans_;
   }
 
   @protected
@@ -4429,6 +4703,17 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
     if (sse_decode_bool(deserializer)) {
       return (sse_decode_box_autoadd_alignment(deserializer));
+    } else {
+      return null;
+    }
+  }
+
+  @protected
+  ApiError? sse_decode_opt_box_autoadd_api_error(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    if (sse_decode_bool(deserializer)) {
+      return (sse_decode_box_autoadd_api_error(deserializer));
     } else {
       return null;
     }
@@ -4803,6 +5088,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return ReadOnlyReason.values[inner];
+  }
+
+  @protected
+  (String, String) sse_decode_record_string_string(
+    SseDeserializer deserializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var var_field0 = sse_decode_String(deserializer);
+    var var_field1 = sse_decode_String(deserializer);
+    return (var_field0, var_field1);
   }
 
   @protected
@@ -5203,6 +5498,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_job_state(JobState raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_missing_reason_kind(MissingReasonKind raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -5305,6 +5606,23 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.message, serializer);
+  }
+
+  @protected
+  void sse_encode_StreamSink_job_event_Dco(
+    RustStreamSink<JobEvent> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(
+      self.setupAndSerialize(
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_job_event,
+          decodeErrorData: dco_decode_AnyhowException,
+        ),
+      ),
+      serializer,
+    );
   }
 
   @protected
@@ -5445,6 +5763,15 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_alignment(self, serializer);
+  }
+
+  @protected
+  void sse_encode_box_autoadd_api_error(
+    ApiError self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_api_error(self, serializer);
   }
 
   @protected
@@ -5909,6 +6236,32 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_job_event(JobEvent self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_u_64(self.job, serializer);
+    sse_encode_job_state(self.state, serializer);
+    sse_encode_opt_box_autoadd_f_32(self.progress, serializer);
+    sse_encode_opt_String(self.messageKey, serializer);
+    sse_encode_list_record_string_string(self.params, serializer);
+    sse_encode_list_job_output(self.outputs, serializer);
+    sse_encode_opt_box_autoadd_u_32(self.revision, serializer);
+    sse_encode_opt_box_autoadd_api_error(self.error, serializer);
+  }
+
+  @protected
+  void sse_encode_job_output(JobOutput self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.path, serializer);
+    sse_encode_opt_String(self.staged, serializer);
+  }
+
+  @protected
+  void sse_encode_job_state(JobState self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
   void sse_encode_layer(Layer self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_String(self.name, serializer);
@@ -6052,6 +6405,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  void sse_encode_list_job_output(
+    List<JobOutput> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_job_output(item, serializer);
+    }
+  }
+
+  @protected
   void sse_encode_list_layer(List<Layer> self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
@@ -6148,6 +6513,18 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.length, serializer);
     serializer.buffer.putUint8List(self);
+  }
+
+  @protected
+  void sse_encode_list_record_string_string(
+    List<(String, String)> self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.length, serializer);
+    for (final item in self) {
+      sse_encode_record_string_string(item, serializer);
+    }
   }
 
   @protected
@@ -6306,6 +6683,19 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_bool(self != null, serializer);
     if (self != null) {
       sse_encode_box_autoadd_alignment(self, serializer);
+    }
+  }
+
+  @protected
+  void sse_encode_opt_box_autoadd_api_error(
+    ApiError? self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+
+    sse_encode_bool(self != null, serializer);
+    if (self != null) {
+      sse_encode_box_autoadd_api_error(self, serializer);
     }
   }
 
@@ -6642,6 +7032,16 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   ) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_record_string_string(
+    (String, String) self,
+    SseSerializer serializer,
+  ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_String(self.$1, serializer);
+    sse_encode_String(self.$2, serializer);
   }
 
   @protected

@@ -404,6 +404,21 @@ void main() {
         await engine.rollbackEdit(again.$1);
       });
 
+      test('a background job streams through the bridge to its file', () async {
+        final original = base64Decode(kiraTrPdf);
+        final file = File('${dir.path}/kira-tr.pdf')
+          ..writeAsBytesSync(original);
+        final document = await open(file.path);
+        final output = '${dir.path}/copy.pdf';
+        final updates = await engine.copyDocumentJob(document, output).toList();
+        expect(updates.first.state, JobState.running);
+        expect(updates.last.state, JobState.done);
+        expect(updates.last.revision, 0);
+        expect(updates.last.outputs.single.path, output);
+        expect(File(output).readAsBytesSync(), original);
+        await engine.close(document);
+      });
+
       test('unsaved edits come back after the engine restarts', () async {
         final original = base64Decode(kiraTrPdf);
         final file = File('${dir.path}/kira-tr.pdf')

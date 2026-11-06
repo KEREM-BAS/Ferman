@@ -3160,4 +3160,106 @@ class AppLocalizationsAr extends AppLocalizations {
 
   @override
   String get phoneTabSettings => 'الإعدادات';
+
+  @override
+  String jobPageOf(String page, String pages) {
+    return 'الصفحة $page من $pages';
+  }
+
+  @override
+  String jobPausedAtPage(String page) {
+    return 'متوقفة مؤقتًا عند الصفحة $page';
+  }
+
+  @override
+  String get jobFailedDiskFull =>
+      'القرص ممتلئ. أفرغ بعض المساحة ثم حاول مرة أخرى.';
+
+  @override
+  String jobCopyingTitle(String name) {
+    return 'جارٍ نسخ $name';
+  }
+
+  @override
+  String jobCopiedTitle(String name) {
+    return 'تم نسخ $name';
+  }
+
+  @override
+  String jobCopyFailedTitle(String name) {
+    return 'تعذّر نسخ $name';
+  }
+
+  @override
+  String get tasksTitle => 'المهام في الخلفية';
+
+  @override
+  String get tasksClose => 'إغلاق اللوحة';
+
+  @override
+  String get tasksOpen => 'إظهار المهام في الخلفية أو إخفاؤها';
+
+  @override
+  String get tasksEmptyTitle => 'لا توجد مهام في الخلفية';
+
+  @override
+  String get tasksEmptyBody =>
+      'تُنفَّذ هنا الأعمال الطويلة، مثل ضغط ملف، بينما تواصل عملك.';
+
+  @override
+  String tasksRunning(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted مهام قيد التنفيذ',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskPause => 'إيقاف مؤقت';
+
+  @override
+  String get taskResume => 'متابعة';
+
+  @override
+  String get taskShow => 'إظهار';
+
+  @override
+  String get taskDismiss => 'إغلاق';
+
+  @override
+  String taskCancelTitle(String task) {
+    return 'هل تريد إلغاء ”$task“؟';
+  }
+
+  @override
+  String get taskCancelBody =>
+      'يُتجاهل ما أُنجز منها حتى الآن، ولا يبقى أي ملف.';
+
+  @override
+  String get taskKeepRunning => 'متابعة التنفيذ';
+
+  @override
+  String get taskCancelConfirm => 'إلغاء المهمة';
+
+  @override
+  String tasksQuitTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: 'لا تزال $formatted من المهام قيد التنفيذ في الخلفية',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tasksQuitBody =>
+      'يؤدي الإنهاء إلى إلغائها، ولا تترك ملفات غير مكتملة.';
+
+  @override
+  String get tasksQuitKeep => 'مواصلة العمل';
+
+  @override
+  String get tasksQuitConfirm => 'إلغاء المهام والإنهاء';
 }

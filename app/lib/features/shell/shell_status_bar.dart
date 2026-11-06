@@ -2,6 +2,8 @@ import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/editor/block_language.dart';
 import 'package:ferman/features/editor/edit_session.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
+import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/viewer/find_state.dart';
@@ -99,6 +101,38 @@ class ShellStatusBar extends ConsumerWidget {
     // The "· spelling" a3-14 adds comes with spell-check (B150).
     final language =
         this.language ?? (tag == null ? null : blockLanguageName(context, tag));
+    final jobs = ref.read(backgroundJobsProvider.notifier);
+    final rows = ref.watch(backgroundJobsProvider.select((jobs) => jobs.rows));
+    final running = [
+      for (final row in rows)
+        if (row.active) row,
+    ];
+    final jobLine = switch (running) {
+      [final row] => taskProgressOf(
+        row,
+        l10n,
+        format,
+        jobs,
+        variant: TaskProgressVariant.inline,
+      ),
+      [_, _, ...] => TaskProgress(
+        variant: TaskProgressVariant.inline,
+        icon: IconName.listChecks,
+        title: l10n.tasksRunning(
+          running.length,
+          format.integer(running.length),
+        ),
+        indeterminate: true,
+      ),
+      _ when find.searched != null || rows.isEmpty => null,
+      _ => taskProgressOf(
+        rows.last,
+        l10n,
+        format,
+        jobs,
+        variant: TaskProgressVariant.inline,
+      ),
+    };
     return Container(
       height: theme.density.statusbarH,
       padding: EdgeInsetsDirectional.only(
@@ -199,9 +233,16 @@ class ShellStatusBar extends ConsumerWidget {
                 ],
               ),
             const Spacer(),
-            // The running job (FmWindow `task`, B124): M2's only job is
-            // search, whose find bar shows its progress too.
-            if (find.searched case final searched?)
+            // The task (FmWindow `task`, B124): the jobs running, or else the
+            // search, whose find bar shows its progress too, or else the
+            // job that finished last. A job's line opens the drawer.
+            if (jobLine case final line?)
+              TaskDrawerOpener(
+                label: l10n.tasksOpen,
+                onPressed: jobs.toggleDrawer,
+                child: line,
+              )
+            else if (find.searched case final searched?)
               TaskProgress(
                 variant: TaskProgressVariant.inline,
                 icon: IconName.search,

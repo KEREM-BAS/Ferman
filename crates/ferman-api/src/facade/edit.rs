@@ -1097,6 +1097,11 @@ impl Session {
         Ok((self.current(), self.publish(), told))
     }
 
+    /// How many times this document's revisions were published, which a job's change checks.
+    pub(super) fn published_generation(&self) -> u64 {
+        self.model.revised().generation
+    }
+
     /// The handles of pages `indices` as the committed revisions leave the pages.
     fn page_handles(&self, indices: &[usize]) -> Vec<u64> {
         let pages = self.committed.pages(&self.model.document);

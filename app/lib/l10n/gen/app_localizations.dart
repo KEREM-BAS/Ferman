@@ -5138,6 +5138,150 @@ abstract class AppLocalizations {
   /// In en, this message translates to:
   /// **'Settings'**
   String get phoneTabSettings;
+
+  /// a11-6b: where a background task is.
+  ///
+  /// In en, this message translates to:
+  /// **'Page {page} of {pages}'**
+  String jobPageOf(String page, String pages);
+
+  /// a11-6b: a paused task's place.
+  ///
+  /// In en, this message translates to:
+  /// **'Paused at page {page}'**
+  String jobPausedAtPage(String page);
+
+  /// a11-6b: why a background task failed.
+  ///
+  /// In en, this message translates to:
+  /// **'The disk is full. Free some space and try again.'**
+  String get jobFailedDiskFull;
+
+  /// a11-6b: the title of a task that copies a document.
+  ///
+  /// In en, this message translates to:
+  /// **'Copying {name}'**
+  String jobCopyingTitle(String name);
+
+  /// a11-6b: the title of the finished copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Copied {name}'**
+  String jobCopiedTitle(String name);
+
+  /// a11-6b: the title of a failed copy.
+  ///
+  /// In en, this message translates to:
+  /// **'Couldn’t copy {name}'**
+  String jobCopyFailedTitle(String name);
+
+  /// a11-6b: the drawer's title and its region's name.
+  ///
+  /// In en, this message translates to:
+  /// **'Background tasks'**
+  String get tasksTitle;
+
+  /// a11-6b: the drawer's close button.
+  ///
+  /// In en, this message translates to:
+  /// **'Close drawer'**
+  String get tasksClose;
+
+  /// Status bar: screen-reader name of the task line, which opens the drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Show or hide background tasks'**
+  String get tasksOpen;
+
+  /// G49: the empty drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'No background tasks'**
+  String get tasksEmptyTitle;
+
+  /// G49: the empty drawer.
+  ///
+  /// In en, this message translates to:
+  /// **'Long work, such as compressing a file, runs here while you keep working.'**
+  String get tasksEmptyBody;
+
+  /// Status bar: several background tasks in the one task line.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{1 task running} other{{formatted} tasks running}}'**
+  String tasksRunning(int count, String formatted);
+
+  /// a11-6b: pauses a task.
+  ///
+  /// In en, this message translates to:
+  /// **'Pause'**
+  String get taskPause;
+
+  /// a11-6b: resumes a paused task.
+  ///
+  /// In en, this message translates to:
+  /// **'Resume'**
+  String get taskResume;
+
+  /// a11-6b: shows a finished task's file in the file manager.
+  ///
+  /// In en, this message translates to:
+  /// **'Show'**
+  String get taskShow;
+
+  /// a11-6b: takes a finished task's row away.
+  ///
+  /// In en, this message translates to:
+  /// **'Dismiss'**
+  String get taskDismiss;
+
+  /// G49: the question before a running task is cancelled; task is its title.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel “{task}”?'**
+  String taskCancelTitle(String task);
+
+  /// G49: the question before a running task is cancelled.
+  ///
+  /// In en, this message translates to:
+  /// **'Its work so far is discarded, and no file is left behind.'**
+  String get taskCancelBody;
+
+  /// G49: leaves the task running.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep running'**
+  String get taskKeepRunning;
+
+  /// G49: cancels the task.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel task'**
+  String get taskCancelConfirm;
+
+  /// Quitting with background tasks running: the question.
+  ///
+  /// In en, this message translates to:
+  /// **'{count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}}'**
+  String tasksQuitTitle(int count, String formatted);
+
+  /// Quitting with background tasks running.
+  ///
+  /// In en, this message translates to:
+  /// **'Quitting cancels them, and they leave no partial files.'**
+  String get tasksQuitBody;
+
+  /// Quitting with background tasks running: stays in the app.
+  ///
+  /// In en, this message translates to:
+  /// **'Keep working'**
+  String get tasksQuitKeep;
+
+  /// Quitting with background tasks running: goes on.
+  ///
+  /// In en, this message translates to:
+  /// **'Cancel tasks and quit'**
+  String get tasksQuitConfirm;
 }
 
 class _AppLocalizationsDelegate

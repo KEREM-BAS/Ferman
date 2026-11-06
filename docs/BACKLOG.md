@@ -198,7 +198,6 @@ and Shift for ⇧.
 | B180 | Show log files | `a11-1k` | Settings › Advanced › Show log files (disabled; the registry value comes with the pane in W5) | M5, with the logs on the device (B142) | Nothing writes log files yet. |
 | B181 | The Like Acrobat and Like Preview presets | `a11-1j` | Settings › Shortcuts › the preset select's two options (disabled; the registry value comes with the pane in W5) | P2 | No document or board gives their key tables. The Ferman preset works. |
 | B182 | Compress's Custom… preset | `a9-1` | Tools › Compress › Custom… (disabled; the registry value comes with the screen in W4) | P2 | No board draws its form. |
-| B183 | The background task drawer | `a11-6b` | not visible until W0 adds its status-bar entry | M4 (W0) | The plan found no row for it. The drawer, its status-bar entry and its empty state ([G49](DESIGN_GAPS.md#g49)). |
 | B184 | Metadata editing | `a2-7` | Document properties › Summary: read only | M4 (W6) | The plan found no row for it. `/Info` editing, with bookmarks (ROADMAP §8 step 10). |
 | B185 | Comments following edited text | none | not visible: an edited block's comments stay where they are | P2, with text boxes | Decision 11 of the M4 plan: page text under an annotation stays editable, and its comments do not move with the text. |
 | B186 | Optimized for web | `a1-11`, `a1-11b` | Save as › Optimized for web (disabled, with `Feature.compress` until W4 gives it a value of its own) | P2 | Question 4 of the M4 plan: it needs a linearizing writer with hint tables on the file-safety path, and no M4 criterion asks for it ([G111](DESIGN_GAPS.md#g111)). |
@@ -207,6 +206,7 @@ and Shift for ⇧.
 
 | ID | Feature | Shipped in | Notes |
 |---|---|---|---|
+| B183 | The background task drawer | M4 (W0) | The drawer, its rows, the cancel question, the empty state and quit's question ([G49](DESIGN_GAPS.md#g49)), with the status bar's task line opening it. The palette's entry comes in W5. |
 | B164 | Text panel and review list in their width | M3 (W5) | The panel's heading was split with a spacer, not short of width; it now gives the title all the room left. The review list takes a3-12's 320 px when the window has the room. |
 | B098 | Unmasking the comparison of the edited document | M3 (W5) | `f6a`, `a3-1d`, `a12-1tr` and `a12-1ar` compare against the `edit_main` goldens without masks. |
 | B131 (M3 part) | Resource limits for Type3 glyph procedures and patterns, the time per page and the revision store | M3 (W5) | The interpreter walks glyph procedures and tiling patterns once a page, under `max_recursion` on the stack forms use, and their text reaches no sink. It reads `page_time` cooperatively. An open transaction counts the decoded streams it keeps against `max_revision_decoded` and refuses a change past it with nothing changed. Tests in `ferman_core::interpret` and `ferman_core::revision`; ARCHITECTURE §9.1 names them. |

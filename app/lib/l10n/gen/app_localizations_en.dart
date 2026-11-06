@@ -3084,4 +3084,108 @@ class AppLocalizationsEn extends AppLocalizations {
 
   @override
   String get phoneTabSettings => 'Settings';
+
+  @override
+  String jobPageOf(String page, String pages) {
+    return 'Page $page of $pages';
+  }
+
+  @override
+  String jobPausedAtPage(String page) {
+    return 'Paused at page $page';
+  }
+
+  @override
+  String get jobFailedDiskFull =>
+      'The disk is full. Free some space and try again.';
+
+  @override
+  String jobCopyingTitle(String name) {
+    return 'Copying $name';
+  }
+
+  @override
+  String jobCopiedTitle(String name) {
+    return 'Copied $name';
+  }
+
+  @override
+  String jobCopyFailedTitle(String name) {
+    return 'Couldn’t copy $name';
+  }
+
+  @override
+  String get tasksTitle => 'Background tasks';
+
+  @override
+  String get tasksClose => 'Close drawer';
+
+  @override
+  String get tasksOpen => 'Show or hide background tasks';
+
+  @override
+  String get tasksEmptyTitle => 'No background tasks';
+
+  @override
+  String get tasksEmptyBody =>
+      'Long work, such as compressing a file, runs here while you keep working.';
+
+  @override
+  String tasksRunning(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted tasks running',
+      one: '1 task running',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get taskPause => 'Pause';
+
+  @override
+  String get taskResume => 'Resume';
+
+  @override
+  String get taskShow => 'Show';
+
+  @override
+  String get taskDismiss => 'Dismiss';
+
+  @override
+  String taskCancelTitle(String task) {
+    return 'Cancel “$task”?';
+  }
+
+  @override
+  String get taskCancelBody =>
+      'Its work so far is discarded, and no file is left behind.';
+
+  @override
+  String get taskKeepRunning => 'Keep running';
+
+  @override
+  String get taskCancelConfirm => 'Cancel task';
+
+  @override
+  String tasksQuitTitle(int count, String formatted) {
+    String _temp0 = intl.Intl.pluralLogic(
+      count,
+      locale: localeName,
+      other: '$formatted background tasks are still running',
+      one: 'A background task is still running',
+    );
+    return '$_temp0';
+  }
+
+  @override
+  String get tasksQuitBody =>
+      'Quitting cancels them, and they leave no partial files.';
+
+  @override
+  String get tasksQuitKeep => 'Keep working';
+
+  @override
+  String get tasksQuitConfirm => 'Cancel tasks and quit';
 }

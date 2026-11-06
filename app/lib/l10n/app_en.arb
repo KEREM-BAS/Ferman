@@ -4159,5 +4159,150 @@
   "phoneTabSettings": "Settings",
   "@phoneTabSettings": {
     "description": "Phone navigation bar: Settings (FmPhone)."
+  },
+  "jobPageOf": "Page {page} of {pages}",
+  "@jobPageOf": {
+    "description": "a11-6b: where a background task is.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      },
+      "pages": {
+        "type": "String"
+      }
+    }
+  },
+  "jobPausedAtPage": "Paused at page {page}",
+  "@jobPausedAtPage": {
+    "description": "a11-6b: a paused task's place.",
+    "placeholders": {
+      "page": {
+        "type": "String"
+      }
+    }
+  },
+  "jobFailedDiskFull": "The disk is full. Free some space and try again.",
+  "@jobFailedDiskFull": {
+    "description": "a11-6b: why a background task failed."
+  },
+  "jobCopyingTitle": "Copying {name}",
+  "@jobCopyingTitle": {
+    "description": "a11-6b: the title of a task that copies a document.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCopiedTitle": "Copied {name}",
+  "@jobCopiedTitle": {
+    "description": "a11-6b: the title of the finished copy.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "jobCopyFailedTitle": "Couldn’t copy {name}",
+  "@jobCopyFailedTitle": {
+    "description": "a11-6b: the title of a failed copy.",
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "tasksTitle": "Background tasks",
+  "@tasksTitle": {
+    "description": "a11-6b: the drawer's title and its region's name."
+  },
+  "tasksClose": "Close drawer",
+  "@tasksClose": {
+    "description": "a11-6b: the drawer's close button."
+  },
+  "tasksOpen": "Show or hide background tasks",
+  "@tasksOpen": {
+    "description": "Status bar: screen-reader name of the task line, which opens the drawer."
+  },
+  "tasksEmptyTitle": "No background tasks",
+  "@tasksEmptyTitle": {
+    "description": "G49: the empty drawer."
+  },
+  "tasksEmptyBody": "Long work, such as compressing a file, runs here while you keep working.",
+  "@tasksEmptyBody": {
+    "description": "G49: the empty drawer."
+  },
+  "tasksRunning": "{count, plural, =1{1 task running} other{{formatted} tasks running}}",
+  "@tasksRunning": {
+    "description": "Status bar: several background tasks in the one task line.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "taskPause": "Pause",
+  "@taskPause": {
+    "description": "a11-6b: pauses a task."
+  },
+  "taskResume": "Resume",
+  "@taskResume": {
+    "description": "a11-6b: resumes a paused task."
+  },
+  "taskShow": "Show",
+  "@taskShow": {
+    "description": "a11-6b: shows a finished task's file in the file manager."
+  },
+  "taskDismiss": "Dismiss",
+  "@taskDismiss": {
+    "description": "a11-6b: takes a finished task's row away."
+  },
+  "taskCancelTitle": "Cancel “{task}”?",
+  "@taskCancelTitle": {
+    "description": "G49: the question before a running task is cancelled; task is its title.",
+    "placeholders": {
+      "task": {
+        "type": "String"
+      }
+    }
+  },
+  "taskCancelBody": "Its work so far is discarded, and no file is left behind.",
+  "@taskCancelBody": {
+    "description": "G49: the question before a running task is cancelled."
+  },
+  "taskKeepRunning": "Keep running",
+  "@taskKeepRunning": {
+    "description": "G49: leaves the task running."
+  },
+  "taskCancelConfirm": "Cancel task",
+  "@taskCancelConfirm": {
+    "description": "G49: cancels the task."
+  },
+  "tasksQuitTitle": "{count, plural, =1{A background task is still running} other{{formatted} background tasks are still running}}",
+  "@tasksQuitTitle": {
+    "description": "Quitting with background tasks running: the question.",
+    "placeholders": {
+      "count": {
+        "type": "int"
+      },
+      "formatted": {
+        "type": "String"
+      }
+    }
+  },
+  "tasksQuitBody": "Quitting cancels them, and they leave no partial files.",
+  "@tasksQuitBody": {
+    "description": "Quitting with background tasks running."
+  },
+  "tasksQuitKeep": "Keep working",
+  "@tasksQuitKeep": {
+    "description": "Quitting with background tasks running: stays in the app."
+  },
+  "tasksQuitConfirm": "Cancel tasks and quit",
+  "@tasksQuitConfirm": {
+    "description": "Quitting with background tasks running: goes on."
   }
 }

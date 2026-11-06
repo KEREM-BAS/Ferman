@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -366251377;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -685114643;
 
 // Section: executor
 
@@ -168,6 +168,30 @@ fn wire__crate__frb__block_style_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::block_style(api_document, api_page, api_block).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__cancel_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    job: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "cancel_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_job = job.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::cancel_job(api_job).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -744,6 +768,30 @@ fn wire__crate__frb__optimize_and_clean_impl(
         },
     )
 }
+fn wire__crate__frb__pause_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    job: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "pause_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_job = job.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::pause_job(api_job).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__redo_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     document: impl CstDecode<u64>,
@@ -879,6 +927,30 @@ fn wire__crate__frb__restore_recovered_impl(
                             api_suffix,
                         )
                         .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__resume_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    job: impl CstDecode<u64>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "resume_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_job = job.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::resume_job(api_job).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1409,6 +1481,42 @@ fn wire__crate__frb__show_layers_impl(
         },
     )
 }
+fn wire__crate__frb__start_copy_document_job_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    output: impl CstDecode<String>,
+    staging: impl CstDecode<Option<String>>,
+    sink: impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "start_copy_document_job",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_output = output.cst_decode();
+            let api_staging = staging.cst_decode();
+            let api_sink = sink.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok = crate::frb::start_copy_document_job(
+                            api_document,
+                            api_output,
+                            api_staging,
+                            api_sink,
+                        )
+                        .await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
 fn wire__crate__frb__start_recovery_impl(
     port_: flutter_rust_bridge::for_generated::MessagePort,
     root: impl CstDecode<String>,
@@ -1713,6 +1821,19 @@ impl CstDecode<crate::frb::ItemKind> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::JobState> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::JobState {
+        match self {
+            0 => crate::frb::JobState::Running,
+            1 => crate::frb::JobState::Paused,
+            2 => crate::frb::JobState::Done,
+            3 => crate::frb::JobState::Failed,
+            4 => crate::frb::JobState::Cancelled,
+            _ => unreachable!("Invalid variant for JobState: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::MissingReasonKind> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::MissingReasonKind {
@@ -1888,6 +2009,14 @@ impl SseDecode for flutter_rust_bridge::for_generated::anyhow::Error {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         let mut inner = <String>::sse_decode(deserializer);
         return flutter_rust_bridge::for_generated::anyhow::anyhow!("{}", inner);
+    }
+}
+
+impl SseDecode for StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <String>::sse_decode(deserializer);
+        return StreamSink::deserialize(inner);
     }
 }
 
@@ -2542,6 +2671,57 @@ impl SseDecode for crate::frb::ItemKind {
     }
 }
 
+impl SseDecode for crate::frb::JobEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_job = <u64>::sse_decode(deserializer);
+        let mut var_state = <crate::frb::JobState>::sse_decode(deserializer);
+        let mut var_progress = <Option<f32>>::sse_decode(deserializer);
+        let mut var_messageKey = <Option<String>>::sse_decode(deserializer);
+        let mut var_params = <Vec<(String, String)>>::sse_decode(deserializer);
+        let mut var_outputs = <Vec<crate::frb::JobOutput>>::sse_decode(deserializer);
+        let mut var_revision = <Option<u32>>::sse_decode(deserializer);
+        let mut var_error = <Option<crate::frb::ApiError>>::sse_decode(deserializer);
+        return crate::frb::JobEvent {
+            job: var_job,
+            state: var_state,
+            progress: var_progress,
+            message_key: var_messageKey,
+            params: var_params,
+            outputs: var_outputs,
+            revision: var_revision,
+            error: var_error,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::JobOutput {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_path = <String>::sse_decode(deserializer);
+        let mut var_staged = <Option<String>>::sse_decode(deserializer);
+        return crate::frb::JobOutput {
+            path: var_path,
+            staged: var_staged,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::JobState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::JobState::Running,
+            1 => crate::frb::JobState::Paused,
+            2 => crate::frb::JobState::Done,
+            3 => crate::frb::JobState::Failed,
+            4 => crate::frb::JobState::Cancelled,
+            _ => unreachable!("Invalid variant for JobState: {}", inner),
+        };
+    }
+}
+
 impl SseDecode for crate::frb::Layer {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2704,6 +2884,18 @@ impl SseDecode for Vec<crate::frb::HistoryStep> {
     }
 }
 
+impl SseDecode for Vec<crate::frb::JobOutput> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<crate::frb::JobOutput>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
 impl SseDecode for Vec<crate::frb::Layer> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
@@ -2807,6 +2999,18 @@ impl SseDecode for Vec<u8> {
         let mut ans_ = Vec::with_capacity(len_ as usize);
         for idx_ in 0..len_ {
             ans_.push(<u8>::sse_decode(deserializer));
+        }
+        return ans_;
+    }
+}
+
+impl SseDecode for Vec<(String, String)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut len_ = <i32>::sse_decode(deserializer);
+        let mut ans_ = Vec::with_capacity(len_ as usize);
+        for idx_ in 0..len_ {
+            ans_.push(<(String, String)>::sse_decode(deserializer));
         }
         return ans_;
     }
@@ -3029,6 +3233,17 @@ impl SseDecode for Option<crate::frb::Alignment> {
     fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
         if (<bool>::sse_decode(deserializer)) {
             return Some(<crate::frb::Alignment>::sse_decode(deserializer));
+        } else {
+            return None;
+        }
+    }
+}
+
+impl SseDecode for Option<crate::frb::ApiError> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        if (<bool>::sse_decode(deserializer)) {
+            return Some(<crate::frb::ApiError>::sse_decode(deserializer));
         } else {
             return None;
         }
@@ -3416,6 +3631,15 @@ impl SseDecode for crate::frb::ReadOnlyReason {
             2 => crate::frb::ReadOnlyReason::XfaOnly,
             _ => unreachable!("Invalid variant for ReadOnlyReason: {}", inner),
         };
+    }
+}
+
+impl SseDecode for (String, String) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut var_field0 = <String>::sse_decode(deserializer);
+        let mut var_field1 = <String>::sse_decode(deserializer);
+        return (var_field0, var_field1);
     }
 }
 
@@ -4479,6 +4703,63 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::ItemKind> for crate::frb::Ite
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::JobEvent {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.job.into_into_dart().into_dart(),
+            self.state.into_into_dart().into_dart(),
+            self.progress.into_into_dart().into_dart(),
+            self.message_key.into_into_dart().into_dart(),
+            self.params.into_into_dart().into_dart(),
+            self.outputs.into_into_dart().into_dart(),
+            self.revision.into_into_dart().into_dart(),
+            self.error.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::JobEvent {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::JobEvent> for crate::frb::JobEvent {
+    fn into_into_dart(self) -> crate::frb::JobEvent {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::JobOutput {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        [
+            self.path.into_into_dart().into_dart(),
+            self.staged.into_into_dart().into_dart(),
+        ]
+        .into_dart()
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::JobOutput {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::JobOutput> for crate::frb::JobOutput {
+    fn into_into_dart(self) -> crate::frb::JobOutput {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::JobState {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Running => 0.into_dart(),
+            Self::Paused => 1.into_dart(),
+            Self::Done => 2.into_dart(),
+            Self::Failed => 3.into_dart(),
+            Self::Cancelled => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::JobState {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::JobState> for crate::frb::JobState {
+    fn into_into_dart(self) -> crate::frb::JobState {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::Layer {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -5255,6 +5536,13 @@ impl SseEncode for flutter_rust_bridge::for_generated::anyhow::Error {
     }
 }
 
+impl SseEncode for StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        unimplemented!("")
+    }
+}
+
 impl SseEncode
     for StreamSink<crate::frb::SearchEvent, flutter_rust_bridge::for_generated::DcoCodec>
 {
@@ -5782,6 +6070,47 @@ impl SseEncode for crate::frb::ItemKind {
     }
 }
 
+impl SseEncode for crate::frb::JobEvent {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <u64>::sse_encode(self.job, serializer);
+        <crate::frb::JobState>::sse_encode(self.state, serializer);
+        <Option<f32>>::sse_encode(self.progress, serializer);
+        <Option<String>>::sse_encode(self.message_key, serializer);
+        <Vec<(String, String)>>::sse_encode(self.params, serializer);
+        <Vec<crate::frb::JobOutput>>::sse_encode(self.outputs, serializer);
+        <Option<u32>>::sse_encode(self.revision, serializer);
+        <Option<crate::frb::ApiError>>::sse_encode(self.error, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::JobOutput {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.path, serializer);
+        <Option<String>>::sse_encode(self.staged, serializer);
+    }
+}
+
+impl SseEncode for crate::frb::JobState {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::JobState::Running => 0,
+                crate::frb::JobState::Paused => 1,
+                crate::frb::JobState::Done => 2,
+                crate::frb::JobState::Failed => 3,
+                crate::frb::JobState::Cancelled => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::Layer {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -5911,6 +6240,16 @@ impl SseEncode for Vec<crate::frb::HistoryStep> {
     }
 }
 
+impl SseEncode for Vec<crate::frb::JobOutput> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <crate::frb::JobOutput>::sse_encode(item, serializer);
+        }
+    }
+}
+
 impl SseEncode for Vec<crate::frb::Layer> {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -5997,6 +6336,16 @@ impl SseEncode for Vec<u8> {
         <i32>::sse_encode(self.len() as _, serializer);
         for item in self {
             <u8>::sse_encode(item, serializer);
+        }
+    }
+}
+
+impl SseEncode for Vec<(String, String)> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(self.len() as _, serializer);
+        for item in self {
+            <(String, String)>::sse_encode(item, serializer);
         }
     }
 }
@@ -6180,6 +6529,16 @@ impl SseEncode for Option<crate::frb::Alignment> {
         <bool>::sse_encode(self.is_some(), serializer);
         if let Some(value) = self {
             <crate::frb::Alignment>::sse_encode(value, serializer);
+        }
+    }
+}
+
+impl SseEncode for Option<crate::frb::ApiError> {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <bool>::sse_encode(self.is_some(), serializer);
+        if let Some(value) = self {
+            <crate::frb::ApiError>::sse_encode(value, serializer);
         }
     }
 }
@@ -6522,6 +6881,14 @@ impl SseEncode for crate::frb::ReadOnlyReason {
     }
 }
 
+impl SseEncode for (String, String) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <String>::sse_encode(self.0, serializer);
+        <String>::sse_encode(self.1, serializer);
+    }
+}
+
 impl SseEncode for crate::frb::RecoverableDocument {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -6833,6 +7200,18 @@ mod io {
             unimplemented!()
         }
     }
+    impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
+        for *mut wire_cst_list_prim_u_8_strict
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            let raw: String = self.cst_decode();
+            StreamSink::deserialize(raw)
+        }
+    }
     impl
         CstDecode<StreamSink<crate::frb::SearchEvent, flutter_rust_bridge::for_generated::DcoCodec>>
         for *mut wire_cst_list_prim_u_8_strict
@@ -6957,6 +7336,13 @@ mod io {
         fn cst_decode(self) -> crate::frb::Alignment {
             let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
             CstDecode::<crate::frb::Alignment>::cst_decode(*wrap).into()
+        }
+    }
+    impl CstDecode<crate::frb::ApiError> for *mut wire_cst_api_error {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::ApiError {
+            let wrap = unsafe { flutter_rust_bridge::for_generated::box_from_leak_ptr(self) };
+            CstDecode::<crate::frb::ApiError>::cst_decode(*wrap).into()
         }
     }
     impl CstDecode<crate::frb::BlockFont> for *mut wire_cst_block_font {
@@ -7316,6 +7702,30 @@ mod io {
             }
         }
     }
+    impl CstDecode<crate::frb::JobEvent> for wire_cst_job_event {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::JobEvent {
+            crate::frb::JobEvent {
+                job: self.job.cst_decode(),
+                state: self.state.cst_decode(),
+                progress: self.progress.cst_decode(),
+                message_key: self.message_key.cst_decode(),
+                params: self.params.cst_decode(),
+                outputs: self.outputs.cst_decode(),
+                revision: self.revision.cst_decode(),
+                error: self.error.cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::JobOutput> for wire_cst_job_output {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::JobOutput {
+            crate::frb::JobOutput {
+                path: self.path.cst_decode(),
+                staged: self.staged.cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::Layer> for wire_cst_layer {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::Layer {
@@ -7447,6 +7857,16 @@ mod io {
             vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::JobOutput>> for *mut wire_cst_list_job_output {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::JobOutput> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::Layer>> for *mut wire_cst_list_layer {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<crate::frb::Layer> {
@@ -7532,6 +7952,16 @@ mod io {
                 let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
                 flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
             }
+        }
+    }
+    impl CstDecode<Vec<(String, String)>> for *mut wire_cst_list_record_string_string {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<(String, String)> {
+            let vec = unsafe {
+                let wrap = flutter_rust_bridge::for_generated::box_from_leak_ptr(self);
+                flutter_rust_bridge::for_generated::vec_from_leak_ptr(wrap.ptr, wrap.len)
+            };
+            vec.into_iter().map(CstDecode::cst_decode).collect()
         }
     }
     impl CstDecode<Vec<crate::frb::RecoverableDocument>> for *mut wire_cst_list_recoverable_document {
@@ -7723,6 +8153,12 @@ mod io {
                 tag: self.tag.cst_decode(),
                 reason: self.reason.cst_decode(),
             }
+        }
+    }
+    impl CstDecode<(String, String)> for wire_cst_record_string_string {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> (String, String) {
+            (self.field0.cst_decode(), self.field1.cst_decode())
         }
     }
     impl CstDecode<crate::frb::RecoverableDocument> for wire_cst_recoverable_document {
@@ -8275,6 +8711,38 @@ mod io {
             Self::new_with_null_ptr()
         }
     }
+    impl NewWithNullPtr for wire_cst_job_event {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                job: Default::default(),
+                state: Default::default(),
+                progress: core::ptr::null_mut(),
+                message_key: core::ptr::null_mut(),
+                params: core::ptr::null_mut(),
+                outputs: core::ptr::null_mut(),
+                revision: core::ptr::null_mut(),
+                error: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_job_event {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_job_output {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                path: core::ptr::null_mut(),
+                staged: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_job_output {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
     impl NewWithNullPtr for wire_cst_layer {
         fn new_with_null_ptr() -> Self {
             Self {
@@ -8485,6 +8953,19 @@ mod io {
         }
     }
     impl Default for wire_cst_pdfium_status {
+        fn default() -> Self {
+            Self::new_with_null_ptr()
+        }
+    }
+    impl NewWithNullPtr for wire_cst_record_string_string {
+        fn new_with_null_ptr() -> Self {
+            Self {
+                field0: core::ptr::null_mut(),
+                field1: core::ptr::null_mut(),
+            }
+        }
+    }
+    impl Default for wire_cst_record_string_string {
         fn default() -> Self {
             Self::new_with_null_ptr()
         }
@@ -8774,6 +9255,11 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__cancel_job(port_: i64, job: u64) {
+        wire__crate__frb__cancel_job_impl(port_, job)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__caret_at(
         port_: i64,
         document: u64,
@@ -8947,6 +9433,11 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__pause_job(port_: i64, job: u64) {
+        wire__crate__frb__pause_job_impl(port_, job)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__redo(port_: i64, document: u64) {
         wire__crate__frb__redo_impl(port_, document)
     }
@@ -8988,6 +9479,11 @@ mod io {
         suffix: *mut wire_cst_list_prim_u_8_strict,
     ) {
         wire__crate__frb__restore_recovered_impl(port_, session, document, password, suffix)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__resume_job(port_: i64, job: u64) {
+        wire__crate__frb__resume_job_impl(port_, job)
     }
 
     #[unsafe(no_mangle)]
@@ -9161,6 +9657,17 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__start_copy_document_job(
+        port_: i64,
+        document: u64,
+        output: *mut wire_cst_list_prim_u_8_strict,
+        staging: *mut wire_cst_list_prim_u_8_strict,
+        sink: *mut wire_cst_list_prim_u_8_strict,
+    ) {
+        wire__crate__frb__start_copy_document_job_impl(port_, document, output, staging, sink)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_wire__crate__frb__start_recovery(
         port_: i64,
         root: *mut wire_cst_list_prim_u_8_strict,
@@ -9202,6 +9709,11 @@ mod io {
     #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_alignment(value: i32) -> *mut i32 {
         flutter_rust_bridge::for_generated::new_leak_box_ptr(value)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_box_autoadd_api_error() -> *mut wire_cst_api_error {
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wire_cst_api_error::new_with_null_ptr())
     }
 
     #[unsafe(no_mangle)]
@@ -9504,6 +10016,20 @@ mod io {
     }
 
     #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_job_output(
+        len: i32,
+    ) -> *mut wire_cst_list_job_output {
+        let wrap = wire_cst_list_job_output {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_job_output>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
+    }
+
+    #[unsafe(no_mangle)]
     pub extern "C" fn frbgen_ferman_cst_new_list_layer(len: i32) -> *mut wire_cst_list_layer {
         let wrap = wire_cst_list_layer {
             ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
@@ -9616,6 +10142,20 @@ mod io {
             len,
         };
         flutter_rust_bridge::for_generated::new_leak_box_ptr(ans)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_cst_new_list_record_string_string(
+        len: i32,
+    ) -> *mut wire_cst_list_record_string_string {
+        let wrap = wire_cst_list_record_string_string {
+            ptr: flutter_rust_bridge::for_generated::new_leak_vec_ptr(
+                <wire_cst_record_string_string>::new_with_null_ptr(),
+                len,
+            ),
+            len,
+        };
+        flutter_rust_bridge::for_generated::new_leak_box_ptr(wrap)
     }
 
     #[unsafe(no_mangle)]
@@ -9901,6 +10441,24 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_job_event {
+        job: u64,
+        state: i32,
+        progress: *mut f32,
+        message_key: *mut wire_cst_list_prim_u_8_strict,
+        params: *mut wire_cst_list_record_string_string,
+        outputs: *mut wire_cst_list_job_output,
+        revision: *mut u32,
+        error: *mut wire_cst_api_error,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_job_output {
+        path: *mut wire_cst_list_prim_u_8_strict,
+        staged: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_layer {
         name: *mut wire_cst_list_prim_u_8_strict,
         visible: bool,
@@ -9982,6 +10540,12 @@ mod io {
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
+    pub struct wire_cst_list_job_output {
+        ptr: *mut wire_cst_job_output,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
     pub struct wire_cst_list_layer {
         ptr: *mut wire_cst_layer,
         len: i32,
@@ -10032,6 +10596,12 @@ mod io {
     #[derive(Clone, Copy)]
     pub struct wire_cst_list_prim_u_8_strict {
         ptr: *mut u8,
+        len: i32,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_list_record_string_string {
+        ptr: *mut wire_cst_record_string_string,
         len: i32,
     }
     #[repr(C)]
@@ -10171,6 +10741,12 @@ mod io {
         state: i32,
         tag: *mut wire_cst_list_prim_u_8_strict,
         reason: *mut wire_cst_list_prim_u_8_strict,
+    }
+    #[repr(C)]
+    #[derive(Clone, Copy)]
+    pub struct wire_cst_record_string_string {
+        field0: *mut wire_cst_list_prim_u_8_strict,
+        field1: *mut wire_cst_list_prim_u_8_strict,
     }
     #[repr(C)]
     #[derive(Clone, Copy)]
@@ -10336,6 +10912,17 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> flutter_rust_bridge::for_generated::anyhow::Error {
             unimplemented!()
+        }
+    }
+    impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
+        for String
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            StreamSink::deserialize(self)
         }
     }
     impl
@@ -10894,6 +11481,50 @@ mod web {
             }
         }
     }
+    impl CstDecode<crate::frb::JobEvent> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::JobEvent {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                8,
+                "Expected 8 elements, got {}",
+                self_.length()
+            );
+            crate::frb::JobEvent {
+                job: self_.get(0).cst_decode(),
+                state: self_.get(1).cst_decode(),
+                progress: self_.get(2).cst_decode(),
+                message_key: self_.get(3).cst_decode(),
+                params: self_.get(4).cst_decode(),
+                outputs: self_.get(5).cst_decode(),
+                revision: self_.get(6).cst_decode(),
+                error: self_.get(7).cst_decode(),
+            }
+        }
+    }
+    impl CstDecode<crate::frb::JobOutput>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::JobOutput {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            crate::frb::JobOutput {
+                path: self_.get(0).cst_decode(),
+                staged: self_.get(1).cst_decode(),
+            }
+        }
+    }
     impl CstDecode<crate::frb::Layer> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::Layer {
@@ -11061,6 +11692,18 @@ mod web {
                 .collect()
         }
     }
+    impl CstDecode<Vec<crate::frb::JobOutput>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<crate::frb::JobOutput> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
+        }
+    }
     impl CstDecode<Vec<crate::frb::Layer>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -11149,6 +11792,18 @@ mod web {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> Vec<u8> {
             self.into_vec()
+        }
+    }
+    impl CstDecode<Vec<(String, String)>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> Vec<(String, String)> {
+            self.dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap()
+                .iter()
+                .map(CstDecode::cst_decode)
+                .collect()
         }
     }
     impl CstDecode<Vec<crate::frb::RecoverableDocument>>
@@ -11477,6 +12132,21 @@ mod web {
                 tag: self_.get(1).cst_decode(),
                 reason: self_.get(2).cst_decode(),
             }
+        }
+    }
+    impl CstDecode<(String, String)> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> (String, String) {
+            let self_ = self
+                .dyn_into::<flutter_rust_bridge::for_generated::js_sys::Array>()
+                .unwrap();
+            assert_eq!(
+                self_.length(),
+                2,
+                "Expected 2 elements, got {}",
+                self_.length()
+            );
+            (self_.get(0).cst_decode(), self_.get(1).cst_decode())
         }
     }
     impl CstDecode<crate::frb::RecoverableDocument>
@@ -11824,6 +12494,17 @@ mod web {
             unimplemented!()
         }
     }
+    impl CstDecode<StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(
+            self,
+        ) -> StreamSink<crate::frb::JobEvent, flutter_rust_bridge::for_generated::DcoCodec>
+        {
+            StreamSink::deserialize(self.as_string().expect("should be a string"))
+        }
+    }
     impl
         CstDecode<StreamSink<crate::frb::SearchEvent, flutter_rust_bridge::for_generated::DcoCodec>>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
@@ -11964,6 +12645,12 @@ mod web {
     impl CstDecode<crate::frb::ItemKind> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::ItemKind {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::JobState> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::JobState {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -12156,6 +12843,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__cancel_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        job: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__cancel_job_impl(port_, job)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__caret_at(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -12343,6 +13038,14 @@ mod web {
     }
 
     #[wasm_bindgen]
+    pub fn wire__crate__frb__pause_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        job: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__pause_job_impl(port_, job)
+    }
+
+    #[wasm_bindgen]
     pub fn wire__crate__frb__redo(
         port_: flutter_rust_bridge::for_generated::MessagePort,
         document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
@@ -12387,6 +13090,14 @@ mod web {
         suffix: Option<String>,
     ) {
         wire__crate__frb__restore_recovered_impl(port_, session, document, password, suffix)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__resume_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        job: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__resume_job_impl(port_, job)
     }
 
     #[wasm_bindgen]
@@ -12560,6 +13271,17 @@ mod web {
         visible: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
     ) {
         wire__crate__frb__show_layers_impl(port_, document, visible)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__start_copy_document_job(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        output: String,
+        staging: Option<String>,
+        sink: String,
+    ) {
+        wire__crate__frb__start_copy_document_job_impl(port_, document, output, staging, sink)
     }
 
     #[wasm_bindgen]

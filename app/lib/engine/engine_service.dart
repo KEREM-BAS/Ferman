@@ -106,6 +106,26 @@ abstract interface class EngineService {
     SearchOptions options,
   );
 
+  /// Copies [document] as its revisions stand now to the new file [output] as
+  /// a background job (ARCHITECTURE §3.7). The stream's first update has the
+  /// job's handle and its last says how it ended; cancelling the subscription
+  /// does not stop the job. With [staging] (the macOS App Sandbox) the file
+  /// waits there for the swap.
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  });
+
+  /// Parks a job at its next step.
+  Future<void> pauseJob(int job);
+
+  /// Lets a paused job go on.
+  Future<void> resumeJob(int job);
+
+  /// Cancels a job at its next step; it leaves nothing.
+  Future<void> cancelJob(int job);
+
   /// The text blocks of [page] of [document] in reading order, with their
   /// editability (ARCHITECTURE §3.5). The UI hit-tests their frames itself.
   ///
@@ -471,6 +491,22 @@ class UnavailableEngineService implements EngineService {
     String query,
     SearchOptions options,
   ) => Stream.error(error);
+
+  @override
+  Stream<JobUpdate> copyDocumentJob(
+    int document,
+    String output, {
+    String? staging,
+  }) => Stream.error(error);
+
+  @override
+  Future<void> pauseJob(int job) async => throw error;
+
+  @override
+  Future<void> resumeJob(int job) async => throw error;
+
+  @override
+  Future<void> cancelJob(int job) async => throw error;
 
   @override
   Future<PageBlocks> textBlocks(int document, int page) async => throw error;

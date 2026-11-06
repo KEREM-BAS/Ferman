@@ -147,6 +147,8 @@ impl MessageKey {
     pub const EDIT_ANNOTATION: Self = Self("editBodyAnnotation");
     /// The page hit a resource limit.
     pub const EDIT_LIMITS: Self = Self("editBodyLimits");
+    /// A job's place: page `page` of `pages`.
+    pub const JOB_PAGE_OF: Self = Self("jobPageOf");
     /// An operator is split across two content streams.
     pub const EDIT_SPLIT: Self = Self("editBodySplit");
     /// The text is sheared.
@@ -197,6 +199,7 @@ impl MessageKey {
         Self::EDIT_DAMAGED,
         Self::EDIT_SIGNATURE,
         Self::EDIT_ANNOTATION,
+        Self::JOB_PAGE_OF,
         Self::EDIT_LIMITS,
         Self::EDIT_SPLIT,
         Self::EDIT_SKEWED,

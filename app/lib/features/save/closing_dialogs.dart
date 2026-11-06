@@ -3,6 +3,8 @@ import 'dart:async';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
 import 'package:ferman/engine/engine_service.dart';
+import 'package:ferman/features/jobs/background_jobs.dart';
+import 'package:ferman/features/jobs/task_drawer.dart';
 import 'package:ferman/features/save/document_closer.dart';
 import 'package:ferman/features/save/document_recovery.dart';
 import 'package:ferman/features/save/document_saver.dart';
@@ -20,7 +22,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 /// The questions of closing, quitting and crash recovery around [child], every
-/// screen of the window: a1-10b, a11-7e, a1-12 and its a1-8. Nothing is drawn
+/// screen of the window: a1-10b, a11-7e, a1-12 and its a1-8, and the task
+/// drawer's questions (G49). Nothing is drawn
 /// until one asks, so [child] keeps its place and size.
 class ClosingOverlays extends ConsumerWidget {
   /// The questions around [child].
@@ -33,10 +36,13 @@ class ClosingOverlays extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final closing = ref.watch(documentCloserProvider);
     final recovery = ref.watch(documentRecoveryProvider);
+    final jobs = ref.watch(backgroundJobsProvider);
     return Stack(
       fit: StackFit.expand,
       children: [
         child,
+        if (jobs.cancelling case final row?) CancelTaskDialog(row),
+        if (jobs.quitting.isNotEmpty) QuitTasksDialog(jobs.quitting),
         if (closing.asking case final tab?) UnsavedCloseDialog(tab),
         if (closing.reviewing.isNotEmpty)
           QuitReviewDialog(
