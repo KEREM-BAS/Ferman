@@ -210,7 +210,10 @@ class Banner extends StatelessWidget {
                 IconButton(
                   icon: IconName.x,
                   label: dismissLabel ?? '',
-                  size: IconButtonSize.xs,
+                  // Touch density's xs is under its least target.
+                  size: theme.density.controlHSm > theme.density.hitMin
+                      ? IconButtonSize.xs
+                      : IconButtonSize.sm,
                   showTooltip: false,
                   onPressed: onDismiss,
                 ),

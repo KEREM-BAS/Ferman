@@ -2,8 +2,10 @@ import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_problem.dart';
 import 'package:ferman/engine/engine_providers.dart';
+import 'package:ferman/features/phone/fm_phone.dart';
 import 'package:ferman/features/shell/open_files.dart';
 import 'package:ferman/features/shell/open_problem_notice.dart';
 import 'package:ferman/features/shell/shell_commands.dart';
@@ -11,6 +13,7 @@ import 'package:ferman/features/shell/shell_state.dart';
 import 'package:ferman/features/shell/shortcuts.dart';
 import 'package:ferman/features/start/default_app_prompt.dart';
 import 'package:ferman/features/start/recent_files_view.dart';
+import 'package:ferman/l10n/casing.dart';
 import 'package:ferman/l10n/gen/app_localizations.dart';
 import 'package:ferman/recent/recent_files.dart';
 import 'package:flutter/services.dart';
@@ -47,6 +50,9 @@ import 'package:go_router/go_router.dart';
 /// not load), a warning banner heads the page with "Copy technical
 /// details", and Open file… and the drop area take the banner's title as
 /// their reason (G101). The rest of the app keeps working.
+///
+/// Under [WindowMetrics.phoneMaxWidth] it is the phone's home instead
+/// (a13-2c, a13-2e; G129).
 class FmStart extends ConsumerWidget {
   /// Creates the start screen.
   const new({super.key});
@@ -71,6 +77,7 @@ class FmStart extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (WindowMetrics.isPhone(context)) return const _PhoneHome();
     final theme = context.ferman;
     final l10n = AppLocalizations.of(context);
     final platform = ref.watch(shortcutPlatformProvider);
@@ -232,19 +239,27 @@ class _EngineProblemBanner extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final copy = Button(
+      size: ButtonSize.sm,
+      icon: IconName.copy,
+      onPressed: () =>
+          Clipboard.setData(ClipboardData(text: problem.technicalDetails)),
+      child: Text(l10n.startCopyTechnicalDetails),
+    );
+    final message = Text(l10n.startEngineUnavailableMessage);
+    // A phone has no room for the button beside the text.
+    final phone = WindowMetrics.isPhone(context);
     return Banner(
       tone: BannerTone.warning,
       title: l10n.startEngineUnavailableTitle,
-      actions: [
-        Button(
-          size: ButtonSize.sm,
-          icon: IconName.copy,
-          onPressed: () =>
-              Clipboard.setData(ClipboardData(text: problem.technicalDetails)),
-          child: Text(l10n.startCopyTechnicalDetails),
-        ),
-      ],
-      child: Text(l10n.startEngineUnavailableMessage),
+      actions: phone ? const [] : [copy],
+      child: phone
+          ? Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              spacing: context.ferman.space.space2,
+              children: [message, copy],
+            )
+          : message,
     );
   }
 }
@@ -382,4 +397,364 @@ class _ActionCard extends StatelessWidget {
       );
     },
   );
+}
+
+/// The phone's home (FmMHome in FmPhone; G129): the search field, eight quick
+/// tools, then the pinned and recent files or the empty state, and the places
+/// to open from. Only opening a file and the files themselves can work, and
+/// only with an engine: the web build's stub keeps them in their
+/// future-version state, and everything else names its feature.
+class _PhoneHome extends ConsumerWidget {
+  const new();
+
+  /// The gap between the parts (`gap: 18px`).
+  static const double gap = 18;
+
+  /// The tools in a row (`repeat(4, 1fr)`).
+  static const int toolColumns = 4;
+
+  /// The gap between the tools' rows (`gap: 10px 8px`) …
+  static const double toolRowGap = 10;
+
+  /// … and between the tools in a row.
+  static const double toolGap = 8;
+
+  /// "Open from"'s size and line height (`font: 600 13px/16px`).
+  static const double openFromSize = 13;
+
+  /// "Open from"'s line height.
+  static const double openFromHeight = 16 / 13;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = context.ferman;
+    final l10n = AppLocalizations.of(context);
+    final problem = ref.watch(engineProblemProvider);
+    final failed = ref.watch(documentOpenerProvider);
+    final hasRecent = ref.watch(recentFilesProvider).isNotEmpty;
+    final tools = [
+      (Feature.scanToPdf, IconName.scan, l10n.phoneTabScan),
+      (Feature.simpleSignatures, IconName.signature, l10n.startToolSign),
+      (Feature.phoneEditing, IconName.filePenLine, l10n.shellModeEdit),
+      (Feature.convertFromPdf, IconName.refreshCw, l10n.startToolConvert),
+      (Feature.compress, IconName.minimize2, l10n.startToolCompress),
+      (Feature.combineAndSplit, IconName.merge, l10n.startPhoneToolCombine),
+      (Feature.passwordProtection, IconName.shield, l10n.startToolProtect),
+      (Feature.ocr, IconName.scanText, l10n.startPhoneToolOcr),
+    ];
+    final sources = [
+      (IconName.download, l10n.startPhoneSourceDownloads),
+      (IconName.hardDrive, l10n.startPhoneSourceGoogleDrive),
+      (IconName.cloud, l10n.startPhoneSourceOneDrive),
+      (IconName.folder, l10n.phoneTabFiles),
+    ];
+    final searchReason = Feature.phoneSearch.disabledReason(context);
+    final moreReason = Feature.phoneMoreMenus.disabledReason(context);
+    final openFromReason = Feature.phoneOpenFrom.disabledReason(context);
+
+    final page = Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: gap,
+      children: [
+        if (problem != null) _EngineProblemBanner(problem),
+        if (failed != null) OpenProblemBanner(failed),
+        TextField(
+          icon: IconName.search,
+          placeholder: l10n.startPhoneSearch,
+          semanticLabel: l10n.startPhoneSearch,
+          disabled: true,
+          disabledReason: searchReason,
+        ),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          spacing: toolRowGap,
+          children: [
+            for (var start = 0; start < tools.length; start += toolColumns)
+              Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                spacing: toolGap,
+                children: [
+                  for (final (feature, icon, label) in tools.sublist(
+                    start,
+                    start + toolColumns,
+                  ))
+                    Expanded(
+                      child: _PhoneTool(
+                        icon: icon,
+                        label: label,
+                        disabledReason: feature.disabledReason(context),
+                      ),
+                    ),
+                ],
+              ),
+          ],
+        ),
+        if (hasRecent) const RecentFilesView() else const _PhoneEmpty(),
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          spacing: theme.space.space2,
+          children: [
+            Text(
+              LocaleCasing.of(context).upper(l10n.startPhoneOpenFrom),
+              style: theme.typography.label.copyWith(
+                fontSize: openFromSize,
+                height: openFromHeight,
+                color: theme.colors.textTertiary,
+              ),
+            ),
+            Wrap(
+              spacing: theme.space.space2,
+              runSpacing: theme.space.space2,
+              children: [
+                for (final (icon, label) in sources)
+                  Button(
+                    size: ButtonSize.sm,
+                    icon: icon,
+                    disabled: true,
+                    disabledReason: openFromReason,
+                    child: Text(label),
+                  ),
+              ],
+            ),
+          ],
+        ),
+      ],
+    );
+
+    return Stack(
+      fit: StackFit.expand,
+      children: [
+        FmPhone(
+          title: l10n.appName,
+          tab: PhoneTab.home,
+          actions: [
+            IconButton(
+              icon: IconName.search,
+              label: l10n.shellSearch,
+              size: IconButtonSize.lg,
+              disabled: true,
+              disabledReason: searchReason,
+            ),
+            IconButton(
+              icon: IconName.ellipsis,
+              label: l10n.shellMore,
+              size: IconButtonSize.lg,
+              disabled: true,
+              disabledReason: moreReason,
+            ),
+          ],
+          child: ShellCommandScope(
+            home: true,
+            onOpenSettings: () => context.push(Routes.settings),
+            child: Focus(
+              autofocus: true,
+              child: SingleChildScrollView(
+                padding: EdgeInsetsDirectional.fromSTEB(
+                  theme.space.space4,
+                  theme.space.space1,
+                  theme.space.space4,
+                  theme.space.space4,
+                ),
+                child: page,
+              ),
+            ),
+          ),
+        ),
+        const DefaultAppPrompt(),
+      ],
+    );
+  }
+}
+
+/// A quick tool of the phone's home (FmMHome `tools`): an icon on a raised
+/// tile with its name under it, in the disabled colours until it works.
+class _PhoneTool extends StatelessWidget {
+  const new({
+    required this.icon,
+    required this.label,
+    required this.disabledReason,
+  });
+
+  /// The tile (`width: 56px; height: 52px`).
+  static const double tileWidth = 56;
+
+  /// The tile's height.
+  static const double tileHeight = 52;
+
+  /// The icon on it (`size={24}`).
+  static const double iconSize = 24;
+
+  /// The gap between the tile and the name (`gap: 6px`).
+  static const double nameGap = 6;
+
+  /// The name's size (`font: 500 12px/14px`).
+  static const double nameSize = 12;
+
+  /// The name's line height.
+  static const double nameHeight = 14 / 12;
+
+  final IconName icon;
+  final String label;
+  final String disabledReason;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.ferman;
+    final colors = theme.colors;
+    return FermanInteractive(
+      disabled: true,
+      disabledReason: disabledReason,
+      semanticLabel: label,
+      builder: (context, states, _) => ExcludeSemantics(
+        child: Column(
+          spacing: nameGap,
+          children: [
+            Container(
+              width: tileWidth,
+              height: tileHeight,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                color: colors.surfaceRaised,
+                border: Border.all(
+                  color: colors.borderSubtle,
+                  width: theme.border.borderWidth,
+                ),
+                borderRadius: BorderRadius.all(
+                  Radius.circular(theme.radius.radiusLg),
+                ),
+              ),
+              child: Icon(icon, size: iconSize, color: colors.iconDisabled),
+            ),
+            Text(
+              label,
+              textAlign: TextAlign.center,
+              style: theme.typography.caption.copyWith(
+                fontSize: nameSize,
+                height: nameHeight,
+                fontWeight: theme.typeScale.weightMedium,
+                color: colors.textDisabled,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// The phone's home with no files yet (a13-2e): a file on a sunken tile, the
+/// words, and the two first actions, Open a file and Scan a document.
+class _PhoneEmpty extends ConsumerWidget {
+  const new();
+
+  /// The padding (`padding: 28px 12px 8px`): top …
+  static const double paddingTop = 28;
+
+  /// … sides …
+  static const double paddingX = 12;
+
+  /// … and bottom.
+  static const double paddingBottom = 8;
+
+  /// The gap between the parts (`gap: 10px`).
+  static const double gap = 10;
+
+  /// The tile (`56px`).
+  static const double tileSize = 56;
+
+  /// The icon on it (`size={28}`).
+  static const double iconSize = 28;
+
+  /// The title's size (`font: 600 19px/24px`).
+  static const double titleSize = 19;
+
+  /// The title's line height.
+  static const double titleHeight = 24 / 19;
+
+  /// The text's size (`font: 400 15px/21px`).
+  static const double textSize = 15;
+
+  /// The text's line height.
+  static const double textHeight = 21 / 15;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = context.ferman;
+    final colors = theme.colors;
+    final l10n = AppLocalizations.of(context);
+    return Padding(
+      padding: const EdgeInsetsDirectional.fromSTEB(
+        paddingX,
+        paddingTop,
+        paddingX,
+        paddingBottom,
+      ),
+      child: Column(
+        spacing: gap,
+        children: [
+          Container(
+            width: tileSize,
+            height: tileSize,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(
+              color: colors.surfaceSunken,
+              borderRadius: BorderRadius.all(
+                Radius.circular(theme.radius.radiusLg),
+              ),
+            ),
+            child: Icon(
+              IconName.fileText,
+              size: iconSize,
+              color: colors.iconSecondary,
+            ),
+          ),
+          Text(
+            l10n.startPhoneEmptyTitle,
+            textAlign: TextAlign.center,
+            style: theme.typography.bodyStrong.copyWith(
+              fontSize: titleSize,
+              height: titleHeight,
+              fontWeight: theme.typeScale.weightSemibold,
+              color: colors.textPrimary,
+            ),
+          ),
+          Text(
+            l10n.startPhoneEmptySubtitle,
+            textAlign: TextAlign.center,
+            style: theme.typography.body.copyWith(
+              fontSize: textSize,
+              height: textHeight,
+              color: colors.textSecondary,
+            ),
+          ),
+          Padding(
+            padding: EdgeInsetsDirectional.only(top: theme.space.space2),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              spacing: gap,
+              children: [
+                Button(
+                  variant: ButtonVariant.primary,
+                  size: ButtonSize.lg,
+                  icon: IconName.folderOpen,
+                  fullWidth: true,
+                  onPressed: openFiles(context, ref),
+                  disabledReason: openFilesDisabledReason(context, ref),
+                  child: Text(l10n.startPhoneOpen),
+                ),
+                Button(
+                  size: ButtonSize.lg,
+                  icon: IconName.scan,
+                  fullWidth: true,
+                  disabled: true,
+                  disabledReason: Feature.scanToPdf.disabledReason(context),
+                  child: Text(l10n.startPhoneScan),
+                ),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
 }

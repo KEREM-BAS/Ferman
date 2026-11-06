@@ -1389,6 +1389,43 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startDropStripSubtitle => 'PDF files open in tabs.';
 
   @override
+  String get startPhoneSearch => 'Search documents';
+
+  @override
+  String get startPhoneToolCombine => 'Combine';
+
+  @override
+  String get startPhoneToolOcr => 'OCR';
+
+  @override
+  String get startPhoneEmptyTitle => 'No documents yet';
+
+  @override
+  String get startPhoneEmptySubtitle =>
+      'Open a PDF from your phone or a cloud drive, or scan a paper document.';
+
+  @override
+  String get startPhoneOpen => 'Open a file';
+
+  @override
+  String get startPhoneScan => 'Scan a document';
+
+  @override
+  String get startPhoneSeeAll => 'See all';
+
+  @override
+  String get startPhoneOpenFrom => 'Open from';
+
+  @override
+  String get startPhoneSourceDownloads => 'Downloads';
+
+  @override
+  String get startPhoneSourceGoogleDrive => 'Google Drive';
+
+  @override
+  String get startPhoneSourceOneDrive => 'OneDrive';
+
+  @override
   String get startPinned => 'Pinned';
 
   @override

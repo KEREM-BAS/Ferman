@@ -1,7 +1,9 @@
 import 'dart:async';
 
+import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -35,6 +37,9 @@ import 'package:intl/intl.dart' show Bidi;
 /// The sort and the view last for the session ([recentLayoutProvider]). Each
 /// card shows its file's first-page preview, kept when the file opened; one
 /// without a preview shows the boards' placeholder lines.
+///
+/// At phone width it is the pinned files and the recent rows of FmMHome
+/// (a13-2c): the board has no drop strip, search, sort, view or footer there.
 class RecentFilesView extends ConsumerStatefulWidget {
   /// The files of the start screen.
   const new({super.key});
@@ -125,30 +130,129 @@ class _RecentFilesViewState extends ConsumerState<RecentFilesView> {
     ];
 
     final missing = _missing;
-    final content = Column(
-      crossAxisAlignment: CrossAxisAlignment.stretch,
-      spacing: RecentFilesView.sectionGap,
+    final content = WindowMetrics.isPhone(context)
+        ? _phoneContent(context, l10n, pinned, shown, details, openReason)
+        : Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            spacing: RecentFilesView.sectionGap,
+            children: [
+              const _DropStrip(),
+              if (pinned.isNotEmpty)
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  spacing: theme.space.space2_5,
+                  children: [
+                    Text(l10n.startPinned, style: theme.typography.panelTitle),
+                    _Rows(
+                      columns: RecentFilesView.pinnedColumns,
+                      gap: theme.space.space3,
+                      children: [
+                        for (final file in pinned)
+                          _PinnedCard(
+                            key: ValueKey(file.path),
+                            file: file,
+                            label: details.label(file, details.location(file)),
+                            meta: details.pinnedMeta(file),
+                            openReason: openReason,
+                            onOpen: () => _open(file),
+                            onUnpin: () => _pin(file, pinned: false),
+                          ),
+                      ],
+                    ),
+                  ],
+                ),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                spacing: theme.space.space3,
+                children: [
+                  _header(context, l10n, sort, view),
+                  if (shown.isEmpty)
+                    Padding(
+                      padding: EdgeInsetsDirectional.symmetric(
+                        vertical: theme.space.space6,
+                      ),
+                      child: Text(
+                        l10n.startNoRecentMatch(_search.text.trim()),
+                        textAlign: TextAlign.center,
+                        style: theme.typography.body.copyWith(
+                          color: theme.colors.textSecondary,
+                        ),
+                      ),
+                    )
+                  else if (view == RecentView.grid)
+                    _Rows(
+                      columns: RecentFilesView.gridColumns,
+                      gap: theme.space.space4,
+                      children: [
+                        for (final file in shown)
+                          _RecentCard(
+                            key: ValueKey(file.path),
+                            file: file,
+                            label: details.label(file, details.when(file)),
+                            meta: details.meta(file),
+                            openReason: openReason,
+                            onOpen: () => _open(file),
+                            onPin: () => _pin(file, pinned: !file.pinned),
+                          ),
+                      ],
+                    )
+                  else
+                    _RecentTable(
+                      files: shown,
+                      details: details,
+                      openReason: openReason,
+                      onOpen: _open,
+                      onPin: (file) => _pin(file, pinned: !file.pinned),
+                    ),
+                ],
+              ),
+              _footer(context, l10n),
+            ],
+          );
+    return Stack(
       children: [
-        const _DropStrip(),
+        content,
+        if (missing != null) _missingDialog(l10n, missing, details),
+      ],
+    );
+  }
+
+  /// FmMHome's pinned files and recent rows.
+  Widget _phoneContent(
+    BuildContext context,
+    AppLocalizations l10n,
+    List<RecentEntry> pinned,
+    List<RecentEntry> recent,
+    _Details details,
+    String? openReason,
+  ) {
+    final theme = context.ferman;
+    final title = theme.typography.panelTitle.copyWith(
+      fontSize: _PhoneRecentRow.sectionSize,
+      height: _PhoneRecentRow.sectionHeight,
+    );
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      spacing: _PhoneRecentRow.sectionGap,
+      children: [
         if (pinned.isNotEmpty)
           Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
-            spacing: theme.space.space2_5,
+            spacing: theme.space.space2,
             children: [
-              Text(l10n.startPinned, style: theme.typography.panelTitle),
+              Text(l10n.startPinned, style: title),
               _Rows(
-                columns: RecentFilesView.pinnedColumns,
-                gap: theme.space.space3,
+                columns: _PhonePinnedCard.columns,
+                gap: _PhonePinnedCard.gap,
                 children: [
                   for (final file in pinned)
-                    _PinnedCard(
+                    _PhonePinnedCard(
                       key: ValueKey(file.path),
                       file: file,
                       label: details.label(file, details.location(file)),
-                      meta: details.pinnedMeta(file),
+                      meta: details.pages(file) ?? '',
                       openReason: openReason,
                       onOpen: () => _open(file),
-                      onUnpin: () => _pin(file, pinned: false),
                     ),
                 ],
               ),
@@ -156,56 +260,32 @@ class _RecentFilesViewState extends ConsumerState<RecentFilesView> {
           ),
         Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
-          spacing: theme.space.space3,
+          spacing: theme.space.space1,
           children: [
-            _header(context, l10n, sort, view),
-            if (shown.isEmpty)
-              Padding(
-                padding: EdgeInsetsDirectional.symmetric(
-                  vertical: theme.space.space6,
+            Row(
+              spacing: theme.space.space2,
+              children: [
+                Expanded(child: Text(l10n.startRecent, style: title)),
+                Button(
+                  variant: ButtonVariant.ghost,
+                  size: ButtonSize.sm,
+                  disabled: true,
+                  disabledReason: Feature.phoneFiles.disabledReason(context),
+                  child: Text(l10n.startPhoneSeeAll),
                 ),
-                child: Text(
-                  l10n.startNoRecentMatch(_search.text.trim()),
-                  textAlign: TextAlign.center,
-                  style: theme.typography.body.copyWith(
-                    color: theme.colors.textSecondary,
-                  ),
-                ),
-              )
-            else if (view == RecentView.grid)
-              _Rows(
-                columns: RecentFilesView.gridColumns,
-                gap: theme.space.space4,
-                children: [
-                  for (final file in shown)
-                    _RecentCard(
-                      key: ValueKey(file.path),
-                      file: file,
-                      label: details.label(file, details.when(file)),
-                      meta: details.meta(file),
-                      openReason: openReason,
-                      onOpen: () => _open(file),
-                      onPin: () => _pin(file, pinned: !file.pinned),
-                    ),
-                ],
-              )
-            else
-              _RecentTable(
-                files: shown,
-                details: details,
+              ],
+            ),
+            for (final file in recent)
+              _PhoneRecentRow(
+                key: ValueKey(file.path),
+                file: file,
+                label: details.label(file, details.when(file)),
+                meta: details.meta(file),
                 openReason: openReason,
-                onOpen: _open,
-                onPin: (file) => _pin(file, pinned: !file.pinned),
+                onOpen: () => _open(file),
               ),
           ],
         ),
-        _footer(context, l10n),
-      ],
-    );
-    return Stack(
-      children: [
-        content,
-        if (missing != null) _missingDialog(l10n, missing, details),
       ],
     );
   }
@@ -676,10 +756,21 @@ class _Page extends ConsumerWidget {
 /// character, and the line under it in the tertiary caption, each on one
 /// line with an ellipsis.
 class _NameAndMeta extends StatelessWidget {
-  const new({required this.name, required this.meta});
+  const new({
+    required this.name,
+    required this.meta,
+    this.nameStyle,
+    this.metaStyle,
+  });
 
   final String name;
   final String meta;
+
+  /// In place of body-strong.
+  final TextStyle? nameStyle;
+
+  /// In place of the caption; it keeps the tertiary colour.
+  final TextStyle? metaStyle;
 
   @override
   Widget build(BuildContext context) {
@@ -696,14 +787,14 @@ class _NameAndMeta extends StatelessWidget {
           overflow: TextOverflow.ellipsis,
           textAlign: TextAlign.start,
           textDirection: _directionOf(name),
-          style: theme.typography.bodyStrong,
+          style: nameStyle ?? theme.typography.bodyStrong,
         ),
         Text(
           meta,
           maxLines: 1,
           softWrap: false,
           overflow: TextOverflow.ellipsis,
-          style: theme.typography.caption.copyWith(
+          style: (metaStyle ?? theme.typography.caption).copyWith(
             color: theme.colors.textTertiary,
             fontFeatures: theme.typeScale.numericTabular,
           ),
@@ -1244,6 +1335,208 @@ class _RecentRowState extends State<_RecentRow> {
               visible: _hovered,
               onPressed: widget.onPin,
             ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
+/// A pinned file on the phone (FmMHome `pinned`): a small page, the name and
+/// the page count; the whole card opens it.
+class _PhonePinnedCard extends StatelessWidget {
+  const new({
+    required this.file,
+    required this.label,
+    required this.meta,
+    required this.openReason,
+    required this.onOpen,
+    super.key,
+  });
+
+  /// The cards in a row (`1fr 1fr`).
+  static const int columns = 2;
+
+  /// The gap between the cards, around the page and its padding
+  /// (`gap: 10px`, `padding: 10px`).
+  static const double gap = 10;
+
+  /// The small page (`30px` × `42px`).
+  static const double pageWidth = 30;
+
+  /// The small page's height.
+  static const double pageHeight = 42;
+
+  /// The name (`font: 500 14px/18px`).
+  static const double nameSize = 14;
+
+  /// The name's line height.
+  static const double nameHeight = 18 / 14;
+
+  /// The line under it (`font: 400 12px/16px`).
+  static const double metaSize = 12;
+
+  /// That line's height.
+  static const double metaHeight = 16 / 12;
+
+  final RecentEntry file;
+  final String label;
+  final String meta;
+  final String? openReason;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.ferman;
+    final radius = BorderRadius.all(Radius.circular(theme.radius.radiusMd));
+    return FermanInteractive(
+      onPressed: onOpen,
+      disabled: openReason != null,
+      disabledReason: openReason,
+      semanticLabel: label,
+      builder: (context, states, _) => FocusRing(
+        visible: states.contains(WidgetState.focused),
+        borderRadius: radius,
+        child: Container(
+          padding: const EdgeInsets.all(gap),
+          decoration: BoxDecoration(
+            color: theme.colors.surfaceRaised,
+            borderRadius: radius,
+            border: Border.all(color: theme.colors.borderSubtle),
+          ),
+          child: ExcludeSemantics(
+            child: Row(
+              spacing: gap,
+              children: [
+                _Page(file: file, width: pageWidth, height: pageHeight),
+                Expanded(
+                  child: _NameAndMeta(
+                    name: file.name,
+                    meta: meta,
+                    nameStyle: theme.typography.bodyStrong.copyWith(
+                      fontSize: nameSize,
+                      height: nameHeight,
+                      fontWeight: theme.typeScale.weightMedium,
+                    ),
+                    metaStyle: theme.typography.caption.copyWith(
+                      fontSize: metaSize,
+                      height: metaHeight,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+/// A recent file on the phone (FmMHome `recent`): a small page, the name, when
+/// it was opened with its page count and its badge, and More beside the row's
+/// own control.
+class _PhoneRecentRow extends StatelessWidget {
+  const new({
+    required this.file,
+    required this.label,
+    required this.meta,
+    required this.openReason,
+    required this.onOpen,
+    super.key,
+  });
+
+  /// The gap between Pinned and Recent, the home's own (`gap: 18px`).
+  static const double sectionGap = 18;
+
+  /// The sections' titles (`font: 600 17px/22px`).
+  static const double sectionSize = 17;
+
+  /// Those titles' line height.
+  static const double sectionHeight = 22 / 17;
+
+  /// The row's least height (`min-height: 60px`).
+  static const double minHeight = 60;
+
+  /// The small page (`32px` × `44px`).
+  static const double pageWidth = 32;
+
+  /// The small page's height.
+  static const double pageHeight = 44;
+
+  /// The name (`font: 500 15px/20px`).
+  static const double nameSize = 15;
+
+  /// The name's line height.
+  static const double nameHeight = 20 / 15;
+
+  /// The line under it (`font: 400 13px/16px`).
+  static const double metaSize = 13;
+
+  /// That line's height.
+  static const double metaHeight = 16 / 13;
+
+  final RecentEntry file;
+  final String label;
+  final String meta;
+  final String? openReason;
+  final VoidCallback onOpen;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = context.ferman;
+    final badge = _badge(context, file);
+    return DecoratedBox(
+      decoration: BoxDecoration(
+        border: Border(bottom: BorderSide(color: theme.colors.borderSubtle)),
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: FermanInteractive(
+              onPressed: onOpen,
+              disabled: openReason != null,
+              disabledReason: openReason,
+              semanticLabel: label,
+              builder: (context, states, _) => FocusRing(
+                visible: states.contains(WidgetState.focused),
+                style: FocusRingStyle.inset,
+                child: ConstrainedBox(
+                  constraints: const BoxConstraints(minHeight: minHeight),
+                  child: ExcludeSemantics(
+                    child: Row(
+                      spacing: theme.space.space3,
+                      children: [
+                        _Page(file: file, width: pageWidth, height: pageHeight),
+                        Expanded(
+                          child: _NameAndMeta(
+                            name: file.name,
+                            meta: meta,
+                            nameStyle: theme.typography.bodyStrong.copyWith(
+                              fontSize: nameSize,
+                              height: nameHeight,
+                              fontWeight: theme.typeScale.weightMedium,
+                            ),
+                            metaStyle: theme.typography.caption.copyWith(
+                              fontSize: metaSize,
+                              height: metaHeight,
+                            ),
+                          ),
+                        ),
+                        ?badge,
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+            ),
+          ),
+          IconButton(
+            icon: IconName.ellipsis,
+            label: AppLocalizations.of(context).shellMore,
+            size: IconButtonSize.sm,
+            disabled: true,
+            disabledReason: Feature.phoneMoreMenus.disabledReason(context),
           ),
         ],
       ),

@@ -1395,6 +1395,43 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startDropStripSubtitle => 'PDF dosyaları sekmelerde açılır.';
 
   @override
+  String get startPhoneSearch => 'Belgelerde ara';
+
+  @override
+  String get startPhoneToolCombine => 'Birleştir';
+
+  @override
+  String get startPhoneToolOcr => 'OCR';
+
+  @override
+  String get startPhoneEmptyTitle => 'Henüz belge yok';
+
+  @override
+  String get startPhoneEmptySubtitle =>
+      'Telefonunuzdan ya da bir bulut sürücüsünden PDF açın veya kâğıt bir belgeyi tarayın.';
+
+  @override
+  String get startPhoneOpen => 'Dosya aç';
+
+  @override
+  String get startPhoneScan => 'Belge tara';
+
+  @override
+  String get startPhoneSeeAll => 'Tümü';
+
+  @override
+  String get startPhoneOpenFrom => 'Şuradan aç';
+
+  @override
+  String get startPhoneSourceDownloads => 'İndirilenler';
+
+  @override
+  String get startPhoneSourceGoogleDrive => 'Google Drive';
+
+  @override
+  String get startPhoneSourceOneDrive => 'OneDrive';
+
+  @override
   String get startPinned => 'Sabitlenenler';
 
   @override
