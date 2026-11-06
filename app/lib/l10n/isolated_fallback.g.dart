@@ -572,6 +572,10 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.onboardingLanguageSearchPlaceholder);
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      isolate(super.onboardingLanguageSearchPlaceholderPhone);
+
+  @override
   String get onboardingLanguageSearchLabel =>
       isolate(super.onboardingLanguageSearchLabel);
 

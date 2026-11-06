@@ -518,12 +518,12 @@ Workspace, Flutter app, bridge, token pipeline, component library, light and dar
 The web build's phone layout of the existing screens: first run, the start screen and Settings on a phone-width browser ([G129](DESIGN_GAPS.md#g129)). The phone reader, phone editing, native apps, tablet layouts and web engine work stay in phase 5.
 
 - [x] Foundation: `WindowMetrics.isPhone` (under 768 px, by width), touch density at that width, `FmPhone`, the touch reason of a disabled control, `/editor` with no document, and `phoneGoldenTest` with `<screen>_phone_<theme>_<lang>`.
-- [ ] First run: the language picker in one column, and the welcome steps stacked.
+- [x] First run: the language picker in one column, and the welcome steps stacked (their goldens wait for CI's Linux run).
 - [ ] Start screen: home inside `FmPhone`, the way to Settings.
 - [ ] Settings: the pane list and each pane inside `FmPhone`.
 - [ ] Goldens from CI's Linux run, in light and dark × en, tr, ar.
 
-The report that a tap on Continue did not advance at 375 × 812 in a touch-emulated browser is **not reproduced**: a touch-kind pointer through the whole app at that size advances to the privacy step on Android, iOS and Linux (`app/test/features/phone/phone_foundation_test.dart`), so no fix is claimed for it. Widget tests do not run Flutter's web engine, so real browser input is not covered. Still to check on a real phone once first run has its layout (no screen may then be squeezed): that step was laid out with text columns about 35 px wide, which may have been what the viewer saw.
+The report that a tap on Continue did not advance at 375 × 812 in a touch-emulated browser is **not reproduced**: a touch-kind pointer through the whole app at that size advances to the privacy step on Android, iOS and Linux (`app/test/features/phone/phone_foundation_test.dart`), so no fix is claimed for it. Widget tests do not run Flutter's web engine, so real browser input is not covered. Still to check on a real phone once first run has its layout (no screen may then be squeezed): that step was laid out with text columns about 35 px wide, which may have been what the viewer saw. The picker at phone width also no longer focuses its search field on opening, so no keyboard opens over Continue; whether that was part of the report is unknown.
 
 ## M1 plan
 

@@ -1,5 +1,6 @@
 import 'package:ferman/design/components/components.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/widgets.dart' hide Icon;
 
 /// An inline text link of the first-run screens (the boards' `<a>`: the
@@ -10,7 +11,8 @@ import 'package:flutter/widgets.dart' hide Icon;
 /// With [onPressed] null it is disabled with [disabledReason] (G10): the
 /// disabled text colour, still focusable, the reason as tooltip and
 /// semantics hint. Screen readers hear a link, as the boards' `<a>`, not a
-/// button. Links that leave the app (the translation project, the
+/// button. At phone width it is at least `hitMin` tall (G129). Links that
+/// leave the app (the translation project, the
 /// source code) stay disabled in M1: the app opens no web pages yet.
 class OnboardingLink extends StatelessWidget {
   /// A link labelled [label] in [style].
@@ -65,28 +67,32 @@ class OnboardingLink extends StatelessWidget {
         ),
       );
       final icon = trailingIcon;
+      final link = FocusRing(
+        visible: states.contains(WidgetState.focused),
+        borderRadius: BorderRadius.all(Radius.circular(theme.radius.radiusXs)),
+        child: ExcludeSemantics(
+          child: icon == null
+              ? text
+              : Row(
+                  mainAxisSize: MainAxisSize.min,
+                  spacing: theme.space.space1_5,
+                  children: [
+                    Flexible(child: text),
+                    Icon(icon, size: trailingIconSize, color: color),
+                  ],
+                ),
+        ),
+      );
       // Not a container: the link flag joins the control's own node, which
       // keeps the label, the reason and the tap.
       return Semantics(
         link: true,
-        child: FocusRing(
-          visible: states.contains(WidgetState.focused),
-          borderRadius: BorderRadius.all(
-            Radius.circular(theme.radius.radiusXs),
-          ),
-          child: ExcludeSemantics(
-            child: icon == null
-                ? text
-                : Row(
-                    mainAxisSize: MainAxisSize.min,
-                    spacing: theme.space.space1_5,
-                    children: [
-                      Flexible(child: text),
-                      Icon(icon, size: trailingIconSize, color: color),
-                    ],
-                  ),
-          ),
-        ),
+        child: WindowMetrics.isPhone(context)
+            ? ConstrainedBox(
+                constraints: BoxConstraints(minHeight: theme.density.hitMin),
+                child: Center(widthFactor: 1, child: link),
+              )
+            : link,
       );
     },
   );

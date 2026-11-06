@@ -1120,6 +1120,12 @@ abstract class AppLocalizations {
   /// **'Search languages · Dil ara · Sprache suchen · ابحث عن لغة'**
   String get onboardingLanguageSearchPlaceholder;
 
+  /// Placeholder of the language search field at phone width (board a13-1b): the shorter form that fits one line. It shows the word in several languages on purpose, this language first.
+  ///
+  /// In en, this message translates to:
+  /// **'Search · Ara · Suchen · بحث'**
+  String get onboardingLanguageSearchPlaceholderPhone;
+
   /// Screen-reader name of the search field of the first-run language picker (a1-1).
   ///
   /// In en, this message translates to:

@@ -721,6 +721,10 @@
   "@onboardingLanguageSearchPlaceholder": {
     "description": "Placeholder of the search field of the first-run language picker (a1-1). It asks in several languages on purpose, so people who don't read the interface language can still find theirs: keep the other languages and put this language's phrase first."
   },
+  "onboardingLanguageSearchPlaceholderPhone": "Search · Ara · Suchen · بحث",
+  "@onboardingLanguageSearchPlaceholderPhone": {
+    "description": "Placeholder of the language search field at phone width (board a13-1b): the shorter form that fits one line. It shows the word in several languages on purpose, this language first."
+  },
   "onboardingLanguageSearchLabel": "Search languages",
   "@onboardingLanguageSearchLabel": {
     "description": "Screen-reader name of the search field of the first-run language picker (a1-1)."

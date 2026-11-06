@@ -537,6 +537,10 @@ class AppLocalizationsEn extends AppLocalizations {
       'Search languages · Dil ara · Sprache suchen · ابحث عن لغة';
 
   @override
+  String get onboardingLanguageSearchPlaceholderPhone =>
+      'Search · Ara · Suchen · بحث';
+
+  @override
   String get onboardingLanguageSearchLabel => 'Search languages';
 
   @override
