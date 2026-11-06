@@ -39,7 +39,7 @@ flutter_rust_bridge::frb_generated_boilerplate!(
     default_rust_auto_opaque = RustAutoOpaqueNom,
 );
 pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_VERSION: &str = "2.13.0";
-pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = 824163482;
+pub(crate) const FLUTTER_RUST_BRIDGE_CODEGEN_CONTENT_HASH: i32 = -366251377;
 
 // Section: executor
 
@@ -626,6 +626,35 @@ fn wire__crate__frb__move_block_impl(
                     (move || async move {
                         let output_ok =
                             crate::frb::move_block(api_transaction, api_dx, api_dy).await?;
+                        std::result::Result::Ok(output_ok)
+                    })()
+                    .await,
+                )
+            }
+        },
+    )
+}
+fn wire__crate__frb__op_gate_impl(
+    port_: flutter_rust_bridge::for_generated::MessagePort,
+    document: impl CstDecode<u64>,
+    op: impl CstDecode<crate::frb::DocumentOp>,
+    fields: impl CstDecode<Vec<String>>,
+) {
+    FLUTTER_RUST_BRIDGE_HANDLER.wrap_async::<flutter_rust_bridge::for_generated::DcoCodec, _, _, _>(
+        flutter_rust_bridge::for_generated::TaskInfo {
+            debug_name: "op_gate",
+            port: Some(port_),
+            mode: flutter_rust_bridge::for_generated::FfiCallMode::Normal,
+        },
+        move || {
+            let api_document = document.cst_decode();
+            let api_op = op.cst_decode();
+            let api_fields = fields.cst_decode();
+            move |context| async move {
+                transform_result_dco::<_, _, crate::frb::ApiError>(
+                    (move || async move {
+                        let output_ok =
+                            crate::frb::op_gate(api_document, api_op, api_fields).await?;
                         std::result::Result::Ok(output_ok)
                     })()
                     .await,
@@ -1536,6 +1565,19 @@ impl CstDecode<crate::frb::BuildProfile> for i32 {
         }
     }
 }
+impl CstDecode<crate::frb::DocumentOp> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::DocumentOp {
+        match self {
+            0 => crate::frb::DocumentOp::EditText,
+            1 => crate::frb::DocumentOp::Organize,
+            2 => crate::frb::DocumentOp::Comment,
+            3 => crate::frb::DocumentOp::Fill,
+            4 => crate::frb::DocumentOp::Print,
+            _ => unreachable!("Invalid variant for DocumentOp: {}", self),
+        }
+    }
+}
 impl CstDecode<crate::frb::EncryptionMethod> for i32 {
     // Codec=Cst (C-struct based), see doc to use other codecs
     fn cst_decode(self) -> crate::frb::EncryptionMethod {
@@ -1699,6 +1741,18 @@ impl CstDecode<crate::frb::NotEditableReason> for i32 {
             10 => crate::frb::NotEditableReason::TooComplexSplitOperator,
             11 => crate::frb::NotEditableReason::TooComplexSkewed,
             _ => unreachable!("Invalid variant for NotEditableReason: {}", self),
+        }
+    }
+}
+impl CstDecode<crate::frb::OpGate> for i32 {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    fn cst_decode(self) -> crate::frb::OpGate {
+        match self {
+            0 => crate::frb::OpGate::Unaffected,
+            1 => crate::frb::OpGate::KeepsSignatures,
+            2 => crate::frb::OpGate::BreaksSignatures,
+            3 => crate::frb::OpGate::Forbidden,
+            _ => unreachable!("Invalid variant for OpGate: {}", self),
         }
     }
 }
@@ -2084,6 +2138,21 @@ impl SseDecode for crate::frb::DocumentInfo {
             producer: var_producer,
             created: var_created,
             modified: var_modified,
+        };
+    }
+}
+
+impl SseDecode for crate::frb::DocumentOp {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::DocumentOp::EditText,
+            1 => crate::frb::DocumentOp::Organize,
+            2 => crate::frb::DocumentOp::Comment,
+            3 => crate::frb::DocumentOp::Fill,
+            4 => crate::frb::DocumentOp::Print,
+            _ => unreachable!("Invalid variant for DocumentOp: {}", inner),
         };
     }
 }
@@ -2872,6 +2941,20 @@ impl SseDecode for crate::frb::NotEditableReason {
             10 => crate::frb::NotEditableReason::TooComplexSplitOperator,
             11 => crate::frb::NotEditableReason::TooComplexSkewed,
             _ => unreachable!("Invalid variant for NotEditableReason: {}", inner),
+        };
+    }
+}
+
+impl SseDecode for crate::frb::OpGate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_decode(deserializer: &mut flutter_rust_bridge::for_generated::SseDeserializer) -> Self {
+        let mut inner = <i32>::sse_decode(deserializer);
+        return match inner {
+            0 => crate::frb::OpGate::Unaffected,
+            1 => crate::frb::OpGate::KeepsSignatures,
+            2 => crate::frb::OpGate::BreaksSignatures,
+            3 => crate::frb::OpGate::Forbidden,
+            _ => unreachable!("Invalid variant for OpGate: {}", inner),
         };
     }
 }
@@ -3970,6 +4053,25 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::DocumentInfo> for crate::frb:
     }
 }
 // Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::DocumentOp {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::EditText => 0.into_dart(),
+            Self::Organize => 1.into_dart(),
+            Self::Comment => 2.into_dart(),
+            Self::Fill => 3.into_dart(),
+            Self::Print => 4.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::DocumentOp {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::DocumentOp> for crate::frb::DocumentOp {
+    fn into_into_dart(self) -> crate::frb::DocumentOp {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
 impl flutter_rust_bridge::IntoDart for crate::frb::DocumentPermissions {
     fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
         [
@@ -4494,6 +4596,24 @@ impl flutter_rust_bridge::IntoIntoDart<crate::frb::NotEditableReason>
     for crate::frb::NotEditableReason
 {
     fn into_into_dart(self) -> crate::frb::NotEditableReason {
+        self
+    }
+}
+// Codec=Dco (DartCObject based), see doc to use other codecs
+impl flutter_rust_bridge::IntoDart for crate::frb::OpGate {
+    fn into_dart(self) -> flutter_rust_bridge::for_generated::DartAbi {
+        match self {
+            Self::Unaffected => 0.into_dart(),
+            Self::KeepsSignatures => 1.into_dart(),
+            Self::BreaksSignatures => 2.into_dart(),
+            Self::Forbidden => 3.into_dart(),
+            _ => unreachable!(),
+        }
+    }
+}
+impl flutter_rust_bridge::for_generated::IntoDartExceptPrimitive for crate::frb::OpGate {}
+impl flutter_rust_bridge::IntoIntoDart<crate::frb::OpGate> for crate::frb::OpGate {
+    fn into_into_dart(self) -> crate::frb::OpGate {
         self
     }
 }
@@ -5317,6 +5437,25 @@ impl SseEncode for crate::frb::DocumentInfo {
     }
 }
 
+impl SseEncode for crate::frb::DocumentOp {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::DocumentOp::EditText => 0,
+                crate::frb::DocumentOp::Organize => 1,
+                crate::frb::DocumentOp::Comment => 2,
+                crate::frb::DocumentOp::Fill => 3,
+                crate::frb::DocumentOp::Print => 4,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
 impl SseEncode for crate::frb::DocumentPermissions {
     // Codec=Sse (Serialization based), see doc to use other codecs
     fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
@@ -5969,6 +6108,24 @@ impl SseEncode for crate::frb::NotEditableReason {
                 crate::frb::NotEditableReason::TooComplexLimits => 9,
                 crate::frb::NotEditableReason::TooComplexSplitOperator => 10,
                 crate::frb::NotEditableReason::TooComplexSkewed => 11,
+                _ => {
+                    unimplemented!("");
+                }
+            },
+            serializer,
+        );
+    }
+}
+
+impl SseEncode for crate::frb::OpGate {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    fn sse_encode(self, serializer: &mut flutter_rust_bridge::for_generated::SseSerializer) {
+        <i32>::sse_encode(
+            match self {
+                crate::frb::OpGate::Unaffected => 0,
+                crate::frb::OpGate::KeepsSignatures => 1,
+                crate::frb::OpGate::BreaksSignatures => 2,
+                crate::frb::OpGate::Forbidden => 3,
                 _ => {
                     unimplemented!("");
                 }
@@ -8750,6 +8907,16 @@ mod io {
         dy: f32,
     ) {
         wire__crate__frb__move_block_impl(port_, transaction, dx, dy)
+    }
+
+    #[unsafe(no_mangle)]
+    pub extern "C" fn frbgen_ferman_wire__crate__frb__op_gate(
+        port_: i64,
+        document: u64,
+        op: i32,
+        fields: *mut wire_cst_list_String,
+    ) {
+        wire__crate__frb__op_gate_impl(port_, document, op, fields)
     }
 
     #[unsafe(no_mangle)]
@@ -11708,6 +11875,14 @@ mod web {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
+    impl CstDecode<crate::frb::DocumentOp>
+        for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
+    {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::DocumentOp {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
     impl CstDecode<crate::frb::EncryptionMethod>
         for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue
     {
@@ -11831,6 +12006,12 @@ mod web {
     {
         // Codec=Cst (C-struct based), see doc to use other codecs
         fn cst_decode(self) -> crate::frb::NotEditableReason {
+            (self.unchecked_into_f64() as i32).cst_decode()
+        }
+    }
+    impl CstDecode<crate::frb::OpGate> for flutter_rust_bridge::for_generated::wasm_bindgen::JsValue {
+        // Codec=Cst (C-struct based), see doc to use other codecs
+        fn cst_decode(self) -> crate::frb::OpGate {
             (self.unchecked_into_f64() as i32).cst_decode()
         }
     }
@@ -12122,6 +12303,16 @@ mod web {
         dy: f32,
     ) {
         wire__crate__frb__move_block_impl(port_, transaction, dx, dy)
+    }
+
+    #[wasm_bindgen]
+    pub fn wire__crate__frb__op_gate(
+        port_: flutter_rust_bridge::for_generated::MessagePort,
+        document: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+        op: i32,
+        fields: flutter_rust_bridge::for_generated::wasm_bindgen::JsValue,
+    ) {
+        wire__crate__frb__op_gate_impl(port_, document, op, fields)
     }
 
     #[wasm_bindgen]

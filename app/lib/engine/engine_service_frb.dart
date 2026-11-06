@@ -1023,6 +1023,35 @@ class FrbEngineService implements EngineService {
   }
 
   @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async {
+    try {
+      final gate = await bridge.opGate(
+        document: BigInt.from(document),
+        op: switch (op) {
+          DocumentOp.editText => bridge.DocumentOp.editText,
+          DocumentOp.organize => bridge.DocumentOp.organize,
+          DocumentOp.comment => bridge.DocumentOp.comment,
+          DocumentOp.fill => bridge.DocumentOp.fill,
+          DocumentOp.print => bridge.DocumentOp.print,
+        },
+        fields: fields,
+      );
+      return switch (gate) {
+        bridge.OpGate.unaffected => OpGate.unaffected,
+        bridge.OpGate.keepsSignatures => OpGate.keepsSignatures,
+        bridge.OpGate.breaksSignatures => OpGate.breaksSignatures,
+        bridge.OpGate.forbidden => OpGate.forbidden,
+      };
+    } on bridge.ApiError catch (error) {
+      throw _exception(error);
+    }
+  }
+
+  @override
   Future<int> confirmEditSigned(int document) async {
     try {
       final token = await bridge.confirmEditSigned(

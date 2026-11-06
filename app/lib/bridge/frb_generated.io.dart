@@ -153,6 +153,9 @@ abstract class FermanBridgeApiImplPlatform
   DocumentInfo dco_decode_document_info(dynamic raw);
 
   @protected
+  DocumentOp dco_decode_document_op(dynamic raw);
+
+  @protected
   DocumentPermissions dco_decode_document_permissions(dynamic raw);
 
   @protected
@@ -316,6 +319,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   NotEditableReason dco_decode_not_editable_reason(dynamic raw);
+
+  @protected
+  OpGate dco_decode_op_gate(dynamic raw);
 
   @protected
   OpenedDocument dco_decode_opened_document(dynamic raw);
@@ -654,6 +660,9 @@ abstract class FermanBridgeApiImplPlatform
   DocumentInfo sse_decode_document_info(SseDeserializer deserializer);
 
   @protected
+  DocumentOp sse_decode_document_op(SseDeserializer deserializer);
+
+  @protected
   DocumentPermissions sse_decode_document_permissions(
     SseDeserializer deserializer,
   );
@@ -839,6 +848,9 @@ abstract class FermanBridgeApiImplPlatform
   NotEditableReason sse_decode_not_editable_reason(
     SseDeserializer deserializer,
   );
+
+  @protected
+  OpGate sse_decode_op_gate(SseDeserializer deserializer);
 
   @protected
   OpenedDocument sse_decode_opened_document(SseDeserializer deserializer);
@@ -2561,6 +2573,9 @@ abstract class FermanBridgeApiImplPlatform
   int cst_encode_build_profile(BuildProfile raw);
 
   @protected
+  int cst_encode_document_op(DocumentOp raw);
+
+  @protected
   int cst_encode_encryption_method(EncryptionMethod raw);
 
   @protected
@@ -2598,6 +2613,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_not_editable_reason(NotEditableReason raw);
+
+  @protected
+  int cst_encode_op_gate(OpGate raw);
 
   @protected
   int cst_encode_overflow_choice(OverflowChoice raw);
@@ -2835,6 +2853,9 @@ abstract class FermanBridgeApiImplPlatform
 
   @protected
   void sse_encode_document_info(DocumentInfo self, SseSerializer serializer);
+
+  @protected
+  void sse_encode_document_op(DocumentOp self, SseSerializer serializer);
 
   @protected
   void sse_encode_document_permissions(
@@ -3078,6 +3099,9 @@ abstract class FermanBridgeApiImplPlatform
     NotEditableReason self,
     SseSerializer serializer,
   );
+
+  @protected
+  void sse_encode_op_gate(OpGate self, SseSerializer serializer);
 
   @protected
   void sse_encode_opened_document(
@@ -3751,6 +3775,31 @@ class FermanBridgeWire implements BaseWire {
       >('frbgen_ferman_wire__crate__frb__move_block');
   late final _wire__crate__frb__move_block = _wire__crate__frb__move_blockPtr
       .asFunction<void Function(int, int, double, double)>();
+
+  void wire__crate__frb__op_gate(
+    int port_,
+    int document,
+    int op,
+    ffi.Pointer<wire_cst_list_String> fields,
+  ) {
+    return _wire__crate__frb__op_gate(port_, document, op, fields);
+  }
+
+  late final _wire__crate__frb__op_gatePtr =
+      _lookup<
+        ffi.NativeFunction<
+          ffi.Void Function(
+            ffi.Int64,
+            ffi.Uint64,
+            ffi.Int32,
+            ffi.Pointer<wire_cst_list_String>,
+          )
+        >
+      >('frbgen_ferman_wire__crate__frb__op_gate');
+  late final _wire__crate__frb__op_gate = _wire__crate__frb__op_gatePtr
+      .asFunction<
+        void Function(int, int, int, ffi.Pointer<wire_cst_list_String>)
+      >();
 
   void wire__crate__frb__open(
     int port_,

@@ -22,6 +22,7 @@ use lopdf::{Dictionary, Object, ObjectId};
 
 use crate::limits::Limits;
 use crate::revision::RevisionStore;
+use crate::security::DocumentOp;
 use crate::text_string;
 
 pub mod fonts;
@@ -29,7 +30,7 @@ pub mod interactive;
 pub mod navigation;
 
 pub use fonts::{FontKind, FontUse};
-pub use interactive::{Forms, Layer, Scripts, Signature};
+pub use interactive::{FieldLock, Forms, Layer, OpGate, Scripts, Signature};
 pub use navigation::{Attachment, OutlineItem};
 
 /// US Letter, PDFium's page size when `/MediaBox` is missing or empty.
@@ -329,6 +330,46 @@ impl Structure {
         self.signatures.iter().any(|signature| signature.signed)
             || self.certification.is_some()
             || self.forms.sig_flags & 2 != 0
+    }
+
+    /// What `op` does to the signatures of the file (ISO 32000-2 §12.8.2.2 and §12.8.2.4, G35).
+    /// A certification's level allows filling and signing at 2, and comments too at 3, and
+    /// nothing else; a field lock's `/P` counts as a level, the lowest wins. A signature with no
+    /// level and no lock says nothing is allowed, and neither does `/SigFlags` alone, so those
+    /// break. `fields` are the full names `op` fills; empty when not known yet, which keeps a
+    /// signature only if no signature locks any field.
+    #[must_use]
+    pub fn op_gate(&self, op: DocumentOp, fields: &[String]) -> OpGate {
+        if op == DocumentOp::Print || !self.signed() {
+            return OpGate::Unaffected;
+        }
+        let signed: Vec<&Signature> = self.signatures.iter().filter(|s| s.signed).collect();
+        let level = self
+            .certification
+            .into_iter()
+            .chain(signed.iter().filter_map(|signature| signature.level))
+            .min();
+        let keeps = match op {
+            DocumentOp::Comment => level == Some(3),
+            DocumentOp::Fill => {
+                let declared = !signed.is_empty() && signed.iter().all(|s| !s.locks.is_empty());
+                let allowed = level.map_or(declared, |level| level >= 2);
+                let locked = |field: &String| {
+                    signed.iter().any(|signature| {
+                        signature.field == *field
+                            || signature.locks.iter().any(|lock| lock.covers(field))
+                    })
+                };
+                let unknown = fields.is_empty() && signed.iter().any(|s| !s.locks.is_empty());
+                allowed && !unknown && !fields.iter().any(locked)
+            }
+            DocumentOp::EditText | DocumentOp::Organize | DocumentOp::Print => false,
+        };
+        if keeps {
+            OpGate::KeepsSignatures
+        } else {
+            OpGate::BreaksSignatures
+        }
     }
 
     /// Compares the pages with the sizes PDFium gives, in page order.

@@ -325,6 +325,16 @@ abstract interface class EngineService {
   /// Whether [optimizeAndClean] would break signatures of [document] (G35).
   Future<bool> wouldBreakSignatures(int document);
 
+  /// What [op] may do to [document] as it stands (G35). A change to a signed
+  /// document needs [confirmEditSigned] even when it keeps the signatures.
+  /// [fields] are the full names of the form fields a [DocumentOp.fill] fills,
+  /// empty when not known yet.
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  });
+
   /// Confirms the first change to the signed [document] ("Edit anyway",
   /// a3-16a). Until then [commitEdit] of a change and every write of it throw
   /// an [EngineException] with [EngineErrorKind.confirmationRequired], but for
@@ -606,6 +616,13 @@ class UnavailableEngineService implements EngineService {
 
   @override
   Future<bool> wouldBreakSignatures(int document) async => throw error;
+
+  @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async => throw error;
 
   @override
   Future<int> confirmEditSigned(int document) async => throw error;

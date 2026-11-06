@@ -307,6 +307,7 @@ void main() {
       () => service.saveRepairedCopy(1, '/tmp/a.pdf'),
       () => service.optimizeAndClean(1),
       () => service.wouldBreakSignatures(1),
+      () => service.opGate(1, DocumentOp.fill),
       () => service.confirmEditSigned(1),
       () => service.saveUnsignedCopy(1, '/tmp/a.pdf'),
       () => service.checkExternalChange(1),
@@ -419,6 +420,15 @@ void main() {
       expect((await engine.history(7)).signatureInvalidated, isTrue);
       await engine.save(7);
       expect(engine.saves, [(7, null)]);
+    });
+
+    test('the gate of an operation', () async {
+      final engine = FakeEngineService(pageBlocks: {0: _page})..signed.add(7);
+      expect(await engine.opGate(8, DocumentOp.fill), OpGate.unaffected);
+      expect(await engine.opGate(7, DocumentOp.fill), OpGate.breaksSignatures);
+      expect(await engine.opGate(7, DocumentOp.print), OpGate.unaffected);
+      engine.opGates[(7, DocumentOp.fill)] = OpGate.keepsSignatures;
+      expect(await engine.opGate(7, DocumentOp.fill), OpGate.keepsSignatures);
     });
 
     test('optimize and clean, signatures and repaired copies', () async {

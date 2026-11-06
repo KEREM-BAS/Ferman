@@ -2157,6 +2157,66 @@ pub async fn would_break_signatures(document: u64) -> Result<bool, ApiError> {
         .map_err(api_error_dto)
 }
 
+/// What the user asks to do to a document.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum DocumentOp {
+    /// Editing text on a page.
+    EditText,
+    /// Inserting, moving, rotating and deleting pages.
+    Organize,
+    /// Adding or changing comments.
+    Comment,
+    /// Filling in form fields, signing a signature field included.
+    Fill,
+    /// Printing, which changes nothing in the file.
+    Print,
+}
+
+/// What an operation may do to a document as it stands (G35).
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum OpGate {
+    /// Allowed, and no signature is concerned.
+    Unaffected,
+    /// Allowed, and what the signatures allow: a certification and the signatures stay valid.
+    KeepsSignatures,
+    /// Possible only by invalidating a signature.
+    BreaksSignatures,
+    /// The document's permissions forbid it, or the document cannot be changed.
+    Forbidden,
+}
+
+/// What `op` may do to the document; `fields` are the form fields a fill fills, empty when not
+/// known yet.
+///
+/// See [`facade::Engine::op_gate`].
+///
+/// # Errors
+///
+/// `NotFound` for a document that is not open.
+pub async fn op_gate(
+    document: u64,
+    op: DocumentOp,
+    fields: Vec<String>,
+) -> Result<OpGate, ApiError> {
+    let op = match op {
+        DocumentOp::EditText => facade::DocumentOp::EditText,
+        DocumentOp::Organize => facade::DocumentOp::Organize,
+        DocumentOp::Comment => facade::DocumentOp::Comment,
+        DocumentOp::Fill => facade::DocumentOp::Fill,
+        DocumentOp::Print => facade::DocumentOp::Print,
+    };
+    engine()?
+        .op_gate(facade::DocumentId::from_raw(document), op, fields)
+        .await
+        .map(|gate| match gate {
+            facade::OpGate::Unaffected => OpGate::Unaffected,
+            facade::OpGate::KeepsSignatures => OpGate::KeepsSignatures,
+            facade::OpGate::BreaksSignatures => OpGate::BreaksSignatures,
+            facade::OpGate::Forbidden => OpGate::Forbidden,
+        })
+        .map_err(api_error_dto)
+}
+
 /// Confirms the first change to a signed document ("Edit anyway", a3-16a), until it closes.
 ///
 /// See [`facade::Engine::confirm_edit_signed`].

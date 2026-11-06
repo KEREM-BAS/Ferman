@@ -414,6 +414,40 @@ class FontCoverage {
   final String missingLetters;
 }
 
+/// What the user asks to do to a document.
+enum DocumentOp {
+  /// Editing text on a page.
+  editText,
+
+  /// Inserting, moving, rotating and deleting pages.
+  organize,
+
+  /// Adding or changing comments.
+  comment,
+
+  /// Filling in form fields, signing a signature field included.
+  fill,
+
+  /// Printing, which changes nothing in the file.
+  print,
+}
+
+/// What an operation may do to a document as it stands (G35).
+enum OpGate {
+  /// Allowed, and no signature is concerned.
+  unaffected,
+
+  /// Allowed, and what the signatures allow: a certification and the
+  /// signatures stay valid.
+  keepsSignatures,
+
+  /// Possible only by invalidating a signature.
+  breaksSignatures,
+
+  /// The document's permissions forbid it, or the document cannot be changed.
+  forbidden,
+}
+
 /// How an encrypted document is encrypted.
 enum EncryptionMethod {
   /// RC4, with [Security.keyBits].

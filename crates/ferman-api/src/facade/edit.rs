@@ -62,7 +62,9 @@
 //! The actor holds the confirmation until the document closes; it is never persisted, not even
 //! across a restore from the recovery files. The one write without it is a byte-for-byte copy of
 //! the unchanged file to another path, which leaves the signature valid. "Edit a copy" is
-//! [`Engine::save_unsigned_copy`] and an open of the new file.
+//! [`Engine::save_unsigned_copy`] and an open of the new file. A change the signatures allow
+//! ([`Engine::op_gate`] says [`OpGate::KeepsSignatures`]) asks the same, because G35 tells the
+//! user before the first change whatever it does; its notice only says something else.
 
 use std::panic::AssertUnwindSafe;
 use std::path::{Path, PathBuf};
@@ -75,7 +77,8 @@ use std::time::{Instant, SystemTime, UNIX_EPOCH};
 use ferman_core::recovery::{Change, DocumentRecovery, SYNC_INTERVAL};
 use ferman_core::revision::{self, RevisionStore};
 use ferman_core::save::FileStamp;
-use ferman_core::{CoreError, WriteError};
+use ferman_core::structure::OpGate;
+use ferman_core::{CoreError, DocumentOp, WriteError};
 use ferman_fonts::{FontLibrary, FontOrigin, ScanLimits};
 use ferman_render::{DocumentId, RenderError};
 use ferman_text::extract::CharBox;
@@ -334,6 +337,9 @@ pub struct HistoryStep {
     pub after: String,
     /// The steps this one reverted, by index; empty for an edit.
     pub reverts: Vec<u32>,
+    /// Whether the signatures allowed it ([`OpGate::KeepsSignatures`]); false for a text edit, a
+    /// revert and a restored step.
+    pub keeps_signatures: bool,
 }
 
 /// The document's history for the Undo history panel (a3-10).
@@ -517,6 +523,7 @@ impl Session {
                 before: String::new(),
                 after: String::new(),
                 reverts: Vec::new(),
+                keeps_signatures: false,
             })
             .collect();
         Self {
@@ -579,24 +586,49 @@ impl Session {
             })
     }
 
-    /// Fails for a document that cannot be changed at all, with the reason.
-    fn changeable(&self) -> Result<(), ApiError> {
-        if let Some(reason) = self.model.read_only {
+    /// Fails for a document that `op` may not touch, with the reason. Printing changes nothing,
+    /// so a read-only document allows it.
+    fn permitted(&self, op: DocumentOp) -> Result<(), ApiError> {
+        if op != DocumentOp::Print
+            && let Some(reason) = self.model.read_only
+        {
             return Err(ApiError::not_editable(reason));
         }
         if self
             .model
             .security()
-            .is_some_and(|security| security.restricted())
+            .is_some_and(|security| !security.owner && !security.permissions.allows(op))
         {
             return Err(ApiError::not_editable(NotEditableReason::Restricted));
         }
         Ok(())
     }
 
+    /// Whether the steps applied so far, or a rewrite, already broke the signatures.
+    fn signatures_broken(&self) -> bool {
+        self.rewritten
+            || self
+                .steps
+                .get(..self.committed.current())
+                .unwrap_or_default()
+                .iter()
+                .any(|step| !step.keeps_signatures)
+    }
+
+    /// What `op`, on the form fields `fields`, may do to the document as it stands.
+    fn op_gate(&self, op: DocumentOp, fields: &[String]) -> OpGate {
+        if self.permitted(op).is_err() {
+            return OpGate::Forbidden;
+        }
+        match self.model.document.structure().op_gate(op, fields) {
+            OpGate::KeepsSignatures if self.signatures_broken() => OpGate::BreaksSignatures,
+            gate => gate,
+        }
+    }
+
     pub(super) fn begin(&mut self, page: u32, block: BlockId) -> Result<TransactionId, ApiError> {
         self.closed()?;
-        self.changeable()?;
+        self.permitted(DocumentOp::EditText)?;
         let index = self.page_index(page)?;
         let text = ferman_text::text_page_revised(
             &self.model.document,
@@ -1056,6 +1088,7 @@ impl Session {
             before: text_before,
             after: text_after,
             reverts: Vec::new(),
+            keeps_signatures: false,
         });
         self.frames.resize(before, None);
         self.frames.push(Some(frame));
@@ -1073,19 +1106,22 @@ impl Session {
             .collect()
     }
 
-    /// Commits what `change` writes as the step `name` of the history, which names `pages` (as
-    /// the committed revisions leave them) and says `before` and `after`. A change that writes
-    /// nothing adds no step; a failed one, or one a signed document's confirmation stops, leaves
-    /// the history as it was.
+    /// Commits what `change` writes for `op`, on the form fields `fields`, as the step `name` of
+    /// the history, which names `pages` (as the committed revisions leave them) and says `before`
+    /// and `after`. A change that writes nothing adds no step; a failed one, one `op`'s permission
+    /// refuses, or one a signed document's confirmation stops, leaves the history as it was.
     pub(super) fn commit_change(
         &mut self,
+        op: DocumentOp,
+        fields: &[String],
         name: String,
         pages: &[usize],
         (before, after): (String, String),
         change: impl FnOnce(&ferman_core::Document, &mut RevisionStore) -> Result<(), ApiError>,
     ) -> Result<(u32, Reload), ApiError> {
         self.closed()?;
-        self.changeable()?;
+        self.permitted(op)?;
+        let keeps_signatures = self.op_gate(op, fields) == OpGate::KeepsSignatures;
         let mut working = (*self.committed).clone();
         working.begin()?;
         change(&self.model.document, &mut working)?;
@@ -1105,6 +1141,7 @@ impl Session {
             before,
             after,
             reverts: Vec::new(),
+            keeps_signatures,
         });
         self.frames.resize(current, None);
         self.frames.push(None);
@@ -1231,6 +1268,7 @@ impl Session {
             before: String::new(),
             after: String::new(),
             reverts,
+            keeps_signatures: false,
         });
         self.frames.resize(before, None);
         self.frames.push(None);
@@ -1313,7 +1351,7 @@ impl Session {
         History {
             steps: self.steps.clone(),
             current: self.current(),
-            signature_invalidated: self.signed() && (self.current() > 0 || self.rewritten),
+            signature_invalidated: self.signed() && self.signatures_broken(),
         }
     }
 
@@ -2016,6 +2054,8 @@ impl Engine {
                 .ask(document, move |session| {
                     let index = session.page_index(page)?;
                     session.commit_change(
+                        DocumentOp::Organize,
+                        &[],
                         name,
                         &[index],
                         (String::new(), String::new()),
@@ -2288,6 +2328,28 @@ impl Engine {
     /// Returns `NotFound` for a document that is not open.
     pub async fn would_break_signatures(&self, document: DocumentId) -> Result<bool, ApiError> {
         guard_async(async move { self.ask(document, |session| Ok(session.signed())).await }).await
+    }
+
+    /// What `op` may do to `document` as it stands (G35): forbidden by its permissions or because
+    /// it cannot be changed, or what the change does to its signatures. A changing operation on a
+    /// signed document still needs [`confirm_edit_signed`](Self::confirm_edit_signed), even when
+    /// it keeps them. `fields` are the full names of the form fields a [`DocumentOp::Fill`] fills;
+    /// empty when they are not known yet.
+    ///
+    /// # Errors
+    ///
+    /// Returns `NotFound` for a document that is not open.
+    pub async fn op_gate(
+        &self,
+        document: DocumentId,
+        op: DocumentOp,
+        fields: Vec<String>,
+    ) -> Result<OpGate, ApiError> {
+        guard_async(async move {
+            self.ask(document, move |session| Ok(session.op_gate(op, &fields)))
+                .await
+        })
+        .await
     }
 
     /// Confirms the first change to a signed document ("Edit anyway", a3-16a): commits and
@@ -3510,6 +3572,117 @@ mod tests {
             session.commit(stale, String::new()).unwrap_err().kind,
             ErrorKind::NotFound
         );
+    }
+
+    /// A session of a one-page file certified at level `level`, built in memory.
+    fn certified(level: u8) -> Session {
+        let objects = [
+            "<< /Type /Catalog /Pages 2 0 R /Perms << /DocMDP 4 0 R >> >>".to_owned(),
+            "<< /Type /Pages /Kids [3 0 R] /Count 1 >>".to_owned(),
+            "<< /Type /Page /Parent 2 0 R /MediaBox [0 0 100 100] >>".to_owned(),
+            format!(
+                "<< /Type /Sig /Reference [<< /TransformMethod /DocMDP \
+                 /TransformParams << /P {level} >> >>] >>"
+            ),
+        ];
+        let mut pdf = String::from("%PDF-1.7\n");
+        let mut offsets = Vec::new();
+        for (index, object) in objects.iter().enumerate() {
+            offsets.push(pdf.len());
+            pdf.push_str(&format!("{} 0 obj\n{object}\nendobj\n", index + 1));
+        }
+        let xref = pdf.len();
+        pdf.push_str("xref\n0 5\n0000000000 65535 f \n");
+        for offset in offsets {
+            pdf.push_str(&format!("{offset:010} 00000 n \n"));
+        }
+        pdf.push_str(&format!(
+            "trailer\n<< /Size 5 /Root 1 0 R >>\nstartxref\n{xref}\n%%EOF\n"
+        ));
+        let source = ferman_core::Source::from_bytes(Arc::from(pdf.as_bytes()));
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        assert!(document.repair().is_none());
+        let path = std::env::temp_dir().join("ferman-certified-in-memory.pdf");
+        Session::new(Arc::new(Model::new(document, path, None, false, None)))
+    }
+
+    /// A commit of `op` that turns the first page, as a page operation does.
+    fn turn(session: &mut Session, op: DocumentOp) -> Result<(u32, Reload), ApiError> {
+        session.commit_change(
+            op,
+            &[],
+            "Turned".to_owned(),
+            &[0],
+            (String::new(), String::new()),
+            |doc, working| Ok(ferman_ops::pages::rotate(doc, working, 0, 1)?),
+        )
+    }
+
+    #[test]
+    fn the_gate_reads_the_certification_level_and_the_history() {
+        use DocumentOp::{Comment, EditText, Fill, Organize, Print};
+        const KEEPS: OpGate = OpGate::KeepsSignatures;
+        const BREAKS: OpGate = OpGate::BreaksSignatures;
+        for (level, comment, fill) in [(1, BREAKS, BREAKS), (2, BREAKS, KEEPS), (3, KEEPS, KEEPS)] {
+            let session = certified(level);
+            assert_eq!(session.op_gate(Comment, &[]), comment, "P {level}");
+            assert_eq!(session.op_gate(Fill, &[]), fill, "P {level}");
+            assert_eq!(session.op_gate(EditText, &[]), BREAKS, "P {level}");
+            assert_eq!(session.op_gate(Organize, &[]), BREAKS, "P {level}");
+            assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected, "P {level}");
+        }
+
+        // A change that keeps them still asks first, and then does not count as breaking them.
+        let mut session = certified(3);
+        refused(turn(&mut session, Comment));
+        session.confirm();
+        turn(&mut session, Comment).unwrap();
+        assert!(session.steps.first().unwrap().keeps_signatures);
+        assert!(!session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), KEEPS);
+
+        // A change that breaks them does so for what follows, until it is undone.
+        turn(&mut session, Organize).unwrap();
+        assert!(session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), BREAKS);
+        turn(&mut session, Fill).unwrap();
+        assert!(!session.steps.last().unwrap().keeps_signatures);
+        session.undo().unwrap();
+        session.undo().unwrap();
+        assert!(!session.history().signature_invalidated);
+        assert_eq!(session.op_gate(Fill, &[]), KEEPS);
+    }
+
+    #[test]
+    fn the_gate_reads_the_permissions_and_read_only() {
+        use DocumentOp::{Comment, EditText, Fill, Organize, Print};
+        const CHANGES: [DocumentOp; 4] = [EditText, Organize, Comment, Fill];
+        // The corpus's print-only flags.
+        let path = corpus("kira-tr-restricted");
+        let source = ferman_core::Source::read(&path).unwrap();
+        let document = ferman_core::open(&source, &ferman_core::OpenOptions::default()).unwrap();
+        let model = Arc::new(Model::new(document, path, None, false, None));
+        let mut session = Session::new(Arc::clone(&model));
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Forbidden, "{op:?}");
+        }
+        assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected);
+        let err = turn(&mut session, Organize).unwrap_err();
+        assert_eq!(err.message_key, MessageKey::EDIT_RESTRICTED);
+        assert_eq!(session.current(), 0);
+        // The owner password lifts them all.
+        model.owner_unlocked.store(true, Ordering::Relaxed);
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Unaffected, "{op:?}");
+        }
+        turn(&mut session, Organize).unwrap();
+
+        // A document that cannot be changed still prints.
+        let session = self::session("kira-tr", Some(NotEditableReason::ReadOnly));
+        for op in CHANGES {
+            assert_eq!(session.op_gate(op, &[]), OpGate::Forbidden, "{op:?}");
+        }
+        assert_eq!(session.op_gate(Print, &[]), OpGate::Unaffected);
     }
 
     #[test]

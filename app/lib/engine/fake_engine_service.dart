@@ -1187,6 +1187,11 @@ class FakeEngineService implements EngineService {
   /// [confirmEditSigned].
   final Set<int> signed = {};
 
+  /// What [opGate] says of a document and an operation, when a test sets it.
+  /// Otherwise a changing operation on a [signed] document breaks its
+  /// signatures, and nothing else is concerned.
+  final Map<(int, DocumentOp), OpGate> opGates = {};
+
   /// The signed documents [confirmEditSigned] confirmed, with their tokens.
   final Map<int, int> confirmations = {};
 
@@ -1329,6 +1334,17 @@ class FakeEngineService implements EngineService {
   @override
   Future<bool> wouldBreakSignatures(int document) async =>
       signed.contains(document);
+
+  @override
+  Future<OpGate> opGate(
+    int document,
+    DocumentOp op, {
+    List<String> fields = const [],
+  }) async =>
+      opGates[(document, op)] ??
+      (signed.contains(document) && op != DocumentOp.print
+          ? OpGate.breaksSignatures
+          : OpGate.unaffected);
 
   @override
   Future<int> confirmEditSigned(int document) async =>

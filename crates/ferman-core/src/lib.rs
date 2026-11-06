@@ -93,7 +93,7 @@ mod xref;
 
 pub use document::{Document, OpenOptions, open};
 pub use repair::{Diagnosis, LikelyCause, Repair, RepairReport, XrefProblem};
-pub use security::{Access, EncryptionInfo, Method, Password, Permissions};
+pub use security::{Access, DocumentOp, EncryptionInfo, Method, Password, Permissions};
 pub use sniff::FileKind;
 pub use source::Source;
 

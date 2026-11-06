@@ -44,10 +44,12 @@ pub use version::{API_VERSION, APP_VERSION, ApiVersion, api_version};
 
 // The engine types the API passes through as they are: plain data, no lopdf or PDFium inside.
 pub use ferman_core::structure::{
-    Agreement, Attachment, Direction, FontKind, FontUse, Info, Layer, OutlineItem, PdfDate,
+    Agreement, Attachment, Direction, FontKind, FontUse, Info, Layer, OpGate, OutlineItem, PdfDate,
     Scripts, Signature,
 };
-pub use ferman_core::{Method, Password, Permissions, Repair, RepairReport, XrefProblem};
+pub use ferman_core::{
+    DocumentOp, Method, Password, Permissions, Repair, RepairReport, XrefProblem,
+};
 pub use ferman_fonts::{Coverage, Embedding, FontOrigin};
 pub use ferman_render::{
     DocumentId, FailReason, Failed, Item, MAX_THUMBNAIL_SIZE, PageSize, PixelRect, Priority,

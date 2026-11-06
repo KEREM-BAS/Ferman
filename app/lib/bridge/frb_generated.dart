@@ -68,7 +68,7 @@ class FermanBridge
   String get codegenVersion => '2.13.0';
 
   @override
-  int get rustContentHash => 824163482;
+  int get rustContentHash => -366251377;
 
   static const kDefaultExternalLibraryLoaderConfig =
       ExternalLibraryLoaderConfig(
@@ -170,6 +170,12 @@ abstract class FermanBridgeApi extends BaseApi {
     required BigInt transaction,
     required double dx,
     required double dy,
+  });
+
+  Future<OpGate> crateFrbOpGate({
+    required BigInt document,
+    required DocumentOp op,
+    required List<String> fields,
   });
 
   Future<OpenedDocument> crateFrbOpen({required String path, String? password});
@@ -920,6 +926,36 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   TaskConstMeta get kCrateFrbMoveBlockConstMeta => const TaskConstMeta(
     debugName: "move_block",
     argNames: ["transaction", "dx", "dy"],
+  );
+
+  @override
+  Future<OpGate> crateFrbOpGate({
+    required BigInt document,
+    required DocumentOp op,
+    required List<String> fields,
+  }) {
+    return handler.executeNormal(
+      NormalTask(
+        callFfi: (port_) {
+          var arg0 = cst_encode_u_64(document);
+          var arg1 = cst_encode_document_op(op);
+          var arg2 = cst_encode_list_String(fields);
+          return wire.wire__crate__frb__op_gate(port_, arg0, arg1, arg2);
+        },
+        codec: DcoCodec(
+          decodeSuccessData: dco_decode_op_gate,
+          decodeErrorData: dco_decode_api_error,
+        ),
+        constMeta: kCrateFrbOpGateConstMeta,
+        argValues: [document, op, fields],
+        apiImpl: this,
+      ),
+    );
+  }
+
+  TaskConstMeta get kCrateFrbOpGateConstMeta => const TaskConstMeta(
+    debugName: "op_gate",
+    argNames: ["document", "op", "fields"],
   );
 
   @override
@@ -2174,6 +2210,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  DocumentOp dco_decode_document_op(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return DocumentOp.values[raw as int];
+  }
+
+  @protected
   DocumentPermissions dco_decode_document_permissions(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     final arr = raw as List<dynamic>;
@@ -2650,6 +2692,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   NotEditableReason dco_decode_not_editable_reason(dynamic raw) {
     // Codec=Dco (DartCObject based), see doc to use other codecs
     return NotEditableReason.values[raw as int];
+  }
+
+  @protected
+  OpGate dco_decode_op_gate(dynamic raw) {
+    // Codec=Dco (DartCObject based), see doc to use other codecs
+    return OpGate.values[raw as int];
   }
 
   @protected
@@ -3618,6 +3666,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  DocumentOp sse_decode_document_op(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return DocumentOp.values[inner];
+  }
+
+  @protected
   DocumentPermissions sse_decode_document_permissions(
     SseDeserializer deserializer,
   ) {
@@ -4291,6 +4346,13 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     // Codec=Sse (Serialization based), see doc to use other codecs
     var inner = sse_decode_i_32(deserializer);
     return NotEditableReason.values[inner];
+  }
+
+  @protected
+  OpGate sse_decode_op_gate(SseDeserializer deserializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    var inner = sse_decode_i_32(deserializer);
+    return OpGate.values[inner];
   }
 
   @protected
@@ -5069,6 +5131,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
   }
 
   @protected
+  int cst_encode_document_op(DocumentOp raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
   int cst_encode_encryption_method(EncryptionMethod raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
@@ -5142,6 +5210,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
 
   @protected
   int cst_encode_not_editable_reason(NotEditableReason raw) {
+    // Codec=Cst (C-struct based), see doc to use other codecs
+    return cst_encode_i_32(raw.index);
+  }
+
+  @protected
+  int cst_encode_op_gate(OpGate raw) {
     // Codec=Cst (C-struct based), see doc to use other codecs
     return cst_encode_i_32(raw.index);
   }
@@ -5612,6 +5686,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     sse_encode_opt_String(self.producer, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.created, serializer);
     sse_encode_opt_box_autoadd_pdf_date(self.modified, serializer);
+  }
+
+  @protected
+  void sse_encode_document_op(DocumentOp self, SseSerializer serializer) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
   }
 
   @protected
@@ -6165,6 +6245,12 @@ class FermanBridgeApiImpl extends FermanBridgeApiImplPlatform
     NotEditableReason self,
     SseSerializer serializer,
   ) {
+    // Codec=Sse (Serialization based), see doc to use other codecs
+    sse_encode_i_32(self.index, serializer);
+  }
+
+  @protected
+  void sse_encode_op_gate(OpGate self, SseSerializer serializer) {
     // Codec=Sse (Serialization based), see doc to use other codecs
     sse_encode_i_32(self.index, serializer);
   }
