@@ -913,7 +913,10 @@ Each entry starts with an HTML anchor, so other documents can link to it as `QUE
   `crates/ferman-text/tests/corpus.rs` (`KNOWN`), which fails when one starts to match; (b) rules
   for terminators and brackets next to numbers in M2.
 - **Proposal:** (a).
-- **Meanwhile:** (a).
+- **Meanwhile:** (a). Built in M3 W5, and the premise above turned out wrong: these lines are drawn
+  the way UAX #9 gives, and the reader ran the algorithm from the wrong end of the line. Reading it
+  from the right recovers them with no rule for signs or brackets, so none of these lines is in
+  `KNOWN` any more (BACKLOG B112). It names one other page, of interleaved columns (B163).
 - **Needed by:** the M2 review.
 - **Status:** Open
 - **Related:** ROADMAP §6 step 5, BACKLOG B112, `crates/ferman-text/src/extract.rs`

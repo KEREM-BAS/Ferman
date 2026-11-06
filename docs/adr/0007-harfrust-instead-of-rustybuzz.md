@@ -72,7 +72,11 @@ when harfrust is added.
 - M0: [Q04](../QUESTIONS.md#q04) asked the owner; approved on 2026-10-15.
 - M1 step 1: the cargo-deny ban on rustybuzz (krilla wrapper only) is active in the first `deny.toml`.
 - M3: add harfrust and Arabic, Persian, Devanagari and CJK shaping tests against HarfBuzz reference
-  output.
+  output. As built: harfrust 0.14.0 behind `Shaper` (`ferman-fonts` `shape.rs`), the only crate that
+  names it in the engine; `tools/corpus` uses it too, for generating test files. No direct rustybuzz
+  dependency exists in any manifest and none is in `Cargo.lock`. The tests in `shape.rs` assert joining,
+  lam-alef, marks, ZWNJ, Hebrew order and vertical forms directly, not against HarfBuzz's output, and
+  there is no Devanagari case yet.
 - P4: check whether krilla has released its harfrust move before adding it.
 
 ## Alternatives considered

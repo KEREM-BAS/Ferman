@@ -48,12 +48,12 @@ and the result after substitution ([G36](../DESIGN_GAPS.md#g36), [G37](../DESIGN
 
 | Stage | Library | Notes |
 |---|---|---|
-| Parse font programs | skrifa and read-fonts | TrueType and CFF/CFF2 outlines and tables. skrifa does not read Type1; a minimal Type1 parser in ferman-fonts reads the built-in encoding and glyph names. Bare CFF programs (FontFile3) are expected to go through read-fonts' CFF support (verified in M2). Type3 glyphs are content-stream procedures, handled by the interpreter. ttf-parser is never a direct dependency. |
+| Parse font programs | skrifa and read-fonts | TrueType and CFF/CFF2 outlines and tables. skrifa does not read Type1; a minimal Type1 parser in ferman-fonts reads the built-in encoding and glyph names. Bare CFF programs (FontFile3) go through read-fonts' CFF support (M3: the `edit-cff-cid` case). Type3 glyphs are content-stream procedures, handled by the interpreter. ttf-parser is never a direct dependency. |
 | Encodings and CMaps | ferman-fonts | Standard, WinAnsi, MacRoman, MacExpert, PDFDoc, Symbol, ZapfDingbats, `/Differences`, glyph names to Unicode, ToUnicode and embedded CMaps with `usecmap`. Predefined CJK CMaps and glyph-list data are added after their licences are checked. |
 | Shape | harfrust ([ADR 0007](0007-harfrust-instead-of-rustybuzz.md), accepted) | Behind one internal `Shaper` trait; nothing outside ferman-fonts names the shaping crate. |
 | Subset | subsetter | Builds the new subsets that steps 2 and 3 embed. |
 | System fonts | fontdb | Finds installed fonts for steps 2 and 3. |
-| Cache | ferman-fonts | Parsed fonts, glyph outlines and shaping results, keyed by a hash of the font program. |
+| Cache | ferman-fonts | Parsed fonts, glyph outlines and shaping results, keyed by a hash of the font program. Not built in M3: nothing caches them yet (see As built below). |
 
 ferman-fonts works on font bytes and knows nothing about PDF objects. ferman-text resolves PDF font
 dictionaries into fonts and decides which step applies ([ADR 0003](0003-crate-layout-and-api-boundary.md)).
@@ -73,8 +73,8 @@ joining form and lack another.
    Identity-H, with a ToUnicode map) used only by the runs that need it. The original subset is not
    modified, so all other text keeps its bytes and its rendering
    ([ADR 0005](0005-block-scoped-text-editing.md)). **The user is told once**, in the same callout as
-   a3-3a, for example "Ferman took ‘ğ’ from Garamond Premier Pro on this computer". That state is not
-   drawn yet ([G37](../DESIGN_GAPS.md#g37)).
+   a3-3a, for example "Ferman took ‘ğ’ from Garamond Premier Pro on this computer". a3-17 draws that state
+   ([G37](../DESIGN_GAPS.md#g37)).
 3. **Otherwise, the design's flow.** Candidate fonts are ranked by coverage of the needed glyphs and by
    metrics (x-height, cap height, average width, weight, serif or sans) from the three a3-3b groups.
    What happens next follows the a11-1c setting:
@@ -83,6 +83,10 @@ joining form and lack another.
    - **"Ask each time"**: the a3-3b picker opens before anything changes.
    - **"Keep the original font and mark the character"**: the character stays in the original font
      without a glyph and is marked; the warning stays on the thumbnail and in the review list.
+     As built (M3 W5): a copy of the font gets a free code that draws no glyph and whose text is
+     the character (`/Differences` with a `uniXXXX` name in a simple font, an unused CID with a
+     ToUnicode entry in a composite one), and the commit carries a `Marked` substitution. The
+     field and the panel mark it; the page and the thumbnail do not yet.
 
 **Never silent.** Every substitution, at every step, is recorded in the review list (a3-12) and
 announced with the "Font substituted" toast (a11-6) when it happens outside the panel, for example in a
@@ -90,7 +94,7 @@ batch of changes. Bold and italic are never synthesised.
 
 The default follows the design; the owner confirmed it on 2026-10-16 ([Q09](../QUESTIONS.md#q09)).
 If no font covers the character, the callout says so and the only choices are "Choose a font…" and
-"Keep as is" (state to draw, [G37](../DESIGN_GAPS.md#g37)).
+"Keep as is" (a3-17, [G37](../DESIGN_GAPS.md#g37)).
 
 ### Fonts that restrict embedding
 
@@ -143,14 +147,19 @@ files with their licences, beside the IBM Plex families ([ADR 0013](0013-fonts-a
 - The fontations crates (skrifa, read-fonts) are pre-1.0 and break every few weeks; subsetter still uses
   an older fontations version. We pin exact versions and upgrade the font crates together
   ([DEPENDENCIES.md](../DEPENDENCIES.md)).
-- Three design states must still be drawn ([G37](../DESIGN_GAPS.md#g37)). Until then, Ferman uses the
-  a3-3a callout pattern with new copy.
 
 ### Follow-up
 
 - M2: font parsing, encodings and ToUnicode for viewing, text extraction and search.
 - M3: shaping, subsetting, system font lookup, the three steps, the a3-3a and a3-3b UI, the a11-1c
-  setting, the review list rows and the pixel-diff cases for each step.
+  setting, the review list rows and the pixel-diff cases for each step. Built.
+
+### As built (closing M3, 2026-11-06)
+
+The steps, the `fsType` table and the three settings match the code (`ferman-fonts`, `ferman-text`
+`fallback.rs`; E02 to E05). What differs: the caches of the pipeline table are not built (B167); "Whole block" in the picker waits
+(B137); fonts with bit 8 are skipped, not embedded whole; and a vertical font's missing character is
+refused (B136).
 
 ## Alternatives considered
 

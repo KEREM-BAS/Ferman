@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-724 messages in `app_en.arb`; translated: Turkish 724, Arabic 724.
+812 messages in `app_en.arb`; translated: Turkish 812, Arabic 812.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -238,6 +238,9 @@ The table below is generated from the ARB files by `tools/l10n`
 | `onboardingBack` | Back | Geri | رجوع | Button that returns to the previous first-run step (a1-2b, a1-2c). |
 | `onboardingNext` | Next | İleri | التالي | Button that moves to the next first-run welcome step (a1-2b). |
 | `onboardingStartUsing` | Start using Ferman | Ferman’ı kullanmaya başla | بدء استخدام Ferman | Button on the last first-run welcome step that ends first run and opens the start screen (a1-2c). |
+| `onboardingEditTitle` | Edit any PDF like a document | Her PDF’i bir belge gibi düzenleyin | حرّر أي ملف PDF كما لو كان مستندًا | Heading of the first-run editing step (a1-2a). |
+| `onboardingEditBody` | Click any text and type. Ferman keeps the original font, size and spacing, and reflows the paragraph inside its frame. | Herhangi bir metne tıklayıp yazın. Ferman özgün yazı tipini, boyutu ve aralıkları korur, paragrafı çerçevesinin içinde yeniden yerleştirir. | انقر أي نص واكتب. يحافظ Ferman على الخط الأصلي وحجمه وتباعده، ويعيد توزيع الفقرة داخل إطارها. | First paragraph of the first-run editing step (a1-2a). |
+| `onboardingEditGlyphs` | When a font is missing a character, Ferman tells you which one and what it will use instead. | Bir yazı tipinde bir karakter eksikse Ferman hangisi olduğunu ve yerine ne kullanacağını söyler. | عندما يفتقد الخط حرفًا ما، يخبرك Ferman بهذا الحرف وبما سيستخدمه بدلًا منه. | Second paragraph of the first-run editing step (a1-2a). |
 | `onboardingPrivacyTitle` | Everything stays on your device | Her şey cihazınızda kalır | يبقى كل شيء على جهازك | Heading of the first-run privacy step (a1-2b). |
 | `onboardingPrivacyBody` | Ferman opens, edits, signs and recognizes text on this computer. There’s no account to create and nothing to upload. | Ferman belgeleri bu bilgisayarda açar, düzenler, imzalar ve metinlerini tanır. Hesap oluşturmanız ya da internete bir şey yüklemeniz gerekmez. | على هذا الجهاز، يفتح Ferman المستندات ويحرّرها ويوقّعها ويتعرّف على نصوصها. لا حاجة إلى إنشاء حساب أو رفع أي شيء. | Text under the heading of the first-run privacy step (a1-2b). |
 | `onboardingPrivacyFilesTitle` | Files stay on this device | Dosyalar bu cihazda kalır | تبقى الملفات على هذا الجهاز | Title of a privacy fact on the first-run privacy step (a1-2b). |
@@ -262,7 +265,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `onboardingFreeLicence` | Licence: Apache-2.0 | Lisans: Apache-2.0 | الترخيص: Apache-2.0 | The software licence on the last first-run welcome step (a1-2c, design gap G13). Apache-2.0 is the licence's name: do not translate it. |
 | `onboardingFreeSourceCode` | Source code | Kaynak kodu | الشيفرة المصدرية | Link to Ferman's source code on the last first-run welcome step (a1-2c). |
 | `onboardingFreeSupport` | Support the project | Projeyi destekleyin | دعم المشروع | Link to ways of supporting Ferman on the last first-run welcome step (a1-2c). |
-| `onboardingFeatureEditing` | Edit text and images | Metin ve görsel düzenleme | تحرير النصوص والصور | Feature tile on the last first-run welcome step (a1-2c). |
+| `onboardingFeatureEditing` | Edit text | Metin düzenleme | تحرير النصوص | Feature tile on the last first-run welcome step (a1-2c). |
 | `onboardingFeatureOcr` | Text recognition (OCR) | Metin tanıma (OCR) | التعرّف على النص (OCR) | Feature tile on the last first-run welcome step (a1-2c). OCR is optical character recognition. |
 | `onboardingFeatureFillSign` | Fill and sign forms | Form doldurma ve imzalama | تعبئة النماذج وتوقيعها | Feature tile on the last first-run welcome step (a1-2c). |
 | `onboardingFeatureSignatures` | e-imza and digital signatures | e-imza ve dijital imzalar | e-imza والتوقيعات الرقمية | Feature tile on the last first-run welcome step (a1-2c). e-imza is the Turkish electronic signature: keep the word. |
@@ -485,6 +488,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startPages` | {count, plural, =1{1 page} other{{pages} pages}} | {count, plural, other{{pages} sayfa}} | {count, plural, other{{pages} صفحة}} | A recent file’s page count, after its time (a1-4, FmStart pages); pages is the count in the region’s digits. |
 | `startOpenedToday` | Today {time} | Bugün {time} | اليوم {time} | When a recent file was opened today, with the region’s time (a1-4, FmStart). |
 | `startOpenedYesterday` | Yesterday {time} | Dün {time} | أمس {time} | When a recent file was opened yesterday, with the region’s time (a1-4, FmStart). |
+| `startBadgeEdited` | Edited | Düzenlendi | معدّل | Recent files (a1-4, FmStart): the badge of a file saved after an edit in Ferman. |
 | `startBadgeSigned` | Signed | İmzalı | موقّع | Neutral badge of a recent file that carries signatures, before signature checking ships (a1-4-m2, FmStart signedNeutral). |
 | `startBadgeForm` | Form | Form | نموذج | Badge on a recent file that has form fields (a1-4, accent). |
 | `startBadgeScanned` | Scanned | Taranmış | ممسوح ضوئيًا | Badge on a recent file whose first page has no text, most likely a scan (a1-4, neutral). |
@@ -576,9 +580,12 @@ The table below is generated from the ARB files by `tools/l10n`
 | `propertiesSignatureOnPage` | 1 signature, page {page} | 1 imza, sayfa {page} | توقيع واحد، الصفحة {page} | The one signature of a document and its page (FmDocPanel). {page} is formatted for the region. |
 | `propertiesEmbedded` | Embedded | Gömülü | مضمَّن | A font whose program is in the file (FmDocPanel, a2-7). |
 | `propertiesPartial` | Partial | Kısmi | جزئي | A subset font in the right panel (FmDocPanel). |
-| `propertiesPartialNote` | Subset: only characters already in the file. | Alt küme: yalnızca dosyada zaten bulunan karakterler. | مجموعة فرعية: الأحرف الموجودة في الملف فقط. | Note under a subset font in the right panel (FmDocPanel, without its missing letters, which come with M3). |
+| `propertiesPartialNote` | Subset: only characters already in the file. | Alt küme: yalnızca dosyada zaten bulunan karakterler. | مجموعة فرعية: الأحرف الموجودة في الملف فقط. | Note under a subset font in the right panel (FmDocPanel); propertiesPartialMissing follows it when letters are missing. |
+| `propertiesPartialMissing` | No {letters}. | {letters} yok. | لا يتضمن {letters}. | After propertiesPartialNote: the letters the subset lacks, each in single quotation marks (FmDocPanel's "No ‘ğ’, ‘Ğ’."). |
 | `propertiesSubset` | Subset | Alt küme | مجموعة فرعية | A subset font in the properties dialog (a2-7). |
-| `propertiesSubsetNote` | Only the characters already used. | Yalnızca zaten kullanılan karakterler. | الأحرف المستخدمة فقط. | Note under a subset font in the properties dialog (a2-7, without its missing letters, which come with M3). |
+| `propertiesSubsetNote` | Only the characters already used. | Yalnızca zaten kullanılan karakterler. | الأحرف المستخدمة فقط. | Note under a subset font in the properties dialog (a2-7); propertiesSubsetMissing follows it when letters are missing. |
+| `propertiesSubsetMissing` | Typing {letters} needs a substitute. | {letters} yazmak için yedek yazı tipi gerekir. | كتابة {letters} تحتاج إلى خط بديل. | After propertiesSubsetNote: the letters the subset lacks, each in single quotation marks (a2-7). |
+| `propertiesShownInstead` | Ferman is showing {font} instead. | Ferman bunun yerine {font} gösteriyor. | يعرض Ferman الخط {font} بدلًا منه. | Note under a font that is not embedded (a2-7, FmDocPanel): the font the page is drawn in. |
 | `propertiesNotEmbedded` | Not embedded | Gömülü değil | غير مضمَّن | A font whose program is not in the file (a2-7). |
 | `propertiesFontType1` | Type 1 | Type 1 | Type 1 | A font type in the properties dialog's Type column (a2-7); a format name. |
 | `propertiesFontMultipleMaster` | Multiple Master | Multiple Master | Multiple Master | A font type (Multiple Master Type 1) in the Type column (a2-7); a format name. |
@@ -653,6 +660,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `editGlyphTitle` | Missing character | Eksik karakter | حرف مفقود | Edit panel (a3-3a, FmEditPanel): the title of the warning when the block's font has no glyph for a typed character (missing-glyph step 3). |
 | `editGlyphBody` | This font has no {chars}. Ferman will use a similar font for this character. | Bu yazı tipinde {chars} yok. Ferman bu karakter için benzer bir yazı tipi kullanacak. | لا يحتوي هذا الخط على الحرف {chars}. سيستخدم Ferman خطًا مشابهًا لهذا الحرف. | Edit panel (a3-3a, FmEditPanel): the warning's message for one missing character. {chars} is the character in ‘ ’. |
 | `editGlyphBodyMany` | This font has no {chars}. Ferman will use a similar font for these characters. | Bu yazı tipinde {chars} yok. Ferman bu karakterler için benzer bir yazı tipi kullanacak. | لا يحتوي هذا الخط على الأحرف {chars}. سيستخدم Ferman خطًا مشابهًا لهذه الأحرف. | Edit panel (a3-3a): the warning's message for several missing characters. {chars} is the characters, each in ‘ ’ and separated by the list separator. |
+| `editGlyphMarkedBody` | This font has no {chars}. Ferman keeps the original font and marks what’s missing. | Bu yazı tipinde {chars} yok. Ferman özgün yazı tipini koruyor ve eksik olanı işaretliyor. | لا يحتوي هذا الخط على {chars}. يُبقي Ferman الخط الأصلي ويضع علامة على ما ينقصه. | Edit panel: the warning's message with Settings › Editing › Keep the original font and mark the character (a11-1c). {chars} is the characters, each in ‘ ’. |
 | `editGlyphChoose` | Choose a font… | Yazı tipi seç… | اختيار خط… | Edit panel (a3-3a, a3-17): the button that opens the font picker for the missing characters. |
 | `editGlyphKeep` | Keep as is | Böyle kalsın | إبقاء كما هو | Edit panel (a3-3a, a3-17): the button that keeps the missing characters as Ferman drew them. |
 | `editGlyphNoneTitle` | No font has this character | Bu karakter hiçbir yazı tipinde yok | لا يوجد خط يحتوي هذا الحرف | Edit panel (a3-17): the title when no font has the missing character. |
@@ -760,7 +768,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `signedBannerBodyBy` | You changed the document after {signer} signed it. Saving keeps the signature, but it will show as invalid. | Belgeyi {signer} imzaladıktan sonra değiştirdiniz. Kaydettiğinizde imza belgede kalır ama geçersiz görünür. | غيّرت المستند بعد أن وقّعه {signer}. يبقى التوقيع عند الحفظ، لكنه سيظهر غير صالح. | a3-16b: one signer the file names. |
 | `signedBannerBody` | You changed the document after it was signed. Saving keeps the signatures, but they will show as invalid. | Belgeyi imzalandıktan sonra değiştirdiniz. Kaydettiğinizde imzalar belgede kalır ama geçersiz görünür. | غيّرت المستند بعد توقيعه. تبقى التواقيع عند الحفظ، لكنها ستظهر غير صالحة. | a3-16b: otherwise. |
 | `signedBannerReview` | Review edits | Düzenlemeleri incele | مراجعة التعديلات | a3-16b: the bar’s button. |
-| `signedReviewRow` | {signer}’s signature is no longer valid | {signer} imzası artık geçerli değil | لم يعد توقيع {signer} صالحًا | a3-12: the signature row, here at the top of the edit history (B049). |
+| `signedReviewRow` | {signer}’s signature is no longer valid | {signer} imzası artık geçerli değil | لم يعد توقيع {signer} صالحًا | a3-12: the signature row, at the top of the review list. |
 | `signedReviewRowOther` | The signatures are no longer valid | İmzalar artık geçerli değil | لم تعد التواقيع صالحة | a3-12: the same without one named signer. |
 | `settingsEditMarks` | Mark edited text | Düzenlenen metni işaretle | وضع علامة على النص المعدَّل | a11-1c. |
 | `settingsEditMarksNote` | Shown only in Ferman while you edit. Never saved into the file or printed. | Yalnızca düzenlerken Ferman’da görünür. Dosyaya hiç kaydedilmez, yazdırılmaz. | تظهر في Ferman فقط أثناء التحرير. لا تُحفظ في الملف ولا تُطبع أبدًا. | a11-1c. |
@@ -780,5 +788,85 @@ The table below is generated from the ARB files by `tools/l10n`
 | `settingsOptimize` | Optimize and clean | Optimize et ve temizle | التحسين والتنظيف | a11-1c. |
 | `settingsOptimizeBody` | Rewrites the whole file to make it smaller. Run it from the command palette; it’s never used on its own, and Ferman warns you first if signatures would become invalid. | Küçültmek için tüm dosyayı yeniden yazar. Komut paletinden çalıştırın; kendiliğinden hiç kullanılmaz ve imzalar geçersiz olacaksa Ferman önce sizi uyarır. | يعيد كتابة الملف كله لتصغيره. شغّله من لوحة الأوامر؛ لا يُستخدم من تلقاء نفسه أبدًا، ويحذّرك Ferman أولًا إذا كانت التواقيع ستصبح غير صالحة. | a11-1c. |
 | `settingsRecoveryFolder` | Recovery copies | Kurtarma kopyaları | نسخ الاسترداد | a11-1c: above the folder. |
+| `shellZoomTypeHint` | Type a zoom from {min} to {max} | {min} ile {max} arasında bir yakınlaştırma yazın | اكتب نسبة تكبير من {min} إلى {max} | View row: what a screen reader says the zoom field takes (a2-2, B127). {min} and {max} are percentages already written for the region. |
+| `shellEditForbidden` | The author doesn’t allow editing | Yazar düzenlemeye izin vermiyor | لا يسمح المؤلف بالتحرير | Tooltip of the Edit tab and the Edit text tool on a document whose permissions forbid changes (a2-10a rTip, G27). |
+| `editPanelTipClick` | Click any text to select its block. Click again to place the caret. | Bloğunu seçmek için herhangi bir metne tıklayın. İmleci yerleştirmek için yeniden tıklayın. | انقر على أي نص لتحديد كتلته. انقر مرة أخرى لوضع المؤشر. | Edit panel (a3-1a): the first tip. |
+| `editPanelTipKeys` | Tab moves between blocks; Enter starts editing. Hold {key} to show every block. | Tab bloklar arasında gezinir; Enter düzenlemeyi başlatır. Tüm blokları göstermek için {key} tuşunu basılı tutun. | ينتقل Tab بين الكتل ويبدأ Enter التحرير. اضغط مع الاستمرار على {key} لإظهار كل الكتل. | Edit panel (a3-1a): the second tip. {key} is the key cap of Option or Alt, drawn as a key. |
+| `editPanelInSession` | in this session | bu oturumda | في هذه الجلسة | Edit panel (a3-1a): after the badge with the number of edits, as in "3 edits in this session". |
+| `editPanelReview` | Review | İncele | مراجعة | Edit panel (a3-1a): the button that opens the list of edits, after their number. |
+| `languageNameGerman` | German | Almanca | الألمانية | The German language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs). |
+| `languageNameJapanese` | Japanese | Japonca | اليابانية | The Japanese language, named in the interface language: the Language select of the Edit panel (a3-14, FmEditPanel langs). |
+| `languageWithRegion` | {language} ({region}) | {language} ({region}) | {language} ({region}) | A text block's language with its region, in the status bar (a3-14: "English (United Kingdom)"). |
+| `editLanguage` | Language | Dil | اللغة | Edit panel: title of the section with the language of the block being edited, and the name of its select (a3-14, FmEditPanel t.lang). |
+| `editCheckSpelling` | Check spelling | Yazım denetimi | التدقيق الإملائي | Edit panel, Language section: the switch that spell-checks the block (a3-14, FmEditPanel t.spell). |
+| `editHyphenate` | Hyphenate | Tireleme | الوصل بشرطة | Edit panel, Language section: the switch that hyphenates the block (a3-14, FmEditPanel t.hyph). |
+| `editStepLanguage` | Changed language · page {page} | Dil değiştirildi · sayfa {page} | تغيير اللغة · الصفحة {page} | Edit mode: the name of a history step that changed only the language of a block, in the Undo history panel (a3-10). {page} is the page number, formatted for the region. |
+| `reviewClose` | Close review | İncelemeyi kapat | إغلاق المراجعة | a3-12: the panel’s close button. |
+| `reviewShow` | Show | Göster | عرض | a3-12: the filter’s accessible name. |
+| `reviewFilterAll` | All | Tümü | الكل | a3-12: filter. |
+| `reviewFilterText` | Text | Metin | النص | a3-12: filter. |
+| `reviewFilterFonts` | Fonts | Yazı tipleri | الخطوط | a3-12: filter. |
+| `reviewFilterWarnings` | Warnings | Uyarılar | التحذيرات | a3-12: filter. |
+| `reviewEmptyTitle` | No edits yet | Henüz düzenleme yok | لا توجد تعديلات بعد | a3-12b: the empty list. |
+| `reviewEmptyBody` | Changes you make in this session appear here. The list clears when you close the document; earlier sessions are in Version history. | Bu oturumda yaptığınız değişiklikler burada görünür. Liste belgeyi kapattığınızda temizlenir; önceki oturumlar Sürüm geçmişi’nde. | تظهر هنا التغييرات التي تجريها في هذه الجلسة. تُمسح القائمة عند إغلاق المستند، والجلسات السابقة في سجل الإصدارات. | a3-12b: the empty list. |
+| `reviewNothing` | No edits yet | Henüz düzenleme yok | لا توجد تعديلات بعد | a3-12b: why Revert all and Export list are disabled. |
+| `reviewRevertAll` | Revert all… | Tümünü geri al… | التراجع عن الكل… | a3-12: footer. |
+| `reviewExportList` | Export list… | Listeyi dışa aktar… | تصدير القائمة… | a3-12: footer. |
+| `reviewGoTo` | Go to | Git | الانتقال | a3-12: a row’s button. |
+| `reviewRevert` | Revert | Geri al | تراجع | a3-12: a row’s button. |
+| `reviewStepReverted` | Reverted an edit | Bir düzenleme geri alındı | تم التراجع عن تعديل | a3-10: the history step of a revert from the review list. |
+| `reviewStepRevertedAll` | Reverted all edits | Tüm düzenlemeler geri alındı | تم التراجع عن كل التعديلات | a3-10: the history step of Revert all. |
+| `reviewWhereSignature` | Signature | İmza | التوقيع | a3-12: where the signature row is when several signatures on different pages are gone. |
+| `reviewWhereSignaturePage` | Page {page} · signature | Sayfa {page} · imza | الصفحة {page} · التوقيع | a3-12: where the signature row is, with one signer. {page} is formatted for the region. |
+| `reviewWhereText` | Page {page} · text | Sayfa {page} · metin | الصفحة {page} · النص | a3-12: where a row is. {page} is formatted for the region. The block has no name (G125). |
+| `reviewWhereFont` | Page {page} · font | Sayfa {page} · yazı tipi | الصفحة {page} · الخط | a3-12: where a row is. |
+| `reviewWhereWarning` | Page {page} · kept warning | Sayfa {page} · korunan uyarı | الصفحة {page} · تحذير محفوظ | a3-12: where a row is. |
+| `reviewExportName` | {name} edits | {name} düzenlemeleri | تعديلات {name} | a3-12: the file name Export list suggests, without its extension. |
+| `reviewExportFailed` | The list couldn’t be saved. | Liste kaydedilemedi. | تعذّر حفظ القائمة. | a3-12: Export list failed. |
+| `reviewRevertAllBody` | “{name}” goes back to how it was when you opened it. Undo brings the edits back until you close the document. | “{name}”, açtığınızdaki hâline döner. Belgeyi kapatana kadar Geri al ile düzenlemeleri geri getirebilirsiniz. | يعود «{name}» إلى ما كان عليه عند فتحه. يمكنك استعادة التعديلات بالأمر «تراجع» حتى تغلق المستند. | a3-12b: Revert all’s question. The board also names the time it opened, which the app does not keep. |
+| `reviewDependentBody` | “{later}” was typed into the sentence after this change. Reverting “{change}” removes it too. | “{later}” bu değişiklikten sonra aynı cümleye yazıldı. “{change}” geri alınırsa o da kaldırılır. | كُتب «{later}» في الجملة بعد هذا التغيير. التراجع عن «{change}» يزيله أيضًا. | a3-12b: an edit a later edit depends on (G42). |
+| `reviewDependentsBody` | {count, plural, other{{shown} later edits build on this change. Reverting “{change}” removes them too.}} | {count, plural, other{{shown} sonraki düzenleme bu değişikliğe bağlı. “{change}” geri alınırsa onlar da kaldırılır.}} | {count, plural, =2{يعتمد تعديلان لاحقان على هذا التغيير. التراجع عن «{change}» يزيلها أيضًا.} few{تعتمد {shown} تعديلات لاحقة على هذا التغيير. التراجع عن «{change}» يزيلها أيضًا.} many{يعتمد {shown} تعديلًا لاحقًا على هذا التغيير. التراجع عن «{change}» يزيلها أيضًا.} other{يعتمد {shown} تعديل لاحق على هذا التغيير. التراجع عن «{change}» يزيلها أيضًا.}} | a3-12b: the same with several later edits, always two or more. {shown} is {count} formatted for the region. |
+| `reviewKeptWarning` | {count, plural, =1{{shown} line hidden — overflow kept} other{{shown} lines hidden — overflow kept}} | {count, plural, other{{shown} satır gizli — taşma korundu}} | {count, plural, =1{{shown} سطر مخفي — أُبقي التجاوز} =2{سطران مخفيان — أُبقي التجاوز} few{{shown} أسطر مخفية — أُبقي التجاوز} many{{shown} سطرًا مخفيًا — أُبقي التجاوز} other{{shown} سطر مخفي — أُبقي التجاوز}} | a3-12: a kept warning’s row. |
+| `reviewRevertAllTitle` | {count, plural, =1{Revert the edit?} other{Revert all {shown} edits?}} | {count, plural, =1{Düzenleme geri alınsın mı?} other{{shown} düzenlemenin tümü geri alınsın mı?}} | {count, plural, =1{هل تريد التراجع عن التعديل؟} other{هل تريد التراجع عن التعديلات الـ{shown} كلها؟}} | a3-12b. |
+| `reviewRevertAllButton` | {count, plural, =1{Revert {shown} edit} other{Revert {shown} edits}} | {count, plural, other{{shown} düzenlemeyi geri al}} | {count, plural, =1{التراجع عن تعديل واحد} =2{التراجع عن تعديلين} few{التراجع عن {shown} تعديلات} many{التراجع عن {shown} تعديلًا} other{التراجع عن {shown} تعديل}} | a3-12b. |
+| `reviewDependentTitle` | {count, plural, =1{Also revert the edit that depends on it?} other{Also revert the {shown} edits that depend on it?}} | {count, plural, =1{Buna bağlı düzenleme de geri alınsın mı?} other{Buna bağlı {shown} düzenleme de geri alınsın mı?}} | {count, plural, =1{هل تريد أيضًا التراجع عن التعديل المعتمد عليه؟} other{هل تريد أيضًا التراجع عن التعديلات الـ{shown} المعتمدة عليه؟}} | a3-12b (G42). |
+| `reviewDependentButton` | {count, plural, =1{Revert both} other{Revert all {shown}}} | {count, plural, =1{İkisini de geri al} other{{shown} düzenlemeyi de geri al}} | {count, plural, =1{التراجع عن كليهما} other{التراجع عن الـ{shown} كلها}} | a3-12b (G42). {shown} counts the edit asked about too. |
+| `editPanelTitle` | Text block | Metin bloğu | كتلة نص | a3-2 (FmEditPanel t.title): the title of the right panel while a block is edited. |
+| `editPanelText` | Text | Metin | النص | a3-2: section. |
+| `editPanelSize` | Size | Boyut | الحجم | a3-2: the font size field's screen-reader name. |
+| `editPanelColour` | Text color | Metin rengi | لون النص | a3-2: the colour popover's screen-reader name. |
+| `editPanelColoursDocument` | In this document | Bu belgede | في هذا المستند | a3-2: colours section of the colour popover. |
+| `editPanelColoursStandard` | Standard | Standart | قياسية | a3-2: colours section of the colour popover. |
+| `editPanelFontsDocument` | In this document | Bu belgede | في هذا المستند | a3-2: fonts section of the font popover. |
+| `editPanelFontsDevice` | On this device | Bu cihazda | على هذا الجهاز | a3-2: fonts section of the font popover. |
+| `editPanelBold` | Bold | Kalın | غامق | a3-2: button. |
+| `editPanelItalic` | Italic | İtalik | مائل | a3-2: button. |
+| `editPanelUnderline` | Underline | Altı çizili | تسطير | a3-2: button. |
+| `editPanelNoBold` | This font has no other weight on this computer that can draw this text. | Bu yazı tipinin bu bilgisayarda bu metni çizebilecek başka bir kalınlığı yok. | لا يتوفر لهذا الخط على هذا الكمبيوتر وزن آخر يمكنه رسم هذا النص. | a3-2: why Bold is disabled; bold is never faked. |
+| `editPanelNoItalic` | This font has no italic on this computer that can draw this text. | Bu yazı tipinin bu bilgisayarda bu metni çizebilecek bir italiği yok. | لا يتوفر لهذا الخط على هذا الكمبيوتر شكل مائل يمكنه رسم هذا النص. | a3-2: why Italic is disabled; italic is never faked. |
+| `editPanelNoUnderline` | A PDF font has no underline to switch to, and Ferman does not draw a false one. | PDF yazı tiplerinde geçilecek bir altı çizili biçim yoktur ve Ferman sahtesini çizmez. | لا يوجد في خطوط PDF شكل مسطّر للتبديل إليه، ولا يرسم Ferman تسطيرًا زائفًا. | a3-2: why Underline is disabled. |
+| `editPanelAlignment` | Alignment | Hizalama | المحاذاة | a3-2: the alignment group's screen-reader name. |
+| `editPanelAlignLeft` | Align left | Sola hizala | محاذاة لليسار | a3-2: segment. |
+| `editPanelAlignCenter` | Center | Ortala | توسيط | a3-2: segment. |
+| `editPanelAlignRight` | Align right | Sağa hizala | محاذاة لليمين | a3-2: segment. |
+| `editPanelAlignJustify` | Justify | İki yana yasla | ضبط | a3-2: segment. |
+| `editPanelSpacing` | Spacing | Aralık | التباعد | a3-2: section. |
+| `editPanelCharacter` | Character | Karakter | الأحرف | a3-2: spacing between characters. |
+| `editPanelLine` | Line | Satır | الأسطر | a3-2: spacing between lines. |
+| `editPanelBefore` | Before | Önce | قبل | a3-2: spacing before the block. |
+| `editPanelAfter` | After | Sonra | بعد | a3-2: spacing after the block. |
+| `editPanelPosition` | Position and size | Konum ve boyut | الموضع والحجم | a3-2: section. |
+| `editPanelWidth` | Width | Genişlik | العرض | a3-2: field. |
+| `editPanelHeight` | Height | Yükseklik | الارتفاع | a3-2: field. |
+| `editPanelReset` | Reset text style | Metin stilini sıfırla | إعادة تعيين نمط النص | a3-2: button in the heading. |
+| `editPanelHint` | Text reflows inside the frame. Drag a handle to resize it. | Metin çerçevenin içinde yeniden akar. Boyutlandırmak için bir tutamacı sürükleyin. | يُعاد تدفق النص داخل الإطار. اسحب مقبضًا لتغيير الحجم. | a3-2: the note at the panel's end. |
+| `editBarLabel` | Format selection | Seçimi biçimlendir | تنسيق التحديد | a3-1c: the accessible name of the floating format bar. |
+| `editBarLink` | Add link | Bağlantı ekle | إضافة رابط | a3-1c: button, disabled until links work. |
+| `editBarHighlight` | Highlight (adds a comment) | Vurgula (yorum ekler) | تمييز (يضيف تعليقًا) | a3-1c: button, disabled until comments work. |
+| `editBarComment` | Comment on selection | Seçime yorum ekle | التعليق على التحديد | a3-1c: button, disabled until comments work. |
+| `editBarReplace` | Find and replace these words | Bu sözcükleri bul ve değiştir | البحث عن هذه الكلمات واستبدالها | a3-1c: button, disabled until find and replace works. |
+| `editStepStyle` | Changed text style · page {page} | Metin stili değiştirildi · sayfa {page} | تغيير نمط النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
+| `editStepMoved` | Moved text block · page {page} | Metin bloğu taşındı · sayfa {page} | نقل كتلة النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
+| `editStepResized` | Resized text block · page {page} | Metin bloğu boyutlandırıldı · sayfa {page} | تغيير حجم كتلة النص · الصفحة {page} | a3-10: the name of a history step: a change in the text panel (a3-2) or a handle's drag. {page} is the page number, formatted for the region. |
 
 <!-- END GENERATED TRANSLATION TABLE -->

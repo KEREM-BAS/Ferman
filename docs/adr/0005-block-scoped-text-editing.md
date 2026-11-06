@@ -155,9 +155,22 @@ Every edit case in the test suite runs this check, through the facade or `ferman
 
 ### Follow-up
 
-- M2: the interpreter, fonts and text model for viewing, search and hit testing.
+- M2: the interpreter, fonts and text model for viewing, search and hit testing. Built.
 - M3: editing, re-encoding, splicing, overflow, missing glyphs, the signed-document warning, the review
-  list, the incremental writer and the full acceptance suite.
+  list, the incremental writer and the full acceptance suite. Built.
+
+### As built (closing M3, 2026-11-06)
+
+`crates/ferman-text/src/rewrite.rs` and `crates/ferman-api/tests/edit_cases.rs` follow this decision,
+with these limits, each in BACKLOG or PROGRESS:
+
+- Vertical text is written column by column (E13): columns do not reflow and kinsoku is not applied in
+  the writer, and such an edit is refused as not rewritten yet. That moved to P2 ([BACKLOG](../BACKLOG.md) B136).
+- `/ActualText` is kept, not updated, by an edit (E21).
+- E14, E17 and E18 run on generated stand-ins until the owner's real files come.
+- The hidden lines of Keep and warn as `3 Tr` stay Proposed until the owner decides.
+- Reverting an edit a later edit builds on asks "Revert both", as a3-12b draws ([G42](../DESIGN_GAPS.md#g42));
+  ROADMAP §7's older wording says "refused".
 
 ## Alternatives considered
 

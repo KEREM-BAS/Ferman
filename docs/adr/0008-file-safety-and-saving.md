@@ -259,8 +259,9 @@ the temp file of a save and files the user asks for.
   write path above. "Save repaired copy…" (a1-9) stays visible and disabled until M3 brings the
   writer (Proposed with the M2 plan, [BACKLOG.md](../BACKLOG.md) B103).
 - M3: save, save as, the incremental writer, the save sequence, external-change detection, the recovery
-  journal and a1-12, all a11-7 errors. atomic-write-file is evaluated against the table above; if it
-  falls short, ferman-core implements the sequence directly.
+  journal and a1-12, all a11-7 errors. Built, with ferman-core's own sequence rather than
+  atomic-write-file. Not yet run: a sandboxed macOS build, the real window-close paths, Windows outside
+  CI ([PROGRESS.md](../PROGRESS.md#pending-owner-checks-m3)).
 - M4: version history, with the follow-up ADR on its location.
 
 ## Alternatives considered
