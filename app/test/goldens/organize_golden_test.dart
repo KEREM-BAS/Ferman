@@ -233,7 +233,11 @@ Future<void> main() async {
         settings: settings,
         engine: engine(),
         overrides: [backgroundJobsProvider.overrideWith(_SeededJobs.new)],
-        open: opened,
+        // A running job's spinner never settles: the helper's settle follows.
+        open: (tester) =>
+            container(tester)
+                .read(documentOpenerProvider.notifier)
+                .open([_path]),
       );
     }
   }

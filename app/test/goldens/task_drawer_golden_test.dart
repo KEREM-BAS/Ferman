@@ -100,12 +100,11 @@ Future<void> main() async {
             backgroundJobsProvider.overrideWith(() => _Seeded(seeded)),
           ],
           muteTickers: seeded.cancelling == null && seeded.quitting.isEmpty,
-          open: (tester) async {
-            await ProviderScope.containerOf(
-              tester.element(find.byType(FermanApp)),
-            ).read(documentOpenerProvider.notifier).open([_path]);
-            await tester.pumpAndSettle();
-          },
+          // A running job's spinner never settles: the helper's settle follows.
+          open: (tester) =>
+              ProviderScope.containerOf(tester.element(find.byType(FermanApp)))
+                  .read(documentOpenerProvider.notifier)
+                  .open([_path]),
         );
       }
     }

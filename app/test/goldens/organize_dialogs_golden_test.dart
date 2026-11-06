@@ -75,6 +75,7 @@ Future<void> main() async {
             onboardingCompleted: true,
           ),
           engine: FakeEngineService(documents: const {_path: _document}),
+          muteTickers: dialog == null,
           open: (tester) async {
             final container = ProviderScope.containerOf(
               tester.element(find.byType(FermanApp)),

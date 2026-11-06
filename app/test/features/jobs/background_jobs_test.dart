@@ -526,7 +526,7 @@ void main() {
     });
 
     for (final locale in const [Locale('en'), Locale('ar')]) {
-      testWidgets('a long file name ends in the slot, in $locale', (
+      testWidgets('a long file name ends in the width left, in $locale', (
         tester,
       ) async {
         await pumpShell(
@@ -546,8 +546,6 @@ void main() {
           locale: locale,
         );
         expect(tester.takeException(), isNull);
-        final line = tester.getSize(inBar(find.byType(TaskDrawerOpener)));
-        expect(line.width, lessThanOrEqualTo(260));
         final bar = tester.getRect(find.byType(ShellStatusBar));
         final save = tester.getRect(inBar(find.byType(SaveIndicator)));
         expect(save.left, greaterThanOrEqualTo(bar.left));

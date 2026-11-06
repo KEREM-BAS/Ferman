@@ -105,9 +105,6 @@ class TaskProgress extends StatelessWidget {
   /// `TaskProgress.jsx` inline icon size.
   static const double inlineIconSize = 14;
 
-  /// The status bar's slot for the inline variant (FmWindow's hint size).
-  static const double inlineSlotWidth = 260;
-
   /// `.fm-task--inline .fm-progress` `width: 96px`.
   static const double inlineProgressWidth = 96;
 
@@ -205,10 +202,9 @@ class TaskProgress extends StatelessWidget {
         color: colors.textSecondary,
         fontFeatures: features,
       ),
-      // In a slot of bounded width (FmWindow's 260 px status-bar slot) the
-      // text gives way, as the inline-flex text does in the CSS, and ends
-      // in an ellipsis; given unbounded width (a plain Row child) it keeps
-      // its own width.
+      // In a slot of bounded width (the status bar's) the text gives way, as
+      // the inline-flex text does in the CSS, and ends in an ellipsis; given
+      // unbounded width (a plain Row child) it keeps its own width.
       child: LayoutBuilder(
         builder: (context, constraints) => Row(
           mainAxisSize: MainAxisSize.min,

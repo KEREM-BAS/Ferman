@@ -3,6 +3,7 @@ import 'package:ferman/app/app.dart';
 import 'package:ferman/app/desktop_window.dart';
 import 'package:ferman/app/theme_mode.dart';
 import 'package:ferman/design/components/additions/window_chrome.dart';
+import 'package:ferman/design/components/feedback/progress_bar.dart';
 import 'package:ferman/design/components/feedback/spinner.dart';
 import 'package:ferman/engine/engine_providers.dart';
 import 'package:ferman/engine/engine_service.dart';
@@ -293,10 +294,12 @@ Future<void> appGoldenTest({
           tickers.value = false;
         }
         await tester.pump();
+        // What never ends behind a modal Dialog keeps moving; the clock is
+        // the test's, so it does not move during the capture.
         expect(
           tester.binding.transientCallbackCount,
-          layoutPortals,
-          reason: 'every ticker is stopped before the capture',
+          layoutPortals + (muteTickers ? 0 : _endless(tester)),
+          reason: 'every other ticker is stopped before the capture',
         );
         _expectSystemFallbackFonts(tester, fileName);
         if (platform == WindowPlatform.mac) {
@@ -376,13 +379,22 @@ Future<void> _alignSpinners(WidgetTester tester) async {
   );
 }
 
-/// Every animation still running is a spinner's turn: nothing else is
-/// stopped mid-flight by [TickerMode].
+/// The animations that never end: the spinners and the indeterminate
+/// progress bars.
+int _endless(WidgetTester tester) =>
+    _spinnerTurns(tester).length +
+    find
+        .byWidgetPredicate((w) => w is ProgressBar && w.indeterminate)
+        .evaluate()
+        .length;
+
+/// Every animation still running never ends: nothing else is stopped
+/// mid-flight by [TickerMode].
 void _expectOnlySpinnersRun(WidgetTester tester, int layoutPortals) {
   expect(
     tester.binding.transientCallbackCount,
-    _spinnerTurns(tester).length + layoutPortals,
-    reason: 'only spinners still animate after settling',
+    _endless(tester) + layoutPortals,
+    reason: 'only spinners and indeterminate bars still animate after settling',
   );
 }
 

@@ -239,36 +239,31 @@ class ShellStatusBar extends ConsumerWidget {
               ),
             // The task (FmWindow `task`, B124): the jobs running, or else the
             // search, whose find bar shows its progress too, or else the
-            // job that finished last. A job's line opens the drawer. FmWindow's
-            // slot, so a long file name ends in an ellipsis.
+            // job that finished last. A job's line opens the drawer. The width
+            // left, so only what does not fit ends in an ellipsis.
             Expanded(
               child: Align(
                 alignment: AlignmentDirectional.centerEnd,
-                child: ConstrainedBox(
-                  constraints: const BoxConstraints(
-                    maxWidth: TaskProgress.inlineSlotWidth,
+                child: switch ((jobLine, find.searched)) {
+                  (final Widget line, _) => TaskDrawerOpener(
+                    label: l10n.tasksOpen,
+                    onPressed: jobs.toggleDrawer,
+                    child: line,
                   ),
-                  child: switch ((jobLine, find.searched)) {
-                    (final Widget line, _) => TaskDrawerOpener(
-                      label: l10n.tasksOpen,
-                      onPressed: jobs.toggleDrawer,
-                      child: line,
+                  (_, final int searched) => TaskProgress(
+                    variant: TaskProgressVariant.inline,
+                    icon: IconName.search,
+                    title: l10n.statusSearching,
+                    detail: l10n.shellPageOf(
+                      format.integer(searched),
+                      format.integer(find.pages),
                     ),
-                    (_, final int searched) => TaskProgress(
-                      variant: TaskProgressVariant.inline,
-                      icon: IconName.search,
-                      title: l10n.statusSearching,
-                      detail: l10n.shellPageOf(
-                        format.integer(searched),
-                        format.integer(find.pages),
-                      ),
-                      value: find.pages == 0 ? 0 : searched / find.pages,
-                      cancelLabel: l10n.findCancel,
-                      onCancel: ref.read(findProvider.notifier).cancel,
-                    ),
-                    _ => null,
-                  },
-                ),
+                    value: find.pages == 0 ? 0 : searched / find.pages,
+                    cancelLabel: l10n.findCancel,
+                    onCancel: ref.read(findProvider.notifier).cancel,
+                  ),
+                  _ => null,
+                },
               ),
             ),
             if (saveState != null)
