@@ -256,12 +256,20 @@ class _SelectState<T> extends State<Select<T>> {
   }
 
   /// Whether the bottom sheet's search keeps [option]; always without a
-  /// search, as on a desktop.
+  /// search, as on a desktop, including when an open list has just widened
+  /// past the phone width and shows every row. The language's casing finds
+  /// "İstanbul" from "ist" in Turkish; the root casing finds Latin names such
+  /// as "Italiano" from "ita" there, as the first-run picker does.
   bool _matches(SelectOption<T> option) {
     final query = _query.text.trim();
-    if (query.isEmpty) return true;
+    if (query.isEmpty || !WindowMetrics.isPhone(context)) return true;
     final casing = LocaleCasing.of(context);
-    return casing.lower(option.label).contains(casing.lower(query));
+    const root = LocaleCasing.root;
+    final queries = {casing.lower(query), root.lower(query)};
+    return [
+      casing.lower(option.label),
+      root.lower(option.label),
+    ].any((label) => queries.any(label.contains));
   }
 
   /// The search changed: keeps the highlight on a row still shown.
@@ -341,7 +349,8 @@ class _SelectState<T> extends State<Select<T>> {
   void _choose(int index) {
     if (index < 0 || index >= widget.options.length) return;
     final option = widget.options[index];
-    if (option.disabled) return;
+    // Or a row the search hides, after a window narrowed under an open list.
+    if (option.disabled || !_matches(option)) return;
     _close();
     widget.onChanged?.call(option.value);
   }

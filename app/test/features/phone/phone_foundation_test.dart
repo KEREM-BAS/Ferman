@@ -168,6 +168,18 @@ void main() {
       }
     });
 
+    testWidgets('Files and Scan are drawn disabled, Settings is not', (
+      tester,
+    ) async {
+      await pumpPhone(tester, PhoneTab.home);
+      final colors = tester.element(find.text('Files')).ferman.colors;
+      Color? colorOf(String label) =>
+          tester.widget<Text>(find.text(label)).style?.color;
+      expect(colorOf('Files'), colors.textDisabled);
+      expect(colorOf('Scan'), colors.textDisabled);
+      expect(colorOf('Settings'), colors.textSecondary);
+    });
+
     testWidgets('Files and Scan say they are not built yet', (tester) async {
       await pumpPhone(tester, PhoneTab.home);
       for (final label in ['Files', 'Scan']) {

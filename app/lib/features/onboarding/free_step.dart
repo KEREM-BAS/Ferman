@@ -225,6 +225,31 @@ class LicenceNote extends StatelessWidget {
     final style = WelcomeStep.noteStyle(context);
     final reason = Feature.projectLinks.disabledReason(context);
     const separator = ' · ';
+    if (WindowMetrics.isPhone(context)) {
+      // Here the line wraps: a separator goes with the link after it, so no
+      // line ends in one.
+      Widget afterSeparator(String label) => Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text(separator, style: style),
+          Flexible(
+            child: OnboardingLink(
+              label: label,
+              style: style,
+              disabledReason: reason,
+            ),
+          ),
+        ],
+      );
+      return Wrap(
+        crossAxisAlignment: WrapCrossAlignment.center,
+        children: [
+          Text(l10n.onboardingFreeLicence, style: style),
+          afterSeparator(l10n.onboardingFreeSourceCode),
+          afterSeparator(l10n.onboardingFreeSupport),
+        ],
+      );
+    }
     return Wrap(
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [

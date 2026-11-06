@@ -303,6 +303,9 @@ class _TooltipState extends State<Tooltip> {
             includeSemantics: false,
             onFocusChange: _onFocusChange,
             child: Listener(
+              // A text field's hover region reports no hit to its parents,
+              // and this must hear the touch all the same.
+              behavior: HitTestBehavior.translucent,
               onPointerDown: _onTouchDown,
               onPointerUp: _onTouchEnd,
               onPointerCancel: _onTouchEnd,

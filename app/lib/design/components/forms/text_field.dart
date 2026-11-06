@@ -5,6 +5,7 @@ import 'package:ferman/design/components/forms/field.dart';
 import 'package:ferman/design/components/forms/field_input.dart';
 import 'package:ferman/design/icons/icon.dart';
 import 'package:ferman/design/theme.dart';
+import 'package:ferman/design/window_metrics.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter/widgets.dart' hide Icon;
@@ -249,6 +250,7 @@ class _TextFieldState extends State<TextField> {
       result = Tooltip(
         message: reason,
         excludeFromSemantics: true,
+        opensOnTouch: WindowMetrics.isPhone(context),
         child: result,
       );
     }

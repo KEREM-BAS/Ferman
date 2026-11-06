@@ -28,9 +28,10 @@ Future<void> _pump(
   String language = 'en',
   EdgeInsets viewInsets = EdgeInsets.zero,
   List<Override> overrides = const [],
+  Size size = _phone,
 }) async {
   tester.view
-    ..physicalSize = _phone
+    ..physicalSize = size
     ..devicePixelRatio = 1;
   addTearDown(tester.view.reset);
   await tester.pumpWidget(
@@ -39,7 +40,7 @@ Future<void> _pump(
       child: componentHost(
         child,
         locale: Locale(language),
-        size: _phone,
+        size: size,
         touch: true,
         viewInsets: viewInsets,
       ),
@@ -288,6 +289,86 @@ void main() {
       await tester.pumpAndSettle();
       expect(find.text('İstanbul'), findsOneWidget);
       expect(find.text('Isparta'), findsNothing);
+    });
+
+    for (final (query, label) in const [
+      ('ita', 'Italiano'),
+      ('indonesia', 'Bahasa Indonesia'),
+      ('İta', 'Italiano'),
+    ]) {
+      testWidgets('in Turkish "$query" finds the Latin name $label', (
+        tester,
+      ) async {
+        await _pump(
+          tester,
+          SizedBox(
+            width: 300,
+            child: Select<String>(
+              label: 'Dil',
+              value: 'x',
+              options: [
+                for (final name in [
+                  'Italiano',
+                  'Bahasa Indonesia',
+                  for (var i = 0; i < 8; i++) 'Dil $i',
+                ])
+                  SelectOption(value: name, label: name),
+              ],
+              onChanged: (_) {},
+            ),
+          ),
+          language: 'tr',
+        );
+        await tester.tap(find.byType(Select<String>));
+        await tester.pumpAndSettle();
+        await tester.enterText(
+          find.descendant(
+            of: find.byType(Scrim),
+            matching: find.byType(TextField),
+          ),
+          query,
+        );
+        await tester.pumpAndSettle();
+        expect(find.text(label), findsOneWidget);
+        expect(find.text('Dil 0'), findsNothing);
+      });
+    }
+
+    testWidgets('a search left behind by a wider window filters nothing', (
+      tester,
+    ) async {
+      int? chosen;
+      Widget select() => SizedBox(
+        width: 300,
+        child: Select<int>(
+          label: 'Region',
+          value: 1,
+          options: [
+            for (var i = 0; i < 12; i++) SelectOption(value: i, label: 'Opt$i'),
+          ],
+          onChanged: (value) => chosen = value,
+        ),
+      );
+      await _pump(tester, select());
+      await tester.tap(find.byType(Select<int>));
+      await tester.pumpAndSettle();
+      await tester.enterText(
+        find.descendant(
+          of: find.byType(Scrim),
+          matching: find.byType(TextField),
+        ),
+        'Opt1',
+      );
+      await tester.pumpAndSettle();
+      expect(find.text('Opt2'), findsNothing);
+      await _pump(tester, select(), size: const Size(900, 852));
+      // The desktop list shows every row, and the keys walk all of them.
+      expect(find.text('Opt2'), findsOneWidget);
+      await tester.sendKeyEvent(LogicalKeyboardKey.arrowDown);
+      await tester.pump();
+      await tester.sendKeyEvent(LogicalKeyboardKey.enter);
+      await tester.pumpAndSettle();
+      expect(chosen, 2);
     });
 
     testWidgets('it stays above the on-screen keyboard', (tester) async {

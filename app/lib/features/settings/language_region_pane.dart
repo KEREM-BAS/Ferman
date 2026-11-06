@@ -49,6 +49,12 @@ class LanguageRegionPane extends ConsumerWidget {
   /// The pane.
   const new({super.key});
 
+  /// The narrowest window that gives the pane its desktop rows; below it, a
+  /// rotated phone included, it is the one column of a13-15b beside the pane
+  /// list. Measured: the rows overflow up to 852 px (a phone on its side) and
+  /// fit at 915 px, in English, Turkish and Arabic (G129).
+  static const double twoColumnsMinWindowWidth = 915;
+
   /// The app language's largest width (`max-width: 380px`).
   static const double appLanguageMaxWidth = 380;
 
@@ -92,6 +98,8 @@ class LanguageRegionPane extends ConsumerWidget {
     final systemRegion = Region.fromLocale(ref.watch(systemLocaleProvider));
     final hint = typography.caption.copyWith(color: colors.textSecondary);
     final phone = WindowMetrics.isPhone(context);
+    final oneColumn =
+        MediaQuery.sizeOf(context).width < twoColumnsMinWindowWidth;
 
     // App language.
     final appLanguage = ConstrainedBox(
@@ -199,6 +207,7 @@ class LanguageRegionPane extends ConsumerWidget {
         band(
           SegmentedControl<PaperSize>(
             semanticLabel: l10n.regionPaperSize,
+            fullWidth: phone,
             value: regionSettings.paperSize,
             options: [
               SegmentOption(value: PaperSize.a4, label: l10n.regionPaperA4),
@@ -228,6 +237,7 @@ class LanguageRegionPane extends ConsumerWidget {
         band(
           SegmentedControl<LengthUnit>(
             semanticLabel: l10n.regionUnits,
+            fullWidth: phone,
             value: regionSettings.lengthUnit,
             options: [
               for (final unit in LengthUnit.values)
@@ -264,7 +274,7 @@ class LanguageRegionPane extends ConsumerWidget {
             ),
           ),
         ),
-        if (phone) ...[
+        if (oneColumn) ...[
           paper,
           units,
         ] else
@@ -297,7 +307,7 @@ class LanguageRegionPane extends ConsumerWidget {
       ],
     );
 
-    if (phone) {
+    if (oneColumn) {
       return Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         spacing: sectionGap,

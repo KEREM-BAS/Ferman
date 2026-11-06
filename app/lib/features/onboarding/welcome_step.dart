@@ -101,6 +101,9 @@ class WelcomeStep extends ConsumerWidget {
   /// The gap in the start column (`gap: 18px`).
   static const double startGap = 18;
 
+  /// Skip's size on a phone (a13-1 `font: 400 17px/1`).
+  static const double phoneSkipSize = 17;
+
   /// The side padding on a phone (a13-1 `padding: 12px 24px`).
   static const double phonePaddingX = 24;
 
@@ -308,10 +311,28 @@ class WelcomeStep extends ConsumerWidget {
                 else
                   const SizedBox.shrink(),
                 if (onSkip case final skip?)
-                  Button(
-                    variant: ButtonVariant.ghost,
+                  FermanInteractive(
                     onPressed: skip,
-                    child: Text(l10n.onboardingSkip),
+                    semanticLabel: l10n.onboardingSkip,
+                    builder: (context, states, _) => FocusRing(
+                      visible: states.contains(WidgetState.focused),
+                      child: Container(
+                        constraints: BoxConstraints(
+                          minWidth: theme.density.hitMin,
+                          minHeight: theme.density.hitMin,
+                        ),
+                        alignment: AlignmentDirectional.centerEnd,
+                        child: ExcludeSemantics(
+                          child: Text(
+                            l10n.onboardingSkip,
+                            style: theme.typography.body.copyWith(
+                              fontSize: phoneSkipSize,
+                              color: theme.colors.textAccent,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
                   ),
               ],
             ),

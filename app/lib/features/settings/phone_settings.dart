@@ -51,7 +51,9 @@ class PhoneSettingsList extends ConsumerWidget {
       value: value,
       disabledReason: pane.feature?.disabledReason(context),
       onPressed: pane.available
-          ? () => context.push<void>(Routes.settingsPane(pane.path))
+          // `extra`: this pane sits on the list (FmSettings.aboveList).
+          ? () =>
+                context.push<void>(Routes.settingsPane(pane.path), extra: true)
           : null,
     );
 
@@ -204,9 +206,16 @@ class PhoneSettingsRow extends StatelessWidget {
   /// The text's size (`font: 400 16px/1`).
   static const double textSize = 16;
 
-  /// The value's largest width, so the name keeps its room at 320 px; the
-  /// board's longest value, "No data collected", fits.
+  /// The value's largest width, so the name keeps its room; the board's
+  /// longest value, "No data collected", fits on one line.
   static const double valueMaxWidth = 140;
+
+  /// The same under [narrowWindow], where that value takes two lines and the
+  /// name keeps a whole word.
+  static const double valueMaxWidthNarrow = 110;
+
+  /// The window width under which [valueMaxWidthNarrow] applies.
+  static const double narrowWindow = 360;
 
   /// The pane's icon.
   final IconName icon;
@@ -282,11 +291,16 @@ class PhoneSettingsRow extends StatelessWidget {
                 ),
                 if (current != null)
                   ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: valueMaxWidth),
+                    constraints: BoxConstraints(
+                      maxWidth: MediaQuery.sizeOf(context).width < narrowWindow
+                          ? valueMaxWidthNarrow
+                          : valueMaxWidth,
+                    ),
                     child: ExcludeSemantics(
                       child: Text(
                         current,
-                        maxLines: 1,
+                        textAlign: TextAlign.end,
+                        maxLines: 2,
                         overflow: TextOverflow.ellipsis,
                         style: style.copyWith(color: colors.textTertiary),
                       ),

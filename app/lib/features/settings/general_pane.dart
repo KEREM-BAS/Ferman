@@ -120,6 +120,7 @@ class GeneralPane extends ConsumerWidget {
             band(
               SegmentedControl<AppThemeMode>(
                 semanticLabel: l10n.settingsTheme,
+                fullWidth: phone,
                 value: mode,
                 options: [
                   SegmentOption(

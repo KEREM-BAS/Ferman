@@ -262,7 +262,12 @@ class _NavItem extends StatelessWidget {
       selected: selected,
       tooltipSide: TooltipSide.top,
       builder: (context, states, _) {
-        final color = selected ? colors.textAccent : colors.textSecondary;
+        final disabled = states.contains(WidgetState.disabled);
+        final color = selected
+            ? colors.textAccent
+            : disabled
+            ? colors.textDisabled
+            : colors.textSecondary;
         return Column(
           mainAxisAlignment: MainAxisAlignment.center,
           spacing: theme.space.space1,
@@ -285,7 +290,7 @@ class _NavItem extends StatelessWidget {
               child: Icon(
                 icon,
                 size: theme.density.iconLg,
-                color: color,
+                color: disabled ? colors.iconDisabled : color,
                 strokeWidth: selected ? strokeSelected : stroke,
               ),
             ),

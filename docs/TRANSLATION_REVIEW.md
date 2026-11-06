@@ -52,7 +52,7 @@ The table below is generated from the ARB files by `tools/l10n`
 
 <!-- BEGIN GENERATED TRANSLATION TABLE: tools/l10n, dart run l10n:review_table -->
 
-606 messages in `app_en.arb`; translated: Turkish 606, Arabic 606.
+607 messages in `app_en.arb`; translated: Turkish 607, Arabic 607.
 
 | Key | English | Turkish | Arabic | Context |
 |---|---|---|---|---|
@@ -483,6 +483,7 @@ The table below is generated from the ARB files by `tools/l10n`
 | `startPhoneSourceDownloads` | Downloads | İndirilenler | التنزيلات | Phone home: a place to open from, the phone's downloads folder (FmMHome sources). |
 | `startPhoneSourceGoogleDrive` | Google Drive | Google Drive | Google Drive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
 | `startPhoneSourceOneDrive` | OneDrive | OneDrive | OneDrive | Phone home: a place to open from, a product name that stays as it is (FmMHome sources). |
+| `startPhoneRecent` | Recent | Son açılanlar | الأخيرة | Phone home: heading of the recent files (FmMHome recent). |
 | `startPinned` | Pinned | Sabitlenenler | المثبّتة | Heading of the pinned files on the start screen (a1-4, FmStart pinned). |
 | `startPin` | Pin | Sabitle | تثبيت | Accessible name and tooltip of the button that pins a recent file above the list (not drawn, G118). |
 | `startUnpin` | Unpin | Sabitlemeyi kaldır | إلغاء التثبيت | Accessible name and tooltip of a pinned file’s pin button (a1-4, FmStart unpin). |

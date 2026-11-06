@@ -1447,6 +1447,9 @@ class AppLocalizationsTr extends AppLocalizations {
   String get startPhoneSourceOneDrive => 'OneDrive';
 
   @override
+  String get startPhoneRecent => 'Son açılanlar';
+
+  @override
   String get startPinned => 'Sabitlenenler';
 
   @override

@@ -129,6 +129,7 @@ GoRouter router(Ref ref) {
             path: '${Routes.settings}/:pane',
             builder: (context, state) => FmSettings(
               initialPane: SettingsPane.fromPath(state.pathParameters['pane']),
+              aboveList: state.extra == true,
             ),
           ),
         ],

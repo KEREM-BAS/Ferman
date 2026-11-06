@@ -1880,6 +1880,10 @@
   "@startPhoneSourceOneDrive": {
     "description": "Phone home: a place to open from, a product name that stays as it is (FmMHome sources)."
   },
+  "startPhoneRecent": "Recent",
+  "@startPhoneRecent": {
+    "description": "Phone home: heading of the recent files (FmMHome recent)."
+  },
   "startPinned": "Pinned",
   "@startPinned": {
     "description": "Heading of the pinned files on the start screen (a1-4, FmStart pinned)."

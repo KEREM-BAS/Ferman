@@ -553,17 +553,77 @@ class _PhoneHome extends ConsumerWidget {
                   theme.space.space4,
                   theme.space.space1,
                   theme.space.space4,
-                  theme.space.space4,
+                  // The last row can scroll clear of the FAB.
+                  theme.space.space4 +
+                      (hasRecent
+                          ? _PhoneOpenFab.size + _PhoneOpenFab.margin
+                          : 0),
                 ),
                 child: page,
               ),
             ),
           ),
         ),
+        if (hasRecent)
+          const PositionedDirectional(
+            end: _PhoneOpenFab.margin,
+            bottom: FmPhone.navBarHeight + _PhoneOpenFab.margin,
+            child: _PhoneOpenFab(),
+          ),
         const DefaultAppPrompt(),
       ],
     );
   }
+}
+
+/// a13-2c's FAB, for the home with files: Open a file, in the disabled colours
+/// while it cannot open anything. The empty home has the same action as a
+/// button (a13-2e), so it draws none.
+class _PhoneOpenFab extends ConsumerWidget {
+  const new();
+
+  /// The side (`width: 56px`).
+  static const double size = 56;
+
+  /// The margin to the end and to the navigation bar (`inset-inline-end:
+  /// 16px`, `bottom: 96px` over the 80 px bar).
+  static const double margin = 16;
+
+  /// The icon (`size="{{ 24 }}"`).
+  static const double iconSize = 24;
+
+  /// The icon's stroke (`stroke-width="{{ 2 }}"`).
+  static const double iconStroke = 2;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) => FermanInteractive(
+    onPressed: openFiles(context, ref),
+    disabledReason: openFilesDisabledReason(context, ref),
+    semanticLabel: AppLocalizations.of(context).startPhoneOpen,
+    builder: (context, states, _) {
+      final theme = context.ferman;
+      final colors = theme.colors;
+      final disabled = states.contains(WidgetState.disabled);
+      return Container(
+        width: size,
+        height: size,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: disabled ? colors.surfaceSunken : colors.accent,
+          borderRadius: BorderRadius.all(
+            Radius.circular(theme.radius.radiusXl),
+          ),
+          boxShadow: theme.elevation.shadowPopover,
+        ),
+        child: Icon(
+          IconName.plus,
+          size: iconSize,
+          strokeWidth: iconStroke,
+          color: disabled ? colors.iconDisabled : colors.textOnAccent,
+        ),
+      );
+    },
+  );
 }
 
 /// A quick tool of the phone's home (FmMHome `tools`): an icon on a raised

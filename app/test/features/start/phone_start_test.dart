@@ -10,6 +10,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/fake_file_picker.dart';
 import '../../helpers/phone_golden.dart';
+import '../../helpers/text_fit.dart';
 import '../onboarding/ferman_app_harness.dart';
 
 const _reason = 'Available in a future version';
@@ -123,7 +124,12 @@ void main() {
 
     testWidgets('a touch on a disabled control says why', (tester) async {
       await pumpFermanApp(tester, size: goldenPhoneSize, engine: _webEngine);
-      for (final label in ['Compress', 'Scan a document', 'OneDrive']) {
+      for (final label in [
+        'Compress',
+        'Scan a document',
+        'OneDrive',
+        'Search documents',
+      ]) {
         final gesture = await tester.startGesture(
           tester.getCenter(find.text(label)),
         );
@@ -180,6 +186,32 @@ void main() {
       expect(find.text('No documents yet'), findsNothing);
     });
 
+    testWidgets("the heading is the phone board's word in Turkish", (
+      tester,
+    ) async {
+      await pumpFermanApp(
+        tester,
+        size: goldenPhoneSize,
+        settings: _in('tr'),
+        recentFiles: _files,
+      );
+      expect(find.text('Son açılanlar'), findsOneWidget);
+      expect(find.text('Son kullanılanlar'), findsNothing);
+    });
+
+    testWidgets('at 320 px a meta line wraps: only names are cut', (
+      tester,
+    ) async {
+      await pumpFermanApp(
+        tester,
+        size: const Size(320, 2000),
+        recentFiles: _files,
+      );
+      final cut = textFitProblems(tester)
+          .where((problem) => !problem.text.endsWith('.pdf'));
+      expect(cut, isEmpty);
+    });
+
     testWidgets('a recent file on the web says why it does not open', (
       tester,
     ) async {
@@ -196,6 +228,39 @@ void main() {
       expect(find.text(_reason), findsOneWidget);
       await gesture.up();
       await tester.pump(const Duration(seconds: 3));
+    });
+  });
+
+  group('the FAB of a13-2c', () {
+    final fab = find.byWidgetPredicate(
+      (widget) =>
+          widget is FermanInteractive && widget.semanticLabel == 'Open a file',
+    );
+
+    testWidgets('is disabled on the web, with its reason', (tester) async {
+      await pumpFermanApp(
+        tester,
+        size: goldenPhoneSize,
+        recentFiles: _files,
+        engine: _webEngine,
+      );
+      expect(fab, findsOneWidget);
+      final item = tester.widget<FermanInteractive>(fab);
+      expect(item.onPressed, isNull);
+      expect(item.disabledReason, _reason);
+      expect(tester.getSize(fab), const Size.square(56));
+    });
+
+    testWidgets('the empty home has the button instead', (tester) async {
+      await pumpFermanApp(tester, size: goldenPhoneSize, engine: _webEngine);
+      expect(find.text('Open a file'), findsOneWidget);
+      expect(
+        find.ancestor(
+          of: find.text('Open a file'),
+          matching: find.byType(Button),
+        ),
+        findsOneWidget,
+      );
     });
   });
 

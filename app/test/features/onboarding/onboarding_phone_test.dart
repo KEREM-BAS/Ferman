@@ -1,4 +1,5 @@
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/design/theme.dart';
 import 'package:ferman/features/onboarding/free_step.dart';
 import 'package:ferman/features/onboarding/language_picker.dart';
 import 'package:ferman/features/onboarding/onboarding_link.dart';
@@ -264,6 +265,27 @@ void main() {
         expect(link.onPressed, isNull);
         expect(link.disabledReason, 'Available in a future version');
       }
+    });
+
+    testWidgets('Skip is the accent link of a13-1, at 44 px', (tester) async {
+      await _open(tester, M1Screen.privacyStep);
+      final skip = find.text('Skip');
+      final text = tester.widget<Text>(skip);
+      expect(text.style?.color, tester.element(skip).ferman.colors.textAccent);
+      expect(text.style?.fontSize, WelcomeStep.phoneSkipSize);
+      final target = find
+          .ancestor(of: skip, matching: find.byType(FermanInteractive))
+          .first;
+      expect(tester.getSize(target).height, greaterThanOrEqualTo(44));
+    });
+
+    testWidgets('no line of the licence note ends in a separator', (
+      tester,
+    ) async {
+      await _open(tester, M1Screen.freeStep, languageCode: 'tr');
+      final support = tester.getCenter(find.text('Projeyi destekleyin'));
+      final separator = tester.getCenter(find.text(' · ').last);
+      expect(separator.dy, support.dy);
     });
   });
 }

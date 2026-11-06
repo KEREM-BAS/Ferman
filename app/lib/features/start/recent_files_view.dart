@@ -265,7 +265,7 @@ class _RecentFilesViewState extends ConsumerState<RecentFilesView> {
             Row(
               spacing: theme.space.space2,
               children: [
-                Expanded(child: Text(l10n.startRecent, style: title)),
+                Expanded(child: Text(l10n.startPhoneRecent, style: title)),
                 Button(
                   variant: ButtonVariant.ghost,
                   size: ButtonSize.sm,
@@ -761,6 +761,7 @@ class _NameAndMeta extends StatelessWidget {
     required this.meta,
     this.nameStyle,
     this.metaStyle,
+    this.metaWraps = false,
   });
 
   final String name;
@@ -771,6 +772,11 @@ class _NameAndMeta extends StatelessWidget {
 
   /// In place of the caption; it keeps the tertiary colour.
   final TextStyle? metaStyle;
+
+  /// Whether the meta line wraps instead of ending in an ellipsis: a phone
+  /// row beside a badge is too narrow for a date and page count at 320 px,
+  /// and FmMHome clips only the name.
+  final bool metaWraps;
 
   @override
   Widget build(BuildContext context) {
@@ -791,9 +797,9 @@ class _NameAndMeta extends StatelessWidget {
         ),
         Text(
           meta,
-          maxLines: 1,
-          softWrap: false,
-          overflow: TextOverflow.ellipsis,
+          maxLines: metaWraps ? null : 1,
+          softWrap: metaWraps,
+          overflow: metaWraps ? null : TextOverflow.ellipsis,
           style: (metaStyle ?? theme.typography.caption).copyWith(
             color: theme.colors.textTertiary,
             fontFeatures: theme.typeScale.numericTabular,
@@ -1512,6 +1518,7 @@ class _PhoneRecentRow extends StatelessWidget {
                           child: _NameAndMeta(
                             name: file.name,
                             meta: meta,
+                            metaWraps: true,
                             nameStyle: theme.typography.bodyStrong.copyWith(
                               fontSize: nameSize,
                               height: nameHeight,

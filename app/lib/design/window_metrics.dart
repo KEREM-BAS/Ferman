@@ -43,7 +43,9 @@ abstract final class WindowMetrics {
   /// Below this width the phone layout replaces the desktop one (G129): the
   /// phone boards are 393 and 412 px wide, and 768 px is where the desktop
   /// screens stop overflowing, measured on first run, the start screen and
-  /// Settings. Desktop windows never get this narrow ([minimumWidth]).
+  /// Settings. Desktop windows do not get this narrow on macOS and Windows
+  /// ([minimumWidth]); on Linux the minimum is a hint that a tiling window
+  /// manager can ignore, and such a window takes the phone layout (G129).
   static const double phoneMaxWidth = 768;
 
   /// Whether a [width] takes the phone layout.

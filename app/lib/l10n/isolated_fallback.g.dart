@@ -1432,6 +1432,9 @@ final class IsolatedFallbackLocalizations extends AppLocalizationsEn {
       isolate(super.startPhoneSourceOneDrive);
 
   @override
+  String get startPhoneRecent => isolate(super.startPhoneRecent);
+
+  @override
   String get startPinned => isolate(super.startPinned);
 
   @override

@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:ferman/app/feature_registry.dart';
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
@@ -50,11 +52,16 @@ import 'package:go_router/go_router.dart';
 /// on the phone boards, so it is left out there.
 class FmSettings extends ConsumerStatefulWidget {
   /// Settings on [initialPane].
-  const new({super.key, this.initialPane});
+  const new({super.key, this.initialPane, this.aboveList = false});
 
   /// The pane shown first: General when null, or at phone width the list of
   /// panes.
   final SettingsPane? initialPane;
+
+  /// Whether this pane's route was pushed from the phone's list. When the
+  /// window widens, the two routes draw the same desktop Settings, so closing
+  /// it leaves them both.
+  final bool aboveList;
 
   /// The pane list's width (`width: 240px`).
   static const double navWidth = 240;
@@ -106,6 +113,34 @@ class FmSettings extends ConsumerStatefulWidget {
 
 class _FmSettingsState extends ConsumerState<FmSettings> {
   late SettingsPane _pane = widget.initialPane ?? SettingsPane.general;
+  final FocusNode _focus = FocusNode(debugLabel: 'FmSettings');
+  bool? _wasPhone;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    final phone = WindowMetrics.isPhone(context);
+    if (_wasPhone != null && _wasPhone != phone) {
+      // Crossing the phone width rebuilds the screen below, and its autofocus
+      // takes the focus off this route, so Esc would stop working here. The
+      // manager applies that autofocus in a microtask of its own, queued
+      // during the build, so this one, queued after the frame, comes last.
+      WidgetsBinding.instance.addPostFrameCallback(
+        (_) => scheduleMicrotask(() {
+          if (mounted && (ModalRoute.isCurrentOf(context) ?? false)) {
+            _focus.requestFocus();
+          }
+        }),
+      );
+    }
+    _wasPhone = phone;
+  }
+
+  @override
+  void dispose() {
+    _focus.dispose();
+    super.dispose();
+  }
 
   @override
   void didUpdateWidget(FmSettings oldWidget) {
@@ -123,10 +158,18 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
     final platform = ref.watch(shortcutPlatformProvider);
     final saveFailed = ref.watch(settingsSaveFailedProvider);
     final phone = WindowMetrics.isPhone(context);
-    final phonePane = widget.initialPane;
-    void close() => phone && phonePane != null
-        ? FmSettings.closePane(context)
-        : FmSettings.close(context);
+    // A pane route stays on the pane chosen in the side list while it was
+    // wide, so narrowing the window does not go back to the first one.
+    final phonePane = widget.initialPane == null ? null : _pane;
+    void close() {
+      if (phone && phonePane != null) {
+        FmSettings.closePane(context);
+        return;
+      }
+      if (!phone && widget.aboveList && context.canPop()) context.pop();
+      FmSettings.close(context);
+    }
+
     Widget framed(Widget child) => CallbackShortcuts(
       bindings: {
         const SingleActivator(LogicalKeyboardKey.escape): close,
@@ -135,6 +178,7 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
       },
       child: FocusTraversalGroup(
         child: Focus(
+          focusNode: _focus,
           autofocus: true,
           // Holds focus when Settings opens, so Esc works at once, but is no
           // Tab stop of its own.
@@ -161,15 +205,12 @@ class _FmSettingsState extends ConsumerState<FmSettings> {
           tab: PhoneTab.settings,
           child: phonePane == null
               ? const PhoneSettingsList()
-              : ColoredBox(
-                  color: colors.surfaceRaised,
-                  child: SingleChildScrollView(
-                    padding: EdgeInsets.all(theme.space.space4),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      spacing: FmSettings.paneGap,
-                      children: [?banner, _paneBody(phonePane)],
-                    ),
+              : SingleChildScrollView(
+                  padding: EdgeInsets.all(theme.space.space4),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.stretch,
+                    spacing: FmSettings.paneGap,
+                    children: [?banner, _paneBody(phonePane)],
                   ),
                 ),
         ),

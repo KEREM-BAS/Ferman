@@ -2,7 +2,9 @@ import 'dart:async';
 
 import 'package:ferman/app/router.dart';
 import 'package:ferman/design/components/components.dart';
+import 'package:ferman/features/settings/language_region_pane.dart';
 import 'package:ferman/features/settings/phone_settings.dart';
+import 'package:ferman/features/settings/privacy_pane.dart';
 import 'package:ferman/features/settings/settings_pane.dart';
 import 'package:ferman/features/settings/settings_screen.dart';
 import 'package:ferman/features/start/start_screen.dart';
@@ -14,6 +16,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../helpers/phone_golden.dart';
+import '../../helpers/text_fit.dart';
 import '../onboarding/ferman_app_harness.dart';
 
 const _future = 'Available in a future version';
@@ -116,6 +119,36 @@ void main() {
       await tester.sendKeyEvent(LogicalKeyboardKey.escape);
       await tester.pumpAndSettle();
       _leftStart(tester);
+    });
+
+    testWidgets('rotated wide, one close leaves the list and the pane', (
+      tester,
+    ) async {
+      await pumpFermanApp(tester, size: goldenPhoneSize);
+      await _open(tester);
+      await _scrollAndTap(tester, _row('Privacy'));
+      tester.view.physicalSize = const Size(852, 393);
+      await tester.pumpAndSettle();
+      await tester.sendKeyEvent(LogicalKeyboardKey.escape);
+      await tester.pumpAndSettle();
+      _leftStart(tester);
+    });
+
+    testWidgets('rotated back, the pane chosen while wide stays', (
+      tester,
+    ) async {
+      await pumpFermanApp(tester, size: goldenPhoneSize);
+      await _open(tester);
+      await _scrollAndTap(tester, _row('Privacy'));
+      tester.view.physicalSize = const Size(1024, 700);
+      await tester.pumpAndSettle();
+      await tester.tap(find.text('Language and region'));
+      await tester.pumpAndSettle();
+      tester.view.physicalSize = goldenPhoneSize;
+      await tester.pumpAndSettle();
+      expect(tester.takeException(), isNull);
+      expect(find.byType(LanguageRegionPane), findsOneWidget);
+      expect(find.byType(PrivacyPane), findsNothing);
     });
 
     testWidgets('a pane opened directly goes back to the list', (tester) async {
@@ -231,6 +264,7 @@ void main() {
       ('en', 393.0),
       ('tr', 393.0),
       ('ar', 393.0),
+      ('en', 320.0),
       ('tr', 320.0),
       ('ar', 320.0),
     ]) {
@@ -253,6 +287,7 @@ void main() {
             size: Size(width, 2000),
           );
           await _open(tester, pane);
+          expect(textFitProblems(tester), isEmpty);
           final view = tester.view.physicalSize.width;
           for (final element in find.byType(FermanInteractive).evaluate()) {
             final box = element.renderObject! as RenderBox;
@@ -267,6 +302,54 @@ void main() {
               height,
               greaterThanOrEqualTo(44),
               reason: element.widget.toStringShort(),
+            );
+          }
+        });
+      }
+    }
+  });
+
+  group('a phone on its side', () {
+    for (final width in const [768.0, 800.0, 844.0, 852.0, 900.0, 915.0]) {
+      for (final code in const ['en', 'tr', 'ar']) {
+        testWidgets('Language and region fits $width px in $code', (
+          tester,
+        ) async {
+          await pumpFermanApp(
+            tester,
+            settings: AppSettings(
+              onboardingCompleted: true,
+              languageCode: code,
+            ),
+            size: Size(width, 393),
+          );
+          await _open(tester, SettingsPane.language);
+          expect(textFitProblems(tester), isEmpty);
+        });
+      }
+    }
+  });
+
+  group('a segment takes a finger in both directions', () {
+    for (final width in const [320.0, 393.0]) {
+      for (final (pane, labels) in const [
+        (SettingsPane.general, ['Match system', 'Light', 'Dark']),
+        (SettingsPane.language, ['A4', 'Letter', 'in', 'cm', 'mm', 'pt']),
+      ]) {
+        testWidgets('${pane.path} at $width', (tester) async {
+          await pumpFermanApp(tester, size: Size(width, 2000));
+          await _open(tester, pane);
+          for (final label in labels) {
+            final segment = find
+                .ancestor(
+                  of: find.text(label),
+                  matching: find.byType(FermanInteractive),
+                )
+                .first;
+            expect(
+              tester.getSize(segment).width,
+              greaterThanOrEqualTo(44),
+              reason: label,
             );
           }
         });

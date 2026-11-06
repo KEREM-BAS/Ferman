@@ -1441,6 +1441,9 @@ class AppLocalizationsEn extends AppLocalizations {
   String get startPhoneSourceOneDrive => 'OneDrive';
 
   @override
+  String get startPhoneRecent => 'Recent';
+
+  @override
   String get startPinned => 'Pinned';
 
   @override

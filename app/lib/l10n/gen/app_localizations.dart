@@ -2667,6 +2667,12 @@ abstract class AppLocalizations {
   /// **'OneDrive'**
   String get startPhoneSourceOneDrive;
 
+  /// Phone home: heading of the recent files (FmMHome recent).
+  ///
+  /// In en, this message translates to:
+  /// **'Recent'**
+  String get startPhoneRecent;
+
   /// Heading of the pinned files on the start screen (a1-4, FmStart pinned).
   ///
   /// In en, this message translates to:
