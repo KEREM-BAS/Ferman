@@ -20,6 +20,7 @@ members = ["."]
 libfuzzer-sys = "0.4.13"
 ferman-core = { path = "../crates/ferman-core", features = ["fuzzing"] }
 ferman-fonts = { path = "../crates/ferman-fonts" }
+ferman-ops = { path = "../crates/ferman-ops" }
 ferman-text = { path = "../crates/ferman-text" }
 
 [lints.clippy]
@@ -187,6 +188,13 @@ bench = false
 [[bin]]
 name = "subsetting"
 path = "fuzz_targets/subsetting.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "image_layer"
+path = "fuzz_targets/image_layer.rs"
 test = false
 doc = false
 bench = false

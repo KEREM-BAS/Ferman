@@ -14,7 +14,8 @@
 //!
 //! # Planned modules
 //!
-//! Operations start in M4, one module per family; [`pages`] has rotate so far:
+//! Operations start in M4, one module per family; [`pages`] has rotate so far, and [`images`] holds
+//! what several of them need from an image file:
 //!
 //! - `pages`: insert, delete, move, duplicate, extract, replace, crop and page labels.
 //! - `combine`: combine and split.
@@ -25,6 +26,7 @@
 //! - `history`: version-history snapshots.
 #![forbid(unsafe_code)]
 
+pub mod images;
 pub mod pages;
 
 /// The version of this crate, reported by `engine_info()` in ferman-api.
@@ -45,6 +47,9 @@ pub enum OpsError {
     /// A ferman-fonts operation failed.
     #[error(transparent)]
     Font(#[from] ferman_fonts::FontError),
+    /// Image bytes that no decoder Ferman has can read, or a JPEG a PDF cannot carry as it is.
+    #[error("the image cannot be read")]
+    UnreadableImage,
     /// An internal invariant did not hold. This is a bug in Ferman, reported as an error instead of
     /// a panic (ADR 0010).
     #[error("internal error in ferman-ops: {context}")]

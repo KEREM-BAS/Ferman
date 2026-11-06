@@ -885,7 +885,11 @@ impl RevisionStore {
         let mut sizes = self.open_decoded.clone();
         for (id, object) in &queued {
             if let Object::Stream(stream) = object {
-                let size = decoded(stream, doc)?.len();
+                let size = match decoded(stream, doc) {
+                    // Kept encoded, as a JPEG is: what it holds here is its stored bytes.
+                    Err(CoreError::Unsupported(crate::Unsupported::Filter)) => stream.content.len(),
+                    other => other?.len(),
+                };
                 sizes.insert(*id, u64::try_from(size).unwrap_or(u64::MAX));
             } else {
                 sizes.remove(id);

@@ -7,10 +7,10 @@
 // Values come from the file (.claude/rules/rust.md).
 #![deny(clippy::indexing_slicing, clippy::arithmetic_side_effects)]
 
-use lopdf::{Dictionary, Object, ObjectId, StringFormat};
+use lopdf::{Dictionary, Object, ObjectId, Stream, StringFormat};
 
 use crate::revision::{RevisionStore, compressed, decoded, free};
-use crate::{CoreError, Document};
+use crate::{CoreError, Document, Unsupported};
 
 /// An object's number and generation, opaque above ferman-core.
 #[derive(Debug, Clone, Copy, PartialEq, Eq, Hash, PartialOrd, Ord)]
@@ -43,6 +43,14 @@ pub enum Value {
         /// The decoded data.
         data: Vec<u8>,
     },
+    /// A stream whose data stays encoded, such as a JPEG: its dictionary's `/Filter` says how, and
+    /// the bytes are written as they are. Its `/Length` is the writer's.
+    Encoded {
+        /// The dictionary, with its `/Filter`.
+        dict: Vec<(Vec<u8>, Value)>,
+        /// The encoded data.
+        data: Vec<u8>,
+    },
     /// A reference to another object.
     Reference(ObjectRef),
 }
@@ -71,11 +79,13 @@ impl Value {
                 }
                 Object::Stream(compressed(dict, &data)?)
             }
+            Self::Encoded { dict, data } => Object::Stream(Stream::new(dictionary(dict)?, data)),
             Self::Reference(ObjectRef(id)) => Object::Reference(id),
         })
     }
 
-    /// This value for the model's `object`, a stream's data decoded within `doc`'s limits.
+    /// This value for the model's `object`, a stream's data decoded within `doc`'s limits, or left
+    /// encoded under a filter ferman-core does not decode.
     fn of(object: &Object, doc: &Document) -> Result<Self, CoreError> {
         Ok(match object {
             Object::Null => Self::Null,
@@ -91,9 +101,16 @@ impl Value {
                     .collect::<Result<_, _>>()?,
             ),
             Object::Dictionary(dict) => Self::Dictionary(entries(dict, doc)?),
-            Object::Stream(stream) => Self::Stream {
-                dict: entries(&stream.dict, doc)?,
-                data: decoded(stream, doc)?,
+            Object::Stream(stream) => match decoded(stream, doc) {
+                Ok(data) => Self::Stream {
+                    dict: entries(&stream.dict, doc)?,
+                    data,
+                },
+                Err(CoreError::Unsupported(Unsupported::Filter)) => Self::Encoded {
+                    dict: entries(&stream.dict, doc)?,
+                    data: stream.content.clone(),
+                },
+                Err(other) => return Err(other),
             },
             Object::Reference(id) => Self::Reference(ObjectRef(*id)),
         })
@@ -396,5 +413,24 @@ mod tests {
         store.commit().unwrap();
         store.undo().unwrap();
         assert_eq!(store.object(&doc, first).unwrap(), None);
+    }
+
+    #[test]
+    fn an_encoded_stream_keeps_its_bytes_through_a_save() {
+        let doc = opened(vec![dictionary! {}], |_| {});
+        let mut store = RevisionStore::new(&doc);
+        store.begin().unwrap();
+        let jpeg = Value::Encoded {
+            dict: vec![(b"Filter".to_vec(), Value::Name(b"DCTDecode".to_vec()))],
+            data: b"not decoded".to_vec(),
+        };
+        let id = store.add_object(&doc, jpeg).unwrap();
+        store.commit().unwrap();
+        let Some(Value::Encoded { data, .. }) = store.object(&doc, id).unwrap() else {
+            panic!("not left encoded");
+        };
+        assert_eq!(data, b"not decoded");
+        let saved = store.incremental_update(&doc).unwrap();
+        assert!(saved.windows(11).any(|bytes| bytes == b"not decoded"));
     }
 }

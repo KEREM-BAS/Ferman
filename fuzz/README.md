@@ -65,6 +65,7 @@ cargo deny --manifest-path fuzz/Cargo.toml check
 | `open_document` | the whole open path: header, cross-reference data, repair, security, lopdf and the structure scan | arbitrary bytes as a file; the password `fuzz` when the first byte is odd |
 | `recovery_journal` | the recovery journal's records and their objects, and the manifest parser, whose manifests must read back from the JSON they write | arbitrary bytes, as they are, framed as one record (the checksum random bytes never pass), and as a record's objects and a manifest |
 | `writer_round_trip` | the incremental writer: changes, undo and redo over two generations; the file before stays a prefix, the update reopens without repair, every object written reads back | arbitrary bytes as a file when they open clean, and as a script of changes to it, or to the classic, modern or encrypted (AES-128, AES-256, RC4) file the first byte chooses |
+| `image_layer` | the image layer of ferman-ops and the `image` crate's decoders behind it: PNG, JPEG (with CMYK), TIFF, WebP and GIF, to a limit of 2^20 pixels; what comes out fits the size it reports | arbitrary bytes as a file, then as a JPEG; with `seeds/images` |
 | `edit_script` | rewriting blocks of corpus pages through ferman-text and the splicer, undo, redo and saves: only the splices' bytes change, a saved file keeps the original as a prefix and reopens with the same content, undoing everything gives back the original | a corpus file from the first byte, then a script of operations on its pages and blocks, with the new text |
 
 The filter targets' checks are in `src/lib.rs`:
@@ -89,6 +90,11 @@ whole font. `font_program` takes its font the same way. To reach CFF, CI and the
 font drawn by `seeds/make_cff_seed.py` for this purpose, with no third-party outlines. Run them by
 hand with `cargo fuzz run font_program corpus/font_program seeds/fonts`. Their text comes from
 `text_from`, so every script turns up.
+
+`image_layer` starts from `seeds/images`, which CI and the nightly run pass to it: a few pixels each,
+written by the `image` crate's encoders, and two CMYK JPEGs put together by hand as `handmade_jpeg`
+in `crates/ferman-ops/src/images.rs` does, since that crate has no CMYK encoder. A test there loads
+them all, and `crates/ferman-api/tests/images.rs` has PDFium draw them.
 
 AddressSanitizer and libFuzzer's time and memory limits catch the rest.
 
